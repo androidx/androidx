@@ -23,16 +23,15 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.ContextMenu.ContextMenuInfo;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -42,15 +41,57 @@ import java.util.HashMap;
 /**
  * Base class for activities that want to use the support-based Fragment and
  * Loader APIs.
+ *
+ * <p>Known issues and limitations:</p>
+ * <ul>
+ * <li> <p>When using the &lt;fragment> tag, this implementation can not
+ * use the parent view's ID as the new fragment's ID.  You must explicitly
+ * specify an ID (or tag) in the &lt;fragment>.</p>
+ * <li> <p>The options menu can not currently be invalidated (causing it to be
+ * rebuilt).  Your activity will need to build an options menu containing all
+ * items that may be shown by fragment it contains.  The prepareOptionsMenu()
+ * method is called every time the menu is shown, allowing items to be hidden
+ * or shown.</p>
+ * <li> <p>Prior to Honeycomb (3.0), an activity's state was saved before pausing.
+ * Fragments are a significant amount of new state, and dynamic enough that one
+ * often wants them to change between pausing and stopping.  These classes
+ * throw an exception if you try to change the fragment state after it has been
+ * saved, to avoid accidental loss of UI state.  However this is too restrictive
+ * prior to Honeycomb, where the state is saved before pausing.  To address this,
+ * when running on platforms prior to Honeycomb an exception will not be thrown
+ * if you change fragments between the state save and the activity being stopped.
+ * This means that is some cases if the activity is restored from its last saved
+ * state, this may be a snapshot slightly before what the user last saw.</p>
+ * </ul>
  */
 public class FragmentActivity extends Activity {
     private static final String TAG = "FragmentActivity";
     
     private static final String FRAGMENTS_TAG = "android:support:fragments";
     
-    final Handler mHandler = new Handler();
+    static final int MSG_REALLY_STOPPED = 1;
+
+    final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_REALLY_STOPPED:
+                    if (mStopped) {
+                        doReallyStop(false);
+                    }
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+
+    };
     final FragmentManagerImpl mFragments = new FragmentManagerImpl();
     
+    boolean mResumed;
+    boolean mStopped;
+    boolean mReallyStopped;
+
     boolean mCheckedForLoaderManager;
     boolean mLoadersStarted;
     HCSparseArray<LoaderManagerImpl> mAllLoaderManagers;
@@ -249,6 +290,9 @@ public class FragmentActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        doReallyStop(false);
+
         mFragments.dispatchDestroy();
         if (mLoaderManager != null) {
             mLoaderManager.doDestroy();
@@ -320,6 +364,7 @@ public class FragmentActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        mResumed = false;
         mFragments.dispatchPause();
     }
 
@@ -361,6 +406,7 @@ public class FragmentActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        mResumed = true;
         mFragments.execPendingActions();
     }
 
@@ -370,6 +416,10 @@ public class FragmentActivity extends Activity {
      */
     @Override
     public final Object onRetainNonConfigurationInstance() {
+        if (mStopped) {
+            doReallyStop(true);
+        }
+
         ArrayList<Fragment> fragments = mFragments.retainNonConfig();
         boolean retainLoaders = false;
         if (mAllLoaderManagers != null) {
@@ -416,6 +466,10 @@ public class FragmentActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        mStopped = false;
+        mHandler.removeMessages(MSG_REALLY_STOPPED);
+
         mFragments.noteStateNotSaved();
         mFragments.execPendingActions();
         
@@ -445,16 +499,9 @@ public class FragmentActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (mLoadersStarted) {
-            mLoadersStarted = false;
-            if (mLoaderManager != null) {
-                if (!isChangingConfigurations()) {
-                    mLoaderManager.doStop();
-                } else {
-                    mLoaderManager.doRetain();
-                }
-            }
-        }
+
+        mStopped = true;
+        mHandler.sendEmptyMessage(MSG_REALLY_STOPPED);
         
         mFragments.dispatchStop();
     }
@@ -467,16 +514,8 @@ public class FragmentActivity extends Activity {
      * Note: this can't be supported pre-HC.  We'll see if we can figure out
      * something clever for it.
      */
-    public void invalidateOptionsMenu() {
+    void supportInvalidateOptionsMenu() {
         // XXX TODO
-    }
-    
-    /**
-     * Not currently working, so retaining of loader state is broken.
-     */
-    public boolean isChangingConfigurations() {
-        // XXX need to re-implement dependencies on this.
-        return false;
     }
     
     /**
@@ -490,18 +529,17 @@ public class FragmentActivity extends Activity {
      * @param args additional arguments to the dump request.
      */
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        writer.print(prefix); writer.print("Local Activity ");
+        // XXX need to call superclass if running on HC.
+        writer.print(prefix); writer.print("Local FragmentActivity ");
                 writer.print(Integer.toHexString(System.identityHashCode(this)));
                 writer.println(" State:");
         String innerPrefix = prefix + "  ";
-        //writer.print(innerPrefix); writer.print("mResumed=");
-        //        writer.print(mResumed); writer.print(" mStopped=");
-        //        writer.print(mStopped); writer.print(" mFinished=");
-        //        writer.println(mFinished);
+        writer.print(innerPrefix); writer.print("mResumed=");
+                writer.print(mResumed); writer.print(" mStopped=");
+                writer.print(mStopped); writer.print(" mReallyStopped=");
+                writer.println(mReallyStopped);
         writer.print(innerPrefix); writer.print("mLoadersStarted=");
                 writer.println(mLoadersStarted);
-        //writer.print(innerPrefix); writer.print("mCurrentConfig=");
-        //        writer.println(mCurrentConfig);
         if (mLoaderManager != null) {
             writer.print(prefix); writer.print("Loader Manager ");
                     writer.print(Integer.toHexString(System.identityHashCode(mLoaderManager)));
@@ -509,6 +547,36 @@ public class FragmentActivity extends Activity {
             mLoaderManager.dump(prefix + "  ", fd, writer, args);
         }
         mFragments.dump(prefix, fd, writer, args);
+    }
+
+    void doReallyStop(boolean retaining) {
+        if (!mReallyStopped) {
+            mReallyStopped = true;
+            mHandler.removeMessages(MSG_REALLY_STOPPED);
+            onReallyStop(retaining);
+        }
+    }
+
+    /**
+     * Pre-HC, we didn't have a way to determine whether an activity was
+     * being stopped for a config change or not until we saw
+     * onRetainNonConfigurationInstance() called after onStop().  However
+     * we need to know this, to know whether to retain fragments.  This will
+     * tell us what we need to know.
+     */
+    void onReallyStop(boolean retaining) {
+        if (mLoadersStarted) {
+            mLoadersStarted = false;
+            if (mLoaderManager != null) {
+                if (!retaining) {
+                    mLoaderManager.doStop();
+                } else {
+                    mLoaderManager.doRetain();
+                }
+            }
+        }
+
+        mFragments.dispatchReallyStop(retaining);
     }
 
     // ------------------------------------------------------------------------

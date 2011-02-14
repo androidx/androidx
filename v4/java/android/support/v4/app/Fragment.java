@@ -622,7 +622,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mHasMenu != hasMenu) {
             mHasMenu = hasMenu;
             if (isAdded() && !isHidden()) {
-                mActivity.invalidateOptionsMenu();
+                mActivity.supportInvalidateOptionsMenu();
             }
         }
     }
@@ -1143,7 +1143,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performStop() {
         onStop();
-        
+    }
+
+    void performReallyStop(boolean retaining) {
         if (mLoadersStarted) {
             mLoadersStarted = false;
             if (!mCheckedForLoaderManager) {
@@ -1151,7 +1153,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 mLoaderManager = mActivity.getLoaderManager(mIndex, mLoadersStarted, false);
             }
             if (mLoaderManager != null) {
-                if (mActivity == null || !mActivity.isChangingConfigurations()) {
+                if (!retaining) {
                     mLoaderManager.doStop();
                 } else {
                     mLoaderManager.doRetain();

@@ -340,6 +340,8 @@ final class FragmentManagerImpl extends FragmentManager {
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
     
+    static final boolean HONEYCOMB = android.os.Build.VERSION.SDK_INT >= 11;
+
     static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
     static final String TARGET_STATE_TAG = "android:target_state";
     static final String VIEW_STATE_TAG = "android:view_state";
@@ -933,7 +935,7 @@ final class FragmentManagerImpl extends FragmentManager {
             }
 
             if (mNeedMenuInvalidate && mActivity != null) {
-                mActivity.invalidateOptionsMenu();
+                mActivity.supportInvalidateOptionsMenu();
                 mNeedMenuInvalidate = false;
             }
         }
@@ -1336,7 +1338,18 @@ final class FragmentManagerImpl extends FragmentManager {
         // our state update-to-date.
         execPendingActions();
 
-        mStateSaved = true;
+        if (HONEYCOMB) {
+            // As of Honeycomb, we save state after pausing.  Prior to that
+            // it is before pausing.  With fragments this is an issue, since
+            // there are many things you may do after pausing but before
+            // stopping that change the fragment state.  For those older
+            // devices, we will not at this point say that we have saved
+            // the state, so we will allow them to continue doing fragment
+            // transactions.  This retains the same semantics as Honeycomb,
+            // though you do have the risk of losing the very most recent state
+            // if the process is killed...  we'll live with that.
+            mStateSaved = true;
+        }
 
         if (mActive == null || mActive.size() <= 0) {
             return null;
@@ -1584,9 +1597,25 @@ final class FragmentManagerImpl extends FragmentManager {
     }
     
     public void dispatchStop() {
+        // See saveAllState() for the explanation of this.  We do this for
+        // all platform versions, to keep our behavior more consistent between
+        // them.
+        mStateSaved = true;
+
         moveToState(Fragment.ACTIVITY_CREATED, false);
     }
     
+    public void dispatchReallyStop(boolean retaining) {
+        if (mActive != null) {
+            for (int i=0; i<mAdded.size(); i++) {
+                Fragment f = mAdded.get(i);
+                if (f != null) {
+                    f.performReallyStop(retaining);
+                }
+            }
+        }
+    }
+
     public void dispatchDestroy() {
         mDestroyed = true;
         moveToState(Fragment.INITIALIZING, false);
