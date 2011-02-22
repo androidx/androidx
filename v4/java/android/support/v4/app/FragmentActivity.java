@@ -42,16 +42,11 @@ import java.util.HashMap;
  * Base class for activities that want to use the support-based Fragment and
  * Loader APIs.
  *
- * <p>Known issues and limitations:</p>
+ * <p>Known limitations:</p>
  * <ul>
  * <li> <p>When using the &lt;fragment> tag, this implementation can not
  * use the parent view's ID as the new fragment's ID.  You must explicitly
  * specify an ID (or tag) in the &lt;fragment>.</p>
- * <li> <p>The options menu can not currently be invalidated (causing it to be
- * rebuilt).  Your activity will need to build an options menu containing all
- * items that may be shown by fragment it contains.  The prepareOptionsMenu()
- * method is called every time the menu is shown, allowing items to be hidden
- * or shown.</p>
  * <li> <p>Prior to Honeycomb (3.0), an activity's state was saved before pausing.
  * Fragments are a significant amount of new state, and dynamic enough that one
  * often wants them to change between pausing and stopping.  These classes
@@ -69,6 +64,9 @@ public class FragmentActivity extends Activity {
     
     private static final String FRAGMENTS_TAG = "android:support:fragments";
     
+    // This is the SDK API version of Honeycomb (3.0).
+    private static final int HONEYCOMB = 11;
+
     static final int MSG_REALLY_STOPPED = 1;
 
     final Handler mHandler = new Handler() {
@@ -91,6 +89,8 @@ public class FragmentActivity extends Activity {
     boolean mResumed;
     boolean mStopped;
     boolean mReallyStopped;
+
+    boolean mOptionsMenuInvalidated;
 
     boolean mCheckedForLoaderManager;
     boolean mLoadersStarted;
@@ -194,7 +194,13 @@ public class FragmentActivity extends Activity {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             boolean show = super.onCreatePanelMenu(featureId, menu);
             show |= mFragments.dispatchCreateOptionsMenu(menu, getMenuInflater());
-            return show;
+            if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
+                return show;
+            }
+            // Prior to Honeycomb, the framework can't invalidate the options
+            // menu, so we must always say we have one in case the app later
+            // invalidates it and needs to have it shown.
+            return true;
         }
         return super.onCreatePanelMenu(featureId, menu);
     }
@@ -217,7 +223,7 @@ public class FragmentActivity extends Activity {
         String tag = a.getString(FragmentTag.Fragment_tag);
         a.recycle();
         
-        View parent = null; // XXX no way to get parent pre-Honeycomb.
+        View parent = null; // NOTE: no way to get parent pre-Honeycomb.
         int containerId = parent != null ? parent.getId() : 0;
         if (containerId == View.NO_ID && id == View.NO_ID && tag == null) {
             throw new IllegalArgumentException(attrs.getPositionDescription()
@@ -310,6 +316,7 @@ public class FragmentActivity extends Activity {
             // Take care of calling this method on earlier versions of
             // the platform where it doesn't exist.
             onBackPressed();
+            return true;
         }
 
         return super.onKeyDown(keyCode, event);
@@ -393,6 +400,11 @@ public class FragmentActivity extends Activity {
     @Override
     public boolean onPreparePanel(int featureId, View view, Menu menu) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL && menu != null) {
+            if (mOptionsMenuInvalidated) {
+                mOptionsMenuInvalidated = false;
+                menu.clear();
+                onCreatePanelMenu(featureId, menu);
+            }
             boolean goforit = super.onPreparePanel(featureId, view, menu);
             goforit |= mFragments.dispatchPrepareOptionsMenu(menu);
             return goforit && menu.hasVisibleItems();
@@ -483,7 +495,7 @@ public class FragmentActivity extends Activity {
             }
             mCheckedForLoaderManager = true;
         }
-        // XXX HC onStart goes here.
+        // NOTE: HC onStart goes here.
         
         mFragments.dispatchStart();
         if (mAllLoaderManagers != null) {
@@ -510,12 +522,17 @@ public class FragmentActivity extends Activity {
     // NEW METHODS
     // ------------------------------------------------------------------------
     
-    /**
-     * Note: this can't be supported pre-HC.  We'll see if we can figure out
-     * something clever for it.
-     */
     void supportInvalidateOptionsMenu() {
-        // XXX TODO
+        if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
+            // If we are running on HC or greater, we can use the framework
+            // API to invalidate the options menu.
+            ActivityCompatHoneycomb.invalidateOptionsMenu(this);
+            return;
+        }
+
+        // Whoops, older platform...  we'll use a hack, to manually rebuild
+        // the options menu the next time it is prepared.
+        mOptionsMenuInvalidated = true;
     }
     
     /**
@@ -529,7 +546,10 @@ public class FragmentActivity extends Activity {
      * @param args additional arguments to the dump request.
      */
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        // XXX need to call superclass if running on HC.
+        if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
+            // XXX This can only work if we can call the super-class impl. :/
+            //ActivityCompatHoneycomb.dump(this, prefix, fd, writer, args);
+        }
         writer.print(prefix); writer.print("Local FragmentActivity ");
                 writer.print(Integer.toHexString(System.identityHashCode(this)));
                 writer.println(" State:");
@@ -603,7 +623,7 @@ public class FragmentActivity extends Activity {
      */
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
-        if ((requestCode&0xffff0000) != 0) {
+        if (requestCode != -1 && (requestCode&0xffff0000) != 0) {
             throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
         }
         super.startActivityForResult(intent, requestCode);
@@ -614,6 +634,10 @@ public class FragmentActivity extends Activity {
      */
     public void startActivityFromFragment(Fragment fragment, Intent intent, 
             int requestCode) {
+        if (requestCode == -1) {
+            super.startActivityForResult(intent, -1);
+            return;
+        }
         if ((requestCode&0xffff0000) != 0) {
             throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
         }

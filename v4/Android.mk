@@ -17,12 +17,21 @@ LOCAL_PATH := $(call my-dir)
 # Note: the source code is in java/, not src/, because this code is also part of
 # the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
 
+# A helper sub-library that makes direct use of Honeycomb APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-honeycomb
+LOCAL_SDK_VERSION := 11
+LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
+# Here is the final static library that apps can link against.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4
 LOCAL_SDK_VERSION := 4
-LOCAL_SRC_FILES := \
-     $(call all-java-files-under, java) \
-     $(call all-logtags-files-under, java)
+LOCAL_SRC_FILES := $(call all-java-files-under, java)
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-honeycomb
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
