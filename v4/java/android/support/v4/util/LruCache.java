@@ -151,15 +151,11 @@ public class LruCache<K, V> {
                             + ".sizeOf() is reporting inconsistent results!");
                 }
 
-                if (size <= maxSize) {
+                if (size <= maxSize || map.isEmpty()) {
                     break;
                 }
 
-                Map.Entry<K, V> toEvict = map.eldest();
-                if (toEvict == null) {
-                    break;
-                }
-
+                Map.Entry<K, V> toEvict = map.entrySet().iterator().next();
                 key = toEvict.getKey();
                 value = toEvict.getValue();
                 map.remove(key);
