@@ -253,7 +253,7 @@ public class FragmentActivity extends Activity {
             fragment.mInLayout = true;
             fragment.mImmediateActivity = this;
             fragment.mFragmentManager = mFragments;
-            fragment.onInflate(attrs, fragment.mSavedFragmentState);
+            fragment.onInflate(this, attrs, fragment.mSavedFragmentState);
             mFragments.addFragment(fragment, true);
 
         } else if (fragment.mInLayout) {
@@ -272,7 +272,7 @@ public class FragmentActivity extends Activity {
             // from last saved state), then give it the attributes to
             // initialize itself.
             if (!fragment.mRetaining) {
-                fragment.onInflate(attrs, fragment.mSavedFragmentState);
+                fragment.onInflate(this, attrs, fragment.mSavedFragmentState);
             }
             mFragments.moveToState(fragment);
         }
