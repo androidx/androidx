@@ -1028,7 +1028,7 @@ final class FragmentManagerImpl extends FragmentManager {
             mAvailIndices = new ArrayList<Integer>();
         }
         mAvailIndices.add(f.mIndex);
-        mActivity.invalidateFragmentIndex(f.mIndex);
+        mActivity.invalidateSupportFragmentIndex(f.mIndex);
         f.clearIndex();
     }
     
