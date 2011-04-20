@@ -774,7 +774,7 @@ final class FragmentManagerImpl extends FragmentManager {
                         if (f.mView != null) {
                             f.mInnerView = f.mView;
                             f.mView = NoSaveStateFrameLayout.wrap(f.mView);
-                            if (f.mHidden) f.mView.setVisibility(View.GONE); 
+                            if (f.mHidden) f.mView.setVisibility(View.GONE);
                             f.onViewCreated(f.mView, f.mSavedFragmentState);
                         } else {
                             f.mInnerView = null;
@@ -807,7 +807,7 @@ final class FragmentManagerImpl extends FragmentManager {
                                     }
                                     container.addView(f.mView);
                                 }
-                                if (f.mHidden) f.mView.setVisibility(View.GONE); 
+                                if (f.mHidden) f.mView.setVisibility(View.GONE);
                                 f.onViewCreated(f.mView, f.mSavedFragmentState);
                             } else {
                                 f.mInnerView = null;
