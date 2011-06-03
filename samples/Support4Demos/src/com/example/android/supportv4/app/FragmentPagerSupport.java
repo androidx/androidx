@@ -40,26 +40,28 @@ public class FragmentPagerSupport extends FragmentActivity
     static final int NUM_ITEMS = 10;
 
     FragmentPager mPager;
-    int mCurPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_pager);
+        setContentView(R.layout.fragment_pager_support);
 
         mPager = (FragmentPager)findViewById(R.id.pager);
         mPager.setAdapter(this);
 
+        Button button;
+        
         // Watch for button clicks.
-        Button button = (Button)findViewById(R.id.new_fragment);
+        button = (Button)findViewById(R.id.goto_first);
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                mCurPos++;
-                if (mCurPos < NUM_ITEMS) {
-                    mPager.setCurrentItem(mCurPos);
-                } else {
-                    mCurPos--;
-                }
+                mPager.setCurrentItem(0);
+            }
+        });
+        button = (Button)findViewById(R.id.goto_last);
+        button.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                mPager.setCurrentItem(NUM_ITEMS-1);
             }
         });
     }
@@ -108,7 +110,7 @@ public class FragmentPagerSupport extends FragmentActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View v = inflater.inflate(R.layout.fragment_pager_list, container, false);
+            View v = inflater.inflate(R.layout.fragment_pager_support_list, container, false);
             View tv = v.findViewById(R.id.text);
             ((TextView)tv).setText("Fragment #" + mNum);
             return v;
