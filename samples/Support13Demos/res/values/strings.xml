@@ -23,9 +23,9 @@
         siwuf cakso dodtos anr koop.
     </string>
 
-    <string name="new_fragment">New fragment</string>
-
     <string name="fragment_pager_support">Fragment/Pager</string>
+    <string name="first">First</string>
+    <string name="last">Last</string>
 
     <string name="fragment_state_pager_support">Fragment/State Pager</string>
 
