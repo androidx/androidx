@@ -1425,6 +1425,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
         if (mStateArray == null) {
             mStateArray = new SparseArray<Parcelable>();
+        } else {
+            mStateArray.clear();
         }
         f.mInnerView.saveHierarchyState(mStateArray);
         if (mStateArray.size() > 0) {

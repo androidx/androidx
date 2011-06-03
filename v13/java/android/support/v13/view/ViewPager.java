@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.v13.app;
+package android.support.v13.view;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
@@ -40,42 +37,26 @@ import java.util.ArrayList;
 /**
  * Layout manager that allows the user to flip left and right
  * through pages of data.  The pages are implemented as fragments;
- * you need to implement {@link Adapter} to tell this class the
+ * you need to implement {@link PagerAdapter} to tell this class the
  * number of pages you have and the fragment to use for each page.
  */
-public class FragmentPager extends ViewGroup {
-    /**
-     * Special kind of Adapter for supplying fragments to the FragmentPager.
-     */
-    public interface Adapter {
-        /**
-         * Return the number of fragments available.
-         */
-        int getCount();
-
-        /**
-         * Return the Fragment associated with a specified position.
-         */
-        Fragment getItem(int position);
-
-        FragmentManager getFragmentManager();
-    }
-
+public class ViewPager extends ViewGroup {
     private static final String TAG = "FragmentPager";
     private static final boolean DEBUG = false;
 
     private static final boolean USE_CACHE = false;
 
     static class ItemInfo {
-        Fragment fragment;
+        Object object;
         int position;
     }
 
     private final ArrayList<ItemInfo> mItems = new ArrayList<ItemInfo>();
 
-    private Adapter mAdapter;
+    private PagerAdapter mAdapter;
     private int mCurItem;   // Index of currently displayed fragment.
     private int mRestoredCurItem = -1;
+    private Parcelable mRestoredAdapterState = null;
     private Scroller mScroller;
 
     private int mChildWidthMeasureSpec;
@@ -113,12 +94,12 @@ public class FragmentPager extends ViewGroup {
     private int mMinimumVelocity;
     private int mMaximumVelocity;
 
-    public FragmentPager(Context context) {
+    public ViewPager(Context context) {
         super(context);
         initFragmentPager();
     }
 
-    public FragmentPager(Context context, AttributeSet attrs) {
+    public ViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         initFragmentPager();
     }
@@ -132,21 +113,23 @@ public class FragmentPager extends ViewGroup {
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
     }
 
-    public void setAdapter(Adapter adapter) {
+    public void setAdapter(PagerAdapter adapter) {
         mAdapter = adapter;
 
         if (mAdapter != null) {
             mPopulatePending = false;
             if (mRestoredCurItem >= 0) {
+                mAdapter.restoreState(mRestoredAdapterState);
                 setCurrentItemInternal(mRestoredCurItem, false, true);
                 mRestoredCurItem = -1;
+                mRestoredAdapterState = null;
             } else {
                 populate();
             }
         }
     }
 
-    public Adapter getAdapter() {
+    public PagerAdapter getAdapter() {
         return mAdapter;
     }
 
@@ -202,34 +185,15 @@ public class FragmentPager extends ViewGroup {
         return "android:switcher:" + getId() + ":" + index;
     }
 
-    FragmentTransaction addNewItem(FragmentManager fm, int position, int index,
-            FragmentTransaction ft) {
+    void addNewItem(int position, int index) {
         ItemInfo ii = new ItemInfo();
         ii.position = position;
-
-        // Do we already have this fragment?
-        if (ft == null) {
-            ft = fm.beginTransaction();
-        }
-
-        String name = makeFragmentName(ii.position);
-        ii.fragment = fm.findFragmentByTag(name);
-        if (ii.fragment != null) {
-            if (DEBUG) Log.v(TAG, "Attaching item #" + ii.position + ": f=" + ii.fragment);
-            ft.attach(ii.fragment);
-        } else {
-            ii.fragment = mAdapter.getItem(position);
-            if (DEBUG) Log.v(TAG, "Adding item #" + ii.position + ": f=" + ii.fragment);
-            ft.add(getId(), ii.fragment, makeFragmentName(ii.position));
-        }
-
+        ii.object = mAdapter.instantiateItem(getId(), position);
         if (index < 0) {
             mItems.add(ii);
         } else {
             mItems.add(index, ii);
         }
-
-        return ft;
     }
 
     void populate() {
@@ -245,25 +209,26 @@ public class FragmentPager extends ViewGroup {
             return;
         }
 
-        final FragmentManager fm = mAdapter.getFragmentManager();
+        // Also, don't populate until we are attached to a window.  This is to
+        // avoid trying to populate before we have restored our view hierarchy
+        // state and conflicting with what is restored.
+        if (getWindowToken() == null) {
+            return;
+        }
+
+        mAdapter.startUpdate();
 
         final int startIdx = mCurItem > 0 ? mCurItem - 1 : mCurItem;
         final int endIdx = mCurItem+1;
 
-        int lastIdx = 0;
-        FragmentTransaction ft = null;
+        int lastIdx = startIdx;
 
         for (int i=0; i<mItems.size(); i++) {
             ItemInfo ii = mItems.get(i);
             if (ii.position < startIdx || ii.position > endIdx) {
                 mItems.remove(i);
                 i--;
-                if (ft == null) {
-                    ft = fm.beginTransaction();
-                }
-                if (DEBUG) Log.v(TAG, "Detaching item #" + ii.position + ": f=" + ii.fragment
-                        + " v=" + ii.fragment.getView());
-                ft.detach(ii.fragment);
+                mAdapter.destroyItem(ii.position, ii.object);
             } else {
                 lastIdx = ii.position + 1;
             }
@@ -273,25 +238,23 @@ public class FragmentPager extends ViewGroup {
             int newStartIdx = mItems.get(0).position;
             while (newStartIdx > startIdx) {
                 newStartIdx--;
-                ft = addNewItem(fm, newStartIdx, 0, ft);
+                addNewItem(newStartIdx, 0);
             }
         }
 
         while (lastIdx <= endIdx) {
             if (lastIdx < mAdapter.getCount()) {
-                ft = addNewItem(fm, lastIdx, -1, ft);
+                addNewItem(lastIdx, -1);
             }
             lastIdx++;
         }
 
-        if (ft != null) {
-            ft.commit();
-            fm.executePendingTransactions();
-        }
+        mAdapter.finishUpdate();
     }
 
     public static class SavedState extends BaseSavedState {
         int position;
+        Parcelable adapterState;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -301,6 +264,12 @@ public class FragmentPager extends ViewGroup {
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(position);
+            if (adapterState != null) {
+                out.writeInt(1);
+                adapterState.writeToParcel(out, flags);
+            } else {
+                out.writeInt(0);
+            }
         }
 
         @Override
@@ -310,10 +279,14 @@ public class FragmentPager extends ViewGroup {
                     + " position=" + position + "}";
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Parcelable.ClassLoaderCreator<SavedState> CREATOR
+                = new Parcelable.ClassLoaderCreator<SavedState>() {
             public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
+                return new SavedState(in, null);
+            }
+
+            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                return new SavedState(in, loader);
             }
 
             public SavedState[] newArray(int size) {
@@ -321,9 +294,12 @@ public class FragmentPager extends ViewGroup {
             }
         };
 
-        private SavedState(Parcel in) {
+        private SavedState(Parcel in, ClassLoader loader) {
             super(in);
             position = in.readInt();
+            if (in.readInt() != 0) {
+                adapterState = in.readParcelable(loader);
+            }
         }
     }
 
@@ -332,6 +308,7 @@ public class FragmentPager extends ViewGroup {
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
         ss.position = mCurItem;
+        ss.adapterState = mAdapter.saveState();
         return ss;
     }
 
@@ -346,9 +323,11 @@ public class FragmentPager extends ViewGroup {
         super.onRestoreInstanceState(ss.getSuperState());
 
         if (mAdapter != null) {
+            mAdapter.restoreState(ss.adapterState);
             setCurrentItemInternal(ss.position, false, true);
         } else {
             mRestoredCurItem = ss.position;
+            mRestoredAdapterState = ss.adapterState;
         }
     }
 
@@ -373,11 +352,19 @@ public class FragmentPager extends ViewGroup {
     ItemInfo infoForChild(View child) {
         for (int i=0; i<mItems.size(); i++) {
             ItemInfo ii = mItems.get(i);
-            if (ii.fragment.getView() == child) {
+            if (mAdapter.isViewFromObject(child, ii.object)) {
                 return ii;
             }
         }
         return null;
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (mAdapter != null) {
+            populate();
+        }
     }
 
     @Override
@@ -443,7 +430,7 @@ public class FragmentPager extends ViewGroup {
                 int loff = width*ii.position;
                 int childLeft = getPaddingLeft() + loff;
                 int childTop = getPaddingTop();
-                if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.fragment
+                if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object
 		        + ":" + childLeft + "," + childTop + " " + child.getMeasuredWidth()
 		        + "x" + child.getMeasuredHeight());
                 child.layout(childLeft, childTop,
