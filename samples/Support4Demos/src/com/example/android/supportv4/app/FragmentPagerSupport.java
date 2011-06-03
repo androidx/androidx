@@ -16,14 +16,13 @@
 
 package com.example.android.supportv4.app;
 
+import com.example.android.supportv4.Cheeses;
 import com.example.android.supportv4.R;
-import com.example.android.supportv4.Shakespeare;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -118,7 +117,7 @@ public class FragmentPagerSupport extends FragmentActivity
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
             setListAdapter(new ArrayAdapter<String>(getActivity(),
-                    android.R.layout.simple_list_item_1, Shakespeare.TITLES));
+                    android.R.layout.simple_list_item_1, Cheeses.sCheeseStrings));
         }
 
         @Override

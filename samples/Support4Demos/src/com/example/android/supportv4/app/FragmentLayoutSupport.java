@@ -16,8 +16,8 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
 import com.example.android.supportv4.Shakespeare;
+import com.example.android.supportv4.R;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
