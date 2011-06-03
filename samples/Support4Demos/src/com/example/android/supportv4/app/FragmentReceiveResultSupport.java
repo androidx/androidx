@@ -16,6 +16,7 @@
 
 package com.example.android.supportv4.app;
 
+import com.example.android.supportv4.app.SendResult;
 import com.example.android.supportv4.R;
 
 import android.support.v4.app.Fragment;
