@@ -78,6 +78,8 @@
     <string name="new_fragment">New fragment</string>
 
     <string name="fragment_pager_support">Fragment/Pager</string>
+    <string name="first">First</string>
+    <string name="last">Last</string>
 
     <string name="loader_cursor_support">Loader/Cursor</string>
     

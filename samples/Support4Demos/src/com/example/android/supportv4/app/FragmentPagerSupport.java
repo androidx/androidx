@@ -39,7 +39,6 @@ public class FragmentPagerSupport extends FragmentActivity
     static final int NUM_ITEMS = 10;
 
     FragmentPager mPager;
-    int mCurPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,15 +49,16 @@ public class FragmentPagerSupport extends FragmentActivity
         mPager.setAdapter(this);
 
         // Watch for button clicks.
-        Button button = (Button)findViewById(R.id.new_fragment);
+        Button button = (Button)findViewById(R.id.goto_first);
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                mCurPos++;
-                if (mCurPos < NUM_ITEMS) {
-                    mPager.setCurrentItem(mCurPos);
-                } else {
-                    mCurPos--;
-                }
+                mPager.setCurrentItem(0);
+            }
+        });
+        button = (Button)findViewById(R.id.goto_last);
+        button.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                mPager.setCurrentItem(NUM_ITEMS-1);
             }
         });
     }
