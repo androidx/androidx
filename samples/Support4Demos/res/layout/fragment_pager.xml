@@ -28,10 +28,17 @@
             android:layout_weight="1">
     </android.support.v4.app.FragmentPager>
 
-    <Button android:id="@+id/new_fragment"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:text="@string/new_fragment">
-        <requestFocus />
-    </Button>
+    <LinearLayout android:orientation="horizontal"
+            android:gravity="center" android:measureWithLargestChild="true"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_weight="0">
+        <Button android:id="@+id/goto_first"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/first">
+        </Button>
+        <Button android:id="@+id/goto_last"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/last">
+        </Button>
+    </LinearLayout>
 </LinearLayout>
