@@ -35,11 +35,9 @@ import android.widget.Scroller;
 import java.util.ArrayList;
 
 /**
- * Layout manager that allows the user to flip left and right
- * through pages of data.  The pages are implemented as fragments;
- * you need to implement {@link Adapter} to tell this class the
- * number of pages you have and the fragment to use for each page.
+ * @deprecated This has been replaced by {android.support.v4.view.ViewPager}.
  */
+@Deprecated
 public class FragmentPager extends ViewGroup {
     /**
      * Special kind of Adapter for supplying fragments to the FragmentPager.
