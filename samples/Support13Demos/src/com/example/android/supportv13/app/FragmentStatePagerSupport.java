@@ -20,7 +20,7 @@ import com.example.android.supportv13.Cheeses;
 import com.example.android.supportv13.R;
 
 import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v13.view.ViewPager;
+import android.support.v4.view.ViewPager;
 
 import android.os.Bundle;
 import android.app.Activity;
