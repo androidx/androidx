@@ -16,16 +16,14 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.Cheeses;
-import com.example.android.supportv4.R;
-
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
+
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +34,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FragmentPagerSupport extends FragmentActivity {
+import com.example.android.supportv4.Cheeses;
+import com.example.android.supportv4.R;
+
+public class FragmentStatePagerSupport extends FragmentActivity {
     static final int NUM_ITEMS = 10;
 
     MyAdapter mAdapter;
@@ -68,7 +69,7 @@ public class FragmentPagerSupport extends FragmentActivity {
         });
     }
 
-    public static class MyAdapter extends FragmentPagerAdapter {
+    public static class MyAdapter extends FragmentStatePagerAdapter {
         public MyAdapter(FragmentManager fm) {
             super(fm);
         }
