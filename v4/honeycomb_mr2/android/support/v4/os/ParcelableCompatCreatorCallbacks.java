@@ -14,31 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.v13.view;
+package android.support.v4.os;
 
-import android.os.Parcelable;
-import android.view.View;
+import android.os.Parcel;
 
-/**
- * Special kind of Adapter for supplying fragments to the FragmentPager.
- */
-public interface PagerAdapter {
-    /**
-     * Return the number of fragments available.
-     */
-    int getCount();
-
-    void startUpdate();
-
-    Object instantiateItem(int viewId, int position);
-
-    void destroyItem(int position, Object object);
-
-    void finishUpdate();
-
-    boolean isViewFromObject(View view, Object object);
-
-    Parcelable saveState();
-
-    void restoreState(Parcelable state);
+public interface ParcelableCompatCreatorCallbacks<T> {
+    public T createFromParcel(Parcel in, ClassLoader loader);
+    public T[] newArray(int size);
 }

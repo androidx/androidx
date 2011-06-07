@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package android.support.v13.view;
+package android.support.v4.view;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import android.content.Context;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.VelocityTrackerCompat;
-import android.support.v4.view.ViewConfigurationCompat;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -36,9 +35,13 @@ import java.util.ArrayList;
 
 /**
  * Layout manager that allows the user to flip left and right
- * through pages of data.  The pages are implemented as fragments;
- * you need to implement {@link PagerAdapter} to tell this class the
- * number of pages you have and the fragment to use for each page.
+ * through pages of data.  You supply an implementation of a
+ * {@link PagerAdapter} to generate the pages that the view shows.
+ *
+ * <p>Note this class is currently under early design and
+ * development.  The API will likely change in later updates of
+ * the compatibility library, requiring changes to the source code
+ * of apps when they are compiled against the newer version.</p>
  */
 public class ViewPager extends ViewGroup {
     private static final String TAG = "FragmentPager";
@@ -58,6 +61,7 @@ public class ViewPager extends ViewGroup {
     private int mCurItem;   // Index of currently displayed fragment.
     private int mRestoredCurItem = -1;
     private Parcelable mRestoredAdapterState = null;
+    private ClassLoader mRestoredClassLoader = null;
     private Scroller mScroller;
 
     private int mChildWidthMeasureSpec;
@@ -121,10 +125,11 @@ public class ViewPager extends ViewGroup {
         if (mAdapter != null) {
             mPopulatePending = false;
             if (mRestoredCurItem >= 0) {
-                mAdapter.restoreState(mRestoredAdapterState);
+                mAdapter.restoreState(mRestoredAdapterState, mRestoredClassLoader);
                 setCurrentItemInternal(mRestoredCurItem, false, true);
                 mRestoredCurItem = -1;
                 mRestoredAdapterState = null;
+                mRestoredClassLoader = null;
             } else {
                 populate();
             }
@@ -199,7 +204,7 @@ public class ViewPager extends ViewGroup {
     void addNewItem(int position, int index) {
         ItemInfo ii = new ItemInfo();
         ii.position = position;
-        ii.object = mAdapter.instantiateItem(getId(), position);
+        ii.object = mAdapter.instantiateItem(this, position);
         if (index < 0) {
             mItems.add(ii);
         } else {
@@ -227,7 +232,7 @@ public class ViewPager extends ViewGroup {
             return;
         }
 
-        mAdapter.startUpdate();
+        mAdapter.startUpdate(this);
 
         final int startPos = mCurItem > 0 ? mCurItem - 1 : mCurItem;
         final int N = mAdapter.getCount();
@@ -243,7 +248,7 @@ public class ViewPager extends ViewGroup {
                 if (DEBUG) Log.i(TAG, "removing: " + ii.position + " @ " + i);
                 mItems.remove(i);
                 i--;
-                mAdapter.destroyItem(ii.position, ii.object);
+                mAdapter.destroyItem(this, ii.position, ii.object);
             } else if (lastPos < endPos && ii.position > startPos) {
                 // The next item is outside of our range, but we have a gap
                 // between it and the last item where we want to have a page
@@ -281,14 +286,15 @@ public class ViewPager extends ViewGroup {
             }
         }
 
-        mAdapter.finishUpdate();
+        mAdapter.finishUpdate(this);
     }
 
     public static class SavedState extends BaseSavedState {
         int position;
         Parcelable adapterState;
+        ClassLoader loader;
 
-        SavedState(Parcelable superState) {
+        public SavedState(Parcelable superState) {
             super(superState);
         }
 
@@ -296,12 +302,7 @@ public class ViewPager extends ViewGroup {
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(position);
-            if (adapterState != null) {
-                out.writeInt(1);
-                adapterState.writeToParcel(out, flags);
-            } else {
-                out.writeInt(0);
-            }
+            out.writeParcelable(adapterState, flags);
         }
 
         @Override
@@ -311,27 +312,26 @@ public class ViewPager extends ViewGroup {
                     + " position=" + position + "}";
         }
 
-        public static final Parcelable.ClassLoaderCreator<SavedState> CREATOR
-                = new Parcelable.ClassLoaderCreator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in, null);
-            }
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                        return new SavedState(in, loader);
+                    }
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                });
 
-            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
-                return new SavedState(in, loader);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-
-        private SavedState(Parcel in, ClassLoader loader) {
+        SavedState(Parcel in, ClassLoader loader) {
             super(in);
-            position = in.readInt();
-            if (in.readInt() != 0) {
-                adapterState = in.readParcelable(loader);
+            if (loader == null) {
+                loader = getClass().getClassLoader();
             }
+            position = in.readInt();
+            adapterState = in.readParcelable(loader);
+            this.loader = loader;
         }
     }
 
@@ -355,11 +355,12 @@ public class ViewPager extends ViewGroup {
         super.onRestoreInstanceState(ss.getSuperState());
 
         if (mAdapter != null) {
-            mAdapter.restoreState(ss.adapterState);
+            mAdapter.restoreState(ss.adapterState, ss.loader);
             setCurrentItemInternal(ss.position, false, true);
         } else {
             mRestoredCurItem = ss.position;
             mRestoredAdapterState = ss.adapterState;
+            mRestoredClassLoader = ss.loader;
         }
     }
 

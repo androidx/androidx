@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package android.support.v13.app;
+package android.support.v4.app;
 
 import java.util.ArrayList;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
