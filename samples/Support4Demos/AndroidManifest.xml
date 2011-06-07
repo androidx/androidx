@@ -24,7 +24,7 @@
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <uses-sdk android:minSdkVersion="4" />
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="13" />
 
     <!-- This app has not been optimized for large screens. -->
     <supports-screens android:requiresSmallestWidthDp="320"
@@ -149,6 +149,14 @@
 
         <activity android:name=".app.FragmentPagerSupport"
                 android:label="@string/fragment_pager_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.FragmentStatePagerSupport"
+                android:label="@string/fragment_state_pager_support">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />

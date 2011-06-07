@@ -63,7 +63,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
     /**
      * The authority we use to get to our sample provider.
      */
-    public static final String AUTHORITY = "com.example.android.apis.support.app.LoaderThrottle";
+    public static final String AUTHORITY = "com.example.android.apis.supportv4.app.LoaderThrottle";
 
     /**
      * Definition of the contract for the main table of our provider.
