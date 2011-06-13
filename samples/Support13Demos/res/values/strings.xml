@@ -29,4 +29,5 @@
 
     <string name="fragment_state_pager_support">Fragment/State Pager</string>
 
+    <string name="action_bar_tabs_pager">Fragment/Action Bar Tabs Pager</string>
 </resources>
