@@ -60,7 +60,7 @@ public class ListFragment extends Fragment {
     TextView mStandardEmptyView;
     View mProgressContainer;
     View mListContainer;
-    boolean mSetEmptyText;
+    CharSequence mEmptyText;
     boolean mListShown;
 
     public ListFragment() {
@@ -120,6 +120,9 @@ public class ListFragment extends Fragment {
     public void onDestroyView() {
         mHandler.removeCallbacks(mRequestFocus);
         mList = null;
+        mListShown = false;
+        mEmptyView = mProgressContainer = mListContainer = null;
+        mStandardEmptyView = null;
         super.onDestroyView();
     }
 
@@ -199,10 +202,10 @@ public class ListFragment extends Fragment {
             throw new IllegalStateException("Can't be used with a custom content view");
         }
         mStandardEmptyView.setText(text);
-        if (!mSetEmptyText) {
+        if (mEmptyText == null) {
             mList.setEmptyView(mStandardEmptyView);
-            mSetEmptyText = true;
         }
+        mEmptyText = text;
     }
     
     /**
@@ -256,6 +259,9 @@ public class ListFragment extends Fragment {
                         getActivity(), android.R.anim.fade_out));
                 mListContainer.startAnimation(AnimationUtils.loadAnimation(
                         getActivity(), android.R.anim.fade_in));
+            } else {
+                mProgressContainer.clearAnimation();
+                mListContainer.clearAnimation();
             }
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
@@ -265,6 +271,9 @@ public class ListFragment extends Fragment {
                         getActivity(), android.R.anim.fade_in));
                 mListContainer.startAnimation(AnimationUtils.loadAnimation(
                         getActivity(), android.R.anim.fade_out));
+            } else {
+                mProgressContainer.clearAnimation();
+                mListContainer.clearAnimation();
             }
             mProgressContainer.setVisibility(View.VISIBLE);
             mListContainer.setVisibility(View.GONE);
@@ -292,6 +301,8 @@ public class ListFragment extends Fragment {
             mStandardEmptyView = (TextView)root.findViewById(INTERNAL_EMPTY_ID);
             if (mStandardEmptyView == null) {
                 mEmptyView = root.findViewById(android.R.id.empty);
+            } else {
+                mStandardEmptyView.setVisibility(View.GONE);
             }
             mProgressContainer = null; //root.findViewById(com.android.internal.R.id.progressContainer);
             mListContainer = null; //root.findViewById(com.android.internal.R.id.listContainer);
@@ -309,12 +320,17 @@ public class ListFragment extends Fragment {
             mList = (ListView)rawListView;
             if (mEmptyView != null) {
                 mList.setEmptyView(mEmptyView);
+            } else if (mEmptyText != null) {
+                mStandardEmptyView.setText(mEmptyText);
+                mList.setEmptyView(mStandardEmptyView);
             }
         }
         mListShown = true;
         mList.setOnItemClickListener(mOnClickListener);
         if (mAdapter != null) {
-            setListAdapter(mAdapter);
+            ListAdapter adapter = mAdapter;
+            mAdapter = null;
+            setListAdapter(adapter);
         } else {
             // We are starting without an adapter, so assume we won't
             // have our data right away and start with the progress indicator.
