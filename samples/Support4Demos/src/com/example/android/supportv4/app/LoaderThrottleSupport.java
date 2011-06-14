@@ -410,6 +410,9 @@ public class LoaderThrottleSupport extends FragmentActivity {
                     new int[] { android.R.id.text1 }, 0);
             setListAdapter(mAdapter);
 
+            // Start out with a progress indicator.
+            setListShown(false);
+
             // Prepare the loader.  Either re-connect with an existing one,
             // or start a new one.
             getLoaderManager().initLoader(0, null, this);
@@ -493,6 +496,13 @@ public class LoaderThrottleSupport extends FragmentActivity {
 
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
+
+            // The list should now be shown.
+            if (isResumed()) {
+                setListShown(true);
+            } else {
+                setListShownNoAnimation(true);
+            }
         }
 
         public void onLoaderReset(Loader<Cursor> loader) {

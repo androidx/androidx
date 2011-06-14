@@ -26,7 +26,10 @@
 
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="13" />
 
-    <!-- This app has not been optimized for large screens. -->
+    <!-- The smallest screen this app works on is a phone.  The app will
+         scale its UI to larger screens but doesn't make good use of them
+         so allow the compatibility mode button to be shown (mostly because
+         this is just convenient for testing). -->
     <supports-screens android:requiresSmallestWidthDp="320"
             android:compatibleWidthLimitDp="480" />
 
@@ -147,6 +150,22 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.FragmentTabs"
+                android:label="@string/fragment_tabs">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.FragmentTabsPager"
+                android:label="@string/fragment_tabs_pager">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.FragmentPagerSupport"
                 android:label="@string/fragment_pager_support">
             <intent-filter>
@@ -165,6 +184,14 @@
 
         <activity android:name=".app.LoaderCursorSupport"
                 android:label="@string/loader_cursor_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.LoaderCustomSupport"
+                android:label="@string/loader_custom_support">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />

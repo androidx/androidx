@@ -77,6 +77,10 @@
     <string name="fragment_stack_support">Fragment/Stack</string>
     <string name="new_fragment">New fragment</string>
 
+    <string name="fragment_tabs">Fragment/Tabs</string>
+
+    <string name="fragment_tabs_pager">Fragment/Tabs and Pager</string>
+
     <string name="fragment_pager_support">Fragment/Pager</string>
     <string name="first">First</string>
     <string name="last">Last</string>
@@ -85,6 +89,8 @@
 
     <string name="loader_cursor_support">Loader/Cursor</string>
     
+    <string name="loader_custom_support">Loader/Custom</string>
+
     <string name="loader_throttle_support">Loader/Throttle</string>
 
 </resources>

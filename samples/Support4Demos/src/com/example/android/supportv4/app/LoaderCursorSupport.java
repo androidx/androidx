@@ -81,6 +81,9 @@ public class LoaderCursorSupport extends FragmentActivity {
                     new int[] { android.R.id.text1, android.R.id.text2 }, 0);
             setListAdapter(mAdapter);
 
+            // Start out with a progress indicator.
+            setListShown(false);
+
             // Prepare the loader.  Either re-connect with an existing one,
             // or start a new one.
             getLoaderManager().initLoader(0, null, this);
@@ -147,6 +150,13 @@ public class LoaderCursorSupport extends FragmentActivity {
             // Swap the new cursor in.  (The framework will take care of closing the
             // old cursor once we return.)
             mAdapter.swapCursor(data);
+
+            // The list should now be shown.
+            if (isResumed()) {
+                setListShown(true);
+            } else {
+                setListShownNoAnimation(true);
+            }
         }
 
         public void onLoaderReset(Loader<Cursor> loader) {
