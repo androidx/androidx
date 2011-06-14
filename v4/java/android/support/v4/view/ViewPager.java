@@ -705,10 +705,21 @@ public class ViewPager extends ViewGroup {
 
                 final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
                 final float x = MotionEventCompat.getX(ev, pointerIndex);
-                final int xDiff = (int) Math.abs(x - mLastMotionX);
+                final int dx = (int) (x - mLastMotionX);
+                final int xDiff = Math.abs(dx);
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
                 final int yDiff = (int) Math.abs(y - mLastMotionY);
+                final int scrollX = getScrollX();
+                final boolean atEdge = (dx > 0 && scrollX == 0) || (dx < 0 && mAdapter != null &&
+                        scrollX >= (mAdapter.getCount() - 1) * getWidth() - 1);
                 if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+
+                if (atEdge || canScroll(this, false, dx, (int) x, (int) y)) {
+                    // Nested view has scrollable area under this point. Let it be handled there.
+                    mInitialMotionX = mLastMotionX = x;
+                    mLastMotionY = y;
+                    return false;
+                }
                 if (xDiff > mTouchSlop && xDiff > yDiff) {
                     if (DEBUG) Log.v(TAG, "Starting drag!");
                     mIsBeingDragged = true;
@@ -914,6 +925,40 @@ public class ViewPager extends ViewGroup {
                 }
             }
         }
+    }
+
+    /**
+     * Test scrollability within child views of v given a delta of dx.
+     *
+     * @param v View to test for horizontal scrollability
+     * @param checkV Whether the view v passed should itself be checked for scrollability (true),
+     *               or just its children (false).
+     * @param dx Delta scrolled in pixels
+     * @param x X coorindate of the active touch point
+     * @param y Y coordinate of the active touch point
+     * @return Delta still left to be scrolled by a parent.
+     */
+    static boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
+        if (v instanceof ViewGroup) {
+            final ViewGroup group = (ViewGroup) v;
+            final int scrollX = v.getScrollX();
+            final int scrollY = v.getScrollY();
+            final int count = group.getChildCount();
+            // Count backwards - let topmost views consume scroll distance first.
+            for (int i = count - 1; i >= 0; i--) {
+                // TODO: Add versioned support here for transformed views.
+                // This will not work for transformed views in Honeycomb+
+                final View child = group.getChildAt(i);
+                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight() &&
+                        y + scrollY >= child.getTop() && y + scrollY < child.getBottom() &&
+                        canScroll(child, true, dx, x + scrollX - child.getLeft(),
+                                y + scrollY - child.getTop())) {
+                    return true;
+                }
+            }
+        }
+
+        return checkV && ViewCompat.canScrollHorizontally(v, -dx);
     }
 
     private class DataSetObserver implements PagerAdapter.DataSetObserver {

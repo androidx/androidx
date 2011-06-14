@@ -47,8 +47,17 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of Honeycomb MR2 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-honeycomb-mr2
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 13
 LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb_mr2)
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
+# A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-ics
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, ics)
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -62,7 +71,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         android-support-v4-eclair \
         android-support-v4-froyo \
         android-support-v4-honeycomb \
-        android-support-v4-honeycomb-mr2
+        android-support-v4-honeycomb-mr2 \
+        android-support-v4-ics
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
