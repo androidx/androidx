@@ -456,7 +456,9 @@ public class ViewPager extends ViewGroup {
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
         ss.position = mCurItem;
-        ss.adapterState = mAdapter.saveState();
+        if (mAdapter != null) {
+            ss.adapterState = mAdapter.saveState();
+        }
         return ss;
     }
 
