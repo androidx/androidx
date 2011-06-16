@@ -47,7 +47,9 @@ public class ViewCompat {
 
     static final ViewCompatImpl IMPL;
     static {
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
+        // TODO Change this to a real check once ICS's API level is finalized
+        if (android.os.Build.VERSION.CODENAME.equals("IceCreamSandwich")) {
+        //if (android.os.Build.VERSION.SDK_INT >= 14) {
             IMPL = new ICSViewCompatImpl();
         } else {
             IMPL = new BaseViewCompatImpl();
