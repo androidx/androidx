@@ -135,6 +135,10 @@ public class ActionBarTabsPager extends Activity {
         }
 
         @Override
+        public void onPageScrollStateChanged(int state) {
+        }
+
+        @Override
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
             Object tag = tab.getTag();
             for (int i=0; i<mTabs.size(); i++) {
