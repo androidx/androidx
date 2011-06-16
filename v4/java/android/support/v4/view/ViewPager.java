@@ -254,6 +254,10 @@ public class ViewPager extends ViewGroup {
         setCurrentItemInternal(item, true, false);
     }
 
+    public int getCurrentItem() {
+        return mCurItem;
+    }
+
     void setCurrentItemInternal(int item, boolean smoothScroll, boolean always) {
         if (mAdapter == null || mAdapter.getCount() <= 0) {
             setScrollingCacheEnabled(false);
