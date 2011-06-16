@@ -222,6 +222,7 @@ public class ViewPager extends ViewGroup {
             mItems.clear();
             removeAllViews();
             mCurItem = 0;
+            scrollTo(0, 0);
         }
 
         mAdapter = adapter;
