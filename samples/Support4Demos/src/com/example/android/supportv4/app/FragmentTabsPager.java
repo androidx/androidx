@@ -15,8 +15,6 @@
  */
 package com.example.android.supportv4.app;
 
-import java.util.ArrayList;
-
 import com.example.android.supportv4.R;
 
 import android.content.Context;
@@ -27,6 +25,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TabHost;
+
+import java.util.ArrayList;
 
 /**
  * Demonstrates combining a TabHost with a ViewPager to implement a tab UI
@@ -160,6 +160,10 @@ public class FragmentTabsPager extends FragmentActivity {
         @Override
         public void onPageSelected(int position) {
             mTabHost.setCurrentTab(position);
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
         }
     }
 }
