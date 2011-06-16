@@ -15,6 +15,7 @@
  */
 package com.example.android.supportv4.app;
 
+//BEGIN_INCLUDE(complete)
 import java.util.HashMap;
 
 import com.example.android.supportv4.R;
@@ -167,3 +168,4 @@ public class FragmentTabs extends FragmentActivity {
         }
     }
 }
+//END_INCLUDE(complete)
