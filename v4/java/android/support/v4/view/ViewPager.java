@@ -213,6 +213,15 @@ public class ViewPager extends ViewGroup {
     public void setAdapter(PagerAdapter adapter) {
         if (mAdapter != null) {
             mAdapter.setDataSetObserver(null);
+            mAdapter.startUpdate(this);
+            for (int i = 0; i < mItems.size(); i++) {
+                final ItemInfo ii = mItems.get(i);
+                mAdapter.destroyItem(this, ii.position, ii.object);
+            }
+            mAdapter.finishUpdate(this);
+            mItems.clear();
+            removeAllViews();
+            mCurItem = 0;
         }
 
         mAdapter = adapter;
