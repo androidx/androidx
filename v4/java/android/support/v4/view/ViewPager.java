@@ -18,6 +18,7 @@ package android.support.v4.view;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 
 import android.content.Context;
 import android.support.v4.os.ParcelableCompat;
@@ -100,6 +101,9 @@ public class ViewPager extends ViewGroup {
     private VelocityTracker mVelocityTracker;
     private int mMinimumVelocity;
     private int mMaximumVelocity;
+
+    private boolean mFakeDragging;
+    private long mFakeDragBeginTime;
 
     private OnPageChangeListener mOnPageChangeListener;
 
@@ -839,6 +843,12 @@ public class ViewPager extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if (mFakeDragging) {
+            // A fake drag is in progress already, ignore this real one
+            // but still eat the touch events.
+            // (It is likely that the user is multi-touching the screen.)
+            return true;
+        }
 
         if (ev.getAction() == MotionEvent.ACTION_DOWN && ev.getEdgeFlags() != 0) {
             // Don't handle edge touches immediately -- they may actually belong to one of our
@@ -960,6 +970,130 @@ public class ViewPager extends ViewGroup {
                 break;
         }
         return true;
+    }
+
+    /**
+     * Start a fake drag of the pager.
+     *
+     * <p>A fake drag can be useful if you want to synchronize the motion of the ViewPager
+     * with the touch scrolling of another view, while still letting the ViewPager
+     * control the snapping motion and fling behavior. (e.g. parallax-scrolling tabs.)
+     * Call {@link #fakeDragBy(float)} to simulate the actual drag motion. Call
+     * {@link #endFakeDrag()} to complete the fake drag and fling as necessary.
+     *
+     * <p>During a fake drag the ViewPager will ignore all touch events. If a real drag
+     * is already in progress, this method will return false.
+     *
+     * @return true if the fake drag began successfully, false if it could not be started.
+     *
+     * @see #fakeDragBy(float)
+     * @see #endFakeDrag()
+     */
+    public boolean beginFakeDrag() {
+        if (mIsBeingDragged) {
+            return false;
+        }
+        mFakeDragging = true;
+        setScrollState(SCROLL_STATE_DRAGGING);
+        mInitialMotionX = mLastMotionX = 0;
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        } else {
+            mVelocityTracker.clear();
+        }
+        final long time = SystemClock.uptimeMillis();
+        final MotionEvent ev = MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, 0, 0, 0);
+        mVelocityTracker.addMovement(ev);
+        ev.recycle();
+        mFakeDragBeginTime = time;
+        return true;
+    }
+
+    /**
+     * End a fake drag of the pager.
+     *
+     * @see #beginFakeDrag()
+     * @see #fakeDragBy(float)
+     */
+    public void endFakeDrag() {
+        if (!mFakeDragging) {
+            throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
+        }
+
+        final VelocityTracker velocityTracker = mVelocityTracker;
+        velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
+        int initialVelocity = (int)VelocityTrackerCompat.getYVelocity(
+                velocityTracker, mActivePointerId);
+        mPopulatePending = true;
+        if ((Math.abs(initialVelocity) > mMinimumVelocity)
+                || Math.abs(mInitialMotionX-mLastMotionX) >= (getWidth()/3)) {
+            if (mLastMotionX > mInitialMotionX) {
+                setCurrentItemInternal(mCurItem-1, true, true);
+            } else {
+                setCurrentItemInternal(mCurItem+1, true, true);
+            }
+        } else {
+            setCurrentItemInternal(mCurItem, true, true);
+        }
+        endDrag();
+
+        mFakeDragging = false;
+    }
+
+    /**
+     * Fake drag by an offset in pixels. You must have called {@link #beginFakeDrag()} first.
+     *
+     * @param xOffset Offset in pixels to drag by.
+     * @see #beginFakeDrag()
+     * @see #endFakeDrag()
+     */
+    public void fakeDragBy(float xOffset) {
+        if (!mFakeDragging) {
+            throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
+        }
+
+        mLastMotionX += xOffset;
+        float scrollX = getScrollX() - xOffset;
+        final int width = getWidth();
+
+        final float leftBound = Math.max(0, (mCurItem - 1) * width);
+        final float rightBound =
+                Math.min(mCurItem + 1, mAdapter.getCount() - 1) * width;
+        if (scrollX < leftBound) {
+            scrollX = leftBound;
+        } else if (scrollX > rightBound) {
+            scrollX = rightBound;
+        }
+        // Don't lose the rounded component
+        mLastMotionX += scrollX - (int) scrollX;
+        scrollTo((int) scrollX, getScrollY());
+        if (mOnPageChangeListener != null) {
+            final int position = (int) scrollX / width;
+            final int positionOffsetPixels = (int) scrollX % width;
+            final float positionOffset = (float) positionOffsetPixels / width;
+            mOnPageChangeListener.onPageScrolled(position, positionOffset,
+                    positionOffsetPixels);
+        }
+
+        // Synthesize an event for the VelocityTracker.
+        final long time = SystemClock.uptimeMillis();
+        final MotionEvent ev = MotionEvent.obtain(mFakeDragBeginTime, time, MotionEvent.ACTION_MOVE,
+                mLastMotionX, 0, 0);
+        mVelocityTracker.addMovement(ev);
+        ev.recycle();
+    }
+
+    /**
+     * Returns true if a fake drag is in progress.
+     *
+     * @return true if currently in a fake drag, false otherwise.
+     *
+     * @see #beginFakeDrag()
+     * @see #fakeDragBy(float)
+     * @see #endFakeDrag()
+     */
+    public boolean isFakeDragging() {
+        return mFakeDragging;
     }
 
     private void onSecondaryPointerUp(MotionEvent ev) {
