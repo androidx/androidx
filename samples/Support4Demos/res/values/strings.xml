@@ -93,4 +93,11 @@
 
     <string name="loader_throttle_support">Loader/Throttle</string>
 
+    <string name="local_service_broadcaster">Content/Local Service Broadcaster</string>
+
+    <string name="local_service_broadcaster_msg">Demonstrates use of LocalBroadcastManager
+        to communicate from a Service to an Activity.</string>
+    <string name="start_service">Start Service</string>
+    <string name="stop_service">Stop Service</string>
+
 </resources>

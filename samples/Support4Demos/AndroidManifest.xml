@@ -208,5 +208,15 @@
         <provider android:name=".app.LoaderThrottleSupport$SimpleProvider"
                   android:authorities="com.example.android.apis.supportv4.app.LoaderThrottle" />
 
+        <activity android:name=".content.LocalServiceBroadcaster"
+                android:label="@string/local_service_broadcaster">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <service android:name=".content.LocalServiceBroadcaster$LocalService"
+                android:stopWithTask="true" />
+
     </application>
 </manifest>
