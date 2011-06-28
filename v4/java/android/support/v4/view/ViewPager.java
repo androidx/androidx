@@ -105,6 +105,8 @@ public class ViewPager extends ViewGroup {
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
 
+    private boolean mFirstLayout = true;
+
     private OnPageChangeListener mOnPageChangeListener;
 
     /**
@@ -253,9 +255,27 @@ public class ViewPager extends ViewGroup {
         return mAdapter;
     }
 
+    /**
+     * Set the currently selected page. If the ViewPager has already been through its first
+     * layout there will be a smooth animated transition between the current item and the
+     * specified item.
+     *
+     * @param item Item index to select
+     */
     public void setCurrentItem(int item) {
         mPopulatePending = false;
-        setCurrentItemInternal(item, true, false);
+        setCurrentItemInternal(item, !mFirstLayout, false);
+    }
+
+    /**
+     * Set the currently selected page.
+     *
+     * @param item Item index to select
+     * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
+     */
+    public void setCurrentItem(int item, boolean smoothScroll) {
+        mPopulatePending = false;
+        setCurrentItemInternal(item, smoothScroll, false);
     }
 
     public int getCurrentItem() {
@@ -579,6 +599,7 @@ public class ViewPager extends ViewGroup {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        mFirstLayout = true;
         if (mAdapter != null) {
             populate();
         }
@@ -653,6 +674,7 @@ public class ViewPager extends ViewGroup {
                         childTop + child.getMeasuredHeight());
             }
         }
+        mFirstLayout = false;
     }
 
     @Override
