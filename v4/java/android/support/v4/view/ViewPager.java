@@ -643,10 +643,17 @@ public class ViewPager extends ViewGroup {
         super.onSizeChanged(w, h, oldw, oldh);
 
         // Make sure scroll position is set correctly.
-        int scrollPos = mCurItem*w;
-        if (scrollPos != getScrollX()) {
-            completeScroll();
+        if (w != oldw && oldw > 0) {
+            final int oldScrollPos = getScrollX();
+            final int oldScrollItem = oldScrollPos / oldw;
+            final float scrollOffset = (float) (oldScrollPos % oldw) / oldw;
+            final int scrollPos = (int) ((oldScrollItem + scrollOffset) * w);
             scrollTo(scrollPos, getScrollY());
+            if (!mScroller.isFinished()) {
+                // We now return to your regularly scheduled scroll, already in progress.
+                final int newDuration = mScroller.getDuration() - mScroller.timePassed();
+                mScroller.startScroll(scrollPos, 0, mCurItem * w, 0, newDuration);
+            }
         }
     }
 
