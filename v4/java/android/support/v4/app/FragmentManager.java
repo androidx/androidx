@@ -1771,6 +1771,7 @@ final class FragmentManagerImpl extends FragmentManager {
 
     public void dispatchDestroy() {
         mDestroyed = true;
+        execPendingActions();
         moveToState(Fragment.INITIALIZING, false);
         mActivity = null;
     }
