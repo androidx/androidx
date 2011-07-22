@@ -41,6 +41,8 @@
     <string name="fragment_arguments_embedded">From Attributes</string>
     <string name="fragment_arguments_embedded_land">Landscape Only</string>
 
+    <string name="fragment_custom_animation_support">Fragment/Custom Animation</string>
+
     <string name="fragment_hide_show_support">Fragment/Hide and Show</string>
 
     <string name="fragment_context_menu_support">Fragment/Context Menu</string>

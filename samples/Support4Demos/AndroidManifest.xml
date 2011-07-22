@@ -67,6 +67,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.FragmentCustomAnimationSupport"
+                android:label="@string/fragment_custom_animation_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.FragmentHideShowSupport"
                 android:label="@string/fragment_hide_show_support"
                 android:windowSoftInputMode="stateUnchanged">
