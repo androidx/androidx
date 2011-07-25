@@ -658,10 +658,10 @@ public class FragmentActivity extends Activity {
         //Log.v(TAG, "invalidateFragmentIndex: index=" + index);
         if (mAllLoaderManagers != null) {
             LoaderManagerImpl lm = mAllLoaderManagers.get(index);
-            if (lm != null) {
+            if (lm != null && !lm.mRetaining) {
                 lm.doDestroy();
+                mAllLoaderManagers.remove(index);
             }
-            mAllLoaderManagers.remove(index);
         }
     }
     
