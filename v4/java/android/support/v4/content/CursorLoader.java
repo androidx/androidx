@@ -20,6 +20,7 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
