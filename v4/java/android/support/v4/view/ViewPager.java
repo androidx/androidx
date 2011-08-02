@@ -328,8 +328,8 @@ public class ViewPager extends ViewGroup {
     /**
      * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
      *
-     * @param dx the number of pixels to scroll by on the X axis
-     * @param dy the number of pixels to scroll by on the Y axis
+     * @param x the number of pixels to scroll by on the X axis
+     * @param y the number of pixels to scroll by on the Y axis
      */
     void smoothScrollTo(int x, int y) {
         if (getChildCount() == 0) {
@@ -726,8 +726,8 @@ public class ViewPager extends ViewGroup {
     }
 
     private void completeScroll() {
-        boolean needPopulate;
-        if ((needPopulate=mScrolling)) {
+        boolean needPopulate = mScrolling;
+        if (needPopulate) {
             // Done with scroll, no longer want to cache view drawing.
             setScrollingCacheEnabled(false);
             mScroller.abortAnimation();
@@ -1174,17 +1174,17 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
-     * Test scrollability within child views of v given a delta of dx.
+     * Tests scrollability within child views of v given a delta of dx.
      *
      * @param v View to test for horizontal scrollability
      * @param checkV Whether the view v passed should itself be checked for scrollability (true),
      *               or just its children (false).
      * @param dx Delta scrolled in pixels
-     * @param x X coorindate of the active touch point
+     * @param x X coordinate of the active touch point
      * @param y Y coordinate of the active touch point
-     * @return Delta still left to be scrolled by a parent.
+     * @return true if child views of v can be scrolled by delta of dx.
      */
-    static boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
+    protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
         if (v instanceof ViewGroup) {
             final ViewGroup group = (ViewGroup) v;
             final int scrollX = v.getScrollX();
