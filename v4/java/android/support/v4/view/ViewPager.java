@@ -19,7 +19,6 @@ package android.support.v4.view;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-
 import android.content.Context;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -33,6 +32,8 @@ import android.view.ViewGroup;
 import android.widget.Scroller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Layout manager that allows the user to flip left and right
@@ -55,6 +56,12 @@ public class ViewPager extends ViewGroup {
         int position;
         boolean scrolling;
     }
+
+    private static final Comparator<ItemInfo> COMPARATOR = new Comparator<ItemInfo>(){
+        @Override
+        public int compare(ItemInfo lhs, ItemInfo rhs) {
+            return lhs.position - rhs.position;
+        }};
 
     private final ArrayList<ItemInfo> mItems = new ArrayList<ItemInfo>();
 
@@ -401,6 +408,8 @@ public class ViewPager extends ViewGroup {
                 needPopulate = true;
             }
         }
+
+        Collections.sort(mItems, COMPARATOR);
 
         if (newCurrItem >= 0) {
             // TODO This currently causes a jump.
