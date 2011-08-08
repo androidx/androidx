@@ -886,6 +886,8 @@ final class FragmentManagerImpl extends FragmentManager {
                             throw new SuperNotCalledException("Fragment " + f
                                     + " did not call through to super.onResume()");
                         }
+                        f.mSavedFragmentState = null;
+                        f.mSavedViewState = null;
                     }
             }
         } else if (f.mState > newState) {
