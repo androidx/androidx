@@ -374,7 +374,7 @@ public class ViewPager extends ViewGroup {
     void dataSetChanged() {
         // This method only gets called if our observer is attached, so mAdapter is non-null.
 
-        boolean needPopulate = mItems.isEmpty() && mAdapter.getCount() > 0;
+        boolean needPopulate = mItems.size() < 3 && mItems.size() < mAdapter.getCount();
         int newCurrItem = -1;
 
         for (int i = 0; i < mItems.size(); i++) {
