@@ -16,10 +16,11 @@
 
 package android.support.v4.view;
 
+import android.content.Context;
+import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.content.Context;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.util.AttributeSet;
@@ -29,6 +30,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.Scroller;
 
 import java.util.ArrayList;
@@ -1214,6 +1216,49 @@ public class ViewPager extends ViewGroup {
         }
 
         return checkV && ViewCompat.canScrollHorizontally(v, -dx);
+    }
+
+    @Override
+    public void requestChildFocus(View child, View focused) {
+        // Scroll to the page that contains the child.
+        final ItemInfo ii = infoForChild(child);
+        if (ii != null) {
+            setCurrentItem(ii.position);
+        }
+        super.requestChildFocus(child, focused);
+    }
+
+    @Override
+    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
+        // Scroll to the page that contains the child.
+        final ItemInfo ii = infoForChild(child);
+        if (ii != null) {
+            setCurrentItem(ii.position, !immediate);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+        // ViewPagers should only report accessibility info for the current page,
+        // otherwise things get very confusing.
+
+        // TODO: Should this note something about the paging container?
+
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() == VISIBLE) {
+                final ItemInfo ii = infoForChild(child);
+                if (ii != null && ii.position == mCurItem &&
+                        child.dispatchPopulateAccessibilityEvent(event)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private class DataSetObserver implements PagerAdapter.DataSetObserver {
