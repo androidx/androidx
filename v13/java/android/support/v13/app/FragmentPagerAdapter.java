@@ -35,6 +35,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
+    private Fragment mCurrentPrimaryItem = null;
 
     public FragmentPagerAdapter(FragmentManager fm) {
         mFragmentManager = fm;
@@ -67,6 +68,9 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
             mCurTransaction.add(container.getId(), fragment,
                     makeFragmentName(container.getId(), position));
         }
+        if (fragment != mCurrentPrimaryItem) {
+            FragmentCompat.setMenuVisibility(fragment, false);
+        }
 
         return fragment;
     }
@@ -82,9 +86,23 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     }
 
     @Override
+    public void setPrimaryItem(View container, int position, Object object) {
+        Fragment fragment = (Fragment)object;
+        if (fragment != mCurrentPrimaryItem) {
+            if (mCurrentPrimaryItem != null) {
+                FragmentCompat.setMenuVisibility(mCurrentPrimaryItem, false);
+            }
+            if (fragment != null) {
+                FragmentCompat.setMenuVisibility(fragment, true);
+            }
+            mCurrentPrimaryItem = fragment;
+        }
+    }
+
+    @Override
     public void finishUpdate(View container) {
         if (mCurTransaction != null) {
-            mCurTransaction.commit();
+            mCurTransaction.commitAllowingStateLoss();
             mCurTransaction = null;
             mFragmentManager.executePendingTransactions();
         }

@@ -17,11 +17,21 @@ LOCAL_PATH := $(call my-dir)
 # Note: the source code is in java/, not src/, because this code is also part of
 # the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
 
+# A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v13-ics
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, ics)
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v13
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 13
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
+        android-support-v13-ics
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory

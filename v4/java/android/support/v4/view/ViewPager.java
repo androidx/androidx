@@ -25,7 +25,10 @@ import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.FocusFinder;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -207,6 +210,8 @@ public class ViewPager extends ViewGroup {
 
     void initViewPager() {
         setWillNotDraw(false);
+        setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+        setFocusable(true);
         mScroller = new Scroller(getContext());
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
@@ -499,7 +504,32 @@ public class ViewPager extends ViewGroup {
             }
         }
 
+        ItemInfo curItem = null;
+        for (int i=0; i<mItems.size(); i++) {
+            if (mItems.get(i).position == mCurItem) {
+                curItem = mItems.get(i);
+                break;
+            }
+        }
+        mAdapter.setPrimaryItem(this, mCurItem, curItem != null ? curItem.object : null);
+
         mAdapter.finishUpdate(this);
+
+        if (hasFocus()) {
+            View currentFocused = findFocus();
+            ItemInfo ii = currentFocused != null ? infoForChild(currentFocused) : null;
+            if (ii == null || ii.position != mCurItem) {
+                for (int i=0; i<getChildCount(); i++) {
+                    View child = getChildAt(i);
+                    ii = infoForChild(child);
+                    if (ii != null && ii.position == mCurItem) {
+                        if (child.requestFocus(FOCUS_FORWARD)) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static class SavedState extends BaseSavedState {
@@ -1219,13 +1249,190 @@ public class ViewPager extends ViewGroup {
     }
 
     @Override
-    public void requestChildFocus(View child, View focused) {
-        // Scroll to the page that contains the child.
-        final ItemInfo ii = infoForChild(child);
-        if (ii != null) {
-            setCurrentItem(ii.position);
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        // Let the focused view and/or our descendants get the key first
+        return super.dispatchKeyEvent(event) || executeKeyEvent(event);
+    }
+
+    /**
+     * You can call this function yourself to have the scroll view perform
+     * scrolling from a key event, just as if the event had been dispatched to
+     * it by the view hierarchy.
+     *
+     * @param event The key event to execute.
+     * @return Return true if the event was handled, else false.
+     */
+    public boolean executeKeyEvent(KeyEvent event) {
+        boolean handled = false;
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    handled = arrowScroll(FOCUS_LEFT);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    handled = arrowScroll(FOCUS_RIGHT);
+                    break;
+                case KeyEvent.KEYCODE_TAB:
+                    if (KeyEventCompat.hasNoModifiers(event)) {
+                        handled = arrowScroll(FOCUS_FORWARD);
+                    } else if (KeyEventCompat.hasModifiers(event, KeyEvent.META_SHIFT_ON)) {
+                        handled = arrowScroll(FOCUS_BACKWARD);
+                    }
+                    break;
+            }
         }
-        super.requestChildFocus(child, focused);
+        return handled;
+    }
+
+    public boolean arrowScroll(int direction) {
+        View currentFocused = findFocus();
+        if (currentFocused == this) currentFocused = null;
+
+        boolean handled = false;
+
+        View nextFocused = FocusFinder.getInstance().findNextFocus(this, currentFocused,
+                direction);
+        if (nextFocused != null && nextFocused != currentFocused) {
+            if (direction == View.FOCUS_LEFT) {
+                // If there is nothing to the left, or this is causing us to
+                // jump to the right, then what we really want to do is page left.
+                if (currentFocused != null && nextFocused.getLeft() >= currentFocused.getLeft()) {
+                    handled = pageLeft();
+                } else {
+                    handled = nextFocused.requestFocus();
+                }
+            } else if (direction == View.FOCUS_RIGHT) {
+                // If there is nothing to the right, or this is causing us to
+                // jump to the left, then what we really want to do is page right.
+                if (currentFocused != null && nextFocused.getLeft() <= currentFocused.getLeft()) {
+                    handled = pageRight();
+                } else {
+                    handled = nextFocused.requestFocus();
+                }
+            }
+        } else if (direction == FOCUS_LEFT || direction == FOCUS_BACKWARD) {
+            // Trying to move left and nothing there; try to page.
+            handled = pageLeft();
+        } else if (direction == FOCUS_RIGHT || direction == FOCUS_FORWARD) {
+            // Trying to move right and nothing there; try to page.
+            handled = pageRight();
+        }
+        if (handled) {
+            playSoundEffect(SoundEffectConstants.getContantForFocusDirection(direction));
+        }
+        return handled;
+    }
+
+    boolean pageLeft() {
+        if (mCurItem > 0) {
+            setCurrentItem(mCurItem-1, true);
+            return true;
+        }
+        return false;
+    }
+
+    boolean pageRight() {
+        if (mCurItem < (mAdapter.getCount()-1)) {
+            setCurrentItem(mCurItem+1, true);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * We only want the current page that is being shown to be focusable.
+     */
+    @Override
+    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        final int focusableCount = views.size();
+
+        final int descendantFocusability = getDescendantFocusability();
+
+        if (descendantFocusability != FOCUS_BLOCK_DESCENDANTS) {
+            for (int i = 0; i < getChildCount(); i++) {
+                final View child = getChildAt(i);
+                if (child.getVisibility() == VISIBLE) {
+                    ItemInfo ii = infoForChild(child);
+                    if (ii != null && ii.position == mCurItem) {
+                        child.addFocusables(views, direction, focusableMode);
+                    }
+                }
+            }
+        }
+
+        // we add ourselves (if focusable) in all cases except for when we are
+        // FOCUS_AFTER_DESCENDANTS and there are some descendants focusable.  this is
+        // to avoid the focus search finding layouts when a more precise search
+        // among the focusable children would be more interesting.
+        if (
+            descendantFocusability != FOCUS_AFTER_DESCENDANTS ||
+                // No focusable descendants
+                (focusableCount == views.size())) {
+            // Note that we can't call the superclass here, because it will
+            // add all views in.  So we need to do the same thing View does.
+            if (!isFocusable()) {
+                return;
+            }
+            if ((focusableMode & FOCUSABLES_TOUCH_MODE) == FOCUSABLES_TOUCH_MODE &&
+                    isInTouchMode() && !isFocusableInTouchMode()) {
+                return;
+            }
+            if (views != null) {
+                views.add(this);
+            }
+        }
+    }
+
+    /**
+     * We only want the current page that is being shown to be touchable.
+     */
+    @Override
+    public void addTouchables(ArrayList<View> views) {
+        // Note that we don't call super.addTouchables(), which means that
+        // we don't call View.addTouchables().  This is okay because a ViewPager
+        // is itself not touchable.
+        for (int i = 0; i < getChildCount(); i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() == VISIBLE) {
+                ItemInfo ii = infoForChild(child);
+                if (ii != null && ii.position == mCurItem) {
+                    child.addTouchables(views);
+                }
+            }
+        }
+    }
+
+    /**
+     * We only want the current page that is being shown to be focusable.
+     */
+    @Override
+    protected boolean onRequestFocusInDescendants(int direction,
+            Rect previouslyFocusedRect) {
+        int index;
+        int increment;
+        int end;
+        int count = getChildCount();
+        if ((direction & FOCUS_FORWARD) != 0) {
+            index = 0;
+            increment = 1;
+            end = count;
+        } else {
+            index = count - 1;
+            increment = -1;
+            end = -1;
+        }
+        for (int i = index; i != end; i += increment) {
+            View child = getChildAt(i);
+            if (child.getVisibility() == VISIBLE) {
+                ItemInfo ii = infoForChild(child);
+                if (ii != null && ii.position == mCurItem) {
+                    if (child.requestFocus(direction, previouslyFocusedRect)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override

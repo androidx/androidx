@@ -77,6 +77,18 @@ public abstract class PagerAdapter {
     public abstract void destroyItem(View container, int position, Object object);
 
     /**
+     * Called to inform the adapter of which item is currently considered to
+     * be the "primary", that is the one show to the user as the current page.
+     *
+     * @param container The containing View from which the page will be removed.
+     * @param position The page position that is now the primary.
+     * @param object The same object that was returned by
+     * {@link #instantiateItem(View, int)}.
+     */
+    public void setPrimaryItem(View container, int position, Object object) {
+    }
+
+    /**
      * Called when the a change in the shown pages has been completed.  At this
      * point you must ensure that all of the pages have actually been added or
      * removed from the container as appropriate.
