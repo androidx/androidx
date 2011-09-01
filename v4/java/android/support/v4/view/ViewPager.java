@@ -357,6 +357,7 @@ public class ViewPager extends ViewGroup {
         int dy = y - sy;
         if (dx == 0 && dy == 0) {
             completeScroll();
+            setScrollState(SCROLL_STATE_IDLE);
             return;
         }
 
