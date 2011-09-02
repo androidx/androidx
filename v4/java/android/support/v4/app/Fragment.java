@@ -1302,7 +1302,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         onStop();
     }
 
-    void performReallyStop(boolean retaining) {
+    void performReallyStop() {
         if (mLoadersStarted) {
             mLoadersStarted = false;
             if (!mCheckedForLoaderManager) {
@@ -1310,7 +1310,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 mLoaderManager = mActivity.getLoaderManager(mIndex, mLoadersStarted, false);
             }
             if (mLoaderManager != null) {
-                if (!retaining) {
+                if (!mActivity.mRetaining) {
                     mLoaderManager.doStop();
                 } else {
                     mLoaderManager.doRetain();

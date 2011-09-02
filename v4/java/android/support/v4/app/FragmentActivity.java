@@ -95,6 +95,7 @@ public class FragmentActivity extends Activity {
     boolean mResumed;
     boolean mStopped;
     boolean mReallyStopped;
+    boolean mRetaining;
 
     boolean mOptionsMenuInvalidated;
 
@@ -481,6 +482,7 @@ public class FragmentActivity extends Activity {
         super.onStart();
 
         mStopped = false;
+        mReallyStopped = false;
         mHandler.removeMessages(MSG_REALLY_STOPPED);
 
         if (!mCreated) {
@@ -580,8 +582,9 @@ public class FragmentActivity extends Activity {
     void doReallyStop(boolean retaining) {
         if (!mReallyStopped) {
             mReallyStopped = true;
+            mRetaining = retaining;
             mHandler.removeMessages(MSG_REALLY_STOPPED);
-            onReallyStop(retaining);
+            onReallyStop();
         }
     }
 
@@ -592,11 +595,11 @@ public class FragmentActivity extends Activity {
      * we need to know this, to know whether to retain fragments.  This will
      * tell us what we need to know.
      */
-    void onReallyStop(boolean retaining) {
+    void onReallyStop() {
         if (mLoadersStarted) {
             mLoadersStarted = false;
             if (mLoaderManager != null) {
-                if (!retaining) {
+                if (!mRetaining) {
                     mLoaderManager.doStop();
                 } else {
                     mLoaderManager.doRetain();
@@ -604,7 +607,7 @@ public class FragmentActivity extends Activity {
             }
         }
 
-        mFragments.dispatchReallyStop(retaining);
+        mFragments.dispatchReallyStop();
     }
 
     // ------------------------------------------------------------------------

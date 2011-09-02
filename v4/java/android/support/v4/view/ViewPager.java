@@ -33,6 +33,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Scroller;
 
@@ -518,7 +519,7 @@ public class ViewPager extends ViewGroup {
 
         if (hasFocus()) {
             View currentFocused = findFocus();
-            ItemInfo ii = currentFocused != null ? infoForChild(currentFocused) : null;
+            ItemInfo ii = currentFocused != null ? infoForAnyChild(currentFocused) : null;
             if (ii == null || ii.position != mCurItem) {
                 for (int i=0; i<getChildCount(); i++) {
                     View child = getChildAt(i);
@@ -636,6 +637,17 @@ public class ViewPager extends ViewGroup {
             }
         }
         return null;
+    }
+
+    ItemInfo infoForAnyChild(View child) {
+        ViewParent parent;
+        while ((parent=child.getParent()) != this) {
+            if (parent == null || !(parent instanceof View)) {
+                return null;
+            }
+            child = (View)parent;
+        }
+        return infoForChild(child);
     }
 
     @Override
@@ -1333,7 +1345,7 @@ public class ViewPager extends ViewGroup {
     }
 
     boolean pageRight() {
-        if (mCurItem < (mAdapter.getCount()-1)) {
+        if (mAdapter != null && mCurItem < (mAdapter.getCount()-1)) {
             setCurrentItem(mCurItem+1, true);
             return true;
         }
@@ -1439,7 +1451,7 @@ public class ViewPager extends ViewGroup {
     @Override
     public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
         // Scroll to the page that contains the child.
-        final ItemInfo ii = infoForChild(child);
+        final ItemInfo ii = infoForAnyChild(child);
         if (ii != null) {
             setCurrentItem(ii.position, !immediate);
             return true;

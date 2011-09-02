@@ -921,6 +921,10 @@ final class FragmentManagerImpl extends FragmentManager {
                         }
                     }
                 case Fragment.STOPPED:
+                    if (newState < Fragment.STOPPED) {
+                        if (DEBUG) Log.v(TAG, "movefrom STOPPED: " + f);
+                        f.performReallyStop();
+                    }
                 case Fragment.ACTIVITY_CREATED:
                     if (newState < Fragment.ACTIVITY_CREATED) {
                         if (DEBUG) Log.v(TAG, "movefrom ACTIVITY_CREATED: " + f);
@@ -1765,15 +1769,8 @@ final class FragmentManagerImpl extends FragmentManager {
         moveToState(Fragment.STOPPED, false);
     }
     
-    public void dispatchReallyStop(boolean retaining) {
-        if (mActive != null) {
-            for (int i=0; i<mAdded.size(); i++) {
-                Fragment f = mAdded.get(i);
-                if (f != null) {
-                    f.performReallyStop(retaining);
-                }
-            }
-        }
+    public void dispatchReallyStop() {
+        moveToState(Fragment.ACTIVITY_CREATED, false);
     }
 
     public void dispatchDestroy() {
