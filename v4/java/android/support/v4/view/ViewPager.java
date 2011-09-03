@@ -17,12 +17,14 @@
 package android.support.v4.view;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.FocusFinder;
@@ -117,6 +119,9 @@ public class ViewPager extends ViewGroup {
 
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
+
+    private EdgeEffectCompat mLeftEdge;
+    private EdgeEffectCompat mRightEdge;
 
     private boolean mFirstLayout = true;
 
@@ -213,11 +218,14 @@ public class ViewPager extends ViewGroup {
         setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setFocusable(true);
-        mScroller = new Scroller(getContext());
+        final Context context = getContext();
+        mScroller = new Scroller(context);
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
+        mLeftEdge = new EdgeEffectCompat(context);
+        mRightEdge = new EdgeEffectCompat(context);
     }
 
     private void setScrollState(int newState) {
@@ -869,7 +877,7 @@ public class ViewPager extends ViewGroup {
                         scrollX >= (mAdapter.getCount() - 1) * getWidth() - 1);
                 if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 
-                if (atEdge || canScroll(this, false, (int) dx, (int) x, (int) y)) {
+                if (canScroll(this, false, (int) dx, (int) x, (int) y)) {
                     // Nested view has scrollable area under this point. Let it be handled there.
                     mInitialMotionX = mLastMotionX = x;
                     mLastMotionY = y;
@@ -958,6 +966,7 @@ public class ViewPager extends ViewGroup {
         mVelocityTracker.addMovement(ev);
 
         final int action = ev.getAction();
+        boolean needsInvalidate = false;
 
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
@@ -995,15 +1004,24 @@ public class ViewPager extends ViewGroup {
                     final float x = MotionEventCompat.getX(ev, activePointerIndex);
                     final float deltaX = mLastMotionX - x;
                     mLastMotionX = x;
-                    float scrollX = getScrollX() + deltaX;
+                    float oldScrollX = getScrollX();
+                    float scrollX = oldScrollX + deltaX;
                     final int width = getWidth();
 
+                    final int lastItemIndex = mAdapter.getCount() - 1;
                     final float leftBound = Math.max(0, (mCurItem - 1) * width);
-                    final float rightBound =
-                            Math.min(mCurItem + 1, mAdapter.getCount() - 1) * width;
+                    final float rightBound = Math.min(mCurItem + 1, lastItemIndex) * width;
                     if (scrollX < leftBound) {
+                        if (leftBound == 0) {
+                            float over = -scrollX;
+                            needsInvalidate = mLeftEdge.onPull(over / width);
+                        }
                         scrollX = leftBound;
                     } else if (scrollX > rightBound) {
+                        if (rightBound == lastItemIndex * width) {
+                            float over = scrollX - rightBound;
+                            needsInvalidate = mRightEdge.onPull(over / width);
+                        }
                         scrollX = rightBound;
                     }
                     // Don't lose the rounded component
@@ -1038,6 +1056,7 @@ public class ViewPager extends ViewGroup {
 
                     mActivePointerId = INVALID_POINTER;
                     endDrag();
+                    needsInvalidate = mLeftEdge.onRelease() | mRightEdge.onRelease();
                 }
                 break;
             case MotionEvent.ACTION_CANCEL:
@@ -1045,6 +1064,7 @@ public class ViewPager extends ViewGroup {
                     setCurrentItemInternal(mCurItem, true, true);
                     mActivePointerId = INVALID_POINTER;
                     endDrag();
+                    needsInvalidate = mLeftEdge.onRelease() | mRightEdge.onRelease();
                 }
                 break;
             case MotionEventCompat.ACTION_POINTER_DOWN: {
@@ -1060,7 +1080,52 @@ public class ViewPager extends ViewGroup {
                         MotionEventCompat.findPointerIndex(ev, mActivePointerId));
                 break;
         }
+        if (needsInvalidate) {
+            invalidate();
+        }
         return true;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        super.draw(canvas);
+        boolean needsInvalidate = false;
+
+        final int overScrollMode = ViewCompat.getOverScrollMode(this);
+        if (overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
+                (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS &&
+                        mAdapter != null && mAdapter.getCount() > 1)) {
+            if (!mLeftEdge.isFinished()) {
+                final int restoreCount = canvas.save();
+                final int height = getHeight() - getPaddingTop() - getPaddingBottom();
+
+                canvas.rotate(270);
+                canvas.translate(-height + getPaddingTop(), 0);
+                mLeftEdge.setSize(height, getWidth());
+                needsInvalidate |= mLeftEdge.draw(canvas);
+                canvas.restoreToCount(restoreCount);
+            }
+            if (!mRightEdge.isFinished()) {
+                final int restoreCount = canvas.save();
+                final int width = getWidth();
+                final int height = getHeight() - getPaddingTop() - getPaddingBottom();
+                final int itemCount = mAdapter != null ? mAdapter.getCount() : 1;
+
+                canvas.rotate(90);
+                canvas.translate(-getPaddingTop(), -itemCount * width);
+                mRightEdge.setSize(height, width);
+                needsInvalidate |= mRightEdge.draw(canvas);
+                canvas.restoreToCount(restoreCount);
+            }
+        } else {
+            mLeftEdge.finish();
+            mRightEdge.finish();
+        }
+
+        if (needsInvalidate) {
+            // Keep animating
+            invalidate();
+        }
     }
 
     /**
