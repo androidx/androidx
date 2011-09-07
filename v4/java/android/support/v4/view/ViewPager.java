@@ -1514,17 +1514,6 @@ public class ViewPager extends ViewGroup {
     }
 
     @Override
-    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
-        // Scroll to the page that contains the child.
-        final ItemInfo ii = infoForAnyChild(child);
-        if (ii != null) {
-            setCurrentItem(ii.position, !immediate);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
         // ViewPagers should only report accessibility info for the current page,
         // otherwise things get very confusing.
