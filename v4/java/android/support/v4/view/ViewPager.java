@@ -662,9 +662,6 @@ public class ViewPager extends ViewGroup {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mFirstLayout = true;
-        if (mAdapter != null) {
-            populate();
-        }
     }
 
     @Override
