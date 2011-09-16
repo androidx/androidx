@@ -106,6 +106,7 @@ public class FragmentActivity extends Activity {
     
     static final class NonConfigurationInstances {
         Object activity;
+        Object custom;
         HashMap<String, Object> children;
         ArrayList<Fragment> fragments;
         HCSparseArray<LoaderManagerImpl> loaders;
@@ -426,13 +427,16 @@ public class FragmentActivity extends Activity {
 
     /**
      * Retain all appropriate fragment and loader state.  You can NOT
-     * override this yourself!
+     * override this yourself!  Use {@link #onRetainCustomNonConfigurationInstance()}
+     * if you want to retain your own state.
      */
     @Override
     public final Object onRetainNonConfigurationInstance() {
         if (mStopped) {
             doReallyStop(true);
         }
+
+        Object custom = onRetainCustomNonConfigurationInstance();
 
         ArrayList<Fragment> fragments = mFragments.retainNonConfig();
         boolean retainLoaders = false;
@@ -449,12 +453,13 @@ public class FragmentActivity extends Activity {
                 }
             }
         }
-        if (fragments == null && !retainLoaders) {
+        if (fragments == null && !retainLoaders && custom == null) {
             return null;
         }
         
         NonConfigurationInstances nci = new NonConfigurationInstances();
         nci.activity = null;
+        nci.custom = custom;
         nci.children = null;
         nci.fragments = fragments;
         nci.loaders = mAllLoaderManagers;
@@ -531,6 +536,24 @@ public class FragmentActivity extends Activity {
     // NEW METHODS
     // ------------------------------------------------------------------------
     
+    /**
+     * Use this instead of {@link #onRetainNonConfigurationInstance()}.
+     * Retrieve later with {@link #getLastCustomNonConfigurationInstance()}.
+     */
+    public Object onRetainCustomNonConfigurationInstance() {
+        return null;
+    }
+
+    /**
+     * Return the value previously returned from
+     * {@link #onRetainCustomNonConfigurationInstance()}.
+     */
+    public Object getLastCustomNonConfigurationInstance() {
+        NonConfigurationInstances nc = (NonConfigurationInstances)
+                getLastNonConfigurationInstance();
+        return nc != null ? nc.custom : null;
+    }
+
     void supportInvalidateOptionsMenu() {
         if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
             // If we are running on HC or greater, we can use the framework
