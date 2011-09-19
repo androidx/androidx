@@ -59,6 +59,8 @@ public class ViewPager extends ViewGroup {
 
     private static final boolean USE_CACHE = false;
 
+    private static final int DEFAULT_OFFSCREEN_PAGES = 1;
+
     static class ItemInfo {
         Object object;
         int position;
@@ -89,6 +91,7 @@ public class ViewPager extends ViewGroup {
 
     private boolean mPopulatePending;
     private boolean mScrolling;
+    private int mOffscreenPageLimit = DEFAULT_OFFSCREEN_PAGES;
 
     private boolean mIsBeingDragged;
     private boolean mIsUnableToDrag;
@@ -319,7 +322,8 @@ public class ViewPager extends ViewGroup {
         } else if (item >= mAdapter.getCount()) {
             item = mAdapter.getCount() - 1;
         }
-        if (item > (mCurItem+1) || item < (mCurItem-1)) {
+        final int pageLimit = mOffscreenPageLimit;
+        if (item > (mCurItem + pageLimit) || item < (mCurItem - pageLimit)) {
             // We are doing a jump by more than one page.  To avoid
             // glitches, we want to keep all current pages in the view
             // until the scroll ends.
@@ -346,6 +350,46 @@ public class ViewPager extends ViewGroup {
 
     public void setOnPageChangeListener(OnPageChangeListener listener) {
         mOnPageChangeListener = listener;
+    }
+
+    /**
+     * Returns the number of pages that will be retained to either side of the
+     * current page in the view hierarchy in an idle state. Defaults to 1.
+     *
+     * @return How many pages will be kept offscreen on either side
+     * @see #setOffscreenPageLimit(int)
+     */
+    public int getOffscreenPageLimit() {
+        return mOffscreenPageLimit;
+    }
+
+    /**
+     * Set the number of pages that should be retained to either side of the
+     * current page in the view hierarchy in an idle state. Pages beyond this
+     * limit will be recreated from the adapter when needed.
+     *
+     * <p>This is offered as an optimization. If you know in advance the number
+     * of pages you will need to support or have lazy-loading mechanisms in place
+     * on your pages, tweaking this setting can have benefits in perceived smoothness
+     * of paging animations and interaction. If you have a small number of pages (3-4)
+     * that you can keep active all at once, less time will be spent in layout for
+     * newly created view subtrees as the user pages back and forth.</p>
+     *
+     * <p>You should keep this limit low, especially if your pages have complex layouts.
+     * This setting defaults to 1.</p>
+     *
+     * @param limit How many pages will be kept offscreen in an idle state.
+     */
+    public void setOffscreenPageLimit(int limit) {
+        if (limit < DEFAULT_OFFSCREEN_PAGES) {
+            Log.w(TAG, "Requested offscreen page limit " + limit + " too small; defaulting to " +
+                    DEFAULT_OFFSCREEN_PAGES);
+            limit = DEFAULT_OFFSCREEN_PAGES;
+        }
+        if (limit != mOffscreenPageLimit) {
+            mOffscreenPageLimit = limit;
+            populate();
+        }
     }
 
     /**
@@ -462,9 +506,10 @@ public class ViewPager extends ViewGroup {
 
         mAdapter.startUpdate(this);
 
-        final int startPos = mCurItem > 0 ? mCurItem - 1 : mCurItem;
+        final int pageLimit = mOffscreenPageLimit;
+        final int startPos = Math.max(0, mCurItem - pageLimit);
         final int N = mAdapter.getCount();
-        final int endPos = mCurItem < (N-1) ? mCurItem+1 : N-1;
+        final int endPos = Math.min(N-1, mCurItem + pageLimit);
 
         if (DEBUG) Log.v(TAG, "populating: startPos=" + startPos + " endPos=" + endPos);
 
