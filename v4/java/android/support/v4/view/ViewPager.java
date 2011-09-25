@@ -19,6 +19,7 @@ package android.support.v4.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -82,6 +83,9 @@ public class ViewPager extends ViewGroup {
     private ClassLoader mRestoredClassLoader = null;
     private Scroller mScroller;
     private PagerAdapter.DataSetObserver mObserver;
+
+    private int mPageMargin;
+    private Drawable mMarginDrawable;
 
     private int mChildWidthMeasureSpec;
     private int mChildHeightMeasureSpec;
@@ -334,8 +338,9 @@ public class ViewPager extends ViewGroup {
         final boolean dispatchSelected = mCurItem != item;
         mCurItem = item;
         populate();
+        final int destX = (getWidth() + mPageMargin) * item;
         if (smoothScroll) {
-            smoothScrollTo(getWidth()*item, 0);
+            smoothScrollTo(destX, 0);
             if (dispatchSelected && mOnPageChangeListener != null) {
                 mOnPageChangeListener.onPageSelected(item);
             }
@@ -344,7 +349,7 @@ public class ViewPager extends ViewGroup {
                 mOnPageChangeListener.onPageSelected(item);
             }
             completeScroll();
-            scrollTo(getWidth()*item, 0);
+            scrollTo(destX, 0);
         }
     }
 
@@ -389,6 +394,68 @@ public class ViewPager extends ViewGroup {
         if (limit != mOffscreenPageLimit) {
             mOffscreenPageLimit = limit;
             populate();
+        }
+    }
+
+    /**
+     * Set the margin between pages.
+     *
+     * @param marginPixels Distance between adjacent pages in pixels
+     * @see #getPageMargin()
+     * @see #setPageMarginDrawable(Drawable)
+     * @see #setPageMarginDrawable(int)
+     */
+    public void setPageMargin(int marginPixels) {
+        final int oldMargin = mPageMargin;
+        mPageMargin = marginPixels;
+
+        final int width = getWidth();
+        recomputeScrollPosition(width, width, marginPixels, oldMargin);
+
+        requestLayout();
+    }
+
+    /**
+     * Return the margin between pages.
+     *
+     * @return The size of the margin in pixels
+     */
+    public int getPageMargin() {
+        return mPageMargin;
+    }
+
+    /**
+     * Set a drawable that will be used to fill the margin between pages.
+     *
+     * @param d Drawable to display between pages
+     */
+    public void setPageMarginDrawable(Drawable d) {
+        mMarginDrawable = d;
+        if (d != null) refreshDrawableState();
+        setWillNotDraw(d == null);
+        invalidate();
+    }
+
+    /**
+     * Set a drawable that will be used to fill the margin between pages.
+     *
+     * @param resId Resource ID of a drawable to display between pages
+     */
+    public void setPageMarginDrawable(int resId) {
+        setPageMarginDrawable(getContext().getResources().getDrawable(resId));
+    }
+
+    @Override
+    protected boolean verifyDrawable(Drawable who) {
+        return super.verifyDrawable(who) || who == mMarginDrawable;
+    }
+
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        final Drawable d = mMarginDrawable;
+        if (d != null && d.isStateful()) {
+            d.setState(getDrawableState());
         }
     }
 
@@ -748,23 +815,29 @@ public class ViewPager extends ViewGroup {
 
         // Make sure scroll position is set correctly.
         if (w != oldw) {
-            if (oldw > 0) {
-                final int oldScrollPos = getScrollX();
-                final int oldScrollItem = oldScrollPos / oldw;
-                final float scrollOffset = (float) (oldScrollPos % oldw) / oldw;
-                final int scrollPos = (int) ((oldScrollItem + scrollOffset) * w);
+            recomputeScrollPosition(w, oldw, mPageMargin, mPageMargin);
+        }
+    }
+
+    private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin) {
+        final int widthWithMargin = width + margin;
+        if (oldWidth > 0) {
+            final int oldScrollPos = getScrollX();
+            final int oldwwm = oldWidth + oldMargin;
+            final int oldScrollItem = oldScrollPos / oldwwm;
+            final float scrollOffset = (float) (oldScrollPos % oldwwm) / oldwwm;
+            final int scrollPos = (int) ((oldScrollItem + scrollOffset) * widthWithMargin);
+            scrollTo(scrollPos, getScrollY());
+            if (!mScroller.isFinished()) {
+                // We now return to your regularly scheduled scroll, already in progress.
+                final int newDuration = mScroller.getDuration() - mScroller.timePassed();
+                mScroller.startScroll(scrollPos, 0, mCurItem * widthWithMargin, 0, newDuration);
+            }
+        } else {
+            int scrollPos = mCurItem * widthWithMargin;
+            if (scrollPos != getScrollX()) {
+                completeScroll();
                 scrollTo(scrollPos, getScrollY());
-                if (!mScroller.isFinished()) {
-                    // We now return to your regularly scheduled scroll, already in progress.
-                    final int newDuration = mScroller.getDuration() - mScroller.timePassed();
-                    mScroller.startScroll(scrollPos, 0, mCurItem * w, 0, newDuration);
-                }
-            } else {
-                int scrollPos = mCurItem * w;
-                if (scrollPos != getScrollX()) {
-                    completeScroll();
-                    scrollTo(scrollPos, getScrollY());
-                }
             }
         }
     }
@@ -782,7 +855,7 @@ public class ViewPager extends ViewGroup {
             View child = getChildAt(i);
             ItemInfo ii;
             if (child.getVisibility() != GONE && (ii=infoForChild(child)) != null) {
-                int loff = width*ii.position;
+                int loff = (width + mPageMargin) * ii.position;
                 int childLeft = getPaddingLeft() + loff;
                 int childTop = getPaddingTop();
                 if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object
@@ -1049,10 +1122,12 @@ public class ViewPager extends ViewGroup {
                     float oldScrollX = getScrollX();
                     float scrollX = oldScrollX + deltaX;
                     final int width = getWidth();
+                    final int widthWithMargin = width + mPageMargin;
 
                     final int lastItemIndex = mAdapter.getCount() - 1;
-                    final float leftBound = Math.max(0, (mCurItem - 1) * width);
-                    final float rightBound = Math.min(mCurItem + 1, lastItemIndex) * width;
+                    final float leftBound = Math.max(0, (mCurItem - 1) * widthWithMargin);
+                    final float rightBound =
+                            Math.min(mCurItem + 1, lastItemIndex) * widthWithMargin;
                     if (scrollX < leftBound) {
                         if (leftBound == 0) {
                             float over = -scrollX;
@@ -1060,7 +1135,7 @@ public class ViewPager extends ViewGroup {
                         }
                         scrollX = leftBound;
                     } else if (scrollX > rightBound) {
-                        if (rightBound == lastItemIndex * width) {
+                        if (rightBound == lastItemIndex * widthWithMargin) {
                             float over = scrollX - rightBound;
                             needsInvalidate = mRightEdge.onPull(over / width);
                         }
@@ -1070,9 +1145,9 @@ public class ViewPager extends ViewGroup {
                     mLastMotionX += scrollX - (int) scrollX;
                     scrollTo((int) scrollX, getScrollY());
                     if (mOnPageChangeListener != null) {
-                        final int position = (int) scrollX / width;
-                        final int positionOffsetPixels = (int) scrollX % width;
-                        final float positionOffset = (float) positionOffsetPixels / width;
+                        final int position = (int) scrollX / widthWithMargin;
+                        final int positionOffsetPixels = (int) scrollX % widthWithMargin;
+                        final float positionOffset = (float) positionOffsetPixels / widthWithMargin;
                         mOnPageChangeListener.onPageScrolled(position, positionOffset,
                                 positionOffsetPixels);
                     }
@@ -1154,7 +1229,8 @@ public class ViewPager extends ViewGroup {
                 final int itemCount = mAdapter != null ? mAdapter.getCount() : 1;
 
                 canvas.rotate(90);
-                canvas.translate(-getPaddingTop(), -itemCount * width);
+                canvas.translate(-getPaddingTop(),
+                        -itemCount * (width + mPageMargin) + mPageMargin);
                 mRightEdge.setSize(height, width);
                 needsInvalidate |= mRightEdge.draw(canvas);
                 canvas.restoreToCount(restoreCount);
@@ -1167,6 +1243,24 @@ public class ViewPager extends ViewGroup {
         if (needsInvalidate) {
             // Keep animating
             invalidate();
+        }
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        // Draw the margin drawable if needed.
+        if (mPageMargin > 0 && mMarginDrawable != null) {
+            final int scrollX = getScrollX();
+            final int width = getWidth();
+            final int offset = scrollX % (width + mPageMargin);
+            if (offset != 0) {
+                // Pages fit completely when settled; we only need to draw when in between
+                final int left = scrollX - offset + width;
+                mMarginDrawable.setBounds(left, 0, left + mPageMargin, getHeight());
+                mMarginDrawable.draw(canvas);
+            }
         }
     }
 
@@ -1253,10 +1347,11 @@ public class ViewPager extends ViewGroup {
         mLastMotionX += xOffset;
         float scrollX = getScrollX() - xOffset;
         final int width = getWidth();
+        final int widthWithMargin = width + mPageMargin;
 
-        final float leftBound = Math.max(0, (mCurItem - 1) * width);
+        final float leftBound = Math.max(0, (mCurItem - 1) * widthWithMargin);
         final float rightBound =
-                Math.min(mCurItem + 1, mAdapter.getCount() - 1) * width;
+                Math.min(mCurItem + 1, mAdapter.getCount() - 1) * widthWithMargin;
         if (scrollX < leftBound) {
             scrollX = leftBound;
         } else if (scrollX > rightBound) {
@@ -1266,9 +1361,9 @@ public class ViewPager extends ViewGroup {
         mLastMotionX += scrollX - (int) scrollX;
         scrollTo((int) scrollX, getScrollY());
         if (mOnPageChangeListener != null) {
-            final int position = (int) scrollX / width;
-            final int positionOffsetPixels = (int) scrollX % width;
-            final float positionOffset = (float) positionOffsetPixels / width;
+            final int position = (int) scrollX / widthWithMargin;
+            final int positionOffsetPixels = (int) scrollX % widthWithMargin;
+            final float positionOffset = (float) positionOffsetPixels / widthWithMargin;
             mOnPageChangeListener.onPageScrolled(position, positionOffset,
                     positionOffsetPixels);
         }
