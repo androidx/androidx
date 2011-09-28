@@ -885,10 +885,10 @@ public class ViewPager extends ViewGroup {
                 }
 
                 if (mOnPageChangeListener != null) {
-                    final int width = getWidth();
-                    final int position = x / width;
-                    final int offsetPixels = x % width;
-                    final float offset = (float) offsetPixels / width;
+                    final int widthWithMargin = getWidth() + mPageMargin;
+                    final int position = x / widthWithMargin;
+                    final int offsetPixels = x % widthWithMargin;
+                    final float offset = (float) offsetPixels / widthWithMargin;
                     mOnPageChangeListener.onPageScrolled(position, offset, offsetPixels);
                 }
 
