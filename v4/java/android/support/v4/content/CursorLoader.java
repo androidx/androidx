@@ -20,7 +20,6 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.database.CursorHelper;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -71,7 +70,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
         if (isReset()) {
             // An async query came in while the loader is stopped
             if (cursor != null) {
-                CursorHelper.closeAsync(cursor);
+                cursor.close();
             }
             return;
         }
@@ -83,7 +82,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
         }
 
         if (oldCursor != null && oldCursor != cursor && !oldCursor.isClosed()) {
-            CursorHelper.closeAsync(oldCursor);
+            oldCursor.close();
         }
     }
 
@@ -143,7 +142,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
     @Override
     public void onCanceled(Cursor cursor) {
         if (cursor != null && !cursor.isClosed()) {
-            CursorHelper.closeAsync(cursor);
+            cursor.close();
         }
     }
 
@@ -155,7 +154,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
         onStopLoading();
 
         if (mCursor != null && !mCursor.isClosed()) {
-            CursorHelper.closeAsync(mCursor);
+            mCursor.close();
         }
         mCursor = null;
     }
