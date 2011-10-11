@@ -16,7 +16,9 @@
 
 package android.support.v4.view;
 
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 
 /**
  * Helper for accessing newer features in View.
@@ -44,6 +46,10 @@ public class ViewCompat {
         public boolean canScrollVertically(View v, int direction);
         public int getOverScrollMode(View v);
         public void setOverScrollMode(View v, int mode);
+        public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event);
+        public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
+        public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
+        public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -59,23 +65,55 @@ public class ViewCompat {
         public void setOverScrollMode(View v, int mode) {
             // Do nothing; API doesn't exist
         }
+        public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
+            // Do nothing; API doesn't exist
+        }
+        public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
+            // Do nothing; API doesn't exist
+        }
+        public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
+         // Do nothing; API doesn't exist
+        }
+        public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
+            // Do nothing; API doesn't exist
+        }
     }
 
     static class GBViewCompatImpl extends BaseViewCompatImpl {
+        @Override
         public int getOverScrollMode(View v) {
             return ViewCompatGingerbread.getOverScrollMode(v);
         }
+        @Override
         public void setOverScrollMode(View v, int mode) {
             ViewCompatGingerbread.setOverScrollMode(v, mode);
         }
     }
 
     static class ICSViewCompatImpl extends GBViewCompatImpl {
+        @Override
         public boolean canScrollHorizontally(View v, int direction) {
             return ViewCompatICS.canScrollHorizontally(v, direction);
         }
+        @Override
         public boolean canScrollVertically(View v, int direction) {
             return ViewCompatICS.canScrollVertically(v, direction);
+        }
+        @Override
+        public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
+            ViewCompatICS.onPopulateAccessibilityEvent(v, event);
+        }
+        @Override
+        public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
+            ViewCompatICS.onInitializeAccessibilityEvent(v, event);
+        }
+        @Override
+        public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
+            ViewCompatICS.onInitializeAccessibilityNodeInfo(v, info.getImpl());
+        }
+        @Override
+        public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
+            ViewCompatICS.setAccessibilityDelegate(v, delegate.getBridge());
         }
     }
 
@@ -105,5 +143,21 @@ public class ViewCompat {
 
     public static void setOverScrollMode(View v, int mode) {
         IMPL.setOverScrollMode(v, mode);
+    }
+
+    public static void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
+        IMPL.onPopulateAccessibilityEvent(v, event);
+    }
+
+    public static void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
+        IMPL.onInitializeAccessibilityEvent(v, event);
+    }
+
+    public static void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
+        IMPL.onInitializeAccessibilityNodeInfo(v, info);
+    }
+
+    public static void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
+        IMPL.setAccessibilityDelegate(v, delegate);
     }
 }
