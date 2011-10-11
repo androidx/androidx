@@ -38,6 +38,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class ViewPager extends ViewGroup {
     private static final boolean USE_CACHE = false;
 
     private static final int DEFAULT_OFFSCREEN_PAGES = 1;
+    private static final int MAX_SETTLE_DURATION = 600; // ms
 
     static class ItemInfo {
         Object object;
@@ -73,6 +75,15 @@ public class ViewPager extends ViewGroup {
         public int compare(ItemInfo lhs, ItemInfo rhs) {
             return lhs.position - rhs.position;
         }};
+
+    private static final Interpolator sInterpolator = new Interpolator() {
+        public float getInterpolation(float t) {
+            // _o(t) = t * t * ((tension + 1) * t + tension)
+            // o(t) = _o(t - 1) + 1
+            t -= 1.0f;
+            return t * t * t + 1.0f;
+        }
+    };
 
     private final ArrayList<ItemInfo> mItems = new ArrayList<ItemInfo>();
 
@@ -123,6 +134,8 @@ public class ViewPager extends ViewGroup {
     private VelocityTracker mVelocityTracker;
     private int mMinimumVelocity;
     private int mMaximumVelocity;
+    private float mBaseLineFlingVelocity;
+    private float mFlingVelocityInfluence;
 
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
@@ -226,13 +239,17 @@ public class ViewPager extends ViewGroup {
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setFocusable(true);
         final Context context = getContext();
-        mScroller = new Scroller(context);
-        final ViewConfiguration configuration = ViewConfiguration.get(getContext());
+        mScroller = new Scroller(context, sInterpolator);
+        final ViewConfiguration configuration = ViewConfiguration.get(context);
         mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
         mLeftEdge = new EdgeEffectCompat(context);
         mRightEdge = new EdgeEffectCompat(context);
+
+        float density = context.getResources().getDisplayMetrics().density;
+        mBaseLineFlingVelocity = 2500.0f * density;
+        mFlingVelocityInfluence = 0.4f;
     }
 
     private void setScrollState(int newState) {
@@ -313,6 +330,10 @@ public class ViewPager extends ViewGroup {
     }
 
     void setCurrentItemInternal(int item, boolean smoothScroll, boolean always) {
+        setCurrentItemInternal(item, smoothScroll, always, 0);
+    }
+
+    void setCurrentItemInternal(int item, boolean smoothScroll, boolean always, int velocity) {
         if (mAdapter == null || mAdapter.getCount() <= 0) {
             setScrollingCacheEnabled(false);
             return;
@@ -340,7 +361,7 @@ public class ViewPager extends ViewGroup {
         populate();
         final int destX = (getWidth() + mPageMargin) * item;
         if (smoothScroll) {
-            smoothScrollTo(destX, 0);
+            smoothScrollTo(destX, 0, velocity);
             if (dispatchSelected && mOnPageChangeListener != null) {
                 mOnPageChangeListener.onPageSelected(item);
             }
@@ -459,6 +480,16 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    // We want the duration of the page snap animation to be influenced by the distance that
+    // the screen has to travel, however, we don't want this duration to be effected in a
+    // purely linear fashion. Instead, we use this method to moderate the effect that the distance
+    // of travel has on the overall snap duration.
+    float distanceInfluenceForSnapDuration(float f) {
+        f -= 0.5f; // center the values about 0.
+        f *= 0.3f * Math.PI / 2.0f;
+        return (float) Math.sin(f);
+    }
+
     /**
      * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
      *
@@ -466,6 +497,17 @@ public class ViewPager extends ViewGroup {
      * @param y the number of pixels to scroll by on the Y axis
      */
     void smoothScrollTo(int x, int y) {
+        smoothScrollTo(x, y, 0);
+    }
+
+    /**
+     * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
+     *
+     * @param x the number of pixels to scroll by on the X axis
+     * @param y the number of pixels to scroll by on the Y axis
+     * @param velocity the velocity associated with a fling, if applicable. (0 otherwise)
+     */
+    void smoothScrollTo(int x, int y, int velocity) {
         if (getChildCount() == 0) {
             // Nothing to do.
             setScrollingCacheEnabled(false);
@@ -484,7 +526,19 @@ public class ViewPager extends ViewGroup {
         setScrollingCacheEnabled(true);
         mScrolling = true;
         setScrollState(SCROLL_STATE_SETTLING);
-        mScroller.startScroll(sx, sy, dx, dy);
+
+        final float pageDelta = (float) Math.abs(dx) / (getWidth() + mPageMargin);
+        int duration = (int) (pageDelta * 100);
+
+        velocity = Math.abs(velocity);
+        if (velocity > 0) {
+            duration += (duration / (velocity / mBaseLineFlingVelocity)) * mFlingVelocityInfluence;
+        } else {
+            duration += 100;
+        }
+        duration = Math.min(duration, MAX_SETTLE_DURATION);
+
+        mScroller.startScroll(sx, sy, dx, dy, duration);
         invalidate();
     }
 
@@ -1157,19 +1211,14 @@ public class ViewPager extends ViewGroup {
                 if (mIsBeingDragged) {
                     final VelocityTracker velocityTracker = mVelocityTracker;
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                    int initialVelocity = (int)VelocityTrackerCompat.getYVelocity(
+                    int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
                             velocityTracker, mActivePointerId);
                     mPopulatePending = true;
-                    if ((Math.abs(initialVelocity) > mMinimumVelocity)
-                            || Math.abs(mInitialMotionX-mLastMotionX) >= (getWidth()/3)) {
-                        if (mLastMotionX > mInitialMotionX) {
-                            setCurrentItemInternal(mCurItem-1, true, true);
-                        } else {
-                            setCurrentItemInternal(mCurItem+1, true, true);
-                        }
-                    } else {
-                        setCurrentItemInternal(mCurItem, true, true);
-                    }
+                    final int widthWithMargin = getWidth() + mPageMargin;
+                    final int scrollX = getScrollX();
+                    final int currentPage = scrollX / widthWithMargin;
+                    int nextPage = initialVelocity > 0 ? currentPage : currentPage + 1;
+                    setCurrentItemInternal(nextPage, true, true, initialVelocity);
 
                     mActivePointerId = INVALID_POINTER;
                     endDrag();
