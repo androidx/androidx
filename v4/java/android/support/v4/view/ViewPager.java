@@ -559,6 +559,7 @@ public class ViewPager extends ViewGroup {
         boolean needPopulate = mItems.size() < 3 && mItems.size() < mAdapter.getCount();
         int newCurrItem = -1;
 
+        boolean isUpdating = false;
         for (int i = 0; i < mItems.size(); i++) {
             final ItemInfo ii = mItems.get(i);
             final int newPos = mAdapter.getItemPosition(ii.object);
@@ -570,6 +571,12 @@ public class ViewPager extends ViewGroup {
             if (newPos == PagerAdapter.POSITION_NONE) {
                 mItems.remove(i);
                 i--;
+
+                if (!isUpdating) {
+                    mAdapter.startUpdate(this);
+                    isUpdating = true;
+                }
+
                 mAdapter.destroyItem(this, ii.position, ii.object);
                 needPopulate = true;
 
@@ -589,6 +596,10 @@ public class ViewPager extends ViewGroup {
                 ii.position = newPos;
                 needPopulate = true;
             }
+        }
+
+        if (isUpdating) {
+            mAdapter.finishUpdate(this);
         }
 
         Collections.sort(mItems, COMPARATOR);
