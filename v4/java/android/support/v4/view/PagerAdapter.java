@@ -16,6 +16,8 @@
 
 package android.support.v4.view;
 
+import android.database.DataSetObservable;
+import android.database.DataSetObserver;
 import android.os.Parcelable;
 import android.view.View;
 
@@ -27,17 +29,10 @@ import android.view.View;
  * {@link android.support.v4.app.FragmentStatePagerAdapter}.
  */
 public abstract class PagerAdapter {
-    private DataSetObserver mObserver;
+    private DataSetObservable mObservable = new DataSetObservable();
 
     public static final int POSITION_UNCHANGED = -1;
     public static final int POSITION_NONE = -2;
-
-    /**
-     * Used to watch for changes within the adapter.
-     */
-    interface DataSetObserver {
-        public void onDataSetChanged();
-    }
 
     /**
      * Return the number of views available.
@@ -127,12 +122,27 @@ public abstract class PagerAdapter {
      * and associated views should update.
      */
     public void notifyDataSetChanged() {
-        if (mObserver != null) {
-            mObserver.onDataSetChanged();
-        }
+        mObservable.notifyChanged();
     }
 
-    void setDataSetObserver(DataSetObserver observer) {
-        mObserver = observer;
+    void registerDataSetObserver(DataSetObserver observer) {
+        mObservable.registerObserver(observer);
+    }
+
+    void unregisterDataSetObserver(DataSetObserver observer) {
+        mObservable.unregisterObserver(observer);
+    }
+
+    /**
+     * This method may be called by the ViewPager to obtain a title string
+     * to describe the specified page. This method may return null
+     * indicating no title for this page. The default implementation returns
+     * null.
+     *
+     * @param position The position of the title requested
+     * @return A title for the requested page
+     */
+    public CharSequence getPageTitle(int position) {
+        return null;
     }
 }
