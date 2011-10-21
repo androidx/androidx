@@ -226,5 +226,21 @@
         <service android:name=".content.LocalServiceBroadcaster$LocalService"
                 android:stopWithTask="true" />
 
+        <activity android:name=".accessibility.AccessibilityManagerSupportActivity"
+                android:label="@string/accessibility_manager_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".accessibility.AccessibilityDelegateSupportActivity"
+                android:label="@string/accessibility_delegate_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

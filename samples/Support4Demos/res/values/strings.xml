@@ -102,4 +102,24 @@
     <string name="start_service">Start Service</string>
     <string name="stop_service">Stop Service</string>
 
+    <!-- Accessibility API -->
+
+    <string name="accessibility_manager_title">Accessibility/Accessibility Manager</string>
+    <string name="accessibility_manager_instructions">
+        1. Enable TalkBack from Settings->Accessibility.
+        \n2. Go back to this activity.
+        \n3. Disable TalkBack from Settings->Accessibility.</string>
+    <string name="accessibility_manager_no_enabled_services">No enabled accessibility services or API level lower than ICS.</string>
+    <string name="accessibility_manager_enabled_service">ENABLED ACCESSIBILITY SERVICES:
+        \n\nService: %1$s\nFeedback: %2$s\nDescription: %3$s\nSettings: %4$s\n</string>
+    <string name="accessibility_manager_accessibility_state">Accessibility enabled: %1$s</string>
+
+    <string name="accessibility_delegate_title">Accessibility/Accessibility Delegate</string>
+    <string name="accessibility_delegate_instructions">
+        1. Enable TalkBack from Settings->Accessibility.
+        \n2. Go back to this activity.
+        \n3. Touch the button below.</string>
+    <string name="accessibility_delegate_button">Button</string>
+    <string name="accessibility_delegate_custom_text_added">Custom text added via an accessibility delegate.</string>
+
 </resources>
