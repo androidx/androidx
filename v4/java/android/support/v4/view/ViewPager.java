@@ -1259,6 +1259,10 @@ public class ViewPager extends ViewGroup {
             mIsBeingDragged = false;
             mIsUnableToDrag = false;
             mActivePointerId = INVALID_POINTER;
+            if (mVelocityTracker != null) {
+                mVelocityTracker.recycle();
+                mVelocityTracker = null;
+            }
             return false;
         }
 
@@ -1299,8 +1303,6 @@ public class ViewPager extends ViewGroup {
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
                 final float yDiff = Math.abs(y - mLastMotionY);
                 final int scrollX = getScrollX();
-                final boolean atEdge = (dx > 0 && scrollX == 0) || (dx < 0 && mAdapter != null &&
-                        scrollX >= (mAdapter.getCount() - 1) * getWidth() - 1);
                 if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 
                 if (canScroll(this, false, (int) dx, (int) x, (int) y)) {
@@ -1359,10 +1361,19 @@ public class ViewPager extends ViewGroup {
                 break;
         }
 
+        if (!mIsBeingDragged) {
+            // Track the velocity as long as we aren't dragging.
+            // Once we start a real drag we will track in onTouchEvent.
+            if (mVelocityTracker == null) {
+                mVelocityTracker = VelocityTracker.obtain();
+            }
+            mVelocityTracker.addMovement(ev);
+        }
+
         /*
-        * The only time we want to intercept motion events is if we are in the
-        * drag mode.
-        */
+         * The only time we want to intercept motion events is if we are in the
+         * drag mode.
+         */
         return mIsBeingDragged;
     }
 
