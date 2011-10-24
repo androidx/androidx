@@ -37,7 +37,7 @@ import android.widget.TextView;
  * {@link PagerAdapter#getPageTitle(int)} in the adapter supplied to
  * the ViewPager.
  */
-public class PagerTitleStrip extends ViewGroup {
+public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private static final String TAG = "PagerTitleStrip";
 
     ViewPager mPager;
