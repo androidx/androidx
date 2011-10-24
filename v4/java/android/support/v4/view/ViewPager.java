@@ -245,6 +245,12 @@ public class ViewPager extends ViewGroup {
         public void onAdapterChanged(PagerAdapter oldAdapter, PagerAdapter newAdapter);
     }
 
+    /**
+     * Used internally to tag special types of child views that should be added as
+     * pager decorations by default.
+     */
+    interface Decor {}
+
     public ViewPager(Context context) {
         super(context);
         initViewPager();
@@ -864,11 +870,12 @@ public class ViewPager extends ViewGroup {
 
     @Override
     public void addView(View child, int index, ViewGroup.LayoutParams params) {
+        if (!checkLayoutParams(params)) {
+            params = generateLayoutParams(params);
+        }
+        final LayoutParams lp = (LayoutParams) params;
+        lp.isDecor |= child instanceof Decor;
         if (mInLayout) {
-            if (!checkLayoutParams(params)) {
-                params = generateLayoutParams(params);
-            }
-            final LayoutParams lp = (LayoutParams) params;
             if (lp != null && lp.isDecor) {
                 throw new IllegalStateException("Cannot add pager decor view during layout");
             }
@@ -1977,10 +1984,7 @@ public class ViewPager extends ViewGroup {
 
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        LayoutParams lp = new LayoutParams(getContext(), attrs);
-        // Anything inflated into a pager while not populating is a decorative view.
-        lp.isDecor = !mIsPopulating;
-        return lp;
+        return new LayoutParams(getContext(), attrs);
     }
 
     private class PagerObserver extends DataSetObserver {
