@@ -940,7 +940,7 @@ public class ViewPager extends ViewGroup {
          * Right now we cheat and make this less complicated by assuming decor
          * views won't intersect. We will pin to edges based on gravity.
          */
-        final int size = getChildCount();
+        int size = getChildCount();
         for (int i = 0; i < size; ++i) {
             final View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
@@ -982,6 +982,7 @@ public class ViewPager extends ViewGroup {
         mInLayout = false;
 
         // Page views next.
+        size = getChildCount();
         for (int i = 0; i < size; ++i) {
             final View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
