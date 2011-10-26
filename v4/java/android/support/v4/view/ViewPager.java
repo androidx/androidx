@@ -1093,6 +1093,9 @@ public class ViewPager extends ViewGroup {
                     }
                     childLeft += scrollX;
                     decorCount++;
+                    child.layout(childLeft, childTop,
+                            childLeft + child.getMeasuredWidth(),
+                            childTop + child.getMeasuredHeight());
                 } else if ((ii = infoForChild(child)) != null) {
                     int loff = (width + mPageMargin) * ii.position;
                     childLeft = paddingLeft + loff;
@@ -1100,10 +1103,10 @@ public class ViewPager extends ViewGroup {
                     if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object
                             + ":" + childLeft + "," + childTop + " " + child.getMeasuredWidth()
                             + "x" + child.getMeasuredHeight());
+                    child.layout(childLeft, childTop,
+                            childLeft + child.getMeasuredWidth(),
+                            childTop + child.getMeasuredHeight());
                 }
-                child.layout(childLeft, childTop,
-                        childLeft + child.getMeasuredWidth(),
-                        childTop + child.getMeasuredHeight());
             }
         }
         mTopPageBounds = paddingTop;
