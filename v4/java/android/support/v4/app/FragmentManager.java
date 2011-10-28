@@ -755,6 +755,13 @@ final class FragmentManagerImpl extends FragmentManager {
         return null;
     }
     
+    public void performPendingDeferredStart(Fragment f) {
+        if (f.mDeferStart) {
+            f.mDeferStart = false;
+            moveToState(f, mCurState, 0, 0);
+        }
+    }
+
     void moveToState(Fragment f, int newState, int transit, int transitionStyle) {
         // Fragments that are not currently added will sit in the onCreate() state.
         if (!f.mAdded && newState > Fragment.CREATED) {
@@ -763,6 +770,10 @@ final class FragmentManagerImpl extends FragmentManager {
         if (f.mRemoving && newState > f.mState) {
             // While removing a fragment, we can't change it to a higher state.
             newState = f.mState;
+        }
+        // Defer start if the fragment has requested it
+        if (f.mDeferStart && newState > Fragment.STOPPED) {
+            newState = Fragment.STOPPED;
         }
         
         if (f.mState < newState) {
@@ -1047,16 +1058,33 @@ final class FragmentManagerImpl extends FragmentManager {
         
         mCurState = newState;
         if (mActive != null) {
+            boolean loadersRunning = false;
             for (int i=0; i<mActive.size(); i++) {
                 Fragment f = mActive.get(i);
                 if (f != null) {
                     moveToState(f, newState, transit, transitStyle);
+                    if (f.mLoaderManager != null) {
+                        loadersRunning |= f.mLoaderManager.hasRunningLoaders();
+                    }
                 }
+            }
+
+            if (!loadersRunning) {
+                startPendingDeferredFragments();
             }
 
             if (mNeedMenuInvalidate && mActivity != null && mCurState == Fragment.RESUMED) {
                 mActivity.supportInvalidateOptionsMenu();
                 mNeedMenuInvalidate = false;
+            }
+        }
+    }
+
+    void startPendingDeferredFragments() {
+        for (int i=0; i<mActive.size(); i++) {
+            Fragment f = mActive.get(i);
+            if (f != null) {
+                performPendingDeferredStart(f);
             }
         }
     }

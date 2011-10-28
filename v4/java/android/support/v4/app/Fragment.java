@@ -216,7 +216,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // The fragment manager we are associated with.  Set as soon as the
     // fragment is used in a transaction; cleared after it has been removed
     // from all transactions.
-    FragmentManager mFragmentManager;
+    FragmentManagerImpl mFragmentManager;
 
     // Activity this fragment is attached to.
     FragmentActivity mActivity;
@@ -268,7 +268,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     
     // The real inner view that will save/restore state.
     View mInnerView;
-    
+
+    // Whether this fragment should defer starting until after other fragments
+    // have been started and their loaders are finished.
+    boolean mDeferStart;
+
     LoaderManagerImpl mLoaderManager;
     boolean mLoadersStarted;
     boolean mCheckedForLoaderManager;
@@ -719,6 +723,34 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 mActivity.supportInvalidateOptionsMenu();
             }
         }
+    }
+
+    /**
+     * Set whether this fragment should enter the started state as normal or if
+     * start should be deferred until a system-determined convenient time, such
+     * as after any loaders have completed their work.
+     *
+     * <p>This option is not sticky across fragment starts; after a deferred start
+     * completes this option will be set to false.</p>
+     *
+     * @param deferResume true if this fragment can defer its resume until after others
+     */
+    public void setStartDeferred(boolean deferResume) {
+        if (mDeferStart && !deferResume) {
+            mFragmentManager.performPendingDeferredStart(this);
+        }
+        mDeferStart = deferResume;
+    }
+
+    /**
+     * Returns true if this fragment's move to the started state has been deferred.
+     * If this returns true it will be started once other fragments' loaders
+     * have finished running.
+     *
+     * @return true if this fragment's start has been deferred.
+     */
+    public boolean isStartDeferred() {
+        return mDeferStart;
     }
 
     /**
