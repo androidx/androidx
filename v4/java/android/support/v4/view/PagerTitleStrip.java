@@ -49,7 +49,6 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private float mLastKnownPositionOffset = -1;
     private int mScaledTextSpacing;
 
-    private boolean mFirstLayout = true;
     private boolean mUpdatingText;
     private boolean mUpdatingPositions;
 
@@ -194,6 +193,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
             mLastKnownCurrentPage = -1;
             mLastKnownPositionOffset = -1;
             updateText(mPager.getCurrentItem(), newAdapter);
+            requestLayout();
         }
     }
 
