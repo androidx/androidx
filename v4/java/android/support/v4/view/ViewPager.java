@@ -305,7 +305,7 @@ public class ViewPager extends ViewGroup {
             }
             mAdapter.finishUpdate(this);
             mItems.clear();
-            removeAllViews();
+            removeNonDecorViews();
             mCurItem = 0;
             scrollTo(0, 0);
         }
@@ -332,6 +332,17 @@ public class ViewPager extends ViewGroup {
 
         if (mAdapterChangeListener != null && oldAdapter != adapter) {
             mAdapterChangeListener.onAdapterChanged(oldAdapter, adapter);
+        }
+    }
+
+    private void removeNonDecorViews() {
+        for (int i = 0; i < getChildCount(); i++) {
+            final View child = getChildAt(i);
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if (!lp.isDecor) {
+                removeViewAt(i);
+                i--;
+            }
         }
     }
 
