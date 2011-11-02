@@ -771,11 +771,11 @@ final class FragmentManagerImpl extends FragmentManager {
             // While removing a fragment, we can't change it to a higher state.
             newState = f.mState;
         }
-        // Defer start if the fragment has requested it
-        if (f.mDeferStart && newState > Fragment.STOPPED) {
+        // Defer start if requested; don't allow it to move to STARTED or higher
+        // if it's not already started.
+        if (f.mDeferStart && f.mState < Fragment.STARTED && newState > Fragment.STOPPED) {
             newState = Fragment.STOPPED;
         }
-        
         if (f.mState < newState) {
             // For fragments that are created from a layout, when restoring from
             // state we don't want to allow them to be created until they are
