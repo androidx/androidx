@@ -70,7 +70,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         }
         if (fragment != mCurrentPrimaryItem) {
             FragmentCompat.setMenuVisibility(fragment, false);
-            FragmentCompat.setStartDeferred(fragment, true);
+            FragmentCompat.setUserVisibleHint(fragment, false);
         }
 
         return fragment;
@@ -92,11 +92,11 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
                 FragmentCompat.setMenuVisibility(mCurrentPrimaryItem, false);
-                FragmentCompat.setStartDeferred(mCurrentPrimaryItem, true);
+                FragmentCompat.setUserVisibleHint(mCurrentPrimaryItem, false);
             }
             if (fragment != null) {
                 FragmentCompat.setMenuVisibility(fragment, true);
-                FragmentCompat.setStartDeferred(fragment, false);
+                FragmentCompat.setUserVisibleHint(fragment, true);
             }
             mCurrentPrimaryItem = fragment;
         }

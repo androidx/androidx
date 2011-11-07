@@ -383,6 +383,7 @@ final class FragmentManagerImpl extends FragmentManager {
     static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
     static final String TARGET_STATE_TAG = "android:target_state";
     static final String VIEW_STATE_TAG = "android:view_state";
+    static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     ArrayList<Runnable> mPendingActions;
     Runnable[] mTmpActions;
@@ -407,6 +408,7 @@ final class FragmentManagerImpl extends FragmentManager {
     boolean mStateSaved;
     boolean mDestroyed;
     String mNoTransactionsBecause;
+    boolean mHavePendingDeferredStart;
     
     // Temporary vars for state save and restore.
     Bundle mStateBundle = null;
@@ -757,6 +759,11 @@ final class FragmentManagerImpl extends FragmentManager {
     
     public void performPendingDeferredStart(Fragment f) {
         if (f.mDeferStart) {
+            if (mExecutingActions) {
+                // Wait until we're done executing our pending transactions
+                mHavePendingDeferredStart = true;
+                return;
+            }
             f.mDeferStart = false;
             moveToState(f, mCurState, 0, 0);
         }
@@ -802,6 +809,14 @@ final class FragmentManagerImpl extends FragmentManager {
                         if (f.mTarget != null) {
                             f.mTargetRequestCode = f.mSavedFragmentState.getInt(
                                     FragmentManagerImpl.TARGET_REQUEST_CODE_STATE_TAG, 0);
+                        }
+                        f.mUserVisibleHint = f.mSavedFragmentState.getBoolean(
+                                FragmentManagerImpl.USER_VISIBLE_HINT_TAG, true);
+                        if (!f.mUserVisibleHint) {
+                            f.mDeferStart = true;
+                            if (newState > Fragment.STOPPED) {
+                                newState = Fragment.STOPPED;
+                            }
                         }
                     }
                     f.mActivity = mActivity;
@@ -1384,7 +1399,7 @@ final class FragmentManagerImpl extends FragmentManager {
             
             synchronized (this) {
                 if (mPendingActions == null || mPendingActions.size() == 0) {
-                    return didSomething;
+                    break;
                 }
                 
                 numActions = mPendingActions.size();
@@ -1404,8 +1419,23 @@ final class FragmentManagerImpl extends FragmentManager {
             mExecutingActions = false;
             didSomething = true;
         }
+        
+        if (mHavePendingDeferredStart) {
+            boolean loadersRunning = false;
+            for (int i=0; i<mActive.size(); i++) {
+                Fragment f = mActive.get(i);
+                if (f != null && f.mLoaderManager != null) {
+                    loadersRunning |= f.mLoaderManager.hasRunningLoaders();
+                }
+            }
+            if (!loadersRunning) {
+                mHavePendingDeferredStart = false;
+                startPendingDeferredFragments();
+            }
+        }
+        return didSomething;
     }
-    
+
     void reportBackStackChanged() {
         if (mBackStackChangeListeners != null) {
             for (int i=0; i<mBackStackChangeListeners.size(); i++) {
@@ -1540,6 +1570,10 @@ final class FragmentManagerImpl extends FragmentManager {
             }
             result.putSparseParcelableArray(
                     FragmentManagerImpl.VIEW_STATE_TAG, f.mSavedViewState);
+        }
+        if (!f.mUserVisibleHint) {
+            // Only add this if it's not the default value
+            result.putBoolean(FragmentManagerImpl.USER_VISIBLE_HINT_TAG, f.mUserVisibleHint);
         }
 
         return result;
