@@ -24,13 +24,13 @@ import android.app.Fragment;
 public class FragmentCompat {
     interface FragmentCompatImpl {
         void setMenuVisibility(Fragment f, boolean visible);
-        void setStartDeferred(Fragment f, boolean deferStart);
+        void setUserVisibleHint(Fragment f, boolean deferStart);
     }
 
     static class BaseFragmentCompatImpl implements FragmentCompatImpl {
         public void setMenuVisibility(Fragment f, boolean visible) {
         }
-        public void setStartDeferred(Fragment f, boolean deferStart) {
+        public void setUserVisibleHint(Fragment f, boolean deferStart) {
         }
     }
  
@@ -41,8 +41,8 @@ public class FragmentCompat {
     }
 
     static class ICSMR1FragmentCompatImpl extends ICSFragmentCompatImpl {
-        public void setStartDeferred(Fragment f, boolean deferStart) {
-            FragmentCompatICSMR1.setStartDeferred(f, deferStart);
+        public void setUserVisibleHint(Fragment f, boolean deferStart) {
+            FragmentCompatICSMR1.setUserVisibleHint(f, deferStart);
         }
     }
 
@@ -69,7 +69,7 @@ public class FragmentCompat {
      * Call {@link Fragment#setStartDeferred(boolean) setStartDeferred(boolean)}
      * if running on an appropriate version of the platform.
      */
-    public static void setStartDeferred(Fragment f, boolean deferStart) {
-        IMPL.setStartDeferred(f, deferStart);
+    public static void setUserVisibleHint(Fragment f, boolean deferStart) {
+        IMPL.setUserVisibleHint(f, deferStart);
     }
 }
