@@ -103,6 +103,44 @@ public class HttpHeaderParserTest extends TestCase {
         assertEquals(entry.softTtl, entry.ttl);
     }
 
+    public void testParseCacheHeaders_cacheControlOverridesExpires() {
+        long now = System.currentTimeMillis();
+        headers.put("Date", rfc1123Date(now));
+        headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
+        headers.put("Cache-Control", "public, max-age=86400");
+
+        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+
+        assertNotNull(entry);
+        assertNull(entry.etag);
+        assertEqualsWithin(now + 24 * ONE_HOUR_MILLIS, entry.ttl, ONE_MINUTE_MILLIS);
+        assertEquals(entry.softTtl, entry.ttl);
+    }
+
+    public void testParseCacheHeaders_cacheControlNoCache() {
+        long now = System.currentTimeMillis();
+        headers.put("Date", rfc1123Date(now));
+        headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
+        headers.put("Cache-Control", "no-cache");
+
+        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+
+        assertNull(entry);
+    }
+
+    public void testParseCacheHeaders_cacheControlMustRevalidate() {
+        long now = System.currentTimeMillis();
+        headers.put("Date", rfc1123Date(now));
+        headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
+        headers.put("Cache-Control", "must-revalidate");
+
+        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+
+        assertNotNull(entry);
+        assertNull(entry.etag);
+        assertEqualsWithin(now, entry.ttl, ONE_MINUTE_MILLIS);
+        assertEquals(entry.softTtl, entry.ttl);
+    }
 
     private void assertEqualsWithin(long expected, long value, long fudgeFactor) {
         long diff = Math.abs(expected - value);
