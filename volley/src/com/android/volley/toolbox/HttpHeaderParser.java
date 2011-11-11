@@ -34,6 +34,7 @@ public class HttpHeaderParser {
      * Extracts a {@link Cache.Entry} from a {@link NetworkResponse}.
      *
      * @param response The network response to parse headers from
+     * @return a cache entry for the given response, or null if the response is not cacheable.
      */
     public static Cache.Entry parseCacheHeaders(NetworkResponse response) {
         long now = System.currentTimeMillis();
@@ -43,6 +44,8 @@ public class HttpHeaderParser {
         long serverDate = 0;
         long serverExpires = 0;
         long softExpire = 0;
+        long maxAge = 0;
+        boolean hasCacheControl = false;
 
         String serverEtag = null;
         String headerValue;
@@ -52,6 +55,25 @@ public class HttpHeaderParser {
             serverDate = parseDateAsEpoch(headerValue);
         }
 
+        headerValue = headers.get("Cache-Control");
+        if (headerValue != null) {
+            hasCacheControl = true;
+            String[] tokens = headerValue.split(",");
+            for (int i = 0; i < tokens.length; i++) {
+                String token = tokens[i].trim();
+                if (token.equals("no-cache") || token.equals("no-store")) {
+                    return null;
+                } else if (token.startsWith("max-age=")) {
+                    try {
+                        maxAge = Long.parseLong(token.substring(8));
+                    } catch (Exception e) {
+                    }
+                } else if (token.equals("must-revalidate") || token.equals("proxy-revalidate")) {
+                    maxAge = 0;
+                }
+            }
+        }
+
         headerValue = headers.get("Expires");
         if (headerValue != null) {
             serverExpires = parseDateAsEpoch(headerValue);
@@ -59,10 +81,12 @@ public class HttpHeaderParser {
 
         serverEtag = headers.get("ETag");
 
-        if (serverDate > 0 && serverExpires >= serverDate) {
+        // Cache-Control takes precedence over an Expires header, even if both exist and Expires
+        // is more restrictive.
+        if (hasCacheControl) {
+            softExpire = now + maxAge * 1000;
+        } else if (serverDate > 0 && serverExpires >= serverDate) {
             // Default semantic for Expire header in HTTP specification is softExpire.
-            // TODO: Handle directives in Cache-Control header? In particular,
-            // "must-revalidate" directive would imply a null soft Expire here.
             softExpire = now + (serverExpires - serverDate);
         }
 
