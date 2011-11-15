@@ -92,7 +92,7 @@ public class SearchViewCompat {
     }
 
     /**
-     * Creates a new search view if SearchView.
+     * Creates a new SearchView.
      *
      * @param context The Context the view is running in.
      * @return A SearchView instance if the class is present on the current
