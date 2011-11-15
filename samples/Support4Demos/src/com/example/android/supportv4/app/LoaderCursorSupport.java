@@ -22,16 +22,21 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SearchViewCompat;
+import android.support.v4.widget.SearchViewCompat.OnQueryTextListenerCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract.Contacts;
+import android.provider.BaseColumns;
+import android.provider.Contacts.People;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
@@ -39,6 +44,7 @@ import android.widget.ListView;
  * Demonstration of the use of a CursorLoader to load and display contacts
  * data in a fragment.
  */
+@SuppressWarnings("all")
 public class LoaderCursorSupport extends FragmentActivity {
 
     @Override
@@ -76,9 +82,9 @@ public class LoaderCursorSupport extends FragmentActivity {
 
             // Create an empty adapter we will use to display the loaded data.
             mAdapter = new SimpleCursorAdapter(getActivity(),
-                    android.R.layout.simple_list_item_2, null,
-                    new String[] { Contacts.DISPLAY_NAME, Contacts.CONTACT_STATUS },
-                    new int[] { android.R.id.text1, android.R.id.text2 }, 0);
+                    android.R.layout.simple_list_item_1, null,
+                    new String[] { People.DISPLAY_NAME },
+                    new int[] { android.R.id.text1}, 0);
             setListAdapter(mAdapter);
 
             // Start out with a progress indicator.
@@ -91,21 +97,25 @@ public class LoaderCursorSupport extends FragmentActivity {
 
         @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             // Place an action bar item for searching.
-            //MenuItem item = menu.add("Search");
-            //item.setIcon(android.R.drawable.ic_menu_search);
-            //item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            //SearchView sv = new SearchView(getActivity());
-            //sv.setOnQueryTextListener(this);
-            //item.setActionView(sv);
-        }
-
-        public boolean onQueryTextChange(String newText) {
-            // Called when the action bar search text has changed.  Update
-            // the search filter, and restart the loader to do a new query
-            // with this filter.
-            mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
-            getLoaderManager().restartLoader(0, null, this);
-            return true;
+            MenuItem item = menu.add("Search");
+            item.setIcon(android.R.drawable.ic_menu_search);
+            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+            View searchView = SearchViewCompat.newSearchView(getActivity());
+            if (searchView != null) {
+                SearchViewCompat.setOnQueryTextListener(searchView,
+                        new OnQueryTextListenerCompat() {
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        // Called when the action bar search text has changed.  Update
+                        // the search filter, and restart the loader to do a new query
+                        // with this filter.
+                        mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
+                        getLoaderManager().restartLoader(0, null, CursorLoaderListFragment.this);
+                        return true;
+                    }
+                });
+                MenuItemCompat.setActionView(item, searchView);
+            }
         }
 
         @Override public void onListItemClick(ListView l, View v, int position, long id) {
@@ -115,12 +125,8 @@ public class LoaderCursorSupport extends FragmentActivity {
 
         // These are the Contacts rows that we will retrieve.
         static final String[] CONTACTS_SUMMARY_PROJECTION = new String[] {
-            Contacts._ID,
-            Contacts.DISPLAY_NAME,
-            Contacts.CONTACT_STATUS,
-            Contacts.CONTACT_PRESENCE,
-            Contacts.PHOTO_ID,
-            Contacts.LOOKUP_KEY,
+            People._ID,
+            People.DISPLAY_NAME,
         };
 
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -130,20 +136,18 @@ public class LoaderCursorSupport extends FragmentActivity {
             // currently filtering.
             Uri baseUri;
             if (mCurFilter != null) {
-                baseUri = Uri.withAppendedPath(Contacts.CONTENT_FILTER_URI,
-                        Uri.encode(mCurFilter));
+                baseUri = Uri.withAppendedPath(People.CONTENT_FILTER_URI, Uri.encode(mCurFilter));
             } else {
-                baseUri = Contacts.CONTENT_URI;
+                baseUri = People.CONTENT_URI;
             }
 
             // Now create and return a CursorLoader that will take care of
             // creating a Cursor for the data being displayed.
-            String select = "((" + Contacts.DISPLAY_NAME + " NOTNULL) AND ("
-                    + Contacts.HAS_PHONE_NUMBER + "=1) AND ("
-                    + Contacts.DISPLAY_NAME + " != '' ))";
+            String select = "((" + People.DISPLAY_NAME + " NOTNULL) AND ("
+                    + People.DISPLAY_NAME + " != '' ))";
             return new CursorLoader(getActivity(), baseUri,
                     CONTACTS_SUMMARY_PROJECTION, select, null,
-                    Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
+                    People.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
         }
 
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {

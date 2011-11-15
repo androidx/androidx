@@ -22,7 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuCompat;
+import android.support.v4.view.MenuItemCompat;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -112,9 +112,9 @@ public class FragmentMenuSupport extends FragmentActivity {
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             MenuItem item;
             item = menu.add("Menu 1a");
-            MenuCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
             item = menu.add("Menu 1b");
-            MenuCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
         }
     }
 
@@ -133,7 +133,7 @@ public class FragmentMenuSupport extends FragmentActivity {
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             MenuItem item;
             item = menu.add("Menu 2");
-            MenuCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
         }
     }
 }
