@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.ServiceCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -135,7 +136,6 @@ public class LocalServiceBroadcaster extends Activity {
             mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         }
 
-        @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             // Tell any local interested parties about the start.
             mLocalBroadcastManager.sendBroadcast(new Intent(ACTION_STARTED));
@@ -144,7 +144,7 @@ public class LocalServiceBroadcaster extends Activity {
             mHandler.removeMessages(MSG_UPDATE);
             Message msg = mHandler.obtainMessage(MSG_UPDATE);
             mHandler.sendMessageDelayed(msg, 1000);
-            return Service.START_STICKY;
+            return ServiceCompat.START_STICKY;
         }
 
         @Override

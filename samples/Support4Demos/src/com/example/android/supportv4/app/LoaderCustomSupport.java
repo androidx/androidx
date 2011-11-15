@@ -16,15 +16,6 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
-
-import java.io.File;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,7 +32,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.IntentCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.content.pm.ActivityInfoCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SearchViewCompat;
+import android.support.v4.widget.SearchViewCompat.OnQueryTextListenerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,9 +49,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.SearchView.OnQueryTextListener;
+
+import com.example.android.supportv4.R;
+
+import java.io.File;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Demonstration of the implementation of a custom Loader.
@@ -166,7 +169,7 @@ public class LoaderCustomSupport extends FragmentActivity {
             int configChanges = mLastConfiguration.updateFrom(res.getConfiguration());
             boolean densityChanged = mLastDensity != res.getDisplayMetrics().densityDpi;
             if (densityChanged || (configChanges&(ActivityInfo.CONFIG_LOCALE
-                    |ActivityInfo.CONFIG_UI_MODE|ActivityInfo.CONFIG_SCREEN_LAYOUT)) != 0) {
+                    |ActivityInfoCompat.CONFIG_UI_MODE|ActivityInfo.CONFIG_SCREEN_LAYOUT)) != 0) {
                 mLastDensity = res.getDisplayMetrics().densityDpi;
                 return true;
             }
@@ -190,8 +193,8 @@ public class LoaderCustomSupport extends FragmentActivity {
             mLoader.getContext().registerReceiver(this, filter);
             // Register for events related to sdcard installation.
             IntentFilter sdFilter = new IntentFilter();
-            sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
-            sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
+            sdFilter.addAction(IntentCompat.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
+            sdFilter.addAction(IntentCompat.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
             mLoader.getContext().registerReceiver(this, sdFilter);
         }
 
@@ -372,7 +375,9 @@ public class LoaderCustomSupport extends FragmentActivity {
         public void setData(List<AppEntry> data) {
             clear();
             if (data != null) {
-                addAll(data);
+                for (AppEntry appEntry : data) {
+                    add(appEntry);
+                }
             }
         }
 
@@ -397,13 +402,15 @@ public class LoaderCustomSupport extends FragmentActivity {
     }
 
     public static class AppListFragment extends ListFragment
-            implements OnQueryTextListener, LoaderManager.LoaderCallbacks<List<AppEntry>> {
+            implements LoaderManager.LoaderCallbacks<List<AppEntry>> {
 
         // This is the Adapter being used to display the list's data.
         AppListAdapter mAdapter;
 
         // If non-null, this is the current filter the user has provided.
         String mCurFilter;
+
+        OnQueryTextListenerCompat mOnQueryTextListenerCompat;
 
         @Override public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
@@ -431,23 +438,22 @@ public class LoaderCustomSupport extends FragmentActivity {
             // Place an action bar item for searching.
             MenuItem item = menu.add("Search");
             item.setIcon(android.R.drawable.ic_menu_search);
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            SearchView sv = new SearchView(getActivity());
-            sv.setOnQueryTextListener(this);
-            item.setActionView(sv);
-        }
-
-        @Override public boolean onQueryTextChange(String newText) {
-            // Called when the action bar search text has changed.  Since this
-            // is a simple array adapter, we can just have it do the filtering.
-            mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
-            mAdapter.getFilter().filter(mCurFilter);
-            return true;
-        }
-
-        @Override public boolean onQueryTextSubmit(String query) {
-            // Don't care about this.
-            return true;
+            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+            View searchView = SearchViewCompat.newSearchView(getActivity());
+            if (searchView != null) {
+                SearchViewCompat.setOnQueryTextListener(searchView,
+                        new OnQueryTextListenerCompat() {
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        // Called when the action bar search text has changed.  Since this
+                        // is a simple array adapter, we can just have it do the filtering.
+                        mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
+                        mAdapter.getFilter().filter(mCurFilter);
+                        return true;
+                    }
+                });
+                MenuItemCompat.setActionView(item, searchView);
+            }
         }
 
         @Override public void onListItemClick(ListView l, View v, int position, long id) {

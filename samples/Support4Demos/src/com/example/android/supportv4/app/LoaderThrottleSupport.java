@@ -17,14 +17,6 @@
 package com.example.android.supportv4.app;
 
 //BEGIN_INCLUDE(complete)
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
-
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -32,7 +24,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -41,6 +32,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.database.DatabaseUtilsCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -226,7 +226,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
                     // The incoming URI is for a single row.
                     qb.setProjectionMap(mNotesProjectionMap);
                     qb.appendWhere(MainTable._ID + "=?");
-                    selectionArgs = DatabaseUtils.appendSelectionArgs(selectionArgs,
+                    selectionArgs = DatabaseUtilsCompat.appendSelectionArgs(selectionArgs,
                             new String[] { uri.getLastPathSegment() });
                     break;
 
@@ -321,7 +321,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
                 case MAIN_ID:
                     // If URI is for a particular row ID, delete is based on incoming
                     // data but modified to restrict to the given ID.
-                    finalWhere = DatabaseUtils.concatenateWhere(
+                    finalWhere = DatabaseUtilsCompat.concatenateWhere(
                             MainTable._ID + " = " + ContentUris.parseId(uri), where);
                     count = db.delete(MainTable.TABLE_NAME, finalWhere, whereArgs);
                     break;
@@ -353,7 +353,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
                 case MAIN_ID:
                     // If URI is for a particular row ID, update is based on incoming
                     // data but modified to restrict to the given ID.
-                    finalWhere = DatabaseUtils.concatenateWhere(
+                    finalWhere = DatabaseUtilsCompat.concatenateWhere(
                             MainTable._ID + " = " + ContentUris.parseId(uri), where);
                     count = db.update(MainTable.TABLE_NAME, values, finalWhere, whereArgs);
                     break;
@@ -419,10 +419,10 @@ public class LoaderThrottleSupport extends FragmentActivity {
         }
 
         @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            menu.add(Menu.NONE, POPULATE_ID, 0, "Populate")
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            menu.add(Menu.NONE, CLEAR_ID, 0, "Clear")
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            MenuItem populateItem = menu.add(Menu.NONE, POPULATE_ID, 0, "Populate");
+            MenuItemCompat.setShowAsAction(populateItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+            MenuItem clearItem = menu.add(Menu.NONE, CLEAR_ID, 0, "Clear");
+            MenuItemCompat.setShowAsAction(clearItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
         }
 
         @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -453,8 +453,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
                             return null;
                         }
                     };
-                    mPopulatingTask.executeOnExecutor(
-                            AsyncTask.THREAD_POOL_EXECUTOR, (Void[])null);
+                    mPopulatingTask.execute((Void[]) null);
                     return true;
 
                 case CLEAR_ID:
