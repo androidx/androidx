@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package android.support.v4.view;
-
-import android.view.MenuItem;
+package android.support.v4.content.pm;
 
 /**
- * Implementation of menu compatibility that can call Honeycomb APIs.
+ * Helper for accessing newer features in AcitivtyInfo.
  */
-class MenuCompatHoneycomb {
-    public static void setShowAsAction(MenuItem item, int actionEnum) {
-        item.setShowAsAction(actionEnum);
+public class ActivityInfoCompat {
+
+    private ActivityInfoCompat() {
+        /* Hide constructor */
     }
+
+    /**
+     * Bit in ActivityInfo#configChanges that indicates that the
+     * activity can itself handle the ui mode. Set from the
+     * {@link android.R.attr#configChanges} attribute.
+     */
+    public static final int CONFIG_UI_MODE = 0x0200;
 }
