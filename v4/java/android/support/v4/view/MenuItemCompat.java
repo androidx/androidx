@@ -17,28 +17,66 @@
 package android.support.v4.view;
 
 import android.view.MenuItem;
+import android.view.View;
 
 /**
- * Helper for accessing newer features in menus.
+ * Helper for accessing newer features in MenuItem.
  */
-public class MenuCompat {
+public class MenuItemCompat {
+
+    /**
+     * Never show this item as a button in an Action Bar.
+     */
+    public static final int SHOW_AS_ACTION_NEVER = 0;
+
+    /**
+     * Show this item as a button in an Action Bar if the system
+     * decides there is room for it.
+     */
+    public static final int SHOW_AS_ACTION_IF_ROOM = 1;
+
+    /**
+     * Always show this item as a button in an Action Bar. Use sparingly!
+     * If too many items are set to always show in the Action Bar it can
+     * crowd the Action Bar and degrade the user experience on devices with
+     * smaller screens. A good rule of thumb is to have no more than 2
+     * items set to always show at a time.
+     */
+    public static final int SHOW_AS_ACTION_ALWAYS = 2;
+
+    /**
+     * When this item is in the action bar, always show it with a
+     * text label even if it also has an icon specified.
+     */
+    public static final int SHOW_AS_ACTION_WITH_TEXT = 4;
+
+    /**
+     * This item's action view collapses to a normal menu item.
+     * When expanded, the action view temporarily takes over
+     * a larger segment of its container.
+     */
+    public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8;
 
     /**
      * Interface for the full API.
      */
     interface MenuVersionImpl {
-        /** @deprecated */
         public boolean setShowAsAction(MenuItem item, int actionEnum);
+        public MenuItem setActionView(MenuItem item, View view);
     }
 
     /**
      * Interface implementation that doesn't use anything about v4 APIs.
      */
     static class BaseMenuVersionImpl implements MenuVersionImpl {
-        /** @deprecated */
         @Override
         public boolean setShowAsAction(MenuItem item, int actionEnum) {
             return false;
+        }
+
+        @Override
+        public MenuItem setActionView(MenuItem item, View view) {
+            return item;
         }
     }
 
@@ -46,11 +84,14 @@ public class MenuCompat {
      * Interface implementation for devices with at least v11 APIs.
      */
     static class HoneycombMenuVersionImpl implements MenuVersionImpl {
-        /** @deprecated */
         @Override
         public boolean setShowAsAction(MenuItem item, int actionEnum) {
             MenuItemCompatHoneycomb.setShowAsAction(item, actionEnum);
             return true;
+        }
+        @Override
+        public MenuItem setActionView(MenuItem item, View view) {
+            return MenuItemCompatHoneycomb.setActionView(item, view);
         }
     }
 
@@ -72,10 +113,22 @@ public class MenuCompat {
      * Call {@link MenuItem#setShowAsAction(int) MenuItem.setShowAsAction()}.
      * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
      * does nothing and returns false.  Otherwise returns true.
-     *
-     * @deprecated Use {@link MenuItemCompat#setShowAsAction(MenuItem, int)}
      */
     public static boolean setShowAsAction(MenuItem item, int actionEnum) {
         return IMPL.setShowAsAction(item, actionEnum);
+    }
+
+    /**
+     * Set an action view for this menu item. An action view will be displayed in place
+     * of an automatically generated menu item element in the UI when this item is shown
+     * as an action within a parent.
+     *
+     * @param view View to use for presenting this item to the user.
+     * @return This Item so additional setters can be called.
+     *
+     * @see #setShowAsAction(MenuItem, int)
+     */
+    public static MenuItem setActionView(MenuItem item, View view) {
+        return IMPL.setActionView(item, view);
     }
 }
