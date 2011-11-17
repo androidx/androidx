@@ -20,11 +20,15 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Implementation of {@link android.support.v4.view.PagerAdapter} that
  * represents each page as a {@link Fragment} that is persistently
  * kept in the fragment manager as long as the user can return to the page.
+ *
+ * <p>When using FragmentPagerAdapter the host ViewPager must have a
+ * valid ID set.</p>
  */
 public abstract class FragmentPagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentPagerAdapter";
@@ -44,11 +48,11 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     public abstract Fragment getItem(int position);
 
     @Override
-    public void startUpdate(View container) {
+    public void startUpdate(ViewGroup container) {
     }
 
     @Override
-    public Object instantiateItem(View container, int position) {
+    public Object instantiateItem(ViewGroup container, int position) {
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
@@ -74,7 +78,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void destroyItem(View container, int position, Object object) {
+    public void destroyItem(ViewGroup container, int position, Object object) {
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
@@ -84,7 +88,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void setPrimaryItem(View container, int position, Object object) {
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
         Fragment fragment = (Fragment)object;
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
@@ -100,7 +104,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void finishUpdate(View container) {
+    public void finishUpdate(ViewGroup container) {
         if (mCurTransaction != null) {
             mCurTransaction.commitAllowingStateLoss();
             mCurTransaction = null;
