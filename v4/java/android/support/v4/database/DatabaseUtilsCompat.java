@@ -19,7 +19,8 @@ package android.support.v4.database;
 import android.text.TextUtils;
 
 /**
- * Helper for accessing newer features in DatabaseUtils.
+ * Helper for accessing features in {@link android.database.DatabaseUtils}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class DatabaseUtilsCompat {
 

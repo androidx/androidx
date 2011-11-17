@@ -17,7 +17,8 @@
 package android.support.v4.app;
 
 /**
- * Helper for accessing newer features in Service.
+ * Helper for accessing features in {@link android.app.Service}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class ServiceCompat {
 

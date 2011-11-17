@@ -28,6 +28,11 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation of {@link android.support.v4.view.PagerAdapter} that
+ * uses a {@link Fragment} to manage each page. This class also handles
+ * saving and restoring of fragment's state.
+ */
 public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentStatePagerAdapter";
     private static final boolean DEBUG = false;

@@ -19,7 +19,8 @@ package android.support.v4.view;
 import android.view.VelocityTracker;
 
 /**
- * Helper for accessing newer features in VelocityTracker.
+ * Helper for accessing features in {@link VelocityTracker}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class VelocityTrackerCompat {
     /**
@@ -74,7 +75,7 @@ public class VelocityTrackerCompat {
 
     /**
      * Call {@link VelocityTracker#getXVelocity(int)}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#HONEYCOMB} device,
      * returns {@link VelocityTracker#getXVelocity()}.
      */
     public static float getXVelocity(VelocityTracker tracker, int pointerId) {
@@ -83,7 +84,7 @@ public class VelocityTrackerCompat {
 
     /**
      * Call {@link VelocityTracker#getYVelocity(int)}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#HONEYCOMB} device,
      * returns {@link VelocityTracker#getYVelocity()}.
      */
     public static float getYVelocity(VelocityTracker tracker, int pointerId) {

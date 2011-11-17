@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.android.accessibilityservice;
+package android.support.v4.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
@@ -22,7 +22,8 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 
 /**
- * Helper for accessing newer features in AccessibilityServiceInfo.
+ * Helper for accessing features in {@link android.accessibilityservice.AccessibilityService}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class AccessibilityServiceInfoCompat {
 
