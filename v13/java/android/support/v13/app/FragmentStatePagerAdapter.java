@@ -16,8 +16,6 @@
 
 package android.support.v13.app;
 
-import java.util.ArrayList;
-
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -26,6 +24,9 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentStatePagerAdapter";
@@ -48,11 +49,11 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     public abstract Fragment getItem(int position);
 
     @Override
-    public void startUpdate(View container) {
+    public void startUpdate(ViewGroup container) {
     }
 
     @Override
-    public Object instantiateItem(View container, int position) {
+    public Object instantiateItem(ViewGroup container, int position) {
         // If we already have this item instantiated, there is nothing
         // to do.  This can happen when we are restoring the entire pager
         // from its saved state, where the fragment manager has already
@@ -87,7 +88,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void destroyItem(View container, int position, Object object) {
+    public void destroyItem(ViewGroup container, int position, Object object) {
         Fragment fragment = (Fragment)object;
 
         if (mCurTransaction == null) {
@@ -105,7 +106,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void setPrimaryItem(View container, int position, Object object) {
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
         Fragment fragment = (Fragment)object;
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
@@ -119,7 +120,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void finishUpdate(View container) {
+    public void finishUpdate(ViewGroup container) {
         if (mCurTransaction != null) {
             mCurTransaction.commitAllowingStateLoss();
             mCurTransaction = null;
