@@ -99,7 +99,7 @@ public abstract class PagerAdapter {
      * Create the page for the given position.  The adapter is responsible
      * for adding the view to the container given here, although it only
      * must ensure this is done by the time it returns from
-     * {@link #finishUpdate()}.
+     * {@link #finishUpdate(ViewGroup)}.
      *
      * @param container The containing View in which the page will be shown.
      * @param position The page position to be instantiated.
@@ -113,7 +113,7 @@ public abstract class PagerAdapter {
     /**
      * Remove a page for the given position.  The adapter is responsible
      * for removing the view from its container, although it only must ensure
-     * this is done by the time it returns from {@link #finishUpdate()}.
+     * this is done by the time it returns from {@link #finishUpdate(ViewGroup)}.
      *
      * @param container The containing View from which the page will be removed.
      * @param position The page position to be removed.
@@ -179,7 +179,7 @@ public abstract class PagerAdapter {
     /**
      * Remove a page for the given position.  The adapter is responsible
      * for removing the view from its container, although it only must ensure
-     * this is done by the time it returns from {@link #finishUpdate()}.
+     * this is done by the time it returns from {@link #finishUpdate(View)}.
      *
      * @param container The containing View from which the page will be removed.
      * @param position The page position to be removed.

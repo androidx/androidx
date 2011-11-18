@@ -15,7 +15,7 @@
  */
 
 
-package android.support.v4.android.accessibilityservice;
+package android.support.v4.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.pm.ResolveInfo;

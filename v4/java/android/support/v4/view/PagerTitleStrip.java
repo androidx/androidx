@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 /**
  * PagerTitleStrip is a non-interactive indicator of the current, next,
- * and previous pages of a ViewPager. It is intended to be used as a
+ * and previous pages of a {@link ViewPager}. It is intended to be used as a
  * child view of a ViewPager widget in your XML layout.
  * Add it as a child of a ViewPager in your layout file and set its
  * android:layout_gravity to TOP or BOTTOM to pin it to the top or bottom

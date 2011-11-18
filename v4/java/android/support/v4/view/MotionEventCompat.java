@@ -19,7 +19,8 @@ package android.support.v4.view;
 import android.view.MotionEvent;
 
 /**
- * Helper for accessing newer features in MotionEvent.
+ * Helper for accessing features in {@link MotionEvent} introduced
+ * after API level 4 in a backwards compatible fashion.
  */
 public class MotionEventCompat {
     /**
@@ -158,7 +159,7 @@ public class MotionEventCompat {
 
     /**
      * Call {@link MotionEvent#findPointerIndex(int)}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
      * does nothing and returns -1.
      */
     public static int findPointerIndex(MotionEvent event, int pointerId) {
@@ -167,7 +168,7 @@ public class MotionEventCompat {
 
     /**
      * Call {@link MotionEvent#getPointerId(int)}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
      * {@link IndexOutOfBoundsException} is thrown.
      */
     public static int getPointerId(MotionEvent event, int pointerIndex) {
@@ -176,7 +177,7 @@ public class MotionEventCompat {
 
     /**
      * Call {@link MotionEvent#getX(int)}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
      * {@link IndexOutOfBoundsException} is thrown.
      */
     public static float getX(MotionEvent event, int pointerIndex) {
@@ -185,7 +186,7 @@ public class MotionEventCompat {
 
     /**
      * Call {@link MotionEvent#getY(int)}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
      * {@link IndexOutOfBoundsException} is thrown.
      */
     public static float getY(MotionEvent event, int pointerIndex) {

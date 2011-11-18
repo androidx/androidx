@@ -9,11 +9,14 @@ import android.graphics.Canvas;
 import android.os.BatteryManager;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+/**
+ * Base class for implementing Dreams.
+ */
 public class BasicDream extends Activity {
+
     /** A simple Dream implementation that can be subclassed to write your own Dreams. Any Activity
      * may be used as a Dream, so this class isn't strictly necessary. However, it does take care of
      * a number of housekeeping tasks that most screensavers will want:
@@ -32,7 +35,7 @@ public class BasicDream extends Activity {
     private View mView;
     private boolean mPlugged = false;
 
-    public class BasicDreamView extends View {
+    class BasicDreamView extends View {
         /** A simple view that just calls back to {@link BasicDream#onDraw(Canvas) onDraw} on its
          * parent BasicDream Activity. It also hides the system UI if this feature is available on
          * the current device.
@@ -122,6 +125,7 @@ public class BasicDream extends Activity {
     public void onDraw(Canvas c) {
     }
 
+    @Override
     public void onUserInteraction() {
         if (DEBUG) Log.d(TAG, "exiting onUserInteraction");
         finish();

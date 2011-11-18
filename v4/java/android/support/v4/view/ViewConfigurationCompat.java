@@ -19,7 +19,8 @@ package android.support.v4.view;
 import android.view.ViewConfiguration;
 
 /**
- * Helper for accessing newer features in ViewConfiguration.
+ * Helper for accessing features in {@link ViewConfiguration}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class ViewConfigurationCompat {
     /**
@@ -65,7 +66,7 @@ public class ViewConfigurationCompat {
 
     /**
      * Call {@link ViewConfiguration#getScaledPagingTouchSlop()}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#FROYO} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#FROYO} device,
      * returns {@link ViewConfiguration#getScaledTouchSlop()}.
      */
     public static int getScaledPagingTouchSlop(ViewConfiguration config) {

@@ -39,8 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Base class for activities that want to use the support-based Fragment and
- * Loader APIs.
+ * Base class for activities that want to use the support-based
+ * {@link android.support.v4.app.Fragment} and {@link android.support.v4.content.Loader} APIs.
  *
  * <p>Known limitations:</p>
  * <ul>
