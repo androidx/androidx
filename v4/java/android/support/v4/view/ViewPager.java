@@ -67,6 +67,7 @@ public class ViewPager extends ViewGroup {
 
     private static final int DEFAULT_OFFSCREEN_PAGES = 1;
     private static final int MAX_SETTLE_DURATION = 600; // ms
+    private static final int MIN_DISTANCE_FOR_FLING = 25; // dips
 
     private static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
@@ -86,10 +87,8 @@ public class ViewPager extends ViewGroup {
 
     private static final Interpolator sInterpolator = new Interpolator() {
         public float getInterpolation(float t) {
-            // _o(t) = t * t * ((tension + 1) * t + tension)
-            // o(t) = _o(t - 1) + 1
             t -= 1.0f;
-            return t * t * t + 1.0f;
+            return t * t * t * t * t + 1.0f;
         }
     };
 
@@ -115,7 +114,6 @@ public class ViewPager extends ViewGroup {
     private boolean mScrollingCacheEnabled;
 
     private boolean mPopulatePending;
-    private boolean mIsPopulating;
     private boolean mScrolling;
     private int mOffscreenPageLimit = DEFAULT_OFFSCREEN_PAGES;
 
@@ -145,8 +143,7 @@ public class ViewPager extends ViewGroup {
     private VelocityTracker mVelocityTracker;
     private int mMinimumVelocity;
     private int mMaximumVelocity;
-    private float mBaseLineFlingVelocity;
-    private float mFlingVelocityInfluence;
+    private int mFlingDistance;
 
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
@@ -275,9 +272,8 @@ public class ViewPager extends ViewGroup {
         mLeftEdge = new EdgeEffectCompat(context);
         mRightEdge = new EdgeEffectCompat(context);
 
-        float density = context.getResources().getDisplayMetrics().density;
-        mBaseLineFlingVelocity = 2500.0f * density;
-        mFlingVelocityInfluence = 0.4f;
+        final float density = context.getResources().getDisplayMetrics().density;
+        mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
     }
 
     private void setScrollState(int newState) {
@@ -609,14 +605,19 @@ public class ViewPager extends ViewGroup {
         mScrolling = true;
         setScrollState(SCROLL_STATE_SETTLING);
 
-        final float pageDelta = (float) Math.abs(dx) / (getWidth() + mPageMargin);
-        int duration = (int) (pageDelta * 100);
+        final int width = getWidth();
+        final int halfWidth = width / 2;
+        final float distanceRatio = Math.min(1f, 1.0f * Math.abs(dx) / width);
+        final float distance = halfWidth + halfWidth *
+                distanceInfluenceForSnapDuration(distanceRatio);
 
+        int duration = 0;
         velocity = Math.abs(velocity);
         if (velocity > 0) {
-            duration += (duration / (velocity / mBaseLineFlingVelocity)) * mFlingVelocityInfluence;
+            duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
         } else {
-            duration += 100;
+            final float pageDelta = (float) Math.abs(dx) / (width + mPageMargin);
+            duration = (int) ((pageDelta + 1) * 100);
         }
         duration = Math.min(duration, MAX_SETTLE_DURATION);
 
@@ -718,7 +719,6 @@ public class ViewPager extends ViewGroup {
             return;
         }
 
-        mIsPopulating = true;
         mAdapter.startUpdate(this);
 
         final int pageLimit = mOffscreenPageLimit;
@@ -784,7 +784,6 @@ public class ViewPager extends ViewGroup {
         mAdapter.setPrimaryItem(this, mCurItem, curItem != null ? curItem.object : null);
 
         mAdapter.finishUpdate(this);
-        mIsPopulating = false;
 
         if (hasFocus()) {
             View currentFocused = findFocus();
@@ -1494,7 +1493,13 @@ public class ViewPager extends ViewGroup {
                     final int widthWithMargin = getWidth() + mPageMargin;
                     final int scrollX = getScrollX();
                     final int currentPage = scrollX / widthWithMargin;
-                    int nextPage = initialVelocity > 0 ? currentPage : currentPage + 1;
+                    final float pageOffset = (float) (scrollX % widthWithMargin) / widthWithMargin;
+                    final int activePointerIndex =
+                            MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                    final float x = MotionEventCompat.getX(ev, activePointerIndex);
+                    final int totalDelta = (int) (x - mInitialMotionX);
+                    int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity,
+                            totalDelta);
                     setCurrentItemInternal(nextPage, true, true, initialVelocity);
 
                     mActivePointerId = INVALID_POINTER;
@@ -1527,6 +1532,17 @@ public class ViewPager extends ViewGroup {
             invalidate();
         }
         return true;
+    }
+
+    private int determineTargetPage(int currentPage, float pageOffset, int velocity, int deltaX) {
+        int targetPage;
+        if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
+            targetPage = velocity > 0 ? currentPage : currentPage + 1;
+        } else {
+            targetPage = (int) (currentPage + pageOffset + 0.5f);
+        }
+
+        return targetPage;
     }
 
     @Override
@@ -1644,16 +1660,13 @@ public class ViewPager extends ViewGroup {
         int initialVelocity = (int)VelocityTrackerCompat.getYVelocity(
                 velocityTracker, mActivePointerId);
         mPopulatePending = true;
-        if ((Math.abs(initialVelocity) > mMinimumVelocity)
-                || Math.abs(mInitialMotionX-mLastMotionX) >= (getWidth()/3)) {
-            if (mLastMotionX > mInitialMotionX) {
-                setCurrentItemInternal(mCurItem-1, true, true);
-            } else {
-                setCurrentItemInternal(mCurItem+1, true, true);
-            }
-        } else {
-            setCurrentItemInternal(mCurItem, true, true);
-        }
+        final int totalDelta = (int) (mLastMotionX - mInitialMotionX);
+        final int scrollX = getScrollX();
+        final int widthWithMargin = getWidth() + mPageMargin;
+        final int currentPage = scrollX / widthWithMargin;
+        final float pageOffset = (float) (scrollX % widthWithMargin) / widthWithMargin;
+        int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity, totalDelta);
+        setCurrentItemInternal(nextPage, true, true, initialVelocity);
         endDrag();
 
         mFakeDragging = false;
