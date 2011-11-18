@@ -21,7 +21,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.support.v4.android.accessibilityservice.AccessibilityServiceInfoCompat;
+import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
 import android.view.accessibility.AccessibilityManager;
