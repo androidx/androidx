@@ -19,7 +19,8 @@ package android.support.v13.app;
 import android.app.Fragment;
 
 /**
- * Helper class for accessing newer features of Fragment.
+ * Helper for accessing features in {@link Fragment} introduced after
+ * API level 13 in a backwards compatible fashion.
  */
 public class FragmentCompat {
     interface FragmentCompatImpl {
@@ -35,12 +36,14 @@ public class FragmentCompat {
     }
  
     static class ICSFragmentCompatImpl extends BaseFragmentCompatImpl {
+        @Override
         public void setMenuVisibility(Fragment f, boolean visible) {
             FragmentCompatICS.setMenuVisibility(f, visible);
         }
     }
 
     static class ICSMR1FragmentCompatImpl extends ICSFragmentCompatImpl {
+        @Override
         public void setUserVisibleHint(Fragment f, boolean deferStart) {
             FragmentCompatICSMR1.setUserVisibleHint(f, deferStart);
         }
@@ -66,7 +69,7 @@ public class FragmentCompat {
     }
 
     /**
-     * Call {@link Fragment#setStartDeferred(boolean) setStartDeferred(boolean)}
+     * Call {@link Fragment#setUserVisibleHint(boolean) setUserVisibleHint(boolean)}
      * if running on an appropriate version of the platform.
      */
     public static void setUserVisibleHint(Fragment f, boolean deferStart) {

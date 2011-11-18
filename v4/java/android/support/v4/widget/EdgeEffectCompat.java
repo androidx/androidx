@@ -20,11 +20,12 @@ import android.graphics.Canvas;
 import android.os.Build;
 
 /**
- * Helper for accessing EdgeEffects from newer platform versions.
+ * Helper for accessing {@link android.widget.EdgeEffect} introduced after
+ * API level 4 in a backwards compatible fashion.
  *
- * This class is used to access {@link android.widget.EdgeEffect} on platform versions
- * that support it. When running on older platforms it will result in no-ops. It should
- * be used by views that wish to use the standard Android visual effects at the edges
+ * This class is used to access {@link android.widget.EdgeEffect} on platform versions     
+ * that support it. When running on older platforms it will result in no-ops. It should     
+ * be used by views that wish to use the standard Android visual effects at the edges       
  * of scrolling containers.
  */
 public class EdgeEffectCompat {
