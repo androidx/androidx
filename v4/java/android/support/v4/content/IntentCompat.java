@@ -17,7 +17,8 @@
 package android.support.v4.content;
 
 /**
- * Helper for accessing newer features in Intent.
+ * Helper for accessing features in {@link android.content.Intent}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class IntentCompat {
 

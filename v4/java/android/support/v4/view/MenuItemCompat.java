@@ -20,7 +20,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 /**
- * Helper for accessing newer features in MenuItem.
+ * Helper for accessing features in {@link android.view.MenuItem}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class MenuItemCompat {
 
@@ -111,7 +112,7 @@ public class MenuItemCompat {
 
     /**
      * Call {@link MenuItem#setShowAsAction(int) MenuItem.setShowAsAction()}.
-     * If running on a pre-{@android.os.Build.VERSION_CODES#HONEYCOMB} device,
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#HONEYCOMB} device,
      * does nothing and returns false.  Otherwise returns true.
      */
     public static boolean setShowAsAction(MenuItem item, int actionEnum) {

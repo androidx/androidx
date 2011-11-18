@@ -21,7 +21,8 @@ import android.os.Build;
 import android.view.View;
 
 /**
- * Helper for accessing newer features in SearchView.
+ * Helper for accessing features in {@link android.widget.SearchView}
+ * introduced after API level 4 in a backwards compatible fashion.
  */
 public class SearchViewCompat {
 
