@@ -63,6 +63,9 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private static final int SIDE_ALPHA = 0x99; // single-byte alpha, 0 = invisible, FF = opaque
     private static final int TEXT_SPACING = 16; // dip
 
+    private int mNonPrimaryAlpha = SIDE_ALPHA;
+    private int mTextColor;
+
     public PagerTitleStrip(Context context) {
         this(context, null);
     }
@@ -95,10 +98,8 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         }
         a.recycle();
 
-        final int defaultColor = mPrevText.getTextColors().getDefaultColor();
-        final int transparentColor = (SIDE_ALPHA << 24) | (defaultColor & 0xFFFFFF);
-        mPrevText.setTextColor(transparentColor);
-        mNextText.setTextColor(transparentColor);
+        mTextColor = mCurrText.getTextColors().getDefaultColor();
+        setNonPrimaryAlpha(SIDE_ALPHA);
 
         mPrevText.setEllipsize(TruncateAt.END);
         mCurrText.setEllipsize(TruncateAt.END);
@@ -109,6 +110,58 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
 
         final float density = context.getResources().getDisplayMetrics().density;
         mScaledTextSpacing = (int) (TEXT_SPACING * density);
+    }
+
+    /**
+     * Set the required spacing between title segments.
+     *
+     * @param spacingPixels Spacing between each title displayed in pixels
+     */
+    public void setTextSpacing(int spacingPixels) {
+        mScaledTextSpacing = spacingPixels;
+        requestLayout();
+    }
+
+    /**
+     * Set the alpha value used for non-primary page titles.
+     *
+     * @param alpha Opacity value in the range 0-1f
+     */
+    public void setNonPrimaryAlpha(float alpha) {
+        mNonPrimaryAlpha = (int) (alpha * 255) & 0xFF;
+        final int transparentColor = (mNonPrimaryAlpha << 24) | (mTextColor & 0xFFFFFF);
+        mPrevText.setTextColor(transparentColor);
+        mNextText.setTextColor(transparentColor);
+    }
+
+    /**
+     * Set the color value used as the base color for all displayed page titles.
+     * Alpha will be ignored for non-primary page titles. See {@link #setNonPrimaryAlpha(float)}.
+     *
+     * @param color Color hex code in 0xAARRGGBB format
+     */
+    public void setTextColor(int color) {
+        mTextColor = color;
+        mCurrText.setTextColor(color);
+        final int transparentColor = (mNonPrimaryAlpha << 24) | (mTextColor & 0xFFFFFF);
+        mPrevText.setTextColor(transparentColor);
+        mNextText.setTextColor(transparentColor);
+    }
+
+    /**
+     * Set the default text size to a given unit and value.
+     * See {@link TypedValue} for the possible dimension units.
+     *
+     * <p>Example: to set the text size to 14px, use
+     * setTextSize(TypedValue.COMPLEX_UNIT_PX, 14);</p>
+     *
+     * @param unit The desired dimension unit
+     * @param size The desired size in the given units
+     */
+    public void setTextSize(int unit, float size) {
+        mPrevText.setTextSize(unit, size);
+        mCurrText.setTextSize(unit, size);
+        mNextText.setTextSize(unit, size);
     }
 
     @Override

@@ -296,4 +296,15 @@ public abstract class PagerAdapter {
     public CharSequence getPageTitle(int position) {
         return null;
     }
+
+    /**
+     * Returns the proportional width of a given page as a percentage of the
+     * ViewPager's measured width from 0.f-1.f
+     *
+     * @param position The position of the page requested
+     * @return Proportional width for the given page position
+     */
+    public float getPageWidth(int position) {
+        return 1.f;
+    }
 }
