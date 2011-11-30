@@ -56,14 +56,14 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
 
     private static final int[] ATTRS = new int[] {
         android.R.attr.textAppearance,
+        android.R.attr.textSize,
         android.R.attr.textColor,
-        android.R.attr.textSize
     };
 
-    private static final int SIDE_ALPHA = 0x99; // single-byte alpha, 0 = invisible, FF = opaque
+    private static final float SIDE_ALPHA = 0.6f;
     private static final int TEXT_SPACING = 16; // dip
 
-    private int mNonPrimaryAlpha = SIDE_ALPHA;
+    private int mNonPrimaryAlpha;
     private int mTextColor;
 
     public PagerTitleStrip(Context context) {
@@ -85,16 +85,14 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
             mNextText.setTextAppearance(context, textAppearance);
         }
         if (a.hasValue(1)) {
-            final int textColor = a.getColor(1, 0);
+            final int textColor = a.getColor(2, 0);
             mPrevText.setTextColor(textColor);
             mCurrText.setTextColor(textColor);
             mNextText.setTextColor(textColor);
         }
-        final int textSize = a.getDimensionPixelSize(2, 0);
+        final int textSize = a.getDimensionPixelSize(1, 0);
         if (textSize != 0) {
-            mPrevText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-            mCurrText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-            mNextText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         }
         a.recycle();
 
