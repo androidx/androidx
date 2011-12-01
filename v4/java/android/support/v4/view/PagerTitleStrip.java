@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
@@ -48,6 +49,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private int mLastKnownCurrentPage = -1;
     private float mLastKnownPositionOffset = -1;
     private int mScaledTextSpacing;
+    private int mGravity;
 
     private boolean mUpdatingText;
     private boolean mUpdatingPositions;
@@ -58,6 +60,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         android.R.attr.textAppearance,
         android.R.attr.textSize,
         android.R.attr.textColor,
+        android.R.attr.gravity
     };
 
     private static final float SIDE_ALPHA = 0.6f;
@@ -84,16 +87,17 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
             mCurrText.setTextAppearance(context, textAppearance);
             mNextText.setTextAppearance(context, textAppearance);
         }
-        if (a.hasValue(1)) {
+        final int textSize = a.getDimensionPixelSize(1, 0);
+        if (textSize != 0) {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        }
+        if (a.hasValue(2)) {
             final int textColor = a.getColor(2, 0);
             mPrevText.setTextColor(textColor);
             mCurrText.setTextColor(textColor);
             mNextText.setTextColor(textColor);
         }
-        final int textSize = a.getDimensionPixelSize(1, 0);
-        if (textSize != 0) {
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-        }
+        mGravity = a.getInteger(3, Gravity.BOTTOM);
         a.recycle();
 
         mTextColor = mCurrText.getTextColors().getDefaultColor();
@@ -162,6 +166,17 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         mNextText.setTextSize(unit, size);
     }
 
+    /**
+     * Set the {@link Gravity} used to position text within the title strip.
+     * Only the vertical gravity component is used.
+     *
+     * @param gravity {@link Gravity} constant for positioning title text
+     */
+    public void setGravity(int gravity) {
+        mGravity = gravity;
+        requestLayout();
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -212,7 +227,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         final int childHeight = getHeight() - getPaddingTop() - getPaddingBottom();
         final int childWidthSpec = MeasureSpec.makeMeasureSpec((int) (width * 0.8f),
                 MeasureSpec.AT_MOST);
-        final int childHeightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
+        final int childHeightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.AT_MOST);
         mPrevText.measure(childWidthSpec, childHeightSpec);
         mCurrText.measure(childWidthSpec, childHeightSpec);
         mNextText.measure(childWidthSpec, childHeightSpec);
@@ -263,9 +278,11 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         final int halfCurrWidth = currWidth / 2;
 
         final int stripWidth = getWidth();
+        final int stripHeight = getHeight();
         final int paddingLeft = getPaddingLeft();
         final int paddingRight = getPaddingRight();
         final int paddingTop = getPaddingTop();
+        final int paddingBottom = getPaddingBottom();
         final int textPaddedLeft = paddingLeft + halfCurrWidth;
         final int textPaddedRight = paddingRight + halfCurrWidth;
         final int contentWidth = stripWidth - textPaddedLeft - textPaddedRight;
@@ -278,17 +295,57 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         final int currLeft = currCenter - currWidth / 2;
         final int currRight = currLeft + currWidth;
 
-        mCurrText.layout(currLeft, paddingTop, currRight,
-                paddingTop + mCurrText.getMeasuredHeight());
+        final int prevBaseline = mPrevText.getBaseline();
+        final int currBaseline = mCurrText.getBaseline();
+        final int nextBaseline = mNextText.getBaseline();
+        final int maxBaseline = Math.max(Math.max(prevBaseline, currBaseline), nextBaseline);
+        final int prevTopOffset = maxBaseline - prevBaseline;
+        final int currTopOffset = maxBaseline - currBaseline;
+        final int nextTopOffset = maxBaseline - nextBaseline;
+        final int alignedPrevHeight = prevTopOffset + mPrevText.getMeasuredHeight();
+        final int alignedCurrHeight = currTopOffset + mCurrText.getMeasuredHeight();
+        final int alignedNextHeight = nextTopOffset + mNextText.getMeasuredHeight();
+        final int maxTextHeight = Math.max(Math.max(alignedPrevHeight, alignedCurrHeight),
+                alignedNextHeight);
+
+        final int vgrav = mGravity & Gravity.VERTICAL_GRAVITY_MASK;
+
+        int prevTop;
+        int currTop;
+        int nextTop;
+        switch (vgrav) {
+            default:
+            case Gravity.TOP:
+                prevTop = paddingTop + prevTopOffset;
+                currTop = paddingTop + currTopOffset;
+                nextTop = paddingTop + nextTopOffset;
+                break;
+            case Gravity.CENTER_VERTICAL:
+                final int paddedHeight = stripHeight - paddingTop - paddingBottom;
+                final int centeredTop = (paddedHeight - maxTextHeight) / 2;
+                prevTop = centeredTop + prevTopOffset;
+                currTop = centeredTop + currTopOffset;
+                nextTop = centeredTop + nextTopOffset;
+                break;
+            case Gravity.BOTTOM:
+                final int bottomGravTop = stripHeight - paddingBottom - maxTextHeight;
+                prevTop = bottomGravTop + prevTopOffset;
+                currTop = bottomGravTop + currTopOffset;
+                nextTop = bottomGravTop + nextTopOffset;
+                break;
+        }
+
+        mCurrText.layout(currLeft, currTop, currRight,
+                currTop + mCurrText.getMeasuredHeight());
 
         final int prevLeft = Math.min(paddingLeft, currLeft - mScaledTextSpacing - prevWidth);
-        mPrevText.layout(prevLeft, paddingTop, prevLeft + prevWidth,
-                paddingTop + mPrevText.getMeasuredHeight());
+        mPrevText.layout(prevLeft, prevTop, prevLeft + prevWidth,
+                prevTop + mPrevText.getMeasuredHeight());
 
         final int nextLeft = Math.max(stripWidth - paddingRight - nextWidth,
                 currRight + mScaledTextSpacing);
-        mNextText.layout(nextLeft, paddingTop, nextLeft + nextWidth,
-                paddingTop + mNextText.getMeasuredHeight());
+        mNextText.layout(nextLeft, nextTop, nextLeft + nextWidth,
+                nextTop + mNextText.getMeasuredHeight());
 
         mLastKnownPositionOffset = positionOffset;
         mUpdatingPositions = false;
@@ -317,7 +374,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
 
         final int childWidthSpec = MeasureSpec.makeMeasureSpec((int) (widthSize * 0.8f),
                 MeasureSpec.AT_MOST);
-        final int childHeightSpec = MeasureSpec.makeMeasureSpec(childHeight, heightMode);
+        final int childHeightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.AT_MOST);
 
         mPrevText.measure(childWidthSpec, childHeightSpec);
         mCurrText.measure(childWidthSpec, childHeightSpec);

@@ -1884,19 +1884,19 @@ public class ViewPager extends ViewGroup {
                     ii = mItems.get(++itemIndex);
                 }
 
-                int drawAt;
+                float drawAt;
                 if (pos == ii.position) {
-                    drawAt = (int) ((ii.offset + ii.widthFactor) * width);
+                    drawAt = (ii.offset + ii.widthFactor) * width;
                     offset = ii.offset + ii.widthFactor + marginOffset;
                 } else {
                     float widthFactor = mAdapter.getPageWidth(pos);
-                    drawAt = (int) ((offset + widthFactor) * width);
+                    drawAt = (offset + widthFactor) * width;
                     offset += widthFactor + marginOffset;
                 }
 
                 if (drawAt + mPageMargin > scrollX) {
-                    mMarginDrawable.setBounds(drawAt, mTopPageBounds, drawAt + mPageMargin,
-                            mBottomPageBounds);
+                    mMarginDrawable.setBounds((int) (drawAt - 0.5f), mTopPageBounds,
+                            (int) (drawAt + mPageMargin + 0.5f), mBottomPageBounds);
                     mMarginDrawable.draw(canvas);
                 }
 
