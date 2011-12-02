@@ -327,6 +327,7 @@ public class ViewPager extends ViewGroup {
             }
             mAdapter.registerDataSetObserver(mObserver);
             mPopulatePending = false;
+            mFirstLayout = true;
             if (mRestoredCurItem >= 0) {
                 mAdapter.restoreState(mRestoredAdapterState, mRestoredClassLoader);
                 setCurrentItemInternal(mRestoredCurItem, false, true);
@@ -369,8 +370,8 @@ public class ViewPager extends ViewGroup {
 
     /**
      * Set the currently selected page. If the ViewPager has already been through its first
-     * layout there will be a smooth animated transition between the current item and the
-     * specified item.
+     * layout with its current adapter there will be a smooth animated transition between
+     * the current item and the specified item.
      *
      * @param item Item index to select
      */
@@ -1205,7 +1206,7 @@ public class ViewPager extends ViewGroup {
     }
 
     private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin) {
-        if (oldWidth > 0) {
+        if (oldWidth > 0 && !mItems.isEmpty()) {
             final int xpos = getScrollX();
             final ItemInfo ii = infoForCurrentScrollPosition();
             final float pageOffset = (((float) xpos / width) - ii.offset) / ii.widthFactor;
@@ -1959,7 +1960,6 @@ public class ViewPager extends ViewGroup {
         velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
         int initialVelocity = (int)VelocityTrackerCompat.getYVelocity(
                 velocityTracker, mActivePointerId);
-        mPopulatePending = true;
         mPopulatePending = true;
         final int width = getWidth();
         final int scrollX = getScrollX();
