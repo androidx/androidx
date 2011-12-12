@@ -58,6 +58,24 @@ import java.util.Comparator;
  * development.  The API will likely change in later updates of
  * the compatibility library, requiring changes to the source code
  * of apps when they are compiled against the newer version.</p>
+ *
+ * <p>ViewPager is most often used in conjunction with {@link android.app.Fragment},
+ * which is a convenient way to supply and manage the lifecycle of each page.
+ * There are standard adapters implemented for using fragments with the ViewPager,
+ * which cover the most common use cases.  These are
+ * {@link android.support.v4.app.FragmentPagerAdapter},
+ * {@link android.support.v4.app.FragmentStatePagerAdapter},
+ * {@link android.support.v13.app.FragmentPagerAdapter}, and
+ * {@link android.support.v13.app.FragmentStatePagerAdapter}; each of these
+ * classes have simple code showing how to build a full user interface
+ * with them.
+ *
+ * <p>Here is a more complicated example of ViewPager, using it in conjuction
+ * with {@link android.app.ActionBar} tabs.  You can find other examples of using
+ * ViewPager in the API 4+ Support Demos and API 13+ Support Demos sample code.
+ *
+ * {@sample development/samples/Support13Demos/src/com/example/android/supportv13/app/ActionBarTabsPager.java
+ *      complete}
  */
 public class ViewPager extends ViewGroup {
     private static final String TAG = "ViewPager";
@@ -802,6 +820,12 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * This is the persistent state that is saved by ViewPager.  Only needed
+     * if you are creating a sublass of ViewPager that must save its own
+     * state, in which case it should implement a subclass of this which
+     * contains that state.
+     */
     public static class SavedState extends BaseSavedState {
         int position;
         Parcelable adapterState;
@@ -2041,6 +2065,10 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * Layout parameters that should be supplied for views added to a
+     * ViewPager.
+     */
     public static class LayoutParams extends ViewGroup.LayoutParams {
         /**
          * true if this view is a decoration on the pager itself and not
@@ -2048,6 +2076,10 @@ public class ViewPager extends ViewGroup {
          */
         public boolean isDecor;
 
+        /**
+         * Where to position the view page within the overall ViewPager
+         * container; constants are defined in {@link android.view.Gravity}.
+         */
         public int gravity;
 
         public LayoutParams() {

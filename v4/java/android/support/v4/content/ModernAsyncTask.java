@@ -39,8 +39,12 @@ import android.os.Process;
  * needed to support AsyncTaskLoader.  We use this rather than the one from the platform
  * because we rely on some subtle behavior of AsyncTask that is not reliable on
  * older platforms.
+ *
+ * <p>Note that for now this is not publicly available because it is not a
+ * complete implementation, only sufficient for the needs of
+ * {@link AsyncTaskLoader}.
  */
-public abstract class ModernAsyncTask<Params, Progress, Result> {
+abstract class ModernAsyncTask<Params, Progress, Result> {
     private static final String LOG_TAG = "AsyncTask";
 
     private static final int CORE_POOL_SIZE = 5;
