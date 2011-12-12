@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.example.android.supportv4.Cheeses;
 import com.example.android.supportv4.R;
 
+//BEGIN_INCLUDE(complete)
 public class FragmentStatePagerSupport extends FragmentActivity {
     static final int NUM_ITEMS = 10;
 
@@ -138,3 +139,4 @@ public class FragmentStatePagerSupport extends FragmentActivity {
         }
     }
 }
+//END_INCLUDE(complete)
