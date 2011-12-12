@@ -33,6 +33,7 @@ import android.support.v4.view.ViewPager;
  * This demonstrates the use of action bar tabs and how they interact
  * with other action bar features.
  */
+//BEGIN_INCLUDE(complete)
 public class ActionBarTabsPager extends Activity {
     ViewPager mViewPager;
     TabsAdapter mTabsAdapter;
@@ -157,3 +158,4 @@ public class ActionBarTabsPager extends Activity {
         }
     }
 }
+//END_INCLUDE(complete)
