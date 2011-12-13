@@ -20,7 +20,7 @@ package android.support.v4.app;
  * A copy of Honeycomb's {@link android.util.SparseArray}, that
  * provides a removeAt() method.
  */
-public class HCSparseArray<E> {
+class HCSparseArray<E> {
     private static final Object DELETED = new Object();
     private boolean mGarbage = false;
 
