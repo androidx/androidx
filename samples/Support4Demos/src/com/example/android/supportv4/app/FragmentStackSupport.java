@@ -20,6 +20,7 @@ import com.example.android.supportv4.R;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import android.os.Bundle;
@@ -43,6 +44,17 @@ public class FragmentStackSupport extends FragmentActivity {
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 addFragmentToStack();
+            }
+        });
+        button = (Button)findViewById(R.id.home);
+        button.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // If there is a back stack, pop it all.
+                FragmentManager fm = getSupportFragmentManager();
+                if (fm.getBackStackEntryCount() > 0) {
+                    fm.popBackStack(fm.getBackStackEntryAt(0).getId(),
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                }
             }
         });
 
