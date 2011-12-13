@@ -16,6 +16,7 @@
 
 <!-- Top-level content view for the simple fragment sample. -->
 
+<!-- BEGIN_INCLUDE(complete) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical" android:padding="4dip"
         android:gravity="center_horizontal"
@@ -42,3 +43,4 @@
         </Button>
     </LinearLayout>
 </LinearLayout>
+<!-- END_INCLUDE(complete) -->

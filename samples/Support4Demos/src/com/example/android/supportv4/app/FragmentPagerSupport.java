@@ -36,6 +36,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+//BEGIN_INCLUDE(complete)
 public class FragmentPagerSupport extends FragmentActivity {
     static final int NUM_ITEMS = 10;
 
@@ -137,3 +138,4 @@ public class FragmentPagerSupport extends FragmentActivity {
         }
     }
 }
+//END_INCLUDE(complete)
