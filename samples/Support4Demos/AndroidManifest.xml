@@ -242,5 +242,26 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.SharingSupport"
+                  android:label="@string/sharing_support_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.SharingReceiverSupport"
+                  android:label="@string/sharing_receiver_title">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <data android:mimeType="text/plain" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <provider android:authorities="com.example.supportv4.content.sharingsupportprovider"
+                  android:name=".content.SharingSupportProvider" />
+
     </application>
 </manifest>

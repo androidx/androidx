@@ -122,4 +122,10 @@
     <string name="accessibility_delegate_button">Button</string>
     <string name="accessibility_delegate_custom_text_added">Custom text added via an accessibility delegate.</string>
 
+    <string name="share_text">Share some text</string>
+    <string name="share_file">Share a file</string>
+    <string name="share_multiple_file">Share multiple files</string>
+    <string name="sharing_support_title">ShareCompat Demo</string>
+    <string name="sharing_receiver_title">ShareCompat Receiver</string>
+
 </resources>
