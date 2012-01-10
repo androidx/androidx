@@ -79,7 +79,9 @@ public class SharingReceiverSupport extends Activity {
                     reader.close();
                 }
             } catch (FileNotFoundException e) {
-                Log.e(TAG, "File not found from share: " + e);
+                Log.e(TAG, "File not found from share.", e);
+            } catch (IOException e) {
+                Log.d(TAG, "I/O Error", e);
             }
         }
 
