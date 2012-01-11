@@ -1982,7 +1982,7 @@ public class ViewPager extends ViewGroup {
 
         final VelocityTracker velocityTracker = mVelocityTracker;
         velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-        int initialVelocity = (int)VelocityTrackerCompat.getYVelocity(
+        int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
                 velocityTracker, mActivePointerId);
         mPopulatePending = true;
         final int width = getWidth();
@@ -2014,7 +2014,7 @@ public class ViewPager extends ViewGroup {
         mLastMotionX += xOffset;
 
         float oldScrollX = getScrollX();
-        float scrollX = oldScrollX + xOffset;
+        float scrollX = oldScrollX - xOffset;
         final int width = getWidth();
 
         float leftBound = width * mFirstOffset;
