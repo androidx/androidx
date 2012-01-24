@@ -232,6 +232,7 @@ public class ShareCompat {
             mIntent = new Intent().setAction(Intent.ACTION_SEND);
             mIntent.putExtra(EXTRA_CALLING_PACKAGE, launchingActivity.getPackageName());
             mIntent.putExtra(EXTRA_CALLING_ACTIVITY, launchingActivity.getComponentName());
+            mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }
 
         /**
