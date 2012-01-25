@@ -28,11 +28,19 @@
             android:layout_weight="1">
     </FrameLayout>
 
-    <Button android:id="@+id/new_fragment"
+    <LinearLayout
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_weight="0" 
-        android:text="@string/new_fragment">
-        <requestFocus />
-    </Button>
+        android:layout_weight="0" android:orientation="horizontal">
+        <Button android:id="@+id/home"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/home">
+            <requestFocus />
+        </Button>
+        <Button android:id="@+id/new_fragment"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/new_fragment">
+            <requestFocus />
+        </Button>
+    </LinearLayout>
 
 </LinearLayout>
