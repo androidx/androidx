@@ -33,7 +33,7 @@ public class AccessibilityRecordCompat {
         public Object obtain();
         public Object obtain(Object record);
         public void setSource(Object record, View source);
-        public Object getSource(Object record);
+        public AccessibilityNodeInfoCompat getSource(Object record);
         public int getWindowId(Object record);
         public boolean isChecked(Object record);
         public void setChecked(Object record, boolean isChecked);
@@ -138,7 +138,7 @@ public class AccessibilityRecordCompat {
             return 0;
         }
 
-        public Object getSource(Object record) {
+        public AccessibilityNodeInfoCompat getSource(Object record) {
             return null;
         }
 
@@ -259,194 +259,241 @@ public class AccessibilityRecordCompat {
         }
     }
 
-    static class AccessibilityRecordIcsImpl implements AccessibilityRecordImpl {
+    static class AccessibilityRecordIcsImpl extends AccessibilityRecordStubImpl {
+        @Override
         public Object obtain() {
             return AccessibilityRecordCompatIcs.obtain();
         }
 
+        @Override
         public Object obtain(Object record) {
             return AccessibilityRecordCompatIcs.obtain(record);
         }
 
+        @Override
         public int getAddedCount(Object record) {
             return AccessibilityRecordCompatIcs.getAddedCount(record);
         }
 
+        @Override
         public CharSequence getBeforeText(Object record) {
             return AccessibilityRecordCompatIcs.getBeforeText(record);
         }
 
+        @Override
         public CharSequence getClassName(Object record) {
             return AccessibilityRecordCompatIcs.getClassName(record);
         }
 
+        @Override
         public CharSequence getContentDescription(Object record) {
             return AccessibilityRecordCompatIcs.getContentDescription(record);
         }
 
+        @Override
         public int getCurrentItemIndex(Object record) {
             return AccessibilityRecordCompatIcs.getCurrentItemIndex(record);
         }
 
+        @Override
         public int getFromIndex(Object record) {
             return AccessibilityRecordCompatIcs.getFromIndex(record);
         }
 
+        @Override
         public int getItemCount(Object record) {
             return AccessibilityRecordCompatIcs.getItemCount(record);
         }
 
-        public int getMaxScrollX(Object record) {
-            // TODO: Uncomment when these APIs become public
-            return 0;//AccessibilityRecordCompatIcs.getMaxScrollX(record);
-        }
-
-        public int getMaxScrollY(Object record) {
-            // TODO: Uncomment when these APIs become public
-            return 0;//AccessibilityRecordCompatIcs.getMaxScrollY(record);
-        }
-
+        @Override
         public Parcelable getParcelableData(Object record) {
             return AccessibilityRecordCompatIcs.getParcelableData(record);
         }
 
+        @Override
         public int getRemovedCount(Object record) {
             return AccessibilityRecordCompatIcs.getRemovedCount(record);
         }
 
+        @Override
         public int getScrollX(Object record) {
             return AccessibilityRecordCompatIcs.getScrollX(record);
         }
 
+        @Override
         public int getScrollY(Object record) {
             return AccessibilityRecordCompatIcs.getScrollY(record);
         }
 
-        public Object getSource(Object record) {
-            return AccessibilityRecordCompatIcs.getSource(record);
+        @Override
+        public AccessibilityNodeInfoCompat getSource(Object record) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(
+                    AccessibilityRecordCompatIcs.getSource(record));
         }
 
+        @Override
         public List<CharSequence> getText(Object record) {
             return AccessibilityRecordCompatIcs.getText(record);
         }
 
+        @Override
         public int getToIndex(Object record) {
             return AccessibilityRecordCompatIcs.getToIndex(record);
         }
 
+        @Override
         public int getWindowId(Object record) {
             return AccessibilityRecordCompatIcs.getWindowId(record);
         }
 
+        @Override
         public boolean isChecked(Object record) {
             return AccessibilityRecordCompatIcs.isChecked(record);
         }
 
+        @Override
         public boolean isEnabled(Object record) {
             return AccessibilityRecordCompatIcs.isEnabled(record);
         }
 
+        @Override
         public boolean isFullScreen(Object record) {
             return AccessibilityRecordCompatIcs.isFullScreen(record);
         }
 
+        @Override
         public boolean isPassword(Object record) {
             return AccessibilityRecordCompatIcs.isPassword(record);
         }
 
+        @Override
         public boolean isScrollable(Object record) {
             return AccessibilityRecordCompatIcs.isScrollable(record);
         }
 
+        @Override
         public void recycle(Object record) {
             AccessibilityRecordCompatIcs.recycle(record);
         }
 
+        @Override
         public void setAddedCount(Object record, int addedCount) {
             AccessibilityRecordCompatIcs.setAddedCount(record, addedCount);
         }
 
+        @Override
         public void setBeforeText(Object record, CharSequence beforeText) {
             AccessibilityRecordCompatIcs.setBeforeText(record, beforeText);
         }
 
+        @Override
         public void setChecked(Object record, boolean isChecked) {
             AccessibilityRecordCompatIcs.setChecked(record, isChecked);
         }
 
+        @Override
         public void setClassName(Object record, CharSequence className) {
             AccessibilityRecordCompatIcs.setClassName(record, className);
         }
 
+        @Override
         public void setContentDescription(Object record, CharSequence contentDescription) {
             AccessibilityRecordCompatIcs.setContentDescription(record, contentDescription);
         }
 
+        @Override
         public void setCurrentItemIndex(Object record, int currentItemIndex) {
             AccessibilityRecordCompatIcs.setCurrentItemIndex(record, currentItemIndex);
         }
 
+        @Override
         public void setEnabled(Object record, boolean isEnabled) {
             AccessibilityRecordCompatIcs.setEnabled(record, isEnabled);
         }
 
+        @Override
         public void setFromIndex(Object record, int fromIndex) {
             AccessibilityRecordCompatIcs.setFromIndex(record, fromIndex);
         }
 
+        @Override
         public void setFullScreen(Object record, boolean isFullScreen) {
             AccessibilityRecordCompatIcs.setFullScreen(record, isFullScreen);
         }
 
+        @Override
         public void setItemCount(Object record, int itemCount) {
             AccessibilityRecordCompatIcs.setItemCount(record, itemCount);
         }
 
-        public void setMaxScrollX(Object record, int maxScrollX) {
-//        TODO: Uncomment when these APIs become public
-//            AccessibilityRecordCompatIcs.setMaxScrollX(record, maxScrollX);
-        }
-
-        public void setMaxScrollY(Object record, int maxScrollY) {
-//        TODO: Uncomment when these APIs become public
-//            AccessibilityRecordCompatIcs.setMaxScrollY(record, maxScrollY);
-        }
-
+        @Override
         public void setParcelableData(Object record, Parcelable parcelableData) {
             AccessibilityRecordCompatIcs.setParcelableData(record, parcelableData);
         }
 
+        @Override
         public void setPassword(Object record, boolean isPassword) {
             AccessibilityRecordCompatIcs.setPassword(record, isPassword);
         }
 
+        @Override
         public void setRemovedCount(Object record, int removedCount) {
             AccessibilityRecordCompatIcs.setRemovedCount(record, removedCount);
         }
 
+        @Override
         public void setScrollX(Object record, int scrollX) {
             AccessibilityRecordCompatIcs.setScrollX(record, scrollX);
         }
 
+        @Override
         public void setScrollY(Object record, int scrollY) {
             AccessibilityRecordCompatIcs.setScrollY(record, scrollY);
         }
 
+        @Override
         public void setScrollable(Object record, boolean scrollable) {
             AccessibilityRecordCompatIcs.setScrollable(record, scrollable);
         }
 
+        @Override
         public void setSource(Object record, View source) {
             AccessibilityRecordCompatIcs.setSource(record, source);
         }
 
+        @Override
         public void setToIndex(Object record, int toIndex) {
             AccessibilityRecordCompatIcs.setToIndex(record, toIndex);
         }
     }
 
+    static class AccessibilityRecordIcsMr1Impl extends AccessibilityRecordIcsImpl {
+        @Override
+        public int getMaxScrollX(Object record) {
+            return AccessibilityRecordCompatIcsMr1.getMaxScrollX(record);
+        }
+
+        @Override
+        public int getMaxScrollY(Object record) {
+            return AccessibilityRecordCompatIcsMr1.getMaxScrollY(record);
+        }
+
+        @Override
+        public void setMaxScrollX(Object record, int maxScrollX) {
+            AccessibilityRecordCompatIcsMr1.setMaxScrollX(record, maxScrollX);
+        }
+
+        @Override
+        public void setMaxScrollY(Object record, int maxScrollY) {
+            AccessibilityRecordCompatIcsMr1.setMaxScrollY(record, maxScrollY);
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 14) { // ICS
+        final int sdkVersion = Build.VERSION.SDK_INT;
+        if (sdkVersion >= 15) {  // ICS MR1
+            IMPL = new AccessibilityRecordIcsMr1Impl();
+        } else if (sdkVersion >= 14) { // ICS
             IMPL = new AccessibilityRecordIcsImpl();
         } else {
             IMPL = new AccessibilityRecordStubImpl();
@@ -516,7 +563,7 @@ public class AccessibilityRecordCompat {
      * @return The info of the source.
      */
     public AccessibilityNodeInfoCompat getSource() {
-        return new AccessibilityNodeInfoCompat(IMPL.getSource(mRecord));
+        return IMPL.getSource(mRecord);
     }
 
     /**
