@@ -63,15 +63,6 @@ class AccessibilityRecordCompatIcs {
         return ((AccessibilityRecord) record).getItemCount();
     }
 
-//  TODO: Uncomment when these APIs become public
-//    public static int getMaxScrollX(Object record) {
-//        return ((AccessibilityRecord) record).getMaxScrollX();
-//    }
-//
-//    public static int getMaxScrollY(Object record) {
-//        return ((AccessibilityRecord) record).getMaxScrollY();
-//    }
-
     public static Parcelable getParcelableData(Object record) {
         return ((AccessibilityRecord) record).getParcelableData();
     }
@@ -167,15 +158,6 @@ class AccessibilityRecordCompatIcs {
     public static void setItemCount(Object record, int itemCount) {
         ((AccessibilityRecord) record).setItemCount(itemCount);
     }
-
-//  TODO: Uncomment when these APIs become public
-//    public static void setMaxScrollX(Object record, int maxScrollX) {
-//        ((AccessibilityRecord) record).setMaxScrollX(maxScrollX);
-//    }
-//
-//    public static void setMaxScrollY(Object record, int maxScrollY) {
-//        ((AccessibilityRecord) record).setMaxScrollY(maxScrollY);
-//    }
 
     public static void setParcelableData(Object record, Parcelable parcelableData) {
         ((AccessibilityRecord) record).setParcelableData(parcelableData);
