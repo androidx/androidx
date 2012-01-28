@@ -37,13 +37,13 @@ public class AccessibilityNodeInfoCompat {
         public void setSource(Object info, View source);
         public int getWindowId(Object info);
         public int getChildCount(Object info);
-        public Object getChild(Object info, int index);
+        public AccessibilityNodeInfoCompat getChild(Object info, int index);
         public void addChild(Object info, View child);
         public int getActions(Object info);
         public void addAction(Object info, int action);
         public boolean performAction(Object info, int action);
         public List<Object> findAccessibilityNodeInfosByText(Object info, String text);
-        public Object getParent(Object info);
+        public AccessibilityNodeInfoCompat getParent(Object info);
         public void setParent(Object info, View parent);
         public void getBoundsInParent(Object info, Rect outBounds);
         public void setBoundsInParent(Object info, Rect bounds);
@@ -117,7 +117,7 @@ public class AccessibilityNodeInfoCompat {
 
         }
 
-        public Object getChild(Object info, int index) {
+        public AccessibilityNodeInfoCompat getChild(Object info, int index) {
             return null;
         }
 
@@ -318,7 +318,8 @@ public class AccessibilityNodeInfoCompat {
 
         @Override
         public AccessibilityNodeInfoCompat getChild(Object info, int index) {
-            return new AccessibilityNodeInfoCompat(IMPL.getChild(info, index));
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(
+                    AccessibilityNodeInfoCompatIcs.getChild(info, index));
         }
 
         @Override
@@ -343,7 +344,8 @@ public class AccessibilityNodeInfoCompat {
 
         @Override
         public AccessibilityNodeInfoCompat getParent(Object info) {
-            return new AccessibilityNodeInfoCompat(IMPL.getParent(info));
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(
+                    AccessibilityNodeInfoCompatIcs.getParent(info));
         }
 
         @Override
@@ -541,6 +543,19 @@ public class AccessibilityNodeInfoCompat {
      */
     public static final int ACTION_CLEAR_SELECTION = 0x00000008;
 
+    /**
+     * Creates a wrapper for info implementation.
+     *
+     * @param object The info to wrap.
+     * @return A wrapper for if the object is not null, null otherwise.
+     */
+    static AccessibilityNodeInfoCompat wrapNonNullInstance(Object object) {
+        if (object != null) {
+            return new AccessibilityNodeInfoCompat(object);
+        }
+        return null;
+    }
+
     /*
      * Hide constructor from clients.
      */
@@ -629,7 +644,7 @@ public class AccessibilityNodeInfoCompat {
      *             AccessibilityService.
      */
     public AccessibilityNodeInfoCompat getChild(int index) {
-        return new AccessibilityNodeInfoCompat(IMPL.getChild(mInfo, index));
+        return IMPL.getChild(mInfo, index);
     }
 
     /**
@@ -726,7 +741,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The parent.
      */
     public AccessibilityNodeInfoCompat getParent() {
-        return new AccessibilityNodeInfoCompat(IMPL.getParent(mInfo));
+        return IMPL.getParent(mInfo);
     }
 
     /**
