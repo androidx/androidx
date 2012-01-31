@@ -910,7 +910,7 @@ public class ViewPager extends ViewGroup {
             if (oldCurPosition < curItem.position) {
                 int itemIndex = 0;
                 ItemInfo ii = null;
-                float offset = oldCurInfo.offset + oldCurInfo.widthFactor;
+                float offset = oldCurInfo.offset + oldCurInfo.widthFactor + marginOffset;
                 for (int pos = oldCurPosition + 1;
                         pos <= curItem.position && itemIndex < mItems.size(); pos++) {
                     ii = mItems.get(itemIndex);
@@ -1364,9 +1364,7 @@ public class ViewPager extends ViewGroup {
 
     @Override
     public void computeScroll() {
-        if (DEBUG) Log.i(TAG, "computeScroll: finished=" + mScroller.isFinished());
         if (!mScroller.isFinished() && mScroller.computeScrollOffset()) {
-            if (DEBUG) Log.i(TAG, "computeScroll: still scrolling");
             int oldX = getScrollX();
             int oldY = getScrollY();
             int x = mScroller.getCurrX();
