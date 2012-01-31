@@ -86,7 +86,7 @@ public class FragmentActivity extends Activity {
                     }
                     break;
                 case MSG_RESUME_PENDING:
-                    mFragments.dispatchResume();
+                    onResumeFragments();
                     mFragments.execPendingActions();
                     break;
                 default:
@@ -386,13 +386,19 @@ public class FragmentActivity extends Activity {
         mResumed = false;
         if (mHandler.hasMessages(MSG_RESUME_PENDING)) {
             mHandler.removeMessages(MSG_RESUME_PENDING);
-            mFragments.dispatchResume();
+            onResumeFragments();
         }
         mFragments.dispatchPause();
     }
 
     /**
-     * Dispatch onResume() to fragments.
+     * Dispatch onResume() to fragments.  Note that for better inter-operation
+     * with older versions of the platform, at the point of this call the
+     * fragments attached to the activity are <em>not</em> resumed.  This means
+     * that in some cases the previous state may still be saved, not allowing
+     * fragment transactions that modify the state.  To correctly interact
+     * with fragments in their proper state, you should instead override
+     * {@link #onResumeFragments()}.
      */
     @Override
     protected void onResume() {
@@ -409,8 +415,18 @@ public class FragmentActivity extends Activity {
     protected void onPostResume() {
         super.onPostResume();
         mHandler.removeMessages(MSG_RESUME_PENDING);
-        mFragments.dispatchResume();
+        onResumeFragments();
         mFragments.execPendingActions();
+    }
+
+    /**
+     * This is the fragment-orientated version of {@link #onResume()} that you
+     * can override to perform operations in the Activity at the same point
+     * where its fragments are resumed.  Be sure to always call through to
+     * the super-class.
+     */
+    protected void onResumeFragments() {
+        mFragments.dispatchResume();
     }
 
     /**
