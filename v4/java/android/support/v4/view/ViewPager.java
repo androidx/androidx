@@ -1797,6 +1797,7 @@ public class ViewPager extends ViewGroup {
         float lastWidth = 0.f;
         boolean first = true;
 
+        ItemInfo lastItem = null;
         for (int i = 0; i < mItems.size(); i++) {
             ItemInfo ii = mItems.get(i);
             float offset;
@@ -1814,17 +1815,21 @@ public class ViewPager extends ViewGroup {
             // accumulate floating point values and instead track actual pixel offsets.
             final float leftBound = offset - 0.0001f;
             final float rightBound = offset + ii.widthFactor + marginOffset + 0.0001f;
-            if ((first || scrollOffset >= leftBound) &&
-                    (scrollOffset < rightBound || i == mItems.size() - 1)) {
-                return ii;
+            if (first || scrollOffset >= leftBound) {
+                if (scrollOffset < rightBound || i == mItems.size() - 1) {
+                    return ii;
+                }
+            } else {
+                return lastItem;
             }
             first = false;
             lastPos = ii.position;
             lastOffset = offset;
             lastWidth = ii.widthFactor;
+            lastItem = ii;
         }
 
-        return null;
+        return lastItem;
     }
 
     private int determineTargetPage(int currentPage, float pageOffset, int velocity, int deltaX) {
