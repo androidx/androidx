@@ -443,7 +443,12 @@ public class ViewPager extends ViewGroup {
         final boolean dispatchSelected = mCurItem != item;
         populate(item);
         final ItemInfo curInfo = infoForPosition(item);
-        final int destX = curInfo != null ? (int) (getWidth() * curInfo.offset) : 0;
+        int destX = 0;
+        if (curInfo != null) {
+            final int width = getWidth();
+            destX = (int) (width * Math.max(mFirstOffset,
+                    Math.min(curInfo.offset, mLastOffset)));
+        }
         if (smoothScroll) {
             smoothScrollTo(destX, 0, velocity);
             if (dispatchSelected && mOnPageChangeListener != null) {
@@ -627,6 +632,7 @@ public class ViewPager extends ViewGroup {
         int dy = y - sy;
         if (dx == 0 && dy == 0) {
             completeScroll();
+            populate();
             setScrollState(SCROLL_STATE_IDLE);
             return;
         }
@@ -803,8 +809,9 @@ public class ViewPager extends ViewGroup {
             float extraWidthLeft = 0.f;
             int itemIndex = curIndex - 1;
             ItemInfo ii = itemIndex >= 0 ? mItems.get(itemIndex) : null;
+            final float leftWidthNeeded = 2.f - curItem.widthFactor;
             for (int pos = mCurItem - 1; pos >= 0; pos--) {
-                if (extraWidthLeft >= 1.f && pos < startPos) {
+                if (extraWidthLeft >= leftWidthNeeded && pos < startPos) {
                     if (ii == null) {
                         break;
                     }
@@ -955,7 +962,8 @@ public class ViewPager extends ViewGroup {
         float offset = curItem.offset;
         int pos = curItem.position - 1;
         mFirstOffset = curItem.position == 0 ? curItem.offset : -Float.MAX_VALUE;
-        mLastOffset = curItem.position == N - 1 ? curItem.offset : Float.MAX_VALUE;
+        mLastOffset = curItem.position == N - 1 ?
+                curItem.offset + curItem.widthFactor - 1 : Float.MAX_VALUE;
         // Previous pages
         for (int i = curIndex - 1; i >= 0; i--, pos--) {
             final ItemInfo ii = mItems.get(i);
@@ -974,7 +982,9 @@ public class ViewPager extends ViewGroup {
             while (pos < ii.position) {
                 offset += mAdapter.getPageWidth(pos++) + marginOffset;
             }
-            if (ii.position == N - 1) mLastOffset = offset;
+            if (ii.position == N - 1) {
+                mLastOffset = offset + ii.widthFactor - 1;
+            }
             ii.offset = offset;
             offset += ii.widthFactor + marginOffset;
         }
@@ -1246,7 +1256,8 @@ public class ViewPager extends ViewGroup {
             }
         } else {
             final ItemInfo ii = infoForPosition(mCurItem);
-            final int scrollPos = (int) ((ii != null ? ii.offset : 0) * width);
+            final int scrollPos =
+                    (int) ((ii != null ? Math.min(ii.offset, mLastOffset) : 0) * width);
             if (scrollPos != getScrollX()) {
                 completeScroll();
                 scrollTo(scrollPos, getScrollY());
@@ -1684,6 +1695,7 @@ public class ViewPager extends ViewGroup {
                         setScrollingCacheEnabled(true);
                     }
                 }
+                // Not else! Note that mIsBeingDragged can be set above.
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
                     final int activePointerIndex = MotionEventCompat.findPointerIndex(
@@ -1809,8 +1821,6 @@ public class ViewPager extends ViewGroup {
             }
             offset = ii.offset;
 
-            // TODO: These epsilon checks are lame. A better implementation wouldn't
-            // accumulate floating point values and instead track actual pixel offsets.
             final float leftBound = offset - 0.0001f;
             final float rightBound = offset + ii.widthFactor + marginOffset + 0.0001f;
             if (first || scrollOffset >= leftBound) {
