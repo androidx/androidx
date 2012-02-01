@@ -556,19 +556,20 @@ public class AccessibilityNodeInfoCompat {
         return null;
     }
 
-    /*
-     * Hide constructor from clients.
+    /**
+     * Creates a new instance wrapping an
+     * {@link android.view.accessibility.AccessibilityNodeInfo}.
+     *
+     * @param info The info.
      */
     public AccessibilityNodeInfoCompat(Object info) {
         mInfo = info;
     }
 
     /**
-     * @return The wrapped actual implementation.
-     *
-     * @hide
+     * @return The wrapped {@link android.view.accessibility.AccessibilityNodeInfo}.
      */
-    public Object getImpl() {
+    public Object getInfo() {
         return mInfo;
     }
 

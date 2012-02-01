@@ -111,7 +111,7 @@ public class ViewCompat {
         }
         @Override
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
-            ViewCompatICS.onInitializeAccessibilityNodeInfo(v, info.getImpl());
+            ViewCompatICS.onInitializeAccessibilityNodeInfo(v, info.getInfo());
         }
         @Override
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
