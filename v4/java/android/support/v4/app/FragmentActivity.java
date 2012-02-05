@@ -510,6 +510,10 @@ public class FragmentActivity extends Activity {
                 mLoaderManager.doStart();
             } else if (!mCheckedForLoaderManager) {
                 mLoaderManager = getLoaderManager(-1, mLoadersStarted, false);
+                // the returned loader manager may be a new one, so we have to start it
+                if ((mLoaderManager != null) && (!mLoaderManager.mStarted)) {
+                    mLoaderManager.doStart();
+                }
             }
             mCheckedForLoaderManager = true;
         }
