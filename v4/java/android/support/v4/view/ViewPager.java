@@ -1383,7 +1383,10 @@ public class ViewPager extends ViewGroup {
 
             if (oldX != x || oldY != y) {
                 scrollTo(x, y);
-                pageScrolled(x);
+                if (!pageScrolled(x)) {
+                    mScroller.abortAnimation();
+                    scrollTo(0, y);
+                }
             }
 
             // Keep on drawing until the animation has finished.
@@ -1395,7 +1398,16 @@ public class ViewPager extends ViewGroup {
         completeScroll();
     }
 
-    private void pageScrolled(int xpos) {
+    private boolean pageScrolled(int xpos) {
+        if (mItems.size() == 0) {
+            mCalledSuper = false;
+            onPageScrolled(0, 0, 0);
+            if (!mCalledSuper) {
+                throw new IllegalStateException(
+                        "onPageScrolled did not call superclass implementation");
+            }
+            return false;
+        }
         final ItemInfo ii = infoForCurrentScrollPosition();
         final int width = getWidth();
         final int widthWithMargin = width + mPageMargin;
@@ -1411,6 +1423,7 @@ public class ViewPager extends ViewGroup {
             throw new IllegalStateException(
                     "onPageScrolled did not call superclass implementation");
         }
+        return true;
     }
 
     /**
