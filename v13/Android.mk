@@ -20,7 +20,7 @@ LOCAL_PATH := $(call my-dir)
 # A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v13-ics-mr1
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 15
 LOCAL_SRC_FILES := $(call all-java-files-under, ics-mr1)
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
