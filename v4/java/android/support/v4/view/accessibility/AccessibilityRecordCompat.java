@@ -33,6 +33,7 @@ public class AccessibilityRecordCompat {
         public Object obtain();
         public Object obtain(Object record);
         public void setSource(Object record, View source);
+        public void setSource(Object record, View root, int virtualDescendantId);
         public AccessibilityNodeInfoCompat getSource(Object record);
         public int getWindowId(Object record);
         public boolean isChecked(Object record);
@@ -251,6 +252,10 @@ public class AccessibilityRecordCompat {
         }
 
         public void setSource(Object record, View source) {
+
+        }
+
+        public void setSource(Object record, View root, int virtualDescendantId) {
 
         }
 
@@ -489,11 +494,21 @@ public class AccessibilityRecordCompat {
         }
     }
 
+    static class AccessibilityRecordJellyBeanImpl extends AccessibilityRecordIcsMr1Impl {
+        @Override
+        public void setSource(Object record, View root, int virtualDescendantId) {
+            AccessibilityRecordCompatJellyBean.setSource(record, root, virtualDescendantId);
+        }
+    }
+
     static {
-        final int sdkVersion = Build.VERSION.SDK_INT;
-        if (sdkVersion >= 15) {  // ICS MR1
+        // TODO: Update the conditional to use SDK_INT when we have an SDK version set.
+        //       (tracked by bug:5947249)
+        if (Build.VERSION.CODENAME.equals("JellyBean")) { // JellyBean
+            IMPL = new AccessibilityRecordJellyBeanImpl();
+        } else if (Build.VERSION.SDK_INT >= 15) {  // ICS MR1
             IMPL = new AccessibilityRecordIcsMr1Impl();
-        } else if (sdkVersion >= 14) { // ICS
+        } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new AccessibilityRecordIcsImpl();
         } else {
             IMPL = new AccessibilityRecordStubImpl();
@@ -548,6 +563,24 @@ public class AccessibilityRecordCompat {
      */
     public void setSource(View source) {
         IMPL.setSource(mRecord, source);
+    }
+
+    /**
+     * Sets the source to be a virtual descendant of the given <code>root</code>.
+     * If <code>virtualDescendantId</code> equals to {@link View#NO_ID} the root
+     * is set as the source.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view
+     * hierarchy for accessibility purposes. This enables custom views that draw complex
+     * content to report them selves as a tree of virtual views, thus conveying their
+     * logical structure.
+     * </p>
+     *
+     * @param root The root of the virtual subtree.
+     * @param virtualDescendantId The id of the virtual descendant.
+     */
+    public void setSource(View root, int virtualDescendantId) {
+        IMPL.setSource(mRecord, root, virtualDescendantId);
     }
 
     /**
