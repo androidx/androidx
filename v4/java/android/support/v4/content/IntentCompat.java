@@ -16,6 +16,8 @@
 
 package android.support.v4.content;
 
+import android.content.Context;
+
 /**
  * Helper for accessing features in {@link android.content.Intent}
  * introduced after API level 4 in a backwards compatible fashion.
@@ -93,4 +95,26 @@ public class IntentCompat {
      */
     public static final String EXTRA_CHANGED_UID_LIST =
             "android.intent.extra.changed_uid_list";
+
+    /**
+     * If set in an Intent passed to {@link Context#startActivity Context.startActivity()},
+     * this flag will cause a newly launching task to be placed on top of the current
+     * home activity task (if there is one). That is, pressing back from the task
+     * will always return the user to home even if that was not the last activity they
+     * saw. This can only be used in conjunction with
+     * {@link android.content.Intent#FLAG_ACTIVITY_NEW_TASK}.
+     */
+    public static final int FLAG_ACTIVITY_TASK_ON_HOME = 0x00004000;
+
+    /**
+     * If set in an Intent passed to {@link Context#startActivity Context.startActivity()},
+     * this flag will cause any existing task that would be associated with the
+     * activity to be cleared before the activity is started.  That is, the activity
+     * becomes the new root of an otherwise empty task, and any old activities
+     * are finished.  This can only be used in conjunction with
+     * {@link android.content.Intent#FLAG_ACTIVITY_NEW_TASK}.
+     *
+     * <p>This flag will only be obeyed on devices supporting API 11 or higher.</p>
+     */
+    public static final int FLAG_ACTIVITY_CLEAR_TASK = 0x00008000;
 }
