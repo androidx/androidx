@@ -17,6 +17,7 @@
 package android.support.v4.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 
 /**
@@ -59,6 +60,39 @@ public class ActivityCompat {
     public static boolean invalidateOptionsMenu(Activity activity) {
         if (Build.VERSION.SDK_INT >= 11) {
             ActivityCompatHoneycomb.invalidateOptionsMenu(activity);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Start a set of activities as a synthesized task stack, if able.
+     *
+     * <p>In API level 11 (Android 3.0/Honeycomb) the recommended conventions for
+     * app navigation using the back key changed. The back key's behavior is local
+     * to the current task and does not capture navigation across different tasks.
+     * Navigating across tasks and easily reaching the previous task is accomplished
+     * through the "recents" UI, accessible through the software-provided Recents key
+     * on the navigation or system bar. On devices with the older hardware button configuration
+     * the recents UI can be accessed with a long press on the Home key.</p>
+     *
+     * <p>When crossing from one task stack to another post-Android 3.0,
+     * the application should synthesize a back stack/history for the new task so that
+     * the user may navigate out of the new task and back to the Launcher by repeated
+     * presses of the back key. Back key presses should not navigate across task stacks.</p>
+     *
+     * <p>startActivities provides a mechanism for constructing a synthetic task stack of
+     * multiple activities. If the underlying API is not available on the system this method
+     * will return false.</p>
+     *
+     * @param activity Start activities using this activity as the starting context
+     * @param intents Array of intents defining the activities that will be started. The element
+     *                length-1 will correspond to the top activity on the resulting task stack.
+     * @return true if the underlying API was available and the call was successful, false otherwise
+     */
+    public static boolean startActivities(Activity activity, Intent[] intents) {
+        if (Build.VERSION.SDK_INT >= 11) {
+            ActivityCompatHoneycomb.startActivities(activity, intents);
             return true;
         }
         return false;
