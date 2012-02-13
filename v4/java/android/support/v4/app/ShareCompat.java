@@ -72,14 +72,6 @@ public class ShareCompat {
             "android.support.v4.app.EXTRA_CALLING_ACTIVITY";
 
     /**
-     * Request code used by {@link IntentBuilder#startChooserForResult()} when it calls
-     * {@link Activity#startActivityForResult(Intent, int)}. If you wish to respond
-     * to the result code for a share action, look for a call to onActivityResult
-     * with this request code.
-     */
-    public static final int REQUEST_CODE = ('S' << 16) | ('H' << 8) | 'A';
-
-    /**
      * Compatibility shims for sharing operations
      */
     interface ShareCompatImpl {
@@ -326,11 +318,16 @@ public class ShareCompat {
         }
 
         /**
-         * Start a chooser activity for the current share intent for a result.
-         * The request code used will be {@link ShareCompat#REQUEST_CODE}.
+         * Start a chooser activity for the current share intent.
+         *
+         * <p>Note that under most circumstances you should use
+         * {@link ShareCompat#configureMenuItem(MenuItem, IntentBuilder)
+         *  ShareCompat.configureMenuItem()} to add a Share item to the menu while
+         * presenting a detail view of the content to be shared instead
+         * of invoking this directly.</p>
          */
-        public void startChooserForResult() {
-            mActivity.startActivityForResult(createChooserIntent(), REQUEST_CODE);
+        public void startChooser() {
+            mActivity.startActivity(createChooserIntent());
         }
 
         /**
