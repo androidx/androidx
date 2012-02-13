@@ -35,10 +35,12 @@ public class AccessibilityNodeInfoCompat {
         public Object obtain(View source);
         public Object obtain(Object info);
         public void setSource(Object info, View source);
+        public void setSource(Object info, View root, int virtualDescendantId);
         public int getWindowId(Object info);
         public int getChildCount(Object info);
         public AccessibilityNodeInfoCompat getChild(Object info, int index);
         public void addChild(Object info, View child);
+        public void addChild(Object info, View child, int virtualDescendantId);
         public int getActions(Object info);
         public void addAction(Object info, int action);
         public boolean performAction(Object info, int action);
@@ -98,6 +100,10 @@ public class AccessibilityNodeInfoCompat {
         }
 
         public void addChild(Object info, View child) {
+
+        }
+
+        public void addChild(Object info, View child, int virtualDescendantId) {
 
         }
 
@@ -258,6 +264,10 @@ public class AccessibilityNodeInfoCompat {
         }
 
         public void setSource(Object info, View source) {
+
+        }
+
+        public void setSource(Object info, View root, int virtualDescendantId) {
 
         }
 
@@ -509,8 +519,24 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    static class AccessibilityNodeInfoJellybeanImpl extends AccessibilityNodeInfoIcsImpl {
+        @Override
+        public void addChild(Object info, View child, int virtualDescendantId) {
+            AccessibilityNodeInfoCompatJellyBean.addChild(info, child, virtualDescendantId);
+        }
+
+        @Override
+        public void setSource(Object info, View root, int virtualDescendantId) {
+            AccessibilityNodeInfoCompatJellyBean.setSource(info, root, virtualDescendantId);
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 14) { // ICS
+        // TODO: Update the conditional to use SDK_INT when we have an SDK version set.
+        //       (tracked by bug:5947249)
+        if (Build.VERSION.CODENAME.equals("JellyBean")) { // JellyBean
+            IMPL = new AccessibilityNodeInfoJellybeanImpl();
+        } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new AccessibilityNodeInfoIcsImpl();
         } else {
             IMPL = new AccessibilityNodeInfoStubImpl();
@@ -614,6 +640,29 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Sets the source to be a virtual descendant of the given <code>root</code>.
+     * If <code>virtualDescendantId</code> is {@link View#NO_ID} the root
+     * is set as the source.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view
+     * hierarchy for accessibility purposes. This enables custom views that draw complex
+     * content to report themselves as a tree of virtual views, thus conveying their
+     * logical structure.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param root The root of the virtual subtree.
+     * @param virtualDescendantId The id of the virtual descendant.
+     */
+    public void setSource(View root, int virtualDescendantId) {
+        IMPL.setSource(mInfo, root, virtualDescendantId);
+    }
+
+    /**
      * Gets the id of the window from which the info comes from.
      *
      * @return The window id.
@@ -661,6 +710,24 @@ public class AccessibilityNodeInfoCompat {
      */
     public void addChild(View child) {
         IMPL.addChild(mInfo, child);
+    }
+
+    /**
+     * Adds a virtual child which is a descendant of the given <code>root</code>.
+     * If <code>virtualDescendantId</code> is {@link View#NO_ID} the root
+     * is added as a child.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view
+     * hierarchy for accessibility purposes. This enables custom views that draw complex
+     * content to report them selves as a tree of virtual views, thus conveying their
+     * logical structure.
+     * </p>
+     *
+     * @param root The root of the virtual subtree.
+     * @param virtualDescendantId The id of the virtual child.
+     */
+    public void addChild(View root, int virtualDescendantId) {
+        IMPL.addChild(mInfo, root, virtualDescendantId);
     }
 
     /**
@@ -805,7 +872,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setBoundsInScreen(Rect bounds) {
-        IMPL.setBoundsInParent(mInfo, bounds);
+        IMPL.setBoundsInScreen(mInfo, bounds);
     }
 
     /**
