@@ -65,7 +65,7 @@ public class SharingSupport extends Activity {
         ShareCompat.IntentBuilder.from(this)
                 .setType("text/plain")
                 .setText("I'm sharing!")
-                .startChooserForResult();
+                .startChooser();
     }
 
     public void onShareFileClick(View v) {
@@ -79,7 +79,7 @@ public class SharingSupport extends Activity {
             ShareCompat.IntentBuilder.from(this)
                     .setType("text/plain")
                     .setStream(Uri.parse(SharingSupportProvider.CONTENT_URI + "/foo.txt"))
-                    .startChooserForResult();
+                    .startChooser();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -103,7 +103,7 @@ public class SharingSupport extends Activity {
                     .setType("text/plain")
                     .addStream(Uri.parse(SharingSupportProvider.CONTENT_URI + "/foo.txt"))
                     .addStream(Uri.parse(SharingSupportProvider.CONTENT_URI + "/bar.txt"))
-                    .startChooserForResult();
+                    .startChooser();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
