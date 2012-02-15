@@ -16,10 +16,11 @@
 
 package com.android.volley;
 
-import com.android.volley.VolleyLog.MarkerLog;
-
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
+
+import com.android.volley.VolleyLog.MarkerLog;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -105,7 +106,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         if (MarkerLog.ENABLED) {
             mEventLog.add(tag, Thread.currentThread().getId());
         } else if (mRequestBirthTime == 0) {
-            mRequestBirthTime = System.currentTimeMillis();
+            mRequestBirthTime = SystemClock.elapsedRealtime();
         }
     }
 
@@ -137,7 +138,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
             mEventLog.add(tag, threadId);
             mEventLog.finish(this.toString());
         } else {
-            long requestTime = System.currentTimeMillis() - mRequestBirthTime;
+            long requestTime = SystemClock.elapsedRealtime() - mRequestBirthTime;
             if (requestTime >= SLOW_REQUEST_THRESHOLD_MS) {
                 VolleyLog.d("%d ms: %s", requestTime, this.toString());
             }
