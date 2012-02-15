@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import android.os.SystemClock;
+
 import com.android.volley.Cache;
 import com.android.volley.VolleyLog;
 
@@ -246,7 +248,7 @@ public class DiskBasedCache implements Cache {
 
         long before = mTotalSize;
         int prunedFiles = 0;
-        long startTime = System.currentTimeMillis();
+        long startTime = SystemClock.elapsedRealtime();
 
         Iterator<Map.Entry<String, CacheHeader>> iterator = mEntries.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -269,7 +271,7 @@ public class DiskBasedCache implements Cache {
 
         if (VolleyLog.DEBUG) {
             VolleyLog.v("pruned %d files, %d bytes, %d ms",
-                    prunedFiles, (mTotalSize - before), System.currentTimeMillis() - startTime);
+                    prunedFiles, (mTotalSize - before), SystemClock.elapsedRealtime() - startTime);
         }
     }
 

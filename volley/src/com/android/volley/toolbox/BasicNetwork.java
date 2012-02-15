@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import android.os.SystemClock;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -65,7 +67,7 @@ public class BasicNetwork implements Network {
 
     @Override
     public NetworkResponse performRequest(Request<?> request) throws VolleyError {
-        long requestStart = System.currentTimeMillis();
+        long requestStart = SystemClock.elapsedRealtime();
         while (true) {
             HttpResponse httpResponse = null;
             byte[] responseContents = null;
@@ -86,7 +88,7 @@ public class BasicNetwork implements Network {
 
                 responseContents = entityToBytes(httpResponse.getEntity());
                 // if the request is slow, log it.
-                long requestLifetime = System.currentTimeMillis() - requestStart;
+                long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
                 logSlowRequests(requestLifetime, request, responseContents, statusLine);
 
                 if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
@@ -177,7 +179,7 @@ public class BasicNetwork implements Network {
     }
 
     protected void logError(String what, String url, long start) {
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         VolleyLog.v("HTTP ERROR(%s) %d ms to fetch %s", what, (now - start), url);
     }
 
