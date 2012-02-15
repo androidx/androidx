@@ -16,14 +16,14 @@
 
 package com.android.volley.toolbox;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.Response;
-
-import android.R;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.test.InstrumentationTestCase;
+
+import com.android.volley.NetworkResponse;
+import com.android.volley.Response;
+import com.android.volley.tests.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,10 +32,8 @@ import java.io.InputStream;
 public class ImageRequestTest extends InstrumentationTestCase {
 
     public void testParseNetworkResponse_resizing() throws Exception {
-//        byte[] jpegBytes = readRawResource(
-//                getInstrumentation().getContext().getResources(), R.raw.large_jpeg_1024_500);
-        // TODO: Figure out how to get this resource back in.
-        byte[] jpegBytes = null;
+        byte[] jpegBytes = readRawResource(
+                getInstrumentation().getContext().getResources(), R.raw.large_jpeg_1024_500);
         NetworkResponse jpeg = new NetworkResponse(jpegBytes);
 
         // Exact sizes
