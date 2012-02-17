@@ -16,6 +16,7 @@
 
 package com.android.volley;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class VolleyLog {
                 throw new IllegalStateException("Marker added to finished log");
             }
 
-            mMarkers.add(new Marker(name, threadId, System.currentTimeMillis()));
+            mMarkers.add(new Marker(name, threadId, SystemClock.elapsedRealtime()));
         }
 
         /**
