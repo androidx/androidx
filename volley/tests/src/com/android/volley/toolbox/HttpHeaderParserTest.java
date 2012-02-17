@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import android.test.suitebuilder.annotation.SmallTest;
+
 import com.android.volley.Cache;
 import com.android.volley.NetworkResponse;
 
@@ -27,6 +29,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+@SmallTest
 public class HttpHeaderParserTest extends TestCase {
 
     private static long ONE_MINUTE_MILLIS = 1000L * 60;

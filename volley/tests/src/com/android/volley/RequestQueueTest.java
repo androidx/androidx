@@ -26,6 +26,7 @@ import com.android.volley.utils.ImmediateResponseDelivery;
 import android.os.SystemClock;
 import android.test.InstrumentationTestCase;
 import android.test.UiThreadTest;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@LargeTest
 public class RequestQueueTest extends InstrumentationTestCase {
     private ResponseDelivery mDelivery;
 

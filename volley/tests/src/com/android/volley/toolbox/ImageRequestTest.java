@@ -20,6 +20,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.test.InstrumentationTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
@@ -29,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+@SmallTest
 public class ImageRequestTest extends InstrumentationTestCase {
 
     public void testParseNetworkResponse_resizing() throws Exception {
