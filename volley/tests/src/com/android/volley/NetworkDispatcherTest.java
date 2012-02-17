@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import android.test.suitebuilder.annotation.MediumTest;
+
 import com.android.volley.mock.MockCache;
 import com.android.volley.mock.MockNetwork;
 import com.android.volley.mock.MockRequest;
@@ -26,6 +28,7 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+@MediumTest
 public class NetworkDispatcherTest extends TestCase {
     private NetworkDispatcher mDispatcher;
     private MockResponseDelivery mDelivery;

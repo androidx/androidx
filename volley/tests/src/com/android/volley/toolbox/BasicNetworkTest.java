@@ -26,10 +26,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@SmallTest
 public class BasicNetworkTest extends AndroidTestCase {
 
     @Override

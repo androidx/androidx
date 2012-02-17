@@ -16,15 +16,17 @@
 
 package com.android.volley;
 
+import android.test.suitebuilder.annotation.MediumTest;
+
 import com.android.volley.mock.MockCache;
 import com.android.volley.mock.MockRequest;
 import com.android.volley.mock.MockResponseDelivery;
 import com.android.volley.mock.WaitableQueue;
 import com.android.volley.utils.CacheTestUtils;
 
-
 import junit.framework.TestCase;
 
+@MediumTest
 @SuppressWarnings("rawtypes")
 public class CacheDispatcherTest extends TestCase {
     private CacheDispatcher mDispatcher;
