@@ -187,6 +187,16 @@ public class AccessibilityManagerCompat {
     }
 
     /**
+     * Returns if the touch exploration in the system is enabled.
+     *
+     * @param manager The accessibility manager.
+     * @return True if touch exploration is enabled, false otherwise.
+     */
+    public boolean isTouchExplorationEnabled(AccessibilityManager manager) {
+        return IMPL.isTouchExplorationEnabled(manager);
+    }
+
+    /**
      * Listener for the accessibility state.
      */
     public static abstract class AccessibilityStateChangeListenerCompat {
