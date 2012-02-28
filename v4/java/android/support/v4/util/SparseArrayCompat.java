@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package android.support.v4.app;
+package android.support.v4.util;
 
 /**
  * A copy of Honeycomb's {@link android.util.SparseArray}, that
  * provides a removeAt() method.
  */
-class HCSparseArray<E> {
+public class SparseArrayCompat<E> {
     private static final Object DELETED = new Object();
     private boolean mGarbage = false;
 
     /**
      * Creates a new SparseArray containing no mappings.
      */
-    public HCSparseArray() {
+    public SparseArrayCompat() {
         this(10);
     }
 
@@ -36,7 +36,7 @@ class HCSparseArray<E> {
      * require any additional memory allocation to store the specified
      * number of mappings.
      */
-    public HCSparseArray(int initialCapacity) {
+    public SparseArrayCompat(int initialCapacity) {
         initialCapacity = idealIntArraySize(initialCapacity);
 
         mKeys = new int[initialCapacity];
@@ -96,7 +96,20 @@ class HCSparseArray<E> {
             mGarbage = true;
         }
     }
-    
+
+    /**
+     * Remove a range of mappings as a batch.
+     *
+     * @param index Index to begin at
+     * @param size Number of mappings to remove
+     */
+    public void removeAtRange(int index, int size) {
+        final int end = Math.min(mSize, index + size);
+        for (int i = index; i < end; i++) {
+            removeAt(i);
+        }
+    }
+
     private void gc() {
         // Log.e("SparseArray", "gc start with " + mSize);
 
@@ -191,7 +204,7 @@ class HCSparseArray<E> {
     /**
      * Given an index in the range <code>0...size()-1</code>, returns
      * the key from the <code>index</code>th key-value mapping that this
-     * SparseArray stores.  
+     * SparseArray stores.
      */
     public int keyAt(int index) {
         if (mGarbage) {
@@ -200,11 +213,11 @@ class HCSparseArray<E> {
 
         return mKeys[index];
     }
-    
+
     /**
      * Given an index in the range <code>0...size()-1</code>, returns
      * the value from the <code>index</code>th key-value mapping that this
-     * SparseArray stores.  
+     * SparseArray stores.
      */
     public E valueAt(int index) {
         if (mGarbage) {
@@ -217,7 +230,7 @@ class HCSparseArray<E> {
     /**
      * Given an index in the range <code>0...size()-1</code>, sets a new
      * value for the <code>index</code>th key-value mapping that this
-     * SparseArray stores.  
+     * SparseArray stores.
      */
     public void setValueAt(int index, E value) {
         if (mGarbage) {
@@ -226,7 +239,7 @@ class HCSparseArray<E> {
 
         mValues[index] = value;
     }
-    
+
     /**
      * Returns the index for which {@link #keyAt} would return the
      * specified key, or a negative number if the specified
@@ -308,7 +321,7 @@ class HCSparseArray<E> {
         mValues[pos] = value;
         mSize = pos + 1;
     }
-    
+
     private static int binarySearch(int[] a, int start, int len, int key) {
         int high = start + len, low = start - 1, guess;
 
@@ -336,11 +349,11 @@ class HCSparseArray<E> {
 
         return need;
     }
-    
+
     static int idealIntArraySize(int need) {
         return idealByteArraySize(need * 4) / 4;
     }
-    
+
     private int[] mKeys;
     private Object[] mValues;
     private int mSize;

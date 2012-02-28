@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -107,7 +108,7 @@ public class FragmentActivity extends Activity {
 
     boolean mCheckedForLoaderManager;
     boolean mLoadersStarted;
-    HCSparseArray<LoaderManagerImpl> mAllLoaderManagers;
+    SparseArrayCompat<LoaderManagerImpl> mAllLoaderManagers;
     LoaderManagerImpl mLoaderManager;
     
     static final class NonConfigurationInstances {
@@ -115,7 +116,7 @@ public class FragmentActivity extends Activity {
         Object custom;
         HashMap<String, Object> children;
         ArrayList<Fragment> fragments;
-        HCSparseArray<LoaderManagerImpl> loaders;
+        SparseArrayCompat<LoaderManagerImpl> loaders;
     }
     
     static class FragmentTag {
@@ -734,7 +735,7 @@ public class FragmentActivity extends Activity {
     
     LoaderManagerImpl getLoaderManager(int index, boolean started, boolean create) {
         if (mAllLoaderManagers == null) {
-            mAllLoaderManagers = new HCSparseArray<LoaderManagerImpl>();
+            mAllLoaderManagers = new SparseArrayCompat<LoaderManagerImpl>();
         }
         LoaderManagerImpl lm = mAllLoaderManagers.get(index);
         if (lm == null) {
