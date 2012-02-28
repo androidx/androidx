@@ -52,6 +52,8 @@ public class ViewCompat {
         public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate);
+        public boolean hasTransientState(View view);
+        public void setHasTransientState(View view, boolean hasTransientState);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -77,6 +79,13 @@ public class ViewCompat {
          // Do nothing; API doesn't exist
         }
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
+            // Do nothing; API doesn't exist
+        }
+        public boolean hasTransientState(View view) {
+            // A view can't have transient state if transient state wasn't supported.
+            return false;
+        }
+        public void setHasTransientState(View view, boolean hasTransientState) {
             // Do nothing; API doesn't exist
         }
     }
@@ -119,10 +128,23 @@ public class ViewCompat {
         }
     }
 
+    static class JBViewCompatImpl extends ICSViewCompatImpl {
+        @Override
+        public boolean hasTransientState(View view) {
+            return ViewCompatJB.hasTransientState(view);
+        }
+        @Override
+        public void setHasTransientState(View view, boolean hasTransientState) {
+            ViewCompatJB.setHasTransientState(view, hasTransientState);
+        }
+    }
+
     static final ViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 14) {
+        if (version >= 16 || android.os.Build.VERSION.CODENAME.equals("JellyBean")) {
+            IMPL = new JBViewCompatImpl();
+        } else if (version >= 14) {
             IMPL = new ICSViewCompatImpl();
         } else if (version >= 9) {
             IMPL = new GBViewCompatImpl();
@@ -301,5 +323,28 @@ public class ViewCompat {
      */
     public static void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
         IMPL.setAccessibilityDelegate(v, delegate);
+    }
+
+    /**
+     * Indicates whether the view is currently tracking transient state that the
+     * app should not need to concern itself with saving and restoring, but that
+     * the framework should take special note to preserve when possible.
+     *
+     * @param view View to check for transient state
+     * @return true if the view has transient state
+     */
+    public static boolean hasTransientState(View view) {
+        return IMPL.hasTransientState(view);
+    }
+
+    /**
+     * Set whether this view is currently tracking transient state that the
+     * framework should attempt to preserve when possible.
+     *
+     * @param view View tracking transient state
+     * @param hasTransientState true if this view has transient state
+     */
+    public static void setHasTransientState(View view, boolean hasTransientState) {
+        IMPL.setHasTransientState(view, hasTransientState);
     }
 }
