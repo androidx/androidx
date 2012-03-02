@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * Helper for accessing features in {@link MotionEvent} introduced
@@ -139,6 +140,32 @@ public class MotionEventCompat {
      * Synonym for {@link MotionEvent#ACTION_POINTER_INDEX_SHIFT}.
      */
     public static final int ACTION_POINTER_INDEX_SHIFT = 8;
+
+    /**
+     * Constant for {@link #getActionMasked}: The pointer is not down but has entered the
+     * boundaries of a window or view.
+     * <p>
+     * This action is always delivered to the window or view under the pointer.
+     * </p><p>
+     * This action is not a touch event so it is delivered to
+     * {@link View#onGenericMotionEvent(MotionEvent)} rather than
+     * {@link View#onTouchEvent(MotionEvent)}.
+     * </p>
+     */
+    public static final int ACTION_HOVER_ENTER = 9;
+
+    /**
+     * Constant for {@link #getActionMasked}: The pointer is not down but has exited the
+     * boundaries of a window or view.
+     * <p>
+     * This action is always delivered to the window or view that was previously under the pointer.
+     * </p><p>
+     * This action is not a touch event so it is delivered to
+     * {@link View#onGenericMotionEvent(MotionEvent)} rather than
+     * {@link View#onTouchEvent(MotionEvent)}.
+     * </p>
+     */
+    public static final int ACTION_HOVER_EXIT = 10;
 
     /**
      * Call {@link MotionEvent#getAction}, returning only the {@link #ACTION_MASK}

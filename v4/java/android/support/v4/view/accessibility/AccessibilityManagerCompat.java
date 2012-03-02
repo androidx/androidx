@@ -192,7 +192,7 @@ public class AccessibilityManagerCompat {
      * @param manager The accessibility manager.
      * @return True if touch exploration is enabled, false otherwise.
      */
-    public boolean isTouchExplorationEnabled(AccessibilityManager manager) {
+    public static boolean isTouchExplorationEnabled(AccessibilityManager manager) {
         return IMPL.isTouchExplorationEnabled(manager);
     }
 
