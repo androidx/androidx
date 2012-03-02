@@ -17,7 +17,6 @@
 package android.support.v4.view;
 
 import android.view.MotionEvent;
-import android.view.View;
 
 /**
  * Helper for accessing features in {@link MotionEvent} introduced
@@ -148,8 +147,8 @@ public class MotionEventCompat {
      * This action is always delivered to the window or view under the pointer.
      * </p><p>
      * This action is not a touch event so it is delivered to
-     * {@link View#onGenericMotionEvent(MotionEvent)} rather than
-     * {@link View#onTouchEvent(MotionEvent)}.
+     * {@link android.view.View#onGenericMotionEvent(MotionEvent)} rather than
+     * {@link android.view.View#onTouchEvent(MotionEvent)}.
      * </p>
      */
     public static final int ACTION_HOVER_ENTER = 9;
@@ -161,8 +160,8 @@ public class MotionEventCompat {
      * This action is always delivered to the window or view that was previously under the pointer.
      * </p><p>
      * This action is not a touch event so it is delivered to
-     * {@link View#onGenericMotionEvent(MotionEvent)} rather than
-     * {@link View#onTouchEvent(MotionEvent)}.
+     * {@link android.view.View#onGenericMotionEvent(MotionEvent)} rather than
+     * {@link android.view.View#onTouchEvent(MotionEvent)}.
      * </p>
      */
     public static final int ACTION_HOVER_EXIT = 10;
