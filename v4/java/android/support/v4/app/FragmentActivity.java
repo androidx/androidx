@@ -560,7 +560,12 @@ public class FragmentActivity extends Activity {
         return nc != null ? nc.custom : null;
     }
 
-    void supportInvalidateOptionsMenu() {
+    /**
+     * Invalidate the activity's options menu. This will cause relevant presentations
+     * of the menu to fully update via calls to onCreateOptionsMenu and
+     * onPrepareOptionsMenu the next time the menu is requested.
+     */
+    public void supportInvalidateOptionsMenu() {
         if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
             // If we are running on HC or greater, we can use the framework
             // API to invalidate the options menu.
