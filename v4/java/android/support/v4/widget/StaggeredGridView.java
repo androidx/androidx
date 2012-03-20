@@ -658,6 +658,12 @@ public class StaggeredGridView extends ViewGroup {
             final int offset = top + Math.min(mRestoreOffset, 0);
             Arrays.fill(mItemTops, offset);
             Arrays.fill(mItemBottoms, offset);
+            mLayoutRecords.clear();
+            if (mInLayout) {
+                removeAllViewsInLayout();
+            } else {
+                removeAllViews();
+            }
             mRestoreOffset = 0;
         }
 
