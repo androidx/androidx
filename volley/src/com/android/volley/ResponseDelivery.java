@@ -35,7 +35,8 @@ public interface ResponseDelivery {
 
     /**
      * Suppress delivery of responses with a sequence number less than the given one.
+     * Used only for drain; can be removed when drain is.
      */
+    @Deprecated
     public void discardBefore(int sequence);
-
 }

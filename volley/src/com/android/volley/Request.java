@@ -80,6 +80,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     private Cache.Entry mCacheEntry = null;
 
+    /** An opaque token tagging this request; used for bulk cancellation. */
+    private Object mTag;
+
     /**
      * Creates a new request with the given URL and error listener.  Note that
      * the normal response listener is not provided here as delivery of responses
@@ -90,6 +93,22 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         mUrl = url;
         mErrorListener = listener;
         setRetryPolicy(new DefaultRetryPolicy());
+    }
+
+    /**
+     * Set a tag on this request. Can be used to cancel all requests with this
+     * tag by {@link RequestQueue#cancelAll(Object)}.
+     */
+    public void setTag(Object tag) {
+        mTag = tag;
+    }
+
+    /**
+     * Returns this request's tag.
+     * @see Request#setTag(Object)
+     */
+    public Object getTag() {
+        return mTag;
     }
 
     /**
@@ -173,6 +192,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Sets whether or not this request should be suppressed by {@link RequestQueue#drain()}.
      */
+    @Deprecated
     public void setDrainable(boolean drainable) {
         mDrainable = drainable;
     }
@@ -180,6 +200,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Returns true if this request can be suppressed by {@link RequestQueue#drain()}.
      */
+    @Deprecated
     public boolean isDrainable() {
         return mDrainable;
     }

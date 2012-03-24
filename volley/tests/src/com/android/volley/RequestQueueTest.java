@@ -106,6 +106,32 @@ public class RequestQueueTest extends InstrumentationTestCase {
         queue.stop();
     }
 
+    public void testCancelAll_onlyCorrectTag() throws Exception {
+        MockNetwork network = new MockNetwork();
+        RequestQueue queue = new RequestQueue(new NoCache(), network, 3, mDelivery);
+        Object tagA = new Object();
+        Object tagB = new Object();
+        MockRequest req1 = new MockRequest();
+        req1.setTag(tagA);
+        MockRequest req2 = new MockRequest();
+        req2.setTag(tagB);
+        MockRequest req3 = new MockRequest();
+        req3.setTag(tagA);
+        MockRequest req4 = new MockRequest();
+        req4.setTag(tagA);
+
+        queue.add(req1); // A
+        queue.add(req2); // B
+        queue.add(req3); // A
+        queue.cancelAll(tagA);
+        queue.add(req4); // A
+
+        assertTrue(req1.cancel_called); // A cancelled
+        assertFalse(req2.cancel_called); // B not cancelled
+        assertTrue(req3.cancel_called); // A cancelled
+        assertFalse(req4.cancel_called); // A added after cancel not cancelled
+    }
+
     private class OrderCheckingNetwork implements Network {
         private Priority mLastPriority = Priority.IMMEDIATE;
         private int mLastSequence = -1;
@@ -147,6 +173,7 @@ public class RequestQueueTest extends InstrumentationTestCase {
     }
 
     @UiThreadTest
+    @SuppressWarnings("deprecation")
     public void testDrain_suppressesEarlierResponses() {
         MockNetwork network = new MockNetwork();
         network.setDataToReturn(new byte[128]);
@@ -204,6 +231,7 @@ public class RequestQueueTest extends InstrumentationTestCase {
     }
 
     @UiThreadTest
+    @SuppressWarnings("deprecation")
     public void testDrain_preservesUndrainable() {
         MockNetwork network = new MockNetwork();
         network.setDataToReturn(new byte[128]);

@@ -73,6 +73,14 @@ public class MockRequest extends Request<byte[]> {
         deliverError_called = true;
     }
 
+    public boolean cancel_called = false;
+
+    @Override
+    public void cancel() {
+        cancel_called = true;
+        super.cancel();
+    }
+
     private Priority mPriority = super.getPriority();
 
     public void setPriority(Priority priority) {
