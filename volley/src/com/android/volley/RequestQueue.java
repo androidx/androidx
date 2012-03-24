@@ -21,10 +21,12 @@ import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,6 +55,13 @@ public class RequestQueue {
      */
     private final Map<String, Queue<Request>> mWaitingRequests =
             new HashMap<String, Queue<Request>>();
+
+    /**
+     * The set of all requests currently being processed by this RequestQueue. A Request
+     * will be in this set if it is waiting in any queue or currently being processed by
+     * any dispatcher.
+     */
+    private final Set<Request> mCurrentRequests = new HashSet<Request>();
 
     /** The cache triage queue. */
     private final PriorityBlockingQueue<Request> mCacheQueue =
@@ -158,10 +167,49 @@ public class RequestQueue {
     }
 
     /**
+     * A simple predicate or filter interface for Requests, for use by
+     * {@link RequestQueue#cancelAll(RequestFilter)}.
+     */
+    public interface RequestFilter {
+        public boolean apply(Request<?> request);
+    }
+
+    /**
+     * Cancels all requests in this queue for which the given filter applies.
+     * @param filter The filtering function to use
+     */
+    public void cancelAll(RequestFilter filter) {
+        synchronized (mCurrentRequests) {
+            for (Request<?> request : mCurrentRequests) {
+                if (filter.apply(request)) {
+                    request.cancel();
+                }
+            }
+        }
+    }
+
+    /**
+     * Cancels all requests in this queue with the given tag. Tag must be non-null
+     * and equality is by identity.
+     */
+    public void cancelAll(final Object tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("Cannot cancelAll with a null tag");
+        }
+        cancelAll(new RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return request.getTag() == tag;
+            }
+        });
+    }
+
+    /**
      * Drains this request queue.  All requests currently being processed
      * or waiting to be processed will be canceled, and no responses, success
      * or error, will be delivered for them.
      */
+    @Deprecated
     public void drain() {
         drain(getSequenceNumber());
     }
@@ -173,6 +221,7 @@ public class RequestQueue {
      * @param sequenceNumber The sequence number of the drain request. Everything before this number
      * will be drained.
      */
+    @Deprecated
     public void drain(int sequenceNumber) {
         // Cancel drainable requests.
         cancelDrainable(mCacheQueue, sequenceNumber);
@@ -192,6 +241,7 @@ public class RequestQueue {
      * {@link Request#isDrainable()} and have a sequence number less than the
      * provided one.
      */
+    @SuppressWarnings("deprecation")
     private void cancelDrainable(PriorityBlockingQueue<Request> queue, int sequenceNumber) {
         List<Request> pending = new ArrayList<Request>();
         // Remove all requests from the queue in order to work on them.
@@ -212,12 +262,17 @@ public class RequestQueue {
      * @return The passed-in request
      */
     public Request add(Request request) {
+        // Tag the request as belonging to this queue and add it to the set of current requests.
         request.setRequestQueue(this);
+        synchronized (mCurrentRequests) {
+            mCurrentRequests.add(request);
+        }
+
         // Process requests in the order they are added.
         request.setSequence(sSequenceGenerator.incrementAndGet());
-
         request.addMarker("add-to-queue");
 
+        // If the request is uncacheable, skip the cache queue and go straight to the network.
         if (!request.shouldCache()) {
             mNetworkQueue.add(request);
             return request;
@@ -255,6 +310,11 @@ public class RequestQueue {
      *      <code>request.shouldCache()</code>.</p>
      */
     void finish(Request request) {
+        // Remove from the set of requests currently being processed.
+        synchronized (mCurrentRequests) {
+            mCurrentRequests.remove(request);
+        }
+
         if (request.shouldCache()) {
             synchronized (mWaitingRequests) {
                 String cacheKey = request.getCacheKey();
