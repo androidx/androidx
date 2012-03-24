@@ -18,11 +18,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.volley.tests">
 
+    <uses-sdk android:minSdkVersion="8" />
+
     <application>
         <uses-library android:name="android.test.runner" />
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.android.volley.tests" />
+        android:targetPackage="com.android.volley" />
 
 </manifest>
