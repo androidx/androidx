@@ -26,6 +26,7 @@ import com.android.volley.AuthFailureError;
 public interface Authenticator {
     /**
      * Synchronously retrieves an auth token with default type.
+     *
      * @throws AuthFailureError If authentication did not succeed
      */
     public String getAuthToken() throws AuthFailureError;
@@ -35,6 +36,8 @@ public interface Authenticator {
      *
      * If not supported, {@link UnsupportedOperationException} should be thrown.
      * @throws AuthFailureError If authentication did not succeed
+     *
+     * @deprecated
      */
     public String getAuthToken(String authTokenType) throws AuthFailureError;
 
