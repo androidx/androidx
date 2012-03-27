@@ -17,7 +17,6 @@
 package com.android.volley.toolbox;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.VolleyLog;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -25,23 +24,12 @@ import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 
 /**
  * An Authenticator that uses {@link AccountManager} to get auth
  * tokens of a specified type for a specified account.
  */
 public class AndroidAuthenticator implements Authenticator {
-
-    /**
-     * AuthTokenListener is notified when an auth token is received (or an error
-     * has occured in trying to obtain the auth token).
-     */
-    public interface AuthTokenListener {
-        public void onAuthTokenReceived(String authToken);
-        public void onErrorReceived(AuthFailureError error);
-    }
-
     private final Context mContext;
     private final Account mAccount;
     private final String mDefaultAuthTokenType;
@@ -79,14 +67,6 @@ public class AndroidAuthenticator implements Authenticator {
 
     @Override
     public String getAuthToken(String authTokenType) throws AuthFailureError {
-        return getAuthToken(authTokenType, false);
-    }
-
-    public String getAuthToken(String authTokenType, boolean forceReauth)
-            throws AuthFailureError {
-        if (forceReauth) {
-            invalidateCachedToken(authTokenType);
-        }
         final AccountManager accountManager = AccountManager.get(mContext);
         AccountManagerFuture<Bundle> future = accountManager.getAuthToken(mAccount,
                 authTokenType, false, null, null);
@@ -109,102 +89,6 @@ public class AndroidAuthenticator implements Authenticator {
         }
 
         return authToken;
-    }
-
-    /**
-     * Asynchronously retrieves a default auth token and sends it (or an error)
-     * to the listener on the main UI thread.
-     *
-     * @param listener that will be receive the auth token or error
-     * @param handler Handler to post the result to
-     */
-    public void getAuthTokenAsync(final AuthTokenListener listener,
-            final Handler handler) {
-        getAuthTokenAsync(listener, handler, mDefaultAuthTokenType);
-    }
-
-
-    /**
-     * Asynchronously retrieves a default auth token and sends it (or an error)
-     * to the listener on the main UI thread.
-     *
-     * @param listener that will be receive the auth token or error
-     * @param handler Handler to post the result to
-     * @param forceReauth Whether to forcibly expire the current auth token first.
-     */
-    public void getAuthTokenAsync(final AuthTokenListener listener,
-            final Handler handler, boolean forceReauth) {
-        getAuthTokenAsync(listener, handler, mDefaultAuthTokenType, forceReauth);
-    }
-
-    /**
-     * Asynchronously retrieves an auth token and sends it (or an error) to the
-     * listener on the main UI thread.
-     *
-     * @param listener that will be receive the auth token or error
-     * @param handler Handler to post the result to
-     * @param authTokenType
-     */
-    public void getAuthTokenAsync(final AuthTokenListener listener, final Handler handler,
-            final String authTokenType) {
-        getAuthTokenAsync(listener, handler, authTokenType, false);
-    }
-
-    /**
-     * Asynchronously retrieves an auth token and sends it (or an error) to the
-     * listener on the main UI thread.
-     *
-     * @param listener that will be receive the auth token or error
-     * @param handler Handler to post the result to
-     * @param authTokenType
-     * @param forceReauth Whether to forcibly expire the current auth token first.
-     */
-    public void getAuthTokenAsync(final AuthTokenListener listener, final Handler handler,
-            final String authTokenType, final boolean forceReauth) {
-        if (listener == null) {
-            return;
-        }
-        new Thread() {
-            @Override
-            public void run() {
-                Runnable runnable;
-                try {
-                    final String authToken = getAuthToken(authTokenType, forceReauth);
-                    runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onAuthTokenReceived(authToken);
-                        }
-                    };
-                } catch (final AuthFailureError afe) {
-                    runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onErrorReceived(afe);
-                        }
-                    };
-                } catch (final SecurityException se) {
-                    VolleyLog.e("Caught SecurityException: " + se.getMessage());
-                    // don't crash on security exception raised by account manager
-                    runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onErrorReceived(new AuthFailureError(se.getMessage()));
-                        }
-                    };
-                }
-                // Post the result back on the main thread
-                handler.post(runnable);
-            }
-        }.start();
-    }
-
-    private void invalidateCachedToken(String authTokenType) {
-        String cachedAuthToken = AccountManager.get(mContext)
-                .peekAuthToken(mAccount, authTokenType);
-        if (cachedAuthToken != null) {
-            invalidateAuthToken(cachedAuthToken);
-        }
     }
 
     @Override
