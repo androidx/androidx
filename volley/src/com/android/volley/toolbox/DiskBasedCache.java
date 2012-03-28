@@ -21,10 +21,10 @@ import android.os.SystemClock;
 import com.android.volley.Cache;
 import com.android.volley.VolleyLog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -109,20 +109,20 @@ public class DiskBasedCache implements Cache {
         }
 
         File file = getFileForKey(key);
-        FileInputStream fis = null;
+        CountingInputStream cis = null;
         try {
-            fis = new FileInputStream(file);
-            CacheHeader.readHeader(fis); // eat header
-            byte[] data = streamToBytes(fis);
+            cis = new CountingInputStream(new FileInputStream(file));
+            CacheHeader.readHeader(cis); // eat header
+            byte[] data = streamToBytes(cis, (int) (file.length() - cis.bytesRead));
             return entry.toCacheEntry(data);
         } catch (IOException e) {
             VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
             remove(key);
             return null;
         } finally {
-            if (fis != null) {
+            if (cis != null) {
                 try {
-                    fis.close();
+                    cis.close();
                 } catch (IOException ioe) {
                     return null;
                 }
@@ -304,16 +304,17 @@ public class DiskBasedCache implements Cache {
     /**
      * Reads the contents of an InputStream into a byte[].
      * */
-    private static byte[] streamToBytes(InputStream in) throws IOException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
+    private static byte[] streamToBytes(InputStream in, int length) throws IOException {
+        byte[] bytes = new byte[length];
         int count;
-        while ((count = in.read(buffer)) != -1) {
-            bytes.write(buffer, 0, count);
+        int pos = 0;
+        while (pos < length && ((count = in.read(bytes, pos, length - pos)) != -1)) {
+            pos += count;
         }
-        byte[] output = bytes.toByteArray();
-        bytes.close();
-        return output;
+        if (pos != length) {
+            throw new IOException("Expected " + length + " bytes, read " + pos + " bytes");
+        }
+        return bytes;
     }
 
     /**
@@ -410,6 +411,32 @@ public class DiskBasedCache implements Cache {
                 VolleyLog.d("%s", e.toString());
                 return false;
             }
+        }
+    }
+
+    private static class CountingInputStream extends FilterInputStream {
+        private int bytesRead = 0;
+
+        private CountingInputStream(InputStream in) {
+            super(in);
+        }
+
+        @Override
+        public int read() throws IOException {
+            int result = super.read();
+            if (result != -1) {
+                bytesRead++;
+            }
+            return result;
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int count) throws IOException {
+            int result = super.read(buffer, offset, count);
+            if (result != -1) {
+                bytesRead += result;
+            }
+            return result;
         }
     }
 }
