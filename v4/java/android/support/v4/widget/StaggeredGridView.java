@@ -445,6 +445,18 @@ public class StaggeredGridView extends ViewGroup {
         return topmost >= getPaddingTop() && bottommost <= getHeight() - getPaddingBottom();
     }
 
+    private void recycleAllViews() {
+        for (int i = 0; i < getChildCount(); i++) {
+            mRecycler.addScrap(getChildAt(i));
+        }
+
+        if (mInLayout) {
+            removeAllViewsInLayout();
+        } else {
+            removeAllViews();
+        }
+    }
+
     /**
      * Important: this method will leave offscreen views attached if they
      * are required to maintain the invariant that child view with index i
@@ -1256,8 +1268,9 @@ public class StaggeredGridView extends ViewGroup {
         if (mAdapter != null) {
             mAdapter.unregisterDataSetObserver(mObserver);
         }
-        removeAllViews();
-        mRecycler.clear();
+        // TODO: If the new adapter says that there are stable IDs, remove certain layout records
+        // and onscreen views if they have changed instead of removing all of the state here.
+        clearAllState();
         mAdapter = adapter;
         mDataChanged = true;
         mOldItemCount = mItemCount = adapter != null ? adapter.getCount() : 0;
@@ -1265,14 +1278,58 @@ public class StaggeredGridView extends ViewGroup {
             adapter.registerDataSetObserver(mObserver);
             mRecycler.setViewTypeCount(adapter.getViewTypeCount());
             mHasStableIds = adapter.hasStableIds();
-            if (!mHasStableIds) {
-                mLayoutRecords.clear();
-            }
         } else {
-            mLayoutRecords.clear();
             mHasStableIds = false;
-            mFirstPosition = 0;
         }
+        populate();
+    }
+
+    /**
+     * Clear all state because the grid will be used for a completely different set of data.
+     */
+    private void clearAllState() {
+        // Clear all layout records and views
+        mLayoutRecords.clear();
+        removeAllViews();
+
+        // Reset to the top of the grid
+        resetStateForGridTop();
+
+        // Clear recycler because there could be different view types now
+        mRecycler.clear();
+    }
+
+    /**
+     * Reset all internal state to be at the top of the grid.
+     */
+    private void resetStateForGridTop() {
+        // Reset mItemTops and mItemBottoms
+        final int colCount = mColCount;
+        if (mItemTops == null || mItemTops.length != colCount) {
+            mItemTops = new int[colCount];
+            mItemBottoms = new int[colCount];
+        }
+        final int top = getPaddingTop();
+        Arrays.fill(mItemTops, top);
+        Arrays.fill(mItemBottoms, top);
+
+        // Reset the first visible position in the grid to be item 0
+        mFirstPosition = 0;
+        mRestoreOffset = 0;
+    }
+
+    /**
+     * Scroll the list so the first visible position in the grid is the first item in the adapter.
+     */
+    public void setSelectionToTop() {
+        // Clear out the views (but don't clear out the layout records or recycler because the data
+        // has not changed)
+        removeAllViews();
+
+        // Reset to top of grid
+        resetStateForGridTop();
+
+        // Start populating again
         populate();
     }
 
@@ -1495,7 +1552,15 @@ public class StaggeredGridView extends ViewGroup {
             mRecycler.clearTransientViews();
 
             if (!mHasStableIds) {
+                // Clear all layout records and recycle the views
                 mLayoutRecords.clear();
+                recycleAllViews();
+
+                // Reset item bottoms to be equal to item tops
+                final int colCount = mColCount;
+                for (int i = 0; i < colCount; i++) {
+                    mItemBottoms[i] = mItemTops[i];
+                }
             }
 
             // TODO: consider repopulating in a deferred runnable instead
