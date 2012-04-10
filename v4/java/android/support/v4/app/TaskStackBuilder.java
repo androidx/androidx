@@ -234,7 +234,15 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * @return The obtained PendingIntent
      */
     public PendingIntent getPendingIntent(int requestCode, int flags) {
+        if (mIntents.isEmpty()) {
+            throw new IllegalStateException(
+                    "No intents added to TaskStackBuilder; cannot getPendingIntent");
+        }
+
         Intent[] intents = mIntents.toArray(new Intent[mIntents.size()]);
+        intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
+                IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
         return IMPL.getPendingIntent(mSourceContext, intents, requestCode, flags);
     }
 }
