@@ -43,6 +43,8 @@ public class ViewCompat {
      */
     public static final int OVER_SCROLL_NEVER = 2;
 
+    private static final long FAKE_FRAME_TIME = 10;
+
     interface ViewCompatImpl {
         public boolean canScrollHorizontally(View v, int direction);
         public boolean canScrollVertically(View v, int direction);
@@ -54,6 +56,10 @@ public class ViewCompat {
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate);
         public boolean hasTransientState(View view);
         public void setHasTransientState(View view, boolean hasTransientState);
+        public void postInvalidateOnAnimation(View view);
+        public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom);
+        public void postOnAnimation(View view, Runnable action);
+        public void postOnAnimationDelayed(View view, Runnable action, long delayMillis);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -88,6 +94,21 @@ public class ViewCompat {
         public void setHasTransientState(View view, boolean hasTransientState) {
             // Do nothing; API doesn't exist
         }
+        public void postInvalidateOnAnimation(View view) {
+            view.postInvalidateDelayed(getFrameTime());
+        }
+        public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
+            view.postInvalidateDelayed(getFrameTime(), left, top, right, bottom);
+        }
+        public void postOnAnimation(View view, Runnable action) {
+            view.postDelayed(action, getFrameTime());
+        }
+        public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
+            view.postDelayed(action, getFrameTime() + delayMillis);
+        }
+        long getFrameTime() {
+            return FAKE_FRAME_TIME;
+        }
     }
 
     static class GBViewCompatImpl extends BaseViewCompatImpl {
@@ -101,7 +122,13 @@ public class ViewCompat {
         }
     }
 
-    static class ICSViewCompatImpl extends GBViewCompatImpl {
+    static class HCViewCompatImpl extends GBViewCompatImpl {
+        long getFrameTime() {
+            return ViewCompatHC.getFrameTime();
+        }
+    }
+
+    static class ICSViewCompatImpl extends HCViewCompatImpl {
         @Override
         public boolean canScrollHorizontally(View v, int direction) {
             return ViewCompatICS.canScrollHorizontally(v, direction);
@@ -137,6 +164,22 @@ public class ViewCompat {
         public void setHasTransientState(View view, boolean hasTransientState) {
             ViewCompatJB.setHasTransientState(view, hasTransientState);
         }
+        @Override
+        public void postInvalidateOnAnimation(View view) {
+            ViewCompatJB.postInvalidateOnAnimation(view);
+        }
+        @Override
+        public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
+            ViewCompatJB.postInvalidateOnAnimation(view, left, top, right, bottom);
+        }
+        @Override
+        public void postOnAnimation(View view, Runnable action) {
+            ViewCompatJB.postOnAnimation(view, action);
+        }
+        @Override
+        public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
+            ViewCompatJB.postOnAnimationDelayed(view, action, delayMillis);
+        }
     }
 
     static final ViewCompatImpl IMPL;
@@ -146,6 +189,8 @@ public class ViewCompat {
             IMPL = new JBViewCompatImpl();
         } else if (version >= 14) {
             IMPL = new ICSViewCompatImpl();
+        } else if (version >= 11) {
+            IMPL = new HCViewCompatImpl();
         } else if (version >= 9) {
             IMPL = new GBViewCompatImpl();
         } else {
@@ -346,5 +391,67 @@ public class ViewCompat {
      */
     public static void setHasTransientState(View view, boolean hasTransientState) {
         IMPL.setHasTransientState(view, hasTransientState);
+    }
+
+    /**
+     * <p>Cause an invalidate to happen on the next animation time step, typically the
+     * next display frame.</p>
+     *
+     * <p>This method can be invoked from outside of the UI thread
+     * only when this View is attached to a window.</p>
+     *
+     * @param view View to invalidate
+     */
+    public static void postInvalidateOnAnimation(View view) {
+        IMPL.postInvalidateOnAnimation(view);
+    }
+
+    /**
+     * <p>Cause an invalidate of the specified area to happen on the next animation
+     * time step, typically the next display frame.</p>
+     *
+     * <p>This method can be invoked from outside of the UI thread
+     * only when this View is attached to a window.</p>
+     *
+     * @param view View to invalidate
+     * @param left The left coordinate of the rectangle to invalidate.
+     * @param top The top coordinate of the rectangle to invalidate.
+     * @param right The right coordinate of the rectangle to invalidate.
+     * @param bottom The bottom coordinate of the rectangle to invalidate.
+     */
+    public static void postInvalidateOnAnimation(View view, int left, int top,
+            int right, int bottom) {
+        IMPL.postInvalidateOnAnimation(view, left, top, right, bottom);
+    }
+
+    /**
+     * <p>Causes the Runnable to execute on the next animation time step.
+     * The runnable will be run on the user interface thread.</p>
+     *
+     * <p>This method can be invoked from outside of the UI thread
+     * only when this View is attached to a window.</p>
+     *
+     * @param view View to post this Runnable to
+     * @param action The Runnable that will be executed.
+     */
+    public static void postOnAnimation(View view, Runnable action) {
+        IMPL.postOnAnimation(view, action);
+    }
+
+    /**
+     * <p>Causes the Runnable to execute on the next animation time step,
+     * after the specified amount of time elapses.
+     * The runnable will be run on the user interface thread.</p>
+     *
+     * <p>This method can be invoked from outside of the UI thread
+     * only when this View is attached to a window.</p>
+     *
+     * @param view The view to post this Runnable to
+     * @param action The Runnable that will be executed.
+     * @param delayMillis The delay (in milliseconds) until the Runnable
+     *        will be executed.
+     */
+    public static void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
+        IMPL.postOnAnimationDelayed(view, action, delayMillis);
     }
 }

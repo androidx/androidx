@@ -31,4 +31,20 @@ public class ViewCompatJB {
         view.setHasTransientState(hasTransientState);
     }
 
+    public static void postInvalidateOnAnimation(View view) {
+        view.postInvalidateOnAnimation();
+    }
+
+    public static void postInvalidateOnAnimation(View view, int left, int top,
+            int right, int bottom) {
+        view.postInvalidate(left, top, right, bottom);
+    }
+
+    public static void postOnAnimation(View view, Runnable action) {
+        view.postOnAnimation(action);
+    }
+
+    public static void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
+        view.postOnAnimationDelayed(action, delayMillis);
+    }
 }
