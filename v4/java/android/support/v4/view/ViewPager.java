@@ -172,6 +172,12 @@ public class ViewPager extends ViewGroup {
     private int mMinimumVelocity;
     private int mMaximumVelocity;
     private int mFlingDistance;
+    private int mCloseEnough;
+
+    // If the pager is at least this close to its final position, complete the scroll
+    // on touch down and let the user interact with the content inside instead of
+    // "catching" the flinging pager.
+    private static final int CLOSE_ENOUGH = 2; // dp
 
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
@@ -303,6 +309,7 @@ public class ViewPager extends ViewGroup {
 
         final float density = context.getResources().getDisplayMetrics().density;
         mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
+        mCloseEnough = (int) (CLOSE_ENOUGH * density);
     }
 
     private void setScrollState(int newState) {
@@ -659,7 +666,7 @@ public class ViewPager extends ViewGroup {
         duration = Math.min(duration, MAX_SETTLE_DURATION);
 
         mScroller.startScroll(sx, sy, dx, dy, duration);
-        invalidate();
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     ItemInfo addNewItem(int position, int index) {
@@ -1390,7 +1397,7 @@ public class ViewPager extends ViewGroup {
             }
 
             // Keep on drawing until the animation has finished.
-            invalidate();
+            ViewCompat.postInvalidateOnAnimation(this);
             return;
         }
 
@@ -1583,6 +1590,7 @@ public class ViewPager extends ViewGroup {
                     // Nested view has scrollable area under this point. Let it be handled there.
                     mInitialMotionX = mLastMotionX = x;
                     mLastMotionY = y;
+                    mIsUnableToDrag = true;
                     return false;
                 }
                 if (xDiff > mTouchSlop && xDiff > yDiff) {
@@ -1612,16 +1620,16 @@ public class ViewPager extends ViewGroup {
                 mLastMotionX = mInitialMotionX = ev.getX();
                 mLastMotionY = ev.getY();
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mIsUnableToDrag = false;
 
-                if (mScrollState == SCROLL_STATE_SETTLING) {
+                if (mScrollState == SCROLL_STATE_SETTLING &&
+                        Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) > mCloseEnough) {
                     // Let the user 'catch' the pager as it animates.
                     mIsBeingDragged = true;
-                    mIsUnableToDrag = false;
                     setScrollState(SCROLL_STATE_DRAGGING);
                 } else {
                     completeScroll();
                     mIsBeingDragged = false;
-                    mIsUnableToDrag = false;
                 }
 
                 if (DEBUG) Log.v(TAG, "Down at " + mLastMotionX + "," + mLastMotionY
@@ -1802,7 +1810,7 @@ public class ViewPager extends ViewGroup {
                 break;
         }
         if (needsInvalidate) {
-            invalidate();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
         return true;
     }
@@ -1910,7 +1918,7 @@ public class ViewPager extends ViewGroup {
 
         if (needsInvalidate) {
             // Keep animating
-            invalidate();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 

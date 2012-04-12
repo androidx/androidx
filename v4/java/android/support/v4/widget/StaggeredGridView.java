@@ -367,7 +367,7 @@ public class StaggeredGridView extends ViewGroup {
                     mScroller.fling(0, 0, 0, (int) velocity, 0, 0,
                             Integer.MIN_VALUE, Integer.MAX_VALUE);
                     mLastTouchY = 0;
-                    invalidate();
+                    ViewCompat.postInvalidateOnAnimation(this);
                 } else {
                     mTouchMode = TOUCH_MODE_IDLE;
                 }
@@ -418,7 +418,7 @@ public class StaggeredGridView extends ViewGroup {
                 if (overScrolledBy > 0) {
                     EdgeEffectCompat edge = deltaY > 0 ? mTopEdge : mBottomEdge;
                     edge.onPull((float) Math.abs(deltaY) / getHeight());
-                    invalidate();
+                    ViewCompat.postInvalidateOnAnimation(this);
                 }
             }
         }
@@ -545,7 +545,7 @@ public class StaggeredGridView extends ViewGroup {
             final boolean stopped = !trackMotionScroll(dy, false);
 
             if (!stopped && !mScroller.isFinished()) {
-                postInvalidate();
+                ViewCompat.postInvalidateOnAnimation(this);
             } else {
                 if (stopped) {
                     final int overScrollMode = ViewCompat.getOverScrollMode(this);
@@ -557,7 +557,7 @@ public class StaggeredGridView extends ViewGroup {
                             edge = mBottomEdge;
                         }
                         edge.onAbsorb(Math.abs((int) mScroller.getCurrVelocity()));
-                        postInvalidate();
+                        ViewCompat.postInvalidateOnAnimation(this);
                     }
                     mScroller.abortAnimation();
                 }
@@ -587,7 +587,7 @@ public class StaggeredGridView extends ViewGroup {
             }
 
             if (needsInvalidate) {
-                invalidate();
+                ViewCompat.postInvalidateOnAnimation(this);
             }
         }
     }
