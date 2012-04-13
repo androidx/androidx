@@ -39,7 +39,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.cookie.DateUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -56,13 +55,28 @@ public class BasicNetwork implements Network {
 
     private static int SLOW_REQUEST_THRESHOLD_MS = 3000;
 
+    private static int DEFAULT_POOL_SIZE = 4096;
+
     protected final HttpStack mHttpStack;
+
+    protected final ByteArrayPool mPool;
 
     /**
      * @param httpStack HTTP stack to be used
      */
     public BasicNetwork(HttpStack httpStack) {
+        // If a pool isn't passed in, then build a small default pool that will give us a lot of
+        // benefit and not use too much memory.
+        this(httpStack, new ByteArrayPool(DEFAULT_POOL_SIZE));
+    }
+
+    /**
+     * @param httpStack HTTP stack to be used
+     * @param pool a buffer pool that improves GC performance in copy operations
+     */
+    public BasicNetwork(HttpStack httpStack, ByteArrayPool pool) {
         mHttpStack = httpStack;
+        mPool = pool;
     }
 
     @Override
@@ -184,15 +198,16 @@ public class BasicNetwork implements Network {
     }
 
     /** Reads the contents of HttpEntity into a byte[]. */
-    static byte[] entityToBytes(HttpEntity entity) throws IOException, ServerError {
+    private byte[] entityToBytes(HttpEntity entity) throws IOException, ServerError {
+        PoolingByteArrayOutputStream bytes =
+                new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength());
+        byte[] buffer = null;
         try {
             InputStream in = entity.getContent();
             if (in == null) {
                 throw new ServerError();
             }
-
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
+            buffer = mPool.getBuf(1024);
             int count;
             while ((count = in.read(buffer)) != -1) {
                 bytes.write(buffer, 0, count);
@@ -207,6 +222,8 @@ public class BasicNetwork implements Network {
                 // an invalid state.
                 VolleyLog.v("Error occured when calling consumingContent");
             }
+            mPool.returnBuf(buffer);
+            bytes.close();
         }
     }
 
