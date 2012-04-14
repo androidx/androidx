@@ -24,7 +24,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.support.v4.content.IntentCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,25 +79,66 @@ public class ShareCompat {
      */
     interface ShareCompatImpl {
         void configureMenuItem(MenuItem item, IntentBuilder shareIntent);
+        String escapeHtml(CharSequence text);
     }
 
     static class ShareCompatImplBase implements ShareCompatImpl {
         public void configureMenuItem(MenuItem item, IntentBuilder shareIntent) {
             item.setIntent(shareIntent.createChooserIntent());
         }
+
+        public String escapeHtml(CharSequence text) {
+            StringBuilder out = new StringBuilder();
+            withinStyle(out, text, 0, text.length());
+            return out.toString();
+        }
+
+        private static void withinStyle(StringBuilder out, CharSequence text,
+                int start, int end) {
+            for (int i = start; i < end; i++) {
+                char c = text.charAt(i);
+
+                if (c == '<') {
+                    out.append("&lt;");
+                } else if (c == '>') {
+                    out.append("&gt;");
+                } else if (c == '&') {
+                    out.append("&amp;");
+                } else if (c > 0x7E || c < ' ') {
+                    out.append("&#" + ((int) c) + ";");
+                } else if (c == ' ') {
+                    while (i + 1 < end && text.charAt(i + 1) == ' ') {
+                        out.append("&nbsp;");
+                        i++;
+                    }
+
+                    out.append(' ');
+                } else {
+                    out.append(c);
+                }
+            }
+        }
     }
 
-    static class ShareCompatImplICS implements ShareCompatImpl {
+    static class ShareCompatImplICS extends ShareCompatImplBase {
         public void configureMenuItem(MenuItem item, IntentBuilder shareIntent) {
             ShareCompatICS.configureMenuItem(item, shareIntent.getActivity(),
                     shareIntent.getIntent());
         }
     }
 
+    static class ShareCompatImplJB extends ShareCompatImplICS {
+        public String escapeHtml(CharSequence html) {
+            return ShareCompatJB.escapeHtml(html);
+        }
+    }
+
     private static ShareCompatImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 14) {
+        if (Build.VERSION.SDK_INT >= 16) {
+            IMPL = new ShareCompatImplJB();
+        } else if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new ShareCompatImplICS();
         } else {
             IMPL = new ShareCompatImplBase();
@@ -365,6 +409,7 @@ public class ShareCompat {
 
         /**
          * Set the literal text data to be sent as part of the share.
+         * This may be a styled CharSequence.
          *
          * @param text Text to share
          * @return This IntentBuilder for method chaining
@@ -372,6 +417,26 @@ public class ShareCompat {
          */
         public IntentBuilder setText(CharSequence text) {
             mIntent.putExtra(Intent.EXTRA_TEXT, text);
+            return this;
+        }
+
+        /**
+         * Set an HTML string to be sent as part of the share.
+         * If {@link Intent#EXTRA_TEXT EXTRA_TEXT} has not already been supplied,
+         * a styled version of the supplied HTML text will be added as EXTRA_TEXT as
+         * parsed by {@link android.text.Html#fromHtml(String) Html.fromHtml}.
+         *
+         * @param htmlText A string containing HTML markup as a richer version of the text
+         *                 provided by EXTRA_TEXT.
+         * @return This IntentBuilder for method chaining
+         * @see #setText(CharSequence)
+         */
+        public IntentBuilder setHtmlText(String htmlText) {
+            mIntent.putExtra(IntentCompat.EXTRA_HTML_TEXT, htmlText);
+            if (!mIntent.hasExtra(Intent.EXTRA_TEXT)) {
+                // Supply a default if EXTRA_TEXT isn't set
+                setText(Html.fromHtml(htmlText));
+            }
             return this;
         }
 
@@ -656,6 +721,29 @@ public class ShareCompat {
          */
         public CharSequence getText() {
             return mIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        }
+
+        /**
+         * Get the styled HTML text shared with the target activity.
+         * If no HTML text was supplied but {@link Intent#EXTRA_TEXT} contained
+         * styled text, it will be converted to HTML if possible and returned.
+         * If the text provided by {@link Intent#EXTRA_TEXT} was not styled text,
+         * it will be escaped by {@link android.text.Html#escapeHtml(CharSequence)}
+         * and returned. If no text was provided at all, this method will return null.
+         *
+         * @return Styled text provided by the sender as HTML.
+         */
+        public String getHtmlText() {
+            String result = mIntent.getStringExtra(IntentCompat.EXTRA_HTML_TEXT);
+            if (mIntent == null) {
+                CharSequence text = getText();
+                if (text instanceof Spanned) {
+                    result = Html.toHtml((Spanned) text);
+                } else if (text != null) {
+                    result = IMPL.escapeHtml(text);
+                }
+            }
+            return result;
         }
 
         /**
