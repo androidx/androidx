@@ -97,6 +97,15 @@ public class IntentCompat {
             "android.intent.extra.changed_uid_list";
 
     /**
+     * A constant String that is associated with the Intent, used with
+     * {@link android.content.Intent#ACTION_SEND} to supply an alternative to
+     * {@link android.content.Intent#EXTRA_TEXT}
+     * as HTML formatted text.  Note that you <em>must</em> also supply
+     * {@link android.content.Intent#EXTRA_TEXT}.
+     */
+    public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
+
+    /**
      * If set in an Intent passed to {@link Context#startActivity Context.startActivity()},
      * this flag will cause a newly launching task to be placed on top of the current
      * home activity task (if there is one). That is, pressing back from the task
