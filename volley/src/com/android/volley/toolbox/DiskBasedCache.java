@@ -230,7 +230,7 @@ public class DiskBasedCache implements Cache {
     /**
      * Returns a file object for the given cache key.
      */
-    private File getFileForKey(String key) {
+    public File getFileForKey(String key) {
         return new File(mRootDirectory, getFilenameForKey(key));
     }
 
