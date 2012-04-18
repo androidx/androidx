@@ -24,56 +24,51 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 @SmallTest
 public class PoolingByteArrayOutputStreamTest extends AndroidTestCase {
-    @Override
-    public void tearDown() {
-        PoolingByteArrayOutputStream.setSizeLimit(0);
-    }
-
     public void testPooledOneBuffer() throws IOException {
-        PoolingByteArrayOutputStream.setSizeLimit(32768);
-        writeOneBuffer();
-        writeOneBuffer();
-        writeOneBuffer();
+        ByteArrayPool pool = new ByteArrayPool(32768);
+        writeOneBuffer(pool);
+        writeOneBuffer(pool);
+        writeOneBuffer(pool);
     }
 
     public void testPooledIndividualWrites() throws IOException {
-        PoolingByteArrayOutputStream.setSizeLimit(32768);
-        writeBytesIndividually();
-        writeBytesIndividually();
-        writeBytesIndividually();
+        ByteArrayPool pool = new ByteArrayPool(32768);
+        writeBytesIndividually(pool);
+        writeBytesIndividually(pool);
+        writeBytesIndividually(pool);
     }
 
     public void testUnpooled() throws IOException {
-        PoolingByteArrayOutputStream.setSizeLimit(0);
-        writeOneBuffer();
-        writeOneBuffer();
-        writeOneBuffer();
+        ByteArrayPool pool = new ByteArrayPool(0);
+        writeOneBuffer(pool);
+        writeOneBuffer(pool);
+        writeOneBuffer(pool);
     }
 
     public void testUnpooledIndividualWrites() throws IOException {
-        PoolingByteArrayOutputStream.setSizeLimit(0);
-        writeBytesIndividually();
-        writeBytesIndividually();
-        writeBytesIndividually();
+        ByteArrayPool pool = new ByteArrayPool(0);
+        writeBytesIndividually(pool);
+        writeBytesIndividually(pool);
+        writeBytesIndividually(pool);
     }
 
-    private void writeOneBuffer() throws IOException {
+    private void writeOneBuffer(ByteArrayPool pool) throws IOException {
         byte[] data = new byte[16384];
         for (int i = 0; i < data.length; i++) {
             data[i] = (byte) (i & 0xff);
         }
-        PoolingByteArrayOutputStream os = new PoolingByteArrayOutputStream();
+        PoolingByteArrayOutputStream os = new PoolingByteArrayOutputStream(pool);
         os.write(data);
 
         assertTrue(Arrays.equals(data, os.toByteArray()));
     }
 
-    private void writeBytesIndividually() {
+    private void writeBytesIndividually(ByteArrayPool pool) {
         byte[] data = new byte[16384];
         for (int i = 0; i < data.length; i++) {
             data[i] = (byte) (i & 0xff);
         }
-        PoolingByteArrayOutputStream os = new PoolingByteArrayOutputStream();
+        PoolingByteArrayOutputStream os = new PoolingByteArrayOutputStream(pool);
         for (int i = 0; i < data.length; i++) {
             os.write(data[i]);
         }
