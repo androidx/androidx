@@ -46,7 +46,8 @@ class NotificationCompatHoneycomb {
                 .setDeleteIntent(n.deleteIntent)
                 .setFullScreenIntent(fullScreenIntent,
                         (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                .setLargeIcon(largeIcon);
+                .setLargeIcon(largeIcon)
+                .setNumber(number);
 
         return b.getNotification();
     }
