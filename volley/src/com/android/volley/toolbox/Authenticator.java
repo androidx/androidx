@@ -20,26 +20,14 @@ import com.android.volley.AuthFailureError;
 
 /**
  * An interface for interacting with auth tokens.
- *
- * Authenticators can support multiple auth types by implementing {@link #getAuthToken(String)}.
  */
 public interface Authenticator {
     /**
-     * Synchronously retrieves an auth token with default type.
+     * Synchronously retrieves an auth token.
      *
      * @throws AuthFailureError If authentication did not succeed
      */
     public String getAuthToken() throws AuthFailureError;
-
-    /**
-     * Synchronously retrieves an auth token of the given type.
-     *
-     * If not supported, {@link UnsupportedOperationException} should be thrown.
-     * @throws AuthFailureError If authentication did not succeed
-     *
-     * @deprecated
-     */
-    public String getAuthToken(String authTokenType) throws AuthFailureError;
 
     /**
      * Invalidates the provided auth token.
