@@ -32,22 +32,18 @@ import android.os.Bundle;
 public class AndroidAuthenticator implements Authenticator {
     private final Context mContext;
     private final Account mAccount;
-    private final String mDefaultAuthTokenType;
-
-    public AndroidAuthenticator(Context context, Account account) {
-        this(context, account, null);
-    }
+    private final String mAuthTokenType;
 
     /**
      * Creates a new authenticator.
      * @param context Context for accessing AccountManager
      * @param account Account to authenticate as
-     * @param defaultAuthTokenType Auth token type passed to AccountManager
+     * @param authTokenType Auth token type passed to AccountManager
      */
-    public AndroidAuthenticator(Context context, Account account, String defaultAuthTokenType) {
+    public AndroidAuthenticator(Context context, Account account, String authTokenType) {
         mContext = context;
         mAccount = account;
-        mDefaultAuthTokenType = defaultAuthTokenType;
+        mAuthTokenType = authTokenType;
     }
 
     /**
@@ -59,17 +55,9 @@ public class AndroidAuthenticator implements Authenticator {
 
     @Override
     public String getAuthToken() throws AuthFailureError {
-        if (mDefaultAuthTokenType == null) {
-            throw new UnsupportedOperationException("No default auth type.");
-        }
-        return getAuthToken(mDefaultAuthTokenType);
-    }
-
-    @Override
-    public String getAuthToken(String authTokenType) throws AuthFailureError {
         final AccountManager accountManager = AccountManager.get(mContext);
         AccountManagerFuture<Bundle> future = accountManager.getAuthToken(mAccount,
-                authTokenType, false, null, null);
+                mAuthTokenType, false, null, null);
         Bundle result;
         try {
             result = future.getResult();
@@ -85,7 +73,7 @@ public class AndroidAuthenticator implements Authenticator {
             authToken = result.getString(AccountManager.KEY_AUTHTOKEN);
         }
         if (authToken == null) {
-            throw new AuthFailureError("Got null auth token for type: " + authTokenType);
+            throw new AuthFailureError("Got null auth token for type: " + mAuthTokenType);
         }
 
         return authToken;
