@@ -17,6 +17,7 @@
 package android.support.v4.view.accessibility;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -46,8 +47,9 @@ public class AccessibilityNodeProviderCompat {
             return AccessibilityNodeProviderCompatJellyBean.newAccessibilityNodeProviderBridge(
                     new AccessibilityNodeProviderCompatJellyBean.AccessibilityNodeInfoBridge() {
                         @Override
-                        public boolean performAccessibilityAction(int action, int virtualViewId) {
-                            return compat.performAccessibilityAction(action, virtualViewId);
+                        public boolean performAction(int virtualViewId, int action,
+                                Bundle arguments) {
+                            return compat.performAction(virtualViewId, action, arguments);
                         }
 
                         @Override
@@ -142,14 +144,15 @@ public class AccessibilityNodeProviderCompat {
      * host View, with the given <code>virtualViewId</code> or the host View itself
      * if <code>virtualViewId</code> equals to {@link View#NO_ID}.
      *
-     * @param action The action to perform.
      * @param virtualViewId A client defined virtual view id.
+     * @param action The action to perform.
+     * @param arguments Optional arguments.
      * @return True if the action was performed.
      *
      * @see #createAccessibilityNodeInfo(int)
      * @see AccessibilityNodeInfoCompat
      */
-    public boolean performAccessibilityAction(int action, int virtualViewId) {
+    public boolean performAction(int virtualViewId, int action, Bundle arguments) {
         return false;
     }
 

@@ -16,6 +16,7 @@
 
 package android.support.v4.view.accessibility;
 
+import android.os.Bundle;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
@@ -27,7 +28,7 @@ import java.util.List;
 class AccessibilityNodeProviderCompatJellyBean {
     interface AccessibilityNodeInfoBridge {
         public Object createAccessibilityNodeInfo(int virtualViewId);
-        public boolean performAccessibilityAction(int action, int virtualViewId);
+        public boolean performAction(int virtualViewId, int action, Bundle arguments);
         public List<Object> findAccessibilityNodeInfosByText(String text,
             int virtualViewId);
     }
@@ -50,8 +51,8 @@ class AccessibilityNodeProviderCompatJellyBean {
             }
 
             @Override
-            public boolean performAccessibilityAction(int action, int virtualViewId) {
-                return bridge.performAccessibilityAction(action, virtualViewId);
+            public boolean performAction(int virtualViewId, int action, Bundle arguments) {
+                return bridge.performAction(virtualViewId, action, arguments);
             }
         };
     }
