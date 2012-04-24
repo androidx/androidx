@@ -23,17 +23,17 @@ public final class R {
 <colgroup align="left" />
 <tr><th>Constant</th><th>Value</th><th>Description</th></tr>
 <tr><td><code>alignBounds</code></td><td>0</td><td>
-	        Align the bounds of the children.
-	        See {@link android.widget.GridLayout#ALIGN_BOUNDS}.
+            Align the bounds of the children.
+            See {@link android.widget.GridLayout#ALIGN_BOUNDS}.
             </td></tr>
 <tr><td><code>alignMargins</code></td><td>1</td><td>
-	        Align the margins of the children.
-	        See {@link android.widget.GridLayout#ALIGN_MARGINS}.
+            Align the margins of the children.
+            See {@link android.widget.GridLayout#ALIGN_MARGINS}.
             </td></tr>
 </table>
          */
         public static int alignmentMode=0x7f010004;
-        /**  The maxmimum number of columns to create when automatically positioning children. 
+        /**  The maximum number of columns to create when automatically positioning children. 
          <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -154,7 +154,7 @@ containing a value of this type.
 
         The orientation property is not used during layout. It is only used to
         allocate row and column parameters when they are not specified by its children's
-        layout paramters. GridLayout works like LinearLayout in this case;
+        layout parameters. GridLayout works like LinearLayout in this case;
         putting all the components either in a single row or in a single column -
         depending on the value of this flag. In the horizontal case, a columnCount
         property may be additionally supplied to force new rows to be created when a
@@ -172,7 +172,7 @@ containing a value of this type.
 </table>
          */
         public static int orientation=0x7f010000;
-        /**  The maxmimum number of rows to create when automatically positioning children. 
+        /**  The maximum number of rows to create when automatically positioning children. 
          <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -242,20 +242,20 @@ containing a value of this type.
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #GridLayout_alignmentMode com.android.support.v7:alignmentMode}</code></td><td>
+           <tr><td><code>{@link #GridLayout_alignmentMode android.support.v7.gridlayout:alignmentMode}</code></td><td>
         When set to alignMargins, causes alignment to take place between the outer
         boundary of a view, as defined by its margins.</td></tr>
-           <tr><td><code>{@link #GridLayout_columnCount com.android.support.v7:columnCount}</code></td><td> The maxmimum number of columns to create when automatically positioning children.</td></tr>
-           <tr><td><code>{@link #GridLayout_columnOrderPreserved com.android.support.v7:columnOrderPreserved}</code></td><td>
+           <tr><td><code>{@link #GridLayout_columnCount android.support.v7.gridlayout:columnCount}</code></td><td> The maximum number of columns to create when automatically positioning children.</td></tr>
+           <tr><td><code>{@link #GridLayout_columnOrderPreserved android.support.v7.gridlayout:columnOrderPreserved}</code></td><td>
         When set to true, forces column boundaries to appear in the same order
         as column indices.</td></tr>
-           <tr><td><code>{@link #GridLayout_orientation com.android.support.v7:orientation}</code></td><td>
+           <tr><td><code>{@link #GridLayout_orientation android.support.v7.gridlayout:orientation}</code></td><td>
               support versions.</td></tr>
-           <tr><td><code>{@link #GridLayout_rowCount com.android.support.v7:rowCount}</code></td><td> The maxmimum number of rows to create when automatically positioning children.</td></tr>
-           <tr><td><code>{@link #GridLayout_rowOrderPreserved com.android.support.v7:rowOrderPreserved}</code></td><td>
+           <tr><td><code>{@link #GridLayout_rowCount android.support.v7.gridlayout:rowCount}</code></td><td> The maximum number of rows to create when automatically positioning children.</td></tr>
+           <tr><td><code>{@link #GridLayout_rowOrderPreserved android.support.v7.gridlayout:rowOrderPreserved}</code></td><td>
         When set to true, forces row boundaries to appear in the same order
         as row indices.</td></tr>
-           <tr><td><code>{@link #GridLayout_useDefaultMargins com.android.support.v7:useDefaultMargins}</code></td><td>
+           <tr><td><code>{@link #GridLayout_useDefaultMargins android.support.v7.gridlayout:useDefaultMargins}</code></td><td>
         When set to true, tells GridLayout to use default margins when none are specified
         in a view's layout parameters.</td></tr>
            </table>
@@ -290,12 +290,12 @@ containing a value of this type.
 <colgroup align="left" />
 <tr><th>Constant</th><th>Value</th><th>Description</th></tr>
 <tr><td><code>alignBounds</code></td><td>0</td><td>
-	        Align the bounds of the children.
-	        See {@link android.widget.GridLayout#ALIGN_BOUNDS}.
+            Align the bounds of the children.
+            See {@link android.widget.GridLayout#ALIGN_BOUNDS}.
             </td></tr>
 <tr><td><code>alignMargins</code></td><td>1</td><td>
-	        Align the margins of the children.
-	        See {@link android.widget.GridLayout#ALIGN_MARGINS}.
+            Align the margins of the children.
+            See {@link android.widget.GridLayout#ALIGN_MARGINS}.
             </td></tr>
 </table>
           <p>This is a private symbol.
@@ -305,7 +305,7 @@ containing a value of this type.
         /**
           <p>
           @attr description
-           The maxmimum number of columns to create when automatically positioning children. 
+           The maximum number of columns to create when automatically positioning children. 
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -349,7 +349,7 @@ containing a value of this type.
 
         The orientation property is not used during layout. It is only used to
         allocate row and column parameters when they are not specified by its children's
-        layout paramters. GridLayout works like LinearLayout in this case;
+        layout parameters. GridLayout works like LinearLayout in this case;
         putting all the components either in a single row or in a single column -
         depending on the value of this flag. In the horizontal case, a columnCount
         property may be additionally supplied to force new rows to be created when a
@@ -374,7 +374,7 @@ containing a value of this type.
         /**
           <p>
           @attr description
-           The maxmimum number of rows to create when automatically positioning children. 
+           The maximum number of rows to create when automatically positioning children. 
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -435,47 +435,41 @@ containing a value of this type.
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_height com.android.support.v7:android_layout_height}</code></td><td></td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_margin com.android.support.v7:android_layout_margin}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_android_layout_height android.support.v7.gridlayout:android_layout_height}</code></td><td></td></tr>
+           <tr><td><code>{@link #GridLayout_Layout_android_layout_margin android.support.v7.gridlayout:android_layout_margin}</code></td><td>
               Specifies extra space on the left, top, right and bottom
               sides of this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginBottom com.android.support.v7:android_layout_marginBottom}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginBottom android.support.v7.gridlayout:android_layout_marginBottom}</code></td><td>
               Specifies extra space on the bottom side of this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginEnd com.android.support.v7:android_layout_marginEnd}</code></td><td>
-              Specifies extra space on the end side of this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginLeft com.android.support.v7:android_layout_marginLeft}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginLeft android.support.v7.gridlayout:android_layout_marginLeft}</code></td><td>
               Specifies extra space on the left side of this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginRight com.android.support.v7:android_layout_marginRight}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginRight android.support.v7.gridlayout:android_layout_marginRight}</code></td><td>
               Specifies extra space on the right side of this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginStart com.android.support.v7:android_layout_marginStart}</code></td><td>
-              Specifies extra space on the start side of this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginTop com.android.support.v7:android_layout_marginTop}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_android_layout_marginTop android.support.v7.gridlayout:android_layout_marginTop}</code></td><td>
               Specifies extra space on the top side of this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_android_layout_width com.android.support.v7:android_layout_width}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_android_layout_width android.support.v7.gridlayout:android_layout_width}</code></td><td>
               support versions.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_column com.android.support.v7:layout_column}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_column android.support.v7.gridlayout:layout_column}</code></td><td>
         The column boundary delimiting the left of the group of cells
         occupied by this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_columnSpan com.android.support.v7:layout_columnSpan}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_columnSpan android.support.v7.gridlayout:layout_columnSpan}</code></td><td>
         The column span: the difference between the right and left
         boundaries delimiting the group of cells occupied by this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_gravity com.android.support.v7:layout_gravity}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_gravity android.support.v7.gridlayout:layout_gravity}</code></td><td>
         Gravity specifies how a component should be placed in its group of cells.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_row com.android.support.v7:layout_row}</code></td><td> END MarginLayout layoutparams 
+           <tr><td><code>{@link #GridLayout_Layout_layout_row android.support.v7.gridlayout:layout_row}</code></td><td> END MarginLayout layoutparams 
 
         The row boundary delimiting the top of the group of cells
         occupied by this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_rowSpan com.android.support.v7:layout_rowSpan}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_rowSpan android.support.v7.gridlayout:layout_rowSpan}</code></td><td>
         The row span: the difference between the bottom and top
         boundaries delimiting the group of cells occupied by this view.</td></tr>
            </table>
            @see #GridLayout_Layout_android_layout_height
            @see #GridLayout_Layout_android_layout_margin
            @see #GridLayout_Layout_android_layout_marginBottom
-           @see #GridLayout_Layout_android_layout_marginEnd
            @see #GridLayout_Layout_android_layout_marginLeft
            @see #GridLayout_Layout_android_layout_marginRight
-           @see #GridLayout_Layout_android_layout_marginStart
            @see #GridLayout_Layout_android_layout_marginTop
            @see #GridLayout_Layout_android_layout_width
            @see #GridLayout_Layout_layout_column
@@ -486,12 +480,11 @@ containing a value of this type.
          */
         public static final int[] GridLayout_Layout = {
             0x010100f4, 0x010100f5, 0x010100f6, 0x010100f7,
-            0x010100f8, 0x010100f9, 0x010100fa, 0x010103e1,
-            0x010103e2, 0x7f010007, 0x7f010008, 0x7f010009,
-            0x7f01000a, 0x7f01000b
+            0x010100f8, 0x010100f9, 0x010100fa, 0x7f010007,
+            0x7f010008, 0x7f010009, 0x7f01000a, 0x7f01000b
         };
         /**
-          <p>This symbol is the offset where the {@link com.android.support.v7.R.attr#android_layout_height}
+          <p>This symbol is the offset where the {@link android.support.v7.gridlayout.R.attr#android_layout_height}
           attribute's value can be found in the {@link #GridLayout_Layout} array.
           @attr name android:android_layout_height
         */
@@ -503,7 +496,7 @@ containing a value of this type.
               Specifies extra space on the left, top, right and bottom
               sides of this view. This space is outside this view's bounds.
         
-          <p>This corresponds to the global attribute          resource symbol {@link com.android.support.v7.R.attr#android_layout_margin}.
+          <p>This corresponds to the global attribute          resource symbol {@link android.support.v7.gridlayout.R.attr#android_layout_margin}.
           @attr name android:android_layout_margin
         */
         public static final int GridLayout_Layout_android_layout_margin = 2;
@@ -514,7 +507,7 @@ containing a value of this type.
               Specifies extra space on the bottom side of this view.
               This space is outside this view's bounds.
         
-          <p>This corresponds to the global attribute          resource symbol {@link com.android.support.v7.R.attr#android_layout_marginBottom}.
+          <p>This corresponds to the global attribute          resource symbol {@link android.support.v7.gridlayout.R.attr#android_layout_marginBottom}.
           @attr name android:android_layout_marginBottom
         */
         public static final int GridLayout_Layout_android_layout_marginBottom = 6;
@@ -522,21 +515,10 @@ containing a value of this type.
           <p>
           @attr description
           
-              Specifies extra space on the end side of this view.
-              This space is outside this view's bounds.
-        
-          <p>This is a private symbol.
-          @attr name android:android_layout_marginEnd
-        */
-        public static final int GridLayout_Layout_android_layout_marginEnd = 8;
-        /**
-          <p>
-          @attr description
-          
               Specifies extra space on the left side of this view.
               This space is outside this view's bounds.
         
-          <p>This corresponds to the global attribute          resource symbol {@link com.android.support.v7.R.attr#android_layout_marginLeft}.
+          <p>This corresponds to the global attribute          resource symbol {@link android.support.v7.gridlayout.R.attr#android_layout_marginLeft}.
           @attr name android:android_layout_marginLeft
         */
         public static final int GridLayout_Layout_android_layout_marginLeft = 3;
@@ -547,7 +529,7 @@ containing a value of this type.
               Specifies extra space on the right side of this view.
               This space is outside this view's bounds.
         
-          <p>This corresponds to the global attribute          resource symbol {@link com.android.support.v7.R.attr#android_layout_marginRight}.
+          <p>This corresponds to the global attribute          resource symbol {@link android.support.v7.gridlayout.R.attr#android_layout_marginRight}.
           @attr name android:android_layout_marginRight
         */
         public static final int GridLayout_Layout_android_layout_marginRight = 5;
@@ -555,21 +537,10 @@ containing a value of this type.
           <p>
           @attr description
           
-              Specifies extra space on the start side of this view.
-              This space is outside this view's bounds.
-        
-          <p>This is a private symbol.
-          @attr name android:android_layout_marginStart
-        */
-        public static final int GridLayout_Layout_android_layout_marginStart = 7;
-        /**
-          <p>
-          @attr description
-          
               Specifies extra space on the top side of this view.
               This space is outside this view's bounds.
         
-          <p>This corresponds to the global attribute          resource symbol {@link com.android.support.v7.R.attr#android_layout_marginTop}.
+          <p>This corresponds to the global attribute          resource symbol {@link android.support.v7.gridlayout.R.attr#android_layout_marginTop}.
           @attr name android:android_layout_marginTop
         */
         public static final int GridLayout_Layout_android_layout_marginTop = 4;
@@ -581,7 +552,7 @@ containing a value of this type.
               redefined in the support library name space.
         
  START MarginLayout layoutparams 
-          <p>This corresponds to the global attribute          resource symbol {@link com.android.support.v7.R.attr#android_layout_width}.
+          <p>This corresponds to the global attribute          resource symbol {@link android.support.v7.gridlayout.R.attr#android_layout_width}.
           @attr name android:android_layout_width
         */
         public static final int GridLayout_Layout_android_layout_width = 0;
@@ -603,7 +574,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name android:layout_column
         */
-        public static final int GridLayout_Layout_layout_column = 11;
+        public static final int GridLayout_Layout_layout_column = 9;
         /**
           <p>
           @attr description
@@ -624,7 +595,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name android:layout_columnSpan
         */
-        public static final int GridLayout_Layout_layout_columnSpan = 12;
+        public static final int GridLayout_Layout_layout_columnSpan = 10;
         /**
           <p>
           @attr description
@@ -669,7 +640,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name android:layout_gravity
         */
-        public static final int GridLayout_Layout_layout_gravity = 13;
+        public static final int GridLayout_Layout_layout_gravity = 11;
         /**
           <p>
           @attr description
@@ -689,7 +660,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name android:layout_row
         */
-        public static final int GridLayout_Layout_layout_row = 9;
+        public static final int GridLayout_Layout_layout_row = 7;
         /**
           <p>
           @attr description
@@ -710,6 +681,6 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name android:layout_rowSpan
         */
-        public static final int GridLayout_Layout_layout_rowSpan = 10;
+        public static final int GridLayout_Layout_layout_rowSpan = 8;
     };
 }

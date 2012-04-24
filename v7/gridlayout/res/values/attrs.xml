@@ -109,19 +109,8 @@
               This space is outside this view's bounds.
         -->
         <attr name="android:layout_marginBottom" />
-        <!--
-              Specifies extra space on the start side of this view.
-              This space is outside this view's bounds.
-        -->
-        <attr name="android:layout_marginStart" />
-        <!--
-              Specifies extra space on the end side of this view.
-              This space is outside this view's bounds.
-        -->
-        <attr name="android:layout_marginEnd" />
 
         <!-- END MarginLayout layoutparams -->
-
 
         <!--
         The row boundary delimiting the top of the group of cells
