@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.content.IntentCompat;
 import android.util.Log;
 
@@ -68,12 +69,12 @@ public class TaskStackBuilder implements Iterable<Intent> {
 
     interface TaskStackBuilderImpl {
         PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
-                int flags);
+                int flags, Bundle options);
     }
 
     static class TaskStackBuilderImplBase implements TaskStackBuilderImpl {
         public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
-                int flags) {
+                int flags, Bundle options) {
             Intent topIntent = intents[intents.length - 1];
             topIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             return PendingIntent.getActivity(context, requestCode, topIntent, flags);
@@ -82,11 +83,21 @@ public class TaskStackBuilder implements Iterable<Intent> {
 
     static class TaskStackBuilderImplHoneycomb implements TaskStackBuilderImpl {
         public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
-                int flags) {
+                int flags, Bundle options) {
             intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                     IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
             return TaskStackBuilderHoneycomb.getActivitiesPendingIntent(context, requestCode,
                     intents, flags);
+        }
+    }
+
+    static class TaskStackBuilderImplJellybean implements TaskStackBuilderImpl {
+        public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
+                int flags, Bundle options) {
+            intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                    IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+            return TaskStackBuilderJellybean.getActivitiesPendingIntent(context, requestCode,
+                    intents, flags, options);
         }
     }
 
@@ -114,8 +125,21 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * @param context The context that will launch the new task stack or generate a PendingIntent
      * @return A new TaskStackBuilder
      */
-    public static TaskStackBuilder from(Context context) {
+    public static TaskStackBuilder create(Context context) {
         return new TaskStackBuilder(context);
+    }
+
+    /**
+     * Return a new TaskStackBuilder for launching a fresh task stack consisting
+     * of a series of activities.
+     *
+     * @param context The context that will launch the new task stack or generate a PendingIntent
+     * @return A new TaskStackBuilder
+     *
+     * @deprecated use {@link #create(Context)} instead
+     */
+    public static TaskStackBuilder from(Context context) {
+        return create(context);
     }
 
     /**
@@ -188,11 +212,28 @@ public class TaskStackBuilder implements Iterable<Intent> {
      *
      * @param index Index from 0-getIntentCount()
      * @return the intent at position index
+     *
+     * @deprecated Renamed to editIntentAt to better reflect intended usage
      */
     public Intent getIntent(int index) {
+        return editIntentAt(index);
+    }
+
+    /**
+     * Return the intent at the specified index for modification.
+     * Useful if you need to modify the flags or extras of an intent that was previously added,
+     * for example with {@link #addParentStack(Activity)}.
+     *
+     * @param index Index from 0-getIntentCount()
+     * @return the intent at position index
+     */
+    public Intent editIntentAt(int index) {
         return mIntents.get(index);
     }
 
+    /**
+     * @deprecated Use editIntentAt instead
+     */
     public Iterator<Intent> iterator() {
         return mIntents.iterator();
     }
@@ -206,6 +247,21 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * the new task stack will be created in its entirety.</p>
      */
     public void startActivities() {
+        startActivities(null);
+    }
+
+    /**
+     * Start the task stack constructed by this builder. The Context used to obtain
+     * this builder must be an Activity.
+     *
+     * <p>On devices that do not support API level 11 or higher the topmost activity
+     * will be started as a new task. On devices that do support API level 11 or higher
+     * the new task stack will be created in its entirety.</p>
+     *
+     * @param options Additional options for how the Activity should be started.
+     * See {@link android.content.Context#startActivity(Intent, Bundle)
+     */
+    public void startActivities(Bundle options) {
         if (mIntents.isEmpty()) {
             throw new IllegalStateException(
                     "No intents added to TaskStackBuilder; cannot startActivities");
@@ -215,7 +271,7 @@ public class TaskStackBuilder implements Iterable<Intent> {
         intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
                 IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
-        if (!ActivityCompat.startActivities((Activity) mSourceContext, intents)) {
+        if (!ActivityCompat.startActivities((Activity) mSourceContext, intents, options)) {
             Intent topIntent = intents[intents.length - 1];
             topIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mSourceContext.startActivity(topIntent);
@@ -234,6 +290,23 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * @return The obtained PendingIntent
      */
     public PendingIntent getPendingIntent(int requestCode, int flags) {
+        return getPendingIntent(requestCode, flags, null);
+    }
+
+    /**
+     * Obtain a {@link PendingIntent} for launching the task constructed by this builder so far.
+     *
+     * @param requestCode Private request code for the sender
+     * @param flags May be {@link PendingIntent#FLAG_ONE_SHOT},
+     *              {@link PendingIntent#FLAG_NO_CREATE}, {@link PendingIntent#FLAG_CANCEL_CURRENT},
+     *              {@link PendingIntent#FLAG_UPDATE_CURRENT}, or any of the flags supported by
+     *              {@link Intent#fillIn(Intent, int)} to control which unspecified parts of the
+     *              intent that can be supplied when the actual send happens.
+     * @param options Additional options for how the Activity should be started.
+     * See {@link android.content.Context#startActivity(Intent, Bundle)
+     * @return The obtained PendingIntent
+     */
+    public PendingIntent getPendingIntent(int requestCode, int flags, Bundle options) {
         if (mIntents.isEmpty()) {
             throw new IllegalStateException(
                     "No intents added to TaskStackBuilder; cannot getPendingIntent");
@@ -243,6 +316,17 @@ public class TaskStackBuilder implements Iterable<Intent> {
         intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
                 IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
-        return IMPL.getPendingIntent(mSourceContext, intents, requestCode, flags);
+        return IMPL.getPendingIntent(mSourceContext, intents, requestCode, flags, options);
+    }
+
+    /**
+     * Return an array containing the intents added to this builder. The intent at the
+     * root of the task stack will appear as the first item in the array and the
+     * intent at the top of the stack will appear as the last item.
+     *
+     * @return An array containing the intents added to this builder.
+     */
+    public Intent[] getIntents() {
+        return mIntents.toArray(new Intent[mIntents.size()]);
     }
 }
