@@ -198,10 +198,13 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
 
     @Override
     protected void onDetachedFromWindow() {
-        updateAdapter(mPager.getAdapter(), null);
-        mPager.setInternalPageChangeListener(null);
-        mPager.setOnAdapterChangeListener(null);
-        mPager = null;
+        super.onDetachedFromWindow();
+        if (mPager != null) {
+            updateAdapter(mPager.getAdapter(), null);
+            mPager.setInternalPageChangeListener(null);
+            mPager.setOnAdapterChangeListener(null);
+            mPager = null;
+        }
     }
 
     void updateText(int currentItem, PagerAdapter adapter) {
