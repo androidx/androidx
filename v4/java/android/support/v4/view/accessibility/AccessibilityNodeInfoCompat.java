@@ -18,9 +18,7 @@ package android.support.v4.view.accessibility;
 
 import android.graphics.Rect;
 import android.os.Build;
-import android.os.Bundle;
 import android.view.View;
-import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,12 +33,9 @@ public class AccessibilityNodeInfoCompat {
     static interface AccessibilityNodeInfoImpl {
         public Object obtain();
         public Object obtain(View source);
-        public Object obtain(View root, int virtualDescendantId);
         public Object obtain(Object info);
         public void setSource(Object info, View source);
         public void setSource(Object info, View root, int virtualDescendantId);
-        public AccessibilityNodeInfo findFocus(Object info, int focus);
-        public AccessibilityNodeInfo focusSearch(Object info, int direction);
         public int getWindowId(Object info);
         public int getChildCount(Object info);
         public AccessibilityNodeInfoCompat getChild(Object info, int index);
@@ -49,12 +44,8 @@ public class AccessibilityNodeInfoCompat {
         public int getActions(Object info);
         public void addAction(Object info, int action);
         public boolean performAction(Object info, int action);
-        public boolean performAction(Object info, int action, Bundle arguments);
-        public void setMovementGranularities(Object info, int granularities);
-        public int getMovementGranularities(Object info);
         public List<Object> findAccessibilityNodeInfosByText(Object info, String text);
         public AccessibilityNodeInfoCompat getParent(Object info);
-        public void setParent(Object info, View root, int virtualDescendantId);
         public void setParent(Object info, View parent);
         public void getBoundsInParent(Object info, Rect outBounds);
         public void setBoundsInParent(Object info, Rect bounds);
@@ -68,10 +59,6 @@ public class AccessibilityNodeInfoCompat {
         public void setFocusable(Object info, boolean focusable);
         public boolean isFocused(Object info);
         public void setFocused(Object info, boolean focused);
-        public boolean isVisibleToUser(Object info);
-        public void setVisibleToUser(Object info, boolean visibleToUser);
-        public boolean isAccessibilityFocused(Object info);
-        public void setAccessibilityFocused(Object info, boolean focused);
         public boolean isSelected(Object info);
         public void setSelected(Object info, boolean selected);
         public boolean isClickable(Object info);
@@ -101,10 +88,6 @@ public class AccessibilityNodeInfoCompat {
         }
 
         public Object obtain(View source) {
-            return null;
-        }
-
-        public Object obtain(View root, int virtualDescendantId) {
             return null;
         }
 
@@ -196,14 +179,6 @@ public class AccessibilityNodeInfoCompat {
             return false;
         }
 
-        public boolean isVisibleToUser(Object info) {
-            return false;
-        }
-
-        public boolean isAccessibilityFocused(Object info) {
-            return false;
-        }
-
         public boolean isLongClickable(Object info) {
             return false;
         }
@@ -222,18 +197,6 @@ public class AccessibilityNodeInfoCompat {
 
         public boolean performAction(Object info, int action) {
             return false;
-        }
-
-        public boolean performAction(Object info, int action, Bundle arguments) {
-            return false;
-        }
-
-        public void setMovementGranularities(Object info, int granularities) {
-
-        }
-
-        public int getMovementGranularities(Object info) {
-            return 0;
         }
 
         public void setBoundsInParent(Object info, Rect bounds) {
@@ -276,14 +239,6 @@ public class AccessibilityNodeInfoCompat {
 
         }
 
-        public void setVisibleToUser(Object info, boolean visibleToUser) {
-
-        }
-
-        public void setAccessibilityFocused(Object info, boolean focused) {
-
-        }
-
         public void setLongClickable(Object info, boolean longClickable) {
 
         }
@@ -316,23 +271,11 @@ public class AccessibilityNodeInfoCompat {
 
         }
 
-        public AccessibilityNodeInfo findFocus(Object info, int focus) {
-            return null;
-        }
-
-        public AccessibilityNodeInfo focusSearch(Object info, int direction) {
-            return null;
-        }
-
         public void setText(Object info, CharSequence text) {
 
         }
 
         public void recycle(Object info) {
-
-        }
-
-        public void setParent(Object info, View root, int virtualDescendantId) {
 
         }
     }
@@ -586,61 +529,6 @@ public class AccessibilityNodeInfoCompat {
         public void setSource(Object info, View root, int virtualDescendantId) {
             AccessibilityNodeInfoCompatJellyBean.setSource(info, root, virtualDescendantId);
         }
-
-        @Override
-        public boolean isVisibleToUser(Object info) {
-            return AccessibilityNodeInfoCompatJellyBean.isVisibleToUser(info);
-        }
-
-        @Override
-        public void setVisibleToUser(Object info, boolean visibleToUser) {
-            AccessibilityNodeInfoCompatJellyBean.setVisibleToUser(info, visibleToUser);
-        }
-
-        @Override
-        public boolean performAction(Object info, int action, Bundle arguments) {
-            return AccessibilityNodeInfoCompatJellyBean.performAction(info, action, arguments);
-        }
-
-        @Override
-        public void setMovementGranularities(Object info, int granularities) {
-            AccessibilityNodeInfoCompatJellyBean.setMovementGranularities(info, granularities);
-        }
-
-        @Override
-        public int getMovementGranularities(Object info) {
-            return AccessibilityNodeInfoCompatJellyBean.getMovementGranularities(info);
-        }
-
-        @Override
-        public Object obtain(View root, int virtualDescendantId) {
-            return AccessibilityNodeInfoCompatJellyBean.obtain(root, virtualDescendantId);
-        }
-
-        @Override
-        public AccessibilityNodeInfo findFocus(Object info, int focus) {
-            return AccessibilityNodeInfoCompatJellyBean.findFocus(info, focus);
-        }
-
-        @Override
-        public AccessibilityNodeInfo focusSearch(Object info, int direction) {
-            return AccessibilityNodeInfoCompatJellyBean.focusSearch(info, direction);
-        }
-
-        @Override
-        public void setParent(Object info, View root, int virtualDescendantId) {
-            AccessibilityNodeInfoCompatJellyBean.setParent(info, root, virtualDescendantId);
-        }
-
-        @Override
-        public boolean isAccessibilityFocused(Object info) {
-            return AccessibilityNodeInfoCompatJellyBean.isAccessibilityFocused(info);
-        }
-
-        @Override
-        public void setAccessibilityFocused(Object info, boolean focused) {
-            AccessibilityNodeInfoCompatJellyBean.setAccesibilityFocused(info, focused);
-        }
     }
 
     static {
@@ -682,168 +570,6 @@ public class AccessibilityNodeInfoCompat {
     public static final int ACTION_CLEAR_SELECTION = 0x00000008;
 
     /**
-     * Action that clicks on the node info.
-     */
-    public static final int ACTION_CLICK = 0x00000010;
-
-    /**
-     * Action that long clicks on the node.
-     */
-    public static final int ACTION_LONG_CLICK = 0x00000020;
-
-    /**
-     * Action that gives accessibility focus to the node.
-     */
-    public static final int ACTION_ACCESSIBILITY_FOCUS = 0x00000040;
-
-    /**
-     * Action that clears accessibility focus of the node.
-     */
-    public static final int ACTION_CLEAR_ACCESSIBILITY_FOCUS = 0x00000080;
-
-    /**
-     * Action that requests to go to the next entity in this node's text
-     * at a given movement granularity. For example, move to the next character,
-     * word, etc.
-     * <p>
-     * <strong>Arguments:</strong> {@link #ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT}<br>
-     * <strong>Example:</strong>
-     * <code><pre><p>
-     *   Bundle arguments = new Bundle();
-     *   arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
-     *           AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER);
-     *   info.performAction(AccessibilityNodeInfo.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, arguments);
-     * </code></pre></p>
-     * </p>
-     *
-     * @see #setMovementGranularities(int)
-     * @see #getMovementGranularities()
-     *
-     * @see #MOVEMENT_GRANULARITY_CHARACTER
-     * @see #MOVEMENT_GRANULARITY_WORD
-     * @see #MOVEMENT_GRANULARITY_LINE
-     * @see #MOVEMENT_GRANULARITY_PARAGRAPH
-     * @see #MOVEMENT_GRANULARITY_PAGE
-     */
-    public static final int ACTION_NEXT_AT_MOVEMENT_GRANULARITY = 0x00000100;
-
-    /**
-     * Action that requests to go to the previous entity in this node's text
-     * at a given movement granularity. For example, move to the next character,
-     * word, etc.
-     * <p>
-     * <strong>Arguments:</strong> {@link #ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT}<br>
-     * <strong>Example:</strong>
-     * <code><pre><p>
-     *   Bundle arguments = new Bundle();
-     *   arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
-     *           AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER);
-     *   info.performAction(AccessibilityNodeInfo.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY,
-     *           arguments);
-     * </code></pre></p>
-     * </p>
-     *
-     * @see #setMovementGranularities(int)
-     * @see #getMovementGranularities()
-     *
-     * @see #MOVEMENT_GRANULARITY_CHARACTER
-     * @see #MOVEMENT_GRANULARITY_WORD
-     * @see #MOVEMENT_GRANULARITY_LINE
-     * @see #MOVEMENT_GRANULARITY_PARAGRAPH
-     * @see #MOVEMENT_GRANULARITY_PAGE
-     */
-    public static final int ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY = 0x00000200;
-
-    /**
-     * Action to move to the next HTML element of a given type. For example, move
-     * to the BUTTON, INPUT, TABLE, etc.
-     * <p>
-     * <strong>Arguments:</strong> {@link #ACTION_ARGUMENT_HTML_ELEMENT_STRING}<br>
-     * <strong>Example:</strong>
-     * <code><pre><p>
-     *   Bundle arguments = new Bundle();
-     *   arguments.putString(AccessibilityNodeInfo.ACTION_ARGUMENT_HTML_ELEMENT_STRING, "BUTTON");
-     *   info.performAction(AccessibilityNodeInfo.ACTION_NEXT_HTML_ELEMENT, arguments);
-     * </code></pre></p>
-     * </p>
-     */
-    public static final int ACTION_NEXT_HTML_ELEMENT = 0x00000400;
-
-    /**
-     * Action to move to the previous HTML element of a given type. For example, move
-     * to the BUTTON, INPUT, TABLE, etc.
-     * <p>
-     * <strong>Arguments:</strong> {@link #ACTION_ARGUMENT_HTML_ELEMENT_STRING}<br>
-     * <strong>Example:</strong>
-     * <code><pre><p>
-     *   Bundle arguments = new Bundle();
-     *   arguments.putString(AccessibilityNodeInfo.ACTION_ARGUMENT_HTML_ELEMENT_STRING, "BUTTON");
-     *   info.performAction(AccessibilityNodeInfo.ACTION_PREVIOUS_HTML_ELEMENT, arguments);
-     * </code></pre></p>
-     * </p>
-     */
-    public static final int ACTION_PREVIOUS_HTML_ELEMENT = 0x00000800;
-
-    /**
-     * Argument for which movement granularity to be used when traversing the node text.
-     * <p>
-     * <strong>Type:</strong> int<br>
-     * <strong>Actions:</strong> {@link #ACTION_NEXT_AT_MOVEMENT_GRANULARITY},
-     * {@link #ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY}
-     * </p>
-     */
-    public static final String ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT =
-        "ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT";
-
-    /**
-     * Argument for which HTML element to get moving to the next/previous HTML element.
-     * <p>
-     * <strong>Type:</strong> String<br>
-     * <strong>Actions:</strong> {@link #ACTION_NEXT_HTML_ELEMENT},
-     *         {@link #ACTION_PREVIOUS_HTML_ELEMENT}
-     * </p>
-     */
-    public static final String ACTION_ARGUMENT_HTML_ELEMENT_STRING =
-        "ACTION_ARGUMENT_HTML_ELEMENT_STRING";
-
-    /**
-     * The input focus.
-     */
-    public static final int FOCUS_INPUT = 1;
-
-    /**
-     * The accessibility focus.
-     */
-    public static final int FOCUS_ACCESSIBILITY = 2;
-
-    // Movement granularities
-
-    /**
-     * Movement granularity bit for traversing the text of a node by character.
-     */
-    public static final int MOVEMENT_GRANULARITY_CHARACTER = 0x00000001;
-
-    /**
-     * Movement granularity bit for traversing the text of a node by word.
-     */
-    public static final int MOVEMENT_GRANULARITY_WORD = 0x00000002;
-
-    /**
-     * Movement granularity bit for traversing the text of a node by line.
-     */
-    public static final int MOVEMENT_GRANULARITY_LINE = 0x00000004;
-
-    /**
-     * Movement granularity bit for traversing the text of a node by paragraph.
-     */
-    public static final int MOVEMENT_GRANULARITY_PARAGRAPH = 0x00000008;
-
-    /**
-     * Movement granularity bit for traversing the text of a node by page.
-     */
-    public static final int MOVEMENT_GRANULARITY_PAGE = 0x00000010;
-
-    /**
      * Creates a wrapper for info implementation.
      *
      * @param object The info to wrap.
@@ -882,20 +608,6 @@ public class AccessibilityNodeInfoCompat {
      */
     public static AccessibilityNodeInfoCompat obtain(View source) {
         return new AccessibilityNodeInfoCompat(IMPL.obtain(source));
-    }
-
-    /**
-     * Returns a cached instance if such is available otherwise a new one
-     * and sets the source.
-     *
-     * @param root The root of the virtual subtree.
-     * @param virtualDescendantId The id of the virtual descendant.
-     * @return An instance.
-     *
-     * @see #setSource(View, int)
-     */
-    public static AccessibilityNodeInfoCompat obtain(View root, int virtualDescendantId) {
-        return new AccessibilityNodeInfoCompat(IMPL.obtain(root, virtualDescendantId));
     }
 
     /**
@@ -948,45 +660,6 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setSource(View root, int virtualDescendantId) {
         IMPL.setSource(mInfo, root, virtualDescendantId);
-    }
-
-    /**
-     * Find the view that has the specified focus type. The search starts from
-     * the view represented by this node info.
-     *
-     * @param focus The focus to find. One of {@link #FOCUS_INPUT} or
-     *         {@link #FOCUS_ACCESSIBILITY}.
-     * @return The node info of the focused view or null.
-     *
-     * @see #FOCUS_INPUT
-     * @see #FOCUS_ACCESSIBILITY
-     */
-    public AccessibilityNodeInfo findFocus(int focus) {
-        return IMPL.findFocus(mInfo, focus);
-    }
-
-    /**
-     * Searches for the nearest view in the specified direction that can take
-     * focus.
-     *
-     * @param direction The direction. Can be one of:
-     *     {@link View#FOCUS_DOWN},
-     *     {@link View#FOCUS_UP},
-     *     {@link View#FOCUS_LEFT},
-     *     {@link View#FOCUS_RIGHT},
-     *     {@link View#FOCUS_FORWARD},
-     *     {@link View#FOCUS_BACKWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_FORWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_BACKWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_UP},
-     *     {@link View#ACCESSIBILITY_FOCUS_RIGHT},
-     *     {@link View#ACCESSIBILITY_FOCUS_DOWN},
-     *     {@link View#ACCESSIBILITY_FOCUS_LEFT}.
-     *
-     * @return The node info for the view that can take accessibility focus.
-     */
-    public AccessibilityNodeInfo focusSearch(int direction) {
-        return IMPL.focusSearch(mInfo, direction);
     }
 
     /**
@@ -1102,48 +775,6 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * Performs an action on the node.
-     * <p>
-     *   <strong>Note:</strong> An action can be performed only if the request is made
-     *   from an {@link android.accessibilityservice.AccessibilityService}.
-     * </p>
-     *
-     * @param action The action to perform.
-     * @param arguments A bundle with additional arguments.
-     * @return True if the action was performed.
-     *
-     * @throws IllegalStateException If called outside of an AccessibilityService.
-     */
-    public boolean performAction(int action, Bundle arguments) {
-        return IMPL.performAction(mInfo, action, arguments);
-    }
-
-    /**
-     * Sets the movement granularities for traversing the text of this node.
-     * <p>
-     *   <strong>Note:</strong> Cannot be called from an
-     *   {@link android.accessibilityservice.AccessibilityService}.
-     *   This class is made immutable before being delivered to an AccessibilityService.
-     * </p>
-     *
-     * @param granularities The bit mask with granularities.
-     *
-     * @throws IllegalStateException If called from an AccessibilityService.
-     */
-    public void setMovementGranularities(int granularities) {
-        IMPL.setMovementGranularities(mInfo, granularities);
-    }
-
-    /**
-     * Gets the movement granularities for traversing the text of this node.
-     *
-     * @return The bit mask with granularities.
-     */
-    public int getMovementGranularities() {
-        return IMPL.getMovementGranularities(mInfo);
-    }
-
-    /**
      * Finds {@link android.view.accessibility.AccessibilityNodeInfo}s by text. The match
      * is case insensitive containment. The search is relative to this info i.e. this
      * info is the root of the traversed tree.
@@ -1194,29 +825,6 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setParent(View parent) {
         IMPL.setParent(mInfo, parent);
-    }
-
-    /**
-     * Sets the parent to be a virtual descendant of the given <code>root</code>.
-     * If <code>virtualDescendantId</code> equals to {@link View#NO_ID} the root
-     * is set as the parent.
-     * <p>
-     * A virtual descendant is an imaginary View that is reported as a part of the view
-     * hierarchy for accessibility purposes. This enables custom views that draw complex
-     * content to report them selves as a tree of virtual views, thus conveying their
-     * logical structure.
-     * </p>
-     * <p>
-     *   <strong>Note:</strong> Cannot be called from an
-     *   {@link android.accessibilityservice.AccessibilityService}.
-     *   This class is made immutable before being delivered to an AccessibilityService.
-     * </p>
-     *
-     * @param root The root of the virtual subtree.
-     * @param virtualDescendantId The id of the virtual descendant.
-     */
-    public void setParent(View root, int virtualDescendantId) {
-        IMPL.setParent(mInfo, root, virtualDescendantId);
     }
 
     /**
@@ -1361,56 +969,6 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setFocused(boolean focused) {
         IMPL.setFocused(mInfo, focused);
-    }
-
-    /**
-     * Sets whether this node is visible to the user.
-     *
-     * @return Whether the node is visible to the user.
-     */
-    public boolean isVisibleToUser() {
-        return IMPL.isVisibleToUser(mInfo);
-    }
-
-    /**
-     * Sets whether this node is visible to the user.
-     * <p>
-     *   <strong>Note:</strong> Cannot be called from an
-     *   {@link android.accessibilityservice.AccessibilityService}.
-     *   This class is made immutable before being delivered to an AccessibilityService.
-     * </p>
-     *
-     * @param visibleToUser Whether the node is visible to the user.
-     *
-     * @throws IllegalStateException If called from an AccessibilityService.
-     */
-    public void setVisibleToUser(boolean visibleToUser) {
-        IMPL.setVisibleToUser(mInfo, visibleToUser);
-    }
-
-    /**
-     * Gets whether this node is accessibility focused.
-     *
-     * @return True if the node is accessibility focused.
-     */
-    public boolean isAccessibilityFocused() {
-        return IMPL.isAccessibilityFocused(mInfo);
-    }
-
-    /**
-     * Sets whether this node is accessibility focused.
-     * <p>
-     *   <strong>Note:</strong> Cannot be called from an
-     *   {@link android.accessibilityservice.AccessibilityService}.
-     *   This class is made immutable before being delivered to an AccessibilityService.
-     * </p>
-     *
-     * @param focused True if the node is accessibility focused.
-     *
-     * @throws IllegalStateException If called from an AccessibilityService.
-     */
-    public void setAccessibilityFocused(boolean focused) {
-        IMPL.setAccessibilityFocused(mInfo, focused);
     }
 
     /**
