@@ -687,7 +687,7 @@ public class ViewPager extends ViewGroup {
 
         boolean needPopulate = mItems.size() < mOffscreenPageLimit * 2 + 1 &&
                 mItems.size() < mAdapter.getCount();
-        int newCurrItem = -1;
+        int newCurrItem = mCurItem;
 
         boolean isUpdating = false;
         for (int i = 0; i < mItems.size(); i++) {
