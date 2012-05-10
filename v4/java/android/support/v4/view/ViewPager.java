@@ -685,7 +685,8 @@ public class ViewPager extends ViewGroup {
     void dataSetChanged() {
         // This method only gets called if our observer is attached, so mAdapter is non-null.
 
-        boolean needPopulate = mItems.size() < 3 && mItems.size() < mAdapter.getCount();
+        boolean needPopulate = mItems.size() < mOffscreenPageLimit * 2 + 1 &&
+                mItems.size() < mAdapter.getCount();
         int newCurrItem = -1;
 
         boolean isUpdating = false;
@@ -712,6 +713,7 @@ public class ViewPager extends ViewGroup {
                 if (mCurItem == ii.position) {
                     // Keep the current item in the valid range
                     newCurrItem = Math.max(0, Math.min(mCurItem, mAdapter.getCount() - 1));
+                    needPopulate = true;
                 }
                 continue;
             }
@@ -743,15 +745,8 @@ public class ViewPager extends ViewGroup {
                     lp.widthFactor = 0.f;
                 }
             }
-        }
 
-        if (newCurrItem >= 0) {
-            // TODO This currently causes a jump.
-            setCurrentItemInternal(newCurrItem, false, true);
-            needPopulate = true;
-        }
-        if (needPopulate) {
-            populate();
+            populate(newCurrItem);
             requestLayout();
         }
     }

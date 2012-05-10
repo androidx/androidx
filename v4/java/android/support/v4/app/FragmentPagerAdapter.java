@@ -85,17 +85,19 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
 
+        final long itemId = getItemId(position);
+
         // Do we already have this fragment?
-        String name = makeFragmentName(container.getId(), position);
+        String name = makeFragmentName(container.getId(), itemId);
         Fragment fragment = mFragmentManager.findFragmentByTag(name);
         if (fragment != null) {
-            if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + fragment);
+            if (DEBUG) Log.v(TAG, "Attaching item #" + itemId + ": f=" + fragment);
             mCurTransaction.attach(fragment);
         } else {
             fragment = getItem(position);
-            if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + fragment);
+            if (DEBUG) Log.v(TAG, "Adding item #" + itemId + ": f=" + fragment);
             mCurTransaction.add(container.getId(), fragment,
-                    makeFragmentName(container.getId(), position));
+                    makeFragmentName(container.getId(), itemId));
         }
         if (fragment != mCurrentPrimaryItem) {
             fragment.setMenuVisibility(false);
@@ -110,7 +112,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
-        if (DEBUG) Log.v(TAG, "Detaching item #" + position + ": f=" + object
+        if (DEBUG) Log.v(TAG, "Detaching item #" + getItemId(position) + ": f=" + object
                 + " v=" + ((Fragment)object).getView());
         mCurTransaction.detach((Fragment)object);
     }
@@ -154,7 +156,20 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     public void restoreState(Parcelable state, ClassLoader loader) {
     }
 
-    private static String makeFragmentName(int viewId, int index) {
-        return "android:switcher:" + viewId + ":" + index;
+    /**
+     * Return a unique identifier for the item at the given position.
+     *
+     * <p>The default implementation returns the given position.
+     * Subclasses should override this method if the positions of items can change.</p>
+     *
+     * @param position Position within this adapter
+     * @return Unique identifier for the item at position
+     */
+    public long getItemId(int position) {
+        return position;
+    }
+
+    private static String makeFragmentName(int viewId, long id) {
+        return "android:switcher:" + viewId + ":" + id;
     }
 }
