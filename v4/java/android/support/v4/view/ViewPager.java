@@ -1247,24 +1247,25 @@ public class ViewPager extends ViewGroup {
     }
 
     private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin) {
+        final int widthWithMargin = width + margin;
         if (oldWidth > 0 && !mItems.isEmpty()) {
             final int xpos = getScrollX();
-            final ItemInfo ii = infoForCurrentScrollPosition();
-            final float pageOffset = (((float) xpos / width) - ii.offset) / ii.widthFactor;
-            final int offsetPixels = (int) (pageOffset * width);
+            final int oldWidthWithMargin = oldWidth + oldMargin;
+            final float pageOffset = (float) xpos / oldWidthWithMargin;
+            final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
 
-            scrollTo(offsetPixels, getScrollY());
+            scrollTo(newOffsetPixels, getScrollY());
             if (!mScroller.isFinished()) {
                 // We now return to your regularly scheduled scroll, already in progress.
                 final int newDuration = mScroller.getDuration() - mScroller.timePassed();
                 ItemInfo targetInfo = infoForPosition(mCurItem);
-                mScroller.startScroll(offsetPixels, 0, (int) (targetInfo.offset * width), 0,
-                        newDuration);
+                mScroller.startScroll(newOffsetPixels, 0,
+                        (int) (targetInfo.offset * widthWithMargin), 0, newDuration);
             }
         } else {
             final ItemInfo ii = infoForPosition(mCurItem);
             final int scrollPos =
-                    (int) ((ii != null ? Math.min(ii.offset, mLastOffset) : 0) * width);
+                    (int) ((ii != null ? Math.min(ii.offset, mLastOffset) : 0) * widthWithMargin);
             if (scrollPos != getScrollX()) {
                 completeScroll();
                 scrollTo(scrollPos, getScrollY());
