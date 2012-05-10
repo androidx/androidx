@@ -238,7 +238,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         mLastKnownCurrentPage = currentItem;
 
         if (!mUpdatingPositions) {
-            updateTextPositions(currentItem, mLastKnownPositionOffset);
+            updateTextPositions(currentItem, mLastKnownPositionOffset, false);
         }
 
         mUpdatingText = false;
@@ -266,10 +266,10 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         }
     }
 
-    void updateTextPositions(int position, float positionOffset) {
+    void updateTextPositions(int position, float positionOffset, boolean force) {
         if (position != mLastKnownCurrentPage) {
             updateText(position, mPager.getAdapter());
-        } else if (positionOffset == mLastKnownPositionOffset) {
+        } else if (!force && positionOffset == mLastKnownPositionOffset) {
             return;
         }
 
@@ -394,7 +394,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (mPager != null) {
-            updateTextPositions(mPager.getCurrentItem(), 0.f);
+            updateTextPositions(mPager.getCurrentItem(), 0.f, true);
         }
     }
 
@@ -408,7 +408,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
                 // Consider ourselves to be on the next page when we're 50% of the way there.
                 position++;
             }
-            updateTextPositions(position, positionOffset);
+            updateTextPositions(position, positionOffset, false);
         }
 
         @Override
