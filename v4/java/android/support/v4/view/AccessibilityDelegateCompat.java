@@ -269,9 +269,7 @@ public class AccessibilityDelegateCompat {
     private static final Object DEFAULT_DELEGATE;
 
     static {
-        // TODO: Update the conditional to use SDK_INT when we have an SDK version set.
-        //       (tracked by bug:5947249)
-        if (Build.VERSION.CODENAME.equals("JellyBean")) { // JellyBean
+        if (Build.VERSION.SDK_INT >= 16) { // JellyBean
             IMPL = new AccessibilityDelegateJellyBeanImpl();
         } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new AccessibilityDelegateIcsImpl();

@@ -502,9 +502,7 @@ public class AccessibilityRecordCompat {
     }
 
     static {
-        // TODO: Update the conditional to use SDK_INT when we have an SDK version set.
-        //       (tracked by bug:5947249)
-        if (Build.VERSION.CODENAME.equals("JellyBean")) { // JellyBean
+        if (Build.VERSION.SDK_INT >= 16) { // JellyBean
             IMPL = new AccessibilityRecordJellyBeanImpl();
         } else if (Build.VERSION.SDK_INT >= 15) {  // ICS MR1
             IMPL = new AccessibilityRecordIcsMr1Impl();
