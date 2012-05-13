@@ -746,7 +746,7 @@ public class ViewPager extends ViewGroup {
                 }
             }
 
-            populate(newCurrItem);
+            setCurrentItemInternal(newCurrItem, false, true);
             requestLayout();
         }
     }
