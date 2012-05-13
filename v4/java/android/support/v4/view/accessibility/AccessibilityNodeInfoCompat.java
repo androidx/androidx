@@ -701,9 +701,7 @@ public class AccessibilityNodeInfoCompat {
     }
 
     static {
-        // TODO: Update the conditional to use SDK_INT when we have an SDK version set.
-        //       (tracked by bug:5947249)
-        if (Build.VERSION.CODENAME.equals("JellyBean")) { // JellyBean
+        if (Build.VERSION.SDK_INT >= 16) { // JellyBean
             IMPL = new AccessibilityNodeInfoJellybeanImpl();
         } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new AccessibilityNodeInfoIcsImpl();

@@ -83,7 +83,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of JellyBean APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-jellybean
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 16
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean)
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
