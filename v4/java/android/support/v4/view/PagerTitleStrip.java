@@ -37,14 +37,16 @@ import android.widget.TextView;
  * of the ViewPager. The title from each page is supplied by the method
  * {@link PagerAdapter#getPageTitle(int)} in the adapter supplied to
  * the ViewPager.
+ *
+ * <p>For an interactive indicator, see {@link PagerTabStrip}.</p>
  */
 public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private static final String TAG = "PagerTitleStrip";
 
     ViewPager mPager;
-    private TextView mPrevText;
-    private TextView mCurrText;
-    private TextView mNextText;
+    TextView mPrevText;
+    TextView mCurrText;
+    TextView mNextText;
 
     private int mLastKnownCurrentPage = -1;
     private float mLastKnownPositionOffset = -1;
@@ -67,7 +69,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private static final int TEXT_SPACING = 16; // dip
 
     private int mNonPrimaryAlpha;
-    private int mTextColor;
+    int mTextColor;
 
     public PagerTitleStrip(Context context) {
         this(context, null);
@@ -122,6 +124,13 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     public void setTextSpacing(int spacingPixels) {
         mScaledTextSpacing = spacingPixels;
         requestLayout();
+    }
+
+    /**
+     * @return The required spacing between title segments in pixels
+     */
+    public int getTextSpacing() {
+        return mScaledTextSpacing;
     }
 
     /**
