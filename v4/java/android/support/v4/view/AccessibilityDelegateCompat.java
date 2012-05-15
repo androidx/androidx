@@ -468,7 +468,7 @@ public class AccessibilityDelegateCompat {
      * that explore the window content.
      * <p>
      * The default implementation behaves as
-     * {@link ViewCompat#getAccessibilityNodeProvider() ViewCompat#getAccessibilityNodeProvider()}
+     * {@link ViewCompat#getAccessibilityNodeProvider(View) ViewCompat#getAccessibilityNodeProvider(View)}
      * for the case of no accessibility delegate been set.
      * </p>
      *
