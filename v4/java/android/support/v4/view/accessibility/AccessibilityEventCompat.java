@@ -33,14 +33,17 @@ public class AccessibilityEventCompat {
 
     static class AccessibilityEventStubImpl implements AccessibilityEventVersionImpl {
 
+        @Override
         public void appendRecord(AccessibilityEvent event, Object record) {
 
         }
 
+        @Override
         public Object getRecord(AccessibilityEvent event, int index) {
             return null;
         }
 
+        @Override
         public int getRecordCount(AccessibilityEvent event) {
             return 0;
         }
@@ -108,6 +111,48 @@ public class AccessibilityEventCompat {
      * Represents the event of changing the selection in an {@link android.widget.EditText}.
      */
     public static final int TYPE_VIEW_TEXT_SELECTION_CHANGED = 0x00002000;
+
+    /**
+     * Represents the event of an application making an announcement.
+     */
+    public static final int TYPE_ANNOUNCEMENT = 0x00004000;
+
+    /**
+     * Represents the event of gaining accessibility focus.
+     */
+    public static final int TYPE_VIEW_ACCESSIBILITY_FOCUSED = 0x00008000;
+
+    /**
+     * Represents the event of clearing accessibility focus.
+     */
+    public static final int TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = 0x00010000;
+
+    /**
+     * Represents the event of traversing the text of a view at a given movement granularity.
+     */
+    public static final int TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY = 0x00020000;
+
+    /**
+     * Mask for {@link AccessibilityEvent} all types.
+     *
+     * @see AccessibilityEvent#TYPE_VIEW_CLICKED
+     * @see AccessibilityEvent#TYPE_VIEW_LONG_CLICKED
+     * @see AccessibilityEvent#TYPE_VIEW_SELECTED
+     * @see AccessibilityEvent#TYPE_VIEW_FOCUSED
+     * @see AccessibilityEvent#TYPE_VIEW_TEXT_CHANGED
+     * @see AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED
+     * @see AccessibilityEvent#TYPE_NOTIFICATION_STATE_CHANGED
+     * @see #TYPE_VIEW_HOVER_ENTER
+     * @see #TYPE_VIEW_HOVER_EXIT
+     * @see #TYPE_TOUCH_EXPLORATION_GESTURE_START
+     * @see #TYPE_TOUCH_EXPLORATION_GESTURE_END
+     * @see #TYPE_WINDOW_CONTENT_CHANGED
+     * @see #TYPE_VIEW_SCROLLED
+     * @see #TYPE_VIEW_TEXT_SELECTION_CHANGED
+     * @see #TYPE_ANNOUNCEMENT
+     * @see #TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY
+     */
+    public static final int TYPES_ALL_MASK = 0xFFFFFFFF;
 
     /*
      * Hide constructor from clients.
