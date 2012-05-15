@@ -47,4 +47,16 @@ public class ViewCompatJB {
     public static void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
         view.postOnAnimationDelayed(action, delayMillis);
     }
+
+    public static int getImportantForAccessibility(View view) {
+        return view.getImportantForAccessibility();
+    }
+
+    public static void setImportantForAccessibility(View view, int mode) {
+        view.setImportantForAccessibility(mode);
+    }
+
+    public static Object getAccessibilityNodeProvider(View view) {
+        return view.getAccessibilityNodeProvider();
+    }
 }
