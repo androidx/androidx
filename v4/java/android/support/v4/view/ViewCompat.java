@@ -533,18 +533,18 @@ public class ViewCompat {
 
     /**
      * Gets the provider for managing a virtual view hierarchy rooted at this View
-     * and reported to {@link android.accessibilityservice.AccessibilityServiceCompat}s
+     * and reported to {@link android.accessibilityservice.AccessibilityService}s
      * that explore the window content.
      * <p>
      * If this method returns an instance, this instance is responsible for managing
-     * {@link AccessibilityNodeInfoComapt}s describing the virtual sub-tree rooted at
+     * {@link AccessibilityNodeInfoCompat}s describing the virtual sub-tree rooted at
      * this View including the one representing the View itself. Similarly the returned
      * instance is responsible for performing accessibility actions on any virtual
      * view or the root view itself.
      * </p>
      * <p>
      * If an {@link AccessibilityDelegateCompat} has been specified via calling
-     * {@link #setAccessibilityDelegate(AccessibilityDelegate)} its
+     * {@link #setAccessibilityDelegate(View, AccessibilityDelegateCompat) its
      * {@link AccessibilityDelegateCompat#getAccessibilityNodeProvider(View)}
      * is responsible for handling this call.
      * </p>
