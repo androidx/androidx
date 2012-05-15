@@ -124,12 +124,24 @@ public class ShareCompat {
         public void configureMenuItem(MenuItem item, IntentBuilder shareIntent) {
             ShareCompatICS.configureMenuItem(item, shareIntent.getActivity(),
                     shareIntent.getIntent());
+            if (shouldAddChooserIntent(item)) {
+                item.setIntent(shareIntent.createChooserIntent());
+            }
+        }
+
+        boolean shouldAddChooserIntent(MenuItem item) {
+            return !item.hasSubMenu();
         }
     }
 
     static class ShareCompatImplJB extends ShareCompatImplICS {
         public String escapeHtml(CharSequence html) {
             return ShareCompatJB.escapeHtml(html);
+        }
+
+        @Override
+        boolean shouldAddChooserIntent(MenuItem item) {
+            return false;
         }
     }
 
