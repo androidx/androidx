@@ -87,6 +87,8 @@ public class ViewPager extends ViewGroup {
     private static final int MAX_SETTLE_DURATION = 600; // ms
     private static final int MIN_DISTANCE_FOR_FLING = 25; // dips
 
+    private static final int DEFAULT_GUTTER_SIZE = 16; // dips
+
     private static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
     };
@@ -147,6 +149,9 @@ public class ViewPager extends ViewGroup {
 
     private boolean mIsBeingDragged;
     private boolean mIsUnableToDrag;
+    private boolean mIgnoreGutter;
+    private int mDefaultGutterSize;
+    private int mGutterSize;
     private int mTouchSlop;
     private float mInitialMotionX;
     /**
@@ -310,6 +315,7 @@ public class ViewPager extends ViewGroup {
         final float density = context.getResources().getDisplayMetrics().density;
         mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
         mCloseEnough = (int) (CLOSE_ENOUGH * density);
+        mDefaultGutterSize = (int) (DEFAULT_GUTTER_SIZE * density);
     }
 
     private void setScrollState(int newState) {
@@ -1150,8 +1156,12 @@ public class ViewPager extends ViewGroup {
         setMeasuredDimension(getDefaultSize(0, widthMeasureSpec),
                 getDefaultSize(0, heightMeasureSpec));
 
+        final int measuredWidth = getMeasuredWidth();
+        final int maxGutterSize = measuredWidth / 10;
+        mGutterSize = Math.min(maxGutterSize, mDefaultGutterSize);
+
         // Children are just made to fill our space.
-        int childWidthSize = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
+        int childWidthSize = measuredWidth - getPaddingLeft() - getPaddingRight();
         int childHeightSize = getMeasuredHeight() - getPaddingTop() - getPaddingBottom();
 
         /*
@@ -1520,6 +1530,10 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    private boolean isGutterDrag(float x, float dx) {
+        return (x < mGutterSize && dx > 0) || (x > getWidth() - mGutterSize && dx < 0);
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         /*
@@ -1582,7 +1596,8 @@ public class ViewPager extends ViewGroup {
                 final float yDiff = Math.abs(y - mLastMotionY);
                 if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 
-                if (canScroll(this, false, (int) dx, (int) x, (int) y)) {
+                if (dx != 0 && !isGutterDrag(mLastMotionX, dx) &&
+                        canScroll(this, false, (int) dx, (int) x, (int) y)) {
                     // Nested view has scrollable area under this point. Let it be handled there.
                     mInitialMotionX = mLastMotionX = x;
                     mLastMotionY = y;
