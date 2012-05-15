@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.view.View;
@@ -47,6 +48,8 @@ public class AccessibilityDelegateCompat {
                 AccessibilityEvent event);
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(Object delegate,
                 View host);
+        public boolean performAccessibilityAction(Object delegate, View host, int action,
+                Bundle args);
     }
 
     static class AccessibilityDelegateStubImpl implements AccessibilityDelegateImpl {
@@ -104,6 +107,12 @@ public class AccessibilityDelegateCompat {
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(Object delegate,
                 View host) {
             return null;
+        }
+
+        @Override
+        public boolean performAccessibilityAction(Object delegate, View host, int action,
+                Bundle args) {
+            return false;
         }
     }
 
@@ -248,7 +257,14 @@ public class AccessibilityDelegateCompat {
 
                 @Override
                 public Object getAccessibilityNodeProvider(View host) {
-                    return compat.getAccessibilityNodeProvider(host).getProvider();
+                    AccessibilityNodeProviderCompat provider =
+                        compat.getAccessibilityNodeProvider(host);
+                    return (provider != null) ? provider.getProvider() : null;
+                }
+
+                @Override
+                public boolean performAccessibilityAction(View host, int action, Bundle args) {
+                    return compat.performAccessibilityAction(host, action, args);
                 }
             });
         }
@@ -262,6 +278,13 @@ public class AccessibilityDelegateCompat {
                 return new AccessibilityNodeProviderCompat(provider);
             }
             return null;
+        }
+
+        @Override
+        public boolean performAccessibilityAction(Object delegate, View host, int action,
+                Bundle args) {
+            return AccessibilityDelegateCompatJellyBean.performAccessibilityAction(delegate,
+                    host, action, args);
         }
     }
 
@@ -445,8 +468,8 @@ public class AccessibilityDelegateCompat {
      * that explore the window content.
      * <p>
      * The default implementation behaves as
-     * {@link View#getAccessibilityNodeProvider() View#getAccessibilityNodeProvider()} for
-     * the case of no accessibility delegate been set.
+     * {@link ViewCompat#getAccessibilityNodeProvider() ViewCompat#getAccessibilityNodeProvider()}
+     * for the case of no accessibility delegate been set.
      * </p>
      *
      * @return The provider.
@@ -455,5 +478,25 @@ public class AccessibilityDelegateCompat {
      */
     public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {
         return IMPL.getAccessibilityNodeProvider(DEFAULT_DELEGATE, host);
+    }
+
+    /**
+     * Performs the specified accessibility action on the view. For
+     * possible accessibility actions look at {@link AccessibilityNodeInfoCompat}.
+     * <p>
+     * The default implementation behaves as
+     * {@link View#performAccessibilityAction(int, Bundle)
+     *  View#performAccessibilityAction(int, Bundle)} for the case of
+     *  no accessibility delegate been set.
+     * </p>
+     *
+     * @param action The action to perform.
+     * @return Whether the action was performed.
+     *
+     * @see View#performAccessibilityAction(int, Bundle)
+     *      View#performAccessibilityAction(int, Bundle)
+     */
+    public boolean performAccessibilityAction(View host, int action, Bundle args) {
+        return IMPL.performAccessibilityAction(DEFAULT_DELEGATE, host, action, args);
     }
 }

@@ -18,6 +18,7 @@ package android.support.v4.view;
 
 import android.graphics.Rect;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -45,6 +46,21 @@ public class ViewCompat {
 
     private static final long FAKE_FRAME_TIME = 10;
 
+    /**
+     * Automatically determine whether a view is important for accessibility.
+     */
+    public static final int IMPORTANT_FOR_ACCESSIBILITY_AUTO = 0x00000000;
+
+    /**
+     * The view is important for accessibility.
+     */
+    public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = 0x00000001;
+
+    /**
+     * The view is not important for accessibility.
+     */
+    public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 0x00000002;
+
     interface ViewCompatImpl {
         public boolean canScrollHorizontally(View v, int direction);
         public boolean canScrollVertically(View v, int direction);
@@ -60,6 +76,9 @@ public class ViewCompat {
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom);
         public void postOnAnimation(View view, Runnable action);
         public void postOnAnimationDelayed(View view, Runnable action, long delayMillis);
+        public int getImportantForAccessibility(View view);
+        public void setImportantForAccessibility(View view, int mode);
+        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -108,6 +127,15 @@ public class ViewCompat {
         }
         long getFrameTime() {
             return FAKE_FRAME_TIME;
+        }
+        public int getImportantForAccessibility(View view) {
+            return 0;
+        }
+        public void setImportantForAccessibility(View view, int mode) {
+
+        }
+        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
+            return null;
         }
     }
 
@@ -179,6 +207,22 @@ public class ViewCompat {
         @Override
         public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
             ViewCompatJB.postOnAnimationDelayed(view, action, delayMillis);
+        }
+        @Override
+        public int getImportantForAccessibility(View view) {
+            return ViewCompatJB.getImportantForAccessibility(view);
+        }
+        @Override
+        public void setImportantForAccessibility(View view, int mode) {
+            ViewCompatJB.setImportantForAccessibility(view, mode);
+        }
+        @Override
+        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
+            Object compat = ViewCompatJB.getAccessibilityNodeProvider(view);
+            if (compat != null) {
+                return new AccessibilityNodeProviderCompat(compat);
+            }
+            return null;
         }
     }
 
@@ -453,5 +497,64 @@ public class ViewCompat {
      */
     public static void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
         IMPL.postOnAnimationDelayed(view, action, delayMillis);
+    }
+
+    /**
+     * Gets the mode for determining whether this View is important for accessibility
+     * which is if it fires accessibility events and if it is reported to
+     * accessibility services that query the screen.
+     *
+     * @param view The view whose property to get.
+     * @return The mode for determining whether a View is important for accessibility.
+     *
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_YES
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_NO
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
+     */
+    public static int getImportantForAccessibility(View view) {
+        return IMPL.getImportantForAccessibility(view);
+    }
+
+    /**
+     * Sets how to determine whether this view is important for accessibility
+     * which is if it fires accessibility events and if it is reported to
+     * accessibility services that query the screen.
+     *
+     * @param view The view whose property to set.
+     * @param mode How to determine whether this view is important for accessibility.
+     *
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_YES
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_NO
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
+     */
+    public static void setImportantForAccessibility(View view, int mode) {
+        IMPL.setImportantForAccessibility(view, mode);
+    }
+
+    /**
+     * Gets the provider for managing a virtual view hierarchy rooted at this View
+     * and reported to {@link android.accessibilityservice.AccessibilityServiceCompat}s
+     * that explore the window content.
+     * <p>
+     * If this method returns an instance, this instance is responsible for managing
+     * {@link AccessibilityNodeInfoComapt}s describing the virtual sub-tree rooted at
+     * this View including the one representing the View itself. Similarly the returned
+     * instance is responsible for performing accessibility actions on any virtual
+     * view or the root view itself.
+     * </p>
+     * <p>
+     * If an {@link AccessibilityDelegateCompat} has been specified via calling
+     * {@link #setAccessibilityDelegate(AccessibilityDelegate)} its
+     * {@link AccessibilityDelegateCompat#getAccessibilityNodeProvider(View)}
+     * is responsible for handling this call.
+     * </p>
+     *
+     * @param view The view whose property to get.
+     * @return The provider.
+     *
+     * @see AccessibilityNodeProviderCompat
+     */
+    public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
+        return IMPL.getAccessibilityNodeProvider(view);
     }
 }

@@ -16,6 +16,7 @@
 
 package android.support.v4.view;
 
+import android.os.Bundle;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.ViewGroup;
@@ -38,11 +39,13 @@ class AccessibilityDelegateCompatJellyBean {
         public void sendAccessibilityEvent(View host, int eventType);
         public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event);
         public Object getAccessibilityNodeProvider(View host);
+        public boolean performAccessibilityAction(View host, int action, Bundle args);
     }
 
     public static Object newAccessibilityDelegateBridge(
             final AccessibilityDelegateBridgeJellyBean bridge) {
         return new AccessibilityDelegate() {
+
             @Override
             public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
                 return bridge.dispatchPopulateAccessibilityEvent(host, event);
@@ -83,11 +86,21 @@ class AccessibilityDelegateCompatJellyBean {
             public AccessibilityNodeProvider getAccessibilityNodeProvider(View host) {
                 return (AccessibilityNodeProvider) bridge.getAccessibilityNodeProvider(host);
             }
+
+            @Override
+            public boolean performAccessibilityAction(View host, int action, Bundle args) {
+                return bridge.performAccessibilityAction(host, action, args);
+            }
         };
     }
 
     public static Object getAccessibilityNodeProvider(Object delegate,
             View host) {
         return ((AccessibilityDelegate) delegate).getAccessibilityNodeProvider(host);
+    }
+
+    public static boolean performAccessibilityAction(Object delegate, View host, int action,
+            Bundle args) {
+        return ((AccessibilityDelegate) delegate).performAccessibilityAction(host, action, args);
     }
 }

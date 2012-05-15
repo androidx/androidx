@@ -23,11 +23,13 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -316,6 +318,14 @@ public class ViewPager extends ViewGroup {
         mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
         mCloseEnough = (int) (CLOSE_ENOUGH * density);
         mDefaultGutterSize = (int) (DEFAULT_GUTTER_SIZE * density);
+
+        ViewCompat.setAccessibilityDelegate(this, new MyAccessibilityDelegate());
+
+        if (ViewCompat.getImportantForAccessibility(this)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(this,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
     }
 
     private void setScrollState(int newState) {
@@ -2410,6 +2420,50 @@ public class ViewPager extends ViewGroup {
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
         return new LayoutParams(getContext(), attrs);
+    }
+
+    class MyAccessibilityDelegate extends AccessibilityDelegateCompat {
+
+        @Override
+        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+            super.onInitializeAccessibilityEvent(host, event);
+            event.setClassName(ViewPager.class.getName());
+        }
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+            super.onInitializeAccessibilityNodeInfo(host, info);
+            info.setClassName(ViewPager.class.getName());
+            info.setScrollable(mAdapter != null && mAdapter.getCount() > 1);
+            if (mAdapter != null && mCurItem >= 0 && mCurItem < mAdapter.getCount() - 1) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+            }
+            if (mAdapter != null && mCurItem > 0 && mCurItem < mAdapter.getCount()) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+            }
+        }
+
+        @Override
+        public boolean performAccessibilityAction(View host, int action, Bundle args) {
+            if (super.performAccessibilityAction(host, action, args)) {
+                return true;
+            }
+            switch (action) {
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD: {
+                    if (mAdapter != null && mCurItem >= 0 && mCurItem < mAdapter.getCount() - 1) {
+                        setCurrentItem(mCurItem + 1);
+                        return true;
+                    }
+                } return false;
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD: {
+                    if (mAdapter != null && mCurItem > 0 && mCurItem < mAdapter.getCount()) {
+                        setCurrentItem(mCurItem - 1);
+                        return true;
+                    }
+                } return false;
+            }
+            return false;
+        }
     }
 
     private class PagerObserver extends DataSetObserver {
