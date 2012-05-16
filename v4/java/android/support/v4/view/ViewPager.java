@@ -1975,7 +1975,7 @@ public class ViewPager extends ViewGroup {
                 }
 
                 if (drawAt + mPageMargin > scrollX) {
-                    mMarginDrawable.setBounds((int) (drawAt - 0.5f), mTopPageBounds,
+                    mMarginDrawable.setBounds((int) drawAt, mTopPageBounds,
                             (int) (drawAt + mPageMargin + 0.5f), mBottomPageBounds);
                     mMarginDrawable.draw(canvas);
                 }
