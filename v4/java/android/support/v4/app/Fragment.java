@@ -27,6 +27,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.DebugUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -108,7 +109,10 @@ final class FragmentState implements Parcelable {
         mInstance.mRetainInstance = mRetainInstance;
         mInstance.mDetached = mDetached;
         mInstance.mFragmentManager = activity.mFragments;
-        
+
+        if (FragmentManagerImpl.DEBUG) Log.v(FragmentManagerImpl.TAG,
+                "Instantiated fragment " + mInstance);
+
         return mInstance;
     }
     
