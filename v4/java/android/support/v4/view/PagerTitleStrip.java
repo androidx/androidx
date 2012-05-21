@@ -65,11 +65,44 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         android.R.attr.gravity
     };
 
+    private static final int[] TEXT_ATTRS = new int[] {
+        0x0101038c // android.R.attr.textAllCaps
+    };
+
     private static final float SIDE_ALPHA = 0.6f;
     private static final int TEXT_SPACING = 16; // dip
 
     private int mNonPrimaryAlpha;
     int mTextColor;
+
+    interface PagerTitleStripImpl {
+        void setSingleLineAllCaps(TextView text);
+    }
+
+    static class PagerTitleStripImplBase implements PagerTitleStripImpl {
+        public void setSingleLineAllCaps(TextView text) {
+            text.setSingleLine();
+        }
+    }
+
+    static class PagerTitleStripImplIcs implements PagerTitleStripImpl {
+        public void setSingleLineAllCaps(TextView text) {
+            PagerTitleStripIcs.setSingleLineAllCaps(text);
+        }
+    }
+
+    private static final PagerTitleStripImpl IMPL;
+    static {
+        if (android.os.Build.VERSION.SDK_INT >= 14) {
+            IMPL = new PagerTitleStripImplIcs();
+        } else {
+            IMPL = new PagerTitleStripImplBase();
+        }
+    }
+
+    private static void setSingleLineAllCaps(TextView text) {
+        IMPL.setSingleLineAllCaps(text);
+    }
 
     public PagerTitleStrip(Context context) {
         this(context, null);
@@ -108,9 +141,23 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         mPrevText.setEllipsize(TruncateAt.END);
         mCurrText.setEllipsize(TruncateAt.END);
         mNextText.setEllipsize(TruncateAt.END);
-        mPrevText.setSingleLine();
-        mCurrText.setSingleLine();
-        mNextText.setSingleLine();
+
+        boolean allCaps = false;
+        if (textAppearance != 0) {
+            final TypedArray ta = context.obtainStyledAttributes(textAppearance, TEXT_ATTRS);
+            allCaps = ta.getBoolean(0, false);
+            ta.recycle();
+        }
+
+        if (allCaps) {
+            setSingleLineAllCaps(mPrevText);
+            setSingleLineAllCaps(mCurrText);
+            setSingleLineAllCaps(mNextText);
+        } else {
+            mPrevText.setSingleLine();
+            mCurrText.setSingleLine();
+            mNextText.setSingleLine();
+        }
 
         final float density = context.getResources().getDisplayMetrics().density;
         mScaledTextSpacing = (int) (TEXT_SPACING * density);
@@ -375,12 +422,8 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         }
 
         int childHeight = heightSize;
-        int minHeight = 0;
+        int minHeight = getMinHeight();
         int padding = 0;
-        final Drawable bg = getBackground();
-        if (bg != null) {
-            minHeight = bg.getIntrinsicHeight();
-        }
         padding = getPaddingTop() + getPaddingBottom();
         childHeight -= padding;
 
@@ -403,8 +446,18 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (mPager != null) {
-            updateTextPositions(mPager.getCurrentItem(), 0.f, true);
+            final float offset = mLastKnownPositionOffset >= 0 ? mLastKnownPositionOffset : 0;
+            updateTextPositions(mPager.getCurrentItem(), offset, true);
         }
+    }
+
+    int getMinHeight() {
+        int minHeight = 0;
+        final Drawable bg = getBackground();
+        if (bg != null) {
+            minHeight = bg.getIntrinsicHeight();
+        }
+        return minHeight;
     }
 
     private class PageListener extends DataSetObserver implements ViewPager.OnPageChangeListener,
