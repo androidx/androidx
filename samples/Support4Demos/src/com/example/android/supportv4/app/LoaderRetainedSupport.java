@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import android.widget.ListView;
  * data in a fragment.
  */
 @SuppressWarnings("all")
-public class LoaderCursorSupport extends FragmentActivity {
+public class LoaderRetainedSupport extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +72,9 @@ public class LoaderCursorSupport extends FragmentActivity {
 
         @Override public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
+
+            // In this sample we are going to use a retained fragment.
+            setRetainInstance(true);
 
             // Give some text to display if there is no data.  In a real
             // application this would come from a resource.

@@ -438,7 +438,8 @@ public class LoaderCustomSupport extends FragmentActivity {
             // Place an action bar item for searching.
             MenuItem item = menu.add("Search");
             item.setIcon(android.R.drawable.ic_menu_search);
-            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM
+                    | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
             View searchView = SearchViewCompat.newSearchView(getActivity());
             if (searchView != null) {
                 SearchViewCompat.setOnQueryTextListener(searchView,
