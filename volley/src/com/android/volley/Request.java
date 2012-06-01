@@ -58,9 +58,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /** Whether or not this request has been canceled. */
     private boolean mCanceled = false;
 
-    /** Whether or not this request should be suppressed by {@link RequestQueue#drain()}. */
-    private boolean mDrainable = true;
-
     /** Whether or not a response has been delivered for this request yet. */
     private boolean mResponseDelivered = false;
 
@@ -187,22 +184,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
             throw new IllegalStateException("getSequence called before setSequence");
         }
         return mSequence;
-    }
-
-    /**
-     * Sets whether or not this request should be suppressed by {@link RequestQueue#drain()}.
-     */
-    @Deprecated
-    public void setDrainable(boolean drainable) {
-        mDrainable = drainable;
-    }
-
-    /**
-     * Returns true if this request can be suppressed by {@link RequestQueue#drain()}.
-     */
-    @Deprecated
-    public boolean isDrainable() {
-        return mDrainable;
     }
 
     /**

@@ -19,11 +19,9 @@ package com.android.volley;
 import android.os.Handler;
 import android.os.Looper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -41,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RequestQueue {
 
     /** Used for generating monotonically-increasing sequence numbers for requests. */
-    private static AtomicInteger sSequenceGenerator = new AtomicInteger();
+    private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
     /**
      * Staging area for requests that already have a duplicate request in flight.
@@ -162,8 +160,8 @@ public class RequestQueue {
     /**
      * Gets a sequence number.
      */
-    public static int getSequenceNumber() {
-        return sSequenceGenerator.incrementAndGet();
+    public int getSequenceNumber() {
+        return mSequenceGenerator.incrementAndGet();
     }
 
     /**
@@ -205,58 +203,6 @@ public class RequestQueue {
     }
 
     /**
-     * Drains this request queue.  All requests currently being processed
-     * or waiting to be processed will be canceled, and no responses, success
-     * or error, will be delivered for them.
-     */
-    @Deprecated
-    public void drain() {
-        drain(getSequenceNumber());
-    }
-
-    /**
-     * Drains this request queue.  All requests currently being processed
-     * or waiting to be processed will be canceled, and no responses, success
-     * or error, will be delivered for them.
-     * @param sequenceNumber The sequence number of the drain request. Everything before this number
-     * will be drained.
-     */
-    @Deprecated
-    public void drain(int sequenceNumber) {
-        // Cancel drainable requests.
-        cancelDrainable(mCacheQueue, sequenceNumber);
-        cancelDrainable(mNetworkQueue, sequenceNumber);
-
-        // Tell the delivery to discard all requests with a sequence number below it.  We can't stop
-        // requests that are already in flight, but this will suppress their responses
-        // from being delivered.
-        mDelivery.discardBefore(sequenceNumber);
-        if (VolleyLog.DEBUG) {
-            VolleyLog.v("Draining requests with sequence number below %s", sequenceNumber);
-        }
-    }
-
-    /**
-     * Cancels all requests in the provided queue that return true from
-     * {@link Request#isDrainable()} and have a sequence number less than the
-     * provided one.
-     */
-    @SuppressWarnings("deprecation")
-    private void cancelDrainable(PriorityBlockingQueue<Request> queue, int sequenceNumber) {
-        List<Request> pending = new ArrayList<Request>();
-        // Remove all requests from the queue in order to work on them.
-        queue.drainTo(pending);
-        for (Request request : pending) {
-            if (request.isDrainable() && request.getSequence() < sequenceNumber) {
-                request.cancel();
-            }
-            // Put the request back on the queue. If it is canceled, it
-            // will be discarded by one of the dispatchers or the delivery.
-            queue.add(request);
-        }
-    }
-
-    /**
      * Adds a Request to the dispatch queue.
      * @param request The request to service
      * @return The passed-in request
@@ -269,7 +215,7 @@ public class RequestQueue {
         }
 
         // Process requests in the order they are added.
-        request.setSequence(sSequenceGenerator.incrementAndGet());
+        request.setSequence(getSequenceNumber());
         request.addMarker("add-to-queue");
 
         // If the request is uncacheable, skip the cache queue and go straight to the network.

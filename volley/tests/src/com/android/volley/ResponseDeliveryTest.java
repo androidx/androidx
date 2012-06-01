@@ -57,33 +57,6 @@ public class ResponseDeliveryTest extends TestCase {
         assertFalse(mRequest.deliverError_called);
     }
 
-    public void testPostResponse_suppressesDrained() {
-        // discardBefore is exclusive, an exact match should be delivered
-        MockRequest request1 = new MockRequest();
-        request1.setSequence(16);
-        mDelivery.discardBefore(16);
-        mDelivery.postResponse(request1, mSuccessResponse);
-        assertTrue(request1.deliverResponse_called);
-        assertFalse(request1.deliverError_called);
-
-        // This one should be eaten though.
-        MockRequest request2 = new MockRequest();
-        request2.setSequence(20);
-        mDelivery.discardBefore(21);
-        mDelivery.postResponse(request2, mSuccessResponse);
-        assertFalse(request2.deliverResponse_called);
-        assertFalse(request2.deliverError_called);
-    }
-
-    public void testPostResponse_allowsDrainedButUndrainable() {
-        mRequest.setSequence(15);
-        mRequest.setDrainable(false);
-        mDelivery.discardBefore(100);
-        mDelivery.postResponse(mRequest, mSuccessResponse);
-        assertTrue(mRequest.deliverResponse_called);
-        assertFalse(mRequest.deliverError_called);
-    }
-
     public void testPostError_callsDeliverError() {
         Response<byte[]> errorResponse = Response.error(new ServerError());
 

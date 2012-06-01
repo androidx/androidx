@@ -27,9 +27,6 @@ public class ExecutorDelivery implements ResponseDelivery {
     /** Used for posting responses, typically to the main thread. */
     private final Executor mResponsePoster;
 
-    /** Requests with a sequence number below this one will have responses dropped. */
-    private int mDiscardBefore = 0;
-
     /**
      * Creates a new response delivery interface.
      * @param handler {@link Handler} to post responses on
@@ -72,11 +69,6 @@ public class ExecutorDelivery implements ResponseDelivery {
         mResponsePoster.execute(new ResponseDeliveryRunnable(request, response, null));
     }
 
-    @Override
-    public void discardBefore(int sequence) {
-        mDiscardBefore = sequence;
-    }
-
     /**
      * A Runnable used for delivering network responses to a listener on the
      * main thread.
@@ -96,14 +88,8 @@ public class ExecutorDelivery implements ResponseDelivery {
         @SuppressWarnings("unchecked")
         @Override
         public void run() {
-            // Don't deliver the response if this request was canceled during processing
-            // or if discardBefore() has been called with a sequence number greater than
-            // or equal to this request's sequence number.
-            boolean drained = mRequest.isDrainable() &&
-                (mRequest.getSequence() < mDiscardBefore);
-
-            // If this request has been drained or canceled, finish it and don't deliver.
-            if (drained || mRequest.isCanceled()) {
+            // If this request has canceled, finish it and don't deliver.
+            if (mRequest.isCanceled()) {
                 mRequest.finish("canceled-at-delivery");
                 return;
             }

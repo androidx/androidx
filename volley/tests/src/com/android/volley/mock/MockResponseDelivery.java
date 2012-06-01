@@ -48,9 +48,4 @@ public class MockResponseDelivery implements ResponseDelivery {
     public void postError(Request<?> request, VolleyError error) {
         postError_called = true;
     }
-
-    @Override
-    public void discardBefore(int sequence) {
-    }
-
 }
