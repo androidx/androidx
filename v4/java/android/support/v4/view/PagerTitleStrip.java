@@ -273,7 +273,8 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         }
         mPrevText.setText(text);
 
-        mCurrText.setText(adapter != null ? adapter.getPageTitle(currentItem) : null);
+        mCurrText.setText(adapter != null && currentItem < itemCount ?
+                adapter.getPageTitle(currentItem) : null);
 
         text = null;
         if (currentItem + 1 < itemCount && adapter != null) {
