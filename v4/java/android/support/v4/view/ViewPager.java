@@ -146,7 +146,6 @@ public class ViewPager extends ViewGroup {
     private boolean mScrollingCacheEnabled;
 
     private boolean mPopulatePending;
-    private boolean mScrolling;
     private int mOffscreenPageLimit = DEFAULT_OFFSCREEN_PAGES;
 
     private boolean mIsBeingDragged;
@@ -449,6 +448,7 @@ public class ViewPager extends ViewGroup {
             setScrollingCacheEnabled(false);
             return;
         }
+
         if (item < 0) {
             item = 0;
         } else if (item >= mAdapter.getCount()) {
@@ -661,7 +661,6 @@ public class ViewPager extends ViewGroup {
         }
 
         setScrollingCacheEnabled(true);
-        mScrolling = true;
         setScrollState(SCROLL_STATE_SETTLING);
 
         final int width = getWidth();
@@ -1262,10 +1261,10 @@ public class ViewPager extends ViewGroup {
     }
 
     private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin) {
-        final int widthWithMargin = width + margin;
         if (oldWidth > 0 && !mItems.isEmpty()) {
-            final int xpos = getScrollX();
+            final int widthWithMargin = width + margin;
             final int oldWidthWithMargin = oldWidth + oldMargin;
+            final int xpos = getScrollX();
             final float pageOffset = (float) xpos / oldWidthWithMargin;
             final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
 
@@ -1275,12 +1274,12 @@ public class ViewPager extends ViewGroup {
                 final int newDuration = mScroller.getDuration() - mScroller.timePassed();
                 ItemInfo targetInfo = infoForPosition(mCurItem);
                 mScroller.startScroll(newOffsetPixels, 0,
-                        (int) (targetInfo.offset * widthWithMargin), 0, newDuration);
+                        (int) (targetInfo.offset * width), 0, newDuration);
             }
         } else {
             final ItemInfo ii = infoForPosition(mCurItem);
-            final int scrollPos =
-                    (int) ((ii != null ? Math.min(ii.offset, mLastOffset) : 0) * widthWithMargin);
+            final float scrollOffset = ii != null ? Math.min(ii.offset, mLastOffset) : 0;
+            final int scrollPos = (int) (scrollOffset * width);
             if (scrollPos != getScrollX()) {
                 completeScroll();
                 scrollTo(scrollPos, getScrollY());
@@ -1512,7 +1511,7 @@ public class ViewPager extends ViewGroup {
     }
 
     private void completeScroll() {
-        boolean needPopulate = mScrolling;
+        boolean needPopulate = mScrollState == SCROLL_STATE_SETTLING;
         if (needPopulate) {
             // Done with scroll, no longer want to cache view drawing.
             setScrollingCacheEnabled(false);
@@ -1527,7 +1526,6 @@ public class ViewPager extends ViewGroup {
             setScrollState(SCROLL_STATE_IDLE);
         }
         mPopulatePending = false;
-        mScrolling = false;
         for (int i=0; i<mItems.size(); i++) {
             ItemInfo ii = mItems.get(i);
             if (ii.scrolling) {
@@ -1618,7 +1616,8 @@ public class ViewPager extends ViewGroup {
                     if (DEBUG) Log.v(TAG, "Starting drag!");
                     mIsBeingDragged = true;
                     setScrollState(SCROLL_STATE_DRAGGING);
-                    mLastMotionX = x;
+                    mLastMotionX = dx > 0 ? mInitialMotionX + mTouchSlop :
+                            mInitialMotionX - mTouchSlop;
                     setScrollingCacheEnabled(true);
                 } else {
                     if (yDiff > mTouchSlop) {
@@ -1643,9 +1642,13 @@ public class ViewPager extends ViewGroup {
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mIsUnableToDrag = false;
 
+                mScroller.computeScrollOffset();
                 if (mScrollState == SCROLL_STATE_SETTLING &&
                         Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) > mCloseEnough) {
                     // Let the user 'catch' the pager as it animates.
+                    mScroller.abortAnimation();
+                    mPopulatePending = false;
+                    populate();
                     mIsBeingDragged = true;
                     setScrollState(SCROLL_STATE_DRAGGING);
                 } else {
@@ -1664,14 +1667,10 @@ public class ViewPager extends ViewGroup {
                 break;
         }
 
-        if (!mIsBeingDragged) {
-            // Track the velocity as long as we aren't dragging.
-            // Once we start a real drag we will track in onTouchEvent.
-            if (mVelocityTracker == null) {
-                mVelocityTracker = VelocityTracker.obtain();
-            }
-            mVelocityTracker.addMovement(ev);
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
         }
+        mVelocityTracker.addMovement(ev);
 
         /*
          * The only time we want to intercept motion events is if we are in the
@@ -1710,11 +1709,11 @@ public class ViewPager extends ViewGroup {
 
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
-                /*
-                 * If being flinged and user touches, stop the fling. isFinished
-                 * will be false if being flinged.
-                 */
-                completeScroll();
+                mScroller.abortAnimation();
+                mPopulatePending = false;
+                populate();
+                mIsBeingDragged = true;
+                setScrollState(SCROLL_STATE_DRAGGING);
 
                 // Remember where the motion event started
                 mLastMotionX = mInitialMotionX = ev.getX();
@@ -1732,7 +1731,8 @@ public class ViewPager extends ViewGroup {
                     if (xDiff > mTouchSlop && xDiff > yDiff) {
                         if (DEBUG) Log.v(TAG, "Starting drag!");
                         mIsBeingDragged = true;
-                        mLastMotionX = x;
+                        mLastMotionX = x - mInitialMotionX > 0 ? mInitialMotionX + mTouchSlop :
+                                mInitialMotionX - mTouchSlop;
                         setScrollState(SCROLL_STATE_DRAGGING);
                         setScrollingCacheEnabled(true);
                     }
@@ -1863,8 +1863,8 @@ public class ViewPager extends ViewGroup {
             }
             offset = ii.offset;
 
-            final float leftBound = offset - 0.0001f;
-            final float rightBound = offset + ii.widthFactor + marginOffset + 0.0001f;
+            final float leftBound = offset;
+            final float rightBound = offset + ii.widthFactor + marginOffset;
             if (first || scrollOffset >= leftBound) {
                 if (scrollOffset < rightBound || i == mItems.size() - 1) {
                     return ii;
