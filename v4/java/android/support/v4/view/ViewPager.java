@@ -1629,6 +1629,12 @@ public class ViewPager extends ViewGroup {
                         mIsUnableToDrag = true;
                     }
                 }
+                if (mIsBeingDragged) {
+                    // Scroll to follow the motion event
+                    if (performDrag(x)) {
+                        ViewCompat.postInvalidateOnAnimation(this);
+                    }
+                }
                 break;
             }
 
@@ -1743,45 +1749,7 @@ public class ViewPager extends ViewGroup {
                     final int activePointerIndex = MotionEventCompat.findPointerIndex(
                             ev, mActivePointerId);
                     final float x = MotionEventCompat.getX(ev, activePointerIndex);
-                    final float deltaX = mLastMotionX - x;
-                    mLastMotionX = x;
-                    float oldScrollX = getScrollX();
-                    float scrollX = oldScrollX + deltaX;
-                    final int width = getWidth();
-
-                    float leftBound = width * mFirstOffset;
-                    float rightBound = width * mLastOffset;
-                    boolean leftAbsolute = true;
-                    boolean rightAbsolute = true;
-
-                    final ItemInfo firstItem = mItems.get(0);
-                    final ItemInfo lastItem = mItems.get(mItems.size() - 1);
-                    if (firstItem.position != 0) {
-                        leftAbsolute = false;
-                        leftBound = firstItem.offset * width;
-                    }
-                    if (lastItem.position != mAdapter.getCount() - 1) {
-                        rightAbsolute = false;
-                        rightBound = lastItem.offset * width;
-                    }
-
-                    if (scrollX < leftBound) {
-                        if (leftAbsolute) {
-                            float over = leftBound - scrollX;
-                            needsInvalidate = mLeftEdge.onPull(Math.abs(over) / width);
-                        }
-                        scrollX = leftBound;
-                    } else if (scrollX > rightBound) {
-                        if (rightAbsolute) {
-                            float over = scrollX - rightBound;
-                            needsInvalidate = mRightEdge.onPull(Math.abs(over) / width);
-                        }
-                        scrollX = rightBound;
-                    }
-                    // Don't lose the rounded component
-                    mLastMotionX += scrollX - (int) scrollX;
-                    scrollTo((int) scrollX, getScrollY());
-                    pageScrolled((int) scrollX);
+                    needsInvalidate |= performDrag(x);
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -1834,6 +1802,53 @@ public class ViewPager extends ViewGroup {
             ViewCompat.postInvalidateOnAnimation(this);
         }
         return true;
+    }
+
+    private boolean performDrag(float x) {
+        boolean needsInvalidate = false;
+
+        final float deltaX = mLastMotionX - x;
+        mLastMotionX = x;
+
+        float oldScrollX = getScrollX();
+        float scrollX = oldScrollX + deltaX;
+        final int width = getWidth();
+
+        float leftBound = width * mFirstOffset;
+        float rightBound = width * mLastOffset;
+        boolean leftAbsolute = true;
+        boolean rightAbsolute = true;
+
+        final ItemInfo firstItem = mItems.get(0);
+        final ItemInfo lastItem = mItems.get(mItems.size() - 1);
+        if (firstItem.position != 0) {
+            leftAbsolute = false;
+            leftBound = firstItem.offset * width;
+        }
+        if (lastItem.position != mAdapter.getCount() - 1) {
+            rightAbsolute = false;
+            rightBound = lastItem.offset * width;
+        }
+
+        if (scrollX < leftBound) {
+            if (leftAbsolute) {
+                float over = leftBound - scrollX;
+                needsInvalidate = mLeftEdge.onPull(Math.abs(over) / width);
+            }
+            scrollX = leftBound;
+        } else if (scrollX > rightBound) {
+            if (rightAbsolute) {
+                float over = scrollX - rightBound;
+                needsInvalidate = mRightEdge.onPull(Math.abs(over) / width);
+            }
+            scrollX = rightBound;
+        }
+        // Don't lose the rounded component
+        mLastMotionX += scrollX - (int) scrollX;
+        scrollTo((int) scrollX, getScrollY());
+        pageScrolled((int) scrollX);
+
+        return needsInvalidate;
     }
 
     /**
