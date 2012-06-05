@@ -120,6 +120,8 @@ public class ViewPager extends ViewGroup {
     private final ArrayList<ItemInfo> mItems = new ArrayList<ItemInfo>();
     private final ItemInfo mTempItem = new ItemInfo();
 
+    private final Rect mTempRect = new Rect();
+
     private PagerAdapter mAdapter;
     private int mCurItem;   // Index of currently displayed page.
     private int mRestoredCurItem = -1;
@@ -2256,7 +2258,9 @@ public class ViewPager extends ViewGroup {
             if (direction == View.FOCUS_LEFT) {
                 // If there is nothing to the left, or this is causing us to
                 // jump to the right, then what we really want to do is page left.
-                if (currentFocused != null && nextFocused.getLeft() >= currentFocused.getLeft()) {
+                final int nextLeft = getChildRectInPagerCoordinates(mTempRect, nextFocused).left;
+                final int currLeft = getChildRectInPagerCoordinates(mTempRect, currentFocused).left;
+                if (currentFocused != null && nextLeft >= currLeft) {
                     handled = pageLeft();
                 } else {
                     handled = nextFocused.requestFocus();
@@ -2264,7 +2268,9 @@ public class ViewPager extends ViewGroup {
             } else if (direction == View.FOCUS_RIGHT) {
                 // If there is nothing to the right, or this is causing us to
                 // jump to the left, then what we really want to do is page right.
-                if (currentFocused != null && nextFocused.getLeft() <= currentFocused.getLeft()) {
+                final int nextLeft = getChildRectInPagerCoordinates(mTempRect, nextFocused).left;
+                final int currLeft = getChildRectInPagerCoordinates(mTempRect, currentFocused).left;
+                if (currentFocused != null && nextLeft <= currLeft) {
                     handled = pageRight();
                 } else {
                     handled = nextFocused.requestFocus();
@@ -2281,6 +2287,28 @@ public class ViewPager extends ViewGroup {
             playSoundEffect(SoundEffectConstants.getContantForFocusDirection(direction));
         }
         return handled;
+    }
+
+    private Rect getChildRectInPagerCoordinates(Rect outRect, View child) {
+        if (outRect == null) {
+            outRect = new Rect();
+        }
+        outRect.left = child.getLeft();
+        outRect.right = child.getRight();
+        outRect.top = child.getTop();
+        outRect.bottom = child.getBottom();
+
+        ViewParent parent = child.getParent();
+        while (parent instanceof ViewGroup && parent != this) {
+            final ViewGroup group = (ViewGroup) parent;
+            outRect.left += group.getLeft();
+            outRect.right += group.getRight();
+            outRect.top += group.getTop();
+            outRect.bottom += group.getBottom();
+
+            parent = group.getParent();
+        }
+        return outRect;
     }
 
     boolean pageLeft() {
