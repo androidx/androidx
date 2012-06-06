@@ -2293,6 +2293,10 @@ public class ViewPager extends ViewGroup {
         if (outRect == null) {
             outRect = new Rect();
         }
+        if (child == null) {
+            outRect.set(0, 0, 0, 0);
+            return outRect;
+        }
         outRect.left = child.getLeft();
         outRect.right = child.getRight();
         outRect.top = child.getTop();
