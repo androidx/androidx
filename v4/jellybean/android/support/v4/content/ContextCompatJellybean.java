@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package android.support.v4.app;
+package android.support.v4.content;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
+class ContextCompatJellybean {
 
-/**
- * Implementation of activity compatibility that can call Honeycomb APIs.
- */
-class ActivityCompatHoneycomb {
-    static void invalidateOptionsMenu(Activity activity) {
-        activity.invalidateOptionsMenu();
+    public static void startActivities(Context context, Intent[] intents, Bundle options) {
+        context.startActivities(intents, options);
     }
 
-    static void dump(Activity activity, String prefix, FileDescriptor fd,
-            PrintWriter writer, String[] args) {
-        activity.dump(prefix, fd, writer, args);
-    }
 }

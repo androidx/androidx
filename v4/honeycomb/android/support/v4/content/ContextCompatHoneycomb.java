@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package android.support.v4.app;
+package android.support.v4.content;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 
-class ActivityCompatJellybean {
+/**
+ * Implementation of context compatibility that can call Honeycomb APIs.
+ */
+class ContextCompatHoneycomb {
 
-    public static void startActivities(Activity activity, Intent[] intents, Bundle options) {
-        activity.startActivities(intents, options);
+    static void startActivities(Context context, Intent[] intents) {
+        context.startActivities(intents);
     }
-
 }
