@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
 import android.util.Log;
 
@@ -271,7 +272,7 @@ public class TaskStackBuilder implements Iterable<Intent> {
         intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
                 IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
-        if (!ActivityCompat.startActivities((Activity) mSourceContext, intents, options)) {
+        if (!ContextCompat.startActivities(mSourceContext, intents, options)) {
             Intent topIntent = intents[intents.length - 1];
             topIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mSourceContext.startActivity(topIntent);
