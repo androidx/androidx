@@ -31,8 +31,6 @@ class AccessibilityNodeProviderCompatJellyBean {
         public boolean performAction(int virtualViewId, int action, Bundle arguments);
         public List<Object> findAccessibilityNodeInfosByText(String text,
             int virtualViewId);
-        public Object findAccessibilityFocus(int virtualViewId);
-        public Object accessibilityFocusSearch(int direction, int virtualViewId);
     }
 
     public static Object newAccessibilityNodeProviderBridge(
@@ -55,18 +53,6 @@ class AccessibilityNodeProviderCompatJellyBean {
             @Override
             public boolean performAction(int virtualViewId, int action, Bundle arguments) {
                 return bridge.performAction(virtualViewId, action, arguments);
-            }
-
-            @Override
-            public AccessibilityNodeInfo findAccessibilityFocus(int virtualViewId) {
-                return (AccessibilityNodeInfo) bridge.findAccessibilityFocus(virtualViewId);
-            }
-
-            @Override
-            public AccessibilityNodeInfo accessibilityFocusSearch(int direction,
-                    int virtualViewId) {
-                return (AccessibilityNodeInfo) bridge.accessibilityFocusSearch(direction,
-                        virtualViewId);
             }
         };
     }
