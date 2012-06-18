@@ -250,7 +250,7 @@ public class AccessibilityNodeProviderCompat {
      * @see #createAccessibilityNodeInfo(int)
      * @see AccessibilityNodeInfoCompat
      */
-    public AccessibilityNodeInfoCompat accessibilityFocusSearch(int direction, int virtualViewId) {
+    private AccessibilityNodeInfoCompat accessibilityFocusSearch(int direction, int virtualViewId) {
         return null;
     }
 }
