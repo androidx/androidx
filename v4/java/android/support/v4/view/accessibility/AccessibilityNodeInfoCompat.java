@@ -1033,7 +1033,7 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Searches for the nearest view in the specified direction that can take
-     * focus.
+     * input focus.
      *
      * @param direction The direction. Can be one of:
      *     {@link View#FOCUS_DOWN},
@@ -1041,13 +1041,7 @@ public class AccessibilityNodeInfoCompat {
      *     {@link View#FOCUS_LEFT},
      *     {@link View#FOCUS_RIGHT},
      *     {@link View#FOCUS_FORWARD},
-     *     {@link View#FOCUS_BACKWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_FORWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_BACKWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_UP},
-     *     {@link View#ACCESSIBILITY_FOCUS_RIGHT},
-     *     {@link View#ACCESSIBILITY_FOCUS_DOWN},
-     *     {@link View#ACCESSIBILITY_FOCUS_LEFT}.
+     *     {@link View#FOCUS_BACKWARD}.
      *
      * @return The node info for the view that can take accessibility focus.
      */
