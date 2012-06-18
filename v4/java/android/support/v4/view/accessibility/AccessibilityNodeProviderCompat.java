@@ -77,29 +77,6 @@ public class AccessibilityNodeProviderCompat {
                                 return compatInfo.getInfo();
                             }
                         }
-
-                        @Override
-                        public Object findAccessibilityFocus(int virtualViewId) {
-                            final AccessibilityNodeInfoCompat compatInfo = compat
-                                    .findAccessibilityFocus(virtualViewId);
-                            if (compatInfo == null) {
-                                return null;
-                            } else {
-                                return compatInfo.getInfo();
-                            }
-                        }
-
-                        @Override
-                        public Object accessibilityFocusSearch(int direction,
-                                int virtualViewId) {
-                            final AccessibilityNodeInfoCompat compatInfo = compat
-                                    .accessibilityFocusSearch(direction, virtualViewId);
-                            if (compatInfo == null) {
-                                return null;
-                            } else {
-                                return compatInfo.getInfo();
-                            }
-                        }
                     });
         }
     }
@@ -199,58 +176,6 @@ public class AccessibilityNodeProviderCompat {
      */
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByText(String text,
             int virtualViewId) {
-        return null;
-    }
-
-    /**
-     * Finds the accessibility focused {@link AccessibilityNodeInfoCompat}. The search
-     * is relative to the virtual view, i.e. a descendant of the host View, with the
-     * given <code>virtualViewId</code> or the host View itself
-     * <code>virtualViewId</code> equals to {@link View#NO_ID}.
-     *
-     * <strong>Note:</strong> Normally the system is responsible to transparently find
-     *     accessibility focused view starting from a given root but for virtual view
-     *     hierarchies it is a responsibility of this provider's implementor to find
-     *     the accessibility focused virtual view.
-     *
-     * @param virtualViewId A client defined virtual view id which defined
-     *     the root of the tree in which to perform the search.
-     * @return A list of node info.
-     *
-     * @see #createAccessibilityNodeInfo(int)
-     * @see AccessibilityNodeInfoCompat
-     */
-    public AccessibilityNodeInfoCompat findAccessibilityFocus(int virtualViewId) {
-        return null;
-    }
-
-    /**
-     * Finds {@link AccessibilityNodeInfoCompat} to take accessibility focus in the
-     * given <code>direction</code>. The search is relative to the virtual view, i.e.
-     * a descendant of the host View, with the given <code>virtualViewId</code> or
-     * the host View itself <code>virtualViewId</code> equals to {@link View#NO_ID}.
-     *
-     * <strong>Note:</strong> Normally the system is responsible to transparently find
-     *     the next view to take accessibility focus but for virtual view hierarchies
-     *     it is a responsibility of this provider's implementor to compute the next
-     *     focusable.
-     *
-     * @param direction The direction in which to search for a focus candidate.
-     *     Values are
-     *     {@link View#ACCESSIBILITY_FOCUS_FORWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_BACKWARD},
-     *     {@link View#ACCESSIBILITY_FOCUS_UP},
-     *     {@link View#ACCESSIBILITY_FOCUS_DOWN},
-     *     {@link View#ACCESSIBILITY_FOCUS_LEFT},
-     *     {@link View#ACCESSIBILITY_FOCUS_RIGHT}.
-     * @param virtualViewId A client defined virtual view id which defined
-     *     the root of the tree in which to perform the search.
-     * @return A list of node info.
-     *
-     * @see #createAccessibilityNodeInfo(int)
-     * @see AccessibilityNodeInfoCompat
-     */
-    private AccessibilityNodeInfoCompat accessibilityFocusSearch(int direction, int virtualViewId) {
         return null;
     }
 }
