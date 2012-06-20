@@ -1166,7 +1166,9 @@ final class FragmentManagerImpl extends FragmentManager {
         if (DEBUG) Log.v(TAG, "remove: " + fragment + " nesting=" + fragment.mBackStackNesting);
         final boolean inactive = !fragment.isInBackStack();
         if (!fragment.mDetached || inactive) {
-            mAdded.remove(fragment);
+            if (mAdded != null) {
+                mAdded.remove(fragment);
+            }
             if (fragment.mHasMenu && fragment.mMenuVisible) {
                 mNeedMenuInvalidate = true;
             }
@@ -1221,7 +1223,9 @@ final class FragmentManagerImpl extends FragmentManager {
             fragment.mDetached = true;
             if (fragment.mAdded) {
                 // We are not already in back stack, so need to remove the fragment.
-                mAdded.remove(fragment);
+                if (mAdded != null) {
+                    mAdded.remove(fragment);
+                }
                 if (fragment.mHasMenu && fragment.mMenuVisible) {
                     mNeedMenuInvalidate = true;
                 }
@@ -1236,6 +1240,9 @@ final class FragmentManagerImpl extends FragmentManager {
         if (fragment.mDetached) {
             fragment.mDetached = false;
             if (!fragment.mAdded) {
+                if (mAdded == null) {
+                    mAdded = new ArrayList<Fragment>();
+                }
                 mAdded.add(fragment);
                 fragment.mAdded = true;
                 if (fragment.mHasMenu && fragment.mMenuVisible) {
@@ -1247,7 +1254,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     public Fragment findFragmentById(int id) {
-        if (mActive != null) {
+        if (mAdded != null) {
             // First look through added fragments.
             for (int i=mAdded.size()-1; i>=0; i--) {
                 Fragment f = mAdded.get(i);
@@ -1255,6 +1262,8 @@ final class FragmentManagerImpl extends FragmentManager {
                     return f;
                 }
             }
+        }
+        if (mActive != null) {
             // Now for any known fragment.
             for (int i=mActive.size()-1; i>=0; i--) {
                 Fragment f = mActive.get(i);
@@ -1267,7 +1276,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
     
     public Fragment findFragmentByTag(String tag) {
-        if (mActive != null && tag != null) {
+        if (mAdded != null && tag != null) {
             // First look through added fragments.
             for (int i=mAdded.size()-1; i>=0; i--) {
                 Fragment f = mAdded.get(i);
@@ -1275,6 +1284,8 @@ final class FragmentManagerImpl extends FragmentManager {
                     return f;
                 }
             }
+        }
+        if (mActive != null && tag != null) {
             // Now for any known fragment.
             for (int i=mActive.size()-1; i>=0; i--) {
                 Fragment f = mActive.get(i);
@@ -1868,7 +1879,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
     
     public void dispatchConfigurationChanged(Configuration newConfig) {
-        if (mActive != null) {
+        if (mAdded != null) {
             for (int i=0; i<mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
                 if (f != null) {
@@ -1879,7 +1890,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     public void dispatchLowMemory() {
-        if (mActive != null) {
+        if (mAdded != null) {
             for (int i=0; i<mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
                 if (f != null) {
@@ -1892,7 +1903,7 @@ final class FragmentManagerImpl extends FragmentManager {
     public boolean dispatchCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         boolean show = false;
         ArrayList<Fragment> newMenus = null;
-        if (mActive != null) {
+        if (mAdded != null) {
             for (int i=0; i<mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
                 if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible) {
@@ -1922,7 +1933,7 @@ final class FragmentManagerImpl extends FragmentManager {
     
     public boolean dispatchPrepareOptionsMenu(Menu menu) {
         boolean show = false;
-        if (mActive != null) {
+        if (mAdded != null) {
             for (int i=0; i<mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
                 if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible) {
@@ -1935,7 +1946,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
     
     public boolean dispatchOptionsItemSelected(MenuItem item) {
-        if (mActive != null) {
+        if (mAdded != null) {
             for (int i=0; i<mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
                 if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible) {
@@ -1949,7 +1960,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
     
     public boolean dispatchContextItemSelected(MenuItem item) {
-        if (mActive != null) {
+        if (mAdded != null) {
             for (int i=0; i<mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
                 if (f != null && !f.mHidden && f.mUserVisibleHint) {
@@ -1963,7 +1974,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
     
     public void dispatchOptionsMenuClosed(Menu menu) {
-        if (mActive != null) {
+        if (mAdded != null) {
             for (int i=0; i<mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
                 if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible) {
