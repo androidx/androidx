@@ -25,43 +25,130 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.widget.RemoteViews;
+import java.util.ArrayList;
 
 public class NotificationCompat {
     /**
-     * Bit to be bitwise-ored into the {@link Notification#flags} field that should be set if
-     * this notification represents a high-priority event that may be shown to the user even
-     * if notifications are otherwise unavailable (that is, when the status bar is hidden).
-     * This flag is ideally used in conjunction with fullScreenIntent.
-     *
-     * <p>This will only be respected on API level 9 and above.</p>
+     * Obsolete flag indicating high-priority notifications; use the priority field instead.
+     * 
+     * @deprecated Use {@link NotificationCompat.Builder#setPriority(int)} with a positive value.
      */
     public static final int FLAG_HIGH_PRIORITY = 0x00000080;
+
+    /**
+     * Default notification priority for {@link NotificationCompat.Builder#setPriority(int)}.
+     * If your application does not prioritize its own notifications,
+     * use this value for all notifications.
+     */
+    public static final int PRIORITY_DEFAULT = 0;
+
+    /**
+     * Lower notification priority for {@link NotificationCompat.Builder#setPriority(int)},
+     * for items that are less important. The UI may choose to show
+     * these items smaller, or at a different position in the list,
+     * compared with your app's {@link #PRIORITY_DEFAULT} items.
+     */
+    public static final int PRIORITY_LOW = -1;
+
+    /**
+     * Lowest notification priority for {@link NotificationCompat.Builder#setPriority(int)};
+     * these items might not be shown to the user except under
+     * special circumstances, such as detailed notification logs.
+     */
+    public static final int PRIORITY_MIN = -2;
+
+    /**
+     * Higher notification priority for {@link NotificationCompat.Builder#setPriority(int)},
+     * for more important notifications or alerts. The UI may choose
+     * to show these items larger, or at a different position in
+     * notification lists, compared with your app's {@link #PRIORITY_DEFAULT} items.
+     */
+    public static final int PRIORITY_HIGH = 1;
+
+    /**
+     * Highest notification priority for {@link NotificationCompat.Builder#setPriority(int)},
+     * for your application's most important items that require the user's
+     * prompt attention or input.
+     */
+    public static final int PRIORITY_MAX = 2;
 
     private static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
-        public Notification getNotification(Builder b);
+        public Notification build(Builder b);
     }
 
     static class NotificationCompatImplBase implements NotificationCompatImpl {
-        public Notification getNotification(Builder b) {
+        public Notification build(Builder b) {
             Notification result = (Notification) b.mNotification;
             result.setLatestEventInfo(b.mContext, b.mContentTitle,
                     b.mContentText, b.mContentIntent);
+            // translate high priority requests into legacy flag
+            if (b.mPriority > PRIORITY_DEFAULT) {
+                result.flags |= FLAG_HIGH_PRIORITY; 
+            }
             return result;
         }
     }
 
     static class NotificationCompatImplHoneycomb implements NotificationCompatImpl {
-        public Notification getNotification(Builder b) {
+        public Notification build(Builder b) {
             return NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
                     b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
                     b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon);
         }
     }
 
+    static class NotificationCompatImplIceCreamSandwich implements NotificationCompatImpl {
+        public Notification build(Builder b) {
+            return NotificationCompatIceCreamSandwich.add(b.mContext, b.mNotification,
+                    b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
+                    b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
+        }
+    }
+
+    static class NotificationCompatImplJellybean implements NotificationCompatImpl {
+        public Notification build(Builder b) {
+            NotificationCompatJellybean jbBuilder = new NotificationCompatJellybean(
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
+                    b.mUseChronometer, b.mPriority, b.mSubText);
+            for (Action action: b.mActions) {
+                jbBuilder.addAction(action.icon, action.title, action.actionIntent);
+            }
+            if (b.mStyle != null) {
+                if (b.mStyle instanceof BigTextStyle) {
+                    BigTextStyle style = (BigTextStyle) b.mStyle;
+                    jbBuilder.addBigTextStyle(style.mBigContentTitle,
+                            style.mSummaryTextSet, 
+                            style.mSummaryText,
+                            style.mBigText);
+                } else if (b.mStyle instanceof InboxStyle) {
+                    InboxStyle style = (InboxStyle) b.mStyle;
+                    jbBuilder.addInboxStyle(style.mBigContentTitle,
+                            style.mSummaryTextSet, 
+                            style.mSummaryText,
+                            style.mTexts);
+                } else if (b.mStyle instanceof BigPictureStyle) {
+                    BigPictureStyle style = (BigPictureStyle) b.mStyle;
+                    jbBuilder.addBigPictureStyle(style.mBigContentTitle,
+                            style.mSummaryTextSet, 
+                            style.mSummaryText,
+                            style.mPicture);
+                }
+            }
+            return(jbBuilder.build());
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 11) {
+        if (Build.VERSION.SDK_INT >= 16) {
+            IMPL = new NotificationCompatImplJellybean();
+        } else if (Build.VERSION.SDK_INT >= 13) {
+            IMPL = new NotificationCompatImplIceCreamSandwich();
+        } else if (Build.VERSION.SDK_INT >= 11) {
             IMPL = new NotificationCompatImplHoneycomb();
         } else {
             IMPL = new NotificationCompatImplBase();
@@ -83,6 +170,14 @@ public class NotificationCompat {
         Bitmap mLargeIcon;
         CharSequence mContentInfo;
         int mNumber;
+        int mPriority;
+        boolean mUseChronometer;
+        Style mStyle;
+        CharSequence mSubText;
+        int mProgressMax;
+        int mProgress;
+        boolean mProgressIndeterminate;
+        ArrayList<Action> mActions = new ArrayList<Action>();
 
         Notification mNotification = new Notification();
 
@@ -103,6 +198,7 @@ public class NotificationCompat {
             // Set defaults to match the defaults of a Notification
             mNotification.when = System.currentTimeMillis();
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
+            mPriority = PRIORITY_DEFAULT;
         }
 
         /**
@@ -111,6 +207,22 @@ public class NotificationCompat {
          */
         public Builder setWhen(long when) {
             mNotification.when = when;
+            return this;
+        }
+
+        /**
+         * Show the {@link Notification#when} field as a stopwatch.
+         * 
+         * Instead of presenting <code>when</code> as a timestamp, the notification will show an 
+         * automatically updating display of the minutes and seconds since <code>when</code>.
+         *
+         * Useful when showing an elapsed time (like an ongoing phone call).
+         *
+         * @see android.widget.Chronometer
+         * @see Notification#when
+         */
+        public Builder setUsesChronometer(boolean b) {
+            mUseChronometer = b;
             return this;
         }
 
@@ -159,6 +271,16 @@ public class NotificationCompat {
         }
 
         /**
+         * Set the third line of text in the platform notification template. 
+         * Don't use if you're also using {@link #setProgress(int, int, boolean)};
+         * they occupy the same location in the standard template.
+         */
+        public Builder setSubText(CharSequence text) {
+            mSubText = text;
+            return this;
+        }
+
+        /**
          * Set the large number at the right-hand side of the notification.  This is
          * equivalent to setContentInfo, although it might show the number in a different
          * font size for readability.
@@ -178,15 +300,14 @@ public class NotificationCompat {
 
         /**
          * Set the progress this notification represents, which may be
-         * represented as a {@link ProgressBar}.
+         * represented as a {@link android.widget.ProgressBar}.
          */
-        /* TODO
         public Builder setProgress(int max, int progress, boolean indeterminate) {
             mProgressMax = max;
             mProgress = progress;
             mProgressIndeterminate = indeterminate;
             return this;
-        }*/
+        }
 
         /**
          * Supply a custom RemoteViews to use instead of the standard one.
@@ -378,11 +499,260 @@ public class NotificationCompat {
         }
 
         /**
+         * Set the relative priority for this notification.
+         * 
+         * Priority is an indication of how much of the user's
+         * valuable attention should be consumed by this
+         * notification. Low-priority notifications may be hidden from
+         * the user in certain situations, while the user might be
+         * interrupted for a higher-priority notification. The system
+         * will make a determination about how to interpret
+         * notification priority as described in MUMBLE MUMBLE.
+         */
+        public Builder setPriority(int pri) {
+            mPriority = pri;
+            return this;
+        }
+
+        /**
+         * Add an action to this notification. Actions are typically displayed by
+         * the system as a button adjacent to the notification content.
+         *
+         * @param icon Resource ID of a drawable that represents the action.
+         * @param title Text describing the action.
+         * @param intent PendingIntent to be fired when the action is invoked.
+         */
+        public Builder addAction(int icon, CharSequence title, PendingIntent intent) {
+            mActions.add(new Action(icon, title, intent));
+            return this;
+        }
+
+        /**
+         * Add a rich notification style to be applied at build time.
+         *
+         * @param style Object responsible for modifying the notification style.
+         */
+        public Builder setStyle(Style style) {
+            if (mStyle != style) {
+                mStyle = style;
+                if (mStyle != null) {
+                    mStyle.setBuilder(this);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * @deprecated Use {@link #build()} instead.
+         */
+        @Deprecated
+        public Notification getNotification() {
+            return (Notification) IMPL.build(this);
+        }
+
+        /**
          * Combine all of the options that have been set and return a new {@link Notification}
          * object.
          */
-        public Notification getNotification() {
-            return (Notification) IMPL.getNotification(this);
+        public Notification build() {
+            return (Notification) IMPL.build(this);
+        }
+    }
+
+    /**
+     * An object that can apply a rich notification style to a {@link Notification.Builder}
+     * object.
+     */
+    public static abstract class Style
+    {
+        Builder mBuilder;
+        CharSequence mBigContentTitle;
+        CharSequence mSummaryText;
+        boolean mSummaryTextSet = false;
+
+        public void setBuilder(Builder builder) {
+            if (mBuilder != builder) {
+                mBuilder = builder;
+                if (mBuilder != null) {
+                    mBuilder.setStyle(this);
+                }
+            }
+        }
+
+        public Notification build() {
+            Notification notification = null;
+            if (mBuilder != null) {
+                notification = mBuilder.build();
+            } 
+            return notification;
+        }
+    }
+
+    /**
+     * Helper class for generating large-format notifications that include a large image attachment.
+     * 
+     * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
+     * <pre class="prettyprint">
+     * Notification noti = new Notification.Builder()
+     *     .setContentTitle(&quot;New photo from &quot; + sender.toString())
+     *     .setContentText(subject)
+     *     .setSmallIcon(R.drawable.new_post)
+     *     .setLargeIcon(aBitmap)
+     *     .setStyle(new Notification.BigPictureStyle()
+     *         .bigPicture(aBigBitmap))
+     *     .build();
+     * </pre>
+     * 
+     * @see Notification#bigContentView
+     */
+    public static class BigPictureStyle extends Style {
+        Bitmap mPicture;
+
+        public BigPictureStyle() {
+        }
+
+        public BigPictureStyle(Builder builder) {
+            setBuilder(builder);
+        }
+
+        /**
+         * Overrides ContentTitle in the big form of the template.
+         * This defaults to the value passed to setContentTitle().
+         */
+        public BigPictureStyle setBigContentTitle(CharSequence title) {
+            mBigContentTitle = title;
+            return this;
+        }
+
+        /**
+         * Set the first line of text after the detail section in the big form of the template.
+         */
+        public BigPictureStyle setSummaryText(CharSequence cs) {
+            mSummaryText = cs;
+            mSummaryTextSet = true;
+            return this;
+        }
+
+        public BigPictureStyle bigPicture(Bitmap b) {
+            mPicture = b;
+            return this;
+        }
+    }
+
+    /**
+     * Helper class for generating large-format notifications that include a lot of text.
+     * 
+     * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
+     * <pre class="prettyprint">
+     * Notification noti = new Notification.Builder()
+     *     .setContentTitle(&quot;New mail from &quot; + sender.toString())
+     *     .setContentText(subject)
+     *     .setSmallIcon(R.drawable.new_mail)
+     *     .setLargeIcon(aBitmap)
+     *     .setStyle(new Notification.BigTextStyle()
+     *         .bigText(aVeryLongString))
+     *     .build();
+     * </pre>
+     * 
+     * @see Notification#bigContentView
+     */
+    public static class BigTextStyle extends Style {
+        CharSequence mBigText;
+
+        public BigTextStyle() {
+        }
+
+        public BigTextStyle(Builder builder) {
+            setBuilder(builder);
+        }
+
+        /**
+         * Overrides ContentTitle in the big form of the template.
+         * This defaults to the value passed to setContentTitle().
+         */
+        public BigTextStyle setBigContentTitle(CharSequence title) {
+            mBigContentTitle = title;
+            return this;
+        }
+
+        /**
+         * Set the first line of text after the detail section in the big form of the template.
+         */
+        public BigTextStyle setSummaryText(CharSequence cs) {
+            mSummaryText = cs;
+            mSummaryTextSet = true;
+            return this;
+        }
+
+        public BigTextStyle bigText(CharSequence cs) {
+            mBigText = cs;
+            return this;
+        }
+    }
+
+    /**
+     * Helper class for generating large-format notifications that include a list of (up to 5) strings.
+     * 
+     * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
+     * <pre class="prettyprint">
+     * Notification noti = new Notification.Builder()
+     *     .setContentTitle(&quot;5 New mails from &quot; + sender.toString())
+     *     .setContentText(subject)
+     *     .setSmallIcon(R.drawable.new_mail)
+     *     .setLargeIcon(aBitmap)
+     *     .setStyle(new Notification.InboxStyle()
+     *         .addLine(str1)
+     *         .addLine(str2)
+     *         .setContentTitle(&quot;&quot;)
+     *         .setSummaryText(&quot;+3 more&quot;))
+     *     .build();
+     * </pre>
+     * 
+     * @see Notification#bigContentView
+     */
+    public static class InboxStyle extends Style {
+        ArrayList<CharSequence> mTexts = new ArrayList<CharSequence>();
+
+        public InboxStyle() {
+        }
+
+        public InboxStyle(Builder builder) {
+            setBuilder(builder);
+        }
+
+        /**
+         * Overrides ContentTitle in the big form of the template.
+         * This defaults to the value passed to setContentTitle().
+         */
+        public InboxStyle setBigContentTitle(CharSequence title) {
+            mBigContentTitle = title;
+            return this;
+        }
+
+        /**
+         * Set the first line of text after the detail section in the big form of the template.
+         */
+        public InboxStyle setSummaryText(CharSequence cs) {
+            mSummaryText = cs;
+            mSummaryTextSet = true;
+            return this;
+        }
+
+        public InboxStyle addLine(CharSequence cs) {
+            mTexts.add(cs);
+            return this;
+        }
+    }
+
+    public static class Action {
+        public int icon;
+        public CharSequence title;
+        public PendingIntent actionIntent;
+
+        public Action(int icon_, CharSequence title_, PendingIntent intent_) {
+            this.icon = icon_;
+            this.title = title_;
+            this.actionIntent = intent_;
         }
     }
 }
