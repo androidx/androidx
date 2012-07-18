@@ -16,6 +16,7 @@
 
 package android.support.v4.view;
 
+import android.os.Bundle;
 import android.view.View;
 
 /**
@@ -54,6 +55,10 @@ public class ViewCompatJB {
 
     public static void setImportantForAccessibility(View view, int mode) {
         view.setImportantForAccessibility(mode);
+    }
+
+    public static boolean performAccessibilityAction(View view, int action, Bundle arguments) {
+        return view.performAccessibilityAction(action, arguments);
     }
 
     public static Object getAccessibilityNodeProvider(View view) {

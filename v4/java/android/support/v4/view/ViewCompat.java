@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.view.View;
@@ -78,6 +79,7 @@ public class ViewCompat {
         public void postOnAnimationDelayed(View view, Runnable action, long delayMillis);
         public int getImportantForAccessibility(View view);
         public void setImportantForAccessibility(View view, int mode);
+        public boolean performAccessibilityAction(View view, int action, Bundle arguments);
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
     }
 
@@ -133,6 +135,9 @@ public class ViewCompat {
         }
         public void setImportantForAccessibility(View view, int mode) {
 
+        }
+        public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
+            return false;
         }
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
             return null;
@@ -215,6 +220,10 @@ public class ViewCompat {
         @Override
         public void setImportantForAccessibility(View view, int mode) {
             ViewCompatJB.setImportantForAccessibility(view, mode);
+        }
+        @Override
+        public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
+            return ViewCompatJB.performAccessibilityAction(view, action, arguments);
         }
         @Override
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
@@ -529,6 +538,24 @@ public class ViewCompat {
      */
     public static void setImportantForAccessibility(View view, int mode) {
         IMPL.setImportantForAccessibility(view, mode);
+    }
+
+    /**
+     * Performs the specified accessibility action on the view. For
+     * possible accessibility actions look at {@link AccessibilityNodeInfoCompat}.
+     * <p>
+     * If an {@link AccessibilityDelegateCompat} has been specified via calling
+     * {@link #setAccessibilityDelegate(View, AccessibilityDelegateCompat)} its
+     * {@link AccessibilityDelegateCompat#performAccessibilityAction(View, int, Bundle)}
+     * is responsible for handling this call.
+     * </p>
+     *
+     * @param action The action to perform.
+     * @param arguments Optional action arguments.
+     * @return Whether the action was performed.
+     */
+    public static boolean performAccessibilityAction(View view, int action, Bundle arguments) {
+        return IMPL.performAccessibilityAction(view, action, arguments);
     }
 
     /**
