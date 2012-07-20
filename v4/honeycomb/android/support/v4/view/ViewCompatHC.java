@@ -28,4 +28,8 @@ class ViewCompatHC {
     public static void setLayerType(View view, int layerType, Paint paint) {
         view.setLayerType(layerType, paint);
     }
+
+    public static int getLayerType(View view) {
+        return view.getLayerType();
+    }
 }

@@ -131,6 +131,7 @@ public class ViewCompat {
         public boolean performAccessibilityAction(View view, int action, Bundle arguments);
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
         public void setLayerType(View view, int layerType, Paint paint);
+        public int getLayerType(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -194,6 +195,9 @@ public class ViewCompat {
         }
         public void setLayerType(View view, int layerType, Paint paint) {
         }
+        public int getLayerType(View view) {
+            return LAYER_TYPE_NONE;
+        }
     }
 
     static class GBViewCompatImpl extends BaseViewCompatImpl {
@@ -213,6 +217,9 @@ public class ViewCompat {
         }
         @Override public void setLayerType(View view, int layerType, Paint paint) {
             ViewCompatHC.setLayerType(view, layerType, paint);
+        }
+        @Override public int getLayerType(View view)  {
+            return ViewCompatHC.getLayerType(view);
         }
     }
 
@@ -681,5 +688,25 @@ public class ViewCompat {
      */
     public static void setLayerType(View view, int layerType, Paint paint) {
         IMPL.setLayerType(view, layerType, paint);
+    }
+
+    /**
+     * Indicates what type of layer is currently associated with this view. By default
+     * a view does not have a layer, and the layer type is {@link #LAYER_TYPE_NONE}.
+     * Refer to the documentation of
+     * {@link #setLayerType(android.view.View, int, android.graphics.Paint)}
+     * for more information on the different types of layers.
+     *
+     * @param view The view to fetch the layer type from
+     * @return {@link #LAYER_TYPE_NONE}, {@link #LAYER_TYPE_SOFTWARE} or
+     *         {@link #LAYER_TYPE_HARDWARE}
+     *
+     * @see #setLayerType(android.view.View, int, android.graphics.Paint)
+     * @see #LAYER_TYPE_NONE
+     * @see #LAYER_TYPE_SOFTWARE
+     * @see #LAYER_TYPE_HARDWARE
+     */
+    public static int getLayerType(View view) {
+        return IMPL.getLayerType(view);
     }
 }
