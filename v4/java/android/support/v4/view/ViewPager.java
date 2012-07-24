@@ -47,6 +47,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -201,6 +203,8 @@ public class ViewPager extends ViewGroup {
     private OnPageChangeListener mOnPageChangeListener;
     private OnPageChangeListener mInternalPageChangeListener;
     private OnAdapterChangeListener mAdapterChangeListener;
+    private PageTransformer mPageTransformer;
+    private Method mSetChildrenDrawingOrderEnabled;
 
     /**
      * Indicates that the pager is in an idle, settled state. The current page
@@ -280,6 +284,27 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
+     * A PageTransformer is invoked whenever a visible/attached page is scrolled.
+     * This offers an opportunity for the application to apply a custom transformation
+     * to the page views using animation properties.
+     *
+     * <p>As property animation is only supported as of Android 3.0 and forward,
+     * setting a PageTransformer on a ViewPager on earlier platform versions will
+     * be ignored.</p>
+     */
+    public interface PageTransformer {
+        /**
+         * Apply a property transformation to the given page.
+         *
+         * @param page Apply the transformation to this page
+         * @param position Position of page relative to the current front-and-center
+         *                 position of the pager. 0 is front and center. 1 is one full
+         *                 page position to the right, and -1 is one page position to the left.
+         */
+        public void transformPage(View page, float position);
+    }
+
+    /**
      * Used internally to monitor when adapters are switched.
      */
     interface OnAdapterChangeListener {
@@ -335,6 +360,10 @@ public class ViewPager extends ViewGroup {
         }
 
         mScrollState = newState;
+        if (mPageTransformer != null) {
+            // PageTransformers can do complex things that benefit from hardware layers.
+            enableLayers(newState != SCROLL_STATE_IDLE);
+        }
         if (mOnPageChangeListener != null) {
             mOnPageChangeListener.onPageScrollStateChanged(newState);
         }
@@ -502,6 +531,46 @@ public class ViewPager extends ViewGroup {
      */
     public void setOnPageChangeListener(OnPageChangeListener listener) {
         mOnPageChangeListener = listener;
+    }
+
+    /**
+     * Set a {@link PageTransformer} that will be called for each attached page whenever
+     * the scroll position is changed. This allows the application to apply custom property
+     * transformations to each page, overriding the default sliding look and feel.
+     *
+     * <p><em>Note:</em> Prior to Android 3.0 the property animation APIs did not exist.
+     * As a result, setting a PageTransformer prior to Android 3.0 (API 11) will have no effect.</p>
+     *
+     * @param reverseDrawingOrder true if the supplied PageTransformer requires page views
+     *                            to be drawn from last to first instead of first to last.
+     * @param transformer PageTransformer that will modify each page's animation properties
+     */
+    public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer) {
+        if (Build.VERSION.SDK_INT >= 11) {
+            mPageTransformer = transformer;
+            setChildrenDrawingOrderEnabledCompat(reverseDrawingOrder);
+        }
+    }
+
+    void setChildrenDrawingOrderEnabledCompat(boolean enable) {
+        if (mSetChildrenDrawingOrderEnabled == null) {
+            try {
+                mSetChildrenDrawingOrderEnabled = ViewGroup.class.getMethod(
+                        "setChildrenDrawingOrderEnabled", new Class[] { Boolean.TYPE });
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Can't find setChildrenDrawingOrderEnabled", e);
+            }
+        }
+        try {
+            mSetChildrenDrawingOrderEnabled.invoke(this, enable);
+        } catch (Exception e) {
+            Log.e(TAG, "Error changing children drawing order", e);
+        }
+    }
+
+    @Override
+    protected int getChildDrawingOrder(int childCount, int i) {
+        return childCount - 1 - i;
     }
 
     /**
@@ -1509,6 +1578,17 @@ public class ViewPager extends ViewGroup {
         if (mInternalPageChangeListener != null) {
             mInternalPageChangeListener.onPageScrolled(position, offset, offsetPixels);
         }
+
+        if (mPageTransformer != null) {
+            final int scrollX = getScrollX();
+            final int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View child = getChildAt(i);
+                final float transformPos = (float) (child.getLeft() - scrollX) / getWidth();
+                mPageTransformer.transformPage(child, transformPos);
+            }
+        }
+
         mCalledSuper = true;
     }
 
@@ -1542,6 +1622,15 @@ public class ViewPager extends ViewGroup {
 
     private boolean isGutterDrag(float x, float dx) {
         return (x < mGutterSize && dx > 0) || (x > getWidth() - mGutterSize && dx < 0);
+    }
+
+    private void enableLayers(boolean enable) {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final int layerType = enable ?
+                    ViewCompat.LAYER_TYPE_HARDWARE : ViewCompat.LAYER_TYPE_NONE;
+            ViewCompat.setLayerType(getChildAt(i), layerType, null);
+        }
     }
 
     @Override

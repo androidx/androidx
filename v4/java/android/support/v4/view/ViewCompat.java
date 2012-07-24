@@ -16,6 +16,7 @@
 
 package android.support.v4.view;
 
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -62,6 +63,54 @@ public class ViewCompat {
      */
     public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 0x00000002;
 
+    /**
+     * Indicates that the view does not have a layer.
+     */
+    public static final int LAYER_TYPE_NONE = 0;
+
+    /**
+     * <p>Indicates that the view has a software layer. A software layer is backed
+     * by a bitmap and causes the view to be rendered using Android's software
+     * rendering pipeline, even if hardware acceleration is enabled.</p>
+     *
+     * <p>Software layers have various usages:</p>
+     * <p>When the application is not using hardware acceleration, a software layer
+     * is useful to apply a specific color filter and/or blending mode and/or
+     * translucency to a view and all its children.</p>
+     * <p>When the application is using hardware acceleration, a software layer
+     * is useful to render drawing primitives not supported by the hardware
+     * accelerated pipeline. It can also be used to cache a complex view tree
+     * into a texture and reduce the complexity of drawing operations. For instance,
+     * when animating a complex view tree with a translation, a software layer can
+     * be used to render the view tree only once.</p>
+     * <p>Software layers should be avoided when the affected view tree updates
+     * often. Every update will require to re-render the software layer, which can
+     * potentially be slow (particularly when hardware acceleration is turned on
+     * since the layer will have to be uploaded into a hardware texture after every
+     * update.)</p>
+     */
+    public static final int LAYER_TYPE_SOFTWARE = 1;
+
+    /**
+     * <p>Indicates that the view has a hardware layer. A hardware layer is backed
+     * by a hardware specific texture (generally Frame Buffer Objects or FBO on
+     * OpenGL hardware) and causes the view to be rendered using Android's hardware
+     * rendering pipeline, but only if hardware acceleration is turned on for the
+     * view hierarchy. When hardware acceleration is turned off, hardware layers
+     * behave exactly as {@link #LAYER_TYPE_SOFTWARE software layers}.</p>
+     *
+     * <p>A hardware layer is useful to apply a specific color filter and/or
+     * blending mode and/or translucency to a view and all its children.</p>
+     * <p>A hardware layer can be used to cache a complex view tree into a
+     * texture and reduce the complexity of drawing operations. For instance,
+     * when animating a complex view tree with a translation, a hardware layer can
+     * be used to render the view tree only once.</p>
+     * <p>A hardware layer can also be used to increase the rendering quality when
+     * rotation transformations are applied on a view. It can also be used to
+     * prevent potential clipping issues when applying 3D transforms on a view.</p>
+     */
+    public static final int LAYER_TYPE_HARDWARE = 2;
+
     interface ViewCompatImpl {
         public boolean canScrollHorizontally(View v, int direction);
         public boolean canScrollVertically(View v, int direction);
@@ -81,6 +130,7 @@ public class ViewCompat {
         public void setImportantForAccessibility(View view, int mode);
         public boolean performAccessibilityAction(View view, int action, Bundle arguments);
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
+        public void setLayerType(View view, int layerType, Paint paint);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -142,6 +192,8 @@ public class ViewCompat {
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
             return null;
         }
+        public void setLayerType(View view, int layerType, Paint paint) {
+        }
     }
 
     static class GBViewCompatImpl extends BaseViewCompatImpl {
@@ -158,6 +210,9 @@ public class ViewCompat {
     static class HCViewCompatImpl extends GBViewCompatImpl {
         long getFrameTime() {
             return ViewCompatHC.getFrameTime();
+        }
+        @Override public void setLayerType(View view, int layerType, Paint paint) {
+            ViewCompatHC.setLayerType(view, layerType, paint);
         }
     }
 
@@ -583,5 +638,48 @@ public class ViewCompat {
      */
     public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
         return IMPL.getAccessibilityNodeProvider(view);
+    }
+
+    /**
+     * <p>Specifies the type of layer backing this view. The layer can be
+     * {@link #LAYER_TYPE_NONE disabled}, {@link #LAYER_TYPE_SOFTWARE software} or
+     * {@link #LAYER_TYPE_HARDWARE hardware}.</p>
+     *
+     * <p>A layer is associated with an optional {@link android.graphics.Paint}
+     * instance that controls how the layer is composed on screen. The following
+     * properties of the paint are taken into account when composing the layer:</p>
+     * <ul>
+     * <li>{@link android.graphics.Paint#getAlpha() Translucency (alpha)}</li>
+     * <li>{@link android.graphics.Paint#getXfermode() Blending mode}</li>
+     * <li>{@link android.graphics.Paint#getColorFilter() Color filter}</li>
+     * </ul>
+     *
+     * <p>If this view has an alpha value set to < 1.0 by calling
+     * setAlpha(float), the alpha value of the layer's paint is replaced by
+     * this view's alpha value. Calling setAlpha(float) is therefore
+     * equivalent to setting a hardware layer on this view and providing a paint with
+     * the desired alpha value.<p>
+     *
+     * <p>Refer to the documentation of {@link #LAYER_TYPE_NONE disabled},
+     * {@link #LAYER_TYPE_SOFTWARE software} and {@link #LAYER_TYPE_HARDWARE hardware}
+     * for more information on when and how to use layers.</p>
+     *
+     * @param layerType The ype of layer to use with this view, must be one of
+     *        {@link #LAYER_TYPE_NONE}, {@link #LAYER_TYPE_SOFTWARE} or
+     *        {@link #LAYER_TYPE_HARDWARE}
+     * @param paint The paint used to compose the layer. This argument is optional
+     *        and can be null. It is ignored when the layer type is
+     *        {@link #LAYER_TYPE_NONE}
+     *
+     * @param view View to set the layer type for
+     * @param layerType The type of layer to use with this view, must be one of
+     *        {@link #LAYER_TYPE_NONE}, {@link #LAYER_TYPE_SOFTWARE} or
+     *        {@link #LAYER_TYPE_HARDWARE}
+     * @param paint The paint used to compose the layer. This argument is optional
+     *        and can be null. It is ignored when the layer type is
+     *        {@link #LAYER_TYPE_NONE}
+     */
+    public static void setLayerType(View view, int layerType, Paint paint) {
+        IMPL.setLayerType(view, layerType, paint);
     }
 }
