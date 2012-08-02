@@ -213,7 +213,7 @@ public abstract class PagerAdapter {
      * @param container The containing View which is displaying this adapter's
      * page views.
      *
-     * @deprecated Use {@link #setPrimaryItem(ViewGroup, int, Object)}
+     * @deprecated Use {@link #finishUpdate(ViewGroup)}
      */
     public void finishUpdate(View container) {
     }
