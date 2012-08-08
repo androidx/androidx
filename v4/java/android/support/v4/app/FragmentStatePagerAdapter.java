@@ -114,6 +114,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
             mFragments.add(null);
         }
         fragment.setMenuVisibility(false);
+        fragment.setUserVisibleHint(false);
         mFragments.set(position, fragment);
         mCurTransaction.add(container.getId(), fragment);
 
@@ -144,9 +145,11 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
                 mCurrentPrimaryItem.setMenuVisibility(false);
+                mCurrentPrimaryItem.setUserVisibleHint(false);
             }
             if (fragment != null) {
                 fragment.setMenuVisibility(true);
+                fragment.setUserVisibleHint(true);
             }
             mCurrentPrimaryItem = fragment;
         }
