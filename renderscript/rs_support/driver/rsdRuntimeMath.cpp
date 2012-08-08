@@ -34,9 +34,9 @@ static float SC_exp10(float v) {
     return pow(10.f, v);
 }
 
-static float SC_fract(float v, int *iptr) {
+static float SC_fract(float v, float *iptr) {
     int i = (int)floor(v);
-    iptr[0] = i;
+    iptr[0] = (float)i;
     return fmin(v - i, 0x1.fffffep-1f);
 }
 
@@ -374,6 +374,260 @@ static int32_t SC_AtomicMax(volatile int32_t *ptr, int32_t value) {
 //                 ::= y  # unsigned long long, __int64
 //                 ::= f  # float
 //                 ::= d  # double
+
+float acos(float x) {
+  return acosf(x);
+}
+
+float acosh(float x) {
+  return acoshf(x);
+}
+
+float asin(float x) {
+  return asinf(x);
+}
+
+float asinh(float x) {
+  return asinhf(x);
+}
+
+float atan(float x) {
+  return atanf(x);
+}
+
+float atan2(float y, float x) {
+  return atan2f(y, x);
+}
+
+float atanh(float x) {
+  return atanhf(x);
+}
+
+float cbrt(float x) {
+  return cbrtf(x);
+}
+
+float ceil(float x) {
+  return ceilf(x);
+}
+
+float copysign(float x, float y) {
+  return copysignf(x, y);
+}
+
+float cos(float x) {
+  return cosf(x);
+}
+
+float cosh(float x) {
+  return coshf(x);
+}
+
+float erfc(float x) {
+  return erfcf(x);
+}
+
+float erf(float x) {
+  return erff(x);
+}
+
+float exp(float x) {
+  return expf(x);
+}
+
+float exp2(float x) {
+  return exp2f(x);
+}
+
+float exp10(float x) {
+  return SC_exp10(x);
+}
+
+float expm1(float x) {
+  return expm1f(x);
+}
+
+float fabs(float x) {
+  return fabsf(x);
+}
+
+float fdim(float x, float y) {
+  return fdimf(x, y);
+}
+
+float floor(float x) {
+  return floorf(x);
+}
+
+float fma(float x, float y, float z) {
+  return fmaf(x, y, z);
+}
+
+float fmax(float x, float y) {
+  return fmaxf(x, y);
+}
+
+float fmin(float x, float y) {
+  return fminf(x, y);
+}
+
+float fmod(float x, float y) {
+  return fmodf(x, y);
+}
+
+float fract(float x, float *y) {
+  return SC_fract(x, y);
+}
+
+float frexp(float x, int *y) {
+  return frexpf(x, y);
+}
+
+float hypot(float x, float y) {
+  return hypotf(x, y);
+}
+
+int ilogb(float x) {
+  return ilogbf(x);
+}
+
+float ldexp(float x, int y) {
+  return ldexpf(x, y);
+}
+
+float lgamma(float x) {
+  return lgammaf(x);
+}
+
+float lgamma(float x, int *y) {
+  return lgammaf_r(x, y);
+}
+
+float log(float x) {
+  return logf(x);
+}
+
+float log2(float x) {
+  return SC_log2(x);
+}
+
+float log10(float x) {
+  return log10f(x);
+}
+
+float log1p(float x) {
+  return log1pf(x);
+}
+
+float logb(float x) {
+  return logbf(x);
+}
+
+float modf(float x, float *y) {
+  return modff(x, y);
+}
+
+float nextafter(float x, float y) {
+  return nextafterf(x, y);
+}
+
+float pow(float x, float y) {
+  return powf(x, y);
+}
+
+float remainder(float x, float y) {
+  return remainderf(x, y);
+}
+
+float remquo(float x, float y, int *z) {
+  return remquof(x, y, z);
+}
+
+float rint(float x) {
+  return rintf(x);
+}
+
+float rootn(float x, int y) {
+  return SC_rootn(x, y);
+}
+
+float round(float x) {
+  return roundf(x);
+}
+
+float rsqrt(float x) {
+  return SC_rsqrt(x);
+}
+
+float sin(float x) {
+  return sinf(x);
+}
+
+float sincos(float x, float *y) {
+  return SC_sincos(x, y);
+}
+
+float sinh(float x) {
+  return sinhf(x);
+}
+
+float sqrt(float x) {
+  return sqrtf(x);
+}
+
+float tan(float x) {
+  return tanf(x);
+}
+
+float tanh(float x) {
+  return tanhf(x);
+}
+
+float tgamma(float x) {
+  return tgammaf(x);
+}
+
+float trunc(float x) {
+  return truncf(x);
+}
+
+uint32_t clz(uint32_t v) {
+  return SC_clz_u32(v);
+}
+
+uint16_t clz(uint16_t v) {
+  return SC_clz_u16(v);
+}
+
+uint8_t clz(uint8_t v) {
+  return SC_clz_u8(v);
+}
+
+int32_t clz(int32_t v) {
+  return SC_clz_i32(v);
+}
+
+int16_t clz(int16_t v) {
+  return SC_clz_i16(v);
+}
+
+char clz(char v) {
+  return SC_clz_i8(v);
+}
+
+int16_t abs(int16_t v) {
+  return SC_abs_i16(v);
+}
+
+extern "C" {
+int _Z3absi(int v) {
+  return SC_abs_i32(v);
+}
+}
+
+char abs(char v) {
+  return SC_abs_i8(v);
+}
 
 static RsdSymbolTable gSyms[] = {
     { "_Z4acosf", (void *)&acosf, true },
