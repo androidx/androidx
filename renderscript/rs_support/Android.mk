@@ -31,13 +31,13 @@ LOCAL_SRC_FILES:= \
 	driver/rsdVertexArray.cpp
 
 LOCAL_SHARED_LIBRARIES += libcutils libutils libEGL libGLESv1_CM libGLESv2
-LOCAL_SHARED_LIBRARIES += libbcc libbcinfo libgui libsync
+LOCAL_SHARED_LIBRARIES += libbcinfo libgui libsync libdl
 
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
-LOCAL_LDLIBS := -lpthread -ldl
+LOCAL_LDLIBS := -lpthread -ldl -lm
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_STATIC_LIBRARY)
@@ -140,8 +140,8 @@ LOCAL_SRC_FILES:= \
 	rsThreadIO.cpp \
 	rsType.cpp
 
-LOCAL_SHARED_LIBRARIES += libcutils libutils libEGL libGLESv1_CM libGLESv2 libbcc
-LOCAL_SHARED_LIBRARIES += libui libbcinfo libgui libsync
+LOCAL_SHARED_LIBRARIES += libcutils libutils libEGL libGLESv1_CM libGLESv2
+LOCAL_SHARED_LIBRARIES += libui libbcinfo libgui libsync libdl
 
 LOCAL_STATIC_LIBRARIES := libft2 libRSSupportDriver
 
@@ -150,7 +150,7 @@ LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
-LOCAL_LDLIBS := -lpthread -ldl
+LOCAL_LDLIBS := -lpthread -ldl -lm
 LOCAL_MODULE:= libRSSupport
 LOCAL_MODULE_TAGS := optional
 

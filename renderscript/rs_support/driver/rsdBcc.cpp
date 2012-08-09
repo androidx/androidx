@@ -19,10 +19,8 @@
 #include "rsdRuntime.h"
 #include "rsdAllocation.h"
 
-#include <bcc/BCCContext.h>
-#include <bcc/Renderscript/RSCompilerDriver.h>
-#include <bcc/Renderscript/RSExecutable.h>
-#include <bcc/Renderscript/RSInfo.h>
+
+#include <bcinfo/MetadataExtractor.h>
 
 #include "rsContext.h"
 #include "rsElement.h"
@@ -31,19 +29,25 @@
 #include "utils/Vector.h"
 #include "utils/Timers.h"
 #include "utils/StopWatch.h"
+#include "utils/String8.h"
+
+#include <dlfcn.h>
 
 using namespace android;
 using namespace android::renderscript;
 
 struct DrvScript {
-    int (*mRoot)();
-    int (*mRootExpand)();
-    void (*mInit)();
-    void (*mFreeChildren)();
+    RootFunc_t mRoot;
+    RootFunc_t mRootExpand;
+    InvokeFunc_t mInit;
+    InvokeFunc_t mFreeChildren;
 
-    bcc::BCCContext *mCompilerContext;
-    bcc::RSCompilerDriver *mCompilerDriver;
-    bcc::RSExecutable *mExecutable;
+
+    InvokeFunc_t *mInvokeFunctions;
+    ForEachFunc_t *mForEachFunctions;
+    void **mFieldAddress;
+    bool *mFieldIsObject;
+    uint32_t *mForEachSignatures;
 
     Allocation **mBoundAllocs;
 };
@@ -74,79 +78,178 @@ bool rsdScriptInit(const Context *rsc,
 
     pthread_mutex_lock(&rsdgInitMutex);
 
+    String8 scriptSOName(cacheDir);
+    scriptSOName = scriptSOName.getPathDir();
+    scriptSOName.appendPath("lib");
+    scriptSOName.append("/lib");
+    scriptSOName.append(resName);
+    scriptSOName.append(".so");
+    ALOGE("Opening up shared object: %s", scriptSOName.string());
+    void *scriptSO = dlopen(scriptSOName.string(), RTLD_NOW | RTLD_LOCAL);
+    if (scriptSO == NULL) {
+        ALOGE("Unable to open shared library (%s): %s",
+              scriptSOName.string(), dlerror());
+        return false;
+    }
+
+    void *scriptSORoot = dlsym(scriptSO, "root");
+    if (scriptSORoot != NULL) {
+        ALOGE("Root function found at %p", scriptSORoot);
+    }
+
+    bcinfo::MetadataExtractor ME((const char *)bitcode, bitcodeSize);
+    if (!ME.extract()) {
+        ALOGE("Failed to extract bitcode metadata: %s.bc", resName);
+        return false;
+    }
+
     const char* coreLib = "/system/lib/libclcore.bc";
-    bcc::RSInfo::FloatPrecision prec;
-    bcc::RSExecutable *exec;
-    const bcc::RSInfo *info;
     DrvScript *drv = (DrvScript *)calloc(1, sizeof(DrvScript));
     if (drv == NULL) {
         goto error;
     }
     script->mHal.drv = drv;
 
-    drv->mCompilerContext = NULL;
-    drv->mCompilerDriver = NULL;
-    drv->mExecutable = NULL;
 
-    drv->mCompilerContext = new bcc::BCCContext();
-    if (drv->mCompilerContext == NULL) {
-        ALOGE("bcc: FAILS to create compiler context (out of memory)");
-        goto error;
-    }
+    if (scriptSO) {
+        drv->mRoot = (RootFunc_t) dlsym(scriptSO, "root");
+        if (drv->mRoot) {
+            ALOGE("Found root(): %p", drv->mRoot);
+        }
+        drv->mRootExpand = (RootFunc_t) dlsym(scriptSO, "root.expand");
+        if (drv->mRootExpand) {
+            ALOGE("Found root.expand(): %p", drv->mRootExpand);
+        }
+        drv->mInit = (InvokeFunc_t) dlsym(scriptSO, "init");
+        if (drv->mInit) {
+            ALOGE("Found init(): %p", drv->mInit);
+        }
+        drv->mFreeChildren = (InvokeFunc_t) dlsym(scriptSO, ".rs.dtor");
+        if (drv->mFreeChildren) {
+            ALOGE("Found .rs.dtor(): %p", drv->mFreeChildren);
+        }
 
-    drv->mCompilerDriver = new bcc::RSCompilerDriver();
-    if (drv->mCompilerDriver == NULL) {
-        ALOGE("bcc: FAILS to create compiler driver (out of memory)");
-        goto error;
-    }
+        size_t funcCount = ME.getExportFuncCount();
+        script->mHal.info.exportedFunctionCount = funcCount;
+        ALOGE("funcCount: %zu", funcCount);
 
-    script->mHal.info.isThreadable = true;
+        if (funcCount > 0) {
+            drv->mInvokeFunctions = new InvokeFunc_t[funcCount];
+            if (drv->mInvokeFunctions == NULL) {
+                goto error;
+            }
+            const char **funcNameList = ME.getExportFuncNameList();
+            for (size_t i = 0; i < funcCount; ++i) {
+                drv->mInvokeFunctions[i] =
+                        (InvokeFunc_t) dlsym(scriptSO, funcNameList[i]);
+                if (drv->mInvokeFunctions[i] == NULL) {
+                    ALOGE("Failed to get function address for %s(): %s",
+                          funcNameList[i], dlerror());
+                    goto error;
+                }
+                else {
+                    ALOGE("Found InvokeFunc_t %s at %p", funcNameList[i],
+                          drv->mInvokeFunctions[i]);
+                }
+            }
+        }
 
-    drv->mCompilerDriver->setRSRuntimeLookupFunction(rsdLookupRuntimeStub);
-    drv->mCompilerDriver->setRSRuntimeLookupContext(script);
+        size_t varCount = ME.getExportVarCount();
+        script->mHal.info.exportedVariableCount = varCount;
+        ALOGE("varCount: %zu", varCount);
+        if (varCount > 0) {
+            // Start by creating/zeroing this member, since we don't want to
+            // accidentally clean up invalid pointers later (if we error out).
+            drv->mFieldIsObject = new bool[varCount];
+            if (drv->mFieldIsObject == NULL) {
+                goto error;
+            }
+            memset(drv->mFieldIsObject, 0,
+                   varCount * sizeof(*drv->mFieldIsObject));
+            drv->mFieldAddress = new void*[varCount];
+            if (drv->mFieldAddress == NULL) {
+                goto error;
+            }
+            const char **varNameList = ME.getExportVarNameList();
+            for (size_t i = 0; i < varCount; ++i) {
+                drv->mFieldAddress[i] = dlsym(scriptSO, varNameList[i]);
+                if (drv->mFieldAddress[i] == NULL) {
+                    ALOGE("Failed to find variable address for %s: %s",
+                          varNameList[i], dlerror());
+                // Not a critical error if we don't find a global variable.
+                }
+                else {
+                    ALOGE("Found variable %s at %p", varNameList[i],
+                          drv->mFieldAddress[i]);
+                }
+            }
+        }
 
-    exec = drv->mCompilerDriver->build(*drv->mCompilerContext,
-                                       cacheDir, resName,
-                                       (const char *)bitcode, bitcodeSize);
+        size_t objectSlotCount = ME.getObjectSlotCount();
+        if (objectSlotCount > 0) {
+            rsAssert(varCount > 0);
+            const uint32_t *objectSlotList = ME.getObjectSlotList();
+            for (size_t i = 0; i < objectSlotCount; ++i) {
+                uint32_t varNum = objectSlotList[i];
+                if (varNum < varCount) {
+                    drv->mFieldIsObject[objectSlotList[i]] = true;
+                }
+            }
+        }
 
-    if (exec == NULL) {
-        ALOGE("bcc: FAILS to prepare executable for '%s'", resName);
-        goto error;
-    }
+        size_t forEachCount = ME.getExportForEachSignatureCount();
+        if (forEachCount > 0) {
+            const uint32_t *sigList = ME.getExportForEachSignatureList();
+            const char **nameList = ME.getExportForEachNameList();
 
-    drv->mExecutable = exec;
+            drv->mForEachSignatures = new uint32_t[forEachCount];
+            if (drv->mForEachSignatures == NULL) {
+                goto error;
+            }
+            drv->mForEachFunctions = new ForEachFunc_t[forEachCount];
+            if (drv->mForEachFunctions == NULL) {
+                goto error;
+            }
+            for (size_t i = 0; i < forEachCount; ++i) {
+                drv->mForEachSignatures[i] = sigList[i];
+                drv->mForEachFunctions[i] =
+                        (ForEachFunc_t) dlsym(scriptSO, nameList[i]);
+                if (drv->mForEachFunctions[i] == NULL) {
+                    ALOGE("Failed to find forEach function address for %s: %s",
+                          nameList[i], dlerror());
+                    goto error;
+                }
+                else {
+                    // TODO - Maybe add ForEachExpandPass to .so creation and
+                    // then lookup the ".expand" version of these kernels
+                    // instead.
+                    ALOGE("Found forEach %s at %p", nameList[i],
+                          drv->mForEachFunctions[i]);
+                }
+            }
+        }
 
-    exec->setThreadable(script->mHal.info.isThreadable);
-    if (!exec->syncInfo()) {
-        ALOGW("bcc: FAILS to synchronize the RS info file to the disk");
-    }
+        // TODO - Do we care about pragmas at all in this layer of FS?
+        script->mHal.info.exportedPragmaCount = ME.getPragmaCount();
+        ALOGE("pragmaCount: %zu", script->mHal.info.exportedPragmaCount);
+        script->mHal.info.exportedPragmaCount = 0;
 
-    drv->mRoot = reinterpret_cast<int (*)()>(exec->getSymbolAddress("root"));
-    drv->mRootExpand =
-        reinterpret_cast<int (*)()>(exec->getSymbolAddress("root.expand"));
-    drv->mInit = reinterpret_cast<void (*)()>(exec->getSymbolAddress("init"));
-    drv->mFreeChildren =
-        reinterpret_cast<void (*)()>(exec->getSymbolAddress(".rs.dtor"));
+        if (drv->mRootExpand) {
+            script->mHal.info.root = drv->mRootExpand;
+        } else {
+            script->mHal.info.root = drv->mRoot;
+        }
 
-    info = &drv->mExecutable->getInfo();
-    // Copy info over to runtime
-    script->mHal.info.exportedFunctionCount = info->getExportFuncNames().size();
-    script->mHal.info.exportedVariableCount = info->getExportVarNames().size();
-    script->mHal.info.exportedPragmaCount = info->getPragmas().size();
-    script->mHal.info.exportedPragmaKeyList =
-        const_cast<const char**>(exec->getPragmaKeys().array());
-    script->mHal.info.exportedPragmaValueList =
-        const_cast<const char**>(exec->getPragmaValues().array());
+        if (varCount > 0) {
+            drv->mBoundAllocs = new Allocation *[varCount];
+            memset(drv->mBoundAllocs, 0, varCount * sizeof(*drv->mBoundAllocs));
+        }
 
-    if (drv->mRootExpand) {
-        script->mHal.info.root = drv->mRootExpand;
-    } else {
-        script->mHal.info.root = drv->mRoot;
-    }
+        script->mHal.info.isThreadable = true;
 
-    if (script->mHal.info.exportedVariableCount) {
-        drv->mBoundAllocs = new Allocation *[script->mHal.info.exportedVariableCount];
-        memset(drv->mBoundAllocs, 0, sizeof(void *) * script->mHal.info.exportedVariableCount);
+        if (scriptSO == (void*)1) {
+            rsdLookupRuntimeStub(script, "acos");
+        }
     }
 
     pthread_mutex_unlock(&rsdgInitMutex);
@@ -156,9 +259,11 @@ error:
 
     pthread_mutex_unlock(&rsdgInitMutex);
     if (drv) {
-        delete drv->mCompilerContext;
-        delete drv->mCompilerDriver;
-        delete drv->mExecutable;
+        delete[] drv->mInvokeFunctions;
+        delete[] drv->mForEachFunctions;
+        delete[] drv->mFieldAddress;
+        delete[] drv->mFieldIsObject;
+        delete[] drv->mForEachSignatures;
         delete[] drv->mBoundAllocs;
         free(drv);
     }
@@ -213,7 +318,7 @@ static void wc_xy(void *usr, uint32_t idx) {
     RsdHal * dc = (RsdHal *)mtls->rsc->mHal.drv;
     uint32_t sig = mtls->sig;
 
-    outer_foreach_t fn = (outer_foreach_t) mtls->kernel;
+    rs_t bare_fn = (rs_t) mtls->kernel;
     while (1) {
         uint32_t slice = (uint32_t)android_atomic_inc(&mtls->mSliceNum);
         uint32_t yStart = mtls->yStart + slice * mtls->mSliceSize;
@@ -228,7 +333,11 @@ static void wc_xy(void *usr, uint32_t idx) {
         for (p.y = yStart; p.y < yEnd; p.y++) {
             p.out = mtls->ptrOut + (mtls->yStrideOut * p.y);
             p.in = mtls->ptrIn + (mtls->yStrideIn * p.y);
-            fn(&p, mtls->xStart, mtls->xEnd, mtls->eStrideIn, mtls->eStrideOut);
+            for (uint32_t x = mtls->xStart; x < mtls->xEnd; ++x) {
+                bare_fn(p.in, p.out, p.usr, x, p.y, 0, 0);
+                p.in = (char *)(p.in) + mtls->eStrideIn;
+                p.out = (char *)(p.out) + mtls->eStrideOut;
+            }
         }
     }
 }
@@ -242,7 +351,7 @@ static void wc_x(void *usr, uint32_t idx) {
     RsdHal * dc = (RsdHal *)mtls->rsc->mHal.drv;
     uint32_t sig = mtls->sig;
 
-    outer_foreach_t fn = (outer_foreach_t) mtls->kernel;
+    rs_t bare_fn = (rs_t) mtls->kernel;
     while (1) {
         uint32_t slice = (uint32_t)android_atomic_inc(&mtls->mSliceNum);
         uint32_t xStart = mtls->xStart + slice * mtls->mSliceSize;
@@ -257,7 +366,11 @@ static void wc_x(void *usr, uint32_t idx) {
 
         p.out = mtls->ptrOut + (mtls->eStrideOut * xStart);
         p.in = mtls->ptrIn + (mtls->eStrideIn * xStart);
-        fn(&p, xStart, xEnd, mtls->eStrideIn, mtls->eStrideOut);
+        for (uint32_t x = mtls->xStart; x < mtls->xEnd; ++x) {
+            bare_fn(p.in, p.out, p.usr, x, 0, 0, 0);
+            p.in = (char *)(p.in) + mtls->eStrideIn;
+            p.out = (char *)(p.out) + mtls->eStrideOut;
+        }
     }
 }
 
@@ -278,11 +391,10 @@ void rsdScriptInvokeForEach(const Context *rsc,
     //ALOGE("for each script %p  in %p   out %p", s, ain, aout);
 
     DrvScript *drv = (DrvScript *)s->mHal.drv;
-    rsAssert(slot < drv->mExecutable->getExportForeachFuncAddrs().size());
-    mtls.kernel = reinterpret_cast<ForEachFunc_t>(
-                      drv->mExecutable->getExportForeachFuncAddrs()[slot]);
+    //rsAssert(slot < drv->mExecutable->getExportForeachFuncAddrs().size());
+    mtls.kernel = drv->mForEachFunctions[slot];
     rsAssert(mtls.kernel != NULL);
-    mtls.sig = drv->mExecutable->getInfo().getExportForeachFuncs()[slot].second;
+    mtls.sig = drv->mForEachSignatures[slot];
 
     if (ain) {
         mtls.dimX = ain->getType()->getDimX();
@@ -386,7 +498,7 @@ void rsdScriptInvokeForEach(const Context *rsc,
         uint32_t sig = mtls.sig;
 
         //ALOGE("launch 3");
-        outer_foreach_t fn = (outer_foreach_t) mtls.kernel;
+        rs_t bare_fn = (rs_t) mtls.kernel;
         for (p.ar[0] = mtls.arrayStart; p.ar[0] < mtls.arrayEnd; p.ar[0]++) {
             for (p.z = mtls.zStart; p.z < mtls.zEnd; p.z++) {
                 for (p.y = mtls.yStart; p.y < mtls.yEnd; p.y++) {
@@ -395,8 +507,15 @@ void rsdScriptInvokeForEach(const Context *rsc,
                                       mtls.dimX * p.y;
                     p.out = mtls.ptrOut + (mtls.eStrideOut * offset);
                     p.in = mtls.ptrIn + (mtls.eStrideIn * offset);
-                    fn(&p, mtls.xStart, mtls.xEnd, mtls.eStrideIn,
-                       mtls.eStrideOut);
+                    for (uint32_t x = mtls.xStart; x < mtls.xEnd; ++x) {
+                        // TODO verify the z/ar are correct for this sort of
+                        // function signature. Honestly, we could probably
+                        // always pass "0, 0", since I don't believe llvm-rs-cc
+                        // allows kernels like this.
+                        bare_fn(p.in, p.out, p.usr, x, p.y, p.z, p.ar[0]);
+                        p.in = (char *)(p.in) + mtls.eStrideIn;
+                        p.out = (char *)(p.out) + mtls.eStrideOut;
+                    }
                 }
             }
         }
@@ -441,7 +560,7 @@ void rsdScriptInvokeFunction(const Context *dc, Script *script,
 
     Script * oldTLS = setTLS(script);
     reinterpret_cast<void (*)(const void *, uint32_t)>(
-        drv->mExecutable->getExportFuncAddrs()[slot])(params, paramLength);
+        drv->mInvokeFunctions[slot])(params, paramLength);
     setTLS(oldTLS);
 }
 
@@ -451,8 +570,7 @@ void rsdScriptSetGlobalVar(const Context *dc, const Script *script,
     //rsAssert(!script->mFieldIsObject[slot]);
     //ALOGE("setGlobalVar %p %p %i %p %i", dc, script, slot, data, dataLength);
 
-    int32_t *destPtr = reinterpret_cast<int32_t *>(
-                          drv->mExecutable->getExportVarAddrs()[slot]);
+    int32_t *destPtr = reinterpret_cast<int32_t *>(drv->mFieldAddress[slot]);
     if (!destPtr) {
         //ALOGV("Calling setVar on slot = %i which is null", slot);
         return;
@@ -469,8 +587,7 @@ void rsdScriptSetGlobalVarWithElemDims(
         const size_t *dims, size_t dimLength) {
     DrvScript *drv = (DrvScript *)script->mHal.drv;
 
-    int32_t *destPtr = reinterpret_cast<int32_t *>(
-        drv->mExecutable->getExportVarAddrs()[slot]);
+    int32_t *destPtr = reinterpret_cast<int32_t *>(drv->mFieldAddress[slot]);
     if (!destPtr) {
         //ALOGV("Calling setVar on slot = %i which is null", slot);
         return;
@@ -508,8 +625,7 @@ void rsdScriptSetGlobalBind(const Context *dc, const Script *script, uint32_t sl
     //rsAssert(!script->mFieldIsObject[slot]);
     //ALOGE("setGlobalBind %p %p %i %p", dc, script, slot, data);
 
-    int32_t *destPtr = reinterpret_cast<int32_t *>(
-                          drv->mExecutable->getExportVarAddrs()[slot]);
+    int32_t *destPtr = reinterpret_cast<int32_t *>(drv->mFieldAddress[slot]);
     if (!destPtr) {
         //ALOGV("Calling setVar on slot = %i which is null", slot);
         return;
@@ -529,8 +645,7 @@ void rsdScriptSetGlobalObj(const Context *dc, const Script *script, uint32_t slo
     //rsAssert(script->mFieldIsObject[slot]);
     //ALOGE("setGlobalObj %p %p %i %p", dc, script, slot, data);
 
-    int32_t *destPtr = reinterpret_cast<int32_t *>(
-                          drv->mExecutable->getExportVarAddrs()[slot]);
+    int32_t *destPtr = reinterpret_cast<int32_t *>(drv->mFieldAddress[slot]);
     if (!destPtr) {
         //ALOGV("Calling setVar on slot = %i which is null", slot);
         return;
@@ -546,36 +661,21 @@ void rsdScriptDestroy(const Context *dc, Script *script) {
         return;
     }
 
-    if (drv->mExecutable) {
-        Vector<void *>::const_iterator var_addr_iter =
-            drv->mExecutable->getExportVarAddrs().begin();
-        Vector<void *>::const_iterator var_addr_end =
-            drv->mExecutable->getExportVarAddrs().end();
-
-        bcc::RSInfo::ObjectSlotListTy::const_iterator is_object_iter =
-            drv->mExecutable->getInfo().getObjectSlots().begin();
-        bcc::RSInfo::ObjectSlotListTy::const_iterator is_object_end =
-            drv->mExecutable->getInfo().getObjectSlots().end();
-
-        while ((var_addr_iter != var_addr_end) &&
-               (is_object_iter != is_object_end)) {
-            // The field address can be NULL if the script-side has optimized
-            // the corresponding global variable away.
-            ObjectBase **obj_addr =
-                reinterpret_cast<ObjectBase **>(*var_addr_iter);
-            if (*is_object_iter) {
-                if (*var_addr_iter != NULL) {
-                    rsrClearObject(dc, script, obj_addr);
-                }
+    for (size_t i = 0; i < script->mHal.info.exportedVariableCount; ++i) {
+        if (drv->mFieldIsObject[i]) {
+            if (drv->mFieldAddress[i] != NULL) {
+                ObjectBase **obj_addr =
+                    reinterpret_cast<ObjectBase **>(drv->mFieldAddress[i]);
+                rsrClearObject(dc, script, obj_addr);
             }
-            var_addr_iter++;
-            is_object_iter++;
         }
     }
 
-    delete drv->mCompilerContext;
-    delete drv->mCompilerDriver;
-    delete drv->mExecutable;
+    delete[] drv->mInvokeFunctions;
+    delete[] drv->mForEachFunctions;
+    delete[] drv->mFieldAddress;
+    delete[] drv->mFieldIsObject;
+    delete[] drv->mForEachSignatures;
     delete[] drv->mBoundAllocs;
     free(drv);
     script->mHal.drv = NULL;
