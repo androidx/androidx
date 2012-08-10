@@ -858,6 +858,7 @@ final class FragmentManagerImpl extends FragmentManager {
                 case Fragment.INITIALIZING:
                     if (DEBUG) Log.v(TAG, "moveto CREATED: " + f);
                     if (f.mSavedFragmentState != null) {
+                        f.mSavedFragmentState.setClassLoader(mActivity.getClassLoader());
                         f.mSavedViewState = f.mSavedFragmentState.getSparseParcelableArray(
                                 FragmentManagerImpl.VIEW_STATE_TAG);
                         f.mTarget = getFragment(f.mSavedFragmentState,
