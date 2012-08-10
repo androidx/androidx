@@ -479,6 +479,9 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
             if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
                 // Only update the text here if we're not dragging or settling.
                 updateText(mPager.getCurrentItem(), mPager.getAdapter());
+
+                final float offset = mLastKnownPositionOffset >= 0 ? mLastKnownPositionOffset : 0;
+                updateTextPositions(mPager.getCurrentItem(), offset, true);
             }
         }
 
@@ -495,6 +498,9 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         @Override
         public void onChanged() {
             updateText(mPager.getCurrentItem(), mPager.getAdapter());
+
+            final float offset = mLastKnownPositionOffset >= 0 ? mLastKnownPositionOffset : 0;
+            updateTextPositions(mPager.getCurrentItem(), offset, true);
         }
     }
 }
