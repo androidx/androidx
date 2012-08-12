@@ -19,6 +19,7 @@ package android.support.v4.net;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -98,7 +99,19 @@ public class ConnectivityManagerCompat {
      * and warn the user or delay the operation until another network is
      * available.
      */
-    public boolean isActiveNetworkMetered(ConnectivityManager cm) {
+    public static boolean isActiveNetworkMetered(ConnectivityManager cm) {
         return IMPL.isActiveNetworkMetered(cm);
+    }
+
+    /**
+     * Return the {@link NetworkInfo} that caused the given
+     * {@link ConnectivityManager#CONNECTIVITY_ACTION} broadcast. This obtains
+     * the current state from {@link ConnectivityManager} instead of using the
+     * potentially-stale value from
+     * {@link ConnectivityManager#EXTRA_NETWORK_INFO}.
+     */
+    public static NetworkInfo getNetworkInfoFromBroadcast(ConnectivityManager cm, Intent intent) {
+        final NetworkInfo info = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+        return cm.getNetworkInfo(info.getType());
     }
 }
