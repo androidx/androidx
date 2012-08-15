@@ -17,15 +17,7 @@
 #include "rsdCore.h"
 #include "rsdAllocation.h"
 #include "rsdBcc.h"
-#include "rsdGL.h"
-#include "rsdPath.h"
-#include "rsdProgramStore.h"
-#include "rsdProgramRaster.h"
-#include "rsdProgramVertex.h"
-#include "rsdProgramFragment.h"
-#include "rsdMesh.h"
 #include "rsdSampler.h"
-#include "rsdFrameBuffer.h"
 
 #include <malloc.h>
 #include "rsContext.h"
@@ -44,10 +36,10 @@ static void Shutdown(Context *rsc);
 static void SetPriority(const Context *rsc, int32_t priority);
 
 static RsdHalFunctions FunctionTable = {
-    rsdGLInit,
-    rsdGLShutdown,
-    rsdGLSetSurface,
-    rsdGLSwap,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
 
     Shutdown,
     NULL,
@@ -72,10 +64,10 @@ static RsdHalFunctions FunctionTable = {
         rsdAllocationResize,
         rsdAllocationSyncAll,
         rsdAllocationMarkDirty,
-        rsdAllocationInitSurfaceTexture,
-        rsdAllocationSetSurfaceTexture,
-        rsdAllocationIoSend,
-        rsdAllocationIoReceive,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
         rsdAllocationData1D,
         rsdAllocationData2D,
         rsdAllocationData3D,
@@ -94,40 +86,40 @@ static RsdHalFunctions FunctionTable = {
 
 
     {
-        rsdProgramStoreInit,
-        rsdProgramStoreSetActive,
-        rsdProgramStoreDestroy
+        NULL,
+        NULL,
+        NULL
     },
 
     {
-        rsdProgramRasterInit,
-        rsdProgramRasterSetActive,
-        rsdProgramRasterDestroy
+        NULL,
+        NULL,
+        NULL
     },
 
     {
-        rsdProgramVertexInit,
-        rsdProgramVertexSetActive,
-        rsdProgramVertexDestroy
+        NULL,
+        NULL,
+        NULL
     },
 
     {
-        rsdProgramFragmentInit,
-        rsdProgramFragmentSetActive,
-        rsdProgramFragmentDestroy
+        NULL,
+        NULL,
+        NULL
     },
 
     {
-        rsdMeshInit,
-        rsdMeshDraw,
-        rsdMeshDestroy
+        NULL,
+        NULL,
+        NULL
     },
 
     {
-        rsdPathInitStatic,
-        rsdPathInitDynamic,
-        rsdPathDraw,
-        rsdPathDestroy
+        NULL,
+        NULL,
+        NULL,
+        NULL
     },
 
     {
@@ -136,9 +128,9 @@ static RsdHalFunctions FunctionTable = {
     },
 
     {
-        rsdFrameBufferInit,
-        rsdFrameBufferSetActive,
-        rsdFrameBufferDestroy
+        NULL,
+        NULL,
+        NULL
     },
 
 };
@@ -282,7 +274,7 @@ void SetPriority(const Context *rsc, int32_t priority) {
         setpriority(PRIO_PROCESS, dc->mWorkers.mNativeThreadId[ct], priority);
     }
     if (dc->mHasGraphics) {
-        rsdGLSetPriority(rsc, priority);
+        //rsdGLSetPriority(rsc, priority);
     }
 }
 

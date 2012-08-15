@@ -24,11 +24,6 @@
 namespace android {
 namespace renderscript {
 
-class ProgramVertex;
-class ProgramFragment;
-class ProgramRaster;
-class ProgramStore;
-
 class Script : public ObjectBase {
 public:
     struct Hal {
@@ -59,11 +54,6 @@ public:
     struct Enviroment_t {
         int64_t mStartTimeMillis;
         int64_t mLastDtTime;
-
-        ObjectBaseRef<ProgramVertex> mVertex;
-        ObjectBaseRef<ProgramFragment> mFragment;
-        ObjectBaseRef<ProgramRaster> mRaster;
-        ObjectBaseRef<ProgramStore> mFragmentStore;
     };
     Enviroment_t mEnviroment;
 

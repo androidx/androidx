@@ -23,11 +23,8 @@ struct ANativeWindow;
 
 // ---------------------------------------------------------------------------
 namespace android {
-class SurfaceTexture;
 
 namespace renderscript {
-
-class Program;
 
 /*****************************************************************************
  * CAUTION
@@ -63,8 +60,8 @@ public:
             bool hasReferences;
             void * unused_01;
             int32_t surfaceTextureID;
-            ANativeWindow *wndSurface;
-            SurfaceTexture *surfaceTexture;
+            void *wndSurface;
+            void *surfaceTexture;
         };
         State state;
 
@@ -108,9 +105,6 @@ public:
     void elementData(Context *rsc, uint32_t x, uint32_t y,
                      const void *data, uint32_t elementOff, size_t sizeBytes);
 
-    void addProgramToDirty(const Program *);
-    void removeProgramToDirty(const Program *);
-
     virtual void dumpLOGV(const char *prefix) const;
     virtual void serialize(Context *rsc, OStream *stream) const;
     virtual RsA3DClassID getClassId() const { return RS_A3D_CLASS_ID_ALLOCATION; }
@@ -138,14 +132,7 @@ public:
         return mHal.state.mipmapControl != RS_ALLOCATION_MIPMAP_NONE;
     }
 
-    int32_t getSurfaceTextureID(const Context *rsc);
-    void setSurfaceTexture(const Context *rsc, SurfaceTexture *st);
-    void setSurface(const Context *rsc, RsNativeWindow sur);
-    void ioSend(const Context *rsc);
-    void ioReceive(const Context *rsc);
-
 protected:
-    Vector<const Program *> mToDirtyList;
     ObjectBaseRef<const Type> mType;
     void setType(const Type *t) {
         mType.set(t);

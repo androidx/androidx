@@ -29,63 +29,6 @@ namespace renderscript {
 // Context
 //////////////////////////////////////////////////////////////////////////////
 
-void rsrBindTexture(Context *, Script *, ProgramFragment *, uint32_t slot, Allocation *);
-void rsrBindConstant(Context *, Script *, ProgramFragment *, uint32_t slot, Allocation *);
-void rsrBindConstant(Context *, Script *, ProgramVertex*, uint32_t slot, Allocation *);
-void rsrBindSampler(Context *, Script *, ProgramFragment *, uint32_t slot, Sampler *);
-void rsrBindProgramStore(Context *, Script *, ProgramStore *);
-void rsrBindProgramFragment(Context *, Script *, ProgramFragment *);
-void rsrBindProgramVertex(Context *, Script *, ProgramVertex *);
-void rsrBindProgramRaster(Context *, Script *, ProgramRaster *);
-void rsrBindFrameBufferObjectColorTarget(Context *, Script *, Allocation *, uint32_t slot);
-void rsrBindFrameBufferObjectDepthTarget(Context *, Script *, Allocation *);
-void rsrClearFrameBufferObjectColorTarget(Context *, Script *, uint32_t slot);
-void rsrClearFrameBufferObjectDepthTarget(Context *, Script *);
-void rsrClearFrameBufferObjectTargets(Context *, Script *);
-
-//////////////////////////////////////////////////////////////////////////////
-// VP
-//////////////////////////////////////////////////////////////////////////////
-
-void rsrVpLoadProjectionMatrix(Context *, Script *, const rsc_Matrix *m);
-void rsrVpLoadModelMatrix(Context *, Script *, const rsc_Matrix *m);
-void rsrVpLoadTextureMatrix(Context *, Script *, const rsc_Matrix *m);
-void rsrPfConstantColor(Context *, Script *, ProgramFragment *, float r, float g, float b, float a);
-void rsrVpGetProjectionMatrix(Context *, Script *, rsc_Matrix *m);
-
-//////////////////////////////////////////////////////////////////////////////
-// Drawing
-//////////////////////////////////////////////////////////////////////////////
-
-void rsrDrawQuadTexCoords(Context *, Script *,
-                          float x1, float y1, float z1, float u1, float v1,
-                          float x2, float y2, float z2, float u2, float v2,
-                          float x3, float y3, float z3, float u3, float v3,
-                          float x4, float y4, float z4, float u4, float v4);
-void rsrDrawQuad(Context *, Script *,
-                 float x1, float y1, float z1,
-                 float x2, float y2, float z2,
-                 float x3, float y3, float z3,
-                 float x4, float y4, float z4);
-void rsrDrawSpriteScreenspace(Context *, Script *,
-                              float x, float y, float z, float w, float h);
-void rsrDrawRect(Context *, Script *, float x1, float y1, float x2, float y2, float z);
-void rsrDrawPath(Context *, Script *, Path *);
-void rsrDrawMesh(Context *, Script *, Mesh *);
-void rsrDrawMeshPrimitive(Context *, Script *, Mesh *, uint32_t primIndex);
-void rsrDrawMeshPrimitiveRange(Context *, Script *, Mesh *,
-                               uint32_t primIndex, uint32_t start, uint32_t len);
-void rsrMeshComputeBoundingBox(Context *, Script *, Mesh *,
-                               float *minX, float *minY, float *minZ,
-                               float *maxX, float *maxY, float *maxZ);
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//////////////////////////////////////////////////////////////////////////////
-
-
-void rsrColor(Context *, Script *, float r, float g, float b, float a);
 void rsrAllocationSyncAll(Context *, Script *, Allocation *);
 
 void rsrAllocationCopy1DRange(Context *, Allocation *dstAlloc,
@@ -101,20 +44,6 @@ void rsrAllocationCopy2DRange(Context *, Allocation *dstAlloc,
                               Allocation *srcAlloc,
                               uint32_t srcXoff, uint32_t srcYoff,
                               uint32_t srcMip, uint32_t srcFace);
-
-void rsrPrepareClear(Context *, Script *);
-uint32_t rsrGetWidth(Context *, Script *);
-uint32_t rsrGetHeight(Context *, Script *);
-void rsrDrawTextAlloc(Context *, Script *, Allocation *, int x, int y);
-void rsrDrawText(Context *, Script *, const char *text, int x, int y);
-void rsrSetMetrics(Context *, Script *, Font::Rect *metrics,
-                   int32_t *left, int32_t *right, int32_t *top, int32_t *bottom);
-void rsrMeasureTextAlloc(Context *, Script *, Allocation *,
-                         int32_t *left, int32_t *right, int32_t *top, int32_t *bottom);
-void rsrMeasureText(Context *, Script *, const char *text,
-                    int32_t *left, int32_t *right, int32_t *top, int32_t *bottom);
-void rsrBindFont(Context *, Script *, Font *);
-void rsrFontColor(Context *, Script *, float r, float g, float b, float a);
 
 //////////////////////////////////////////////////////////////////////////////
 // Time routines

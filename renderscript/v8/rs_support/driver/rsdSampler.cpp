@@ -20,12 +20,6 @@
 
 #include "rsContext.h"
 #include "rsSampler.h"
-#include "rsProgramVertex.h"
-#include "rsProgramFragment.h"
-
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-
 
 using namespace android;
 using namespace android::renderscript;

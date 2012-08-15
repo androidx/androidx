@@ -19,7 +19,7 @@
 #include "rsdBcc.h"
 #include "rsdRuntime.h"
 #include "rsdAllocation.h"
-#include "rsdFrameBufferObj.h"
+//#include "rsdFrameBufferObj.h"
 
 #include "rsAllocation.h"
 
@@ -29,54 +29,13 @@
 #include "ui/GraphicBufferMapper.h"
 #include "gui/SurfaceTexture.h"*/
 
-#include <GLES/gl.h>
-#include <GLES2/gl2.h>
-#include <GLES/glext.h>
+//#include <GLES/gl.h>
+//#include <GLES2/gl2.h>
+//#include <GLES/glext.h>
 
 using namespace android;
 using namespace android::renderscript;
 
-
-
-const static GLenum gFaceOrder[] = {
-    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-};
-
-
-GLenum rsdTypeToGLType(RsDataType t) {
-    switch (t) {
-    case RS_TYPE_UNSIGNED_5_6_5:    return GL_UNSIGNED_SHORT_5_6_5;
-    case RS_TYPE_UNSIGNED_5_5_5_1:  return GL_UNSIGNED_SHORT_5_5_5_1;
-    case RS_TYPE_UNSIGNED_4_4_4_4:  return GL_UNSIGNED_SHORT_4_4_4_4;
-
-    //case RS_TYPE_FLOAT_16:      return GL_HALF_FLOAT;
-    case RS_TYPE_FLOAT_32:      return GL_FLOAT;
-    case RS_TYPE_UNSIGNED_8:    return GL_UNSIGNED_BYTE;
-    case RS_TYPE_UNSIGNED_16:   return GL_UNSIGNED_SHORT;
-    case RS_TYPE_SIGNED_8:      return GL_BYTE;
-    case RS_TYPE_SIGNED_16:     return GL_SHORT;
-    default:    break;
-    }
-    return 0;
-}
-
-GLenum rsdKindToGLFormat(RsDataKind k) {
-    switch (k) {
-    case RS_KIND_PIXEL_L: return GL_LUMINANCE;
-    case RS_KIND_PIXEL_A: return GL_ALPHA;
-    case RS_KIND_PIXEL_LA: return GL_LUMINANCE_ALPHA;
-    case RS_KIND_PIXEL_RGB: return GL_RGB;
-    case RS_KIND_PIXEL_RGBA: return GL_RGBA;
-    case RS_KIND_PIXEL_DEPTH: return GL_DEPTH_COMPONENT16;
-    default: break;
-    }
-    return 0;
-}
 
 uint8_t *GetOffsetPtr(const android::renderscript::Allocation *alloc,
                       uint32_t xoff, uint32_t yoff, uint32_t lod,
@@ -159,6 +118,7 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
         drv->lod[lod].mallocPtr = ptr + offsets[lod];
     }
 
+    /*
     drv->glTarget = GL_NONE;
     if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_GRAPHICS_TEXTURE) {
         if (alloc->mHal.state.hasFaces) {
@@ -174,6 +134,7 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
 
     drv->glType = rsdTypeToGLType(alloc->mHal.state.type->getElement()->getComponent().getType());
     drv->glFormat = rsdKindToGLFormat(alloc->mHal.state.type->getElement()->getComponent().getKind());
+    */
 
     alloc->mHal.drvState.strideLOD0 = drv->lod[0].stride;
     alloc->mHal.drvState.mallocPtrLOD0 = ptr;
@@ -195,28 +156,9 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
 void rsdAllocationDestroy(const Context *rsc, Allocation *alloc) {
     DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
 
-    if (drv->bufferID) {
-        // Causes a SW crash....
-        //ALOGV(" mBufferID %i", mBufferID);
-        //glDeleteBuffers(1, &mBufferID);
-        //mBufferID = 0;
-    }
-    if (drv->textureID) {
-        RSD_CALL_GL(glDeleteTextures, 1, &drv->textureID);
-        drv->textureID = 0;
-    }
-    if (drv->renderTargetID) {
-        RSD_CALL_GL(glDeleteRenderbuffers, 1, &drv->renderTargetID);
-        drv->renderTargetID = 0;
-    }
-
     if (alloc->mHal.drvState.mallocPtrLOD0) {
         free(alloc->mHal.drvState.mallocPtrLOD0);
         alloc->mHal.drvState.mallocPtrLOD0 = NULL;
-    }
-    if (drv->readBackFBO != NULL) {
-        delete drv->readBackFBO;
-        drv->readBackFBO = NULL;
     }
     free(drv);
     alloc->mHal.drv = NULL;

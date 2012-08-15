@@ -40,15 +40,15 @@ struct DrvAllocation {
     // Is this a legal structure to be used as an FBO render target
     uint32_t renderTargetID;
 
-    GLenum glTarget;
-    GLenum glType;
-    GLenum glFormat;
+    int glTarget;
+    int glType;
+    int glFormat;
 
     bool uploadDeferred;
 
-    RsdFrameBufferObj * readBackFBO;
-    ANativeWindow *wnd;
-    ANativeWindowBuffer *wndBuffer;
+    void * readBackFBO;
+    void *wnd;
+    void *wndBuffer;
 
     struct LodState {
         void * mallocPtr;
@@ -63,9 +63,6 @@ struct DrvAllocation {
 
 
 };
-
-GLenum rsdTypeToGLType(RsDataType t);
-GLenum rsdKindToGLFormat(RsDataKind k);
 
 
 bool rsdAllocationInit(const android::renderscript::Context *rsc,
@@ -82,14 +79,6 @@ void rsdAllocationSyncAll(const android::renderscript::Context *rsc,
                           RsAllocationUsageType src);
 void rsdAllocationMarkDirty(const android::renderscript::Context *rsc,
                             const android::renderscript::Allocation *alloc);
-int32_t rsdAllocationInitSurfaceTexture(const android::renderscript::Context *rsc,
-                                        const android::renderscript::Allocation *alloc);
-void rsdAllocationSetSurfaceTexture(const android::renderscript::Context *rsc,
-                                    android::renderscript::Allocation *alloc, ANativeWindow *nw);
-void rsdAllocationIoSend(const android::renderscript::Context *rsc,
-                         android::renderscript::Allocation *alloc);
-void rsdAllocationIoReceive(const android::renderscript::Context *rsc,
-                            android::renderscript::Allocation *alloc);
 
 void rsdAllocationData1D(const android::renderscript::Context *rsc,
                          const android::renderscript::Allocation *alloc,

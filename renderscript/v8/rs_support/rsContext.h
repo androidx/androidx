@@ -23,13 +23,6 @@
 #include "rsThreadIO.h"
 #include "rsScriptC.h"
 #include "rsSampler.h"
-#include "rsFont.h"
-#include "rsPath.h"
-#include "rsProgramFragment.h"
-#include "rsProgramStore.h"
-#include "rsProgramRaster.h"
-#include "rsProgramVertex.h"
-#include "rsFBOCache.h"
 
 // ---------------------------------------------------------------------------
 namespace android {
@@ -79,11 +72,6 @@ public:
         ~PushState();
 
     private:
-        ObjectBaseRef<ProgramFragment> mFragment;
-        ObjectBaseRef<ProgramVertex> mVertex;
-        ObjectBaseRef<ProgramStore> mStore;
-        ObjectBaseRef<ProgramRaster> mRaster;
-        ObjectBaseRef<Font> mFont;
         Context *mRsc;
     };
 
@@ -92,37 +80,11 @@ public:
     ElementState mStateElement;
     TypeState mStateType;
     SamplerState mStateSampler;
-    ProgramFragmentState mStateFragment;
-    ProgramStoreState mStateFragmentStore;
-    ProgramRasterState mStateRaster;
-    ProgramVertexState mStateVertex;
-    FontState mStateFont;
 
     ScriptCState mScriptC;
-    FBOCache mFBOCache;
-
-    void swapBuffers();
-    void setRootScript(Script *);
-    void setProgramRaster(ProgramRaster *);
-    void setProgramVertex(ProgramVertex *);
-    void setProgramFragment(ProgramFragment *);
-    void setProgramStore(ProgramStore *);
-    void setFont(Font *);
-
-    void updateSurface(void *sur);
-
-    ProgramFragment * getProgramFragment() {return mFragment.get();}
-    ProgramStore * getProgramStore() {return mFragmentStore.get();}
-    ProgramRaster * getProgramRaster() {return mRaster.get();}
-    ProgramVertex * getProgramVertex() {return mVertex.get();}
-    Font * getFont() {return mFont.get();}
 
     bool setupCheck();
-    void setupProgramStore();
 
-    void pause();
-    void resume();
-    void setSurface(uint32_t w, uint32_t h, RsNativeWindow sur);
     void setPriority(int32_t p);
     void destroyWorkerThreadResources();
 
@@ -136,28 +98,6 @@ public:
 
     void initToClient();
     void deinitToClient();
-
-    ProgramFragment * getDefaultProgramFragment() const {
-        return mStateFragment.mDefault.get();
-    }
-    ProgramVertex * getDefaultProgramVertex() const {
-        return mStateVertex.mDefault.get();
-    }
-    ProgramStore * getDefaultProgramStore() const {
-        return mStateFragmentStore.mDefault.get();
-    }
-    ProgramRaster * getDefaultProgramRaster() const {
-        return mStateRaster.mDefault.get();
-    }
-    Font* getDefaultFont() const {
-        return mStateFont.mDefault.get();
-    }
-
-    uint32_t getWidth() const {return mWidth;}
-    uint32_t getHeight() const {return mHeight;}
-
-    uint32_t getCurrentSurfaceWidth() const;
-    uint32_t getCurrentSurfaceHeight() const;
 
     mutable ThreadIO mIO;
 
@@ -194,11 +134,6 @@ public:
         uint32_t line;
     } watchdog;
     static void printWatchdogInfo(void *ctx);
-    void setWatchdogGL(const char *cmd, uint32_t line, const char *file) const {
-        watchdog.command = cmd;
-        watchdog.file = file;
-        watchdog.line = line;
-    }
 
     void dumpDebug() const;
     void setError(RsError e, const char *msg = NULL) const;
@@ -230,11 +165,6 @@ protected:
     pid_t mNativeThreadId;
 
     ObjectBaseRef<Script> mRootScript;
-    ObjectBaseRef<ProgramFragment> mFragment;
-    ObjectBaseRef<ProgramVertex> mVertex;
-    ObjectBaseRef<ProgramStore> mFragmentStore;
-    ObjectBaseRef<ProgramRaster> mRaster;
-    ObjectBaseRef<Font> mFont;
 
     void displayDebugStats();
 

@@ -19,9 +19,6 @@
 #include "rsAdapter.h"
 #include "rs_hal.h"
 
-#include "system/window.h"
-#include "gui/SurfaceTexture.h"
-
 using namespace android;
 using namespace android::renderscript;
 
@@ -64,7 +61,6 @@ void Allocation::updateCache() {
 
 Allocation::~Allocation() {
     freeChildrenUnlocked();
-    setSurfaceTexture(mRSC, NULL);
     mRSC->mHal.funcs.allocation.destroy(mRSC, this);
 }
 
@@ -202,20 +198,6 @@ void Allocation::elementData(Context *rsc, uint32_t x, uint32_t y,
 
     rsc->mHal.funcs.allocation.elementData2D(rsc, this, x, y, data, cIdx, sizeBytes);
     sendDirty(rsc);
-}
-
-void Allocation::addProgramToDirty(const Program *p) {
-    mToDirtyList.push(p);
-}
-
-void Allocation::removeProgramToDirty(const Program *p) {
-    for (size_t ct=0; ct < mToDirtyList.size(); ct++) {
-        if (mToDirtyList[ct] == p) {
-            mToDirtyList.removeAt(ct);
-            return;
-        }
-    }
-    rsAssert(0);
 }
 
 void Allocation::dumpLOGV(const char *prefix) const {
@@ -381,9 +363,6 @@ Allocation *Allocation::createFromStream(Context *rsc, IStream *stream) {
 }
 
 void Allocation::sendDirty(const Context *rsc) const {
-    for (size_t ct=0; ct < mToDirtyList.size(); ct++) {
-        mToDirtyList[ct]->forceDirty();
-    }
     mRSC->mHal.funcs.allocation.markDirty(rsc, this);
 }
 
@@ -435,46 +414,6 @@ void Allocation::resize1D(Context *rsc, uint32_t dimX) {
 void Allocation::resize2D(Context *rsc, uint32_t dimX, uint32_t dimY) {
     ALOGE("not implemented");
 }
-
-int32_t Allocation::getSurfaceTextureID(const Context *rsc) {
-    int32_t id = rsc->mHal.funcs.allocation.initSurfaceTexture(rsc, this);
-    mHal.state.surfaceTextureID = id;
-    return id;
-}
-
-void Allocation::setSurfaceTexture(const Context *rsc, SurfaceTexture *st) {
-    if(st != mHal.state.surfaceTexture) {
-        if(mHal.state.surfaceTexture != NULL) {
-            mHal.state.surfaceTexture->decStrong(NULL);
-        }
-        mHal.state.surfaceTexture = st;
-        if(mHal.state.surfaceTexture != NULL) {
-            mHal.state.surfaceTexture->incStrong(NULL);
-        }
-    }
-}
-
-void Allocation::setSurface(const Context *rsc, RsNativeWindow sur) {
-    ANativeWindow *nw = (ANativeWindow *)sur;
-    ANativeWindow *old = mHal.state.wndSurface;
-    if (nw) {
-        nw->incStrong(NULL);
-    }
-    rsc->mHal.funcs.allocation.setSurfaceTexture(rsc, this, nw);
-    mHal.state.wndSurface = nw;
-    if (old) {
-        old->decStrong(NULL);
-    }
-}
-
-void Allocation::ioSend(const Context *rsc) {
-    rsc->mHal.funcs.allocation.ioSend(rsc, this);
-}
-
-void Allocation::ioReceive(const Context *rsc) {
-    rsc->mHal.funcs.allocation.ioReceive(rsc, this);
-}
-
 
 /////////////////
 //
@@ -632,31 +571,6 @@ void rsi_AllocationCopy2DRange(Context *rsc,
                                            width, height,
                                            src, srcXoff, srcYoff,srcMip,
                                            (RsAllocationCubemapFace)srcFace);
-}
-
-int32_t rsi_AllocationGetSurfaceTextureID(Context *rsc, RsAllocation valloc) {
-    Allocation *alloc = static_cast<Allocation *>(valloc);
-    return alloc->getSurfaceTextureID(rsc);
-}
-
-void rsi_AllocationGetSurfaceTextureID2(Context *rsc, RsAllocation valloc, void *vst, size_t len) {
-    Allocation *alloc = static_cast<Allocation *>(valloc);
-    alloc->setSurfaceTexture(rsc, static_cast<SurfaceTexture *>(vst));
-}
-
-void rsi_AllocationSetSurface(Context *rsc, RsAllocation valloc, RsNativeWindow sur) {
-    Allocation *alloc = static_cast<Allocation *>(valloc);
-    alloc->setSurface(rsc, sur);
-}
-
-void rsi_AllocationIoSend(Context *rsc, RsAllocation valloc) {
-    Allocation *alloc = static_cast<Allocation *>(valloc);
-    alloc->ioSend(rsc);
-}
-
-void rsi_AllocationIoReceive(Context *rsc, RsAllocation valloc) {
-    Allocation *alloc = static_cast<Allocation *>(valloc);
-    alloc->ioReceive(rsc);
 }
 
 }
