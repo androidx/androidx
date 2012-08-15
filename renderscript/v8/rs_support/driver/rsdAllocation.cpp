@@ -24,10 +24,10 @@
 #include "rsAllocation.h"
 
 #include "system/window.h"
-#include "hardware/gralloc.h"
+/*#include "hardware/gralloc.h"
 #include "ui/Rect.h"
 #include "ui/GraphicBufferMapper.h"
-#include "gui/SurfaceTexture.h"
+#include "gui/SurfaceTexture.h"*/
 
 #include <GLES/gl.h>
 #include <GLES2/gl2.h>
@@ -93,141 +93,16 @@ uint8_t *GetOffsetPtr(const android::renderscript::Allocation *alloc,
 static void Update2DTexture(const Context *rsc, const Allocation *alloc, const void *ptr,
                             uint32_t xoff, uint32_t yoff, uint32_t lod,
                             RsAllocationCubemapFace face, uint32_t w, uint32_t h) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-
-    rsAssert(drv->textureID);
-    RSD_CALL_GL(glBindTexture, drv->glTarget, drv->textureID);
-    RSD_CALL_GL(glPixelStorei, GL_UNPACK_ALIGNMENT, 1);
-    GLenum t = GL_TEXTURE_2D;
-    if (alloc->mHal.state.hasFaces) {
-        t = gFaceOrder[face];
-    }
-    RSD_CALL_GL(glTexSubImage2D, t, lod, xoff, yoff, w, h, drv->glFormat, drv->glType, ptr);
 }
 
-
-static void Upload2DTexture(const Context *rsc, const Allocation *alloc, bool isFirstUpload) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-
-    RSD_CALL_GL(glBindTexture, drv->glTarget, drv->textureID);
-    RSD_CALL_GL(glPixelStorei, GL_UNPACK_ALIGNMENT, 1);
-
-    uint32_t faceCount = 1;
-    if (alloc->mHal.state.hasFaces) {
-        faceCount = 6;
-    }
-
-    rsdGLCheckError(rsc, "Upload2DTexture 1 ");
-    for (uint32_t face = 0; face < faceCount; face ++) {
-        for (uint32_t lod = 0; lod < alloc->mHal.state.type->getLODCount(); lod++) {
-            const uint8_t *p = GetOffsetPtr(alloc, 0, 0, lod, (RsAllocationCubemapFace)face);
-
-            GLenum t = GL_TEXTURE_2D;
-            if (alloc->mHal.state.hasFaces) {
-                t = gFaceOrder[face];
-            }
-
-            if (isFirstUpload) {
-                RSD_CALL_GL(glTexImage2D, t, lod, drv->glFormat,
-                             alloc->mHal.state.type->getLODDimX(lod),
-                             alloc->mHal.state.type->getLODDimY(lod),
-                             0, drv->glFormat, drv->glType, p);
-            } else {
-                RSD_CALL_GL(glTexSubImage2D, t, lod, 0, 0,
-                                alloc->mHal.state.type->getLODDimX(lod),
-                                alloc->mHal.state.type->getLODDimY(lod),
-                                drv->glFormat, drv->glType, p);
-            }
-        }
-    }
-
-    if (alloc->mHal.state.mipmapControl == RS_ALLOCATION_MIPMAP_ON_SYNC_TO_TEXTURE) {
-        RSD_CALL_GL(glGenerateMipmap, drv->glTarget);
-    }
-    rsdGLCheckError(rsc, "Upload2DTexture");
-}
 
 static void UploadToTexture(const Context *rsc, const Allocation *alloc) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-
-    if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_IO_INPUT) {
-        if (!drv->textureID) {
-            RSD_CALL_GL(glGenTextures, 1, &drv->textureID);
-        }
-        return;
-    }
-
-    if (!drv->glType || !drv->glFormat) {
-        return;
-    }
-
-    if (!drv->lod[0].mallocPtr) {
-        return;
-    }
-
-    bool isFirstUpload = false;
-
-    if (!drv->textureID) {
-        RSD_CALL_GL(glGenTextures, 1, &drv->textureID);
-        isFirstUpload = true;
-    }
-
-    Upload2DTexture(rsc, alloc, isFirstUpload);
-
-    if (!(alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_SCRIPT)) {
-        if (alloc->mHal.drvState.mallocPtrLOD0) {
-            free(alloc->mHal.drvState.mallocPtrLOD0);
-            alloc->mHal.drvState.mallocPtrLOD0 = NULL;
-            drv->lod[0].mallocPtr = NULL;
-        }
-    }
-    rsdGLCheckError(rsc, "UploadToTexture");
 }
 
 static void AllocateRenderTarget(const Context *rsc, const Allocation *alloc) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-
-    if (!drv->glFormat) {
-        return;
-    }
-
-    if (!drv->renderTargetID) {
-        RSD_CALL_GL(glGenRenderbuffers, 1, &drv->renderTargetID);
-
-        if (!drv->renderTargetID) {
-            // This should generally not happen
-            ALOGE("allocateRenderTarget failed to gen mRenderTargetID");
-            rsc->dumpDebug();
-            return;
-        }
-        RSD_CALL_GL(glBindRenderbuffer, GL_RENDERBUFFER, drv->renderTargetID);
-        RSD_CALL_GL(glRenderbufferStorage, GL_RENDERBUFFER, drv->glFormat,
-                              alloc->mHal.state.dimensionX, alloc->mHal.state.dimensionY);
-    }
-    rsdGLCheckError(rsc, "AllocateRenderTarget");
 }
 
 static void UploadToBufferObject(const Context *rsc, const Allocation *alloc) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-
-    rsAssert(!alloc->mHal.state.type->getDimY());
-    rsAssert(!alloc->mHal.state.type->getDimZ());
-
-    //alloc->mHal.state.usageFlags |= RS_ALLOCATION_USAGE_GRAPHICS_VERTEX;
-
-    if (!drv->bufferID) {
-        RSD_CALL_GL(glGenBuffers, 1, &drv->bufferID);
-    }
-    if (!drv->bufferID) {
-        ALOGE("Upload to buffer object failed");
-        drv->uploadDeferred = true;
-        return;
-    }
-    RSD_CALL_GL(glBindBuffer, drv->glTarget, drv->bufferID);
-    RSD_CALL_GL(glBufferData, drv->glTarget, alloc->mHal.state.type->getSizeBytes(),
-                 alloc->mHal.drvState.mallocPtrLOD0, GL_DYNAMIC_DRAW);
-    RSD_CALL_GL(glBindBuffer, drv->glTarget, 0);
-    rsdGLCheckError(rsc, "UploadToBufferObject");
 }
 
 bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
@@ -366,33 +241,6 @@ void rsdAllocationResize(const Context *rsc, const Allocation *alloc,
 }
 
 static void rsdAllocationSyncFromFBO(const Context *rsc, const Allocation *alloc) {
-    if (!alloc->getIsScript()) {
-        return; // nothing to sync
-    }
-
-    RsdHal *dc = (RsdHal *)rsc->mHal.drv;
-    RsdFrameBufferObj *lastFbo = dc->gl.currentFrameBuffer;
-
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-    if (!drv->textureID && !drv->renderTargetID) {
-        return; // nothing was rendered here yet, so nothing to sync
-    }
-    if (drv->readBackFBO == NULL) {
-        drv->readBackFBO = new RsdFrameBufferObj();
-        drv->readBackFBO->setColorTarget(drv, 0);
-        drv->readBackFBO->setDimensions(alloc->getType()->getDimX(),
-                                        alloc->getType()->getDimY());
-    }
-
-    // Bind the framebuffer object so we can read back from it
-    drv->readBackFBO->setActive(rsc);
-
-    // Do the readback
-    RSD_CALL_GL(glReadPixels, 0, 0, drv->lod[0].dimX, drv->lod[0].dimY,
-                drv->glFormat, drv->glType, drv->lod[0].mallocPtr);
-
-    // Revert framebuffer to its original
-    lastFbo->setActive(rsc);
 }
 
 
@@ -437,114 +285,16 @@ void rsdAllocationMarkDirty(const Context *rsc, const Allocation *alloc) {
 }
 
 int32_t rsdAllocationInitSurfaceTexture(const Context *rsc, const Allocation *alloc) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-    UploadToTexture(rsc, alloc);
-    return drv->textureID;
-}
-
-static bool IoGetBuffer(const Context *rsc, Allocation *alloc, ANativeWindow *nw) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-
-    int32_t r = native_window_dequeue_buffer_and_wait(nw, &drv->wndBuffer);
-    if (r) {
-        rsc->setError(RS_ERROR_DRIVER, "Error getting next IO output buffer.");
-        return false;
-    }
-
-    // Must lock the whole surface
-    GraphicBufferMapper &mapper = GraphicBufferMapper::get();
-    Rect bounds(drv->wndBuffer->width, drv->wndBuffer->height);
-
-    void *dst = NULL;
-    mapper.lock(drv->wndBuffer->handle,
-            GRALLOC_USAGE_SW_READ_NEVER | GRALLOC_USAGE_SW_WRITE_OFTEN,
-            bounds, &dst);
-    drv->lod[0].mallocPtr = dst;
-    alloc->mHal.drvState.mallocPtrLOD0 = dst;
-    drv->lod[0].stride = drv->wndBuffer->stride * alloc->mHal.state.elementSizeBytes;
-
-    return true;
+  return 0;
 }
 
 void rsdAllocationSetSurfaceTexture(const Context *rsc, Allocation *alloc, ANativeWindow *nw) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-
-    //ALOGE("rsdAllocationSetSurfaceTexture %p  %p", alloc, nw);
-
-    if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_GRAPHICS_RENDER_TARGET) {
-        //TODO finish support for render target + script
-        drv->wnd = nw;
-        return;
-    }
-
-
-    // Cleanup old surface if there is one.
-    if (alloc->mHal.state.wndSurface) {
-        ANativeWindow *old = alloc->mHal.state.wndSurface;
-        GraphicBufferMapper &mapper = GraphicBufferMapper::get();
-        mapper.unlock(drv->wndBuffer->handle);
-        old->queueBuffer(old, drv->wndBuffer, -1);
-    }
-
-    if (nw != NULL) {
-        int32_t r;
-        uint32_t flags = 0;
-        if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_SCRIPT) {
-            flags |= GRALLOC_USAGE_SW_READ_RARELY | GRALLOC_USAGE_SW_WRITE_OFTEN;
-        }
-        if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_GRAPHICS_RENDER_TARGET) {
-            flags |= GRALLOC_USAGE_HW_RENDER;
-        }
-
-        r = native_window_set_usage(nw, flags);
-        if (r) {
-            rsc->setError(RS_ERROR_DRIVER, "Error setting IO output buffer usage.");
-            return;
-        }
-
-        r = native_window_set_buffers_dimensions(nw, alloc->mHal.state.dimensionX,
-                                                 alloc->mHal.state.dimensionY);
-        if (r) {
-            rsc->setError(RS_ERROR_DRIVER, "Error setting IO output buffer dimensions.");
-            return;
-        }
-
-        r = native_window_set_buffer_count(nw, 3);
-        if (r) {
-            rsc->setError(RS_ERROR_DRIVER, "Error setting IO output buffer count.");
-            return;
-        }
-
-        IoGetBuffer(rsc, alloc, nw);
-    }
 }
 
 void rsdAllocationIoSend(const Context *rsc, Allocation *alloc) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-    ANativeWindow *nw = alloc->mHal.state.wndSurface;
-
-    if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_GRAPHICS_RENDER_TARGET) {
-        RsdHal *dc = (RsdHal *)rsc->mHal.drv;
-        RSD_CALL_GL(eglSwapBuffers, dc->gl.egl.display, dc->gl.egl.surface);
-        return;
-    }
-
-    if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_SCRIPT) {
-        GraphicBufferMapper &mapper = GraphicBufferMapper::get();
-        mapper.unlock(drv->wndBuffer->handle);
-        int32_t r = nw->queueBuffer(nw, drv->wndBuffer, -1);
-        if (r) {
-            rsc->setError(RS_ERROR_DRIVER, "Error sending IO output buffer.");
-            return;
-        }
-
-        IoGetBuffer(rsc, alloc, nw);
-    }
 }
 
 void rsdAllocationIoReceive(const Context *rsc, Allocation *alloc) {
-    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
-    alloc->mHal.state.surfaceTexture->updateTexImage();
 }
 
 
