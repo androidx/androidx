@@ -29,6 +29,9 @@
 using namespace android;
 using namespace android::renderscript;
 
+static float SC_tgamma(float v) {
+    return float(tgamma((double)v));
+}
 
 static float SC_exp10(float v) {
     return pow(10.f, v);
@@ -584,7 +587,7 @@ float tanh(float x) {
 }
 
 float tgamma(float x) {
-  return tgammaf(x);
+  return SC_tgamma(x);
 }
 
 float trunc(float x) {
@@ -683,7 +686,7 @@ static RsdSymbolTable gSyms[] = {
     { "_Z4sqrtf", (void *)&sqrtf, true },
     { "_Z3tanf", (void *)&tanf, true },
     { "_Z4tanhf", (void *)&tanhf, true },
-    { "_Z6tgammaf", (void *)&tgammaf, true },
+    { "_Z6tgammaf", (void *)&SC_tgamma, true },
     { "_Z5truncf", (void *)&truncf, true },
 
     { "_Z3absi", (void *)&SC_abs_i32, true },
