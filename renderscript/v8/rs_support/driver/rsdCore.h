@@ -22,8 +22,6 @@
 #include "rsMutex.h"
 #include "rsSignal.h"
 
-#include "rsdGL.h"
-
 typedef void (* InvokeFunc_t)(void);
 typedef void (* ForEachFunc_t)(void);
 typedef int (* RootFunc_t)(void);
@@ -64,7 +62,7 @@ typedef struct RsdHalRec {
 
     ScriptTLSStruct mTlsStruct;
 
-    RsdGL gl;
+    //RsdGL gl;
 } RsdHal;
 
 extern pthread_key_t rsdgThreadTLSKey;

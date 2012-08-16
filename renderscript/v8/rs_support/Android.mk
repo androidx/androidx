@@ -16,31 +16,19 @@ LOCAL_SRC_FILES:= \
 	driver/rsdAllocation.cpp \
 	driver/rsdBcc.cpp \
 	driver/rsdCore.cpp \
-	driver/rsdFrameBuffer.cpp \
-	driver/rsdFrameBufferObj.cpp \
-	driver/rsdGL.cpp \
-	driver/rsdMesh.cpp \
-	driver/rsdMeshObj.cpp \
-	driver/rsdPath.cpp \
-	driver/rsdProgram.cpp \
-	driver/rsdProgramRaster.cpp \
-	driver/rsdProgramStore.cpp \
 	driver/rsdRuntimeMath.cpp \
 	driver/rsdRuntimeStubs.cpp \
-	driver/rsdSampler.cpp \
-	driver/rsdShader.cpp \
-	driver/rsdShaderCache.cpp \
-	driver/rsdVertexArray.cpp
+	driver/rsdSampler.cpp
 
-LOCAL_SHARED_LIBRARIES += libcutils libutils libEGL libGLESv1_CM libGLESv2
+LOCAL_SHARED_LIBRARIES += libcutils libutils
 LOCAL_SHARED_LIBRARIES += libbcinfo libgui libsync libdl
 
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 LOCAL_C_INCLUDES += system/core/include
 LOCAL_C_INCLUDES += frameworks/native/include
 LOCAL_C_INCLUDES += external/clang/lib/Headers
-LOCAL_C_INCLUDES += frameworks/native/opengl/include
-LOCAL_C_INCLUDES += hardware/libhardware/include
+#LOCAL_C_INCLUDES += frameworks/native/opengl/include
+#LOCAL_C_INCLUDES += hardware/libhardware/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
@@ -117,38 +105,26 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 LOCAL_SRC_FILES:= \
 	rsAdapter.cpp \
 	rsAllocation.cpp \
-	rsAnimation.cpp \
 	rsComponent.cpp \
 	rsContext.cpp \
 	rsDevice.cpp \
 	rsElement.cpp \
-	rsFBOCache.cpp \
 	rsFifoSocket.cpp \
-	rsFileA3D.cpp \
-	rsFont.cpp \
 	rsObjectBase.cpp \
 	rsMatrix2x2.cpp \
 	rsMatrix3x3.cpp \
 	rsMatrix4x4.cpp \
-	rsMesh.cpp \
 	rsMutex.cpp \
-	rsPath.cpp \
-	rsProgram.cpp \
-	rsProgramFragment.cpp \
-	rsProgramStore.cpp \
-	rsProgramRaster.cpp \
-	rsProgramVertex.cpp \
 	rsSampler.cpp \
 	rsScript.cpp \
 	rsScriptC.cpp \
 	rsScriptC_Lib.cpp \
-	rsScriptC_LibGL.cpp \
 	rsSignal.cpp \
 	rsStream.cpp \
 	rsThreadIO.cpp \
 	rsType.cpp
 
-LOCAL_SHARED_LIBRARIES += libcutils libutils libEGL libGLESv1_CM libGLESv2
+LOCAL_SHARED_LIBRARIES += libcutils libutils
 LOCAL_SHARED_LIBRARIES += libui libbcinfo libgui libsync libdl
 
 LOCAL_STATIC_LIBRARIES := libft2 libRSSupportDriver

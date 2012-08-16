@@ -26,7 +26,7 @@
 #include "rsdBcc.h"
 
 #include "rsdRuntime.h"
-#include "rsdPath.h"
+//#include "rsdPath.h"
 #include "rsdAllocation.h"
 
 #include <time.h>
@@ -108,253 +108,6 @@ static void SC_AllocationCopy2DRange(Allocation *dstAlloc,
                              srcAlloc,
                              srcXoff, srcYoff, srcMip, srcFace);
 }
-
-static void SC_AllocationIoSend(Allocation *alloc) {
-    GET_TLS();
-    rsdAllocationIoSend(rsc, alloc);
-}
-
-
-static void SC_AllocationIoReceive(Allocation *alloc) {
-    GET_TLS();
-    rsdAllocationIoReceive(rsc, alloc);
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Context
-//////////////////////////////////////////////////////////////////////////////
-
-static void SC_BindTexture(ProgramFragment *pf, uint32_t slot, Allocation *a) {
-    GET_TLS();
-    rsrBindTexture(rsc, sc, pf, slot, a);
-}
-
-static void SC_BindVertexConstant(ProgramVertex *pv, uint32_t slot, Allocation *a) {
-    GET_TLS();
-    rsrBindConstant(rsc, sc, pv, slot, a);
-}
-
-static void SC_BindFragmentConstant(ProgramFragment *pf, uint32_t slot, Allocation *a) {
-    GET_TLS();
-    rsrBindConstant(rsc, sc, pf, slot, a);
-}
-
-static void SC_BindSampler(ProgramFragment *pf, uint32_t slot, Sampler *s) {
-    GET_TLS();
-    rsrBindSampler(rsc, sc, pf, slot, s);
-}
-
-static void SC_BindProgramStore(ProgramStore *ps) {
-    GET_TLS();
-    rsrBindProgramStore(rsc, sc, ps);
-}
-
-static void SC_BindProgramFragment(ProgramFragment *pf) {
-    GET_TLS();
-    rsrBindProgramFragment(rsc, sc, pf);
-}
-
-static void SC_BindProgramVertex(ProgramVertex *pv) {
-    GET_TLS();
-    rsrBindProgramVertex(rsc, sc, pv);
-}
-
-static void SC_BindProgramRaster(ProgramRaster *pr) {
-    GET_TLS();
-    rsrBindProgramRaster(rsc, sc, pr);
-}
-
-static void SC_BindFrameBufferObjectColorTarget(Allocation *a, uint32_t slot) {
-    GET_TLS();
-    rsrBindFrameBufferObjectColorTarget(rsc, sc, a, slot);
-}
-
-static void SC_BindFrameBufferObjectDepthTarget(Allocation *a) {
-    GET_TLS();
-    rsrBindFrameBufferObjectDepthTarget(rsc, sc, a);
-}
-
-static void SC_ClearFrameBufferObjectColorTarget(uint32_t slot) {
-    GET_TLS();
-    rsrClearFrameBufferObjectColorTarget(rsc, sc, slot);
-}
-
-static void SC_ClearFrameBufferObjectDepthTarget(Context *, Script *) {
-    GET_TLS();
-    rsrClearFrameBufferObjectDepthTarget(rsc, sc);
-}
-
-static void SC_ClearFrameBufferObjectTargets(Context *, Script *) {
-    GET_TLS();
-    rsrClearFrameBufferObjectTargets(rsc, sc);
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-// VP
-//////////////////////////////////////////////////////////////////////////////
-
-static void SC_VpLoadProjectionMatrix(const rsc_Matrix *m) {
-    GET_TLS();
-    rsrVpLoadProjectionMatrix(rsc, sc, m);
-}
-
-static void SC_VpLoadModelMatrix(const rsc_Matrix *m) {
-    GET_TLS();
-    rsrVpLoadModelMatrix(rsc, sc, m);
-}
-
-static void SC_VpLoadTextureMatrix(const rsc_Matrix *m) {
-    GET_TLS();
-    rsrVpLoadTextureMatrix(rsc, sc, m);
-}
-
-static void SC_PfConstantColor(ProgramFragment *pf, float r, float g, float b, float a) {
-    GET_TLS();
-    rsrPfConstantColor(rsc, sc, pf, r, g, b, a);
-}
-
-static void SC_VpGetProjectionMatrix(rsc_Matrix *m) {
-    GET_TLS();
-    rsrVpGetProjectionMatrix(rsc, sc, m);
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Drawing
-//////////////////////////////////////////////////////////////////////////////
-
-static void SC_DrawQuadTexCoords(float x1, float y1, float z1, float u1, float v1,
-                                 float x2, float y2, float z2, float u2, float v2,
-                                 float x3, float y3, float z3, float u3, float v3,
-                                 float x4, float y4, float z4, float u4, float v4) {
-    GET_TLS();
-    rsrDrawQuadTexCoords(rsc, sc,
-                         x1, y1, z1, u1, v1,
-                         x2, y2, z2, u2, v2,
-                         x3, y3, z3, u3, v3,
-                         x4, y4, z4, u4, v4);
-}
-
-static void SC_DrawQuad(float x1, float y1, float z1,
-                        float x2, float y2, float z2,
-                        float x3, float y3, float z3,
-                        float x4, float y4, float z4) {
-    GET_TLS();
-    rsrDrawQuad(rsc, sc, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4);
-}
-
-static void SC_DrawSpriteScreenspace(float x, float y, float z, float w, float h) {
-    GET_TLS();
-    rsrDrawSpriteScreenspace(rsc, sc, x, y, z, w, h);
-}
-
-static void SC_DrawRect(float x1, float y1, float x2, float y2, float z) {
-    GET_TLS();
-    rsrDrawRect(rsc, sc, x1, y1, x2, y2, z);
-}
-
-static void SC_DrawPath(Path *p) {
-    GET_TLS();
-    //rsrDrawPath(rsc, sc, p);
-    rsdPathDraw(rsc, p);
-}
-
-static void SC_DrawMesh(Mesh *m) {
-    GET_TLS();
-    rsrDrawMesh(rsc, sc, m);
-}
-
-static void SC_DrawMeshPrimitive(Mesh *m, uint32_t primIndex) {
-    GET_TLS();
-    rsrDrawMeshPrimitive(rsc, sc, m, primIndex);
-}
-
-static void SC_DrawMeshPrimitiveRange(Mesh *m, uint32_t primIndex, uint32_t start, uint32_t len) {
-    GET_TLS();
-    rsrDrawMeshPrimitiveRange(rsc, sc, m, primIndex, start, len);
-}
-
-static void SC_MeshComputeBoundingBox(Mesh *m,
-                               float *minX, float *minY, float *minZ,
-                               float *maxX, float *maxY, float *maxZ) {
-    GET_TLS();
-    rsrMeshComputeBoundingBox(rsc, sc, m, minX, minY, minZ, maxX, maxY, maxZ);
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//////////////////////////////////////////////////////////////////////////////
-
-
-static void SC_Color(float r, float g, float b, float a) {
-    GET_TLS();
-    rsrColor(rsc, sc, r, g, b, a);
-}
-
-static void SC_Finish() {
-    GET_TLS();
-    rsdGLFinish(rsc);
-}
-
-static void SC_ClearColor(float r, float g, float b, float a) {
-    GET_TLS();
-    rsrPrepareClear(rsc, sc);
-    rsdGLClearColor(rsc, r, g, b, a);
-}
-
-static void SC_ClearDepth(float v) {
-    GET_TLS();
-    rsrPrepareClear(rsc, sc);
-    rsdGLClearDepth(rsc, v);
-}
-
-static uint32_t SC_GetWidth() {
-    GET_TLS();
-    return rsrGetWidth(rsc, sc);
-}
-
-static uint32_t SC_GetHeight() {
-    GET_TLS();
-    return rsrGetHeight(rsc, sc);
-}
-
-static void SC_DrawTextAlloc(Allocation *a, int x, int y) {
-    GET_TLS();
-    rsrDrawTextAlloc(rsc, sc, a, x, y);
-}
-
-static void SC_DrawText(const char *text, int x, int y) {
-    GET_TLS();
-    rsrDrawText(rsc, sc, text, x, y);
-}
-
-static void SC_MeasureTextAlloc(Allocation *a,
-                         int32_t *left, int32_t *right, int32_t *top, int32_t *bottom) {
-    GET_TLS();
-    rsrMeasureTextAlloc(rsc, sc, a, left, right, top, bottom);
-}
-
-static void SC_MeasureText(const char *text,
-                    int32_t *left, int32_t *right, int32_t *top, int32_t *bottom) {
-    GET_TLS();
-    rsrMeasureText(rsc, sc, text, left, right, top, bottom);
-}
-
-static void SC_BindFont(Font *f) {
-    GET_TLS();
-    rsrBindFont(rsc, sc, f);
-}
-
-static void SC_FontColor(float r, float g, float b, float a) {
-    GET_TLS();
-    rsrFontColor(rsc, sc, r, g, b, a);
-}
-
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -718,8 +471,6 @@ static RsdSymbolTable gSyms[] = {
     { "_Z20rsgAllocationSyncAll13rs_allocationj", (void *)&SC_AllocationSyncAll2, false },
     { "_Z20rsgAllocationSyncAll13rs_allocation24rs_allocation_usage_type", (void *)&SC_AllocationSyncAll2, false },
     { "_Z15rsGetAllocationPKv", (void *)&SC_GetAllocation, true },
-    { "_Z18rsAllocationIoSend13rs_allocation", (void *)&SC_AllocationIoSend, false },
-    { "_Z21rsAllocationIoReceive13rs_allocation", (void *)&SC_AllocationIoReceive, false },
     { "_Z23rsAllocationCopy1DRange13rs_allocationjjjS_jj", (void *)&SC_AllocationCopy1DRange, false },
     { "_Z23rsAllocationCopy2DRange13rs_allocationjjj26rs_allocation_cubemap_facejjS_jjjS0_", (void *)&SC_AllocationCopy2DRange, false },
 
@@ -729,56 +480,6 @@ static RsdSymbolTable gSyms[] = {
     { "_Z14rsSendToClientiPKvj", (void *)&SC_ToClient2, false },
     { "_Z22rsSendToClientBlockingi", (void *)&SC_ToClientBlocking, false },
     { "_Z22rsSendToClientBlockingiPKvj", (void *)&SC_ToClientBlocking2, false },
-
-    { "_Z22rsgBindProgramFragment19rs_program_fragment", (void *)&SC_BindProgramFragment, false },
-    { "_Z19rsgBindProgramStore16rs_program_store", (void *)&SC_BindProgramStore, false },
-    { "_Z20rsgBindProgramVertex17rs_program_vertex", (void *)&SC_BindProgramVertex, false },
-    { "_Z20rsgBindProgramRaster17rs_program_raster", (void *)&SC_BindProgramRaster, false },
-    { "_Z14rsgBindSampler19rs_program_fragmentj10rs_sampler", (void *)&SC_BindSampler, false },
-    { "_Z14rsgBindTexture19rs_program_fragmentj13rs_allocation", (void *)&SC_BindTexture, false },
-    { "_Z15rsgBindConstant19rs_program_fragmentj13rs_allocation", (void *)&SC_BindFragmentConstant, false },
-    { "_Z15rsgBindConstant17rs_program_vertexj13rs_allocation", (void *)&SC_BindVertexConstant, false },
-
-    { "_Z36rsgProgramVertexLoadProjectionMatrixPK12rs_matrix4x4", (void *)&SC_VpLoadProjectionMatrix, false },
-    { "_Z31rsgProgramVertexLoadModelMatrixPK12rs_matrix4x4", (void *)&SC_VpLoadModelMatrix, false },
-    { "_Z33rsgProgramVertexLoadTextureMatrixPK12rs_matrix4x4", (void *)&SC_VpLoadTextureMatrix, false },
-
-    { "_Z35rsgProgramVertexGetProjectionMatrixP12rs_matrix4x4", (void *)&SC_VpGetProjectionMatrix, false },
-
-    { "_Z31rsgProgramFragmentConstantColor19rs_program_fragmentffff", (void *)&SC_PfConstantColor, false },
-
-    { "_Z11rsgGetWidthv", (void *)&SC_GetWidth, false },
-    { "_Z12rsgGetHeightv", (void *)&SC_GetHeight, false },
-
-
-    { "_Z11rsgDrawRectfffff", (void *)&SC_DrawRect, false },
-    { "_Z11rsgDrawQuadffffffffffff", (void *)&SC_DrawQuad, false },
-    { "_Z20rsgDrawQuadTexCoordsffffffffffffffffffff", (void *)&SC_DrawQuadTexCoords, false },
-    { "_Z24rsgDrawSpriteScreenspacefffff", (void *)&SC_DrawSpriteScreenspace, false },
-
-    { "_Z11rsgDrawMesh7rs_mesh", (void *)&SC_DrawMesh, false },
-    { "_Z11rsgDrawMesh7rs_meshj", (void *)&SC_DrawMeshPrimitive, false },
-    { "_Z11rsgDrawMesh7rs_meshjjj", (void *)&SC_DrawMeshPrimitiveRange, false },
-    { "_Z25rsgMeshComputeBoundingBox7rs_meshPfS0_S0_S0_S0_S0_", (void *)&SC_MeshComputeBoundingBox, false },
-
-    { "_Z11rsgDrawPath7rs_path", (void *)&SC_DrawPath, false },
-
-    { "_Z13rsgClearColorffff", (void *)&SC_ClearColor, false },
-    { "_Z13rsgClearDepthf", (void *)&SC_ClearDepth, false },
-
-    { "_Z11rsgDrawTextPKcii", (void *)&SC_DrawText, false },
-    { "_Z11rsgDrawText13rs_allocationii", (void *)&SC_DrawTextAlloc, false },
-    { "_Z14rsgMeasureTextPKcPiS1_S1_S1_", (void *)&SC_MeasureText, false },
-    { "_Z14rsgMeasureText13rs_allocationPiS0_S0_S0_", (void *)&SC_MeasureTextAlloc, false },
-
-    { "_Z11rsgBindFont7rs_font", (void *)&SC_BindFont, false },
-    { "_Z12rsgFontColorffff", (void *)&SC_FontColor, false },
-
-    { "_Z18rsgBindColorTarget13rs_allocationj", (void *)&SC_BindFrameBufferObjectColorTarget, false },
-    { "_Z18rsgBindDepthTarget13rs_allocation", (void *)&SC_BindFrameBufferObjectDepthTarget, false },
-    { "_Z19rsgClearColorTargetj", (void *)&SC_ClearFrameBufferObjectColorTarget, false },
-    { "_Z19rsgClearDepthTargetv", (void *)&SC_ClearFrameBufferObjectDepthTarget, false },
-    { "_Z24rsgClearAllRenderTargetsv", (void *)&SC_ClearFrameBufferObjectTargets, false },
 
     { "_Z9rsForEach9rs_script13rs_allocationS0_", (void *)&SC_ForEach_SAA, true },
     { "_Z9rsForEach9rs_script13rs_allocationS0_PKv", (void *)&SC_ForEach_SAAU, true },
@@ -792,10 +493,6 @@ static RsdSymbolTable gSyms[] = {
     { "_Z14rsUptimeMillisv", (void*)&SC_UptimeMillis, true },
     { "_Z13rsUptimeNanosv", (void*)&SC_UptimeNanos, true },
     { "_Z7rsGetDtv", (void*)&SC_GetDt, false },
-
-    // misc
-    { "_Z5colorffff", (void *)&SC_Color, false },
-    { "_Z9rsgFinishv", (void *)&SC_Finish, false },
 
     // Debug
     { "_Z7rsDebugPKcf", (void *)&SC_debugF, true },

@@ -67,18 +67,6 @@ void ScriptC::setupScript(Context *rsc) {
 }
 
 void ScriptC::setupGLState(Context *rsc) {
-    if (mEnviroment.mFragmentStore.get()) {
-        rsc->setProgramStore(mEnviroment.mFragmentStore.get());
-    }
-    if (mEnviroment.mFragment.get()) {
-        rsc->setProgramFragment(mEnviroment.mFragment.get());
-    }
-    if (mEnviroment.mVertex.get()) {
-        rsc->setProgramVertex(mEnviroment.mVertex.get());
-    }
-    if (mEnviroment.mRaster.get()) {
-        rsc->setProgramRaster(mEnviroment.mRaster.get());
-    }
 }
 
 uint32_t ScriptC::run(Context *rsc) {
@@ -216,10 +204,6 @@ bool ScriptC::runCompiler(Context *rsc,
     }
 
     mInitialized = true;
-    mEnviroment.mFragment.set(rsc->getDefaultProgramFragment());
-    mEnviroment.mVertex.set(rsc->getDefaultProgramVertex());
-    mEnviroment.mFragmentStore.set(rsc->getDefaultProgramStore());
-    mEnviroment.mRaster.set(rsc->getDefaultProgramRaster());
 
     rsc->mHal.funcs.script.invokeInit(rsc, this);
 
@@ -232,54 +216,6 @@ bool ScriptC::runCompiler(Context *rsc,
                 continue;
             }
             ALOGE("Invalid version pragma value: %s\n", value);
-            return false;
-        }
-
-        if (!strcmp(key, "stateVertex")) {
-            if (!strcmp(value, "default")) {
-                continue;
-            }
-            if (!strcmp(value, "parent")) {
-                mEnviroment.mVertex.clear();
-                continue;
-            }
-            ALOGE("Unrecognized value %s passed to stateVertex", value);
-            return false;
-        }
-
-        if (!strcmp(key, "stateRaster")) {
-            if (!strcmp(value, "default")) {
-                continue;
-            }
-            if (!strcmp(value, "parent")) {
-                mEnviroment.mRaster.clear();
-                continue;
-            }
-            ALOGE("Unrecognized value %s passed to stateRaster", value);
-            return false;
-        }
-
-        if (!strcmp(key, "stateFragment")) {
-            if (!strcmp(value, "default")) {
-                continue;
-            }
-            if (!strcmp(value, "parent")) {
-                mEnviroment.mFragment.clear();
-                continue;
-            }
-            ALOGE("Unrecognized value %s passed to stateFragment", value);
-            return false;
-        }
-
-        if (!strcmp(key, "stateStore")) {
-            if (!strcmp(value, "default")) {
-                continue;
-            }
-            if (!strcmp(value, "parent")) {
-                mEnviroment.mFragmentStore.clear();
-                continue;
-            }
-            ALOGE("Unrecognized value %s passed to stateStore", value);
             return false;
         }
     }
