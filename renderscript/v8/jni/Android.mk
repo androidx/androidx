@@ -8,7 +8,7 @@ LOCAL_SHARED_LIBRARIES := \
         libandroid_runtime \
         libandroidfw \
         libnativehelper \
-        libRS \
+        libRSSupport \
         libcutils \
         libskia \
         libutils \
@@ -17,7 +17,7 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_STATIC_LIBRARIES :=
 
-rs_generated_include_dir := $(call intermediates-dir-for,SHARED_LIBRARIES,libRS,,)
+rs_generated_include_dir := $(call intermediates-dir-for,SHARED_LIBRARIES,libRSSupport,,)
 
 LOCAL_C_INCLUDES += \
 	$(JNI_H_INCLUDE) \
@@ -32,6 +32,6 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(addprefix $(rs_generated_include_dir)/,rsgApi
 LOCAL_MODULE:= librsjni
 LOCAL_ADDITIONAL_DEPENDENCIES += $(rs_generated_source)
 LOCAL_MODULE_TAGS := optional
-LOCAL_REQUIRED_MODULES := libRS
+LOCAL_REQUIRED_MODULES := libRSSupport
 
 include $(BUILD_SHARED_LIBRARY)

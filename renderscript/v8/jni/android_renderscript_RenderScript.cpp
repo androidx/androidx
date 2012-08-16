@@ -804,16 +804,6 @@ exit:
 // ---------------------------------------------------------------------------
 
 static jint
-nProgramRasterCreate(JNIEnv *_env, jobject _this, RsContext con, jboolean pointSprite, jint cull)
-{
-    LOG_API("nProgramRasterCreate, con(%p), pointSprite(%i), cull(%i)", con, pointSprite, cull);
-    return (jint)rsProgramRasterCreate(con, pointSprite, (RsCullMode)cull);
-}
-
-
-// ---------------------------------------------------------------------------
-
-static jint
 nSamplerCreate(JNIEnv *_env, jobject _this, RsContext con, jint magFilter, jint minFilter,
                jint wrapS, jint wrapT, jint wrapR, jfloat aniso)
 {
