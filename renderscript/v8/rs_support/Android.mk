@@ -1,7 +1,8 @@
 
 LOCAL_PATH:=$(call my-dir)
-
-rs_base_CFLAGS := -Werror -Wall -Wno-unused-parameter -Wno-unused-variable
+rs_base_CFLAGS := -Werror -Wall -Wno-unused-parameter -Wno-unused-variable \
+		  -Wno-overloaded-virtual
+rs_base_CFLAGS += -include system/core/include/arch/linux-arm/AndroidConfig.h
 ifeq ($(TARGET_BUILD_PDK), true)
   rs_base_CFLAGS += -D__RS_PDK__
 endif
@@ -39,6 +40,7 @@ LOCAL_C_INCLUDES += system/core/include
 LOCAL_C_INCLUDES += frameworks/native/include
 LOCAL_C_INCLUDES += external/clang/lib/Headers
 LOCAL_C_INCLUDES += frameworks/native/opengl/include
+LOCAL_C_INCLUDES += hardware/libhardware/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
@@ -151,8 +153,13 @@ LOCAL_SHARED_LIBRARIES += libui libbcinfo libgui libsync libdl
 
 LOCAL_STATIC_LIBRARIES := libft2 libRSSupportDriver
 
+LOCAL_C_INCLUDES += system/core/include
+LOCAL_C_INCLUDES += frameworks/native/include
+LOCAL_C_INCLUDES += external/clang/lib/Headers
 LOCAL_C_INCLUDES += external/freetype/include
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
+LOCAL_C_INCLUDES += frameworks/native/opengl/include
+LOCAL_C_INCLUDES += hardware/libhardware/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
@@ -161,4 +168,5 @@ LOCAL_MODULE:= libRSSupport
 LOCAL_SDK_VERSION := 8
 LOCAL_MODULE_TAGS := optional
 
+$(info SH_my_target_global_cflags: $(my_target_global_cflags))
 include $(BUILD_SHARED_LIBRARY)
