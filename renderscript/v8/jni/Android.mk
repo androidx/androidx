@@ -6,14 +6,10 @@ LOCAL_SRC_FILES:= \
 
 LOCAL_SHARED_LIBRARIES := \
         libandroid_runtime \
-        libandroidfw \
-        libnativehelper \
         libRSSupport \
         libcutils \
         libskia \
-        libutils \
-        libui \
-        libgui
+        libutils
 
 LOCAL_STATIC_LIBRARIES :=
 

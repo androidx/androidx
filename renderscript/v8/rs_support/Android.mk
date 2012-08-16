@@ -7,44 +7,6 @@ ifeq ($(TARGET_BUILD_PDK), true)
   rs_base_CFLAGS += -D__RS_PDK__
 endif
 
-# Set bogus (14) SDK version if we are not on ARM. The library only needs to
-# be built for ARM (with proper API 8 dependencies).
-ifeq ($(TARGET_ARCH),arm)
-rs_base_SDK_VERSION := 8
-else
-rs_base_SDK_VERSION := 14
-endif
-
-include $(CLEAR_VARS)
-LOCAL_CLANG := true
-LOCAL_MODULE := libRSSupportDriver
-LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
-
-LOCAL_SRC_FILES:= \
-	driver/rsdAllocation.cpp \
-	driver/rsdBcc.cpp \
-	driver/rsdCore.cpp \
-	driver/rsdRuntimeMath.cpp \
-	driver/rsdRuntimeStubs.cpp \
-	driver/rsdSampler.cpp
-
-LOCAL_SHARED_LIBRARIES += libcutils libutils
-LOCAL_SHARED_LIBRARIES += libbcinfo libgui libsync libdl
-
-LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
-LOCAL_C_INCLUDES += system/core/include
-LOCAL_C_INCLUDES += frameworks/native/include
-LOCAL_C_INCLUDES += external/clang/lib/Headers
-#LOCAL_C_INCLUDES += frameworks/native/opengl/include
-#LOCAL_C_INCLUDES += hardware/libhardware/include
-
-LOCAL_CFLAGS += $(rs_base_CFLAGS)
-
-LOCAL_LDLIBS := -lpthread -ldl -lm
-LOCAL_MODULE_TAGS := optional
-
-include $(BUILD_STATIC_LIBRARY)
-
 # Build rsg-generator ====================
 include $(CLEAR_VARS)
 
@@ -130,20 +92,21 @@ LOCAL_SRC_FILES:= \
 	rsSignal.cpp \
 	rsStream.cpp \
 	rsThreadIO.cpp \
-	rsType.cpp
+	rsType.cpp \
+	driver/rsdAllocation.cpp \
+	driver/rsdBcc.cpp \
+	driver/rsdCore.cpp \
+	driver/rsdRuntimeMath.cpp \
+	driver/rsdRuntimeStubs.cpp \
+	driver/rsdSampler.cpp
 
-LOCAL_SHARED_LIBRARIES += libcutils libutils
-LOCAL_SHARED_LIBRARIES += libui libbcinfo libgui libsync libdl
 
-LOCAL_STATIC_LIBRARIES := libft2 libRSSupportDriver
+LOCAL_SHARED_LIBRARIES += libcutils libutils libbcinfo libdl
 
 LOCAL_C_INCLUDES += system/core/include
 LOCAL_C_INCLUDES += frameworks/native/include
 LOCAL_C_INCLUDES += external/clang/lib/Headers
-LOCAL_C_INCLUDES += external/freetype/include
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
-LOCAL_C_INCLUDES += frameworks/native/opengl/include
-LOCAL_C_INCLUDES += hardware/libhardware/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
