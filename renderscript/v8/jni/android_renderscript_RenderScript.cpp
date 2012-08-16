@@ -166,29 +166,6 @@ nContextCreate(JNIEnv *_env, jobject _this, jint dev, jint ver, jint sdkVer)
     return (jint)rsContextCreate((RsDevice)dev, ver, sdkVer);
 }
 
-static jint
-nContextCreateGL(JNIEnv *_env, jobject _this, jint dev, jint ver, jint sdkVer,
-                 int colorMin, int colorPref,
-                 int alphaMin, int alphaPref,
-                 int depthMin, int depthPref,
-                 int stencilMin, int stencilPref,
-                 int samplesMin, int samplesPref, float samplesQ,
-                 int dpi)
-{
-    RsSurfaceConfig sc;
-    sc.alphaMin = alphaMin;
-    sc.alphaPref = alphaPref;
-    sc.colorMin = colorMin;
-    sc.colorPref = colorPref;
-    sc.depthMin = depthMin;
-    sc.depthPref = depthPref;
-    sc.samplesMin = samplesMin;
-    sc.samplesPref = samplesPref;
-    sc.samplesQ = samplesQ;
-
-    LOG_API("nContextCreateGL");
-    return (jint)rsContextCreateGL((RsDevice)dev, ver, sdkVer, sc, dpi);
-}
 
 static void
 nContextSetPriority(JNIEnv *_env, jobject _this, RsContext con, jint p)
