@@ -8,8 +8,7 @@ LOCAL_SHARED_LIBRARIES := \
         libandroid_runtime \
         libRSSupport \
         libcutils \
-        libskia \
-        libutils
+        libjnigraphics
 
 LOCAL_STATIC_LIBRARIES :=
 
@@ -18,8 +17,7 @@ rs_generated_include_dir := $(call intermediates-dir-for,SHARED_LIBRARIES,libRSS
 LOCAL_C_INCLUDES += \
 	$(JNI_H_INCLUDE) \
 	frameworks/rs \
-	$(rs_generated_include_dir) \
-	$(call include-path-for, corecg graphics)
+	$(rs_generated_include_dir)
 
 LOCAL_CFLAGS +=
 

@@ -22,29 +22,12 @@
 #include <unistd.h>
 #include <math.h>
 #include <utils/misc.h>
-
-#include <core/SkBitmap.h>
-#include <core/SkPixelRef.h>
-#include <core/SkStream.h>
-#include <core/SkTemplates.h>
-#include <images/SkImageDecoder.h>
-
-#include <androidfw/Asset.h>
-#include <androidfw/AssetManager.h>
-#include <androidfw/ResourceTypes.h>
-
+#include <android/bitmap.h>
 #include "jni.h"
 #include "JNIHelp.h"
 #include "android_runtime/AndroidRuntime.h"
-#include "android_runtime/android_view_Surface.h"
-#include "android_runtime/android_util_AssetManager.h"
-
 #include <rs.h>
 #include <rsEnv.h>
-#include <gui/Surface.h>
-#include <gui/SurfaceTexture.h>
-#include <gui/SurfaceTextureClient.h>
-#include <android_runtime/android_graphics_SurfaceTexture.h>
 
 //#define LOG_API ALOG
 #define LOG_API(...)
@@ -352,73 +335,84 @@ nAllocationGenerateMipmaps(JNIEnv *_env, jobject _this, RsContext con, jint allo
     rsAllocationGenerateMipmaps(con, (RsAllocation)alloc);
 }
 
+static size_t GetBitmapSize(JNIEnv *env, jobject jbitmap) {
+    AndroidBitmapInfo info;
+    memset(&info, 0, sizeof(info));
+    AndroidBitmap_getInfo(env, jbitmap, &info);
+    size_t s = info.width * info.height;
+    switch (info.format) {
+        case ANDROID_BITMAP_FORMAT_RGBA_8888: s *= 4; break;
+        case ANDROID_BITMAP_FORMAT_RGB_565: s *= 2; break;
+        case ANDROID_BITMAP_FORMAT_RGBA_4444: s *= 2; break;
+    }
+    return s;
+}
+
 static int
 nAllocationCreateFromBitmap(JNIEnv *_env, jobject _this, RsContext con, jint type, jint mip, jobject jbitmap, jint usage)
 {
-    SkBitmap const * nativeBitmap =
-            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
-    const SkBitmap& bitmap(*nativeBitmap);
+    void *pixels = NULL;
+    AndroidBitmap_lockPixels(_env, jbitmap, &pixels);
 
-    bitmap.lockPixels();
-    const void* ptr = bitmap.getPixels();
-    jint id = (jint)rsAllocationCreateFromBitmap(con,
-                                                  (RsType)type, (RsAllocationMipmapControl)mip,
-                                                  ptr, bitmap.getSize(), usage);
-    bitmap.unlockPixels();
+    jint id = 0;
+    if (pixels != NULL) {
+        id = (jint)rsAllocationCreateFromBitmap(con, (RsType)type,
+                                                (RsAllocationMipmapControl)mip, pixels,
+                                                GetBitmapSize(_env, jbitmap), usage);
+        AndroidBitmap_unlockPixels(_env, jbitmap);
+    }
     return id;
 }
 
 static int
 nAllocationCubeCreateFromBitmap(JNIEnv *_env, jobject _this, RsContext con, jint type, jint mip, jobject jbitmap, jint usage)
 {
-    SkBitmap const * nativeBitmap =
-            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
-    const SkBitmap& bitmap(*nativeBitmap);
+    void *pixels = NULL;
+    AndroidBitmap_lockPixels(_env, jbitmap, &pixels);
 
-    bitmap.lockPixels();
-    const void* ptr = bitmap.getPixels();
-    jint id = (jint)rsAllocationCubeCreateFromBitmap(con,
-                                                      (RsType)type, (RsAllocationMipmapControl)mip,
-                                                      ptr, bitmap.getSize(), usage);
-    bitmap.unlockPixels();
+    jint id = 0;
+    if (pixels != NULL) {
+        id = (jint)rsAllocationCubeCreateFromBitmap(con,
+                                                    (RsType)type, (RsAllocationMipmapControl)mip,
+                                                    pixels, GetBitmapSize(_env, jbitmap), usage);
+        AndroidBitmap_unlockPixels(_env, jbitmap);
+    }
     return id;
 }
 
 static void
 nAllocationCopyFromBitmap(JNIEnv *_env, jobject _this, RsContext con, jint alloc, jobject jbitmap)
 {
-    SkBitmap const * nativeBitmap =
-            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
-    const SkBitmap& bitmap(*nativeBitmap);
-    int w = bitmap.width();
-    int h = bitmap.height();
+    AndroidBitmapInfo info;
+    memset(&info, 0, sizeof(info));
+    AndroidBitmap_getInfo(_env, jbitmap, &info);
 
-    bitmap.lockPixels();
-    const void* ptr = bitmap.getPixels();
-    rsAllocation2DData(con, (RsAllocation)alloc, 0, 0,
-                       0, RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X,
-                       w, h, ptr, bitmap.getSize());
-    bitmap.unlockPixels();
+    void *pixels = NULL;
+    AndroidBitmap_lockPixels(_env, jbitmap, &pixels);
+
+    if (pixels != NULL) {
+        rsAllocation2DData(con, (RsAllocation)alloc, 0, 0,
+                           0, RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X,
+                           info.width, info.height, pixels, GetBitmapSize(_env, jbitmap));
+        AndroidBitmap_unlockPixels(_env, jbitmap);
+    }
 }
 
 static void
 nAllocationCopyToBitmap(JNIEnv *_env, jobject _this, RsContext con, jint alloc, jobject jbitmap)
 {
-    SkBitmap const * nativeBitmap =
-            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
-    const SkBitmap& bitmap(*nativeBitmap);
+    AndroidBitmapInfo info;
+    memset(&info, 0, sizeof(info));
+    AndroidBitmap_getInfo(_env, jbitmap, &info);
 
-    bitmap.lockPixels();
-    void* ptr = bitmap.getPixels();
-    rsAllocationCopyToBitmap(con, (RsAllocation)alloc, ptr, bitmap.getSize());
-    bitmap.unlockPixels();
-    bitmap.notifyPixelsChanged();
-}
+    void *pixels = NULL;
+    AndroidBitmap_lockPixels(_env, jbitmap, &pixels);
 
-static void ReleaseBitmapCallback(void *bmp)
-{
-    SkBitmap const * nativeBitmap = (SkBitmap const *)bmp;
-    nativeBitmap->unlockPixels();
+    if (pixels != NULL) {
+        rsAllocationCopyToBitmap(con, (RsAllocation)alloc, pixels, GetBitmapSize(_env, jbitmap));
+        AndroidBitmap_unlockPixels(_env, jbitmap);
+    }
+    //bitmap.notifyPixelsChanged();
 }
 
 
