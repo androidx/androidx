@@ -7,10 +7,18 @@ ifeq ($(TARGET_BUILD_PDK), true)
   rs_base_CFLAGS += -D__RS_PDK__
 endif
 
+# Set bogus (14) SDK version if we are not on ARM. The library only needs to
+# be built for ARM (with proper API 8 dependencies).
+ifeq ($(TARGET_ARCH),arm)
+rs_base_SDK_VERSION := 8
+else
+rs_base_SDK_VERSION := 14
+endif
+
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupportDriver
-LOCAL_SDK_VERSION := 8
+LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
 
 LOCAL_SRC_FILES:= \
 	driver/rsdAllocation.cpp \
@@ -62,7 +70,7 @@ RSG_GENERATOR_SUPPORT:=$(LOCAL_BUILT_MODULE)
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupport
-LOCAL_SDK_VERSION := 8
+LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
 
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 intermediates:= $(local-intermediates-dir)
@@ -141,8 +149,7 @@ LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
 LOCAL_LDLIBS := -lpthread -ldl -lm
 LOCAL_MODULE:= libRSSupport
-LOCAL_SDK_VERSION := 8
+LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
 LOCAL_MODULE_TAGS := optional
 
-$(info SH_my_target_global_cflags: $(my_target_global_cflags))
 include $(BUILD_SHARED_LIBRARY)
