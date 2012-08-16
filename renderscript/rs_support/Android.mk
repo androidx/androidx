@@ -9,6 +9,7 @@ endif
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupportDriver
+LOCAL_SDK_VERSION := 8
 
 LOCAL_SRC_FILES:= \
 	driver/rsdAllocation.cpp \
@@ -34,6 +35,10 @@ LOCAL_SHARED_LIBRARIES += libcutils libutils libEGL libGLESv1_CM libGLESv2
 LOCAL_SHARED_LIBRARIES += libbcinfo libgui libsync libdl
 
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
+LOCAL_C_INCLUDES += system/core/include
+LOCAL_C_INCLUDES += frameworks/native/include
+LOCAL_C_INCLUDES += external/clang/lib/Headers
+LOCAL_C_INCLUDES += frameworks/native/opengl/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
@@ -67,6 +72,7 @@ RSG_GENERATOR_SUPPORT:=$(LOCAL_BUILT_MODULE)
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupport
+LOCAL_SDK_VERSION := 8
 
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 intermediates:= $(local-intermediates-dir)
@@ -152,6 +158,7 @@ LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
 LOCAL_LDLIBS := -lpthread -ldl -lm
 LOCAL_MODULE:= libRSSupport
+LOCAL_SDK_VERSION := 8
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)
