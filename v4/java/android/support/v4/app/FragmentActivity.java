@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +33,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 
 import java.io.FileDescriptor;
@@ -633,6 +635,95 @@ public class FragmentActivity extends Activity {
             mLoaderManager.dump(prefix + "  ", fd, writer, args);
         }
         mFragments.dump(prefix, fd, writer, args);
+        writer.print(prefix); writer.println("View Hierarchy:");
+        dumpViewHierarchy(prefix + "  ", writer, getWindow().getDecorView());
+    }
+
+    private static String viewToString(View view) {
+        StringBuilder out = new StringBuilder(128);
+        out.append(view.getClass().getName());
+        out.append('{');
+        out.append(Integer.toHexString(System.identityHashCode(view)));
+        out.append(' ');
+        switch (view.getVisibility()) {
+            case View.VISIBLE: out.append('V'); break;
+            case View.INVISIBLE: out.append('I'); break;
+            case View.GONE: out.append('G'); break;
+            default: out.append('.'); break;
+        }
+        out.append(view.isFocusable() ? 'F' : '.');
+        out.append(view.isEnabled() ? 'E' : '.');
+        out.append(view.willNotDraw() ? '.' : 'D');
+        out.append(view.isHorizontalScrollBarEnabled()? 'H' : '.');
+        out.append(view.isVerticalScrollBarEnabled() ? 'V' : '.');
+        out.append(view.isClickable() ? 'C' : '.');
+        out.append(view.isLongClickable() ? 'L' : '.');
+        out.append(' ');
+        out.append(view.isFocused() ? 'F' : '.');
+        out.append(view.isSelected() ? 'S' : '.');
+        out.append(view.isPressed() ? 'P' : '.');
+        out.append(' ');
+        out.append(view.getLeft());
+        out.append(',');
+        out.append(view.getTop());
+        out.append('-');
+        out.append(view.getRight());
+        out.append(',');
+        out.append(view.getBottom());
+        final int id = view.getId();
+        if (id != View.NO_ID) {
+            out.append(" #");
+            out.append(Integer.toHexString(id));
+            final Resources r = view.getResources();
+            if (id != 0 && r != null) {
+                try {
+                    String pkgname;
+                    switch (id&0xff000000) {
+                        case 0x7f000000:
+                            pkgname="app";
+                            break;
+                        case 0x01000000:
+                            pkgname="android";
+                            break;
+                        default:
+                            pkgname = r.getResourcePackageName(id);
+                            break;
+                    }
+                    String typename = r.getResourceTypeName(id);
+                    String entryname = r.getResourceEntryName(id);
+                    out.append(" ");
+                    out.append(pkgname);
+                    out.append(":");
+                    out.append(typename);
+                    out.append("/");
+                    out.append(entryname);
+                } catch (Resources.NotFoundException e) {
+                }
+            }
+        }
+        out.append("}");
+        return out.toString();
+    }
+
+    private void dumpViewHierarchy(String prefix, PrintWriter writer, View view) {
+        writer.print(prefix);
+        if (view == null) {
+            writer.println("null");
+            return;
+        }
+        writer.println(viewToString(view));
+        if (!(view instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup grp = (ViewGroup)view;
+        final int N = grp.getChildCount();
+        if (N <= 0) {
+            return;
+        }
+        prefix = prefix + "  ";
+        for (int i=0; i<N; i++) {
+            dumpViewHierarchy(prefix, writer, grp.getChildAt(i));
+        }
     }
 
     void doReallyStop(boolean retaining) {
