@@ -17,77 +17,14 @@ LOCAL_PATH := $(call my-dir)
 # Note: the source code is in java/, not src/, because this code is also part of
 # the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
 
-# include $(CLEAR_VARS)
-# LOCAL_MODULE := android-support-appcompat-res
-# LOCAL_SDK_VERSION := current
-# LOCAL_SRC_FILES := $(call all-java-files-under, res-stub)
-# LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-# LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
-# include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# include $(CLEAR_VARS)
-# LOCAL_MODULE := android-support-appcompat-eclair
-# LOCAL_SDK_VERSION := 7
-# LOCAL_SRC_FILES := \
-#      $(call all-java-files-under, eclair)
-# LOCAL_STATIC_JAVA_LIBRARIES += \
-#         android-support-v4 \
-# 				android-support-appcompat-res
-# LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
-# include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# include $(CLEAR_VARS)
-# LOCAL_MODULE := android-support-appcompat-honeycomb
-# LOCAL_SDK_VERSION := 11
-# LOCAL_SRC_FILES := \
-#      $(call all-java-files-under, honeycomb)
-# LOCAL_STATIC_JAVA_LIBRARIES += \
-#         android-support-appcompat-eclair
-# LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
-# include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# include $(CLEAR_VARS)
-# LOCAL_MODULE := android-support-appcompat-ics
-# LOCAL_SDK_VERSION := 14
-# LOCAL_SRC_FILES := \
-#      $(call all-java-files-under, ics)
-# LOCAL_STATIC_JAVA_LIBRARIES += \
-# 				android-support-appcompat-honeycomb
-# LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
-# include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# include $(CLEAR_VARS)
-# LOCAL_MODULE := android-support-appcompat
-# LOCAL_SDK_VERSION := 7
-# LOCAL_SRC_FILES := \
-#      $(call all-java-files-under, java)
-# LOCAL_STATIC_JAVA_LIBRARIES += \
-#         android-support-appcompat-ics
-# LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
-# include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# # Include this library in the build server's output directory
-# $(call dist-for-goals, droidcore sdk, $(LOCAL_BUILT_MODULE):android-support-appcompat.jar)
-
-
-# A helper sub-library that provides resources.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-appcompat-res
-LOCAL_SDK_VERSION := 7
-LOCAL_SRC_FILES := $(call all-java-files-under, res-stub)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
 # A helper sub-library that makes direct use of Eclair APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-appcompat-eclair
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, eclair)
 LOCAL_STATIC_JAVA_LIBRARIES += \
-        android-support-appcopmat-res
+        android-support-appcompat-res
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -99,7 +36,7 @@ LOCAL_MODULE := android-support-appcopmat
 LOCAL_SDK_VERSION := 4
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
 LOCAL_STATIC_JAVA_LIBRARIES += \
-        android-support-appcopmat-eclair
+        android-support-appcompat-eclair
 LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
 include $(BUILD_STATIC_JAVA_LIBRARY)
 

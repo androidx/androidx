@@ -50,8 +50,6 @@
         <item name="dropdownListPreferredItemHeight">64dip</item>
         <!-- TODO(trevorjohns): The item below doesn't work. -->
         <!-- <item name="popupMenuStyle">@android:style/Widget.PopupMenu</item> -->
-
-
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
@@ -127,7 +125,8 @@
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
-        <item name="actionDropDownStyle">@android:style/Widget.Spinner.DropDown</item>
+        <!-- TODO(trevorjohns): Does not exist on API < 11. -->
+        <!-- <item name="actionDropDownStyle">@android:style/Widget_Spinner_DropDown</item> -->
     </style>
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
