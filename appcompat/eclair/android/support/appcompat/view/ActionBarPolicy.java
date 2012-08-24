@@ -21,8 +21,6 @@ import android.support.appcompat.R;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.os.Build;
-import android.view.ViewConfiguration;
 
 /**
  * Allows components to query for various configuration policy decisions
@@ -44,7 +42,9 @@ public class ActionBarPolicy {
   }
 
   public boolean showsOverflowMenuButton() {
-    return !ViewConfiguration.get(mContext).hasPermanentMenuKey();
+    // Permanent menu key is always present on pre-HC devices
+    // return !ViewConfiguration.get(mContext).hasPermanentMenuKey();
+    return false;
   }
 
   public int getEmbeddedMenuWidthLimit() {
@@ -80,8 +80,7 @@ public class ActionBarPolicy {
   public boolean enableHomeButtonByDefault() {
     // Older apps get the home button interaction enabled by default.
     // Newer apps need to enable it explicitly.
-    return mContext.getApplicationInfo().targetSdkVersion <
-        Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    return mContext.getApplicationInfo().targetSdkVersion < 14; // ICE_CREAM_SANDWICH
   }
 
   public int getStackedTabMaxWidth() {
