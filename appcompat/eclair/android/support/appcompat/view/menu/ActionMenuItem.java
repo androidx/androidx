@@ -19,10 +19,10 @@ package android.support.appcompat.view.menu;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.view.ActionProvider;
+import android.support.appcompat.view.ActionProvider;
+import android.support.appcompat.view.MenuItem;
+import android.support.appcompat.view.SubMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 
 /**
