@@ -160,27 +160,6 @@ public class ActionMenuItemView extends TextView
     updateTextButtonVisibility();
   }
 
-  @Override
-  public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-    onPopulateAccessibilityEvent(event);
-    return true;
-  }
-
-  @Override
-  public void onPopulateAccessibilityEvent(AccessibilityEvent event) {
-    super.onPopulateAccessibilityEvent(event);
-    final CharSequence cdesc = getContentDescription();
-    if (!TextUtils.isEmpty(cdesc)) {
-      event.getText().add(cdesc);
-    }
-  }
-
-  @Override
-  public boolean dispatchHoverEvent(MotionEvent event) {
-    // Don't allow children to hover; we want this to be treated as a single component.
-    return onHoverEvent(event);
-  }
-
   public boolean showsIcon() {
     return true;
   }
