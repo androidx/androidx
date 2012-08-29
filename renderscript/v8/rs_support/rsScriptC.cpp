@@ -19,11 +19,6 @@
 #include "utils/Timers.h"
 #include "utils/StopWatch.h"
 
-#ifndef ANDROID_RS_SERIALIZE
-#include <bcinfo/BitcodeTranslator.h>
-#include <bcinfo/BitcodeWrapper.h>
-#endif
-
 using namespace android;
 using namespace android::renderscript;
 
@@ -33,18 +28,9 @@ using namespace android::renderscript;
     ScriptC * sc = (ScriptC *) tls->mScript
 
 ScriptC::ScriptC(Context *rsc) : Script(rsc) {
-#ifndef ANDROID_RS_SERIALIZE
-    BT = NULL;
-#endif
 }
 
 ScriptC::~ScriptC() {
-#ifndef ANDROID_RS_SERIALIZE
-    if (BT) {
-        delete BT;
-        BT = NULL;
-    }
-#endif
     if (mInitialized) {
         mRSC->mHal.funcs.script.invokeFreeChildren(mRSC, this);
         mRSC->mHal.funcs.script.destroy(mRSC, this);
@@ -166,38 +152,6 @@ bool ScriptC::runCompiler(Context *rsc,
                           size_t bitcodeLen) {
 
     //ALOGE("runCompiler %p %p %p %p %p %i", rsc, this, resName, cacheDir, bitcode, bitcodeLen);
-#ifndef ANDROID_RS_SERIALIZE
-    uint32_t sdkVersion = 0;
-    bcinfo::BitcodeWrapper bcWrapper((const char *)bitcode, bitcodeLen);
-    if (!bcWrapper.unwrap()) {
-        ALOGE("Bitcode is not in proper container format (raw or wrapper)");
-        return false;
-    }
-
-    if (bcWrapper.getBCFileType() == bcinfo::BC_WRAPPER) {
-        sdkVersion = bcWrapper.getTargetAPI();
-    }
-
-    if (sdkVersion == 0) {
-        // This signals that we didn't have a wrapper containing information
-        // about the bitcode.
-        sdkVersion = rsc->getTargetSdkVersion();
-    }
-
-    if (BT) {
-        delete BT;
-    }
-    BT = new bcinfo::BitcodeTranslator((const char *)bitcode, bitcodeLen,
-                                       sdkVersion);
-    if (!BT->translate()) {
-        ALOGE("Failed to translate bitcode from version: %u", sdkVersion);
-        delete BT;
-        BT = NULL;
-        return false;
-    }
-    bitcode = (const uint8_t *) BT->getTranslatedBitcode();
-    bitcodeLen = BT->getTranslatedBitcodeSize();
-#endif
 
     if (!rsc->mHal.funcs.script.init(rsc, this, resName, cacheDir, bitcode, bitcodeLen, 0)) {
         return false;
