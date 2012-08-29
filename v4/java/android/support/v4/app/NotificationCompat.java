@@ -27,6 +27,10 @@ import android.os.Build;
 import android.widget.RemoteViews;
 import java.util.ArrayList;
 
+/**
+ * Helper for accessing features in {@link android.app.Notification}
+ * introduced after API level 4 in a backwards compatible fashion.
+ */
 public class NotificationCompat {
     /**
      * Obsolete flag indicating high-priority notifications; use the priority field instead.
@@ -146,7 +150,7 @@ public class NotificationCompat {
     static {
         if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new NotificationCompatImplJellybean();
-        } else if (Build.VERSION.SDK_INT >= 13) {
+        } else if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new NotificationCompatImplIceCreamSandwich();
         } else if (Build.VERSION.SDK_INT >= 11) {
             IMPL = new NotificationCompatImplHoneycomb();
