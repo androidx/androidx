@@ -15,20 +15,17 @@
  */
 package android.support.appcompat.widget;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.appcompat.R;
 import android.support.appcompat.view.menu.ActionMenuPresenter;
 import android.support.appcompat.view.menu.ActionMenuView;
+import android.text.AndroidCharacter;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 
 public abstract class AbsActionBarView extends ViewGroup {
   protected ActionMenuView mMenuView;
@@ -37,11 +34,6 @@ public abstract class AbsActionBarView extends ViewGroup {
   protected boolean mSplitActionBar;
   protected boolean mSplitWhenNarrow;
   protected int mContentHeight;
-
-  protected Animator mVisibilityAnim;
-  protected final VisibilityAnimListener mVisAnimListener = new VisibilityAnimListener();
-
-  private static final TimeInterpolator sAlphaInterpolator = new DecelerateInterpolator();
 
   private static final int FADE_DURATION = 200;
 
@@ -59,7 +51,9 @@ public abstract class AbsActionBarView extends ViewGroup {
 
   @Override
   protected void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
+    if (Build.VERSION.SDK_INT >= 8) {
+      super.onConfigurationChanged(newConfig);
+    }
 
     // Action bar can change size on configuration changes.
     // Reread the desired height from the theme-specified style.
@@ -109,61 +103,16 @@ public abstract class AbsActionBarView extends ViewGroup {
    * @return Current visibility or if animating, the visibility being animated to.
    */
   public int getAnimatedVisibility() {
-    if (mVisibilityAnim != null) {
-      return mVisAnimListener.mFinalVisibility;
-    }
     return getVisibility();
   }
 
   public void animateToVisibility(int visibility) {
-    if (mVisibilityAnim != null) {
-      mVisibilityAnim.cancel();
-    }
-    if (visibility == VISIBLE) {
-      if (getVisibility() != VISIBLE) {
-        setAlpha(0);
-        if (mSplitView != null && mMenuView != null) {
-          mMenuView.setAlpha(0);
-        }
-      }
-      ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 1);
-      anim.setDuration(FADE_DURATION);
-      anim.setInterpolator(sAlphaInterpolator);
-      if (mSplitView != null && mMenuView != null) {
-        AnimatorSet set = new AnimatorSet();
-        ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "alpha", 1);
-        splitAnim.setDuration(FADE_DURATION);
-        set.addListener(mVisAnimListener.withFinalVisibility(visibility));
-        set.play(anim).with(splitAnim);
-        set.start();
-      } else {
-        anim.addListener(mVisAnimListener.withFinalVisibility(visibility));
-        anim.start();
-      }
-    } else {
-      ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 0);
-      anim.setDuration(FADE_DURATION);
-      anim.setInterpolator(sAlphaInterpolator);
-      if (mSplitView != null && mMenuView != null) {
-        AnimatorSet set = new AnimatorSet();
-        ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "alpha", 0);
-        splitAnim.setDuration(FADE_DURATION);
-        set.addListener(mVisAnimListener.withFinalVisibility(visibility));
-        set.play(anim).with(splitAnim);
-        set.start();
-      } else {
-        anim.addListener(mVisAnimListener.withFinalVisibility(visibility));
-        anim.start();
-      }
-    }
+    setVisibility(visibility);
   }
 
   @Override
   public void setVisibility(int visibility) {
     if (visibility != getVisibility()) {
-      if (mVisibilityAnim != null) {
-        mVisibilityAnim.end();
-      }
       super.setVisibility(visibility);
     }
   }
@@ -238,40 +187,4 @@ public abstract class AbsActionBarView extends ViewGroup {
     return childWidth;
   }
 
-  protected class VisibilityAnimListener implements Animator.AnimatorListener {
-    private boolean mCanceled = false;
-    int mFinalVisibility;
-
-    public VisibilityAnimListener withFinalVisibility(int visibility) {
-      mFinalVisibility = visibility;
-      return this;
-    }
-
-    @Override
-    public void onAnimationStart(Animator animation) {
-      setVisibility(VISIBLE);
-      mVisibilityAnim = animation;
-      mCanceled = false;
-    }
-
-    @Override
-    public void onAnimationEnd(Animator animation) {
-      if (mCanceled) return;
-
-      mVisibilityAnim = null;
-      setVisibility(mFinalVisibility);
-      if (mSplitView != null && mMenuView != null) {
-        mMenuView.setVisibility(mFinalVisibility);
-      }
-    }
-
-    @Override
-    public void onAnimationCancel(Animator animation) {
-      mCanceled = true;
-    }
-
-    @Override
-    public void onAnimationRepeat(Animator animation) {
-    }
-  }
 }
