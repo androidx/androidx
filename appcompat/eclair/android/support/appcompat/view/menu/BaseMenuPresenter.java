@@ -96,7 +96,8 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
           if (item != oldItem) {
             // Don't let old states linger with new data.
             itemView.setPressed(false);
-            itemView.jumpDrawablesToCurrentState();
+            // itemView.jumpDrawablesToCurrentState();
+            // Animation API: Not available on API < 11
           }
           if (itemView != convertView) {
             addItemView(itemView, childIndex);
