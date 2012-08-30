@@ -101,7 +101,7 @@ LOCAL_SRC_FILES:= \
 	driver/rsdSampler.cpp
 
 
-LOCAL_SHARED_LIBRARIES += libcutils libutils libbcinfo libdl
+LOCAL_SHARED_LIBRARIES += libcutils libutils libdl
 
 LOCAL_C_INCLUDES += system/core/include
 LOCAL_C_INCLUDES += frameworks/native/include

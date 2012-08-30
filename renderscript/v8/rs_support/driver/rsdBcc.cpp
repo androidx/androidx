@@ -20,8 +20,6 @@
 #include "rsdAllocation.h"
 
 
-#include <bcinfo/MetadataExtractor.h>
-
 #include "rsContext.h"
 #include "rsElement.h"
 #include "rsScriptC.h"
@@ -32,11 +30,26 @@
 #include "utils/String8.h"
 
 #include <dlfcn.h>
+#include <stdio.h>
+#include <string.h>
 
 using namespace android;
 using namespace android::renderscript;
 
+#define MAXLINE 500
+#define MAKE_STR_HELPER(S) #S
+#define MAKE_STR(S) MAKE_STR_HELPER(S)
+#define EXPORT_VAR_STR "exportVarCount: "
+#define EXPORT_VAR_STR_LEN strlen(EXPORT_VAR_STR)
+#define EXPORT_FUNC_STR "exportFuncCount: "
+#define EXPORT_FUNC_STR_LEN strlen(EXPORT_FUNC_STR)
+#define EXPORT_FOREACH_STR "exportForEachCount: "
+#define EXPORT_FOREACH_STR_LEN strlen(EXPORT_FOREACH_STR)
+#define OBJECT_SLOT_STR "objectSlotCount: "
+#define OBJECT_SLOT_STR_LEN strlen(OBJECT_SLOT_STR)
+
 struct DrvScript {
+    void *mScriptSO;
     RootFunc_t mRoot;
     RootFunc_t mRootExpand;
     InvokeFunc_t mInit;
@@ -84,34 +97,41 @@ bool rsdScriptInit(const Context *rsc,
     scriptSOName.append("/lib");
     scriptSOName.append(resName);
     scriptSOName.append(".so");
-    ALOGE("Opening up shared object: %s", scriptSOName.string());
-    void *scriptSO = dlopen(scriptSOName.string(), RTLD_NOW | RTLD_LOCAL);
-    if (scriptSO == NULL) {
-        ALOGE("Unable to open shared library (%s): %s",
-              scriptSOName.string(), dlerror());
-        return false;
-    }
 
-    void *scriptSORoot = dlsym(scriptSO, "root");
-    if (scriptSORoot != NULL) {
-        ALOGE("Root function found at %p", scriptSORoot);
-    }
+    String8 scriptInfoName(cacheDir);
+    scriptInfoName = scriptInfoName.getPathDir();
+    scriptInfoName.appendPath("lib/");
+    scriptInfoName.append(resName);
+    scriptInfoName.append(".bcinfo");
 
-    bcinfo::MetadataExtractor ME((const char *)bitcode, bitcodeSize);
-    if (!ME.extract()) {
-        ALOGE("Failed to extract bitcode metadata: %s.bc", resName);
-        return false;
-    }
-
-    const char* coreLib = "/system/lib/libclcore.bc";
+    void *scriptSO = NULL;
+    FILE *fp = NULL;
     DrvScript *drv = (DrvScript *)calloc(1, sizeof(DrvScript));
     if (drv == NULL) {
         goto error;
     }
     script->mHal.drv = drv;
 
+    ALOGE("Opening up info object: %s", scriptInfoName.string());
+
+    fp = fopen(scriptInfoName.string(), "r");
+    if (!fp) {
+        ALOGE("Unable to open info file: %s", scriptInfoName.string());
+        goto error;
+    }
+
+    ALOGE("Opening up shared object: %s", scriptSOName.string());
+    scriptSO = dlopen(scriptSOName.string(), RTLD_NOW | RTLD_LOCAL);
+    if (scriptSO == NULL) {
+        ALOGE("Unable to open shared library (%s): %s",
+              scriptSOName.string(), dlerror());
+        goto error;
+    }
+    drv->mScriptSO = scriptSO;
 
     if (scriptSO) {
+        char line[MAXLINE];
+        drv->mScriptSO = scriptSO;
         drv->mRoot = (RootFunc_t) dlsym(scriptSO, "root");
         if (drv->mRoot) {
             ALOGE("Found root(): %p", drv->mRoot);
@@ -129,32 +149,15 @@ bool rsdScriptInit(const Context *rsc,
             ALOGE("Found .rs.dtor(): %p", drv->mFreeChildren);
         }
 
-        size_t funcCount = ME.getExportFuncCount();
-        script->mHal.info.exportedFunctionCount = funcCount;
-        ALOGE("funcCount: %zu", funcCount);
-
-        if (funcCount > 0) {
-            drv->mInvokeFunctions = new InvokeFunc_t[funcCount];
-            if (drv->mInvokeFunctions == NULL) {
-                goto error;
-            }
-            const char **funcNameList = ME.getExportFuncNameList();
-            for (size_t i = 0; i < funcCount; ++i) {
-                drv->mInvokeFunctions[i] =
-                        (InvokeFunc_t) dlsym(scriptSO, funcNameList[i]);
-                if (drv->mInvokeFunctions[i] == NULL) {
-                    ALOGE("Failed to get function address for %s(): %s",
-                          funcNameList[i], dlerror());
-                    goto error;
-                }
-                else {
-                    ALOGE("Found InvokeFunc_t %s at %p", funcNameList[i],
-                          drv->mInvokeFunctions[i]);
-                }
-            }
+        size_t varCount = 0;
+        if (fgets(line, MAXLINE, fp) == NULL) {
+            goto error;
+        }
+        if (sscanf(line, EXPORT_VAR_STR "%zu", &varCount) != 1) {
+            ALOGE("Invalid export var count!: %s", line);
+            goto error;
         }
 
-        size_t varCount = ME.getExportVarCount();
         script->mHal.info.exportedVariableCount = varCount;
         ALOGE("varCount: %zu", varCount);
         if (varCount > 0) {
@@ -170,37 +173,77 @@ bool rsdScriptInit(const Context *rsc,
             if (drv->mFieldAddress == NULL) {
                 goto error;
             }
-            const char **varNameList = ME.getExportVarNameList();
             for (size_t i = 0; i < varCount; ++i) {
-                drv->mFieldAddress[i] = dlsym(scriptSO, varNameList[i]);
+                if (fgets(line, MAXLINE, fp) == NULL) {
+                    goto error;
+                }
+                char *c = strrchr(line, '\n');
+                if (c) {
+                    *c = '\0';
+                }
+                drv->mFieldAddress[i] = dlsym(scriptSO, line);
                 if (drv->mFieldAddress[i] == NULL) {
                     ALOGE("Failed to find variable address for %s: %s",
-                          varNameList[i], dlerror());
-                // Not a critical error if we don't find a global variable.
+                          line, dlerror());
+                    // Not a critical error if we don't find a global variable.
                 }
                 else {
-                    ALOGE("Found variable %s at %p", varNameList[i],
+                    ALOGE("Found variable %s at %p", line,
                           drv->mFieldAddress[i]);
                 }
             }
         }
 
-        size_t objectSlotCount = ME.getObjectSlotCount();
-        if (objectSlotCount > 0) {
-            rsAssert(varCount > 0);
-            const uint32_t *objectSlotList = ME.getObjectSlotList();
-            for (size_t i = 0; i < objectSlotCount; ++i) {
-                uint32_t varNum = objectSlotList[i];
-                if (varNum < varCount) {
-                    drv->mFieldIsObject[objectSlotList[i]] = true;
+        size_t funcCount = 0;
+        if (fgets(line, MAXLINE, fp) == NULL) {
+            goto error;
+        }
+        if (sscanf(line, EXPORT_FUNC_STR "%zu", &funcCount) != 1) {
+            ALOGE("Invalid export func count!: %s", line);
+            goto error;
+        }
+
+        script->mHal.info.exportedFunctionCount = funcCount;
+        ALOGE("funcCount: %zu", funcCount);
+
+        if (funcCount > 0) {
+            drv->mInvokeFunctions = new InvokeFunc_t[funcCount];
+            if (drv->mInvokeFunctions == NULL) {
+                goto error;
+            }
+            for (size_t i = 0; i < funcCount; ++i) {
+                if (fgets(line, MAXLINE, fp) == NULL) {
+                    goto error;
+                }
+                char *c = strrchr(line, '\n');
+                if (c) {
+                    *c = '\0';
+                }
+
+                drv->mInvokeFunctions[i] =
+                        (InvokeFunc_t) dlsym(scriptSO, line);
+                if (drv->mInvokeFunctions[i] == NULL) {
+                    ALOGE("Failed to get function address for %s(): %s",
+                          line, dlerror());
+                    goto error;
+                }
+                else {
+                    ALOGE("Found InvokeFunc_t %s at %p", line,
+                          drv->mInvokeFunctions[i]);
                 }
             }
         }
 
-        size_t forEachCount = ME.getExportForEachSignatureCount();
+        size_t forEachCount = 0;
+        if (fgets(line, MAXLINE, fp) == NULL) {
+            goto error;
+        }
+        if (sscanf(line, EXPORT_FOREACH_STR "%zu", &forEachCount) != 1) {
+            ALOGE("Invalid export forEach count!: %s", line);
+            goto error;
+        }
+
         if (forEachCount > 0) {
-            const uint32_t *sigList = ME.getExportForEachSignatureList();
-            const char **nameList = ME.getExportForEachNameList();
 
             drv->mForEachSignatures = new uint32_t[forEachCount];
             if (drv->mForEachSignatures == NULL) {
@@ -211,27 +254,63 @@ bool rsdScriptInit(const Context *rsc,
                 goto error;
             }
             for (size_t i = 0; i < forEachCount; ++i) {
-                drv->mForEachSignatures[i] = sigList[i];
+                unsigned int tmpSig = 0;
+                char tmpName[MAXLINE];
+
+                if (fgets(line, MAXLINE, fp) == NULL) {
+                    goto error;
+                }
+                if (sscanf(line, "%u - %" MAKE_STR(MAXLINE) "s",
+                           &tmpSig, tmpName) != 2) {
+                    ALOGE("Invalid export forEach!: %s", line);
+                    goto error;
+                }
+
+                drv->mForEachSignatures[i] = tmpSig;
                 drv->mForEachFunctions[i] =
-                        (ForEachFunc_t) dlsym(scriptSO, nameList[i]);
+                        (ForEachFunc_t) dlsym(scriptSO, tmpName);
                 if (drv->mForEachFunctions[i] == NULL) {
                     ALOGE("Failed to find forEach function address for %s: %s",
-                          nameList[i], dlerror());
+                          tmpName, dlerror());
                     goto error;
                 }
                 else {
                     // TODO - Maybe add ForEachExpandPass to .so creation and
                     // then lookup the ".expand" version of these kernels
                     // instead.
-                    ALOGE("Found forEach %s at %p", nameList[i],
+                    ALOGE("Found forEach %s at %p", tmpName,
                           drv->mForEachFunctions[i]);
                 }
             }
         }
 
-        // TODO - Do we care about pragmas at all in this layer of FS?
-        script->mHal.info.exportedPragmaCount = ME.getPragmaCount();
-        ALOGE("pragmaCount: %zu", script->mHal.info.exportedPragmaCount);
+        size_t objectSlotCount = 0;
+        if (fgets(line, MAXLINE, fp) == NULL) {
+            goto error;
+        }
+        if (sscanf(line, OBJECT_SLOT_STR "%zu", &objectSlotCount) != 1) {
+            ALOGE("Invalid object slot count!: %s", line);
+            goto error;
+        }
+
+        if (objectSlotCount > 0) {
+            rsAssert(varCount > 0);
+            for (size_t i = 0; i < objectSlotCount; ++i) {
+                uint32_t varNum = 0;
+                if (fgets(line, MAXLINE, fp) == NULL) {
+                    goto error;
+                }
+                if (sscanf(line, "%u", &varNum) != 1) {
+                    ALOGE("Invalid object slot!: %s", line);
+                    goto error;
+                }
+
+                if (varNum < varCount) {
+                    drv->mFieldIsObject[varNum] = true;
+                }
+            }
+        }
+
         script->mHal.info.exportedPragmaCount = 0;
 
         if (drv->mRootExpand) {
@@ -252,11 +331,13 @@ bool rsdScriptInit(const Context *rsc,
         }
     }
 
+    fclose(fp);
     pthread_mutex_unlock(&rsdgInitMutex);
     return true;
 
 error:
 
+    fclose(fp);
     pthread_mutex_unlock(&rsdgInitMutex);
     if (drv) {
         delete[] drv->mInvokeFunctions;
@@ -265,6 +346,9 @@ error:
         delete[] drv->mFieldIsObject;
         delete[] drv->mForEachSignatures;
         delete[] drv->mBoundAllocs;
+        if (drv->mScriptSO) {
+            dlclose(drv->mScriptSO);
+        }
         free(drv);
     }
     script->mHal.drv = NULL;
@@ -677,6 +761,9 @@ void rsdScriptDestroy(const Context *dc, Script *script) {
     delete[] drv->mFieldIsObject;
     delete[] drv->mForEachSignatures;
     delete[] drv->mBoundAllocs;
+    if (drv->mScriptSO) {
+        dlclose(drv->mScriptSO);
+    }
     free(drv);
     script->mHal.drv = NULL;
 }
