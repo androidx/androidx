@@ -22,8 +22,8 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.support.appcompat.R;
 import android.support.appcompat.app.ActionBar;
+import android.support.appcompat.view.ActionMode;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,9 +119,9 @@ public class ActionBarContainer extends FrameLayout {
     return true;
   }
 
-  @Override
+  //@Override
   public boolean onHoverEvent(MotionEvent ev) {
-    super.onHoverEvent(ev);
+    //super.onHoverEvent(ev);
 
     // An action bar always eats hover events.
     return true;
@@ -135,7 +135,7 @@ public class ActionBarContainer extends FrameLayout {
     if (tabView != null) {
       addView(tabView);
       final ViewGroup.LayoutParams lp = tabView.getLayoutParams();
-      lp.width = LayoutParams.MATCH_PARENT;
+      lp.width = LayoutParams.FILL_PARENT;
       lp.height = LayoutParams.WRAP_CONTENT;
       tabView.setAllowCollapse(false);
     }
@@ -163,7 +163,7 @@ public class ActionBarContainer extends FrameLayout {
     }
   }
 
-  @Override
+  //@Override
   public ActionMode startActionModeForChild(View child, ActionMode.Callback callback) {
     // No starting an action mode for an action bar child! (Where would it go?)
     return null;
