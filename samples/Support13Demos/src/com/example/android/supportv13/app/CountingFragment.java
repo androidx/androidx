@@ -58,10 +58,9 @@ public class CountingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.hello_world, container, false);
+        View v = inflater.inflate(R.layout.counting, container, false);
         View tv = v.findViewById(R.id.text);
         ((TextView)tv).setText("Fragment #" + mNum);
-        tv.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.gallery_thumb));
         return v;
     }
 }

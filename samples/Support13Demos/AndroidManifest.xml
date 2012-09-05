@@ -47,6 +47,22 @@
 
         <!-- Fragment Support Samples -->
 
+        <activity android:name=".app.FragmentNestingPagerSupport"
+                android:label="@string/fragment_nesting_pager_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv13.SUPPORT13_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.FragmentNestingStatePagerSupport"
+                android:label="@string/fragment_nesting_state_pager_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv13.SUPPORT13_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.FragmentPagerSupport"
                 android:label="@string/fragment_pager_support">
             <intent-filter>
