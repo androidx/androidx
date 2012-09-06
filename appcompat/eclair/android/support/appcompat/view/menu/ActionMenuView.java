@@ -18,6 +18,7 @@ package android.support.appcompat.view.menu;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.appcompat.R;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -74,7 +75,10 @@ public class ActionMenuView extends LinearLayout implements MenuBuilder.ItemInvo
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
+    if (Build.VERSION.SDK_INT >= 8) {
+      super.onConfigurationChanged(newConfig);
+    }
+
     mPresenter.updateMenuView(false);
 
     if (mPresenter != null && mPresenter.isOverflowMenuShowing()) {
@@ -546,15 +550,15 @@ public class ActionMenuView extends LinearLayout implements MenuBuilder.ItemInvo
   }
 
   public static class LayoutParams extends LinearLayout.LayoutParams {
-    @ViewDebug.ExportedProperty(category = "layout")
+    @ViewDebug.ExportedProperty()
     public boolean isOverflowButton;
-    @ViewDebug.ExportedProperty(category = "layout")
+    @ViewDebug.ExportedProperty()
     public int cellsUsed;
-    @ViewDebug.ExportedProperty(category = "layout")
+    @ViewDebug.ExportedProperty()
     public int extraPixels;
-    @ViewDebug.ExportedProperty(category = "layout")
+    @ViewDebug.ExportedProperty()
     public boolean expandable;
-    @ViewDebug.ExportedProperty(category = "layout")
+    @ViewDebug.ExportedProperty()
     public boolean preventEdgeOffset;
 
     public boolean expanded;
