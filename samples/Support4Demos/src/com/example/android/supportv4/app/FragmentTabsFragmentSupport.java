@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,23 +19,21 @@ package com.example.android.supportv4.app;
 import com.example.android.supportv4.R;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-/**
- * This demonstrates how you can implement switching between the tabs of a
- * TabHost through fragments, using FragmentTabHost.
- */
-public class FragmentTabs extends FragmentActivity {
+public class FragmentTabsFragmentSupport extends Fragment {
     FragmentTabHost mTabHost;
+    String mCurrentTabTag;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.fragment_tabs);
-        mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
-        mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        mTabHost = new FragmentTabHost(getActivity());
+        mTabHost.setup(getActivity(), getChildFragmentManager(), R.id.fragment1);
 
         mTabHost.addTab(mTabHost.newTabSpec("simple").setIndicator("Simple"),
                 FragmentStackSupport.CountingFragment.class, null);
@@ -49,12 +47,32 @@ public class FragmentTabs extends FragmentActivity {
         if (savedInstanceState != null) {
             mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
         }
+        return mTabHost;
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            mCurrentTabTag = savedInstanceState.getString("tab");
+        }
+        mTabHost.setCurrentTabByTag(mCurrentTabTag);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Need to remember the selected tab so that we can restore it if
+        // we later re-create the views.
+        mCurrentTabTag = mTabHost.getCurrentTabTag();
+        mTabHost = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("tab", mTabHost.getCurrentTabTag());
+        outState.putString("tab", mTabHost != null
+                ? mTabHost.getCurrentTabTag() : mCurrentTabTag);
     }
 }
 //END_INCLUDE(complete)

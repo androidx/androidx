@@ -134,6 +134,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.FragmentNestingTabsSupport"
+                android:label="@string/fragment_nesting_tabs_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        
         <activity android:name=".app.FragmentRetainInstanceSupport"
                 android:label="@string/fragment_retain_instance_support">
             <intent-filter>

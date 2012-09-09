@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,29 +22,25 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 
-/**
- * This demonstrates how you can implement switching between the tabs of a
- * TabHost through fragments, using FragmentTabHost.
- */
-public class FragmentTabs extends FragmentActivity {
+public class FragmentNestingTabsSupport extends FragmentActivity {
     FragmentTabHost mTabHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.fragment_tabs);
-        mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
-        mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+        mTabHost = new FragmentTabHost(this);
+        setContentView(mTabHost);
+        mTabHost.setup(this, getSupportFragmentManager(), R.id.fragment1);
 
-        mTabHost.addTab(mTabHost.newTabSpec("simple").setIndicator("Simple"),
-                FragmentStackSupport.CountingFragment.class, null);
+        mTabHost.addTab(mTabHost.newTabSpec("menus").setIndicator("Menus"),
+                FragmentMenuFragmentSupport.class, null);
         mTabHost.addTab(mTabHost.newTabSpec("contacts").setIndicator("Contacts"),
                 LoaderCursorSupport.CursorLoaderListFragment.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("custom").setIndicator("Custom"),
-                LoaderCustomSupport.AppListFragment.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("throttle").setIndicator("Throttle"),
-                LoaderThrottleSupport.ThrottledLoaderListFragment.class, null);
+        mTabHost.addTab(mTabHost.newTabSpec("stack").setIndicator("Stack"),
+                FragmentStackFragmentSupport.class, null);
+        mTabHost.addTab(mTabHost.newTabSpec("tabs").setIndicator("Tabs"),
+                FragmentTabsFragmentSupport.class, null);
 
         if (savedInstanceState != null) {
             mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));

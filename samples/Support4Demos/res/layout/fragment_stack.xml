@@ -39,8 +39,11 @@
         <Button android:id="@+id/new_fragment"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/new_fragment">
-            <requestFocus />
         </Button>
-    </LinearLayout>
+        <Button android:id="@+id/delete_fragment"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/delete_fragment">
+        </Button>
+        </LinearLayout>
 
 </LinearLayout>
