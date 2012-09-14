@@ -451,6 +451,10 @@ public class ViewPager extends ViewGroup {
         mAdapterChangeListener = listener;
     }
 
+    private int getClientWidth() {
+        return getWidth() - getPaddingLeft() - getPaddingRight();
+    }
+
     /**
      * Set the currently selected page. If the ViewPager has already been through its first
      * layout with its current adapter there will be a smooth animated transition between
@@ -511,7 +515,7 @@ public class ViewPager extends ViewGroup {
         final ItemInfo curInfo = infoForPosition(item);
         int destX = 0;
         if (curInfo != null) {
-            final int width = getWidth();
+            final int width = getClientWidth();
             destX = (int) (width * Math.max(mFirstOffset,
                     Math.min(curInfo.offset, mLastOffset)));
         }
@@ -756,7 +760,7 @@ public class ViewPager extends ViewGroup {
         setScrollingCacheEnabled(true);
         setScrollState(SCROLL_STATE_SETTLING);
 
-        final int width = getWidth();
+        final int width = getClientWidth();
         final int halfWidth = width / 2;
         final float distanceRatio = Math.min(1f, 1.0f * Math.abs(dx) / width);
         final float distance = halfWidth + halfWidth *
@@ -919,7 +923,8 @@ public class ViewPager extends ViewGroup {
             float extraWidthLeft = 0.f;
             int itemIndex = curIndex - 1;
             ItemInfo ii = itemIndex >= 0 ? mItems.get(itemIndex) : null;
-            final float leftWidthNeeded = 2.f - curItem.widthFactor;
+            final float leftWidthNeeded = 2.f - curItem.widthFactor +
+                                          (float) getPaddingLeft() / (float) getClientWidth();
             for (int pos = mCurItem - 1; pos >= 0; pos--) {
                 if (extraWidthLeft >= leftWidthNeeded && pos < startPos) {
                     if (ii == null) {
@@ -948,8 +953,10 @@ public class ViewPager extends ViewGroup {
             itemIndex = curIndex + 1;
             if (extraWidthRight < 2.f) {
                 ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
+                final float rightWidthNeeded = (float) getPaddingRight() / (float) getClientWidth()
+                                               + 2.f;
                 for (int pos = mCurItem + 1; pos < N; pos++) {
-                    if (extraWidthRight >= 2.f && pos > endPos) {
+                    if (extraWidthRight >= rightWidthNeeded && pos > endPos) {
                         if (ii == null) {
                             break;
                         }
@@ -1033,7 +1040,7 @@ public class ViewPager extends ViewGroup {
 
     private void calculatePageOffsets(ItemInfo curItem, int curIndex, ItemInfo oldCurInfo) {
         final int N = mAdapter.getCount();
-        final int width = getWidth();
+        final int width = getClientWidth();
         final float marginOffset = width > 0 ? (float) mPageMargin / width : 0;
         // Fix up offsets for later layout.
         if (oldCurInfo != null) {
@@ -1370,8 +1377,9 @@ public class ViewPager extends ViewGroup {
 
     private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin) {
         if (oldWidth > 0 && !mItems.isEmpty()) {
-            final int widthWithMargin = width + margin;
-            final int oldWidthWithMargin = oldWidth + oldMargin;
+            final int widthWithMargin = width - getPaddingLeft() - getPaddingRight() + margin;
+            final int oldWidthWithMargin = oldWidth - getPaddingLeft() - getPaddingRight()
+                                           + oldMargin;
             final int xpos = getScrollX();
             final float pageOffset = (float) xpos / oldWidthWithMargin;
             final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
@@ -1387,7 +1395,8 @@ public class ViewPager extends ViewGroup {
         } else {
             final ItemInfo ii = infoForPosition(mCurItem);
             final float scrollOffset = ii != null ? Math.min(ii.offset, mLastOffset) : 0;
-            final int scrollPos = (int) (scrollOffset * width);
+            final int scrollPos = (int) (scrollOffset *
+                                         (width - getPaddingLeft() - getPaddingRight()));
             if (scrollPos != getScrollX()) {
                 completeScroll();
                 scrollTo(scrollPos, getScrollY());
@@ -1466,6 +1475,7 @@ public class ViewPager extends ViewGroup {
             }
         }
 
+        final int childWidth = width - paddingLeft - paddingRight;
         // Page views. Do this once we have the right padding offsets from above.
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -1473,7 +1483,7 @@ public class ViewPager extends ViewGroup {
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 ItemInfo ii;
                 if (!lp.isDecor && (ii = infoForChild(child)) != null) {
-                    int loff = (int) (width * ii.offset);
+                    int loff = (int) (childWidth * ii.offset);
                     int childLeft = paddingLeft + loff;
                     int childTop = paddingTop;
                     if (lp.needsMeasure) {
@@ -1481,7 +1491,7 @@ public class ViewPager extends ViewGroup {
                         // Do it now that we know what we're working with.
                         lp.needsMeasure = false;
                         final int widthSpec = MeasureSpec.makeMeasureSpec(
-                                (int) ((width - paddingLeft - paddingRight) * lp.widthFactor),
+                                (int) (childWidth * lp.widthFactor),
                                 MeasureSpec.EXACTLY);
                         final int heightSpec = MeasureSpec.makeMeasureSpec(
                                 (int) (height - paddingTop - paddingBottom),
@@ -1539,7 +1549,7 @@ public class ViewPager extends ViewGroup {
             return false;
         }
         final ItemInfo ii = infoForCurrentScrollPosition();
-        final int width = getWidth();
+        final int width = getClientWidth();
         final int widthWithMargin = width + mPageMargin;
         final float marginOffset = (float) mPageMargin / width;
         final int currentPage = ii.position;
@@ -1632,7 +1642,7 @@ public class ViewPager extends ViewGroup {
 
                 if (lp.isDecor) continue;
 
-                final float transformPos = (float) (child.getLeft() - scrollX) / getWidth();
+                final float transformPos = (float) (child.getLeft() - scrollX) / getClientWidth();
                 mPageTransformer.transformPage(child, transformPos);
             }
         }
@@ -1898,7 +1908,7 @@ public class ViewPager extends ViewGroup {
                     int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
                             velocityTracker, mActivePointerId);
                     mPopulatePending = true;
-                    final int width = getWidth();
+                    final int width = getClientWidth();
                     final int scrollX = getScrollX();
                     final ItemInfo ii = infoForCurrentScrollPosition();
                     final int currentPage = ii.position;
@@ -1951,7 +1961,7 @@ public class ViewPager extends ViewGroup {
 
         float oldScrollX = getScrollX();
         float scrollX = oldScrollX + deltaX;
-        final int width = getWidth();
+        final int width = getClientWidth();
 
         float leftBound = width * mFirstOffset;
         float rightBound = width * mLastOffset;
@@ -1995,7 +2005,7 @@ public class ViewPager extends ViewGroup {
      *         This can be synthetic for a missing middle page; the 'object' field can be null.
      */
     private ItemInfo infoForCurrentScrollPosition() {
-        final int width = getWidth();
+        final int width = getClientWidth();
         final float scrollOffset = width > 0 ? (float) getScrollX() / width : 0;
         final float marginOffset = width > 0 ? (float) mPageMargin / width : 0;
         int lastPos = -1;
@@ -2198,7 +2208,7 @@ public class ViewPager extends ViewGroup {
         int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
                 velocityTracker, mActivePointerId);
         mPopulatePending = true;
-        final int width = getWidth();
+        final int width = getClientWidth();
         final int scrollX = getScrollX();
         final ItemInfo ii = infoForCurrentScrollPosition();
         final int currentPage = ii.position;
@@ -2228,7 +2238,7 @@ public class ViewPager extends ViewGroup {
 
         float oldScrollX = getScrollX();
         float scrollX = oldScrollX - xOffset;
-        final int width = getWidth();
+        final int width = getClientWidth();
 
         float leftBound = width * mFirstOffset;
         float rightBound = width * mLastOffset;
