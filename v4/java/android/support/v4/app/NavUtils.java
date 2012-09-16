@@ -23,6 +23,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.support.v4.content.IntentCompat;
+import android.util.Log;
 
 /**
  * NavUtils provides helper functionality for applications implementing
@@ -47,9 +49,22 @@ public class NavUtils {
 
         @Override
         public Intent getParentActivityIntent(Activity activity) {
-            String parentActivity = NavUtils.getParentActivityName(activity);
-            if (parentActivity == null) return null;
-            return new Intent().setClassName(activity, parentActivity);
+            String parentName = NavUtils.getParentActivityName(activity);
+            if (parentName == null) return null;
+
+            // If the parent itself has no parent, generate a main activity intent.
+            final ComponentName target = new ComponentName(activity, parentName);
+            try {
+                final String grandparent = NavUtils.getParentActivityName(activity, target);
+                final Intent parentIntent = grandparent == null
+                        ? IntentCompat.makeMainActivity(target)
+                        : new Intent().setComponent(target);
+                return parentIntent;
+            } catch (NameNotFoundException e) {
+                Log.e(TAG, "getParentActivityIntent: bad parentActivityName '" + parentName +
+                        "' in manifest");
+                return null;
+            }
         }
 
         @Override
@@ -85,9 +100,13 @@ public class NavUtils {
             // else fall back to the meta-data element.
             Intent result = NavUtilsJB.getParentActivityIntent(activity);
             if (result == null) {
-                result = super.getParentActivityIntent(activity);
+                result = superGetParentActivityIntent(activity);
             }
             return result;
+        }
+
+        Intent superGetParentActivityIntent(Activity activity) {
+            return super.getParentActivityIntent(activity);
         }
 
         @Override
@@ -211,7 +230,14 @@ public class NavUtils {
         String parentActivity = getParentActivityName(context,
                 new ComponentName(context, sourceActivityClass));
         if (parentActivity == null) return null;
-        return new Intent().setClassName(context, parentActivity);
+
+        // If the parent itself has no parent, generate a main activity intent.
+        final ComponentName target = new ComponentName(context, parentActivity);
+        final String grandparent = getParentActivityName(context, target);
+        final Intent parentIntent = grandparent == null
+                ? IntentCompat.makeMainActivity(target)
+                : new Intent().setComponent(target);
+        return parentIntent;
     }
 
     /**
@@ -228,7 +254,15 @@ public class NavUtils {
             throws NameNotFoundException {
         String parentActivity = getParentActivityName(context, componentName);
         if (parentActivity == null) return null;
-        return new Intent().setClassName(componentName.getPackageName(), parentActivity);
+
+        // If the parent itself has no parent, generate a main activity intent.
+        final ComponentName target = new ComponentName(
+                componentName.getPackageName(), parentActivity);
+        final String grandparent = getParentActivityName(context, target);
+        final Intent parentIntent = grandparent == null
+                ? IntentCompat.makeMainActivity(target)
+                : new Intent().setComponent(target);
+        return parentIntent;
     }
 
     /**
