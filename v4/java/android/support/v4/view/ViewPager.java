@@ -32,6 +32,7 @@ import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
+import android.util.FloatMath;
 import android.util.Log;
 import android.view.FocusFinder;
 import android.view.Gravity;
@@ -182,6 +183,8 @@ public class ViewPager extends ViewGroup {
     private int mMaximumVelocity;
     private int mFlingDistance;
     private int mCloseEnough;
+    private int mWindupMin;
+    private int mWindupMax;
 
     // If the pager is at least this close to its final position, complete the scroll
     // on touch down and let the user interact with the content inside instead of
@@ -366,6 +369,9 @@ public class ViewPager extends ViewGroup {
         }
 
         mScrollState = newState;
+        if (newState == SCROLL_STATE_DRAGGING) {
+            mWindupMin = mWindupMax = -1;
+        }
         if (mPageTransformer != null) {
             // PageTransformers can do complex things that benefit from hardware layers.
             enableLayers(newState != SCROLL_STATE_IDLE);
@@ -1603,6 +1609,13 @@ public class ViewPager extends ViewGroup {
             }
         }
 
+        if (mWindupMin < 0 || position < mWindupMin) {
+            mWindupMin = position;
+        }
+        if (mWindupMax < 0 || FloatMath.ceil(position + offset) > mWindupMax) {
+            mWindupMax = position + 1;
+        }
+
         if (mOnPageChangeListener != null) {
             mOnPageChangeListener.onPageScrolled(position, offset, offsetPixels);
         }
@@ -2027,6 +2040,10 @@ public class ViewPager extends ViewGroup {
         int targetPage;
         if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
             targetPage = velocity > 0 ? currentPage : currentPage + 1;
+        } else if (mWindupMin >= 0 && mWindupMin < currentPage && pageOffset < 0.5f) {
+            targetPage = currentPage + 1;
+        } else if (mWindupMax >= 0 && mWindupMax > currentPage + 1 && pageOffset >= 0.5f) {
+            targetPage = currentPage - 1;
         } else {
             targetPage = (int) (currentPage + pageOffset + 0.5f);
         }
