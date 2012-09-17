@@ -133,6 +133,26 @@ public class AccessibilityEventCompat {
     public static final int TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY = 0x00020000;
 
     /**
+     * Represents the event of beginning gesture detection.
+     */
+    public static final int TYPE_GESTURE_DETECTION_START = 0x00040000;
+
+    /**
+     * Represents the event of ending gesture detection.
+     */
+    public static final int TYPE_GESTURE_DETECTION_END = 0x00080000;
+
+    /**
+     * Represents the event of the user starting to touch the screen.
+     */
+    public static final int TYPE_TOUCH_INTERACTION_START = 0x00100000;
+
+    /**
+     * Represents the event of the user ending to touch the screen.
+     */
+    public static final int TYPE_TOUCH_INTERACTION_END = 0x00200000;
+
+    /**
      * Mask for {@link AccessibilityEvent} all types.
      *
      * @see AccessibilityEvent#TYPE_VIEW_CLICKED
@@ -151,6 +171,10 @@ public class AccessibilityEventCompat {
      * @see #TYPE_VIEW_TEXT_SELECTION_CHANGED
      * @see #TYPE_ANNOUNCEMENT
      * @see #TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY
+     * @see #TYPE_GESTURE_DETECTION_START
+     * @see #TYPE_GESTURE_DETECTION_END
+     * @see #TYPE_TOUCH_INTERACTION_START
+     * @see #TYPE_TOUCH_INTERACTION_END
      */
     public static final int TYPES_ALL_MASK = 0xFFFFFFFF;
 
