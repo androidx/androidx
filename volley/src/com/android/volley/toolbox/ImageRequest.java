@@ -22,7 +22,6 @@ import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
-
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -163,9 +162,9 @@ public class ImageRequest extends Request<Bitmap> {
             Bitmap tempBitmap =
                 BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
 
-            // Then scale to the exact desired size, if necessary.
-            if (tempBitmap != null && (tempBitmap.getWidth() != desiredWidth ||
-                    tempBitmap.getHeight() != desiredHeight)) {
+            // If necessary, scale down to the maximal acceptable size.
+            if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
+                    tempBitmap.getHeight() > desiredHeight)) {
                 bitmap = Bitmap.createScaledBitmap(tempBitmap,
                         desiredWidth, desiredHeight, true);
                 tempBitmap.recycle();
