@@ -22,21 +22,19 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-appcompat-eclair
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, eclair)
-LOCAL_STATIC_JAVA_LIBRARIES += \
-        android-support-appcompat-res
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res            # Include /res in build
+LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true  #
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
 # Here is the final static library that apps can link against.
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-appcopmat
+LOCAL_MODULE := android-support-appcompat
 LOCAL_SDK_VERSION := 4
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
-LOCAL_STATIC_JAVA_LIBRARIES += \
-        android-support-appcompat-eclair
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-appcompat-eclair
 LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
