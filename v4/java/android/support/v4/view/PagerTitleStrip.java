@@ -28,6 +28,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
+
 /**
  * PagerTitleStrip is a non-interactive indicator of the current, next,
  * and previous pages of a {@link ViewPager}. It is intended to be used as a
@@ -57,6 +59,8 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private boolean mUpdatingPositions;
 
     private final PageListener mPageListener = new PageListener();
+
+    private WeakReference<PagerAdapter> mWatchingAdapter;
 
     private static final int[] ATTRS = new int[] {
         android.R.attr.textAppearance,
@@ -249,7 +253,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         pager.setInternalPageChangeListener(mPageListener);
         pager.setOnAdapterChangeListener(mPageListener);
         mPager = pager;
-        updateAdapter(null, adapter);
+        updateAdapter(mWatchingAdapter != null ? mWatchingAdapter.get() : null, adapter);
     }
 
     @Override
@@ -311,9 +315,11 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     void updateAdapter(PagerAdapter oldAdapter, PagerAdapter newAdapter) {
         if (oldAdapter != null) {
             oldAdapter.unregisterDataSetObserver(mPageListener);
+            mWatchingAdapter = null;
         }
         if (newAdapter != null) {
             newAdapter.registerDataSetObserver(mPageListener);
+            mWatchingAdapter = new WeakReference<PagerAdapter>(newAdapter);
         }
         if (mPager != null) {
             mLastKnownCurrentPage = -1;
