@@ -31,6 +31,7 @@ public class MotionEventCompat {
         public int getPointerId(MotionEvent event, int pointerIndex);
         public float getX(MotionEvent event, int pointerIndex);
         public float getY(MotionEvent event, int pointerIndex);
+        public int getPointerCount(MotionEvent event);
     }
 
     /**
@@ -67,6 +68,10 @@ public class MotionEventCompat {
             }
             throw new IndexOutOfBoundsException("Pre-Eclair does not support multiple pointers");
         }
+        @Override
+        public int getPointerCount(MotionEvent event) {
+            return 1;
+        }
     }
 
     /**
@@ -88,6 +93,10 @@ public class MotionEventCompat {
         @Override
         public float getY(MotionEvent event, int pointerIndex) {
             return MotionEventCompatEclair.getY(event, pointerIndex);
+        }
+        @Override
+        public int getPointerCount(MotionEvent event) {
+            return MotionEventCompatEclair.getPointerCount(event);
         }
     }
 
@@ -217,5 +226,13 @@ public class MotionEventCompat {
      */
     public static float getY(MotionEvent event, int pointerIndex) {
         return IMPL.getY(event, pointerIndex);
+    }
+
+    /**
+     * The number of pointers of data contained in this event.  Always
+     * >= 1.
+     */
+    public static int getPointerCount(MotionEvent event) {
+        return IMPL.getPointerCount(event);
     }
 }

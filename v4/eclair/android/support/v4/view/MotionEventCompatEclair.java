@@ -34,4 +34,7 @@ class MotionEventCompatEclair {
     public static float getY(MotionEvent event, int pointerIndex) {
         return event.getY(pointerIndex);
     }
+    public static int getPointerCount(MotionEvent event) {
+        return event.getPointerCount();
+    }
 }
