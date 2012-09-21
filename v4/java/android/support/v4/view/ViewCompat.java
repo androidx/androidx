@@ -132,6 +132,8 @@ public class ViewCompat {
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
         public void setLayerType(View view, int layerType, Paint paint);
         public int getLayerType(View view);
+        public int getLabelFor(View view);
+        public void setLabelFor(View view, int id);;
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -197,6 +199,12 @@ public class ViewCompat {
         }
         public int getLayerType(View view) {
             return LAYER_TYPE_NONE;
+        }
+        public int getLabelFor(View view) {
+            return 0;
+        }
+        public void setLabelFor(View view, int id) {
+
         }
     }
 
@@ -297,10 +305,25 @@ public class ViewCompat {
         }
     }
 
+    static class JbMr1ViewCompatImpl extends JBViewCompatImpl {
+
+        @Override
+        public int getLabelFor(View view) {
+            return ViewCompatJellybeanMr1.getLabelFor(view);
+        }
+
+        @Override
+        public void setLabelFor(View view, int id) {
+            ViewCompatJellybeanMr1.setLabelFor(view, id);
+        }
+    }
+
     static final ViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 16 || android.os.Build.VERSION.CODENAME.equals("JellyBean")) {
+        if ("JellyBeanMR1".equals(android.os.Build.VERSION.CODENAME)) {
+            IMPL = new JbMr1ViewCompatImpl();
+        } else if (version >= 16) {
             IMPL = new JBViewCompatImpl();
         } else if (version >= 14) {
             IMPL = new ICSViewCompatImpl();
@@ -708,5 +731,27 @@ public class ViewCompat {
      */
     public static int getLayerType(View view) {
         return IMPL.getLayerType(view);
+    }
+
+    /**
+     * Gets the id of a view for which a given view serves as a label for
+     * accessibility purposes.
+     *
+     * @param view The view on which to invoke the corresponding method.
+     * @return The labeled view id.
+     */
+    public static int getLabelFor(View view) {
+        return IMPL.getLabelFor(view);
+    }
+
+    /**
+     * Sets the id of a view for which a given view serves as a label for
+     * accessibility purposes.
+     *
+     * @param view The view on which to invoke the corresponding method.
+     * @param labeledId The labeled view id.
+     */
+    public static void setLabelFor(View view, int labeledId) {
+        IMPL.setLabelFor(view, labeledId);
     }
 }
