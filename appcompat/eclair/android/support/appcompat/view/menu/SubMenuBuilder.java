@@ -68,7 +68,7 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
   }
 
   @Override
-  public void setCallback(MenuPresenter.Callback callback) {
+  public void setCallback(Callback callback) {
     mParentMenu.setCallback(callback);
   }
 

@@ -19,4 +19,9 @@
     <bool name="action_bar_embed_tabs_pre_jb">false</bool>
     <bool name="action_bar_expanded_action_views_exclusive">true</bool>
     <bool name="split_action_bar_is_narrow">true</bool>
+
+    <!-- TODO(anirudhd) ported from symbols.xml. framework uses symbols.xml
+         and sed script to generate internal values. 
+    -->
+    <bool name="config_showMenuShortcutsWhenKeyboardPresent">false</bool>
 </resources>

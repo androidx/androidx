@@ -16,17 +16,16 @@
 
 package android.support.appcompat.view.menu;
 
-import android.support.appcompat.R;
-import android.support.appcompat.view.ActionBarPolicy;
-import android.support.appcompat.view.MenuItem;
-import android.support.appcompat.view.menu.ActionMenuView.ActionMenuChildView;
-import android.support.appcompat.view.ActionProvider;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.appcompat.R;
+import android.support.appcompat.view.ActionBarPolicy;
+import android.support.appcompat.view.ActionProvider;
+import android.support.appcompat.view.MenuItem;
+import android.support.appcompat.view.menu.ActionMenuView.ActionMenuChildView;
 import android.util.SparseBooleanArray;
 import android.view.SoundEffectConstants;
 import android.view.View;

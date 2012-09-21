@@ -16,11 +16,10 @@
 
 package android.support.appcompat.view;
 
-import android.support.appcompat.R;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.support.appcompat.R;
 
 /**
  * Allows components to query for various configuration policy decisions

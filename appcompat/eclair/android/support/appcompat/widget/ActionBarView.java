@@ -16,18 +16,6 @@
 
 package android.support.appcompat.widget;
 
-import android.support.appcompat.R;
-import android.support.appcompat.view.menu.ActionMenuItem;
-import android.support.appcompat.view.menu.ActionMenuPresenter;
-import android.support.appcompat.view.menu.ActionMenuView;
-import android.support.appcompat.view.menu.MenuBuilder;
-import android.support.appcompat.view.menu.MenuItemImpl;
-import android.support.appcompat.view.menu.MenuPresenter;
-import android.support.appcompat.view.menu.MenuView;
-import android.support.appcompat.view.menu.SubMenuBuilder;
-
-import android.support.appcompat.app.ActionBar;
-import android.support.appcompat.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -38,14 +26,25 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.appcompat.R;
+import android.support.appcompat.app.ActionBar;
+import android.support.appcompat.app.ActionBar.OnNavigationListener;
+import android.support.appcompat.view.CollapsibleActionView;
+import android.support.appcompat.view.MenuItem;
+import android.support.appcompat.view.menu.ActionMenuItem;
+import android.support.appcompat.view.menu.ActionMenuPresenter;
+import android.support.appcompat.view.menu.ActionMenuView;
+import android.support.appcompat.view.menu.MenuBuilder;
+import android.support.appcompat.view.menu.MenuItemImpl;
+import android.support.appcompat.view.menu.MenuPresenter;
+import android.support.appcompat.view.menu.MenuView;
+import android.support.appcompat.view.menu.SubMenuBuilder;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.CollapsibleActionView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,7 +107,7 @@ public class  ActionBarView extends AbsActionBarView {
 
     private int mProgressBarPadding;
     private int mItemPadding;
-    
+
     private int mTitleStyleRes;
     private int mSubtitleStyleRes;
     private int mProgressStyle;
@@ -119,9 +118,8 @@ public class  ActionBarView extends AbsActionBarView {
     private boolean mIsCollapsable;
     private boolean mIsCollapsed;
 
-   // TODO(trevorjohns): Uncomment to enable options menu
-   // private MenuBuilder mOptionsMenu;
-    
+    private MenuBuilder mOptionsMenu;
+
     private ActionBarContextView mContextView;
 
     private ActionMenuItem mLogoNavItem;
@@ -160,7 +158,8 @@ public class  ActionBarView extends AbsActionBarView {
 
     private final OnClickListener mUpClickListener = new OnClickListener() {
         public void onClick(View v) {
-            mWindowCallback.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, mLogoNavItem);
+        //TODO(anirudhd): Window callback is not implemented yet.
+        //mWindowCallback.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, mLogoNavItem);
         }
     };
 
@@ -180,7 +179,6 @@ public class  ActionBarView extends AbsActionBarView {
                 ActionBar.NAVIGATION_MODE_STANDARD);
         mTitle = a.getText(R.styleable.ActionBar_title);
         mSubtitle = a.getText(R.styleable.ActionBar_subtitle);
-        
         mLogo = a.getDrawable(R.styleable.ActionBar_logo);
         if (mLogo == null) {
             if (context instanceof Activity) {
@@ -242,20 +240,12 @@ public class  ActionBarView extends AbsActionBarView {
         }
 
         mContentHeight = a.getLayoutDimension(R.styleable.ActionBar_height, 0);
-        
         a.recycle();
-        
         mLogoNavItem = new ActionMenuItem(context, 0, android.R.id.home, 0, 0, mTitle);
         mHomeLayout.setOnClickListener(mUpClickListener);
         mHomeLayout.setClickable(true);
         mHomeLayout.setFocusable(true);
 
-        // These methods were not introduced until API 16
-        /*
-        if (getImportantForAccessibility() == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-            setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-        }
-        */
     }
 
     @Override
@@ -1478,3 +1468,4 @@ public class  ActionBarView extends AbsActionBarView {
         }
     }
 }
+

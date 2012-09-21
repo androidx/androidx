@@ -17,8 +17,6 @@
 package android.support.appcompat.view;
 
 
-import android.support.appcompat.view.Menu;
-import android.support.appcompat.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.View;
 

@@ -29,201 +29,202 @@ import java.util.ArrayList;
  * be reused if possible when items change.
  */
 public abstract class BaseMenuPresenter implements MenuPresenter {
-  protected Context mSystemContext;
-  protected Context mContext;
-  protected MenuBuilder mMenu;
-  protected LayoutInflater mSystemInflater;
-  protected LayoutInflater mInflater;
-  private Callback mCallback;
+    protected Context mSystemContext;
+    protected Context mContext;
+    protected MenuBuilder mMenu;
+    protected LayoutInflater mSystemInflater;
+    protected LayoutInflater mInflater;
+    private Callback mCallback;
 
-  private int mMenuLayoutRes;
-  private int mItemLayoutRes;
+    private int mMenuLayoutRes;
+    private int mItemLayoutRes;
 
-  protected MenuView mMenuView;
+    protected MenuView mMenuView;
 
-  private int mId;
+    private int mId;
 
-  /**
-   * Construct a new BaseMenuPresenter.
-   *
-   * @param context Context for generating system-supplied views
-   * @param menuLayoutRes Layout resource ID for the menu container view
-   * @param itemLayoutRes Layout resource ID for a single item view
-   */
-  public BaseMenuPresenter(Context context, int menuLayoutRes, int itemLayoutRes) {
-    mSystemContext = context;
-    mSystemInflater = LayoutInflater.from(context);
-    mMenuLayoutRes = menuLayoutRes;
-    mItemLayoutRes = itemLayoutRes;
-  }
-
-  @Override
-  public void initForMenu(Context context, MenuBuilder menu) {
-    mContext = context;
-    mInflater = LayoutInflater.from(mContext);
-    mMenu = menu;
-  }
-
-  public MenuView getMenuView(ViewGroup root) {
-    if (mMenuView == null) {
-      mMenuView = (MenuView) mSystemInflater.inflate(mMenuLayoutRes, root, false);
-      mMenuView.initialize(mMenu);
-      updateMenuView(true);
+    /**
+     * Construct a new BaseMenuPresenter.
+     *
+     * @param context       Context for generating system-supplied views
+     * @param menuLayoutRes Layout resource ID for the menu container view
+     * @param itemLayoutRes Layout resource ID for a single item view
+     */
+    public BaseMenuPresenter(Context context, int menuLayoutRes, int itemLayoutRes) {
+        mSystemContext = context;
+        mSystemInflater = LayoutInflater.from(context);
+        mMenuLayoutRes = menuLayoutRes;
+        mItemLayoutRes = itemLayoutRes;
     }
 
-    return mMenuView;
-  }
+    @Override
+    public void initForMenu(Context context, MenuBuilder menu) {
+        mContext = context;
+        mInflater = LayoutInflater.from(mContext);
+        mMenu = menu;
+    }
 
-  /**
-   * Reuses item views when it can
-   */
-  public void updateMenuView(boolean cleared) {
-    final ViewGroup parent = (ViewGroup) mMenuView;
-    if (parent == null) return;
-
-    int childIndex = 0;
-    if (mMenu != null) {
-      mMenu.flagActionItems();
-      ArrayList<MenuItemImpl> visibleItems = mMenu.getVisibleItems();
-      final int itemCount = visibleItems.size();
-      for (int i = 0; i < itemCount; i++) {
-        MenuItemImpl item = visibleItems.get(i);
-        if (shouldIncludeItem(childIndex, item)) {
-          final View convertView = parent.getChildAt(childIndex);
-          final MenuItemImpl oldItem = convertView instanceof MenuView.ItemView ?
-              ((MenuView.ItemView) convertView).getItemData() : null;
-          final View itemView = getItemView(item, convertView, parent);
-          if (item != oldItem) {
-            // Don't let old states linger with new data.
-            itemView.setPressed(false);
-            // itemView.jumpDrawablesToCurrentState();
-            // Animation API: Not available on API < 11
-          }
-          if (itemView != convertView) {
-            addItemView(itemView, childIndex);
-          }
-          childIndex++;
+    public MenuView getMenuView(ViewGroup root) {
+        if (mMenuView == null) {
+            mMenuView = (MenuView) mSystemInflater.inflate(mMenuLayoutRes, root, false);
+            mMenuView.initialize(mMenu);
+            updateMenuView(true);
         }
-      }
+
+        return mMenuView;
     }
 
-    // Remove leftover views.
-    while (childIndex < parent.getChildCount()) {
-      if (!filterLeftoverView(parent, childIndex)) {
-        childIndex++;
-      }
+    /**
+     * Reuses item views when it can
+     */
+    public void updateMenuView(boolean cleared) {
+        final ViewGroup parent = (ViewGroup) mMenuView;
+        if (parent == null) return;
+
+        int childIndex = 0;
+        if (mMenu != null) {
+            mMenu.flagActionItems();
+            ArrayList<MenuItemImpl> visibleItems = mMenu.getVisibleItems();
+            final int itemCount = visibleItems.size();
+            for (int i = 0; i < itemCount; i++) {
+                MenuItemImpl item = visibleItems.get(i);
+                if (shouldIncludeItem(childIndex, item)) {
+                    final View convertView = parent.getChildAt(childIndex);
+                    final MenuItemImpl oldItem = convertView instanceof MenuView.ItemView ?
+                        ((MenuView.ItemView) convertView).getItemData() : null;
+                    final View itemView = getItemView(item, convertView, parent);
+                    if (item != oldItem) {
+                        // Don't let old states linger with new data.
+                        itemView.setPressed(false);
+                        // itemView.jumpDrawablesToCurrentState();
+                        // Animation API: Not available on API < 11
+                    }
+                    if (itemView != convertView) {
+                        addItemView(itemView, childIndex);
+                    }
+                    childIndex++;
+                }
+            }
+        }
+
+        // Remove leftover views.
+        while (childIndex < parent.getChildCount()) {
+            if (!filterLeftoverView(parent, childIndex)) {
+                childIndex++;
+            }
+        }
     }
-  }
 
-  /**
-   * Add an item view at the given index.
-   *
-   * @param itemView View to add
-   * @param childIndex Index within the parent to insert at
-   */
-  protected void addItemView(View itemView, int childIndex) {
-    final ViewGroup currentParent = (ViewGroup) itemView.getParent();
-    if (currentParent != null) {
-      currentParent.removeView(itemView);
+    /**
+     * Add an item view at the given index.
+     *
+     * @param itemView   View to add
+     * @param childIndex Index within the parent to insert at
+     */
+    protected void addItemView(View itemView, int childIndex) {
+        final ViewGroup currentParent = (ViewGroup) itemView.getParent();
+        if (currentParent != null) {
+            currentParent.removeView(itemView);
+        }
+        ((ViewGroup) mMenuView).addView(itemView, childIndex);
     }
-    ((ViewGroup) mMenuView).addView(itemView, childIndex);
-  }
 
-  /**
-   * Filter the child view at index and remove it if appropriate.
-   * @param parent Parent to filter from
-   * @param childIndex Index to filter
-   * @return true if the child view at index was removed
-   */
-  protected boolean filterLeftoverView(ViewGroup parent, int childIndex) {
-    parent.removeViewAt(childIndex);
-    return true;
-  }
-
-  public void setCallback(Callback cb) {
-    mCallback = cb;
-  }
-
-  /**
-   * Create a new item view that can be re-bound to other item data later.
-   *
-   * @return The new item view
-   */
-  public MenuView.ItemView createItemView(ViewGroup parent) {
-    return (MenuView.ItemView) mSystemInflater.inflate(mItemLayoutRes, parent, false);
-  }
-
-  /**
-   * Prepare an item view for use. See AdapterView for the basic idea at work here.
-   * This may require creating a new item view, but well-behaved implementations will
-   * re-use the view passed as convertView if present. The returned view will be populated
-   * with data from the item parameter.
-   *
-   * @param item Item to present
-   * @param convertView Existing view to reuse
-   * @param parent Intended parent view - use for inflation.
-   * @return View that presents the requested menu item
-   */
-  public View getItemView(MenuItemImpl item, View convertView, ViewGroup parent) {
-    MenuView.ItemView itemView;
-    if (convertView instanceof MenuView.ItemView) {
-      itemView = (MenuView.ItemView) convertView;
-    } else {
-      itemView = createItemView(parent);
+    /**
+     * Filter the child view at index and remove it if appropriate.
+     *
+     * @param parent     Parent to filter from
+     * @param childIndex Index to filter
+     * @return true if the child view at index was removed
+     */
+    protected boolean filterLeftoverView(ViewGroup parent, int childIndex) {
+        parent.removeViewAt(childIndex);
+        return true;
     }
-    bindItemView(item, itemView);
-    return (View) itemView;
-  }
 
-  /**
-   * Bind item data to an existing item view.
-   *
-   * @param item Item to bind
-   * @param itemView View to populate with item data
-   */
-  public abstract void bindItemView(MenuItemImpl item, MenuView.ItemView itemView);
-
-  /**
-   * Filter item by child index and item data.
-   *
-   * @param childIndex Indended presentation index of this item
-   * @param item Item to present
-   * @return true if this item should be included in this menu presentation; false otherwise
-   */
-  public boolean shouldIncludeItem(int childIndex, MenuItemImpl item) {
-    return true;
-  }
-
-  public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
-    if (mCallback != null) {
-      mCallback.onCloseMenu(menu, allMenusAreClosing);
+    public void setCallback(Callback cb) {
+        mCallback = cb;
     }
-  }
 
-  public boolean onSubMenuSelected(SubMenuBuilder menu) {
-    if (mCallback != null) {
-      return mCallback.onOpenSubMenu(menu);
+    /**
+     * Create a new item view that can be re-bound to other item data later.
+     *
+     * @return The new item view
+     */
+    public MenuView.ItemView createItemView(ViewGroup parent) {
+        return (MenuView.ItemView) mSystemInflater.inflate(mItemLayoutRes, parent, false);
     }
-    return false;
-  }
 
-  public boolean flagActionItems() {
-    return false;
-  }
+    /**
+     * Prepare an item view for use. See AdapterView for the basic idea at work here.
+     * This may require creating a new item view, but well-behaved implementations will
+     * re-use the view passed as convertView if present. The returned view will be populated
+     * with data from the item parameter.
+     *
+     * @param item        Item to present
+     * @param convertView Existing view to reuse
+     * @param parent      Intended parent view - use for inflation.
+     * @return View that presents the requested menu item
+     */
+    public View getItemView(MenuItemImpl item, View convertView, ViewGroup parent) {
+        MenuView.ItemView itemView;
+        if (convertView instanceof MenuView.ItemView) {
+            itemView = (MenuView.ItemView) convertView;
+        } else {
+            itemView = createItemView(parent);
+        }
+        bindItemView(item, itemView);
+        return (View) itemView;
+    }
 
-  public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item) {
-    return false;
-  }
+    /**
+     * Bind item data to an existing item view.
+     *
+     * @param item     Item to bind
+     * @param itemView View to populate with item data
+     */
+    public abstract void bindItemView(MenuItemImpl item, MenuView.ItemView itemView);
 
-  public boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item) {
-    return false;
-  }
+    /**
+     * Filter item by child index and item data.
+     *
+     * @param childIndex Indended presentation index of this item
+     * @param item       Item to present
+     * @return true if this item should be included in this menu presentation; false otherwise
+     */
+    public boolean shouldIncludeItem(int childIndex, MenuItemImpl item) {
+        return true;
+    }
 
-  public int getId() {
-    return mId;
-  }
+    public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        if (mCallback != null) {
+            mCallback.onCloseMenu(menu, allMenusAreClosing);
+        }
+    }
 
-  public void setId(int id) {
-    mId = id;
-  }
+    public boolean onSubMenuSelected(SubMenuBuilder menu) {
+        if (mCallback != null) {
+            return mCallback.onOpenSubMenu(menu);
+        }
+        return false;
+    }
+
+    public boolean flagActionItems() {
+        return false;
+    }
+
+    public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item) {
+        return false;
+    }
+
+    public boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item) {
+        return false;
+    }
+
+    public int getId() {
+        return mId;
+    }
+
+    public void setId(int id) {
+        mId = id;
+    }
 }

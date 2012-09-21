@@ -22,7 +22,6 @@ import android.os.Build;
 import android.support.appcompat.R;
 import android.support.appcompat.view.menu.ActionMenuPresenter;
 import android.support.appcompat.view.menu.ActionMenuView;
-import android.text.AndroidCharacter;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;

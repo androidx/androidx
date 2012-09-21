@@ -19,17 +19,15 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.appcompat.R;
+import android.support.appcompat.view.ActionMode;
 import android.support.appcompat.view.menu.ActionMenuPresenter;
 import android.support.appcompat.view.menu.ActionMenuView;
 import android.support.appcompat.view.menu.MenuBuilder;
-import android.support.appcompat.view.ActionMode;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 

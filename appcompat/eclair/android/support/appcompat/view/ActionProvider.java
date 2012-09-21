@@ -17,7 +17,7 @@
 package android.support.appcompat.view;
 
 import android.content.Context;
-import android.view.SubMenu;
+import android.support.appcompat.view.SubMenu;
 import android.view.View;
 
 /**

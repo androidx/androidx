@@ -21,9 +21,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.appcompat.view.ActionMode;
-import android.support.appcompat.view.menu.MenuBuilder;
 import android.support.appcompat.view.Menu;
 import android.support.appcompat.view.MenuItem;
+import android.support.appcompat.view.menu.MenuBuilder;
 import android.support.appcompat.view.menu.SubMenuBuilder;
 import android.support.appcompat.widget.ActionBarContainer;
 import android.support.appcompat.widget.ActionBarContextView;
@@ -61,20 +61,20 @@ public class ActionBarImplCompat extends ActionBar {
 
     private TabImpl mSelectedTab;
     private int mSavedTabPosition = INVALID_POSITION;
-    
+
     private boolean mDisplayHomeAsUpSet;
 
     ActionModeImpl mActionMode;
     ActionMode mDeferredDestroyActionMode;
     ActionMode.Callback mDeferredModeDestroyCallback;
-    
+
     private boolean mLastMenuVisibility;
     private ArrayList<OnMenuVisibilityListener> mMenuVisibilityListeners =
-            new ArrayList<OnMenuVisibilityListener>();
+        new ArrayList<OnMenuVisibilityListener>();
 
     private static final int CONTEXT_DISPLAY_NORMAL = 0;
     private static final int CONTEXT_DISPLAY_SPLIT = 1;
-    
+
     private static final int INVALID_POSITION = -1;
 
     private int mContextDisplayMode;
@@ -95,9 +95,9 @@ public class ActionBarImplCompat extends ActionBar {
     // private Animator mCurrentShowAnim;
     private boolean mShowHideAnimationEnabled;
 
-  private Callback mCallback;
+    private Callback mCallback;
 
-  public ActionBarImplCompat(FragmentActivity activity, Callback callback) {
+    public ActionBarImplCompat(FragmentActivity activity, Callback callback) {
         mActivity = activity;
         mCallback = callback;
     }
@@ -117,7 +117,7 @@ public class ActionBarImplCompat extends ActionBar {
     @Override
     public void setCustomView(int resId) {
         setCustomView(LayoutInflater.from(getThemedContext())
-                .inflate(resId, mActionView, false));
+            .inflate(resId, mActionView, false));
 
     }
 
@@ -150,14 +150,14 @@ public class ActionBarImplCompat extends ActionBar {
     @Override
     public void setSelectedNavigationItem(int position) {
         switch (mActionView.getNavigationMode()) {
-        case NAVIGATION_MODE_TABS:
-            selectTab(mTabs.get(position));
-            break;
-        case NAVIGATION_MODE_LIST:
-            mActionView.setDropdownSelectedPosition(position);
-            break;
-        default:
-            throw new IllegalStateException(
+            case NAVIGATION_MODE_TABS:
+                selectTab(mTabs.get(position));
+                break;
+            case NAVIGATION_MODE_LIST:
+                mActionView.setDropdownSelectedPosition(position);
+                break;
+            default:
+                throw new IllegalStateException(
                     "setSelectedNavigationIndex not valid for current navigation mode");
         }
     }
@@ -217,7 +217,7 @@ public class ActionBarImplCompat extends ActionBar {
 
     @Override
     public void setDisplayOptions(int options, int mask) {
-        final int current = mActionView.getDisplayOptions(); 
+        final int current = mActionView.getDisplayOptions();
         if ((mask & DISPLAY_HOME_AS_UP) != 0) {
             mDisplayHomeAsUpSet = true;
         }
@@ -357,7 +357,7 @@ public class ActionBarImplCompat extends ActionBar {
         }
 
         int selectedTabPosition = mSelectedTab != null
-                ? mSelectedTab.getPosition() : mSavedTabPosition;
+            ? mSelectedTab.getPosition() : mSavedTabPosition;
         mTabScrollView.removeTabAt(position);
         TabImpl removedTab = mTabs.remove(position);
         if (removedTab != null) {
@@ -387,7 +387,7 @@ public class ActionBarImplCompat extends ActionBar {
         }
 
         final FragmentTransaction trans = mActivity.getSupportFragmentManager().beginTransaction()
-                .disallowAddToBackStack();
+            .disallowAddToBackStack();
 
         if (mSelectedTab == tab) {
             if (mSelectedTab != null) {
@@ -461,388 +461,395 @@ public class ActionBarImplCompat extends ActionBar {
         mMenuVisibilityListeners.remove(listener);
     }
 
-  /**
-   * @hide
-   */
-  public class TabImpl extends ActionBar.Tab {
-    private ActionBar.TabListener mCallback;
-    private Object mTag;
-    private Drawable mIcon;
-    private CharSequence mText;
-    private CharSequence mContentDesc;
-    private int mPosition = -1;
-    private View mCustomView;
+    /**
+     * @hide
+     */
+    public class TabImpl extends ActionBar.Tab {
+        private ActionBar.TabListener mCallback;
+        private Object mTag;
+        private Drawable mIcon;
+        private CharSequence mText;
+        private CharSequence mContentDesc;
+        private int mPosition = -1;
+        private View mCustomView;
 
-    @Override
-    public Object getTag() {
-      return mTag;
+        @Override
+        public Object getTag() {
+            return mTag;
+        }
+
+        @Override
+        public Tab setTag(Object tag) {
+            mTag = tag;
+            return this;
+        }
+
+        public ActionBar.TabListener getCallback() {
+            return mCallback;
+        }
+
+        @Override
+        public Tab setTabListener(ActionBar.TabListener callback) {
+            mCallback = callback;
+            return this;
+        }
+
+        @Override
+        public View getCustomView() {
+            return mCustomView;
+        }
+
+        @Override
+        public Tab setCustomView(View view) {
+            mCustomView = view;
+            if (mPosition >= 0) {
+                mTabScrollView.updateTab(mPosition);
+            }
+            return this;
+        }
+
+        @Override
+        public Tab setCustomView(int layoutResId) {
+            return setCustomView(LayoutInflater.from(getThemedContext())
+                .inflate(layoutResId, null));
+        }
+
+        @Override
+        public Drawable getIcon() {
+            return mIcon;
+        }
+
+        @Override
+        public int getPosition() {
+            return mPosition;
+        }
+
+        public void setPosition(int position) {
+            mPosition = position;
+        }
+
+        @Override
+        public CharSequence getText() {
+            return mText;
+        }
+
+        @Override
+        public Tab setIcon(Drawable icon) {
+            mIcon = icon;
+            if (mPosition >= 0) {
+                mTabScrollView.updateTab(mPosition);
+            }
+            return this;
+        }
+
+        @Override
+        public Tab setIcon(int resId) {
+            return setIcon(mContext.getResources().getDrawable(resId));
+        }
+
+        @Override
+        public Tab setText(CharSequence text) {
+            mText = text;
+            if (mPosition >= 0) {
+                mTabScrollView.updateTab(mPosition);
+            }
+            return this;
+        }
+
+        @Override
+        public Tab setText(int resId) {
+            return setText(mContext.getResources().getText(resId));
+        }
+
+        @Override
+        public void select() {
+            selectTab(this);
+        }
+
+        @Override
+        public Tab setContentDescription(int resId) {
+            return setContentDescription(mContext.getResources().getText(resId));
+        }
+
+        @Override
+        public Tab setContentDescription(CharSequence contentDesc) {
+            mContentDesc = contentDesc;
+            if (mPosition >= 0) {
+                mTabScrollView.updateTab(mPosition);
+            }
+            return this;
+        }
+
+        @Override
+        public CharSequence getContentDescription() {
+            return mContentDesc;
+        }
     }
 
-    @Override
-    public Tab setTag(Object tag) {
-      mTag = tag;
-      return this;
+    /**
+     * @hide
+     */
+    //public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
+    public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
+        private ActionMode.Callback mCallback;
+        private MenuBuilder mMenu;
+        private WeakReference<View> mCustomView;
+
+        public ActionModeImpl(ActionMode.Callback callback) {
+            mCallback = callback;
+            mMenu = new MenuBuilder(getThemedContext())
+                .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            mMenu.setCallback(this);
+        }
+
+        @Override
+        public MenuInflater getMenuInflater() {
+            return new MenuInflater(getThemedContext());
+        }
+
+        @Override
+        public Menu getMenu() {
+            return mMenu;
+        }
+
+        @Override
+        public void finish() {
+            if (mActionMode != this) {
+                // Not the active action mode - no-op
+                return;
+            }
+
+            // If this change in state is going to cause the action bar
+            // to be hidden, defer the onDestroy callback until the animation
+            // is finished and associated relayout is about to happen. This lets
+            // apps better anticipate visibility and layout behavior.
+            if (!checkShowingFlags(mHiddenByApp, mHiddenBySystem, false)) {
+                // With the current state but the action bar hidden, our
+                // overall showing state is going to be false.
+                mDeferredDestroyActionMode = this;
+                mDeferredModeDestroyCallback = mCallback;
+            } else {
+                mCallback.onDestroyActionMode(this);
+            }
+            mCallback = null;
+            //animateToMode(false);
+
+            // Clear out the context mode views after the animation finishes
+            mContextView.closeMode();
+            mActionView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+
+            mActionMode = null;
+        }
+
+        @Override
+        public void invalidate() {
+            //mMenu.stopDispatchingItemsChanged();
+            try {
+                mCallback.onPrepareActionMode(this, mMenu);
+            } finally {
+                mMenu.startDispatchingItemsChanged();
+            }
+        }
+
+        public boolean dispatchOnCreate() {
+            mMenu.stopDispatchingItemsChanged();
+            try {
+                return mCallback.onCreateActionMode(this, mMenu);
+            } finally {
+                //mMenu.startDispatchingItemsChanged();
+            }
+        }
+
+        @Override
+        public void setCustomView(View view) {
+            mContextView.setCustomView(view);
+            mCustomView = new WeakReference<View>(view);
+        }
+
+        @Override
+        public void setSubtitle(CharSequence subtitle) {
+            mContextView.setSubtitle(subtitle);
+        }
+
+        @Override
+        public void setTitle(CharSequence title) {
+            mContextView.setTitle(title);
+        }
+
+        @Override
+        public void setTitle(int resId) {
+            setTitle(mContext.getResources().getString(resId));
+        }
+
+        @Override
+        public void setSubtitle(int resId) {
+            setSubtitle(mContext.getResources().getString(resId));
+        }
+
+        @Override
+        public CharSequence getTitle() {
+            return mContextView.getTitle();
+        }
+
+        @Override
+        public CharSequence getSubtitle() {
+            return mContextView.getSubtitle();
+        }
+
+        @Override
+        public void setTitleOptionalHint(boolean titleOptional) {
+            super.setTitleOptionalHint(titleOptional);
+            mContextView.setTitleOptional(titleOptional);
+        }
+
+        @Override
+        public boolean isTitleOptional() {
+            return mContextView.isTitleOptional();
+        }
+
+        @Override
+        public View getCustomView() {
+            return mCustomView != null ? mCustomView.get() : null;
+        }
+
+        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+            if (mCallback != null) {
+                return mCallback.onActionItemClicked(this, item);
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void onMenuModeChange(MenuBuilder menu) {
+            if (mCallback == null) {
+                return;
+            }
+            invalidate();
+            mContextView.showOverflowMenu();
+        }
+
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        }
+
+        public boolean onSubMenuSelected(SubMenuBuilder subMenu) {
+            if (mCallback == null) {
+                return false;
+            }
+
+            if (!subMenu.hasVisibleItems()) {
+                return true;
+            }
+
+            //new MenuPopupHelper(getThemedContext(), subMenu).show();
+            return true;
+        }
+
+        public void onCloseSubMenu(SubMenuBuilder menu) {
+        }
+
+        public void onMenuModeChange(Menu menu) {
+            if (mCallback == null) {
+                return;
+            }
+            invalidate();
+            mContextView.showOverflowMenu();
+        }
     }
 
-    public ActionBar.TabListener getCallback() {
-      return mCallback;
+    /**
+     * TODO(trevorjohns): Methods below this line were missing! **********************************
+     */
+
+    private void ensureTabsExist() {
+        if (mTabScrollView != null) {
+            return;
+        }
+
+        ScrollingTabContainerView tabScroller = new ScrollingTabContainerView(mContext);
+
+        if (mHasEmbeddedTabs) {
+            tabScroller.setVisibility(View.VISIBLE);
+            mActionView.setEmbeddedTabView(tabScroller);
+        } else {
+            if (getNavigationMode() == NAVIGATION_MODE_TABS) {
+                tabScroller.setVisibility(View.VISIBLE);
+                // Removed: Not needed on older devices.
+                /*if (mOverlayLayout != null) {
+                  mOverlayLayout.requestFitSystemWindows();
+                }*/
+            } else {
+                tabScroller.setVisibility(View.GONE);
+            }
+            mContainerView.setTabContainer(tabScroller);
+        }
+        mTabScrollView = tabScroller;
     }
 
-    @Override
-    public Tab setTabListener(ActionBar.TabListener callback) {
-      mCallback = callback;
-      return this;
+    private void configureTab(Tab tab, int position) {
+        final TabImpl tabi = (TabImpl) tab;
+        final ActionBar.TabListener callback = tabi.getCallback();
+
+        if (callback == null) {
+            throw new IllegalStateException("Action Bar Tab must have a Callback");
+        }
+
+        tabi.setPosition(position);
+        mTabs.add(position, tabi);
+
+        final int count = mTabs.size();
+        for (int i = position + 1; i < count; i++) {
+            mTabs.get(i).setPosition(i);
+        }
     }
 
-    @Override
-    public View getCustomView() {
-      return mCustomView;
+    private void cleanupTabs() {
+        if (mSelectedTab != null) {
+            selectTab(null);
+        }
+        mTabs.clear();
+        if (mTabScrollView != null) {
+            mTabScrollView.removeAllTabs();
+        }
+        mSavedTabPosition = INVALID_POSITION;
     }
 
-    @Override
-    public Tab setCustomView(View view) {
-      mCustomView = view;
-      if (mPosition >= 0) {
-        mTabScrollView.updateTab(mPosition);
-      }
-      return this;
+    private static boolean checkShowingFlags(boolean hiddenByApp, boolean hiddenBySystem,
+                                             boolean showingForMode) {
+        if (showingForMode) {
+            return true;
+        } else if (hiddenByApp || hiddenBySystem) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    @Override
-    public Tab setCustomView(int layoutResId) {
-      return setCustomView(LayoutInflater.from(getThemedContext())
-          .inflate(layoutResId, null));
+    private void updateVisibility(boolean fromSystem) {
+        // Based on the current state, should we be hidden or shown?
+        final boolean shown = checkShowingFlags(mHiddenByApp, mHiddenBySystem,
+            mShowingForMode);
+
+        if (shown) {
+            if (!mNowShowing) {
+                mNowShowing = true;
+                doShow(fromSystem);
+            }
+        } else {
+            if (mNowShowing) {
+                mNowShowing = false;
+                doHide(fromSystem);
+            }
+        }
     }
 
-    @Override
-    public Drawable getIcon() {
-      return mIcon;
+    public void doShow(boolean fromSystem) {
+        // TODO(trevorjohns): Animation removed from doShow/doHide. Verify that this is correct.
+        mTopVisibilityView.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public int getPosition() {
-      return mPosition;
+    public void doHide(boolean fromSystem) {
+        mTopVisibilityView.setVisibility(View.INVISIBLE);
     }
-
-    public void setPosition(int position) {
-      mPosition = position;
-    }
-
-    @Override
-    public CharSequence getText() {
-      return mText;
-    }
-
-    @Override
-    public Tab setIcon(Drawable icon) {
-      mIcon = icon;
-      if (mPosition >= 0) {
-        mTabScrollView.updateTab(mPosition);
-      }
-      return this;
-    }
-
-    @Override
-    public Tab setIcon(int resId) {
-      return setIcon(mContext.getResources().getDrawable(resId));
-    }
-
-    @Override
-    public Tab setText(CharSequence text) {
-      mText = text;
-      if (mPosition >= 0) {
-        mTabScrollView.updateTab(mPosition);
-      }
-      return this;
-    }
-
-    @Override
-    public Tab setText(int resId) {
-      return setText(mContext.getResources().getText(resId));
-    }
-
-    @Override
-    public void select() {
-      selectTab(this);
-    }
-
-    @Override
-    public Tab setContentDescription(int resId) {
-      return setContentDescription(mContext.getResources().getText(resId));
-    }
-
-    @Override
-    public Tab setContentDescription(CharSequence contentDesc) {
-      mContentDesc = contentDesc;
-      if (mPosition >= 0) {
-        mTabScrollView.updateTab(mPosition);
-      }
-      return this;
-    }
-
-    @Override
-    public CharSequence getContentDescription() {
-      return mContentDesc;
-    }
-  }
-
-  /**
-   * @hide
-   */
-  public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
-    private ActionMode.Callback mCallback;
-    private MenuBuilder mMenu;
-    private WeakReference<View> mCustomView;
-
-    public ActionModeImpl(ActionMode.Callback callback) {
-      mCallback = callback;
-      mMenu = new MenuBuilder(getThemedContext())
-          .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
-      mMenu.setCallback(this);
-    }
-
-    @Override
-    public MenuInflater getMenuInflater() {
-      return new MenuInflater(getThemedContext());
-    }
-
-    @Override
-    public Menu getMenu() {
-      return mMenu;
-    }
-
-    @Override
-    public void finish() {
-      if (mActionMode != this) {
-        // Not the active action mode - no-op
-        return;
-      }
-
-      // If this change in state is going to cause the action bar
-      // to be hidden, defer the onDestroy callback until the animation
-      // is finished and associated relayout is about to happen. This lets
-      // apps better anticipate visibility and layout behavior.
-      if (!checkShowingFlags(mHiddenByApp, mHiddenBySystem, false)) {
-        // With the current state but the action bar hidden, our
-        // overall showing state is going to be false.
-        mDeferredDestroyActionMode = this;
-        mDeferredModeDestroyCallback = mCallback;
-      } else {
-        mCallback.onDestroyActionMode(this);
-      }
-      mCallback = null;
-      //animateToMode(false);
-
-      // Clear out the context mode views after the animation finishes
-      mContextView.closeMode();
-      mActionView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-
-      mActionMode = null;
-    }
-
-    @Override
-    public void invalidate() {
-      //mMenu.stopDispatchingItemsChanged();
-      try {
-        mCallback.onPrepareActionMode(this, mMenu);
-      } finally {
-        mMenu.startDispatchingItemsChanged();
-      }
-    }
-
-    public boolean dispatchOnCreate() {
-      mMenu.stopDispatchingItemsChanged();
-      try {
-        return mCallback.onCreateActionMode(this, mMenu);
-      } finally {
-        //mMenu.startDispatchingItemsChanged();
-      }
-    }
-
-    @Override
-    public void setCustomView(View view) {
-      mContextView.setCustomView(view);
-      mCustomView = new WeakReference<View>(view);
-    }
-
-    @Override
-    public void setSubtitle(CharSequence subtitle) {
-      mContextView.setSubtitle(subtitle);
-    }
-
-    @Override
-    public void setTitle(CharSequence title) {
-      mContextView.setTitle(title);
-    }
-
-    @Override
-    public void setTitle(int resId) {
-      setTitle(mContext.getResources().getString(resId));
-    }
-
-    @Override
-    public void setSubtitle(int resId) {
-      setSubtitle(mContext.getResources().getString(resId));
-    }
-
-    @Override
-    public CharSequence getTitle() {
-      return mContextView.getTitle();
-    }
-
-    @Override
-    public CharSequence getSubtitle() {
-      return mContextView.getSubtitle();
-    }
-
-    @Override
-    public void setTitleOptionalHint(boolean titleOptional) {
-      super.setTitleOptionalHint(titleOptional);
-      mContextView.setTitleOptional(titleOptional);
-    }
-
-    @Override
-    public boolean isTitleOptional() {
-      return mContextView.isTitleOptional();
-    }
-
-    @Override
-    public View getCustomView() {
-      return mCustomView != null ? mCustomView.get() : null;
-    }
-
-    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-      if (mCallback != null) {
-        return mCallback.onActionItemClicked(this, item);
-      } else {
-        return false;
-      }
-    }
-
-    @Override
-    public void onMenuModeChange(MenuBuilder menu) {
-      // TODO (trevorjohns): Implement method
-    }
-
-    public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
-    }
-
-    public boolean onSubMenuSelected(SubMenuBuilder subMenu) {
-      if (mCallback == null) {
-        return false;
-      }
-
-      if (!subMenu.hasVisibleItems()) {
-        return true;
-      }
-
-      //new MenuPopupHelper(getThemedContext(), subMenu).show();
-      return true;
-    }
-
-    public void onCloseSubMenu(SubMenuBuilder menu) {
-    }
-
-    public void onMenuModeChange(Menu menu) {
-      if (mCallback == null) {
-        return;
-      }
-      invalidate();
-      mContextView.showOverflowMenu();
-    }
-  }
-
-  /** TODO(trevorjohns): Methods below this line were missing! ***********************************/
-
-  private void ensureTabsExist() {
-    if (mTabScrollView != null) {
-      return;
-    }
-
-    ScrollingTabContainerView tabScroller = new ScrollingTabContainerView(mContext);
-
-    if (mHasEmbeddedTabs) {
-      tabScroller.setVisibility(View.VISIBLE);
-      mActionView.setEmbeddedTabView(tabScroller);
-    } else {
-      if (getNavigationMode() == NAVIGATION_MODE_TABS) {
-        tabScroller.setVisibility(View.VISIBLE);
-        // Removed: Not needed on older devices.
-        /*if (mOverlayLayout != null) {
-          mOverlayLayout.requestFitSystemWindows();
-        }*/
-      } else {
-        tabScroller.setVisibility(View.GONE);
-      }
-      mContainerView.setTabContainer(tabScroller);
-    }
-    mTabScrollView = tabScroller;
-  }
-
-  private void configureTab(Tab tab, int position) {
-    final TabImpl tabi = (TabImpl) tab;
-    final ActionBar.TabListener callback = tabi.getCallback();
-
-    if (callback == null) {
-      throw new IllegalStateException("Action Bar Tab must have a Callback");
-    }
-
-    tabi.setPosition(position);
-    mTabs.add(position, tabi);
-
-    final int count = mTabs.size();
-    for (int i = position + 1; i < count; i++) {
-      mTabs.get(i).setPosition(i);
-    }
-  }
-
-  private void cleanupTabs() {
-    if (mSelectedTab != null) {
-      selectTab(null);
-    }
-    mTabs.clear();
-    if (mTabScrollView != null) {
-      mTabScrollView.removeAllTabs();
-    }
-    mSavedTabPosition = INVALID_POSITION;
-  }
-
-  private static boolean checkShowingFlags(boolean hiddenByApp, boolean hiddenBySystem,
-      boolean showingForMode) {
-    if (showingForMode) {
-      return true;
-    } else if (hiddenByApp || hiddenBySystem) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  private void updateVisibility(boolean fromSystem) {
-    // Based on the current state, should we be hidden or shown?
-    final boolean shown = checkShowingFlags(mHiddenByApp, mHiddenBySystem,
-        mShowingForMode);
-
-    if (shown) {
-      if (!mNowShowing) {
-        mNowShowing = true;
-        doShow(fromSystem);
-      }
-    } else {
-      if (mNowShowing) {
-        mNowShowing = false;
-        doHide(fromSystem);
-      }
-    }
-  }
-  public void doShow(boolean fromSystem) {
-    // TODO(trevorjohns): Animation removed from doShow/doHide. Verify that this is correct.
-    mTopVisibilityView.setVisibility(View.VISIBLE);
-  }
-
-  public void doHide(boolean fromSystem) {
-    mTopVisibilityView.setVisibility(View.INVISIBLE);
-  }
 
 }
