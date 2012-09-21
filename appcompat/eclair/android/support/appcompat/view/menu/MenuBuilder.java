@@ -185,7 +185,7 @@ public class MenuBuilder implements Menu {
     return null;
   }
 
-  public void setCallback(MenuPresenter.Callback actionMode) {
+  public void setCallback(Callback actionMode) {
   }
 
   public void startDispatchingItemsChanged() {
@@ -244,5 +244,25 @@ public class MenuBuilder implements Menu {
 
   public boolean performItemAction(MenuItemImpl item, int i) {
     return false;  //To change body of created methods use File | Settings | File Templates.
+  }
+
+  /**
+   * Called by menu to notify of close and selection changes.
+   */
+  public interface Callback {
+    /**
+     * Called when a menu item is selected.
+     * @param menu The menu that is the parent of the item
+     * @param item The menu item that is selected
+     * @return whether the menu item selection was handled
+     */
+    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);
+
+    /**
+     * Called when the mode of the menu changes (for example, from icon to expanded).
+     *
+     * @param menu the menu that has changed modes
+     */
+    public void onMenuModeChange(MenuBuilder menu);
   }
 }

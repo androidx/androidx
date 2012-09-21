@@ -22,17 +22,18 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.appcompat.view.ActionMode;
 import android.support.appcompat.view.menu.MenuBuilder;
+import android.support.appcompat.view.Menu;
+import android.support.appcompat.view.MenuItem;
 import android.support.appcompat.view.menu.SubMenuBuilder;
 import android.support.appcompat.widget.ActionBarContainer;
 import android.support.appcompat.widget.ActionBarContextView;
 import android.support.appcompat.widget.ActionBarOverlayLayout;
 import android.support.appcompat.widget.ActionBarView;
 import android.support.appcompat.widget.ScrollingTabContainerView;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 public class ActionBarImplCompat extends ActionBar {
     private Context mContext;
     private Context mThemedContext;
-    private ActionBarActivity mActivity;
+    private FragmentActivity mActivity;
     private Dialog mDialog;
 
     private ActionBarOverlayLayout mOverlayLayout;
@@ -96,7 +97,7 @@ public class ActionBarImplCompat extends ActionBar {
 
   private Callback mCallback;
 
-  public ActionBarImplCompat(ActionBarActivity activity, Callback callback) {
+  public ActionBarImplCompat(FragmentActivity activity, Callback callback) {
         mActivity = activity;
         mCallback = callback;
     }
@@ -588,8 +589,7 @@ public class ActionBarImplCompat extends ActionBar {
   /**
    * @hide
    */
-  //public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
-  public class ActionModeImpl extends ActionMode {
+  public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
     private ActionMode.Callback mCallback;
     private MenuBuilder mMenu;
     private WeakReference<View> mCustomView;
@@ -598,6 +598,7 @@ public class ActionBarImplCompat extends ActionBar {
       mCallback = callback;
       mMenu = new MenuBuilder(getThemedContext())
           .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
       mMenu.setCallback(this);
     }
 
@@ -717,6 +718,11 @@ public class ActionBarImplCompat extends ActionBar {
       } else {
         return false;
       }
+    }
+
+    @Override
+    public void onMenuModeChange(MenuBuilder menu) {
+      // TODO (trevorjohns): Implement method
     }
 
     public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
