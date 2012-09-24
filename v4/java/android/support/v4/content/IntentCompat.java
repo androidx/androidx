@@ -16,13 +16,46 @@
 
 package android.support.v4.content;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 
 /**
  * Helper for accessing features in {@link android.content.Intent}
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public class IntentCompat {
+
+    interface IntentCompatImpl {
+        Intent makeMainActivity(ComponentName componentName);
+    }
+
+    static class IntentCompatImplBase implements IntentCompatImpl {
+        @Override
+        public Intent makeMainActivity(ComponentName componentName) {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.setComponent(componentName);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            return intent;
+        }
+    }
+
+    static class IntentCompatImplHC implements IntentCompatImpl {
+        @Override
+        public Intent makeMainActivity(ComponentName componentName) {
+            return IntentCompatHoneycomb.makeMainActivity(componentName);
+        }
+    }
+
+    private static final IntentCompatImpl IMPL;
+    static {
+        if (Build.VERSION.SDK_INT >= 11) {
+            IMPL = new IntentCompatImplHC();
+        } else {
+            IMPL = new IntentCompatImplBase();
+        }
+    }
 
     private IntentCompat() {
         /* Hide constructor */
@@ -126,4 +159,30 @@ public class IntentCompat {
      * <p>This flag will only be obeyed on devices supporting API 11 or higher.</p>
      */
     public static final int FLAG_ACTIVITY_CLEAR_TASK = 0x00008000;
+
+    /**
+     * Create an intent to launch the main (root) activity of a task.  This
+     * is the Intent that is started when the application's is launched from
+     * Home.  For anything else that wants to launch an application in the
+     * same way, it is important that they use an Intent structured the same
+     * way, and can use this function to ensure this is the case.
+     *
+     * <p>The returned Intent has the given Activity component as its explicit
+     * component, {@link Intent#ACTION_MAIN ACTION_MAIN} as its action, and includes the
+     * category {@link Intent#CATEGORY_LAUNCHER CATEGORY_LAUNCHER}.  This does <em>not</em> have
+     * {@link Intent#FLAG_ACTIVITY_NEW_TASK FLAG_ACTIVITY_NEW_TASK} set,
+     * though typically you will want to do that through {@link Intent#addFlags(int) addFlags(int)}
+     * on the returned Intent.
+     *
+     * @param mainActivity The main activity component that this Intent will
+     * launch.
+     * @return Returns a newly created Intent that can be used to launch the
+     * activity as a main application entry.
+     *
+     * @see Intent#setClass
+     * @see Intent#setComponent
+     */
+    public static Intent makeMainActivity(ComponentName mainActivity) {
+        return IMPL.makeMainActivity(mainActivity);
+    }
 }
