@@ -89,6 +89,15 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
+# A helper sub-library that makes direct use of JellyBean MR1 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-jellybean-mr1
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 # Here is the final static library that apps can link against.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4
@@ -102,7 +111,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         android-support-v4-honeycomb-mr2 \
         android-support-v4-ics \
         android-support-v4-ics-mr1 \
-        android-support-v4-jellybean
+        android-support-v4-jellybean \
+        android-support-v4-jellybean-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
