@@ -18,6 +18,7 @@ package android.support.v4.app;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -76,7 +77,7 @@ public class TaskStackBuilder implements Iterable<Intent> {
     static class TaskStackBuilderImplBase implements TaskStackBuilderImpl {
         public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
                 int flags, Bundle options) {
-            Intent topIntent = intents[intents.length - 1];
+            Intent topIntent = new Intent(intents[intents.length - 1]);
             topIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             return PendingIntent.getActivity(context, requestCode, topIntent, flags);
         }
@@ -85,8 +86,9 @@ public class TaskStackBuilder implements Iterable<Intent> {
     static class TaskStackBuilderImplHoneycomb implements TaskStackBuilderImpl {
         public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
                 int flags, Bundle options) {
-            intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                    IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+            intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                    IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
+                    IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
             return TaskStackBuilderHoneycomb.getActivitiesPendingIntent(context, requestCode,
                     intents, flags);
         }
@@ -95,8 +97,9 @@ public class TaskStackBuilder implements Iterable<Intent> {
     static class TaskStackBuilderImplJellybean implements TaskStackBuilderImpl {
         public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
                 int flags, Bundle options) {
-            intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                    IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+            intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                    IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
+                    IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
             return TaskStackBuilderJellybean.getActivitiesPendingIntent(context, requestCode,
                     intents, flags, options);
         }
@@ -156,6 +159,30 @@ public class TaskStackBuilder implements Iterable<Intent> {
     }
 
     /**
+     * Add a new Intent with the resolved chain of parents for the target activity to
+     * the task stack.
+     *
+     * <p>This is equivalent to calling {@link #addParentStack(ComponentName) addParentStack}
+     * with the resolved ComponentName of nextIntent (if it can be resolved), followed by
+     * {@link #addNextIntent(Intent) addNextIntent} with nextIntent.</p>
+     *
+     * @param nextIntent Intent for the topmost Activity in the synthesized task stack.
+     *                   Its chain of parents as specified in the manifest will be added.
+     * @return This TaskStackBuilder for method chaining.
+     */
+    public TaskStackBuilder addNextIntentWithParentStack(Intent nextIntent) {
+        ComponentName target = nextIntent.getComponent();
+        if (target == null) {
+            target = nextIntent.resolveActivity(mSourceContext.getPackageManager());
+        }
+        if (target != null) {
+            addParentStack(target);
+        }
+        addNextIntent(nextIntent);
+        return this;
+    }
+
+    /**
      * Add the activity parent chain as specified by manifest &lt;meta-data&gt; elements
      * to the task stack builder.
      *
@@ -163,16 +190,16 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * @return This TaskStackBuilder for method chaining
      */
     public TaskStackBuilder addParentStack(Activity sourceActivity) {
-        final int insertAt = mIntents.size();
-        Intent parent = NavUtils.getParentActivityIntent(sourceActivity);
-        while (parent != null) {
-            mIntents.add(insertAt, parent);
-            try {
-                parent = NavUtils.getParentActivityIntent(sourceActivity, parent.getComponent());
-            } catch (NameNotFoundException e) {
-                Log.e(TAG, "Bad ComponentName while traversing activity parent metadata");
-                throw new IllegalArgumentException(e);
+        final Intent parent = NavUtils.getParentActivityIntent(sourceActivity);
+        if (parent != null) {
+            // We have the actual parent intent, build the rest from static metadata
+            // then add the direct parent intent to the end.
+            ComponentName target = parent.getComponent();
+            if (target == null) {
+                target = parent.resolveActivity(mSourceContext.getPackageManager());
             }
+            addParentStack(target);
+            addNextIntent(parent);
         }
         return this;
     }
@@ -185,9 +212,21 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * @return This TaskStackBuilder for method chaining
      */
     public TaskStackBuilder addParentStack(Class<?> sourceActivityClass) {
+        return addParentStack(new ComponentName(mSourceContext, sourceActivityClass));
+    }
+
+    /**
+     * Add the activity parent chain as specified by manifest &lt;meta-data&gt; elements
+     * to the task stack builder.
+     *
+     * @param sourceActivityName Must specify an Activity component. All parents of
+     *                           this activity will be added
+     * @return This TaskStackBuilder for method chaining
+     */
+    public TaskStackBuilder addParentStack(ComponentName sourceActivityName) {
         final int insertAt = mIntents.size();
         try {
-            Intent parent = NavUtils.getParentActivityIntent(mSourceContext, sourceActivityClass);
+            Intent parent = NavUtils.getParentActivityIntent(mSourceContext, sourceActivityName);
             while (parent != null) {
                 mIntents.add(insertAt, parent);
                 parent = NavUtils.getParentActivityIntent(mSourceContext, parent.getComponent());
@@ -269,11 +308,11 @@ public class TaskStackBuilder implements Iterable<Intent> {
         }
 
         Intent[] intents = mIntents.toArray(new Intent[mIntents.size()]);
-        intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+        intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
                 IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
         if (!ContextCompat.startActivities(mSourceContext, intents, options)) {
-            Intent topIntent = intents[intents.length - 1];
+            Intent topIntent = new Intent(intents[intents.length - 1]);
             topIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mSourceContext.startActivity(topIntent);
         }
@@ -314,9 +353,10 @@ public class TaskStackBuilder implements Iterable<Intent> {
         }
 
         Intent[] intents = mIntents.toArray(new Intent[mIntents.size()]);
-        intents[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+        intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
                 IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
+        // Appropriate flags will be added by the call below.
         return IMPL.getPendingIntent(mSourceContext, intents, requestCode, flags, options);
     }
 
@@ -328,6 +368,15 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * @return An array containing the intents added to this builder.
      */
     public Intent[] getIntents() {
-        return mIntents.toArray(new Intent[mIntents.size()]);
+        Intent[] intents = new Intent[mIntents.size()];
+        if (intents.length == 0) return intents;
+
+        intents[0] = new Intent(mIntents.get(0)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                IntentCompat.FLAG_ACTIVITY_CLEAR_TASK |
+                IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
+        for (int i = 1; i < intents.length; i++) {
+            intents[i] = new Intent(mIntents.get(i));
+        }
+        return intents;
     }
 }
