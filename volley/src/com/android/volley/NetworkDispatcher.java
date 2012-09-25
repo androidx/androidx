@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import android.os.Process;
+
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -68,6 +70,7 @@ public class NetworkDispatcher extends Thread {
 
     @Override
     public void run() {
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         Request request;
         while (true) {
             try {

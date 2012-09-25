@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import android.os.Process;
+
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -77,6 +79,7 @@ public class CacheDispatcher extends Thread {
     @Override
     public void run() {
         if (DEBUG) VolleyLog.v("start new dispatcher");
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
         // Make a blocking call to initialize the cache.
         mCache.initialize();
