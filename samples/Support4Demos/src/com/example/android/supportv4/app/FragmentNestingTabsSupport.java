@@ -23,7 +23,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 
 public class FragmentNestingTabsSupport extends FragmentActivity {
-    FragmentTabHost mTabHost;
+    private FragmentTabHost mTabHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,16 +41,6 @@ public class FragmentNestingTabsSupport extends FragmentActivity {
                 FragmentStackFragmentSupport.class, null);
         mTabHost.addTab(mTabHost.newTabSpec("tabs").setIndicator("Tabs"),
                 FragmentTabsFragmentSupport.class, null);
-
-        if (savedInstanceState != null) {
-            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("tab", mTabHost.getCurrentTabTag());
     }
 }
 //END_INCLUDE(complete)

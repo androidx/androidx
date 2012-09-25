@@ -26,8 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class FragmentTabsFragmentSupport extends Fragment {
-    FragmentTabHost mTabHost;
-    String mCurrentTabTag;
+    private FragmentTabHost mTabHost;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,35 +43,13 @@ public class FragmentTabsFragmentSupport extends Fragment {
         mTabHost.addTab(mTabHost.newTabSpec("throttle").setIndicator("Throttle"),
                 LoaderThrottleSupport.ThrottledLoaderListFragment.class, null);
 
-        if (savedInstanceState != null) {
-            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
-        }
         return mTabHost;
-    }
-
-    @Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            mCurrentTabTag = savedInstanceState.getString("tab");
-        }
-        mTabHost.setCurrentTabByTag(mCurrentTabTag);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Need to remember the selected tab so that we can restore it if
-        // we later re-create the views.
-        mCurrentTabTag = mTabHost.getCurrentTabTag();
         mTabHost = null;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("tab", mTabHost != null
-                ? mTabHost.getCurrentTabTag() : mCurrentTabTag);
     }
 }
 //END_INCLUDE(complete)
