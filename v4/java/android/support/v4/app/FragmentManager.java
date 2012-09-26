@@ -811,7 +811,7 @@ final class FragmentManagerImpl extends FragmentManager {
     void moveToState(Fragment f, int newState, int transit, int transitionStyle,
             boolean keepActive) {
         // Fragments that are not currently added will sit in the onCreate() state.
-        if (!f.mAdded && newState > Fragment.CREATED) {
+        if ((!f.mAdded || f.mDetached) && newState > Fragment.CREATED) {
             newState = Fragment.CREATED;
         }
         if (f.mRemoving && newState > f.mState) {
