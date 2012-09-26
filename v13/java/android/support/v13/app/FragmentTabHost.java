@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package android.support.v4.app;
+package android.support.v13.app;
 
 import java.util.ArrayList;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -32,20 +35,9 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 
 /**
- * Special TabHost that allows the use of {@link Fragment} objects for
- * its tab content.  When placing this in a view hierarchy, after inflating
- * the hierarchy you must call {@link #setup(Context, FragmentManager, int)}
- * to complete the initialization of the tab host.
- *
- * <p>Here is a simple example of using a FragmentTabHost in an Activity:
- *
- * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentTabs.java
- *      complete}
- *
- * <p>This can also be used inside of a fragment through fragment nesting:
- *
- * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentTabsFragmentSupport.java
- *      complete}
+ * Version of {@link android.support.v4.app.FragmentTabHost} that can be
+ * used with the platform {@link android.app.Fragment} APIs.  You will not
+ * normally use this, instead using action bar tabs.
  */
 public class FragmentTabHost extends TabHost
         implements TabHost.OnTabChangeListener {
