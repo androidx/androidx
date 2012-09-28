@@ -25,6 +25,6 @@
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.android.volley" />
+        android:targetPackage="com.android.volley.tests" />
 
 </manifest>

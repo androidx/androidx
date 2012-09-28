@@ -16,11 +16,11 @@
 
 package com.android.volley;
 
+import com.android.volley.VolleyLog.MarkerLog;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-
-import com.android.volley.VolleyLog.MarkerLog;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -34,11 +34,27 @@ import java.util.Map;
  */
 public abstract class Request<T> implements Comparable<Request<T>> {
 
-    /** Default encoding for POST parameters. See {@link #getPostParamsEncoding()}. */
-    private static final String DEFAULT_POST_PARAMS_ENCODING = "UTF-8";
+    /**
+     * Default encoding for POST or PUT parameters. See {@link #getParamsEncoding()}.
+     */
+    private static final String DEFAULT_PARAMS_ENCODING = "UTF-8";
+
+    /**
+     * Supported request methods.
+     */
+    public interface Method {
+        int DEPRECATED_GET_OR_POST = -1;
+        int GET = 0;
+        int POST = 1;
+        int PUT = 2;
+        int DELETE = 3;
+    }
 
     /** An event log tracing the lifetime of this request; for debugging. */
     private final MarkerLog mEventLog = MarkerLog.ENABLED ? new MarkerLog() : null;
+
+    /** Request method of this request.  Currently supports GET, POST, PUT, and DELETE. */
+    private final int mMethod;
 
     /** URL of this request. */
     private final String mUrl;
@@ -85,11 +101,31 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * the normal response listener is not provided here as delivery of responses
      * is provided by subclasses, who have a better idea of how to deliver an
      * already-parsed response.
+     *
+     * @deprecated
      */
     public Request(String url, Response.ErrorListener listener) {
+        this(Method.DEPRECATED_GET_OR_POST, url, listener);
+    }
+
+    /**
+     * Creates a new request with the given method (one of the values from {@link Method}),
+     * URL, and error listener.  Note that the normal response listener is not provided here as
+     * delivery of responses is provided by subclasses, who have a better idea of how to deliver
+     * an already-parsed response.
+     */
+    public Request(int method, String url, Response.ErrorListener listener) {
+        mMethod = method;
         mUrl = url;
         mErrorListener = listener;
         setRetryPolicy(new DefaultRetryPolicy());
+    }
+
+    /**
+     * Return the method for this request.  Can be one of the values in {@link Method}.
+     */
+    public int getMethod() {
+        return mMethod;
     }
 
     /**
@@ -247,9 +283,11 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * <p>Note that only one of getPostParams() and getPostBody() can return a non-null
      * value.</p>
      * @throws AuthFailureError In the event of auth failure
+     *
+     * @deprecated Use {@link #getParams()} instead.
      */
     protected Map<String, String> getPostParams() throws AuthFailureError {
-        return null;
+        return getParams();
     }
 
     /**
@@ -263,43 +301,99 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      *     <li>The string encoding used when converting the URL encoded parameters into a raw
      *         byte array.</li>
      * </ol>
+     *
+     * @deprecated Use {@link #getParamsEncoding()} instead.
      */
     protected String getPostParamsEncoding() {
-        return DEFAULT_POST_PARAMS_ENCODING;
+        return getParamsEncoding();
     }
 
+    /**
+     * @deprecated Use {@link #getBodyContentType()} instead.
+     */
     public String getPostBodyContentType() {
-        return "application/x-www-form-urlencoded; charset=" + getPostParamsEncoding();
+        return getBodyContentType();
     }
 
     /**
      * Returns the raw POST body to be sent.
      *
      * @throws AuthFailureError In the event of auth failure
+     *
+     * @deprecated Use {@link #getBody()} instead.
      */
     public byte[] getPostBody() throws AuthFailureError {
+        // Note: For compatibility with legacy clients of volley, this implementation must remain
+        // here instead of simply calling the getBody() function because this function must
+        // call getPostParams() and getPostParamsEncoding() since legacy clients would have
+        // overridden these two member functions for POST requests.
         Map<String, String> postParams = getPostParams();
         if (postParams != null && postParams.size() > 0) {
-            return encodePostParameters(postParams, getPostParamsEncoding());
+            return encodeParameters(postParams, getPostParamsEncoding());
         }
         return null;
     }
 
     /**
-     * Converts <code>postParams</code> into an application/x-www-form-urlencoded encoded string.
+     * Returns a Map of parameters to be used for a POST or PUT request.  Can throw
+     * {@link AuthFailureError} as authentication may be required to provide these values.
+     *
+     * <p>Note that you can directly override {@link #getBody()} for custom data.</p>
+     *
+     * @throws AuthFailureError in the event of auth failure
      */
-    private byte[] encodePostParameters(Map<String, String> postParams, String postParamsEncoding) {
+    protected Map<String, String> getParams() throws AuthFailureError {
+        return null;
+    }
+
+    /**
+     * Returns which encoding should be used when converting POST or PUT parameters returned by
+     * {@link #getParams()} into a raw POST or PUT body.
+     *
+     * <p>This controls both encodings:
+     * <ol>
+     *     <li>The string encoding used when converting parameter names and values into bytes prior
+     *         to URL encoding them.</li>
+     *     <li>The string encoding used when converting the URL encoded parameters into a raw
+     *         byte array.</li>
+     * </ol>
+     */
+    protected String getParamsEncoding() {
+        return DEFAULT_PARAMS_ENCODING;
+    }
+
+    public String getBodyContentType() {
+        return "application/x-www-form-urlencoded; charset=" + getParamsEncoding();
+    }
+
+    /**
+     * Returns the raw POST or PUT body to be sent.
+     *
+     * @throws AuthFailureError in the event of auth failure
+     */
+    public byte[] getBody() throws AuthFailureError {
+        Map<String, String> params = getParams();
+        if (params != null && params.size() > 0) {
+            return encodeParameters(params, getParamsEncoding());
+        }
+        return null;
+    }
+
+    /**
+     * Converts <code>params</code> into an application/x-www-form-urlencoded encoded string.
+     */
+    private byte[] encodeParameters(Map<String, String> params, String paramsEncoding) {
         StringBuilder encodedParams = new StringBuilder();
         try {
-            for (Map.Entry<String, String> entry : postParams.entrySet()) {
-                encodedParams.append(URLEncoder.encode(entry.getKey(), postParamsEncoding));
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
                 encodedParams.append('=');
-                encodedParams.append(URLEncoder.encode(entry.getValue(), postParamsEncoding));
+                encodedParams.append(URLEncoder.encode(entry.getValue(), paramsEncoding));
                 encodedParams.append('&');
             }
-            return encodedParams.toString().getBytes(postParamsEncoding);
+            return encodedParams.toString().getBytes(paramsEncoding);
         } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException("Encoding not supported: " + postParamsEncoding, uee);
+            throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
         }
     }
 
