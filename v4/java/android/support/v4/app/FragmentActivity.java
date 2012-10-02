@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -145,6 +144,7 @@ public class FragmentActivity extends Activity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mFragments.noteStateNotSaved();
         int index = requestCode>>16;
         if (index != 0) {
             index--;
@@ -399,6 +399,22 @@ public class FragmentActivity extends Activity {
             onResumeFragments();
         }
         mFragments.dispatchPause();
+    }
+
+    /**
+     * Handle onNewIntent() to inform the fragment manager that the
+     * state is not saved.  If you are handling new intents and may be
+     * making changes to the fragment state, you want to be sure to call
+     * through to the super-class here first.  Otherwise, if your state
+     * is saved but the activity is not stopped, you could get an
+     * onNewIntent() call which happens before onResume() and trying to
+     * perform fragment operations at that point will throw IllegalStateException
+     * because the fragment manager thinks the state is still saved.
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        mFragments.noteStateNotSaved();
     }
 
     /**
