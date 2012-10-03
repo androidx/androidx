@@ -512,6 +512,11 @@ public class ViewPager extends ViewGroup {
         }
         final boolean dispatchSelected = mCurItem != item;
         populate(item);
+        scrollToItem(item, smoothScroll, velocity, dispatchSelected);
+    }
+
+    private void scrollToItem(int item, boolean smoothScroll, int velocity,
+            boolean dispatchSelected) {
         final ItemInfo curInfo = infoForPosition(item);
         int destX = 0;
         if (curInfo != null) {
@@ -1928,7 +1933,7 @@ public class ViewPager extends ViewGroup {
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (mIsBeingDragged) {
-                    setCurrentItemInternal(mCurItem, true, true);
+                    scrollToItem(mCurItem, true, 0, false);
                     mActivePointerId = INVALID_POINTER;
                     endDrag();
                     needsInvalidate = mLeftEdge.onRelease() | mRightEdge.onRelease();
