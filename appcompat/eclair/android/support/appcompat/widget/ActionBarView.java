@@ -267,7 +267,7 @@ public class  ActionBarView extends AbsActionBarView {
             ViewGroup.LayoutParams lp = mTabScrollView.getLayoutParams();
             if (lp != null) {
                 lp.width = LayoutParams.WRAP_CONTENT;
-                lp.height = LayoutParams.MATCH_PARENT;
+                lp.height = LayoutParams.FILL_PARENT;
             }
             mTabScrollView.setAllowCollapse(true);
         }
@@ -291,7 +291,6 @@ public class  ActionBarView extends AbsActionBarView {
         }
     }
 
-    @Override
     public boolean shouldDelayChildPressedState() {
         return false;
     }
@@ -323,7 +322,7 @@ public class  ActionBarView extends AbsActionBarView {
                     if (mSplitView != null) {
                         mSplitView.addView(mMenuView);
                     }
-                    mMenuView.getLayoutParams().width = LayoutParams.MATCH_PARENT;
+                    mMenuView.getLayoutParams().width = LayoutParams.FILL_PARENT;
                 } else {
                     addView(mMenuView);
                     mMenuView.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
@@ -370,7 +369,7 @@ public class  ActionBarView extends AbsActionBarView {
             addView(mTabScrollView);
             ViewGroup.LayoutParams lp = mTabScrollView.getLayoutParams();
             lp.width = LayoutParams.WRAP_CONTENT;
-            lp.height = LayoutParams.MATCH_PARENT;
+            lp.height = LayoutParams.FILL_PARENT;
             tabs.setAllowCollapse(true);
         }
     }
@@ -404,7 +403,7 @@ public class  ActionBarView extends AbsActionBarView {
 
         ActionMenuView menuView;
         final LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.MATCH_PARENT);
+                LayoutParams.FILL_PARENT);
         if (!mSplitActionBar) {
             mActionMenuPresenter.setExpandedActionViewsExclusive(
                     getResources().getBoolean(
@@ -424,7 +423,7 @@ public class  ActionBarView extends AbsActionBarView {
             // No limit to the item count; use whatever will fit.
             mActionMenuPresenter.setItemLimit(Integer.MAX_VALUE);
             // Span the whole width
-            layoutParams.width = LayoutParams.MATCH_PARENT;
+            layoutParams.width = LayoutParams.FILL_PARENT;
             configPresenters(builder);
             menuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
             if (mSplitView != null) {
@@ -666,7 +665,7 @@ public class  ActionBarView extends AbsActionBarView {
                     mListNavLayout = new LinearLayout(mContext, null,
                             R.attr.actionBarTabBarStyle);
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+                            LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
                     params.gravity = Gravity.CENTER;
                     mListNavLayout.addView(mSpinner, params);
                 }
@@ -819,7 +818,7 @@ public class  ActionBarView extends AbsActionBarView {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         if (widthMode != MeasureSpec.EXACTLY) {
             throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
-                    "with android:layout_width=\"match_parent\" (or fill_parent)");
+                    "with android:layout_width=\"MATCH_PARENT\" (or fill_parent)");
         }
         
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -929,7 +928,7 @@ public class  ActionBarView extends AbsActionBarView {
             }
 
             // If the action bar is wrapping to its content height, don't allow a custom
-            // view to MATCH_PARENT.
+            // view to FILL_PARENT.
             int customNavHeightMode;
             if (mContentHeight <= 0) {
                 customNavHeightMode = MeasureSpec.AT_MOST;
@@ -950,7 +949,7 @@ public class  ActionBarView extends AbsActionBarView {
 
             // Centering a custom view is treated specially; we try to center within the whole
             // action bar rather than in the available space.
-            if (hgrav == Gravity.CENTER_HORIZONTAL && lp.width == LayoutParams.MATCH_PARENT) {
+            if (hgrav == Gravity.CENTER_HORIZONTAL && lp.width == LayoutParams.FILL_PARENT) {
                 customNavWidth = Math.min(leftOfCenter, rightOfCenter) * 2;
             }
 

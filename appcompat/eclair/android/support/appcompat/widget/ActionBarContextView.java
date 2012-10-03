@@ -290,7 +290,7 @@ public class ActionBarContextView extends AbsActionBarView {
     final int widthMode = View.MeasureSpec.getMode(widthMeasureSpec);
     if (widthMode != View.MeasureSpec.EXACTLY) {
       throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
-          "with android:layout_width=\"match_parent\" (or fill_parent)");
+          "with android:layout_width=\"FILL_PARENT\" (or fill_parent)");
     }
 
     final int heightMode = View.MeasureSpec.getMode(heightMeasureSpec);
