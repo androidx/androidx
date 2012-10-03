@@ -55,6 +55,17 @@ public class HttpHeaderParserTest extends TestCase {
         assertEquals(0, entry.softTtl);
     }
 
+    public void testParseCacheHeaders_headersSet() {
+        headers.put("MyCustomHeader", "42");
+
+        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+
+        assertNotNull(entry);
+        assertNotNull(entry.responseHeaders);
+        assertEquals(1, entry.responseHeaders.size());
+        assertEquals("42", entry.responseHeaders.get("MyCustomHeader"));
+    }
+
     public void testParseCacheHeaders_etag() {
         headers.put("ETag", "Yow!");
 
