@@ -166,7 +166,7 @@ public class ListPopupWindow {
      * @param context Context used for contained views.
      */
     public ListPopupWindow(Context context) {
-        this(context, null, R.attr.listPopupWindowStyle, 0);
+        this(context, null, R.attr.listPopupWindowStyle);
     }
 
     /**
@@ -177,7 +177,7 @@ public class ListPopupWindow {
      * @param attrs Attributes from inflating parent views used to style the popup.
      */
     public ListPopupWindow(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.listPopupWindowStyle, 0);
+        this(context, attrs, R.attr.listPopupWindowStyle);
     }
 
     /**
@@ -189,28 +189,13 @@ public class ListPopupWindow {
      * @param defStyleAttr Default style attribute to use for popup content.
      */
     public ListPopupWindow(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    /**
-     * Create a new, empty popup window capable of displaying items from a ListAdapter.
-     * Backgrounds should be set using {@link #setBackgroundDrawable(Drawable)}.
-     *
-     * @param context Context used for contained views.
-     * @param attrs Attributes from inflating parent views used to style the popup.
-     * @param defStyleAttr Style attribute to read for default styling of popup content.
-     * @param defStyleRes Style resource ID to use for default styling of popup content.
-     */
-    public ListPopupWindow(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         mContext = context;
-        mPopup = new PopupWindow(context, attrs, defStyleAttr /*,defStyleRes TODO(anirudhd): constructor didn't exist */);
+        mPopup = new PopupWindow(context, attrs, defStyleAttr);
         mPopup.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
         // Set the default layout direction to match the default locale one
         final Locale locale = mContext.getResources().getConfiguration().locale;
-        // TODO(anirudhd): Bidi support for eclair. Probably didn't exist.
-        // mLayoutDirection = TextUtils.getLayoutDirectionFromLocale(locale);
-    }
 
+    }
 
     /**
      * Sets the adapter that provides the data and the views to represent the data
@@ -861,9 +846,9 @@ public class ListPopupWindow {
                 if (adapter != null) {
                     allEnabled = adapter.areAllItemsEnabled();
                     firstItem = allEnabled ? 0 :
-                        mDropDownList.lookForSelectablePosition(0, true);
+                            mDropDownList.lookForSelectablePosition(0, true);
                     lastItem = allEnabled ? adapter.getCount() - 1 :
-                        mDropDownList.lookForSelectablePosition(adapter.getCount() - 1, false);
+                            mDropDownList.lookForSelectablePosition(adapter.getCount() - 1, false);
                 }
 
                 if ((below && keyCode == KeyEvent.KEYCODE_DPAD_UP && curIndex <= firstItem) ||
@@ -1029,9 +1014,6 @@ public class ListPopupWindow {
                 mDropDownList.setOnItemSelectedListener(mItemSelectedListener);
             }
 
-            // TODO(anirudhd): figure BiDi later.
-            // mDropDownList.setLayoutDirection(mLayoutDirection);
-
             dropDownView = mDropDownList;
 
             View hintView = mPromptView;
@@ -1107,7 +1089,7 @@ public class ListPopupWindow {
         boolean ignoreBottomDecorations =
                 mPopup.getInputMethodMode() == PopupWindow.INPUT_METHOD_NOT_NEEDED;
         final int maxHeight = getMaxAvailableHeight(
-            getAnchorView(), mDropDownVerticalOffset, ignoreBottomDecorations);
+                getAnchorView(), mDropDownVerticalOffset, ignoreBottomDecorations);
 
         if (mDropDownAlwaysVisible || mDropDownHeight == ViewGroup.LayoutParams.FILL_PARENT) {
             return maxHeight + padding;
@@ -1131,6 +1113,7 @@ public class ListPopupWindow {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(mDropDownWidth, MeasureSpec.EXACTLY);
                 break;
         }
+
         final int listContent = mDropDownList.measureHeightOfChildren(childWidthSpec,
                 0, DropDownListView.NO_POSITION, maxHeight - otherHeights, -1);
         // add padding only if the list has items in it, that way we don't show
@@ -1363,21 +1346,77 @@ public class ListPopupWindow {
          *            startPosition is 0).
          * @return The height of this ListView with the given children.
          */
-        final int measureHeightOfChildren(int widthMeasureSpec, int startPosition, int endPosition,
-                                          final int maxHeight, int disallowPartialChildPosition) {
+        final int measureHeightOfChildren(int widthMeasureSpec, int startPosition,
+                                          int endPosition, final int maxHeight,
+                                          int disallowPartialChildPosition) {
+
+            final int paddingTop = getListPaddingTop();
+            final int paddingBottom = getListPaddingBottom();
+            final int paddingLeft = getListPaddingLeft();
+            final int paddingRight = getListPaddingRight();
+            final int reportedDividerHeight = getDividerHeight();
+            final Drawable divider = getDivider();
 
             final ListAdapter adapter = getAdapter();
-            int mListPaddingTop = getListPaddingTop();
-            int mListPaddingBottom = getListPaddingBottom();
 
             if (adapter == null) {
-                return mListPaddingTop + mListPaddingBottom;
+                return paddingTop + paddingBottom;
             }
 
             // Include the padding of the list
-            int returnedHeight = mListPaddingTop + mListPaddingBottom;
-            final int dividerHeight = ((getDividerHeight() > 0) && getDivider() != null) ? getDividerHeight() : 0;
-            //TODO(anirudhd): Recycling of views
+            int returnedHeight = paddingTop + paddingBottom;
+            final int dividerHeight = ((reportedDividerHeight > 0) && divider != null) ? reportedDividerHeight : 0;
+
+            // The previous height value that was less than maxHeight and contained
+            // no partial children
+            int prevHeightWithoutPartialChild = 0;
+
+            View child = null;
+            int viewType = 0;
+            int count = adapter.getCount();
+            for (int i = 0; i < count; i++) {
+                int newType = adapter.getItemViewType(i);
+                if (newType != viewType) {
+                    child = null;
+                    viewType = newType;
+                }
+                child = adapter.getView(i, child, this);;
+
+                // Compute child height spec
+                int heightMeasureSpec;
+                int childHeight = child.getLayoutParams().height;
+                if (childHeight > 0) {
+                    heightMeasureSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
+                } else {
+                    heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+                }
+                child.measure(widthMeasureSpec, heightMeasureSpec);
+
+                if (i > 0) {
+                    // Count the divider for all but one child
+                    returnedHeight += dividerHeight;
+                }
+
+                returnedHeight += child.getMeasuredHeight();
+
+                if (returnedHeight >= maxHeight) {
+                    // We went over, figure out which height to return.  If returnedHeight > maxHeight,
+                    // then the i'th position did not fit completely.
+                    return (disallowPartialChildPosition >= 0) // Disallowing is enabled (> -1)
+                            && (i > disallowPartialChildPosition) // We've past the min pos
+                            && (prevHeightWithoutPartialChild > 0) // We have a prev height
+                            && (returnedHeight != maxHeight) // i'th child did not fit completely
+                            ? prevHeightWithoutPartialChild
+                            : maxHeight;
+                }
+
+                if ((disallowPartialChildPosition >= 0) && (i >= disallowPartialChildPosition)) {
+                    prevHeightWithoutPartialChild = returnedHeight;
+                }
+            }
+
+            // At this point, we went through the range of children, and they each
+            // completely fit, so return the returnedHeight
             return returnedHeight;
         }
 
