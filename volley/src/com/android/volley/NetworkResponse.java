@@ -44,6 +44,10 @@ public class NetworkResponse {
         this(HttpStatus.SC_OK, data, Collections.<String, String>emptyMap(), false);
     }
 
+    public NetworkResponse(byte[] data, Map<String, String> headers) {
+        this(HttpStatus.SC_OK, data, headers, false);
+    }
+
     /** The HTTP status code. */
     public final int statusCode;
 

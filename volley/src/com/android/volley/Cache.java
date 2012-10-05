@@ -16,6 +16,9 @@
 
 package com.android.volley;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * An interface for a cache keyed by a String with a byte array as data.
  */
@@ -76,6 +79,9 @@ public interface Cache {
 
         /** Soft TTL for this record. */
         public long softTtl;
+
+        /** Immutable response headers as received from server; must be non-null. */
+        public Map<String, String> responseHeaders = Collections.emptyMap();
 
         /** True if the entry is expired. */
         public boolean isExpired() {

@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,7 +62,7 @@ public class DiskBasedCache implements Cache {
     private static final float HYSTERESIS_FACTOR = 0.9f;
 
     /** Current cache version */
-    private static final int CACHE_VERSION = 1;
+    private static final int CACHE_VERSION = 2;
 
     /**
      * Constructs an instance of the DiskBasedCache at the specified directory.
@@ -340,6 +342,9 @@ public class DiskBasedCache implements Cache {
         /** Soft TTL for this record. */
         public long softTtl;
 
+        /** Headers from the response resulting in this cache entry. */
+        public Map<String, String> responseHeaders;
+
         private CacheHeader() { }
 
         /**
@@ -354,6 +359,7 @@ public class DiskBasedCache implements Cache {
             this.serverDate = entry.serverDate;
             this.ttl = entry.ttl;
             this.softTtl = entry.softTtl;
+            this.responseHeaders = entry.responseHeaders;
         }
 
         /**
@@ -377,6 +383,7 @@ public class DiskBasedCache implements Cache {
             entry.serverDate = ois.readLong();
             entry.ttl = ois.readLong();
             entry.softTtl = ois.readLong();
+            entry.responseHeaders = readStringStringMap(ois);
             return entry;
         }
 
@@ -390,6 +397,7 @@ public class DiskBasedCache implements Cache {
             e.serverDate = serverDate;
             e.ttl = ttl;
             e.softTtl = softTtl;
+            e.responseHeaders = responseHeaders;
             return e;
         }
 
@@ -405,12 +413,47 @@ public class DiskBasedCache implements Cache {
                 oos.writeLong(serverDate);
                 oos.writeLong(ttl);
                 oos.writeLong(softTtl);
+                writeStringStringMap(responseHeaders, oos);
                 oos.flush();
                 return true;
             } catch (IOException e) {
                 VolleyLog.d("%s", e.toString());
                 return false;
             }
+        }
+
+        /**
+         * Writes all entries of {@code map} into {@code oos}.
+         */
+        private static void writeStringStringMap(Map<String, String> map, ObjectOutputStream oos)
+                throws IOException {
+            if (map != null) {
+                oos.writeInt(map.size());
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    oos.writeUTF(entry.getKey());
+                    oos.writeUTF(entry.getValue());
+                }
+            } else {
+                oos.writeInt(0);
+            }
+        }
+
+        /**
+         * @return a string to string map which contains the entries read from {@code ois}
+         *     previously written by {@link #writeStringStringMap}
+         */
+        private static Map<String, String> readStringStringMap(ObjectInputStream ois)
+                throws IOException {
+            int size = ois.readInt();
+            Map<String, String> result = (size == 0)
+                    ? Collections.<String, String>emptyMap()
+                    : new HashMap<String, String>(size);
+            for (int i = 0; i < size; i++) {
+                String key = ois.readUTF();
+                String value = ois.readUTF();
+                result.put(key, value);
+            }
+            return result;
         }
     }
 

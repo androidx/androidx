@@ -96,6 +96,7 @@ public class HttpHeaderParser {
         entry.softTtl = softExpire;
         entry.ttl = entry.softTtl;
         entry.serverDate = serverDate;
+        entry.responseHeaders = headers;
 
         return entry;
     }
