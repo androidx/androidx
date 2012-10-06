@@ -219,6 +219,13 @@
         <attr name="height"/>
     </declare-styleable>
 
+    <declare-styleable name="View">
+        <!-- Sets the padding, in pixels, of the start edge; see {@link android.R.attr#padding}. -->
+        <attr name="paddingStart" format="dimension" />
+        <!-- Sets the padding, in pixels, of the end edge; see {@link android.R.attr#padding}. -->
+        <attr name="paddingEnd" format="dimension" />
+    </declare-styleable>
+
     <!-- =================== -->
     <!-- Action mode styles  -->
     <!-- =================== -->

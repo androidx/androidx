@@ -158,7 +158,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         @Override
         public ActionBar createActionBar(ActionBarActivity activity) {
-            return new ActionBarImplHC(activity, activity);
+            // TODO(trevorjohns): return new ActionBarImplHC(activity, activity);
+            return null;
         }
 
         @Override
@@ -171,7 +172,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     static class ActionBarActivityImplICS extends ActionBarActivityImplHC {
         @Override
         public ActionBar createActionBar(ActionBarActivity activity) {
-            return new ActionBarImplICS(activity, activity);
+            // TODO(trevorjohns): return new ActionBarImplICS(activity, activity);
+            return null;
         }
     }
 
