@@ -111,4 +111,11 @@
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
+    <style name="Widget.ActionBar.TabView" parent="Widget.AppCompat.ActionBar">
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:background">@drawable/minitab_lt</item>
+        <item name="paddingStart">4dip</item>
+        <item name="paddingEnd">4dip</item>
+    </style>
+
 </resources>

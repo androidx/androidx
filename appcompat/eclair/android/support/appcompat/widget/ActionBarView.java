@@ -24,6 +24,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.appcompat.R;
@@ -63,7 +64,7 @@ import android.widget.TextView;
 /**
  * @hide
  */
-public class  ActionBarView extends AbsActionBarView {
+public class ActionBarView extends AbsActionBarView {
     private static final String TAG = "ActionBarView";
 
     /**
@@ -181,15 +182,17 @@ public class  ActionBarView extends AbsActionBarView {
         mSubtitle = a.getText(R.styleable.ActionBar_subtitle);
         mLogo = a.getDrawable(R.styleable.ActionBar_logo);
         if (mLogo == null) {
-            if (context instanceof Activity) {
-                try {
-                    mLogo = pm.getActivityLogo(((Activity) context).getComponentName());
-                } catch (NameNotFoundException e) {
-                    Log.e(TAG, "Activity component name not found!", e);
+            if (Build.VERSION.SDK_INT >= 9) {
+                if (context instanceof Activity) {
+                    try {
+                        mLogo = pm.getActivityLogo(((Activity) context).getComponentName());
+                    } catch (NameNotFoundException e) {
+                        Log.e(TAG, "Activity component name not found!", e);
+                    }
                 }
-            }
-            if (mLogo == null) {
-                mLogo = appInfo.loadLogo(pm);
+                if (mLogo == null) {
+                    mLogo = appInfo.loadLogo(pm);
+                }
             }
         }
 
@@ -241,7 +244,7 @@ public class  ActionBarView extends AbsActionBarView {
 
         mContentHeight = a.getLayoutDimension(R.styleable.ActionBar_height, 0);
         a.recycle();
-        mLogoNavItem = new ActionMenuItem(context, 0, android.R.id.home, 0, 0, mTitle);
+        mLogoNavItem = new ActionMenuItem(context, 0, R.id.home, 0, 0, mTitle);
         mHomeLayout.setOnClickListener(mUpClickListener);
         mHomeLayout.setClickable(true);
         mHomeLayout.setFocusable(true);
@@ -662,8 +665,8 @@ public class  ActionBarView extends AbsActionBarView {
                 if (mSpinner == null) {
                     mSpinner = new Spinner(mContext, null,
                             R.attr.actionDropDownStyle);
-                    mListNavLayout = new LinearLayout(mContext, null,
-                            R.attr.actionBarTabBarStyle);
+                    mListNavLayout = (LinearLayout) LayoutInflater.from(mContext).inflate(
+                            R.layout.action_bar_view_list_nav_layout, null);
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                             LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
                     params.gravity = Gravity.CENTER;
@@ -1231,23 +1234,11 @@ public class  ActionBarView extends AbsActionBarView {
 
         @Override
         public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-            onPopulateAccessibilityEvent(event);
-            return true;
-        }
-
-        @Override
-        public void onPopulateAccessibilityEvent(AccessibilityEvent event) {
-            super.onPopulateAccessibilityEvent(event);
             final CharSequence cdesc = getContentDescription();
             if (!TextUtils.isEmpty(cdesc)) {
                 event.getText().add(cdesc);
             }
-        }
-
-        @Override
-        public boolean dispatchHoverEvent(MotionEvent event) {
-            // Don't allow children to hover; we want this to be treated as a single component.
-            return onHoverEvent(event);
+            return true;
         }
 
         @Override
