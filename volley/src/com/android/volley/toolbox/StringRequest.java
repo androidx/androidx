@@ -37,7 +37,7 @@ public class StringRequest extends Request<String> {
      * @param errorListener Error listener, or null to ignore errors
      */
     public StringRequest(String url, Listener<String> listener, ErrorListener errorListener) {
-        super(url, errorListener);
+        super(Method.GET, url, errorListener);
         mListener = listener;
     }
 

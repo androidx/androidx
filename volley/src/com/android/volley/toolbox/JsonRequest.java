@@ -42,9 +42,20 @@ public abstract class JsonRequest<T> extends Request<T> {
     private final Listener<T> mListener;
     private final String mRequestBody;
 
+    /**
+     * Deprecated constructor for a JsonRequest which defaults to GET unless {@link #getPostBody()}
+     * or {@link #getPostParams()} is overridden (which defaults to POST).
+     *
+     * @deprecated Use {@link #JsonRequest(int, String, String, Listener, ErrorListener)}.
+     */
     public JsonRequest(String url, String requestBody, Listener<T> listener,
             ErrorListener errorListener) {
-        super(url, errorListener);
+        this(Method.DEPRECATED_GET_OR_POST, url, requestBody, listener, errorListener);
+    }
+
+    public JsonRequest(int method, String url, String requestBody, Listener<T> listener,
+            ErrorListener errorListener) {
+        super(method, url, errorListener);
         mListener = listener;
         mRequestBody = requestBody;
     }
@@ -57,13 +68,29 @@ public abstract class JsonRequest<T> extends Request<T> {
     @Override
     abstract protected Response<T> parseNetworkResponse(NetworkResponse response);
 
+    /**
+     * @deprecated Use {@link #getBodyContentType()}.
+     */
     @Override
     public String getPostBodyContentType() {
+        return getBodyContentType();
+    }
+
+    /**
+     * @deprecated Use {@link #getBody()}.
+     */
+    @Override
+    public byte[] getPostBody() {
+        return getBody();
+    }
+
+    @Override
+    public String getBodyContentType() {
         return PROTOCOL_CONTENT_TYPE;
     }
 
     @Override
-    public byte[] getPostBody() {
+    public byte[] getBody() {
         try {
             return mRequestBody == null ? null : mRequestBody.getBytes(PROTOCOL_CHARSET);
         } catch (UnsupportedEncodingException uee) {
