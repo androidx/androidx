@@ -267,7 +267,8 @@ public class PagerTabStrip extends PagerTitleStrip {
 
         if (mDrawFullUnderline) {
             mTabPaint.setColor(0xFF << 24 | (mIndicatorColor & 0xFFFFFF));
-            canvas.drawRect(0, height - mFullUnderlineHeight, getWidth(), height, mTabPaint);
+            canvas.drawRect(getPaddingLeft(), height - mFullUnderlineHeight,
+                    getWidth() - getPaddingRight(), height, mTabPaint);
         }
     }
 
