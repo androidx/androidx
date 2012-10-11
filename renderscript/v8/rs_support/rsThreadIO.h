@@ -89,7 +89,7 @@ protected:
     intptr_t mToCoreRet;
 
     size_t mSendLen;
-    uint8_t mSendBuffer[2 * 1024];
+    uint8_t mSendBuffer[2 * 1024] __attribute__((aligned(sizeof(double))));
 
 };
 
