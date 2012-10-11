@@ -54,9 +54,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         private void ensureSubDecor(ActionBarActivity activity) {
             if (activity.mHasActionBar && !activity.mSubDecorInstalled) {
                 if (activity.mOverlayActionBar) {
-                    activity.setContentView(R.layout.action_bar_decor_overlay);
+                    activity.superSetContentView(R.layout.action_bar_decor_overlay);
                 } else {
-                    activity.setContentView(R.layout.action_bar_decor);
+                    activity.superSetContentView(R.layout.action_bar_decor);
                 }
             }
         }
@@ -70,7 +70,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 contentParent.removeAllViews();
                 contentParent.addView(v);
             } else {
-                activity.setContentView(v);
+                activity.superSetContentView(v);
             }
         }
 
@@ -84,7 +84,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 final LayoutInflater inflater = activity.getLayoutInflater();
                 inflater.inflate(resId, contentParent);
             } else {
-                activity.setContentView(resId);
+                activity.superSetContentView(resId);
             }
         }
 
@@ -97,7 +97,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 contentParent.removeAllViews();
                 contentParent.addView(v, lp);
             } else {
-                activity.setContentView(v, lp);
+                activity.superSetContentView(v, lp);
             }
         }
 
@@ -109,7 +109,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                         (ViewGroup) activity.findViewById(R.id.action_bar_activity_content);
                 contentParent.addView(v, lp);
             } else {
-                activity.setContentView(v, lp);
+                activity.superSetContentView(v, lp);
             }
         }
 
@@ -215,4 +215,67 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             mActionBar = IMPL.createActionBar(this);
         }
     }
+
+    /**
+     * Set the activity content from a layout resource.  The resource will be
+     * inflated, adding all top-level views to the activity.
+     *
+     * @param layoutResID Resource ID to be inflated.
+     *
+     * @see #setContentView(android.view.View)
+     * @see #setContentView(android.view.View, android.view.ViewGroup.LayoutParams)
+     */
+    @Override
+    public void setContentView(int layoutResID) {
+        IMPL.setContentView(this, layoutResID);
+    }
+
+    /**
+     * Set the activity content to an explicit view.  This view is placed
+     * directly into the activity's view hierarchy.  It can itself be a complex
+     * view hierarchy.  When calling this method, the layout parameters of the
+     * specified view are ignored.  Both the width and the height of the view are
+     * set by default to {@link ViewGroup.LayoutParams#MATCH_PARENT}. To use
+     * your own layout parameters, invoke
+     * {@link #setContentView(android.view.View, android.view.ViewGroup.LayoutParams)}
+     * instead.
+     *
+     * @param view The desired content to display.
+     *
+     * @see #setContentView(int)
+     * @see #setContentView(android.view.View, android.view.ViewGroup.LayoutParams)
+     */
+    @Override
+    public void setContentView(View view) {
+        IMPL.setContentView(this, view);
+    }
+
+    /**
+     * Set the activity content to an explicit view.  This view is placed
+     * directly into the activity's view hierarchy.  It can itself be a complex
+     * view hierarchy.
+     *
+     * @param view The desired content to display.
+     * @param params Layout parameters for the view.
+     *
+     * @see #setContentView(android.view.View)
+     * @see #setContentView(int)
+     */
+    @Override
+    public void setContentView(View view, ViewGroup.LayoutParams params) {
+        IMPL.setContentView(this, view, params);
+    }
+
+    void superSetContentView(int resId) {
+        super.setContentView(resId);
+    }
+
+    void superSetContentView(View v) {
+        super.setContentView(v);
+    }
+
+    void superSetContentView(View v, ViewGroup.LayoutParams lp) {
+        super.setContentView(v, lp);
+    }
+
 }
