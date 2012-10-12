@@ -34,7 +34,7 @@ import java.util.ArrayList;
 public class NotificationCompat {
     /**
      * Obsolete flag indicating high-priority notifications; use the priority field instead.
-     * 
+     *
      * @deprecated Use {@link NotificationCompat.Builder#setPriority(int)} with a positive value.
      */
     public static final int FLAG_HIGH_PRIORITY = 0x00000080;
@@ -89,7 +89,7 @@ public class NotificationCompat {
                     b.mContentText, b.mContentIntent);
             // translate high priority requests into legacy flag
             if (b.mPriority > PRIORITY_DEFAULT) {
-                result.flags |= FLAG_HIGH_PRIORITY; 
+                result.flags |= FLAG_HIGH_PRIORITY;
             }
             return result;
         }
@@ -126,19 +126,19 @@ public class NotificationCompat {
                 if (b.mStyle instanceof BigTextStyle) {
                     BigTextStyle style = (BigTextStyle) b.mStyle;
                     jbBuilder.addBigTextStyle(style.mBigContentTitle,
-                            style.mSummaryTextSet, 
+                            style.mSummaryTextSet,
                             style.mSummaryText,
                             style.mBigText);
                 } else if (b.mStyle instanceof InboxStyle) {
                     InboxStyle style = (InboxStyle) b.mStyle;
                     jbBuilder.addInboxStyle(style.mBigContentTitle,
-                            style.mSummaryTextSet, 
+                            style.mSummaryTextSet,
                             style.mSummaryText,
                             style.mTexts);
                 } else if (b.mStyle instanceof BigPictureStyle) {
                     BigPictureStyle style = (BigPictureStyle) b.mStyle;
                     jbBuilder.addBigPictureStyle(style.mBigContentTitle,
-                            style.mSummaryTextSet, 
+                            style.mSummaryTextSet,
                             style.mSummaryText,
                             style.mPicture);
                 }
@@ -160,8 +160,24 @@ public class NotificationCompat {
     }
 
     /**
-     * Builder class for {@link Notification} objects.  Allows easier control over
+     * Builder class for {@link NotificationCompat} objects.  Allows easier control over
      * all the flags, as well as help constructing the typical notification layouts.
+     * <p>
+     * On platform versions that don't offer expanded notifications, methods that depend on
+     * expanded notifications have no effect.
+     * </p>
+     * <p>
+     * For example, action buttons won't appear on platforms prior to Android 4.1. Action
+     * buttons depend on expanded notifications, which are only available in Android 4.1
+     * and later.
+     * <p>
+     * For this reason, you should always ensure that UI controls in a notification are also
+     * available in an {@link android.app.Activity} in your app, and you should always start that
+     * {@link android.app.Activity} when users click the notification. To do this, use the
+     * {@link NotificationCompat.Builder#setContentIntent setContentIntent()}
+     * method.
+     * </p>
+     *
      */
     public static class Builder {
         Context mContext;
@@ -216,8 +232,8 @@ public class NotificationCompat {
 
         /**
          * Show the {@link Notification#when} field as a stopwatch.
-         * 
-         * Instead of presenting <code>when</code> as a timestamp, the notification will show an 
+         *
+         * Instead of presenting <code>when</code> as a timestamp, the notification will show an
          * automatically updating display of the minutes and seconds since <code>when</code>.
          *
          * Useful when showing an elapsed time (like an ongoing phone call).
@@ -275,9 +291,13 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the third line of text in the platform notification template. 
+         * Set the third line of text in the platform notification template.
          * Don't use if you're also using {@link #setProgress(int, int, boolean)};
          * they occupy the same location in the standard template.
+         * <br>
+         * If the platform does not provide large-format notifications, this method has no effect.
+         * The third line of text only appears in expanded view.
+         * <br>
          */
         public Builder setSubText(CharSequence text) {
             mSubText = text;
@@ -504,14 +524,14 @@ public class NotificationCompat {
 
         /**
          * Set the relative priority for this notification.
-         * 
+         *
          * Priority is an indication of how much of the user's
          * valuable attention should be consumed by this
          * notification. Low-priority notifications may be hidden from
          * the user in certain situations, while the user might be
-         * interrupted for a higher-priority notification. The system
-         * will make a determination about how to interpret
-         * notification priority as described in MUMBLE MUMBLE.
+         * interrupted for a higher-priority notification.
+         * The system sets a notification's priority based on various factors including the
+         * setPriority value. The effect may differ slightly on different platforms.
          */
         public Builder setPriority(int pri) {
             mPriority = pri;
@@ -521,10 +541,18 @@ public class NotificationCompat {
         /**
          * Add an action to this notification. Actions are typically displayed by
          * the system as a button adjacent to the notification content.
+         * <br>
+         * Action buttons won't appear on platforms prior to Android 4.1. Action
+         * buttons depend on expanded notifications, which are only available in Android 4.1
+         * and later. To ensure that an action button's functionality is always available, first
+         * implement the functionality in the {@link android.app.Activity} that starts when a user
+         * clicks the  notification (see {@link #setContentIntent setContentIntent()}), and then
+         * enhance the notification by implementing the same functionality with
+         * {@link #addAction addAction()}.
          *
          * @param icon Resource ID of a drawable that represents the action.
          * @param title Text describing the action.
-         * @param intent PendingIntent to be fired when the action is invoked.
+         * @param intent {@link android.app.PendingIntent} to be fired when the action is invoked.
          */
         public Builder addAction(int icon, CharSequence title, PendingIntent intent) {
             mActions.add(new Action(icon, title, intent));
@@ -533,6 +561,9 @@ public class NotificationCompat {
 
         /**
          * Add a rich notification style to be applied at build time.
+         * <br>
+         * If the platform does not provide rich notification styles, this method has no effect. The
+         * user will always see the normal notification style.
          *
          * @param style Object responsible for modifying the notification style.
          */
@@ -566,6 +597,9 @@ public class NotificationCompat {
     /**
      * An object that can apply a rich notification style to a {@link Notification.Builder}
      * object.
+     * <br>
+     * If the platform does not provide rich notification styles, methods in this class have no
+     * effect.
      */
     public static abstract class Style
     {
@@ -587,14 +621,17 @@ public class NotificationCompat {
             Notification notification = null;
             if (mBuilder != null) {
                 notification = mBuilder.build();
-            } 
+            }
             return notification;
         }
     }
 
     /**
      * Helper class for generating large-format notifications that include a large image attachment.
-     * 
+     * <br>
+     * If the platform does not provide large-format notifications, this method has no effect. The
+     * user will always see the normal notification view.
+     * <br>
      * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
      * Notification noti = new Notification.Builder()
@@ -606,7 +643,7 @@ public class NotificationCompat {
      *         .bigPicture(aBigBitmap))
      *     .build();
      * </pre>
-     * 
+     *
      * @see Notification#bigContentView
      */
     public static class BigPictureStyle extends Style {
@@ -648,7 +685,11 @@ public class NotificationCompat {
 
     /**
      * Helper class for generating large-format notifications that include a lot of text.
-     * 
+     *
+     * <br>
+     * If the platform does not provide large-format notifications, this method has no effect. The
+     * user will always see the normal notification view.
+     * <br>
      * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
      * Notification noti = new Notification.Builder()
@@ -660,7 +701,7 @@ public class NotificationCompat {
      *         .bigText(aVeryLongString))
      *     .build();
      * </pre>
-     * 
+     *
      * @see Notification#bigContentView
      */
     public static class BigTextStyle extends Style {
@@ -703,7 +744,11 @@ public class NotificationCompat {
 
     /**
      * Helper class for generating large-format notifications that include a list of (up to 5) strings.
-     * 
+     *
+     * <br>
+     * If the platform does not provide large-format notifications, this method has no effect. The
+     * user will always see the normal notification view.
+     * <br>
      * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
      * Notification noti = new Notification.Builder()
@@ -718,7 +763,7 @@ public class NotificationCompat {
      *         .setSummaryText(&quot;+3 more&quot;))
      *     .build();
      * </pre>
-     * 
+     *
      * @see Notification#bigContentView
      */
     public static class InboxStyle extends Style {
