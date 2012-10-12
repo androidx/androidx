@@ -62,6 +62,7 @@ public:
             int32_t surfaceTextureID;
             void *wndSurface;
             void *surfaceTexture;
+            RsDataType eType;
         };
         State state;
 
@@ -105,6 +106,9 @@ public:
     void elementData(Context *rsc, uint32_t x, uint32_t y,
                      const void *data, uint32_t elementOff, size_t sizeBytes);
 
+    void addProgramToDirty(const Program *);
+    void removeProgramToDirty(const Program *);
+
     virtual void dumpLOGV(const char *prefix) const;
     virtual void serialize(Context *rsc, OStream *stream) const;
     virtual RsA3DClassID getClassId() const { return RS_A3D_CLASS_ID_ALLOCATION; }
@@ -133,6 +137,7 @@ public:
     }
 
 protected:
+    Vector<const Program *> mToDirtyList;
     ObjectBaseRef<const Type> mType;
     void setType(const Type *t) {
         mType.set(t);
