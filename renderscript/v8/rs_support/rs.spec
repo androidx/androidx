@@ -283,3 +283,50 @@ ScriptCCreate {
     param const char * text
     ret RsScript
     }
+
+ScriptIntrinsicCreate {
+    param uint32_t id
+    param RsElement eid
+    ret RsScript
+    }
+
+ScriptKernelIDCreate {
+    direct
+    param RsScript sid
+    param int slot
+    param int sig
+    ret RsScriptKernelID
+    }
+
+ScriptFieldIDCreate {
+    direct
+    param RsScript sid
+    param int slot
+    ret RsScriptFieldID
+    }
+
+ScriptGroupCreate {
+    direct
+    param RsScriptKernelID * kernels
+    param RsScriptKernelID * src
+    param RsScriptKernelID * dstK
+    param RsScriptFieldID * dstF
+    param const RsType * type
+    ret RsScriptGroup
+}
+
+ScriptGroupSetOutput {
+    param RsScriptGroup group
+    param RsScriptKernelID kernel
+    param RsAllocation alloc
+}
+
+ScriptGroupSetInput {
+    param RsScriptGroup group
+    param RsScriptKernelID kernel
+    param RsAllocation alloc
+}
+
+ScriptGroupExecute {
+    param RsScriptGroup group
+}

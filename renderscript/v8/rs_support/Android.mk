@@ -88,6 +88,8 @@ LOCAL_SRC_FILES:= \
 	rsScript.cpp \
 	rsScriptC.cpp \
 	rsScriptC_Lib.cpp \
+	rsScriptGroup.cpp \
+	rsScriptIntrinsic.cpp \
 	rsSignal.cpp \
 	rsStream.cpp \
 	rsThreadIO.cpp \
@@ -97,7 +99,17 @@ LOCAL_SRC_FILES:= \
 	driver/rsdCore.cpp \
 	driver/rsdRuntimeMath.cpp \
 	driver/rsdRuntimeStubs.cpp \
-	driver/rsdSampler.cpp
+	driver/rsdSampler.cpp \
+	driver/rsdIntrinsics.cpp \
+	driver/rsdIntrinsicBlend.cpp \
+	driver/rsdIntrinsicBlur.cpp \
+	driver/rsdIntrinsicConvolve3x3.cpp \
+	driver/rsdIntrinsicConvolve5x5.cpp \
+	driver/rsdIntrinsicLUT.cpp \
+	driver/rsdIntrinsicColorMatrix.cpp \
+	driver/rsdIntrinsicYuvToRGB.cpp \
+	driver/rsdScriptGroup.cpp
+
 
 
 LOCAL_SHARED_LIBRARIES += libcutils libutils libdl

@@ -17,6 +17,7 @@
 package android.support.v8.renderscript;
 
 import java.lang.reflect.Field;
+
 import android.util.Log;
 
 /**
@@ -48,6 +49,21 @@ import android.util.Log;
  * </div>
  **/
 public class Element extends BaseObj {
+    static class NElement {
+        android.renderscript.Element mE;
+
+        NElement(android.renderscript.Element e) {
+            mE = e;
+        }
+/*
+        int getID() {
+            return mE.getID();
+        }
+        */
+    }
+    NElement mNE;
+
+
     int mSize;
     Element[] mElements;
     String[] mElementNames;
@@ -873,6 +889,22 @@ public class Element extends BaseObj {
                 (mVectorSize == e.mVectorSize));
     }
 
+    static class NBuilder {
+        android.renderscript.Element.Builder mB;
+
+        NBuilder(RenderScript rs) {
+            mB = new android.renderscript.Element.Builder(rs.mNRS.getRS());
+        }
+
+        void add(Element element, String name, int arraySize) {
+            mB.add(element.mNE.mE, name, arraySize);
+        }
+
+        NElement create() {
+            return new NElement(mB.create());
+        }
+    }
+
     /**
      * Builder class for producing complex elements with matching field and name
      * pairs.  The builder starts empty.  The order in which elements are added
@@ -880,6 +912,8 @@ public class Element extends BaseObj {
      *
      */
     public static class Builder {
+        NBuilder mNB;
+
         RenderScript mRS;
         Element[] mElements;
         String[] mElementNames;
@@ -941,6 +975,10 @@ public class Element extends BaseObj {
             mElementNames[mCount] = name;
             mArraySizes[mCount] = arraySize;
             mCount++;
+
+            if (mRS.mUseNativeRS) {
+                mNB.add(element, name, arraySize);
+            }
             return this;
         }
 
@@ -973,6 +1011,14 @@ public class Element extends BaseObj {
             for (int ct = 0; ct < ein.length; ct++ ) {
                 ids[ct] = ein[ct].getID(mRS);
             }
+
+            if (mRS.mUseNativeRS) {
+                NElement ne = mNB.create();
+                Element e = new Element(-1, mRS, ein, sin, asin);
+                e.mNE = ne;
+                return e;
+            }
+
             int id = mRS.nElementCreate2(ids, sin, asin);
             return new Element(id, mRS, ein, sin, asin);
         }

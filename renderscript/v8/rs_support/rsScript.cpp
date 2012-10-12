@@ -86,8 +86,55 @@ bool Script::freeChildren() {
     return decSysRef();
 }
 
+ScriptKernelID::ScriptKernelID(Context *rsc, Script *s, int slot, int sig)
+        : ObjectBase(rsc) {
+
+    mScript = s;
+    mSlot = slot;
+    mHasKernelInput = (sig & 1) != 0;
+    mHasKernelOutput = (sig & 2) != 0;
+}
+
+ScriptKernelID::~ScriptKernelID() {
+
+}
+
+void ScriptKernelID::serialize(Context *rsc, OStream *stream) const {
+
+}
+
+RsA3DClassID ScriptKernelID::getClassId() const {
+    return RS_A3D_CLASS_ID_SCRIPT_KERNEL_ID;
+}
+
+ScriptFieldID::ScriptFieldID(Context *rsc, Script *s, int slot) : ObjectBase(rsc) {
+    mScript = s;
+    mSlot = slot;
+}
+
+ScriptFieldID::~ScriptFieldID() {
+
+}
+
+void ScriptFieldID::serialize(Context *rsc, OStream *stream) const {
+
+}
+
+RsA3DClassID ScriptFieldID::getClassId() const {
+    return RS_A3D_CLASS_ID_SCRIPT_FIELD_ID;
+}
+
+
 namespace android {
 namespace renderscript {
+
+RsScriptKernelID rsi_ScriptKernelIDCreate(Context *rsc, RsScript vs, int slot, int sig) {
+    return new ScriptKernelID(rsc, (Script *)vs, slot, sig);
+}
+
+RsScriptFieldID rsi_ScriptFieldIDCreate(Context *rsc, RsScript vs, int slot) {
+    return new ScriptFieldID(rsc, (Script *)vs, slot);
+}
 
 void rsi_ScriptBindAllocation(Context * rsc, RsScript vs, RsAllocation va, uint32_t slot) {
     Script *s = static_cast<Script *>(vs);
