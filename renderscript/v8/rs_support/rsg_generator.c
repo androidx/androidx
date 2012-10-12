@@ -1,6 +1,7 @@
 
 #include "spec.h"
 #include <stdio.h>
+#include <string.h>
 
 void printFileHeader(FILE *f) {
     fprintf(f, "/*\n");

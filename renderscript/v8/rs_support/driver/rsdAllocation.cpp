@@ -64,18 +64,17 @@ static void AllocateRenderTarget(const Context *rsc, const Allocation *alloc) {
 static void UploadToBufferObject(const Context *rsc, const Allocation *alloc) {
 }
 
-bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
-    DrvAllocation *drv = (DrvAllocation *)calloc(1, sizeof(DrvAllocation));
-    if (!drv) {
-        return false;
-    }
+static size_t AllocationBuildPointerTable(const Context *rsc, const Allocation *alloc,
+        const Type *type, uint8_t *ptr) {
 
-    drv->lod[0].dimX = alloc->getType()->getDimX();
-    drv->lod[0].dimY = alloc->getType()->getDimY();
+    DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
+
+    drv->lod[0].dimX = type->getDimX();
+    drv->lod[0].dimY = type->getDimY();
     drv->lod[0].mallocPtr = 0;
-    drv->lod[0].stride = alloc->mHal.state.dimensionX * alloc->mHal.state.elementSizeBytes;
-    drv->lodCount = alloc->getType()->getLODCount();
-    drv->faceCount = alloc->getType()->getDimFaces();
+    drv->lod[0].stride = drv->lod[0].dimX * type->getElementSizeBytes();
+    drv->lodCount = type->getLODCount();
+    drv->faceCount = type->getDimFaces();
 
     size_t offsets[Allocation::MAX_LOD];
     memset(offsets, 0, sizeof(offsets));
@@ -89,7 +88,7 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
             drv->lod[lod].dimX = tx;
             drv->lod[lod].dimY = ty;
             drv->lod[lod].dimZ = tz;
-            drv->lod[lod].stride = tx * alloc->mHal.state.elementSizeBytes;
+            drv->lod[lod].stride = tx * type->getElementSizeBytes();
             offsets[lod] = o;
             o += drv->lod[lod].stride * rsMax(ty, 1u) * rsMax(tz, 1u);
             if (tx > 1) tx >>= 1;
@@ -99,13 +98,36 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
     }
     drv->faceOffset = o;
 
+    drv->lod[0].mallocPtr = ptr;
+    for (uint32_t lod=1; lod < drv->lodCount; lod++) {
+        drv->lod[lod].mallocPtr = ptr + offsets[lod];
+    }
+    alloc->mHal.drvState.strideLOD0 = drv->lod[0].stride;
+    alloc->mHal.drvState.mallocPtrLOD0 = ptr;
+
+    size_t allocSize = drv->faceOffset;
+    if(drv->faceCount) {
+        allocSize *= 6;
+    }
+
+    return allocSize;
+}
+
+bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
+    DrvAllocation *drv = (DrvAllocation *)calloc(1, sizeof(DrvAllocation));
+    if (!drv) {
+        return false;
+    }
+    alloc->mHal.drv = drv;
+
+    // Calculate the object size.
+    size_t allocSize = AllocationBuildPointerTable(rsc, alloc, alloc->getType(), NULL);
+
+    ALOGE("alloc usage %i", alloc->mHal.state.usageFlags);
+
     uint8_t * ptr = NULL;
     if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_IO_OUTPUT) {
     } else {
-        size_t allocSize = drv->faceOffset;
-        if(drv->faceCount) {
-            allocSize *= 6;
-        }
 
         ptr = (uint8_t *)malloc(allocSize);
         if (!ptr) {
@@ -113,12 +135,12 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
             return false;
         }
     }
-    drv->lod[0].mallocPtr = ptr;
-    for (uint32_t lod=1; lod < drv->lodCount; lod++) {
-        drv->lod[lod].mallocPtr = ptr + offsets[lod];
+    // Build the pointer tables
+    size_t verifySize = AllocationBuildPointerTable(rsc, alloc, alloc->getType(), ptr);
+    if(allocSize != verifySize) {
+        rsAssert(!"Size mismatch");
     }
 
-    /*
     drv->glTarget = GL_NONE;
     if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_GRAPHICS_TEXTURE) {
         if (alloc->mHal.state.hasFaces) {
@@ -132,13 +154,9 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
         }
     }
 
-    drv->glType = rsdTypeToGLType(alloc->mHal.state.type->getElement()->getComponent().getType());
-    drv->glFormat = rsdKindToGLFormat(alloc->mHal.state.type->getElement()->getComponent().getKind());
-    */
+    drv->glType = 0;
+    drv->glFormat = 0;
 
-    alloc->mHal.drvState.strideLOD0 = drv->lod[0].stride;
-    alloc->mHal.drvState.mallocPtrLOD0 = ptr;
-    alloc->mHal.drv = drv;
     if (forceZero && ptr) {
         memset(ptr, 0, alloc->mHal.state.type->getSizeBytes());
     }
@@ -168,15 +186,21 @@ void rsdAllocationResize(const Context *rsc, const Allocation *alloc,
                          const Type *newType, bool zeroNew) {
     DrvAllocation *drv = (DrvAllocation *)alloc->mHal.drv;
 
-    alloc->mHal.drvState.mallocPtrLOD0 = (uint8_t *)realloc(
-            alloc->mHal.drvState.mallocPtrLOD0, newType->getSizeBytes());
+    void * oldPtr = drv->lod[0].mallocPtr;
+    // Calculate the object size
+    size_t s = AllocationBuildPointerTable(rsc, alloc, newType, NULL);
+    uint8_t *ptr = (uint8_t *)realloc(oldPtr, s);
+    // Build the relative pointer tables.
+    size_t verifySize = AllocationBuildPointerTable(rsc, alloc, newType, ptr);
+    if(s != verifySize) {
+        rsAssert(!"Size mismatch");
+    }
 
     const uint32_t oldDimX = alloc->mHal.state.dimensionX;
     const uint32_t dimX = newType->getDimX();
 
     if (dimX > oldDimX) {
-        const Element *e = alloc->mHal.state.type->getElement();
-        uint32_t stride = e->getSizeBytes();
+        uint32_t stride = alloc->mHal.state.elementSizeBytes;
         memset(((uint8_t *)alloc->mHal.drvState.mallocPtrLOD0) + stride * oldDimX,
                  0, stride * (dimX - oldDimX));
     }
