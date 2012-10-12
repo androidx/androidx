@@ -52,6 +52,15 @@ public class RenderScript {
     private Context mApplicationContext;
     boolean mUseNativeRS;
 
+    static class NRS {
+        android.renderscript.RenderScript mRS;
+
+        android.renderscript.RenderScript getRS() {
+            return mRS;
+        }
+    }
+    NRS mNRS;
+
     /*
      * We use a class initializer to allow the native code to cache some
      * field offsets.
@@ -408,6 +417,48 @@ public class RenderScript {
     synchronized int nScriptCCreate(String resName, String cacheDir, byte[] script, int length) {
         validate();
         return rsnScriptCCreate(mContext, resName, cacheDir, script, length);
+    }
+
+    native int  rsnScriptIntrinsicCreate(int con, int id, int eid);
+    synchronized int nScriptIntrinsicCreate(int id, int eid) {
+        validate();
+        return rsnScriptIntrinsicCreate(mContext, id, eid);
+    }
+
+    native int  rsnScriptKernelIDCreate(int con, int sid, int slot, int sig);
+    synchronized int nScriptKernelIDCreate(int sid, int slot, int sig) {
+        validate();
+        return rsnScriptKernelIDCreate(mContext, sid, slot, sig);
+    }
+
+    native int  rsnScriptFieldIDCreate(int con, int sid, int slot);
+    synchronized int nScriptFieldIDCreate(int sid, int slot) {
+        validate();
+        return rsnScriptFieldIDCreate(mContext, sid, slot);
+    }
+
+    native int  rsnScriptGroupCreate(int con, int[] kernels, int[] src, int[] dstk, int[] dstf, int[] types);
+    synchronized int nScriptGroupCreate(int[] kernels, int[] src, int[] dstk, int[] dstf, int[] types) {
+        validate();
+        return rsnScriptGroupCreate(mContext, kernels, src, dstk, dstf, types);
+    }
+
+    native void rsnScriptGroupSetInput(int con, int group, int kernel, int alloc);
+    synchronized void nScriptGroupSetInput(int group, int kernel, int alloc) {
+        validate();
+        rsnScriptGroupSetInput(mContext, group, kernel, alloc);
+    }
+
+    native void rsnScriptGroupSetOutput(int con, int group, int kernel, int alloc);
+    synchronized void nScriptGroupSetOutput(int group, int kernel, int alloc) {
+        validate();
+        rsnScriptGroupSetOutput(mContext, group, kernel, alloc);
+    }
+
+    native void rsnScriptGroupExecute(int con, int group);
+    synchronized void nScriptGroupExecute(int group) {
+        validate();
+        rsnScriptGroupExecute(mContext, group);
     }
 
     native int  rsnSamplerCreate(int con, int magFilter, int minFilter,

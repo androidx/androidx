@@ -22,7 +22,9 @@
 
 #include "rsThreadIO.h"
 #include "rsScriptC.h"
+#include "rsScriptGroup.h"
 #include "rsSampler.h"
+#include <string.h>
 
 // ---------------------------------------------------------------------------
 namespace android {

@@ -18,6 +18,7 @@
 #include "rsdAllocation.h"
 #include "rsdBcc.h"
 #include "rsdSampler.h"
+#include "rsdScriptGroup.h"
 
 #include <malloc.h>
 #include "rsContext.h"
@@ -46,6 +47,7 @@ static RsdHalFunctions FunctionTable = {
     SetPriority,
     {
         rsdScriptInit,
+        rsdInitIntrinsic,
         rsdScriptInvokeFunction,
         rsdScriptInvokeRoot,
         rsdScriptInvokeForEach,
@@ -133,6 +135,15 @@ static RsdHalFunctions FunctionTable = {
         NULL
     },
 
+    {
+        rsdScriptGroupInit,
+        rsdScriptGroupSetInput,
+        rsdScriptGroupSetOutput,
+        rsdScriptGroupExecute,
+        rsdScriptGroupDestroy
+    }
+
+
 };
 
 pthread_key_t rsdgThreadTLSKey = 0;
@@ -194,7 +205,9 @@ void rsdLaunchThreads(Context *rsc, WorkerCallback_t cbk, void *data) {
     }
 }
 
-bool rsdHalInit(Context *rsc, uint32_t version_major, uint32_t version_minor) {
+extern "C" bool rsdHalInit(RsContext c, uint32_t version_major,
+                           uint32_t version_minor) {
+    Context *rsc = (Context*) c;
     rsc->mHal.funcs = FunctionTable;
 
     RsdHal *dc = (RsdHal *)calloc(1, sizeof(RsdHal));
@@ -225,7 +238,7 @@ bool rsdHalInit(Context *rsc, uint32_t version_major, uint32_t version_minor) {
 
 
     int cpu = sysconf(_SC_NPROCESSORS_ONLN);
-    if(rsc->props.mDebugMaxThreads && (cpu > (int)rsc->props.mDebugMaxThreads)) {
+    if(rsc->props.mDebugMaxThreads) {
         cpu = rsc->props.mDebugMaxThreads;
     }
     if (cpu < 2) {

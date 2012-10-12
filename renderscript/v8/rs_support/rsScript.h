@@ -24,8 +24,35 @@
 namespace android {
 namespace renderscript {
 
+class ScriptKernelID : public ObjectBase {
+public:
+    ScriptKernelID(Context *rsc, Script *s, int slot, int sig);
+    virtual ~ScriptKernelID();
+
+    virtual void serialize(Context *rsc, OStream *stream) const;
+    virtual RsA3DClassID getClassId() const;
+
+    Script *mScript;
+    int mSlot;
+    bool mHasKernelInput;
+    bool mHasKernelOutput;
+};
+
+class ScriptFieldID : public ObjectBase {
+public:
+    ScriptFieldID(Context *rsc, Script *s, int slot);
+    virtual ~ScriptFieldID();
+
+    virtual void serialize(Context *rsc, OStream *stream) const;
+    virtual RsA3DClassID getClassId() const;
+
+    Script *mScript;
+    int mSlot;
+};
+
 class Script : public ObjectBase {
 public:
+
     struct Hal {
         void * drv;
 
