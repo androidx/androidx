@@ -46,6 +46,9 @@
         <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
         <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
 
+        <!-- Button attributes -->
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
+
         <!-- List attributes -->
         <item name="dropdownListPreferredItemHeight">64dip</item>
         <item name="dropDownListViewStyle">@android:style/Widget.ListView.DropDown</item>
@@ -83,6 +86,9 @@
         <!-- List attributes -->
         <item name="dropdownListPreferredItemHeight">64dip</item>
         <item name="dropDownListViewStyle">@android:style/Widget.ListView.DropDown</item>
+
+        <!-- Button attributes -->
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
     </style>
 
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
