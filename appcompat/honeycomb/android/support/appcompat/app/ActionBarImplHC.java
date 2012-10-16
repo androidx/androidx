@@ -18,7 +18,6 @@ package android.support.appcompat.app;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
-import android.support.appcompat.app.ActionBar;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.SpinnerAdapter;
@@ -212,7 +211,7 @@ class ActionBarImplHC extends ActionBar {
     public Tab newTab() {
         final android.app.ActionBar.Tab realTab = mActionBar.newTab();
         final TabWrapper result = new TabWrapper(realTab);
-        result.setTag(realTab);
+        realTab.setTag(result);
         return result;
     }
 

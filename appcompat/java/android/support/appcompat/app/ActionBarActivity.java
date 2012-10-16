@@ -43,12 +43,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         @Override
         public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
-            TypedArray a = activity.obtainStyledAttributes(R.styleable.ActionBarWindow);
-            activity.mHasActionBar = a.getBoolean(
-                    R.styleable.ActionBarWindow_windowActionBar, false);
-            activity.mOverlayActionBar = a.getBoolean(
-                    R.styleable.ActionBarWindow_windowActionBarOverlay, false);
-            a.recycle();
         }
 
         private void ensureSubDecor(ActionBarActivity activity) {
@@ -133,38 +127,44 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         @Override
         public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
-            // Not needed; the native action bar will take care of things.
+            if (activity.mHasActionBar) {
+                // If action bar is requested by inheriting from the appcompat theme,
+                // the system will not know about that. So explicitly request for an action bar.
+                activity.superRequestWindowFeature(FEATURE_ACTION_BAR);
+            }
+            if (activity.mOverlayActionBar) {
+                activity.superRequestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
+            }
         }
 
         @Override
         public void setContentView(ActionBarActivity activity, View v) {
-            activity.setContentView(v);
+            activity.superSetContentView(v);
         }
 
         @Override
         public void setContentView(ActionBarActivity activity, int resId) {
-            activity.setContentView(resId);
+            activity.superSetContentView(resId);
         }
 
         @Override
         public void setContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp) {
-            activity.setContentView(v, lp);
+            activity.superSetContentView(v, lp);
         }
 
         @Override
         public void addContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp) {
-            activity.addContentView(v, lp);
+            activity.superAddContentView(v, lp);
         }
 
         @Override
         public ActionBar createActionBar(ActionBarActivity activity) {
-            // TODO(trevorjohns): return new ActionBarImplHC(activity, activity);
-            return null;
+            return new ActionBarImplHC(activity, activity);
         }
 
         @Override
         public void requestWindowFeature(ActionBarActivity activity, int feature) {
-            activity.requestWindowFeature(feature);
+            activity.superRequestWindowFeature(feature);
         }
 
     }
@@ -172,8 +172,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     static class ActionBarActivityImplICS extends ActionBarActivityImplHC {
         @Override
         public ActionBar createActionBar(ActionBarActivity activity) {
-            // TODO(trevorjohns): return new ActionBarImplICS(activity, activity);
-            return null;
+            return new ActionBarImplICS(activity, activity);
         }
     }
 
@@ -202,6 +201,13 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        TypedArray a = obtainStyledAttributes(R.styleable.ActionBarWindow);
+        mHasActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBar, false);
+        mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay,
+                false);
+        a.recycle();
+
         IMPL.onCreate(this, savedInstanceState);
     }
 
@@ -278,4 +284,11 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         super.setContentView(v, lp);
     }
 
+    void superAddContentView(View v, ViewGroup.LayoutParams lp) {
+        super.addContentView(v, lp);
+    }
+
+    void superRequestWindowFeature(int feature) {
+        super.requestWindowFeature(feature);
+    }
 }
