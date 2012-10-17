@@ -689,7 +689,7 @@ public class ShareCompat {
          */
         public boolean isShareIntent() {
             final String action = mIntent.getAction();
-            return action.equals(Intent.ACTION_SEND) || action.equals(Intent.ACTION_SEND_MULTIPLE);
+            return Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action);
         }
 
         /**
@@ -701,7 +701,7 @@ public class ShareCompat {
          * @return true if the activity was started with an ACTION_SEND intent
          */
         public boolean isSingleShare() {
-            return mIntent.getAction().equals(Intent.ACTION_SEND);
+            return Intent.ACTION_SEND.equals(mIntent.getAction());
         }
 
         /**
@@ -712,7 +712,7 @@ public class ShareCompat {
          * @return true if the activity was started with an ACTION_SEND_MULTIPLE intent
          */
         public boolean isMultipleShare() {
-            return mIntent.getAction().equals(Intent.ACTION_SEND_MULTIPLE);
+            return Intent.ACTION_SEND_MULTIPLE.equals(mIntent.getAction());
         }
 
         /**
