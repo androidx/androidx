@@ -218,6 +218,13 @@ public class ViewPager extends ViewGroup {
      */
     public static final int SCROLL_STATE_SETTLING = 2;
 
+    private final Runnable mEndScrollRunnable = new Runnable() {
+        public void run() {
+            setScrollState(SCROLL_STATE_IDLE);
+            populate();
+        }
+    };
+
     private int mScrollState = SCROLL_STATE_IDLE;
 
     /**
@@ -327,6 +334,12 @@ public class ViewPager extends ViewGroup {
             ViewCompat.setImportantForAccessibility(this,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        removeCallbacks(mEndScrollRunnable);
+        super.onDetachedFromWindow();
     }
 
     private void setScrollState(int newState) {
@@ -489,7 +502,7 @@ public class ViewPager extends ViewGroup {
             if (dispatchSelected && mInternalPageChangeListener != null) {
                 mInternalPageChangeListener.onPageSelected(item);
             }
-            completeScroll();
+            completeScroll(false);
             scrollTo(destX, 0);
         }
     }
@@ -656,7 +669,7 @@ public class ViewPager extends ViewGroup {
         int dx = x - sx;
         int dy = y - sy;
         if (dx == 0 && dy == 0) {
-            completeScroll();
+            completeScroll(false);
             populate();
             setScrollState(SCROLL_STATE_IDLE);
             return;
@@ -837,6 +850,10 @@ public class ViewPager extends ViewGroup {
                     if (pos == ii.position && !ii.scrolling) {
                         mItems.remove(itemIndex);
                         mAdapter.destroyItem(this, pos, ii.object);
+                        if (DEBUG) {
+                            Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
+                                    " view: " + ((View) ii.object));
+                        }
                         itemIndex--;
                         curIndex--;
                         ii = itemIndex >= 0 ? mItems.get(itemIndex) : null;
@@ -865,6 +882,10 @@ public class ViewPager extends ViewGroup {
                         if (pos == ii.position && !ii.scrolling) {
                             mItems.remove(itemIndex);
                             mAdapter.destroyItem(this, pos, ii.object);
+                            if (DEBUG) {
+                                Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
+                                        " view: " + ((View) ii.object));
+                            }
                             ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
                         }
                     } else if (ii != null && pos == ii.position) {
@@ -1283,7 +1304,7 @@ public class ViewPager extends ViewGroup {
             final float scrollOffset = ii != null ? Math.min(ii.offset, mLastOffset) : 0;
             final int scrollPos = (int) (scrollOffset * width);
             if (scrollPos != getScrollX()) {
-                completeScroll();
+                completeScroll(false);
                 scrollTo(scrollPos, getScrollY());
             }
         }
@@ -1419,7 +1440,7 @@ public class ViewPager extends ViewGroup {
         }
 
         // Done with scroll, clean up state.
-        completeScroll();
+        completeScroll(true);
     }
 
     private boolean pageScrolled(int xpos) {
@@ -1512,7 +1533,7 @@ public class ViewPager extends ViewGroup {
         mCalledSuper = true;
     }
 
-    private void completeScroll() {
+    private void completeScroll(boolean postEvents) {
         boolean needPopulate = mScrollState == SCROLL_STATE_SETTLING;
         if (needPopulate) {
             // Done with scroll, no longer want to cache view drawing.
@@ -1525,7 +1546,6 @@ public class ViewPager extends ViewGroup {
             if (oldX != x || oldY != y) {
                 scrollTo(x, y);
             }
-            setScrollState(SCROLL_STATE_IDLE);
         }
         mPopulatePending = false;
         for (int i=0; i<mItems.size(); i++) {
@@ -1536,7 +1556,11 @@ public class ViewPager extends ViewGroup {
             }
         }
         if (needPopulate) {
-            populate();
+            if (postEvents) {
+                ViewCompat.postOnAnimation(this, mEndScrollRunnable);
+            } else {
+                mEndScrollRunnable.run();
+            }
         }
     }
 
@@ -1660,7 +1684,7 @@ public class ViewPager extends ViewGroup {
                     mIsBeingDragged = true;
                     setScrollState(SCROLL_STATE_DRAGGING);
                 } else {
-                    completeScroll();
+                    completeScroll(false);
                     mIsBeingDragged = false;
                 }
 
