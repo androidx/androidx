@@ -31,14 +31,28 @@ public class StringRequest extends Request<String> {
     private final Listener<String> mListener;
 
     /**
-     * Creates a new request.
+     * Creates a new request with the given method.
+     *
+     * @param method the request {@link Method} to use
+     * @param url URL to fetch the string at
+     * @param listener Listener to receive the String response
+     * @param errorListener Error listener, or null to ignore errors
+     */
+    public StringRequest(int method, String url, Listener<String> listener,
+            ErrorListener errorListener) {
+        super(method, url, errorListener);
+        mListener = listener;
+    }
+
+    /**
+     * Creates a new GET request.
+     *
      * @param url URL to fetch the string at
      * @param listener Listener to receive the String response
      * @param errorListener Error listener, or null to ignore errors
      */
     public StringRequest(String url, Listener<String> listener, ErrorListener errorListener) {
-        super(Method.GET, url, errorListener);
-        mListener = listener;
+        this(Method.GET, url, listener, errorListener);
     }
 
     @Override
