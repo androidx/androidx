@@ -359,7 +359,8 @@ error:
     return false;
 }
 
-typedef void (*rs_t)(const void *, void *, const void *, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef void (*rs_t)(const void *, void *, uint32_t, uint32_t);
+//typedef void (*rs_t)(const void *, void *, const void *, uint32_t, uint32_t, uint32_t, uint32_t);
 
 static void wc_xy(void *usr, uint32_t idx) {
     MTLaunchStruct *mtls = (MTLaunchStruct *)usr;
@@ -384,7 +385,7 @@ static void wc_xy(void *usr, uint32_t idx) {
             p.out = mtls->fep.ptrOut + (mtls->fep.yStrideOut * p.y);
             p.in = mtls->fep.ptrIn + (mtls->fep.yStrideIn * p.y);
             for (uint32_t x = mtls->xStart; x < mtls->xEnd; ++x) {
-                bare_fn(p.in, p.out, p.usr, x, p.y, 0, 0);
+                bare_fn(p.in, p.out, x, p.y);
                 p.in = (char *)(p.in) + mtls->fep.eStrideIn;
                 p.out = (char *)(p.out) + mtls->fep.eStrideOut;
             }
@@ -415,7 +416,7 @@ static void wc_x(void *usr, uint32_t idx) {
         p.out = mtls->fep.ptrOut + (mtls->fep.eStrideOut * xStart);
         p.in = mtls->fep.ptrIn + (mtls->fep.eStrideIn * xStart);
         for (uint32_t x = mtls->xStart; x < mtls->xEnd; ++x) {
-            bare_fn(p.in, p.out, p.usr, x, 0, 0, 0);
+            bare_fn(p.in, p.out, x, 0);
             p.in = (char *)(p.in) + mtls->fep.eStrideIn;
             p.out = (char *)(p.out) + mtls->fep.eStrideOut;
         }
