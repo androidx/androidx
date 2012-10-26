@@ -27,7 +27,7 @@
     <eat-comment />
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.Base.AppCompat" parent="@android:style/Theme">
+    <style name="Theme.Base.AppCompat" parent="@android:style/Theme.Holo">
 
         <item name="buttonBarStyle">?attr/buttonBarStyle</item>
         <item name="buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
@@ -56,7 +56,7 @@
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light" parent="@android:style/Theme.Light">
+    <style name="Theme.Base.AppCompat.Light" parent="@android:style/Theme.Holo.Light">
         <item name="buttonBarStyle">?attr/buttonBarStyle</item>
         <item name="buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
         <item name="selectableItemBackground">?attr/selectableItemBackground</item>

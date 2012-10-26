@@ -17,51 +17,12 @@ LOCAL_PATH := $(call my-dir)
 # Note: the source code is in java/, not src/, because this code is also part of
 # the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
 
-# A helper sub-library that makes direct use of Eclair APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-appcompat-eclair
-LOCAL_SDK_VERSION := 9
-LOCAL_SRC_FILES := $(call all-java-files-under,eclair)
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res            # Include /res in build
-LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true  #
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# A helper sub-library that makes direct use of honeycomb APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-appcompat-honeycomb
-LOCAL_SDK_VERSION := 11
-LOCAL_SRC_FILES := $(call all-java-files-under,honeycomb)
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-                               android-support-appcompat-eclair
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res            # Include /res in build
-LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true  #
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# A helper sub-library that makes direct use of ICS APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-appcompat-ics
-LOCAL_SDK_VERSION := 14
-LOCAL_SRC_FILES := $(call all-java-files-under,ics)
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-                               android-support-appcompat-eclair \
-                               android-support-appcompat-honeycomb
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res            # Include /res in build
-LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true  #
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# Here is the final static library that apps can link against.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-appcompat
-LOCAL_SDK_VERSION := 4
-LOCAL_SRC_FILES := $(call all-java-files-under, java)
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-appcompat-eclair \
-                               android-support-appcompat-honeycomb \
-                               android-support-appcompat-ics
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res            # Include /res in build
-LOCAL_KEEP_R_CLASS_IN_STATIC_JAVA_LIBRARY := true
+LOCAL_SDK_VERSION := 14
+LOCAL_SRC_FILES := $(call all-java-files-under,eclair honeycomb ics java)
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
