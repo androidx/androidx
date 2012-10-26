@@ -317,7 +317,10 @@ bool rsdScriptInit(const Context *rsc,
 
 error:
 
-    fclose(fp);
+    if (fp) {
+        fclose(fp);
+    }
+
     pthread_mutex_unlock(&rsdgInitMutex);
     if (drv) {
         delete[] drv->mInvokeFunctions;
