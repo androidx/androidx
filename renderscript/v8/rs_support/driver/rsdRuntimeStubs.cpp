@@ -68,6 +68,17 @@ typedef unsigned long long ulong3 __attribute__((ext_vector_type(3)));
 typedef unsigned long long ulong4 __attribute__((ext_vector_type(4)));
 
 
+#define OPAQUETYPE(t) \
+typedef struct { const int* const p; } __attribute__((packed, aligned(4))) t;
+
+OPAQUETYPE(rs_element)
+OPAQUETYPE(rs_type)
+OPAQUETYPE(rs_allocation)
+OPAQUETYPE(rs_sampler)
+OPAQUETYPE(rs_script)
+#undef OPAQUETYPE
+
+
 //////////////////////////////////////////////////////////////////////////////
 // Allocation
 //////////////////////////////////////////////////////////////////////////////
@@ -553,6 +564,21 @@ static RsdSymbolTable gSyms[] = {
 
     { NULL, NULL, false }
 };
+
+#define CLEAR_SET_OBJ(t) \
+void __attribute__((overloadable)) rsClearObject(t *dst) { \
+    return SC_ClearObject((ObjectBase**) dst); \
+} \
+void __attribute__((overloadable)) rsSetObject(t *dst, t src) { \
+    return SC_SetObject((ObjectBase**) dst, (ObjectBase*) src.p); \
+}
+
+CLEAR_SET_OBJ(rs_element)
+CLEAR_SET_OBJ(rs_type)
+CLEAR_SET_OBJ(rs_allocation)
+CLEAR_SET_OBJ(rs_sampler)
+CLEAR_SET_OBJ(rs_script)
+#undef CLEAR_SET_OBJ
 
 
 void* rsdLookupRuntimeStub(void* pContext, char const* name) {
