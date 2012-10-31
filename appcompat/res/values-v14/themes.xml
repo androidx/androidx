@@ -84,8 +84,7 @@
     <!--<style name="Theme.Base.AppCompat.Light.DarkActionBar"
            parent="@android:style/Theme.Holo.Light.DarkActionBar">-->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar"
-           parent="@android:style/Theme.Light">
-        <!-- TODO(trevorjohns): This actually needs to make the ActionBar dark. -->
+           parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="actionBarDivider">?attr/actionBarDivider</item>
         <item name="actionBarWidgetTheme">?attr/actionBarWidgetTheme</item>
     </style>
