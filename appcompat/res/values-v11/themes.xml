@@ -84,6 +84,7 @@
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
         <item name="actionBarDivider">@drawable/appcompat_divider_dark</item>
+        <item name="android:actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid.Inverse</item>
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity.
