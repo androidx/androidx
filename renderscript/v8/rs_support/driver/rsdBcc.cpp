@@ -246,6 +246,8 @@ bool rsdScriptInit(const Context *rsc,
                     goto error;
                 }
 
+                // Lookup the expanded ForEach kernel.
+                strncat(tmpName, ".expand", MAXLINE-1-strlen(tmpName));
                 drv->mForEachSignatures[i] = tmpSig;
                 drv->mForEachFunctions[i] =
                         (ForEachFunc_t) dlsym(scriptSO, tmpName);
@@ -255,9 +257,6 @@ bool rsdScriptInit(const Context *rsc,
                     goto error;
                 }
                 else {
-                    // TODO - Maybe add ForEachExpandPass to .so creation and
-                    // then lookup the ".expand" version of these kernels
-                    // instead.
                     ALOGE("Found forEach %s at %p", tmpName,
                           drv->mForEachFunctions[i]);
                 }
@@ -359,17 +358,15 @@ error:
     return false;
 }
 
-typedef void (*rs_t)(const void *, void *, uint32_t, uint32_t);
-//typedef void (*rs_t)(const void *, void *, const void *, uint32_t, uint32_t, uint32_t, uint32_t);
-
 static void wc_xy(void *usr, uint32_t idx) {
     MTLaunchStruct *mtls = (MTLaunchStruct *)usr;
     RsForEachStubParamStruct p;
     memcpy(&p, &mtls->fep, sizeof(p));
+    //p.lid = idx;
     RsdHal * dc = (RsdHal *)mtls->rsc->mHal.drv;
     uint32_t sig = mtls->sig;
 
-    rs_t bare_fn = (rs_t) mtls->kernel;
+    outer_foreach_t fn = (outer_foreach_t) mtls->kernel;
     while (1) {
         uint32_t slice = (uint32_t)android_atomic_inc(&mtls->mSliceNum);
         uint32_t yStart = mtls->yStart + slice * mtls->mSliceSize;
@@ -380,15 +377,13 @@ static void wc_xy(void *usr, uint32_t idx) {
         }
 
         //ALOGE("usr idx %i, x %i,%i  y %i,%i", idx, mtls->xStart, mtls->xEnd, yStart, yEnd);
-        //ALOGE("usr ptr in %p,  out %p", mtls->ptrIn, mtls->ptrOut);
+        //ALOGE("usr ptr in %p,  out %p", mtls->fep.ptrIn, mtls->fep.ptrOut);
         for (p.y = yStart; p.y < yEnd; p.y++) {
-            p.out = mtls->fep.ptrOut + (mtls->fep.yStrideOut * p.y);
-            p.in = mtls->fep.ptrIn + (mtls->fep.yStrideIn * p.y);
-            for (uint32_t x = mtls->xStart; x < mtls->xEnd; ++x) {
-                bare_fn(p.in, p.out, x, p.y);
-                p.in = (char *)(p.in) + mtls->fep.eStrideIn;
-                p.out = (char *)(p.out) + mtls->fep.eStrideOut;
-            }
+            p.out = mtls->fep.ptrOut + (mtls->fep.yStrideOut * p.y) +
+                    (mtls->fep.eStrideOut * mtls->xStart);
+            p.in = mtls->fep.ptrIn + (mtls->fep.yStrideIn * p.y) +
+                   (mtls->fep.eStrideIn * mtls->xStart);
+            fn(&p, mtls->xStart, mtls->xEnd, mtls->fep.eStrideIn, mtls->fep.eStrideOut);
         }
     }
 }
@@ -397,10 +392,11 @@ static void wc_x(void *usr, uint32_t idx) {
     MTLaunchStruct *mtls = (MTLaunchStruct *)usr;
     RsForEachStubParamStruct p;
     memcpy(&p, &mtls->fep, sizeof(p));
+    //p.lid = idx;
     RsdHal * dc = (RsdHal *)mtls->rsc->mHal.drv;
     uint32_t sig = mtls->sig;
 
-    rs_t bare_fn = (rs_t) mtls->kernel;
+    outer_foreach_t fn = (outer_foreach_t) mtls->kernel;
     while (1) {
         uint32_t slice = (uint32_t)android_atomic_inc(&mtls->mSliceNum);
         uint32_t xStart = mtls->xStart + slice * mtls->mSliceSize;
@@ -411,15 +407,11 @@ static void wc_x(void *usr, uint32_t idx) {
         }
 
         //ALOGE("usr slice %i idx %i, x %i,%i", slice, idx, xStart, xEnd);
-        //ALOGE("usr ptr in %p,  out %p", mtls->ptrIn, mtls->ptrOut);
+        //ALOGE("usr ptr in %p,  out %p", mtls->fep.ptrIn, mtls->fep.ptrOut);
 
         p.out = mtls->fep.ptrOut + (mtls->fep.eStrideOut * xStart);
         p.in = mtls->fep.ptrIn + (mtls->fep.eStrideIn * xStart);
-        for (uint32_t x = mtls->xStart; x < mtls->xEnd; ++x) {
-            bare_fn(p.in, p.out, x, 0);
-            p.in = (char *)(p.in) + mtls->fep.eStrideIn;
-            p.out = (char *)(p.out) + mtls->fep.eStrideOut;
-        }
+        fn(&p, xStart, xEnd, mtls->fep.eStrideIn, mtls->fep.eStrideOut);
     }
 }
 
