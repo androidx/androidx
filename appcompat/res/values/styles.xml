@@ -54,7 +54,27 @@
         <item name="android:background">@null</item>
         <item name="android:divider">?attr/dividerVertical</item>
         <item name="homeLayout">@layout/action_bar_home</item>
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
         <!-- TODO(trevorjohns): Missing styles here, including padding. Note that padding was commented out in ActionBarOverlayLayout -->
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="titleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Widget.ActionBar.Subtitle</item>
+        <item name="android:background">@drawable/ab_transparent_light_holo</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_transparent_light_holo</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_transparent_light_holo</item>
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
+        <!-- TODO(trevorjohns): Needs port of Holo theme -->
+        <!--<item name="android:progressBarStyle">@style/Widget.Holo.Light.ProgressBar.Horizontal</item>-->
+        <!--<item name="android:indeterminateProgressStyle">@style/Widget.Holo.Light.ProgressBar</item>-->
+    </style>
+
+    <style name="TextAppearance.Widget.AppCompat.ActionBar.Title"
+           parent="@android:style/TextAppearance.Medium">
+    </style>
+    <style name="TextAppearance.Widget.ActionBar.Subtitle"
+           parent="@android:style/TextAppearance.Small">
     </style>
 
     <!-- TODO(anirudhd): The item below doesn't work. -->

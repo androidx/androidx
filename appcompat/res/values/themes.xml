@@ -139,11 +139,12 @@
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
         <!-- TODO(trevorjohns): Does not exist on API < 11. -->
         <!-- <item name="actionDropDownStyle">@android:style/Widget_Spinner_DropDown</item> -->
     </style>
 
-    <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
+    <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
     <style name="Theme.AppCompat.Light" parent="Theme.Base.AppCompat.Light">
         <item name="windowActionBar">true</item>
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
@@ -157,6 +158,7 @@
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
         <!-- TODO(trevorjohns): Does not exist on API < 11. -->
         <!-- <item name="actionDropDownStyle">@android:style/Widget_Spinner_DropDown</item> -->
     </style>
