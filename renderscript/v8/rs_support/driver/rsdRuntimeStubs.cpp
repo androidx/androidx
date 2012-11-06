@@ -580,6 +580,192 @@ CLEAR_SET_OBJ(rs_sampler)
 CLEAR_SET_OBJ(rs_script)
 #undef CLEAR_SET_OBJ
 
+// TODO: allocation ops, messaging, time
+
+void rsDebug(const char *s, float f) {
+    SC_debugF(s, f);
+}
+
+void rsDebug(const char *s, float f1, float f2) {
+    SC_debugFv2(s, f1, f2);
+}
+
+void rsDebug(const char *s, float f1, float f2, float f3) {
+    SC_debugFv3(s, f1, f2, f3);
+}
+
+void rsDebug(const char *s, float f1, float f2, float f3, float f4) {
+    SC_debugFv4(s, f1, f2, f3, f4);
+}
+
+void rsDebug(const char *s, float2 f) {
+    SC_debugF2(s, f);
+}
+
+void rsDebug(const char *s, float3 f) {
+    SC_debugF3(s, f);
+}
+
+void rsDebug(const char *s, float4 f) {
+    SC_debugF4(s, f);
+}
+
+void rsDebug(const char *s, double d) {
+    SC_debugD(s, d);
+}
+
+void rsDebug(const char *s, rs_matrix4x4 *m) {
+    SC_debugFM4v4(s, (float *) m);
+}
+
+void rsDebug(const char *s, rs_matrix3x3 *m) {
+    SC_debugFM4v4(s, (float *) m);
+}
+
+void rsDebug(const char *s, rs_matrix2x2 *m) {
+    SC_debugFM4v4(s, (float *) m);
+}
+
+void rsDebug(const char *s, char c) {
+    SC_debugI8(s, c);
+}
+
+void rsDebug(const char *s, char2 c) {
+    SC_debugC2(s, c);
+}
+
+void rsDebug(const char *s, char3 c) {
+    SC_debugC3(s, c);
+}
+
+void rsDebug(const char *s, char4 c) {
+    SC_debugC4(s, c);
+}
+
+void rsDebug(const char *s, unsigned char c) {
+    SC_debugU8(s, c);
+}
+
+void rsDebug(const char *s, uchar2 c) {
+    SC_debugUC2(s, c);
+}
+
+void rsDebug(const char *s, uchar3 c) {
+    SC_debugUC3(s, c);
+}
+
+void rsDebug(const char *s, uchar4 c) {
+    SC_debugUC4(s, c);
+}
+
+void rsDebug(const char *s, short c) {
+    SC_debugI16(s, c);
+}
+
+void rsDebug(const char *s, short2 c) {
+    SC_debugS2(s, c);
+}
+
+void rsDebug(const char *s, short3 c) {
+    SC_debugS3(s, c);
+}
+
+void rsDebug(const char *s, short4 c) {
+    SC_debugS4(s, c);
+}
+
+void rsDebug(const char *s, unsigned short c) {
+    SC_debugU16(s, c);
+}
+
+void rsDebug(const char *s, ushort2 c) {
+    SC_debugUS2(s, c);
+}
+
+void rsDebug(const char *s, ushort3 c) {
+    SC_debugUS3(s, c);
+}
+
+void rsDebug(const char *s, ushort4 c) {
+    SC_debugUS4(s, c);
+}
+
+void rsDebug(const char *s, int c) {
+    SC_debugI32(s, c);
+}
+
+void rsDebug(const char *s, int2 c) {
+    SC_debugI2(s, c);
+}
+
+void rsDebug(const char *s, int3 c) {
+    SC_debugI3(s, c);
+}
+
+void rsDebug(const char *s, int4 c) {
+    SC_debugI4(s, c);
+}
+
+void rsDebug(const char *s, unsigned int c) {
+    SC_debugU32(s, c);
+}
+
+void rsDebug(const char *s, uint2 c) {
+    SC_debugUI2(s, c);
+}
+
+void rsDebug(const char *s, uint3 c) {
+    SC_debugUI3(s, c);
+}
+
+void rsDebug(const char *s, uint4 c) {
+    SC_debugUI4(s, c);
+}
+
+void rsDebug(const char *s, long c) {
+    SC_debugLL64(s, c);
+}
+
+void rsDebug(const char *s, long long c) {
+    SC_debugLL64(s, c);
+}
+
+void rsDebug(const char *s, long2 c) {
+    SC_debugL2(s, c);
+}
+
+void rsDebug(const char *s, long3 c) {
+    SC_debugL3(s, c);
+}
+
+void rsDebug(const char *s, long4 c) {
+    SC_debugL4(s, c);
+}
+
+void rsDebug(const char *s, unsigned long c) {
+    SC_debugULL64(s, c);
+}
+
+void rsDebug(const char *s, unsigned long long c) {
+    SC_debugULL64(s, c);
+}
+
+void rsDebug(const char *s, ulong2 c) {
+    SC_debugUL2(s, c);
+}
+
+void rsDebug(const char *s, ulong3 c) {
+    SC_debugUL3(s, c);
+}
+
+void rsDebug(const char *s, ulong4 c) {
+    SC_debugUL4(s, c);
+}
+
+void rsDebug(const char *s, const void *p) {
+    SC_debugP(s, p);
+}
+
 
 void* rsdLookupRuntimeStub(void* pContext, char const* name) {
     ScriptC *s = (ScriptC *)pContext;

@@ -254,7 +254,11 @@ bool rsdScriptInit(const Context *rsc,
                 if (drv->mForEachFunctions[i] == NULL) {
                     ALOGE("Failed to find forEach function address for %s: %s",
                           tmpName, dlerror());
-                    goto error;
+                    // Ignore missing root.expand functions.
+                    // root() is always specified at location 0.
+                    if (i != 0) {
+                        goto error;
+                    }
                 }
                 else {
                     ALOGE("Found forEach %s at %p", tmpName,

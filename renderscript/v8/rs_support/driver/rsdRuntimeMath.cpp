@@ -594,6 +594,28 @@ float trunc(float x) {
   return truncf(x);
 }
 
+#if 1
+// Bionic stdlib.h defines int abs(int) as a static __inline__ function.
+// This makes it difficult for us to override the implementation.
+extern "C" {
+int _Z3absi(int v) {
+  return SC_abs_i32(v);
+}
+}
+#else
+int abs(int v) {
+  return SC_abs_i32(v);
+}
+#endif
+
+int16_t abs(int16_t v) {
+  return SC_abs_i16(v);
+}
+
+char abs(char v) {
+  return SC_abs_i8(v);
+}
+
 uint32_t clz(uint32_t v) {
   return SC_clz_u32(v);
 }
@@ -618,19 +640,293 @@ char clz(char v) {
   return SC_clz_i8(v);
 }
 
-int16_t abs(int16_t v) {
-  return SC_abs_i16(v);
+uint32_t max(uint32_t v1, uint32_t v2) {
+    return SC_max_u32(v1, v2);
 }
 
-extern "C" {
-int _Z3absi(int v) {
-  return SC_abs_i32(v);
-}
+uint16_t max(uint16_t v1, uint16_t v2) {
+    return SC_max_u16(v1, v2);
 }
 
-char abs(char v) {
-  return SC_abs_i8(v);
+uint8_t max(uint8_t v1, uint8_t v2) {
+    return SC_max_u8(v1, v2);
 }
+
+int32_t max(int32_t v1, int32_t v2) {
+    return SC_max_i32(v1, v2);
+}
+
+int16_t max(int16_t v1, int16_t v2) {
+    return SC_max_i16(v1, v2);
+}
+
+int8_t max(int8_t v1, int8_t v2) {
+    return SC_max_i8(v1, v2);
+}
+
+uint32_t min(uint32_t v1, uint32_t v2) {
+    return SC_min_u32(v1, v2);
+}
+
+uint16_t min(uint16_t v1, uint16_t v2) {
+    return SC_min_u16(v1, v2);
+}
+
+uint8_t min(uint8_t v1, uint8_t v2) {
+    return SC_min_u8(v1, v2);
+}
+
+int32_t min(int32_t v1, int32_t v2) {
+    return SC_min_i32(v1, v2);
+}
+
+int16_t min(int16_t v1, int16_t v2) {
+    return SC_min_i16(v1, v2);
+}
+
+int8_t min(int8_t v1, int8_t v2) {
+    return SC_min_i8(v1, v2);
+}
+
+float clamp(float amount, float low, float high) {
+    return SC_clamp_f32(amount, low, high);
+}
+
+float max(float v1, float v2) {
+    return SC_max_f32(v1, v2);
+}
+
+float min(float v1, float v2) {
+    return SC_min_f32(v1, v2);
+}
+
+float step(float edge, float v) {
+    return SC_step_f32(edge, v);
+}
+
+float sign(float v) {
+    return SC_sign_f32(v);
+}
+
+void rsMatrixLoadIdentity(rs_matrix4x4 *m) {
+    SC_MatrixLoadIdentity_4x4((Matrix4x4 *) m);
+}
+
+void rsMatrixLoadIdentity(rs_matrix3x3 *m) {
+    SC_MatrixLoadIdentity_3x3((Matrix3x3 *) m);
+}
+
+void rsMatrixLoadIdentity(rs_matrix2x2 *m) {
+    SC_MatrixLoadIdentity_2x2((Matrix2x2 *) m);
+}
+
+void rsMatrixLoad(rs_matrix4x4 *m, const float *v) {
+    SC_MatrixLoad_4x4_f((Matrix4x4 *) m, v);
+}
+
+void rsMatrixLoad(rs_matrix3x3 *m, const float *v) {
+    SC_MatrixLoad_3x3_f((Matrix3x3 *) m, v);
+}
+
+void rsMatrixLoad(rs_matrix2x2 *m, const float *v) {
+    SC_MatrixLoad_2x2_f((Matrix2x2 *) m, v);
+}
+
+void rsMatrixLoad(rs_matrix4x4 *m, const rs_matrix4x4 *v) {
+    SC_MatrixLoad_4x4_4x4((Matrix4x4 *) m, (Matrix4x4 *) v);
+}
+
+void rsMatrixLoad(rs_matrix4x4 *m, const rs_matrix3x3 *v) {
+    SC_MatrixLoad_4x4_3x3((Matrix4x4 *) m, (Matrix3x3 *) v);
+}
+
+void rsMatrixLoad(rs_matrix4x4 *m, const rs_matrix2x2 *v) {
+    SC_MatrixLoad_4x4_2x2((Matrix4x4 *) m, (Matrix2x2 *) v);
+}
+
+void rsMatrixLoad(rs_matrix3x3 *m, const rs_matrix3x3 *v) {
+    SC_MatrixLoad_3x3_3x3((Matrix3x3 *) m, (Matrix3x3 *) v);
+}
+
+void rsMatrixLoad(rs_matrix2x2 *m, const rs_matrix2x2 *v) {
+    SC_MatrixLoad_2x2_2x2((Matrix2x2 *) m, (Matrix2x2 *) v);
+}
+
+void rsMatrixLoadRotate(rs_matrix4x4 *m, float rot, float x, float y, float z) {
+    SC_MatrixLoadRotate((Matrix4x4 *) m, rot, x, y, z);
+}
+
+void rsMatrixLoadScale(rs_matrix4x4 *m, float x, float y, float z) {
+    SC_MatrixLoadScale((Matrix4x4 *) m, x, y, z);
+}
+
+void rsMatrixLoadTranslate(rs_matrix4x4 *m, float x, float y, float z) {
+    SC_MatrixLoadTranslate((Matrix4x4 *) m, x, y, z);
+}
+
+void rsMatrixLoadMultiply(rs_matrix4x4 *m, const rs_matrix4x4 *lhs,
+                          const rs_matrix4x4 *rhs) {
+    SC_MatrixLoadMultiply_4x4_4x4_4x4((Matrix4x4 *) m, (Matrix4x4 *) lhs,
+                                      (Matrix4x4 *) rhs);
+}
+
+void rsMatrixLoadMultiply(rs_matrix3x3 *m, const rs_matrix3x3 *lhs,
+                          const rs_matrix3x3 *rhs) {
+    SC_MatrixLoadMultiply_3x3_3x3_3x3((Matrix3x3 *) m, (Matrix3x3 *) lhs,
+                                      (Matrix3x3 *) rhs);
+}
+
+void rsMatrixLoadMultiply(rs_matrix2x2 *m, const rs_matrix2x2 *lhs,
+                          const rs_matrix2x2 *rhs) {
+    SC_MatrixLoadMultiply_2x2_2x2_2x2((Matrix2x2 *) m, (Matrix2x2 *) lhs,
+                                      (Matrix2x2 *) rhs);
+}
+
+void rsMatrixMultiply(rs_matrix4x4 *m, const rs_matrix4x4 *rhs) {
+    SC_MatrixMultiply_4x4_4x4((Matrix4x4 *) m, (Matrix4x4 *) rhs);
+}
+
+void rsMatrixMultiply(rs_matrix3x3 *m, const rs_matrix3x3 *rhs) {
+    SC_MatrixMultiply_3x3_3x3((Matrix3x3 *) m, (Matrix3x3 *) rhs);
+}
+
+void rsMatrixMultiply(rs_matrix2x2 *m, const rs_matrix2x2 *rhs) {
+    SC_MatrixMultiply_2x2_2x2((Matrix2x2 *) m, (Matrix2x2 *) rhs);
+}
+
+void rsMatrixRotate(rs_matrix4x4 *m, float rot, float x, float y, float z) {
+    SC_MatrixRotate((Matrix4x4 *) m, rot, x, y, z);
+}
+
+void rsMatrixScale(rs_matrix4x4 *m, float x, float y, float z) {
+    SC_MatrixScale((Matrix4x4 *) m, x, y, z);
+}
+
+void rsMatrixTranslate(rs_matrix4x4 *m, float x, float y, float z) {
+    SC_MatrixTranslate((Matrix4x4 *) m, x, y, z);
+}
+
+void rsMatrixLoadOrtho(rs_matrix4x4 *m, float left, float right, float bottom,
+                       float top, float near, float far) {
+    SC_MatrixLoadOrtho((Matrix4x4 *) m, left, right, bottom, top, near, far);
+}
+
+void rsMatrixLoadFrustum(rs_matrix4x4 *m, float left, float right, float bottom,
+                         float top, float near, float far) {
+    SC_MatrixLoadFrustum((Matrix4x4 *) m, left, right, bottom, top, near, far);
+}
+
+void rsMatrixLoadPerspective(rs_matrix4x4* m, float fovy, float aspect,
+                             float near, float far) {
+    SC_MatrixLoadPerspective((Matrix4x4 *) m, fovy, aspect, near, far);
+}
+
+bool rsMatrixInverse(rs_matrix4x4 *m) {
+    return SC_MatrixInverse_4x4((Matrix4x4 *) m);
+}
+
+bool rsMatrixInverseTranspose(rs_matrix4x4 *m) {
+    return SC_MatrixInverseTranspose_4x4((Matrix4x4 *) m);
+}
+
+void rsMatrixTranspose(rs_matrix4x4 *m) {
+    SC_MatrixTranspose_4x4((Matrix4x4 *) m);
+}
+
+void rsMatrixTranspose(rs_matrix3x3 *m) {
+    SC_MatrixTranspose_3x3((Matrix3x3 *) m);
+}
+
+void rsMatrixTranspose(rs_matrix2x2 *m) {
+    SC_MatrixTranspose_2x2((Matrix2x2 *) m);
+}
+
+
+int rsRand(int max) {
+    return SC_randi(max);
+}
+
+int rsRand(int min, int max) {
+    return SC_randi2(min, max);
+}
+
+float rsRand(float max) {
+    return SC_randf(max);
+}
+
+float rsRand(float min, float max) {
+    return SC_randf2(min, max);
+}
+
+float rsFrac(float v) {
+    return SC_frac(v);
+}
+
+
+int32_t rsAtomicInc(volatile int32_t* addr) {
+    return SC_AtomicInc(addr);
+}
+
+uint32_t rsAtomicInc(volatile uint32_t* addr) {
+    return SC_AtomicInc((volatile int32_t*) addr);
+}
+
+int32_t rsAtomicDec(volatile int32_t* addr) {
+    return SC_AtomicDec(addr);
+}
+
+uint32_t rsAtomicDec(volatile uint32_t* addr) {
+    return SC_AtomicDec((volatile int32_t*) addr);
+}
+
+#define RS_ATOMIC_OP(OPNAME) \
+int32_t rsAtomic##OPNAME(volatile int32_t* addr, int32_t value) { \
+    return SC_Atomic##OPNAME(addr, value); \
+} \
+\
+uint32_t rsAtomic##OPNAME(volatile uint32_t* addr, uint32_t value) { \
+    int32_t ival; \
+    memcpy(&ival, &value, sizeof(int32_t)); \
+    return SC_Atomic##OPNAME((volatile int32_t *) addr, ival); \
+}
+
+RS_ATOMIC_OP(Add);
+RS_ATOMIC_OP(Sub);
+RS_ATOMIC_OP(And);
+RS_ATOMIC_OP(Or);
+RS_ATOMIC_OP(Xor);
+
+#undef RS_ATOMIC_OP
+
+int32_t rsAtomicMin(volatile int32_t* addr, int32_t value) {
+    return SC_AtomicMin(addr, value);
+}
+
+uint32_t rsAtomicMin(volatile uint32_t* addr, uint32_t value) {
+    return SC_AtomicUMin(addr, value);
+}
+
+int32_t rsAtomicMax(volatile int32_t* addr, int32_t value) {
+    return SC_AtomicMax(addr, value);
+}
+
+uint32_t rsAtomicMax(volatile uint32_t* addr, uint32_t value) {
+    return SC_AtomicUMax(addr, value);
+}
+
+int32_t rsAtomicCas(volatile int32_t* addr, int32_t compareValue,
+                    int32_t newValue) {
+    return SC_AtomicCas(addr, compareValue, newValue);
+}
+
+uint32_t rsAtomicCas(volatile uint32_t* addr, uint32_t compareValue,
+                     uint32_t newValue) {
+    int32_t iCompareValue, iNewValue;
+    memcpy(&iCompareValue, &compareValue, sizeof(int32_t));
+    memcpy(&iNewValue, &newValue, sizeof(int32_t));
+    return SC_AtomicCas((volatile int32_t *) addr, iCompareValue, iNewValue);
+}
+
 
 static RsdSymbolTable gSyms[] = {
     { "_Z4acosf", (void *)&acosf, true },
