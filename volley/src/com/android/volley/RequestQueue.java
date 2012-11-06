@@ -165,6 +165,13 @@ public class RequestQueue {
     }
 
     /**
+     * Gets the {@link Cache} instance being used.
+     */
+    public Cache getCache() {
+        return mCache;
+    }
+
+    /**
      * A simple predicate or filter interface for Requests, for use by
      * {@link RequestQueue#cancelAll(RequestFilter)}.
      */
