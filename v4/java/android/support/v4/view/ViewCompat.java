@@ -321,7 +321,7 @@ public class ViewCompat {
     static final ViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if ("JellyBeanMR1".equals(android.os.Build.VERSION.CODENAME)) {
+        if (version >= 17) {
             IMPL = new JbMr1ViewCompatImpl();
         } else if (version >= 16) {
             IMPL = new JBViewCompatImpl();
