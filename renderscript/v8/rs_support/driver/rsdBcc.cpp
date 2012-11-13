@@ -48,6 +48,30 @@ using namespace android::renderscript;
 #define OBJECT_SLOT_STR "objectSlotCount: "
 #define OBJECT_SLOT_STR_LEN strlen(OBJECT_SLOT_STR)
 
+// Copy up to a newline or size chars from str -> s, updating str
+// Returns s when successful and NULL when '\0' is finally reached.
+static char* strgets(char *s, int size, const char **ppstr) {
+    if (!ppstr || !*ppstr || **ppstr == '\0' || size < 1) {
+        return NULL;
+    }
+
+    int i;
+    for (i = 0; i < (size - 1); i++) {
+        s[i] = **ppstr;
+        (*ppstr)++;
+        if (s[i] == '\0') {
+            return s;
+        } else if (s[i] == '\n') {
+            s[i+1] = '\0';
+            return s;
+        }
+    }
+
+    // size has been exceeded.
+    s[i] = '\0';
+
+    return s;
+}
 
 
 static Script * setTLS(Script *sc) {
@@ -78,27 +102,12 @@ bool rsdScriptInit(const Context *rsc,
     scriptSOName.append(resName);
     scriptSOName.append(".so");
 
-    String8 scriptInfoName(cacheDir);
-    scriptInfoName = scriptInfoName.getPathDir();
-    scriptInfoName.appendPath("lib/");
-    scriptInfoName.append(resName);
-    scriptInfoName.append(".bcinfo");
-
     void *scriptSO = NULL;
-    FILE *fp = NULL;
     DrvScript *drv = (DrvScript *)calloc(1, sizeof(DrvScript));
     if (drv == NULL) {
         goto error;
     }
     script->mHal.drv = drv;
-
-    ALOGE("Opening up info object: %s", scriptInfoName.string());
-
-    fp = fopen(scriptInfoName.string(), "r");
-    if (!fp) {
-        ALOGE("Unable to open info file: %s", scriptInfoName.string());
-        goto error;
-    }
 
     ALOGE("Opening up shared object: %s", scriptSOName.string());
     scriptSO = dlopen(scriptSOName.string(), RTLD_NOW | RTLD_LOCAL);
@@ -129,8 +138,13 @@ bool rsdScriptInit(const Context *rsc,
             ALOGE("Found .rs.dtor(): %p", drv->mFreeChildren);
         }
 
+        const char *rsInfo = (const char *) dlsym(scriptSO, ".rs.info");
+        if (rsInfo) {
+            ALOGE("Found .rs.info(): %p - %s", rsInfo, rsInfo);
+        }
+
         size_t varCount = 0;
-        if (fgets(line, MAXLINE, fp) == NULL) {
+        if (strgets(line, MAXLINE, &rsInfo) == NULL) {
             goto error;
         }
         if (sscanf(line, EXPORT_VAR_STR "%zu", &varCount) != 1) {
@@ -154,7 +168,7 @@ bool rsdScriptInit(const Context *rsc,
                 goto error;
             }
             for (size_t i = 0; i < varCount; ++i) {
-                if (fgets(line, MAXLINE, fp) == NULL) {
+                if (strgets(line, MAXLINE, &rsInfo) == NULL) {
                     goto error;
                 }
                 char *c = strrchr(line, '\n');
@@ -175,7 +189,7 @@ bool rsdScriptInit(const Context *rsc,
         }
 
         size_t funcCount = 0;
-        if (fgets(line, MAXLINE, fp) == NULL) {
+        if (strgets(line, MAXLINE, &rsInfo) == NULL) {
             goto error;
         }
         if (sscanf(line, EXPORT_FUNC_STR "%zu", &funcCount) != 1) {
@@ -192,7 +206,7 @@ bool rsdScriptInit(const Context *rsc,
                 goto error;
             }
             for (size_t i = 0; i < funcCount; ++i) {
-                if (fgets(line, MAXLINE, fp) == NULL) {
+                if (strgets(line, MAXLINE, &rsInfo) == NULL) {
                     goto error;
                 }
                 char *c = strrchr(line, '\n');
@@ -215,7 +229,7 @@ bool rsdScriptInit(const Context *rsc,
         }
 
         size_t forEachCount = 0;
-        if (fgets(line, MAXLINE, fp) == NULL) {
+        if (strgets(line, MAXLINE, &rsInfo) == NULL) {
             goto error;
         }
         if (sscanf(line, EXPORT_FOREACH_STR "%zu", &forEachCount) != 1) {
@@ -237,7 +251,7 @@ bool rsdScriptInit(const Context *rsc,
                 unsigned int tmpSig = 0;
                 char tmpName[MAXLINE];
 
-                if (fgets(line, MAXLINE, fp) == NULL) {
+                if (strgets(line, MAXLINE, &rsInfo) == NULL) {
                     goto error;
                 }
                 if (sscanf(line, "%u - %" MAKE_STR(MAXLINE) "s",
@@ -268,7 +282,7 @@ bool rsdScriptInit(const Context *rsc,
         }
 
         size_t objectSlotCount = 0;
-        if (fgets(line, MAXLINE, fp) == NULL) {
+        if (strgets(line, MAXLINE, &rsInfo) == NULL) {
             goto error;
         }
         if (sscanf(line, OBJECT_SLOT_STR "%zu", &objectSlotCount) != 1) {
@@ -280,7 +294,7 @@ bool rsdScriptInit(const Context *rsc,
             rsAssert(varCount > 0);
             for (size_t i = 0; i < objectSlotCount; ++i) {
                 uint32_t varNum = 0;
-                if (fgets(line, MAXLINE, fp) == NULL) {
+                if (strgets(line, MAXLINE, &rsInfo) == NULL) {
                     goto error;
                 }
                 if (sscanf(line, "%u", &varNum) != 1) {
@@ -314,15 +328,10 @@ bool rsdScriptInit(const Context *rsc,
         }
     }
 
-    fclose(fp);
     pthread_mutex_unlock(&rsdgInitMutex);
     return true;
 
 error:
-
-    if (fp) {
-        fclose(fp);
-    }
 
     pthread_mutex_unlock(&rsdgInitMutex);
     if (drv) {
