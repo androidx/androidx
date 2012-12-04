@@ -43,6 +43,10 @@ import android.widget.Scroller;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
@@ -120,6 +124,11 @@ public class SlidingPaneLayout extends ViewGroup {
      */
     private boolean mIsUnableToDrag;
 
+    /**
+     * Distance in pixels to parallax the fixed pane by when fully closed
+     */
+    private int mParallaxBy;
+
     private int mTouchSlop;
     private float mInitialMotionX;
     private float mLastMotionX;
@@ -169,7 +178,10 @@ public class SlidingPaneLayout extends ViewGroup {
     static final SlidingPanelLayoutImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 16) {
+        final int deviceVersion = Build.VERSION.SDK_INT;
+        if (deviceVersion >= 17) {
+            IMPL = new SlidingPanelLayoutImplJBMR1();
+        } else if (deviceVersion >= 16) {
             IMPL = new SlidingPanelLayoutImplJB();
         } else {
             IMPL = new SlidingPanelLayoutImplBase();
@@ -239,6 +251,27 @@ public class SlidingPaneLayout extends ViewGroup {
         mMaxVelocity = viewConfig.getScaledMaximumFlingVelocity();
     }
 
+    /**
+     * Set a distance to parallax the lower pane by when the upper pane is in its
+     * fully closed state. The lower pane will scroll between this position and
+     * its fully open state.
+     *
+     * @param parallaxBy Distance to parallax by in pixels
+     */
+    public void setParallaxDistance(int parallaxBy) {
+        mParallaxBy = parallaxBy;
+        requestLayout();
+    }
+
+    /**
+     * @return The distance the lower pane will parallax by when the upper pane is fully closed.
+     *
+     * @see #setParallaxDistance(int)
+     */
+    public int getParallaxDistance() {
+        return mParallaxBy;
+    }
+
     void setScrollState(int state) {
         if (mScrollState != state) {
             mScrollState = state;
@@ -299,7 +332,7 @@ public class SlidingPaneLayout extends ViewGroup {
         final int childCount = getChildCount();
 
         if (childCount > 2) {
-            Log.e(TAG, "onMeasure: More than two panes are not currently supported. We're in bat country!");
+            Log.e(TAG, "onMeasure: More than two panes are not currently supported.");
         }
 
         // First pass. Measure based on child LayoutParams width/height.
@@ -450,33 +483,38 @@ public class SlidingPaneLayout extends ViewGroup {
         final int paddingTop = getPaddingTop();
         final int paddingBottom = getPaddingBottom();
 
+        final int childCount = getChildCount();
         int xStart = paddingLeft;
         int nextXStart = xStart;
 
-        final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
             final int childWidth = child.getMeasuredWidth();
+            int offset = 0;
 
             if (lp.canSlide) {
-                final int range = Math.min(nextXStart - xStart,
-                        width - paddingRight - mOverhangSize - xStart);
+                final int margin = lp.leftMargin + lp.rightMargin;
+                final int range = Math.min(nextXStart,
+                        width - paddingRight - mOverhangSize) - xStart - margin;
                 lp.range = range;
                 lp.dimWhenOffset = width - paddingRight - (xStart + range) < childWidth / 2;
                 xStart += (int) (range * lp.slideOffset);
+            } else if (mParallaxBy != 0) {
+                offset = (int) ((1 - lp.slideOffset) * mParallaxBy);
+                xStart = nextXStart;
             } else {
                 xStart = nextXStart;
             }
 
-            final int childLeft = xStart + lp.leftMargin;
+            final int childLeft = Math.max(xStart, lp.leftMargin) - offset;
             final int childRight = childLeft + childWidth;
             final int childTop = paddingTop;
             final int childBottom = childTop + child.getMeasuredHeight();
             child.layout(childLeft, paddingTop, childRight, childBottom);
 
-            nextXStart = child.getRight() + lp.rightMargin;
+            nextXStart += child.getWidth();
         }
     }
 
@@ -583,7 +621,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
         final int action = ev.getAction();
         boolean needsInvalidate = false;
-        boolean wantTouchEvents = false;
+        boolean wantTouchEvents = true;
 
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
@@ -591,12 +629,12 @@ public class SlidingPaneLayout extends ViewGroup {
                 final float y = ev.getY();
                 final View view = getChildUnderPoint(x, y);
                 final LayoutParams lp = view != null ? (LayoutParams) view.getLayoutParams() : null;
+                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
 
                 if (view != null && lp.canSlide) {
                     mScroller.abortAnimation();
                     wantTouchEvents = true;
                     mLastMotionX = mInitialMotionX = x;
-                    mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                     mDraggingPane = view;
                 }
                 break;
@@ -759,6 +797,10 @@ public class SlidingPaneLayout extends ViewGroup {
                 (int) newRight, mDraggingPane.getBottom());
         lp.slideOffset = (newLeft - leftBound) / lp.range;
 
+        if (mParallaxBy != 0) {
+            parallaxOtherViews(lp.slideOffset);
+        }
+
         mLastMotionX += newLeft - (int) newLeft;
         dimChildViewForRange(mDraggingPane);
         dispatchOnPanelSlide(mDraggingPane);
@@ -899,6 +941,10 @@ public class SlidingPaneLayout extends ViewGroup {
             dimChildViewForRange(mDraggingPane);
             dispatchOnPanelSlide(mDraggingPane);
 
+            if (mParallaxBy != 0) {
+                parallaxOtherViews(lp.slideOffset);
+            }
+
             if (mScroller.isFinished()) {
                 if (lp.slideOffset == 0) {
                     dispatchOnPanelClosed(mDraggingPane);
@@ -911,6 +957,21 @@ public class SlidingPaneLayout extends ViewGroup {
             ViewCompat.postInvalidateOnAnimation(this);
         }
 
+    }
+
+    private void parallaxOtherViews(float slideOffset) {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View v = getChildAt(i);
+            if (v == mDraggingPane) continue;
+
+            final LayoutParams lp = (LayoutParams) v.getLayoutParams();
+            final int oldOffset = (int) ((1 - lp.slideOffset) * mParallaxBy);
+            lp.slideOffset = slideOffset;
+            final int newOffset = (int) ((1 - slideOffset) * mParallaxBy);
+            final int left = v.getLeft() + oldOffset - newOffset;
+            v.layout(left, v.getTop(), left + v.getMeasuredWidth(), v.getBottom());
+        }
     }
 
     /**
@@ -967,7 +1028,7 @@ public class SlidingPaneLayout extends ViewGroup {
         final int childCount = getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
             final View child = getChildAt(i);
-            if (x >= child.getLeft() && x < child.getRight() &&
+            if (x >= child.getLeft() - mGutterSize && x < child.getRight() + mGutterSize &&
                     y >= child.getTop() && y < child.getBottom()) {
                 return child;
             }
@@ -1012,7 +1073,15 @@ public class SlidingPaneLayout extends ViewGroup {
             android.R.attr.layout_weight
         };
 
+        /**
+         * How the view should position within its parent
+         */
         public int gravity = Gravity.NO_GRAVITY;
+
+        /**
+         * The weighted proportion of how much of the leftover space
+         * this child should consume after measurement.
+         */
         public float weight = 0;
 
         boolean canSlide = false;
@@ -1153,6 +1222,13 @@ public class SlidingPaneLayout extends ViewGroup {
                 return;
             }
             super.invalidateChildRegion(parent, child);
+        }
+    }
+
+    static class SlidingPanelLayoutImplJBMR1 extends SlidingPanelLayoutImplBase {
+        @Override
+        public void invalidateChildRegion(SlidingPaneLayout parent, View child) {
+            ViewCompat.setLayerPaint(child, ((LayoutParams) child.getLayoutParams()).dimPaint);
         }
     }
 }
