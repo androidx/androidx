@@ -92,7 +92,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of JellyBean MR1 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-jellybean-mr1
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
