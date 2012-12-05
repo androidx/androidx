@@ -24,6 +24,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SearchViewCompat;
+import android.support.v4.widget.SearchViewCompat.OnCloseListenerCompat;
 import android.support.v4.widget.SearchViewCompat.OnQueryTextListenerCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 
@@ -101,7 +102,7 @@ public class LoaderCursorSupport extends FragmentActivity {
             item.setIcon(android.R.drawable.ic_menu_search);
             MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_ALWAYS
                     | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-            View searchView = SearchViewCompat.newSearchView(getActivity());
+            final View searchView = SearchViewCompat.newSearchView(getActivity());
             if (searchView != null) {
                 SearchViewCompat.setOnQueryTextListener(searchView,
                         new OnQueryTextListenerCompat() {
@@ -123,6 +124,17 @@ public class LoaderCursorSupport extends FragmentActivity {
                         getLoaderManager().restartLoader(0, null, CursorLoaderListFragment.this);
                         return true;
                     }
+                });
+                SearchViewCompat.setOnCloseListener(searchView,
+                        new OnCloseListenerCompat() {
+                            @Override
+                            public boolean onClose() {
+                                if (!TextUtils.isEmpty(SearchViewCompat.getQuery(searchView))) {
+                                    SearchViewCompat.setQuery(searchView, null, true);
+                                }
+                                return true;
+                            }
+                    
                 });
                 MenuItemCompat.setActionView(item, searchView);
             }

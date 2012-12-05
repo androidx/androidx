@@ -37,6 +37,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.pm.ActivityInfoCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SearchViewCompat;
+import android.support.v4.widget.SearchViewCompat.OnCloseListenerCompat;
 import android.support.v4.widget.SearchViewCompat.OnQueryTextListenerCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -440,7 +441,7 @@ public class LoaderCustomSupport extends FragmentActivity {
             item.setIcon(android.R.drawable.ic_menu_search);
             MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM
                     | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-            View searchView = SearchViewCompat.newSearchView(getActivity());
+            final View searchView = SearchViewCompat.newSearchView(getActivity());
             if (searchView != null) {
                 SearchViewCompat.setOnQueryTextListener(searchView,
                         new OnQueryTextListenerCompat() {
@@ -452,6 +453,17 @@ public class LoaderCustomSupport extends FragmentActivity {
                         mAdapter.getFilter().filter(mCurFilter);
                         return true;
                     }
+                });
+                SearchViewCompat.setOnCloseListener(searchView,
+                        new OnCloseListenerCompat() {
+                            @Override
+                            public boolean onClose() {
+                                if (!TextUtils.isEmpty(SearchViewCompat.getQuery(searchView))) {
+                                    SearchViewCompat.setQuery(searchView, null, true);
+                                }
+                                return true;
+                            }
+                    
                 });
                 MenuItemCompat.setActionView(item, searchView);
             }
