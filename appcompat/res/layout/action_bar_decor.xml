@@ -35,7 +35,7 @@
                 android:visibility="gone"
                 style="?attr/actionModeStyle" />
     </android.support.appcompat.widget.ActionBarContainer>
-    <FrameLayout android:id="@+id/content"
+    <FrameLayout android:id="@id/action_bar_activity_content"
                  android:layout_width="fill_parent"
                  android:layout_height="0dip"
                  android:layout_weight="1"

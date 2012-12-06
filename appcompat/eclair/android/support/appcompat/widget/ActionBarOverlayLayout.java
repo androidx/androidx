@@ -212,7 +212,7 @@ public class ActionBarOverlayLayout extends FrameLayout {
 
   void pullChildren() {
     if (mContent == null) {
-      mContent = findViewById(R.id.content);
+      mContent = findViewById(R.id.action_bar_activity_content);
       mActionBarTop = findViewById(R.id.top_action_bar);
       mContainerView = (ActionBarContainer)findViewById(
           R.id.action_bar_container);
