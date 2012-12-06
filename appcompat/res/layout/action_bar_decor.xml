@@ -20,31 +20,31 @@
               android:orientation="vertical"
               android:fitsSystemWindows="true">
     <android.support.appcompat.widget.ActionBarContainer android:id="@+id/action_bar_container"
-                                                    android:layout_width="fill_parent"
-                                                    android:layout_height="wrap_content"
-                                                    style="?attr/actionBarStyle">
+                                                         android:layout_width="fill_parent"
+                                                         android:layout_height="wrap_content"
+                                                         style="?attr/actionBarStyle">
         <android.support.appcompat.widget.ActionBarView
                 android:id="@+id/action_bar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                style="?attr/actionBarStyle" />
+                style="?attr/actionBarStyle"/>
         <android.support.appcompat.widget.ActionBarContextView
                 android:id="@+id/action_context_bar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                style="?attr/actionModeStyle" />
+                style="?attr/actionModeStyle"/>
     </android.support.appcompat.widget.ActionBarContainer>
     <FrameLayout android:id="@id/action_bar_activity_content"
                  android:layout_width="fill_parent"
                  android:layout_height="0dip"
                  android:layout_weight="1"
                  android:foregroundGravity="fill_horizontal|top"
-                 android:foreground="?android:attr/windowContentOverlay" />
+                 android:foreground="?android:attr/windowContentOverlay"/>
     <android.support.appcompat.widget.ActionBarContainer android:id="@+id/split_action_bar"
-                                                    android:layout_width="fill_parent"
-                                                    android:layout_height="wrap_content"
-                                                    style="?attr/actionBarSplitStyle"
-                                                    android:visibility="gone"
-                                                    android:gravity="center"/>
+                                                         android:layout_width="fill_parent"
+                                                         android:layout_height="wrap_content"
+                                                         style="?attr/actionBarSplitStyle"
+                                                         android:visibility="gone"
+                                                         android:gravity="center"/>
 </LinearLayout>

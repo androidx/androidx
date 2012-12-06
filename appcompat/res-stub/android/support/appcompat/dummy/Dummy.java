@@ -17,8 +17,9 @@
 package android.support.appcompat.dummy;
 
 /**
- * TODO Find out why the build system is rejecting the res-only
- * sublibrary without any source files.
+ * TODO Find out why the build system is rejecting the res-only sublibrary without any source
+ * files.
  */
 class Dummy {
+
 }

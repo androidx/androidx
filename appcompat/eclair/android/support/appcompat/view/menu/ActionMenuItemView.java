@@ -35,8 +35,9 @@ import android.widget.Toast;
  * @hide
  */
 public class ActionMenuItemView extends TextView
-    implements MenuView.ItemView, View.OnClickListener, View.OnLongClickListener,
-    ActionMenuView.ActionMenuChildView {
+        implements MenuView.ItemView, View.OnClickListener, View.OnLongClickListener,
+        ActionMenuView.ActionMenuChildView {
+
     private static final String TAG = "ActionMenuItemView";
 
     private MenuItemImpl mItemData;
@@ -61,11 +62,11 @@ public class ActionMenuItemView extends TextView
         super(context, attrs, defStyle);
         final Resources res = context.getResources();
         mAllowTextWithIcon = res.getBoolean(
-            android.support.appcompat.R.bool.config_allowActionMenuItemTextWithIcon);
+                android.support.appcompat.R.bool.config_allowActionMenuItemTextWithIcon);
         TypedArray a = context.obtainStyledAttributes(attrs,
-            android.support.appcompat.R.styleable.ActionMenuItemView, 0, 0);
+                android.support.appcompat.R.styleable.ActionMenuItemView, 0, 0);
         mMinWidth = a.getDimensionPixelSize(
-            R.styleable.ActionMenuItemView_android_minWidth, 0);
+                R.styleable.ActionMenuItemView_android_minWidth, 0);
         a.recycle();
 
         setOnClickListener(this);
@@ -102,7 +103,7 @@ public class ActionMenuItemView extends TextView
     }
 
     public void setItemInvoker(MenuBuilder.ItemInvoker invoker) {
-      mItemInvoker = invoker;
+        mItemInvoker = invoker;
     }
 
     public boolean prefersCondensedTitle() {
@@ -129,7 +130,7 @@ public class ActionMenuItemView extends TextView
     private void updateTextButtonVisibility() {
         boolean visible = !TextUtils.isEmpty(mTitle);
         visible &= mIcon == null ||
-            (mItemData.showsTextAsAction() && (mAllowTextWithIcon || mExpandedFormat));
+                (mItemData.showsTextAsAction() && (mAllowTextWithIcon || mExpandedFormat));
 
         setText(visible ? mTitle : null);
     }
@@ -190,7 +191,7 @@ public class ActionMenuItemView extends TextView
         if (midy < displayFrame.height()) {
             // Show along the top; follow action buttons
             cheatSheet.setGravity(Gravity.TOP | Gravity.RIGHT,
-                screenWidth - screenPos[0] - width / 2, height);
+                    screenWidth - screenPos[0] - width / 2, height);
         } else {
             // Show along the bottom center
             cheatSheet.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, height);
@@ -204,7 +205,7 @@ public class ActionMenuItemView extends TextView
         final boolean textVisible = hasText();
         if (textVisible && mSavedPaddingLeft >= 0) {
             super.setPadding(mSavedPaddingLeft, getPaddingTop(),
-                getPaddingRight(), getPaddingBottom());
+                    getPaddingRight(), getPaddingBottom());
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -213,12 +214,12 @@ public class ActionMenuItemView extends TextView
         final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         final int oldMeasuredWidth = getMeasuredWidth();
         final int targetWidth = widthMode == MeasureSpec.AT_MOST ? Math.min(widthSize, mMinWidth)
-            : mMinWidth;
+                : mMinWidth;
 
         if (widthMode != MeasureSpec.EXACTLY && mMinWidth > 0 && oldMeasuredWidth < targetWidth) {
             // Remeasure at exactly the minimum width.
             super.onMeasure(MeasureSpec.makeMeasureSpec(targetWidth, MeasureSpec.EXACTLY),
-                heightMeasureSpec);
+                    heightMeasureSpec);
         }
 
         if (!textVisible && mIcon != null) {

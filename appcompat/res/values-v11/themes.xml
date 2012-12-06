@@ -24,7 +24,7 @@
 
          This is the values-v11/ file that only declares the Base themes for
          Honeycomb+. You probably want to edit values/themes.xml instead. -->
-    <eat-comment />
+    <eat-comment/>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.Base.AppCompat" parent="@android:style/Theme.Holo">

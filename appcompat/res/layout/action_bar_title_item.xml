@@ -27,7 +27,7 @@
                android:layout_gravity="center_vertical|left"
                android:visibility="gone"
                android:layout_width="wrap_content"
-               android:layout_height="wrap_content" />
+               android:layout_height="wrap_content"/>
 
     <LinearLayout android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:singleLine="true"
-                  android:ellipsize="end" />
+                  android:ellipsize="end"/>
         <TextView android:id="@+id/action_bar_subtitle"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
@@ -45,6 +45,6 @@
                   android:layout_marginBottom="@dimen/action_bar_subtitle_bottom_margin"
                   android:singleLine="true"
                   android:ellipsize="end"
-                  android:visibility="gone" />
+                  android:visibility="gone"/>
     </LinearLayout>
 </LinearLayout>

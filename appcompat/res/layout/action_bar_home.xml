@@ -18,14 +18,14 @@
       class="android.support.appcompat.widget.ActionBarView$HomeView"
       android:layout_width="wrap_content"
       android:layout_height="fill_parent"
-      android:background="?attr/actionBarItemBackground" >
+      android:background="?attr/actionBarItemBackground">
     <ImageView android:id="@+id/up"
                android:src="?attr/homeAsUpIndicator"
                android:layout_gravity="center_vertical|left"
                android:visibility="gone"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:layout_marginRight="-8dip" />
+               android:layout_marginRight="-8dip"/>
     <ImageView android:id="@id/home"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
@@ -34,5 +34,5 @@
                android:layout_marginBottom="@dimen/action_bar_icon_vertical_padding"
                android:layout_gravity="center"
                android:adjustViewBounds="true"
-               android:scaleType="fitCenter" />
+               android:scaleType="fitCenter"/>
 </view>

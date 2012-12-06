@@ -42,8 +42,9 @@ import java.util.ArrayList;
  * @hide
  */
 public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.OnKeyListener,
-    ViewTreeObserver.OnGlobalLayoutListener, PopupWindow.OnDismissListener,
-    MenuPresenter {
+        ViewTreeObserver.OnGlobalLayoutListener, PopupWindow.OnDismissListener,
+        MenuPresenter {
+
     private static final String TAG = "MenuPopupHelper";
 
     static final int ITEM_LAYOUT = R.layout.popup_menu_item_layout;
@@ -74,7 +75,7 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
     }
 
     public MenuPopupHelper(Context context, MenuBuilder menu,
-                           View anchorView, boolean overflowOnly) {
+            View anchorView, boolean overflowOnly) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
         mMenu = menu;
@@ -82,7 +83,7 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
 
         final Resources res = context.getResources();
         mPopupMaxWidth = Math.max(res.getDisplayMetrics().widthPixels / 2,
-            res.getDimensionPixelSize(R.dimen.config_prefDialogWidth));
+                res.getDimensionPixelSize(R.dimen.config_prefDialogWidth));
 
         mAnchorView = anchorView;
 
@@ -116,7 +117,9 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
         if (anchor != null) {
             final boolean addGlobalListener = mTreeObserver == null;
             mTreeObserver = anchor.getViewTreeObserver(); // Refresh to latest
-            if (addGlobalListener) mTreeObserver.addOnGlobalLayoutListener(this);
+            if (addGlobalListener) {
+                mTreeObserver.addOnGlobalLayoutListener(this);
+            }
             mPopup.setAnchorView(anchor);
         } else {
             return false;
@@ -139,7 +142,9 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
         mPopup = null;
         mMenu.close();
         if (mTreeObserver != null) {
-            if (!mTreeObserver.isAlive()) mTreeObserver = mAnchorView.getViewTreeObserver();
+            if (!mTreeObserver.isAlive()) {
+                mTreeObserver = mAnchorView.getViewTreeObserver();
+            }
             mTreeObserver.removeGlobalOnLayoutListener(this);
             mTreeObserver = null;
         }
@@ -169,9 +174,9 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
         View itemView = null;
         int itemType = 0;
         final int widthMeasureSpec =
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
         final int heightMeasureSpec =
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
         final int count = adapter.getCount();
         for (int i = 0; i < count; i++) {
             final int positionType = adapter.getItemViewType(i);
@@ -214,7 +219,9 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
 
     @Override
     public void updateMenuView(boolean cleared) {
-        if (mAdapter != null) mAdapter.notifyDataSetChanged();
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -252,7 +259,9 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
     @Override
     public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
         // Only care about the (sub)menu we're presenting.
-        if (menu != mMenu) return;
+        if (menu != mMenu) {
+            return;
+        }
 
         dismiss();
         if (mPresenterCallback != null) {
@@ -288,6 +297,7 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
     }
 
     private class MenuAdapter extends BaseAdapter {
+
         private MenuBuilder mAdapterMenu;
         private int mExpandedIndex = -1;
 
@@ -298,7 +308,7 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
 
         public int getCount() {
             ArrayList<MenuItemImpl> items = mOverflowOnly ?
-                mAdapterMenu.getNonActionItems() : mAdapterMenu.getVisibleItems();
+                    mAdapterMenu.getNonActionItems() : mAdapterMenu.getVisibleItems();
             if (mExpandedIndex < 0) {
                 return items.size();
             }
@@ -307,7 +317,7 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
 
         public MenuItemImpl getItem(int position) {
             ArrayList<MenuItemImpl> items = mOverflowOnly ?
-                mAdapterMenu.getNonActionItems() : mAdapterMenu.getVisibleItems();
+                    mAdapterMenu.getNonActionItems() : mAdapterMenu.getVisibleItems();
             if (mExpandedIndex >= 0 && position >= mExpandedIndex) {
                 position++;
             }

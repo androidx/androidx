@@ -24,11 +24,12 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 /**
- * Base class for MenuPresenters that have a consistent container view and item
- * views. Behaves similarly to an AdapterView in that existing item views will
- * be reused if possible when items change.
+ * Base class for MenuPresenters that have a consistent container view and item views. Behaves
+ * similarly to an AdapterView in that existing item views will be reused if possible when items
+ * change.
  */
 public abstract class BaseMenuPresenter implements MenuPresenter {
+
     protected Context mSystemContext;
     protected Context mContext;
     protected MenuBuilder mMenu;
@@ -79,7 +80,9 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
      */
     public void updateMenuView(boolean cleared) {
         final ViewGroup parent = (ViewGroup) mMenuView;
-        if (parent == null) return;
+        if (parent == null) {
+            return;
+        }
 
         int childIndex = 0;
         if (mMenu != null) {
@@ -91,7 +94,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
                 if (shouldIncludeItem(childIndex, item)) {
                     final View convertView = parent.getChildAt(childIndex);
                     final MenuItemImpl oldItem = convertView instanceof MenuView.ItemView ?
-                        ((MenuView.ItemView) convertView).getItemData() : null;
+                            ((MenuView.ItemView) convertView).getItemData() : null;
                     final View itemView = getItemView(item, convertView, parent);
                     if (item != oldItem) {
                         // Don't let old states linger with new data.
@@ -155,10 +158,10 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     }
 
     /**
-     * Prepare an item view for use. See AdapterView for the basic idea at work here.
-     * This may require creating a new item view, but well-behaved implementations will
-     * re-use the view passed as convertView if present. The returned view will be populated
-     * with data from the item parameter.
+     * Prepare an item view for use. See AdapterView for the basic idea at work here. This may
+     * require creating a new item view, but well-behaved implementations will re-use the view
+     * passed as convertView if present. The returned view will be populated with data from the item
+     * parameter.
      *
      * @param item        Item to present
      * @param convertView Existing view to reuse

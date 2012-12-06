@@ -36,11 +36,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 /**
- * This widget implements the dynamic action bar tab behavior that can change
- * across different configurations or circumstances.
+ * This widget implements the dynamic action bar tab behavior that can change across different
+ * configurations or circumstances.
  */
 public class ScrollingTabContainerView extends HorizontalScrollView
-    implements AdapterView.OnItemClickListener {
+        implements AdapterView.OnItemClickListener {
+
     private static final String TAG = "ScrollingTabContainerView";
     Runnable mTabSelector;
     private TabClickListener mTabClickListener;
@@ -64,7 +65,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
 
         mTabLayout = createTabLayout();
         addView(mTabLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.FILL_PARENT));
+                ViewGroup.LayoutParams.FILL_PARENT));
     }
 
     @Override
@@ -75,7 +76,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
 
         final int childCount = mTabLayout.getChildCount();
         if (childCount > 1 &&
-            (widthMode == MeasureSpec.EXACTLY || widthMode == MeasureSpec.AT_MOST)) {
+                (widthMode == MeasureSpec.EXACTLY || widthMode == MeasureSpec.AT_MOST)) {
             if (childCount > 2) {
                 mMaxTabWidth = (int) (MeasureSpec.getSize(widthMeasureSpec) * 0.4f);
             } else {
@@ -113,8 +114,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     /**
-     * Indicates whether this view is collapsed into a dropdown menu instead
-     * of traditional tabs.
+     * Indicates whether this view is collapsed into a dropdown menu instead of traditional tabs.
      *
      * @return true if showing as a spinner
      */
@@ -127,14 +127,16 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private void performCollapse() {
-        if (isCollapsed()) return;
+        if (isCollapsed()) {
+            return;
+        }
 
         if (mTabSpinner == null) {
             mTabSpinner = createSpinner();
         }
         removeView(mTabLayout);
         addView(mTabSpinner, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.FILL_PARENT));
+                ViewGroup.LayoutParams.FILL_PARENT));
         if (mTabSpinner.getAdapter() == null) {
             mTabSpinner.setAdapter(new TabAdapter());
         }
@@ -146,11 +148,13 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private boolean performExpand() {
-        if (!isCollapsed()) return false;
+        if (!isCollapsed()) {
+            return false;
+        }
 
         removeView(mTabSpinner);
         addView(mTabLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.FILL_PARENT));
+                ViewGroup.LayoutParams.FILL_PARENT));
         setTabSelected(mTabSpinner.getSelectedItemPosition());
         return false;
     }
@@ -180,15 +184,15 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         //tabLayout.setMeasureWithLargestChildEnabled(true);
         tabLayout.setGravity(Gravity.CENTER);
         tabLayout.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.FILL_PARENT));
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.FILL_PARENT));
         return tabLayout;
     }
 
     private Spinner createSpinner() {
         final Spinner spinner = new Spinner(getContext(), null,
-            R.attr.actionDropDownStyle);
+                R.attr.actionDropDownStyle);
         spinner.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.FILL_PARENT));
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.FILL_PARENT));
         spinner.setOnItemClickListener(this);
         return spinner;
     }
@@ -238,7 +242,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         if (forAdapter) {
             tabView.setBackgroundDrawable(null);
             tabView.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.FILL_PARENT,
-                mContentHeight));
+                    mContentHeight));
         } else {
             tabView.setFocusable(true);
 
@@ -253,7 +257,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     public void addTab(ActionBar.Tab tab, boolean setSelected) {
         TabView tabView = createTabView(tab, false);
         mTabLayout.addView(tabView, new LinearLayout.LayoutParams(0,
-            LayoutParams.FILL_PARENT, 1));
+                LayoutParams.FILL_PARENT, 1));
         if (mTabSpinner != null) {
             ((TabAdapter) mTabSpinner.getAdapter()).notifyDataSetChanged();
         }
@@ -268,7 +272,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     public void addTab(ActionBar.Tab tab, int position, boolean setSelected) {
         final TabView tabView = createTabView(tab, false);
         mTabLayout.addView(tabView, position, new LinearLayout.LayoutParams(
-            0, LayoutParams.FILL_PARENT, 1));
+                0, LayoutParams.FILL_PARENT, 1));
         if (mTabSpinner != null) {
             ((TabAdapter) mTabSpinner.getAdapter()).notifyDataSetChanged();
         }
@@ -317,6 +321,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private class TabView extends LinearLayout {
+
         private ActionBar.Tab mTab;
         private TextView mTextView;
         private ImageView mIconView;
@@ -347,7 +352,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
             // Re-measure if we went beyond our maximum size.
             if (mMaxTabWidth > 0 && getMeasuredWidth() > mMaxTabWidth) {
                 super.onMeasure(MeasureSpec.makeMeasureSpec(mMaxTabWidth, MeasureSpec.EXACTLY),
-                    heightMeasureSpec);
+                        heightMeasureSpec);
             }
         }
 
@@ -357,11 +362,15 @@ public class ScrollingTabContainerView extends HorizontalScrollView
             if (custom != null) {
                 final ViewParent customParent = custom.getParent();
                 if (customParent != this) {
-                    if (customParent != null) ((ViewGroup) customParent).removeView(custom);
+                    if (customParent != null) {
+                        ((ViewGroup) customParent).removeView(custom);
+                    }
                     addView(custom);
                 }
                 mCustomView = custom;
-                if (mTextView != null) mTextView.setVisibility(GONE);
+                if (mTextView != null) {
+                    mTextView.setVisibility(GONE);
+                }
                 if (mIconView != null) {
                     mIconView.setVisibility(GONE);
                     mIconView.setImageDrawable(null);
@@ -379,7 +388,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
                     if (mIconView == null) {
                         ImageView iconView = new ImageView(getContext());
                         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                            LayoutParams.WRAP_CONTENT);
+                                LayoutParams.WRAP_CONTENT);
                         lp.gravity = Gravity.CENTER_VERTICAL;
                         iconView.setLayoutParams(lp);
                         addView(iconView, 0);
@@ -395,10 +404,10 @@ public class ScrollingTabContainerView extends HorizontalScrollView
                 if (text != null) {
                     if (mTextView == null) {
                         TextView textView = new TextView(getContext(), null,
-                            R.attr.actionBarTabTextStyle);
+                                R.attr.actionBarTabTextStyle);
                         textView.setEllipsize(TruncateAt.END);
                         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                            LayoutParams.WRAP_CONTENT);
+                                LayoutParams.WRAP_CONTENT);
                         lp.gravity = Gravity.CENTER_VERTICAL;
                         textView.setLayoutParams(lp);
                         addView(textView);
@@ -423,6 +432,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private class TabAdapter extends BaseAdapter {
+
         @Override
         public int getCount() {
             return mTabLayout.getChildCount();
@@ -450,6 +460,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private class TabClickListener implements OnClickListener {
+
         public void onClick(View view) {
             TabView tabView = (TabView) view;
             tabView.getTab().select();

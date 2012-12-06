@@ -16,10 +16,10 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true" android:state_selected="true"
-          android:drawable="@drawable/minitab_lt_press" />
+          android:drawable="@drawable/minitab_lt_press"/>
     <item android:state_selected="true"
-          android:drawable="@drawable/minitab_lt_selected" />
+          android:drawable="@drawable/minitab_lt_selected"/>
     <item android:state_pressed="true"
-          android:drawable="@drawable/minitab_lt_unselected_press" />
-    <item android:drawable="@drawable/minitab_lt_unselected" />
+          android:drawable="@drawable/minitab_lt_unselected_press"/>
+    <item android:drawable="@drawable/minitab_lt_unselected"/>
 </selector>

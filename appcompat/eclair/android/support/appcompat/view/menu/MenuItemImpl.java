@@ -32,11 +32,12 @@ import android.view.ViewDebug;
  * @hide
  */
 public final class MenuItemImpl implements MenuItem {
+
     private static final String TAG = "MenuItemImpl";
 
     private static final int SHOW_AS_ACTION_MASK = SHOW_AS_ACTION_NEVER |
-        SHOW_AS_ACTION_IF_ROOM |
-        SHOW_AS_ACTION_ALWAYS;
+            SHOW_AS_ACTION_IF_ROOM |
+            SHOW_AS_ACTION_ALWAYS;
 
     private final int mId;
     private final int mGroup;
@@ -52,10 +53,10 @@ public final class MenuItemImpl implements MenuItem {
      * The icon's drawable which is only created as needed
      */
     private Drawable mIconDrawable;
+
     /**
-     * The icon's resource ID which is used to get the Drawable when it is
-     * needed (if the Drawable isn't already obtained--only one of the two is
-     * needed).
+     * The icon's resource ID which is used to get the Drawable when it is needed (if the Drawable
+     * isn't already obtained--only one of the two is needed).
      */
     private int mIconResId = NO_ICON;
 
@@ -63,6 +64,7 @@ public final class MenuItemImpl implements MenuItem {
      * The menu to which this item belongs
      */
     private MenuBuilder mMenu;
+
     /**
      * If this item should launch a sub menu, this is the sub menu to launch
      */
@@ -92,8 +94,8 @@ public final class MenuItemImpl implements MenuItem {
     static final int NO_ICON = 0;
 
     /**
-     * Current use case is for context menu: Extra information linked to the
-     * View that added this item to the context menu.
+     * Current use case is for context menu: Extra information linked to the View that added this
+     * item to the context menu.
      */
     private ContextMenuInfo mMenuInfo;
 
@@ -106,17 +108,16 @@ public final class MenuItemImpl implements MenuItem {
     /**
      * Instantiates this menu item.
      *
-     * @param menu
-     * @param group         Item ordering grouping control. The item will be added after
-     *                      all other items whose order is <= this number, and before any
-     *                      that are larger than it. This can also be used to define
-     *                      groups of items for batch state changes. Normally use 0.
+     * @param group         Item ordering grouping control. The item will be added after all other
+     *                      items whose order is <= this number, and before any that are larger than
+     *                      it. This can also be used to define groups of items for batch state
+     *                      changes. Normally use 0.
      * @param id            Unique item ID. Use 0 if you do not need a unique ID.
      * @param categoryOrder The ordering for this item.
      * @param title         The text to display for the item.
      */
     MenuItemImpl(MenuBuilder menu, int group, int id, int categoryOrder, int ordering,
-                 CharSequence title, int showAsAction) {
+            CharSequence title, int showAsAction) {
 
         /*if (sPrependShortcutLabel == null) {
           // This is instantiated from the UI thread, so no chance of sync issues
@@ -146,7 +147,7 @@ public final class MenuItemImpl implements MenuItem {
      */
     public boolean invoke() {
         if (mClickListener != null &&
-            mClickListener.onMenuItemClick(this)) {
+                mClickListener.onMenuItemClick(this)) {
             return true;
         }
 
@@ -231,7 +232,9 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     public MenuItem setAlphabeticShortcut(char alphaChar) {
-        if (mShortcutAlphabeticChar == alphaChar) return this;
+        if (mShortcutAlphabeticChar == alphaChar) {
+            return this;
+        }
 
         mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
 
@@ -245,7 +248,9 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     public MenuItem setNumericShortcut(char numericChar) {
-        if (mShortcutNumericChar == numericChar) return this;
+        if (mShortcutNumericChar == numericChar) {
+            return this;
+        }
 
         mShortcutNumericChar = numericChar;
 
@@ -272,9 +277,9 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     /**
-     * @return The label to show for the shortcut. This includes the chording
-     *         key (for example 'Menu+a'). Also, any non-human readable
-     *         characters should be human readable (for example 'Menu+enter').
+     * @return The label to show for the shortcut. This includes the chording key (for example
+     *         'Menu+a'). Also, any non-human readable characters should be human readable (for
+     *         example 'Menu+enter').
      */
     String getShortcutLabel() {
 
@@ -307,9 +312,8 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     /**
-     * @return Whether this menu item should be showing shortcuts (depends on
-     *         whether the menu should show shortcuts and whether this item has
-     *         a shortcut defined)
+     * @return Whether this menu item should be showing shortcuts (depends on whether the menu
+     *         should show shortcuts and whether this item has a shortcut defined)
      */
     boolean shouldShowShortcut() {
         // Show shortcuts if the menu is supposed to show shortcuts AND this item has a shortcut
@@ -339,13 +343,12 @@ public final class MenuItemImpl implements MenuItem {
      * Gets the title for a particular {@link ItemView}
      *
      * @param itemView The ItemView that is receiving the title
-     * @return Either the title or condensed title based on what the ItemView
-     *         prefers
+     * @return Either the title or condensed title based on what the ItemView prefers
      */
     CharSequence getTitleForItemView(MenuView.ItemView itemView) {
         return ((itemView != null) && itemView.prefersCondensedTitle())
-            ? getTitleCondensed()
-            : getTitle();
+                ? getTitleCondensed()
+                : getTitle();
     }
 
     public MenuItem setTitle(CharSequence title) {
@@ -465,10 +468,9 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     /**
-     * Changes the visibility of the item. This method DOES NOT notify the
-     * parent menu of a change in this item, so this should only be called from
-     * methods that will eventually trigger this change.  If unsure, use {@link #setVisible(boolean)}
-     * instead.
+     * Changes the visibility of the item. This method DOES NOT notify the parent menu of a change
+     * in this item, so this should only be called from methods that will eventually trigger this
+     * change.  If unsure, use {@link #setVisible(boolean)} instead.
      *
      * @param shown Whether to show (true) or hide (false).
      * @return Whether the item's shown state was changed
@@ -552,7 +554,7 @@ public final class MenuItemImpl implements MenuItem {
             default:
                 // Mutually exclusive options selected!
                 throw new IllegalArgumentException("SHOW_AS_ACTION_ALWAYS, SHOW_AS_ACTION_IF_ROOM,"
-                    + " and SHOW_AS_ACTION_NEVER are mutually exclusive.");
+                        + " and SHOW_AS_ACTION_NEVER are mutually exclusive.");
         }
         mShowAsAction = actionEnum;
         //mMenu.onItemActionRequestChanged(this);
@@ -610,7 +612,7 @@ public final class MenuItemImpl implements MenuItem {
         }
 
         if (mOnActionExpandListener == null ||
-            mOnActionExpandListener.onMenuItemActionExpand(this)) {
+                mOnActionExpandListener.onMenuItemActionExpand(this)) {
             //return mMenu.expandItemActionView(this);
         }
 
@@ -628,7 +630,7 @@ public final class MenuItemImpl implements MenuItem {
         }
 
         if (mOnActionExpandListener == null ||
-            mOnActionExpandListener.onMenuItemActionCollapse(this)) {
+                mOnActionExpandListener.onMenuItemActionCollapse(this)) {
             return mMenu.collapseItemActionView(this);
         }
 

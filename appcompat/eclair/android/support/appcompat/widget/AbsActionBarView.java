@@ -27,163 +27,171 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public abstract class AbsActionBarView extends ViewGroup {
-  protected ActionMenuView mMenuView;
-  protected ActionMenuPresenter mActionMenuPresenter;
-  protected ActionBarContainer mSplitView;
-  protected boolean mSplitActionBar;
-  protected boolean mSplitWhenNarrow;
-  protected int mContentHeight;
 
-  private static final int FADE_DURATION = 200;
+    protected ActionMenuView mMenuView;
 
-  public AbsActionBarView(Context context) {
-    super(context);
-  }
+    protected ActionMenuPresenter mActionMenuPresenter;
 
-  public AbsActionBarView(Context context, AttributeSet attrs) {
-    super(context, attrs);
-  }
+    protected ActionBarContainer mSplitView;
 
-  public AbsActionBarView(Context context, AttributeSet attrs, int defStyle) {
-    super(context, attrs, defStyle);
-  }
+    protected boolean mSplitActionBar;
 
-  @Override
-  protected void onConfigurationChanged(Configuration newConfig) {
-    if (Build.VERSION.SDK_INT >= 8) {
-      super.onConfigurationChanged(newConfig);
+    protected boolean mSplitWhenNarrow;
+
+    protected int mContentHeight;
+
+    private static final int FADE_DURATION = 200;
+
+    public AbsActionBarView(Context context) {
+        super(context);
     }
 
-    // Action bar can change size on configuration changes.
-    // Reread the desired height from the theme-specified style.
-    TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.ActionBar,
-        R.attr.actionBarStyle, 0);
-    setContentHeight(a.getLayoutDimension(R.styleable.ActionBar_height, 0));
-    a.recycle();
-    if (mSplitWhenNarrow) {
-      setSplitActionBar(getContext().getResources().getBoolean(
-          R.bool.split_action_bar_is_narrow));
+    public AbsActionBarView(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
-    if (mActionMenuPresenter != null) {
-      mActionMenuPresenter.onConfigurationChanged(newConfig);
+
+    public AbsActionBarView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
     }
-  }
 
-  /**
-   * Sets whether the bar should be split right now, no questions asked.
-   * @param split true if the bar should split
-   */
-  public void setSplitActionBar(boolean split) {
-    mSplitActionBar = split;
-  }
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        if (Build.VERSION.SDK_INT >= 8) {
+            super.onConfigurationChanged(newConfig);
+        }
 
-  /**
-   * Sets whether the bar should split if we enter a narrow screen configuration.
-   * @param splitWhenNarrow true if the bar should check to split after a config change
-   */
-  public void setSplitWhenNarrow(boolean splitWhenNarrow) {
-    mSplitWhenNarrow = splitWhenNarrow;
-  }
-
-  public void setContentHeight(int height) {
-    mContentHeight = height;
-    requestLayout();
-  }
-
-  public int getContentHeight() {
-    return mContentHeight;
-  }
-
-  public void setSplitView(ActionBarContainer splitView) {
-    mSplitView = splitView;
-  }
-
-  /**
-   * @return Current visibility or if animating, the visibility being animated to.
-   */
-  public int getAnimatedVisibility() {
-    return getVisibility();
-  }
-
-  public void animateToVisibility(int visibility) {
-    setVisibility(visibility);
-  }
-
-  @Override
-  public void setVisibility(int visibility) {
-    if (visibility != getVisibility()) {
-      super.setVisibility(visibility);
+        // Action bar can change size on configuration changes.
+        // Reread the desired height from the theme-specified style.
+        TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.ActionBar,
+                R.attr.actionBarStyle, 0);
+        setContentHeight(a.getLayoutDimension(R.styleable.ActionBar_height, 0));
+        a.recycle();
+        if (mSplitWhenNarrow) {
+            setSplitActionBar(getContext().getResources().getBoolean(
+                    R.bool.split_action_bar_is_narrow));
+        }
+        if (mActionMenuPresenter != null) {
+            mActionMenuPresenter.onConfigurationChanged(newConfig);
+        }
     }
-  }
 
-  public boolean showOverflowMenu() {
-    if (mActionMenuPresenter != null) {
-      return mActionMenuPresenter.showOverflowMenu();
+    /**
+     * Sets whether the bar should be split right now, no questions asked.
+     *
+     * @param split true if the bar should split
+     */
+    public void setSplitActionBar(boolean split) {
+        mSplitActionBar = split;
     }
-    return false;
-  }
 
-  public void postShowOverflowMenu() {
-    post(new Runnable() {
-      public void run() {
-        showOverflowMenu();
-      }
-    });
-  }
-
-  public boolean hideOverflowMenu() {
-    if (mActionMenuPresenter != null) {
-      return mActionMenuPresenter.hideOverflowMenu();
+    /**
+     * Sets whether the bar should split if we enter a narrow screen configuration.
+     *
+     * @param splitWhenNarrow true if the bar should check to split after a config change
+     */
+    public void setSplitWhenNarrow(boolean splitWhenNarrow) {
+        mSplitWhenNarrow = splitWhenNarrow;
     }
-    return false;
-  }
 
-  public boolean isOverflowMenuShowing() {
-    if (mActionMenuPresenter != null) {
-      return mActionMenuPresenter.isOverflowMenuShowing();
+    public void setContentHeight(int height) {
+        mContentHeight = height;
+        requestLayout();
     }
-    return false;
-  }
 
-  public boolean isOverflowReserved() {
-    return mActionMenuPresenter != null && mActionMenuPresenter.isOverflowReserved();
-  }
-
-  public void dismissPopupMenus() {
-    if (mActionMenuPresenter != null) {
-      mActionMenuPresenter.dismissPopupMenus();
+    public int getContentHeight() {
+        return mContentHeight;
     }
-  }
 
-  protected int measureChildView(View child, int availableWidth, int childSpecHeight,
-      int spacing) {
-    child.measure(MeasureSpec.makeMeasureSpec(availableWidth, MeasureSpec.AT_MOST),
-        childSpecHeight);
+    public void setSplitView(ActionBarContainer splitView) {
+        mSplitView = splitView;
+    }
 
-    availableWidth -= child.getMeasuredWidth();
-    availableWidth -= spacing;
+    /**
+     * @return Current visibility or if animating, the visibility being animated to.
+     */
+    public int getAnimatedVisibility() {
+        return getVisibility();
+    }
 
-    return Math.max(0, availableWidth);
-  }
+    public void animateToVisibility(int visibility) {
+        setVisibility(visibility);
+    }
 
-  protected int positionChild(View child, int x, int y, int contentHeight) {
-    int childWidth = child.getMeasuredWidth();
-    int childHeight = child.getMeasuredHeight();
-    int childTop = y + (contentHeight - childHeight) / 2;
+    @Override
+    public void setVisibility(int visibility) {
+        if (visibility != getVisibility()) {
+            super.setVisibility(visibility);
+        }
+    }
 
-    child.layout(x, childTop, x + childWidth, childTop + childHeight);
+    public boolean showOverflowMenu() {
+        if (mActionMenuPresenter != null) {
+            return mActionMenuPresenter.showOverflowMenu();
+        }
+        return false;
+    }
 
-    return childWidth;
-  }
+    public void postShowOverflowMenu() {
+        post(new Runnable() {
+            public void run() {
+                showOverflowMenu();
+            }
+        });
+    }
 
-  protected int positionChildInverse(View child, int x, int y, int contentHeight) {
-    int childWidth = child.getMeasuredWidth();
-    int childHeight = child.getMeasuredHeight();
-    int childTop = y + (contentHeight - childHeight) / 2;
+    public boolean hideOverflowMenu() {
+        if (mActionMenuPresenter != null) {
+            return mActionMenuPresenter.hideOverflowMenu();
+        }
+        return false;
+    }
 
-    child.layout(x - childWidth, childTop, x, childTop + childHeight);
+    public boolean isOverflowMenuShowing() {
+        if (mActionMenuPresenter != null) {
+            return mActionMenuPresenter.isOverflowMenuShowing();
+        }
+        return false;
+    }
 
-    return childWidth;
-  }
+    public boolean isOverflowReserved() {
+        return mActionMenuPresenter != null && mActionMenuPresenter.isOverflowReserved();
+    }
+
+    public void dismissPopupMenus() {
+        if (mActionMenuPresenter != null) {
+            mActionMenuPresenter.dismissPopupMenus();
+        }
+    }
+
+    protected int measureChildView(View child, int availableWidth, int childSpecHeight,
+            int spacing) {
+        child.measure(MeasureSpec.makeMeasureSpec(availableWidth, MeasureSpec.AT_MOST),
+                childSpecHeight);
+
+        availableWidth -= child.getMeasuredWidth();
+        availableWidth -= spacing;
+
+        return Math.max(0, availableWidth);
+    }
+
+    protected int positionChild(View child, int x, int y, int contentHeight) {
+        int childWidth = child.getMeasuredWidth();
+        int childHeight = child.getMeasuredHeight();
+        int childTop = y + (contentHeight - childHeight) / 2;
+
+        child.layout(x, childTop, x + childWidth, childTop + childHeight);
+
+        return childWidth;
+    }
+
+    protected int positionChildInverse(View child, int x, int y, int contentHeight) {
+        int childWidth = child.getMeasuredWidth();
+        int childHeight = child.getMeasuredHeight();
+        int childTop = y + (contentHeight - childHeight) / 2;
+
+        child.layout(x - childWidth, childTop, x, childTop + childHeight);
+
+        return childWidth;
+    }
 
 }
