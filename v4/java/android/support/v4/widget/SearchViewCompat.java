@@ -282,7 +282,7 @@ public class SearchViewCompat {
      * and controlling other affordances such as a voice button.
      *
      * @param searchView The SearchView to operate on.
-     * @param searchableComponent.  The application component whose
+     * @param searchableComponent The application component whose
      * {@link android.app.SearchableInfo} should be loaded and applied to
      * the SearchView.
      */
@@ -435,7 +435,7 @@ public class SearchViewCompat {
     /**
      * Iconifies or expands the SearchView. Any query text is cleared when iconified. This is
      * a temporary state and does not override the default iconified state set by
-     * {@link #setIconifiedByDefault(boolean)}. If the default state is iconified, then
+     * setIconifiedByDefault(boolean). If the default state is iconified, then
      * a false here will only be valid until the user closes the field. And if the default
      * state is expanded, then a true here will only clear the text field and not close it.
      *
@@ -486,7 +486,7 @@ public class SearchViewCompat {
      * or if it should depend on the flags set in the individual items retrieved from the
      * suggestions provider. Clicking on the query refinement button will replace the text
      * in the query text field with the text from the suggestion. This flag only takes effect
-     * if a SearchableInfo has been specified with {@link #setSearchableInfo(SearchableInfo)}
+     * if a SearchableInfo has been specified with {@link #setSearchableInfo(View, ComponentName)}
      * and not when using a custom adapter.
      *
      * @param searchView The SearchView to operate on.
