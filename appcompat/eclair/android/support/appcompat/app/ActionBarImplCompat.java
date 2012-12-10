@@ -18,8 +18,11 @@ package android.support.appcompat.app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.appcompat.R;
+import android.support.appcompat.view.ActionBarPolicy;
 import android.support.appcompat.view.ActionMode;
 import android.support.appcompat.view.Menu;
 import android.support.appcompat.view.MenuItem;
@@ -36,6 +39,7 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.SpinnerAdapter;
 
@@ -100,7 +104,74 @@ public class ActionBarImplCompat extends ActionBar {
 
     public ActionBarImplCompat(FragmentActivity activity, Callback callback) {
         mActivity = activity;
+        mContext = activity;
         mCallback = callback;
+        init(mActivity);
+    }
+
+    private void init(FragmentActivity activity) {
+        mOverlayLayout = (ActionBarOverlayLayout) activity.findViewById(
+                R.id.action_bar_overlay_layout);
+        if (mOverlayLayout != null) {
+            mOverlayLayout.setActionBar(this);
+        }
+        mActionView = (ActionBarView) activity.findViewById(R.id.action_bar);
+        mContextView = (ActionBarContextView) activity.findViewById(R.id.action_context_bar);
+        mContainerView = (ActionBarContainer) activity.findViewById(R.id.action_bar_container);
+        mTopVisibilityView = (ViewGroup) activity.findViewById(R.id.top_action_bar);
+        if (mTopVisibilityView == null) {
+            mTopVisibilityView = mContainerView;
+        }
+        mSplitView = (ActionBarContainer) activity.findViewById(R.id.split_action_bar);
+
+        if (mActionView == null || mContextView == null || mContainerView == null) {
+            throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
+                    "with a compatible window decor layout");
+        }
+
+        mActionView.setContextView(mContextView);
+        mContextDisplayMode = mActionView.isSplitActionBar() ?
+                CONTEXT_DISPLAY_SPLIT : CONTEXT_DISPLAY_NORMAL;
+
+        // This was initially read from the action bar style
+        final int current = mActionView.getDisplayOptions();
+        final boolean homeAsUp = (current & DISPLAY_HOME_AS_UP) != 0;
+        if (homeAsUp) {
+            mDisplayHomeAsUpSet = true;
+        }
+
+        ActionBarPolicy abp = ActionBarPolicy.get(mContext);
+        setHomeButtonEnabled(abp.enableHomeButtonByDefault() || homeAsUp);
+        setHasEmbeddedTabs(abp.hasEmbeddedTabs());
+    }
+
+    public void onConfigurationChanged(Configuration newConfig) {
+        setHasEmbeddedTabs(ActionBarPolicy.get(mContext).hasEmbeddedTabs());
+    }
+
+    private void setHasEmbeddedTabs(boolean hasEmbeddedTabs) {
+        mHasEmbeddedTabs = hasEmbeddedTabs;
+        // Switch tab layout configuration if needed
+        if (!mHasEmbeddedTabs) {
+            mActionView.setEmbeddedTabView(null);
+            mContainerView.setTabContainer(mTabScrollView);
+        } else {
+            mContainerView.setTabContainer(null);
+            mActionView.setEmbeddedTabView(mTabScrollView);
+        }
+        final boolean isInTabMode = getNavigationMode() == NAVIGATION_MODE_TABS;
+        if (mTabScrollView != null) {
+            if (isInTabMode) {
+                mTabScrollView.setVisibility(View.VISIBLE);
+            } else {
+                mTabScrollView.setVisibility(View.GONE);
+            }
+        }
+        mActionView.setCollapsable(!mHasEmbeddedTabs && isInTabMode);
+    }
+
+    public boolean hasNonEmbeddedTabs() {
+        return !mHasEmbeddedTabs && getNavigationMode() == NAVIGATION_MODE_TABS;
     }
 
     @Override

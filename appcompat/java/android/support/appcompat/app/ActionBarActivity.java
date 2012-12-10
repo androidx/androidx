@@ -16,6 +16,7 @@
 
 package android.support.appcompat.app;
 
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.appcompat.R;
@@ -31,6 +32,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     interface ActionBarActivityImpl {
         void onCreate(ActionBarActivity activity, Bundle savedInstanceState);
+        void onConfigurationChanged(Configuration newConfig);
         void setContentView(ActionBarActivity activity, View v);
         void setContentView(ActionBarActivity activity, int resId);
         void setContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp);
@@ -40,12 +42,27 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     static class ActionBarActivityImplBase implements ActionBarActivityImpl {
+        ActionBarActivity mActivity;
 
         @Override
         public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
+            mActivity = activity;
         }
 
-        private void ensureSubDecor(ActionBarActivity activity) {
+        @Override
+        public void onConfigurationChanged(Configuration newConfig) {
+            // If this is called before sub-decor is installed, ActionBar will not
+            // be properly initialized.
+            if (mActivity.mHasActionBar && mActivity.mSubDecorInstalled) {
+                // Note: The action bar will need to access
+                // view changes from superclass.
+                ActionBarImplCompat actionBar =
+                        (ActionBarImplCompat) mActivity.getSupportActionBar();
+                actionBar.onConfigurationChanged(newConfig);
+            }
+        }
+
+        protected void ensureSubDecor(ActionBarActivity activity) {
             if (activity.mHasActionBar && !activity.mSubDecorInstalled) {
                 if (activity.mOverlayActionBar) {
                     activity.superSetContentView(R.layout.action_bar_decor_overlay);
@@ -135,6 +152,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             if (activity.mOverlayActionBar) {
                 activity.superRequestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
             }
+        }
+
+        @Override
+        public void onConfigurationChanged(Configuration newConfig) {
         }
 
         @Override
@@ -252,6 +273,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     @Override
     public void setContentView(View view) {
         IMPL.setContentView(this, view);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        IMPL.onConfigurationChanged(newConfig);
     }
 
     /**
