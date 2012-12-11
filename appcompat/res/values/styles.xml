@@ -18,7 +18,7 @@
     <!-- Like in themes.xml, the namespace "*.AppCompat.Base" is used to
          define base styles for the platform version. The "*.AppCompat"
          variants are for direct use or use as parent styles by the app. -->
-    <eat-comment />
+    <eat-comment/>
 
     <style name="Widget.AppCompat.Base.ActionBar" parent="">
     </style>
@@ -55,7 +55,8 @@
         <item name="divider">@drawable/action_bar_divider</item>
         <item name="height">?attr/actionBarSize</item>
         <item name="titleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Subtitle</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Subtitle
+        </item>
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
         <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Small</item>
         <item name="homeLayout">@layout/action_bar_home</item>
@@ -63,7 +64,8 @@
 
     <style name="Widget.AppCompat.Light.ActionBar" parent="Widget.AppCompat.ActionBar">
         <item name="titleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Subtitle</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Subtitle
+        </item>
         <item name="background">@drawable/ab_transparent_light_holo</item>
         <item name="backgroundStacked">@drawable/ab_stacked_transparent_light_holo</item>
         <item name="backgroundSplit">@drawable/ab_bottom_transparent_light_holo</item>
@@ -83,7 +85,9 @@
     <style name="Widget.AppCompat.ProgressBar.Horizontal" parent="android:Widget.ProgressBar">
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@android:drawable/progress_horizontal</item>
-        <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
+        <item name="android:indeterminateDrawable">
+            @android:drawable/progress_indeterminate_horizontal
+        </item>
         <item name="android:minHeight">20dip</item>
         <item name="android:maxHeight">20dip</item>
     </style>
@@ -99,9 +103,9 @@
 
     <!-- TODO(anirudhd): The item below doesn't work. -->
     <!--<style name="Widget.AppCompat.ListPopupWindow">-->
-        <!--<item name="android:dropDownSelector">@android:drawable/list_selector_background</item>-->
-        <!--<item name="android:popupBackground">@android:drawable/spinner_dropdown_background</item>-->
-        <!--<item name="android:dropDownWidth">wrap_content</item>-->
+    <!--<item name="android:dropDownSelector">@android:drawable/list_selector_background</item>-->
+    <!--<item name="android:popupBackground">@android:drawable/spinner_dropdown_background</item>-->
+    <!--<item name="android:dropDownWidth">wrap_content</item>-->
     <!--</style>-->
 
     <!--<style name="Widget.AppCompat.PopupMenu" parent="Widget.AppCompat.ListPopupWindow">-->
@@ -116,10 +120,12 @@
     <style name="Widget.AppCompat.ActionBar.TabBar" parent="Widget.AppCompat.Base.ActionBar.TabBar">
     </style>
 
-    <style name="Widget.AppCompat.ActionBar.TabView" parent="Widget.AppCompat.Base.ActionBar.TabView">
+    <style name="Widget.AppCompat.ActionBar.TabView"
+           parent="Widget.AppCompat.Base.ActionBar.TabView">
     </style>
 
-    <style name="Widget.AppCompat.ActionBar.TabText" parent="Widget.AppCompat.Base.ActionBar.TabText">
+    <style name="Widget.AppCompat.ActionBar.TabText"
+           parent="Widget.AppCompat.Base.ActionBar.TabText">
         <item name="android:maxWidth">180dip</item>
         <item name="android:textAppearance">@android:style/TextAppearance.Widget.TextView</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>

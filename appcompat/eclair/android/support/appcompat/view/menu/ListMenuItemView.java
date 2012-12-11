@@ -35,6 +35,7 @@ import android.widget.TextView;
  * The item view for each item in the ListView-based MenuViews.
  */
 public class ListMenuItemView extends LinearLayout implements MenuView.ItemView {
+
     private static final String TAG = "ListMenuItemView";
     private MenuItemImpl mItemData;
 
@@ -61,14 +62,14 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         mContext = context;
 
         TypedArray a =
-            context.obtainStyledAttributes(
-                attrs, R.styleable.MenuView, defStyle, 0);
+                context.obtainStyledAttributes(
+                        attrs, R.styleable.MenuView, defStyle, 0);
 
         mBackground = a.getDrawable(R.styleable.MenuView_itemBackground);
         mTextAppearance = a.getResourceId(R.styleable.
-            MenuView_itemTextAppearance, -1);
+                MenuView_itemTextAppearance, -1);
         mPreserveIconSpacing = a.getBoolean(
-            R.styleable.MenuView_preserveIconSpacing, false);
+                R.styleable.MenuView_preserveIconSpacing, false);
         mTextAppearanceContext = context;
 
         a.recycle();
@@ -87,7 +88,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         mTitleView = (TextView) findViewById(R.id.title);
         if (mTextAppearance != -1) {
             mTitleView.setTextAppearance(mTextAppearanceContext,
-                mTextAppearance);
+                    mTextAppearance);
         }
 
         mShortcutView = (TextView) findViewById(R.id.shortcut);
@@ -114,9 +115,13 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         if (title != null) {
             mTitleView.setText(title);
 
-            if (mTitleView.getVisibility() != VISIBLE) mTitleView.setVisibility(VISIBLE);
+            if (mTitleView.getVisibility() != VISIBLE) {
+                mTitleView.setVisibility(VISIBLE);
+            }
         } else {
-            if (mTitleView.getVisibility() != GONE) mTitleView.setVisibility(GONE);
+            if (mTitleView.getVisibility() != GONE) {
+                mTitleView.setVisibility(GONE);
+            }
         }
     }
 
@@ -161,8 +166,12 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
                 otherCompoundButton.setVisibility(GONE);
             }
         } else {
-            if (mCheckBox != null) mCheckBox.setVisibility(GONE);
-            if (mRadioButton != null) mRadioButton.setVisibility(GONE);
+            if (mCheckBox != null) {
+                mCheckBox.setVisibility(GONE);
+            }
+            if (mRadioButton != null) {
+                mRadioButton.setVisibility(GONE);
+            }
         }
     }
 
@@ -186,7 +195,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
 
     public void setShortcut(boolean showShortcut, char shortcutKey) {
         final int newVisibility = (showShortcut && mItemData.shouldShowShortcut())
-            ? VISIBLE : GONE;
+                ? VISIBLE : GONE;
 
         if (newVisibility == VISIBLE) {
             mShortcutView.setText(mItemData.getShortcutLabel());
@@ -238,23 +247,23 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
     private void insertIconView() {
         LayoutInflater inflater = getInflater();
         mIconView = (ImageView) inflater.inflate(R.layout.list_menu_item_icon,
-            this, false);
+                this, false);
         addView(mIconView, 0);
     }
 
     private void insertRadioButton() {
         LayoutInflater inflater = getInflater();
         mRadioButton =
-            (RadioButton) inflater.inflate(R.layout.list_menu_item_radio,
-                this, false);
+                (RadioButton) inflater.inflate(R.layout.list_menu_item_radio,
+                        this, false);
         addView(mRadioButton);
     }
 
     private void insertCheckBox() {
         LayoutInflater inflater = getInflater();
         mCheckBox =
-            (CheckBox) inflater.inflate(R.layout.list_menu_item_checkbox,
-                this, false);
+                (CheckBox) inflater.inflate(R.layout.list_menu_item_checkbox,
+                        this, false);
         addView(mCheckBox);
     }
 

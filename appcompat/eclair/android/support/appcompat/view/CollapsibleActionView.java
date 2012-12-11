@@ -19,23 +19,24 @@ package android.support.appcompat.view;
 import android.support.appcompat.view.MenuItem.OnActionExpandListener;
 
 /**
- * When a {@link View} implements this interface it will receive callbacks
- * when expanded or collapsed as an action view alongside the optional,
- * app-specified callbacks to {@link OnActionExpandListener}.
+ * When a {@link View} implements this interface it will receive callbacks when expanded or
+ * collapsed as an action view alongside the optional, app-specified callbacks to {@link
+ * OnActionExpandListener}.
  *
- * <p>See {@link MenuItem} for more information about action views.
- * See {@link android.app.ActionBar} for more information about the action bar.
+ * <p>See {@link MenuItem} for more information about action views. See {@link
+ * android.app.ActionBar} for more information about the action bar.
  */
 public interface CollapsibleActionView {
+
     /**
-     * Called when this view is expanded as an action view.
-     * See {@link MenuItem#expandActionView()}.
+     * Called when this view is expanded as an action view. See {@link
+     * MenuItem#expandActionView()}.
      */
     public void onActionViewExpanded();
 
     /**
-     * Called when this view is collapsed as an action view.
-     * See {@link MenuItem#collapseActionView()}.
+     * Called when this view is collapsed as an action view. See {@link
+     * MenuItem#collapseActionView()}.
      */
     public void onActionViewCollapsed();
 }

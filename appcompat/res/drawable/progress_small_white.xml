@@ -20,4 +20,4 @@
 <animated-rotate xmlns:android="http://schemas.android.com/apk/res/android"
                  android:drawable="@drawable/spinner_white_16"
                  android:pivotX="50%"
-                 android:pivotY="50%" />
+                 android:pivotY="50%"/>

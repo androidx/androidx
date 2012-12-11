@@ -25,119 +25,120 @@ import android.support.appcompat.view.SubMenu;
 import android.view.View;
 
 /**
- * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to
- * the parent menu.
+ * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to the
+ * parent menu.
  */
 public class SubMenuBuilder extends MenuBuilder implements SubMenu {
-  private MenuBuilder mParentMenu;
-  private MenuItemImpl mItem;
 
-  public SubMenuBuilder(Context context, MenuBuilder parentMenu, MenuItemImpl item) {
-    super(context);
+    private MenuBuilder mParentMenu;
+    private MenuItemImpl mItem;
 
-    mParentMenu = parentMenu;
-    mItem = item;
-  }
+    public SubMenuBuilder(Context context, MenuBuilder parentMenu, MenuItemImpl item) {
+        super(context);
 
-  @Override
-  public void setQwertyMode(boolean isQwerty) {
-    mParentMenu.setQwertyMode(isQwerty);
-  }
-
-  @Override
-  public boolean isQwertyMode() {
-    return mParentMenu.isQwertyMode();
-  }
-
-  @Override
-  public void setShortcutsVisible(boolean shortcutsVisible) {
-    mParentMenu.setShortcutsVisible(shortcutsVisible);
-  }
-
-  @Override
-  public boolean isShortcutsVisible() {
-    return mParentMenu.isShortcutsVisible();
-  }
-
-  public Menu getParentMenu() {
-    return mParentMenu;
-  }
-
-  public MenuItem getItem() {
-    return mItem;
-  }
-
-  @Override
-  public void setCallback(Callback callback) {
-    mParentMenu.setCallback(callback);
-  }
-
-  public MenuBuilder getRootMenu() {
-    return mParentMenu;
-  }
-
-  @Override
-  public boolean dispatchMenuItemSelected(MenuBuilder menu, MenuItem item) {
-    return super.dispatchMenuItemSelected(menu, item) ||
-        mParentMenu.dispatchMenuItemSelected(menu, item);
-  }
-
-  public SubMenu setIcon(Drawable icon) {
-    mItem.setIcon(icon);
-    return this;
-  }
-
-  public SubMenu setIcon(int iconRes) {
-    mItem.setIcon(iconRes);
-    return this;
-  }
-
-  public SubMenu setHeaderIcon(Drawable icon) {
-    super.setHeaderIconInt(icon);
-    return this;
-  }
-
-  public SubMenu setHeaderIcon(int iconRes) {
-    super.setHeaderIconInt(getContext().getResources().getDrawable(iconRes));
-    return this;
-  }
-
-  public SubMenu setHeaderTitle(CharSequence title) {
-    super.setHeaderTitleInt(title);
-    return this;
-  }
-
-  public SubMenu setHeaderTitle(int titleRes) {
-    super.setHeaderTitleInt(getContext().getResources().getString(titleRes));
-    return this;
-  }
-
-  public SubMenu setHeaderView(View view) {
-    super.setHeaderViewInt(view);
-    return this;
-  }
-
-  @Override
-  public void clearHeader() {
-    //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  @Override
-  public boolean expandItemActionView(MenuItemImpl item) {
-    return mParentMenu.expandItemActionView(item);
-  }
-
-  @Override
-  public boolean collapseItemActionView(MenuItemImpl item) {
-    return mParentMenu.collapseItemActionView(item);
-  }
-
-  @Override
-  public String getActionViewStatesKey() {
-    final int itemId = mItem != null ? mItem.getItemId() : 0;
-    if (itemId == 0) {
-      return null;
+        mParentMenu = parentMenu;
+        mItem = item;
     }
-    return super.getActionViewStatesKey() + ":" + itemId;
-  }
+
+    @Override
+    public void setQwertyMode(boolean isQwerty) {
+        mParentMenu.setQwertyMode(isQwerty);
+    }
+
+    @Override
+    public boolean isQwertyMode() {
+        return mParentMenu.isQwertyMode();
+    }
+
+    @Override
+    public void setShortcutsVisible(boolean shortcutsVisible) {
+        mParentMenu.setShortcutsVisible(shortcutsVisible);
+    }
+
+    @Override
+    public boolean isShortcutsVisible() {
+        return mParentMenu.isShortcutsVisible();
+    }
+
+    public Menu getParentMenu() {
+        return mParentMenu;
+    }
+
+    public MenuItem getItem() {
+        return mItem;
+    }
+
+    @Override
+    public void setCallback(Callback callback) {
+        mParentMenu.setCallback(callback);
+    }
+
+    public MenuBuilder getRootMenu() {
+        return mParentMenu;
+    }
+
+    @Override
+    public boolean dispatchMenuItemSelected(MenuBuilder menu, MenuItem item) {
+        return super.dispatchMenuItemSelected(menu, item) ||
+                mParentMenu.dispatchMenuItemSelected(menu, item);
+    }
+
+    public SubMenu setIcon(Drawable icon) {
+        mItem.setIcon(icon);
+        return this;
+    }
+
+    public SubMenu setIcon(int iconRes) {
+        mItem.setIcon(iconRes);
+        return this;
+    }
+
+    public SubMenu setHeaderIcon(Drawable icon) {
+        super.setHeaderIconInt(icon);
+        return this;
+    }
+
+    public SubMenu setHeaderIcon(int iconRes) {
+        super.setHeaderIconInt(getContext().getResources().getDrawable(iconRes));
+        return this;
+    }
+
+    public SubMenu setHeaderTitle(CharSequence title) {
+        super.setHeaderTitleInt(title);
+        return this;
+    }
+
+    public SubMenu setHeaderTitle(int titleRes) {
+        super.setHeaderTitleInt(getContext().getResources().getString(titleRes));
+        return this;
+    }
+
+    public SubMenu setHeaderView(View view) {
+        super.setHeaderViewInt(view);
+        return this;
+    }
+
+    @Override
+    public void clearHeader() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean expandItemActionView(MenuItemImpl item) {
+        return mParentMenu.expandItemActionView(item);
+    }
+
+    @Override
+    public boolean collapseItemActionView(MenuItemImpl item) {
+        return mParentMenu.collapseItemActionView(item);
+    }
+
+    @Override
+    public String getActionViewStatesKey() {
+        final int itemId = mItem != null ? mItem.getItemId() : 0;
+        if (itemId == 0) {
+            return null;
+        }
+        return super.getActionViewStatesKey() + ":" + itemId;
+    }
 }

@@ -21,4 +21,4 @@
         android:layout_height="wrap_content"
         android:divider="?attr/actionBarDivider"
         app:dividerPadding="12dip"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"/>

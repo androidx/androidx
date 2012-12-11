@@ -29,6 +29,7 @@ import android.view.View;
  * @hide
  */
 public class ActionMenuItem implements MenuItem {
+
     private final int mId;
     private final int mGroup;
     private final int mCategoryOrder;
@@ -57,7 +58,7 @@ public class ActionMenuItem implements MenuItem {
     private static final int ENABLED = 0x00000010;
 
     public ActionMenuItem(Context context, int group, int id, int categoryOrder, int ordering,
-                          CharSequence title) {
+            CharSequence title) {
         mContext = context;
         mId = id;
         mGroup = group;

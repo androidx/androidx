@@ -24,7 +24,7 @@
 
          This is the values-v14/ file that only declares the Base themes for
          Ice Cream Sandwich+. You probably want to edit values/themes.xml instead. -->
-    <eat-comment />
+    <eat-comment/>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.Base.AppCompat" parent="@android:style/Theme.Holo">
@@ -100,14 +100,14 @@
          This theme will follow the device's default styling if available. -->
     <!-- TODO(trevorjohns): DeviceDefault is not available. What do we do? -->
     <!--<style name="Theme.Base.AppCompat.DeviceDefault.Light"-->
-           <!--parent="@android:style/Theme.DeviceDefault.Light">-->
+    <!--parent="@android:style/Theme.DeviceDefault.Light">-->
     <!--</style>-->
 
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity.
          This theme will follow the device's default styling if available. -->
     <!-- TODO(trevorjohns): DeviceDefault is not available. What do we do? -->
     <!--<style name="Theme.Base.AppCompat.DeviceDefault.Light.DarkActionBar"-->
-           <!--parent="@android:style/Theme.DeviceDefault.Light.DarkActionBar">-->
+    <!--parent="@android:style/Theme.DeviceDefault.Light.DarkActionBar">-->
     <!--</style>-->
 
 </resources>

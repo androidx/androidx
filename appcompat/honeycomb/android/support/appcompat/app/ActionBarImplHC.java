@@ -26,6 +26,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 class ActionBarImplHC extends ActionBar {
+
     Activity mActivity;
     Callback mCallback;
     android.app.ActionBar mActionBar;
@@ -304,6 +305,7 @@ class ActionBarImplHC extends ActionBar {
     }
 
     static class OnNavigationListenerWrapper implements android.app.ActionBar.OnNavigationListener {
+
         private final OnNavigationListener mWrappedListener;
 
         public OnNavigationListenerWrapper(OnNavigationListener l) {
@@ -319,6 +321,7 @@ class ActionBarImplHC extends ActionBar {
 
     static class OnMenuVisibilityListenerWrapper implements
             android.app.ActionBar.OnMenuVisibilityListener {
+
         final OnMenuVisibilityListener mWrappedListener;
 
         public OnMenuVisibilityListenerWrapper(OnMenuVisibilityListener l) {
@@ -333,6 +336,7 @@ class ActionBarImplHC extends ActionBar {
     }
 
     class TabWrapper extends ActionBar.Tab {
+
         final android.app.ActionBar.Tab mWrappedTab;
         private Object mTag;
         private FragmentTransaction mActiveTransaction;
@@ -443,6 +447,7 @@ class ActionBarImplHC extends ActionBar {
     }
 
     class TabListenerWrapper implements android.app.ActionBar.TabListener {
+
         private final TabListener mWrappedListener;
 
         public TabListenerWrapper(TabListener l) {

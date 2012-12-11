@@ -22,68 +22,69 @@ import android.content.res.TypedArray;
 import android.support.appcompat.R;
 
 /**
- * Allows components to query for various configuration policy decisions
- * about how the action bar should lay out and behave on the current device.
+ * Allows components to query for various configuration policy decisions about how the action bar
+ * should lay out and behave on the current device.
  */
 public class ActionBarPolicy {
-  private Context mContext;
 
-  public static ActionBarPolicy get(Context context) {
-    return new ActionBarPolicy(context);
-  }
+    private Context mContext;
 
-  private ActionBarPolicy(Context context) {
-    mContext = context;
-  }
-
-  public int getMaxActionButtons() {
-    return mContext.getResources().getInteger(R.integer.max_action_buttons);
-  }
-
-  public boolean showsOverflowMenuButton() {
-    // Permanent menu key is always present on pre-HC devices
-    // return !ViewConfiguration.get(mContext).hasPermanentMenuKey();
-    return false;
-  }
-
-  public int getEmbeddedMenuWidthLimit() {
-    return mContext.getResources().getDisplayMetrics().widthPixels / 2;
-  }
-
-  public boolean hasEmbeddedTabs() {
-    final int targetSdk = mContext.getApplicationInfo().targetSdkVersion;
-    // DISABLED: Compatibility implementation will not be used on JB
-    /*if (targetSdk >= Build.VERSION_CODES.JELLY_BEAN) {
-      return mContext.getResources().getBoolean(R.bool.action_bar_embed_tabs);
-    }*/
-
-    // The embedded tabs policy changed in Jellybean; give older apps the old policy
-    // so they get what they expect.
-    return mContext.getResources().getBoolean(R.bool.action_bar_embed_tabs_pre_jb);
-  }
-
-  public int getTabContainerHeight() {
-    TypedArray a = mContext.obtainStyledAttributes(null, R.styleable.ActionBar,
-        R.attr.actionBarStyle, 0);
-    int height = a.getLayoutDimension(R.styleable.ActionBar_height, 0);
-    Resources r = mContext.getResources();
-    if (!hasEmbeddedTabs()) {
-      // Stacked tabs; limit the height
-      height = Math.min(height,
-          r.getDimensionPixelSize(R.dimen.action_bar_stacked_max_height));
+    public static ActionBarPolicy get(Context context) {
+        return new ActionBarPolicy(context);
     }
-    a.recycle();
-    return height;
-  }
 
-  public boolean enableHomeButtonByDefault() {
-    // Older apps get the home button interaction enabled by default.
-    // Newer apps need to enable it explicitly.
-    return mContext.getApplicationInfo().targetSdkVersion < 14; // ICE_CREAM_SANDWICH
-  }
+    private ActionBarPolicy(Context context) {
+        mContext = context;
+    }
 
-  public int getStackedTabMaxWidth() {
-    return mContext.getResources().getDimensionPixelSize(
-        R.dimen.action_bar_stacked_tab_max_width);
-  }
+    public int getMaxActionButtons() {
+        return mContext.getResources().getInteger(R.integer.max_action_buttons);
+    }
+
+    public boolean showsOverflowMenuButton() {
+        // Permanent menu key is always present on pre-HC devices
+        // return !ViewConfiguration.get(mContext).hasPermanentMenuKey();
+        return false;
+    }
+
+    public int getEmbeddedMenuWidthLimit() {
+        return mContext.getResources().getDisplayMetrics().widthPixels / 2;
+    }
+
+    public boolean hasEmbeddedTabs() {
+        final int targetSdk = mContext.getApplicationInfo().targetSdkVersion;
+        // DISABLED: Compatibility implementation will not be used on JB
+        /*if (targetSdk >= Build.VERSION_CODES.JELLY_BEAN) {
+          return mContext.getResources().getBoolean(R.bool.action_bar_embed_tabs);
+        }*/
+
+        // The embedded tabs policy changed in Jellybean; give older apps the old policy
+        // so they get what they expect.
+        return mContext.getResources().getBoolean(R.bool.action_bar_embed_tabs_pre_jb);
+    }
+
+    public int getTabContainerHeight() {
+        TypedArray a = mContext.obtainStyledAttributes(null, R.styleable.ActionBar,
+                R.attr.actionBarStyle, 0);
+        int height = a.getLayoutDimension(R.styleable.ActionBar_height, 0);
+        Resources r = mContext.getResources();
+        if (!hasEmbeddedTabs()) {
+            // Stacked tabs; limit the height
+            height = Math.min(height,
+                    r.getDimensionPixelSize(R.dimen.action_bar_stacked_max_height));
+        }
+        a.recycle();
+        return height;
+    }
+
+    public boolean enableHomeButtonByDefault() {
+        // Older apps get the home button interaction enabled by default.
+        // Newer apps need to enable it explicitly.
+        return mContext.getApplicationInfo().targetSdkVersion < 14; // ICE_CREAM_SANDWICH
+    }
+
+    public int getStackedTabMaxWidth() {
+        return mContext.getResources().getDimensionPixelSize(
+                R.dimen.action_bar_stacked_tab_max_width);
+    }
 }

@@ -43,6 +43,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 public class ActionBarImplCompat extends ActionBar {
+
     private Context mContext;
     private Context mThemedContext;
     private FragmentActivity mActivity;
@@ -70,7 +71,7 @@ public class ActionBarImplCompat extends ActionBar {
 
     private boolean mLastMenuVisibility;
     private ArrayList<OnMenuVisibilityListener> mMenuVisibilityListeners =
-        new ArrayList<OnMenuVisibilityListener>();
+            new ArrayList<OnMenuVisibilityListener>();
 
     private static final int CONTEXT_DISPLAY_NORMAL = 0;
     private static final int CONTEXT_DISPLAY_SPLIT = 1;
@@ -117,7 +118,7 @@ public class ActionBarImplCompat extends ActionBar {
     @Override
     public void setCustomView(int resId) {
         setCustomView(LayoutInflater.from(getThemedContext())
-            .inflate(resId, mActionView, false));
+                .inflate(resId, mActionView, false));
 
     }
 
@@ -158,7 +159,7 @@ public class ActionBarImplCompat extends ActionBar {
                 break;
             default:
                 throw new IllegalStateException(
-                    "setSelectedNavigationIndex not valid for current navigation mode");
+                        "setSelectedNavigationIndex not valid for current navigation mode");
         }
     }
 
@@ -357,7 +358,7 @@ public class ActionBarImplCompat extends ActionBar {
         }
 
         int selectedTabPosition = mSelectedTab != null
-            ? mSelectedTab.getPosition() : mSavedTabPosition;
+                ? mSelectedTab.getPosition() : mSavedTabPosition;
         mTabScrollView.removeTabAt(position);
         TabImpl removedTab = mTabs.remove(position);
         if (removedTab != null) {
@@ -387,7 +388,7 @@ public class ActionBarImplCompat extends ActionBar {
         }
 
         final FragmentTransaction trans = mActivity.getSupportFragmentManager().beginTransaction()
-            .disallowAddToBackStack();
+                .disallowAddToBackStack();
 
         if (mSelectedTab == tab) {
             if (mSelectedTab != null) {
@@ -465,6 +466,7 @@ public class ActionBarImplCompat extends ActionBar {
      * @hide
      */
     public class TabImpl extends ActionBar.Tab {
+
         private ActionBar.TabListener mCallback;
         private Object mTag;
         private Drawable mIcon;
@@ -511,7 +513,7 @@ public class ActionBarImplCompat extends ActionBar {
         @Override
         public Tab setCustomView(int layoutResId) {
             return setCustomView(LayoutInflater.from(getThemedContext())
-                .inflate(layoutResId, null));
+                    .inflate(layoutResId, null));
         }
 
         @Override
@@ -591,6 +593,7 @@ public class ActionBarImplCompat extends ActionBar {
      */
     //public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
     public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
+
         private ActionMode.Callback mCallback;
         private MenuBuilder mMenu;
         private WeakReference<View> mCustomView;
@@ -598,7 +601,7 @@ public class ActionBarImplCompat extends ActionBar {
         public ActionModeImpl(ActionMode.Callback callback) {
             mCallback = callback;
             mMenu = new MenuBuilder(getThemedContext())
-                .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             mMenu.setCallback(this);
         }
 
@@ -815,7 +818,7 @@ public class ActionBarImplCompat extends ActionBar {
     }
 
     private static boolean checkShowingFlags(boolean hiddenByApp, boolean hiddenBySystem,
-                                             boolean showingForMode) {
+            boolean showingForMode) {
         if (showingForMode) {
             return true;
         } else if (hiddenByApp || hiddenBySystem) {
@@ -828,7 +831,7 @@ public class ActionBarImplCompat extends ActionBar {
     private void updateVisibility(boolean fromSystem) {
         // Based on the current state, should we be hidden or shown?
         final boolean shown = checkShowingFlags(mHiddenByApp, mHiddenBySystem,
-            mShowingForMode);
+                mShowingForMode);
 
         if (shown) {
             if (!mNowShowing) {

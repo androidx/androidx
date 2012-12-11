@@ -16,7 +16,7 @@
 
 <resources>
     <!-- Patterned after style name="Widget.Holo.Light.ActionBar.Solid" -->
-    <style name="Widget.AppCompat.ActionBar.Solid" parent="@android:style/Widget.Holo.ActionBar" >
+    <style name="Widget.AppCompat.ActionBar.Solid" parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">@drawable/ab_solid_light_holo</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_light_holo</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_light_holo</item>

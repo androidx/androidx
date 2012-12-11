@@ -21,4 +21,4 @@
              android:layout_gravity="center_vertical"
              android:focusable="false"
              android:clickable="false"
-             android:duplicateParentState="true" />
+             android:duplicateParentState="true"/>

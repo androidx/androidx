@@ -21,7 +21,7 @@
 
          Themes in the "Theme.AppCompat" family are meant to be extended or used
          directly by apps. -->
-    <eat-comment />
+    <eat-comment/>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.Base.AppCompat" parent="@android:style/Theme">
@@ -137,7 +137,9 @@
         <item name="actionBarSize">@dimen/action_bar_size</item>
         <item name="actionBarDivider">?attr/dividerHorizontal</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
-        <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
+        <item name="actionMenuTextAppearance">
+            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
+        </item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
         <!-- TODO(trevorjohns): Does not exist on API < 11. -->
@@ -156,7 +158,9 @@
         <item name="actionBarSize">@dimen/action_bar_size</item>
         <item name="actionBarDivider">?attr/dividerHorizontal</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
-        <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
+        <item name="actionMenuTextAppearance">
+            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
+        </item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
         <!-- TODO(trevorjohns): Does not exist on API < 11. -->
