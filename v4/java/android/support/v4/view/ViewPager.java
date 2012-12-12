@@ -423,6 +423,7 @@ public class ViewPager extends ViewGroup {
             }
             mAdapter.registerDataSetObserver(mObserver);
             mPopulatePending = false;
+            final boolean wasFirstLayout = mFirstLayout;
             mFirstLayout = true;
             if (mRestoredCurItem >= 0) {
                 mAdapter.restoreState(mRestoredAdapterState, mRestoredClassLoader);
@@ -430,8 +431,10 @@ public class ViewPager extends ViewGroup {
                 mRestoredCurItem = -1;
                 mRestoredAdapterState = null;
                 mRestoredClassLoader = null;
-            } else {
+            } else if (!wasFirstLayout) {
                 populate();
+            } else {
+                requestLayout();
             }
         }
 
@@ -465,7 +468,7 @@ public class ViewPager extends ViewGroup {
     }
 
     private int getClientWidth() {
-        return getWidth() - getPaddingLeft() - getPaddingRight();
+        return getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
     }
 
     /**
@@ -524,8 +527,22 @@ public class ViewPager extends ViewGroup {
             }
         }
         final boolean dispatchSelected = mCurItem != item;
-        populate(item);
-        scrollToItem(item, smoothScroll, velocity, dispatchSelected);
+
+        if (mFirstLayout) {
+            // We don't have any idea how big we are yet and shouldn't have any pages either.
+            // Just set things up and let the pending layout handle things.
+            mCurItem = item;
+            if (dispatchSelected && mOnPageChangeListener != null) {
+                mOnPageChangeListener.onPageSelected(item);
+            }
+            if (dispatchSelected && mInternalPageChangeListener != null) {
+                mInternalPageChangeListener.onPageSelected(item);
+            }
+            requestLayout();
+        } else {
+            populate(item);
+            scrollToItem(item, smoothScroll, velocity, dispatchSelected);
+        }
     }
 
     private void scrollToItem(int item, boolean smoothScroll, int velocity,
@@ -1307,7 +1324,7 @@ public class ViewPager extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // For simple implementation, or internal size is always 0.
+        // For simple implementation, our internal size is always 0.
         // We depend on the container to specify the layout size of
         // our view.  We can't really know what it is since we will be
         // adding and removing different arbitrary views and do not
@@ -1441,10 +1458,6 @@ public class ViewPager extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        mInLayout = true;
-        populate();
-        mInLayout = false;
-
         final int count = getChildCount();
         int width = r - l;
         int height = b - t;
