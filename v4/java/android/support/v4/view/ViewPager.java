@@ -93,6 +93,8 @@ public class ViewPager extends ViewGroup {
 
     private static final int DEFAULT_GUTTER_SIZE = 16; // dips
 
+    private static final int MIN_FLING_VELOCITY = 400; // dips
+
     private static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
     };
@@ -158,12 +160,13 @@ public class ViewPager extends ViewGroup {
     private int mDefaultGutterSize;
     private int mGutterSize;
     private int mTouchSlop;
-    private float mInitialMotionX;
     /**
      * Position of the last motion event.
      */
     private float mLastMotionX;
     private float mLastMotionY;
+    private float mInitialMotionX;
+    private float mInitialMotionY;
     /**
      * ID of the active pointer. This is used to retain consistency during
      * drags/flings if multiple pointers are used.
@@ -350,13 +353,14 @@ public class ViewPager extends ViewGroup {
         final Context context = getContext();
         mScroller = new Scroller(context, sInterpolator);
         final ViewConfiguration configuration = ViewConfiguration.get(context);
+        final float density = context.getResources().getDisplayMetrics().density;
+
         mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
-        mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
+        mMinimumVelocity = (int) (MIN_FLING_VELOCITY * density);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
         mLeftEdge = new EdgeEffectCompat(context);
         mRightEdge = new EdgeEffectCompat(context);
 
-        final float density = context.getResources().getDisplayMetrics().density;
         mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
         mCloseEnough = (int) (CLOSE_ENOUGH * density);
         mDefaultGutterSize = (int) (DEFAULT_GUTTER_SIZE * density);
@@ -1778,33 +1782,32 @@ public class ViewPager extends ViewGroup {
                 final float dx = x - mLastMotionX;
                 final float xDiff = Math.abs(dx);
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
-                final float yDiff = Math.abs(y - mLastMotionY);
+                final float yDiff = Math.abs(y - mInitialMotionY);
                 if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 
                 if (dx != 0 && !isGutterDrag(mLastMotionX, dx) &&
                         canScroll(this, false, (int) dx, (int) x, (int) y)) {
                     // Nested view has scrollable area under this point. Let it be handled there.
-                    mInitialMotionX = mLastMotionX = x;
+                    mLastMotionX = x;
                     mLastMotionY = y;
                     mIsUnableToDrag = true;
                     return false;
                 }
-                if (xDiff > mTouchSlop && xDiff > yDiff) {
+                if (xDiff > mTouchSlop && xDiff * 0.5f > yDiff) {
                     if (DEBUG) Log.v(TAG, "Starting drag!");
                     mIsBeingDragged = true;
                     setScrollState(SCROLL_STATE_DRAGGING);
                     mLastMotionX = dx > 0 ? mInitialMotionX + mTouchSlop :
                             mInitialMotionX - mTouchSlop;
+                    mLastMotionY = y;
                     setScrollingCacheEnabled(true);
-                } else {
-                    if (yDiff > mTouchSlop) {
-                        // The finger has moved enough in the vertical
-                        // direction to be counted as a drag...  abort
-                        // any attempt to drag horizontally, to work correctly
-                        // with children that have scrolling containers.
-                        if (DEBUG) Log.v(TAG, "Starting unable to drag!");
-                        mIsUnableToDrag = true;
-                    }
+                } else if (yDiff > mTouchSlop) {
+                    // The finger has moved enough in the vertical
+                    // direction to be counted as a drag...  abort
+                    // any attempt to drag horizontally, to work correctly
+                    // with children that have scrolling containers.
+                    if (DEBUG) Log.v(TAG, "Starting unable to drag!");
+                    mIsUnableToDrag = true;
                 }
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
@@ -1821,7 +1824,7 @@ public class ViewPager extends ViewGroup {
                  * ACTION_DOWN always refers to pointer index 0.
                  */
                 mLastMotionX = mInitialMotionX = ev.getX();
-                mLastMotionY = ev.getY();
+                mLastMotionY = mInitialMotionY = ev.getY();
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mIsUnableToDrag = false;
 
@@ -1900,6 +1903,7 @@ public class ViewPager extends ViewGroup {
 
                 // Remember where the motion event started
                 mLastMotionX = mInitialMotionX = ev.getX();
+                mLastMotionY = mInitialMotionY = ev.getY();
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 break;
             }
@@ -1916,6 +1920,7 @@ public class ViewPager extends ViewGroup {
                         mIsBeingDragged = true;
                         mLastMotionX = x - mInitialMotionX > 0 ? mInitialMotionX + mTouchSlop :
                                 mInitialMotionX - mTouchSlop;
+                        mLastMotionY = y;
                         setScrollState(SCROLL_STATE_DRAGGING);
                         setScrollingCacheEnabled(true);
                     }
@@ -2084,7 +2089,8 @@ public class ViewPager extends ViewGroup {
                 pageOffset >= 0.5f) {
             targetPage = currentPage - 1;
         } else {
-            targetPage = (int) (currentPage + pageOffset + 0.5f);
+            final float truncator = currentPage >= mCurItem ? 0.4f : 0.6f;
+            targetPage = (int) (currentPage + pageOffset + truncator);
         }
 
         if (mItems.size() > 0) {
