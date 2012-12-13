@@ -16,12 +16,13 @@
 
 package android.support.v4.view;
 
+import android.graphics.Paint;
 import android.view.View;
 
 /**
  * Jellybean MR1 - specific View API access.
  */
-public class ViewCompatJellybeanMr1 {
+class ViewCompatJellybeanMr1 {
 
     public static int getLabelFor(View view) {
         return view.getLabelFor();
@@ -29,5 +30,9 @@ public class ViewCompatJellybeanMr1 {
 
     public static void setLabelFor(View view, int id) {
         view.setLabelFor(id);
+    }
+
+    public static void setLayerPaint(View view, Paint paint) {
+        view.setLayerPaint(paint);
     }
 }

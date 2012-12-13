@@ -133,7 +133,8 @@ public class ViewCompat {
         public void setLayerType(View view, int layerType, Paint paint);
         public int getLayerType(View view);
         public int getLabelFor(View view);
-        public void setLabelFor(View view, int id);;
+        public void setLabelFor(View view, int id);
+        public void setLayerPaint(View view, Paint paint);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -196,6 +197,7 @@ public class ViewCompat {
             return null;
         }
         public void setLayerType(View view, int layerType, Paint paint) {
+            // No-op until layers became available (HC)
         }
         public int getLayerType(View view) {
             return LAYER_TYPE_NONE;
@@ -205,6 +207,9 @@ public class ViewCompat {
         }
         public void setLabelFor(View view, int id) {
 
+        }
+        public void setLayerPaint(View view, Paint p) {
+            // No-op until layers became available (HC)
         }
     }
 
@@ -228,6 +233,14 @@ public class ViewCompat {
         }
         @Override public int getLayerType(View view)  {
             return ViewCompatHC.getLayerType(view);
+        }
+        @Override
+        public void setLayerPaint(View view, Paint paint) {
+            // Make sure the paint is correct; this will be cheap if it's the same
+            // instance as was used to call setLayerType earlier.
+            setLayerType(view, getLayerType(view), paint);
+            // This is expensive, but the only way to accomplish this before JB-MR1.
+            view.invalidate();
         }
     }
 
@@ -315,6 +328,11 @@ public class ViewCompat {
         @Override
         public void setLabelFor(View view, int id) {
             ViewCompatJellybeanMr1.setLabelFor(view, id);
+        }
+
+        @Override
+        public void setLayerPaint(View view, Paint paint) {
+            ViewCompatJellybeanMr1.setLayerPaint(view, paint);
         }
     }
 
@@ -753,5 +771,38 @@ public class ViewCompat {
      */
     public static void setLabelFor(View view, int labeledId) {
         IMPL.setLabelFor(view, labeledId);
+    }
+
+    /**
+     * Updates the {@link Paint} object used with the current layer (used only if the current
+     * layer type is not set to {@link #LAYER_TYPE_NONE}). Changed properties of the Paint
+     * provided to {@link #setLayerType(android.view.View, int, android.graphics.Paint)}
+     * will be used the next time the View is redrawn, but
+     * {@link #setLayerPaint(android.view.View, android.graphics.Paint)}
+     * must be called to ensure that the view gets redrawn immediately.
+     *
+     * <p>A layer is associated with an optional {@link android.graphics.Paint}
+     * instance that controls how the layer is composed on screen. The following
+     * properties of the paint are taken into account when composing the layer:</p>
+     * <ul>
+     * <li>{@link android.graphics.Paint#getAlpha() Translucency (alpha)}</li>
+     * <li>{@link android.graphics.Paint#getXfermode() Blending mode}</li>
+     * <li>{@link android.graphics.Paint#getColorFilter() Color filter}</li>
+     * </ul>
+     *
+     * <p>If this view has an alpha value set to < 1.0 by calling
+     * View#setAlpha(float), the alpha value of the layer's paint is replaced by
+     * this view's alpha value. Calling View#setAlpha(float) is therefore
+     * equivalent to setting a hardware layer on this view and providing a paint with
+     * the desired alpha value.</p>
+     *
+     * @param paint The paint used to compose the layer. This argument is optional
+     *        and can be null. It is ignored when the layer type is
+     *        {@link #LAYER_TYPE_NONE}
+     *
+     * @see #setLayerType(int, android.graphics.Paint)
+     */
+    public static void setLayerPaint(View view, Paint paint) {
+        IMPL.setLayerPaint(view, paint);
     }
 }
