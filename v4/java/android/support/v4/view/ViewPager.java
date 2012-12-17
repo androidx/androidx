@@ -1661,8 +1661,9 @@ public class ViewPager extends ViewGroup {
         if (mSeenPositionMin < 0 || position < mSeenPositionMin) {
             mSeenPositionMin = position;
         }
-        if (mSeenPositionMax < 0 || FloatMath.ceil(position + offset) > mSeenPositionMax) {
-            mSeenPositionMax = position + 1;
+        final int pageOffsetCeil = (int) FloatMath.ceil(position + offset);
+        if (mSeenPositionMax < 0 || pageOffsetCeil > mSeenPositionMax) {
+            mSeenPositionMax = pageOffsetCeil;
         }
 
         if (mOnPageChangeListener != null) {
