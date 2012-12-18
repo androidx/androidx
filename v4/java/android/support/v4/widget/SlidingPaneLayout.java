@@ -341,6 +341,14 @@ public class SlidingPaneLayout extends ViewGroup {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
+            if (child.getVisibility() == GONE) {
+                lp.canSlide = false;
+                lp.slideOffset = 0.f;
+                lp.range = 0;
+                lp.dimWhenOffset = false;
+                continue;
+            }
+
             if (child == mDraggingPane) {
                 foundDraggingPane = true;
             }
@@ -393,6 +401,10 @@ public class SlidingPaneLayout extends ViewGroup {
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+                if (child.getVisibility() == GONE) {
+                    continue;
+                }
 
                 final boolean skippedFirstPass = lp.width == 0 && lp.weight > 0;
                 final int measuredWidth = skippedFirstPass ? 0 : child.getMeasuredWidth();
@@ -476,6 +488,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
         final int width = r - l;
         final int height = b - t;
         final int paddingLeft = getPaddingLeft();
@@ -501,7 +514,7 @@ public class SlidingPaneLayout extends ViewGroup {
                 lp.range = range;
                 lp.dimWhenOffset = width - paddingRight - (xStart + range) < childWidth / 2;
                 xStart += (int) (range * lp.slideOffset);
-            } else if (mParallaxBy != 0) {
+            } else if (mCanSlide && mParallaxBy != 0) {
                 offset = (int) ((1 - lp.slideOffset) * mParallaxBy);
                 xStart = nextXStart;
             } else {
