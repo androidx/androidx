@@ -224,6 +224,29 @@ void printApiCpp(FILE *f) {
             }
             fprintf(f, ");\n");
         } else {
+            // handle synchronous path
+            fprintf(f, "    if (((Context *)rsc)->isSynchronous()) {\n");
+            fprintf(f, "        ");
+            if (api->ret.typeName[0]) {
+                fprintf(f, "return ");
+            }
+            fprintf(f, "rsi_%s(", api->name);
+            if (!api->nocontext) {
+                fprintf(f, "(Context *)rsc");
+            }
+            for (ct2=0; ct2 < api->paramCount; ct2++) {
+                const VarType *vt = &api->params[ct2];
+                if (ct2 > 0 || !api->nocontext) {
+                    fprintf(f, ", ");
+                }
+                fprintf(f, "%s", vt->name);
+            }
+            fprintf(f, ");\n");
+            if (!api->ret.typeName[0]) {
+                fprintf(f, "    return;");
+            }
+            fprintf(f, "    }\n\n");
+
             fprintf(f, "    ThreadIO *io = &((Context *)rsc)->mIO;\n");
             fprintf(f, "    const uint32_t size = sizeof(RS_CMD_%s);\n", api->name);
             if (hasInlineDataPointers(api)) {

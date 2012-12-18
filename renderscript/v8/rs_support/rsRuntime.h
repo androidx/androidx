@@ -31,6 +31,53 @@ namespace renderscript {
 
 void rsrAllocationSyncAll(Context *, Script *, Allocation *);
 
+#ifndef RS_COMPATIBILITY_LIB
+void rsrBindTexture(Context *, ProgramFragment *, uint32_t slot, Allocation *);
+void rsrBindConstant(Context *, ProgramFragment *, uint32_t slot, Allocation *);
+void rsrBindConstant(Context *, ProgramVertex*, uint32_t slot, Allocation *);
+void rsrBindSampler(Context *, ProgramFragment *, uint32_t slot, Sampler *);
+void rsrBindProgramStore(Context *, ProgramStore *);
+void rsrBindProgramFragment(Context *, ProgramFragment *);
+void rsrBindProgramVertex(Context *, ProgramVertex *);
+void rsrBindProgramRaster(Context *, ProgramRaster *);
+void rsrBindFrameBufferObjectColorTarget(Context *, Allocation *, uint32_t slot);
+void rsrBindFrameBufferObjectDepthTarget(Context *, Allocation *);
+void rsrClearFrameBufferObjectColorTarget(Context *, uint32_t slot);
+void rsrClearFrameBufferObjectDepthTarget(Context *);
+void rsrClearFrameBufferObjectTargets(Context *);
+
+//////////////////////////////////////////////////////////////////////////////
+// VP
+//////////////////////////////////////////////////////////////////////////////
+
+void rsrVpLoadProjectionMatrix(Context *, const rsc_Matrix *m);
+void rsrVpLoadModelMatrix(Context *, const rsc_Matrix *m);
+void rsrVpLoadTextureMatrix(Context *, const rsc_Matrix *m);
+void rsrPfConstantColor(Context *, ProgramFragment *, float r, float g, float b, float a);
+void rsrVpGetProjectionMatrix(Context *, rsc_Matrix *m);
+
+//////////////////////////////////////////////////////////////////////////////
+// Drawing
+//////////////////////////////////////////////////////////////////////////////
+
+void rsrDrawPath(Context *, Path *);
+void rsrDrawMesh(Context *, Mesh *);
+void rsrDrawMeshPrimitive(Context *, Mesh *, uint32_t primIndex);
+void rsrDrawMeshPrimitiveRange(Context *, Mesh *,
+                               uint32_t primIndex, uint32_t start, uint32_t len);
+void rsrMeshComputeBoundingBox(Context *, Mesh *,
+                               float *minX, float *minY, float *minZ,
+                               float *maxX, float *maxY, float *maxZ);
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+void rsrColor(Context *, float r, float g, float b, float a);
+#endif
+
 void rsrAllocationCopy1DRange(Context *, Allocation *dstAlloc,
                               uint32_t dstOff,
                               uint32_t dstMip,
@@ -45,30 +92,46 @@ void rsrAllocationCopy2DRange(Context *, Allocation *dstAlloc,
                               uint32_t srcXoff, uint32_t srcYoff,
                               uint32_t srcMip, uint32_t srcFace);
 
+#ifndef RS_COMPATIBILITY_LIB
+void rsrPrepareClear(Context *);
+uint32_t rsrGetWidth(Context *);
+uint32_t rsrGetHeight(Context *);
+void rsrDrawTextAlloc(Context *, Allocation *, int x, int y);
+void rsrDrawText(Context *, const char *text, int x, int y);
+void rsrSetMetrics(Context *, Font::Rect *metrics,
+                   int32_t *left, int32_t *right, int32_t *top, int32_t *bottom);
+void rsrMeasureTextAlloc(Context *, Allocation *,
+                         int32_t *left, int32_t *right, int32_t *top, int32_t *bottom);
+void rsrMeasureText(Context *, const char *text,
+                    int32_t *left, int32_t *right, int32_t *top, int32_t *bottom);
+void rsrBindFont(Context *, Font *);
+void rsrFontColor(Context *, float r, float g, float b, float a);
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // Time routines
 //////////////////////////////////////////////////////////////////////////////
 
-float rsrGetDt(Context *, Script *);
-time_t rsrTime(Context *, Script *, time_t *timer);
-tm* rsrLocalTime(Context *, Script *, tm *local, time_t *timer);
-int64_t rsrUptimeMillis(Context *, Script *);
-int64_t rsrUptimeNanos(Context *, Script *);
+float rsrGetDt(Context *, const Script *sc);
+time_t rsrTime(Context *, time_t *timer);
+tm* rsrLocalTime(Context *, tm *local, time_t *timer);
+int64_t rsrUptimeMillis(Context *);
+int64_t rsrUptimeNanos(Context *);
 
 //////////////////////////////////////////////////////////////////////////////
 // Message routines
 //////////////////////////////////////////////////////////////////////////////
 
-uint32_t rsrToClient(Context *, Script *, int cmdID, void *data, int len);
-uint32_t rsrToClientBlocking(Context *, Script *, int cmdID, void *data, int len);
+uint32_t rsrToClient(Context *, int cmdID, void *data, int len);
+uint32_t rsrToClientBlocking(Context *, int cmdID, void *data, int len);
 
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void rsrSetObject(const Context *, const Script *, ObjectBase **dst, ObjectBase * src);
-void rsrClearObject(const Context *, const Script *, ObjectBase **dst);
-bool rsrIsObject(const Context *, const Script *, const ObjectBase *src);
+void rsrSetObject(const Context *, ObjectBase **dst, ObjectBase * src);
+void rsrClearObject(const Context *, ObjectBase **dst);
+bool rsrIsObject(const Context *, const ObjectBase *src);
 
 void rsrAllocationIncRefs(const Context *, const Allocation *, void *ptr,
                           size_t elementCount, size_t startOffset);
@@ -76,14 +139,10 @@ void rsrAllocationDecRefs(const Context *, const Allocation *, void *ptr,
                           size_t elementCount, size_t startOffset);
 
 
-uint32_t rsrToClient(Context *, Script *, int cmdID, void *data, int len);
-uint32_t rsrToClientBlocking(Context *, Script *, int cmdID, void *data, int len);
-
-void rsrAllocationMarkDirty(Context *, Script *, RsAllocation a);
-void rsrAllocationSyncAll(Context *, Script *, Allocation *a, RsAllocationUsageType source);
+void rsrAllocationSyncAll(Context *, Allocation *a, RsAllocationUsageType source);
 
 
-void rsrForEach(Context *, Script *, Script *target,
+void rsrForEach(Context *, Script *target,
                 Allocation *in,
                 Allocation *out,
                 const void *usr,

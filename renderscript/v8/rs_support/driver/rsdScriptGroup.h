@@ -20,7 +20,7 @@
 #include <rs_hal.h>
 
 bool rsdScriptGroupInit(const android::renderscript::Context *rsc,
-                        const android::renderscript::ScriptGroup *sg);
+                        android::renderscript::ScriptGroup *sg);
 void rsdScriptGroupSetInput(const android::renderscript::Context *rsc,
                             const android::renderscript::ScriptGroup *sg,
                             const android::renderscript::ScriptKernelID *kid,

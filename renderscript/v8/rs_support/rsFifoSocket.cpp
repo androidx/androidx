@@ -57,8 +57,10 @@ bool FifoSocket::writeAsync(const void *data, size_t bytes, bool waitForSpace) {
     }
     //ALOGE("writeAsync %p %i", data, bytes);
     size_t ret = ::send(sv[0], data, bytes, 0);
-    //ALOGE("writeAsync ret %i", ret);
     rsAssert(ret == bytes);
+    if (ret != bytes) {
+        ALOGE("writeAsync %p %zu  ret %zu", data, bytes, ret);
+    }
     return true;
 }
 

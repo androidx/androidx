@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2011-2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,13 @@
 #include "rsMatrix3x3.h"
 #include "rsMatrix2x2.h"
 
-#include "rsdCore.h"
-#include "rsdRuntime.h"
+#include "rsCpuCore.h"
+#include "rsCpuScript.h"
 
 
 using namespace android;
 using namespace android::renderscript;
 
-static float SC_tgamma(float v) {
-    return float(tgamma((double)v));
-}
 
 static float SC_exp10(float v) {
     return pow(10.f, v);
@@ -85,20 +82,6 @@ static uint8_t SC_clz_u8(uint8_t v) {return (uint8_t)__builtin_clz(v);}
 static int32_t SC_clz_i32(int32_t v) {return (int32_t)__builtin_clz((uint32_t)v);}
 static int16_t SC_clz_i16(int16_t v) {return (int16_t)__builtin_clz(v);}
 static int8_t SC_clz_i8(int8_t v) {return (int8_t)__builtin_clz(v);}
-
-static uint32_t SC_max_u32(uint32_t v, uint32_t v2) {return rsMax(v, v2);}
-static uint16_t SC_max_u16(uint16_t v, uint16_t v2) {return rsMax(v, v2);}
-static uint8_t SC_max_u8(uint8_t v, uint8_t v2) {return rsMax(v, v2);}
-static int32_t SC_max_i32(int32_t v, int32_t v2) {return rsMax(v, v2);}
-static int16_t SC_max_i16(int16_t v, int16_t v2) {return rsMax(v, v2);}
-static int8_t SC_max_i8(int8_t v, int8_t v2) {return rsMax(v, v2);}
-
-static uint32_t SC_min_u32(uint32_t v, uint32_t v2) {return rsMin(v, v2);}
-static uint16_t SC_min_u16(uint16_t v, uint16_t v2) {return rsMin(v, v2);}
-static uint8_t SC_min_u8(uint8_t v, uint8_t v2) {return rsMin(v, v2);}
-static int32_t SC_min_i32(int32_t v, int32_t v2) {return rsMin(v, v2);}
-static int16_t SC_min_i16(int16_t v, int16_t v2) {return rsMin(v, v2);}
-static int8_t SC_min_i8(int8_t v, int8_t v2) {return rsMin(v, v2);}
 
 //////////////////////////////////////////////////////////////////////////////
 // Float util
@@ -378,557 +361,7 @@ static int32_t SC_AtomicMax(volatile int32_t *ptr, int32_t value) {
 //                 ::= f  # float
 //                 ::= d  # double
 
-float acos(float x) {
-  return acosf(x);
-}
-
-float acosh(float x) {
-  return acoshf(x);
-}
-
-float asin(float x) {
-  return asinf(x);
-}
-
-float asinh(float x) {
-  return asinhf(x);
-}
-
-float atan(float x) {
-  return atanf(x);
-}
-
-float atan2(float y, float x) {
-  return atan2f(y, x);
-}
-
-float atanh(float x) {
-  return atanhf(x);
-}
-
-float cbrt(float x) {
-  return cbrtf(x);
-}
-
-float ceil(float x) {
-  return ceilf(x);
-}
-
-float copysign(float x, float y) {
-  return copysignf(x, y);
-}
-
-float cos(float x) {
-  return cosf(x);
-}
-
-float cosh(float x) {
-  return coshf(x);
-}
-
-float erfc(float x) {
-  return erfcf(x);
-}
-
-float erf(float x) {
-  return erff(x);
-}
-
-float exp(float x) {
-  return expf(x);
-}
-
-float exp2(float x) {
-  return exp2f(x);
-}
-
-float exp10(float x) {
-  return SC_exp10(x);
-}
-
-float expm1(float x) {
-  return expm1f(x);
-}
-
-float fabs(float x) {
-  return fabsf(x);
-}
-
-float fdim(float x, float y) {
-  return fdimf(x, y);
-}
-
-float floor(float x) {
-  return floorf(x);
-}
-
-float fma(float x, float y, float z) {
-  return fmaf(x, y, z);
-}
-
-float fmax(float x, float y) {
-  return fmaxf(x, y);
-}
-
-float fmin(float x, float y) {
-  return fminf(x, y);
-}
-
-float fmod(float x, float y) {
-  return fmodf(x, y);
-}
-
-float fract(float x, float *y) {
-  return SC_fract(x, y);
-}
-
-float frexp(float x, int *y) {
-  return frexpf(x, y);
-}
-
-float hypot(float x, float y) {
-  return hypotf(x, y);
-}
-
-int ilogb(float x) {
-  return ilogbf(x);
-}
-
-float ldexp(float x, int y) {
-  return ldexpf(x, y);
-}
-
-float lgamma(float x) {
-  return lgammaf(x);
-}
-
-float lgamma(float x, int *y) {
-  return lgammaf_r(x, y);
-}
-
-float log(float x) {
-  return logf(x);
-}
-
-float log2(float x) {
-  return SC_log2(x);
-}
-
-float log10(float x) {
-  return log10f(x);
-}
-
-float log1p(float x) {
-  return log1pf(x);
-}
-
-float logb(float x) {
-  return logbf(x);
-}
-
-float modf(float x, float *y) {
-  return modff(x, y);
-}
-
-float nextafter(float x, float y) {
-  return nextafterf(x, y);
-}
-
-float pow(float x, float y) {
-  return powf(x, y);
-}
-
-float remainder(float x, float y) {
-  return remainderf(x, y);
-}
-
-float remquo(float x, float y, int *z) {
-  return remquof(x, y, z);
-}
-
-float rint(float x) {
-  return rintf(x);
-}
-
-float rootn(float x, int y) {
-  return SC_rootn(x, y);
-}
-
-float round(float x) {
-  return roundf(x);
-}
-
-float rsqrt(float x) {
-  return SC_rsqrt(x);
-}
-
-float sin(float x) {
-  return sinf(x);
-}
-
-float sincos(float x, float *y) {
-  return SC_sincos(x, y);
-}
-
-float sinh(float x) {
-  return sinhf(x);
-}
-
-float sqrt(float x) {
-  return sqrtf(x);
-}
-
-float tan(float x) {
-  return tanf(x);
-}
-
-float tanh(float x) {
-  return tanhf(x);
-}
-
-float tgamma(float x) {
-  return SC_tgamma(x);
-}
-
-float trunc(float x) {
-  return truncf(x);
-}
-
-#if 1
-// Bionic stdlib.h defines int abs(int) as a static __inline__ function.
-// This makes it difficult for us to override the implementation.
-extern "C" {
-int _Z3absi(int v) {
-  return SC_abs_i32(v);
-}
-}
-#else
-int abs(int v) {
-  return SC_abs_i32(v);
-}
-#endif
-
-int16_t abs(int16_t v) {
-  return SC_abs_i16(v);
-}
-
-char abs(char v) {
-  return SC_abs_i8(v);
-}
-
-uint32_t clz(uint32_t v) {
-  return SC_clz_u32(v);
-}
-
-uint16_t clz(uint16_t v) {
-  return SC_clz_u16(v);
-}
-
-uint8_t clz(uint8_t v) {
-  return SC_clz_u8(v);
-}
-
-int32_t clz(int32_t v) {
-  return SC_clz_i32(v);
-}
-
-int16_t clz(int16_t v) {
-  return SC_clz_i16(v);
-}
-
-char clz(char v) {
-  return SC_clz_i8(v);
-}
-
-uint32_t max(uint32_t v1, uint32_t v2) {
-    return SC_max_u32(v1, v2);
-}
-
-uint16_t max(uint16_t v1, uint16_t v2) {
-    return SC_max_u16(v1, v2);
-}
-
-uint8_t max(uint8_t v1, uint8_t v2) {
-    return SC_max_u8(v1, v2);
-}
-
-int32_t max(int32_t v1, int32_t v2) {
-    return SC_max_i32(v1, v2);
-}
-
-int16_t max(int16_t v1, int16_t v2) {
-    return SC_max_i16(v1, v2);
-}
-
-int8_t max(int8_t v1, int8_t v2) {
-    return SC_max_i8(v1, v2);
-}
-
-uint32_t min(uint32_t v1, uint32_t v2) {
-    return SC_min_u32(v1, v2);
-}
-
-uint16_t min(uint16_t v1, uint16_t v2) {
-    return SC_min_u16(v1, v2);
-}
-
-uint8_t min(uint8_t v1, uint8_t v2) {
-    return SC_min_u8(v1, v2);
-}
-
-int32_t min(int32_t v1, int32_t v2) {
-    return SC_min_i32(v1, v2);
-}
-
-int16_t min(int16_t v1, int16_t v2) {
-    return SC_min_i16(v1, v2);
-}
-
-int8_t min(int8_t v1, int8_t v2) {
-    return SC_min_i8(v1, v2);
-}
-
-float clamp(float amount, float low, float high) {
-    return SC_clamp_f32(amount, low, high);
-}
-
-float max(float v1, float v2) {
-    return SC_max_f32(v1, v2);
-}
-
-float min(float v1, float v2) {
-    return SC_min_f32(v1, v2);
-}
-
-float step(float edge, float v) {
-    return SC_step_f32(edge, v);
-}
-
-float sign(float v) {
-    return SC_sign_f32(v);
-}
-
-void rsMatrixLoadIdentity(rs_matrix4x4 *m) {
-    SC_MatrixLoadIdentity_4x4((Matrix4x4 *) m);
-}
-
-void rsMatrixLoadIdentity(rs_matrix3x3 *m) {
-    SC_MatrixLoadIdentity_3x3((Matrix3x3 *) m);
-}
-
-void rsMatrixLoadIdentity(rs_matrix2x2 *m) {
-    SC_MatrixLoadIdentity_2x2((Matrix2x2 *) m);
-}
-
-void rsMatrixLoad(rs_matrix4x4 *m, const float *v) {
-    SC_MatrixLoad_4x4_f((Matrix4x4 *) m, v);
-}
-
-void rsMatrixLoad(rs_matrix3x3 *m, const float *v) {
-    SC_MatrixLoad_3x3_f((Matrix3x3 *) m, v);
-}
-
-void rsMatrixLoad(rs_matrix2x2 *m, const float *v) {
-    SC_MatrixLoad_2x2_f((Matrix2x2 *) m, v);
-}
-
-void rsMatrixLoad(rs_matrix4x4 *m, const rs_matrix4x4 *v) {
-    SC_MatrixLoad_4x4_4x4((Matrix4x4 *) m, (Matrix4x4 *) v);
-}
-
-void rsMatrixLoad(rs_matrix4x4 *m, const rs_matrix3x3 *v) {
-    SC_MatrixLoad_4x4_3x3((Matrix4x4 *) m, (Matrix3x3 *) v);
-}
-
-void rsMatrixLoad(rs_matrix4x4 *m, const rs_matrix2x2 *v) {
-    SC_MatrixLoad_4x4_2x2((Matrix4x4 *) m, (Matrix2x2 *) v);
-}
-
-void rsMatrixLoad(rs_matrix3x3 *m, const rs_matrix3x3 *v) {
-    SC_MatrixLoad_3x3_3x3((Matrix3x3 *) m, (Matrix3x3 *) v);
-}
-
-void rsMatrixLoad(rs_matrix2x2 *m, const rs_matrix2x2 *v) {
-    SC_MatrixLoad_2x2_2x2((Matrix2x2 *) m, (Matrix2x2 *) v);
-}
-
-void rsMatrixLoadRotate(rs_matrix4x4 *m, float rot, float x, float y, float z) {
-    SC_MatrixLoadRotate((Matrix4x4 *) m, rot, x, y, z);
-}
-
-void rsMatrixLoadScale(rs_matrix4x4 *m, float x, float y, float z) {
-    SC_MatrixLoadScale((Matrix4x4 *) m, x, y, z);
-}
-
-void rsMatrixLoadTranslate(rs_matrix4x4 *m, float x, float y, float z) {
-    SC_MatrixLoadTranslate((Matrix4x4 *) m, x, y, z);
-}
-
-void rsMatrixLoadMultiply(rs_matrix4x4 *m, const rs_matrix4x4 *lhs,
-                          const rs_matrix4x4 *rhs) {
-    SC_MatrixLoadMultiply_4x4_4x4_4x4((Matrix4x4 *) m, (Matrix4x4 *) lhs,
-                                      (Matrix4x4 *) rhs);
-}
-
-void rsMatrixLoadMultiply(rs_matrix3x3 *m, const rs_matrix3x3 *lhs,
-                          const rs_matrix3x3 *rhs) {
-    SC_MatrixLoadMultiply_3x3_3x3_3x3((Matrix3x3 *) m, (Matrix3x3 *) lhs,
-                                      (Matrix3x3 *) rhs);
-}
-
-void rsMatrixLoadMultiply(rs_matrix2x2 *m, const rs_matrix2x2 *lhs,
-                          const rs_matrix2x2 *rhs) {
-    SC_MatrixLoadMultiply_2x2_2x2_2x2((Matrix2x2 *) m, (Matrix2x2 *) lhs,
-                                      (Matrix2x2 *) rhs);
-}
-
-void rsMatrixMultiply(rs_matrix4x4 *m, const rs_matrix4x4 *rhs) {
-    SC_MatrixMultiply_4x4_4x4((Matrix4x4 *) m, (Matrix4x4 *) rhs);
-}
-
-void rsMatrixMultiply(rs_matrix3x3 *m, const rs_matrix3x3 *rhs) {
-    SC_MatrixMultiply_3x3_3x3((Matrix3x3 *) m, (Matrix3x3 *) rhs);
-}
-
-void rsMatrixMultiply(rs_matrix2x2 *m, const rs_matrix2x2 *rhs) {
-    SC_MatrixMultiply_2x2_2x2((Matrix2x2 *) m, (Matrix2x2 *) rhs);
-}
-
-void rsMatrixRotate(rs_matrix4x4 *m, float rot, float x, float y, float z) {
-    SC_MatrixRotate((Matrix4x4 *) m, rot, x, y, z);
-}
-
-void rsMatrixScale(rs_matrix4x4 *m, float x, float y, float z) {
-    SC_MatrixScale((Matrix4x4 *) m, x, y, z);
-}
-
-void rsMatrixTranslate(rs_matrix4x4 *m, float x, float y, float z) {
-    SC_MatrixTranslate((Matrix4x4 *) m, x, y, z);
-}
-
-void rsMatrixLoadOrtho(rs_matrix4x4 *m, float left, float right, float bottom,
-                       float top, float near, float far) {
-    SC_MatrixLoadOrtho((Matrix4x4 *) m, left, right, bottom, top, near, far);
-}
-
-void rsMatrixLoadFrustum(rs_matrix4x4 *m, float left, float right, float bottom,
-                         float top, float near, float far) {
-    SC_MatrixLoadFrustum((Matrix4x4 *) m, left, right, bottom, top, near, far);
-}
-
-void rsMatrixLoadPerspective(rs_matrix4x4* m, float fovy, float aspect,
-                             float near, float far) {
-    SC_MatrixLoadPerspective((Matrix4x4 *) m, fovy, aspect, near, far);
-}
-
-bool rsMatrixInverse(rs_matrix4x4 *m) {
-    return SC_MatrixInverse_4x4((Matrix4x4 *) m);
-}
-
-bool rsMatrixInverseTranspose(rs_matrix4x4 *m) {
-    return SC_MatrixInverseTranspose_4x4((Matrix4x4 *) m);
-}
-
-void rsMatrixTranspose(rs_matrix4x4 *m) {
-    SC_MatrixTranspose_4x4((Matrix4x4 *) m);
-}
-
-void rsMatrixTranspose(rs_matrix3x3 *m) {
-    SC_MatrixTranspose_3x3((Matrix3x3 *) m);
-}
-
-void rsMatrixTranspose(rs_matrix2x2 *m) {
-    SC_MatrixTranspose_2x2((Matrix2x2 *) m);
-}
-
-
-int rsRand(int max) {
-    return SC_randi(max);
-}
-
-int rsRand(int min, int max) {
-    return SC_randi2(min, max);
-}
-
-float rsRand(float max) {
-    return SC_randf(max);
-}
-
-float rsRand(float min, float max) {
-    return SC_randf2(min, max);
-}
-
-float rsFrac(float v) {
-    return SC_frac(v);
-}
-
-
-int32_t rsAtomicInc(volatile int32_t* addr) {
-    return SC_AtomicInc(addr);
-}
-
-uint32_t rsAtomicInc(volatile uint32_t* addr) {
-    return SC_AtomicInc((volatile int32_t*) addr);
-}
-
-int32_t rsAtomicDec(volatile int32_t* addr) {
-    return SC_AtomicDec(addr);
-}
-
-uint32_t rsAtomicDec(volatile uint32_t* addr) {
-    return SC_AtomicDec((volatile int32_t*) addr);
-}
-
-#define RS_ATOMIC_OP(OPNAME) \
-int32_t rsAtomic##OPNAME(volatile int32_t* addr, int32_t value) { \
-    return SC_Atomic##OPNAME(addr, value); \
-} \
-\
-uint32_t rsAtomic##OPNAME(volatile uint32_t* addr, uint32_t value) { \
-    int32_t ival; \
-    memcpy(&ival, &value, sizeof(int32_t)); \
-    return SC_Atomic##OPNAME((volatile int32_t *) addr, ival); \
-}
-
-RS_ATOMIC_OP(Add);
-RS_ATOMIC_OP(Sub);
-RS_ATOMIC_OP(And);
-RS_ATOMIC_OP(Or);
-RS_ATOMIC_OP(Xor);
-
-#undef RS_ATOMIC_OP
-
-int32_t rsAtomicMin(volatile int32_t* addr, int32_t value) {
-    return SC_AtomicMin(addr, value);
-}
-
-uint32_t rsAtomicMin(volatile uint32_t* addr, uint32_t value) {
-    return SC_AtomicUMin(addr, value);
-}
-
-int32_t rsAtomicMax(volatile int32_t* addr, int32_t value) {
-    return SC_AtomicMax(addr, value);
-}
-
-uint32_t rsAtomicMax(volatile uint32_t* addr, uint32_t value) {
-    return SC_AtomicUMax(addr, value);
-}
-
-int32_t rsAtomicCas(volatile int32_t* addr, int32_t compareValue,
-                    int32_t newValue) {
-    return SC_AtomicCas(addr, compareValue, newValue);
-}
-
-uint32_t rsAtomicCas(volatile uint32_t* addr, uint32_t compareValue,
-                     uint32_t newValue) {
-    int32_t iCompareValue, iNewValue;
-    memcpy(&iCompareValue, &compareValue, sizeof(int32_t));
-    memcpy(&iNewValue, &newValue, sizeof(int32_t));
-    return SC_AtomicCas((volatile int32_t *) addr, iCompareValue, iNewValue);
-}
-
-
-static RsdSymbolTable gSyms[] = {
+static RsdCpuReference::CpuSymbol gSyms[] = {
     { "_Z4acosf", (void *)&acosf, true },
     { "_Z5acoshf", (void *)&acoshf, true },
     { "_Z4asinf", (void *)&asinf, true },
@@ -947,7 +380,6 @@ static RsdSymbolTable gSyms[] = {
     { "_Z4exp2f", (void *)&exp2f, true },
     { "_Z5exp10f", (void *)&SC_exp10, true },
     { "_Z5expm1f", (void *)&expm1f, true },
-    { "_Z4fabsf", (void *)&fabsf, true },
     { "_Z4fdimff", (void *)&fdimf, true },
     { "_Z5floorf", (void *)&floorf, true },
     { "_Z3fmafff", (void *)&fmaf, true },
@@ -982,7 +414,7 @@ static RsdSymbolTable gSyms[] = {
     { "_Z4sqrtf", (void *)&sqrtf, true },
     { "_Z3tanf", (void *)&tanf, true },
     { "_Z4tanhf", (void *)&tanhf, true },
-    { "_Z6tgammaf", (void *)&SC_tgamma, true },
+    { "_Z6tgammaf", (void *)&tgammaf, true },
     { "_Z5truncf", (void *)&truncf, true },
 
     { "_Z3absi", (void *)&SC_abs_i32, true },
@@ -994,18 +426,6 @@ static RsdSymbolTable gSyms[] = {
     { "_Z3clzi", (void *)&SC_clz_i32, true },
     { "_Z3clzs", (void *)&SC_clz_i16, true },
     { "_Z3clzc", (void *)&SC_clz_i8, true },
-    { "_Z3maxjj", (void *)&SC_max_u32, true },
-    { "_Z3maxtt", (void *)&SC_max_u16, true },
-    { "_Z3maxhh", (void *)&SC_max_u8, true },
-    { "_Z3maxii", (void *)&SC_max_i32, true },
-    { "_Z3maxss", (void *)&SC_max_i16, true },
-    { "_Z3maxcc", (void *)&SC_max_i8, true },
-    { "_Z3minjj", (void *)&SC_min_u32, true },
-    { "_Z3mintt", (void *)&SC_min_u16, true },
-    { "_Z3minhh", (void *)&SC_min_u8, true },
-    { "_Z3minii", (void *)&SC_min_i32, true },
-    { "_Z3minss", (void *)&SC_min_i16, true },
-    { "_Z3mincc", (void *)&SC_min_i8, true },
 
     { "_Z5clampfff", (void *)&SC_clamp_f32, true },
     { "_Z3maxff", (void *)&SC_max_f32, true },
@@ -1085,11 +505,11 @@ static RsdSymbolTable gSyms[] = {
     { NULL, NULL, false }
 };
 
-const RsdSymbolTable * rsdLookupSymbolMath(const char *sym) {
-    const RsdSymbolTable *syms = gSyms;
+const RsdCpuReference::CpuSymbol * RsdCpuScriptImpl::lookupSymbolMath(const char *sym) {
+    const RsdCpuReference::CpuSymbol *syms = gSyms;
 
-    while (syms->mPtr) {
-        if (!strcmp(syms->mName, sym)) {
+    while (syms->fnPtr) {
+        if (!strcmp(syms->name, sym)) {
             return syms;
         }
         syms++;

@@ -15,36 +15,54 @@
  */
 
 
-#include "rsdCore.h"
-#include "rsdIntrinsics.h"
-#include "rsdAllocation.h"
-
-#include "rsdIntrinsicInlines.h"
+#include "rsCpuIntrinsic.h"
+#include "rsCpuIntrinsicInlines.h"
 
 using namespace android;
 using namespace android::renderscript;
 
-struct ConvolveParams {
+namespace android {
+namespace renderscript {
+
+
+class RsdCpuScriptIntrinsicConvolve5x5 : public RsdCpuScriptIntrinsic {
+public:
+    virtual void populateScript(Script *);
+    virtual void invokeFreeChildren();
+
+    virtual void setGlobalVar(uint32_t slot, const void *data, size_t dataLength);
+    virtual void setGlobalObj(uint32_t slot, ObjectBase *data);
+
+    virtual ~RsdCpuScriptIntrinsicConvolve5x5();
+    RsdCpuScriptIntrinsicConvolve5x5(RsdCpuReferenceImpl *ctx, const Script *s, const Element *e);
+
+protected:
     float fp[28];
     short ip[28];
     ObjectBaseRef<Allocation> alloc;
+
+
+    static void kernel(const RsForEachStubParamStruct *p,
+                       uint32_t xstart, uint32_t xend,
+                       uint32_t instep, uint32_t outstep);
+
+
 };
 
-static void Convolve5x5_Bind(const Context *dc, const Script *script,
-                             void * intrinsicData, uint32_t slot, Allocation *data) {
-    ConvolveParams *cp = (ConvolveParams *)intrinsicData;
-    rsAssert(slot == 1);
-    cp->alloc.set(data);
+}
 }
 
-static void Convolve5x5_SetVar(const Context *dc, const Script *script, void * intrinsicData,
-                               uint32_t slot, void *data, size_t dataLength) {
-    ConvolveParams *cp = (ConvolveParams *)intrinsicData;
+void RsdCpuScriptIntrinsicConvolve5x5::setGlobalObj(uint32_t slot, ObjectBase *data) {
+    rsAssert(slot == 1);
+    alloc.set(static_cast<Allocation *>(data));
+}
 
+void RsdCpuScriptIntrinsicConvolve5x5::setGlobalVar(uint32_t slot,
+                                                    const void *data, size_t dataLength) {
     rsAssert(slot == 0);
-    memcpy (cp->fp, data, dataLength);
+    memcpy (&fp, data, dataLength);
     for(int ct=0; ct < 25; ct++) {
-        cp->ip[ct] = (short)(cp->fp[ct] * 255.f + 0.5f);
+        ip[ct] = (short)(fp[ct] * 255.f + 0.5f);
     }
 }
 
@@ -98,12 +116,16 @@ extern "C" void rsdIntrinsicConvolve5x5_K(void *dst, const void *y0, const void 
                                           const void *y2, const void *y3, const void *y4,
                                           const short *coef, uint32_t count);
 
-static void Convolve5x5_uchar4(const RsForEachStubParamStruct *p,
-                                    uint32_t xstart, uint32_t xend,
-                                    uint32_t instep, uint32_t outstep) {
-    ConvolveParams *cp = (ConvolveParams *)p->usr;
-    DrvAllocation *din = (DrvAllocation *)cp->alloc->mHal.drv;
-    const uchar *pin = (const uchar *)din->lod[0].mallocPtr;
+void RsdCpuScriptIntrinsicConvolve5x5::kernel(const RsForEachStubParamStruct *p,
+                                              uint32_t xstart, uint32_t xend,
+                                              uint32_t instep, uint32_t outstep) {
+    RsdCpuScriptIntrinsicConvolve5x5 *cp = (RsdCpuScriptIntrinsicConvolve5x5 *)p->usr;
+    if (!cp->alloc.get()) {
+        ALOGE("Convolve5x5 executed without input, skipping");
+        return;
+    }
+    const uchar *pin = (const uchar *)cp->alloc->mHal.drvState.lod[0].mallocPtr;
+    const size_t stride = cp->alloc->mHal.drvState.lod[0].stride;
 
     uint32_t y0 = rsMax((int32_t)p->y-2, 0);
     uint32_t y1 = rsMax((int32_t)p->y-1, 0);
@@ -111,11 +133,11 @@ static void Convolve5x5_uchar4(const RsForEachStubParamStruct *p,
     uint32_t y3 = rsMin((int32_t)p->y+1, (int32_t)(p->dimY-1));
     uint32_t y4 = rsMin((int32_t)p->y+2, (int32_t)(p->dimY-1));
 
-    const uchar4 *py0 = (const uchar4 *)(pin + din->lod[0].stride * y0);
-    const uchar4 *py1 = (const uchar4 *)(pin + din->lod[0].stride * y1);
-    const uchar4 *py2 = (const uchar4 *)(pin + din->lod[0].stride * y2);
-    const uchar4 *py3 = (const uchar4 *)(pin + din->lod[0].stride * y3);
-    const uchar4 *py4 = (const uchar4 *)(pin + din->lod[0].stride * y4);
+    const uchar4 *py0 = (const uchar4 *)(pin + stride * y0);
+    const uchar4 *py1 = (const uchar4 *)(pin + stride * y1);
+    const uchar4 *py2 = (const uchar4 *)(pin + stride * y2);
+    const uchar4 *py3 = (const uchar4 *)(pin + stride * y3);
+    const uchar4 *py4 = (const uchar4 *)(pin + stride * y4);
 
     uchar4 *out = (uchar4 *)p->out;
     uint32_t x1 = xstart;
@@ -143,21 +165,35 @@ static void Convolve5x5_uchar4(const RsForEachStubParamStruct *p,
     }
 }
 
-void * rsdIntrinsic_InitConvolve5x5(const android::renderscript::Context *dc,
-                                    android::renderscript::Script *script,
-                                    RsdIntriniscFuncs_t *funcs) {
 
-    script->mHal.info.exportedVariableCount = 2;
-    funcs->bind = Convolve5x5_Bind;
-    funcs->setVar = Convolve5x5_SetVar;
-    funcs->root = Convolve5x5_uchar4;
+RsdCpuScriptIntrinsicConvolve5x5::RsdCpuScriptIntrinsicConvolve5x5(
+            RsdCpuReferenceImpl *ctx, const Script *s, const Element *e)
+            : RsdCpuScriptIntrinsic(ctx, s, e, RS_SCRIPT_INTRINSIC_ID_CONVOLVE_5x5) {
 
-    ConvolveParams *cp = (ConvolveParams *)calloc(1, sizeof(ConvolveParams));
-    for(int ct=0; ct < 25; ct++) {
-        cp->fp[ct] = 1.f / 25.f;
-        cp->ip[ct] = (short)(cp->fp[ct] * 255.f + 0.5f);
+    mRootPtr = &kernel;
+    for(int ct=0; ct < 9; ct++) {
+        fp[ct] = 1.f / 25.f;
+        ip[ct] = (short)(fp[ct] * 255.f + 0.5f);
     }
-    return cp;
 }
+
+RsdCpuScriptIntrinsicConvolve5x5::~RsdCpuScriptIntrinsicConvolve5x5() {
+}
+
+void RsdCpuScriptIntrinsicConvolve5x5::populateScript(Script *s) {
+    s->mHal.info.exportedVariableCount = 2;
+}
+
+void RsdCpuScriptIntrinsicConvolve5x5::invokeFreeChildren() {
+    alloc.clear();
+}
+
+
+RsdCpuScriptImpl * rsdIntrinsic_Convolve5x5(RsdCpuReferenceImpl *ctx,
+                                            const Script *s, const Element *e) {
+
+    return new RsdCpuScriptIntrinsicConvolve5x5(ctx, s, e);
+}
+
 
 

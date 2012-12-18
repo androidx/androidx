@@ -21,6 +21,8 @@
 #include <rsRuntime.h>
 #include <rsAllocation.h>
 
+#include "../cpu_ref/rsd_cpu.h"
+
 #include <GLES/gl.h>
 #include <GLES2/gl2.h>
 
@@ -40,29 +42,27 @@ struct DrvAllocation {
     // Is this a legal structure to be used as an FBO render target
     uint32_t renderTargetID;
 
+#ifndef RS_COMPATIBILITY_LIB
+    GLenum glTarget;
+    GLenum glType;
+    GLenum glFormat;
+#else
     int glTarget;
     int glType;
     int glFormat;
+#endif
 
     bool uploadDeferred;
 
-    void * readBackFBO;
-    void *wnd;
-    void *wndBuffer;
-
-    struct LodState {
-        void * mallocPtr;
-        size_t stride;
-        uint32_t dimX;
-        uint32_t dimY;
-        uint32_t dimZ;
-    } lod[android::renderscript::Allocation::MAX_LOD];
-    size_t faceOffset;
-    uint32_t lodCount;
-    uint32_t faceCount;
-
-
+    RsdFrameBufferObj * readBackFBO;
+    ANativeWindow *wnd;
+    ANativeWindowBuffer *wndBuffer;
 };
+
+#ifndef RS_COMPATIBILITY_LIB
+GLenum rsdTypeToGLType(RsDataType t);
+GLenum rsdKindToGLFormat(RsDataKind k);
+#endif
 
 
 bool rsdAllocationInit(const android::renderscript::Context *rsc,
@@ -79,6 +79,14 @@ void rsdAllocationSyncAll(const android::renderscript::Context *rsc,
                           RsAllocationUsageType src);
 void rsdAllocationMarkDirty(const android::renderscript::Context *rsc,
                             const android::renderscript::Allocation *alloc);
+int32_t rsdAllocationInitSurfaceTexture(const android::renderscript::Context *rsc,
+                                        const android::renderscript::Allocation *alloc);
+void rsdAllocationSetSurfaceTexture(const android::renderscript::Context *rsc,
+                                    android::renderscript::Allocation *alloc, ANativeWindow *nw);
+void rsdAllocationIoSend(const android::renderscript::Context *rsc,
+                         android::renderscript::Allocation *alloc);
+void rsdAllocationIoReceive(const android::renderscript::Context *rsc,
+                            android::renderscript::Allocation *alloc);
 
 void rsdAllocationData1D(const android::renderscript::Context *rsc,
                          const android::renderscript::Allocation *alloc,
@@ -88,7 +96,7 @@ void rsdAllocationData2D(const android::renderscript::Context *rsc,
                          const android::renderscript::Allocation *alloc,
                          uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
                          uint32_t w, uint32_t h,
-                         const void *data, uint32_t sizeBytes);
+                         const void *data, uint32_t sizeBytes, size_t stride);
 void rsdAllocationData3D(const android::renderscript::Context *rsc,
                          const android::renderscript::Allocation *alloc,
                          uint32_t xoff, uint32_t yoff, uint32_t zoff,
@@ -103,7 +111,7 @@ void rsdAllocationRead2D(const android::renderscript::Context *rsc,
                          const android::renderscript::Allocation *alloc,
                          uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
                          uint32_t w, uint32_t h,
-                         void *data, uint32_t sizeBytes);
+                         void *data, uint32_t sizeBytes, size_t stride);
 void rsdAllocationRead3D(const android::renderscript::Context *rsc,
                          const android::renderscript::Allocation *alloc,
                          uint32_t xoff, uint32_t yoff, uint32_t zoff,

@@ -1,7 +1,7 @@
 
 LOCAL_PATH:=$(call my-dir)
 rs_base_CFLAGS := -Werror -Wall -Wno-unused-parameter -Wno-unused-variable \
-		  -Wno-overloaded-virtual
+		  -Wno-overloaded-virtual -DRS_COMPATIBILITY_LIB
 ifeq ($(TARGET_BUILD_PDK), true)
   rs_base_CFLAGS += -D__RS_PDK__
 endif
@@ -97,18 +97,23 @@ LOCAL_SRC_FILES:= \
 	driver/rsdAllocation.cpp \
 	driver/rsdBcc.cpp \
 	driver/rsdCore.cpp \
-	driver/rsdRuntimeMath.cpp \
 	driver/rsdRuntimeStubs.cpp \
 	driver/rsdSampler.cpp \
-	driver/rsdIntrinsics.cpp \
-	driver/rsdIntrinsicBlend.cpp \
-	driver/rsdIntrinsicBlur.cpp \
-	driver/rsdIntrinsicConvolve3x3.cpp \
-	driver/rsdIntrinsicConvolve5x5.cpp \
-	driver/rsdIntrinsicLUT.cpp \
-	driver/rsdIntrinsicColorMatrix.cpp \
-	driver/rsdIntrinsicYuvToRGB.cpp \
-	driver/rsdScriptGroup.cpp
+	driver/rsdScriptGroup.cpp \
+	cpu_ref/rsCpuCore.cpp \
+	cpu_ref/rsCpuScript.cpp \
+	cpu_ref/rsCpuRuntimeMath.cpp \
+	cpu_ref/rsCpuRuntimeStubs.cpp \
+	cpu_ref/rsCpuScriptGroup.cpp \
+	cpu_ref/rsCpuIntrinsic.cpp \
+	cpu_ref/rsCpuIntrinsicBlend.cpp \
+	cpu_ref/rsCpuIntrinsicBlur.cpp \
+	cpu_ref/rsCpuIntrinsicColorMatrix.cpp \
+	cpu_ref/rsCpuIntrinsicConvolve3x3.cpp \
+	cpu_ref/rsCpuIntrinsicConvolve5x5.cpp \
+	cpu_ref/rsCpuIntrinsicLUT.cpp \
+	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp
+
 
 
 
@@ -127,3 +132,5 @@ LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)
+
+

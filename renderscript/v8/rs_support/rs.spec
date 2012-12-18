@@ -138,6 +138,7 @@ Allocation2DData {
     param uint32_t w
     param uint32_t h
     param const void *data
+    param size_t stride
     }
 
 Allocation2DElementData {
@@ -158,6 +159,26 @@ AllocationRead {
     param RsAllocation va
     param void * data
     }
+
+Allocation1DRead {
+    param RsAllocation va
+    param uint32_t xoff
+    param uint32_t lod
+    param uint32_t count
+    param void *data
+    }
+
+Allocation2DRead {
+    param RsAllocation va
+    param uint32_t xoff
+    param uint32_t yoff
+    param uint32_t lod
+    param RsAllocationCubemapFace face
+    param uint32_t w
+    param uint32_t h
+    param void *data
+    param size_t stride
+}
 
 AllocationSyncAll {
     param RsAllocation va
