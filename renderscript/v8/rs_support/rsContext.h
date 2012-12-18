@@ -19,12 +19,23 @@
 
 #include "rsUtils.h"
 #include "rs_hal.h"
+#include <string.h>
 
 #include "rsThreadIO.h"
 #include "rsScriptC.h"
 #include "rsScriptGroup.h"
 #include "rsSampler.h"
-#include <string.h>
+
+#ifndef RS_COMPATIBILITY_LIB
+#include "rsFont.h"
+#include "rsPath.h"
+#include "rsProgramFragment.h"
+#include "rsProgramStore.h"
+#include "rsProgramRaster.h"
+#include "rsProgramVertex.h"
+#include "rsFBOCache.h"
+#endif
+
 
 // ---------------------------------------------------------------------------
 namespace android {
@@ -60,7 +71,7 @@ public:
     };
     Hal mHal;
 
-    static Context * createContext(Device *, const RsSurfaceConfig *sc);
+    static Context * createContext(Device *, const RsSurfaceConfig *sc, bool forceCpu = false, bool synchronous = false);
     static Context * createContextLite();
     ~Context();
 
@@ -74,6 +85,13 @@ public:
         ~PushState();
 
     private:
+#ifndef RS_COMPATIBILITY_LIB
+        ObjectBaseRef<ProgramFragment> mFragment;
+        ObjectBaseRef<ProgramVertex> mVertex;
+        ObjectBaseRef<ProgramStore> mStore;
+        ObjectBaseRef<ProgramRaster> mRaster;
+        ObjectBaseRef<Font> mFont;
+#endif
         Context *mRsc;
     };
 
@@ -84,8 +102,40 @@ public:
     SamplerState mStateSampler;
 
     ScriptCState mScriptC;
-
+    bool isSynchronous() {return mSynchronous;}
     bool setupCheck();
+
+#ifndef RS_COMPATIBILITY_LIB
+    FBOCache mFBOCache;
+    ProgramFragmentState mStateFragment;
+    ProgramStoreState mStateFragmentStore;
+    ProgramRasterState mStateRaster;
+    ProgramVertexState mStateVertex;
+    FontState mStateFont;
+
+
+    void swapBuffers();
+    void setRootScript(Script *);
+    void setProgramRaster(ProgramRaster *);
+    void setProgramVertex(ProgramVertex *);
+    void setProgramFragment(ProgramFragment *);
+    void setProgramStore(ProgramStore *);
+    void setFont(Font *);
+
+    void updateSurface(void *sur);
+
+    ProgramFragment * getProgramFragment() {return mFragment.get();}
+    ProgramStore * getProgramStore() {return mFragmentStore.get();}
+    ProgramRaster * getProgramRaster() {return mRaster.get();}
+    ProgramVertex * getProgramVertex() {return mVertex.get();}
+    Font * getFont() {return mFont.get();}
+
+    void setupProgramStore();
+
+    void pause();
+    void resume();
+    void setSurface(uint32_t w, uint32_t h, RsNativeWindow sur);
+#endif
 
     void setPriority(int32_t p);
     void destroyWorkerThreadResources();
@@ -100,6 +150,36 @@ public:
 
     void initToClient();
     void deinitToClient();
+
+#ifndef RS_COMPATIBILITY_LIB
+    ProgramFragment * getDefaultProgramFragment() const {
+        return mStateFragment.mDefault.get();
+    }
+    ProgramVertex * getDefaultProgramVertex() const {
+        return mStateVertex.mDefault.get();
+    }
+    ProgramStore * getDefaultProgramStore() const {
+        return mStateFragmentStore.mDefault.get();
+    }
+    ProgramRaster * getDefaultProgramRaster() const {
+        return mStateRaster.mDefault.get();
+    }
+    Font* getDefaultFont() const {
+        return mStateFont.mDefault.get();
+    }
+
+    uint32_t getWidth() const {return mWidth;}
+    uint32_t getHeight() const {return mHeight;}
+
+    uint32_t getCurrentSurfaceWidth() const;
+    uint32_t getCurrentSurfaceHeight() const;
+
+    void setWatchdogGL(const char *cmd, uint32_t line, const char *file) const {
+        watchdog.command = cmd;
+        watchdog.file = file;
+        watchdog.line = line;
+    }
+#endif
 
     mutable ThreadIO mIO;
 
@@ -158,6 +238,8 @@ protected:
     int32_t mThreadPriority;
     bool mIsGraphicsContext;
 
+    bool mForceCpu;
+
     bool mRunning;
     bool mExit;
     bool mPaused;
@@ -167,6 +249,13 @@ protected:
     pid_t mNativeThreadId;
 
     ObjectBaseRef<Script> mRootScript;
+#ifndef RS_COMPATIBILITY_LIB
+    ObjectBaseRef<ProgramFragment> mFragment;
+    ObjectBaseRef<ProgramVertex> mVertex;
+    ObjectBaseRef<ProgramStore> mFragmentStore;
+    ObjectBaseRef<ProgramRaster> mRaster;
+    ObjectBaseRef<Font> mFont;
+#endif
 
     void displayDebugStats();
 
@@ -174,12 +263,13 @@ private:
     Context();
     bool initContext(Device *, const RsSurfaceConfig *sc);
 
-
+    bool mSynchronous;
     bool initGLThread();
     void deinitEGL();
 
     uint32_t runRootScript();
 
+    static bool loadRuntime(const char* filename, Context* rsc);
     static void * threadProc(void *);
     static void * helperThreadProc(void *);
 

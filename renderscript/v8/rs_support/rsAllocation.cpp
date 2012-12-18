@@ -19,6 +19,9 @@
 #include "rsAdapter.h"
 #include "rs_hal.h"
 
+#include "system/window.h"
+#include "gui/SurfaceTexture.h"
+
 using namespace android;
 using namespace android::renderscript;
 
@@ -30,6 +33,7 @@ Allocation::Allocation(Context *rsc, const Type *type, uint32_t usages,
     mHal.state.mipmapControl = RS_ALLOCATION_MIPMAP_NONE;
     mHal.state.usageFlags = usages;
     mHal.state.mipmapControl = mc;
+    mHal.state.userProvidedPtr = ptr;
 
     setType(type);
     updateCache();
@@ -57,10 +61,12 @@ void Allocation::updateCache() {
     mHal.state.hasMipmaps = type->getDimLOD();
     mHal.state.elementSizeBytes = type->getElementSizeBytes();
     mHal.state.hasReferences = mHal.state.type->getElement()->getHasReferences();
+    mHal.state.eType = mHal.state.type->getElement()->getType();
 }
 
 Allocation::~Allocation() {
     freeChildrenUnlocked();
+    setSurfaceTexture(mRSC, NULL);
     mRSC->mHal.funcs.allocation.destroy(mRSC, this);
 }
 
@@ -84,11 +90,10 @@ void Allocation::data(Context *rsc, uint32_t xoff, uint32_t lod,
 }
 
 void Allocation::data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
-             uint32_t w, uint32_t h, const void *data, size_t sizeBytes) {
+                      uint32_t w, uint32_t h, const void *data, size_t sizeBytes) {
+
     const size_t eSize = mHal.state.elementSizeBytes;
     const size_t lineSize = eSize * w;
-
-    //ALOGE("data2d %p,  %i %i %i %i %i %i %p %i", this, xoff, yoff, lod, face, w, h, data, sizeBytes);
 
     if ((lineSize * h) != sizeBytes) {
         ALOGE("Allocation size mismatch, expected %zu, got %zu", (lineSize * h), sizeBytes);
@@ -96,7 +101,17 @@ void Allocation::data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, 
         return;
     }
 
-    rsc->mHal.funcs.allocation.data2D(rsc, this, xoff, yoff, lod, face, w, h, data, sizeBytes);
+    this->data(rsc, xoff, yoff, lod, face, w, h, data, sizeBytes, lineSize);
+}
+
+void Allocation::data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
+                      uint32_t w, uint32_t h, const void *data, size_t sizeBytes, size_t stride) {
+    const size_t eSize = mHal.state.elementSizeBytes;
+    const size_t lineSize = eSize * w;
+
+    //ALOGE("data2d %p,  %i %i %i %i %i %i %p %i", this, xoff, yoff, lod, face, w, h, data, sizeBytes);
+
+    rsc->mHal.funcs.allocation.data2D(rsc, this, xoff, yoff, lod, face, w, h, data, sizeBytes, stride);
     sendDirty(rsc);
 }
 
@@ -106,7 +121,7 @@ void Allocation::data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t zoff,
 }
 
 void Allocation::read(Context *rsc, uint32_t xoff, uint32_t lod,
-                         uint32_t count, void *data, size_t sizeBytes) {
+                      uint32_t count, void *data, size_t sizeBytes) {
     const size_t eSize = mHal.state.type->getElementSizeBytes();
 
     if ((count * eSize) != sizeBytes) {
@@ -119,8 +134,14 @@ void Allocation::read(Context *rsc, uint32_t xoff, uint32_t lod,
     rsc->mHal.funcs.allocation.read1D(rsc, this, xoff, lod, count, data, sizeBytes);
 }
 
+void Allocation::readUnchecked(Context *rsc, uint32_t xoff, uint32_t lod,
+                         uint32_t count, void *data, size_t sizeBytes) {
+    rsc->mHal.funcs.allocation.read1D(rsc, this, xoff, lod, count, data, sizeBytes);
+}
+
+
 void Allocation::read(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
-             uint32_t w, uint32_t h, void *data, size_t sizeBytes) {
+                      uint32_t w, uint32_t h, void *data, size_t sizeBytes) {
     const size_t eSize = mHal.state.elementSizeBytes;
     const size_t lineSize = eSize * w;
 
@@ -130,7 +151,18 @@ void Allocation::read(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, 
         return;
     }
 
-    rsc->mHal.funcs.allocation.read2D(rsc, this, xoff, yoff, lod, face, w, h, data, sizeBytes);
+    read(rsc, xoff, yoff, lod, face, w, h, data, sizeBytes, lineSize);
+}
+
+void Allocation::read(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
+                      uint32_t w, uint32_t h, void *data, size_t sizeBytes, size_t stride) {
+    const size_t eSize = mHal.state.elementSizeBytes;
+    const size_t lineSize = eSize * w;
+    if (!stride) {
+        stride = lineSize;
+    }
+
+    rsc->mHal.funcs.allocation.read2D(rsc, this, xoff, yoff, lod, face, w, h, data, sizeBytes, stride);
 }
 
 void Allocation::read(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t zoff,
@@ -200,6 +232,20 @@ void Allocation::elementData(Context *rsc, uint32_t x, uint32_t y,
     sendDirty(rsc);
 }
 
+void Allocation::addProgramToDirty(const Program *p) {
+    mToDirtyList.push(p);
+}
+
+void Allocation::removeProgramToDirty(const Program *p) {
+    for (size_t ct=0; ct < mToDirtyList.size(); ct++) {
+        if (mToDirtyList[ct] == p) {
+            mToDirtyList.removeAt(ct);
+            return;
+        }
+    }
+    rsAssert(0);
+}
+
 void Allocation::dumpLOGV(const char *prefix) const {
     ObjectBase::dumpLOGV(prefix);
 
@@ -210,7 +256,7 @@ void Allocation::dumpLOGV(const char *prefix) const {
     }
 
     ALOGV("%s allocation ptr=%p  mUsageFlags=0x04%x, mMipmapControl=0x%04x",
-         prefix, mHal.drvState.mallocPtrLOD0, mHal.state.usageFlags, mHal.state.mipmapControl);
+         prefix, mHal.drvState.lod[0].mallocPtr, mHal.state.usageFlags, mHal.state.mipmapControl);
 }
 
 uint32_t Allocation::getPackedSize() const {
@@ -363,6 +409,11 @@ Allocation *Allocation::createFromStream(Context *rsc, IStream *stream) {
 }
 
 void Allocation::sendDirty(const Context *rsc) const {
+#ifndef RS_COMPATIBILITY_LIB
+    for (size_t ct=0; ct < mToDirtyList.size(); ct++) {
+        mToDirtyList[ct]->forceDirty();
+    }
+#endif
     mRSC->mHal.funcs.allocation.markDirty(rsc, this);
 }
 
@@ -415,6 +466,46 @@ void Allocation::resize2D(Context *rsc, uint32_t dimX, uint32_t dimY) {
     ALOGE("not implemented");
 }
 
+int32_t Allocation::getSurfaceTextureID(const Context *rsc) {
+    int32_t id = rsc->mHal.funcs.allocation.initSurfaceTexture(rsc, this);
+    mHal.state.surfaceTextureID = id;
+    return id;
+}
+
+void Allocation::setSurfaceTexture(const Context *rsc, SurfaceTexture *st) {
+    if(st != mHal.state.surfaceTexture) {
+        if(mHal.state.surfaceTexture != NULL) {
+            mHal.state.surfaceTexture->decStrong(NULL);
+        }
+        mHal.state.surfaceTexture = st;
+        if(mHal.state.surfaceTexture != NULL) {
+            mHal.state.surfaceTexture->incStrong(NULL);
+        }
+    }
+}
+
+void Allocation::setSurface(const Context *rsc, RsNativeWindow sur) {
+    ANativeWindow *nw = (ANativeWindow *)sur;
+    ANativeWindow *old = mHal.state.wndSurface;
+    if (nw) {
+        nw->incStrong(NULL);
+    }
+    rsc->mHal.funcs.allocation.setSurfaceTexture(rsc, this, nw);
+    mHal.state.wndSurface = nw;
+    if (old) {
+        old->decStrong(NULL);
+    }
+}
+
+void Allocation::ioSend(const Context *rsc) {
+    rsc->mHal.funcs.allocation.ioSend(rsc, this);
+}
+
+void Allocation::ioReceive(const Context *rsc) {
+    rsc->mHal.funcs.allocation.ioReceive(rsc, this);
+}
+
+
 /////////////////
 //
 
@@ -458,9 +549,9 @@ void rsi_Allocation1DElementData(Context *rsc, RsAllocation va, uint32_t x, uint
 }
 
 void rsi_Allocation2DData(Context *rsc, RsAllocation va, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
-                          uint32_t w, uint32_t h, const void *data, size_t sizeBytes) {
+                          uint32_t w, uint32_t h, const void *data, size_t sizeBytes, size_t stride) {
     Allocation *a = static_cast<Allocation *>(va);
-    a->data(rsc, xoff, yoff, lod, face, w, h, data, sizeBytes);
+    a->data(rsc, xoff, yoff, lod, face, w, h, data, sizeBytes, stride);
 }
 
 void rsi_AllocationRead(Context *rsc, RsAllocation va, void *data, size_t sizeBytes) {
@@ -571,6 +662,44 @@ void rsi_AllocationCopy2DRange(Context *rsc,
                                            width, height,
                                            src, srcXoff, srcYoff,srcMip,
                                            (RsAllocationCubemapFace)srcFace);
+}
+
+int32_t rsi_AllocationGetSurfaceTextureID(Context *rsc, RsAllocation valloc) {
+    Allocation *alloc = static_cast<Allocation *>(valloc);
+    return alloc->getSurfaceTextureID(rsc);
+}
+
+void rsi_AllocationGetSurfaceTextureID2(Context *rsc, RsAllocation valloc, void *vst, size_t len) {
+    Allocation *alloc = static_cast<Allocation *>(valloc);
+    alloc->setSurfaceTexture(rsc, static_cast<SurfaceTexture *>(vst));
+}
+
+void rsi_AllocationSetSurface(Context *rsc, RsAllocation valloc, RsNativeWindow sur) {
+    Allocation *alloc = static_cast<Allocation *>(valloc);
+    alloc->setSurface(rsc, sur);
+}
+
+void rsi_AllocationIoSend(Context *rsc, RsAllocation valloc) {
+    Allocation *alloc = static_cast<Allocation *>(valloc);
+    alloc->ioSend(rsc);
+}
+
+void rsi_AllocationIoReceive(Context *rsc, RsAllocation valloc) {
+    Allocation *alloc = static_cast<Allocation *>(valloc);
+    alloc->ioReceive(rsc);
+}
+
+void rsi_Allocation1DRead(Context *rsc, RsAllocation va, uint32_t xoff, uint32_t lod,
+                          uint32_t count, void *data, size_t sizeBytes) {
+    Allocation *a = static_cast<Allocation *>(va);
+    a->readUnchecked(rsc, xoff, lod, count, data, sizeBytes);
+}
+
+void rsi_Allocation2DRead(Context *rsc, RsAllocation va, uint32_t xoff, uint32_t yoff,
+                          uint32_t lod, RsAllocationCubemapFace face, uint32_t w,
+                          uint32_t h, void *data, size_t sizeBytes, size_t stride) {
+    Allocation *a = static_cast<Allocation *>(va);
+    a->read(rsc, xoff, yoff, lod, face, w, h, data, sizeBytes, stride);
 }
 
 }

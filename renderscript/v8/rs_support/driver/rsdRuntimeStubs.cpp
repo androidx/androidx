@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2011-2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 #include "rsdCore.h"
 #include "rsdBcc.h"
 
-#include "rsdRuntime.h"
 //#include "rsdPath.h"
 #include "rsdAllocation.h"
 
@@ -33,11 +32,6 @@
 
 using namespace android;
 using namespace android::renderscript;
-
-#define GET_TLS()  ScriptTLSStruct * tls = \
-    (ScriptTLSStruct *)pthread_getspecific(rsdgThreadTLSKey); \
-    Context * rsc = tls->mContext; \
-    ScriptC * sc = (ScriptC *) tls->mScript
 
 typedef float float2 __attribute__((ext_vector_type(2)));
 typedef float float3 __attribute__((ext_vector_type(3)));
@@ -85,13 +79,13 @@ OPAQUETYPE(rs_script)
 
 
 static void SC_AllocationSyncAll2(Allocation *a, RsAllocationUsageType source) {
-    GET_TLS();
-    rsrAllocationSyncAll(rsc, sc, a, source);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrAllocationSyncAll(rsc, a, source);
 }
 
 static void SC_AllocationSyncAll(Allocation *a) {
-    GET_TLS();
-    rsrAllocationSyncAll(rsc, sc, a, RS_ALLOCATION_USAGE_SCRIPT);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrAllocationSyncAll(rsc, a, RS_ALLOCATION_USAGE_SCRIPT);
 }
 
 static void SC_AllocationCopy1DRange(Allocation *dstAlloc,
@@ -100,7 +94,7 @@ static void SC_AllocationCopy1DRange(Allocation *dstAlloc,
                                      uint32_t count,
                                      Allocation *srcAlloc,
                                      uint32_t srcOff, uint32_t srcMip) {
-    GET_TLS();
+    Context *rsc = RsdCpuReference::getTlsContext();
     rsrAllocationCopy1DRange(rsc, dstAlloc, dstOff, dstMip, count,
                              srcAlloc, srcOff, srcMip);
 }
@@ -112,7 +106,7 @@ static void SC_AllocationCopy2DRange(Allocation *dstAlloc,
                                      Allocation *srcAlloc,
                                      uint32_t srcXoff, uint32_t srcYoff,
                                      uint32_t srcMip, uint32_t srcFace) {
-    GET_TLS();
+    Context *rsc = RsdCpuReference::getTlsContext();
     rsrAllocationCopy2DRange(rsc, dstAlloc,
                              dstXoff, dstYoff, dstMip, dstFace,
                              width, height,
@@ -126,41 +120,42 @@ static void SC_AllocationCopy2DRange(Allocation *dstAlloc,
 //////////////////////////////////////////////////////////////////////////////
 
 static void SC_SetObject(ObjectBase **dst, ObjectBase * src) {
-    GET_TLS();
-    rsrSetObject(rsc, sc, dst, src);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrSetObject(rsc, dst, src);
 }
 
 static void SC_ClearObject(ObjectBase **dst) {
-    GET_TLS();
-    rsrClearObject(rsc, sc, dst);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrClearObject(rsc, dst);
 }
 
 static bool SC_IsObject(const ObjectBase *src) {
-    GET_TLS();
-    return rsrIsObject(rsc, sc, src);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrIsObject(rsc, src);
 }
 
 
 
 
 static const Allocation * SC_GetAllocation(const void *ptr) {
-    GET_TLS();
+    Context *rsc = RsdCpuReference::getTlsContext();
+    const Script *sc = RsdCpuReference::getTlsScript();
     return rsdScriptGetAllocationForPointer(rsc, sc, ptr);
 }
 
 static void SC_ForEach_SAA(Script *target,
                             Allocation *in,
                             Allocation *out) {
-    GET_TLS();
-    rsrForEach(rsc, sc, target, in, out, NULL, 0, NULL);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrForEach(rsc, target, in, out, NULL, 0, NULL);
 }
 
 static void SC_ForEach_SAAU(Script *target,
                             Allocation *in,
                             Allocation *out,
                             const void *usr) {
-    GET_TLS();
-    rsrForEach(rsc, sc, target, in, out, usr, 0, NULL);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrForEach(rsc, target, in, out, usr, 0, NULL);
 }
 
 static void SC_ForEach_SAAUS(Script *target,
@@ -168,8 +163,8 @@ static void SC_ForEach_SAAUS(Script *target,
                              Allocation *out,
                              const void *usr,
                              const RsScriptCall *call) {
-    GET_TLS();
-    rsrForEach(rsc, sc, target, in, out, usr, 0, call);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrForEach(rsc, target, in, out, usr, 0, call);
 }
 
 static void SC_ForEach_SAAUL(Script *target,
@@ -177,8 +172,8 @@ static void SC_ForEach_SAAUL(Script *target,
                              Allocation *out,
                              const void *usr,
                              uint32_t usrLen) {
-    GET_TLS();
-    rsrForEach(rsc, sc, target, in, out, usr, usrLen, NULL);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrForEach(rsc, target, in, out, usr, usrLen, NULL);
 }
 
 static void SC_ForEach_SAAULS(Script *target,
@@ -187,8 +182,8 @@ static void SC_ForEach_SAAULS(Script *target,
                               const void *usr,
                               uint32_t usrLen,
                               const RsScriptCall *call) {
-    GET_TLS();
-    rsrForEach(rsc, sc, target, in, out, usr, usrLen, call);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    rsrForEach(rsc, target, in, out, usr, usrLen, call);
 }
 
 
@@ -198,28 +193,29 @@ static void SC_ForEach_SAAULS(Script *target,
 //////////////////////////////////////////////////////////////////////////////
 
 static float SC_GetDt() {
-    GET_TLS();
+    Context *rsc = RsdCpuReference::getTlsContext();
+    const Script *sc = RsdCpuReference::getTlsScript();
     return rsrGetDt(rsc, sc);
 }
 
 time_t SC_Time(time_t *timer) {
-    GET_TLS();
-    return rsrTime(rsc, sc, timer);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrTime(rsc, timer);
 }
 
 tm* SC_LocalTime(tm *local, time_t *timer) {
-    GET_TLS();
-    return rsrLocalTime(rsc, sc, local, timer);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrLocalTime(rsc, local, timer);
 }
 
 int64_t SC_UptimeMillis() {
-    GET_TLS();
-    return rsrUptimeMillis(rsc, sc);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrUptimeMillis(rsc);
 }
 
 int64_t SC_UptimeNanos() {
-    GET_TLS();
-    return rsrUptimeNanos(rsc, sc);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrUptimeNanos(rsc);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -227,39 +223,23 @@ int64_t SC_UptimeNanos() {
 //////////////////////////////////////////////////////////////////////////////
 
 static uint32_t SC_ToClient2(int cmdID, void *data, int len) {
-    GET_TLS();
-    return rsrToClient(rsc, sc, cmdID, data, len);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrToClient(rsc, cmdID, data, len);
 }
 
 static uint32_t SC_ToClient(int cmdID) {
-    GET_TLS();
-    return rsrToClient(rsc, sc, cmdID, NULL, 0);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrToClient(rsc, cmdID, NULL, 0);
 }
 
 static uint32_t SC_ToClientBlocking2(int cmdID, void *data, int len) {
-    GET_TLS();
-    return rsrToClientBlocking(rsc, sc, cmdID, data, len);
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrToClientBlocking(rsc, cmdID, data, len);
 }
 
 static uint32_t SC_ToClientBlocking(int cmdID) {
-    GET_TLS();
-    return rsrToClientBlocking(rsc, sc, cmdID, NULL, 0);
-}
-
-int SC_divsi3(int a, int b) {
-    return a / b;
-}
-
-int SC_modsi3(int a, int b) {
-    return a % b;
-}
-
-unsigned int SC_udivsi3(unsigned int a, unsigned int b) {
-    return a / b;
-}
-
-unsigned int SC_umodsi3(unsigned int a, unsigned int b) {
-    return a % b;
+    Context *rsc = RsdCpuReference::getTlsContext();
+    return rsrToClientBlocking(rsc, cmdID, NULL, 0);
 }
 
 static void SC_debugF(const char *s, float f) {
@@ -423,7 +403,7 @@ static void SC_debugP(const char *s, const void *p) {
 //                 ::= f  # float
 //                 ::= d  # double
 
-static RsdSymbolTable gSyms[] = {
+static RsdCpuReference::CpuSymbol gSyms[] = {
     { "memset", (void *)&memset, true },
     { "memcpy", (void *)&memcpy, true },
 
@@ -767,25 +747,20 @@ void rsDebug(const char *s, const void *p) {
 }
 
 
-void* rsdLookupRuntimeStub(void* pContext, char const* name) {
+extern const RsdCpuReference::CpuSymbol * rsdLookupRuntimeStub(Context * pContext, char const* name) {
     ScriptC *s = (ScriptC *)pContext;
-    RsdSymbolTable *syms = gSyms;
-    const RsdSymbolTable *sym = rsdLookupSymbolMath(name);
+    const RsdCpuReference::CpuSymbol *syms = gSyms;
+    const RsdCpuReference::CpuSymbol *sym = NULL;
 
     if (!sym) {
-        while (syms->mPtr) {
-            if (!strcmp(syms->mName, name)) {
-                sym = syms;
+        while (syms->fnPtr) {
+            if (!strcmp(syms->name, name)) {
+                return syms;
             }
             syms++;
         }
     }
 
-    if (sym) {
-        s->mHal.info.isThreadable &= sym->threadable;
-        return sym->mPtr;
-    }
-    ALOGE("ScriptC sym lookup failed for %s", name);
     return NULL;
 }
 

@@ -24,6 +24,13 @@
 namespace android {
 namespace renderscript {
 
+#ifndef RS_COMPATIBILITY_LIB
+class ProgramVertex;
+class ProgramFragment;
+class ProgramRaster;
+class ProgramStore;
+#endif
+
 class ScriptKernelID : public ObjectBase {
 public:
     ScriptKernelID(Context *rsc, Script *s, int slot, int sig);
@@ -67,7 +74,6 @@ public:
             char const **exportedPragmaValueList;
 
             int (* root)();
-            bool isThreadable;
         };
         DriverInfo info;
     };
@@ -80,7 +86,14 @@ public:
 
     struct Enviroment_t {
         int64_t mStartTimeMillis;
-        int64_t mLastDtTime;
+        mutable int64_t mLastDtTime;
+
+#ifndef RS_COMPATIBILITY_LIB
+        ObjectBaseRef<ProgramVertex> mVertex;
+        ObjectBaseRef<ProgramFragment> mFragment;
+        ObjectBaseRef<ProgramRaster> mRaster;
+        ObjectBaseRef<ProgramStore> mFragmentStore;
+#endif
     };
     Enviroment_t mEnviroment;
 

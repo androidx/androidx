@@ -19,6 +19,12 @@
 #include "rsContext.h"
 #include "rsThreadIO.h"
 
+#ifndef RS_COMPATIBILITY_LIB
+#include "rsMesh.h"
+#include <ui/FramebufferNativeWindow.h>
+#include <gui/DisplayEventReceiver.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sched.h>
@@ -27,6 +33,7 @@
 
 #include <sys/syscall.h>
 #include <string.h>
+#include <dlfcn.h>
 
 using namespace android;
 using namespace android::renderscript;
@@ -48,14 +55,34 @@ bool Context::initGLThread() {
 }
 
 void Context::deinitEGL() {
-    //mHal.funcs.shutdownGraphics(this);
+#ifndef RS_COMPATIBILITY_LIB
+    mHal.funcs.shutdownGraphics(this);
+#endif
 }
 
 Context::PushState::PushState(Context *con) {
     mRsc = con;
+#ifndef RS_COMPATIBILITY_LIB
+    if (con->mIsGraphicsContext) {
+        mFragment.set(con->getProgramFragment());
+        mVertex.set(con->getProgramVertex());
+        mStore.set(con->getProgramStore());
+        mRaster.set(con->getProgramRaster());
+        mFont.set(con->getFont());
+    }
+#endif
 }
 
 Context::PushState::~PushState() {
+#ifndef RS_COMPATIBILITY_LIB
+    if (mRsc->mIsGraphicsContext) {
+        mRsc->setProgramFragment(mFragment.get());
+        mRsc->setProgramVertex(mVertex.get());
+        mRsc->setProgramStore(mStore.get());
+        mRsc->setProgramRaster(mRaster.get());
+        mRsc->setFont(mFont.get());
+    }
+#endif
 }
 
 
@@ -68,6 +95,9 @@ uint32_t Context::runScript(Script *s) {
 
 uint32_t Context::runRootScript() {
     timerSet(RS_TIMER_SCRIPT);
+#ifndef RS_COMPATIBILITY_LIB
+    mStateFragmentStore.mLast.clear();
+#endif
     watchdog.inRoot = true;
     uint32_t ret = runScript(mRootScript.get());
     watchdog.inRoot = false;
@@ -147,9 +177,21 @@ void Context::timerPrint() {
 }
 
 bool Context::setupCheck() {
-
+#ifndef RS_COMPATIBILITY_LIB
+    mFragmentStore->setup(this, &mStateFragmentStore);
+    mFragment->setup(this, &mStateFragment);
+    mRaster->setup(this, &mStateRaster);
+    mVertex->setup(this, &mStateVertex);
+    mFBOCache.setup(this);
+#endif
     return true;
 }
+
+#ifndef RS_COMPATIBILITY_LIB
+void Context::setupProgramStore() {
+    mFragmentStore->setup(this, &mStateFragmentStore);
+}
+#endif
 
 static uint32_t getProp(const char *str) {
     char buf[PROPERTY_VALUE_MAX];
@@ -158,15 +200,85 @@ static uint32_t getProp(const char *str) {
 }
 
 void Context::displayDebugStats() {
+#ifndef RS_COMPATIBILITY_LIB
+    char buffer[128];
+    sprintf(buffer, "Avg fps %u, Frame %i ms, Script %i ms", mAverageFPS, mTimeMSLastFrame, mTimeMSLastScript);
+    float oldR, oldG, oldB, oldA;
+    mStateFont.getFontColor(&oldR, &oldG, &oldB, &oldA);
+    uint32_t bufferLen = strlen(buffer);
+
+    ObjectBaseRef<Font> lastFont(getFont());
+    setFont(NULL);
+    float shadowCol = 0.1f;
+    mStateFont.setFontColor(shadowCol, shadowCol, shadowCol, 1.0f);
+    mStateFont.renderText(buffer, bufferLen, 5, getHeight() - 6);
+
+    mStateFont.setFontColor(1.0f, 0.7f, 0.0f, 1.0f);
+    mStateFont.renderText(buffer, bufferLen, 4, getHeight() - 7);
+
+    setFont(lastFont.get());
+    mStateFont.setFontColor(oldR, oldG, oldB, oldA);
+#endif
 }
+
+bool Context::loadRuntime(const char* filename, Context* rsc) {
+
+    // TODO: store the driverSO somewhere so we can dlclose later
+    void *driverSO = NULL;
+
+    driverSO = dlopen(filename, RTLD_LAZY);
+    if (driverSO == NULL) {
+        ALOGE("Failed loading RS driver: %s", dlerror());
+        return false;
+    }
+
+    // Need to call dlerror() to clear buffer before using it for dlsym().
+    (void) dlerror();
+    typedef bool (*HalSig)(Context*, uint32_t, uint32_t);
+    HalSig halInit = (HalSig) dlsym(driverSO, "rsdHalInit");
+
+    // If we can't find the C variant, we go looking for the C++ version.
+    if (halInit == NULL) {
+        ALOGW("Falling back to find C++ rsdHalInit: %s", dlerror());
+        halInit = (HalSig) dlsym(driverSO,
+                "_Z10rsdHalInitPN7android12renderscript7ContextEjj");
+    }
+
+    if (halInit == NULL) {
+        dlclose(driverSO);
+        ALOGE("Failed to find rsdHalInit: %s", dlerror());
+        return false;
+    }
+
+    if (!(*halInit)(rsc, 0, 0)) {
+        dlclose(driverSO);
+        ALOGE("Hal init failed");
+        return false;
+    }
+
+    //validate HAL struct
+
+
+    return true;
+}
+
+extern "C" bool rsdHalInit(RsContext c, uint32_t version_major, uint32_t version_minor);
 
 void * Context::threadProc(void *vrsc) {
     Context *rsc = static_cast<Context *>(vrsc);
 #ifndef ANDROID_RS_SERIALIZE
     rsc->mNativeThreadId = gettid();
-    // TODO: Use proper ANDROID_PRIORITY_DISPLAY
-    setpriority(PRIO_PROCESS, rsc->mNativeThreadId, /* ANDROID_PRIORITY_DISPLAY */ -4);
-    rsc->mThreadPriority = /* ANDROID_PRIORITY_DISPLAY */ -4;
+#ifndef RS_COMPATIBILITY_LIB
+    if (!rsc->isSynchronous()) {
+        setpriority(PRIO_PROCESS, rsc->mNativeThreadId, ANDROID_PRIORITY_DISPLAY);
+    }
+    rsc->mThreadPriority = ANDROID_PRIORITY_DISPLAY;
+#else
+    if (!rsc->isSynchronous()) {
+        setpriority(PRIO_PROCESS, rsc->mNativeThreadId, -4);
+    }
+    rsc->mThreadPriority = -4;
+#endif
 #endif //ANDROID_RS_SERIALIZE
     rsc->props.mLogTimes = getProp("debug.rs.profile") != 0;
     rsc->props.mLogScripts = getProp("debug.rs.script") != 0;
@@ -177,20 +289,143 @@ void * Context::threadProc(void *vrsc) {
     rsc->props.mLogVisual = getProp("debug.rs.visual") != 0;
     rsc->props.mDebugMaxThreads = getProp("debug.rs.max-threads");
 
-    if (!rsdHalInit(rsc, 0, 0)) {
-        rsc->setError(RS_ERROR_FATAL_DRIVER, "Failed initializing GL");
-        ALOGE("Hal init failed");
+    bool loadDefault = true;
+
+    // Provide a mechanism for dropping in a different RS driver.
+#ifndef RS_COMPATIBILITY_LIB
+#ifdef OVERRIDE_RS_DRIVER
+#define XSTR(S) #S
+#define STR(S) XSTR(S)
+#define OVERRIDE_RS_DRIVER_STRING STR(OVERRIDE_RS_DRIVER)
+
+    if (getProp("debug.rs.default-CPU-driver") != 0) {
+        ALOGE("Skipping override driver and loading default CPU driver");
+    } else if (rsc->mForceCpu) {
+        ALOGV("Application requested CPU execution");
+    } else {
+        if (loadRuntime(OVERRIDE_RS_DRIVER_STRING, rsc)) {
+            ALOGE("Successfully loaded runtime: %s", OVERRIDE_RS_DRIVER_STRING);
+            loadDefault = false;
+        } else {
+            ALOGE("Failed to load runtime %s, loading default", OVERRIDE_RS_DRIVER_STRING);
+        }
+    }
+
+#undef XSTR
+#undef STR
+#endif  // OVERRIDE_RS_DRIVER
+
+    if (loadDefault) {
+        if (!loadRuntime("libRSDriver.so", rsc)) {
+            ALOGE("Failed to load default runtime!");
+            rsc->setError(RS_ERROR_FATAL_DRIVER, "Failed loading RS driver");
+            return NULL;
+        }
+    }
+#else // RS_COMPATIBILITY_LIB
+    if (rsdHalInit(rsc, 0, 0) != true) {
         return NULL;
     }
+#endif
+
+
     rsc->mHal.funcs.setPriority(rsc, rsc->mThreadPriority);
 
+#ifndef RS_COMPATIBILITY_LIB
+    if (rsc->mIsGraphicsContext) {
+        if (!rsc->initGLThread()) {
+            rsc->setError(RS_ERROR_OUT_OF_MEMORY, "Failed initializing GL");
+            return NULL;
+        }
+
+        rsc->mStateRaster.init(rsc);
+        rsc->setProgramRaster(NULL);
+        rsc->mStateVertex.init(rsc);
+        rsc->setProgramVertex(NULL);
+        rsc->mStateFragment.init(rsc);
+        rsc->setProgramFragment(NULL);
+        rsc->mStateFragmentStore.init(rsc);
+        rsc->setProgramStore(NULL);
+        rsc->mStateFont.init(rsc);
+        rsc->setFont(NULL);
+        rsc->mStateSampler.init(rsc);
+        rsc->mFBOCache.init(rsc);
+    }
+#endif
+
     rsc->mRunning = true;
+
+    if (rsc->isSynchronous()) {
+        return NULL;
+    }
+
     if (!rsc->mIsGraphicsContext) {
         while (!rsc->mExit) {
             rsc->mIO.playCoreCommands(rsc, -1);
         }
+#ifndef RS_COMPATIBILITY_LIB
+    } else {
+#ifndef ANDROID_RS_SERIALIZE
+        DisplayEventReceiver displayEvent;
+        DisplayEventReceiver::Event eventBuffer[1];
+#endif
+        int vsyncRate = 0;
+        int targetRate = 0;
+
+        bool drawOnce = false;
+        while (!rsc->mExit) {
+            rsc->timerSet(RS_TIMER_IDLE);
+
+#ifndef ANDROID_RS_SERIALIZE
+            if (!rsc->mRootScript.get() || !rsc->mHasSurface || rsc->mPaused) {
+                targetRate = 0;
+            }
+
+            if (vsyncRate != targetRate) {
+                displayEvent.setVsyncRate(targetRate);
+                vsyncRate = targetRate;
+            }
+            if (targetRate) {
+                drawOnce |= rsc->mIO.playCoreCommands(rsc, displayEvent.getFd());
+                while (displayEvent.getEvents(eventBuffer, 1) != 0) {
+                    //ALOGE("vs2 time past %lld", (rsc->getTime() - eventBuffer[0].header.timestamp) / 1000000);
+                }
+            } else
+#endif
+            {
+                drawOnce |= rsc->mIO.playCoreCommands(rsc, -1);
+            }
+
+            if ((rsc->mRootScript.get() != NULL) && rsc->mHasSurface &&
+                (targetRate || drawOnce) && !rsc->mPaused) {
+
+                drawOnce = false;
+                targetRate = ((rsc->runRootScript() + 15) / 16);
+
+                if (rsc->props.mLogVisual) {
+                    rsc->displayDebugStats();
+                }
+
+                rsc->timerSet(RS_TIMER_CLEAR_SWAP);
+                rsc->mHal.funcs.swap(rsc);
+                rsc->timerFrame();
+                rsc->timerSet(RS_TIMER_INTERNAL);
+                rsc->timerPrint();
+                rsc->timerReset();
+            }
+        }
+#endif
     }
+
     ALOGV("%p RS Thread exiting", rsc);
+
+#ifndef RS_COMPATIBILITY_LIB
+    if (rsc->mIsGraphicsContext) {
+        pthread_mutex_lock(&gInitMutex);
+        rsc->deinitEGL();
+        pthread_mutex_unlock(&gInitMutex);
+    }
+#endif
 
     ALOGV("%p RS Thread exited", rsc);
     return NULL;
@@ -199,6 +434,23 @@ void * Context::threadProc(void *vrsc) {
 void Context::destroyWorkerThreadResources() {
     //ALOGV("destroyWorkerThreadResources 1");
     ObjectBase::zeroAllUserRef(this);
+#ifndef RS_COMPATIBILITY_LIB
+    if (mIsGraphicsContext) {
+         mRaster.clear();
+         mFragment.clear();
+         mVertex.clear();
+         mFragmentStore.clear();
+         mFont.clear();
+         mRootScript.clear();
+         mStateRaster.deinit(this);
+         mStateVertex.deinit(this);
+         mStateFragment.deinit(this);
+         mStateFragmentStore.deinit(this);
+         mStateFont.deinit(this);
+         mStateSampler.deinit(this);
+         mFBOCache.deinit(this);
+    }
+#endif
     ObjectBase::freeAllChildren(this);
     mExit = true;
     //ALOGV("destroyWorkerThreadResources 2");
@@ -236,10 +488,16 @@ Context::Context() {
     mDPI = 96;
     mIsContextLite = false;
     memset(&watchdog, 0, sizeof(watchdog));
+    mForceCpu = false;
+    mSynchronous = false;
 }
 
-Context * Context::createContext(Device *dev, const RsSurfaceConfig *sc) {
+Context * Context::createContext(Device *dev, const RsSurfaceConfig *sc,
+                                 bool forceCpu, bool synchronous) {
     Context * rsc = new Context();
+
+    rsc->mForceCpu = forceCpu;
+    rsc->mSynchronous = synchronous;
 
     if (!rsc->initContext(dev, sc)) {
         delete rsc;
@@ -287,22 +545,25 @@ bool Context::initContext(Device *dev, const RsSurfaceConfig *sc) {
 
     timerInit();
     timerSet(RS_TIMER_INTERNAL);
+    if (mSynchronous) {
+        threadProc(this);
+    } else {
+        status = pthread_create(&mThreadId, &threadAttr, threadProc, this);
+        if (status) {
+            ALOGE("Failed to start rs context thread.");
+            return false;
+        }
+        while (!mRunning && (mError == RS_ERROR_NONE)) {
+            usleep(100);
+        }
 
-    status = pthread_create(&mThreadId, &threadAttr, threadProc, this);
-    if (status) {
-        ALOGE("Failed to start rs context thread.");
-        return false;
-    }
-    while (!mRunning && (mError == RS_ERROR_NONE)) {
-        usleep(100);
-    }
+        if (mError != RS_ERROR_NONE) {
+            ALOGE("Errors during thread init");
+            return false;
+        }
 
-    if (mError != RS_ERROR_NONE) {
-        ALOGE("Errors during thread init");
-        return false;
+        pthread_attr_destroy(&threadAttr);
     }
-
-    pthread_attr_destroy(&threadAttr);
     return true;
 }
 
@@ -331,6 +592,106 @@ Context::~Context() {
     }
     ALOGV("%p Context::~Context done", this);
 }
+
+#ifndef RS_COMPATIBILITY_LIB
+void Context::setSurface(uint32_t w, uint32_t h, RsNativeWindow sur) {
+    rsAssert(mIsGraphicsContext);
+    mHal.funcs.setSurface(this, w, h, sur);
+
+    mHasSurface = sur != NULL;
+    mWidth = w;
+    mHeight = h;
+
+    if (mWidth && mHeight) {
+        mStateVertex.updateSize(this);
+        mFBOCache.updateSize();
+    }
+}
+
+uint32_t Context::getCurrentSurfaceWidth() const {
+    for (uint32_t i = 0; i < mFBOCache.mHal.state.colorTargetsCount; i ++) {
+        if (mFBOCache.mHal.state.colorTargets[i] != NULL) {
+            return mFBOCache.mHal.state.colorTargets[i]->getType()->getDimX();
+        }
+    }
+    if (mFBOCache.mHal.state.depthTarget != NULL) {
+        return mFBOCache.mHal.state.depthTarget->getType()->getDimX();
+    }
+    return mWidth;
+}
+
+uint32_t Context::getCurrentSurfaceHeight() const {
+    for (uint32_t i = 0; i < mFBOCache.mHal.state.colorTargetsCount; i ++) {
+        if (mFBOCache.mHal.state.colorTargets[i] != NULL) {
+            return mFBOCache.mHal.state.colorTargets[i]->getType()->getDimY();
+        }
+    }
+    if (mFBOCache.mHal.state.depthTarget != NULL) {
+        return mFBOCache.mHal.state.depthTarget->getType()->getDimY();
+    }
+    return mHeight;
+}
+
+void Context::pause() {
+    rsAssert(mIsGraphicsContext);
+    mPaused = true;
+}
+
+void Context::resume() {
+    rsAssert(mIsGraphicsContext);
+    mPaused = false;
+}
+
+void Context::setRootScript(Script *s) {
+    rsAssert(mIsGraphicsContext);
+    mRootScript.set(s);
+}
+
+void Context::setProgramStore(ProgramStore *pfs) {
+    rsAssert(mIsGraphicsContext);
+    if (pfs == NULL) {
+        mFragmentStore.set(mStateFragmentStore.mDefault);
+    } else {
+        mFragmentStore.set(pfs);
+    }
+}
+
+void Context::setProgramFragment(ProgramFragment *pf) {
+    rsAssert(mIsGraphicsContext);
+    if (pf == NULL) {
+        mFragment.set(mStateFragment.mDefault);
+    } else {
+        mFragment.set(pf);
+    }
+}
+
+void Context::setProgramRaster(ProgramRaster *pr) {
+    rsAssert(mIsGraphicsContext);
+    if (pr == NULL) {
+        mRaster.set(mStateRaster.mDefault);
+    } else {
+        mRaster.set(pr);
+    }
+}
+
+void Context::setProgramVertex(ProgramVertex *pv) {
+    rsAssert(mIsGraphicsContext);
+    if (pv == NULL) {
+        mVertex.set(mStateVertex.mDefault);
+    } else {
+        mVertex.set(pv);
+    }
+}
+
+void Context::setFont(Font *f) {
+    rsAssert(mIsGraphicsContext);
+    if (f == NULL) {
+        mFont.set(mStateFont.mDefault);
+    } else {
+        mFont.set(f);
+    }
+}
+#endif
 
 void Context::assignName(ObjectBase *obj, const char *name, uint32_t len) {
     rsAssert(!obj->getName());
@@ -396,8 +757,10 @@ void rsi_ContextFinish(Context *rsc) {
 }
 
 void rsi_ContextBindRootScript(Context *rsc, RsScript vs) {
+#ifndef RS_COMPATIBILITY_LIB
     Script *s = static_cast<Script *>(vs);
-    //rsc->setRootScript(s);
+    rsc->setRootScript(s);
+#endif
 }
 
 void rsi_ContextBindSampler(Context *rsc, uint32_t slot, RsSampler vs) {
@@ -411,6 +774,33 @@ void rsi_ContextBindSampler(Context *rsc, uint32_t slot, RsSampler vs) {
     s->bindToContext(&rsc->mStateSampler, slot);
 }
 
+#ifndef RS_COMPATIBILITY_LIB
+void rsi_ContextBindProgramStore(Context *rsc, RsProgramStore vpfs) {
+    ProgramStore *pfs = static_cast<ProgramStore *>(vpfs);
+    rsc->setProgramStore(pfs);
+}
+
+void rsi_ContextBindProgramFragment(Context *rsc, RsProgramFragment vpf) {
+    ProgramFragment *pf = static_cast<ProgramFragment *>(vpf);
+    rsc->setProgramFragment(pf);
+}
+
+void rsi_ContextBindProgramRaster(Context *rsc, RsProgramRaster vpr) {
+    ProgramRaster *pr = static_cast<ProgramRaster *>(vpr);
+    rsc->setProgramRaster(pr);
+}
+
+void rsi_ContextBindProgramVertex(Context *rsc, RsProgramVertex vpv) {
+    ProgramVertex *pv = static_cast<ProgramVertex *>(vpv);
+    rsc->setProgramVertex(pv);
+}
+
+void rsi_ContextBindFont(Context *rsc, RsFont vfont) {
+    Font *font = static_cast<Font *>(vfont);
+    rsc->setFont(font);
+}
+#endif
+
 void rsi_AssignName(Context *rsc, RsObjectBase obj, const char *name, size_t name_length) {
     ObjectBase *ob = static_cast<ObjectBase *>(obj);
     rsc->assignName(ob, name, name_length);
@@ -421,6 +811,20 @@ void rsi_ObjDestroy(Context *rsc, void *optr) {
     rsc->removeName(ob);
     ob->decUserRef();
 }
+
+#ifndef RS_COMPATIBILITY_LIB
+void rsi_ContextPause(Context *rsc) {
+    rsc->pause();
+}
+
+void rsi_ContextResume(Context *rsc) {
+    rsc->resume();
+}
+
+void rsi_ContextSetSurface(Context *rsc, uint32_t w, uint32_t h, RsNativeWindow sur) {
+    rsc->setSurface(w, h, sur);
+}
+#endif
 
 void rsi_ContextSetPriority(Context *rsc, int32_t p) {
     rsc->setPriority(p);
@@ -469,14 +873,36 @@ void rsi_ContextDeinitToClient(Context *rsc) {
 
 RsContext rsContextCreate(RsDevice vdev, uint32_t version,
                           uint32_t sdkVersion) {
+    return rsContextCreate(vdev, version, sdkVersion, false, false);
+}
+
+RsContext rsContextCreate(RsDevice vdev, uint32_t version,
+                          uint32_t sdkVersion, bool forceCpu,
+                          bool synchronous) {
     ALOGV("rsContextCreate dev=%p", vdev);
     Device * dev = static_cast<Device *>(vdev);
-    Context *rsc = Context::createContext(dev, NULL);
+    Context *rsc = Context::createContext(dev, NULL, forceCpu, synchronous);
     if (rsc) {
         rsc->setTargetSdkVersion(sdkVersion);
     }
     return rsc;
 }
+
+#ifndef RS_COMPATIBILITY_LIB
+RsContext rsContextCreateGL(RsDevice vdev, uint32_t version,
+                            uint32_t sdkVersion, RsSurfaceConfig sc,
+                            uint32_t dpi) {
+    ALOGV("rsContextCreateGL dev=%p", vdev);
+    Device * dev = static_cast<Device *>(vdev);
+    Context *rsc = Context::createContext(dev, &sc);
+    if (rsc) {
+        rsc->setTargetSdkVersion(sdkVersion);
+        rsc->setDPI(dpi);
+    }
+    ALOGV("%p rsContextCreateGL ret", rsc);
+    return rsc;
+}
+#endif
 
 // Only to be called at a3d load time, before object is visible to user
 // not thread safe

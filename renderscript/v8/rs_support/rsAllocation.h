@@ -23,8 +23,11 @@ struct ANativeWindow;
 
 // ---------------------------------------------------------------------------
 namespace android {
+class SurfaceTexture;
 
 namespace renderscript {
+
+class Program;
 
 /*****************************************************************************
  * CAUTION
@@ -58,18 +61,27 @@ public:
             bool hasMipmaps;
             bool hasFaces;
             bool hasReferences;
-            void * unused_01;
+            void * userProvidedPtr;
             int32_t surfaceTextureID;
-            void *wndSurface;
-            void *surfaceTexture;
+            ANativeWindow *wndSurface;
+            SurfaceTexture *surfaceTexture;
             RsDataType eType;
         };
         State state;
 
         struct DrvState {
-            mutable void * mallocPtrLOD0;
-            mutable uint32_t strideLOD0;
-        } drvState;
+            struct LodState {
+                void * mallocPtr;
+                size_t stride;
+                uint32_t dimX;
+                uint32_t dimY;
+                uint32_t dimZ;
+            } lod[android::renderscript::Allocation::MAX_LOD];
+            size_t faceOffset;
+            uint32_t lodCount;
+            uint32_t faceCount;
+        };
+        mutable DrvState drvState;
 
     };
     Hal mHal;
@@ -91,15 +103,20 @@ public:
 
     void data(Context *rsc, uint32_t xoff, uint32_t lod, uint32_t count, const void *data, size_t sizeBytes);
     void data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
-                 uint32_t w, uint32_t h, const void *data, size_t sizeBytes);
+              uint32_t w, uint32_t h, const void *data, size_t sizeBytes);
+    void data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
+              uint32_t w, uint32_t h, const void *data, size_t sizeBytes, size_t stride);
     void data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t zoff, uint32_t lod, RsAllocationCubemapFace face,
-                 uint32_t w, uint32_t h, uint32_t d, const void *data, size_t sizeBytes);
+              uint32_t w, uint32_t h, uint32_t d, const void *data, size_t sizeBytes);
 
     void read(Context *rsc, uint32_t xoff, uint32_t lod, uint32_t count, void *data, size_t sizeBytes);
+    void readUnchecked(Context *rsc, uint32_t xoff, uint32_t lod, uint32_t count, void *data, size_t sizeBytes);
     void read(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
-                 uint32_t w, uint32_t h, void *data, size_t sizeBytes);
+              uint32_t w, uint32_t h, void *data, size_t sizeBytes);
+    void read(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
+              uint32_t w, uint32_t h, void *data, size_t sizeBytes, size_t stride);
     void read(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t zoff, uint32_t lod, RsAllocationCubemapFace face,
-                 uint32_t w, uint32_t h, uint32_t d, void *data, size_t sizeBytes);
+              uint32_t w, uint32_t h, uint32_t d, void *data, size_t sizeBytes);
 
     void elementData(Context *rsc, uint32_t x,
                      const void *data, uint32_t elementOff, size_t sizeBytes);
@@ -135,6 +152,12 @@ public:
     bool getHasGraphicsMipmaps() const {
         return mHal.state.mipmapControl != RS_ALLOCATION_MIPMAP_NONE;
     }
+
+    int32_t getSurfaceTextureID(const Context *rsc);
+    void setSurfaceTexture(const Context *rsc, SurfaceTexture *st);
+    void setSurface(const Context *rsc, RsNativeWindow sur);
+    void ioSend(const Context *rsc);
+    void ioReceive(const Context *rsc);
 
 protected:
     Vector<const Program *> mToDirtyList;

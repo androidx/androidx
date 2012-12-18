@@ -19,6 +19,15 @@
 #include "utils/Timers.h"
 #include "utils/StopWatch.h"
 
+#ifndef RS_COMPATIBILITY_LIB
+#ifndef ANDROID_RS_SERIALIZE
+#include <bcinfo/BitcodeTranslator.h>
+#include <bcinfo/BitcodeWrapper.h>
+#endif
+#endif
+
+#include <sys/stat.h>
+
 using namespace android;
 using namespace android::renderscript;
 
@@ -28,14 +37,66 @@ using namespace android::renderscript;
     ScriptC * sc = (ScriptC *) tls->mScript
 
 ScriptC::ScriptC(Context *rsc) : Script(rsc) {
+#ifndef RS_COMPATIBILITY_LIB
+#ifndef ANDROID_RS_SERIALIZE
+    BT = NULL;
+#endif
+#endif
 }
 
 ScriptC::~ScriptC() {
+#ifndef RS_COMPATIBILITY_LIB
+#ifndef ANDROID_RS_SERIALIZE
+    if (BT) {
+        delete BT;
+        BT = NULL;
+    }
+#endif
+#endif
     if (mInitialized) {
         mRSC->mHal.funcs.script.invokeFreeChildren(mRSC, this);
         mRSC->mHal.funcs.script.destroy(mRSC, this);
     }
 }
+
+#ifndef RS_COMPATIBILITY_LIB
+bool ScriptC::createCacheDir(const char *cacheDir) {
+    String8 cacheDirString, currentDir;
+    struct stat statBuf;
+    int statReturn = stat(cacheDir, &statBuf);
+    if (!statReturn) {
+        return true;
+    }
+
+    // String8 path functions strip leading /'s
+    // insert if necessary
+    if (cacheDir[0] == '/') {
+        currentDir += "/";
+    }
+
+    cacheDirString.setPathName(cacheDir);
+
+    while (cacheDirString.length()) {
+        currentDir += (cacheDirString.walkPath(&cacheDirString));
+        statReturn = stat(currentDir.string(), &statBuf);
+        if (statReturn) {
+            if (errno == ENOENT) {
+                if (mkdir(currentDir.string(), S_IRUSR | S_IWUSR | S_IXUSR)) {
+                    ALOGE("Couldn't create cache directory: %s",
+                          currentDir.string());
+                    ALOGE("Error: %s", strerror(errno));
+                    return false;
+                }
+            } else {
+                ALOGE("Stat error: %s", strerror(errno));
+                return false;
+            }
+        }
+        currentDir += "/";
+    }
+    return true;
+}
+#endif
 
 void ScriptC::setupScript(Context *rsc) {
     mEnviroment.mStartTimeMillis
@@ -53,6 +114,20 @@ void ScriptC::setupScript(Context *rsc) {
 }
 
 void ScriptC::setupGLState(Context *rsc) {
+#ifndef RS_COMPATIBILITY_LIB
+    if (mEnviroment.mFragmentStore.get()) {
+        rsc->setProgramStore(mEnviroment.mFragmentStore.get());
+    }
+    if (mEnviroment.mFragment.get()) {
+        rsc->setProgramFragment(mEnviroment.mFragment.get());
+    }
+    if (mEnviroment.mVertex.get()) {
+        rsc->setProgramVertex(mEnviroment.mVertex.get());
+    }
+    if (mEnviroment.mRaster.get()) {
+        rsc->setProgramRaster(mEnviroment.mRaster.get());
+    }
+#endif
 }
 
 uint32_t ScriptC::run(Context *rsc) {
@@ -152,12 +227,63 @@ bool ScriptC::runCompiler(Context *rsc,
                           size_t bitcodeLen) {
 
     //ALOGE("runCompiler %p %p %p %p %p %i", rsc, this, resName, cacheDir, bitcode, bitcodeLen);
+#ifndef RS_COMPATIBILITY_LIB
+#ifndef ANDROID_RS_SERIALIZE
+    uint32_t sdkVersion = 0;
+    bcinfo::BitcodeWrapper bcWrapper((const char *)bitcode, bitcodeLen);
+    if (!bcWrapper.unwrap()) {
+        ALOGE("Bitcode is not in proper container format (raw or wrapper)");
+        return false;
+    }
+
+    if (bcWrapper.getBCFileType() == bcinfo::BC_WRAPPER) {
+        sdkVersion = bcWrapper.getTargetAPI();
+    }
+
+    if (sdkVersion == 0) {
+        // This signals that we didn't have a wrapper containing information
+        // about the bitcode.
+        sdkVersion = rsc->getTargetSdkVersion();
+    }
+
+    if (BT) {
+        delete BT;
+    }
+    BT = new bcinfo::BitcodeTranslator((const char *)bitcode, bitcodeLen,
+                                       sdkVersion);
+    if (!BT->translate()) {
+        ALOGE("Failed to translate bitcode from version: %u", sdkVersion);
+        delete BT;
+        BT = NULL;
+        return false;
+    }
+    bitcode = (const uint8_t *) BT->getTranslatedBitcode();
+    bitcodeLen = BT->getTranslatedBitcodeSize();
+#endif
+
+    if (!cacheDir) {
+        // MUST BE FIXED BEFORE ANYTHING USING C++ API IS RELEASED
+        cacheDir = getenv("EXTERNAL_STORAGE");
+        ALOGV("Cache dir changed to %s", cacheDir);
+    }
+
+    // ensure that cache dir exists
+    if (cacheDir && !createCacheDir(cacheDir)) {
+      return false;
+    }
+#endif
 
     if (!rsc->mHal.funcs.script.init(rsc, this, resName, cacheDir, bitcode, bitcodeLen, 0)) {
         return false;
     }
 
     mInitialized = true;
+#ifndef RS_COMPATIBILITY_LIB
+    mEnviroment.mFragment.set(rsc->getDefaultProgramFragment());
+    mEnviroment.mVertex.set(rsc->getDefaultProgramVertex());
+    mEnviroment.mFragmentStore.set(rsc->getDefaultProgramStore());
+    mEnviroment.mRaster.set(rsc->getDefaultProgramRaster());
+#endif
 
     rsc->mHal.funcs.script.invokeInit(rsc, this);
 
@@ -172,6 +298,57 @@ bool ScriptC::runCompiler(Context *rsc,
             ALOGE("Invalid version pragma value: %s\n", value);
             return false;
         }
+
+#ifndef RS_COMPATIBILITY_LIB
+        if (!strcmp(key, "stateVertex")) {
+            if (!strcmp(value, "default")) {
+                continue;
+            }
+            if (!strcmp(value, "parent")) {
+                mEnviroment.mVertex.clear();
+                continue;
+            }
+            ALOGE("Unrecognized value %s passed to stateVertex", value);
+            return false;
+        }
+
+        if (!strcmp(key, "stateRaster")) {
+            if (!strcmp(value, "default")) {
+                continue;
+            }
+            if (!strcmp(value, "parent")) {
+                mEnviroment.mRaster.clear();
+                continue;
+            }
+            ALOGE("Unrecognized value %s passed to stateRaster", value);
+            return false;
+        }
+
+        if (!strcmp(key, "stateFragment")) {
+            if (!strcmp(value, "default")) {
+                continue;
+            }
+            if (!strcmp(value, "parent")) {
+                mEnviroment.mFragment.clear();
+                continue;
+            }
+            ALOGE("Unrecognized value %s passed to stateFragment", value);
+            return false;
+        }
+
+        if (!strcmp(key, "stateStore")) {
+            if (!strcmp(value, "default")) {
+                continue;
+            }
+            if (!strcmp(value, "parent")) {
+                mEnviroment.mFragmentStore.clear();
+                continue;
+            }
+            ALOGE("Unrecognized value %s passed to stateStore", value);
+            return false;
+        }
+#endif
+
     }
 
     mSlots = new ObjectBaseRef<Allocation>[mHal.info.exportedVariableCount];

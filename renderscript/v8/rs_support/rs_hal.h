@@ -58,6 +58,7 @@ typedef struct {
     uint32_t lod;
     RsAllocationCubemapFace face;
     uint32_t ar[16];
+    uint32_t lid;
 
     uint32_t dimX;
     uint32_t dimY;
@@ -156,7 +157,7 @@ typedef struct {
         void (*data2D)(const Context *rsc, const Allocation *alloc,
                        uint32_t xoff, uint32_t yoff, uint32_t lod,
                        RsAllocationCubemapFace face, uint32_t w, uint32_t h,
-                       const void *data, size_t sizeBytes);
+                       const void *data, size_t sizeBytes, size_t stride);
         void (*data3D)(const Context *rsc, const Allocation *alloc,
                        uint32_t xoff, uint32_t yoff, uint32_t zoff,
                        uint32_t lod, RsAllocationCubemapFace face,
@@ -168,7 +169,7 @@ typedef struct {
         void (*read2D)(const Context *rsc, const Allocation *alloc,
                        uint32_t xoff, uint32_t yoff, uint32_t lod,
                        RsAllocationCubemapFace face, uint32_t w, uint32_t h,
-                       void *data, size_t sizeBytes);
+                       void *data, size_t sizeBytes, size_t stride);
         void (*read3D)(const Context *rsc, const Allocation *alloc,
                        uint32_t xoff, uint32_t yoff, uint32_t zoff,
                        uint32_t lod, RsAllocationCubemapFace face,
@@ -264,7 +265,7 @@ typedef struct {
     } framebuffer;
 
     struct {
-        bool (*init)(const Context *rsc, const ScriptGroup *sg);
+        bool (*init)(const Context *rsc, ScriptGroup *sg);
         void (*setInput)(const Context *rsc, const ScriptGroup *sg,
                          const ScriptKernelID *kid, Allocation *);
         void (*setOutput)(const Context *rsc, const ScriptGroup *sg,

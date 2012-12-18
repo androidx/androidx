@@ -103,6 +103,7 @@ public:
     RsDataKind getKind() const {return mComponent.getKind();}
     uint32_t getBits() const {return mBits;}
     uint32_t getBitsUnpadded() const {return mBitsUnpadded;}
+    uint32_t getVectorSize() const {return mComponent.getVectorSize();}
 
     void dumpLOGV(const char *prefix) const;
     virtual void serialize(Context *rsc, OStream *stream) const;

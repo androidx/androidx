@@ -79,11 +79,11 @@ static float SC_cosf_fast(float x) {
 // Time routines
 //////////////////////////////////////////////////////////////////////////////
 
-time_t rsrTime(Context *rsc, Script *sc, time_t *timer) {
+time_t rsrTime(Context *rsc, time_t *timer) {
     return time(timer);
 }
 
-tm* rsrLocalTime(Context *rsc, Script *sc, tm *local, time_t *timer) {
+tm* rsrLocalTime(Context *rsc, tm *local, time_t *timer) {
     if (!local) {
       return NULL;
     }
@@ -97,15 +97,15 @@ tm* rsrLocalTime(Context *rsc, Script *sc, tm *local, time_t *timer) {
     return local;
 }
 
-int64_t rsrUptimeMillis(Context *rsc, Script *sc) {
+int64_t rsrUptimeMillis(Context *rsc) {
     return nanoseconds_to_milliseconds(systemTime(SYSTEM_TIME_MONOTONIC));
 }
 
-int64_t rsrUptimeNanos(Context *rsc, Script *sc) {
+int64_t rsrUptimeNanos(Context *rsc) {
     return systemTime(SYSTEM_TIME_MONOTONIC);
 }
 
-float rsrGetDt(Context *rsc, Script *sc) {
+float rsrGetDt(Context *rsc, const Script *sc) {
     int64_t l = sc->mEnviroment.mLastDtTime;
     sc->mEnviroment.mLastDtTime = systemTime(SYSTEM_TIME_MONOTONIC);
     return ((float)(sc->mEnviroment.mLastDtTime - l)) / 1.0e9;
@@ -115,7 +115,7 @@ float rsrGetDt(Context *rsc, Script *sc) {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void rsrSetObject(const Context *rsc, const Script *sc, ObjectBase **dst, ObjectBase * src) {
+void rsrSetObject(const Context *rsc, ObjectBase **dst, ObjectBase * src) {
     //ALOGE("rsiSetObject  %p,%p  %p", vdst, *vdst, vsrc);
     if (src) {
         CHECK_OBJ(src);
@@ -128,7 +128,7 @@ void rsrSetObject(const Context *rsc, const Script *sc, ObjectBase **dst, Object
     *dst = src;
 }
 
-void rsrClearObject(const Context *rsc, const Script *sc, ObjectBase **dst) {
+void rsrClearObject(const Context *rsc, ObjectBase **dst) {
     //ALOGE("rsiClearObject  %p,%p", vdst, *vdst);
     if (dst[0]) {
         CHECK_OBJ(dst[0]);
@@ -137,23 +137,23 @@ void rsrClearObject(const Context *rsc, const Script *sc, ObjectBase **dst) {
     *dst = NULL;
 }
 
-bool rsrIsObject(const Context *rsc, const Script *sc, const ObjectBase *src) {
+bool rsrIsObject(const Context *rsc, const ObjectBase *src) {
     return src != NULL;
 }
 
 
-uint32_t rsrToClient(Context *rsc, Script *sc, int cmdID, void *data, int len) {
+uint32_t rsrToClient(Context *rsc, int cmdID, void *data, int len) {
     //ALOGE("SC_toClient %i %i %i", cmdID, len);
     return rsc->sendMessageToClient(data, RS_MESSAGE_TO_CLIENT_USER, cmdID, len, false);
 }
 
-uint32_t rsrToClientBlocking(Context *rsc, Script *sc, int cmdID, void *data, int len) {
+uint32_t rsrToClientBlocking(Context *rsc, int cmdID, void *data, int len) {
     //ALOGE("SC_toClientBlocking %i %i", cmdID, len);
     return rsc->sendMessageToClient(data, RS_MESSAGE_TO_CLIENT_USER, cmdID, len, true);
 }
 
 
-void rsrForEach(Context *rsc, Script *sc,
+void rsrForEach(Context *rsc,
                 Script *target,
                 Allocation *in, Allocation *out,
                 const void *usr, uint32_t usrBytes,
@@ -161,7 +161,7 @@ void rsrForEach(Context *rsc, Script *sc,
     target->runForEach(rsc, /* root slot */ 0, in, out, usr, usrBytes, call);
 }
 
-void rsrAllocationSyncAll(Context *rsc, Script *sc, Allocation *a, RsAllocationUsageType usage) {
+void rsrAllocationSyncAll(Context *rsc, Allocation *a, RsAllocationUsageType usage) {
     a->syncAll(rsc, usage);
 }
 

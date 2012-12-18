@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2008-2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,6 +191,10 @@ public class Allocation extends BaseObj {
         if (mCurrentDimZ > 1) {
             mCurrentCount *= mCurrentDimZ;
         }
+    }
+
+    private void setBitmap(Bitmap b) {
+        mBitmap = b;
     }
 
     Allocation(int id, RenderScript rs, Type t, int usage) {
@@ -458,6 +462,21 @@ public class Allocation extends BaseObj {
         validateBitmapFormat(b);
         mRS.nAllocationCopyFromBitmap(getID(mRS), b);
     }
+
+    /**
+     * Copy an allocation from an allocation.  The types of both allocations
+     * must be identical.
+     *
+     * @param a the source allocation
+     */
+    public void copyFrom(Allocation a) {
+        mRS.validate();
+        if (!mType.equals(a.getType())) {
+            throw new RSIllegalArgumentException("Types of allocations must match.");
+        }
+        copy2DRangeFrom(0, 0, mCurrentDimX, mCurrentDimY, a, 0, 0);
+    }
+
 
     /**
      * This is only intended to be used by auto-generate code reflected from the
@@ -840,7 +859,8 @@ public class Allocation extends BaseObj {
      *
      * @param dimX The new size of the allocation.
      */
-    /*public synchronized void resize(int dimX) {
+    /*
+    public synchronized void resize(int dimX) {
         if ((mType.getY() > 0)|| (mType.getZ() > 0) || mType.hasFaces() || mType.hasMipmaps()) {
             throw new RSInvalidStateException("Resize only support for 1D allocations at this time.");
         }
@@ -851,7 +871,8 @@ public class Allocation extends BaseObj {
         mType = new Type(typeID, mRS);
         mType.updateFromNative();
         updateCacheInfo(mType);
-    }*/
+    }
+    */
 
     /**
      * Resize a 2D allocation.  The contents of the allocation are
@@ -863,11 +884,11 @@ public class Allocation extends BaseObj {
      *
      * A new type will be created with the new dimension.
      *
-     * @hide
      * @param dimX The new size of the allocation.
      * @param dimY The new size of the allocation.
      */
-    /*public void resize(int dimX, int dimY) {
+    /*
+    public synchronized void resize(int dimX, int dimY) {
         if ((mType.getZ() > 0) || mType.hasFaces() || mType.hasMipmaps()) {
             throw new RSInvalidStateException(
                 "Resize only support for 2D allocations at this time.");
@@ -883,7 +904,8 @@ public class Allocation extends BaseObj {
         mType = new Type(typeID, mRS);
         mType.updateFromNative();
         updateCacheInfo(mType);
-    }*/
+    }
+    */
 
 
 
