@@ -20,7 +20,7 @@
 #include "rs_hal.h"
 
 #include "system/window.h"
-#include "gui/SurfaceTexture.h"
+#include "gui/GLConsumer.h"
 
 using namespace android;
 using namespace android::renderscript;
@@ -472,7 +472,7 @@ int32_t Allocation::getSurfaceTextureID(const Context *rsc) {
     return id;
 }
 
-void Allocation::setSurfaceTexture(const Context *rsc, SurfaceTexture *st) {
+void Allocation::setSurfaceTexture(const Context *rsc, GLConsumer *st) {
     if(st != mHal.state.surfaceTexture) {
         if(mHal.state.surfaceTexture != NULL) {
             mHal.state.surfaceTexture->decStrong(NULL);
@@ -671,7 +671,7 @@ int32_t rsi_AllocationGetSurfaceTextureID(Context *rsc, RsAllocation valloc) {
 
 void rsi_AllocationGetSurfaceTextureID2(Context *rsc, RsAllocation valloc, void *vst, size_t len) {
     Allocation *alloc = static_cast<Allocation *>(valloc);
-    alloc->setSurfaceTexture(rsc, static_cast<SurfaceTexture *>(vst));
+    alloc->setSurfaceTexture(rsc, static_cast<GLConsumer *>(vst));
 }
 
 void rsi_AllocationSetSurface(Context *rsc, RsAllocation valloc, RsNativeWindow sur) {
