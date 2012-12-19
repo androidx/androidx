@@ -73,6 +73,7 @@ public class RenderScript {
     static {
         sInitialized = false;
         try {
+            System.loadLibrary("RSSupport");
             System.loadLibrary("rsjni");
             _nInit();
             sInitialized = true;
