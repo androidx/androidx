@@ -29,6 +29,10 @@
 using namespace android;
 using namespace android::renderscript;
 
+// Handle missing Gingerbread functions like tgammaf.
+static float SC_tgammaf(float x) {
+  return tgamma(x);
+}
 
 static float SC_exp10(float v) {
     return pow(10.f, v);
@@ -414,7 +418,7 @@ static RsdCpuReference::CpuSymbol gSyms[] = {
     { "_Z4sqrtf", (void *)&sqrtf, true },
     { "_Z3tanf", (void *)&tanf, true },
     { "_Z4tanhf", (void *)&tanhf, true },
-    { "_Z6tgammaf", (void *)&tgammaf, true },
+    { "_Z6tgammaf", (void *)&SC_tgammaf, true },
     { "_Z5truncf", (void *)&truncf, true },
 
     { "_Z3absi", (void *)&SC_abs_i32, true },
