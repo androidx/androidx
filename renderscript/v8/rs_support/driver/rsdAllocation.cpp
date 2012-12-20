@@ -299,8 +299,8 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
     } else if (alloc->mHal.state.userProvidedPtr != NULL) {
         // user-provided allocation
         // limitations: no faces, no LOD, USAGE_SCRIPT only
-        if (alloc->mHal.state.usageFlags != RS_ALLOCATION_USAGE_SCRIPT) {
-            ALOGE("Can't use user-allocated buffers if usage is not USAGE_SCRIPT");
+        if (alloc->mHal.state.usageFlags != (RS_ALLOCATION_USAGE_SCRIPT | RS_ALLOCATION_USAGE_SHARED)) {
+            ALOGE("Can't use user-allocated buffers if usage is not USAGE_SCRIPT and USAGE_SHARED");
             return false;
         }
         if (alloc->getType()->getDimLOD() || alloc->getType()->getDimFaces()) {
@@ -379,7 +379,7 @@ void rsdAllocationDestroy(const Context *rsc, Allocation *alloc) {
 
     if (alloc->mHal.drvState.lod[0].mallocPtr) {
         // don't free user-allocated ptrs
-        if (!alloc->mHal.state.userProvidedPtr) {
+        if (!(alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_SHARED)) {
             free(alloc->mHal.drvState.lod[0].mallocPtr);
         }
         alloc->mHal.drvState.lod[0].mallocPtr = NULL;
@@ -398,6 +398,11 @@ void rsdAllocationDestroy(const Context *rsc, Allocation *alloc) {
 
 void rsdAllocationResize(const Context *rsc, const Allocation *alloc,
                          const Type *newType, bool zeroNew) {
+    // can't resize Allocations with user-allocated buffers
+    if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_SHARED) {
+        ALOGE("Resize cannot be called on a USAGE_SHARED allocation");
+        return;
+    }
     void * oldPtr = alloc->mHal.drvState.lod[0].mallocPtr;
     // Calculate the object size
     size_t s = AllocationBuildPointerTable(rsc, alloc, newType, NULL);
