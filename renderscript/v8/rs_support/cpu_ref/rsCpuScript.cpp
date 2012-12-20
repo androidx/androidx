@@ -87,6 +87,10 @@ RsdCpuScriptImpl::RsdCpuScriptImpl(RsdCpuReferenceImpl *ctx, const Script *s) {
     mInvokeFunctions = NULL;
     mForEachFunctions = NULL;
 
+    mFieldAddress = NULL;
+    mFieldIsObject = NULL;
+    mForEachSignatures = NULL;
+
     mBoundAllocs = NULL;
     mIntrinsicData = NULL;
     mIsThreadable = true;
