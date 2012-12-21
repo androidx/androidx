@@ -31,7 +31,19 @@ using namespace android::renderscript;
 
 // Handle missing Gingerbread functions like tgammaf.
 static float SC_tgammaf(float x) {
-  return tgamma(x);
+    return tgamma(x);
+}
+
+float __attribute__((overloadable)) pow(float x, float y) {
+    return powf(x, y);
+}
+
+float __attribute__((overloadable)) atan(float x) {
+    return atanf(x);
+}
+
+float __attribute__((overloadable)) exp(float x) {
+    return expf(x);
 }
 
 static float SC_exp10(float v) {
@@ -117,6 +129,11 @@ static float SC_sign_f32(float value) {
 static void SC_MatrixLoadIdentity_4x4(Matrix4x4 *m) {
     m->loadIdentity();
 }
+
+void rsMatrixLoadIdentity(rs_matrix4x4 *m) {
+    SC_MatrixLoadIdentity_4x4((Matrix4x4 *) m);
+}
+
 static void SC_MatrixLoadIdentity_3x3(Matrix3x3 *m) {
     m->loadIdentity();
 }
@@ -231,6 +248,10 @@ static float SC_randf2(float min, float max) {
 
 static int SC_randi(int max) {
     return (int)SC_randf(max);
+}
+
+int __attribute__((overloadable)) rsRand(int max) {
+    return SC_randi(max);
 }
 
 static int SC_randi2(int min, int max) {
