@@ -140,7 +140,9 @@ public class NotificationCompat {
                     jbBuilder.addBigPictureStyle(style.mBigContentTitle,
                             style.mSummaryTextSet,
                             style.mSummaryText,
-                            style.mPicture);
+                            style.mPicture,
+                            style.mBigLargeIcon,
+                            style.mBigLargeIconSet);
                 }
             }
             return(jbBuilder.build());
@@ -648,6 +650,8 @@ public class NotificationCompat {
      */
     public static class BigPictureStyle extends Style {
         Bitmap mPicture;
+        Bitmap mBigLargeIcon;
+        boolean mBigLargeIconSet;
 
         public BigPictureStyle() {
         }
@@ -679,6 +683,15 @@ public class NotificationCompat {
          */
         public BigPictureStyle bigPicture(Bitmap b) {
             mPicture = b;
+            return this;
+        }
+
+        /**
+         * Override the large icon when the big notification is shown.
+         */
+        public BigPictureStyle bigLargeIcon(Bitmap b) {
+            mBigLargeIcon = b;
+            mBigLargeIconSet = true;
             return this;
         }
     }
