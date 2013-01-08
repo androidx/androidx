@@ -111,12 +111,26 @@ public class SlidingPaneLayout extends ViewGroup {
     private boolean mCanSlide;
 
     /**
-     * The width of the fixed panel if mCanSlide is true.
-     * This is also the distance that the non-fixed panel may slide open.
+     * The child view that can slide, if any.
      */
-    private int mFixedPanelWidth;
+    private View mSlideableView;
 
-    private View mDraggingPane;
+    /**
+     * How far the panel is offset from its closed position.
+     * range [0, 1] where 0 = closed, 1 = open.
+     */
+    private float mSlideOffset;
+
+    /**
+     * How far the non-sliding panel is parallaxed from its usual position when open.
+     * range [0, 1]
+     */
+    private float mParallaxOffset;
+
+    /**
+     * How far in pixels the slideable panel may move.
+     */
+    private int mSlideRange;
 
     /**
      * A panel view is locked into internal scrolling or another condition that
@@ -284,8 +298,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
     void dispatchOnPanelSlide(View panel) {
         if (mPanelSlideListener != null) {
-            mPanelSlideListener.onPanelSlide(panel,
-                    ((LayoutParams) panel.getLayoutParams()).slideOffset);
+            mPanelSlideListener.onPanelSlide(panel, mSlideOffset);
         }
     }
 
@@ -326,13 +339,13 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         float weightSum = 0;
-        boolean canSlide = false;
         boolean foundDraggingPane = false;
+        boolean canSlide = false;
         int widthRemaining = widthSize - getPaddingLeft() - getPaddingRight();
         final int childCount = getChildCount();
 
         if (childCount > 2) {
-            Log.e(TAG, "onMeasure: More than two panes are not currently supported.");
+            Log.e(TAG, "onMeasure: More than two child views are not supported.");
         }
 
         // First pass. Measure based on child LayoutParams width/height.
@@ -341,8 +354,9 @@ public class SlidingPaneLayout extends ViewGroup {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
-            if (child == mDraggingPane) {
-                foundDraggingPane = true;
+            if (child.getVisibility() == GONE) {
+                lp.dimWhenOffset = false;
+                continue;
             }
 
             if (lp.weight > 0) {
@@ -383,7 +397,10 @@ public class SlidingPaneLayout extends ViewGroup {
             }
 
             widthRemaining -= childWidth;
-            canSlide |= lp.canSlide = widthRemaining < 0;
+            canSlide |= lp.slideable = widthRemaining < 0;
+            if (lp.slideable) {
+                mSlideableView = child;
+            }
         }
 
         // Resolve weight and make sure non-sliding panels are smaller than the full screen.
@@ -392,11 +409,16 @@ public class SlidingPaneLayout extends ViewGroup {
 
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
+
+                if (child.getVisibility() == GONE) {
+                    continue;
+                }
+
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
                 final boolean skippedFirstPass = lp.width == 0 && lp.weight > 0;
                 final int measuredWidth = skippedFirstPass ? 0 : child.getMeasuredWidth();
-                if (canSlide && !lp.canSlide) {
+                if (canSlide && child != mSlideableView) {
                     if (lp.width < 0 && (measuredWidth > fixedPanelWidthLimit || lp.weight > 0)) {
                         // Fixed panels in a sliding configuration should
                         // be clamped to the fixed panel limit.
@@ -421,9 +443,6 @@ public class SlidingPaneLayout extends ViewGroup {
                         final int childWidthSpec = MeasureSpec.makeMeasureSpec(
                                 fixedPanelWidthLimit, MeasureSpec.EXACTLY);
                         child.measure(childWidthSpec, childHeightSpec);
-                        mFixedPanelWidth = fixedPanelWidthLimit;
-                    } else {
-                        mFixedPanelWidth = measuredWidth;
                     }
                 } else if (lp.weight > 0) {
                     int childHeightSpec;
@@ -467,9 +486,8 @@ public class SlidingPaneLayout extends ViewGroup {
 
         setMeasuredDimension(widthSize, layoutHeight);
         mCanSlide = canSlide;
-        if (mDraggingPane != null && (!canSlide || !foundDraggingPane)) {
-            // Cancel any drags in progress.
-            mDraggingPane = null;
+        if (mScrollState != SCROLL_STATE_IDLE && (!canSlide || !foundDraggingPane)) {
+            // Cancel scrolling in progress, it's no longer relevant.
             setScrollState(SCROLL_STATE_IDLE);
         }
     }
@@ -489,26 +507,31 @@ public class SlidingPaneLayout extends ViewGroup {
 
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
+
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
+
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
             final int childWidth = child.getMeasuredWidth();
             int offset = 0;
 
-            if (lp.canSlide) {
+            if (lp.slideable) {
                 final int margin = lp.leftMargin + lp.rightMargin;
                 final int range = Math.min(nextXStart,
                         width - paddingRight - mOverhangSize) - xStart - margin;
-                lp.range = range;
+                mSlideRange = range;
                 lp.dimWhenOffset = width - paddingRight - (xStart + range) < childWidth / 2;
-                xStart += (int) (range * lp.slideOffset);
-            } else if (mParallaxBy != 0) {
-                offset = (int) ((1 - lp.slideOffset) * mParallaxBy);
+                xStart += (int) (range * mSlideOffset) + lp.leftMargin;
+            } else if (mCanSlide && mParallaxBy != 0) {
+                offset = (int) ((1 - mSlideOffset) * mParallaxBy);
                 xStart = nextXStart;
             } else {
                 xStart = nextXStart;
             }
 
-            final int childLeft = Math.max(xStart, lp.leftMargin) - offset;
+            final int childLeft = xStart - offset;
             final int childRight = childLeft + childWidth;
             final int childTop = paddingTop;
             final int childBottom = childTop + child.getMeasuredHeight();
@@ -520,14 +543,13 @@ public class SlidingPaneLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (!mCanSlide) {
+        final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
+
+        if (!mCanSlide || (mIsUnableToDrag && action != MotionEvent.ACTION_DOWN)) {
             return super.onInterceptTouchEvent(ev);
         }
 
-        final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
-
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            mDraggingPane = null;
             mActivePointerId = INVALID_POINTER;
             if (mVelocityTracker != null) {
                 mVelocityTracker.recycle();
@@ -560,16 +582,14 @@ public class SlidingPaneLayout extends ViewGroup {
                     mIsUnableToDrag = true;
                     return false;
                 }
-                if (xDiff > mTouchSlop && xDiff > yDiff) {
-                    if ((mDraggingPane = getChildUnderPoint(x, y)) != null) {
-                        mLastMotionX = dx > 0 ? mInitialMotionX + mTouchSlop :
-                                mInitialMotionX - mTouchSlop;
-                        setScrollState(SCROLL_STATE_DRAGGING);
-                    }
+                if (xDiff > mTouchSlop && xDiff > yDiff && isSlideablePaneUnder(x, y)) {
+                    mLastMotionX = dx > 0 ? mInitialMotionX + mTouchSlop :
+                            mInitialMotionX - mTouchSlop;
+                    setScrollState(SCROLL_STATE_DRAGGING);
                 } else if (yDiff > mTouchSlop) {
                     mIsUnableToDrag = true;
                 }
-                if (mDraggingPane != null && performDrag(x)) {
+                if (mScrollState == SCROLL_STATE_DRAGGING && performDrag(x)) {
                     ViewCompat.postInvalidateOnAnimation(this);
                 }
                 break;
@@ -578,18 +598,15 @@ public class SlidingPaneLayout extends ViewGroup {
             case MotionEvent.ACTION_DOWN: {
                 final float x = ev.getX();
                 final float y = ev.getY();
-                final View dragTarget = getChildUnderPoint(x, y);
                 mIsUnableToDrag = false;
-                if (dragTarget == null || !canSlide(dragTarget)) {
-                    mDraggingPane = null;
-                } else {
+                if (isSlideablePaneUnder(x, y)) {
                     mLastMotionX = mInitialMotionX = x;
                     mLastMotionY = y;
                     mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-                    if ((mScrollState == SCROLL_STATE_SETTLING && mDraggingPane == dragTarget)) {
-                        // Start dragging immediately.
+                    if (mScrollState == SCROLL_STATE_SETTLING) {
+                        // Start dragging immediately. "Catch"
                         setScrollState(SCROLL_STATE_DRAGGING);
-                    } else if (isDimmed(dragTarget)) {
+                    } else if (isDimmed(mSlideableView)) {
                         interceptTap = true;
                     }
                 }
@@ -627,15 +644,13 @@ public class SlidingPaneLayout extends ViewGroup {
             case MotionEvent.ACTION_DOWN: {
                 final float x = ev.getX();
                 final float y = ev.getY();
-                final View view = getChildUnderPoint(x, y);
-                final LayoutParams lp = view != null ? (LayoutParams) view.getLayoutParams() : null;
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
 
-                if (view != null && lp.canSlide) {
+                if (isSlideablePaneUnder(x, y)) {
                     mScroller.abortAnimation();
                     wantTouchEvents = true;
                     mLastMotionX = mInitialMotionX = x;
-                    mDraggingPane = view;
+                    setScrollState(SCROLL_STATE_DRAGGING);
                 }
                 break;
             }
@@ -648,8 +663,7 @@ public class SlidingPaneLayout extends ViewGroup {
                     final float y = MotionEventCompat.getY(ev, pointerIndex);
                     final float dx = Math.abs(x - mLastMotionX);
                     final float dy = Math.abs(y - mLastMotionY);
-                    if (dx > mTouchSlop && dx > dy &&
-                            (mDraggingPane = getChildUnderPoint(x, y)) != null) {
+                    if (dx > mTouchSlop && dx > dy && isSlideablePaneUnder(x, y)) {
                         mLastMotionX = x - mInitialMotionX > 0 ? mInitialMotionX + mTouchSlop :
                                 mInitialMotionX - mTouchSlop;
                         setScrollState(SCROLL_STATE_DRAGGING);
@@ -670,17 +684,15 @@ public class SlidingPaneLayout extends ViewGroup {
                     vt.computeCurrentVelocity(1000, mMaxVelocity);
                     int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(vt,
                             mActivePointerId);
-                    final LayoutParams dragLp = (LayoutParams) mDraggingPane.getLayoutParams();
-                    if (initialVelocity < 0 ||
-                            (initialVelocity == 0 && dragLp.slideOffset < 0.5f)) {
-                        closePane(mDraggingPane, initialVelocity);
+                    if (initialVelocity < 0 || (initialVelocity == 0 && mSlideOffset < 0.5f)) {
+                        closePane(mSlideableView, initialVelocity);
                     } else {
-                        openPane(mDraggingPane, initialVelocity);
+                        openPane(mSlideableView, initialVelocity);
                     }
                     mActivePointerId = INVALID_POINTER;
-                } else if (mDraggingPane != null && isDimmed(mDraggingPane)) {
+                } else if (isDimmed(mSlideableView)) {
                     // Taps close a dimmed open pane.
-                    closePane(mDraggingPane, 0);
+                    closePane(mSlideableView, 0);
                 }
                 break;
             }
@@ -688,11 +700,10 @@ public class SlidingPaneLayout extends ViewGroup {
             case MotionEvent.ACTION_CANCEL: {
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
                     mActivePointerId = INVALID_POINTER;
-                    final LayoutParams dragLp = (LayoutParams) mDraggingPane.getLayoutParams();
-                    if (dragLp.slideOffset < 0.5f) {
-                        closePane(mDraggingPane, 0);
+                    if (mSlideOffset < 0.5f) {
+                        closePane(mSlideableView, 0);
                     } else {
-                        openPane(mDraggingPane, 0);
+                        openPane(mSlideableView, 0);
                     }
                 }
                 break;
@@ -719,27 +730,23 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     private void closePane(View pane, int initialVelocity) {
-        mDraggingPane = pane;
-        smoothSlideTo(0.f, initialVelocity);
+        if (mCanSlide) {
+            smoothSlideTo(0.f, initialVelocity);
+        }
     }
 
     private void openPane(View pane, int initialVelocity) {
-        mDraggingPane = pane;
-        smoothSlideTo(1.f, initialVelocity);
+        if (mCanSlide) {
+            smoothSlideTo(1.f, initialVelocity);
+        }
     }
 
     /**
      * Animate the sliding panel to its open state.
      */
     public void smoothSlideOpen() {
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (lp.canSlide) {
-                openPane(child, 0);
-                return;
-            }
+        if (mCanSlide) {
+            openPane(mSlideableView, 0);
         }
     }
 
@@ -747,14 +754,8 @@ public class SlidingPaneLayout extends ViewGroup {
      * Animate the sliding panel to its closed state.
      */
     public void smoothSlideClosed() {
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (lp.canSlide) {
-                closePane(child, 0);
-                return;
-            }
+        if (mCanSlide) {
+            closePane(mSlideableView, 0);
         }
     }
 
@@ -762,15 +763,7 @@ public class SlidingPaneLayout extends ViewGroup {
      * @return true if sliding panels are completely open
      */
     public boolean isOpen() {
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (lp.canSlide && lp.slideOffset < 1) {
-                return false;
-            }
-        }
-        return true;
+        return !mCanSlide || mSlideOffset == 1;
     }
 
     /**
@@ -784,35 +777,40 @@ public class SlidingPaneLayout extends ViewGroup {
         final float dxMotion = x - mLastMotionX;
         mLastMotionX = x;
 
-        final LayoutParams lp = (LayoutParams) mDraggingPane.getLayoutParams();
+        final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
         final int leftBound = getPaddingLeft() + lp.leftMargin;
-        final int rightBound = leftBound + lp.range;
+        final int rightBound = leftBound + mSlideRange;
 
-        final float oldLeft = mDraggingPane.getLeft();
+        final float oldLeft = mSlideableView.getLeft();
         final float newLeft = Math.min(Math.max(oldLeft + dxMotion, leftBound), rightBound);
-        final float dxPane = newLeft - oldLeft;
-        final float newRight = mDraggingPane.getRight() + dxPane;
 
-        mDraggingPane.layout((int) newLeft, mDraggingPane.getTop(),
-                (int) newRight, mDraggingPane.getBottom());
-        lp.slideOffset = (newLeft - leftBound) / lp.range;
+        if (oldLeft == newLeft) {
+            return false;
+        }
+
+        final float dxPane = newLeft - oldLeft;
+        final float newRight = mSlideableView.getRight() + dxPane;
+
+        mSlideableView.layout((int) newLeft, mSlideableView.getTop(),
+                (int) newRight, mSlideableView.getBottom());
+        mSlideOffset = (newLeft - leftBound) / mSlideRange;
 
         if (mParallaxBy != 0) {
-            parallaxOtherViews(lp.slideOffset);
+            parallaxOtherViews(mSlideOffset);
         }
 
         mLastMotionX += newLeft - (int) newLeft;
-        dimChildViewForRange(mDraggingPane);
-        dispatchOnPanelSlide(mDraggingPane);
+        dimChildViewForRange(mSlideableView);
+        dispatchOnPanelSlide(mSlideableView);
 
-        return false;
+        return true;
     }
 
     private void dimChildViewForRange(View v) {
         final LayoutParams lp = (LayoutParams) v.getLayoutParams();
         if (!lp.dimWhenOffset) return;
 
-        final float mag = lp.slideOffset;
+        final float mag = mSlideOffset;
 
         if (mag > 0) {
             int imag = 0x4c + (int) (0xb3 * (1 - mag));
@@ -837,7 +835,7 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        if (lp.dimWhenOffset && lp.slideOffset > 0) {
+        if (lp.dimWhenOffset && mSlideOffset > 0) {
             if (!child.isDrawingCacheEnabled()) {
                 child.setDrawingCacheEnabled(true);
             }
@@ -867,25 +865,24 @@ public class SlidingPaneLayout extends ViewGroup {
      * @param velocity initial velocity in case of fling, or 0.
      */
     void smoothSlideTo(float slideOffset, int velocity) {
-        if (mDraggingPane == null) {
+        if (!mCanSlide) {
             // Nothing to do.
             return;
         }
 
-        final LayoutParams lp = (LayoutParams) mDraggingPane.getLayoutParams();
+        final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
 
         final int leftBound = getPaddingLeft() + lp.leftMargin;
-        int sx = mDraggingPane.getLeft();
-        int x = (int) (leftBound + slideOffset * lp.range);
+        int sx = mSlideableView.getLeft();
+        int x = (int) (leftBound + slideOffset * mSlideRange);
         int dx = x - sx;
         if (dx == 0) {
             setScrollState(SCROLL_STATE_IDLE);
-            if (lp.slideOffset == 0) {
-                dispatchOnPanelClosed(mDraggingPane);
+            if (mSlideOffset == 0) {
+                dispatchOnPanelClosed(mSlideableView);
             } else {
-                dispatchOnPanelOpened(mDraggingPane);
+                dispatchOnPanelOpened(mSlideableView);
             }
-            mDraggingPane = null;
             return;
         }
 
@@ -902,7 +899,7 @@ public class SlidingPaneLayout extends ViewGroup {
         if (velocity > 0) {
             duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
         } else {
-            final float range = (float) Math.abs(dx) / lp.range;
+            final float range = (float) Math.abs(dx) / mSlideRange;
             duration = (int) ((range + 1) * 100);
         }
         duration = Math.min(duration, MAX_SETTLE_DURATION);
@@ -924,35 +921,38 @@ public class SlidingPaneLayout extends ViewGroup {
     @Override
     public void computeScroll() {
         if (!mScroller.isFinished() && mScroller.computeScrollOffset()) {
-            if (mDraggingPane == null) {
+            if (!mCanSlide) {
                 mScroller.abortAnimation();
                 return;
             }
 
-            final int oldLeft = mDraggingPane.getLeft();
+            final int oldLeft = mSlideableView.getLeft();
             final int newLeft = mScroller.getCurrX();
             final int dx = newLeft - oldLeft;
-            mDraggingPane.layout(newLeft, mDraggingPane.getTop(),
-                    mDraggingPane.getRight() + dx, mDraggingPane.getBottom());
+            mSlideableView.layout(newLeft, mSlideableView.getTop(),
+                    mSlideableView.getRight() + dx, mSlideableView.getBottom());
 
-            final LayoutParams lp = (LayoutParams) mDraggingPane.getLayoutParams();
+            final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
             final int leftBound = getPaddingLeft() + lp.leftMargin;
-            lp.slideOffset = (float) (newLeft - leftBound) / lp.range;
-            dimChildViewForRange(mDraggingPane);
-            dispatchOnPanelSlide(mDraggingPane);
+            mSlideOffset = (float) (newLeft - leftBound) / mSlideRange;
+            dimChildViewForRange(mSlideableView);
+            dispatchOnPanelSlide(mSlideableView);
 
             if (mParallaxBy != 0) {
-                parallaxOtherViews(lp.slideOffset);
+                parallaxOtherViews(mSlideOffset);
             }
 
             if (mScroller.isFinished()) {
-                if (lp.slideOffset == 0) {
-                    dispatchOnPanelClosed(mDraggingPane);
-                } else {
-                    dispatchOnPanelOpened(mDraggingPane);
-                }
                 setScrollState(SCROLL_STATE_IDLE);
-                mDraggingPane = null;
+                post(new Runnable() {
+                    public void run() {
+                        if (mSlideOffset == 0) {
+                            dispatchOnPanelClosed(mSlideableView);
+                        } else {
+                            dispatchOnPanelOpened(mSlideableView);
+                        }
+                    }
+                });
             }
             ViewCompat.postInvalidateOnAnimation(this);
         }
@@ -963,11 +963,10 @@ public class SlidingPaneLayout extends ViewGroup {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View v = getChildAt(i);
-            if (v == mDraggingPane) continue;
+            if (v == mSlideableView) continue;
 
-            final LayoutParams lp = (LayoutParams) v.getLayoutParams();
-            final int oldOffset = (int) ((1 - lp.slideOffset) * mParallaxBy);
-            lp.slideOffset = slideOffset;
+            final int oldOffset = (int) ((1 - mParallaxOffset) * mParallaxBy);
+            mParallaxOffset = slideOffset;
             final int newOffset = (int) ((1 - slideOffset) * mParallaxBy);
             final int left = v.getLeft() + oldOffset - newOffset;
             v.layout(left, v.getTop(), left + v.getMeasuredWidth(), v.getBottom());
@@ -1024,25 +1023,21 @@ public class SlidingPaneLayout extends ViewGroup {
         }
     }
 
-    View getChildUnderPoint(float x, float y) {
-        final int childCount = getChildCount();
-        for (int i = childCount - 1; i >= 0; i--) {
-            final View child = getChildAt(i);
-            if (x >= child.getLeft() - mGutterSize && x < child.getRight() + mGutterSize &&
-                    y >= child.getTop() && y < child.getBottom()) {
-                return child;
-            }
+    boolean isSlideablePaneUnder(float x, float y) {
+        final View child = mSlideableView;
+        return child != null &&
+                x >= child.getLeft() - mGutterSize &&
+                x < child.getRight() + mGutterSize &&
+                y >= child.getTop() &&
+                y < child.getBottom();
+    }
+
+    boolean isDimmed(View child) {
+        if (child == null) {
+            return false;
         }
-        return null;
-    }
-
-    static boolean canSlide(View child) {
-        return ((LayoutParams) child.getLayoutParams()).canSlide;
-    }
-
-    static boolean isDimmed(View child) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        return lp.canSlide && lp.dimWhenOffset && lp.slideOffset > 0;
+        return mCanSlide && lp.dimWhenOffset && mSlideOffset > 0;
     }
 
     @Override
@@ -1069,14 +1064,8 @@ public class SlidingPaneLayout extends ViewGroup {
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
         private static final int[] ATTRS = new int[] {
-            android.R.attr.layout_gravity,
             android.R.attr.layout_weight
         };
-
-        /**
-         * How the view should position within its parent
-         */
-        public int gravity = Gravity.NO_GRAVITY;
 
         /**
          * The weighted proportion of how much of the leftover space
@@ -1084,17 +1073,10 @@ public class SlidingPaneLayout extends ViewGroup {
          */
         public float weight = 0;
 
-        boolean canSlide = false;
-
         /**
-         * Value from 0-1 indicating how far the pane has been dragged from closed to open
+         * True if this pane is the slideable pane in the layout.
          */
-        float slideOffset;
-
-        /**
-         * The range this view can be dragged in pixels
-         */
-        int range;
+        boolean slideable;
 
         /**
          * True if this view should be drawn dimmed
@@ -1122,7 +1104,6 @@ public class SlidingPaneLayout extends ViewGroup {
 
         public LayoutParams(LayoutParams source) {
             super(source);
-            this.gravity = source.gravity;
             this.weight = source.weight;
         }
 
@@ -1130,8 +1111,7 @@ public class SlidingPaneLayout extends ViewGroup {
             super(c, attrs);
 
             final TypedArray a = c.obtainStyledAttributes(attrs, ATTRS);
-            this.gravity = a.getInt(0, Gravity.NO_GRAVITY);
-            this.weight = a.getFloat(1, 0);
+            this.weight = a.getFloat(0, 0);
             a.recycle();
         }
 
