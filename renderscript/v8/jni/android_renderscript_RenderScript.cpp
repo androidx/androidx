@@ -29,6 +29,12 @@
 #include <rs.h>
 #include <rsEnv.h>
 
+#include <core/SkBitmap.h>
+#include <core/SkPixelRef.h>
+#include <core/SkStream.h>
+#include <core/SkTemplates.h>
+//#include <images/SkImageDecoder.h>
+
 //#define LOG_API ALOG
 #define LOG_API(...)
 
@@ -351,16 +357,32 @@ static size_t GetBitmapSize(JNIEnv *env, jobject jbitmap) {
 static int
 nAllocationCreateFromBitmap(JNIEnv *_env, jobject _this, RsContext con, jint type, jint mip, jobject jbitmap, jint usage)
 {
-    void *pixels = NULL;
-    AndroidBitmap_lockPixels(_env, jbitmap, &pixels);
+    SkBitmap const * nativeBitmap =
+            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
+    const SkBitmap& bitmap(*nativeBitmap);
 
-    jint id = 0;
-    if (pixels != NULL) {
-        id = (jint)rsAllocationCreateFromBitmap(con, (RsType)type,
-                                                (RsAllocationMipmapControl)mip, pixels,
-                                                GetBitmapSize(_env, jbitmap), usage);
-        AndroidBitmap_unlockPixels(_env, jbitmap);
-    }
+    bitmap.lockPixels();
+    const void* ptr = bitmap.getPixels();
+    jint id = (jint)rsAllocationCreateFromBitmap(con,
+                                                  (RsType)type, (RsAllocationMipmapControl)mip,
+                                                  ptr, bitmap.getSize(), usage);
+    bitmap.unlockPixels();
+    return id;
+}
+
+static int
+nAllocationCreateBitmapBackedAllocation(JNIEnv *_env, jobject _this, RsContext con, jint type, jint mip, jobject jbitmap, jint usage)
+{
+    SkBitmap const * nativeBitmap =
+            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
+    const SkBitmap& bitmap(*nativeBitmap);
+
+    bitmap.lockPixels();
+    const void* ptr = bitmap.getPixels();
+    jint id = (jint)rsAllocationCreateTyped(con,
+                                            (RsType)type, (RsAllocationMipmapControl)mip,
+                                            (uint32_t)usage, (size_t)ptr);
+    bitmap.unlockPixels();
     return id;
 }
 
@@ -899,6 +921,7 @@ static JNINativeMethod methods[] = {
 
 {"rsnAllocationCreateTyped",         "(IIIII)I",                               (void*)nAllocationCreateTyped },
 {"rsnAllocationCreateFromBitmap",    "(IIILandroid/graphics/Bitmap;I)I",      (void*)nAllocationCreateFromBitmap },
+{"rsnAllocationCreateBitmapBackedAllocation",    "(IIILandroid/graphics/Bitmap;I)I",      (void*)nAllocationCreateBitmapBackedAllocation },
 {"rsnAllocationCubeCreateFromBitmap","(IIILandroid/graphics/Bitmap;I)I",      (void*)nAllocationCubeCreateFromBitmap },
 
 {"rsnAllocationCopyFromBitmap",      "(IILandroid/graphics/Bitmap;)V",        (void*)nAllocationCopyFromBitmap },

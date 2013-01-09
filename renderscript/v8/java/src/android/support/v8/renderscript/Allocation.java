@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.view.Surface;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -106,6 +107,35 @@ public class Allocation extends BaseObj {
      *
      */
     public static final int USAGE_GRAPHICS_TEXTURE = 0x0002;
+
+    /**
+     * USAGE_IO_INPUT The allocation will be used as SurfaceTexture
+     * consumer.  This usage will cause the allocation to be created
+     * read only.
+     *
+     */
+    public static final int USAGE_IO_INPUT = 0x0020;
+
+    /**
+     * USAGE_IO_OUTPUT The allocation will be used as a
+     * SurfaceTexture producer.  The dimensions and format of the
+     * SurfaceTexture will be forced to those of the allocation.
+     *
+     */
+    public static final int USAGE_IO_OUTPUT = 0x0040;
+
+    /**
+     * USAGE_SHARED The allocation's backing store will be inherited
+     * from another object (usually a Bitmap); calling appropriate
+     * copy methods will be significantly faster than if the entire
+     * allocation were copied every time.
+     *
+     * This is set by default for allocations created with
+     * CreateFromBitmap(RenderScript, Bitmap) in API version 18 and
+     * higher.
+     *
+     */
+    public static final int USAGE_SHARED = 0x0080;
 
     /**
      * Controls mipmap behavior when using the bitmap creation and
@@ -199,8 +229,22 @@ public class Allocation extends BaseObj {
 
     Allocation(int id, RenderScript rs, Type t, int usage) {
         super(id, rs);
-        if ((usage & ~(USAGE_SCRIPT | USAGE_GRAPHICS_TEXTURE)) != 0) {
+        if ((usage & ~(USAGE_SCRIPT |
+                       USAGE_GRAPHICS_TEXTURE |
+                       USAGE_IO_INPUT |
+                       USAGE_IO_OUTPUT |
+                       USAGE_SHARED)) != 0) {
             throw new RSIllegalArgumentException("Unknown usage specified.");
+        }
+
+        if ((usage & USAGE_IO_INPUT) != 0) {
+            mWriteAllowed = false;
+
+            if ((usage & ~(USAGE_IO_INPUT |
+                           USAGE_GRAPHICS_TEXTURE |
+                           USAGE_SCRIPT)) != 0) {
+                throw new RSIllegalArgumentException("Invalid usage combination.");
+            }
         }
 
         mType = t;
@@ -285,6 +329,40 @@ public class Allocation extends BaseObj {
         mRS.nAllocationSyncAll(getIDSafe(), srcLocation);
     }
 
+    /**
+     * Send a buffer to the output stream.  The contents of the
+     * Allocation will be undefined after this operation.
+     *
+     */
+    public void ioSend() {
+        if ((mUsage & USAGE_IO_OUTPUT) == 0) {
+            throw new RSIllegalArgumentException(
+                "Can only send buffer if IO_OUTPUT usage specified.");
+        }
+        mRS.validate();
+        mRS.nAllocationIoSend(getID(mRS));
+    }
+
+    /**
+     * Delete once code is updated.
+     * @hide
+     */
+    public void ioSendOutput() {
+        ioSend();
+    }
+
+    /**
+     * Receive the latest input into the Allocation.
+     *
+     */
+    public void ioReceive() {
+        if ((mUsage & USAGE_IO_INPUT) == 0) {
+            throw new RSIllegalArgumentException(
+                "Can only receive if IO_INPUT usage specified.");
+        }
+        mRS.validate();
+        mRS.nAllocationIoReceive(getID(mRS));
+    }
 
     /**
      * Copy an array of RS objects to the allocation.
@@ -847,68 +925,6 @@ public class Allocation extends BaseObj {
         mRS.nAllocationRead(getID(mRS), d);
     }
 
-    /**
-     * Resize a 1D allocation.  The contents of the allocation are
-     * preserved.  If new elements are allocated objects are created
-     * with null contents and the new region is otherwise undefined.
-     *
-     * If the new region is smaller the references of any objects
-     * outside the new region will be released.
-     *
-     * A new type will be created with the new dimension.
-     *
-     * @param dimX The new size of the allocation.
-     */
-    /*
-    public synchronized void resize(int dimX) {
-        if ((mType.getY() > 0)|| (mType.getZ() > 0) || mType.hasFaces() || mType.hasMipmaps()) {
-            throw new RSInvalidStateException("Resize only support for 1D allocations at this time.");
-        }
-        mRS.nAllocationResize1D(getID(mRS), dimX);
-        mRS.finish();  // Necessary because resize is fifoed and update is async.
-
-        int typeID = mRS.nAllocationGetType(getID(mRS));
-        mType = new Type(typeID, mRS);
-        mType.updateFromNative();
-        updateCacheInfo(mType);
-    }
-    */
-
-    /**
-     * Resize a 2D allocation.  The contents of the allocation are
-     * preserved.  If new elements are allocated objects are created
-     * with null contents and the new region is otherwise undefined.
-     *
-     * If the new region is smaller the references of any objects
-     * outside the new region will be released.
-     *
-     * A new type will be created with the new dimension.
-     *
-     * @param dimX The new size of the allocation.
-     * @param dimY The new size of the allocation.
-     */
-    /*
-    public synchronized void resize(int dimX, int dimY) {
-        if ((mType.getZ() > 0) || mType.hasFaces() || mType.hasMipmaps()) {
-            throw new RSInvalidStateException(
-                "Resize only support for 2D allocations at this time.");
-        }
-        if (mType.getY() == 0) {
-            throw new RSInvalidStateException(
-                "Resize only support for 2D allocations at this time.");
-        }
-        mRS.nAllocationResize2D(getID(mRS), dimX, dimY);
-        mRS.finish();  // Necessary because resize is fifoed and update is async.
-
-        int typeID = mRS.nAllocationGetType(getID(mRS));
-        mType = new Type(typeID, mRS);
-        mType.updateFromNative();
-        updateCacheInfo(mType);
-    }
-    */
-
-
-
     // creation
 
     static BitmapFactory.Options mBitmapOptions = new BitmapFactory.Options();
@@ -1051,6 +1067,22 @@ public class Allocation extends BaseObj {
         rs.validate();
         Type t = typeFromBitmap(rs, b, mips);
 
+        // enable optimized bitmap path only with no mipmap and script-only usage
+        if (mips == MipmapControl.MIPMAP_NONE &&
+            t.getElement().isCompatible(Element.RGBA_8888(rs)) &&
+            usage == (USAGE_SHARED | USAGE_SCRIPT)) {
+            int id = rs.nAllocationCreateBitmapBackedAllocation(t.getID(rs), mips.mID, b, usage);
+            if (id == 0) {
+                throw new RSRuntimeException("Load failed.");
+            }
+
+            // keep a reference to the Bitmap around to prevent GC
+            Allocation alloc = new Allocation(id, rs, t, usage);
+            alloc.setBitmap(b);
+            return alloc;
+        }
+
+
         int id = rs.nAllocationCreateFromBitmap(t.getID(rs), mips.mID, b, usage);
         if (id == 0) {
             throw new RSRuntimeException("Load failed.");
@@ -1059,8 +1091,10 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * Creates a non-mipmapped renderscript allocation to use as a
-     * graphics texture
+     * Creates a RenderScript allocation from a bitmap.
+     *
+     * This allocation will be created with MIPMAP_NONE and
+     * USAGE_SHARED | USAGE_SCRIPT.
      *
      * @param rs Context to which the allocation will belong.
      * @param b bitmap source for the allocation data
@@ -1070,7 +1104,7 @@ public class Allocation extends BaseObj {
      */
     static public Allocation createFromBitmap(RenderScript rs, Bitmap b) {
         return createFromBitmap(rs, b, MipmapControl.MIPMAP_NONE,
-                                USAGE_GRAPHICS_TEXTURE);
+                                USAGE_SHARED | USAGE_SCRIPT);
     }
 
     /**
@@ -1235,6 +1269,77 @@ public class Allocation extends BaseObj {
                                           zpos, zneg, MipmapControl.MIPMAP_NONE,
                                           USAGE_GRAPHICS_TEXTURE);
     }
+
+    /**
+     * Creates a renderscript allocation from the bitmap referenced
+     * by resource id
+     *
+     * @param rs Context to which the allocation will belong.
+     * @param res application resources
+     * @param id resource id to load the data from
+     * @param mips specifies desired mipmap behaviour for the
+     *             allocation
+     * @param usage bit field specifying how the allocation is
+     *              utilized
+     *
+     * @return renderscript allocation containing resource data
+     *
+     */
+    static public Allocation createFromBitmapResource(RenderScript rs,
+                                                      Resources res,
+                                                      int id,
+                                                      MipmapControl mips,
+                                                      int usage) {
+
+        rs.validate();
+        Bitmap b = BitmapFactory.decodeResource(res, id);
+        Allocation alloc = createFromBitmap(rs, b, mips, usage);
+        b.recycle();
+        return alloc;
+    }
+
+    /**
+     * Creates a non-mipmapped renderscript allocation to use as a
+     * graphics texture from the bitmap referenced by resource id
+     *
+     * @param rs Context to which the allocation will belong.
+     * @param res application resources
+     * @param id resource id to load the data from
+     *
+     * @return renderscript allocation containing resource data
+     *
+     */
+    static public Allocation createFromBitmapResource(RenderScript rs,
+                                                      Resources res,
+                                                      int id) {
+        return createFromBitmapResource(rs, res, id,
+                                        MipmapControl.MIPMAP_NONE,
+                                        USAGE_GRAPHICS_TEXTURE);
+    }
+
+    /**
+     * Creates a renderscript allocation containing string data
+     * encoded in UTF-8 format
+     *
+     * @param rs Context to which the allocation will belong.
+     * @param str string to create the allocation from
+     * @param usage bit field specifying how the allocaiton is
+     *              utilized
+     *
+     */
+    static public Allocation createFromString(RenderScript rs,
+                                              String str,
+                                              int usage) {
+        rs.validate();
+        byte[] allocArray = null;
+        try {
+            allocArray = str.getBytes("UTF-8");
+            Allocation alloc = Allocation.createSized(rs, Element.U8(rs), allocArray.length, usage);
+            alloc.copyFrom(allocArray);
+            return alloc;
+        }
+        catch (Exception e) {
+            throw new RSRuntimeException("Could not convert string to utf-8.");
+        }
+    }
 }
-
-

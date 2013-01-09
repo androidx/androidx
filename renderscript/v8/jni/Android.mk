@@ -8,7 +8,8 @@ LOCAL_SHARED_LIBRARIES := \
         libandroid_runtime \
         libRSSupport \
         libcutils \
-        libjnigraphics
+        libjnigraphics \
+        libskia
 
 LOCAL_STATIC_LIBRARIES :=
 
