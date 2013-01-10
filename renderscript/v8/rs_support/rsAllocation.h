@@ -54,9 +54,7 @@ public:
 
             // Cached fields from the Type and Element
             // to prevent pointer chasing in critical loops.
-            uint32_t dimensionX;
-            uint32_t dimensionY;
-            uint32_t dimensionZ;
+            uint32_t yuv;
             uint32_t elementSizeBytes;
             bool hasMipmaps;
             bool hasFaces;
@@ -65,7 +63,6 @@ public:
             int32_t surfaceTextureID;
             ANativeWindow *wndSurface;
             GLConsumer *surfaceTexture;
-            RsDataType eType;
         };
         State state;
 

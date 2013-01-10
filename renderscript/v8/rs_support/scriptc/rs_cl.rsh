@@ -447,6 +447,13 @@ FN_FUNC_FN_F(fmin);
 extern float __attribute__((overloadable)) fmod(float x, float y);
 FN_FUNC_FN_FN(fmod)
 
+/**
+ * Return fractional part of v
+ *
+ * Supports float, float2, float3, float4.
+ */
+_RS_RUNTIME float __attribute__((overloadable)) fract(float v);
+FN_FUNC_FN(fract)
 
 /**
  * Return fractional part of v

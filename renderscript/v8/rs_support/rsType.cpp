@@ -193,7 +193,7 @@ Type *Type::createFromStream(Context *rsc, IStream *stream) {
     uint32_t z = stream->loadU32();
     uint8_t lod = stream->loadU8();
     uint8_t faces = stream->loadU8();
-    Type *type = Type::getType(rsc, elem, x, y, z, lod != 0, faces !=0 );
+    Type *type = Type::getType(rsc, elem, x, y, z, lod != 0, faces !=0, 0);
     elem->decUserRef();
     return type;
 }
@@ -217,7 +217,7 @@ bool Type::getIsNp2() const {
 
 ObjectBaseRef<Type> Type::getTypeRef(Context *rsc, const Element *e,
                                      uint32_t dimX, uint32_t dimY, uint32_t dimZ,
-                                     bool dimLOD, bool dimFaces) {
+                                     bool dimLOD, bool dimFaces, uint32_t dimYuv) {
     ObjectBaseRef<Type> returnRef;
 
     TypeState * stc = &rsc->mStateType;
@@ -231,6 +231,7 @@ ObjectBaseRef<Type> Type::getTypeRef(Context *rsc, const Element *e,
         if (t->getDimZ() != dimZ) continue;
         if (t->getDimLOD() != dimLOD) continue;
         if (t->getDimFaces() != dimFaces) continue;
+        if (t->getDimYuv() != dimYuv) continue;
         returnRef.set(t);
         ObjectBase::asyncUnlock();
         return returnRef;
@@ -246,6 +247,7 @@ ObjectBaseRef<Type> Type::getTypeRef(Context *rsc, const Element *e,
     nt->mHal.state.dimY = dimY;
     nt->mHal.state.dimZ = dimZ;
     nt->mHal.state.faces = dimFaces;
+    nt->mHal.state.dimYuv = dimYuv;
     nt->compute();
 
     ObjectBase::asyncLock();
@@ -257,14 +259,14 @@ ObjectBaseRef<Type> Type::getTypeRef(Context *rsc, const Element *e,
 
 ObjectBaseRef<Type> Type::cloneAndResize1D(Context *rsc, uint32_t dimX) const {
     return getTypeRef(rsc, mElement.get(), dimX,
-                      getDimY(), getDimZ(), getDimLOD(), getDimFaces());
+                      getDimY(), getDimZ(), getDimLOD(), getDimFaces(), getDimYuv());
 }
 
 ObjectBaseRef<Type> Type::cloneAndResize2D(Context *rsc,
                               uint32_t dimX,
                               uint32_t dimY) const {
     return getTypeRef(rsc, mElement.get(), dimX, dimY,
-                      getDimZ(), getDimLOD(), getDimFaces());
+                      getDimZ(), getDimLOD(), getDimFaces(), getDimYuv());
 }
 
 
@@ -305,10 +307,10 @@ namespace android {
 namespace renderscript {
 
 RsType rsi_TypeCreate(Context *rsc, RsElement _e, uint32_t dimX,
-                     uint32_t dimY, uint32_t dimZ, bool mips, bool faces) {
+                     uint32_t dimY, uint32_t dimZ, bool mips, bool faces, uint32_t yuv) {
     Element *e = static_cast<Element *>(_e);
 
-    return Type::getType(rsc, e, dimX, dimY, dimZ, mips, faces);
+    return Type::getType(rsc, e, dimX, dimY, dimZ, mips, faces, yuv);
 }
 
 }

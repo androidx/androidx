@@ -53,7 +53,6 @@ public:
     virtual uint32_t run(Context *);
 protected:
     uint32_t mIntrinsicID;
-    float mParams[9];
 
 };
 

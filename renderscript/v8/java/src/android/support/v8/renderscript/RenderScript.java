@@ -172,10 +172,10 @@ public class RenderScript {
         rsnElementGetSubElements(mContext, id, IDs, names, arraySizes);
     }
 
-    native int rsnTypeCreate(int con, int eid, int x, int y, int z, boolean mips, boolean faces);
-    synchronized int nTypeCreate(int eid, int x, int y, int z, boolean mips, boolean faces) {
+    native int rsnTypeCreate(int con, int eid, int x, int y, int z, boolean mips, boolean faces, int yuv);
+    synchronized int nTypeCreate(int eid, int x, int y, int z, boolean mips, boolean faces, int yuv) {
         validate();
-        return rsnTypeCreate(mContext, eid, x, y, z, mips, faces);
+        return rsnTypeCreate(mContext, eid, x, y, z, mips, faces, yuv);
     }
     native void rsnTypeGetNativeData(int con, int id, int[] typeData);
     synchronized void nTypeGetNativeData(int id, int[] typeData) {
@@ -193,11 +193,14 @@ public class RenderScript {
         validate();
         return rsnAllocationCreateFromBitmap(mContext, type, mip, bmp, usage);
     }
+
     native int  rsnAllocationCreateBitmapBackedAllocation(int con, int type, int mip, Bitmap bmp, int usage);
     synchronized int nAllocationCreateBitmapBackedAllocation(int type, int mip, Bitmap bmp, int usage) {
         validate();
         return rsnAllocationCreateBitmapBackedAllocation(mContext, type, mip, bmp, usage);
     }
+
+
     native int  rsnAllocationCubeCreateFromBitmap(int con, int type, int mip, Bitmap bmp, int usage);
     synchronized int nAllocationCubeCreateFromBitmap(int type, int mip, Bitmap bmp, int usage) {
         validate();

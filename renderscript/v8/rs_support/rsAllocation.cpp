@@ -54,14 +54,11 @@ Allocation * Allocation::createAllocation(Context *rsc, const Type *type, uint32
 
 void Allocation::updateCache() {
     const Type *type = mHal.state.type;
-    mHal.state.dimensionX = type->getDimX();
-    mHal.state.dimensionY = type->getDimY();
-    mHal.state.dimensionZ = type->getDimZ();
+    mHal.state.yuv = type->getDimYuv();
     mHal.state.hasFaces = type->getDimFaces();
     mHal.state.hasMipmaps = type->getDimLOD();
     mHal.state.elementSizeBytes = type->getElementSizeBytes();
     mHal.state.hasReferences = mHal.state.type->getElement()->getHasReferences();
-    mHal.state.eType = mHal.state.type->getElement()->getType();
 }
 
 Allocation::~Allocation() {
@@ -180,7 +177,7 @@ void Allocation::elementData(Context *rsc, uint32_t x, const void *data,
         return;
     }
 
-    if (x >= mHal.state.dimensionX) {
+    if (x >= mHal.drvState.lod[0].dimX) {
         ALOGE("Error Allocation::subElementData X offset %i out of range.", x);
         rsc->setError(RS_ERROR_BAD_VALUE, "subElementData X offset out of range.");
         return;
@@ -202,13 +199,13 @@ void Allocation::elementData(Context *rsc, uint32_t x, uint32_t y,
                                 const void *data, uint32_t cIdx, size_t sizeBytes) {
     size_t eSize = mHal.state.elementSizeBytes;
 
-    if (x >= mHal.state.dimensionX) {
+    if (x >= mHal.drvState.lod[0].dimX) {
         ALOGE("Error Allocation::subElementData X offset %i out of range.", x);
         rsc->setError(RS_ERROR_BAD_VALUE, "subElementData X offset out of range.");
         return;
     }
 
-    if (y >= mHal.state.dimensionY) {
+    if (y >= mHal.drvState.lod[0].dimY) {
         ALOGE("Error Allocation::subElementData X offset %i out of range.", x);
         rsc->setError(RS_ERROR_BAD_VALUE, "subElementData X offset out of range.");
         return;
@@ -447,7 +444,7 @@ void Allocation::copyRange1D(Context *rsc, const Allocation *src, int32_t srcOff
 }
 
 void Allocation::resize1D(Context *rsc, uint32_t dimX) {
-    uint32_t oldDimX = mHal.state.dimensionX;
+    uint32_t oldDimX = mHal.drvState.lod[0].dimX;
     if (dimX == oldDimX) {
         return;
     }

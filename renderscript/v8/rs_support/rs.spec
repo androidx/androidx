@@ -34,6 +34,7 @@ TypeCreate {
     param uint32_t dimZ
     param bool mips
     param bool faces
+    param uint32_t yuv
     ret RsType
 }
 

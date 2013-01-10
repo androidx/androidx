@@ -57,6 +57,16 @@ static inline int4 convert_int4(uchar4 i) {
     return f4;
 }
 
+static inline uint4 convert_uint4(uchar4 i) {
+    uint4 f4 = {i.x, i.y, i.z, i.w};
+    return f4;
+}
+
+static inline int4 convert_int4(float4 i) {
+    int4 f4 = {i.x, i.y, i.z, i.w};
+    return f4;
+}
+
 static inline short4 convert_short4(uchar4 i) {
     short4 f4 = {i.x, i.y, i.z, i.w};
     return f4;
@@ -67,12 +77,22 @@ static inline float4 convert_float4(uchar4 i) {
     return f4;
 }
 
+static inline float4 convert_float4(int4 i) {
+    float4 f4 = {i.x, i.y, i.z, i.w};
+    return f4;
+}
+
 static inline uchar4 convert_uchar4(short4 i) {
     uchar4 f4 = {(uchar)i.x, (uchar)i.y, (uchar)i.z, (uchar)i.w};
     return f4;
 }
 
 static inline uchar4 convert_uchar4(int4 i) {
+    uchar4 f4 = {(uchar)i.x, (uchar)i.y, (uchar)i.z, (uchar)i.w};
+    return f4;
+}
+
+static inline uchar4 convert_uchar4(uint4 i) {
     uchar4 f4 = {(uchar)i.x, (uchar)i.y, (uchar)i.z, (uchar)i.w};
     return f4;
 }

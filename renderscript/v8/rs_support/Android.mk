@@ -106,6 +106,7 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeStubs.cpp \
 	cpu_ref/rsCpuScriptGroup.cpp \
 	cpu_ref/rsCpuIntrinsic.cpp \
+    cpu_ref/rsCpuIntrinsic3DLUT.cpp \
 	cpu_ref/rsCpuIntrinsicBlend.cpp \
 	cpu_ref/rsCpuIntrinsicBlur.cpp \
 	cpu_ref/rsCpuIntrinsicColorMatrix.cpp \

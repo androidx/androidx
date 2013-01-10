@@ -208,7 +208,7 @@ static void AllocateRenderTarget(const Context *rsc, const Allocation *alloc) {
         }
         RSD_CALL_GL(glBindRenderbuffer, GL_RENDERBUFFER, drv->renderTargetID);
         RSD_CALL_GL(glRenderbufferStorage, GL_RENDERBUFFER, drv->glFormat,
-                              alloc->mHal.state.dimensionX, alloc->mHal.state.dimensionY);
+                    alloc->mHal.drvState.lod[0].dimX, alloc->mHal.drvState.lod[0].dimY);
     }
     rsdGLCheckError(rsc, "AllocateRenderTarget");
 #endif
@@ -243,6 +243,7 @@ static size_t AllocationBuildPointerTable(const Context *rsc, const Allocation *
         const Type *type, uint8_t *ptr) {
     alloc->mHal.drvState.lod[0].dimX = type->getDimX();
     alloc->mHal.drvState.lod[0].dimY = type->getDimY();
+    alloc->mHal.drvState.lod[0].dimZ = type->getDimZ();
     alloc->mHal.drvState.lod[0].mallocPtr = 0;
     alloc->mHal.drvState.lod[0].stride = alloc->mHal.drvState.lod[0].dimX * type->getElementSizeBytes();
     alloc->mHal.drvState.lodCount = type->getLODCount();
@@ -398,6 +399,9 @@ void rsdAllocationDestroy(const Context *rsc, Allocation *alloc) {
 
 void rsdAllocationResize(const Context *rsc, const Allocation *alloc,
                          const Type *newType, bool zeroNew) {
+    const uint32_t oldDimX = alloc->mHal.drvState.lod[0].dimX;
+    const uint32_t dimX = newType->getDimX();
+
     // can't resize Allocations with user-allocated buffers
     if (alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_SHARED) {
         ALOGE("Resize cannot be called on a USAGE_SHARED allocation");
@@ -413,8 +417,6 @@ void rsdAllocationResize(const Context *rsc, const Allocation *alloc,
         rsAssert(!"Size mismatch");
     }
 
-    const uint32_t oldDimX = alloc->mHal.state.dimensionX;
-    const uint32_t dimX = newType->getDimX();
 
     if (dimX > oldDimX) {
         uint32_t stride = alloc->mHal.state.elementSizeBytes;
@@ -569,8 +571,8 @@ void rsdAllocationSetSurfaceTexture(const Context *rsc, Allocation *alloc, ANati
             return;
         }
 
-        r = native_window_set_buffers_dimensions(nw, alloc->mHal.state.dimensionX,
-                                                 alloc->mHal.state.dimensionY);
+        r = native_window_set_buffers_dimensions(nw, alloc->mHal.drvState.lod[0].dimX,
+                                                 alloc->mHal.drvState.lod[0].dimY);
         if (r) {
             rsc->setError(RS_ERROR_DRIVER, "Error setting IO output buffer dimensions.");
             return;

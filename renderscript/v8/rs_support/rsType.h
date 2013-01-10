@@ -49,6 +49,7 @@ public:
             uint32_t *lodDimZ;
             uint32_t *lodOffset;
             uint32_t lodCount;
+            uint32_t dimYuv;
             bool faces;
         };
         State state;
@@ -68,6 +69,7 @@ public:
     uint32_t getDimZ() const {return mHal.state.dimZ;}
     bool getDimLOD() const {return mDimLOD;}
     bool getDimFaces() const {return mHal.state.faces;}
+    uint32_t getDimYuv() const {return mHal.state.dimYuv;}
 
     uint32_t getLODDimX(uint32_t lod) const {
         rsAssert(lod < mHal.state.lodCount);
@@ -108,12 +110,12 @@ public:
 
     static ObjectBaseRef<Type> getTypeRef(Context *rsc, const Element *e,
                                           uint32_t dimX, uint32_t dimY, uint32_t dimZ,
-                                          bool dimLOD, bool dimFaces);
+                                          bool dimLOD, bool dimFaces, uint32_t dimYuv);
 
     static Type* getType(Context *rsc, const Element *e,
                          uint32_t dimX, uint32_t dimY, uint32_t dimZ,
-                         bool dimLOD, bool dimFaces) {
-        ObjectBaseRef<Type> type = getTypeRef(rsc, e, dimX, dimY, dimZ, dimLOD, dimFaces);
+                         bool dimLOD, bool dimFaces, uint32_t yuv) {
+        ObjectBaseRef<Type> type = getTypeRef(rsc, e, dimX, dimY, dimZ, dimLOD, dimFaces, yuv);
         type->incUserRef();
         return type.get();
     }
