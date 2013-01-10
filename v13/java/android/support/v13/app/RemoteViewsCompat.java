@@ -20,6 +20,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.Adapter;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class RemoteViewsCompat {
 
     interface RemoteViewsCompatImpl {
         void setRemoteAdapter(RemoteViews rv, Context ctx, int viewId, int widgetId,
-                ArrayList<RemoteViews> list);
+                ArrayList<RemoteViews> list, int viewTypeCount);
     }
 
     static final RemoteViewsCompatImpl IMPL;
@@ -73,16 +74,20 @@ public class RemoteViewsCompat {
      * @param viewId The id of the AdapterView to which this list of RemoteViews will be applied.
      * @param widgetId The app widget id.
      * @param list The list of RemoteViews which will become the children of the AdapterView.
+     * @param viewTypeCount The maximum number of unique layout id's used to construct the list of
+     *      RemoteViews. This count cannot change during the life-cycle of a given widget, so this
+     *      parameter should account for the maximum possible number of types that may appear in the
+     *      See {@link android.widget.Adapter#getViewTypeCount()}.
      */
     public static void setRemoteAdapter(RemoteViews rv, Context ctx, int viewId, int widgetId,
-            ArrayList<RemoteViews> list) {
-        IMPL.setRemoteAdapter(rv, ctx, viewId, widgetId, list);
+            ArrayList<RemoteViews> list, int viewTypeCount) {
+        IMPL.setRemoteAdapter(rv, ctx, viewId, widgetId, list, viewTypeCount);
     }
 
     static class BaseRemoteViewsCompatImpl implements RemoteViewsCompatImpl {
         @Override
         public void setRemoteAdapter(RemoteViews rv, Context ctx, int viewId, int widgetId,
-                ArrayList<RemoteViews> list) {
+                ArrayList<RemoteViews> list, int viewTypeCount) {
 
             // We embed the widget id and view id into the intent so that it can be used
             // as a unique key for the list of RemoteViews.
@@ -91,8 +96,8 @@ public class RemoteViewsCompat {
             intent.putExtra(EXTRA_VIEW_ID, viewId);
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
 
-            RemoteViewsListFactory.addOrUpdateListFactory(ctx, intent, widgetId, viewId, list);
-
+            RemoteViewsListFactory.addOrUpdateListFactory(ctx, intent, widgetId, viewId, list,
+                    viewTypeCount);
             rv.setRemoteAdapter(widgetId, viewId, intent);
         }
     }
@@ -100,8 +105,8 @@ public class RemoteViewsCompat {
     static class KRemoteViewsCompatImpl implements RemoteViewsCompatImpl {
         @Override
         public void setRemoteAdapter(RemoteViews rv, Context ctx, int viewId, int widgetId,
-                ArrayList<RemoteViews> list) {
-            RemoteViewsCompatK.setRemoteAdapter(rv, viewId, widgetId, list);
+                ArrayList<RemoteViews> list, int viewTypeCount) {
+            RemoteViewsCompatK.setRemoteAdapter(rv, viewId, widgetId, list, viewTypeCount);
         }
     }
 }
