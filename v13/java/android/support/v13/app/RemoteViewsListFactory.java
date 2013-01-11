@@ -28,31 +28,36 @@ import java.util.HashMap;
 class RemoteViewsListFactory implements RemoteViewsFactory {
 
     ArrayList<RemoteViews> mRemoteViewsList;
+    ArrayList<RemoteViews> mUpdatedViewsList;
     int mViewTypeCount;
 
     private static final HashMap<Intent.FilterComparison, RemoteViewsListFactory> sFactories =
             new HashMap<Intent.FilterComparison, RemoteViewsListFactory>();
 
-    public RemoteViewsListFactory(ArrayList<RemoteViews> list) {
-        setViewsList(list);
-
-    }
-
-    public void setViewsList(ArrayList<RemoteViews> list) {
+    public RemoteViewsListFactory(ArrayList<RemoteViews> list, int viewTypeCount) {
+        mViewTypeCount = viewTypeCount;
         mRemoteViewsList = list;
         init();
+    }
+
+    public void updateViewsList(ArrayList<RemoteViews> list) {
+        mUpdatedViewsList = list;
     }
 
     private void init() {
         if (mRemoteViewsList == null) return;
 
         ArrayList<Integer> viewTypes = new ArrayList<Integer>();
-        for (RemoteViews rv : mRemoteViewsList) {
+        for (RemoteViews rv: mRemoteViewsList) {
             if (!viewTypes.contains(rv.getLayoutId())) {
                 viewTypes.add(rv.getLayoutId());
             }
         }
-        mViewTypeCount = viewTypes.size();
+
+        if (viewTypes.size() > mViewTypeCount || mViewTypeCount < 1) {
+            throw new RuntimeException("Invalid view type count -- view type count must be >= 1" +
+                "and must be as large as the total number of distinct view types");
+        }
     }
 
     @Override
@@ -61,7 +66,11 @@ class RemoteViewsListFactory implements RemoteViewsFactory {
 
     @Override
     public void onDataSetChanged() {
-        init();
+        if (mUpdatedViewsList != null) {
+            mRemoteViewsList = mUpdatedViewsList;
+            init();
+        }
+        mUpdatedViewsList = null;
     }
 
     @Override
@@ -121,16 +130,16 @@ class RemoteViewsListFactory implements RemoteViewsFactory {
     }
 
     public static void addOrUpdateListFactory(Context ctx, Intent intent, int widgetId, int viewId,
-            ArrayList<RemoteViews> list) {
+            ArrayList<RemoteViews> list, int viewTypeCount) {
 
         Intent.FilterComparison fc = new Intent.FilterComparison(intent);
         if (sFactories.containsKey(fc)) {
             AppWidgetManager mgr = AppWidgetManager.getInstance(ctx);
             RemoteViewsListFactory rvlf = sFactories.get(fc);
-            rvlf.setViewsList(list);
+            rvlf.updateViewsList(list);
             mgr.notifyAppWidgetViewDataChanged(widgetId, viewId);
         } else {
-            RemoteViewsListFactory rvlf = new RemoteViewsListFactory(list);
+            RemoteViewsListFactory rvlf = new RemoteViewsListFactory(list, viewTypeCount);
             sFactories.put(fc, rvlf);
         }
     }

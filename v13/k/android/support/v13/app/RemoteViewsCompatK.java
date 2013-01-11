@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 class RemoteViewsCompatK {
     public static void setRemoteAdapter(RemoteViews rv, int viewId, int widgetId,
-            ArrayList<RemoteViews> list) {
-        rv.setRemoteAdapter(viewId,  list);
+            ArrayList<RemoteViews> list, int viewTypeCount) {
+        rv.setRemoteAdapter(viewId,  list, viewTypeCount);
     }
 }
