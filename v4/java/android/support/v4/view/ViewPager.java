@@ -186,8 +186,6 @@ public class ViewPager extends ViewGroup {
     private int mMaximumVelocity;
     private int mFlingDistance;
     private int mCloseEnough;
-    private int mSeenPositionMin;
-    private int mSeenPositionMax;
 
     // If the pager is at least this close to its final position, complete the scroll
     // on touch down and let the user interact with the content inside instead of
@@ -386,9 +384,6 @@ public class ViewPager extends ViewGroup {
         }
 
         mScrollState = newState;
-        if (newState == SCROLL_STATE_DRAGGING) {
-            mSeenPositionMin = mSeenPositionMax = -1;
-        }
         if (mPageTransformer != null) {
             // PageTransformers can do complex things that benefit from hardware layers.
             enableLayers(newState != SCROLL_STATE_IDLE);
@@ -1648,14 +1643,6 @@ public class ViewPager extends ViewGroup {
             }
         }
 
-        if (mSeenPositionMin < 0 || position < mSeenPositionMin) {
-            mSeenPositionMin = position;
-        }
-        final int pageOffsetCeil = (int) FloatMath.ceil(position + offset);
-        if (mSeenPositionMax < 0 || pageOffsetCeil > mSeenPositionMax) {
-            mSeenPositionMax = pageOffsetCeil;
-        }
-
         if (mOnPageChangeListener != null) {
             mOnPageChangeListener.onPageScrolled(position, offset, offsetPixels);
         }
@@ -2084,11 +2071,6 @@ public class ViewPager extends ViewGroup {
         int targetPage;
         if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
             targetPage = velocity > 0 ? currentPage : currentPage + 1;
-        } else if (mSeenPositionMin >= 0 && mSeenPositionMin < currentPage && pageOffset < 0.5f) {
-            targetPage = currentPage + 1;
-        } else if (mSeenPositionMax >= 0 && mSeenPositionMax > currentPage + 1 &&
-                pageOffset >= 0.5f) {
-            targetPage = currentPage - 1;
         } else {
             final float truncator = currentPage >= mCurItem ? 0.4f : 0.6f;
             targetPage = (int) (currentPage + pageOffset + truncator);
