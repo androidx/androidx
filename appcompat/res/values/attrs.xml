@@ -272,26 +272,151 @@
 
     <declare-styleable name="MenuView">
         <!-- Default appearance of menu item text. -->
-        <attr name="itemTextAppearance" format="reference"/>
+        <attr name="android:itemTextAppearance"/>
         <!-- Default horizontal divider between rows of menu items. -->
-        <attr name="horizontalDivider" format="reference"/>
+        <attr name="android:horizontalDivider"/>
         <!-- Default vertical divider between menu items. -->
-        <attr name="verticalDivider" format="reference"/>
+        <attr name="android:verticalDivider"/>
         <!-- Default background for the menu header. -->
-        <attr name="headerBackground" format="color|reference"/>
+        <attr name="android:headerBackground"/>
         <!-- Default background for each menu item. -->
-        <attr name="itemBackground" format="color|reference"/>
+        <attr name="android:itemBackground"/>
         <!-- Default animations for the menu. -->
-        <attr name="windowAnimationStyle" format="reference"/>
+        <attr name="android:windowAnimationStyle"/>
         <!-- Default disabled icon alpha for each menu item that shows an icon. -->
-        <attr name="itemIconDisabledAlpha" format="float"/>
+        <attr name="android:itemIconDisabledAlpha"/>
         <!-- Whether space should be reserved in layout when an icon is missing. -->
-        <attr name="preserveIconSpacing" format="boolean"/>
+        <attr name="android:preserveIconSpacing"/>
     </declare-styleable>
     <declare-styleable name="ActionMenuView">
         <!-- Size of padding on either end of a divider. -->
     </declare-styleable>
 
+    <!-- Base attributes that are available to all groups. -->
+    <declare-styleable name="MenuGroup">
+
+        <!-- The ID of the group. -->
+        <attr name="android:id" />
+
+        <!-- The category applied to all items within this group.
+             (This will be or'ed with the orderInCategory attribute.) -->
+        <attr name="android:menuCategory" />
+
+        <!-- The order within the category applied to all items within this group.
+             (This will be or'ed with the category attribute.) -->
+        <attr name="android:orderInCategory" />
+
+        <!-- Whether the items are capable of displaying a check mark. -->
+        <attr name="android:checkableBehavior" />
+
+        <!-- Whether the items are shown/visible. -->
+        <attr name="android:visible" />
+
+        <!-- Whether the items are enabled. -->
+        <attr name="android:enabled" />
+
+    </declare-styleable>
+
+    <!-- Base attributes that are available to all Item objects. -->
+    <declare-styleable name="MenuItem">
+
+        <!-- The ID of the item. -->
+        <attr name="android:id" />
+
+        <!-- The category applied to the item.
+             (This will be or'ed with the orderInCategory attribute.) -->
+        <attr name="android:menuCategory" />
+
+        <!-- The order within the category applied to the item.
+             (This will be or'ed with the category attribute.) -->
+        <attr name="android:orderInCategory" />
+
+        <!-- The title associated with the item. -->
+        <attr name="android:title" />
+
+        <!-- The condensed title associated with the item.  This is used in situations where the
+             normal title may be too long to be displayed. -->
+        <attr name="android:titleCondensed" />
+
+        <!-- The icon associated with this item.  This icon will not always be shown, so
+             the title should be sufficient in describing this item. -->
+        <attr name="android:icon" />
+
+        <!-- The alphabetic shortcut key.  This is the shortcut when using a keyboard
+             with alphabetic keys. -->
+        <attr name="android:alphabeticShortcut" />
+
+        <!-- The numeric shortcut key.  This is the shortcut when using a numeric (e.g., 12-key)
+             keyboard. -->
+        <attr name="android:numericShortcut" />
+
+        <!-- Whether the item is capable of displaying a check mark. -->
+        <attr name="android:checkable" />
+
+        <!-- Whether the item is checked.  Note that you must first have enabled checking with
+             the checkable attribute or else the check mark will not appear. -->
+        <attr name="android:checked"  />
+
+        <!-- Whether the item is shown/visible. -->
+        <attr name="android:visible" />
+
+        <!-- Whether the item is enabled. -->
+        <attr name="android:enabled" />
+
+        <!-- Name of a method on the Context used to inflate the menu that will be
+             called when the item is clicked. -->
+        <attr name="android:onClick" />
+
+        <!-- How this item should display in the Action Bar, if present. -->
+        <attr name="showAsAction">
+            <!-- Never show this item in an action bar, show it in the overflow menu instead.
+                 Mutually exclusive with "ifRoom" and "always". -->
+            <flag name="never" value="0" />
+            <!-- Show this item in an action bar if there is room for it as determined
+                 by the system. Favor this option over "always" where possible.
+                 Mutually exclusive with "never" and "always". -->
+            <flag name="ifRoom" value="1" />
+            <!-- Always show this item in an actionbar, even if it would override
+                 the system's limits of how much stuff to put there. This may make
+                 your action bar look bad on some screens. In most cases you should
+                 use "ifRoom" instead. Mutually exclusive with "ifRoom" and "never". -->
+            <flag name="always" value="2" />
+            <!-- When this item is shown as an action in the action bar, show a text
+                 label with it even if it has an icon representation. -->
+            <flag name="withText" value="4" />
+            <!-- This item's action view collapses to a normal menu
+                 item. When expanded, the action view takes over a
+                 larger segment of its container. -->
+            <flag name="collapseActionView" value="8" />
+        </attr>
+
+        <!-- An optional layout to be used as an action view.
+             See {@link android.view.MenuItem#setActionView(android.view.View)}
+             for more info. -->
+        <attr name="actionLayout" format="reference" />
+
+        <!-- The name of an optional View class to instantiate and use as an
+             action view. See {@link android.view.MenuItem#setActionView(android.view.View)}
+             for more info. -->
+        <attr name="actionViewClass" format="string" />
+
+        <!-- The name of an optional ActionProvider class to instantiate an action view
+             and perform operations such as default action for that menu item.
+             See {@link android.view.MenuItem#setActionProvider(android.view.ActionProvider)}
+             for more info. -->
+        <attr name="actionProviderClass" format="string" />
+
+    </declare-styleable>
+
+
     <attr name="dividerPadding" format="dimension"/>
+
+    <!-- ============ -->
+    <!-- Panel styles -->
+    <!-- ============ -->
+    <eat-comment />
+
+    <attr name="panelMenuListWidth" format="dimension" />
+
 
 </resources>

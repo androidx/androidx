@@ -218,6 +218,7 @@ class ActionBarImplHC extends ActionBar {
 
     @Override
     public void addTab(Tab tab) {
+        // TODO(trevorjohns): Remove downcast here!
         mActionBar.addTab(((TabWrapper) tab).mWrappedTab);
     }
 

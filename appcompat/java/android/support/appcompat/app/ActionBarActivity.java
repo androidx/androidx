@@ -20,15 +20,25 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.appcompat.R;
+import android.support.appcompat.view.Menu;
+import android.support.appcompat.view.MenuInflater;
+import android.support.appcompat.view.menu.ExpandedMenuView;
+import android.support.appcompat.view.menu.ListMenuPresenter;
+import android.support.appcompat.view.menu.MenuBuilder;
+import android.support.appcompat.view.menu.MenuView;
 import android.support.v4.app.FragmentActivity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback {
 
     private static final int FEATURE_ACTION_BAR = 8;
     private static final int FEATURE_ACTION_BAR_OVERLAY = 9;
+
+    private MenuInflater mMenuInflater;
 
     interface ActionBarActivityImpl {
         void onCreate(ActionBarActivity activity, Bundle savedInstanceState);
@@ -39,10 +49,19 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         void addContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp);
         ActionBar createActionBar(ActionBarActivity activity);
         void requestWindowFeature(ActionBarActivity activity, int feature);
+        ActionBar getSupportActionBar();
+
+        // Methods used to create options menu
+        View onCreatePanelView(int featureId);
+        boolean onCreatePanelMenu(int featureId, Menu menu);
     }
 
     static class ActionBarActivityImplBase implements ActionBarActivityImpl {
-        ActionBarActivity mActivity;
+        private ActionBarActivity mActivity;
+        private ActionBar mActionBar;
+        private ListMenuPresenter mListMenuPresenter;
+        private ExpandedMenuView mMenuPanel;
+        private MenuBuilder mMenu;
 
         @Override
         public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
@@ -138,9 +157,64 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             }
         }
 
+        @Override
+        public ActionBar getSupportActionBar() {
+            initActionBar();
+            return mActionBar;
+        }
+
+        private void initActionBar() {
+            if (mActionBar == null && (mActivity.mHasActionBar || mActivity.mOverlayActionBar)) {
+                mActionBar = IMPL.createActionBar(mActivity);
+            }
+        }
+
+        @Override
+        public View onCreatePanelView(int featureId) {
+            if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+                if (mMenu == null) {
+                    onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, null);
+                }
+
+                // Allow activity to modify menu state (show/hide items, etc.)
+                mActivity.onPrepareSupportOptionsMenu(mMenu);
+
+                if (mListMenuPresenter == null) {
+                    mListMenuPresenter = new ListMenuPresenter(
+                            mActivity, R.layout.list_menu_item_layout);
+                    mListMenuPresenter.initForMenu(mActivity, mMenu);
+                }
+
+                if (mMenuPanel == null) {
+                    mMenuPanel = (ExpandedMenuView) mListMenuPresenter.getMenuView(null);
+                }
+                return mMenuPanel;
+            }
+
+            return null;
+        }
+
+        @Override
+        public boolean onCreatePanelMenu(int featureId, Menu menu) {
+
+            if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+                // Discard menu object from system, since it doesn't support action items.
+                // Construct new replacement menu and pass it forward instead.
+                if (mMenu == null) {
+                    mMenu = new MenuBuilder(mActivity);
+                }
+
+                // Allow activity to inflate menu contents
+                return mActivity.onCreateSupportOptionsMenu(mMenu);
+            }
+
+            return false;
+        }
+
     }
 
     static class ActionBarActivityImplHC implements ActionBarActivityImpl {
+        private ActionBarImplHC mActionBar;
 
         @Override
         public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
@@ -151,6 +225,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             }
             if (activity.mOverlayActionBar) {
                 activity.superRequestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
+            }
+            if (activity.mHasActionBar || activity.mOverlayActionBar) {
+                mActionBar = new ActionBarImplHC(activity, activity);
             }
         }
 
@@ -188,6 +265,22 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             activity.superRequestWindowFeature(feature);
         }
 
+        @Override
+        public ActionBar getSupportActionBar() {
+            return mActionBar;
+        }
+
+        @Override
+        public View onCreatePanelView(int featureId) {
+            // Do not create custom options menu on HC+
+            return null;
+        }
+
+        @Override
+        public boolean onCreatePanelMenu(int featureId, Menu menu) {
+            // Do not create custom options menu on HC+
+            return false;
+        }
     }
 
     static class ActionBarActivityImplICS extends ActionBarActivityImplHC {
@@ -211,8 +304,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
     }
 
-    private ActionBar mActionBar;
-
     // true if the compatibility implementation has installed a window sub-decor layout.
     boolean mSubDecorInstalled;
 
@@ -235,13 +326,15 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     public ActionBar getSupportActionBar() {
-        initActionBar();
-        return mActionBar;
+        return IMPL.getSupportActionBar();
     }
 
-    private void initActionBar() {
-        if (mActionBar == null && mHasActionBar) {
-            mActionBar = IMPL.createActionBar(this);
+    public MenuInflater getSupportMenuInflater() {
+        if (mMenuInflater != null) {
+            return mMenuInflater;
+        } else {
+            mMenuInflater = new MenuInflater(this);
+            return mMenuInflater;
         }
     }
 
@@ -314,4 +407,92 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     void superRequestWindowFeature(int feature) {
         super.requestWindowFeature(feature);
     }
+
+    @Override
+    public View onCreatePanelView(int featureId) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL)
+            return IMPL.onCreatePanelView(featureId);
+        else
+            return super.onCreatePanelView(featureId);
+    }
+
+    @Override
+    public boolean onCreatePanelMenu(int featureId, android.view.Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL)
+            // This is a boundary where we transition from framework Menu objects to support library
+            // Menu objects.
+            return IMPL.onCreatePanelMenu(featureId, null);
+        else
+            return super.onCreatePanelMenu(featureId, menu);
+    }
+
+    @Override
+    public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL)
+            return onPrepareOptionsMenu(menu);
+        return super.onPreparePanel(featureId, view, menu);
+    }
+
+    /**
+     * Support library version of onPrepareOptionsMenu, used for legacy
+     * devices (API Level 10 or earlier).
+     *
+     * Prepare the Screen's standard options menu to be displayed.  This is
+     * called right before the menu is shown, every time it is shown.  You can
+     * use this method to efficiently enable/disable items or otherwise
+     * dynamically modify the contents.
+     *
+     * <p>The default implementation updates the system menu items based on the
+     * activity's state.  Deriving classes should always call through to the
+     * base class implementation.
+     *
+     * @param menu The options menu as last shown or first initialized by
+     *             onCreateOptionsMenu().
+     *
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     *
+     * @see #onPrepareOptionsMenu
+     * @see #onCreateSupportOptionsMenu
+     */
+    public boolean onPrepareSupportOptionsMenu(Menu menu) {
+        return true;
+    }
+
+    /**
+     * Support library version of onCreateOptionsMenu, used for legacy
+     * devices (API Level 10 or earlier).
+     *
+     * Initialize the contents of the Activity's standard options menu.  You
+     * should place your menu items in to <var>menu</var>.
+     *
+     * <p>This is only called once, the first time the options menu is
+     * displayed.  To update the menu every time it is displayed, see
+     * {@link #onPrepareOptionsMenu}.
+     *
+     * <p>The default implementation populates the menu with standard system
+     * menu items.  These are placed in the {@link Menu#CATEGORY_SYSTEM} group so that
+     * they will be correctly ordered with application-defined menu items.
+     * Deriving classes should always call through to the base implementation.
+     *
+     * <p>You can safely hold on to <var>menu</var> (and any items created
+     * from it), making modifications to it as desired, until the next
+     * time onCreateOptionsMenu() is called.
+     *
+     * <p>When you add items to the menu, you can implement the Activity's
+     * {@link #onOptionsItemSelected} method to handle them there.
+     *
+     * @param menu The options menu in which you place your items.
+     *
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     *
+     * @see #onCreateOptionsMenu
+     * @see #onPrepareSupportOptionsMenu
+     * @see #onOptionsItemSelected
+     */
+    public boolean onCreateSupportOptionsMenu(android.support.appcompat.view.Menu menu) {
+        return false;
+    }
+
 }
