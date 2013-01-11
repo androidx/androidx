@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2012 The Android Open Source Project
+ * Copyright (C) 2011-2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #include "rsCpuCore.h"
 #include "rsCpuScript.h"
 
+#include "rsCpuRuntimeMathFuncs.h"
 
 using namespace android;
 using namespace android::renderscript;
@@ -32,18 +33,6 @@ using namespace android::renderscript;
 // Handle missing Gingerbread functions like tgammaf.
 static float SC_tgammaf(float x) {
     return tgamma(x);
-}
-
-float __attribute__((overloadable)) pow(float x, float y) {
-    return powf(x, y);
-}
-
-float __attribute__((overloadable)) atan(float x) {
-    return atanf(x);
-}
-
-float __attribute__((overloadable)) exp(float x) {
-    return expf(x);
 }
 
 static float SC_exp10(float v) {
