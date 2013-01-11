@@ -20,7 +20,6 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.widget.Adapter;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
@@ -29,13 +28,13 @@ import java.util.ArrayList;
  * This is a compatibility version of RemoteViews which simplifies the creation of basic collection
  * widgets (ie. widgets containing {@link android.widget.ListView}, {@link android.widget.GridView},
  * {@link android.widget.StackView} or {@link android.widget.AdapterViewAnimator}). This class
- * provides a compatibility version of the method RemoteViews#setRemoteAdapter(int, ArrayList),
+ * provides a compatibility version of the method RemoteViews#setRemoteAdapter(int, ArrayList, int),
  * introduced in API level 18. For platform versions supporting the new API, this class will act as
  * a simple pass-through, and for prior versions will emulate the new API's behavior.
  *
  * Be sure to include declare {@link RemoteViewsServiceCompat} in your manifest, as specified in
  * the doc for
- * {@link RemoteViewsCompat#setRemoteAdapter(RemoteViews, Context, int, int, ArrayList)}.
+ * {@link RemoteViewsCompat#setRemoteAdapter(RemoteViews, Context, int, int, ArrayList, int)}.
  *
  */
 public class RemoteViewsCompat {
@@ -58,7 +57,7 @@ public class RemoteViewsCompat {
     }
 
     /**
-     * Compatibility version of RemoteViews#setRemoteAdapter(int, ArrayList).
+     * Compatibility version of RemoteViews#setRemoteAdapter(int, ArrayList, int).
      *
      * When using this method, it is required that include {@link RemoteViewsServiceCompat}
      * in your manifest:
