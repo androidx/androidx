@@ -309,15 +309,15 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
         }
         ptr = (uint8_t*)alloc->mHal.state.userProvidedPtr;
     } else {
-        if (forceZero) {
-            ptr = (uint8_t *)calloc(1, allocSize);
-        } else {
-            ptr = (uint8_t *)malloc(allocSize);
-        }
+        // We align all allocations to a 16-byte boundary.
+        ptr = (uint8_t *)memalign(16, allocSize);
         if (!ptr) {
             alloc->mHal.drv = NULL;
             free(drv);
             return false;
+        }
+        if (forceZero) {
+            memset(ptr, 0, allocSize);
         }
     }
     // Build the pointer tables
