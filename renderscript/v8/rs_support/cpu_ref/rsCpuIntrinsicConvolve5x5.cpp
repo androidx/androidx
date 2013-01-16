@@ -62,7 +62,7 @@ void RsdCpuScriptIntrinsicConvolve5x5::setGlobalVar(uint32_t slot,
     rsAssert(slot == 0);
     memcpy (&fp, data, dataLength);
     for(int ct=0; ct < 25; ct++) {
-        ip[ct] = (short)(fp[ct] * 255.f + 0.5f);
+        ip[ct] = (short)(fp[ct] * 255.f);
     }
 }
 
@@ -109,7 +109,11 @@ static void One(const RsForEachStubParamStruct *p, uint32_t x, uchar4 *out,
 
     px = clamp(px, 0.f, 255.f);
     uchar4 o = {(uchar)px.x, (uchar)px.y, (uchar)px.z, (uchar)px.w};
-    *out = o;
+    //if ((out[0].r != o.r) || (out[0].y != o.y) || (out[0].z != o.z) || (out[0].w != o.w)) {
+        //ALOGE("x %i  %i,%i,%i,%i  %i,%i,%i,%i", x, o.x, o.y, o.z, o.w, out[0].x, out[0].y, out[0].z, out[0].w);
+    //}
+    //o.w = 0xff;
+    out->rgba = o.rgba;
 }
 
 extern "C" void rsdIntrinsicConvolve5x5_K(void *dst, const void *y0, const void *y1,
@@ -171,9 +175,9 @@ RsdCpuScriptIntrinsicConvolve5x5::RsdCpuScriptIntrinsicConvolve5x5(
             : RsdCpuScriptIntrinsic(ctx, s, e, RS_SCRIPT_INTRINSIC_ID_CONVOLVE_5x5) {
 
     mRootPtr = &kernel;
-    for(int ct=0; ct < 9; ct++) {
+    for(int ct=0; ct < 25; ct++) {
         fp[ct] = 1.f / 25.f;
-        ip[ct] = (short)(fp[ct] * 255.f + 0.5f);
+        ip[ct] = (short)(fp[ct] * 255.f);
     }
 }
 

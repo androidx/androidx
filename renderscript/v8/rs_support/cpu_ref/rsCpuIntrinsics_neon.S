@@ -524,6 +524,8 @@ ENTRY(rsdIntrinsicConvolve5x5_K)
         vld1.16     {d0, d1, d2, d3}, [r6]!
         vld1.16     {d4, d5, d6}, [r6]
 
+        vmov.u32  q15, #0x7f
+
         /* load the count */
         ldr     r6, [sp, #32 + 64]
 
@@ -652,10 +654,13 @@ ENTRY(rsdIntrinsicConvolve5x5_K)
 
 
 
+        vadd.i32 q4, q4, q15
+        vadd.i32 q5, q5, q15
 
 /*      Narrow it to a d-reg 32 -> 16 bit */
-        vshrn.i32 d8, q4, #8
-        vshrn.i32 d9, q5, #8
+        vrshrn.i32 d8, q4, #8
+        vrshrn.i32 d9, q5, #8
+
 
 /*      Pack 16 -> 8 bit, saturate, put two pixels into D reg */
         vqmovun.s16 d8, q4
