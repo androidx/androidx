@@ -1,7 +1,12 @@
 
 LOCAL_PATH:=$(call my-dir)
 rs_base_CFLAGS := -Werror -Wall -Wno-unused-parameter -Wno-unused-variable \
-		  -Wno-overloaded-virtual -DRS_COMPATIBILITY_LIB -DARCH_ARM_HAVE_NEON
+		  -Wno-overloaded-virtual -DRS_COMPATIBILITY_LIB
+
+ifeq ($(ARCH_ARM_HAVE_NEON),true)
+rs_base_CFLAGS += -DARCH_ARM_HAVE_NEON
+endif
+
 ifeq ($(TARGET_BUILD_PDK), true)
   rs_base_CFLAGS += -D__RS_PDK__
 endif
@@ -113,9 +118,12 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuIntrinsicConvolve3x3.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve5x5.cpp \
 	cpu_ref/rsCpuIntrinsicLUT.cpp \
-	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp \
-	cpu_ref/rsCpuIntrinsics_neon.S
+	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp
 
+ifeq ($(ARCH_ARM_HAVE_NEON),true)
+LOCAL_SRC_FILES += \
+	cpu_ref/rsCpuIntrinsics_neon.S
+endif
 
 LOCAL_SHARED_LIBRARIES += libcutils libutils libdl
 
