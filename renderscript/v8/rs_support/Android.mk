@@ -1,7 +1,7 @@
 
 LOCAL_PATH:=$(call my-dir)
 rs_base_CFLAGS := -Werror -Wall -Wno-unused-parameter -Wno-unused-variable \
-		  -Wno-overloaded-virtual -DRS_COMPATIBILITY_LIB
+		  -Wno-overloaded-virtual -DRS_COMPATIBILITY_LIB -DARCH_ARM_HAVE_NEON
 ifeq ($(TARGET_BUILD_PDK), true)
   rs_base_CFLAGS += -D__RS_PDK__
 endif
@@ -106,16 +106,15 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeStubs.cpp \
 	cpu_ref/rsCpuScriptGroup.cpp \
 	cpu_ref/rsCpuIntrinsic.cpp \
-    cpu_ref/rsCpuIntrinsic3DLUT.cpp \
+	cpu_ref/rsCpuIntrinsic3DLUT.cpp \
 	cpu_ref/rsCpuIntrinsicBlend.cpp \
 	cpu_ref/rsCpuIntrinsicBlur.cpp \
 	cpu_ref/rsCpuIntrinsicColorMatrix.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve3x3.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve5x5.cpp \
 	cpu_ref/rsCpuIntrinsicLUT.cpp \
-	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp
-
-
+	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp \
+	cpu_ref/rsCpuIntrinsics_neon.S
 
 
 LOCAL_SHARED_LIBRARIES += libcutils libutils libdl
