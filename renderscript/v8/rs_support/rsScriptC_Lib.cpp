@@ -92,7 +92,8 @@ tm* rsrLocalTime(Context *rsc, tm *local, time_t *timer) {
     // have to apply locking for proper behavior in RenderScript.
     pthread_mutex_lock(&rsc->gLibMutex);
     tm *tmp = localtime(timer);
-    memcpy(local, tmp, sizeof(*tmp));
+    // WORKAROUND to struct rs_tm != struct tm
+    memcpy(local, tmp, sizeof(int)*9);
     pthread_mutex_unlock(&rsc->gLibMutex);
     return local;
 }

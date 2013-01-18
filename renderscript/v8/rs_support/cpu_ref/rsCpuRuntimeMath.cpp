@@ -30,8 +30,43 @@
 using namespace android;
 using namespace android::renderscript;
 
+#define ATOMIC_I32_FN_PI32(func)                           \
+    int32_t __attribute__((overloadable)) rsAtomic##func   \
+    (volatile int32_t* ptr) {                              \
+        return SC_Atomic##func(ptr);                       \
+    }
+
+#define ATOMIC_I32_FN_PI32_I32(func)                       \
+    int32_t __attribute__((overloadable)) rsAtomic##func   \
+    (volatile int32_t* ptr, int32_t value) {               \
+        return SC_Atomic##func(ptr, value);                \
+    }
+
+#define ATOMIC_U32_FN_PU32(func)                          \
+    uint32_t __attribute__((overloadable)) rsAtomic##func \
+    (volatile uint32_t* ptr) {                            \
+        return SC_AtomicU##func(ptr);                     \
+    }
+
+#define ATOMIC_U32_FN_PU32_U32(func)                       \
+    uint32_t __attribute__((overloadable)) rsAtomic##func  \
+    (volatile uint32_t* ptr, uint32_t value) {             \
+        return SC_AtomicU##func(ptr, value);               \
+    }
+
+#define EXPORT_F32_FN_F32(func)                                 \
+    float __attribute__((overloadable)) SC_##func(float v) {    \
+        return func(v);                                         \
+    }
+
+#define EXPORT_F32_FN_F32_F32(func)                                     \
+    float __attribute__((overloadable)) SC_##func(float t, float v) {   \
+        return func(t, v);                                              \
+    }
+
+
 // Handle missing Gingerbread functions like tgammaf.
-static float SC_tgammaf(float x) {
+float SC_tgammaf(float x) {
     return tgamma(x);
 }
 
@@ -77,16 +112,25 @@ float SC_sincos(float v, float *cosptr) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-static uint32_t SC_abs_i32(int32_t v) {return abs(v);}
+uint32_t SC_abs_i32(int32_t v) {return abs(v);}
 static uint16_t SC_abs_i16(int16_t v) {return (uint16_t)abs(v);}
 static uint8_t SC_abs_i8(int8_t v) {return (uint8_t)abs(v);}
 
+uint16_t __attribute__((overloadable)) abs(int16_t v) {return SC_abs_i16(v);}
+uint8_t __attribute__((overloadable)) abs(char v) {return SC_abs_i8(v);}
+
 static uint32_t SC_clz_u32(uint32_t v) {return __builtin_clz(v);}
+uint32_t __attribute__((overloadable)) clz(uint32_t v) {return SC_clz_u32(v);}
 static uint16_t SC_clz_u16(uint16_t v) {return (uint16_t)__builtin_clz(v);}
+uint16_t __attribute__((overloadable)) clz(uint16_t v) {return SC_clz_u16(v);}
 static uint8_t SC_clz_u8(uint8_t v) {return (uint8_t)__builtin_clz(v);}
+uint8_t __attribute__((overloadable)) clz(uint8_t v) {return SC_clz_u8(v);}
 static int32_t SC_clz_i32(int32_t v) {return (int32_t)__builtin_clz((uint32_t)v);}
+int32_t __attribute__((overloadable)) clz(int32_t v) {return SC_clz_i32(v);}
 static int16_t SC_clz_i16(int16_t v) {return (int16_t)__builtin_clz(v);}
+int16_t __attribute__((overloadable)) clz(int16_t v) {return SC_clz_i16(v);}
 static int8_t SC_clz_i8(int8_t v) {return (int8_t)__builtin_clz(v);}
+int8_t __attribute__((overloadable)) clz(char v) {return SC_clz_i8(v);}
 
 //////////////////////////////////////////////////////////////////////////////
 // Float util
@@ -252,7 +296,6 @@ static float SC_frac(float v) {
     return fmin(v - i, 0x1.fffffep-1f);
 }
 
-
 static int32_t SC_AtomicCas(volatile int32_t *ptr, int32_t expectedValue, int32_t newValue) {
     int32_t prev;
 
@@ -273,18 +316,34 @@ static int32_t SC_AtomicCas(volatile int32_t *ptr, int32_t expectedValue, int32_
     return prev;
 }
 
+int32_t __attribute__((overloadable)) rsAtomicCas(volatile int32_t *ptr, int32_t expectedValue, int32_t newValue) {
+    return SC_AtomicCas(ptr, expectedValue, newValue);
+}
+
+uint32_t __attribute__((overloadable)) rsAtomicCas(volatile uint32_t *ptr, uint32_t expectedValue, uint32_t newValue) {
+    volatile int32_t *realPtr = (volatile int32_t *)(void*)ptr;
+    int32_t realExpectedValue = *((int32_t*)&expectedValue);
+    int32_t realNewValue = *((int32_t*)&newValue);
+    return SC_AtomicCas(realPtr, realExpectedValue, realNewValue);
+}
 
 static int32_t SC_AtomicInc(volatile int32_t *ptr) {
     return android_atomic_inc(ptr);
 }
 
+ATOMIC_I32_FN_PI32(Inc)
+
 static int32_t SC_AtomicDec(volatile int32_t *ptr) {
     return android_atomic_dec(ptr);
 }
 
+ATOMIC_I32_FN_PI32(Dec)
+
 static int32_t SC_AtomicAdd(volatile int32_t *ptr, int32_t value) {
     return android_atomic_add(value, ptr);
 }
+
+ATOMIC_I32_FN_PI32_I32(Add)
 
 static int32_t SC_AtomicSub(volatile int32_t *ptr, int32_t value) {
     int32_t prev, status;
@@ -295,13 +354,19 @@ static int32_t SC_AtomicSub(volatile int32_t *ptr, int32_t value) {
     return prev;
 }
 
+ATOMIC_I32_FN_PI32_I32(Sub)
+
 static int32_t SC_AtomicAnd(volatile int32_t *ptr, int32_t value) {
     return android_atomic_and(value, ptr);
 }
 
+ATOMIC_I32_FN_PI32_I32(And)
+
 static int32_t SC_AtomicOr(volatile int32_t *ptr, int32_t value) {
     return android_atomic_or(value, ptr);
 }
+
+ATOMIC_I32_FN_PI32_I32(Or)
 
 static int32_t SC_AtomicXor(volatile int32_t *ptr, int32_t value) {
     int32_t prev, status;
@@ -311,6 +376,8 @@ static int32_t SC_AtomicXor(volatile int32_t *ptr, int32_t value) {
     } while (CC_UNLIKELY(status != 0));
     return prev;
 }
+
+ATOMIC_I32_FN_PI32_I32(Xor)
 
 static uint32_t SC_AtomicUMin(volatile uint32_t *ptr, uint32_t value) {
     uint32_t prev, status;
@@ -322,6 +389,8 @@ static uint32_t SC_AtomicUMin(volatile uint32_t *ptr, uint32_t value) {
     return prev;
 }
 
+ATOMIC_U32_FN_PU32_U32(Min)
+
 static int32_t SC_AtomicMin(volatile int32_t *ptr, int32_t value) {
     int32_t prev, status;
     do {
@@ -331,6 +400,8 @@ static int32_t SC_AtomicMin(volatile int32_t *ptr, int32_t value) {
     } while (CC_UNLIKELY(status != 0));
     return prev;
 }
+
+ATOMIC_I32_FN_PI32_I32(Min)
 
 static uint32_t SC_AtomicUMax(volatile uint32_t *ptr, uint32_t value) {
     uint32_t prev, status;
@@ -342,6 +413,8 @@ static uint32_t SC_AtomicUMax(volatile uint32_t *ptr, uint32_t value) {
     return prev;
 }
 
+ATOMIC_U32_FN_PU32_U32(Max)
+
 static int32_t SC_AtomicMax(volatile int32_t *ptr, int32_t value) {
     int32_t prev, status;
     do {
@@ -351,6 +424,56 @@ static int32_t SC_AtomicMax(volatile int32_t *ptr, int32_t value) {
     } while (CC_UNLIKELY(status != 0));
     return prev;
 }
+
+ATOMIC_I32_FN_PI32_I32(Max)
+
+EXPORT_F32_FN_F32(acosf)
+EXPORT_F32_FN_F32(acoshf)
+EXPORT_F32_FN_F32(asinf)
+EXPORT_F32_FN_F32(asinhf)
+EXPORT_F32_FN_F32(atanf)
+EXPORT_F32_FN_F32_F32(atan2f)
+EXPORT_F32_FN_F32(atanhf)
+EXPORT_F32_FN_F32(cbrtf)
+EXPORT_F32_FN_F32(ceilf)
+EXPORT_F32_FN_F32_F32(copysignf)
+EXPORT_F32_FN_F32(cosf)
+EXPORT_F32_FN_F32(coshf)
+EXPORT_F32_FN_F32(erfcf)
+EXPORT_F32_FN_F32(erff)
+EXPORT_F32_FN_F32(expf)
+EXPORT_F32_FN_F32(exp2f)
+EXPORT_F32_FN_F32(expm1f)
+EXPORT_F32_FN_F32_F32(fdimf)
+EXPORT_F32_FN_F32(floorf)
+float SC_fmaf(float u, float t, float v) {return fmaf(u, t, v);}
+EXPORT_F32_FN_F32_F32(fmaxf)
+EXPORT_F32_FN_F32_F32(fminf)
+EXPORT_F32_FN_F32_F32(fmodf)
+float SC_frexpf(float v, int* ptr) {return frexpf(v, ptr);}
+EXPORT_F32_FN_F32_F32(hypotf)
+EXPORT_F32_FN_F32(ilogbf)
+float SC_ldexpf(float v, int i) {return ldexpf(v, i);}
+EXPORT_F32_FN_F32(lgammaf)
+float SC_lgammaf_r(float v, int* ptr) {return lgammaf_r(v, ptr);}
+EXPORT_F32_FN_F32(logf)
+EXPORT_F32_FN_F32(log10f)
+EXPORT_F32_FN_F32(log1pf)
+EXPORT_F32_FN_F32(logbf)
+float SC_modff(float v, float* ptr) {return modff(v, ptr);}
+EXPORT_F32_FN_F32_F32(nextafterf)
+EXPORT_F32_FN_F32_F32(powf)
+EXPORT_F32_FN_F32_F32(remainderf)
+float SC_remquof(float t, float v, int* ptr) {return remquof(t, v, ptr);}
+EXPORT_F32_FN_F32(rintf)
+EXPORT_F32_FN_F32(roundf)
+EXPORT_F32_FN_F32(sinf)
+EXPORT_F32_FN_F32(sinhf)
+EXPORT_F32_FN_F32(sqrtf)
+EXPORT_F32_FN_F32(tanf)
+EXPORT_F32_FN_F32(tanhf)
+EXPORT_F32_FN_F32(truncf)
+
 
 
 

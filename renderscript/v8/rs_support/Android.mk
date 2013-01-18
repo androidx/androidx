@@ -118,7 +118,8 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuIntrinsicConvolve3x3.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve5x5.cpp \
 	cpu_ref/rsCpuIntrinsicLUT.cpp \
-	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp
+	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp \
+	cpu_ref/rsCpuRuntimeMathFuncs.cpp
 
 ifeq ($(ARCH_ARM_HAVE_NEON),true)
 LOCAL_SRC_FILES += \
