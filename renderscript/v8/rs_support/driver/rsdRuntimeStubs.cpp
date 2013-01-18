@@ -61,7 +61,6 @@ typedef unsigned long long ulong2 __attribute__((ext_vector_type(2)));
 typedef unsigned long long ulong3 __attribute__((ext_vector_type(3)));
 typedef unsigned long long ulong4 __attribute__((ext_vector_type(4)));
 
-
 #define OPAQUETYPE(t) \
 typedef struct { const int* const p; } __attribute__((packed, aligned(4))) t;
 
@@ -70,8 +69,20 @@ OPAQUETYPE(rs_type)
 OPAQUETYPE(rs_allocation)
 OPAQUETYPE(rs_sampler)
 OPAQUETYPE(rs_script)
+OPAQUETYPE(rs_script_call)
 #undef OPAQUETYPE
 
+typedef struct {
+    int tm_sec;     ///< seconds
+    int tm_min;     ///< minutes
+    int tm_hour;    ///< hours
+    int tm_mday;    ///< day of the month
+    int tm_mon;     ///< month
+    int tm_year;    ///< year
+    int tm_wday;    ///< day of the week
+    int tm_yday;    ///< day of the year
+    int tm_isdst;   ///< daylight savings time
+} rs_tm;
 
 //////////////////////////////////////////////////////////////////////////////
 // Allocation
@@ -134,13 +145,19 @@ static bool SC_IsObject(const ObjectBase *src) {
     return rsrIsObject(rsc, src);
 }
 
-
+bool rsIsObject(rs_element src) {
+    return SC_IsObject((ObjectBase*)src.p);
+}
 
 
 static const Allocation * SC_GetAllocation(const void *ptr) {
     Context *rsc = RsdCpuReference::getTlsContext();
     const Script *sc = RsdCpuReference::getTlsScript();
     return rsdScriptGetAllocationForPointer(rsc, sc, ptr);
+}
+
+const Allocation * rsGetAllocation(const void *ptr) {
+    return SC_GetAllocation(ptr);
 }
 
 static void SC_ForEach_SAA(Script *target,
@@ -167,6 +184,15 @@ static void SC_ForEach_SAAUS(Script *target,
     rsrForEach(rsc, target, in, out, usr, 0, call);
 }
 
+void __attribute__((overloadable)) rsForEach(rs_script script,
+                                             rs_allocation in,
+                                             rs_allocation out,
+                                             const void *usr,
+                                             const rs_script_call *call) {
+    return SC_ForEach_SAAUS((Script *)script.p, (Allocation*)in.p, (Allocation*)out.p, usr, (RsScriptCall*)call);
+}
+
+
 static void SC_ForEach_SAAUL(Script *target,
                              Allocation *in,
                              Allocation *out,
@@ -186,6 +212,15 @@ static void SC_ForEach_SAAULS(Script *target,
     rsrForEach(rsc, target, in, out, usr, usrLen, call);
 }
 
+void __attribute__((overloadable)) rsForEach(rs_script script,
+                                             rs_allocation in,
+                                             rs_allocation out,
+                                             const void *usr,
+                                             uint32_t usrLen,
+                                             const rs_script_call *call) {
+    return SC_ForEach_SAAULS((Script *)script.p, (Allocation*)in.p, (Allocation*)out.p, usr, usrLen, (RsScriptCall*)call);
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -198,9 +233,13 @@ static float SC_GetDt() {
     return rsrGetDt(rsc, sc);
 }
 
-time_t SC_Time(time_t *timer) {
+static int SC_Time(int *timer) {
     Context *rsc = RsdCpuReference::getTlsContext();
-    return rsrTime(rsc, timer);
+    return rsrTime(rsc, (long*)timer);
+}
+
+int rsTime(int *timer) {
+    return SC_Time(timer);
 }
 
 tm* SC_LocalTime(tm *local, time_t *timer) {
@@ -208,7 +247,11 @@ tm* SC_LocalTime(tm *local, time_t *timer) {
     return rsrLocalTime(rsc, local, timer);
 }
 
-int64_t SC_UptimeMillis() {
+rs_tm* rsLocaltime(rs_tm* local, const int *timer) {
+    return (rs_tm*)(SC_LocalTime((tm*)local, (long*)timer));
+}
+
+int64_t rsUptimeMillis() {
     Context *rsc = RsdCpuReference::getTlsContext();
     return rsrUptimeMillis(rsc);
 }
@@ -232,12 +275,12 @@ static uint32_t SC_ToClient(int cmdID) {
     return rsrToClient(rsc, cmdID, NULL, 0);
 }
 
-static uint32_t SC_ToClientBlocking2(int cmdID, void *data, int len) {
+uint32_t rsSendToClientBlocking2(int cmdID, void *data, int len) {
     Context *rsc = RsdCpuReference::getTlsContext();
     return rsrToClientBlocking(rsc, cmdID, data, len);
 }
 
-static uint32_t SC_ToClientBlocking(int cmdID) {
+uint32_t rsSendToClientBlocking(int cmdID) {
     Context *rsc = RsdCpuReference::getTlsContext();
     return rsrToClientBlocking(rsc, cmdID, NULL, 0);
 }
@@ -469,8 +512,8 @@ static RsdCpuReference::CpuSymbol gSyms[] = {
 
     { "_Z14rsSendToClienti", (void *)&SC_ToClient, false },
     { "_Z14rsSendToClientiPKvj", (void *)&SC_ToClient2, false },
-    { "_Z22rsSendToClientBlockingi", (void *)&SC_ToClientBlocking, false },
-    { "_Z22rsSendToClientBlockingiPKvj", (void *)&SC_ToClientBlocking2, false },
+    { "_Z22rsSendToClientBlockingi", (void *)&rsSendToClientBlocking, false },
+    { "_Z22rsSendToClientBlockingiPKvj", (void *)&rsSendToClientBlocking2, false },
 
     { "_Z9rsForEach9rs_script13rs_allocationS0_", (void *)&SC_ForEach_SAA, true },
     { "_Z9rsForEach9rs_script13rs_allocationS0_PKv", (void *)&SC_ForEach_SAAU, true },
@@ -479,9 +522,9 @@ static RsdCpuReference::CpuSymbol gSyms[] = {
     { "_Z9rsForEach9rs_script13rs_allocationS0_PKvjPK16rs_script_call_t", (void *)&SC_ForEach_SAAULS, true },
 
     // time
-    { "_Z6rsTimePi", (void *)&SC_Time, true },
-    { "_Z11rsLocaltimeP5rs_tmPKi", (void *)&SC_LocalTime, true },
-    { "_Z14rsUptimeMillisv", (void*)&SC_UptimeMillis, true },
+    { "_Z6rsTimePi", (void *)&rsTime, true },
+    { "_Z11rsLocaltimeP5rs_tmPKi", (void *)&rsLocaltime, true },
+    { "_Z14rsUptimeMillisv", (void*)&rsUptimeMillis, true },
     { "_Z13rsUptimeNanosv", (void*)&SC_UptimeNanos, true },
     { "_Z7rsGetDtv", (void*)&SC_GetDt, false },
 

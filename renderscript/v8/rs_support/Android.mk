@@ -106,14 +106,15 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeStubs.cpp \
 	cpu_ref/rsCpuScriptGroup.cpp \
 	cpu_ref/rsCpuIntrinsic.cpp \
-    cpu_ref/rsCpuIntrinsic3DLUT.cpp \
+	cpu_ref/rsCpuIntrinsic3DLUT.cpp \
 	cpu_ref/rsCpuIntrinsicBlend.cpp \
 	cpu_ref/rsCpuIntrinsicBlur.cpp \
 	cpu_ref/rsCpuIntrinsicColorMatrix.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve3x3.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve5x5.cpp \
 	cpu_ref/rsCpuIntrinsicLUT.cpp \
-	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp
+	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp \
+	cpu_ref/rsCpuRuntimeMathFuncs.cpp
 
 
 
