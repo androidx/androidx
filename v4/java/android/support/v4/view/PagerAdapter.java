@@ -276,11 +276,21 @@ public abstract class PagerAdapter {
         mObservable.notifyChanged();
     }
 
-    void registerDataSetObserver(DataSetObserver observer) {
+    /**
+     * Register an observer to receive callbacks related to the adapter's data changing.
+     *
+     * @param observer The {@link android.database.DataSetObserver} which will receive callbacks.
+     */
+    public void registerDataSetObserver(DataSetObserver observer) {
         mObservable.registerObserver(observer);
     }
 
-    void unregisterDataSetObserver(DataSetObserver observer) {
+    /**
+     * Unregister an observer from callbacks related to the adapter's data changing.
+     *
+     * @param observer The {@link android.database.DataSetObserver} which will be unregistered.
+     */
+    public void unregisterDataSetObserver(DataSetObserver observer) {
         mObservable.unregisterObserver(observer);
     }
 
