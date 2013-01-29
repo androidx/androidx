@@ -32,7 +32,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -43,10 +42,6 @@ import android.widget.Scroller;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
@@ -595,7 +590,7 @@ public class SlidingPaneLayout extends ViewGroup {
                     mIsUnableToDrag = true;
                 }
                 if (mScrollState == SCROLL_STATE_DRAGGING && performDrag(x)) {
-                    ViewCompat.postInvalidateOnAnimation(this);
+                    invalidate();
                 }
                 break;
             }
@@ -729,7 +724,7 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         if (needsInvalidate) {
-            ViewCompat.postInvalidateOnAnimation(this);
+            invalidate();
         }
         return wantTouchEvents;
     }
@@ -794,10 +789,9 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         final float dxPane = newLeft - oldLeft;
-        final float newRight = mSlideableView.getRight() + dxPane;
 
-        mSlideableView.layout((int) newLeft, mSlideableView.getTop(),
-                (int) newRight, mSlideableView.getBottom());
+        mSlideableView.offsetLeftAndRight((int) dxPane);
+
         mSlideOffset = (newLeft - leftBound) / mSlideRange;
 
         if (mParallaxBy != 0) {
@@ -934,8 +928,7 @@ public class SlidingPaneLayout extends ViewGroup {
             final int oldLeft = mSlideableView.getLeft();
             final int newLeft = mScroller.getCurrX();
             final int dx = newLeft - oldLeft;
-            mSlideableView.layout(newLeft, mSlideableView.getTop(),
-                    mSlideableView.getRight() + dx, mSlideableView.getBottom());
+            mSlideableView.offsetLeftAndRight(dx);
 
             final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
             final int leftBound = getPaddingLeft() + lp.leftMargin;
@@ -973,8 +966,9 @@ public class SlidingPaneLayout extends ViewGroup {
             final int oldOffset = (int) ((1 - mParallaxOffset) * mParallaxBy);
             mParallaxOffset = slideOffset;
             final int newOffset = (int) ((1 - slideOffset) * mParallaxBy);
-            final int left = v.getLeft() + oldOffset - newOffset;
-            v.layout(left, v.getTop(), left + v.getMeasuredWidth(), v.getBottom());
+            final int dx = oldOffset - newOffset;
+
+            v.offsetLeftAndRight(dx);
         }
     }
 
