@@ -50,7 +50,7 @@ public class ActionBarImplCompat extends ActionBar {
 
     private Context mContext;
     private Context mThemedContext;
-    private FragmentActivity mActivity;
+    private ActionBarActivity mActivity;
     private Dialog mDialog;
 
     private ActionBarOverlayLayout mOverlayLayout;
@@ -102,14 +102,14 @@ public class ActionBarImplCompat extends ActionBar {
 
     private Callback mCallback;
 
-    public ActionBarImplCompat(FragmentActivity activity, Callback callback) {
+    public ActionBarImplCompat(ActionBarActivity activity, Callback callback) {
         mActivity = activity;
         mContext = activity;
         mCallback = callback;
         init(mActivity);
     }
 
-    private void init(FragmentActivity activity) {
+    private void init(ActionBarActivity activity) {
         mOverlayLayout = (ActionBarOverlayLayout) activity.findViewById(
                 R.id.action_bar_overlay_layout);
         if (mOverlayLayout != null) {
@@ -662,7 +662,6 @@ public class ActionBarImplCompat extends ActionBar {
     /**
      * @hide
      */
-    //public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
     public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
 
         private ActionMode.Callback mCallback;
