@@ -32,7 +32,6 @@ import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.FocusFinder;
 import android.view.Gravity;
@@ -1557,6 +1556,10 @@ public class ViewPager extends ViewGroup {
         mTopPageBounds = paddingTop;
         mBottomPageBounds = height - paddingBottom;
         mDecorChildCount = decorCount;
+
+        if (mFirstLayout) {
+            scrollToItem(mCurItem, false, 0, false);
+        }
         mFirstLayout = false;
     }
 
