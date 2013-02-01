@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 
+# Don't build the library in unbundled branches.
+ifeq (,$(TARGET_BUILD_APPS))
+
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -31,4 +34,6 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # TODO: Build the tests as an APK here
 
 include $(call all-makefiles-under, $(LOCAL_PATH))
+
+endif
 
