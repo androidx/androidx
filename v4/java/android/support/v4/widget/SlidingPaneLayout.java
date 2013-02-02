@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -45,7 +46,7 @@ import java.lang.reflect.Method;
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
- * of a UI. A left (or first) pane is treated as a view switcher, subordinate to a
+ * of a UI. A left (or first) pane is treated as a content list or browser, subordinate to a
  * primary detail view for displaying content.
  *
  * <p>Child views may overlap if their combined width exceeds the available width
@@ -58,6 +59,20 @@ import java.lang.reflect.Method;
  * that can smoothly adapt across many different screen sizes, expanding out fully on larger
  * screens and collapsing on smaller screens.</p>
  *
+ * <p>SlidingPaneLayout is distinct from a navigation drawer as described in the design
+ * guide and should not be used in the same scenarios. SlidingPaneLayout should be thought
+ * of only as a way to allow a two-pane layout normally used on larger screens to adapt to smaller
+ * screens in a natural way. The interaction patterns expressed by SlidingPaneLayout imply
+ * a physicality and direct information hierarchy between panes that does not necessarily exist
+ * in a scenario where a navigation drawer should be used instead.</p>
+ *
+ * <p>Appropriate uses of SlidingPaneLayout include pairings of panes such as a contact list and
+ * subordinate interactions with those contacts, or an email thread list with the content pane
+ * displaying the contents of the selected thread. Inappropriate uses of SlidingPaneLayout include
+ * switching between disparate functions of your app, such as jumping from a social stream view
+ * to a view of your personal profile - cases such as this should use the navigation drawer
+ * pattern instead. (TODO: insert doc link to nav drawer widget.)</p>
+ *
  * <p>Like {@link android.widget.LinearLayout LinearLayout}, SlidingPaneLayout supports
  * the use of the layout parameter <code>layout_weight</code> on child views to determine
  * how to divide leftover space after measurement is complete. It is only relevant for width.
@@ -67,6 +82,8 @@ import java.lang.reflect.Method;
  * sized to fill all available space in the closed state. Weight on a pane that becomes covered
  * indicates that the pane should be sized to fill all available space except a small minimum strip
  * that the user may use to grab the slideable view and pull it back over into a closed state.</p>
+ *
+ * <p>Experimental. This class may be removed.</p>
  */
 public class SlidingPaneLayout extends ViewGroup {
     private static final String TAG = "SlidingPaneLayout";
@@ -84,9 +101,19 @@ public class SlidingPaneLayout extends ViewGroup {
      * This indicates that there is more content available and provides
      * a "physical" edge to grab to pull it closed.
      */
-    private static final int DEFAULT_OVERHANG_SIZE = 80; // dp;
+    private static final int DEFAULT_OVERHANG_SIZE = 32; // dp;
 
     private static final int MAX_SETTLE_DURATION = 600; // ms
+
+    /**
+     * If no fade color is given by default it will fade to 80% gray.
+     */
+    private static final int DEFAULT_FADE_COLOR = 0xcccccccc;
+
+    /**
+     * Drawable used to draw the shadow between panes.
+     */
+    private Drawable mShadowDrawable;
 
     /**
      * The size of the touch gutter in pixels
@@ -140,6 +167,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
     private int mTouchSlop;
     private float mInitialMotionX;
+    private float mInitialMotionY;
     private float mLastMotionX;
     private float mLastMotionY;
     private int mActivePointerId = INVALID_POINTER;
@@ -258,6 +286,8 @@ public class SlidingPaneLayout extends ViewGroup {
         final ViewConfiguration viewConfig = ViewConfiguration.get(context);
         mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(viewConfig);
         mMaxVelocity = viewConfig.getScaledMaximumFlingVelocity();
+
+        setWillNotDraw(false);
     }
 
     /**
@@ -594,10 +624,12 @@ public class SlidingPaneLayout extends ViewGroup {
                 final float x = ev.getX();
                 final float y = ev.getY();
                 mIsUnableToDrag = false;
+                mInitialMotionX = x;
+                mInitialMotionY = y;
+                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 if (isSlideablePaneUnder(x, y)) {
-                    mLastMotionX = mInitialMotionX = x;
+                    mLastMotionX = x;
                     mLastMotionY = y;
-                    mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                     if (mScrollState == SCROLL_STATE_SETTLING) {
                         // Start dragging immediately. "Catch"
                         setScrollState(SCROLL_STATE_DRAGGING);
@@ -640,11 +672,13 @@ public class SlidingPaneLayout extends ViewGroup {
                 final float x = ev.getX();
                 final float y = ev.getY();
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mInitialMotionX = x;
+                mInitialMotionY = y;
 
                 if (isSlideablePaneUnder(x, y)) {
                     mScroller.abortAnimation();
                     wantTouchEvents = true;
-                    mLastMotionX = mInitialMotionX = x;
+                    mLastMotionX = x;
                     setScrollState(SCROLL_STATE_DRAGGING);
                 }
                 break;
@@ -674,6 +708,19 @@ public class SlidingPaneLayout extends ViewGroup {
             }
 
             case MotionEvent.ACTION_UP: {
+                if (isDimmed(mSlideableView)) {
+                    final int pi = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                    final float x = MotionEventCompat.getX(ev, pi);
+                    final float y = MotionEventCompat.getY(ev, pi);
+                    final float dx = x - mInitialMotionX;
+                    final float dy = y - mInitialMotionY;
+                    if (dx * dx + dy * dy < mTouchSlop * mTouchSlop && isSlideablePaneUnder(x, y)) {
+                        // Taps close a dimmed open pane.
+                        closePane(mSlideableView, 0);
+                        mActivePointerId = INVALID_POINTER;
+                        break;
+                    }
+                }
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
                     final VelocityTracker vt = mVelocityTracker;
                     vt.computeCurrentVelocity(1000, mMaxVelocity);
@@ -685,9 +732,6 @@ public class SlidingPaneLayout extends ViewGroup {
                         openPane(mSlideableView, initialVelocity);
                     }
                     mActivePointerId = INVALID_POINTER;
-                } else if (isDimmed(mSlideableView)) {
-                    // Taps close a dimmed open pane.
-                    closePane(mSlideableView, 0);
                 }
                 break;
             }
@@ -794,25 +838,25 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         mLastMotionX += newLeft - (int) newLeft;
-        dimChildViewForRange(mSlideableView);
+        if (lp.dimWhenOffset) {
+            dimChildView(mSlideableView, mSlideOffset);
+        }
         dispatchOnPanelSlide(mSlideableView);
 
         return true;
     }
 
-    private void dimChildViewForRange(View v) {
+    private void dimChildView(View v, float mag) {
         final LayoutParams lp = (LayoutParams) v.getLayoutParams();
-        if (!lp.dimWhenOffset) return;
-
-        final float mag = mSlideOffset;
 
         if (mag > 0) {
-            int imag = 0x4c + (int) (0xb3 * (1 - mag));
-            int color = 0xff000000 | imag << 16 | imag << 8 | imag;
+            final int baseAlpha = (DEFAULT_FADE_COLOR & 0xff000000) >>> 24;
+            int imag = (int) (baseAlpha * mag);
+            int color = imag << 24 | (DEFAULT_FADE_COLOR & 0xffffff);
             if (lp.dimPaint == null) {
                 lp.dimPaint = new Paint();
             }
-            lp.dimPaint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.DARKEN));
+            lp.dimPaint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
             if (ViewCompat.getLayerType(v) != ViewCompat.LAYER_TYPE_HARDWARE) {
                 ViewCompat.setLayerType(v, ViewCompat.LAYER_TYPE_HARDWARE, lp.dimPaint);
             }
@@ -928,7 +972,9 @@ public class SlidingPaneLayout extends ViewGroup {
             final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
             final int leftBound = getPaddingLeft() + lp.leftMargin;
             mSlideOffset = (float) (newLeft - leftBound) / mSlideRange;
-            dimChildViewForRange(mSlideableView);
+            if (lp.dimWhenOffset) {
+                dimChildView(mSlideableView, mSlideOffset);
+            }
             dispatchOnPanelSlide(mSlideableView);
 
             if (mParallaxBy != 0) {
@@ -952,7 +998,48 @@ public class SlidingPaneLayout extends ViewGroup {
 
     }
 
+    /**
+     * Set a drawable to use as a shadow cast by the right pane onto the left pane
+     * during opening/closing.
+     *
+     * @param d drawable to use as a shadow
+     */
+    public void setShadowDrawable(Drawable d) {
+        mShadowDrawable = d;
+    }
+
+    /**
+     * Set a drawable to use as a shadow cast by the right pane onto the left pane
+     * during opening/closing.
+     *
+     * @param resId Resource ID of a drawable to use
+     */
+    public void setShadowResource(int resId) {
+        setShadowDrawable(getResources().getDrawable(resId));
+    }
+
+    @Override
+    public void draw(Canvas c) {
+        super.draw(c);
+
+        if (!mCanSlide || mSlideableView == null || mSlideableView.getVisibility() == GONE ||
+                mShadowDrawable == null) {
+            // No need to draw a shadow if things aren't slideable or we don't have one.
+            return;
+        }
+
+        final int shadowWidth = mShadowDrawable.getIntrinsicWidth();
+        final int right = mSlideableView.getLeft();
+        final int top = mSlideableView.getTop();
+        final int bottom = mSlideableView.getBottom();
+        final int left = right - shadowWidth;
+        mShadowDrawable.setBounds(left, top, right, bottom);
+        mShadowDrawable.draw(c);
+    }
+
     private void parallaxOtherViews(float slideOffset) {
+        final LayoutParams slideLp = (LayoutParams) mSlideableView.getLayoutParams();
+        final boolean dimViews = slideLp.dimWhenOffset && slideLp.leftMargin <= 0;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View v = getChildAt(i);
@@ -964,6 +1051,10 @@ public class SlidingPaneLayout extends ViewGroup {
             final int dx = oldOffset - newOffset;
 
             v.offsetLeftAndRight(dx);
+
+            if (dimViews) {
+                dimChildView(v, 1 - mParallaxOffset);
+            }
         }
     }
 
