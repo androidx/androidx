@@ -15,7 +15,7 @@
 -->
 
 <!-- TODO(trevorjohns): This will need to be renamed once ListMenuItemView is copied over. -->
-<com.android.internal.view.menu.ListMenuItemView
+<android.support.appcompat.view.menu.ListMenuItemView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="?attr/dropdownListPreferredItemHeight"
@@ -59,4 +59,4 @@
 
     <!-- Checkbox, and/or radio button will be inserted here. -->
 
-</com.android.internal.view.menu.ListMenuItemView>
+</android.support.appcompat.view.menu.ListMenuItemView>

@@ -25,7 +25,9 @@ import android.support.appcompat.view.MenuInflater;
 import android.support.appcompat.view.menu.ExpandedMenuView;
 import android.support.appcompat.view.menu.ListMenuPresenter;
 import android.support.appcompat.view.menu.MenuBuilder;
+import android.support.appcompat.view.menu.MenuPresenter;
 import android.support.appcompat.view.menu.MenuView;
+import android.support.appcompat.widget.ActionBarView;
 import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -56,7 +58,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         boolean onCreatePanelMenu(int featureId, Menu menu);
     }
 
-    static class ActionBarActivityImplBase implements ActionBarActivityImpl {
+    static class ActionBarActivityImplBase implements ActionBarActivityImpl, MenuPresenter.Callback {
         private ActionBarActivity mActivity;
         private ActionBar mActionBar;
         private ListMenuPresenter mListMenuPresenter;
@@ -83,11 +85,18 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         protected void ensureSubDecor(ActionBarActivity activity) {
             if (activity.mHasActionBar && !activity.mSubDecorInstalled) {
+                // Before inflating an ActionBar, we need to make sure that we've inflated
+                // the app's menu, so that Action Items can be rendered.
+                callOnCreateSupportOptionsMenu();
+
                 if (activity.mOverlayActionBar) {
                     activity.superSetContentView(R.layout.action_bar_decor_overlay);
                 } else {
                     activity.superSetContentView(R.layout.action_bar_decor);
                 }
+
+                ActionBarView actionBarView = (ActionBarView) activity.findViewById(R.id.action_bar);
+                actionBarView.setMenu(mMenu, this);
             }
         }
 
@@ -196,18 +205,40 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         @Override
         public boolean onCreatePanelMenu(int featureId, Menu menu) {
-
             if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-                // Discard menu object from system, since it doesn't support action items.
-                // Construct new replacement menu and pass it forward instead.
-                if (mMenu == null) {
-                    mMenu = new MenuBuilder(mActivity);
-                }
+                return callOnCreateSupportOptionsMenu();
+            }
+            return false;
+        }
 
-                // Allow activity to inflate menu contents
-                return mActivity.onCreateSupportOptionsMenu(mMenu);
+        private boolean callOnCreateSupportOptionsMenu() {
+            // Discard menu object from system, since it doesn't support action items.
+            // Construct new replacement menu and pass it forward instead.
+            if (mMenu == null) {
+                mMenu = new MenuBuilder(mActivity);
             }
 
+            // Allow activity to inflate menu contents
+            return mActivity.onCreateSupportOptionsMenu(mMenu);
+        }
+
+        /* MenuPresenter Callbacks */
+        /**
+         * Called when a menu is closing.
+         */
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+            return;
+        }
+
+        /**
+         * Called when a submenu opens. Useful for notifying the application of menu state so that
+         * it does not attempt to hide the action bar while a submenu is open or similar.
+         *
+         * @param subMenu Submenu currently being opened
+         * @return true if the Callback will handle presenting the submenu, false if the presenter
+         *         should attempt to do so.
+         */
+        public boolean onOpenSubMenu(MenuBuilder subMenu) {
             return false;
         }
 
