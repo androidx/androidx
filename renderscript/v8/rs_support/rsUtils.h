@@ -91,6 +91,22 @@ T rsLowerPow2(T v) {
     return 1 << rsFindHighBit(v);
 }
 
+template<typename T>
+T rsRound(T v, unsigned int r) {
+    // Only valid for rounding up to powers of 2.
+    if ((r & (r - 1)) != 0) {
+        rsAssert(false && "Must be power of 2 for rounding up");
+        return v;
+    }
+    T res = v + (r - 1);
+    if (res < v) {
+        rsAssert(false && "Overflow of rounding operation");
+        return v;
+    }
+    res &= ~(r - 1);
+    return res;
+}
+
 static inline uint16_t rs888to565(uint32_t r, uint32_t g, uint32_t b) {
     uint16_t t = 0;
     t |= b >> 3;

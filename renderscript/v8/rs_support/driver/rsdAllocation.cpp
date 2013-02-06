@@ -245,7 +245,9 @@ static size_t AllocationBuildPointerTable(const Context *rsc, const Allocation *
     alloc->mHal.drvState.lod[0].dimY = type->getDimY();
     alloc->mHal.drvState.lod[0].dimZ = type->getDimZ();
     alloc->mHal.drvState.lod[0].mallocPtr = 0;
-    alloc->mHal.drvState.lod[0].stride = alloc->mHal.drvState.lod[0].dimX * type->getElementSizeBytes();
+    // Stride needs to be 16-byte aligned too!
+    size_t stride = alloc->mHal.drvState.lod[0].dimX * type->getElementSizeBytes();
+    alloc->mHal.drvState.lod[0].stride = rsRound(stride, 16);
     alloc->mHal.drvState.lodCount = type->getLODCount();
     alloc->mHal.drvState.faceCount = type->getDimFaces();
 
@@ -262,7 +264,8 @@ static size_t AllocationBuildPointerTable(const Context *rsc, const Allocation *
             alloc->mHal.drvState.lod[lod].dimX = tx;
             alloc->mHal.drvState.lod[lod].dimY = ty;
             alloc->mHal.drvState.lod[lod].dimZ = tz;
-            alloc->mHal.drvState.lod[lod].stride = tx * type->getElementSizeBytes();
+            alloc->mHal.drvState.lod[lod].stride =
+                    rsRound(tx * type->getElementSizeBytes(), 16);
             offsets[lod] = o;
             o += alloc->mHal.drvState.lod[lod].stride * rsMax(ty, 1u) * rsMax(tz, 1u);
             if (tx > 1) tx >>= 1;
@@ -529,6 +532,7 @@ static bool IoGetBuffer(const Context *rsc, Allocation *alloc, ANativeWindow *nw
             bounds, &dst);
     alloc->mHal.drvState.lod[0].mallocPtr = dst;
     alloc->mHal.drvState.lod[0].stride = drv->wndBuffer->stride * alloc->mHal.state.elementSizeBytes;
+    rsAssert((alloc->mHal.drvState.lod[0].stride & 0xf) == 0);
 
     return true;
 }
