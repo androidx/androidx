@@ -637,12 +637,14 @@ void RsdCpuScriptImpl::setGlobalObj(uint32_t slot, ObjectBase *data) {
 }
 
 RsdCpuScriptImpl::~RsdCpuScriptImpl() {
-    for (size_t i = 0; i < mExportedVariableCount; ++i) {
-        if (mFieldIsObject[i]) {
-            if (mFieldAddress[i] != NULL) {
-                ObjectBase **obj_addr =
-                    reinterpret_cast<ObjectBase **>(mFieldAddress[i]);
-                rsrClearObject(mCtx->getContext(), obj_addr);
+    if (mFieldIsObject) {
+        for (size_t i = 0; i < mExportedVariableCount; ++i) {
+            if (mFieldIsObject[i]) {
+                if (mFieldAddress[i] != NULL) {
+                    ObjectBase **obj_addr =
+                        reinterpret_cast<ObjectBase **>(mFieldAddress[i]);
+                    rsrClearObject(mCtx->getContext(), obj_addr);
+                }
             }
         }
     }
