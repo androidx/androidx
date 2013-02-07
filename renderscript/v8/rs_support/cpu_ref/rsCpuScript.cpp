@@ -171,12 +171,25 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
 
     //script->mHal.drv = drv;
 
-    ALOGE("Opening up shared object: %s", scriptSOName.string());
+    ALOGV("Opening up shared object: %s", scriptSOName.string());
     mScriptSO = dlopen(scriptSOName.string(), RTLD_NOW | RTLD_LOCAL);
     if (mScriptSO == NULL) {
         ALOGE("Unable to open shared library (%s): %s",
               scriptSOName.string(), dlerror());
-        goto error;
+
+        // One final attempt to find the library in "/system/lib".
+        // We do this to allow bundled applications to use the compatibility
+        // library fallback path. Those applications don't have a private
+        // library path, so they need to install to the system directly.
+        String8 scriptSONameSystem("/system/lib/lib");
+        scriptSONameSystem.append(resName);
+        scriptSONameSystem.append(".so");
+        mScriptSO = dlopen(scriptSONameSystem.string(), RTLD_NOW | RTLD_LOCAL);
+        if (mScriptSO == NULL) {
+            ALOGE("Unable to open system shared library (%s): %s",
+                  scriptSONameSystem.string(), dlerror());
+            goto error;
+        }
     }
 
     if (mScriptSO) {
