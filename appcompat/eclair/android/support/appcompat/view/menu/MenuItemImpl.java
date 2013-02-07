@@ -16,6 +16,7 @@
 
 package android.support.appcompat.view.menu;
 
+import android.content.Context;
 import android.support.appcompat.view.ActionProvider;
 import android.support.appcompat.view.MenuItem;
 import android.support.appcompat.view.SubMenu;
@@ -25,8 +26,10 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewDebug;
+import android.widget.LinearLayout;
 
 /**
  * @hide
@@ -151,9 +154,9 @@ public final class MenuItemImpl implements MenuItem {
             return true;
         }
 
-        //if (mMenu.dispatchMenuItemSelected(mMenu.getRootMenu(), this)) {
-        //  return true;
-        //}
+        if (mMenu.dispatchMenuItemSelected(mMenu.getRootMenu(), this)) {
+          return true;
+        }
 
         if (mItemCallback != null) {
             mItemCallback.run();
@@ -162,7 +165,7 @@ public final class MenuItemImpl implements MenuItem {
 
         if (mIntent != null) {
             try {
-                //mMenu.getContext().startActivity(mIntent);
+                mMenu.getContext().startActivity(mIntent);
                 return true;
             } catch (ActivityNotFoundException e) {
                 Log.e(TAG, "Can't find activity to handle intent; ignoring", e);
@@ -187,7 +190,7 @@ public final class MenuItemImpl implements MenuItem {
             mFlags &= ~ENABLED;
         }
 
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         return this;
     }
@@ -238,7 +241,7 @@ public final class MenuItemImpl implements MenuItem {
 
         mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
 
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         return this;
     }
@@ -254,7 +257,7 @@ public final class MenuItemImpl implements MenuItem {
 
         mShortcutNumericChar = numericChar;
 
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         return this;
     }
@@ -263,7 +266,7 @@ public final class MenuItemImpl implements MenuItem {
         mShortcutNumericChar = numericChar;
         mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
 
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         return this;
     }
@@ -354,7 +357,7 @@ public final class MenuItemImpl implements MenuItem {
     public MenuItem setTitle(CharSequence title) {
         mTitle = title;
 
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         if (mSubMenu != null) {
             mSubMenu.setHeaderTitle(title);
@@ -379,7 +382,7 @@ public final class MenuItemImpl implements MenuItem {
             title = mTitle;
         }
 
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         return this;
     }
@@ -390,10 +393,10 @@ public final class MenuItemImpl implements MenuItem {
         }
 
         if (mIconResId != NO_ICON) {
-            //Drawable icon =  mMenu.getResources().getDrawable(mIconResId);
-            // mIconResId = NO_ICON;
-            //mIconDrawable = icon;
-            //return icon;
+            Drawable icon =  mMenu.getResources().getDrawable(mIconResId);
+            mIconResId = NO_ICON;
+            mIconDrawable = icon;
+            return icon;
         }
 
         return null;
@@ -402,7 +405,7 @@ public final class MenuItemImpl implements MenuItem {
     public MenuItem setIcon(Drawable icon) {
         mIconResId = NO_ICON;
         mIconDrawable = icon;
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         return this;
     }
@@ -412,7 +415,7 @@ public final class MenuItemImpl implements MenuItem {
         mIconResId = iconResId;
 
         // If we have a view, we need to push the Drawable to them
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
 
         return this;
     }
@@ -425,7 +428,7 @@ public final class MenuItemImpl implements MenuItem {
         final int oldFlags = mFlags;
         mFlags = (mFlags & ~CHECKABLE) | (checkable ? CHECKABLE : 0);
         if (oldFlags != mFlags) {
-            //mMenu.onItemsChanged(false);
+            mMenu.onItemsChanged(false);
         }
 
         return this;
@@ -447,7 +450,7 @@ public final class MenuItemImpl implements MenuItem {
         if ((mFlags & EXCLUSIVE) != 0) {
             // Call the method on the Menu since it knows about the others in this
             // exclusive checkable group
-            //mMenu.setExclusiveItemChecked(this);
+            mMenu.setExclusiveItemChecked(this);
         } else {
             setCheckedInt(checked);
         }
@@ -459,7 +462,7 @@ public final class MenuItemImpl implements MenuItem {
         final int oldFlags = mFlags;
         mFlags = (mFlags & ~CHECKED) | (checked ? CHECKED : 0);
         if (oldFlags != mFlags) {
-            //mMenu.onItemsChanged(false);
+            mMenu.onItemsChanged(false);
         }
     }
 
@@ -485,7 +488,7 @@ public final class MenuItemImpl implements MenuItem {
         // Try to set the shown state to the given state. If the shown state was changed
         // (i.e. the previous state isn't the same as given state), notify the parent menu that
         // the shown state has changed for this item
-        //if (setVisibleInt(shown)) mMenu.onItemVisibleChanged(this);
+        if (setVisibleInt(shown)) mMenu.onItemVisibleChanged(this);
 
         return this;
     }
@@ -509,7 +512,7 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     public void actionFormatChanged() {
-        //mMenu.onItemActionRequestChanged(this);
+        mMenu.onItemActionRequestChanged(this);
     }
 
     /**
@@ -557,7 +560,7 @@ public final class MenuItemImpl implements MenuItem {
                         + " and SHOW_AS_ACTION_NEVER are mutually exclusive.");
         }
         mShowAsAction = actionEnum;
-        //mMenu.onItemActionRequestChanged(this);
+        mMenu.onItemActionRequestChanged(this);
     }
 
     public MenuItem setActionView(View view) {
@@ -566,14 +569,14 @@ public final class MenuItemImpl implements MenuItem {
         if (view != null && view.getId() == View.NO_ID && mId > 0) {
             view.setId(mId);
         }
-        //mMenu.onItemActionRequestChanged(this);
+        mMenu.onItemActionRequestChanged(this);
         return this;
     }
 
     public MenuItem setActionView(int resId) {
-        //final Context context = mMenu.getContext();
-        //final LayoutInflater inflater = LayoutInflater.from(context);
-        //setActionView(inflater.inflate(resId, new LinearLayout(context), false));
+        final Context context = mMenu.getContext();
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        setActionView(inflater.inflate(resId, new LinearLayout(context), false));
         return this;
     }
 
@@ -595,7 +598,7 @@ public final class MenuItemImpl implements MenuItem {
     public MenuItem setActionProvider(ActionProvider actionProvider) {
         mActionView = null;
         mActionProvider = actionProvider;
-        //mMenu.onItemsChanged(true); // Measurement can be changed
+        mMenu.onItemsChanged(true); // Measurement can be changed
         return this;
     }
 
@@ -613,7 +616,7 @@ public final class MenuItemImpl implements MenuItem {
 
         if (mOnActionExpandListener == null ||
                 mOnActionExpandListener.onMenuItemActionExpand(this)) {
-            //return mMenu.expandItemActionView(this);
+            return mMenu.expandItemActionView(this);
         }
 
         return false;
@@ -649,7 +652,7 @@ public final class MenuItemImpl implements MenuItem {
 
     public void setActionViewExpanded(boolean isExpanded) {
         mIsActionViewExpanded = isExpanded;
-        //mMenu.onItemsChanged(false);
+        mMenu.onItemsChanged(false);
     }
 
     public boolean isActionViewExpanded() {
