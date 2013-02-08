@@ -117,6 +117,16 @@ public class SlidingPaneLayout extends ViewGroup {
     private static final int BASE_SCROLL_DURATION = 200; // ms
 
     /**
+     * The fade color used for the sliding panel. 0 = no fading.
+     */
+    private int mSliderFadeColor = DEFAULT_FADE_COLOR;
+
+    /**
+     * The fade color used for the panel covered by the slider. 0 = no fading.
+     */
+    private int mCoveredFadeColor;
+
+    /**
      * Drawable used to draw the shadow between panes.
      */
     private Drawable mShadowDrawable;
@@ -315,6 +325,39 @@ public class SlidingPaneLayout extends ViewGroup {
      */
     public int getParallaxDistance() {
         return mParallaxBy;
+    }
+
+    /**
+     * Set the color used to fade the sliding pane out when it is slid most of the way offscreen.
+     *
+     * @param color An ARGB-packed color value
+     */
+    public void setSliderFadeColor(int color) {
+        mSliderFadeColor = color;
+    }
+
+    /**
+     * @return The ARGB-packed color value used to fade the sliding pane
+     */
+    public int getSliderFadeColor() {
+        return mSliderFadeColor;
+    }
+
+    /**
+     * Set the color used to fade the pane covered by the sliding pane out when the pane
+     * will become fully covered in the closed state.
+     *
+     * @param color An ARGB-packed color value
+     */
+    public void setCoveredFadeColor(int color) {
+        mCoveredFadeColor = color;
+    }
+
+    /**
+     * @return The ARGB-packed color value used to fade the fixed pane
+     */
+    public int getCoveredFadeColor() {
+        return mCoveredFadeColor;
     }
 
     void setScrollState(int state) {
@@ -844,20 +887,20 @@ public class SlidingPaneLayout extends ViewGroup {
 
         mLastMotionX += newLeft - (int) newLeft;
         if (lp.dimWhenOffset) {
-            dimChildView(mSlideableView, mSlideOffset);
+            dimChildView(mSlideableView, mSlideOffset, mSliderFadeColor);
         }
         dispatchOnPanelSlide(mSlideableView);
 
         return true;
     }
 
-    private void dimChildView(View v, float mag) {
+    private void dimChildView(View v, float mag, int fadeColor) {
         final LayoutParams lp = (LayoutParams) v.getLayoutParams();
 
-        if (mag > 0) {
-            final int baseAlpha = (DEFAULT_FADE_COLOR & 0xff000000) >>> 24;
+        if (mag > 0 && fadeColor != 0) {
+            final int baseAlpha = (fadeColor & 0xff000000) >>> 24;
             int imag = (int) (baseAlpha * mag);
-            int color = imag << 24 | (DEFAULT_FADE_COLOR & 0xffffff);
+            int color = imag << 24 | (fadeColor & 0xffffff);
             if (lp.dimPaint == null) {
                 lp.dimPaint = new Paint();
             }
@@ -978,7 +1021,7 @@ public class SlidingPaneLayout extends ViewGroup {
             final int leftBound = getPaddingLeft() + lp.leftMargin;
             mSlideOffset = (float) (newLeft - leftBound) / mSlideRange;
             if (lp.dimWhenOffset) {
-                dimChildView(mSlideableView, mSlideOffset);
+                dimChildView(mSlideableView, mSlideOffset, mSliderFadeColor);
             }
             dispatchOnPanelSlide(mSlideableView);
 
@@ -1058,7 +1101,7 @@ public class SlidingPaneLayout extends ViewGroup {
             v.offsetLeftAndRight(dx);
 
             if (dimViews) {
-                dimChildView(v, 1 - mParallaxOffset);
+                dimChildView(v, 1 - mParallaxOffset, mCoveredFadeColor);
             }
         }
     }
