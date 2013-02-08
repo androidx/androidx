@@ -87,27 +87,7 @@ void Allocation::data(Context *rsc, uint32_t xoff, uint32_t lod,
 }
 
 void Allocation::data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
-                      uint32_t w, uint32_t h, const void *data, size_t sizeBytes) {
-
-    const size_t eSize = mHal.state.elementSizeBytes;
-    const size_t lineSize = eSize * w;
-
-    if ((lineSize * h) != sizeBytes) {
-        ALOGE("Allocation size mismatch, expected %zu, got %zu", (lineSize * h), sizeBytes);
-        rsAssert(!"Allocation::subData called with mismatched size");
-        return;
-    }
-
-    this->data(rsc, xoff, yoff, lod, face, w, h, data, sizeBytes, lineSize);
-}
-
-void Allocation::data(Context *rsc, uint32_t xoff, uint32_t yoff, uint32_t lod, RsAllocationCubemapFace face,
                       uint32_t w, uint32_t h, const void *data, size_t sizeBytes, size_t stride) {
-    const size_t eSize = mHal.state.elementSizeBytes;
-    const size_t lineSize = eSize * w;
-
-    //ALOGE("data2d %p,  %i %i %i %i %i %i %p %i", this, xoff, yoff, lod, face, w, h, data, sizeBytes);
-
     rsc->mHal.funcs.allocation.data2D(rsc, this, xoff, yoff, lod, face, w, h, data, sizeBytes, stride);
     sendDirty(rsc);
 }
@@ -597,7 +577,7 @@ RsAllocation rsi_AllocationCreateFromBitmap(Context *rsc, RsType vtype,
     }
 
     texAlloc->data(rsc, 0, 0, 0, RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X,
-                   t->getDimX(), t->getDimY(), data, sizeBytes);
+                   t->getDimX(), t->getDimY(), data, sizeBytes, 0);
     if (mips == RS_ALLOCATION_MIPMAP_FULL) {
         rsc->mHal.funcs.allocation.generateMipmaps(rsc, texAlloc);
     }
@@ -629,7 +609,7 @@ RsAllocation rsi_AllocationCubeCreateFromBitmap(Context *rsc, RsType vtype,
     for (uint32_t face = 0; face < 6; face ++) {
         for (uint32_t dI = 0; dI < faceSize; dI ++) {
             texAlloc->data(rsc, 0, dI, 0, (RsAllocationCubemapFace)face,
-                           t->getDimX(), 1, sourcePtr + strideBytes * dI, copySize);
+                           t->getDimX(), 1, sourcePtr + strideBytes * dI, copySize, 0);
         }
 
         // Move the data pointer to the next cube face

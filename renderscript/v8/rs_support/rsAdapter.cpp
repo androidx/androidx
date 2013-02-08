@@ -38,7 +38,7 @@ void Adapter1D::reset() {
 }
 
 void Adapter1D::data(Context *rsc, uint32_t x, uint32_t count, const void *data, size_t sizeBytes) {
-    mAllocation->data(rsc, x, mY, mLOD, mFace, count, 1, data, sizeBytes);
+    mAllocation->data(rsc, x, mY, mLOD, mFace, count, 1, data, sizeBytes, 0);
 }
 
 void Adapter1D::serialize(Context *rsc, OStream *stream) const {
@@ -110,7 +110,7 @@ void Adapter2D::reset() {
 
 void Adapter2D::data(Context *rsc, uint32_t x, uint32_t y, uint32_t w, uint32_t h,
                      const void *data, size_t sizeBytes) {
-    mAllocation->data(rsc, x, y, mLOD, mFace, w, h, data, sizeBytes);
+    mAllocation->data(rsc, x, y, mLOD, mFace, w, h, data, sizeBytes, 0);
 }
 
 
