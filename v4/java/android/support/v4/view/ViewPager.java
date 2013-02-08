@@ -902,7 +902,9 @@ public class ViewPager extends ViewGroup {
 
     void populate(int newCurrentItem) {
         ItemInfo oldCurInfo = null;
+        int focusDirection = View.FOCUS_FORWARD;
         if (mCurItem != newCurrentItem) {
+            focusDirection = mCurItem < newCurrentItem ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
             oldCurInfo = infoForPosition(mCurItem);
             mCurItem = newCurrentItem;
         }
@@ -1070,7 +1072,7 @@ public class ViewPager extends ViewGroup {
                     View child = getChildAt(i);
                     ii = infoForChild(child);
                     if (ii != null && ii.position == mCurItem) {
-                        if (child.requestFocus(FOCUS_FORWARD)) {
+                        if (child.requestFocus(focusDirection)) {
                             break;
                         }
                     }
