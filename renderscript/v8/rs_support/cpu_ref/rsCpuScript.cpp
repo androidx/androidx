@@ -468,6 +468,17 @@ void RsdCpuScriptImpl::forEachMtlsSetup(const Allocation * ain, Allocation * aou
         if (mtls->yStart >= mtls->yEnd) return;
     }
 
+    if (!sc || (sc->zEnd == 0)) {
+        mtls->zEnd = mtls->fep.dimZ;
+    } else {
+        rsAssert(sc->zStart < mtls->fep.dimZ);
+        rsAssert(sc->zEnd <= mtls->fep.dimZ);
+        rsAssert(sc->zStart < sc->zEnd);
+        mtls->zStart = rsMin(mtls->fep.dimZ, sc->zStart);
+        mtls->zEnd = rsMin(mtls->fep.dimZ, sc->zEnd);
+        if (mtls->zStart >= mtls->zEnd) return;
+    }
+
     mtls->xEnd = rsMax((uint32_t)1, mtls->xEnd);
     mtls->yEnd = rsMax((uint32_t)1, mtls->yEnd);
     mtls->zEnd = rsMax((uint32_t)1, mtls->zEnd);
