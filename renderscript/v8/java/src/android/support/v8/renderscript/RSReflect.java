@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-package android.renderscript;
-
+package android.support.v8.renderscript;
 
 import java.lang.reflect.Field;
 import java.lang.Class;
