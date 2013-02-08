@@ -111,6 +111,12 @@ public class SlidingPaneLayout extends ViewGroup {
     private static final int DEFAULT_FADE_COLOR = 0xcccccccc;
 
     /**
+     * Base duration for programmatic scrolling of the sliding pane.
+     * This will be increased relative to the distance to be covered.
+     */
+    private static final int BASE_SCROLL_DURATION = 200; // ms
+
+    /**
      * Drawable used to draw the shadow between panes.
      */
     private Drawable mShadowDrawable;
@@ -942,7 +948,7 @@ public class SlidingPaneLayout extends ViewGroup {
             duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
         } else {
             final float range = (float) Math.abs(dx) / mSlideRange;
-            duration = (int) ((range + 1) * 100);
+            duration = (int) ((range + 1) * BASE_SCROLL_DURATION);
         }
         duration = Math.min(duration, MAX_SETTLE_DURATION);
 
