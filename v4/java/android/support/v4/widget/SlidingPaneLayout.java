@@ -364,7 +364,6 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         float weightSum = 0;
-        boolean foundDraggingPane = false;
         boolean canSlide = false;
         int widthRemaining = widthSize - getPaddingLeft() - getPaddingRight();
         final int childCount = getChildCount();
@@ -511,7 +510,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
         setMeasuredDimension(widthSize, layoutHeight);
         mCanSlide = canSlide;
-        if (mScrollState != SCROLL_STATE_IDLE && (!canSlide || !foundDraggingPane)) {
+        if (mScrollState != SCROLL_STATE_IDLE && !canSlide) {
             // Cancel scrolling in progress, it's no longer relevant.
             setScrollState(SCROLL_STATE_IDLE);
         }
@@ -823,13 +822,13 @@ public class SlidingPaneLayout extends ViewGroup {
         final float oldLeft = mSlideableView.getLeft();
         final float newLeft = Math.min(Math.max(oldLeft + dxMotion, leftBound), rightBound);
 
-        if (oldLeft == newLeft) {
+        final int dxPane = (int) (newLeft - oldLeft);
+
+        if (dxPane == 0) {
             return false;
         }
 
-        final float dxPane = newLeft - oldLeft;
-
-        mSlideableView.offsetLeftAndRight((int) dxPane);
+        mSlideableView.offsetLeftAndRight(dxPane);
 
         mSlideOffset = (newLeft - leftBound) / mSlideRange;
 
