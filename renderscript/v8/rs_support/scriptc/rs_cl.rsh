@@ -966,6 +966,56 @@ F_FUNC_FN(fast_normalize)
 
 #endif  // (defined(RS_VERSION) && (RS_VERSION >= 17))
 
+#if (defined(RS_VERSION) && (RS_VERSION >= 18))
+// Fast native math functions.
+
+
+/**
+ * Fast approximate exp2
+ * valid for inputs -125.f to 125.f
+ * Max 8192 ulps of error
+ *
+ * Supports 1,2,3,4 components
+ */
+_RS_RUNTIME float __attribute__((overloadable)) native_exp2(float v);
+FN_FUNC_FN(native_exp2)
+
+/**
+ * Fast approximate exp
+ * valid for inputs -86.f to 86.f
+ * Max 8192 ulps of error
+ *
+ * Supports 1,2,3,4 components
+ */
+_RS_RUNTIME float __attribute__((overloadable)) native_exp(float v);
+FN_FUNC_FN(native_exp)
+
+/**
+ * Fast approximate exp10
+ * valid for inputs -37.f to 37.f
+ * Max 8192 ulps of error
+ *
+ * Supports 1,2,3,4 components
+ */
+_RS_RUNTIME float __attribute__((overloadable)) native_exp10(float v);
+FN_FUNC_FN(native_exp10)
+
+
+_RS_RUNTIME float __attribute__((overloadable)) native_log2(float v);
+FN_FUNC_FN(native_log2)
+
+_RS_RUNTIME float __attribute__((overloadable)) native_log(float v);
+FN_FUNC_FN(native_log)
+
+_RS_RUNTIME float __attribute__((overloadable)) native_log10(float v);
+FN_FUNC_FN(native_log10)
+
+
+_RS_RUNTIME float __attribute__((overloadable)) native_powr(float v, float y);
+FN_FUNC_FN_FN(native_powr)
+
+
+#endif  // (defined(RS_VERSION) && (RS_VERSION >= 18))
 
 #undef CVT_FUNC
 #undef CVT_FUNC_2
