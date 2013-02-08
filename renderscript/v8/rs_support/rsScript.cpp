@@ -163,11 +163,12 @@ void rsi_ScriptSetTimeZone(Context * rsc, RsScript vs, const char * timeZone, si
 
 void rsi_ScriptForEach(Context *rsc, RsScript vs, uint32_t slot,
                        RsAllocation vain, RsAllocation vaout,
-                       const void *params, size_t paramLen) {
+                       const void *params, size_t paramLen,
+                       const RsScriptCall *sc, size_t scLen) {
     Script *s = static_cast<Script *>(vs);
     s->runForEach(rsc, slot,
                   static_cast<const Allocation *>(vain), static_cast<Allocation *>(vaout),
-                  params, paramLen);
+                  params, paramLen, sc);
 
 }
 

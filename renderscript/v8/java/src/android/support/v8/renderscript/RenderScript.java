@@ -380,6 +380,8 @@ public class RenderScript {
     }
     native void rsnScriptForEach(int con, int id, int slot, int ain, int aout, byte[] params);
     native void rsnScriptForEach(int con, int id, int slot, int ain, int aout);
+    native void rsnScriptForEachClipped(int con, int id, int slot, int ain, int aout, byte[] params,
+                                        int xstart, int xend, int ystart, int yend, int zstart, int zend);
     synchronized void nScriptForEach(int id, int slot, int ain, int aout, byte[] params) {
         validate();
         if (params == null) {
@@ -388,6 +390,13 @@ public class RenderScript {
             rsnScriptForEach(mContext, id, slot, ain, aout, params);
         }
     }
+    synchronized void nScriptForEachClipped(int id, int slot, int ain, int aout, byte[] params,
+                                            int xstart, int xend, int ystart, int yend, int zstart,
+                                            int zend) {
+        validate();
+        rsnScriptForEachClipped(mContext, id, slot, ain, aout, params, xstart, xend, ystart, yend, zstart, zend);
+    }
+
     native void rsnScriptInvokeV(int con, int id, int slot, byte[] params);
     synchronized void nScriptInvokeV(int id, int slot, byte[] params) {
         validate();
