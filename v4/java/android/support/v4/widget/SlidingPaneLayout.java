@@ -1021,9 +1021,9 @@ public class SlidingPaneLayout extends ViewGroup {
     public void draw(Canvas c) {
         super.draw(c);
 
-        if (!mCanSlide || mSlideableView == null || mSlideableView.getVisibility() == GONE ||
+        if (mSlideableView == null || mSlideableView.getVisibility() == GONE ||
                 mShadowDrawable == null) {
-            // No need to draw a shadow if things aren't slideable or we don't have one.
+            // No need to draw a shadow if we don't have one.
             return;
         }
 
