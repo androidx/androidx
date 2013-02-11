@@ -76,3 +76,16 @@ IMPORT_F32_FN_F32(tan)
 IMPORT_F32_FN_F32(tanh)
 IMPORT_F32_FN_F32(tgamma)
 IMPORT_F32_FN_F32(trunc)
+
+// !!! DANGER !!!
+// These functions are potentially missing on older Android versions.
+// Work around the issue by supplying our own variants.
+// !!! DANGER !!!
+
+// The logbl() implementation is taken from the latest bionic/, since
+// double == long double on Android.
+extern "C" long double logbl(long double x) { return logb(x); }
+
+// __aeabi_idiv0 is a missing function in libcompiler_rt.so, so we just
+// pick the simplest implementation based on the ARM EABI doc.
+extern "C" int __aeabi_idiv0(int v) { return v; }
