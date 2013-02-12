@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
@@ -97,6 +98,12 @@ public class ViewPager extends ViewGroup {
     private static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
     };
+
+    /**
+     * Used to track what the expected number of items in the adapter should be.
+     * If the app changes this when we don't expect it, we'll throw a big obnoxious exception.
+     */
+    private int mExpectedAdapterCount;
 
     static class ItemInfo {
         Object object;
@@ -414,6 +421,7 @@ public class ViewPager extends ViewGroup {
 
         final PagerAdapter oldAdapter = mAdapter;
         mAdapter = adapter;
+        mExpectedAdapterCount = 0;
 
         if (mAdapter != null) {
             if (mObserver == null) {
@@ -423,6 +431,7 @@ public class ViewPager extends ViewGroup {
             mPopulatePending = false;
             final boolean wasFirstLayout = mFirstLayout;
             mFirstLayout = true;
+            mExpectedAdapterCount = mAdapter.getCount();
             if (mRestoredCurItem >= 0) {
                 mAdapter.restoreState(mRestoredAdapterState, mRestoredClassLoader);
                 setCurrentItemInternal(mRestoredCurItem, false, true);
@@ -830,8 +839,10 @@ public class ViewPager extends ViewGroup {
     void dataSetChanged() {
         // This method only gets called if our observer is attached, so mAdapter is non-null.
 
+        final int adapterCount = mAdapter.getCount();
+        mExpectedAdapterCount = adapterCount;
         boolean needPopulate = mItems.size() < mOffscreenPageLimit * 2 + 1 &&
-                mItems.size() < mAdapter.getCount();
+                mItems.size() < adapterCount;
         int newCurrItem = mCurItem;
 
         boolean isUpdating = false;
@@ -857,7 +868,7 @@ public class ViewPager extends ViewGroup {
 
                 if (mCurItem == ii.position) {
                     // Keep the current item in the valid range
-                    newCurrItem = Math.max(0, Math.min(mCurItem, mAdapter.getCount() - 1));
+                    newCurrItem = Math.max(0, Math.min(mCurItem, adapterCount - 1));
                     needPopulate = true;
                 }
                 continue;
@@ -935,6 +946,21 @@ public class ViewPager extends ViewGroup {
         final int startPos = Math.max(0, mCurItem - pageLimit);
         final int N = mAdapter.getCount();
         final int endPos = Math.min(N-1, mCurItem + pageLimit);
+
+        if (N != mExpectedAdapterCount) {
+            String resName;
+            try {
+                resName = getResources().getResourceName(getId());
+            } catch (Resources.NotFoundException e) {
+                resName = Integer.toHexString(getId());
+            }
+            throw new IllegalStateException("The application's PagerAdapter changed the adapter's" +
+                    " contents without calling PagerAdapter#notifyDataSetChanged!" +
+                    " Expected adapter item count: " + mExpectedAdapterCount + ", found: " + N +
+                    " Pager id: " + resName +
+                    " Pager class: " + getClass() +
+                    " Problematic adapter: " + mAdapter.getClass());
+        }
 
         // Locate the currently focused item or add it if needed.
         int curIndex = -1;
