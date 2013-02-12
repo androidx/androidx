@@ -30,6 +30,7 @@ import android.support.appcompat.view.menu.ExpandedMenuView;
 import android.support.appcompat.view.menu.ListMenuPresenter;
 import android.support.appcompat.view.menu.MenuBuilder;
 import android.support.appcompat.view.menu.MenuPresenter;
+import android.support.appcompat.view.menu.MenuWrapper;
 import android.support.appcompat.widget.ActionBarView;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -60,8 +61,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         // Methods used to create and respond to options menu
         View onCreatePanelView(int featureId);
-        boolean onCreatePanelMenu(int featureId, Menu supportMenu, android.view.Menu frameworkMenu);
+        boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu);
         boolean onMenuItemSelected(int featureId, MenuItem item);
+        boolean onPreparePanel(int featureId, View view, android.view.Menu frameworkMenu);
     }
 
     static class ActionBarActivityImplBase implements ActionBarActivityImpl, MenuPresenter.Callback {
@@ -188,7 +190,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         public View onCreatePanelView(int featureId) {
             if (featureId == Window.FEATURE_OPTIONS_PANEL) {
                 if (mMenu == null) {
-                    onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, null, null);
+                    onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, null);
                 }
 
                 // Allow activity to modify menu state (show/hide items, etc.)
@@ -209,8 +211,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             return null;
         }
 
-        public boolean onCreatePanelMenu(int featureId, Menu supportMenu,
-                android.view.Menu frameworkMenu) {
+        public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
             if (featureId == Window.FEATURE_OPTIONS_PANEL) {
                 // This is a boundary where we transition from framework Menu objects to support library
                 // Menu objects.
@@ -218,6 +219,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             } else {
                 return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
             }
+        }
+
+        public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
+            if (featureId == Window.FEATURE_OPTIONS_PANEL)
+                return mActivity.onPrepareOptionsMenu(menu);
+            return mActivity.superOnPreparePanelMenu(featureId, view, menu);
         }
 
         private boolean dispatchCreateSupportOptionsMenu() {
@@ -353,6 +360,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     static class ActionBarActivityImplHC implements ActionBarActivityImpl {
         private ActionBarImplHC mActionBar;
         private ActionBarActivity mActivity;
+        private Menu mMenu;
 
         @Override
         public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
@@ -417,13 +425,14 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
 
         @Override
-        public boolean onCreatePanelMenu(int featureId, Menu supportMenu,
-                android.view.Menu frameworkMenu) {
+        public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
             if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-                // This is a boundary where we transition from framework Menu objects to support library
-                // Menu objects.
-                // TODO(trevorjohns): Call onCreateSupportOptionsMenu, and convert to framework menu
-                return mActivity.onCreateOptionsMenu(frameworkMenu);
+                // This is a boundary where we transition from framework Menu objects to support
+                // library Menu objects.
+                if (mMenu == null) {
+                    mMenu = MenuWrapper.createMenuWrapper(frameworkMenu);
+                }
+                return mActivity.onCreateSupportOptionsMenu(mMenu);
             } else {
                 return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
             }
@@ -460,6 +469,15 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     return false;
             }
         }
+
+        public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
+            if (featureId == Window.FEATURE_OPTIONS_PANEL && mMenu != null) {
+                return mActivity.onPrepareSupportOptionsMenu(mMenu);
+            } else {
+                return mActivity.superOnPreparePanelMenu(featureId, view, menu);
+            }
+        }
+
     }
 
     static class ActionBarActivityImplICS extends ActionBarActivityImplHC {
@@ -468,6 +486,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         public ActionBar createActionBar(ActionBarActivity activity) {
             return new ActionBarImplICS(activity, activity);
         }
+
     }
 
     static final ActionBarActivityImpl IMPL;
@@ -591,6 +610,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         return super.onCreatePanelMenu(featureId, frameworkMenu);
     }
 
+    boolean superOnPreparePanelMenu(int featureId, View view, android.view.Menu menu) {
+        return super.onPreparePanel(featureId, view, menu);
+    }
+
     @Override
     public View onCreatePanelView(int featureId) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL)
@@ -601,14 +624,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
-        return IMPL.onCreatePanelMenu(featureId, null, frameworkMenu);
+        return IMPL.onCreatePanelMenu(featureId, frameworkMenu);
     }
 
     @Override
     public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL)
-            return onPrepareOptionsMenu(menu);
-        return super.onPreparePanel(featureId, view, menu);
+        return IMPL.onPreparePanel(featureId, view, menu);
     }
 
     /**
@@ -633,7 +654,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @see #onPrepareOptionsMenu
      * @see #onCreateSupportOptionsMenu
      */
-    public boolean onPrepareSupportOptionsMenu(Menu menu) {
+    public boolean onPrepareSupportOptionsMenu(android.support.appcompat.view.Menu menu) {
         return true;
     }
 
