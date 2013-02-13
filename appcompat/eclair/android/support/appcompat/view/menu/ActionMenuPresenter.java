@@ -177,8 +177,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
 
         final ActionMenuView menuView = (ActionMenuView) mMenuView;
         ActionMenuItemView actionItemView = (ActionMenuItemView) itemView;
-        // TODO(trevorjohns): setItemInvoker was commented out, what to do with this?
-        //actionItemView.setItemInvoker(menuView);
+        actionItemView.setItemInvoker(menuView);
     }
 
     @Override

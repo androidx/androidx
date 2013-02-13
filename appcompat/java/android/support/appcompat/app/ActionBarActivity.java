@@ -16,21 +16,25 @@
 
 package android.support.appcompat.app;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.appcompat.R;
 import android.support.appcompat.view.Menu;
 import android.support.appcompat.view.MenuInflater;
+import android.support.appcompat.view.MenuItem;
 import android.support.appcompat.view.menu.ExpandedMenuView;
 import android.support.appcompat.view.menu.ListMenuPresenter;
 import android.support.appcompat.view.menu.MenuBuilder;
 import android.support.appcompat.view.menu.MenuPresenter;
-import android.support.appcompat.view.menu.MenuView;
 import android.support.appcompat.widget.ActionBarView;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.view.KeyEvent;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,14 +58,16 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         void requestWindowFeature(ActionBarActivity activity, int feature);
         ActionBar getSupportActionBar();
 
-        // Methods used to create options menu
+        // Methods used to create and respond to options menu
         View onCreatePanelView(int featureId);
         boolean onCreatePanelMenu(int featureId, Menu supportMenu, android.view.Menu frameworkMenu);
+        boolean onMenuItemSelected(int featureId, MenuItem item);
     }
 
     static class ActionBarActivityImplBase implements ActionBarActivityImpl, MenuPresenter.Callback {
         private ActionBarActivity mActivity;
         private ActionBar mActionBar;
+        private ActionBarView mActionBarView;
         private ListMenuPresenter mListMenuPresenter;
         private ExpandedMenuView mMenuPanel;
         private MenuBuilder mMenu;
@@ -96,8 +102,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     activity.superSetContentView(R.layout.action_bar_decor);
                 }
 
-                ActionBarView actionBarView = (ActionBarView) activity.findViewById(R.id.action_bar);
-                actionBarView.setMenu(mMenu, this);
+                mActionBarView = (ActionBarView) activity.findViewById(R.id.action_bar);
+                mActionBarView.setMenu(mMenu, this);
             }
         }
 
@@ -169,7 +175,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         @Override
         public ActionBar getSupportActionBar() {
-            initActionBar();
             return mActionBar;
         }
 
@@ -216,14 +221,111 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
 
         private boolean dispatchCreateSupportOptionsMenu() {
-            // Discard menu object from system, since it doesn't support action items.
-            // Construct new replacement menu and pass it forward instead.
-            if (mMenu == null) {
-                mMenu = new MenuBuilder(mActivity);
-            }
-
+           initMenu();
             // Allow activity to inflate menu contents
             return mActivity.onCreateSupportOptionsMenu(mMenu);
+        }
+
+        /* Ported code from com.android.internal.policy.impl.PhoneWindow */
+
+        /**
+         * Initializes the menu associated with the ActionBar.
+         */
+        protected void initMenu() {
+            Context context = mActivity;
+
+            // If we have an action bar, initialize the menu with a context themed for it.
+            if (mActionBar == null && (mActivity.mHasActionBar || mActivity.mOverlayActionBar)) {
+                TypedValue outValue = new TypedValue();
+                Resources.Theme currentTheme = mActivity.getTheme();
+                currentTheme.resolveAttribute(R.attr.actionBarWidgetTheme, outValue, true);
+                final int targetThemeRes = outValue.resourceId;
+
+                if (targetThemeRes != 0) {
+                    context = new ContextThemeWrapper(context, targetThemeRes);
+                }
+            }
+
+            mMenu = new MenuBuilder(context);
+            mMenu.setCallback(new MenuBuilder.Callback() {
+                /**
+                 * Called when a menu item is selected.
+                 *
+                 * @param menu The menu that is the parent of the item
+                 * @param item The menu item that is selected
+                 * @return whether the menu item selection was handled
+                 */
+                @Override
+                public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+                    return mActivity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
+                }
+
+                /**
+                 * Called when the mode of the menu changes (for example, from icon to expanded).
+                 *
+                 * @param menu the menu that has changed modes
+                 */
+                @Override
+                public void onMenuModeChange(MenuBuilder menu) {
+                    reopenMenu(menu, true);
+                }
+
+                private void reopenMenu(MenuBuilder menu, boolean toggleMenuMode) {
+                    if (mActionBarView != null && mActionBarView.isOverflowReserved()) {
+                        if (!mActionBarView.isOverflowMenuShowing() || !toggleMenuMode) {
+                            if (mActionBarView.getVisibility() == View.VISIBLE) {
+                                mActionBarView.showOverflowMenu();
+                            }
+                        } else {
+                            mActionBarView.hideOverflowMenu();
+                        }
+                        return;
+                    }
+
+                    menu.close();
+                }
+
+            });
+        }
+
+        /**
+         * Default implementation of
+         * {@link android.view.Window.Callback#onMenuItemSelected}
+         * for activities.  This calls through to the new
+         * {@link #onOptionsItemSelected} method for the
+         * {@link android.view.Window#FEATURE_OPTIONS_PANEL}
+         * panel, so that subclasses of
+         * Activity don't need to deal with feature codes.
+         */
+        public boolean onMenuItemSelected(int featureId, MenuItem item) {
+            switch (featureId) {
+                case Window.FEATURE_OPTIONS_PANEL:
+                    if (mActivity.onOptionsItemSelected(item)) {
+                        return true;
+                    }
+                    // TODO: Dispatch menu event to fragments. Requires menu wrapper.
+                    // if (mFragments.dispatchOptionsItemSelected(item)) {
+                    //     return true;
+                    // }
+                    if (item.getItemId() == R.id.home && mActionBar != null &&
+                            (mActionBar.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+                        if (mActivity.getParent() == null) {
+                            // TODO: Implement "Up" button
+                            // return mActivity.onNavigateUp();
+                        } else {
+                            // TODO: Implement "Up" button
+                            // return mParent.onNavigateUpFromChild(this);
+                        }
+                    }
+                    return false;
+
+                default:
+                    // TODO: Once Menu wrapper is in place, we could replace this with code to
+                    // extract a framework MenuItem and pass it to the framework implementation..
+                    Log.e("ActionBarActivity", "Compatibility onMenuItemSelected() invoked with" +
+                            "invalid data. Only FEATURE_OPTIONS_PANEL is supported.");
+                    return false;
+            }
         }
 
         /* MenuPresenter Callbacks */
@@ -324,6 +426,38 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 return mActivity.onCreateOptionsMenu(frameworkMenu);
             } else {
                 return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
+            }
+        }
+
+        @Override
+        public boolean onMenuItemSelected(int featureId, MenuItem item) {
+            switch (featureId) {
+                case Window.FEATURE_OPTIONS_PANEL:
+                    if (mActivity.onOptionsItemSelected(item)) {
+                        return true;
+                    }
+                    // TODO: Dispatch menu event to fragments. Requires menu wrapper.
+                    // if (mFragments.dispatchOptionsItemSelected(item)) {
+                    //     return true;
+                    // }
+                    if (item.getItemId() == R.id.home && mActionBar != null &&
+                            (mActionBar.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+                        if (mActivity.getParent() == null) {
+                            // TODO: Implement "Up" button
+                            // return mActivity.onNavigateUp();
+                        } else {
+                            // TODO: Implement "Up" button
+                            // return mParent.onNavigateUpFromChild(this);
+                        }
+                    }
+                    return false;
+
+                default:
+                    // TODO: Once Menu wrapper is in place, we could replace this with code to
+                    // extract a framework MenuItem and pass it to the framework implementation..
+                    Log.e("ActionBarActivity", "Compatibility onMenuItemSelected() invoked with" +
+                            "invalid data. Only FEATURE_OPTIONS_PANEL is supported.");
+                    return false;
             }
         }
     }
@@ -539,4 +673,49 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         return false;
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     * The default implementation simply returns false to have the normal
+     * processing happen (calling the item's Runnable or sending a message to
+     * its Handler as appropriate).  You can use this method for any items
+     * for which you would like to do processing without those other
+     * facilities.
+     *
+     * <p>Derived classes should call through to the base class for it to
+     * perform the default menu handling.</p>
+     *
+     * @param item The menu item that was selected.
+     *
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
+     *
+     * @see #onCreateOptionsMenu
+     */
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Activity parent = getParent();
+        if (parent != null) {
+            // TODO: Once menu wrapper is in place, extract native menu item to forward up to parent
+            // return parent.onOptionsItemSelected(item);
+            return false;
+        }
+        return false;
+    }
+    /**
+     * Default implementation of
+     * {@link android.view.Window.Callback#onMenuItemSelected}
+     * for activities.  This calls through to the new
+     * {@link #onOptionsItemSelected} method for the
+     * {@link android.view.Window#FEATURE_OPTIONS_PANEL}
+     * panel, so that subclasses of
+     * Activity don't need to deal with feature codes.
+     */
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            return IMPL.onMenuItemSelected(featureId, item);
+        }
+        // TODO: Need to extract framework MenuItem for passing to superclass, once Menu wrappers
+        // are in place.
+        // return super.onMenuItemSelected(featureId, item);
+        return false;
+    }
 }
