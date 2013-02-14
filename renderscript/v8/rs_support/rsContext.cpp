@@ -868,6 +868,10 @@ void rsi_ContextDeinitToClient(Context *rsc) {
     rsc->deinitToClient();
 }
 
+void rsi_ContextSendMessage(Context *rsc, uint32_t id, const uint8_t *data, size_t len) {
+    rsc->sendMessageToClient(data, RS_MESSAGE_TO_CLIENT_USER, id, len, true);
+}
+
 }
 }
 

@@ -140,6 +140,12 @@ public class RenderScript {
         rsnContextFinish(mContext);
     }
 
+    native void rsnContextSendMessage(int con, int id, int[] data);
+    synchronized void nContextSendMessage(int id, int[] data) {
+        validate();
+        rsnContextSendMessage(mContext, id, data);
+    }
+
     native void rsnObjDestroy(int con, int id);
     synchronized void nObjDestroy(int id) {
         // There is a race condition here.  The calling code may be run
@@ -382,6 +388,8 @@ public class RenderScript {
     native void rsnScriptForEach(int con, int id, int slot, int ain, int aout);
     native void rsnScriptForEachClipped(int con, int id, int slot, int ain, int aout, byte[] params,
                                         int xstart, int xend, int ystart, int yend, int zstart, int zend);
+    native void rsnScriptForEachClipped(int con, int id, int slot, int ain, int aout,
+                                        int xstart, int xend, int ystart, int yend, int zstart, int zend);
     synchronized void nScriptForEach(int id, int slot, int ain, int aout, byte[] params) {
         validate();
         if (params == null) {
@@ -390,11 +398,15 @@ public class RenderScript {
             rsnScriptForEach(mContext, id, slot, ain, aout, params);
         }
     }
+
     synchronized void nScriptForEachClipped(int id, int slot, int ain, int aout, byte[] params,
-                                            int xstart, int xend, int ystart, int yend, int zstart,
-                                            int zend) {
+                                            int xstart, int xend, int ystart, int yend, int zstart, int zend) {
         validate();
-        rsnScriptForEachClipped(mContext, id, slot, ain, aout, params, xstart, xend, ystart, yend, zstart, zend);
+        if (params == null) {
+            rsnScriptForEachClipped(mContext, id, slot, ain, aout, xstart, xend, ystart, yend, zstart, zend);
+        } else {
+            rsnScriptForEachClipped(mContext, id, slot, ain, aout, params, xstart, xend, ystart, yend, zstart, zend);
+        }
     }
 
     native void rsnScriptInvokeV(int con, int id, int slot, byte[] params);
@@ -614,6 +626,16 @@ public class RenderScript {
     }
 
     /**
+     * @hide
+     *
+     * @param id
+     * @param data
+     */
+    public void sendMessage(int id, int[] data) {
+        nContextSendMessage(id, data);
+    }
+
+    /**
      * Runtime error base class.  An application should derive from this class
      * if it wishes to install an error handler.  When errors occur at runtime
      * the fields in this class will be filled and the run method called.
@@ -737,6 +759,7 @@ public class RenderScript {
                         mRS.mErrorCallback.mErrorNum = subID;
                         mRS.mErrorCallback.run();
                     } else {
+                        android.util.Log.e(LOG_TAG, "non fatal RS error, " + e);
                         // Do not throw here. In these cases, we do not have
                         // a fatal error.
                     }

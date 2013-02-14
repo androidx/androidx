@@ -244,6 +244,23 @@ static void nContextDeinitToClient(JNIEnv *_env, jobject _this, RsContext con)
     rsContextDeinitToClient(con);
 }
 
+static void
+nContextSendMessage(JNIEnv *_env, jobject _this, RsContext con, jint id, jintArray data)
+{
+    jint *ptr = NULL;
+    jint len = 0;
+    if (data) {
+        len = _env->GetArrayLength(data);
+        jint *ptr = _env->GetIntArrayElements(data, NULL);
+    }
+    LOG_API("nContextSendMessage, con(%p), id(%i), len(%i)", con, id, len);
+    rsContextSendMessage(con, id, (const uint8_t *)ptr, len * sizeof(int));
+    if (data) {
+        _env->ReleaseIntArrayElements(data, ptr, JNI_ABORT);
+    }
+}
+
+
 
 static jint
 nElementCreate(JNIEnv *_env, jobject _this, RsContext con, jint type, jint kind, jboolean norm, jint size)
@@ -745,8 +762,28 @@ nScriptForEachV(JNIEnv *_env, jobject _this, RsContext con,
 static void
 nScriptForEachClipped(JNIEnv *_env, jobject _this, RsContext con,
                       jint script, jint slot, jint ain, jint aout,
-                      jbyteArray params, jint xstart, jint xend,
+                      jint xstart, jint xend,
                       jint ystart, jint yend, jint zstart, jint zend)
+{
+    LOG_API("nScriptForEachClipped, con(%p), s(%p), slot(%i)", con, (void *)script, slot);
+    RsScriptCall sc;
+    sc.xStart = xstart;
+    sc.xEnd = xend;
+    sc.yStart = ystart;
+    sc.yEnd = yend;
+    sc.zStart = zstart;
+    sc.zEnd = zend;
+    sc.strategy = RS_FOR_EACH_STRATEGY_DONT_CARE;
+    sc.arrayStart = 0;
+    sc.arrayEnd = 0;
+    rsScriptForEach(con, (RsScript)script, slot, (RsAllocation)ain, (RsAllocation)aout, NULL, 0, &sc, sizeof(sc));
+}
+
+static void
+nScriptForEachClippedV(JNIEnv *_env, jobject _this, RsContext con,
+                       jint script, jint slot, jint ain, jint aout,
+                       jbyteArray params, jint xstart, jint xend,
+                       jint ystart, jint yend, jint zstart, jint zend)
 {
     LOG_API("nScriptForEachClipped, con(%p), s(%p), slot(%i)", con, (void *)script, slot);
     jint len = _env->GetArrayLength(params);
@@ -764,7 +801,6 @@ nScriptForEachClipped(JNIEnv *_env, jobject _this, RsContext con,
     rsScriptForEach(con, (RsScript)script, slot, (RsAllocation)ain, (RsAllocation)aout, ptr, len, &sc, sizeof(sc));
     _env->ReleaseByteArrayElements(params, ptr, JNI_ABORT);
 }
-
 
 // -----------------------------------
 
@@ -934,6 +970,7 @@ static JNINativeMethod methods[] = {
 {"rsnContextSetPriority",            "(II)V",                                 (void*)nContextSetPriority },
 {"rsnContextDestroy",                "(I)V",                                  (void*)nContextDestroy },
 {"rsnContextDump",                   "(II)V",                                 (void*)nContextDump },
+{"rsnContextSendMessage",            "(II[I)V",                               (void*)nContextSendMessage },
 {"rsnObjDestroy",                    "(II)V",                                 (void*)nObjDestroy },
 
 {"rsnElementCreate",                 "(IIIZI)I",                              (void*)nElementCreate },
@@ -976,7 +1013,8 @@ static JNINativeMethod methods[] = {
 {"rsnScriptInvokeV",                 "(III[B)V",                              (void*)nScriptInvokeV },
 {"rsnScriptForEach",                 "(IIIII)V",                              (void*)nScriptForEach },
 {"rsnScriptForEach",                 "(IIIII[B)V",                            (void*)nScriptForEachV },
-{"rsnScriptForEachClipped",          "(IIIII[BIIIIII)V",                      (void*)nScriptForEachClipped },
+{"rsnScriptForEachClipped",          "(IIIIIIIIIII)V",                        (void*)nScriptForEachClipped },
+{"rsnScriptForEachClipped",          "(IIIII[BIIIIII)V",                      (void*)nScriptForEachClippedV },
 {"rsnScriptSetVarI",                 "(IIII)V",                               (void*)nScriptSetVarI },
 {"rsnScriptSetVarJ",                 "(IIIJ)V",                               (void*)nScriptSetVarJ },
 {"rsnScriptSetVarF",                 "(IIIF)V",                               (void*)nScriptSetVarF },

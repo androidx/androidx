@@ -444,7 +444,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFromUnchecked(int[] d) {
         mRS.validate();
-        copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFromUnchecked(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        }
     }
     /**
      * Copy an allocation from an array.  This variant is not type
@@ -455,7 +459,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFromUnchecked(short[] d) {
         mRS.validate();
-        copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFromUnchecked(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        }
     }
     /**
      * Copy an allocation from an array.  This variant is not type
@@ -466,7 +474,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFromUnchecked(byte[] d) {
         mRS.validate();
-        copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFromUnchecked(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        }
     }
     /**
      * Copy an allocation from an array.  This variant is not type
@@ -477,7 +489,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFromUnchecked(float[] d) {
         mRS.validate();
-        copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFromUnchecked(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFromUnchecked(0, mCurrentCount, d);
+        }
     }
 
     /**
@@ -489,7 +505,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFrom(int[] d) {
         mRS.validate();
-        copy1DRangeFrom(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFrom(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFrom(0, mCurrentCount, d);
+        }
     }
 
     /**
@@ -501,7 +521,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFrom(short[] d) {
         mRS.validate();
-        copy1DRangeFrom(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFrom(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFrom(0, mCurrentCount, d);
+        }
     }
 
     /**
@@ -513,7 +537,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFrom(byte[] d) {
         mRS.validate();
-        copy1DRangeFrom(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFrom(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFrom(0, mCurrentCount, d);
+        }
     }
 
     /**
@@ -525,7 +553,11 @@ public class Allocation extends BaseObj {
      */
     public void copyFrom(float[] d) {
         mRS.validate();
-        copy1DRangeFrom(0, mCurrentCount, d);
+        if (mCurrentDimY > 0) {
+            copy2DRangeFrom(0, 0, mCurrentDimX, mCurrentDimY, d);
+        } else {
+            copy1DRangeFrom(0, mCurrentCount, d);
+        }
     }
 
     /**
@@ -783,6 +815,35 @@ public class Allocation extends BaseObj {
         }
     }
 
+    void copy2DRangeFromUnchecked(int xoff, int yoff, int w, int h, byte[] data) {
+        mRS.validate();
+        validate2DRange(xoff, yoff, w, h);
+        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
+                              w, h, data, data.length);
+    }
+
+    void copy2DRangeFromUnchecked(int xoff, int yoff, int w, int h, short[] data) {
+        mRS.validate();
+        validate2DRange(xoff, yoff, w, h);
+        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
+                              w, h, data, data.length * 2);
+    }
+
+    void copy2DRangeFromUnchecked(int xoff, int yoff, int w, int h, int[] data) {
+        mRS.validate();
+        validate2DRange(xoff, yoff, w, h);
+        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
+                              w, h, data, data.length * 4);
+    }
+
+    void copy2DRangeFromUnchecked(int xoff, int yoff, int w, int h, float[] data) {
+        mRS.validate();
+        validate2DRange(xoff, yoff, w, h);
+        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
+                              w, h, data, data.length * 4);
+    }
+
+
     /**
      * Copy a rectangular region from the array into the allocation.
      * The incoming array is assumed to be tightly packed.
@@ -794,31 +855,23 @@ public class Allocation extends BaseObj {
      * @param data to be placed into the allocation
      */
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, byte[] data) {
-        mRS.validate();
-        validate2DRange(xoff, yoff, w, h);
-        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
-                              w, h, data, data.length);
+        validateIsInt8();
+        copy2DRangeFromUnchecked(xoff, yoff, w, h, data);
     }
 
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, short[] data) {
-        mRS.validate();
-        validate2DRange(xoff, yoff, w, h);
-        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
-                              w, h, data, data.length * 2);
+        validateIsInt16();
+        copy2DRangeFromUnchecked(xoff, yoff, w, h, data);
     }
 
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, int[] data) {
-        mRS.validate();
-        validate2DRange(xoff, yoff, w, h);
-        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
-                              w, h, data, data.length * 4);
+        validateIsInt32();
+        copy2DRangeFromUnchecked(xoff, yoff, w, h, data);
     }
 
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, float[] data) {
-        mRS.validate();
-        validate2DRange(xoff, yoff, w, h);
-        mRS.nAllocationData2D(getIDSafe(), xoff, yoff, mSelectedLOD, mSelectedFace.mID,
-                              w, h, data, data.length * 4);
+        validateIsFloat32();
+        copy2DRangeFromUnchecked(xoff, yoff, w, h, data);
     }
 
     /**
@@ -1314,7 +1367,7 @@ public class Allocation extends BaseObj {
                                                       int id) {
         return createFromBitmapResource(rs, res, id,
                                         MipmapControl.MIPMAP_NONE,
-                                        USAGE_GRAPHICS_TEXTURE);
+                                        USAGE_SHARED | USAGE_SCRIPT);
     }
 
     /**

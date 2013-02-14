@@ -168,7 +168,13 @@ public class Script extends BaseObj {
 
     protected void forEach(int slot, Allocation ain, Allocation aout, FieldPacker v, LaunchOptions sc) {
         if (ain == null && aout == null) {
-            throw new RSIllegalArgumentException("At least one of ain or aout is required to be non-null.");
+            throw new RSIllegalArgumentException(
+                "At least one of ain or aout is required to be non-null.");
+        }
+
+        if (sc == null) {
+            forEach(slot, ain, aout, v);
+            return;
         }
         int in_id = 0;
         if (ain != null) {
@@ -184,7 +190,6 @@ public class Script extends BaseObj {
         }
         mRS.nScriptForEachClipped(getID(mRS), slot, in_id, out_id, params, sc.xstart, sc.xend, sc.ystart, sc.yend, sc.zstart, sc.zend);
     }
-
 
     Script(int id, RenderScript rs) {
         super(id, rs);

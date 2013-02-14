@@ -18,6 +18,11 @@ ContextPeekMessage {
     ret RsMessageToClientType
 }
 
+ContextSendMessage {
+    param uint32_t id
+    param const uint8_t *data
+}
+
 ContextInitToClient {
     direct
 }
