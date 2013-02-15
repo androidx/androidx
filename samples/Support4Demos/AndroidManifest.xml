@@ -301,5 +301,22 @@
         </provider>
 <!-- END_INCLUDE(file_provider_declaration) -->
 
+        <!-- MediaRouter Support Samples -->
+
+        <activity android:name=".media.SampleMediaRouterActivity"
+                android:label="@string/sample_media_router_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".media.SampleMediaRouteProviderService"
+                android:label="@string/sample_media_route_provider_service"
+                android:process=":mediarouteprovider">
+            <intent-filter>
+                <action android:name="android.media.MediaRouteProviderService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
