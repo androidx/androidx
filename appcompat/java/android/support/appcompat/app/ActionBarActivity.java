@@ -58,6 +58,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         ActionBar createActionBar(ActionBarActivity activity);
         void requestWindowFeature(ActionBarActivity activity, int feature);
         ActionBar getSupportActionBar();
+        void setTitle(CharSequence title);
 
         // Methods used to create and respond to options menu
         View onCreatePanelView(int featureId);
@@ -364,6 +365,13 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             return false;
         }
 
+        @Override
+        public void setTitle(CharSequence title) {
+            if (mActionBar != null) {
+                mActionBar.setTitle(title);
+            }
+        }
+
     }
 
     static class ActionBarActivityImplHC implements ActionBarActivityImpl {
@@ -477,6 +485,11 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             } else {
                 return mActivity.superOnPreparePanelMenu(featureId, view, menu);
             }
+        }
+
+        @Override
+        public void setTitle(CharSequence title) {
+            // Handled by framework
         }
 
     }
@@ -743,6 +756,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
 
         return super.onMenuItemSelected(featureId, item);
+    }
+
+    @Override
+    protected void onTitleChanged(CharSequence title, int color) {
+        super.onTitleChanged(title, color);
+        mImpl.setTitle(title);
     }
 
 }

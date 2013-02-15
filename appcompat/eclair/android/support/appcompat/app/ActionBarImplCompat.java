@@ -143,6 +143,7 @@ public class ActionBarImplCompat extends ActionBar {
         ActionBarPolicy abp = ActionBarPolicy.get(mContext);
         setHomeButtonEnabled(abp.enableHomeButtonByDefault() || homeAsUp);
         setHasEmbeddedTabs(abp.hasEmbeddedTabs());
+        setTitle(mActivity.getTitle());
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
