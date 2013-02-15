@@ -64,22 +64,6 @@ typedef unsigned long long ulong4 __attribute__((ext_vector_type(4)));
 //////////////////////////////////////////////////////////////////////////////
 
 
-int SC_divsi3(int a, int b) {
-    return a / b;
-}
-
-int SC_modsi3(int a, int b) {
-    return a % b;
-}
-
-unsigned int SC_udivsi3(unsigned int a, unsigned int b) {
-    return a / b;
-}
-
-unsigned int SC_umodsi3(unsigned int a, unsigned int b) {
-    return a % b;
-}
-
 static void SC_debugF(const char *s, float f) {
     ALOGD("%s %f, 0x%08x", s, f, *((int *) (&f)));
 }
