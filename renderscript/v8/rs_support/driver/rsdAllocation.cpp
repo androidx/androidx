@@ -288,6 +288,18 @@ static size_t AllocationBuildPointerTable(const Context *rsc, const Allocation *
     return allocSize;
 }
 
+static uint8_t* allocAlignedMemory(size_t allocSize, bool forceZero) {
+    // We align all allocations to a 16-byte boundary.
+    uint8_t* ptr = (uint8_t *)memalign(16, allocSize);
+    if (!ptr) {
+        return NULL;
+    }
+    if (forceZero) {
+        memset(ptr, 0, allocSize);
+    }
+    return ptr;
+}
+
 bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
     DrvAllocation *drv = (DrvAllocation *)calloc(1, sizeof(DrvAllocation));
     if (!drv) {
@@ -311,17 +323,29 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
             ALOGE("User-allocated buffers must not have multiple faces or LODs");
             return false;
         }
-        ptr = (uint8_t*)alloc->mHal.state.userProvidedPtr;
+        // rows must be 16-byte aligned
+        // validate that here, otherwise fall back to not use the user-backed allocation
+        if (((alloc->getType()->getDimX() * alloc->getType()->getElement()->getSizeBytes()) % 16) != 0) {
+            ALOGV("User-backed allocation failed stride requirement, falling back to separate allocation");
+            drv->useUserProvidedPtr = false;
+
+            ptr = allocAlignedMemory(allocSize, forceZero);
+            if (!ptr) {
+                alloc->mHal.drv = NULL;
+                free(drv);
+                return false;
+            }
+
+        } else {
+            drv->useUserProvidedPtr = true;
+            ptr = (uint8_t*)alloc->mHal.state.userProvidedPtr;
+        }
     } else {
-        // We align all allocations to a 16-byte boundary.
-        ptr = (uint8_t *)memalign(16, allocSize);
+        ptr = allocAlignedMemory(allocSize, forceZero);
         if (!ptr) {
             alloc->mHal.drv = NULL;
             free(drv);
             return false;
-        }
-        if (forceZero) {
-            memset(ptr, 0, allocSize);
         }
     }
     // Build the pointer tables
@@ -358,6 +382,11 @@ bool rsdAllocationInit(const Context *rsc, Allocation *alloc, bool forceZero) {
 
     drv->readBackFBO = NULL;
 
+    // fill out the initial state of the buffer if we couldn't use the user-provided ptr and USAGE_SHARED was accepted
+    if ((alloc->mHal.state.userProvidedPtr != 0) && (drv->useUserProvidedPtr == false)) {
+        rsdAllocationData2D(rsc, alloc, 0, 0, 0, RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X, alloc->getType()->getDimX(), alloc->getType()->getDimY(), alloc->mHal.state.userProvidedPtr, allocSize, 0);
+    }
+
     return true;
 }
 
@@ -383,7 +412,7 @@ void rsdAllocationDestroy(const Context *rsc, Allocation *alloc) {
 
     if (alloc->mHal.drvState.lod[0].mallocPtr) {
         // don't free user-allocated ptrs
-        if (!(alloc->mHal.state.usageFlags & RS_ALLOCATION_USAGE_SHARED)) {
+        if (!(drv->useUserProvidedPtr)) {
             free(alloc->mHal.drvState.lod[0].mallocPtr);
         }
         alloc->mHal.drvState.lod[0].mallocPtr = NULL;

@@ -617,6 +617,7 @@ typedef enum {
     RS_SAMPLER_WRAP                 = 3,
     RS_SAMPLER_CLAMP                = 4,
     RS_SAMPLER_LINEAR_MIP_NEAREST   = 5,
+    RS_SAMPLER_MIRRORED_REPEAT      = 6,
 
     RS_SAMPLER_INVALID              = 100,
 } rs_sampler_value;
