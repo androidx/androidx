@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
@@ -114,7 +115,7 @@ public class SlidingPaneLayout extends ViewGroup {
      * Base duration for programmatic scrolling of the sliding pane.
      * This will be increased relative to the distance to be covered.
      */
-    private static final int BASE_SCROLL_DURATION = 200; // ms
+    private static final int BASE_SCROLL_DURATION = 256; // ms
 
     /**
      * The fade color used for the sliding panel. 0 = no fading.
@@ -212,6 +213,8 @@ public class SlidingPaneLayout extends ViewGroup {
     public static final int SCROLL_STATE_SETTLING = 2;
 
     private int mScrollState = SCROLL_STATE_IDLE;
+
+    private final Rect mTmpRect = new Rect();
 
     /**
      * Interpolator defining the animation curve for mScroller
@@ -420,6 +423,9 @@ public class SlidingPaneLayout extends ViewGroup {
         if (childCount > 2) {
             Log.e(TAG, "onMeasure: More than two child views are not supported.");
         }
+
+        // We'll find the current one below.
+        mSlideableView = null;
 
         // First pass. Measure based on child LayoutParams width/height.
         // Weight will incur a second pass.
@@ -916,24 +922,38 @@ public class SlidingPaneLayout extends ViewGroup {
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        if (Build.VERSION.SDK_INT >= 11) { // HC
-            return super.drawChild(canvas, child, drawingTime);
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        boolean result;
+        final int save = canvas.save(Canvas.CLIP_SAVE_FLAG);
+
+        if (mCanSlide && !lp.slideable && mSlideableView != null) {
+            // Clip against the slider; no sense drawing what will immediately be covered.
+            canvas.getClipBounds(mTmpRect);
+            mTmpRect.right = Math.min(mTmpRect.right, mSlideableView.getLeft());
+            canvas.clipRect(mTmpRect);
         }
 
-        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        if (lp.dimWhenOffset && mSlideOffset > 0) {
-            if (!child.isDrawingCacheEnabled()) {
-                child.setDrawingCacheEnabled(true);
-            }
-            final Bitmap cache = child.getDrawingCache();
-            canvas.drawBitmap(cache, child.getLeft(), child.getTop(), lp.dimPaint);
-            return false;
+        if (Build.VERSION.SDK_INT >= 11) { // HC
+            result = super.drawChild(canvas, child, drawingTime);
         } else {
-            if (child.isDrawingCacheEnabled()) {
-                child.setDrawingCacheEnabled(false);
+            if (lp.dimWhenOffset && mSlideOffset > 0) {
+                if (!child.isDrawingCacheEnabled()) {
+                    child.setDrawingCacheEnabled(true);
+                }
+                final Bitmap cache = child.getDrawingCache();
+                canvas.drawBitmap(cache, child.getLeft(), child.getTop(), lp.dimPaint);
+                result = false;
+            } else {
+                if (child.isDrawingCacheEnabled()) {
+                    child.setDrawingCacheEnabled(false);
+                }
+                result = super.drawChild(canvas, child, drawingTime);
             }
-            return super.drawChild(canvas, child, drawingTime);
         }
+
+        canvas.restoreToCount(save);
+
+        return result;
     }
 
     private void invalidateChildRegion(View v) {
@@ -1029,6 +1049,10 @@ public class SlidingPaneLayout extends ViewGroup {
                 parallaxOtherViews(mSlideOffset);
             }
 
+            if (newLeft == mScroller.getFinalX()) {
+                mScroller.abortAnimation();
+            }
+
             if (mScroller.isFinished()) {
                 setScrollState(SCROLL_STATE_IDLE);
                 post(new Runnable() {
@@ -1070,16 +1094,16 @@ public class SlidingPaneLayout extends ViewGroup {
     public void draw(Canvas c) {
         super.draw(c);
 
-        if (mSlideableView == null || mSlideableView.getVisibility() == GONE ||
-                mShadowDrawable == null) {
+        final View shadowView = getChildCount() > 1 ? getChildAt(1) : null;
+        if (shadowView == null || mShadowDrawable == null) {
             // No need to draw a shadow if we don't have one.
             return;
         }
 
         final int shadowWidth = mShadowDrawable.getIntrinsicWidth();
-        final int right = mSlideableView.getLeft();
-        final int top = mSlideableView.getTop();
-        final int bottom = mSlideableView.getBottom();
+        final int right = shadowView.getLeft();
+        final int top = shadowView.getTop();
+        final int bottom = shadowView.getBottom();
         final int left = right - shadowWidth;
         mShadowDrawable.setBounds(left, top, right, bottom);
         mShadowDrawable.draw(c);
