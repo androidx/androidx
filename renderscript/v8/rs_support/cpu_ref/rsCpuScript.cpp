@@ -165,7 +165,7 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
     String8 scriptSOName(cacheDir);
     scriptSOName = scriptSOName.getPathDir();
     scriptSOName.appendPath("lib");
-    scriptSOName.append("/lib");
+    scriptSOName.append("/librs.");
     scriptSOName.append(resName);
     scriptSOName.append(".so");
 
