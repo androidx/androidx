@@ -52,6 +52,7 @@ struct DrvAllocation {
     int glFormat;
 #endif
 
+    bool useUserProvidedPtr;
     bool uploadDeferred;
 
     RsdFrameBufferObj * readBackFBO;
