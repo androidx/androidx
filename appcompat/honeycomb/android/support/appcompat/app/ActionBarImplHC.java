@@ -224,7 +224,7 @@ class ActionBarImplHC extends ActionBar {
 
     @Override
     public void addTab(Tab tab, boolean setSelected) {
-        mActionBar.addTab(((TabWrapper) tab).mWrappedTab);
+        mActionBar.addTab(((TabWrapper) tab).mWrappedTab, setSelected);
     }
 
     @Override
@@ -336,12 +336,13 @@ class ActionBarImplHC extends ActionBar {
 
     }
 
-    class TabWrapper extends ActionBar.Tab {
+    class TabWrapper extends ActionBar.Tab implements android.app.ActionBar.TabListener {
 
         final android.app.ActionBar.Tab mWrappedTab;
         private Object mTag;
         private FragmentTransaction mActiveTransaction;
         private CharSequence mContentDescription;
+        private TabListener mTabListener;
 
         public TabWrapper(android.app.ActionBar.Tab tab) {
             mWrappedTab = tab;
@@ -416,16 +417,14 @@ class ActionBarImplHC extends ActionBar {
 
         @Override
         public Tab setTabListener(TabListener listener) {
-            mWrappedTab.setTabListener(new TabListenerWrapper(listener));
+            mTabListener = listener;
+            mWrappedTab.setTabListener(listener != null ? this : null);
             return this;
         }
 
         @Override
         public void select() {
-            mActiveTransaction = mCallback.getSupportFragmentManager().beginTransaction();
             mWrappedTab.select();
-            mActiveTransaction.commit();
-            mActiveTransaction = null;
         }
 
         @Override
@@ -445,36 +444,39 @@ class ActionBarImplHC extends ActionBar {
             return mContentDescription;
         }
 
-    }
-
-    class TabListenerWrapper implements android.app.ActionBar.TabListener {
-
-        private final TabListener mWrappedListener;
-
-        public TabListenerWrapper(TabListener l) {
-            mWrappedListener = l;
-        }
-
         @Override
         public void onTabSelected(android.app.ActionBar.Tab tab,
                 android.app.FragmentTransaction ft) {
-            final TabWrapper wrappedTab = (TabWrapper) tab.getTag();
-            mWrappedListener.onTabSelected(wrappedTab, wrappedTab.mActiveTransaction);
+            mTabListener.onTabSelected(this, ft != null ? getActiveTransaction() : null);
+            commitActiveTransaction();
         }
 
         @Override
         public void onTabUnselected(android.app.ActionBar.Tab tab,
                 android.app.FragmentTransaction ft) {
-            final TabWrapper wrappedTab = (TabWrapper) tab.getTag();
-            mWrappedListener.onTabUnselected(wrappedTab, wrappedTab.mActiveTransaction);
+            mTabListener.onTabUnselected(this, ft != null ? getActiveTransaction() : null);
         }
 
         @Override
         public void onTabReselected(android.app.ActionBar.Tab tab,
                 android.app.FragmentTransaction ft) {
-            final TabWrapper wrappedTab = (TabWrapper) tab.getTag();
-            mWrappedListener.onTabReselected(wrappedTab, wrappedTab.mActiveTransaction);
+            mTabListener.onTabReselected(this, ft != null ? getActiveTransaction() : null);
+            commitActiveTransaction();
         }
 
+        private FragmentTransaction getActiveTransaction() {
+            if (mActiveTransaction == null) {
+                mActiveTransaction = mCallback.getSupportFragmentManager().beginTransaction()
+                        .disallowAddToBackStack();
+            }
+            return mActiveTransaction;
+        }
+
+        private void commitActiveTransaction() {
+            if (mActiveTransaction != null && !mActiveTransaction.isEmpty()) {
+                mActiveTransaction.commit();
+            }
+            mActiveTransaction = null;
+        }
     }
 }
