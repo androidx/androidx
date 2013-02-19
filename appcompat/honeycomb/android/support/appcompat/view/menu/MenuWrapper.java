@@ -18,6 +18,7 @@ package android.support.appcompat.view.menu;
 
 import android.os.Build;
 import android.support.appcompat.view.Menu;
+import android.support.appcompat.view.MenuItem;
 
 public class MenuWrapper {
 
@@ -26,6 +27,16 @@ public class MenuWrapper {
             return new MenuWrapperHC(frameworkMenu);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new MenuWrapperICS(frameworkMenu);
+        }
+
+        return null;
+    }
+
+    public static MenuItem createMenuItemWrapper(android.view.MenuItem frameworkMenuItem) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            return new MenuItemWrapperHC(frameworkMenuItem);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new MenuItemWrapperICS(frameworkMenuItem);
         }
 
         return null;
