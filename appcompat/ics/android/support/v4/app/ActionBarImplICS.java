@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package android.support.appcompat.app;
+package android.support.v4.app;
 
 import android.app.Activity;
-import android.support.appcompat.app.ActionBarImplHC;
 
 class ActionBarImplICS extends ActionBarImplHC {
 
     public ActionBarImplICS(Activity activity, Callback callback) {
         super(activity, callback);
-        // TODO Auto-generated constructor stub
     }
 
 }
