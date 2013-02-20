@@ -24,7 +24,7 @@
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="13" />
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="17" />
 
     <!-- The smallest screen this app works on is a phone.  The app will
          scale its UI to larger screens but doesn't make good use of them
@@ -273,6 +273,22 @@
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <data android:mimeType="text/plain" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.DrawerLayoutActivity"
+                  android:label="@string/drawer_layout_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.SlidingPaneLayoutActivity"
+                  android:label="@string/sliding_pane_layout_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
