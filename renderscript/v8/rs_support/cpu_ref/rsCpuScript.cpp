@@ -181,7 +181,7 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
         // We do this to allow bundled applications to use the compatibility
         // library fallback path. Those applications don't have a private
         // library path, so they need to install to the system directly.
-        String8 scriptSONameSystem("/system/lib/lib");
+        String8 scriptSONameSystem("/system/lib/librs.");
         scriptSONameSystem.append(resName);
         scriptSONameSystem.append(".so");
         mScriptSO = dlopen(scriptSONameSystem.string(), RTLD_NOW | RTLD_LOCAL);
