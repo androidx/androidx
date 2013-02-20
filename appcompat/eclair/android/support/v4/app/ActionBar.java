@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package android.support.appcompat.app;
+package android.support.v4.app;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.appcompat.R;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -40,7 +37,7 @@ import android.widget.SpinnerAdapter;
  * android.R.style#Theme_Holo Holo} theme (or one of its descendant themes), which is the default.
  * You may otherwise add the action bar by calling {@link
  * android.view.Window#requestFeature requestFeature(FEATURE_ACTION_BAR)} or by declaring it in a
- * custom theme with the {@link android.R.styleable#Theme_windowActionBar windowActionBar} property.
+ * custom theme with the {@link R.styleable#ActionBarWindow_windowActionBar windowActionBar} property.
  *
  * <p>By default, the action bar shows the application icon on
  * the left, followed by the activity title. If your activity has an options menu, you can make

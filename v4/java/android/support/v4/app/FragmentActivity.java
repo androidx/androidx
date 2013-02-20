@@ -97,7 +97,7 @@ public class FragmentActivity extends Activity {
         }
 
     };
-    final FragmentManagerImpl mFragments = new FragmentManagerImpl();
+    final FragmentManagerImpl mFragments = createFragmentManager();
     final FragmentContainer mContainer = new FragmentContainer() {
         @Override
         public View findViewById(int id) {
@@ -841,6 +841,10 @@ public class FragmentActivity extends Activity {
                 mAllLoaderManagers.remove(who);
             }
         }
+    }
+
+    FragmentManagerImpl createFragmentManager() {
+        return new FragmentManagerImpl();
     }
     
     // ------------------------------------------------------------------------

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.appcompat.app;
+package android.support.v4.app;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -33,13 +33,10 @@ import android.support.appcompat.widget.ActionBarContextView;
 import android.support.appcompat.widget.ActionBarOverlayLayout;
 import android.support.appcompat.widget.ActionBarView;
 import android.support.appcompat.widget.ScrollingTabContainerView;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.SpinnerAdapter;
 
