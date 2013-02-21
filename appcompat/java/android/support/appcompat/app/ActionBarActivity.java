@@ -182,7 +182,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         private void initActionBar() {
             if (mActionBar == null && (mActivity.mHasActionBar || mActivity.mOverlayActionBar)) {
-                mActionBar = IMPL.createActionBar(mActivity);
+                mActionBar = createActionBar(mActivity);
             }
         }
 
@@ -489,18 +489,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     }
 
-    static final ActionBarActivityImpl IMPL;
-
-    static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 14) {
-            IMPL = new ActionBarActivityImplICS();
-        } else if (version >= 11) {
-            IMPL = new ActionBarActivityImplHC();
-        } else {
-            IMPL = new ActionBarActivityImplBase();
-        }
-    }
+    ActionBarActivityImpl mImpl;
 
     // true if the compatibility implementation has installed a window sub-decor layout.
     boolean mSubDecorInstalled;
@@ -514,17 +503,26 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        final int version = android.os.Build.VERSION.SDK_INT;
+        if (version >= 14) {
+            mImpl = new ActionBarActivityImplICS();
+        } else if (version >= 11) {
+            mImpl = new ActionBarActivityImplHC();
+        } else {
+            mImpl = new ActionBarActivityImplBase();
+        }
+
         TypedArray a = obtainStyledAttributes(R.styleable.ActionBarWindow);
         mHasActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBar, false);
         mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay,
                 false);
         a.recycle();
 
-        IMPL.onCreate(this, savedInstanceState);
+        mImpl.onCreate(this, savedInstanceState);
     }
 
     public ActionBar getSupportActionBar() {
-        return IMPL.getSupportActionBar();
+        return mImpl.getSupportActionBar();
     }
 
     public MenuInflater getSupportMenuInflater() {
@@ -546,7 +544,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     @Override
     public void setContentView(int layoutResID) {
-        IMPL.setContentView(this, layoutResID);
+        mImpl.setContentView(this, layoutResID);
     }
 
     /**
@@ -563,13 +561,13 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     @Override
     public void setContentView(View view) {
-        IMPL.setContentView(this, view);
+        mImpl.setContentView(this, view);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        IMPL.onConfigurationChanged(newConfig);
+        mImpl.onConfigurationChanged(newConfig);
     }
 
     /**
@@ -583,7 +581,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        IMPL.setContentView(this, view, params);
+        mImpl.setContentView(this, view, params);
     }
 
     void superSetContentView(int resId) {
@@ -617,19 +615,19 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     @Override
     public View onCreatePanelView(int featureId) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL)
-            return IMPL.onCreatePanelView(featureId);
+            return mImpl.onCreatePanelView(featureId);
         else
             return super.onCreatePanelView(featureId);
     }
 
     @Override
     public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
-        return IMPL.onCreatePanelMenu(featureId, frameworkMenu);
+        return mImpl.onCreatePanelMenu(featureId, frameworkMenu);
     }
 
     @Override
     public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
-        return IMPL.onPreparePanel(featureId, view, menu);
+        return mImpl.onPreparePanel(featureId, view, menu);
     }
 
     /**
@@ -732,7 +730,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            return IMPL.onMenuItemSelected(featureId, item);
+            return mImpl.onMenuItemSelected(featureId, item);
         }
         // TODO: Need to extract framework MenuItem for passing to superclass, once Menu wrappers
         // are in place.
