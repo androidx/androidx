@@ -21,58 +21,99 @@
     <eat-comment/>
 
     <style name="Widget.AppCompat.Base.ActionBar" parent="">
+        <item name="displayOptions">useLogo|showHome|showTitle</item>
+        <item name="divider">@drawable/action_bar_divider</item>
+        <item name="height">?attr/actionBarSize</item>
+        <item name="homeLayout">@layout/action_bar_home</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionButton" parent="">
+        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:paddingLeft">12dip</item>
+        <item name="android:paddingRight">12dip</item>
+        <item name="android:minWidth">@dimen/action_button_min_width</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">2</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionButton.Overflow">
+    <style name="Widget.AppCompat.Base.ActionButton.Overflow" parent="">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabBar" parent="">
+        <item name="android:divider">?attr/actionBarDivider</item>
+        <item name="android:showDividers">middle</item>
+        <item name="android:dividerPadding">12dip</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabView" parent="">
+        <item name="android:background">@drawable/tab_indicator_ab_holo</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">16dip</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabText" parent="">
+        <item name="android:textAppearance">@null</item>
+        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:maxLines">2</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionMode" parent="">
+        <item name="android:background">?attr/actionModeBackground</item>
+        <item name="backgroundSplit">?attr/actionModeSplitBackground</item>
+        <item name="android:height">?attr/actionBarSize</item>
+        <item name="titleTextStyle">@style/TextAppearance.Widget.ActionMode.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Widget.ActionMode.Subtitle</item>
     </style>
 
 
     <style name="TextAppearance.AppCompat.Base.Widget.ActionBar.Menu"
            parent="@android:style/TextAppearance.Small">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/actionMenuTextColor</item>
     </style>
 
     <!-- Default action bar style. Remember that if you are overriding
          any attributes here in a derived style, you should declare each
          item twice - both with and without the "android:" namespace prefix. -->
     <style name="Widget.AppCompat.ActionBar" parent="Widget.AppCompat.Base.ActionBar">
-        <item name="background">@drawable/action_bar_background</item>
-        <item name="displayOptions">useLogo|showHome|showTitle</item>
-        <item name="divider">@drawable/action_bar_divider</item>
-        <item name="height">?attr/actionBarSize</item>
         <item name="titleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Title</item>
         <item name="subtitleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Subtitle
         </item>
+
+        <item name="background">@drawable/ab_transparent_dark_holo</item>
+
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
+
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
+
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
         <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Small</item>
-        <item name="homeLayout">@layout/action_bar_home</item>
+
     </style>
 
-    <style name="Widget.AppCompat.Light.ActionBar" parent="Widget.AppCompat.ActionBar">
+    <style name="Widget.AppCompat.Light.ActionBar" parent="Widget.AppCompat.Base.ActionBar">
         <item name="titleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Title</item>
         <item name="subtitleTextStyle">@style/TextAppearance.Widget.AppCompat.ActionBar.Subtitle
         </item>
+
         <item name="background">@drawable/ab_transparent_light_holo</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_transparent_light_holo</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_transparent_light_holo</item>
+
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
-        <!-- TODO(trevorjohns): Action Bar styles below are from Holo. Port over rest of Holo? -->
-        <!--<item name="progressBarStyle">@style/Widget.AppCompat.Light.ProgressBar.Horizontal</item>-->
-        <!--<item name="indeterminateProgressStyle">@style/Widget.AppCompat.Light.ProgressBar</item>-->
+
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
+
+        <!-- TODO(chrisbanes): Change these to Light themes -->
+        <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
+        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Small</item>
     </style>
 
     <style name="TextAppearance.Widget.AppCompat.ActionBar.Title"
@@ -114,7 +155,8 @@
     <style name="Widget.AppCompat.ActionButton" parent="Widget.AppCompat.Base.ActionButton">
     </style>
 
-    <style name="Widget.AppCompat.ActionButton.Overflow">
+    <style name="Widget.AppCompat.ActionButton.Overflow"
+           parent="Widget.AppCompat.Base.ActionButton.Overflow">
     </style>
 
     <style name="Widget.AppCompat.ActionBar.TabBar" parent="Widget.AppCompat.Base.ActionBar.TabBar">
@@ -126,26 +168,13 @@
 
     <style name="Widget.AppCompat.ActionBar.TabText"
            parent="Widget.AppCompat.Base.ActionBar.TabText">
-        <item name="android:maxWidth">180dip</item>
-        <item name="android:textAppearance">@android:style/TextAppearance.Widget.TextView</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Menu"
            parent="TextAppearance.AppCompat.Base.Widget.ActionBar.Menu">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">?attr/actionMenuTextColor</item>
     </style>
 
-
     <style name="Widget.AppCompat.ActionMode" parent="Widget.AppCompat.Base.ActionMode">
-        <item name="android:background">?attr/actionModeBackground</item>
-        <item name="backgroundSplit">?attr/actionModeSplitBackground</item>
-        <item name="android:height">?attr/actionBarSize</item>
-        <item name="titleTextStyle">@style/TextAppearance.Widget.ActionMode.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.Widget.ActionMode.Subtitle</item>
     </style>
 
     <style name="TextAppearance.Widget.ActionMode.Title"
@@ -157,11 +186,7 @@
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
-    <style name="Widget.ActionBar.TabView" parent="Widget.AppCompat.ActionBar">
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:background">@drawable/minitab_lt</item>
-        <item name="paddingStart">4dip</item>
-        <item name="paddingEnd">4dip</item>
+    <style name="Widget.ActionBar.TabView" parent="Widget.AppCompat.Base.ActionBar.TabView">
     </style>
 
 </resources>

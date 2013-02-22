@@ -18,15 +18,11 @@
     <!-- Patterned after style name="Widget.Holo.Light.ActionBar.Solid" -->
     <style name="Widget.AppCompat.ActionBar.Solid" parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">@drawable/ab_solid_light_holo</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_light_holo</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_light_holo</item>
     </style>
 
     <!-- Patterned after style name="Widget.Holo.Light.ActionBar.Solid.Inverse" -->
     <style name="Widget.AppCompat.ActionBar.Solid.Inverse"
            parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">@drawable/ab_solid_dark_holo</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_dark_holo</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_inverse_holo</item>
     </style>
 </resources>
