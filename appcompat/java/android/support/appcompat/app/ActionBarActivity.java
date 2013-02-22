@@ -107,6 +107,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
                 mActionBarView = (ActionBarView) activity.findViewById(R.id.action_bar);
                 mActionBarView.setMenu(mMenu, this);
+
+                initActionBar();
             }
         }
 
@@ -365,7 +367,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     static class ActionBarActivityImplHC implements ActionBarActivityImpl {
-        private ActionBarImplHC mActionBar;
+        private ActionBar mActionBar;
         private ActionBarActivity mActivity;
         private Menu mMenu;
 
@@ -382,7 +384,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 activity.superRequestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
             }
             if (activity.mHasActionBar || activity.mOverlayActionBar) {
-                mActionBar = new ActionBarImplHC(activity, activity);
+                mActionBar = createActionBar(mActivity);
             }
         }
 
