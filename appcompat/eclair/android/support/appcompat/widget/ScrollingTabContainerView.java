@@ -22,7 +22,9 @@ import android.support.appcompat.R;
 import android.support.appcompat.app.ActionBar;
 import android.support.appcompat.view.ActionBarPolicy;
 import android.text.TextUtils.TruncateAt;
+import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -50,6 +52,8 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     private Spinner mTabSpinner;
     private boolean mAllowCollapse;
 
+    private final LayoutInflater mInflater;
+
     int mMaxTabWidth;
     int mStackedTabMaxWidth;
     private int mContentHeight;
@@ -57,13 +61,15 @@ public class ScrollingTabContainerView extends HorizontalScrollView
 
     public ScrollingTabContainerView(Context context) {
         super(context);
+        mInflater = LayoutInflater.from(context);
+
         setHorizontalScrollBarEnabled(false);
 
         ActionBarPolicy abp = ActionBarPolicy.get(context);
         setContentHeight(abp.getTabContainerHeight());
         mStackedTabMaxWidth = abp.getStackedTabMaxWidth();
 
-        mTabLayout = createTabLayout();
+        mTabLayout = (LinearLayout) mInflater.inflate(R.layout.action_bar_tabbar, this, false);
         addView(mTabLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
     }
@@ -177,17 +183,6 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         requestLayout();
     }
 
-    private LinearLayout createTabLayout() {
-        //final LinearLayout tabLayout = new LinearLayout( getContext(), null, R.attr.actionBarTabBarStyle);
-        final LinearLayout tabLayout = new LinearLayout(getContext(), null);
-
-        //tabLayout.setMeasureWithLargestChildEnabled(true);
-        tabLayout.setGravity(Gravity.CENTER);
-        tabLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.FILL_PARENT));
-        return tabLayout;
-    }
-
     private Spinner createSpinner() {
         final Spinner spinner = new Spinner(getContext(), null,
                 R.attr.actionDropDownStyle);
@@ -238,7 +233,10 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private TabView createTabView(ActionBar.Tab tab, boolean forAdapter) {
-        final TabView tabView = new TabView(getContext(), tab, forAdapter);
+        final TabView tabView = (TabView) mInflater.inflate(R.layout.action_bar_tab, mTabLayout,
+                false);
+        tabView.attach(this, tab, forAdapter);
+
         if (forAdapter) {
             tabView.setBackgroundDrawable(null);
             tabView.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.FILL_PARENT,
@@ -320,17 +318,20 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         tabView.getTab().select();
     }
 
-    private class TabView extends LinearLayout {
+    public static class TabView extends LinearLayout {
 
         private ActionBar.Tab mTab;
         private TextView mTextView;
         private ImageView mIconView;
         private View mCustomView;
+        private ScrollingTabContainerView mParent;
 
-        public TabView(Context context, ActionBar.Tab tab, boolean forList) {
-            //super(context, null, R.attr.actionBarTabStyle);
-            super(context, null);
+        public TabView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
 
+        void attach(ScrollingTabContainerView parent, ActionBar.Tab tab, boolean forList) {
+            mParent = parent;
             mTab = tab;
 
             if (forList) {
@@ -349,9 +350,11 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
+            int maxTabWidth = mParent != null ? mParent.mMaxTabWidth : 0;
+
             // Re-measure if we went beyond our maximum size.
-            if (mMaxTabWidth > 0 && getMeasuredWidth() > mMaxTabWidth) {
-                super.onMeasure(MeasureSpec.makeMeasureSpec(mMaxTabWidth, MeasureSpec.EXACTLY),
+            if (maxTabWidth > 0 && getMeasuredWidth() > maxTabWidth) {
+                super.onMeasure(MeasureSpec.makeMeasureSpec(maxTabWidth, MeasureSpec.EXACTLY),
                         heightMeasureSpec);
             }
         }
