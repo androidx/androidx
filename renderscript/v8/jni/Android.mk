@@ -17,7 +17,7 @@ rs_generated_include_dir := $(call intermediates-dir-for,SHARED_LIBRARIES,libRSS
 
 LOCAL_C_INCLUDES += \
 	$(JNI_H_INCLUDE) \
-	frameworks/rs \
+	frameworks/support/renderscript/v8/rs_support \
 	$(rs_generated_include_dir)
 
 LOCAL_CFLAGS +=
