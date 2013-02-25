@@ -171,7 +171,7 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
 
     //script->mHal.drv = drv;
 
-    ALOGV("Opening up shared object: %s", scriptSOName.string());
+    //ALOGV("Opening up shared object: %s", scriptSOName.string());
     mScriptSO = dlopen(scriptSOName.string(), RTLD_NOW | RTLD_LOCAL);
     if (mScriptSO == NULL) {
         ALOGE("Unable to open shared library (%s): %s",
@@ -196,24 +196,24 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
         char line[MAXLINE];
         mRoot = (RootFunc_t) dlsym(mScriptSO, "root");
         if (mRoot) {
-            ALOGE("Found root(): %p", mRoot);
+            //ALOGE("Found root(): %p", mRoot);
         }
         mRootExpand = (RootFunc_t) dlsym(mScriptSO, "root.expand");
         if (mRootExpand) {
-            ALOGE("Found root.expand(): %p", mRootExpand);
+            //ALOGE("Found root.expand(): %p", mRootExpand);
         }
         mInit = (InvokeFunc_t) dlsym(mScriptSO, "init");
         if (mInit) {
-            ALOGE("Found init(): %p", mInit);
+            //ALOGE("Found init(): %p", mInit);
         }
         mFreeChildren = (InvokeFunc_t) dlsym(mScriptSO, ".rs.dtor");
         if (mFreeChildren) {
-            ALOGE("Found .rs.dtor(): %p", mFreeChildren);
+            //ALOGE("Found .rs.dtor(): %p", mFreeChildren);
         }
 
         const char *rsInfo = (const char *) dlsym(mScriptSO, ".rs.info");
         if (rsInfo) {
-            ALOGE("Found .rs.info(): %p - %s", rsInfo, rsInfo);
+            //ALOGE("Found .rs.info(): %p - %s", rsInfo, rsInfo);
         }
 
         size_t varCount = 0;
@@ -226,7 +226,7 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
         }
 
         mExportedVariableCount = varCount;
-        ALOGE("varCount: %zu", varCount);
+        //ALOGE("varCount: %zu", varCount);
         if (varCount > 0) {
             // Start by creating/zeroing this member, since we don't want to
             // accidentally clean up invalid pointers later (if we error out).
@@ -254,8 +254,8 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
                     // Not a critical error if we don't find a global variable.
                 }
                 else {
-                    ALOGE("Found variable %s at %p", line,
-                          mFieldAddress[i]);
+                    //ALOGE("Found variable %s at %p", line,
+                    //mFieldAddress[i]);
                 }
             }
         }
@@ -270,7 +270,7 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
         }
 
         mExportedFunctionCount = funcCount;
-        ALOGE("funcCount: %zu", funcCount);
+        //ALOGE("funcCount: %zu", funcCount);
 
         if (funcCount > 0) {
             mInvokeFunctions = new InvokeFunc_t[funcCount];
@@ -293,7 +293,7 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
                     goto error;
                 }
                 else {
-                    ALOGE("Found InvokeFunc_t %s at %p", line, mInvokeFunctions[i]);
+                    //ALOGE("Found InvokeFunc_t %s at %p", line, mInvokeFunctions[i]);
                 }
             }
         }
@@ -345,7 +345,7 @@ bool RsdCpuScriptImpl::init(char const *resName, char const *cacheDir,
                     }
                 }
                 else {
-                    ALOGE("Found forEach %s at %p", tmpName, mForEachFunctions[i]);
+                    //ALOGE("Found forEach %s at %p", tmpName, mForEachFunctions[i]);
                 }
             }
         }
