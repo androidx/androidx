@@ -14,9 +14,10 @@
      limitations under the License.
 -->
 
-<android.support.appcompat.view.menu.ListMenuItemView xmlns:android="http://schemas.android.com/apk/res/android"
-                                                 android:layout_width="match_parent"
-                                                 android:layout_height="?attr/listPreferredItemHeightSmall">
+<android.support.appcompat.view.menu.ListMenuItemView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/listPreferredItemHeightSmall">
 
     <!-- Icon will be inserted here. -->
 
@@ -24,6 +25,8 @@
     <RelativeLayout
             android:layout_width="0dip"
             android:layout_weight="1"
+            android:layout_marginLeft="?attr/listPreferredItemPaddingLeft"
+            android:layout_marginRight="?attr/listPreferredItemPaddingRight"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:duplicateParentState="true">
