@@ -24,9 +24,10 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.appcompat.R;
-import android.support.appcompat.view.Menu;
-import android.support.appcompat.view.MenuInflater;
-import android.support.appcompat.view.MenuItem;
+import android.support.appcompat.view.SupportMenuInflater;
+import android.support.v4.view.Menu;
+import android.support.v4.view.MenuInflater;
+import android.support.v4.view.MenuItem;
 import android.support.appcompat.view.menu.ExpandedMenuView;
 import android.support.appcompat.view.menu.ListMenuPresenter;
 import android.support.appcompat.view.menu.MenuBuilder;
@@ -45,8 +46,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     private static final int FEATURE_ACTION_BAR = 8;
     private static final int FEATURE_ACTION_BAR_OVERLAY = 9;
-
-    private MenuInflater mMenuInflater;
 
     interface ActionBarActivityImpl {
         void onCreate(ActionBarActivity activity, Bundle savedInstanceState);
@@ -260,14 +259,14 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
             // Allow activity to inflate menu contents
             boolean show = mActivity.onCreateSupportOptionsMenu(mMenu);
-            show |= mActivity.dispatchFragmentsCreateSupportOptionsMenu(mMenu,
+            show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(mMenu,
                     mActivity.getSupportMenuInflater());
             return show;
         }
 
         private boolean dispatchPrepareSupportOptionsMenu() {
             boolean goforit = mActivity.onPrepareSupportOptionsMenu(mMenu);
-            goforit |= mActivity.dispatchFragmentPrepareSupportOptionsMenu(mMenu);
+            goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(mMenu);
             return goforit;
         }
 
@@ -360,7 +359,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     if (mActivity.onSupportOptionsItemSelected(item)) {
                         return true;
                     }
-                    if (mActivity.dispatchFragmentSupportOptionsItemSelected(item)) {
+                    if (mActivity.mFragments.dispatchSupportOptionsItemSelected(item)) {
                         return true;
                     }
                     if (item.getItemId() == R.id.home && mActionBar != null &&
@@ -496,7 +495,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     mMenu = MenuWrapper.createMenuWrapper(frameworkMenu);
                 }
                 boolean show = mActivity.onCreateSupportOptionsMenu(mMenu);
-                show |= mActivity.dispatchFragmentsCreateSupportOptionsMenu(mMenu,
+                show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(mMenu,
                         mActivity.getSupportMenuInflater());
                 return show;
             } else {
@@ -512,7 +511,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     if (mActivity.onSupportOptionsItemSelected(wrappedItem)) {
                         return true;
                     }
-                    if (mActivity.dispatchFragmentSupportOptionsItemSelected(wrappedItem)) {
+                    if (mActivity.mFragments.dispatchSupportOptionsItemSelected(wrappedItem)) {
                         return true;
                     }
                     break;
@@ -533,7 +532,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
             if (featureId == Window.FEATURE_OPTIONS_PANEL && mMenu != null) {
                 boolean goforit = mActivity.onPrepareSupportOptionsMenu(mMenu);
-                goforit |= mActivity.dispatchFragmentPrepareSupportOptionsMenu(mMenu);
+                goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(mMenu);
                 return goforit;
             } else {
                 return mActivity.superOnPreparePanelMenu(featureId, view, menu);
@@ -593,13 +592,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     public ActionBar getSupportActionBar() {
         return mImpl.getSupportActionBar();
-    }
-
-    public MenuInflater getSupportMenuInflater() {
-        if (mMenuInflater == null) {
-            mMenuInflater = new MenuInflater(this);
-        }
-        return mMenuInflater;
     }
 
     /**
@@ -706,94 +698,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     /**
-     * Support library version of onPrepareOptionsMenu.
-     *
-     * Prepare the Screen's standard options menu to be displayed.  This is
-     * called right before the menu is shown, every time it is shown.  You can
-     * use this method to efficiently enable/disable items or otherwise
-     * dynamically modify the contents.
-     *
-     * <p>The default implementation updates the system menu items based on the
-     * activity's state.  Deriving classes should always call through to the
-     * base class implementation.
-     *
-     * @param menu The options menu as last shown or first initialized by
-     *             onCreateSupportOptionsMenu().
-     *
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     *
-     * @see #onPrepareSupportOptionsMenu
-     * @see #onCreateSupportOptionsMenu
-     */
-    public boolean onPrepareSupportOptionsMenu(android.support.appcompat.view.Menu menu) {
-        return true;
-    }
-
-    /**
-     * Support library version of onCreateOptionsMenu.
-     *
-     * Initialize the contents of the Activity's standard options menu.  You
-     * should place your menu items in to <var>menu</var>.
-     *
-     * <p>This is only called once, the first time the options menu is
-     * displayed.  To update the menu every time it is displayed, see
-     * {@link #onPrepareSupportOptionsMenu}.
-     *
-     * <p>The default implementation populates the menu with standard system
-     * menu items.  These are placed in the {@link Menu#CATEGORY_SYSTEM} group so that
-     * they will be correctly ordered with application-defined menu items.
-     * Deriving classes should always call through to the base implementation.
-     *
-     * <p>You can safely hold on to <var>menu</var> (and any items created
-     * from it), making modifications to it as desired, until the next
-     * time onCreateSupportOptionsMenu() is called.
-     *
-     * <p>When you add items to the menu, you can implement the Activity's
-     * {@link #onSupportOptionsItemSelected} method to handle them there.
-     *
-     * @param menu The options menu in which you place your items.
-     *
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     *
-     * @see #onCreateSupportOptionsMenu
-     * @see #onPrepareSupportOptionsMenu
-     * @see #onSupportOptionsItemSelected
-     */
-    public boolean onCreateSupportOptionsMenu(android.support.appcompat.view.Menu menu) {
-        return true;
-    }
-
-    /**
-     * This hook is called whenever an item in your options menu is selected.
-     * The default implementation simply returns false to have the normal
-     * processing happen (calling the item's Runnable or sending a message to
-     * its Handler as appropriate).  You can use this method for any items
-     * for which you would like to do processing without those other
-     * facilities.
-     *
-     * <p>Derived classes should call through to the base class for it to
-     * perform the default menu handling.</p>
-     *
-     * @param item The menu item that was selected.
-     *
-     * @return boolean Return false to allow normal menu processing to
-     *         proceed, true to consume it here.
-     *
-     * @see #onCreateSupportOptionsMenu
-     */
-    public boolean onSupportOptionsItemSelected(android.support.appcompat.view.MenuItem item) {
-        Activity parent = getParent();
-        if (parent != null) {
-            // TODO: Once menu wrapper is in place, extract native menu item to forward up to parent
-            // return parent.onSupportOptionsItemSelected(item);
-            return false;
-        }
-        return false;
-    }
-
-    /**
      * Default implementation of
      * {@link android.view.Window.Callback#onMenuItemSelected}
      * for activities.  This calls through to the new
@@ -803,7 +707,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * Activity don't need to deal with feature codes.
      */
     public boolean onSupportMenuItemSelected(int featureId,
-            android.support.appcompat.view.MenuItem item) {
+            MenuItem item) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             return mImpl.onMenuItemSelected(featureId, item);
         }
@@ -827,31 +731,17 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
-    FragmentManagerImpl createFragmentManager() {
-        return new SupportMenuFragmentManager();
-    }
-
-    final boolean dispatchFragmentsCreateSupportOptionsMenu(Menu menu,
-            MenuInflater inflater) {
-        return ((SupportMenuFragmentManager) mFragments).dispatchCreateSupportOptionsMenu(menu,
-                inflater);
-    }
-
-    final boolean dispatchFragmentPrepareSupportOptionsMenu(Menu menu) {
-        return ((SupportMenuFragmentManager) mFragments).dispatchPrepareSupportOptionsMenu(menu);
-    }
-
-    final boolean dispatchFragmentSupportOptionsItemSelected(MenuItem item) {
-        return ((SupportMenuFragmentManager) mFragments).dispatchSupportOptionsItemSelected(item);
-    }
-
-    @Override
     public void supportInvalidateOptionsMenu() {
         // Only call up to super on HC+, mImpl will handle otherwise
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             super.supportInvalidateOptionsMenu();
         }
         mImpl.supportInvalidateOptionsMenu();
+    }
+
+    @Override
+    MenuInflater createSupportMenuInflater() {
+        return new SupportMenuInflater(this);
     }
 
 }

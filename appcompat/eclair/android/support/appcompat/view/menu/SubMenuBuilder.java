@@ -16,12 +16,12 @@
 
 package android.support.appcompat.view.menu;
 
-import android.support.appcompat.view.Menu;
+import android.support.v4.view.Menu;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.appcompat.view.MenuItem;
-import android.support.appcompat.view.SubMenu;
+import android.support.v4.view.MenuItem;
+import android.support.v4.view.SubMenu;
 import android.view.View;
 
 /**
