@@ -17,6 +17,7 @@
 package android.support.v4.widget;
 
 import android.content.Context;
+import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
 /**
@@ -30,8 +31,8 @@ class ScrollerCompat {
     Scroller mScroller;
 
     static class ScrollerCompatImplIcs extends ScrollerCompat {
-        public ScrollerCompatImplIcs(Context context) {
-            super(context);
+        public ScrollerCompatImplIcs(Context context, Interpolator interpolator) {
+            super(context, interpolator);
         }
 
         @Override
@@ -40,15 +41,20 @@ class ScrollerCompat {
         }
     }
 
-    public static ScrollerCompat from(Context context) {
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            return new ScrollerCompatImplIcs(context);
-        }
-        return new ScrollerCompat(context);
+    public static ScrollerCompat create(Context context) {
+        return create(context, null);
     }
 
-    ScrollerCompat(Context context) {
-        mScroller = new Scroller(context);
+    public static ScrollerCompat create(Context context, Interpolator interpolator) {
+        if (android.os.Build.VERSION.SDK_INT >= 14) {
+            return new ScrollerCompatImplIcs(context, interpolator);
+        }
+        return new ScrollerCompat(context, interpolator);
+    }
+
+    ScrollerCompat(Context context, Interpolator interpolator) {
+        mScroller = interpolator != null ?
+                new Scroller(context, interpolator) : new Scroller(context);
     }
 
     /**
