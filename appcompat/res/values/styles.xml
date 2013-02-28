@@ -164,4 +164,24 @@
         <item name="paddingEnd">4dip</item>
     </style>
 
+    <style name="Theme.AppCompat.Base.CompactMenu" parent="">
+        <!-- Menu/item attributes -->
+        <item name="android:itemTextAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:listViewStyle">@android:style/Widget.ListView.Menu</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="Theme.AppCompat.Base.Light.CompactMenu" parent="">
+        <!-- Menu/item attributes -->
+        <item name="android:itemTextAppearance">?android:attr/textAppearanceMediumInverse</item>
+        <item name="android:listViewStyle">@android:style/Widget.ListView.Menu</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="Theme.AppCompat.CompactMenu" parent="Theme.AppCompat.Base.CompactMenu">
+    </style>
+
+    <style name="Theme.AppCompat.Light.CompactMenu" parent="Theme.AppCompat.Base.Light.CompactMenu">
+    </style>
+
 </resources>
