@@ -30,7 +30,7 @@
 
         <item name="buttonBarStyle">@android:style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
-        <item name="selectableItemBackground">@drawable/item_background</item>
+        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
 
         <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
         <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
@@ -71,7 +71,7 @@
 
         <item name="buttonBarStyle">@android:style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
-        <item name="selectableItemBackground">@drawable/item_background</item>
+        <item name="selectableItemBackground">@drawable/item_background_holo_light</item>
 
         <item name="dividerVertical">@drawable/appcompat_divider_light</item>
         <item name="dividerHorizontal">@drawable/appcompat_divider_light</item>
@@ -102,7 +102,10 @@
 
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
-        <item name="actionBarDivider">@drawable/appcompat_divider_dark</item>
+        <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
+        <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
+
+        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity.
@@ -136,10 +139,10 @@
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat" parent="Theme.Base.AppCompat">
-        <item name="windowActionBar">true</item>
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
         <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <item name="actionBarWidgetTheme">@null</item>
@@ -151,16 +154,19 @@
         </item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
+
+        <item name="windowActionBar">true</item>
+
         <!-- TODO(trevorjohns): Does not exist on API < 11. -->
         <!-- <item name="actionDropDownStyle">@android:style/Widget_Spinner_DropDown</item> -->
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
     <style name="Theme.AppCompat.Light" parent="Theme.Base.AppCompat.Light">
-        <item name="windowActionBar">true</item>
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
         <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <item name="actionBarWidgetTheme">@null</item>
@@ -172,6 +178,9 @@
         </item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
+
+        <item name="windowActionBar">true</item>
+
         <!-- TODO(trevorjohns): Does not exist on API < 11. -->
         <!-- <item name="actionDropDownStyle">@android:style/Widget_Spinner_DropDown</item> -->
     </style>
