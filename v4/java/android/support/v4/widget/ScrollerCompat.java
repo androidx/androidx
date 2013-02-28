@@ -17,6 +17,7 @@
 package android.support.v4.widget;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
@@ -27,17 +28,200 @@ import android.widget.Scroller;
  * current device's preferred scroll physics and fling behavior. It offers a subset of
  * the APIs from Scroller or OverScroller.</p>
  */
-class ScrollerCompat {
-    Scroller mScroller;
+public class ScrollerCompat {
+    Object mScroller;
 
-    static class ScrollerCompatImplIcs extends ScrollerCompat {
-        public ScrollerCompatImplIcs(Context context, Interpolator interpolator) {
-            super(context, interpolator);
+    interface ScrollerCompatImpl {
+        Object createScroller(Context context, Interpolator interpolator);
+        boolean isFinished(Object scroller);
+        int getCurrX(Object scroller);
+        int getCurrY(Object scroller);
+        float getCurrVelocity(Object scroller);
+        boolean computeScrollOffset(Object scroller);
+        void startScroll(Object scroller, int startX, int startY, int dx, int dy);
+        void startScroll(Object scroller, int startX, int startY, int dx, int dy, int duration);
+        void fling(Object scroller, int startX, int startY, int velX, int velY,
+                int minX, int maxX, int minY, int maxY);
+        void fling(Object scroller, int startX, int startY, int velX, int velY,
+                int minX, int maxX, int minY, int maxY, int overX, int overY);
+        void abortAnimation(Object scroller);
+        void notifyHorizontalEdgeReached(Object scroller, int startX, int finalX, int overX);
+        void notifyVerticalEdgeReached(Object scroller, int startY, int finalY, int overY);
+        boolean isOverScrolled(Object scroller);
+    }
+
+    static class ScrollerCompatImplBase implements ScrollerCompatImpl {
+        @Override
+        public Object createScroller(Context context, Interpolator interpolator) {
+            return interpolator != null ?
+                    new Scroller(context, interpolator) : new Scroller(context);
         }
 
         @Override
-        public float getCurrVelocity() {
-            return ScrollerCompatIcs.getCurrVelocity(mScroller);
+        public boolean isFinished(Object scroller) {
+            return ((Scroller) scroller).isFinished();
+        }
+
+        @Override
+        public int getCurrX(Object scroller) {
+            return ((Scroller) scroller).getCurrX();
+        }
+
+        @Override
+        public int getCurrY(Object scroller) {
+            return ((Scroller) scroller).getCurrY();
+        }
+
+        @Override
+        public float getCurrVelocity(Object scroller) {
+            return 0;
+        }
+
+        @Override
+        public boolean computeScrollOffset(Object scroller) {
+            return ((Scroller) scroller).computeScrollOffset();
+        }
+
+        @Override
+        public void startScroll(Object scroller, int startX, int startY, int dx, int dy) {
+            ((Scroller) scroller).startScroll(startX, startY, dx, dy);
+        }
+
+        @Override
+        public void startScroll(Object scroller, int startX, int startY, int dx, int dy,
+                int duration) {
+            ((Scroller) scroller).startScroll(startX, startY, dx, dy, duration);
+        }
+
+        @Override
+        public void fling(Object scroller, int startX, int startY, int velX, int velY,
+                int minX, int maxX, int minY, int maxY) {
+            ((Scroller) scroller).fling(startX, startY, velX, velY, minX, maxX, minY, maxY);
+        }
+
+        @Override
+        public void fling(Object scroller, int startX, int startY, int velX, int velY,
+                int minX, int maxX, int minY, int maxY, int overX, int overY) {
+            ((Scroller) scroller).fling(startX, startY, velX, velY, minX, maxX, minY, maxY);
+        }
+
+        @Override
+        public void abortAnimation(Object scroller) {
+            ((Scroller) scroller).abortAnimation();
+        }
+
+        @Override
+        public void notifyHorizontalEdgeReached(Object scroller, int startX, int finalX,
+                int overX) {
+            // No-op
+        }
+
+        @Override
+        public void notifyVerticalEdgeReached(Object scroller, int startY, int finalY, int overY) {
+            // No-op
+        }
+
+        @Override
+        public boolean isOverScrolled(Object scroller) {
+            // Always false
+            return false;
+        }
+    }
+
+    static class ScrollerCompatImplGingerbread implements ScrollerCompatImpl {
+        @Override
+        public Object createScroller(Context context, Interpolator interpolator) {
+            return ScrollerCompatGingerbread.createScroller(context, interpolator);
+        }
+
+        @Override
+        public boolean isFinished(Object scroller) {
+            return ScrollerCompatGingerbread.isFinished(scroller);
+        }
+
+        @Override
+        public int getCurrX(Object scroller) {
+            return ScrollerCompatGingerbread.getCurrX(scroller);
+        }
+
+        @Override
+        public int getCurrY(Object scroller) {
+            return ScrollerCompatGingerbread.getCurrY(scroller);
+        }
+
+        @Override
+        public float getCurrVelocity(Object scroller) {
+            return 0;
+        }
+
+        @Override
+        public boolean computeScrollOffset(Object scroller) {
+            return ScrollerCompatGingerbread.computeScrollOffset(scroller);
+        }
+
+        @Override
+        public void startScroll(Object scroller, int startX, int startY, int dx, int dy) {
+            ScrollerCompatGingerbread.startScroll(scroller, startX, startY, dx, dy);
+        }
+
+        @Override
+        public void startScroll(Object scroller, int startX, int startY, int dx, int dy,
+                int duration) {
+            ScrollerCompatGingerbread.startScroll(scroller, startX, startY, dx, dy, duration);
+        }
+
+        @Override
+        public void fling(Object scroller, int startX, int startY, int velX, int velY,
+                int minX, int maxX, int minY, int maxY) {
+            ScrollerCompatGingerbread.fling(scroller, startX, startY, velX, velY,
+                    minX, maxX, minY, maxY);
+        }
+
+        @Override
+        public void fling(Object scroller, int startX, int startY, int velX, int velY,
+                int minX, int maxX, int minY, int maxY, int overX, int overY) {
+            ScrollerCompatGingerbread.fling(scroller, startX, startY, velX, velY,
+                    minX, maxX, minY, maxY, overX, overY);
+        }
+
+        @Override
+        public void abortAnimation(Object scroller) {
+            ScrollerCompatGingerbread.abortAnimation(scroller);
+        }
+
+        @Override
+        public void notifyHorizontalEdgeReached(Object scroller, int startX, int finalX,
+                int overX) {
+            ScrollerCompatGingerbread.notifyHorizontalEdgeReached(scroller, startX, finalX, overX);
+        }
+
+        @Override
+        public void notifyVerticalEdgeReached(Object scroller, int startY, int finalY, int overY) {
+            ScrollerCompatGingerbread.notifyVerticalEdgeReached(scroller, startY, finalY, overY);
+        }
+
+        @Override
+        public boolean isOverScrolled(Object scroller) {
+            return ScrollerCompatGingerbread.isOverScrolled(scroller);
+        }
+    }
+
+    static class ScrollerCompatImplIcs extends ScrollerCompatImplGingerbread {
+        @Override
+        public float getCurrVelocity(Object scroller) {
+            return ScrollerCompatIcs.getCurrVelocity(scroller);
+        }
+    }
+
+    static final ScrollerCompatImpl IMPL;
+    static {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 14) { // ICS
+            IMPL = new ScrollerCompatImplIcs();
+        } else if (version >= 9) { // Gingerbread
+            IMPL = new ScrollerCompatImplGingerbread();
+        } else {
+            IMPL = new ScrollerCompatImplBase();
         }
     }
 
@@ -46,15 +230,11 @@ class ScrollerCompat {
     }
 
     public static ScrollerCompat create(Context context, Interpolator interpolator) {
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            return new ScrollerCompatImplIcs(context, interpolator);
-        }
         return new ScrollerCompat(context, interpolator);
     }
 
     ScrollerCompat(Context context, Interpolator interpolator) {
-        mScroller = interpolator != null ?
-                new Scroller(context, interpolator) : new Scroller(context);
+        mScroller = IMPL.createScroller(context, interpolator);
     }
 
     /**
@@ -63,16 +243,7 @@ class ScrollerCompat {
      * @return True if the scroller has finished scrolling, false otherwise.
      */
     public boolean isFinished() {
-        return mScroller.isFinished();
-    }
-
-    /**
-     * Returns how long the scroll event will take, in milliseconds.
-     *
-     * @return The duration of the scroll in milliseconds.
-     */
-    public int getDuration() {
-        return mScroller.getDuration();
+        return IMPL.isFinished(mScroller);
     }
 
     /**
@@ -81,7 +252,7 @@ class ScrollerCompat {
      * @return The new X offset as an absolute distance from the origin.
      */
     public int getCurrX() {
-        return mScroller.getCurrX();
+        return IMPL.getCurrX(mScroller);
     }
 
     /**
@@ -90,22 +261,21 @@ class ScrollerCompat {
      * @return The new Y offset as an absolute distance from the origin.
      */
     public int getCurrY() {
-        return mScroller.getCurrY();
+        return IMPL.getCurrY(mScroller);
     }
 
     /**
-     * Returns the current velocity.
+     * Returns the current velocity on platform versions that support it.
      *
-     * TODO: Approximate a sane result for older platform versions. Right now
-     * this will return 0 for platforms earlier than ICS. This is acceptable
-     * at the moment only since it is only used for EdgeEffect, which is also only
-     * present in ICS+, and ScrollerCompat is not public.
+     * <p>The device must support at least API level 14 (Ice Cream Sandwich).
+     * On older platform versions this method will return 0. This method should
+     * only be used as input for nonessential visual effects such as {@link EdgeEffectCompat}.</p>
      *
      * @return The original velocity less the deceleration. Result may be
      * negative.
      */
     public float getCurrVelocity() {
-        return 0;
+        return IMPL.getCurrVelocity(mScroller);
     }
 
     /**
@@ -114,7 +284,7 @@ class ScrollerCompat {
      * new location.
      */
     public boolean computeScrollOffset() {
-        return mScroller.computeScrollOffset();
+        return IMPL.computeScrollOffset(mScroller);
     }
 
     /**
@@ -132,7 +302,7 @@ class ScrollerCompat {
      *        content up.
      */
     public void startScroll(int startX, int startY, int dx, int dy) {
-        mScroller.startScroll(startX, startY, dx, dy);
+        IMPL.startScroll(mScroller, startX, startY, dx, dy);
     }
 
     /**
@@ -149,7 +319,7 @@ class ScrollerCompat {
      * @param duration Duration of the scroll in milliseconds.
      */
     public void startScroll(int startX, int startY, int dx, int dy, int duration) {
-        mScroller.startScroll(startX, startY, dx, dy, duration);
+        IMPL.startScroll(mScroller, startX, startY, dx, dy, duration);
     }
 
     /**
@@ -173,15 +343,95 @@ class ScrollerCompat {
      */
     public void fling(int startX, int startY, int velocityX, int velocityY,
             int minX, int maxX, int minY, int maxY) {
-        mScroller.fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
+        IMPL.fling(mScroller, startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
     }
 
     /**
-     * Stops the animation. Contrary to {@link #forceFinished(boolean)},
-     * aborting the animating cause the scroller to move to the final x and y
-     * position
+     * Start scrolling based on a fling gesture. The distance travelled will
+     * depend on the initial velocity of the fling.
+     *
+     * @param startX Starting point of the scroll (X)
+     * @param startY Starting point of the scroll (Y)
+     * @param velocityX Initial velocity of the fling (X) measured in pixels per
+     *        second.
+     * @param velocityY Initial velocity of the fling (Y) measured in pixels per
+     *        second
+     * @param minX Minimum X value. The scroller will not scroll past this
+     *        point.
+     * @param maxX Maximum X value. The scroller will not scroll past this
+     *        point.
+     * @param minY Minimum Y value. The scroller will not scroll past this
+     *        point.
+     * @param maxY Maximum Y value. The scroller will not scroll past this
+     *        point.
+     * @param overX Overfling range. If > 0, horizontal overfling in either
+     *            direction will be possible.
+     * @param overY Overfling range. If > 0, vertical overfling in either
+     *            direction will be possible.
+     */
+    public void fling(int startX, int startY, int velocityX, int velocityY,
+            int minX, int maxX, int minY, int maxY, int overX, int overY) {
+        IMPL.fling(mScroller, startX, startY, velocityX, velocityY,
+                minX, maxX, minY, maxY, overX, overY);
+    }
+
+    /**
+     * Stops the animation. Aborting the animation causes the scroller to move to the final x and y
+     * position.
      */
     public void abortAnimation() {
-        mScroller.abortAnimation();
+        IMPL.abortAnimation(mScroller);
+    }
+
+
+    /**
+     * Notify the scroller that we've reached a horizontal boundary.
+     * Normally the information to handle this will already be known
+     * when the animation is started, such as in a call to one of the
+     * fling functions. However there are cases where this cannot be known
+     * in advance. This function will transition the current motion and
+     * animate from startX to finalX as appropriate.
+     *
+     * @param startX Starting/current X position
+     * @param finalX Desired final X position
+     * @param overX Magnitude of overscroll allowed. This should be the maximum
+     *              desired distance from finalX. Absolute value - must be positive.
+     */
+    public void notifyHorizontalEdgeReached(int startX, int finalX, int overX) {
+        IMPL.notifyHorizontalEdgeReached(mScroller, startX, finalX, overX);
+    }
+
+    /**
+     * Notify the scroller that we've reached a vertical boundary.
+     * Normally the information to handle this will already be known
+     * when the animation is started, such as in a call to one of the
+     * fling functions. However there are cases where this cannot be known
+     * in advance. This function will animate a parabolic motion from
+     * startY to finalY.
+     *
+     * @param startY Starting/current Y position
+     * @param finalY Desired final Y position
+     * @param overY Magnitude of overscroll allowed. This should be the maximum
+     *              desired distance from finalY. Absolute value - must be positive.
+     */
+    public void notifyVerticalEdgeReached(int startY, int finalY, int overY) {
+        IMPL.notifyVerticalEdgeReached(mScroller, startY, finalY, overY);
+    }
+
+    /**
+     * Returns whether the current Scroller is currently returning to a valid position.
+     * Valid bounds were provided by the
+     * {@link #fling(int, int, int, int, int, int, int, int, int, int)} method.
+     *
+     * One should check this value before calling
+     * {@link #startScroll(int, int, int, int)} as the interpolation currently in progress
+     * to restore a valid position will then be stopped. The caller has to take into account
+     * the fact that the started scroll will start from an overscrolled position.
+     *
+     * @return true when the current position is overscrolled and in the process of
+     *         interpolating back to a valid value.
+     */
+    public boolean isOverScrolled() {
+        return IMPL.isOverScrolled(mScroller);
     }
 }
