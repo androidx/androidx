@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Parcelable;
 import android.support.appcompat.R;
-import android.support.appcompat.view.MenuItem;
+import android.support.v4.view.MenuItem;
 import android.support.appcompat.widget.ListPopupWindow;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;

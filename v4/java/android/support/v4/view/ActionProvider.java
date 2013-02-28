@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package android.support.appcompat.view;
+package android.support.v4.view;
 
 import android.content.Context;
-import android.support.appcompat.view.SubMenu;
 import android.view.View;
 
 /**
@@ -26,7 +25,8 @@ import android.view.View;
  * also implements other functions such a performing a default action.
  *
  * <p>An ActionProvider can be
- * optionally specified for a {@link MenuItem} and in such a case it will be responsible for
+ * optionally specified for a {@link android.support.v4.view.MenuItem} and in such a case it will be
+ * responsible for
  * creating the action view that appears in the {@link android.app.ActionBar} as a substitute for
  * the menu item when the item is displayed as an action item. Also the provider is responsible for
  * performing a default action if a menu item placed on the overflow menu of the ActionBar is
@@ -35,8 +35,8 @@ import android.view.View;
  *
  * <p>There are two ways for using an action provider for creating and handling of action views:
  *
- * <ul><li> Setting the action provider on a {@link MenuItem} directly by calling {@link
- * MenuItem#setActionProvider(ActionProvider)}. </li>
+ * <ul><li> Setting the action provider on a {@link android.support.v4.view.MenuItem} directly by
+ * calling {@link android.support.v4.view.MenuItem#setActionProvider(ActionProvider)}. </li>
  *
  * <li>Declaring the action provider in the menu XML resource. For example:
  *
@@ -51,8 +51,8 @@ import android.view.View;
  * </pre>
  * </li></ul></p>
  *
- * @see MenuItem#setActionProvider(ActionProvider)
- * @see MenuItem#getActionProvider()
+ * @see android.support.v4.view.MenuItem#setActionProvider(ActionProvider)
+ * @see android.support.v4.view.MenuItem#getActionProvider()
  */
 public abstract class ActionProvider {
 
@@ -82,18 +82,22 @@ public abstract class ActionProvider {
      *
      * <p> A menu item selection is processed in the following order:
      *
-     * <ul><li>Receiving a call to {@link MenuItem.OnMenuItemClickListener#onMenuItemClick
+     * <ul><li>Receiving a call to
+     * {@link android.support.v4.view.MenuItem.OnMenuItemClickListener#onMenuItemClick
      * MenuItem.OnMenuItemClickListener.onMenuItemClick}.</li>
      *
-     * <li>Receiving a call to {@link android.app.Activity#onOptionsItemSelected(MenuItem)
-     * Activity.onOptionsItemSelected(MenuItem)}
+     * <li>Receiving a call to
+     * {@link android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)}
+     * FragmentActivity.onSupportOptionsItemSelected(MenuItem)}
      * </li>
      *
-     * <li>Receiving a call to {@link android.app.Fragment#onOptionsItemSelected(MenuItem)
-     * Fragment.onOptionsItemSelected(MenuItem)}</li>
+     * <li>Receiving a call to
+     * {@link android.support.v4.app.Fragment#onSupportOptionsItemSelected(MenuItem)}
+     * Fragment.onSupportOptionsItemSelected(MenuItem)}</li>
      *
      * <li>Launching the {@link android.content.Intent} set via
-     * {@link MenuItem#setIntent(android.content.Intent) MenuItem.setIntent(android.content.Intent)}
+     * {@link android.support.v4.view.MenuItem#setIntent(android.content.Intent)
+     * MenuItem.setIntent(android.content.Intent)}
      * </li>
      *
      * <li>Invoking this method.</li></ul>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.appcompat.view;
+package android.support.v4.view;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
