@@ -36,12 +36,11 @@
         <item name="dividerHorizontal">?attr/dividerHorizontal</item>
         <item name="actionBarDivider">?attr/actionBarDivider</item>
 
-        <item name="listPreferredItemHeight">?attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">?attr/listPreferredItemHeightSmall</item>
-        <item name="listPreferredItemHeightLarge">?attr/listPreferredItemHeightLarge</item>
-
-        <item name="listPreferredItemPaddingLeft">?attr/listPreferredItemPaddingLeft</item>
-        <item name="listPreferredItemPaddingRight">?attr/listPreferredItemPaddingRight</item>
+        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="listPreferredItemHeightLarge">?android:attr/listPreferredItemHeightLarge</item>
+        <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
+        <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight</item>
 
         <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
         <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
@@ -63,12 +62,11 @@
         <item name="dividerHorizontal">?attr/dividerHorizontal</item>
         <item name="actionBarDivider">?attr/actionBarDivider</item>
 
-        <item name="listPreferredItemHeight">?attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">?attr/listPreferredItemHeightSmall</item>
-        <item name="listPreferredItemHeightLarge">?attr/listPreferredItemHeightLarge</item>
-
-        <item name="listPreferredItemPaddingLeft">?attr/listPreferredItemPaddingLeft</item>
-        <item name="listPreferredItemPaddingRight">?attr/listPreferredItemPaddingRight</item>
+        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="listPreferredItemHeightLarge">?android:attr/listPreferredItemHeightLarge</item>
+        <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
+        <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight</item>
 
         <item name="textAppearanceListItem">@android:attr/textAppearanceMedium</item>
         <item name="textAppearanceListItemSmall">@android:attr/textAppearanceMedium</item>

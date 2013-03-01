@@ -99,7 +99,7 @@ public class ActionBarView extends AbsActionBarView {
     private TextView mSubtitleView;
     private View mTitleUpView;
 
-    private Spinner mSpinner;
+    private SpinnerICS mSpinner;
     private LinearLayout mListNavLayout;
     private ScrollingTabContainerView mTabScrollView;
     private View mCustomNavView;
@@ -135,15 +135,16 @@ public class ActionBarView extends AbsActionBarView {
 
     Window.Callback mWindowCallback;
 
-    private final AdapterView.OnItemSelectedListener mNavItemSelectedListener =
-            new AdapterView.OnItemSelectedListener() {
-                public void onItemSelected(AdapterView parent, View view, int position, long id) {
+    private final AdapterViewICS.OnItemSelectedListener mNavItemSelectedListener =
+            new AdapterViewICS.OnItemSelectedListener() {
+                public void onItemSelected(AdapterViewICS<?> parent, View view, int position,
+                        long id) {
                     if (mCallback != null) {
                         mCallback.onNavigationItemSelected(position, id);
                     }
                 }
 
-                public void onNothingSelected(AdapterView parent) {
+                public void onNothingSelected(AdapterViewICS<?> parent) {
                     // Do nothing
                 }
             };
@@ -670,7 +671,7 @@ public class ActionBarView extends AbsActionBarView {
             switch (mode) {
                 case ActionBar.NAVIGATION_MODE_LIST:
                     if (mSpinner == null) {
-                        mSpinner = new Spinner(mContext, null,
+                        mSpinner = new SpinnerICS(mContext, null,
                                 R.attr.actionDropDownStyle);
                         mListNavLayout = (LinearLayout) LayoutInflater.from(mContext).inflate(
                                 R.layout.action_bar_view_list_nav_layout, null);
