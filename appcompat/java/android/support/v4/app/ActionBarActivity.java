@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -260,7 +259,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             // Allow activity to inflate menu contents
             boolean show = mActivity.onCreateSupportOptionsMenu(mMenu);
             show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(mMenu,
-                    mActivity.getSupportMenuInflater());
+                    mActivity.getCompatMenuInflater());
             return show;
         }
 
@@ -496,7 +495,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 }
                 boolean show = mActivity.onCreateSupportOptionsMenu(mMenu);
                 show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(mMenu,
-                        mActivity.getSupportMenuInflater());
+                        mActivity.getCompatMenuInflater());
                 return show;
             } else {
                 return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
@@ -740,7 +739,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
-    MenuInflater createSupportMenuInflater() {
+    MenuInflater createCompatMenuInflater() {
         return new SupportMenuInflater(this);
     }
 
