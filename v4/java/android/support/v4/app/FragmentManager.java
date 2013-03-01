@@ -1940,7 +1940,7 @@ final class FragmentManagerImpl extends FragmentManager {
                 }
             }
         }
-        
+
         if (mCreatedMenus != null) {
             for (int i=0; i<mCreatedMenus.size(); i++) {
                 Fragment f = mCreatedMenus.get(i);
@@ -1949,9 +1949,9 @@ final class FragmentManagerImpl extends FragmentManager {
                 }
             }
         }
-        
+
         mCreatedMenus = newMenus;
-        
+
         return show;
     }
     
@@ -2022,8 +2022,8 @@ final class FragmentManagerImpl extends FragmentManager {
                         if (newMenus == null) {
                             newMenus = new ArrayList<Fragment>();
                         }
+                        newMenus.add(f);
                     }
-                    newMenus.add(f);
                 }
             }
         }
@@ -2061,7 +2061,7 @@ final class FragmentManagerImpl extends FragmentManager {
         if (mAdded != null) {
             for (int i = 0; i < mAdded.size(); i++) {
                 Fragment f = mAdded.get(i);
-                if (f!= null) {
+                if (f != null) {
                     if (f.performSupportOptionsItemSelected(item)) {
                         return true;
                     }
