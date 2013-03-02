@@ -48,6 +48,8 @@ public class ScrollerCompat {
         void notifyHorizontalEdgeReached(Object scroller, int startX, int finalX, int overX);
         void notifyVerticalEdgeReached(Object scroller, int startY, int finalY, int overY);
         boolean isOverScrolled(Object scroller);
+        int getFinalX(Object scroller);
+        int getFinalY(Object scroller);
     }
 
     static class ScrollerCompatImplBase implements ScrollerCompatImpl {
@@ -125,6 +127,16 @@ public class ScrollerCompat {
         public boolean isOverScrolled(Object scroller) {
             // Always false
             return false;
+        }
+
+        @Override
+        public int getFinalX(Object scroller) {
+            return ((Scroller) scroller).getFinalX();
+        }
+
+        @Override
+        public int getFinalY(Object scroller) {
+            return ((Scroller) scroller).getFinalY();
         }
     }
 
@@ -204,6 +216,16 @@ public class ScrollerCompat {
         public boolean isOverScrolled(Object scroller) {
             return ScrollerCompatGingerbread.isOverScrolled(scroller);
         }
+
+        @Override
+        public int getFinalX(Object scroller) {
+            return ScrollerCompatGingerbread.getFinalX(scroller);
+        }
+
+        @Override
+        public int getFinalY(Object scroller) {
+            return ScrollerCompatGingerbread.getFinalY(scroller);
+        }
     }
 
     static class ScrollerCompatImplIcs extends ScrollerCompatImplGingerbread {
@@ -262,6 +284,20 @@ public class ScrollerCompat {
      */
     public int getCurrY() {
         return IMPL.getCurrY(mScroller);
+    }
+
+    /**
+     * @return The final X position for the scroll in progress, if known.
+     */
+    public int getFinalX() {
+        return IMPL.getFinalX(mScroller);
+    }
+
+    /**
+     * @return The final Y position for the scroll in progress, if known.
+     */
+    public int getFinalY() {
+        return IMPL.getFinalY(mScroller);
     }
 
     /**
