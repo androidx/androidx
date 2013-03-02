@@ -79,4 +79,12 @@ class ScrollerCompatGingerbread {
     public static boolean isOverScrolled(Object scroller) {
         return ((OverScroller) scroller).isOverScrolled();
     }
+
+    public static int getFinalX(Object scroller) {
+        return ((OverScroller) scroller).getFinalX();
+    }
+
+    public static int getFinalY(Object scroller) {
+        return ((OverScroller) scroller).getFinalY();
+    }
 }
