@@ -369,6 +369,7 @@ public class ViewDragHelper {
         mCapturedView = childView;
         mActivePointerId = activePointerId;
         mCallback.onViewCaptured(childView, activePointerId);
+        setDragState(STATE_DRAGGING);
     }
 
     /**
@@ -588,7 +589,7 @@ public class ViewDragHelper {
      */
     public boolean continueSettling(boolean deferCallbacks) {
         if (mDragState == STATE_SETTLING) {
-            final boolean keepGoing = mScroller.computeScrollOffset();
+            boolean keepGoing = mScroller.computeScrollOffset();
             final int x = mScroller.getCurrX();
             final int y = mScroller.getCurrY();
             final int dx = x - mCapturedView.getLeft();
@@ -603,6 +604,13 @@ public class ViewDragHelper {
 
             if (dx != 0 || dy != 0) {
                 mCallback.onViewPositionChanged(x, y, dx, dy);
+            }
+
+            if (keepGoing && x == mScroller.getFinalX() && y == mScroller.getFinalY()) {
+                // Close enough. The interpolator/scroller might think we're still moving
+                // but the user sure doesn't.
+                mScroller.abortAnimation();
+                keepGoing = mScroller.isFinished();
             }
 
             if (!keepGoing) {
@@ -707,6 +715,9 @@ public class ViewDragHelper {
         if (mDragState != state) {
             mDragState = state;
             mCallback.onViewDragStateChanged(state);
+            if (state == STATE_IDLE) {
+                mCapturedView = null;
+            }
         }
     }
 
@@ -727,7 +738,6 @@ public class ViewDragHelper {
         if (toCapture != null && mCallback.tryCaptureView(toCapture, pointerId)) {
             mActivePointerId = pointerId;
             captureChildView(toCapture, pointerId);
-            setDragState(STATE_DRAGGING);
             return true;
         }
         return false;
@@ -777,14 +787,20 @@ public class ViewDragHelper {
      * @return true if the parent view should return true from onInterceptTouchEvent
      */
     public boolean shouldInterceptTouchEvent(MotionEvent ev) {
+        final int actionCode = ev.getAction();
+        final int action = actionCode & MotionEventCompat.ACTION_MASK;
+        final int actionIndex = actionCode & MotionEventCompat.ACTION_POINTER_INDEX_MASK;
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            // Reset things for a new event stream, just in case we didn't get
+            // the whole previous stream.
+            cancel();
+        }
+
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
         mVelocityTracker.addMovement(ev);
-
-        final int actionCode = ev.getAction();
-        final int action = actionCode & MotionEventCompat.ACTION_MASK;
-        final int actionIndex = actionCode & MotionEventCompat.ACTION_POINTER_INDEX_MASK;
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
@@ -879,13 +895,19 @@ public class ViewDragHelper {
      * @param ev The touch event received by the parent view
      */
     public void processTouchEvent(MotionEvent ev) {
+        final int action = MotionEventCompat.getActionMasked(ev);
+        final int actionIndex = MotionEventCompat.getActionIndex(ev);
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            // Reset things for a new event stream, just in case we didn't get
+            // the whole previous stream.
+            cancel();
+        }
+
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
         mVelocityTracker.addMovement(ev);
-
-        final int action = MotionEventCompat.getActionMasked(ev);
-        final int actionIndex = MotionEventCompat.getActionIndex(ev);
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
@@ -1031,20 +1053,16 @@ public class ViewDragHelper {
 
     private void reportNewEdgeDrags(float dx, float dy, int pointerId) {
         int dragsStarted = 0;
-        if ((mTrackingEdges & EDGE_LEFT) == EDGE_LEFT && dx > mTouchSlop &&
-                (mEdgeDragsInProgress[pointerId] & EDGE_LEFT) == 0) {
+        if (checkNewEdgeDrag(dx, pointerId, EDGE_LEFT)) {
             dragsStarted |= EDGE_LEFT;
         }
-        if ((mTrackingEdges & EDGE_TOP) == EDGE_TOP && dy > mTouchSlop &&
-                (mEdgeDragsInProgress[pointerId] & EDGE_TOP) == 0) {
+        if (checkNewEdgeDrag(dy, pointerId, EDGE_TOP)) {
             dragsStarted |= EDGE_TOP;
         }
-        if ((mTrackingEdges & EDGE_RIGHT) == EDGE_RIGHT && -dx > mTouchSlop &&
-                (mEdgeDragsInProgress[pointerId] & EDGE_RIGHT) == 0) {
+        if (checkNewEdgeDrag(dx, pointerId, EDGE_RIGHT)) {
             dragsStarted |= EDGE_RIGHT;
         }
-        if ((mTrackingEdges & EDGE_BOTTOM) == EDGE_BOTTOM && -dy > mTouchSlop &&
-                (mEdgeDragsInProgress[pointerId] & EDGE_BOTTOM) == 0) {
+        if (checkNewEdgeDrag(dy, pointerId, EDGE_BOTTOM)) {
             dragsStarted |= EDGE_BOTTOM;
         }
 
@@ -1052,6 +1070,13 @@ public class ViewDragHelper {
             mEdgeDragsInProgress[pointerId] |= dragsStarted;
             mCallback.onEdgeDragStarted(dragsStarted, pointerId);
         }
+    }
+
+    private boolean checkNewEdgeDrag(float delta, int pointerId, int edge) {
+        return (mTrackingEdges & edge) == edge &&
+                (mInitialEdgesTouched[pointerId] & edge) == edge &&
+                Math.abs(delta) > mTouchSlop &&
+                (mEdgeDragsInProgress[pointerId] & edge) == 0;
     }
 
     /**
@@ -1113,13 +1138,26 @@ public class ViewDragHelper {
      * @return true if the captured view is under the given point, false otherwise
      */
     public boolean isCapturedViewUnder(int x, int y) {
-        if (mCapturedView == null) {
+        return isViewUnder(mCapturedView, x, y);
+    }
+
+    /**
+     * Determine if the supplied view is under the given point in the
+     * parent view's coordinate system.
+     *
+     * @param view Child view of the parent to hit test
+     * @param x X position to test in the parent's coordinate system
+     * @param y Y position to test in the parent's coordinate system
+     * @return true if the supplied view is under the given point, false otherwise
+     */
+    public boolean isViewUnder(View view, int x, int y) {
+        if (view == null) {
             return false;
         }
-        return x >= mCapturedView.getLeft() &&
-                x < mCapturedView.getRight() &&
-                y >= mCapturedView.getTop() &&
-                y > mCapturedView.getBottom();
+        return x >= view.getLeft() &&
+                x < view.getRight() &&
+                y >= view.getTop() &&
+                y > view.getBottom();
     }
 
     /**
