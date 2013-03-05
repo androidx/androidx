@@ -73,7 +73,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         private ActionBar mActionBar;
         private ActionBarView mActionBarView;
         private ListMenuPresenter mListMenuPresenter;
-        private ExpandedMenuView mMenuPanel;
         private MenuBuilder mMenu;
 
         @Override
@@ -86,9 +85,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             // After the Activity has been created and the content views added, we need to make sure
             // that we've inflated the app's menu, so that Action Items can be rendered.
             if (mActivity.mSubDecorInstalled) {
-                if (dispatchCreateSupportOptionsMenu()) {
-                    dispatchPrepareSupportOptionsMenu();
-                }
+                supportInvalidateOptionsMenu();
             }
         }
 
@@ -113,7 +110,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     activity.superSetContentView(R.layout.action_bar_decor);
                 }
                 mActionBarView = (ActionBarView) activity.findViewById(R.id.action_bar);
-                mActionBarView.setMenu(mMenu, this);
 
                 initActionBar();
 
@@ -200,39 +196,54 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         @Override
         public View onCreatePanelView(int featureId) {
+            View createdPanelView = null;
+
             if (featureId == Window.FEATURE_OPTIONS_PANEL) {
                 boolean show = true;
+                MenuBuilder menu = mMenu;
 
-                // Only dispatch onCreateSupportOptionsMenu if we haven't already
-                if (mMenu == null) {
-                    show = dispatchCreateSupportOptionsMenu();
+                if (menu == null) {
+                    // We don't have a menu created, so create one and dispatch
+                    // onCreateSupportOptionsMenu
+                    menu = createMenu();
+                    show = dispatchCreateSupportOptionsMenu(menu);
+                } else {
+                    // We already have a menu, so stop it dispatching item
+                    // changes to it's presenters
+                    menu.stopDispatchingItemsChanged();
+                }
+
+                // If we're still set to show, dispatch onPrepareSupportOptionsMenu
+                if (show) {
+                    show = dispatchPrepareSupportOptionsMenu(menu);
                 }
 
                 if (show) {
-                    show = dispatchPrepareSupportOptionsMenu();
+                    if (mListMenuPresenter == null) {
+                        TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
+                        final int listPresenterTheme = a.getResourceId(
+                                R.styleable.Theme_panelMenuListTheme,
+                                R.style.Theme_AppCompat_CompactMenu);
+                        a.recycle();
 
-                    if (show) {
-                        if (mListMenuPresenter == null) {
-                            TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
-                            final int listPresenterTheme = a.getResourceId(
-                                    R.styleable.Theme_panelMenuListTheme,
-                                    R.style.Theme_AppCompat_CompactMenu);
-                            a.recycle();
-
-                            mListMenuPresenter = new ListMenuPresenter(
-                                    R.layout.list_menu_item_layout, listPresenterTheme);
-                            mListMenuPresenter.initForMenu(mActivity, mMenu);
-                        }
-
-                        if (mMenuPanel == null) {
-                            mMenuPanel = (ExpandedMenuView) mListMenuPresenter.getMenuView(null);
-                        }
-                        return mMenuPanel;
+                        mListMenuPresenter = new ListMenuPresenter(
+                                R.layout.list_menu_item_layout, listPresenterTheme);
                     }
+
+                    // Set Menu so that all presenters are updated
+                    setMenu(menu);
+
+                    createdPanelView = (View) mListMenuPresenter.getMenuView(null);
+
+                    // Allow menu to start dispatching changes to presenters
+                    menu.startDispatchingItemsChanged();
+                } else {
+                    // If the menu isn't being shown, we no longer need it
+                    setMenu(null);
                 }
             }
 
-            return null;
+            return createdPanelView;
         }
 
         public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
@@ -253,19 +264,28 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             return false;
         }
 
-        private boolean dispatchCreateSupportOptionsMenu() {
-            initMenu();
+        private void setMenu(MenuBuilder menu) {
+            if (mActionBarView != null) {
+                mActionBarView.setMenu(menu, this);
+            }
+            if (mListMenuPresenter != null) {
+                mListMenuPresenter.initForMenu(mActivity, menu);
+            }
+            mMenu = menu;
+        }
 
+        private boolean dispatchCreateSupportOptionsMenu(MenuBuilder menu) {
             // Allow activity to inflate menu contents
-            boolean show = mActivity.onCreateSupportOptionsMenu(mMenu);
-            show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(mMenu,
+            boolean show = mActivity.onCreateSupportOptionsMenu(menu);
+            show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(menu,
                     mActivity.getCompatMenuInflater());
+
             return show;
         }
 
-        private boolean dispatchPrepareSupportOptionsMenu() {
-            boolean goforit = mActivity.onPrepareSupportOptionsMenu(mMenu);
-            goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(mMenu);
+        private boolean dispatchPrepareSupportOptionsMenu(MenuBuilder menu) {
+            boolean goforit = mActivity.onPrepareSupportOptionsMenu(menu);
+            goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(menu);
             return goforit;
         }
 
@@ -274,7 +294,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         /**
          * Initializes the menu associated with the ActionBar.
          */
-        protected void initMenu() {
+        private MenuBuilder createMenu() {
             Context context = mActivity;
 
             // If we have an action bar, initialize the menu with a context themed for it.
@@ -289,8 +309,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 }
             }
 
-            mMenu = new MenuBuilder(context);
-            mMenu.setCallback(new MenuBuilder.Callback() {
+            MenuBuilder menu = new MenuBuilder(context);
+            menu.setCallback(new MenuBuilder.Callback() {
                 /**
                  * Called when a menu item is selected.
                  *
@@ -329,12 +349,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 }
             });
 
-            if (mActionBarView != null) {
-                mActionBarView.setMenu(mMenu, this);
-            }
-            if (mListMenuPresenter != null) {
-                mListMenuPresenter.initForMenu(mActivity, mMenu);
-            }
+            return menu;
         }
 
         @Override
@@ -408,8 +423,16 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
 
         public void supportInvalidateOptionsMenu() {
-            if (dispatchCreateSupportOptionsMenu()) {
-                dispatchPrepareSupportOptionsMenu();
+            final MenuBuilder menu = createMenu();
+
+            // No need to use start/stopDispatchingItemsChanged here
+            // as there are no presenters attached yet
+
+            if (dispatchCreateSupportOptionsMenu(menu) &&
+                    dispatchPrepareSupportOptionsMenu(menu)) {
+                setMenu(menu);
+            } else {
+                setMenu(null);
             }
         }
     }
