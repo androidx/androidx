@@ -161,9 +161,6 @@ public class SlidingPaneLayout extends ViewGroup {
     private int mTouchSlop;
     private float mInitialMotionX;
     private float mInitialMotionY;
-    private float mLastMotionX;
-    private float mLastMotionY;
-    private int mActivePointerId = INVALID_POINTER;
 
     private PanelSlideListener mPanelSlideListener;
 
@@ -322,10 +319,12 @@ public class SlidingPaneLayout extends ViewGroup {
         return mCoveredFadeColor;
     }
 
-    void setScrollState(int state) {
+    boolean setScrollState(int state) {
         if (mScrollState != state) {
             mScrollState = state;
+            return true;
         }
+        return false;
     }
 
     public void setPanelSlideListener(PanelSlideListener listener) {
@@ -585,11 +584,12 @@ public class SlidingPaneLayout extends ViewGroup {
         final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
 
         if (!mCanSlide || (mIsUnableToDrag && action != MotionEvent.ACTION_DOWN)) {
+            mDragHelper.cancel();
             return super.onInterceptTouchEvent(ev);
         }
 
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            mActivePointerId = INVALID_POINTER;
+            mDragHelper.cancel();
             return false;
         }
 
@@ -598,26 +598,18 @@ public class SlidingPaneLayout extends ViewGroup {
         boolean interceptTap = false;
 
         switch (action) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN: {
                 mIsUnableToDrag = false;
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
-                final int index = action == MotionEvent.ACTION_DOWN ?
-                        0 : ev.getAction() & MotionEventCompat.ACTION_POINTER_INDEX_MASK;
-                final float x = MotionEventCompat.getX(ev, index);
-                final float y = MotionEventCompat.getY(ev, index);
+                final float x = ev.getX();
+                final float y = ev.getY();
                 mInitialMotionX = x;
                 mInitialMotionY = y;
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
-                if (isSlideablePaneUnder(x, y) && mScrollState != SCROLL_STATE_SETTLING &&
-                        isDimmed(mSlideableView)) {
+                if (mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y) &&
+                        mScrollState != SCROLL_STATE_SETTLING && isDimmed(mSlideableView)) {
                     interceptTap = true;
                 }
                 break;
             }
-
-            case MotionEventCompat.ACTION_POINTER_UP:
-                onSecondaryPointerUp(ev);
-                break;
         }
 
         return interceptForDrag || interceptTap;
@@ -632,14 +624,12 @@ public class SlidingPaneLayout extends ViewGroup {
         mDragHelper.processTouchEvent(ev);
 
         final int action = ev.getAction();
-        boolean needsInvalidate = false;
         boolean wantTouchEvents = true;
 
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
                 final float x = ev.getX();
                 final float y = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mInitialMotionX = x;
                 mInitialMotionY = y;
                 break;
@@ -647,50 +637,21 @@ public class SlidingPaneLayout extends ViewGroup {
 
             case MotionEvent.ACTION_UP: {
                 if (isDimmed(mSlideableView)) {
-                    final int pi = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                    final float x = MotionEventCompat.getX(ev, pi);
-                    final float y = MotionEventCompat.getY(ev, pi);
+                    final float x = ev.getX();
+                    final float y = ev.getY();
                     final float dx = x - mInitialMotionX;
                     final float dy = y - mInitialMotionY;
-                    if (dx * dx + dy * dy < mTouchSlop * mTouchSlop && isSlideablePaneUnder(x, y)) {
+                    if (dx * dx + dy * dy < mTouchSlop * mTouchSlop &&
+                            mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
                         // Taps close a dimmed open pane.
                         closePane(mSlideableView, 0);
-                        mActivePointerId = INVALID_POINTER;
                         break;
                     }
                 }
                 break;
             }
-
-            case MotionEvent.ACTION_CANCEL: {
-                if (mScrollState == SCROLL_STATE_DRAGGING) {
-                    mActivePointerId = INVALID_POINTER;
-                    if (mSlideOffset < 0.5f) {
-                        closePane(mSlideableView, 0);
-                    } else {
-                        openPane(mSlideableView, 0);
-                    }
-                }
-                break;
-            }
-
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
-                final int index = MotionEventCompat.getActionIndex(ev);
-                mLastMotionX = MotionEventCompat.getX(ev, index);
-                mLastMotionY = MotionEventCompat.getY(ev, index);
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
-                break;
-            }
-
-            case MotionEventCompat.ACTION_POINTER_UP: {
-                onSecondaryPointerUp(ev);
-                break;
-            }
         }
 
-        if (needsInvalidate) {
-            invalidate();
-        }
         return wantTouchEvents;
     }
 
@@ -960,28 +921,6 @@ public class SlidingPaneLayout extends ViewGroup {
         return checkV && ViewCompat.canScrollHorizontally(v, -dx);
     }
 
-    private void onSecondaryPointerUp(MotionEvent ev) {
-        final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-        final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
-        if (pointerId == mActivePointerId) {
-            // This was our active pointer going up. Choose a new
-            // active pointer and adjust accordingly.
-            final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-            mLastMotionX = MotionEventCompat.getX(ev, newPointerIndex);
-            mLastMotionY = MotionEventCompat.getY(ev, newPointerIndex);
-            mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
-        }
-    }
-
-    boolean isSlideablePaneUnder(float x, float y) {
-        final View child = mSlideableView;
-        return child != null &&
-                x >= child.getLeft() &&
-                x < child.getRight() &&
-                y >= child.getTop() &&
-                y < child.getBottom();
-    }
-
     boolean isDimmed(View child) {
         if (child == null) {
             return false;
@@ -1026,12 +965,14 @@ public class SlidingPaneLayout extends ViewGroup {
         @Override
         public void onViewDragStateChanged(int state) {
             // All of the state values used here are set based on ViewDragHelper's values.
-            setScrollState(state);
+            final boolean changed = setScrollState(state);
 
-            if (mSlideOffset == 0) {
-                dispatchOnPanelClosed(mSlideableView);
-            } else {
-                dispatchOnPanelOpened(mSlideableView);
+            if (changed && mScrollState == SCROLL_STATE_IDLE) {
+                if (mSlideOffset == 0) {
+                    dispatchOnPanelClosed(mSlideableView);
+                } else {
+                    dispatchOnPanelOpened(mSlideableView);
+                }
             }
         }
 
@@ -1039,11 +980,6 @@ public class SlidingPaneLayout extends ViewGroup {
         public void onViewPositionChanged(int x, int y, int dx, int dy) {
             performDrag(x);
             invalidate();
-        }
-
-        @Override
-        public void onViewCaptured(View capturedChild, int activePointerId) {
-            super.onViewCaptured(capturedChild, activePointerId);
         }
 
         @Override
