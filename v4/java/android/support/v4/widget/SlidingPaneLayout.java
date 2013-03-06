@@ -30,7 +30,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -68,7 +67,7 @@ import java.lang.reflect.Method;
  * displaying the contents of the selected thread. Inappropriate uses of SlidingPaneLayout include
  * switching between disparate functions of your app, such as jumping from a social stream view
  * to a view of your personal profile - cases such as this should use the navigation drawer
- * pattern instead. (TODO: insert doc link to nav drawer widget.)</p>
+ * pattern instead. ({@link DrawerLayout DrawerLayout} implements this pattern.)</p>
  *
  * <p>Like {@link android.widget.LinearLayout LinearLayout}, SlidingPaneLayout supports
  * the use of the layout parameter <code>layout_weight</code> on child views to determine
@@ -158,15 +157,12 @@ public class SlidingPaneLayout extends ViewGroup {
      */
     private int mParallaxBy;
 
-    private int mTouchSlop;
     private float mInitialMotionX;
     private float mInitialMotionY;
 
     private PanelSlideListener mPanelSlideListener;
 
     private final ViewDragHelper mDragHelper;
-
-    private static final int INVALID_POINTER = -1;
 
     /**
      * Indicates that the panels are in an idle, settled state. The current panel
@@ -257,11 +253,10 @@ public class SlidingPaneLayout extends ViewGroup {
         mOverhangSize = (int) (DEFAULT_OVERHANG_SIZE * density + 0.5f);
 
         final ViewConfiguration viewConfig = ViewConfiguration.get(context);
-        mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(viewConfig);
 
         setWillNotDraw(false);
 
-        mDragHelper = ViewDragHelper.create(this, new DragHelperCallback());
+        mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
         mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
     }
 
@@ -610,7 +605,7 @@ public class SlidingPaneLayout extends ViewGroup {
                 mInitialMotionX = x;
                 mInitialMotionY = y;
                 if (mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y) &&
-                        mScrollState != SCROLL_STATE_SETTLING && isDimmed(mSlideableView)) {
+                        isDimmed(mSlideableView)) {
                     interceptTap = true;
                 }
                 break;
@@ -646,7 +641,8 @@ public class SlidingPaneLayout extends ViewGroup {
                     final float y = ev.getY();
                     final float dx = x - mInitialMotionX;
                     final float dy = y - mInitialMotionY;
-                    if (dx * dx + dy * dy < mTouchSlop * mTouchSlop &&
+                    final int slop = mDragHelper.getTouchSlop();
+                    if (dx * dx + dy * dy < slop * slop &&
                             mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
                         // Taps close a dimmed open pane.
                         closePane(mSlideableView, 0);
@@ -810,16 +806,6 @@ public class SlidingPaneLayout extends ViewGroup {
         }
     }
 
-    // We want the duration of the page snap animation to be influenced by the distance that
-    // the screen has to travel, however, we don't want this duration to be effected in a
-    // purely linear fashion. Instead, we use this method to moderate the effect that the distance
-    // of travel has on the overall snap duration.
-    float distanceInfluenceForSnapDuration(float f) {
-        f -= 0.5f; // center the values about 0.
-        f *= 0.3f * Math.PI / 2.0f;
-        return (float) Math.sin(f);
-    }
-
     @Override
     public void computeScroll() {
         if (mDragHelper.continueSettling(true)) {
@@ -956,6 +942,24 @@ public class SlidingPaneLayout extends ViewGroup {
         return new LayoutParams(getContext(), attrs);
     }
 
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+
+        SavedState ss = new SavedState(superState);
+        ss.isOpen = isOpen();
+
+        return ss;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        // TODO: Completely restore state
+    }
+
     private class DragHelperCallback extends ViewDragHelper.Callback {
 
         @Override
@@ -982,8 +986,8 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         @Override
-        public void onViewPositionChanged(int x, int y, int dx, int dy) {
-            performDrag(x);
+        public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
+            performDrag(left);
             invalidate();
         }
 
@@ -1004,17 +1008,14 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         @Override
-        public int clampViewMotionHorizontal(View child, int dx) {
+        public int clampViewPositionHorizontal(View child, int left, int dx) {
             final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
             final int leftBound = getPaddingLeft() + lp.leftMargin;
             final int rightBound = leftBound + mSlideRange;
 
-            final int oldLeft = mSlideableView.getLeft();
-            final int newLeft = Math.min(Math.max(oldLeft + dx, leftBound), rightBound);
+            final int newLeft = Math.min(Math.max(left, leftBound), rightBound);
 
-            final int dxPane = newLeft - oldLeft;
-
-            return dxPane;
+            return newLeft;
         }
 
         @Override
@@ -1079,7 +1080,6 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     static class SavedState extends BaseSavedState {
-        boolean canSlide;
         boolean isOpen;
 
         SavedState(Parcelable superState) {
@@ -1088,14 +1088,12 @@ public class SlidingPaneLayout extends ViewGroup {
 
         private SavedState(Parcel in) {
             super(in);
-            canSlide = in.readInt() != 0;
             isOpen = in.readInt() != 0;
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            out.writeInt(canSlide ? 1 : 0);
             out.writeInt(isOpen ? 1 : 0);
         }
 
