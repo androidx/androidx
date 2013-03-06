@@ -827,9 +827,8 @@ public class ViewDragHelper {
      * @return true if the parent view should return true from onInterceptTouchEvent
      */
     public boolean shouldInterceptTouchEvent(MotionEvent ev) {
-        final int actionCode = ev.getAction();
-        final int action = actionCode & MotionEventCompat.ACTION_MASK;
-        final int actionIndex = actionCode & MotionEventCompat.ACTION_POINTER_INDEX_MASK;
+        final int action = MotionEventCompat.getActionMasked(ev);
+        final int actionIndex = MotionEventCompat.getActionIndex(ev);
 
         if (action == MotionEvent.ACTION_DOWN) {
             // Reset things for a new event stream, just in case we didn't get
