@@ -164,24 +164,6 @@ public class SlidingPaneLayout extends ViewGroup {
 
     private final ViewDragHelper mDragHelper;
 
-    /**
-     * Indicates that the panels are in an idle, settled state. The current panel
-     * is fully in view and no animation is in progress.
-     */
-    public static final int SCROLL_STATE_IDLE = ViewDragHelper.STATE_IDLE;
-
-    /**
-     * Indicates that a panel is currently being dragged by the user.
-     */
-    public static final int SCROLL_STATE_DRAGGING = ViewDragHelper.STATE_DRAGGING;
-
-    /**
-     * Indicates that a panel is in the process of settling to a final position.
-     */
-    public static final int SCROLL_STATE_SETTLING = ViewDragHelper.STATE_SETTLING;
-
-    private int mScrollState = SCROLL_STATE_IDLE;
-
     private final Rect mTmpRect = new Rect();
 
     static final SlidingPanelLayoutImpl IMPL;
@@ -312,14 +294,6 @@ public class SlidingPaneLayout extends ViewGroup {
      */
     public int getCoveredFadeColor() {
         return mCoveredFadeColor;
-    }
-
-    boolean setScrollState(int state) {
-        if (mScrollState != state) {
-            mScrollState = state;
-            return true;
-        }
-        return false;
     }
 
     public void setPanelSlideListener(PanelSlideListener listener) {
@@ -518,20 +492,18 @@ public class SlidingPaneLayout extends ViewGroup {
 
         setMeasuredDimension(widthSize, layoutHeight);
         mCanSlide = canSlide;
-        if (mScrollState != SCROLL_STATE_IDLE && !canSlide) {
+        if (mDragHelper.getViewDragState() != ViewDragHelper.STATE_IDLE && !canSlide) {
             // Cancel scrolling in progress, it's no longer relevant.
-            setScrollState(SCROLL_STATE_IDLE);
+            mDragHelper.abort();
         }
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         final int width = r - l;
-        final int height = b - t;
         final int paddingLeft = getPaddingLeft();
         final int paddingRight = getPaddingRight();
         final int paddingTop = getPaddingTop();
-        final int paddingBottom = getPaddingBottom();
 
         final int childCount = getChildCount();
         int xStart = paddingLeft;
@@ -968,10 +940,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
         @Override
         public void onViewDragStateChanged(int state) {
-            // All of the state values used here are set based on ViewDragHelper's values.
-            final boolean changed = setScrollState(state);
-
-            if (changed && mScrollState == SCROLL_STATE_IDLE) {
+            if (mDragHelper.getViewDragState() == ViewDragHelper.STATE_IDLE) {
                 if (mSlideOffset == 0) {
                     dispatchOnPanelClosed(mSlideableView);
                 } else {
