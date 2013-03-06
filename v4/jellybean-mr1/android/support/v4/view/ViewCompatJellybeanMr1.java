@@ -35,4 +35,12 @@ class ViewCompatJellybeanMr1 {
     public static void setLayerPaint(View view, Paint paint) {
         view.setLayerPaint(paint);
     }
+
+    public static int getLayoutDirection(View view) {
+        return view.getLayoutDirection();
+    }
+
+    public static void setLayoutDirection(View view, int layoutDirection) {
+        view.setLayoutDirection(layoutDirection);
+    }
 }
