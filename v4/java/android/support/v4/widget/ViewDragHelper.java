@@ -139,12 +139,13 @@ public class ViewDragHelper {
         /**
          * Called when the captured view's position changes as the result of a drag or settle.
          *
-         * @param x New X coordinate of the drag point
-         * @param y New Y coordinate of the drag point
+         * @param changedView View whose position changed
+         * @param left New X coordinate of the left edge of the view
+         * @param top New Y coordinate of the top edge of the view
          * @param dx Change in X position from the last call
          * @param dy Change in Y position from the last call
          */
-        public void onViewPositionChanged(int x, int y, int dx, int dy) {}
+        public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {}
 
         /**
          * Called when a child view is captured for dragging or settling. The ID of the pointer
@@ -258,11 +259,13 @@ public class ViewDragHelper {
          * The default implementation does not allow horizontal motion; the extending
          * class must override this method and provide the desired clamping.
          *
+         *
          * @param child Child view being dragged
-         * @param dx Attempted motion along the X axis
-         * @return The permitted motion between 0-dx
+         * @param left Attempted motion along the X axis
+         * @param dx Proposed change in position for left
+         * @return The new clamped position for left
          */
-        public int clampViewMotionHorizontal(View child, int dx) {
+        public int clampViewPositionHorizontal(View child, int left, int dx) {
             return 0;
         }
 
@@ -271,11 +274,13 @@ public class ViewDragHelper {
          * The default implementation does not allow vertical motion; the extending
          * class must override this method and provide the desired clamping.
          *
+         *
          * @param child Child view being dragged
-         * @param dy Attempted motion along the Y axis
-         * @return The permitted motion between 0-dy
+         * @param top Attempted motion along the Y axis
+         * @param dy Proposed change in position for top
+         * @return The new clamped position for top
          */
-        public int clampViewMotionVertical(View child, int dy) {
+        public int clampViewPositionVertical(View child, int top, int dy) {
             return 0;
         }
     }
@@ -308,6 +313,21 @@ public class ViewDragHelper {
     }
 
     /**
+     * Factory method to create a new ViewDragHelper.
+     *
+     * @param forParent Parent view to monitor
+     * @param sensitivity Multiplier for how sensitive the helper should be about detecting
+     *                    the start of a drag. Larger values are more sensitive. 1.0f is normal.
+     * @param cb Callback to provide information and receive events
+     * @return a new ViewDragHelper instance
+     */
+    public static ViewDragHelper create(ViewGroup forParent, float sensitivity, Callback cb) {
+        final ViewDragHelper helper = create(forParent, cb);
+        helper.mTouchSlop = (int) (helper.mTouchSlop * (1 / sensitivity));
+        return helper;
+    }
+
+    /**
      * Apps should use ViewDragHelper.create() to get a new instance.
      * This will allow VDH to use internal compatibility implementations for different
      * platform versions.
@@ -334,6 +354,15 @@ public class ViewDragHelper {
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
         mMinVelocity = vc.getScaledMinimumFlingVelocity();
         mScroller = ScrollerCompat.create(context, sInterpolator);
+    }
+
+    /**
+     * Retrieve the current drag state of this helper. This will return one of
+     * {@link #STATE_IDLE}, {@link #STATE_DRAGGING} or {@link #STATE_SETTLING}.
+     * @return The current drag state
+     */
+    public int getViewDragState() {
+        return mDragState;
     }
 
     /**
@@ -388,6 +417,13 @@ public class ViewDragHelper {
     }
 
     /**
+     * @return The minimum distance in pixels that the user must travel to initiate a drag
+     */
+    public int getTouchSlop() {
+        return mTouchSlop;
+    }
+
+    /**
      * The result of a call to this method is equivalent to
      * {@link #processTouchEvent(android.view.MotionEvent)} receiving an ACTION_CANCEL event.
      */
@@ -413,7 +449,7 @@ public class ViewDragHelper {
             mScroller.abortAnimation();
             final int newX = mScroller.getCurrX();
             final int newY = mScroller.getCurrY();
-            mCallback.onViewPositionChanged(newX, newY, newX - oldX, newY - oldY);
+            mCallback.onViewPositionChanged(mCapturedView, newX, newY, newX - oldX, newY - oldY);
         }
         setDragState(STATE_IDLE);
     }
@@ -423,6 +459,9 @@ public class ViewDragHelper {
      * If this method returns true, the caller should invoke {@link #continueSettling(boolean)}
      * on each subsequent frame to continue the motion until it returns false. If this method
      * returns false there is no further work to do to complete the movement.
+     *
+     * <p>This operation does not count as a capture event, though {@link #getCapturedView()}
+     * will still report the sliding view while the slide is in progress.</p>
      *
      * @param child Child view to capture and animate
      * @param finalLeft Final left position of child
@@ -475,6 +514,7 @@ public class ViewDragHelper {
 
         if (dx == 0 && dy == 0) {
             // Nothing to do. Send callbacks, be done.
+            mScroller.abortAnimation();
             setDragState(STATE_IDLE);
             return false;
         }
@@ -603,7 +643,7 @@ public class ViewDragHelper {
             }
 
             if (dx != 0 || dy != 0) {
-                mCallback.onViewPositionChanged(x, y, dx, dy);
+                mCallback.onViewPositionChanged(mCapturedView, x, y, dx, dy);
             }
 
             if (keepGoing && x == mScroller.getFinalX() && y == mScroller.getFinalY()) {
@@ -1109,22 +1149,25 @@ public class ViewDragHelper {
                 VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId));
     }
 
-    private void dragTo(int ix, int iy, int idx, int idy) {
-        int clampedDx = idx;
-        int clampedDy = idy;
-        if (idx != 0) {
-            clampedDx = mCallback.clampViewMotionHorizontal(mCapturedView, idx);
-            mCapturedView.offsetLeftAndRight(clampedDx);
+    private void dragTo(int left, int top, int dx, int dy) {
+        int clampedX = left;
+        int clampedY = top;
+        final int oldLeft = mCapturedView.getLeft();
+        final int oldTop = mCapturedView.getTop();
+        if (dx != 0) {
+            clampedX = mCallback.clampViewPositionHorizontal(mCapturedView, left, dx);
+            mCapturedView.offsetLeftAndRight(clampedX - oldLeft);
         }
-        if (idy != 0) {
-            clampedDy = mCallback.clampViewMotionVertical(mCapturedView, idy);
-            mCapturedView.offsetTopAndBottom(clampedDy);
+        if (dy != 0) {
+            clampedY = mCallback.clampViewPositionVertical(mCapturedView, top, dy);
+            mCapturedView.offsetTopAndBottom(clampedY - oldTop);
         }
 
-        if (idx != 0 || idy != 0) {
-            final int clampedX = ix - idx + clampedDx;
-            final int clampedY = iy - idy + clampedDy;
-            mCallback.onViewPositionChanged(clampedX, clampedY, clampedDx, clampedDy);
+        if (dx != 0 || dy != 0) {
+            final int clampedDx = clampedX - oldLeft;
+            final int clampedDy = clampedY - oldTop;
+            mCallback.onViewPositionChanged(mCapturedView, clampedX, clampedY,
+                    clampedDx, clampedDy);
         }
     }
 
