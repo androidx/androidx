@@ -60,6 +60,8 @@ extern "C" void rsdIntrinsic3DLUT_K(void *dst, const void *src, const void *lut,
 void RsdCpuScriptIntrinsic3DLUT::kernel(const RsForEachStubParamStruct *p,
                                       uint32_t xstart, uint32_t xend,
                                       uint32_t instep, uint32_t outstep) {
+// FIXME(srhines)!!!! Temporary WAR for non-neon arm crash in clang.
+#if defined(ARCH_ARM_HAVE_NEON)
     RsdCpuScriptIntrinsic3DLUT *cp = (RsdCpuScriptIntrinsic3DLUT *)p->usr;
 
     uchar4 *out = (uchar4 *)p->out;
@@ -161,6 +163,7 @@ void RsdCpuScriptIntrinsic3DLUT::kernel(const RsForEachStubParamStruct *p,
         out++;
         x1++;
     }
+#endif
 }
 
 RsdCpuScriptIntrinsic3DLUT::RsdCpuScriptIntrinsic3DLUT(RsdCpuReferenceImpl *ctx,
