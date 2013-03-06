@@ -1199,7 +1199,7 @@ public class ViewDragHelper {
         return x >= view.getLeft() &&
                 x < view.getRight() &&
                 y >= view.getTop() &&
-                y > view.getBottom();
+                y < view.getBottom();
     }
 
     /**
