@@ -21,11 +21,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -84,11 +85,15 @@ public class DrawerLayout extends ViewGroup {
     private final ViewDragHelper mLeftDragger;
     private final ViewDragHelper mRightDragger;
     private int mDrawerState;
+    private boolean mInLayout;
 
     private DrawerListener mListener;
 
     private float mInitialMotionX;
     private float mInitialMotionY;
+
+    private Drawable mShadowLeft;
+    private Drawable mShadowRight;
 
     /**
      * Listener for monitoring events about drawers.
@@ -125,6 +130,28 @@ public class DrawerLayout extends ViewGroup {
         public void onDrawerStateChanged(int newState);
     }
 
+    /**
+     * Stub/no-op implementations of all methods of {@link DrawerListener}.
+     * Override this if you only care about a few of the available callback methods.
+     */
+    public static abstract class SimpleDrawerListener implements DrawerListener {
+        @Override
+        public void onDrawerSlide(View drawerView, float slideOffset) {
+        }
+
+        @Override
+        public void onDrawerOpened(View drawerView) {
+        }
+
+        @Override
+        public void onDrawerClosed(View drawerView) {
+        }
+
+        @Override
+        public void onDrawerStateChanged(int newState) {
+        }
+    }
+
     public DrawerLayout(Context context) {
         this(context, null);
     }
@@ -153,6 +180,43 @@ public class DrawerLayout extends ViewGroup {
     }
 
     /**
+     * Set a simple drawable used for the left or right shadow.
+     * The drawable provided must have a nonzero intrinsic width.
+     *
+     * @param shadowDrawable Shadow drawable to use at the edge of a drawer
+     * @param gravity Which drawer the shadow should apply to
+     */
+    public void setDrawerShadow(Drawable shadowDrawable, int gravity) {
+        /*
+         * TODO Someone someday might want to set more complex drawables here.
+         * They're probably nuts, but we might want to consider registering callbacks,
+         * setting states, etc. properly.
+         */
+
+        final int absGravity = GravityCompat.getAbsoluteGravity(gravity,
+                ViewCompat.getLayoutDirection(this));
+        if ((absGravity & Gravity.LEFT) == Gravity.LEFT) {
+            mShadowLeft = shadowDrawable;
+            invalidate();
+        }
+        if ((absGravity & Gravity.RIGHT) == Gravity.RIGHT) {
+            mShadowRight = shadowDrawable;
+            invalidate();
+        }
+    }
+
+    /**
+     * Set a simple drawable used for the left or right shadow.
+     * The drawable provided must have a nonzero intrinsic width.
+     *
+     * @param resId Resource id of a shadow drawable to use at the edge of a drawer
+     * @param gravity Which drawer the shadow should apply to
+     */
+    public void setDrawerShadow(int resId, int gravity) {
+        setDrawerShadow(getResources().getDrawable(resId), gravity);
+    }
+
+    /**
      * Set a listener to be notified of drawer events.
      *
      * @param listener Listener to notify when drawer events occur
@@ -166,7 +230,7 @@ public class DrawerLayout extends ViewGroup {
      * Resolve the shared state of all drawers from the component ViewDragHelpers.
      * Should be called whenever a ViewDragHelper's state changes.
      */
-    void updateDrawerState(int forGravity) {
+    void updateDrawerState(int forGravity, int activeState, View activeDrawer) {
         final int leftState = mLeftDragger.getViewDragState();
         final int rightState = mRightDragger.getViewDragState();
 
@@ -179,17 +243,18 @@ public class DrawerLayout extends ViewGroup {
             state = STATE_IDLE;
         }
 
+        if (activeDrawer != null && activeState == STATE_IDLE) {
+            final LayoutParams lp = (LayoutParams) activeDrawer.getLayoutParams();
+            if (lp.onScreen == 0) {
+                dispatchOnDrawerClosed(activeDrawer);
+            } else if (lp.onScreen == 1) {
+                dispatchOnDrawerOpened(activeDrawer);
+            }
+        }
+
         if (state != mDrawerState) {
             mDrawerState = state;
-            final View activeDrawer = findDrawerWithGravity(forGravity);
-            if (state == STATE_IDLE && activeDrawer != null) {
-                final LayoutParams lp = (LayoutParams) activeDrawer.getLayoutParams();
-                if (lp.onscreen == 0) {
-                    dispatchOnDrawerClosed(activeDrawer);
-                } else if (lp.onscreen == 1) {
-                    dispatchOnDrawerOpened(activeDrawer);
-                }
-            }
+
             if (mListener != null) {
                 mListener.onDrawerStateChanged(state);
             }
@@ -224,16 +289,16 @@ public class DrawerLayout extends ViewGroup {
 
     void setDrawerViewOffset(View drawerView, float slideOffset) {
         final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
-        if (slideOffset == lp.onscreen) {
+        if (slideOffset == lp.onScreen) {
             return;
         }
 
-        lp.onscreen = slideOffset;
+        lp.onScreen = slideOffset;
         dispatchOnDrawerSlide(drawerView, slideOffset);
     }
 
     float getDrawerViewOffset(View drawerView) {
-        return ((LayoutParams) drawerView.getLayoutParams()).onscreen;
+        return ((LayoutParams) drawerView.getLayoutParams()).onScreen;
     }
 
     int getDrawerViewGravity(View drawerView) {
@@ -334,6 +399,7 @@ public class DrawerLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        mInLayout = true;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
@@ -351,13 +417,25 @@ public class DrawerLayout extends ViewGroup {
                 int childLeft;
 
                 if (checkDrawerViewGravity(child, Gravity.LEFT)) {
-                    childLeft = -childWidth + (int) (childWidth * lp.onscreen);
+                    childLeft = -childWidth + (int) (childWidth * lp.onScreen);
                 } else { // Right; onMeasure checked for us.
-                    childLeft = r - l - (int) (childWidth * lp.onscreen);
+                    childLeft = r - l - (int) (childWidth * lp.onScreen);
                 }
 
                 child.layout(childLeft, 0, childLeft + childWidth, child.getMeasuredHeight());
+
+                if (lp.onScreen == 0) {
+                    child.setVisibility(INVISIBLE);
+                }
             }
+        }
+        mInLayout = false;
+    }
+
+    @Override
+    public void requestLayout() {
+        if (!mInLayout) {
+            super.requestLayout();
         }
     }
 
@@ -366,7 +444,7 @@ public class DrawerLayout extends ViewGroup {
         final int childCount = getChildCount();
         float scrimOpacity = 0;
         for (int i = 0; i < childCount; i++) {
-            final float onscreen = ((LayoutParams) getChildAt(i).getLayoutParams()).onscreen;
+            final float onscreen = ((LayoutParams) getChildAt(i).getLayoutParams()).onScreen;
             scrimOpacity = Math.max(scrimOpacity, onscreen);
         }
         mScrimOpacity = scrimOpacity;
@@ -377,18 +455,68 @@ public class DrawerLayout extends ViewGroup {
         }
     }
 
+    private static boolean hasOpaqueBackground(View v) {
+        final Drawable bg = v.getBackground();
+        if (bg != null) {
+            return bg.getOpacity() == PixelFormat.OPAQUE;
+        }
+        return false;
+    }
+
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        final boolean drawingContent = isContentView(child);
+        int clipLeft = 0, clipRight = getWidth();
+
         final int restoreCount = canvas.save();
+        if (drawingContent) {
+            final int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View v = getChildAt(i);
+                if (v == child || v.getVisibility() != VISIBLE ||
+                        !hasOpaqueBackground(v) || !isDrawerView(v)) {
+                    continue;
+                }
+
+                if (checkDrawerViewGravity(v, Gravity.LEFT)) {
+                    final int vright = v.getRight();
+                    if (vright > clipLeft) clipLeft = vright;
+                } else {
+                    final int vleft = v.getLeft();
+                    if (vleft < clipRight) clipRight = vleft;
+                }
+            }
+            canvas.clipRect(clipLeft, 0, clipRight, getHeight());
+        }
         final boolean result = super.drawChild(canvas, child, drawingTime);
         canvas.restoreToCount(restoreCount);
-        if (mScrimOpacity > 0 && isContentView(child)) {
+
+        if (mScrimOpacity > 0 && drawingContent) {
             final int baseAlpha = (mScrimColor & 0xff000000) >>> 24;
             final int imag = (int) (baseAlpha * mScrimOpacity);
             final int color = imag << 24 | (mScrimColor & 0xffffff);
             mScrimPaint.setColor(color);
 
-            canvas.drawRect(0, 0, getWidth(), getHeight(), mScrimPaint);
+            canvas.drawRect(clipLeft, 0, clipRight, getHeight(), mScrimPaint);
+        } else if (mShadowLeft != null && checkDrawerViewGravity(child, Gravity.LEFT)) {
+            final int shadowWidth = mShadowLeft.getIntrinsicWidth();
+            final int childRight = child.getRight();
+            final float alpha =
+                    Math.max(0, Math.min((float) childRight / mDrawerPeekDistance, 1.f));
+            mShadowLeft.setBounds(childRight, child.getTop(),
+                    childRight + shadowWidth, child.getBottom());
+            mShadowLeft.setAlpha((int) (0xff * alpha));
+            mShadowLeft.draw(canvas);
+        } else if (mShadowRight != null && checkDrawerViewGravity(child, Gravity.RIGHT)) {
+            final int shadowWidth = mShadowRight.getIntrinsicWidth();
+            final int childLeft = child.getLeft();
+            final int showing = getWidth() - childLeft;
+            final float alpha =
+                    Math.max(0, Math.min((float) showing / mDrawerPeekDistance, 1.f));
+            mShadowRight.setBounds(childLeft - shadowWidth, child.getTop(),
+                    childLeft, child.getBottom());
+            mShadowRight.setAlpha((int) (0xff * alpha));
+            mShadowRight.draw(canvas);
         }
         return result;
     }
@@ -595,6 +723,38 @@ public class DrawerLayout extends ViewGroup {
         closeDrawer(drawerView);
     }
 
+    /**
+     * Check if the given drawer view is currently in an open state.
+     * To be considered "open" the drawer must have settled into its fully
+     * visible state. To check for partial visibility use
+     * {@link #isDrawerVisible(android.view.View)}.
+     *
+     * @param drawer Drawer view to check
+     * @return true if the given drawer view is in an open state
+     * @see #isDrawerVisible(android.view.View)
+     */
+    public boolean isDrawerOpen(View drawer) {
+        if (!isDrawerView(drawer)) {
+            throw new IllegalArgumentException("View " + drawer + " is not a drawer");
+        }
+        return ((LayoutParams) drawer.getLayoutParams()).knownOpen;
+    }
+
+    /**
+     * Check if a given drawer view is currently visible on-screen. The drawer
+     * may be only peeking onto the screen, fully extended, or anywhere inbetween.
+     *
+     * @param drawer Drawer view to check
+     * @return true if the given drawer is visible on-screen
+     * @see #isDrawerOpen(android.view.View)
+     */
+    public boolean isDrawerVisible(View drawer) {
+        if (!isDrawerView(drawer)) {
+            throw new IllegalArgumentException("View " + drawer + " is not a drawer");
+        }
+        return ((LayoutParams) drawer.getLayoutParams()).onScreen > 0;
+    }
+
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
@@ -639,7 +799,7 @@ public class DrawerLayout extends ViewGroup {
 
         @Override
         public void onViewDragStateChanged(int state) {
-            updateDrawerState(mGravity);
+            updateDrawerState(mGravity, state, mDragger.getCapturedView());
         }
 
         @Override
@@ -655,6 +815,7 @@ public class DrawerLayout extends ViewGroup {
                 offset = (float) (width - left) / childWidth;
             }
             setDrawerViewOffset(changedView, offset);
+            changedView.setVisibility(offset == 0 ? INVISIBLE : VISIBLE);
             invalidate();
         }
 
@@ -697,7 +858,9 @@ public class DrawerLayout extends ViewGroup {
         public void onEdgeTouched(int edgeFlags, int pointerId) {
             final View toCapture;
             final int childLeft;
-            if ((edgeFlags & ViewDragHelper.EDGE_LEFT) == ViewDragHelper.EDGE_LEFT) {
+            final boolean leftEdge =
+                    (edgeFlags & ViewDragHelper.EDGE_LEFT) == ViewDragHelper.EDGE_LEFT;
+            if (leftEdge) {
                 toCapture = findDrawerWithGravity(Gravity.LEFT);
                 childLeft = -toCapture.getWidth() + mDrawerPeekDistance;
             } else {
@@ -705,9 +868,12 @@ public class DrawerLayout extends ViewGroup {
                 childLeft = getWidth() - mDrawerPeekDistance;
             }
 
-            if (toCapture != null) {
+            // Only peek if it would mean making the drawer more visible
+            if (toCapture != null && ((leftEdge && toCapture.getLeft() < childLeft) ||
+                    (!leftEdge && toCapture.getLeft() > childLeft))) {
+                final LayoutParams lp = (LayoutParams) toCapture.getLayoutParams();
                 mDragger.smoothSlideViewTo(toCapture, childLeft, toCapture.getTop());
-                ((LayoutParams) toCapture.getLayoutParams()).isPeeking = true;
+                lp.isPeeking = true;
                 invalidate();
 
                 closeOtherDrawer();
@@ -747,7 +913,7 @@ public class DrawerLayout extends ViewGroup {
     public static class LayoutParams extends ViewGroup.LayoutParams {
 
         public int gravity = Gravity.NO_GRAVITY;
-        float onscreen;
+        float onScreen;
         boolean isPeeking;
         boolean knownOpen;
 
