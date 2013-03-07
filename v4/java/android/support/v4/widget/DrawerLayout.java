@@ -565,6 +565,16 @@ public class DrawerLayout extends ViewGroup {
 
     @Override
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final LayoutParams lp = (LayoutParams) getChildAt(i).getLayoutParams();
+
+            if (lp.isPeeking) {
+                // Don't disallow intercept at all if we have a peeking view, we're probably
+                // going to intercept it later anyway.
+                return;
+            }
+        }
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
         if (disallowIntercept) {
             closeDrawers(true);
