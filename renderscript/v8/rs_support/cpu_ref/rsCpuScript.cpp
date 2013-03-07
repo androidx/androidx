@@ -431,6 +431,16 @@ void RsdCpuScriptImpl::forEachMtlsSetup(const Allocation * ain, Allocation * aou
 
     memset(mtls, 0, sizeof(MTLaunchStruct));
 
+    // possible for this to occur if IO_OUTPUT/IO_INPUT with no bound surface
+    if (ain && (const uint8_t *)ain->mHal.drvState.lod[0].mallocPtr == NULL) {
+        mCtx->getContext()->setError(RS_ERROR_BAD_SCRIPT, "rsForEach called with null allocations");
+        return;
+    }
+    if (aout && (const uint8_t *)aout->mHal.drvState.lod[0].mallocPtr == NULL) {
+        mCtx->getContext()->setError(RS_ERROR_BAD_SCRIPT, "rsForEach called with null allocations");
+        return;
+    }
+
     if (ain) {
         mtls->fep.dimX = ain->getType()->getDimX();
         mtls->fep.dimY = ain->getType()->getDimY();

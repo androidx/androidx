@@ -146,8 +146,8 @@ typedef struct {
         void (*syncAll)(const Context *rsc, const Allocation *alloc, RsAllocationUsageType src);
         void (*markDirty)(const Context *rsc, const Allocation *alloc);
 
-        int32_t (*initSurfaceTexture)(const Context *rsc, const Allocation *alloc);
-        void (*setSurfaceTexture)(const Context *rsc, Allocation *alloc, ANativeWindow *sur);
+        void * (*getSurface)(const Context *rsc, const Allocation *alloc);
+        void (*setSurface)(const Context *rsc, Allocation *alloc, ANativeWindow *sur);
         void (*ioSend)(const Context *rsc, Allocation *alloc);
         void (*ioReceive)(const Context *rsc, Allocation *alloc);
 

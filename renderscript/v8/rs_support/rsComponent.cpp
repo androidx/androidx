@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,12 @@ void Component::set(RsDataType dt, RsDataKind dk, bool norm, uint32_t vecSize) {
         rsAssert(mVectorSize == 4);
         rsAssert(mNormalized == true);
         break;
+    case RS_KIND_PIXEL_YUV:
+        mIsPixel = true;
+        rsAssert(mVectorSize == 1);
+        rsAssert(mNormalized == true);
+        break;
+
     default:
         rsAssert(mKind != RS_KIND_INVALID);
         break;

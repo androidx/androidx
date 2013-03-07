@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -530,6 +530,7 @@ typedef enum {
     RS_KIND_PIXEL_RGB    = 10,
     RS_KIND_PIXEL_RGBA   = 11,
     RS_KIND_PIXEL_DEPTH  = 12,
+    RS_KIND_PIXEL_YUV    = 13,
 
     RS_KIND_INVALID      = 100,
 } rs_data_kind;

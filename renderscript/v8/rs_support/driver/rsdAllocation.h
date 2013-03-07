@@ -22,11 +22,14 @@
 #include <rsAllocation.h>
 
 #include "../cpu_ref/rsd_cpu.h"
+#include "gui/CpuConsumer.h"
+#include "gui/GLConsumer.h"
 
 #include <GLES/gl.h>
 #include <GLES2/gl2.h>
 
 class RsdFrameBufferObj;
+struct ANativeWindow;
 struct ANativeWindowBuffer;
 
 struct DrvAllocation {
@@ -46,6 +49,9 @@ struct DrvAllocation {
     GLenum glTarget;
     GLenum glType;
     GLenum glFormat;
+
+    ANativeWindow *wndSurface;
+    android::GLConsumer *surfaceTexture;
 #else
     int glTarget;
     int glType;
@@ -58,6 +64,9 @@ struct DrvAllocation {
     RsdFrameBufferObj * readBackFBO;
     ANativeWindow *wnd;
     ANativeWindowBuffer *wndBuffer;
+
+    android::sp< android::CpuConsumer > cpuConsumer;
+    android::CpuConsumer::LockedBuffer lb;
 };
 
 #ifndef RS_COMPATIBILITY_LIB
@@ -80,10 +89,10 @@ void rsdAllocationSyncAll(const android::renderscript::Context *rsc,
                           RsAllocationUsageType src);
 void rsdAllocationMarkDirty(const android::renderscript::Context *rsc,
                             const android::renderscript::Allocation *alloc);
-int32_t rsdAllocationInitSurfaceTexture(const android::renderscript::Context *rsc,
-                                        const android::renderscript::Allocation *alloc);
-void rsdAllocationSetSurfaceTexture(const android::renderscript::Context *rsc,
-                                    android::renderscript::Allocation *alloc, ANativeWindow *nw);
+void* rsdAllocationGetSurface(const android::renderscript::Context *rsc,
+                              const android::renderscript::Allocation *alloc);
+void rsdAllocationSetSurface(const android::renderscript::Context *rsc,
+                            android::renderscript::Allocation *alloc, ANativeWindow *nw);
 void rsdAllocationIoSend(const android::renderscript::Context *rsc,
                          android::renderscript::Allocation *alloc);
 void rsdAllocationIoReceive(const android::renderscript::Context *rsc,

@@ -82,6 +82,9 @@ public:
 
     virtual Allocation * getAllocationForPointer(const void *ptr) const;
 
+#ifndef RS_COMPATIBILITY_LIB
+    virtual  void * getRSExecutable() { return mExecutable; }
+#endif
 
 protected:
     RsdCpuReferenceImpl *mCtx;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,8 @@
 
 #include "rsType.h"
 
-struct ANativeWindow;
-
 // ---------------------------------------------------------------------------
 namespace android {
-class GLConsumer;
 
 namespace renderscript {
 
@@ -61,8 +58,8 @@ public:
             bool hasReferences;
             void * userProvidedPtr;
             int32_t surfaceTextureID;
-            ANativeWindow *wndSurface;
-            GLConsumer *surfaceTexture;
+            void *deprecated01;
+            void *deprecated02;
         };
         State state;
 
@@ -150,8 +147,7 @@ public:
         return mHal.state.mipmapControl != RS_ALLOCATION_MIPMAP_NONE;
     }
 
-    int32_t getSurfaceTextureID(const Context *rsc);
-    void setSurfaceTexture(const Context *rsc, GLConsumer *st);
+    void * getSurface(const Context *rsc);
     void setSurface(const Context *rsc, RsNativeWindow sur);
     void ioSend(const Context *rsc);
     void ioReceive(const Context *rsc);
