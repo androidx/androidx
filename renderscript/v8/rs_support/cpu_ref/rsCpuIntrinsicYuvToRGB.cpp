@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,12 +108,13 @@ void RsdCpuScriptIntrinsicYuvToRGB::kernel(const RsForEachStubParamStruct *p,
         ALOGE("YuvToRGB executed without input, skipping");
         return;
     }
-    const uchar *pin = (const uchar *)cp->alloc->mHal.drvState.lod[0].mallocPtr;
-    const size_t stride = cp->alloc->mHal.drvState.lod[0].stride;
+    const uchar *pinY = (const uchar *)cp->alloc->mHal.drvState.lod[0].mallocPtr;
+    const uchar *pinUV = (const uchar *)cp->alloc->mHal.drvState.lod[1].mallocPtr;
+    const size_t strideY = cp->alloc->mHal.drvState.lod[0].stride;
+    const size_t strideUV = cp->alloc->mHal.drvState.lod[1].stride;
 
-    const uchar *Y = pin + (p->y * p->dimX);
-    const uchar *uv = pin + (p->dimX * p->dimY);
-    uv += (p->y>>1) * p->dimX;
+    const uchar *Y = pinY + (p->y * strideY);
+    const uchar *uv = pinUV + ((p->y >> 1) * strideUV);
 
     uchar4 *out = (uchar4 *)p->out;
     uint32_t x1 = xstart;

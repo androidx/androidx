@@ -162,11 +162,6 @@ static float SC_sign_f32(float value) {
 static void SC_MatrixLoadIdentity_4x4(Matrix4x4 *m) {
     m->loadIdentity();
 }
-
-void rsMatrixLoadIdentity(rs_matrix4x4 *m) {
-    SC_MatrixLoadIdentity_4x4((Matrix4x4 *) m);
-}
-
 static void SC_MatrixLoadIdentity_3x3(Matrix3x3 *m) {
     m->loadIdentity();
 }
@@ -295,6 +290,7 @@ static float SC_frac(float v) {
     int i = (int)floor(v);
     return fmin(v - i, 0x1.fffffep-1f);
 }
+
 
 static int32_t SC_AtomicCas(volatile int32_t *ptr, int32_t expectedValue, int32_t newValue) {
     int32_t prev;

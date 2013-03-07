@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 #include "rsContext.h"
+
+#include "system/graphics.h"
 
 using namespace android;
 using namespace android::renderscript;
@@ -106,6 +108,32 @@ void Type::compute() {
     if (mHal.state.faces) {
         offset *= 6;
     }
+
+    // YUV only supports basic 2d
+    // so we can stash the plane pointers in the mipmap levels.
+    if (mHal.state.dimYuv) {
+        switch(mHal.state.dimYuv) {
+        case HAL_PIXEL_FORMAT_YV12:
+            mHal.state.lodOffset[1] = offset;
+            mHal.state.lodDimX[1] = mHal.state.lodDimX[0] / 2;
+            mHal.state.lodDimY[1] = mHal.state.lodDimY[0] / 2;
+            offset += offset / 4;
+            mHal.state.lodOffset[2] = offset;
+            mHal.state.lodDimX[2] = mHal.state.lodDimX[0] / 2;
+            mHal.state.lodDimY[2] = mHal.state.lodDimY[0] / 2;
+            offset += offset / 4;
+            break;
+        case HAL_PIXEL_FORMAT_YCrCb_420_SP:  // NV21
+            mHal.state.lodOffset[1] = offset;
+            mHal.state.lodDimX[1] = mHal.state.lodDimX[0];
+            mHal.state.lodDimY[1] = mHal.state.lodDimY[0] / 2;
+            offset += offset / 2;
+            break;
+        default:
+            rsAssert(0);
+        }
+    }
+
     mTotalSizeBytes = offset;
     mHal.state.element = mElement.get();
 }

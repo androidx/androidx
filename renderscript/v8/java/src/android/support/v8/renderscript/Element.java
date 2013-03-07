@@ -180,7 +180,9 @@ public class Element extends BaseObj {
         PIXEL_A (8),
         PIXEL_LA (9),
         PIXEL_RGB (10),
-        PIXEL_RGBA (11);
+        PIXEL_RGBA (11),
+        PIXEL_DEPTH (12),
+        PIXEL_YUV(13);
 
         int mID;
         DataKind(int id) {
@@ -824,7 +826,9 @@ public class Element extends BaseObj {
               dk == DataKind.PIXEL_A ||
               dk == DataKind.PIXEL_LA ||
               dk == DataKind.PIXEL_RGB ||
-              dk == DataKind.PIXEL_RGBA)) {
+              dk == DataKind.PIXEL_RGBA ||
+              dk == DataKind.PIXEL_DEPTH ||
+              dk == DataKind.PIXEL_YUV)) {
             throw new RSIllegalArgumentException("Unsupported DataKind");
         }
         if (!(dt == DataType.UNSIGNED_8 ||
@@ -841,6 +845,10 @@ public class Element extends BaseObj {
             throw new RSIllegalArgumentException("Bad kind and type combo");
         }
         if (dt == DataType.UNSIGNED_4_4_4_4 && dk != DataKind.PIXEL_RGBA) {
+            throw new RSIllegalArgumentException("Bad kind and type combo");
+        }
+        if (dt == DataType.UNSIGNED_16 &&
+            dk != DataKind.PIXEL_DEPTH) {
             throw new RSIllegalArgumentException("Bad kind and type combo");
         }
 
