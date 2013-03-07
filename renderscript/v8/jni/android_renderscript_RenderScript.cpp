@@ -149,10 +149,10 @@ nDeviceSetConfig(JNIEnv *_env, jobject _this, jint dev, jint p, jint value)
 }
 
 static jint
-nContextCreate(JNIEnv *_env, jobject _this, jint dev, jint ver, jint sdkVer)
+nContextCreate(JNIEnv *_env, jobject _this, jint dev, jint ver, jint sdkVer, jint ct)
 {
     LOG_API("nContextCreate");
-    return (jint)rsContextCreate((RsDevice)dev, ver, sdkVer);
+    return (jint)rsContextCreate((RsDevice)dev, ver, sdkVer, (RsContextType)ct, false, false);
 }
 
 
@@ -965,7 +965,7 @@ static JNINativeMethod methods[] = {
 
 
 // All methods below are thread protected in java.
-{"rsnContextCreate",                 "(III)I",                                (void*)nContextCreate },
+{"rsnContextCreate",                 "(IIII)I",                               (void*)nContextCreate },
 {"rsnContextFinish",                 "(I)V",                                  (void*)nContextFinish },
 {"rsnContextSetPriority",            "(II)V",                                 (void*)nContextSetPriority },
 {"rsnContextDestroy",                "(I)V",                                  (void*)nContextDestroy },

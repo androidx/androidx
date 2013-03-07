@@ -135,7 +135,7 @@ public class Sampler extends BaseObj {
     }
 
     /**
-     * Retrieve a sampler with ag set to linear, min linear mipmap linear, and
+     * Retrieve a sampler with mag set to linear, min linear mipmap linear, and
      * wrap modes set to clamp.
      *
      * @param rs Context to which the sampler will belong.
@@ -175,7 +175,7 @@ public class Sampler extends BaseObj {
     }
 
     /**
-     * Retrieve a sampler with min and mag set to nearest and wrap modes set to
+     * Retrieve a sampler with min and mag set to linear and wrap modes set to
      * wrap.
      *
      * @param rs Context to which the sampler will belong.
@@ -195,7 +195,7 @@ public class Sampler extends BaseObj {
     }
 
     /**
-     * Retrieve a sampler with ag set to linear, min linear mipmap linear, and
+     * Retrieve a sampler with mag set to linear, min linear mipmap linear, and
      * wrap modes set to wrap.
      *
      * @param rs Context to which the sampler will belong.

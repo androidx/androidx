@@ -147,19 +147,29 @@ extern const void * __attribute__((overloadable))
     rsGetElementAt(rs_allocation, uint32_t x, uint32_t y, uint32_t z);
 
 
-#define GET_ELEMENT_AT(T) \
-static inline T __attribute__((overloadable)) \
-        rsGetElementAt_##T(rs_allocation a, uint32_t x) {  \
-    return ((T *)rsGetElementAt(a, x))[0]; \
-} \
-static inline T __attribute__((overloadable)) \
-        rsGetElementAt_##T(rs_allocation a, uint32_t x, uint32_t y) {  \
-    return ((T *)rsGetElementAt(a, x, y))[0]; \
-} \
-static inline T __attribute__((overloadable)) \
-        rsGetElementAt_##T(rs_allocation a, uint32_t x, uint32_t y, uint32_t z) {  \
-    return ((T *)rsGetElementAt(a, x, y, z))[0]; \
-}
+#if (defined(RS_VERSION) && (RS_VERSION >= 18))
+    #define GET_ELEMENT_AT(T) \
+    extern T __attribute__((overloadable)) \
+            rsGetElementAt_##T(rs_allocation a, uint32_t x); \
+    extern T __attribute__((overloadable)) \
+            rsGetElementAt_##T(rs_allocation a, uint32_t x, uint32_t y);  \
+    extern T __attribute__((overloadable)) \
+            rsGetElementAt_##T(rs_allocation a, uint32_t x, uint32_t y, uint32_t z);
+#else
+    #define GET_ELEMENT_AT(T) \
+    static inline T __attribute__((overloadable)) \
+            rsGetElementAt_##T(rs_allocation a, uint32_t x) {  \
+        return ((T *)rsGetElementAt(a, x))[0]; \
+    } \
+    static inline T __attribute__((overloadable)) \
+            rsGetElementAt_##T(rs_allocation a, uint32_t x, uint32_t y) {  \
+        return ((T *)rsGetElementAt(a, x, y))[0]; \
+    } \
+    static inline T __attribute__((overloadable)) \
+            rsGetElementAt_##T(rs_allocation a, uint32_t x, uint32_t y, uint32_t z) {  \
+        return ((T *)rsGetElementAt(a, x, y, z))[0]; \
+    }
+#endif
 
 GET_ELEMENT_AT(char)
 GET_ELEMENT_AT(char2)
@@ -289,18 +299,12 @@ extern void __attribute__((overloadable))
 
 #define SET_ELEMENT_AT(T)                                               \
     extern void __attribute__((overloadable))                           \
-    __rsSetElementAt_##T(rs_allocation a, T val, uint32_t x);           \
+    rsSetElementAt_##T(rs_allocation a, T val, uint32_t x);             \
     extern void __attribute__((overloadable))                           \
-    __rsSetElementAt_##T(rs_allocation a, T val, uint32_t x, uint32_t y); \
-                                                                        \
-    static inline void __attribute__((overloadable))                    \
-    rsSetElementAt_##T(rs_allocation a, T val, uint32_t x) {            \
-        __rsSetElementAt_##T(a, val, x);                                \
-    }                                                                   \
-    static inline void __attribute__((overloadable))                    \
-    rsSetElementAt_##T(rs_allocation a, T val, uint32_t x, uint32_t y) { \
-        __rsSetElementAt_##T(a, val, x, y);                     \
-    }                                                           \
+    rsSetElementAt_##T(rs_allocation a, T val, uint32_t x, uint32_t y); \
+    extern void __attribute__((overloadable))                           \
+    rsSetElementAt_##T(rs_allocation a, T val, uint32_t x, uint32_t y, uint32_t z);
+
 
 SET_ELEMENT_AT(char)
 SET_ELEMENT_AT(char2)

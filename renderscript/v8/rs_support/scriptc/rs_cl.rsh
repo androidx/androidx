@@ -450,19 +450,36 @@ FN_FUNC_FN_FN(fmod)
 /**
  * Return fractional part of v
  *
- * Supports float, float2, float3, float4.
- */
-_RS_RUNTIME float __attribute__((overloadable)) fract(float v);
-FN_FUNC_FN(fract)
-
-/**
- * Return fractional part of v
- *
  * @param iptr  iptr[0] will be set to the floor of the input value.
  * Supports float, float2, float3, float4.
  */
 _RS_RUNTIME float __attribute__((overloadable)) fract(float v, float *iptr);
 FN_FUNC_FN_PFN(fract)
+
+/**
+ * Return fractional part of v
+ *
+ * Supports float, float2, float3, float4.
+ */
+static inline float __attribute__((overloadable)) fract(float v) {
+    float unused;
+    return fract(v, &unused);
+}
+
+static inline float2 __attribute__((overloadable)) fract(float2 v) {
+    float2 unused;
+    return fract(v, &unused);
+}
+
+static inline float3 __attribute__((overloadable)) fract(float3 v) {
+    float3 unused;
+    return fract(v, &unused);
+}
+
+static inline float4 __attribute__((overloadable)) fract(float4 v) {
+    float4 unused;
+    return fract(v, &unused);
+}
 
 /**
  * Return the mantissa and place the exponent into iptr[0]
@@ -966,6 +983,8 @@ F_FUNC_FN(fast_normalize)
 
 #endif  // (defined(RS_VERSION) && (RS_VERSION >= 17))
 
+
+
 #if (defined(RS_VERSION) && (RS_VERSION >= 18))
 // Fast native math functions.
 
@@ -1016,6 +1035,7 @@ FN_FUNC_FN_FN(native_powr)
 
 
 #endif  // (defined(RS_VERSION) && (RS_VERSION >= 18))
+
 
 #undef CVT_FUNC
 #undef CVT_FUNC_2

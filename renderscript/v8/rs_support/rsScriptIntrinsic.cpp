@@ -81,11 +81,11 @@ namespace renderscript {
 
 RsScript rsi_ScriptIntrinsicCreate(Context *rsc, uint32_t id, RsElement ve) {
     ScriptIntrinsic *si = new ScriptIntrinsic(rsc);
-    ALOGE("rsi_ScriptIntrinsicCreate %i", id);
     if (!si->init(rsc, (RsScriptIntrinsicID)id, (Element *)ve)) {
         delete si;
         return NULL;
     }
+    si->incUserRef();
     return si;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,6 @@ void Allocation::updateCache() {
 
 Allocation::~Allocation() {
     freeChildrenUnlocked();
-    setSurfaceTexture(mRSC, NULL);
     mRSC->mHal.funcs.allocation.destroy(mRSC, this);
 }
 
@@ -443,35 +442,13 @@ void Allocation::resize2D(Context *rsc, uint32_t dimX, uint32_t dimY) {
     ALOGE("not implemented");
 }
 
-int32_t Allocation::getSurfaceTextureID(const Context *rsc) {
-    int32_t id = rsc->mHal.funcs.allocation.initSurfaceTexture(rsc, this);
-    mHal.state.surfaceTextureID = id;
-    return id;
-}
-
-void Allocation::setSurfaceTexture(const Context *rsc, GLConsumer *st) {
-    if(st != mHal.state.surfaceTexture) {
-        if(mHal.state.surfaceTexture != NULL) {
-            mHal.state.surfaceTexture->decStrong(NULL);
-        }
-        mHal.state.surfaceTexture = st;
-        if(mHal.state.surfaceTexture != NULL) {
-            mHal.state.surfaceTexture->incStrong(NULL);
-        }
-    }
+void * Allocation::getSurface(const Context *rsc) {
+    return rsc->mHal.funcs.allocation.getSurface(rsc, this);
 }
 
 void Allocation::setSurface(const Context *rsc, RsNativeWindow sur) {
     ANativeWindow *nw = (ANativeWindow *)sur;
-    ANativeWindow *old = mHal.state.wndSurface;
-    if (nw) {
-        nw->incStrong(NULL);
-    }
-    rsc->mHal.funcs.allocation.setSurfaceTexture(rsc, this, nw);
-    mHal.state.wndSurface = nw;
-    if (old) {
-        old->decStrong(NULL);
-    }
+    rsc->mHal.funcs.allocation.setSurface(rsc, this, nw);
 }
 
 void Allocation::ioSend(const Context *rsc) {
@@ -641,14 +618,10 @@ void rsi_AllocationCopy2DRange(Context *rsc,
                                            (RsAllocationCubemapFace)srcFace);
 }
 
-int32_t rsi_AllocationGetSurfaceTextureID(Context *rsc, RsAllocation valloc) {
+void * rsi_AllocationGetSurface(Context *rsc, RsAllocation valloc) {
     Allocation *alloc = static_cast<Allocation *>(valloc);
-    return alloc->getSurfaceTextureID(rsc);
-}
-
-void rsi_AllocationGetSurfaceTextureID2(Context *rsc, RsAllocation valloc, void *vst, size_t len) {
-    Allocation *alloc = static_cast<Allocation *>(valloc);
-    alloc->setSurfaceTexture(rsc, static_cast<GLConsumer *>(vst));
+    void *s = alloc->getSurface(rsc);
+    return s;
 }
 
 void rsi_AllocationSetSurface(Context *rsc, RsAllocation valloc, RsNativeWindow sur) {
