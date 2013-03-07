@@ -1004,16 +1004,10 @@ public class ViewDragHelper {
                     final float y = MotionEventCompat.getY(ev, index);
                     final int idx = (int) (x - mLastMotionX[mActivePointerId]);
                     final int idy = (int) (y - mLastMotionY[mActivePointerId]);
-                    final int ix = (int) x;
-                    final int iy = (int) y;
 
                     dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy);
 
                     saveLastMotion(ev);
-
-                    // Record what we lost from truncating to int for view coordinates.
-                    mLastMotionX[mActivePointerId] += x - ix;
-                    mLastMotionY[mActivePointerId] += y - iy;
                 } else {
                     // Check to see if any pointer is now over a draggable view.
                     final int pointerCount = MotionEventCompat.getPointerCount(ev);
