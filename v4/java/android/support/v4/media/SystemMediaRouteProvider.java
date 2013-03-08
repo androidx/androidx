@@ -38,10 +38,11 @@ import java.util.ArrayList;
 abstract class SystemMediaRouteProvider extends MediaRouteProvider {
     private static final String TAG = "SystemMediaRouteProvider";
 
+    public static final String PACKAGE_NAME = "android";
     public static final String DEFAULT_ROUTE_ID = "DEFAULT_ROUTE";
 
     protected SystemMediaRouteProvider(Context context) {
-        super(context);
+        super(context, new ProviderMetadata(PACKAGE_NAME));
     }
 
     public static SystemMediaRouteProvider obtain(Context context, SyncCallback syncCallback) {
@@ -98,6 +99,14 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
     static class LegacyImpl extends SystemMediaRouteProvider {
         private static final int PLAYBACK_STREAM = AudioManager.STREAM_MUSIC;
 
+        private static final IntentFilter[] CONTROL_FILTERS;
+        static {
+            CONTROL_FILTERS = new IntentFilter[1];
+            CONTROL_FILTERS[0] = new IntentFilter();
+            CONTROL_FILTERS[0].addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
+            CONTROL_FILTERS[0].addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
+        }
+
         private final AudioManager mAudioManager;
         private final VolumeChangeReceiver mVolumeChangeReceiver;
         private int mLastReportedVolume = -1;
@@ -114,11 +123,9 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         private void publishRoutes() {
             // TODO: get route names from resources
-            IntentFilter defaultRouteControlFilter = new IntentFilter();
-            defaultRouteControlFilter.addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
-            defaultRouteControlFilter.addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
-            RouteDescriptor defaultRoute = new RouteDescriptor(
-                    DEFAULT_ROUTE_ID, "System", defaultRouteControlFilter);
+            // TODO: add an icon for the route
+            RouteDescriptor defaultRoute = new RouteDescriptor(DEFAULT_ROUTE_ID, "System");
+            defaultRoute.setControlFilters(CONTROL_FILTERS);
             defaultRoute.setPlaybackStream(PLAYBACK_STREAM);
             defaultRoute.setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL);
             defaultRoute.setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE);
@@ -126,7 +133,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             mLastReportedVolume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);
             defaultRoute.setVolume(mLastReportedVolume);
 
-            RouteProviderDescriptor providerDescriptor = new RouteProviderDescriptor();
+            ProviderDescriptor providerDescriptor = new ProviderDescriptor();
             providerDescriptor.setRoutes(new RouteDescriptor[] { defaultRoute });
             setDescriptor(providerDescriptor);
         }
@@ -141,13 +148,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         final class DefaultRouteController extends RouteController {
             @Override
-            public void requestSetVolume(int volume) {
+            public void setVolume(int volume) {
                 mAudioManager.setStreamVolume(PLAYBACK_STREAM, volume, 0);
                 publishRoutes();
             }
 
             @Override
-            public void requestUpdateVolume(int delta) {
+            public void updateVolume(int delta) {
                 int volume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);
                 int maxVolume = mAudioManager.getStreamMaxVolume(PLAYBACK_STREAM);
                 int newVolume = Math.min(maxVolume, Math.max(0, volume + delta));
@@ -192,6 +199,28 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 | MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO
                 | MediaRouterJellybean.ROUTE_TYPE_USER;
 
+        private static final IntentFilter[] LIVE_AUDIO_CONTROL_FILTERS;
+        static {
+            LIVE_AUDIO_CONTROL_FILTERS = new IntentFilter[1];
+            LIVE_AUDIO_CONTROL_FILTERS[0] = new IntentFilter();
+            LIVE_AUDIO_CONTROL_FILTERS[0].addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
+        }
+
+        private static final IntentFilter[] LIVE_VIDEO_CONTROL_FILTERS;
+        static {
+            LIVE_VIDEO_CONTROL_FILTERS = new IntentFilter[1];
+            LIVE_VIDEO_CONTROL_FILTERS[0] = new IntentFilter();
+            LIVE_VIDEO_CONTROL_FILTERS[0].addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
+        }
+
+        private static final IntentFilter[] ALL_CONTROL_FILTERS;
+        static {
+            ALL_CONTROL_FILTERS = new IntentFilter[1];
+            ALL_CONTROL_FILTERS[0] = new IntentFilter();
+            ALL_CONTROL_FILTERS[0].addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
+            ALL_CONTROL_FILTERS[0].addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
+        }
+
         private final SyncCallback mSyncCallback;
         private Method mSelectRouteIntMethod;
         private Method mGetSystemAudioRouteMethod;
@@ -229,10 +258,12 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         @Override
         public void onRouteAdded(Object routeObj) {
-            int index = findSystemRouteRecord(routeObj);
-            if (index < 0) {
-                addSystemRouteNoPublish(routeObj);
-                publishRoutes();
+            if (getUserRouteRecord(routeObj) == null) {
+                int index = findSystemRouteRecord(routeObj);
+                if (index < 0) {
+                    addSystemRouteNoPublish(routeObj);
+                    publishRoutes();
+                }
             }
         }
 
@@ -244,51 +275,64 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         private void addSystemRouteNoPublish(Object routeObj) {
-            boolean isDefault = (getDefaultRoute() == routeObj);
-            SystemRouteRecord record = new SystemRouteRecord(routeObj, isDefault);
-            updateSystemRouteDescriptor(record);
-            mSystemRouteRecords.add(record);
+            if (getUserRouteRecord(routeObj) == null) {
+                boolean isDefault = (getDefaultRoute() == routeObj);
+                SystemRouteRecord record = new SystemRouteRecord(routeObj, isDefault);
+                updateSystemRouteDescriptor(record);
+                mSystemRouteRecords.add(record);
+            }
         }
 
         @Override
         public void onRouteRemoved(Object routeObj) {
-            int index = findSystemRouteRecord(routeObj);
-            if (index >= 0) {
-                mSystemRouteRecords.remove(index);
-                publishRoutes();
-            }
-        }
-
-        @Override
-        public void onRouteChanged(Object routeObj) {
-            int index = findSystemRouteRecord(routeObj);
-            if (index >= 0) {
-                SystemRouteRecord record = mSystemRouteRecords.get(index);
-                updateSystemRouteDescriptor(record);
-                publishRoutes();
-            }
-        }
-
-        @Override
-        public void onRouteVolumeChanged(Object routeObj) {
-            int index = findSystemRouteRecord(routeObj);
-            if (index >= 0) {
-                SystemRouteRecord record = mSystemRouteRecords.get(index);
-                int newVolume = MediaRouterJellybean.RouteInfo.getVolume(routeObj);
-                if (newVolume != record.mRouteDescriptor.getVolume()) {
-                    record.mRouteDescriptor = new RouteDescriptor(record.mRouteDescriptor);
-                    record.mRouteDescriptor.setVolume(newVolume);
+            if (getUserRouteRecord(routeObj) == null) {
+                int index = findSystemRouteRecord(routeObj);
+                if (index >= 0) {
+                    mSystemRouteRecords.remove(index);
                     publishRoutes();
                 }
             }
         }
 
         @Override
+        public void onRouteChanged(Object routeObj) {
+            if (getUserRouteRecord(routeObj) == null) {
+                int index = findSystemRouteRecord(routeObj);
+                if (index >= 0) {
+                    SystemRouteRecord record = mSystemRouteRecords.get(index);
+                    updateSystemRouteDescriptor(record);
+                    publishRoutes();
+                }
+            }
+        }
+
+        @Override
+        public void onRouteVolumeChanged(Object routeObj) {
+            if (getUserRouteRecord(routeObj) == null) {
+                int index = findSystemRouteRecord(routeObj);
+                if (index >= 0) {
+                    SystemRouteRecord record = mSystemRouteRecords.get(index);
+                    int newVolume = MediaRouterJellybean.RouteInfo.getVolume(routeObj);
+                    if (newVolume != record.mRouteDescriptor.getVolume()) {
+                        record.mRouteDescriptor = new RouteDescriptor(record.mRouteDescriptor);
+                        record.mRouteDescriptor.setVolume(newVolume);
+                        publishRoutes();
+                    }
+                }
+            }
+        }
+
+        @Override
         public void onRouteSelected(int type, Object routeObj) {
-            Object tag = MediaRouterJellybean.RouteInfo.getTag(routeObj);
-            if (tag instanceof UserRouteRecord) {
-                UserRouteRecord record = (UserRouteRecord)tag;
-                record.mRoute.select();
+            if (routeObj != MediaRouterJellybean.getSelectedRoute(mRouterObj, ALL_ROUTE_TYPES)) {
+                // The currently selected route has already changed so this callback
+                // is stale.  Drop it to prevent getting into sync loops.
+                return;
+            }
+
+            UserRouteRecord userRouteRecord = getUserRouteRecord(routeObj);
+            if (userRouteRecord != null) {
+                userRouteRecord.mRoute.select();
             } else {
                 // Select the route if it already exists in the compat media router.
                 // If not, we will select it instead when the route is added.
@@ -322,25 +366,23 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         @Override
         public void onVolumeSetRequest(Object routeObj, int volume) {
-            Object tag = MediaRouterJellybean.RouteInfo.getTag(routeObj);
-            if (tag instanceof UserRouteRecord) {
-                UserRouteRecord record = (UserRouteRecord)tag;
+            UserRouteRecord record = getUserRouteRecord(routeObj);
+            if (record != null) {
                 record.mRoute.requestSetVolume(volume);
             }
         }
 
         @Override
         public void onVolumeUpdateRequest(Object routeObj, int direction) {
-            Object tag = MediaRouterJellybean.RouteInfo.getTag(routeObj);
-            if (tag instanceof UserRouteRecord) {
-                UserRouteRecord record = (UserRouteRecord)tag;
+            UserRouteRecord record = getUserRouteRecord(routeObj);
+            if (record != null) {
                 record.mRoute.requestUpdateVolume(direction);
             }
         }
 
         @Override
         public void onSyncRouteAdded(MediaRouter.RouteInfo route) {
-            if (route.getProvider() != this) {
+            if (route.getProviderInstance() != this) {
                 Object routeObj = MediaRouterJellybean.createUserRoute(
                         mRouterObj, mUserRouteCategoryObj);
                 UserRouteRecord record = new UserRouteRecord(route, routeObj);
@@ -367,7 +409,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         @Override
         public void onSyncRouteRemoved(MediaRouter.RouteInfo route) {
-            if (route.getProvider() != this) {
+            if (route.getProviderInstance() != this) {
                 int index = findUserRouteRecord(route);
                 if (index >= 0) {
                     UserRouteRecord record = mUserRouteRecords.remove(index);
@@ -380,7 +422,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         @Override
         public void onSyncRouteChanged(MediaRouter.RouteInfo route) {
-            if (route.getProvider() != this) {
+            if (route.getProviderInstance() != this) {
                 int index = findUserRouteRecord(route);
                 if (index >= 0) {
                     UserRouteRecord record = mUserRouteRecords.get(index);
@@ -391,7 +433,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         @Override
         public void onSyncRouteSelected(MediaRouter.RouteInfo route) {
-            if (route.getProvider() != this) {
+            if (!route.isSelected()) {
+                // The currently selected route has already changed so this callback
+                // is stale.  Drop it to prevent getting into sync loops.
+                return;
+            }
+
+            if (route.getProviderInstance() != this) {
                 int index = findUserRouteRecord(route);
                 if (index >= 0) {
                     UserRouteRecord record = mUserRouteRecords.get(index);
@@ -413,7 +461,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 routeDescriptors[i] = mSystemRouteRecords.get(i).mRouteDescriptor;
             }
 
-            RouteProviderDescriptor providerDescriptor = new RouteProviderDescriptor();
+            ProviderDescriptor providerDescriptor = new ProviderDescriptor();
             providerDescriptor.setRoutes(routeDescriptors);
             setDescriptor(providerDescriptor);
         }
@@ -448,29 +496,37 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             return -1;
         }
 
+        protected UserRouteRecord getUserRouteRecord(Object routeObj) {
+            Object tag = MediaRouterJellybean.RouteInfo.getTag(routeObj);
+            return tag instanceof UserRouteRecord ? (UserRouteRecord)tag : null;
+        }
+
         protected void updateSystemRouteDescriptor(SystemRouteRecord record) {
+            // We must always recreate the route descriptor when making any changes
+            // because they are intended to be immutable once published.
             String name = MediaRouterJellybean.RouteInfo.getName(
                     record.mRouteObj, getContext()).toString();
+            record.mRouteDescriptor = new RouteDescriptor(
+                    record.mRouteDescriptorId, name);
 
-            IntentFilter controlFilter = new IntentFilter();
             int supportedTypes = MediaRouterJellybean.RouteInfo.getSupportedTypes(
                     record.mRouteObj);
             if ((supportedTypes & MediaRouterJellybean.ROUTE_TYPE_LIVE_AUDIO) != 0) {
-                controlFilter.addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
+                if ((supportedTypes & MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO) != 0) {
+                    record.mRouteDescriptor.setControlFilters(ALL_CONTROL_FILTERS);
+                } else {
+                    record.mRouteDescriptor.setControlFilters(LIVE_AUDIO_CONTROL_FILTERS);
+                }
+            } else if ((supportedTypes & MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO) != 0) {
+                record.mRouteDescriptor.setControlFilters(LIVE_VIDEO_CONTROL_FILTERS);
             }
-            if ((supportedTypes & MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO) != 0) {
-                controlFilter.addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
-            }
-
-            // We must always recreate the route descriptor when making any changes
-            // because they are intended to be immutable once published.
-            record.mRouteDescriptor = new RouteDescriptor(
-                    record.mRouteDescriptorId, name, controlFilter);
 
             CharSequence status = MediaRouterJellybean.RouteInfo.getStatus(record.mRouteObj);
             if (status != null) {
                 record.mRouteDescriptor.setStatus(status.toString());
             }
+            record.mRouteDescriptor.setIconDrawable(
+                    MediaRouterJellybean.RouteInfo.getIconDrawable(record.mRouteObj));
             record.mRouteDescriptor.setPlaybackType(
                     MediaRouterJellybean.RouteInfo.getPlaybackType(record.mRouteObj));
             record.mRouteDescriptor.setPlaybackStream(
@@ -481,7 +537,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     MediaRouterJellybean.RouteInfo.getVolumeMax(record.mRouteObj));
             record.mRouteDescriptor.setVolumeHandling(
                     MediaRouterJellybean.RouteInfo.getVolumeHandling(record.mRouteObj));
-            // TODO: icon
         }
 
         protected void updateUserRouteProperties(UserRouteRecord record) {
@@ -489,6 +544,8 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     record.mRouteObj, record.mRoute.getName());
             MediaRouterJellybean.UserRouteInfo.setStatus(
                     record.mRouteObj, normalizeStatus(record.mRoute.getStatus()));
+            MediaRouterJellybean.UserRouteInfo.setIconDrawable(
+                    record.mRouteObj, record.mRoute.getIconDrawable());
             MediaRouterJellybean.UserRouteInfo.setPlaybackType(
                     record.mRouteObj, record.mRoute.getPlaybackType());
             MediaRouterJellybean.UserRouteInfo.setPlaybackStream(
@@ -499,8 +556,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     record.mRouteObj, record.mRoute.getVolumeMax());
             MediaRouterJellybean.UserRouteInfo.setVolumeHandling(
                     record.mRouteObj, record.mRoute.getVolumeHandling());
-
-            // TODO: icon
         }
 
         // The framework MediaRouter crashes if we set a null status even though

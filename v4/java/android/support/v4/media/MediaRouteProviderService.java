@@ -1,0 +1,739 @@
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.support.v4.media;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.IBinder.DeathRecipient;
+import android.os.Bundle;
+import android.os.DeadObjectException;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.support.v4.media.MediaRouteProvider.ProviderDescriptor;
+import android.util.Log;
+import android.util.SparseArray;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
+/**
+ * Base class for media route provider services.
+ * <p>
+ * To implement your own media route provider service, extend this class and
+ * override the {@link #onCreateMediaRouteProvider} method to return an
+ * instance of your {@link MediaRouteProvider}.
+ * </p><p>
+ * Declare your media route provider service in your application manifest
+ * like this:
+ * </p>
+ * <pre>
+ *   &lt;service android:name=".MyMediaRouteProviderService"
+ *           android:label="@string/my_media_route_provider_service">
+ *       &lt;intent-filter>
+ *           &lt;action android:name="android.media.MediaRouteProviderService" />
+ *       &lt;/intent-filter>
+ *   &lt;/service>
+ * </pre>
+ */
+public abstract class MediaRouteProviderService extends Service {
+    private static final String TAG = "MediaRouteProviderService";
+    private static final boolean DEBUG = true;
+
+    private final ArrayList<ClientRecord> mClients = new ArrayList<ClientRecord>();
+    private final ReceiveHandler mReceiveHandler;
+    private final Messenger mReceiveMessenger;
+    private final PrivateHandler mPrivateHandler;
+    private final ProviderCallback mProviderCallback;
+
+    private MediaRouteProvider mProvider;
+
+    /**
+     * The {@link Intent} that must be declared as handled by the service.
+     * Put this in your manifest.
+     */
+    public static final String SERVICE_INTERFACE =
+            "android.media.MediaRouteProviderService";
+
+    /*
+     * Messages sent from the client to the service.
+     * DO NOT RENUMBER THESE!
+     */
+
+    /** (client v1)
+     * Register client.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : client version
+     */
+    static final int CLIENT_MSG_REGISTER = 1;
+
+    /** (client v1)
+     * Unregister client.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     */
+    static final int CLIENT_MSG_UNREGISTER = 2;
+
+    /** (client v1)
+     * Create route controller.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : route controller id
+     * - CLIENT_DATA_ROUTE_ID : route id string
+     */
+    static final int CLIENT_MSG_CREATE_ROUTE_CONTROLLER = 3;
+
+    /** (client v1)
+     * Release route controller.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : route controller id
+     */
+    static final int CLIENT_MSG_RELEASE_ROUTE_CONTROLLER = 4;
+
+    /** (client v1)
+     * Select route.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : route controller id
+     */
+    static final int CLIENT_MSG_SELECT_ROUTE = 5;
+
+    /** (client v1)
+     * Unselect route.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : route controller id
+     */
+    static final int CLIENT_MSG_UNSELECT_ROUTE = 6;
+
+    /** (client v1)
+     * Set route volume.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : route controller id
+     * - CLIENT_DATA_VOLUME : volume integer
+     */
+    static final int CLIENT_MSG_SET_ROUTE_VOLUME = 7;
+
+    /** (client v1)
+     * Update route volume.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : route controller id
+     * - CLIENT_DATA_VOLUME : volume delta integer
+     */
+    static final int CLIENT_MSG_UPDATE_ROUTE_VOLUME = 8;
+
+    /** (client v1)
+     * Route control request.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     * - arg2    : route controller id
+     * - obj     : media control intent
+     */
+    static final int CLIENT_MSG_ROUTE_CONTROL_REQUEST = 9;
+
+    static final String CLIENT_DATA_ROUTE_ID = "routeId";
+    static final String CLIENT_DATA_VOLUME = "volume";
+
+    /*
+     * Messages sent from the service to the client.
+     * DO NOT RENUMBER THESE!
+     */
+
+    /** (service v1)
+     * Generic failure sent in response to any unrecognized or malformed request.
+     * - arg1    : request id
+     */
+    static final int SERVICE_MSG_GENERIC_FAILURE = 0;
+
+    /** (service v1)
+     * Generic failure sent in response to a successful message.
+     * - arg1    : request id
+     */
+    static final int SERVICE_MSG_GENERIC_SUCCESS = 1;
+
+    /** (service v1)
+     * Registration succeeded.
+     * - arg1    : request id
+     * - arg2    : server version
+     * - obj     : route provider descriptor bundle, or null
+     */
+    static final int SERVICE_MSG_REGISTERED = 2;
+
+    /** (service v1)
+     * Route control request result.
+     * - arg1    : request id
+     * - arg2    : result code
+     * - obj     : result data bundle, or null
+     */
+    static final int SERVICE_MSG_CONTROL_RESULT = 3;
+
+    /** (service v1)
+     * Route provider descriptor changed.  (unsolicited event)
+     * - arg1    : reserved (0)
+     * - obj     : route provider descriptor bundle, or null
+     */
+    static final int SERVICE_MSG_DESCRIPTOR_CHANGED = 4;
+
+    /*
+     * Recognized client version numbers.  (Reserved for future use.)
+     * DO NOT RENUMBER THESE!
+     */
+
+    static final int CLIENT_VERSION_1 = 1;
+    static final int CLIENT_VERSION_CURRENT = CLIENT_VERSION_1;
+
+    /*
+     * Recognized server version numbers.  (Reserved for future use.)
+     * DO NOT RENUMBER THESE!
+     */
+
+    static final int SERVICE_VERSION_1 = 1;
+    static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_1;
+
+    /*
+     * Private messages used internally.  (Yes, you can renumber these.)
+     */
+
+    private static final int PRIVATE_MSG_CLIENT_DIED = 1;
+
+    /**
+     * Creates a media route provider service.
+     */
+    public MediaRouteProviderService() {
+        mReceiveHandler = new ReceiveHandler(this);
+        mReceiveMessenger = new Messenger(mReceiveHandler);
+        mPrivateHandler = new PrivateHandler();
+        mProviderCallback = new ProviderCallback();
+    }
+
+    /**
+     * Called by the system when it is time to create the media route provider.
+     *
+     * @return The media route provider offered by this service, or null if
+     * this service has decided not to offer a media route provider.
+     */
+    public abstract MediaRouteProvider onCreateMediaRouteProvider();
+
+    /**
+     * Gets the media route provider offered by this service.
+     *
+     * @return The media route provider offered by this service, or null if
+     * it has not yet been created.
+     *
+     * @see #onCreateMediaRouteProvider()
+     */
+    public MediaRouteProvider getMediaRouteProvider() {
+        return mProvider;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        if (intent.getAction().equals(SERVICE_INTERFACE)) {
+            if (mProvider == null) {
+                MediaRouteProvider provider = onCreateMediaRouteProvider();
+                if (provider != null) {
+                    String providerPackage = provider.getMetadata().getPackageName();
+                    if (!providerPackage.equals(getPackageName())) {
+                        throw new IllegalStateException("onCreateMediaRouteProvider() returned "
+                                + "a provider whose package name does not match the package "
+                                + "name of the service.  A media route provider service can "
+                                + "only export its own media route providers.  "
+                                + "Provider package name: " + providerPackage
+                                + ".  Service package name: " + getPackageName() + ".");
+                    }
+                }
+                mProvider = provider;
+                mProvider.addCallback(mProviderCallback);
+            }
+            if (mProvider != null) {
+                return mReceiveMessenger.getBinder();
+            }
+        }
+        return null;
+    }
+
+    private boolean onRegisterClient(Messenger messenger, int requestId, int version) {
+        if (version >= CLIENT_VERSION_1) {
+            int index = findClient(messenger);
+            if (index < 0) {
+                ClientRecord client = new ClientRecord(messenger, version);
+                if (client.register()) {
+                    mClients.add(client);
+                    if (DEBUG) {
+                        Log.d(TAG, client + ": Registered, version=" + version);
+                    }
+                    if (requestId != 0) {
+                        ProviderDescriptor descriptor = mProvider.getDescriptor();
+                        sendReply(messenger, SERVICE_MSG_REGISTERED,
+                                requestId, SERVICE_VERSION_CURRENT,
+                                descriptor != null ? descriptor.asBundle() : null, null);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean onUnregisterClient(Messenger messenger, int requestId) {
+        int index = findClient(messenger);
+        if (index >= 0) {
+            ClientRecord client = mClients.remove(index);
+            if (DEBUG) {
+                Log.d(TAG, client + ": Unregistered");
+            }
+            client.dispose();
+            sendGenericSuccess(messenger, requestId);
+            return true;
+        }
+        return false;
+    }
+
+    private void onBinderDied(Messenger messenger) {
+        int index = findClient(messenger);
+        if (index >= 0) {
+            ClientRecord client = mClients.remove(index);
+            if (DEBUG) {
+                Log.d(TAG, client + ": Binder died");
+            }
+            client.dispose();
+        }
+    }
+
+    private boolean onCreateRouteController(Messenger messenger, int requestId,
+            int controllerId, String routeId) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            if (client.createRouteController(routeId, controllerId)) {
+                if (DEBUG) {
+                    Log.d(TAG, client + ": Route controller created"
+                            + ", controllerId=" + controllerId + ", routeId=" + routeId);
+                }
+                sendGenericSuccess(messenger, requestId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean onReleaseRouteController(Messenger messenger, int requestId,
+            int controllerId) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            if (client.releaseRouteController(controllerId)) {
+                if (DEBUG) {
+                    Log.d(TAG, client + ": Route controller released"
+                            + ", controllerId=" + controllerId);
+                }
+                sendGenericSuccess(messenger, requestId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean onSelectRoute(Messenger messenger, int requestId,
+            int controllerId) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            MediaRouteProvider.RouteController controller =
+                    client.getRouteController(controllerId);
+            if (controller != null) {
+                controller.select();
+                if (DEBUG) {
+                    Log.d(TAG, client + ": Route selected"
+                            + ", controllerId=" + controllerId);
+                }
+                sendGenericSuccess(messenger, requestId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean onUnselectRoute(Messenger messenger, int requestId,
+            int controllerId) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            MediaRouteProvider.RouteController controller =
+                    client.getRouteController(controllerId);
+            if (controller != null) {
+                controller.unselect();
+                if (DEBUG) {
+                    Log.d(TAG, client + ": Route unselected"
+                            + ", controllerId=" + controllerId);
+                }
+                sendGenericSuccess(messenger, requestId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean onSetRouteVolume(Messenger messenger, int requestId,
+            int controllerId, int volume) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            MediaRouteProvider.RouteController controller =
+                    client.getRouteController(controllerId);
+            if (controller != null) {
+                controller.setVolume(volume);
+                if (DEBUG) {
+                    Log.d(TAG, client + ": Route volume changed"
+                            + ", controllerId=" + controllerId + ", volume=" + volume);
+                }
+                sendGenericSuccess(messenger, requestId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean onUpdateRouteVolume(Messenger messenger, int requestId,
+            int controllerId, int delta) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            MediaRouteProvider.RouteController controller =
+                    client.getRouteController(controllerId);
+            if (controller != null) {
+                controller.updateVolume(delta);
+                if (DEBUG) {
+                    Log.d(TAG, client + ": Route volume updated"
+                            + ", controllerId=" + controllerId + ", delta=" + delta);
+                }
+                sendGenericSuccess(messenger, requestId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean onRouteControlRequest(final Messenger messenger, final int requestId,
+            final int controllerId, final Intent intent) {
+        final ClientRecord client = getClient(messenger);
+        if (client != null) {
+            MediaRouteProvider.RouteController controller =
+                    client.getRouteController(controllerId);
+            if (controller != null) {
+                MediaRouter.ControlRequestCallback callback = null;
+                if (requestId != 0) {
+                    callback = new MediaRouter.ControlRequestCallback() {
+                        @Override
+                        public void onResult(int result, Bundle data) {
+                            if (DEBUG) {
+                                Log.d(TAG, client + ": Route control request finished"
+                                        + ", controllerId=" + controllerId
+                                        + ", intent=" + intent
+                                        + ", result=" + result + ", data=" + data);
+                            }
+                            if (findClient(messenger) >= 0) {
+                                sendReply(messenger, SERVICE_MSG_CONTROL_RESULT,
+                                        requestId, result, data, null);
+                            }
+                        }
+                    };
+                }
+                if (controller.sendControlRequest(intent, callback)) {
+                    if (DEBUG) {
+                        Log.d(TAG, client + ": Route control request delivered"
+                                + ", controllerId=" + controllerId + ", intent=" + intent);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void sendDescriptorChanged(MediaRouteProvider.ProviderDescriptor descriptor) {
+        Bundle descriptorBundle = descriptor != null ? descriptor.asBundle() : null;
+        final int count = mClients.size();
+        for (int i = 0; i < count; i++) {
+            ClientRecord client = mClients.get(i);
+            sendReply(client.mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
+                    descriptorBundle, null);
+            if (DEBUG) {
+                Log.d(TAG, client + ": Sent descriptor change event, descriptor=" + descriptor);
+            }
+        }
+    }
+
+    private ClientRecord getClient(Messenger messenger) {
+        int index = findClient(messenger);
+        return index >= 0 ? mClients.get(index) : null;
+    }
+
+    private int findClient(Messenger messenger) {
+        final int count = mClients.size();
+        for (int i = 0; i < count; i++) {
+            ClientRecord client = mClients.get(i);
+            if (client.hasMessenger(messenger)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static void sendGenericFailure(Messenger messenger, int requestId) {
+        if (requestId != 0) {
+            sendReply(messenger, SERVICE_MSG_GENERIC_FAILURE, requestId, 0, null, null);
+        }
+    }
+
+    private static void sendGenericSuccess(Messenger messenger, int requestId) {
+        if (requestId != 0) {
+            sendReply(messenger, SERVICE_MSG_GENERIC_SUCCESS, requestId, 0, null, null);
+        }
+    }
+
+    private static void sendReply(Messenger messenger, int what,
+            int requestId, int arg, Object obj, Bundle data) {
+        Message msg = Message.obtain();
+        msg.what = what;
+        msg.arg1 = requestId;
+        msg.arg2 = arg;
+        msg.obj = obj;
+        msg.setData(data);
+        try {
+            messenger.send(msg);
+        } catch (DeadObjectException ex) {
+            // The client died.
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Could not send message to " + getClientId(messenger), ex);
+        }
+    }
+
+    private static String getClientId(Messenger messenger) {
+        return "Client connection " + messenger.getBinder().toString();
+    }
+
+    /**
+     * Returns true if the messenger object is valid.
+     * <p>
+     * The messenger contructor and unparceling code does not check whether the
+     * provided IBinder is a valid IMessenger object.  As a result, it's possible
+     * for a peer to send an invalid IBinder that will result in crashes downstream.
+     * This method checks that the messenger is in a valid state.
+     * </p>
+     */
+    static boolean isValidRemoteMessenger(Messenger messenger) {
+        try {
+            return messenger != null && messenger.getBinder() != null;
+        } catch (NullPointerException ex) {
+            // If the messenger was constructed with a binder interface other than
+            // IMessenger then the call to getBinder() will crash with an NPE.
+            return false;
+        }
+    }
+
+    private final class PrivateHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case PRIVATE_MSG_CLIENT_DIED:
+                    onBinderDied((Messenger)msg.obj);
+                    break;
+            }
+        }
+    }
+
+    private final class ProviderCallback extends MediaRouteProvider.Callback {
+        @Override
+        public void onDescriptorChanged(MediaRouteProvider provider,
+                ProviderDescriptor descriptor) {
+            sendDescriptorChanged(descriptor);
+        }
+    }
+
+    private final class ClientRecord implements DeathRecipient {
+        public final Messenger mMessenger;
+        public final int mVersion;
+
+        private final SparseArray<MediaRouteProvider.RouteController> mControllers =
+                new SparseArray<MediaRouteProvider.RouteController>();
+
+        public ClientRecord(Messenger messenger, int version) {
+            mMessenger = messenger;
+            mVersion = version;
+        }
+
+        public boolean register() {
+            try {
+                mMessenger.getBinder().linkToDeath(this, 0);
+                return true;
+            } catch (RemoteException ex) {
+                binderDied();
+            }
+            return false;
+        }
+
+        public void dispose() {
+            int count = mControllers.size();
+            for (int i = 0; i < count; i++) {
+                mControllers.valueAt(i).release();
+            }
+            mControllers.clear();
+
+            mMessenger.getBinder().unlinkToDeath(this, 0);
+        }
+
+        public boolean hasMessenger(Messenger other) {
+            return mMessenger.getBinder() == other.getBinder();
+        }
+
+        public boolean createRouteController(String routeId, int controllerId) {
+            if (mControllers.indexOfKey(controllerId) < 0) {
+                MediaRouteProvider.RouteController controller =
+                        mProvider.onCreateRouteController(routeId);
+                mControllers.put(controllerId, controller);
+                return true;
+            }
+            return false;
+        }
+
+        public boolean releaseRouteController(int controllerId) {
+            MediaRouteProvider.RouteController controller = mControllers.get(controllerId);
+            if (controller != null) {
+                mControllers.remove(controllerId);
+                controller.release();
+                return true;
+            }
+            return false;
+        }
+
+        public MediaRouteProvider.RouteController getRouteController(int controllerId) {
+            return mControllers.get(controllerId);
+        }
+
+        @Override
+        public void binderDied() {
+            mPrivateHandler.obtainMessage(PRIVATE_MSG_CLIENT_DIED, mMessenger).sendToTarget();
+        }
+
+        @Override
+        public String toString() {
+            return getClientId(mMessenger);
+        }
+    }
+
+    /**
+     * Handler that receives messages from clients.
+     * <p>
+     * This inner class is static and only retains a weak reference to the service
+     * to prevent the service from being leaked in case one of the clients is holding an
+     * active reference to the server's messenger.
+     * </p><p>
+     * This handler should not be used to handle any messages other than those
+     * that come from the client.
+     * </p>
+     */
+    private static final class ReceiveHandler extends Handler {
+        private final WeakReference<MediaRouteProviderService> mServiceRef;
+
+        public ReceiveHandler(MediaRouteProviderService service) {
+            mServiceRef = new WeakReference<MediaRouteProviderService>(service);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final Messenger messenger = msg.replyTo;
+            if (isValidRemoteMessenger(messenger)) {
+                final int what = msg.what;
+                final int requestId = msg.arg1;
+                final int arg = msg.arg2;
+                final Object obj = msg.obj;
+                final Bundle data = msg.peekData();
+                if (!processMessage(what, messenger, requestId, arg, obj, data)) {
+                    if (DEBUG) {
+                        Log.d(TAG, getClientId(messenger) + ": Message failed, what=" + what
+                                + ", requestId=" + requestId + ", arg=" + arg
+                                + ", obj=" + obj + ", data=" + data);
+                    }
+                    sendGenericFailure(messenger, requestId);
+                }
+            } else {
+                if (DEBUG) {
+                    Log.d(TAG, "Ignoring message without valid reply messenger.");
+                }
+            }
+        }
+
+        private boolean processMessage(int what,
+                Messenger messenger, int requestId, int arg, Object obj, Bundle data) {
+            MediaRouteProviderService service = mServiceRef.get();
+            if (service != null) {
+                switch (what) {
+                    case CLIENT_MSG_REGISTER:
+                        return service.onRegisterClient(messenger, requestId, arg);
+
+                    case CLIENT_MSG_UNREGISTER:
+                        return service.onUnregisterClient(messenger, requestId);
+
+                    case CLIENT_MSG_CREATE_ROUTE_CONTROLLER: {
+                        String routeId = data.getString(CLIENT_DATA_ROUTE_ID);
+                        if (routeId != null) {
+                            return service.onCreateRouteController(
+                                    messenger, requestId, arg, routeId);
+                        }
+                        break;
+                    }
+
+                    case CLIENT_MSG_RELEASE_ROUTE_CONTROLLER:
+                        return service.onReleaseRouteController(messenger, requestId, arg);
+
+                    case CLIENT_MSG_SELECT_ROUTE:
+                        return service.onSelectRoute(messenger, requestId, arg);
+
+                    case CLIENT_MSG_UNSELECT_ROUTE:
+                        return service.onUnselectRoute(messenger, requestId, arg);
+
+                    case CLIENT_MSG_SET_ROUTE_VOLUME: {
+                        int volume = data.getInt(CLIENT_DATA_VOLUME, -1);
+                        if (volume >= 0) {
+                            return service.onSetRouteVolume(
+                                    messenger, requestId, arg, volume);
+                        }
+                        break;
+                    }
+
+                    case CLIENT_MSG_UPDATE_ROUTE_VOLUME: {
+                        int delta = data.getInt(CLIENT_DATA_VOLUME, 0);
+                        if (delta != 0) {
+                            return service.onUpdateRouteVolume(
+                                    messenger, requestId, arg, delta);
+                        }
+                        break;
+                    }
+
+                    case CLIENT_MSG_ROUTE_CONTROL_REQUEST:
+                        if (obj instanceof Intent) {
+                            return service.onRouteControlRequest(
+                                    messenger, requestId, arg, (Intent)obj);
+                        }
+                        break;
+                }
+            }
+            return false;
+        }
+    }
+}
