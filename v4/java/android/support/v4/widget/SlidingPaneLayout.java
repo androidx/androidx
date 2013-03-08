@@ -565,7 +565,6 @@ public class SlidingPaneLayout extends ViewGroup {
             return false;
         }
 
-        final boolean interceptForDrag = mDragHelper.shouldInterceptTouchEvent(ev);
 
         boolean interceptTap = false;
 
@@ -582,7 +581,22 @@ public class SlidingPaneLayout extends ViewGroup {
                 }
                 break;
             }
+
+            case MotionEvent.ACTION_MOVE: {
+                final float x = ev.getX();
+                final float y = ev.getY();
+                final float adx = Math.abs(x - mInitialMotionX);
+                final float ady = Math.abs(y - mInitialMotionY);
+                final int slop = mDragHelper.getTouchSlop();
+                if (adx > slop && ady > adx) {
+                    mDragHelper.cancel();
+                    mIsUnableToDrag = true;
+                    return false;
+                }
+            }
         }
+
+        final boolean interceptForDrag = mDragHelper.shouldInterceptTouchEvent(ev);
 
         return interceptForDrag || interceptTap;
     }
