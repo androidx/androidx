@@ -39,8 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * to the {@link MediaRouter}.  To make additional media routes available within
  * your application, call {@link MediaRouter#addProvider} to add your provider to
  * the media router.  To make additional media routes available to all applications
- * in the system, register a {@link MediaRouteProviderService media route provider service}
- * in your manifest.
+ * in the system, register a media route provider service in your manifest.
  * </p><p>
  * This object must only be accessed on the main thread.
  * </p>
