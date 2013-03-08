@@ -295,5 +295,27 @@
         <provider android:authorities="com.example.supportv4.content.sharingsupportprovider"
                   android:name=".content.SharingSupportProvider" />
 
+        <!-- FileProvider Example -->
+
+        <activity android:name=".content.FileProviderExample"
+                android:label="@string/file_provider_example">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+<!-- BEGIN_INCLUDE(file_provider_declaration) -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.example.android.supportv4.my_files"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/my_paths" />
+        </provider>
+<!-- END_INCLUDE(file_provider_declaration) -->
+
     </application>
 </manifest>

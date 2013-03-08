@@ -134,6 +134,7 @@
     <string name="sharing_support_title">ShareCompat Demo</string>
     <string name="sharing_receiver_title">ShareCompat Receiver</string>
 
+    <string name="file_provider_example">FileProvider example</string>
     <string name="drawer_layout_support">Widget/Drawer layout</string>
 
     <string name="drawer_layout_summary">This activity illustrates the use of sliding drawers. The drawer may be pulled out from the left edge with an edge swipe. If this demo is running on Ice Cream Sandwich or newer you may tap the icon at the left side of the action bar to open the drawer as well.</string>
