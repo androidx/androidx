@@ -134,4 +134,6 @@
     <string name="sharing_support_title">ShareCompat Demo</string>
     <string name="sharing_receiver_title">ShareCompat Receiver</string>
 
+    <string name="file_provider_example">FileProvider example</string>
+
 </resources>
