@@ -902,7 +902,7 @@ public class ViewDragHelper {
                     }
 
                     final View toCapture = findTopChildUnder((int) x, (int) y);
-                    if (slopCheck(toCapture, dx, dy) &&
+                    if (toCapture != null && slopCheck(toCapture, dx, dy) &&
                             tryCaptureViewForDrag(toCapture, pointerId)) {
                         break;
                     }
