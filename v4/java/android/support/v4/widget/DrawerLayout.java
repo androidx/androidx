@@ -24,10 +24,12 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -177,6 +179,9 @@ public class DrawerLayout extends ViewGroup {
         mRightDragger = ViewDragHelper.create(this, 0.5f, rightCallback);
         mRightDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
         rightCallback.setDragger(mRightDragger);
+
+        // So that we can catch the back button
+        setFocusableInTouchMode(true);
     }
 
     /**
@@ -785,6 +790,35 @@ public class DrawerLayout extends ViewGroup {
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
         return new LayoutParams(getContext(), attrs);
+    }
+
+    private boolean hasVisibleDrawer() {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (isDrawerView(child) && isDrawerVisible(child)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && hasVisibleDrawer()) {
+            KeyEventCompat.startTracking(event);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && hasVisibleDrawer()) {
+            closeDrawers();
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     private class ViewDragCallback extends ViewDragHelper.Callback {
