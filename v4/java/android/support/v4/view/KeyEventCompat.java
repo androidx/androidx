@@ -30,6 +30,8 @@ public class KeyEventCompat {
         public int normalizeMetaState(int metaState);
         public boolean metaStateHasModifiers(int metaState, int modifiers);
         public boolean metaStateHasNoModifiers(int metaState);
+        public void startTracking(KeyEvent event);
+        public boolean isTracking(KeyEvent event);
     }
 
     /**
@@ -87,12 +89,33 @@ public class KeyEventCompat {
         public boolean metaStateHasNoModifiers(int metaState) {
             return (normalizeMetaState(metaState) & META_MODIFIER_MASK) == 0;
         }
+
+        @Override
+        public void startTracking(KeyEvent event) {
+        }
+
+        @Override
+        public boolean isTracking(KeyEvent event) {
+            return false;
+        }
+    }
+
+    static class EclairKeyEventVersionImpl extends BaseKeyEventVersionImpl {
+        @Override
+        public void startTracking(KeyEvent event) {
+            KeyEventCompatEclair.startTracking(event);
+        }
+
+        @Override
+        public boolean isTracking(KeyEvent event) {
+            return KeyEventCompatEclair.isTracking(event);
+        }
     }
 
     /**
      * Interface implementation for devices with at least v11 APIs.
      */
-    static class HoneycombKeyEventVersionImpl implements KeyEventVersionImpl {
+    static class HoneycombKeyEventVersionImpl extends EclairKeyEventVersionImpl {
         @Override
         public int normalizeMetaState(int metaState) {
             return KeyEventCompatHoneycomb.normalizeMetaState(metaState);
@@ -141,5 +164,13 @@ public class KeyEventCompat {
 
     public static boolean hasNoModifiers(KeyEvent event) {
         return IMPL.metaStateHasNoModifiers(event.getMetaState());
+    }
+
+    public static void startTracking(KeyEvent event) {
+        IMPL.startTracking(event);
+    }
+
+    public static boolean isTracking(KeyEvent event) {
+        return IMPL.isTracking(event);
     }
 }
