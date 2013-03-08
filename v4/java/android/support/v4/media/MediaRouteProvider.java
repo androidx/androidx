@@ -19,7 +19,7 @@ package android.support.v4.media;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -52,7 +52,7 @@ public abstract class MediaRouteProvider {
     private final CopyOnWriteArrayList<Callback> mCallbacks =
             new CopyOnWriteArrayList<Callback>();
 
-    private RouteProviderDescriptor mDescriptor = RouteProviderDescriptor.EMPTY;
+    private RouteProviderDescriptor mDescriptor;
     private boolean mPendingDescriptorChange;
 
     /**
@@ -78,7 +78,7 @@ public abstract class MediaRouteProvider {
     /**
      * Gets the current route provider descriptor.
      *
-     * @return The route provider descriptor, never null.  This object
+     * @return The route provider descriptor, or null if none.  This object
      * and all of its contents should be treated as if it were immutable so that it is
      * safe for clients to cache it.
      */
@@ -92,14 +92,11 @@ public abstract class MediaRouteProvider {
      * Sends a message to all registered callbacks asynchronously regarding the change.
      * </p>
      *
-     * @param descriptor The updated route provider descriptor.  This object
-     * and all of its contents should be treated as if it were immutable so that it is
-     * safe for clients to cache it.  Must not be null.
+     * @param descriptor The updated route provider descriptor, or null if none.
+     * This object and all of its contents should be treated as if it were immutable
+     * so that it is safe for clients to cache it.
      */
     public final void setDescriptor(RouteProviderDescriptor descriptor) {
-        if (descriptor == null) {
-            throw new IllegalArgumentException("descriptor must not be null");
-        }
         MediaRouter.checkCallingThread();
 
         if (mDescriptor != descriptor) {
@@ -155,7 +152,7 @@ public abstract class MediaRouteProvider {
      * Called by the media router to obtain a route controller for a particular route.
      * <p>
      * The media router will invoke the {@link RouteController#release} method of the route
-     * controller when it is no longer needed, to allow it to free its resources.
+     * controller when it is no longer needed to allow it to free its resources.
      * </p>
      *
      * @param routeId The unique id of the route.
@@ -167,6 +164,107 @@ public abstract class MediaRouteProvider {
     }
 
     /**
+     * Describes a media route provider and the state of all of its published routes.
+     */
+    public static final class RouteProviderDescriptor {
+        private static final String KEY_PACKAGE_NAME = "packageName";
+        private static final String KEY_ROUTES = "routes";
+
+        private final Bundle mBundle;
+        private RouteDescriptor[] mRoutes;
+
+        /**
+         * Creates a route provider descriptor.
+         *
+         * @param packageName The package name of the route provider.
+         */
+        public RouteProviderDescriptor(String packageName) {
+            mBundle = new Bundle();
+            setPackageName(packageName);
+        }
+
+        /**
+         * Creates a copy of another route provider descriptor.
+         */
+        public RouteProviderDescriptor(RouteProviderDescriptor other) {
+            mBundle = new Bundle(other.mBundle);
+        }
+
+        RouteProviderDescriptor(Bundle bundle) {
+            mBundle = bundle;
+        }
+
+        /**
+         * Gets the package name of the route provider.
+         */
+        public String getPackageName() {
+            return mBundle.getString(KEY_PACKAGE_NAME);
+        }
+
+        /**
+         * Sets the package name of the route provider.
+         */
+        public void setPackageName(String packageName) {
+            mBundle.putString(KEY_PACKAGE_NAME, packageName);
+        }
+
+        /**
+         * Gets the list of all routes that this provider has published.
+         */
+        public RouteDescriptor[] getRoutes() {
+            if (mRoutes == null) {
+                mRoutes = RouteDescriptor.fromParcelableArray(
+                        mBundle.getParcelableArray(KEY_ROUTES));
+            }
+            return mRoutes;
+        }
+
+        /**
+         * Sets the list of all routes that this provider has published.
+         */
+        public void setRoutes(RouteDescriptor[] routes) {
+            if (routes == null) {
+                throw new IllegalArgumentException("routes must not be null");
+            }
+            mRoutes = routes;
+            mBundle.putParcelableArray(KEY_ROUTES, RouteDescriptor.toParcelableArray(routes));
+        }
+
+        /**
+         * Returns true if the route provider descriptor and all of the routes that
+         * it contains have all of the required fields.
+         * <p>
+         * This verification is deep.  If the provider descriptor is known to be
+         * valid then it is not necessary to call {@link #isValid} on each of its routes.
+         * </p>
+         */
+        public boolean isValid() {
+            if (TextUtils.isEmpty(getPackageName())) {
+                return false;
+            }
+            for (RouteDescriptor route : getRoutes()) {
+                if (route == null || !route.isValid()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "RouteProviderDescriptor{" + mBundle.toString() + "}";
+        }
+
+        Bundle asBundle() {
+            return mBundle;
+        }
+
+        static RouteProviderDescriptor fromBundle(Bundle bundle) {
+            return bundle != null ? new RouteProviderDescriptor(bundle) : null;
+        }
+    }
+
+    /**
      * Describes the properties of a route.
      * <p>
      * Each route is uniquely identified by an opaque id string.  This token
@@ -174,14 +272,15 @@ public abstract class MediaRouteProvider {
      * </p>
      */
     public static final class RouteDescriptor {
-        static final RouteDescriptor[] EMPTY_ARRAY = new RouteDescriptor[0];
+        static final RouteDescriptor[] EMPTY_ROUTE_ARRAY = new RouteDescriptor[0];
+        static final IntentFilter[] EMTPY_FILTER_ARRAY = new IntentFilter[0];
 
         private static final String KEY_ID = "id";
         private static final String KEY_NAME = "name";
         private static final String KEY_STATUS = "status";
-        private static final String KEY_ICON = "icon";
+        private static final String KEY_ICON_RESOURCE = "iconId";
         private static final String KEY_ENABLED = "enabled";
-        private static final String KEY_CONTROL_FILTER = "controlFilter";
+        private static final String KEY_CONTROL_FILTERS = "controlFilters";
         private static final String KEY_PLAYBACK_TYPE = "playbackType";
         private static final String KEY_PLAYBACK_STREAM = "playbackStream";
         private static final String KEY_VOLUME = "volume";
@@ -191,15 +290,19 @@ public abstract class MediaRouteProvider {
         private static final String KEY_EXTRAS = "extras";
 
         private final Bundle mBundle;
+        private IntentFilter[] mControlFilters;
+        private Drawable mIconDrawable;
 
         /**
          * Creates a route descriptor.
+         *
+         * @param id The unique id of the route.
+         * @param name The user-friendly name of the route.
          */
-        public RouteDescriptor(String id, String name, IntentFilter controlFilter) {
+        public RouteDescriptor(String id, String name) {
             mBundle = new Bundle();
             setId(id);
             setName(name);
-            setControlFilter(controlFilter);
         }
 
         /**
@@ -256,19 +359,51 @@ public abstract class MediaRouteProvider {
         }
 
         /**
-         * Gets an icon bitmap to display for the route.
-         * FIXME: This probably isn't right.  We may need statelists or something...
+         * Gets a drawable to display as the route's icon.
+         * <p>
+         * Because drawables cannot be transferred to other processes, this method may
+         * only be used by media route providers that reside in the same process
+         * as the application.  When implementing a media route provider service, use
+         * {@link #getIconResource} instead.
+         * </p>
          */
-        public Bitmap getIcon() {
-            return mBundle.getParcelable(KEY_ICON);
+        public Drawable getIconDrawable() {
+            return mIconDrawable;
         }
 
         /**
-         * Sets an icon bitmap to display for the route.
-         * FIXME: This probably isn't right.  We may need statelists or something...
+         * Sets a drawable to display as the route's icon.
+         * <p>
+         * Because drawables cannot be transferred to other processes, this method may
+         * only be used by media route providers that reside in the same process
+         * as the application.  When implementing a media route provider service, use
+         * {@link #setIconResource} instead.
+         * </p>
          */
-        public void setIcon(Bitmap icon) {
-            mBundle.putParcelable(KEY_ICON, icon);
+        public void setIconDrawable(Drawable drawable) {
+            mIconDrawable = drawable;
+        }
+
+        /**
+         * Gets the id of a drawable resource to display as the route's icon.
+         * <p>
+         * The specified drawable resource id will be loaded from the media route
+         * provider's package as specified by {@link RouteProviderDescriptor#getPackageName()}.
+         * </p>
+         */
+        public int getIconResource() {
+            return mBundle.getInt(KEY_ICON_RESOURCE);
+        }
+
+        /**
+         * Sets the id of a drawable resource to display as the route's icon.
+         * <p>
+         * The specified drawable resource id will be loaded from the media route
+         * provider's package as specified by {@link RouteProviderDescriptor#getPackageName()}.
+         * </p>
+         */
+        public void setIconResource(int id) {
+            mBundle.putInt(KEY_ICON_RESOURCE, id);
         }
 
         /**
@@ -286,24 +421,39 @@ public abstract class MediaRouteProvider {
         }
 
         /**
-         * Gets the route's {@link MediaControlIntent media control intent} filter.
+         * Gets the route's {@link MediaControlIntent media control intent} filters.
          */
-        public IntentFilter getControlFilter() {
-            return mBundle.getParcelable(KEY_CONTROL_FILTER);
+        public IntentFilter[] getControlFilters() {
+            if (mControlFilters == null) {
+                Parcelable[] filters = mBundle.getParcelableArray(KEY_CONTROL_FILTERS);
+                if (filters instanceof IntentFilter[]) {
+                    mControlFilters = (IntentFilter[])filters;
+                } else if (filters != null && filters.length > 0) {
+                    mControlFilters = new IntentFilter[filters.length];
+                    System.arraycopy(filters, 0, mControlFilters, 0, filters.length);
+                } else {
+                    mControlFilters = EMTPY_FILTER_ARRAY;
+                }
+            }
+            return mControlFilters;
         }
 
         /**
-         * Sets the route's {@link MediaControlIntent media control intent} filter.
+         * Sets the route's {@link MediaControlIntent media control intent} filters.
          */
-        public void setControlFilter(IntentFilter controlFilter) {
-            mBundle.putParcelable(KEY_CONTROL_FILTER, controlFilter);
+        public void setControlFilters(IntentFilter[] controlFilters) {
+            if (controlFilters == null) {
+                throw new IllegalArgumentException("controlFilters must not be null");
+            }
+            mControlFilters = controlFilters;
+            mBundle.putParcelableArray(KEY_CONTROL_FILTERS, controlFilters);
         }
 
         /**
          * Gets the route's playback type.
          */
         public int getPlaybackType() {
-            return mBundle.getInt(KEY_PLAYBACK_TYPE);
+            return mBundle.getInt(KEY_PLAYBACK_TYPE, MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE);
         }
 
         /**
@@ -317,7 +467,7 @@ public abstract class MediaRouteProvider {
          * Gets the route's playback stream.
          */
         public int getPlaybackStream() {
-            return mBundle.getInt(KEY_PLAYBACK_STREAM);
+            return mBundle.getInt(KEY_PLAYBACK_STREAM, -1);
         }
 
         /**
@@ -359,7 +509,8 @@ public abstract class MediaRouteProvider {
          * Gets the route's volume handling.
          */
         public int getVolumeHandling() {
-            return mBundle.getInt(KEY_VOLUME_HANDLING);
+            return mBundle.getInt(KEY_VOLUME_HANDLING,
+                    MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED);
         }
 
         /**
@@ -405,9 +556,16 @@ public abstract class MediaRouteProvider {
          * Returns true if the route descriptor has all of the required fields.
          */
         public boolean isValid() {
-            return !TextUtils.isEmpty(getId())
-                    && !TextUtils.isEmpty(getName())
-                    && getControlFilter() != null;
+            if (TextUtils.isEmpty(getId())
+                    || TextUtils.isEmpty(getName())) {
+                return false;
+            }
+            for (IntentFilter filter : getControlFilters()) {
+                if (filter == null) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         @Override
@@ -438,65 +596,7 @@ public abstract class MediaRouteProvider {
                 }
                 return descriptors;
             }
-            return EMPTY_ARRAY;
-        }
-    }
-
-    /**
-     * Describes a media route provider and the state of all of its published routes.
-     */
-    public static final class RouteProviderDescriptor {
-        static final RouteProviderDescriptor EMPTY = new RouteProviderDescriptor();
-
-        private static final String KEY_ROUTES = "routes";
-
-        private final Bundle mBundle;
-        private RouteDescriptor[] mRoutes;
-
-        /**
-         * Creates a route provider descriptor.
-         */
-        public RouteProviderDescriptor() {
-            mBundle = new Bundle();
-        }
-
-        /**
-         * Creates a copy of another route provider descriptor.
-         */
-        public RouteProviderDescriptor(RouteProviderDescriptor other) {
-            mBundle = new Bundle(other.mBundle);
-        }
-
-        RouteProviderDescriptor(Bundle bundle) {
-            mBundle = bundle;
-        }
-
-        /**
-         * Gets the list of all routes that this provider has published.
-         */
-        public RouteDescriptor[] getRoutes() {
-            if (mRoutes == null) {
-                mRoutes = RouteDescriptor.fromParcelableArray(
-                        mBundle.getParcelableArray(KEY_ROUTES));
-            }
-            return mRoutes;
-        }
-
-        /**
-         * Sets the list of all routes that this provider has published.
-         */
-        public void setRoutes(RouteDescriptor[] routes) {
-            mRoutes = routes;
-            mBundle.putParcelableArray(KEY_ROUTES, RouteDescriptor.toParcelableArray(routes));
-        }
-
-        @Override
-        public String toString() {
-            return "RouteProviderDescriptor{" + mBundle.toString() + "}";
-        }
-
-        Bundle asBundle() {
-            return mBundle;
+            return EMPTY_ROUTE_ARRAY;
         }
     }
 
@@ -512,6 +612,9 @@ public abstract class MediaRouteProvider {
      * route controller.  When the media route no longer needs the route controller
      * it will invoke the {@link #release} method to allow the route controller
      * to free its resources.
+     * </p><p>
+     * There may be multiple route controllers simultaneously active for the
+     * same route.  Each route controller will be released separately.
      * </p><p>
      * All operations on the route controller are asynchronous and
      * results are communicated via callbacks.
@@ -541,7 +644,7 @@ public abstract class MediaRouteProvider {
          *
          * @param volume The new volume value between 0 and {@link RouteDescriptor#getVolumeMax}.
          */
-        public void requestSetVolume(int volume) {
+        public void setVolume(int volume) {
         }
 
         /**
@@ -549,7 +652,7 @@ public abstract class MediaRouteProvider {
          *
          * @param delta The delta to add to the current volume.
          */
-        public void requestUpdateVolume(int delta) {
+        public void updateVolume(int delta) {
         }
 
         /**
@@ -559,9 +662,9 @@ public abstract class MediaRouteProvider {
          * @param intent A {@link MediaControlIntent media control intent}.
          * @param callback A {@link ControlRequestCallback} to invoke with the result
          * of the request, or null if no result is required.
-         * @return True if the control request was delivered to the route
-         * which does not necessarily mean that the request succeeded.  Provide a
-         * callback to obtain the result of the request.
+         * @return True if the controller intends to handle the request and will
+         * invoke the callback when finished.  False if the contorller will not
+         * handle the request and will not invoke the callback.
          *
          * @see MediaControlIntent
          */
