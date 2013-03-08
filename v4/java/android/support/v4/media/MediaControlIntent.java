@@ -217,7 +217,7 @@ public final class MediaControlIntent {
     /**
      * Bundle extra: Stream metadata.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify a {@link Bundle} of metadata that
+     * Used with {@link #ACTION_PLAY} to specify a {@link android.os.Bundle} of metadata that
      * describes the media content stream to be played.  The valid metadata keys are
      * defined in {@link MediaStreamMetadata}.
      * </p>
