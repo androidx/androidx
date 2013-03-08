@@ -17,11 +17,11 @@ LOCAL_PATH := $(call my-dir)
 # Note: the source code is in java/, not src/, because this code is also part of
 # the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
 
-# A helper sub-library that makes direct use of K APIs.
+# A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-k
-LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, k)
+LOCAL_MODULE := android-support-v13-ics
+LOCAL_SDK_VERSION := 14
+LOCAL_SRC_FILES := $(call all-java-files-under, ics)
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
@@ -29,13 +29,15 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v13-ics-mr1
 LOCAL_SDK_VERSION := 15
 LOCAL_SRC_FILES := $(call all-java-files-under, ics-mr1)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-ics
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-# A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
+# A helper sub-library that makes direct use of K APIs.
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-ics
-LOCAL_SDK_VERSION := 14
-LOCAL_SRC_FILES := $(call all-java-files-under, ics)
+LOCAL_MODULE := android-support-v13-k
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, k)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-ics-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -45,8 +47,6 @@ LOCAL_MODULE := android-support-v13
 LOCAL_SDK_VERSION := 13
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-        android-support-v13-ics \
-        android-support-v13-ics-mr1 \
         android-support-v13-k
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
