@@ -23,6 +23,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -88,6 +90,7 @@ public class DrawerLayout extends ViewGroup {
     private final ViewDragHelper mRightDragger;
     private int mDrawerState;
     private boolean mInLayout;
+    private boolean mFirstLayout = true;
 
     private DrawerListener mListener;
 
@@ -357,6 +360,18 @@ public class DrawerLayout extends ViewGroup {
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mFirstLayout = true;
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mFirstLayout = true;
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -435,6 +450,7 @@ public class DrawerLayout extends ViewGroup {
             }
         }
         mInLayout = false;
+        mFirstLayout = false;
     }
 
     @Override
@@ -675,11 +691,17 @@ public class DrawerLayout extends ViewGroup {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
 
-        if (checkDrawerViewGravity(drawerView, Gravity.LEFT)) {
-            mLeftDragger.smoothSlideViewTo(drawerView, 0, drawerView.getTop());
+        if (mFirstLayout) {
+            final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
+            lp.onScreen = 1.f;
+            lp.knownOpen = true;
         } else {
-            mRightDragger.smoothSlideViewTo(drawerView, getWidth() - drawerView.getWidth(),
-                    drawerView.getTop());
+            if (checkDrawerViewGravity(drawerView, Gravity.LEFT)) {
+                mLeftDragger.smoothSlideViewTo(drawerView, 0, drawerView.getTop());
+            } else {
+                mRightDragger.smoothSlideViewTo(drawerView, getWidth() - drawerView.getWidth(),
+                        drawerView.getTop());
+            }
         }
         invalidate();
     }
@@ -712,10 +734,17 @@ public class DrawerLayout extends ViewGroup {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
 
-        if (checkDrawerViewGravity(drawerView, Gravity.LEFT)) {
-            mLeftDragger.smoothSlideViewTo(drawerView, -drawerView.getWidth(), drawerView.getTop());
+        if (mFirstLayout) {
+            final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
+            lp.onScreen = 0.f;
+            lp.knownOpen = false;
         } else {
-            mRightDragger.smoothSlideViewTo(drawerView, getWidth(), drawerView.getTop());
+            if (checkDrawerViewGravity(drawerView, Gravity.LEFT)) {
+                mLeftDragger.smoothSlideViewTo(drawerView, -drawerView.getWidth(),
+                        drawerView.getTop());
+            } else {
+                mRightDragger.smoothSlideViewTo(drawerView, getWidth(), drawerView.getTop());
+            }
         }
         invalidate();
     }
@@ -819,6 +848,78 @@ public class DrawerLayout extends ViewGroup {
             return true;
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        final SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        if (ss.openDrawerGravity != Gravity.NO_GRAVITY) {
+            final View toOpen = findDrawerWithGravity(ss.openDrawerGravity);
+            if (toOpen != null) {
+                openDrawer(toOpen);
+            }
+        }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        final Parcelable superState = super.onSaveInstanceState();
+
+        final SavedState ss = new SavedState(superState);
+
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (!isDrawerView(child)) {
+                continue;
+            }
+
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if (lp.knownOpen) {
+                ss.openDrawerGravity = lp.gravity;
+                // Only one drawer can be open at a time.
+                break;
+            }
+        }
+
+        return ss;
+    }
+
+    /**
+     * State persisted across instances
+     */
+    protected static class SavedState extends BaseSavedState {
+        int openDrawerGravity = Gravity.NO_GRAVITY;
+
+        public SavedState(Parcel in) {
+            super(in);
+            openDrawerGravity = in.readInt();
+        }
+
+        public SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeInt(openDrawerGravity);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return new SavedState(source);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 
     private class ViewDragCallback extends ViewDragHelper.Callback {
