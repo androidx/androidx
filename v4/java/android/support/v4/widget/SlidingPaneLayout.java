@@ -164,6 +164,14 @@ public class SlidingPaneLayout extends ViewGroup {
 
     private final ViewDragHelper mDragHelper;
 
+    /**
+     * Stores whether or not the pane was open the last time it was slideable.
+     * If open/close operations are invoked this state is modified. Used by
+     * instance state save/restore.
+     */
+    private boolean mPreservedOpenState;
+    private boolean mFirstLayout = true;
+
     private final Rect mTmpRect = new Rect();
 
     static final SlidingPanelLayoutImpl IMPL;
@@ -316,6 +324,18 @@ public class SlidingPaneLayout extends ViewGroup {
         if (mPanelSlideListener != null) {
             mPanelSlideListener.onPanelClosed(panel);
         }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mFirstLayout = true;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mFirstLayout = true;
     }
 
     @Override
@@ -544,11 +564,48 @@ public class SlidingPaneLayout extends ViewGroup {
 
             nextXStart += child.getWidth();
         }
+
+        if (mFirstLayout && mCanSlide) {
+            mSlideOffset = mPreservedOpenState ? 1.f : 0;
+            if (mParallaxBy != 0) {
+                parallaxOtherViews(mSlideOffset);
+            }
+            if (((LayoutParams) mSlideableView.getLayoutParams()).dimWhenOffset) {
+                dimChildView(mSlideableView, mSlideOffset, mSliderFadeColor);
+            }
+        }
+
+        mFirstLayout = false;
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        // Recalculate sliding panes and their details
+        mFirstLayout = true;
+    }
+
+    @Override
+    public void requestChildFocus(View child, View focused) {
+        super.requestChildFocus(child, focused);
+        if (!isInTouchMode() && !mCanSlide) {
+            mPreservedOpenState = child == mSlideableView;
+        }
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
+        final int action = MotionEventCompat.getActionMasked(ev);
+
+        // Preserve the open state based on the last view that was touched.
+        if (!mCanSlide && action == MotionEvent.ACTION_DOWN && getChildCount() > 1) {
+            // After the first things will be slideable.
+            final View secondChild = getChildAt(1);
+            if (secondChild != null) {
+                mPreservedOpenState = !mDragHelper.isViewUnder(secondChild,
+                        (int) ev.getX(), (int) ev.getY());
+            }
+        }
 
         if (!mCanSlide || (mIsUnableToDrag && action != MotionEvent.ACTION_DOWN)) {
             mDragHelper.cancel();
@@ -560,7 +617,6 @@ public class SlidingPaneLayout extends ViewGroup {
             return false;
         }
 
-
         boolean interceptTap = false;
 
         switch (action) {
@@ -570,6 +626,7 @@ public class SlidingPaneLayout extends ViewGroup {
                 final float y = ev.getY();
                 mInitialMotionX = x;
                 mInitialMotionY = y;
+
                 if (mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y) &&
                         isDimmed(mSlideableView)) {
                     interceptTap = true;
@@ -637,37 +694,62 @@ public class SlidingPaneLayout extends ViewGroup {
         return wantTouchEvents;
     }
 
-    private void closePane(View pane, int initialVelocity) {
-        if (mCanSlide) {
-            smoothSlideTo(0.f, initialVelocity);
+    private boolean closePane(View pane, int initialVelocity) {
+        if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
+            mPreservedOpenState = false;
+            return true;
         }
+        return false;
     }
 
-    private void openPane(View pane, int initialVelocity) {
-        if (mCanSlide) {
-            smoothSlideTo(1.f, initialVelocity);
+    private boolean openPane(View pane, int initialVelocity) {
+        if (mFirstLayout || smoothSlideTo(1.f, initialVelocity)) {
+            mPreservedOpenState = true;
+            return true;
         }
+        return false;
     }
 
     /**
-     * Animate the sliding panel to its open state.
+     * @deprecated Renamed to {@link #openPane()} - this method is going away soon!
      */
+    @Deprecated
     public void smoothSlideOpen() {
-        if (mCanSlide) {
-            openPane(mSlideableView, 0);
-        }
+        openPane();
     }
 
     /**
-     * Animate the sliding panel to its closed state.
+     * Open the sliding pane if it is currently slideable. If first layout
+     * has already completed this will animate.
+     *
+     * @return true if the pane was slideable and is now open/in the process of opening
      */
-    public void smoothSlideClosed() {
-        if (mCanSlide) {
-            closePane(mSlideableView, 0);
-        }
+    public boolean openPane() {
+        return openPane(mSlideableView, 0);
     }
 
     /**
+     * @deprecated Renamed to {@link #closePane()} - this method is going away soon!
+     */
+    @Deprecated
+    public void smoothSlideClosed() {
+        closePane();
+    }
+
+    /**
+     * Close the sliding pane if it is currently slideable. If first layout
+     * has already completed this will animate.
+     *
+     * @return true if the pane was slideable and is now closed/in the process of closing
+     */
+    public boolean closePane() {
+        return closePane(mSlideableView, 0);
+    }
+
+    /**
+     * Check if the layout is completely open. It can be open either because the slider
+     * itself is open revealing the left pane, or if all content fits without sliding.
+     *
      * @return true if sliding panels are completely open
      */
     public boolean isOpen() {
@@ -676,8 +758,20 @@ public class SlidingPaneLayout extends ViewGroup {
 
     /**
      * @return true if content in this layout can be slid open and closed
+     * @deprecated Renamed to {@link #isSlideable()} - this method is going away soon!
      */
+    @Deprecated
     public boolean canSlide() {
+        return mCanSlide;
+    }
+
+    /**
+     * Check if the content in this layout cannot fully fit side by side and therefore
+     * the content pane can be slid back and forth.
+     *
+     * @return true if content in this layout can be slid open and closed
+     */
+    public boolean isSlideable() {
         return mCanSlide;
     }
 
@@ -771,10 +865,10 @@ public class SlidingPaneLayout extends ViewGroup {
      * @param slideOffset position to animate to
      * @param velocity initial velocity in case of fling, or 0.
      */
-    void smoothSlideTo(float slideOffset, int velocity) {
+    boolean smoothSlideTo(float slideOffset, int velocity) {
         if (!mCanSlide) {
             // Nothing to do.
-            return;
+            return false;
         }
 
         final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
@@ -784,7 +878,9 @@ public class SlidingPaneLayout extends ViewGroup {
 
         if (mDragHelper.smoothSlideViewTo(mSlideableView, x, mSlideableView.getTop())) {
             ViewCompat.postInvalidateOnAnimation(this);
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -928,7 +1024,7 @@ public class SlidingPaneLayout extends ViewGroup {
         Parcelable superState = super.onSaveInstanceState();
 
         SavedState ss = new SavedState(superState);
-        ss.isOpen = isOpen();
+        ss.isOpen = isSlideable() ? isOpen() : mPreservedOpenState;
 
         return ss;
     }
@@ -938,7 +1034,12 @@ public class SlidingPaneLayout extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
 
-        // TODO: Completely restore state
+        if (ss.isOpen) {
+            openPane();
+        } else {
+            closePane();
+        }
+        mPreservedOpenState = ss.isOpen;
     }
 
     private class DragHelperCallback extends ViewDragHelper.Callback {
