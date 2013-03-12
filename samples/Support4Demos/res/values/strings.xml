@@ -149,4 +149,9 @@
     <string name="sample_media_route_provider_service">Media Route Provider Service Support Library Sample</string>
     <string name="fixed_volume_route_name">Fixed Volume Remote Playback Route</string>
     <string name="variable_volume_route_name">Variable Volume Remote Playback Route</string>
+
+    <string name="without_bidiformatter">Without BidiFormatter:</string>
+    <string name="with_bidiformatter">With BidiFormatter:</string>
+    <string name="bidiformatter_support_title">BidiFormatter Demo</string>
+
 </resources>

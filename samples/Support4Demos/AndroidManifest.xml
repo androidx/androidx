@@ -276,6 +276,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".text.BidiFormatterSupport"
+                  android:label="@string/bidiformatter_support_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <provider android:authorities="com.example.supportv4.content.sharingsupportprovider"
                   android:name=".content.SharingSupportProvider" />
 
