@@ -1123,6 +1123,9 @@ public class ViewDragHelper {
      * @return true if the touch slop has been crossed
      */
     private boolean slopCheck(View child, float dx, float dy) {
+        if (child == null) {
+            return false;
+        }
         final boolean checkHorizontal = mCallback.getViewHorizontalDragRange(child) > 0;
         final boolean checkVertical = mCallback.getViewVerticalDragRange(child) > 0;
 
