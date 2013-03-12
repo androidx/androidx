@@ -45,4 +45,7 @@
     <!-- Minimum width for an action button in the menu area of an action bar -->
     <dimen name="action_button_min_width">56dip</dimen>
 
+
+    <dimen name="panel_menu_list_width">296dp</dimen>
+
 </resources>
