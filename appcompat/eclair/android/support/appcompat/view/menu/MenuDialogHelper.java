@@ -56,7 +56,7 @@ public class MenuDialogHelper implements DialogInterface.OnKeyListener,
         // Get the builder for the dialog
         final AlertDialog.Builder builder = new AlertDialog.Builder(menu.getContext());
 
-        mPresenter = new ListMenuPresenter(builder.getContext(),
+        mPresenter = new ListMenuPresenter(menu.getContext(),
                 R.layout.list_menu_item_layout);
 
         mPresenter.setCallback(this);
