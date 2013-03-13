@@ -32,6 +32,7 @@
         </item>
 
         <item name="background">@drawable/ab_transparent_dark_holo</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_transparent_dark_holo</item>
 
         <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
@@ -42,10 +43,32 @@
 
     <style name="Widget.AppCompat.Light.Base.ActionBar" parent="Widget.AppCompat.Base.ActionBar">
         <item name="background">@drawable/ab_transparent_light_holo</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_transparent_light_holo</item>
 
         <!-- TODO chrisbanes: Change these to Light themes -->
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
         <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Small</item>
+    </style>
+
+    <style name="Widget.AppCompat.Base.ActionBar.Solid" parent="Widget.AppCompat.Base.ActionBar">
+        <item name="background">@drawable/ab_solid_dark_holo</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_solid_dark_holo</item>
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid"
+           parent="Widget.AppCompat.Light.Base.ActionBar">
+        <item name="background">@drawable/ab_solid_light_holo</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_solid_light_holo</item>
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"
+           parent="Widget.AppCompat.Base.ActionBar.Solid">
+        <item name="titleTextStyle">
+            @style/TextAppearance.AppCompat.ActionBar.Title.Inverse
+        </item>
+        <item name="subtitleTextStyle">
+            @style/TextAppearance.AppCompat.ActionBar.Subtitle.Inverse
+        </item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionButton" parent="">
@@ -79,6 +102,10 @@
            parent="Widget.AppCompat.Base.ActionBar.TabBar">
     </style>
 
+    <style name="Widget.AppCompat.Light.Base.ActionBar.TabBar.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionBar.TabBar">
+    </style>
+
     <style name="Widget.AppCompat.Base.ActionBar.TabView" parent="">
         <item name="android:background">@drawable/tab_indicator_ab_holo</item>
         <item name="android:gravity">center_horizontal</item>
@@ -88,6 +115,10 @@
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabView"
            parent="Widget.AppCompat.Base.ActionBar.TabView">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionBar.TabView.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionBar.TabView">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabText" parent="">
@@ -104,12 +135,24 @@
            parent="Widget.AppCompat.Base.ActionBar.TabText">
     </style>
 
+    <style name="Widget.AppCompat.Light.Base.ActionBar.TabText.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionBar.TabText">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverseDisableOnly</item>
+    </style>
+
     <style name="Widget.AppCompat.Base.ActionMode" parent="">
         <item name="android:background">?attr/actionModeBackground</item>
         <item name="backgroundSplit">?attr/actionModeSplitBackground</item>
         <item name="android:height">?attr/actionBarSize</item>
         <item name="titleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Title</item>
         <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Subtitle
+        </item>
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
+           parent="Widget.AppCompat.Base.ActionMode">
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Title.Inverse</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Subtitle.Inverse
         </item>
     </style>
 
@@ -120,6 +163,15 @@
     <style name="TextAppearance.AppCompat.Base.ActionMode.Subtitle"
            parent="android:TextAppearance.Small">
         <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.ActionMode.Title.Inverse"
+           parent="android:TextAppearance.Medium.Inverse">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.ActionMode.Subtitle.Inverse"
+           parent="android:TextAppearance.Small.Inverse">
+        <item name="android:textColor">?android:attr/textColorSecondaryInverse</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Base.Widget.ActionBar.Menu"
@@ -135,6 +187,14 @@
 
     <style name="TextAppearance.AppCompat.Base.ActionBar.Subtitle"
            parent="android:TextAppearance.Small">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.ActionBar.Title.Inverse"
+           parent="android:TextAppearance.Medium.Inverse">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.ActionBar.Subtitle.Inverse"
+           parent="android:TextAppearance.Small.Inverse">
     </style>
 
     <style name="Widget.AppCompat.Base.ProgressBar.Horizontal" parent="android:Widget.ProgressBar">

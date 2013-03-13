@@ -56,6 +56,18 @@
            parent="android:Widget.Holo.Light.ActionBar">
     </style>
 
+    <style name="Widget.AppCompat.Base.ActionBar.Solid"
+           parent="android:Widget.Holo.ActionBar.Solid">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid"
+           parent="android:Widget.Holo.Light.ActionBar.Solid">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"
+           parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">
+    </style>
+
     <style name="Widget.AppCompat.Base.ActionButton" parent="android:Widget.Holo.ActionButton">
     </style>
 
@@ -79,12 +91,20 @@
            parent="android:Widget.Holo.Light.ActionBar.TabBar">
     </style>
 
+    <style name="Widget.AppCompat.Light.Base.ActionBar.TabBar.Inverse"
+           parent="android:Widget.Holo.Light.ActionBar.TabBar.Inverse">
+    </style>
+
     <style name="Widget.AppCompat.Base.ActionBar.TabView"
            parent="android:Widget.Holo.ActionBar.TabView">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabView"
            parent="android:Widget.Holo.Light.ActionBar.TabView">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionBar.TabView.Inverse"
+           parent="android:Widget.Holo.Light.ActionBar.TabView.Inverse">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabText"
@@ -95,7 +115,15 @@
            parent="android:Widget.Holo.Light.ActionBar.TabText">
     </style>
 
+    <style name="Widget.AppCompat.Light.Base.ActionBar.TabText.Inverse"
+           parent="android:Widget.Holo.Light.ActionBar.TabText.Inverse">
+    </style>
+
     <style name="Widget.AppCompat.Base.ActionMode" parent="android:Widget.Holo.ActionMode">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
+           parent="android:Widget.Holo.Light.ActionMode.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.Base.Widget.ActionBar.Menu"
@@ -110,12 +138,28 @@
            parent="android:TextAppearance.Holo.Widget.ActionBar.Subtitle">
     </style>
 
+    <style name="TextAppearance.AppCompat.Base.ActionBar.Title.Inverse"
+           parent="android:TextAppearance.Holo.Widget.ActionBar.Title.Inverse">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.ActionBar.Subtitle.Inverse"
+           parent="android:TextAppearance.Holo.Widget.ActionBar.Subtitle.Inverse">
+    </style>
+
     <style name="TextAppearance.AppCompat.Base.ActionMode.Title"
            parent="android:TextAppearance.Holo.Widget.ActionMode.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.Base.ActionMode.Subtitle"
            parent="android:TextAppearance.Holo.Widget.ActionMode.Subtitle">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.ActionMode.Title.Inverse"
+           parent="android:TextAppearance.Holo.Widget.ActionMode.Title.Inverse">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.ActionMode.Subtitle.Inverse"
+           parent="android:TextAppearance.Holo.Widget.ActionMode.Subtitle.Inverse">
     </style>
 
     <style name="Widget.AppCompat.Base.ProgressBar.Horizontal"
