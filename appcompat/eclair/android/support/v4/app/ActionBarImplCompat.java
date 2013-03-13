@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.appcompat.R;
@@ -33,6 +34,8 @@ import android.support.appcompat.widget.ActionBarView;
 import android.support.appcompat.widget.ScrollingTabContainerView;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuItem;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -493,6 +496,23 @@ public class ActionBarImplCompat extends ActionBar {
     @Override
     public int getTabCount() {
         return mTabs.size();
+    }
+
+    @Override
+    public Context getThemedContext() {
+        if (mThemedContext == null) {
+            TypedValue outValue = new TypedValue();
+            Resources.Theme currentTheme = mContext.getTheme();
+            currentTheme.resolveAttribute(R.attr.actionBarWidgetTheme, outValue, true);
+            final int targetThemeRes = outValue.resourceId;
+
+            if (targetThemeRes != 0) {
+                mThemedContext = new ContextThemeWrapper(mContext, targetThemeRes);
+            } else {
+                mThemedContext = mContext;
+            }
+        }
+        return mThemedContext;
     }
 
     @Override
