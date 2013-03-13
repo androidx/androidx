@@ -124,17 +124,15 @@ public final class MediaControlIntent {
      * intent.setDataAndType("http://example.com/videos/movie.mp4", "video/mp4");
      * intent.putExtra(MediaControlIntent.EXTRA_QUEUE_BEHAVIOR,
      *         MediaControlIntent.QUEUE_BEHAVIOR_PLAY_NEXT);
-     *
-     * MediaRouter.ControlRequestCallback callback = new MediaRouter.ControlRequestCallback() {
-     *     public void onResult(int result, Bundle data) {
-     *         if (result == REQUEST_SUCCEEDED) {
-     *             Log.d("Testing", "Play request succeeded!");
+     * if (route.supportsControlRequest(intent)) {
+     *     MediaRouter.ControlRequestCallback callback = new MediaRouter.ControlRequestCallback() {
+     *         public void onResult(int result, Bundle data) {
+     *             if (result == REQUEST_SUCCEEDED) {
+     *                 // request succeeded
+     *             }
      *         }
-     *     }
-     * };
-     *
-     * if (route.sendControlRequest(intent, callback)) {
-     *     Log.d("Testing", "Request to play sent successfully...");
+     *     };
+     *     route.sendControlRequest(intent, callback);
      * }</pre>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
