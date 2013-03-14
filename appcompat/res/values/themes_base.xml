@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+
+    <!-- Themes in the "Theme.Base" family vary based on the current platform
+         version to provide the correct basis on each device. You probably don't
+         want to use them directly in your apps.
+
+         Themes in the "Theme.AppCompat" family are meant to be extended or used
+         directly by apps. -->
+    <eat-comment/>
+
+    <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
+    <style name="Theme.Base.AppCompat" parent="android:Theme">
+        <item name="windowActionBar">true</item>
+        <!-- Remove system title bars; we will add the action bar ourselves. -->
+        <item name="android:windowNoTitle">true</item>
+
+        <item name="buttonBarStyle">@android:style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
+        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
+
+        <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
+        <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
+
+        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="listPreferredItemHeightSmall">48dp</item>
+        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemPaddingLeft">8dip</item>
+        <item name="listPreferredItemPaddingRight">8dip</item>
+
+        <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
+        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
+
+        <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
+        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
+        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
+        <item name="actionBarWidgetTheme">@null</item>
+        <item name="actionBarSize">@dimen/action_bar_size</item>
+        <item name="actionBarDivider">?attr/dividerVertical</item>
+        <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
+        <item name="actionMenuTextAppearance">
+            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
+        </item>
+        <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
+
+        <!-- Dropdown Spinner Attributes -->
+        <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+
+        <!-- Panel attributes -->
+        <item name="panelMenuListWidth">@dimen/panel_menu_list_width</item>
+        <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
+
+    </style>
+
+    <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
+    <style name="Theme.Base.AppCompat.Light" parent="android:Theme.Light">
+        <item name="windowActionBar">true</item>
+        <!-- Remove system title bars; we will add the action bar ourselves. -->
+        <item name="android:windowNoTitle">true</item>
+
+        <item name="buttonBarStyle">@android:style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
+        <item name="selectableItemBackground">@drawable/item_background_holo_light</item>
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
+
+        <item name="dividerVertical">@drawable/appcompat_divider_light</item>
+        <item name="dividerHorizontal">@drawable/appcompat_divider_light</item>
+
+        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="listPreferredItemHeightSmall">48dp</item>
+        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemPaddingLeft">8dip</item>
+        <item name="listPreferredItemPaddingRight">8dip</item>
+
+        <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
+        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
+
+        <!-- Action Bar Styles -->
+        <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView</item>
+        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.Light.ActionBar.TabBar</item>
+        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.Light.ActionBar.TabText</item>
+        <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
+        <item name="actionOverflowButtonStyle">
+            @style/Widget.AppCompat.Light.ActionButton.Overflow
+        </item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar</item>
+        <item name="actionBarWidgetTheme">@null</item>
+        <item name="actionBarSize">@dimen/action_bar_size</item>
+        <item name="actionBarDivider">?attr/dividerVertical</item>
+        <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
+        <item name="actionMenuTextAppearance">
+            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
+        </item>
+        <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
+
+        <!-- Dropdown Spinner Attributes -->
+        <item name="actionDropDownStyle">
+            @style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar
+        </item>
+        <item name="dropDownListViewStyle">
+            @style/Widget.AppCompat.Light.ListView.DropDown
+        </item>
+
+        <!-- Panel attributes -->
+        <item name="panelMenuListWidth">@dimen/panel_menu_list_width</item>
+        <item name="panelMenuListTheme">@style/Theme.AppCompat.Light.CompactMenu</item>
+
+    </style>
+
+    <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
+    <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
+        <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
+        <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
+
+        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
+    </style>
+
+    <!-- Menu/item attributes -->
+
+    <style name="Theme.AppCompat.Base.CompactMenu" parent="">
+        <item name="android:itemTextAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:listViewStyle">@android:style/Widget.ListView.Menu</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="Theme.AppCompat.Base.Light.CompactMenu" parent="">
+        <item name="android:itemTextAppearance">?android:attr/textAppearanceMediumInverse</item>
+        <item name="android:listViewStyle">@android:style/Widget.ListView.Menu</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <!-- These aren't Base, but they have no use globally -->
+    <style name="Theme.AppCompat.CompactMenu" parent="Theme.AppCompat.Base.CompactMenu">
+    </style>
+
+    <style name="Theme.AppCompat.Light.CompactMenu" parent="Theme.AppCompat.Base.Light.CompactMenu">
+    </style>
+
+</resources>
