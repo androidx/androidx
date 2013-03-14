@@ -95,8 +95,6 @@ public class TextUtilsCompat {
      * {@link ViewCompat#LAYOUT_DIRECTION_RTL}.
      *
      * Be careful: this code will need to be updated when vertical scripts will be supported
-     *
-     * @hide
      */
     private static int getLayoutDirectionFromFirstChar(Locale locale) {
         switch(Character.getDirectionality(locale.getDisplayName(locale).charAt(0))) {
