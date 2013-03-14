@@ -171,9 +171,9 @@ public final class BidiFormatter {
      * A class for building a BidiFormatter with non-default options.
      */
     public static final class Builder {
-        private boolean isRtlContext;
-        private int flags;
-        private TextDirectionHeuristicCompat textDirectionHeuristicCompat;
+        private boolean mIsRtlContext;
+        private int mFlags;
+        private TextDirectionHeuristicCompat mTextDirectionHeuristicCompat;
 
         /**
          * Constructor.
@@ -207,9 +207,9 @@ public final class BidiFormatter {
          * @param isRtlContext Whether the context is RTL or not.
          */
         private void initialize(boolean isRtlContext) {
-            this.isRtlContext = isRtlContext;
-            textDirectionHeuristicCompat = DEFAULT_TEXT_DIRECTION_HEURISTIC;
-            this.flags = DEFAULT_FLAGS;
+            mIsRtlContext = isRtlContext;
+            mTextDirectionHeuristicCompat = DEFAULT_TEXT_DIRECTION_HEURISTIC;
+            mFlags = DEFAULT_FLAGS;
         }
 
         /**
@@ -218,9 +218,9 @@ public final class BidiFormatter {
          */
         public Builder stereoReset(boolean stereoReset) {
             if (stereoReset) {
-                flags |= FLAG_STEREO_RESET;
+                mFlags |= FLAG_STEREO_RESET;
             } else {
-                flags &= ~FLAG_STEREO_RESET;
+                mFlags &= ~FLAG_STEREO_RESET;
             }
             return this;
         }
@@ -233,7 +233,7 @@ public final class BidiFormatter {
          * @return the builder itself.
          */
         public Builder setTextDirectionHeuristic(TextDirectionHeuristicCompat heuristic) {
-            this.textDirectionHeuristicCompat = heuristic;
+            mTextDirectionHeuristicCompat = heuristic;
             return this;
         }
 
@@ -245,11 +245,11 @@ public final class BidiFormatter {
          * @return A BidiFormatter with the specified options.
          */
         public BidiFormatter build() {
-            if (flags == DEFAULT_FLAGS &&
-                    textDirectionHeuristicCompat == DEFAULT_TEXT_DIRECTION_HEURISTIC) {
-                return getDefaultInstanceFromContext(isRtlContext);
+            if (mFlags == DEFAULT_FLAGS &&
+                    mTextDirectionHeuristicCompat == DEFAULT_TEXT_DIRECTION_HEURISTIC) {
+                return getDefaultInstanceFromContext(mIsRtlContext);
             }
-            return new BidiFormatter(isRtlContext, flags, textDirectionHeuristicCompat);
+            return new BidiFormatter(mIsRtlContext, mFlags, mTextDirectionHeuristicCompat);
         }
     }
 
@@ -267,9 +267,9 @@ public final class BidiFormatter {
             DEFAULT_FLAGS,
             DEFAULT_TEXT_DIRECTION_HEURISTIC);
 
-    private final boolean isRtlContext;
-    private final int flags;
-    private final TextDirectionHeuristicCompat defaultTextDirectionHeuristicCompat;
+    private final boolean mIsRtlContext;
+    private final int mFlags;
+    private final TextDirectionHeuristicCompat mDefaultTextDirectionHeuristicCompat;
 
     /**
      * Factory for creating an instance of BidiFormatter given the context directionality.
@@ -295,16 +295,16 @@ public final class BidiFormatter {
      * @param heuristic The default text direction heuristic.
      */
     private BidiFormatter(boolean isRtlContext, int flags, TextDirectionHeuristicCompat heuristic) {
-        this.isRtlContext = isRtlContext;
-        this.flags = flags;
-        this.defaultTextDirectionHeuristicCompat = heuristic;
+        mIsRtlContext = isRtlContext;
+        mFlags = flags;
+        mDefaultTextDirectionHeuristicCompat = heuristic;
     }
 
     /**
      * @return Whether the context directionality is RTL
      */
     public boolean isRtlContext() {
-        return isRtlContext;
+        return mIsRtlContext;
     }
 
     /**
@@ -312,7 +312,7 @@ public final class BidiFormatter {
      * bidi-wrapped, not just after it.
      */
     public boolean getStereoReset() {
-        return (flags & FLAG_STEREO_RESET) != 0;
+        return (mFlags & FLAG_STEREO_RESET) != 0;
     }
 
     /**
@@ -383,7 +383,7 @@ public final class BidiFormatter {
      *     context; else, the empty string.
      */
     public String dirAttr(boolean isRtl) {
-        return (isRtl != isRtlContext) ? (isRtl ? DIR_RTL_STRING :  DIR_LTR_STRING) : EMPTY_STRING;
+        return (isRtl != mIsRtlContext) ? (isRtl ? DIR_RTL_STRING :  DIR_LTR_STRING) : EMPTY_STRING;
     }
 
     /**
@@ -400,7 +400,7 @@ public final class BidiFormatter {
      *     else, the empty string.
      */
     public String markAfter(String str) {
-        return markAfter(str, defaultTextDirectionHeuristicCompat);
+        return markAfter(str, mDefaultTextDirectionHeuristicCompat);
     }
 
     /**
@@ -416,10 +416,10 @@ public final class BidiFormatter {
     public String markAfter(String str, TextDirectionHeuristicCompat heuristic) {
         final boolean isRtl = heuristic.isRtl(str, 0, str.length());
         // getExitDir() is called only if needed (short-circuit).
-        if (!isRtlContext && (isRtl || getExitDir(str) == DIR_RTL)) {
+        if (!mIsRtlContext && (isRtl || getExitDir(str) == DIR_RTL)) {
             return LRM_STRING;
         }
-        if (isRtlContext && (!isRtl || getExitDir(str) == DIR_LTR)) {
+        if (mIsRtlContext && (!isRtl || getExitDir(str) == DIR_LTR)) {
             return RLM_STRING;
         }
         return EMPTY_STRING;
@@ -439,7 +439,7 @@ public final class BidiFormatter {
      *     else, the empty string.
      */
     public String markBefore(String str) {
-        return markBefore(str, defaultTextDirectionHeuristicCompat);
+        return markBefore(str, mDefaultTextDirectionHeuristicCompat);
     }
 
     /**
@@ -455,10 +455,10 @@ public final class BidiFormatter {
     public String markBefore(String str, TextDirectionHeuristicCompat heuristic) {
         final boolean isRtl = heuristic.isRtl(str, 0, str.length());
         // getEntryDir() is called only if needed (short-circuit).
-        if (!isRtlContext && (isRtl || getEntryDir(str) == DIR_RTL)) {
+        if (!mIsRtlContext && (isRtl || getEntryDir(str) == DIR_RTL)) {
             return LRM_STRING;
         }
-        if (isRtlContext && (!isRtl || getEntryDir(str) == DIR_LTR)) {
+        if (mIsRtlContext && (!isRtl || getEntryDir(str) == DIR_LTR)) {
             return RLM_STRING;
         }
         return EMPTY_STRING;
@@ -469,7 +469,7 @@ public final class BidiFormatter {
      * directionality, RLM for RTL context directionality).
      */
     public String mark() {
-        return isRtlContext ? RLM_STRING : LRM_STRING;
+        return mIsRtlContext ? RLM_STRING : LRM_STRING;
     }
 
     /**
@@ -477,7 +477,7 @@ public final class BidiFormatter {
      * returns "left".
      */
     public String startEdge() {
-        return isRtlContext  ? RIGHT : LEFT;
+        return mIsRtlContext ? RIGHT : LEFT;
     }
 
     /**
@@ -485,7 +485,7 @@ public final class BidiFormatter {
      * returns "right".
      */
     public String endEdge() {
-        return isRtlContext ? LEFT : RIGHT;
+        return mIsRtlContext ? LEFT : RIGHT;
     }
 
     /**
@@ -496,7 +496,7 @@ public final class BidiFormatter {
      *          false.
      */
     public boolean isRtl(String str) {
-        return defaultTextDirectionHeuristicCompat.isRtl(str, 0, str.length());
+        return mDefaultTextDirectionHeuristicCompat.isRtl(str, 0, str.length());
     }
 
     /**
@@ -535,7 +535,7 @@ public final class BidiFormatter {
             result.append(markBefore(origStr,
                     isRtl ? TextDirectionHeuristicsCompat.RTL : TextDirectionHeuristicsCompat.LTR));
         }
-        if (isRtl != isRtlContext) {
+        if (isRtl != mIsRtlContext) {
             result.append("<span ").append(dirAttr(isRtl)).append('>').append(str).append("</span>");
         } else {
             result.append(str);
@@ -569,7 +569,7 @@ public final class BidiFormatter {
      * @return Input string after applying the above processing.
      */
     public String spanWrap(String str, boolean isolate) {
-        return spanWrap(str, defaultTextDirectionHeuristicCompat, isolate);
+        return spanWrap(str, mDefaultTextDirectionHeuristicCompat, isolate);
     }
 
     /**
@@ -580,7 +580,7 @@ public final class BidiFormatter {
      * @return Input string after applying the above processing.
      */
     public String spanWrap(String str) {
-        return spanWrap(str, defaultTextDirectionHeuristicCompat, true /* isolate */);
+        return spanWrap(str, mDefaultTextDirectionHeuristicCompat, true /* isolate */);
     }
 
     /**
@@ -619,7 +619,7 @@ public final class BidiFormatter {
             result.append(markBefore(str,
                     isRtl ? TextDirectionHeuristicsCompat.RTL : TextDirectionHeuristicsCompat.LTR));
         }
-        if (isRtl != isRtlContext) {
+        if (isRtl != mIsRtlContext) {
             result.append(isRtl ? RLE : LRE);
             result.append(str);
             result.append(PDF);
@@ -655,7 +655,7 @@ public final class BidiFormatter {
      * @return Input string after applying the above processing.
      */
     public String unicodeWrap(String str, boolean isolate) {
-        return unicodeWrap(str, defaultTextDirectionHeuristicCompat, isolate);
+        return unicodeWrap(str, mDefaultTextDirectionHeuristicCompat, isolate);
     }
 
     /**
@@ -666,7 +666,7 @@ public final class BidiFormatter {
      * @return Input string after applying the above processing.
      */
     public String unicodeWrap(String str) {
-        return unicodeWrap(str, defaultTextDirectionHeuristicCompat, true /* isolate */);
+        return unicodeWrap(str, mDefaultTextDirectionHeuristicCompat, true /* isolate */);
     }
 
     /**

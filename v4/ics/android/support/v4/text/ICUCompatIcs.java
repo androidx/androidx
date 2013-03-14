@@ -21,20 +21,20 @@ import android.util.Log;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ICUCompatIcs {
+class ICUCompatIcs {
 
     private static final String TAG = "ICUCompatIcs";
 
-    private static Method getScriptMethod;
-    private static Method addLikelySubtagsMethod;
+    private static Method sGetScriptMethod;
+    private static Method sAddLikelySubtagsMethod;
 
     static {
         try {
             final Class<?> clazz = Class.forName("libcore.icu.ICU");
             if (clazz != null) {
-                getScriptMethod = clazz.getMethod("getScript",
+                sGetScriptMethod = clazz.getMethod("getScript",
                         new Class[]{ String.class });
-                addLikelySubtagsMethod = clazz.getMethod("addLikelySubtags",
+                sAddLikelySubtagsMethod = clazz.getMethod("addLikelySubtags",
                         new Class[]{ String.class });
             }
         } catch (Exception e) {
@@ -45,9 +45,9 @@ public class ICUCompatIcs {
 
     public static String getScript(String locale) {
         try {
-            if (getScriptMethod != null) {
+            if (sGetScriptMethod != null) {
                 final Object[] args = new Object[] { locale };
-                return (String) getScriptMethod.invoke(null, args);
+                return (String) sGetScriptMethod.invoke(null, args);
             }
         } catch (IllegalAccessException e) {
             // Nothing we can do here, we just log the exception
@@ -62,9 +62,9 @@ public class ICUCompatIcs {
 
     public static String addLikelySubtags(String locale) {
         try {
-            if (addLikelySubtagsMethod != null) {
+            if (sAddLikelySubtagsMethod != null) {
                 final Object[] args = new Object[] { locale };
-                return (String) addLikelySubtagsMethod.invoke(null, args);
+                return (String) sAddLikelySubtagsMethod.invoke(null, args);
             }
         } catch (IllegalAccessException e) {
             // Nothing we can do here, we just log the exception
