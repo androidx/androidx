@@ -51,17 +51,9 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
         if (cursor != null) {
             // Ensure the cursor window is filled
             cursor.getCount();
-            registerContentObserver(cursor, mObserver);
+            cursor.registerContentObserver(mObserver);
         }
         return cursor;
-    }
-
-    /**
-     * Registers an observer to get notifications from the content provider
-     * when the cursor needs to be refreshed.
-     */
-    void registerContentObserver(Cursor cursor, ContentObserver observer) {
-        cursor.registerContentObserver(mObserver);
     }
 
     /* Runs on the UI thread */
