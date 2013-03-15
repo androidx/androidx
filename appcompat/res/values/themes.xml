@@ -49,18 +49,9 @@
         <!-- Button attributes -->
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
 
-        <!-- List attributes -->
-        <item name="dropdownListPreferredItemHeight">64dip</item>
-        <item name="dropDownListViewStyle">@android:style/Widget.ListView.DropDown</item>
-
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">296dip</item>
         <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
-
-        <!-- TODO(trevorjohns): The item below doesn't work. -->
-        <!-- <item name="popupMenuStyle">@android:style/Widget.PopupMenu</item> -->
-        <!-- <item name="listPopupWindowStyle">@android:style/ListPopupWindow</item>-->
-
 
     </style>
 
@@ -89,10 +80,6 @@
 
         <!-- Button attributes -->
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
-
-        <!-- List attributes -->
-        <item name="dropdownListPreferredItemHeight">64dip</item>
-        <item name="dropDownListViewStyle">@android:style/Widget.ListView.DropDown</item>
 
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">296dip</item>
@@ -139,6 +126,8 @@
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat" parent="Theme.Base.AppCompat">
+        <item name="windowActionBar">true</item>
+
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
         <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
@@ -152,17 +141,24 @@
         <item name="actionMenuTextAppearance">
             @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
         </item>
+
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
 
-        <item name="windowActionBar">true</item>
+        <!-- Dropdown Spinner Attributes -->
+        <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
+        <item name="spinnerDropDownItemStyle">
+            @style/Widget.AppCompat.DropDownItem.Spinner
+        </item>
+        <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
-        <!-- TODO(trevorjohns): Does not exist on API < 11. -->
-        <!-- <item name="actionDropDownStyle">@android:style/Widget_Spinner_DropDown</item> -->
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
     <style name="Theme.AppCompat.Light" parent="Theme.Base.AppCompat.Light">
+        <item name="windowActionBar">true</item>
+
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
         <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
@@ -176,13 +172,20 @@
         <item name="actionMenuTextAppearance">
             @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
         </item>
+
         <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
         <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
 
-        <item name="windowActionBar">true</item>
-
-        <!-- TODO(trevorjohns): Does not exist on API < 11. -->
-        <!-- <item name="actionDropDownStyle">@android:style/Widget_Spinner_DropDown</item> -->
+        <!-- Dropdown Spinner Attributes -->
+        <item name="actionDropDownStyle">
+            @style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
+        <item name="spinnerDropDownItemStyle">
+            @style/Widget.AppCompat.Light.DropDownItem.Spinner
+        </item>
+        <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
+        <item name="dropDownListViewStyle">
+            @style/Widget.AppCompat.Light.ListView.DropDown
+        </item>
     </style>
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->

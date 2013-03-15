@@ -595,13 +595,12 @@ public class ListPopupWindow {
     }
 
     public static void setClipToScreenEnabled(PopupWindow mPopup, boolean enabled) {
-        // mClipToScreen = enabled;
         try {
             Field f = mPopup.getClass().getDeclaredField("mClipToScreen");
             f.setAccessible(true);
             f.setBoolean(mPopup, enabled);
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+            // No field
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -1093,7 +1092,7 @@ public class ListPopupWindow {
                 break;
         }
 
-        final int listContent = mDropDownList.measureHeightOfChildren(childWidthSpec,
+        final int listContent = mDropDownList.measureHeightOfChildrenCompat(childWidthSpec,
                 0, DropDownListView.NO_POSITION, maxHeight - otherHeights, -1);
         // add padding only if the list has items in it, that way we don't show
         // the popup if it is not needed
@@ -1324,7 +1323,7 @@ public class ListPopupWindow {
          *                                     startPosition is 0).
          * @return The height of this ListView with the given children.
          */
-        final int measureHeightOfChildren(int widthMeasureSpec, int startPosition,
+        final int measureHeightOfChildrenCompat(int widthMeasureSpec, int startPosition,
                 int endPosition, final int maxHeight,
                 int disallowPartialChildPosition) {
 
