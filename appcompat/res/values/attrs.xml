@@ -268,6 +268,17 @@
         <attr name="popupMenuStyle" format="reference"/>
         <!-- Default ActionBar dropdown style. -->
         <attr name="actionDropDownStyle" format="reference"/>
+
+        <!-- ============ -->
+        <!-- Panel styles -->
+        <!-- ============ -->
+        <eat-comment />
+
+        <attr name="panelMenuListWidth" format="dimension" />
+
+        <!-- Default Panel Menu style. -->
+        <attr name="panelMenuListTheme" format="reference" />
+
     </declare-styleable>
 
     <declare-styleable name="MenuView">
@@ -410,13 +421,6 @@
 
 
     <attr name="dividerPadding" format="dimension"/>
-
-    <!-- ============ -->
-    <!-- Panel styles -->
-    <!-- ============ -->
-    <eat-comment />
-
-    <attr name="panelMenuListWidth" format="dimension" />
 
 
 </resources>
