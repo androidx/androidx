@@ -15,105 +15,6 @@
 -->
 
 <resources>
-    <!-- Themes in the "Theme.Base" family vary based on the current platform
-         version to provide the correct basis on each device. You probably don't
-         want to use them directly in your apps.
-
-         Themes in the "Theme.AppCompat" family are meant to be extended or used
-         directly by apps. -->
-    <eat-comment/>
-
-    <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.Base.AppCompat" parent="@android:style/Theme">
-        <!-- Remove system title bars; we will add the action bar ourselves. -->
-        <item name="android:windowNoTitle">true</item>
-
-        <item name="buttonBarStyle">@android:style/ButtonBar</item>
-        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
-        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
-
-        <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
-        <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
-        <item name="actionBarDivider">?attr/dividerVertical</item>
-
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
-
-        <item name="listPreferredItemPaddingLeft">8dip</item>
-        <item name="listPreferredItemPaddingRight">8dip</item>
-
-        <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
-        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
-
-        <!-- Button attributes -->
-        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
-
-        <!-- Panel attributes -->
-        <item name="panelMenuListWidth">296dip</item>
-        <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
-
-    </style>
-
-    <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light" parent="@android:style/Theme.Light">
-        <!-- Remove system title bars; we will add the action bar ourselves. -->
-        <item name="android:windowNoTitle">true</item>
-
-        <item name="buttonBarStyle">@android:style/ButtonBar</item>
-        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
-        <item name="selectableItemBackground">@drawable/item_background_holo_light</item>
-
-        <item name="dividerVertical">@drawable/appcompat_divider_light</item>
-        <item name="dividerHorizontal">@drawable/appcompat_divider_light</item>
-        <item name="actionBarDivider">?attr/dividerVertical</item>
-
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
-
-        <item name="listPreferredItemPaddingLeft">8dip</item>
-        <item name="listPreferredItemPaddingRight">8dip</item>
-
-        <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
-        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
-
-        <!-- Button attributes -->
-        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
-
-        <!-- Panel attributes -->
-        <item name="panelMenuListWidth">296dip</item>
-        <item name="panelMenuListTheme">@style/Theme.AppCompat.Light.CompactMenu</item>
-
-    </style>
-
-    <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
-        <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
-        <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
-
-        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
-    </style>
-
-    <!-- Base platform-dependent theme providing an action bar in a dark-themed activity.
-         This theme will follow the device's default styling if available. -->
-    <style name="Theme.Base.AppCompat.DeviceDefault" parent="Theme.Base.AppCompat">
-        <!-- Remove system title bars; we will add the action bar ourselves. -->
-        <item name="android:windowNoTitle">true</item>
-    </style>
-
-    <!-- Base platform-dependent theme providing an action bar in a light-themed activity.
-         This theme will follow the device's default styling if available. -->
-    <style name="Theme.Base.AppCompat.DeviceDefault.Light" parent="Theme.Base.AppCompat.Light">
-        <!-- Remove system title bars; we will add the action bar ourselves. -->
-        <item name="android:windowNoTitle">true</item>
-    </style>
-
-    <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity.
-         This theme will follow the device's default styling if available. -->
-    <style name="Theme.Base.AppCompat.DeviceDefault.Light.DarkActionBar"
-           parent="Theme.Base.AppCompat.Light.DarkActionBar">
-    </style>
 
     <!-- Themes in the "Theme.AppCompat" family will contain an action bar by default.
          If Holo themes are available on the current platform version they will be used.
@@ -126,94 +27,36 @@
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat" parent="Theme.Base.AppCompat">
-        <item name="windowActionBar">true</item>
 
-        <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
-        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
-        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
-        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
-        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
-        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
-        <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/action_bar_size</item>
-        <item name="actionBarDivider">?attr/dividerHorizontal</item>
-        <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
-        <item name="actionMenuTextAppearance">
-            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
-        </item>
-
-        <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
-        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
-
-        <!-- Dropdown Spinner Attributes -->
-        <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
+        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
             @style/Widget.AppCompat.DropDownItem.Spinner
         </item>
         <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
     <style name="Theme.AppCompat.Light" parent="Theme.Base.AppCompat.Light">
-        <item name="windowActionBar">true</item>
 
-        <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
-        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
-        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
-        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
-        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
-        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
-        <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/action_bar_size</item>
-        <item name="actionBarDivider">?attr/dividerHorizontal</item>
-        <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
-        <item name="actionMenuTextAppearance">
-            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
-        </item>
-
-        <item name="actionMenuTextColor">?android:attr/textColorPrimary</item>
-        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
-
-        <!-- Dropdown Spinner Attributes -->
-        <item name="actionDropDownStyle">
-            @style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
+        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
             @style/Widget.AppCompat.Light.DropDownItem.Spinner
         </item>
         <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-        <item name="dropDownListViewStyle">
-            @style/Widget.AppCompat.Light.ListView.DropDown
-        </item>
+
     </style>
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat.Light.DarkActionBar"
            parent="Theme.Base.AppCompat.Light.DarkActionBar">
-        <item name="windowActionBar">true</item>
-        <!-- TODO(trevorjohns): Implement other values for theme. -->
+
+        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
+        <item name="spinnerDropDownItemStyle">
+            @style/Widget.AppCompat.Light.DropDownItem.Spinner
+        </item>
+        <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
+
     </style>
 
-    <!-- Platform-independent theme providing an action bar in a dark-themed activity.
-         This theme will follow the device's default styling if available. -->
-    <style name="Theme.AppCompat.DeviceDefault" parent="Theme.Base.AppCompat.DeviceDefault">
-        <item name="windowActionBar">true</item>
-        <!-- TODO(trevorjohns): Implement other values for theme. -->
-    </style>
-
-    <!-- Platform-independent theme providing an action bar in a light-themed activity.
-         This theme will follow the device's default styling if available. -->
-    <style name="Theme.AppCompat.DeviceDefault.Light"
-           parent="Theme.Base.AppCompat.DeviceDefault.Light">
-        <item name="windowActionBar">true</item>
-        <!-- TODO(trevorjohns): Implement other values for theme. -->
-    </style>
-
-    <!-- Platform-independent theme providing a dark action bar in a light-themed activity.
-         This theme will follow the device's default styling if available. -->
-    <style name="Theme.AppCompat.DeviceDefault.Light.DarkActionBar"
-           parent="Theme.Base.AppCompat.DeviceDefault.Light.DarkActionBar">
-        <item name="windowActionBar">true</item>
-    </style>
 </resources>
