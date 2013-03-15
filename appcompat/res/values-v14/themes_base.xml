@@ -29,8 +29,9 @@
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.Base.AppCompat" parent="android:Theme.Holo">
-        <!-- Copy system flag value to our flag -->
+        <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
+        <item name="actionBarSize">?android:attr/actionBarSize</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
@@ -38,8 +39,9 @@
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
     <style name="Theme.Base.AppCompat.Light" parent="android:Theme.Holo.Light">
-        <!-- Copy system flag value to our flag -->
+        <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
+        <item name="actionBarSize">?android:attr/actionBarSize</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
@@ -48,8 +50,9 @@
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar"
            parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- Copy system flag value to our flag -->
+        <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
+        <item name="actionBarSize">?android:attr/actionBarSize</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
