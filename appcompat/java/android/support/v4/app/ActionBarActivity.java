@@ -56,7 +56,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         void setContentView(View v, ViewGroup.LayoutParams lp);
         void addContentView(View v, ViewGroup.LayoutParams lp);
         ActionBar createActionBar();
-        void requestWindowFeature(int feature);
+        void requestWindowFeature(int featureId);
         ActionBar getSupportActionBar();
         void setTitle(CharSequence title);
         void supportInvalidateOptionsMenu();
@@ -199,11 +199,17 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
 
         @Override
-        public void requestWindowFeature(int feature) {
-            if (feature == FEATURE_ACTION_BAR) {
-                mActivity.mHasActionBar = true;
-            } else if (feature == FEATURE_ACTION_BAR_OVERLAY) {
-                mActivity.mOverlayActionBar = true;
+        public void requestWindowFeature(int featureId) {
+            switch (featureId) {
+                case FEATURE_ACTION_BAR:
+                    mActivity.mHasActionBar = true;
+                    break;
+                case FEATURE_ACTION_BAR_OVERLAY:
+                    mActivity.mOverlayActionBar = true;
+                    break;
+                default:
+                    mActivity.requestWindowFeature(featureId);
+                    break;
             }
         }
 
@@ -281,6 +287,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                         R.layout.list_menu_item_layout, listPresenterTheme);
                 mListMenuPresenter.setCallback(cb);
                 mMenu.addMenuPresenter(mListMenuPresenter);
+            } else {
+                // Make sure we update the ListView
+                mListMenuPresenter.updateMenuView(false);
             }
 
             return mListMenuPresenter.getMenuView(null);
@@ -476,10 +485,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             if (mActivity.mHasActionBar) {
                 // If action bar is requested by inheriting from the appcompat theme,
                 // the system will not know about that. So explicitly request for an action bar.
-                mActivity.superRequestWindowFeature(FEATURE_ACTION_BAR);
+                mActivity.requestWindowFeature(FEATURE_ACTION_BAR);
             }
             if (mActivity.mOverlayActionBar) {
-                mActivity.superRequestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
+                mActivity.requestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
             }
         }
 
@@ -517,8 +526,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
 
         @Override
-        public void requestWindowFeature(int feature) {
-            mActivity.superRequestWindowFeature(feature);
+        public void requestWindowFeature(int featureId) {
+            mActivity.requestWindowFeature(featureId);
         }
 
         @Override
@@ -704,10 +713,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         super.addContentView(v, lp);
     }
 
-    void superRequestWindowFeature(int feature) {
-        super.requestWindowFeature(feature);
-    }
-
     boolean superOnCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
         return super.onCreatePanelMenu(featureId, frameworkMenu);
     }
@@ -772,6 +777,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
         mImpl.setTitle(title);
+    }
+
+    public final void supportRequestWindowFeature(int featureId) {
+        mImpl.requestWindowFeature(featureId);
     }
 
     @Override

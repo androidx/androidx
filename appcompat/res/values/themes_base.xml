@@ -148,6 +148,9 @@
         <!-- Dropdown Spinner Attributes -->
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
 
+        <!-- Panel attributes -->
+        <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
+
     </style>
 
     <!-- Menu/item attributes -->
