@@ -458,9 +458,11 @@ public class ActionBarView extends AbsActionBarView {
         } else {
             mActionMenuPresenter.initForMenu(mContext, null);
             mExpandedMenuPresenter.initForMenu(mContext, null);
-            mActionMenuPresenter.updateMenuView(true);
-            mExpandedMenuPresenter.updateMenuView(true);
         }
+
+        // Make sure the Presenter's View is updated
+        mActionMenuPresenter.updateMenuView(true);
+        mExpandedMenuPresenter.updateMenuView(true);
     }
 
     public boolean hasExpandedActionView() {

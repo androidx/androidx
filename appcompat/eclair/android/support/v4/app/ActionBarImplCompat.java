@@ -935,12 +935,11 @@ public class ActionBarImplCompat extends ActionBar {
     }
 
     public void doShow(boolean fromSystem) {
-        // TODO(trevorjohns): Animation removed from doShow/doHide. Verify that this is correct.
         mTopVisibilityView.setVisibility(View.VISIBLE);
     }
 
     public void doHide(boolean fromSystem) {
-        mTopVisibilityView.setVisibility(View.INVISIBLE);
+        mTopVisibilityView.setVisibility(View.GONE);
     }
 
 }
