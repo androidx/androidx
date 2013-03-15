@@ -201,8 +201,14 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 mActivity.onPrepareSupportOptionsMenu(mMenu);
 
                 if (mListMenuPresenter == null) {
+                    TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
+                    final int listPresenterTheme = a.getResourceId(
+                            R.styleable.Theme_panelMenuListTheme,
+                            R.style.Theme_AppCompat_CompactMenu);
+                    a.recycle();
+
                     mListMenuPresenter = new ListMenuPresenter(
-                            mActivity, R.layout.list_menu_item_layout);
+                            R.layout.list_menu_item_layout, listPresenterTheme);
                     mListMenuPresenter.initForMenu(mActivity, mMenu);
                 }
 
