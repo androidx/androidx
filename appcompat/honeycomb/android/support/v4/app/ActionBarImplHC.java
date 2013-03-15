@@ -17,6 +17,7 @@
 package android.support.v4.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.SpinnerAdapter;
@@ -269,6 +270,11 @@ class ActionBarImplHC extends ActionBar {
     @Override
     public int getTabCount() {
         return mActionBar.getTabCount();
+    }
+
+    @Override
+    public Context getThemedContext() {
+        return mActionBar.getThemedContext();
     }
 
     @Override
