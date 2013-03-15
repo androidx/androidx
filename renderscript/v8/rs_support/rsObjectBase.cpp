@@ -111,7 +111,7 @@ bool ObjectBase::checkDelete(const ObjectBase *ref) {
 bool ObjectBase::decUserRef() const {
     rsAssert(mUserRefCount > 0);
 #if RS_OBJECT_DEBUG
-    ALOGV("ObjectBase %p decU ref %i, %i", this, mUserRefCount, mSysRefCount);
+    //ALOGV("ObjectBase %p decU ref %i, %i", this, mUserRefCount, mSysRefCount);
     if (mUserRefCount <= 0) {
         mStack.dump();
     }
