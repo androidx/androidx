@@ -26,7 +26,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-public abstract class AbsActionBarView extends ViewGroup {
+abstract class AbsActionBarView extends ViewGroup {
 
     protected ActionMenuView mMenuView;
 
@@ -42,15 +42,15 @@ public abstract class AbsActionBarView extends ViewGroup {
 
     private static final int FADE_DURATION = 200;
 
-    public AbsActionBarView(Context context) {
+    AbsActionBarView(Context context) {
         super(context);
     }
 
-    public AbsActionBarView(Context context, AttributeSet attrs) {
+    AbsActionBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public AbsActionBarView(Context context, AttributeSet attrs, int defStyle) {
+    AbsActionBarView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
