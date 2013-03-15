@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.appcompat.view;
+package android.support.v4.view;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -28,8 +28,8 @@ import android.view.KeyEvent;
  * You can add items to this menu and handle clicks on your additions. The
  * easiest way of adding menu items is inflating an XML file into the
  * {@link Menu} via {@link MenuInflater}. The easiest way of attaching code to
- * clicks is via {@link Activity#onOptionsItemSelected(MenuItem)} and
- * {@link Activity#onContextItemSelected(MenuItem)}.
+ * clicks is via
+ * {@link android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)}.
  *
  * <p>Different menu types support different features:
  *

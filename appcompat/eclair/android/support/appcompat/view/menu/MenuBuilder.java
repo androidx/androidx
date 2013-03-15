@@ -13,10 +13,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.appcompat.R;
-import android.support.appcompat.view.ActionProvider;
-import android.support.appcompat.view.Menu;
-import android.support.appcompat.view.MenuItem;
-import android.support.appcompat.view.SubMenu;
+import android.support.v4.view.ActionProvider;
+import android.support.v4.view.Menu;
+import android.support.v4.view.MenuItem;
+import android.support.v4.view.SubMenu;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.KeyCharacterMap;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Implementation of the {@link android.support.appcompat.view.Menu} interface for creating a
+ * Implementation of the {@link android.support.v4.view.Menu} interface for creating a
  * standard menu UI.
  */
 public class MenuBuilder implements Menu {

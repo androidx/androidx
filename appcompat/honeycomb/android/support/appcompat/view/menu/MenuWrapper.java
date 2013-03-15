@@ -17,8 +17,8 @@
 package android.support.appcompat.view.menu;
 
 import android.os.Build;
-import android.support.appcompat.view.Menu;
-import android.support.appcompat.view.MenuItem;
+import android.support.v4.view.Menu;
+import android.support.v4.view.MenuItem;
 
 public class MenuWrapper {
 
