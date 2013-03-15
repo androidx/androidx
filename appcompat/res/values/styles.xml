@@ -26,12 +26,32 @@
     <style name="Widget.AppCompat.Light.ActionBar" parent="Widget.AppCompat.Light.Base.ActionBar">
     </style>
 
+    <style name="Widget.AppCompat.ActionBar.Solid"
+           parent="Widget.AppCompat.Base.ActionBar.Solid">
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActionBar.Solid"
+           parent="Widget.AppCompat.Light.Base.ActionBar.Solid">
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActionBar.Solid.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse">
+    </style>
+
     <style name="TextAppearance.AppCompat.ActionBar.Title"
            parent="TextAppearance.AppCompat.Base.ActionBar.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.ActionBar.Subtitle"
            parent="TextAppearance.AppCompat.Base.ActionBar.Subtitle">
+    </style>
+
+    <style name="TextAppearance.AppCompat.ActionBar.Title.Inverse"
+           parent="TextAppearance.AppCompat.Base.ActionBar.Title.Inverse">
+    </style>
+
+    <style name="TextAppearance.AppCompat.ActionBar.Subtitle.Inverse"
+           parent="TextAppearance.AppCompat.Base.ActionBar.Subtitle.Inverse">
     </style>
 
     <style name="Widget.AppCompat.ProgressBar.Horizontal"
@@ -64,12 +84,19 @@
            parent="Widget.AppCompat.Light.Base.ActionBar.TabBar">
     </style>
 
+    <style name="Widget.AppCompat.Light.ActionBar.TabBar.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionBar.TabBar.Inverse"></style>
+
     <style name="Widget.AppCompat.ActionBar.TabView"
            parent="Widget.AppCompat.Base.ActionBar.TabView">
     </style>
 
     <style name="Widget.AppCompat.Light.ActionBar.TabView"
            parent="Widget.AppCompat.Light.Base.ActionBar.TabView">
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActionBar.TabView.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionBar.TabView.Inverse">
     </style>
 
     <style name="Widget.AppCompat.ActionBar.TabText"
@@ -80,11 +107,18 @@
            parent="Widget.AppCompat.Light.Base.ActionBar.TabText">
     </style>
 
+    <style name="Widget.AppCompat.Light.ActionBar.TabText.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionBar.TabText.Inverse">
+    </style>
+
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Menu"
            parent="TextAppearance.AppCompat.Base.Widget.ActionBar.Menu">
     </style>
 
     <style name="Widget.AppCompat.ActionMode" parent="Widget.AppCompat.Base.ActionMode">
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActionMode.Inverse" parent="Widget.AppCompat.Light.Base.ActionMode.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.ActionMode.Title"
@@ -93,6 +127,14 @@
 
     <style name="TextAppearance.AppCompat.ActionMode.Subtitle"
            parent="TextAppearance.AppCompat.Base.ActionMode.Subtitle">
+    </style>
+
+    <style name="TextAppearance.AppCompat.ActionMode.Title.Inverse"
+           parent="TextAppearance.AppCompat.Base.ActionMode.Title.Inverse">
+    </style>
+
+    <style name="TextAppearance.AppCompat.ActionMode.Subtitle.Inverse"
+           parent="TextAppearance.AppCompat.Base.ActionMode.Subtitle.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.DropDownItem"
