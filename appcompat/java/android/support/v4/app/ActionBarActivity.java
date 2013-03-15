@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -28,7 +29,6 @@ import android.support.appcompat.view.menu.MenuView;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuInflater;
 import android.support.v4.view.MenuItem;
-import android.support.appcompat.view.menu.ExpandedMenuView;
 import android.support.appcompat.view.menu.ListMenuPresenter;
 import android.support.appcompat.view.menu.MenuBuilder;
 import android.support.appcompat.view.menu.MenuPresenter;
@@ -48,15 +48,15 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     private static final int FEATURE_ACTION_BAR_OVERLAY = 9;
 
     interface ActionBarActivityImpl {
-        void onCreate(ActionBarActivity activity, Bundle savedInstanceState);
+        void onCreate(Bundle savedInstanceState);
         void onPostCreate(Bundle savedInstanceState);
         void onConfigurationChanged(Configuration newConfig);
-        void setContentView(ActionBarActivity activity, View v);
-        void setContentView(ActionBarActivity activity, int resId);
-        void setContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp);
-        void addContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp);
-        ActionBar createActionBar(ActionBarActivity activity);
-        void requestWindowFeature(ActionBarActivity activity, int feature);
+        void setContentView(View v);
+        void setContentView(int resId);
+        void setContentView(View v, ViewGroup.LayoutParams lp);
+        void addContentView(View v, ViewGroup.LayoutParams lp);
+        ActionBar createActionBar();
+        void requestWindowFeature(int feature);
         ActionBar getSupportActionBar();
         void setTitle(CharSequence title);
         void supportInvalidateOptionsMenu();
@@ -69,16 +69,42 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         boolean onPreparePanel(int featureId, View view, android.view.Menu frameworkMenu);
     }
 
-    static class ActionBarActivityImplBase implements ActionBarActivityImpl, MenuPresenter.Callback {
-        private ActionBarActivity mActivity;
-        private ActionBar mActionBar;
-        private ActionBarView mActionBarView;
-        private ListMenuPresenter mListMenuPresenter;
-        private MenuBuilder mMenu;
+     abstract static class ActionBarActivityImplBase implements ActionBarActivityImpl {
+         final ActionBarActivity mActivity;
+         private ActionBar mActionBar;
+
+         ActionBarActivityImplBase(ActionBarActivity activity) {
+             mActivity = activity;
+         }
+
+         @Override
+         public ActionBar getSupportActionBar() {
+             // The Action Bar should be lazily loaded as mHasActionBar or mOverlayActionBar could
+             // change after onCreate
+             if (mActivity.mHasActionBar || mActivity.mOverlayActionBar) {
+                 if (mActionBar == null) {
+                     mActionBar = createActionBar();
+                 }
+             } else {
+                 // If we're not set to have a Action Bar, null it just in case it's been set
+                 mActionBar = null;
+             }
+
+             return mActionBar;
+         }
+    }
+
+    static class ActionBarActivityImplCompat extends ActionBarActivityImplBase implements MenuPresenter.Callback {
+        ActionBarView mActionBarView;
+        ListMenuPresenter mListMenuPresenter;
+        MenuBuilder mMenu;
+
+        ActionBarActivityImplCompat(ActionBarActivity activity) {
+            super(activity);
+        }
 
         @Override
-        public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
-            mActivity = activity;
+        public void onCreate(Bundle savedInstanceState) {
         }
 
         @Override
@@ -103,95 +129,81 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             }
         }
 
-        protected void ensureSubDecor(ActionBarActivity activity) {
-            if (activity.mHasActionBar && !activity.mSubDecorInstalled) {
-                if (activity.mOverlayActionBar) {
-                    activity.superSetContentView(R.layout.action_bar_decor_overlay);
+        void ensureSubDecor() {
+            if (mActivity.mHasActionBar && !mActivity.mSubDecorInstalled) {
+                if (mActivity.mOverlayActionBar) {
+                    mActivity.superSetContentView(R.layout.action_bar_decor_overlay);
                 } else {
-                    activity.superSetContentView(R.layout.action_bar_decor);
+                    mActivity.superSetContentView(R.layout.action_bar_decor);
                 }
-                mActionBarView = (ActionBarView) activity.findViewById(R.id.action_bar);
-
-                initActionBar();
-
-                activity.mSubDecorInstalled = true;
+                mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
+                mActivity.mSubDecorInstalled = true;
             }
         }
 
         @Override
-        public void setContentView(ActionBarActivity activity, View v) {
-            ensureSubDecor(activity);
-            if (activity.mHasActionBar) {
+        public void setContentView(View v) {
+            ensureSubDecor();
+            if (mActivity.mHasActionBar) {
                 final ViewGroup contentParent =
-                        (ViewGroup) activity.findViewById(R.id.action_bar_activity_content);
+                        (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
                 contentParent.removeAllViews();
                 contentParent.addView(v);
             } else {
-                activity.superSetContentView(v);
+                mActivity.superSetContentView(v);
             }
         }
 
         @Override
-        public void setContentView(ActionBarActivity activity, int resId) {
-            ensureSubDecor(activity);
-            if (activity.mHasActionBar) {
+        public void setContentView(int resId) {
+            ensureSubDecor();
+            if (mActivity.mHasActionBar) {
                 final ViewGroup contentParent =
-                        (ViewGroup) activity.findViewById(R.id.action_bar_activity_content);
+                        (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
                 contentParent.removeAllViews();
-                final LayoutInflater inflater = activity.getLayoutInflater();
+                final LayoutInflater inflater = mActivity.getLayoutInflater();
                 inflater.inflate(resId, contentParent);
             } else {
-                activity.superSetContentView(resId);
+                mActivity.superSetContentView(resId);
             }
         }
 
         @Override
-        public void setContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp) {
-            ensureSubDecor(activity);
-            if (activity.mHasActionBar) {
+        public void setContentView(View v, ViewGroup.LayoutParams lp) {
+            ensureSubDecor();
+            if (mActivity.mHasActionBar) {
                 final ViewGroup contentParent =
-                        (ViewGroup) activity.findViewById(R.id.action_bar_activity_content);
+                        (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
                 contentParent.removeAllViews();
                 contentParent.addView(v, lp);
             } else {
-                activity.superSetContentView(v, lp);
+                mActivity.superSetContentView(v, lp);
             }
         }
 
         @Override
-        public void addContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp) {
-            ensureSubDecor(activity);
-            if (activity.mHasActionBar) {
+        public void addContentView(View v, ViewGroup.LayoutParams lp) {
+            ensureSubDecor();
+            if (mActivity.mHasActionBar) {
                 final ViewGroup contentParent =
-                        (ViewGroup) activity.findViewById(R.id.action_bar_activity_content);
+                        (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
                 contentParent.addView(v, lp);
             } else {
-                activity.superSetContentView(v, lp);
+                mActivity.superSetContentView(v, lp);
             }
         }
 
         @Override
-        public ActionBar createActionBar(ActionBarActivity activity) {
-            return new ActionBarImplCompat(activity, activity);
+        public ActionBar createActionBar() {
+            return new ActionBarImplCompat(mActivity, mActivity);
         }
 
         @Override
-        public void requestWindowFeature(ActionBarActivity activity, int feature) {
+        public void requestWindowFeature(int feature) {
             if (feature == FEATURE_ACTION_BAR) {
-                activity.mHasActionBar = true;
+                mActivity.mHasActionBar = true;
             } else if (feature == FEATURE_ACTION_BAR_OVERLAY) {
-                activity.mOverlayActionBar = true;
-            }
-        }
-
-        @Override
-        public ActionBar getSupportActionBar() {
-            return mActionBar;
-        }
-
-        private void initActionBar() {
-            if (mActionBar == null && (mActivity.mHasActionBar || mActivity.mOverlayActionBar)) {
-                mActionBar = createActionBar(mActivity);
+                mActivity.mOverlayActionBar = true;
             }
         }
 
@@ -315,16 +327,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         private MenuBuilder createMenu() {
             Context context = mActivity;
 
-            // If we have an action bar, initialize the menu with a context themed for it.
-            if (mActionBar == null && (mActivity.mHasActionBar || mActivity.mOverlayActionBar)) {
-                TypedValue outValue = new TypedValue();
-                Resources.Theme currentTheme = mActivity.getTheme();
-                currentTheme.resolveAttribute(R.attr.actionBarWidgetTheme, outValue, true);
-                final int targetThemeRes = outValue.resourceId;
-
-                if (targetThemeRes != 0) {
-                    context = new ContextThemeWrapper(context, targetThemeRes);
-                }
+            // If we have an action bar, initialize the menu with a context themed from it.
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                context = ab.getThemedContext();
             }
 
             MenuBuilder menu = new MenuBuilder(context);
@@ -394,8 +400,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     if (mActivity.mFragments.dispatchSupportOptionsItemSelected(item)) {
                         return true;
                     }
-                    if (item.getItemId() == R.id.home && mActionBar != null &&
-                            (mActionBar.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+
+                    ActionBar ab = getSupportActionBar();
+                    if (item.getItemId() == R.id.home && ab != null &&
+                            (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
                         if (mActivity.getParent() == null) {
                             // TODO: Implement "Up" button
                             // return mActivity.onNavigateUp();
@@ -435,8 +443,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
         @Override
         public void setTitle(CharSequence title) {
-            if (mActionBar != null) {
-                mActionBar.setTitle(title);
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setTitle(title);
             }
         }
 
@@ -455,25 +464,22 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
     }
 
-    static class ActionBarActivityImplHC implements ActionBarActivityImpl {
-        private ActionBar mActionBar;
-        private ActionBarActivity mActivity;
-        private Menu mMenu;
+    static class ActionBarActivityImplHC extends ActionBarActivityImplBase {
+        Menu mMenu;
+
+        ActionBarActivityImplHC(ActionBarActivity activity) {
+            super(activity);
+        }
 
         @Override
-        public void onCreate(ActionBarActivity activity, Bundle savedInstanceState) {
-            mActivity = activity;
-
-            if (activity.mHasActionBar) {
+        public void onCreate(Bundle savedInstanceState) {
+            if (mActivity.mHasActionBar) {
                 // If action bar is requested by inheriting from the appcompat theme,
                 // the system will not know about that. So explicitly request for an action bar.
-                activity.superRequestWindowFeature(FEATURE_ACTION_BAR);
+                mActivity.superRequestWindowFeature(FEATURE_ACTION_BAR);
             }
-            if (activity.mOverlayActionBar) {
-                activity.superRequestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
-            }
-            if (activity.mHasActionBar || activity.mOverlayActionBar) {
-                mActionBar = createActionBar(mActivity);
+            if (mActivity.mOverlayActionBar) {
+                mActivity.superRequestWindowFeature(FEATURE_ACTION_BAR_OVERLAY);
             }
         }
 
@@ -486,38 +492,33 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
 
         @Override
-        public void setContentView(ActionBarActivity activity, View v) {
-            activity.superSetContentView(v);
+        public void setContentView(View v) {
+            mActivity.superSetContentView(v);
         }
 
         @Override
-        public void setContentView(ActionBarActivity activity, int resId) {
-            activity.superSetContentView(resId);
+        public void setContentView(int resId) {
+            mActivity.superSetContentView(resId);
         }
 
         @Override
-        public void setContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp) {
-            activity.superSetContentView(v, lp);
+        public void setContentView(View v, ViewGroup.LayoutParams lp) {
+            mActivity.superSetContentView(v, lp);
         }
 
         @Override
-        public void addContentView(ActionBarActivity activity, View v, ViewGroup.LayoutParams lp) {
-            activity.superAddContentView(v, lp);
+        public void addContentView(View v, ViewGroup.LayoutParams lp) {
+            mActivity.superAddContentView(v, lp);
         }
 
         @Override
-        public ActionBar createActionBar(ActionBarActivity activity) {
-            return new ActionBarImplHC(activity, activity);
+        public ActionBar createActionBar() {
+            return new ActionBarImplHC(mActivity, mActivity);
         }
 
         @Override
-        public void requestWindowFeature(ActionBarActivity activity, int feature) {
-            activity.superRequestWindowFeature(feature);
-        }
-
-        @Override
-        public ActionBar getSupportActionBar() {
-            return mActionBar;
+        public void requestWindowFeature(int feature) {
+            mActivity.superRequestWindowFeature(feature);
         }
 
         @Override
@@ -591,9 +592,13 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     static class ActionBarActivityImplICS extends ActionBarActivityImplHC {
 
+        ActionBarActivityImplICS(ActionBarActivity activity) {
+            super(activity);
+        }
+
         @Override
-        public ActionBar createActionBar(ActionBarActivity activity) {
-            return new ActionBarImplICS(activity, activity);
+        public ActionBar createActionBar() {
+            return new ActionBarImplICS(mActivity, mActivity);
         }
 
     }
@@ -612,22 +617,21 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 14) {
-            mImpl = new ActionBarActivityImplICS();
-        } else if (version >= 11) {
-            mImpl = new ActionBarActivityImplHC();
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            mImpl = new ActionBarActivityImplICS(this);
+        } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
+            mImpl = new ActionBarActivityImplHC(this);
         } else {
-            mImpl = new ActionBarActivityImplBase();
+            mImpl = new ActionBarActivityImplCompat(this);
         }
 
         TypedArray a = obtainStyledAttributes(R.styleable.ActionBarWindow);
         mHasActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBar, false);
-        mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay,
-                false);
+        mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay, false);
         a.recycle();
 
-        mImpl.onCreate(this, savedInstanceState);
+        mImpl.onCreate(savedInstanceState);
     }
 
     public ActionBar getSupportActionBar() {
@@ -644,7 +648,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     @Override
     public void setContentView(int layoutResID) {
-        mImpl.setContentView(this, layoutResID);
+        mImpl.setContentView(layoutResID);
     }
 
     /**
@@ -661,7 +665,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     @Override
     public void setContentView(View view) {
-        mImpl.setContentView(this, view);
+        mImpl.setContentView(view);
     }
 
     @Override
@@ -681,7 +685,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        mImpl.setContentView(this, view, params);
+        mImpl.setContentView(view, params);
     }
 
     void superSetContentView(int resId) {
