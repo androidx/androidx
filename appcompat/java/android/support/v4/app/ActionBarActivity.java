@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.appcompat.R;
 import android.support.appcompat.view.Menu;
@@ -59,6 +60,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         void requestWindowFeature(ActionBarActivity activity, int feature);
         ActionBar getSupportActionBar();
         void setTitle(CharSequence title);
+        void supportInvalidateOptionsMenu();
 
         // Methods used to create and respond to options menu
         View onCreatePanelView(int featureId);
@@ -85,7 +87,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         public void onPostCreate(Bundle savedInstanceState) {
             // After the Activity has been created and the content views added, we need to make sure
             // that we've inflated the app's menu, so that Action Items can be rendered.
-            if (mActivity.mHasActionBar && mActivity.mSubDecorInstalled) {
+            if (mActivity.mSubDecorInstalled) {
                 if (dispatchCreateSupportOptionsMenu()) {
                     dispatchPrepareSupportOptionsMenu();
                 }
@@ -201,49 +203,60 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         @Override
         public View onCreatePanelView(int featureId) {
             if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+                boolean show = true;
+
+                // Only dispatch onCreateSupportOptionsMenu if we haven't already
                 if (mMenu == null) {
-                    dispatchCreateSupportOptionsMenu();
+                    show = dispatchCreateSupportOptionsMenu();
                 }
 
-                if (mListMenuPresenter == null) {
-                    TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
-                    final int listPresenterTheme = a.getResourceId(
-                            R.styleable.Theme_panelMenuListTheme,
-                            R.style.Theme_AppCompat_CompactMenu);
-                    a.recycle();
+                if (show) {
+                    show = dispatchPrepareSupportOptionsMenu();
 
-                    mListMenuPresenter = new ListMenuPresenter(
-                            R.layout.list_menu_item_layout, listPresenterTheme);
-                    mListMenuPresenter.initForMenu(mActivity, mMenu);
-                }
+                    if (show) {
+                        if (mListMenuPresenter == null) {
+                            TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
+                            final int listPresenterTheme = a.getResourceId(
+                                    R.styleable.Theme_panelMenuListTheme,
+                                    R.style.Theme_AppCompat_CompactMenu);
+                            a.recycle();
 
-                if (mMenuPanel == null) {
-                    mMenuPanel = (ExpandedMenuView) mListMenuPresenter.getMenuView(null);
+                            mListMenuPresenter = new ListMenuPresenter(
+                                    R.layout.list_menu_item_layout, listPresenterTheme);
+                            mListMenuPresenter.initForMenu(mActivity, mMenu);
+                        }
+
+                        if (mMenuPanel == null) {
+                            mMenuPanel = (ExpandedMenuView) mListMenuPresenter.getMenuView(null);
+                        }
+                        return mMenuPanel;
+                    }
                 }
-                return mMenuPanel;
             }
 
             return null;
         }
 
         public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
-            if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-                return dispatchCreateSupportOptionsMenu();
-            } else {
+            if (Window.FEATURE_OPTIONS_PANEL != featureId) {
                 return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
             }
+
+            // Should never get here as FEATURE_OPTIONS_PANEL is handled by onCreatePanelView
+            return false;
         }
 
         public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
-            if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-                return dispatchPrepareSupportOptionsMenu();
-            } else {
+            if (Window.FEATURE_OPTIONS_PANEL != featureId) {
                 return mActivity.superOnPreparePanelMenu(featureId, view, menu);
             }
+
+            // Should never get here as FEATURE_OPTIONS_PANEL is handled by onCreatePanelView
+            return false;
         }
 
         private boolean dispatchCreateSupportOptionsMenu() {
-           initMenu();
+            initMenu();
 
             // Allow activity to inflate menu contents
             boolean show = mActivity.onCreateSupportOptionsMenu(mMenu);
@@ -316,10 +329,14 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
                     menu.close();
                 }
-
             });
 
-            mActionBarView.setMenu(mMenu, this);
+            if (mActionBarView != null) {
+                mActionBarView.setMenu(mMenu, this);
+            }
+            if (mListMenuPresenter != null) {
+                mListMenuPresenter.initForMenu(mActivity, mMenu);
+            }
         }
 
         @Override
@@ -370,7 +387,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
          * Called when a menu is closing.
          */
         public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
-            return;
+            mActivity.closeOptionsMenu();
         }
 
         /**
@@ -392,6 +409,11 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             }
         }
 
+        public void supportInvalidateOptionsMenu() {
+            if (dispatchCreateSupportOptionsMenu()) {
+                dispatchPrepareSupportOptionsMenu();
+            }
+        }
     }
 
     static class ActionBarActivityImplHC implements ActionBarActivityImpl {
@@ -521,6 +543,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         @Override
         public void setTitle(CharSequence title) {
             // Handled by framework
+        }
+
+        public void supportInvalidateOptionsMenu() {
         }
 
     }
@@ -818,6 +843,15 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     final boolean dispatchFragmentSupportOptionsItemSelected(MenuItem item) {
         return ((SupportMenuFragmentManager) mFragments).dispatchSupportOptionsItemSelected(item);
+    }
+
+    @Override
+    public void supportInvalidateOptionsMenu() {
+        // Only call up to super on HC+, mImpl will handle otherwise
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            super.supportInvalidateOptionsMenu();
+        }
+        mImpl.supportInvalidateOptionsMenu();
     }
 
 }
