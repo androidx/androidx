@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.appcompat.R;
 import android.support.appcompat.view.SupportMenuInflater;
+import android.support.appcompat.view.menu.MenuView;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuInflater;
 import android.support.v4.view.MenuItem;
@@ -203,37 +204,25 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                 MenuBuilder menu = mMenu;
 
                 if (menu == null) {
-                    // We don't have a menu created, so create one and dispatch
-                    // onCreateSupportOptionsMenu
+                    // We don't have a menu created, so create one
                     menu = createMenu();
-                    show = dispatchCreateSupportOptionsMenu(menu);
-                } else {
-                    // We already have a menu, so stop it dispatching item
-                    // changes to it's presenters
+                    setMenu(menu);
+
+                    // Make sure we're not dispatching item changes to presenters
                     menu.stopDispatchingItemsChanged();
+                    // Dispatch onCreateSupportOptionsMenu
+                    show = dispatchCreateSupportOptionsMenu(menu);
                 }
 
-                // If we're still set to show, dispatch onPrepareSupportOptionsMenu
                 if (show) {
+                    // Make sure we're not dispatching item changes to presenters
+                    menu.stopDispatchingItemsChanged();
+                    // Dispatch onPrepareSupportOptionsMenu
                     show = dispatchPrepareSupportOptionsMenu(menu);
                 }
 
                 if (show) {
-                    if (mListMenuPresenter == null) {
-                        TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
-                        final int listPresenterTheme = a.getResourceId(
-                                R.styleable.Theme_panelMenuListTheme,
-                                R.style.Theme_AppCompat_CompactMenu);
-                        a.recycle();
-
-                        mListMenuPresenter = new ListMenuPresenter(
-                                R.layout.list_menu_item_layout, listPresenterTheme);
-                    }
-
-                    // Set Menu so that all presenters are updated
-                    setMenu(menu);
-
-                    createdPanelView = (View) mListMenuPresenter.getMenuView(null);
+                    createdPanelView = (View) getListMenuView(mActivity, this);
 
                     // Allow menu to start dispatching changes to presenters
                     menu.startDispatchingItemsChanged();
@@ -264,14 +253,43 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             return false;
         }
 
+        private MenuView getListMenuView(Context context, MenuPresenter.Callback cb) {
+            if (mMenu == null) {
+                return null;
+            }
+
+            if (mListMenuPresenter == null) {
+                TypedArray a = context.obtainStyledAttributes(R.styleable.Theme);
+                final int listPresenterTheme = a.getResourceId(
+                        R.styleable.Theme_panelMenuListTheme,
+                        R.style.Theme_AppCompat_CompactMenu);
+                a.recycle();
+
+                mListMenuPresenter = new ListMenuPresenter(
+                        R.layout.list_menu_item_layout, listPresenterTheme);
+                mListMenuPresenter.setCallback(cb);
+                mMenu.addMenuPresenter(mListMenuPresenter);
+            }
+
+            return mListMenuPresenter.getMenuView(null);
+        }
+
         private void setMenu(MenuBuilder menu) {
+            if (menu == mMenu) {
+                return;
+            }
+
+            if (mMenu != null) {
+                mMenu.removeMenuPresenter(mListMenuPresenter);
+            }
+            mMenu = menu;
+
+            if (menu != null && mListMenuPresenter != null) {
+                menu.addMenuPresenter(mListMenuPresenter);
+            }
             if (mActionBarView != null) {
                 mActionBarView.setMenu(menu, this);
             }
-            if (mListMenuPresenter != null) {
-                mListMenuPresenter.initForMenu(mActivity, menu);
-            }
-            mMenu = menu;
         }
 
         private boolean dispatchCreateSupportOptionsMenu(MenuBuilder menu) {
