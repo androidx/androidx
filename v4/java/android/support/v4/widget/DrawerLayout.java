@@ -623,7 +623,8 @@ public class DrawerLayout extends ViewGroup {
                 final float x = ev.getX();
                 final float y = ev.getY();
                 boolean peekingOnly = true;
-                if (isContentView(mLeftDragger.findTopChildUnder((int) x, (int) y))) {
+                final View touchedView = mLeftDragger.findTopChildUnder((int) x, (int) y);
+                if (touchedView != null && isContentView(touchedView)) {
                     final float dx = x - mInitialMotionX;
                     final float dy = y - mInitialMotionY;
                     final int slop = mLeftDragger.getTouchSlop();
