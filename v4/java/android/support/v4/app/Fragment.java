@@ -1416,8 +1416,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return null;
     }
 
+    FragmentManagerImpl createChildFragmentManager() {
+        return new FragmentManagerImpl();
+    }
+
     void instantiateChildFragmentManager() {
-        mChildFragmentManager = new FragmentManagerImpl();
+        mChildFragmentManager = createChildFragmentManager();
         mChildFragmentManager.attachActivity(mActivity, new FragmentContainer() {
             @Override
             public View findViewById(int id) {
