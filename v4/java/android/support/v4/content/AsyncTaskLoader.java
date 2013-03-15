@@ -200,6 +200,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         onCanceled(data);
         if (mCancellingTask == task) {
             if (DEBUG) Log.v(TAG, "Cancelled task is now canceled!");
+            rollbackContentChanged();
             mLastLoadCompleteTime = SystemClock.uptimeMillis();
             mCancellingTask = null;
             executePendingTask();
@@ -215,6 +216,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
                 // This cursor has been abandoned; just cancel the new data.
                 onCanceled(data);
             } else {
+                commitContentChanged();
                 mLastLoadCompleteTime = SystemClock.uptimeMillis();
                 mTask = null;
                 if (DEBUG) Log.v(TAG, "Delivering result");
