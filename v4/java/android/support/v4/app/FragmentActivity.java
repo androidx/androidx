@@ -720,14 +720,14 @@ public class FragmentActivity extends Activity {
     /**
      * Returns a {@link MenuInflater} with this context.
      */
-    public MenuInflater getSupportMenuInflater() {
+    public MenuInflater getCompatMenuInflater() {
         if (mMenuInflater == null) {
-            mMenuInflater = createSupportMenuInflater();
+            mMenuInflater = createCompatMenuInflater();
         }
         return mMenuInflater;
     }
 
-    MenuInflater createSupportMenuInflater() {
+    MenuInflater createCompatMenuInflater() {
         return null;
     }
 
