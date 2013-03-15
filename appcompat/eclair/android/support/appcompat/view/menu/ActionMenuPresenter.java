@@ -17,6 +17,7 @@
 package android.support.appcompat.view.menu;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Parcel;
@@ -189,6 +190,10 @@ public class ActionMenuPresenter extends BaseMenuPresenter
     public void updateMenuView(boolean cleared) {
         super.updateMenuView(cleared);
 
+        if (mMenuView == null) {
+            return;
+        }
+
         if (mMenu != null) {
             final ArrayList<MenuItemImpl> actionItems = mMenu.getActionItems();
             final int count = actionItems.size();
@@ -258,9 +263,8 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         }
 
         mOpenSubMenuId = subMenu.getItem().getItemId();
-        mActionButtonPopup = new ActionButtonSubmenu(mContext, subMenu);
-        mActionButtonPopup.setAnchorView(anchor);
-        mActionButtonPopup.show();
+        mActionButtonPopup = new ActionButtonSubmenu(subMenu);
+        mActionButtonPopup.show(null);
         super.onSubMenuSelected(subMenu);
         return true;
     }
@@ -612,37 +616,16 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         }
     }
 
-    private class ActionButtonSubmenu extends MenuPopupHelper {
+    private class ActionButtonSubmenu extends MenuDialogHelper {
 
-        private SubMenuBuilder mSubMenu;
-
-        public ActionButtonSubmenu(Context context, SubMenuBuilder subMenu) {
-            super(context, subMenu);
-            mSubMenu = subMenu;
-
-            MenuItemImpl item = (MenuItemImpl) subMenu.getItem();
-            if (!item.isActionButton()) {
-                // Give a reasonable anchor to nested submenus.
-                setAnchorView(mOverflowButton == null ? (View) mMenuView : mOverflowButton);
-            }
-
+        public ActionButtonSubmenu(SubMenuBuilder subMenu) {
+            super(subMenu);
             setCallback(mPopupPresenterCallback);
-
-            boolean preserveIconSpacing = false;
-            final int count = subMenu.size();
-            for (int i = 0; i < count; i++) {
-                MenuItem childItem = subMenu.getItem(i);
-                if (childItem.isVisible() && childItem.getIcon() != null) {
-                    preserveIconSpacing = true;
-                    break;
-                }
-            }
-            setForceShowIcon(preserveIconSpacing);
         }
 
         @Override
-        public void onDismiss() {
-            super.onDismiss();
+        public void onDismiss(DialogInterface dialog) {
+            super.onDismiss(dialog);
             mActionButtonPopup = null;
             mOpenSubMenuId = 0;
         }
