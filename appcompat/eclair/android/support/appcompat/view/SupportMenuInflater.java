@@ -26,6 +26,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.support.v4.view.Menu;
+import android.support.v4.view.MenuInflater;
+import android.support.v4.view.MenuItem;
+import android.support.v4.view.SubMenu;
+import android.support.v4.view.ActionProvider;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
@@ -41,12 +46,12 @@ import java.lang.reflect.Method;
  * <p>
  * For performance reasons, menu inflation relies heavily on pre-processing of
  * XML files that is done at build time. Therefore, it is not currently possible
- * to use MenuInflater with an XmlPullParser over a plain XML file at runtime;
+ * to use SupportMenuInflater with an XmlPullParser over a plain XML file at runtime;
  * it only works with an XmlPullParser returned from a compiled resource (R.
  * <em>something</em> file.)
  */
-public class MenuInflater {
-    private static final String LOG_TAG = "MenuInflater";
+public class SupportMenuInflater implements MenuInflater {
+    private static final String LOG_TAG = "SupportMenuInflater";
 
     /** Menu tag name in XML. */
     private static final String XML_MENU = "menu";
@@ -76,7 +81,7 @@ public class MenuInflater {
      *
      * @see Activity#getMenuInflater()
      */
-    public MenuInflater(Context context) {
+    public SupportMenuInflater(Context context) {
         mContext = context;
         mRealOwner = context;
         mActionViewConstructorArguments = new Object[] {context};
@@ -89,7 +94,7 @@ public class MenuInflater {
      * @see Activity#getMenuInflater()
      * @hide
      */
-    public MenuInflater(Context context, Object realOwner) {
+    public SupportMenuInflater(Context context, Object realOwner) {
         mContext = context;
         mRealOwner = realOwner;
         mActionViewConstructorArguments = new Object[] {context};
@@ -105,6 +110,7 @@ public class MenuInflater {
      * @param menu The Menu to inflate into. The items and submenus will be
      *            added to this Menu.
      */
+    @Override
     public void inflate(int menuRes, Menu menu) {
         XmlResourceParser parser = null;
         try {

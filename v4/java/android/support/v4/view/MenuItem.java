@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.appcompat.view;
+package android.support.v4.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -29,7 +29,7 @@ import android.view.View.OnCreateContextMenuListener;
  * <p>An Item is returned by calling one of the {@link android.view.Menu#add}
  * methods.
  *
- * <p>For a feature set of specific menu types, see {@link android.support.appcompat.view.Menu}.
+ * <p>For a feature set of specific menu types, see {@link Menu}.
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
@@ -73,8 +73,7 @@ public interface MenuItem {
     /**
      * Interface definition for a callback to be invoked when a menu item is clicked.
      *
-     * @see Activity#onContextItemSelected(MenuItem)
-     * @see Activity#onOptionsItemSelected(MenuItem)
+     * @see android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)
      */
     public interface OnMenuItemClickListener {
 
@@ -142,11 +141,11 @@ public interface MenuItem {
      * integer; set by or/add the category with the order within the
      * category) and the ordering of the item within that category (the
      * lower bits). Example categories are
-     * {@link android.support.appcompat.view.Menu#CATEGORY_SYSTEM},
-     * {@link android.support.appcompat.view.Menu#CATEGORY_SECONDARY}, {@link
-     * android.support.appcompat.view.Menu#CATEGORY_ALTERNATIVE}, {@link
-     * android.support.appcompat.view.Menu#CATEGORY_CONTAINER}. See {@link
-     * android.support.appcompat.view.Menu} for a full list.
+     * {@link Menu#CATEGORY_SYSTEM},
+     * {@link Menu#CATEGORY_SECONDARY}, {@link
+     * Menu#CATEGORY_ALTERNATIVE}, {@link
+     * Menu#CATEGORY_CONTAINER}. See {@link
+     * Menu} for a full list.
      *
      * @return The order of this item.
      */
@@ -163,7 +162,7 @@ public interface MenuItem {
     /**
      * Change the title associated with this item. <p/> Some menu types do not sufficient space to
      * show the full title, and instead a condensed title is preferred. See {@link
-     * android.support.appcompat.view.Menu} for more information.
+     * Menu} for more information.
      *
      * @param title The resource id of the new text to be displayed.
      * @return This Item so additional setters can be called.
@@ -198,7 +197,7 @@ public interface MenuItem {
 
     /**
      * Change the icon associated with this item. This icon will not always be shown, so the title
-     * should be sufficient in describing this item. See {@link android.support.appcompat.view.Menu}
+     * should be sufficient in describing this item. See {@link Menu}
      * for the menu types that support icons.
      *
      * @param icon The new icon (as a Drawable) to be displayed.
@@ -208,7 +207,7 @@ public interface MenuItem {
 
     /**
      * Change the icon associated with this item. This icon will not always be shown, so the title
-     * should be sufficient in describing this item. See {@link android.support.appcompat.view.Menu}
+     * should be sufficient in describing this item. See {@link Menu}
      * for the menu types that support icons. <p/> This method will set the resource ID of the icon
      * which will be used to lazily get the Drawable when this item is being shown.
      *
@@ -232,7 +231,7 @@ public interface MenuItem {
      * {@link android.content.Context#startActivity} with the given Intent.
      *
      * <p>Note that setIntent() can not be used with the versions of
-     * {@link android.support.appcompat.view.Menu#add} that take a Runnable, because
+     * {@link Menu#add} that take a Runnable, because
      * {@link Runnable#run} does not return a value so there is no way to tell if it handled the
      * item.  In this case it is assumed that the Runnable always handles
      * the item, and the intent will never be started.
@@ -261,7 +260,7 @@ public interface MenuItem {
      * shortcut characters will be displayed in lower case.
      *
      * <p>See {@link
-     * android.support.appcompat.view.Menu} for the menu types that support shortcuts.
+     * Menu} for the menu types that support shortcuts.
      *
      * @param numericChar The numeric shortcut key. This is the shortcut when using a numeric (e.g.,
      *                    12-key) keyboard.
@@ -273,7 +272,7 @@ public interface MenuItem {
 
     /**
      * Change the numeric shortcut associated with this item. <p/> See {@link
-     * android.support.appcompat.view.Menu} for the menu types that support shortcuts.
+     * Menu} for the menu types that support shortcuts.
      *
      * @param numericChar The numeric shortcut key.  This is the shortcut when using a 12-key
      *                    (numeric) keyboard.
@@ -296,7 +295,7 @@ public interface MenuItem {
      * with the characters '\b' or '\n' as shortcuts will get triggered by the
      * Delete key or Carriage Return key, respectively.
      *
-     * <p></p>See {@link android.support.appcompat.view.Menu} for the menu types that support
+     * <p></p>See {@link Menu} for the menu types that support
      * shortcuts.
      *
      * @param alphaChar The alphabetic shortcut key. This is the shortcut when using a keyboard with
@@ -315,14 +314,14 @@ public interface MenuItem {
     /**
      * Control whether this item can display a check mark. Setting this does not actually display a
      * check mark (see {@link #setChecked} for that); rather, it ensures there is room in the item
-     * in which to display a check mark. <p/> See {@link android.support.appcompat.view.Menu} for
+     * in which to display a check mark. <p/> See {@link Menu} for
      * the menu types that support check marks.
      *
      * @param checkable Set to true to allow a check mark, false to disallow. The default is false.
      * @return This Item so additional setters can be called.
      * @see #setChecked
      * @see #isCheckable
-     * @see android.support.appcompat.view.Menu#setGroupCheckable
+     * @see Menu#setGroupCheckable
      */
     public MenuItem setCheckable(boolean checkable);
 
@@ -338,10 +337,10 @@ public interface MenuItem {
      * Control whether this item is shown with a check mark.  Note that you
      * must first have enabled checking with {@link #setCheckable} or else
      * the check mark will not appear.  If this item is a member of a group that contains
-     * mutually-exclusive items (set via {@link android.support.appcompat.view.Menu#setGroupCheckable(int, boolean, boolean)},
+     * mutually-exclusive items (set via {@link Menu#setGroupCheckable(int, boolean, boolean)},
      * the other items in the group will be unchecked.
      *
-     * <p>See {@link android.support.appcompat.view.Menu} for the menu types that support check
+     * <p>See {@link Menu} for the menu types that support check
      * marks.
      *
      * @param checked Set to true to display a check mark, false to hide it.  The default value is
@@ -349,7 +348,7 @@ public interface MenuItem {
      * @return This Item so additional setters can be called.
      * @see #setCheckable
      * @see #isChecked
-     * @see android.support.appcompat.view.Menu#setGroupCheckable
+     * @see Menu#setGroupCheckable
      */
     public MenuItem setChecked(boolean checked);
 
@@ -411,13 +410,12 @@ public interface MenuItem {
 
     /**
      * Set a custom listener for invocation of this menu item. In most situations, it is more
-     * efficient and easier to use {@link Activity#onOptionsItemSelected(MenuItem)} or {@link
-     * Activity#onContextItemSelected(MenuItem)}.
+     * efficient and easier to use
+     * {@link android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)}.
      *
      * @param menuItemClickListener The object to receive invokations.
      * @return This Item so additional setters can be called.
-     * @see Activity#onOptionsItemSelected(MenuItem)
-     * @see Activity#onContextItemSelected(MenuItem)
+     * @see android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)
      */
     public MenuItem setOnMenuItemClickListener(
             MenuItem.OnMenuItemClickListener menuItemClickListener);
