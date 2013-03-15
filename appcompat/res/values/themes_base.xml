@@ -131,8 +131,23 @@
     <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
         <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
         <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
+        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
 
-        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse</item>
+        <item name="actionBarWidgetTheme">@style/Theme.AppCompat</item>
+        <item name="actionBarItemBackground">@drawable/item_background_holo_dark</item>
+        <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView.Inverse
+        </item>
+        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.Light.ActionBar.TabBar.Inverse
+        </item>
+        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.Light.ActionBar.TabText.Inverse
+        </item>
+        <item name="actionMenuTextColor">?android:attr/textColorPrimaryInverse</item>
+        <!-- <item name="actionModeStyle">@style/Widget.AppCompat.Light.ActionMode.Inverse</item> -->
+
+        <!-- Dropdown Spinner Attributes -->
+        <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
+
     </style>
 
     <!-- Menu/item attributes -->
