@@ -582,7 +582,9 @@ public class SlidingPaneLayout extends ViewGroup {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         // Recalculate sliding panes and their details
-        mFirstLayout = true;
+        if (w != oldw) {
+            mFirstLayout = true;
+        }
     }
 
     @Override
@@ -1058,8 +1060,10 @@ public class SlidingPaneLayout extends ViewGroup {
             if (mDragHelper.getViewDragState() == ViewDragHelper.STATE_IDLE) {
                 if (mSlideOffset == 0) {
                     dispatchOnPanelClosed(mSlideableView);
+                    mPreservedOpenState = false;
                 } else {
                     dispatchOnPanelOpened(mSlideableView);
+                    mPreservedOpenState = true;
                 }
             }
         }
