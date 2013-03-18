@@ -19,6 +19,20 @@
 
 #include "rsAllocation.h"
 
+#ifndef RS_COMPATIBILITY_LIB
+namespace llvm {
+
+class Module;
+
+}  // end namespace llvm
+
+namespace bcc {
+
+class RSScript;
+typedef llvm::Module* (*RSLinkRuntimeCallback) (bcc::RSScript *, llvm::Module *, llvm::Module *);
+
+}  // end namespace bcc;
+#endif
 
 namespace android {
 namespace renderscript {

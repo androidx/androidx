@@ -80,6 +80,8 @@ public:
     };
     Hal mHal;
 
+    void operator delete(void* ptr);
+
     static Allocation * createAllocation(Context *rsc, const Type *, uint32_t usages,
                                          RsAllocationMipmapControl mc = RS_ALLOCATION_MIPMAP_NONE,
                                          void *ptr = 0);
