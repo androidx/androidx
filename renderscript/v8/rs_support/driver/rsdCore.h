@@ -52,6 +52,8 @@ typedef struct RsdHalRec {
 } RsdHal;
 
 void rsdLaunchThreads(android::renderscript::Context *rsc, WorkerCallback_t cbk, void *data);
+void* rsdAllocRuntimeMem(size_t size, uint32_t flags);
+void rsdFreeRuntimeMem(void* ptr);
 
 #endif
 

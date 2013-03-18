@@ -19,6 +19,16 @@
 #include "rsdCore.h"
 #include "rsdAllocation.h"
 #include "rsdBcc.h"
+#ifndef RS_COMPATIBILITY_LIB
+    #include "rsdGL.h"
+    #include "rsdPath.h"
+    #include "rsdProgramStore.h"
+    #include "rsdProgramRaster.h"
+    #include "rsdProgramVertex.h"
+    #include "rsdProgramFragment.h"
+    #include "rsdMesh.h"
+    #include "rsdFrameBuffer.h"
+#endif
 #include "rsdSampler.h"
 #include "rsdScriptGroup.h"
 
@@ -38,15 +48,24 @@ using namespace android::renderscript;
 static void Shutdown(Context *rsc);
 static void SetPriority(const Context *rsc, int32_t priority);
 
+#ifndef RS_COMPATIBILITY_LIB
+    #define NATIVE_FUNC(a) a
+#else
+    #define NATIVE_FUNC(a) NULL
+#endif
+
+
 static RsdHalFunctions FunctionTable = {
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NATIVE_FUNC(rsdGLInit),
+    NATIVE_FUNC(rsdGLShutdown),
+    NATIVE_FUNC(rsdGLSetSurface),
+    NATIVE_FUNC(rsdGLSwap),
 
     Shutdown,
     NULL,
     SetPriority,
+    rsdAllocRuntimeMem,
+    rsdFreeRuntimeMem,
     {
         rsdScriptInit,
         rsdInitIntrinsic,
@@ -68,10 +87,10 @@ static RsdHalFunctions FunctionTable = {
         rsdAllocationResize,
         rsdAllocationSyncAll,
         rsdAllocationMarkDirty,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+        NATIVE_FUNC(rsdAllocationGetSurface),
+        NATIVE_FUNC(rsdAllocationSetSurface),
+        NATIVE_FUNC(rsdAllocationIoSend),
+        NATIVE_FUNC(rsdAllocationIoReceive),
         rsdAllocationData1D,
         rsdAllocationData2D,
         rsdAllocationData3D,
@@ -90,40 +109,40 @@ static RsdHalFunctions FunctionTable = {
 
 
     {
-        NULL,
-        NULL,
-        NULL
+        NATIVE_FUNC(rsdProgramStoreInit),
+        NATIVE_FUNC(rsdProgramStoreSetActive),
+        NATIVE_FUNC(rsdProgramStoreDestroy)
     },
 
     {
-        NULL,
-        NULL,
-        NULL
+        NATIVE_FUNC(rsdProgramRasterInit),
+        NATIVE_FUNC(rsdProgramRasterSetActive),
+        NATIVE_FUNC(rsdProgramRasterDestroy)
     },
 
     {
-        NULL,
-        NULL,
-        NULL
+        NATIVE_FUNC(rsdProgramVertexInit),
+        NATIVE_FUNC(rsdProgramVertexSetActive),
+        NATIVE_FUNC(rsdProgramVertexDestroy)
     },
 
     {
-        NULL,
-        NULL,
-        NULL
+        NATIVE_FUNC(rsdProgramFragmentInit),
+        NATIVE_FUNC(rsdProgramFragmentSetActive),
+        NATIVE_FUNC(rsdProgramFragmentDestroy)
     },
 
     {
-        NULL,
-        NULL,
-        NULL
+        NATIVE_FUNC(rsdMeshInit),
+        NATIVE_FUNC(rsdMeshDraw),
+        NATIVE_FUNC(rsdMeshDestroy)
     },
 
     {
-        NULL,
-        NULL,
-        NULL,
-        NULL
+        NATIVE_FUNC(rsdPathInitStatic),
+        NATIVE_FUNC(rsdPathInitDynamic),
+        NATIVE_FUNC(rsdPathDraw),
+        NATIVE_FUNC(rsdPathDestroy)
     },
 
     {
@@ -132,9 +151,9 @@ static RsdHalFunctions FunctionTable = {
     },
 
     {
-        NULL,
-        NULL,
-        NULL
+        NATIVE_FUNC(rsdFrameBufferInit),
+        NATIVE_FUNC(rsdFrameBufferSetActive),
+        NATIVE_FUNC(rsdFrameBufferDestroy)
     },
 
     {
@@ -183,9 +202,11 @@ void SetPriority(const Context *rsc, int32_t priority) {
 
     dc->mCpuRef->setPriority(priority);
 
+#ifndef RS_COMPATIBILITY_LIB
     if (dc->mHasGraphics) {
-        //rsdGLSetPriority(rsc, priority);
+        rsdGLSetPriority(rsc, priority);
     }
+#endif
 }
 
 void Shutdown(Context *rsc) {
@@ -194,3 +215,11 @@ void Shutdown(Context *rsc) {
     rsc->mHal.drv = NULL;
 }
 
+void* rsdAllocRuntimeMem(size_t size, uint32_t flags) {
+    void* buffer = calloc(size, sizeof(char));
+    return buffer;
+}
+
+void rsdFreeRuntimeMem(void* ptr) {
+    free(ptr);
+}

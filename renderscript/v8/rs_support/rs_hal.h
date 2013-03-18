@@ -87,7 +87,8 @@ typedef struct {
     void (*getVersion)(unsigned int *major, unsigned int *minor);
     void (*setPriority)(const Context *, int32_t priority);
 
-
+    void* (*allocRuntimeMem)(size_t size, uint32_t flags);
+    void (*freeRuntimeMem)(void* ptr);
 
     struct {
         bool (*init)(const Context *rsc, ScriptC *s,

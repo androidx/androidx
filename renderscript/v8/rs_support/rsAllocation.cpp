@@ -39,9 +39,24 @@ Allocation::Allocation(Context *rsc, const Type *type, uint32_t usages,
     updateCache();
 }
 
+void Allocation::operator delete(void* ptr) {
+    if (ptr) {
+        Allocation *a = (Allocation*) ptr;
+        a->getContext()->mHal.funcs.freeRuntimeMem(ptr);
+    }
+}
+
 Allocation * Allocation::createAllocation(Context *rsc, const Type *type, uint32_t usages,
                               RsAllocationMipmapControl mc, void * ptr) {
-    Allocation *a = new Allocation(rsc, type, usages, mc, ptr);
+    // Allocation objects must use allocator specified by the driver
+    void* allocMem = rsc->mHal.funcs.allocRuntimeMem(sizeof(Allocation), 0);
+
+    if (!allocMem) {
+        rsc->setError(RS_ERROR_FATAL_DRIVER, "Couldn't allocate memory for Allocation");
+        return NULL;
+    }
+
+    Allocation *a = new (allocMem) Allocation(rsc, type, usages, mc, ptr);
 
     if (!rsc->mHal.funcs.allocation.init(rsc, a, type->getElement()->getHasReferences())) {
         rsc->setError(RS_ERROR_FATAL_DRIVER, "Allocation::Allocation, alloc failure");

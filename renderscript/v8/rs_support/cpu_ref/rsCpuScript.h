@@ -39,10 +39,12 @@ public:
         const RsForEachStubParamStruct *,
         uint32_t x1, uint32_t x2,
         uint32_t instep, uint32_t outstep);
+#ifdef RS_COMPATIBILITY_LIB
     typedef void (* InvokeFunc_t)(void);
     typedef void (* ForEachFunc_t)(void);
     typedef int (* RootFunc_t)(void);
     typedef void (*WorkerCallback_t)(void *usr, uint32_t idx);
+#endif
 
     bool init(char const *resName, char const *cacheDir,
               uint8_t const *bitcode, size_t bitcodeSize, uint32_t flags);
@@ -90,6 +92,16 @@ protected:
     RsdCpuReferenceImpl *mCtx;
     const Script *mScript;
 
+#ifndef RS_COMPATIBILITY_LIB
+    int (*mRoot)();
+    int (*mRootExpand)();
+    void (*mInit)();
+    void (*mFreeChildren)();
+
+    bcc::BCCContext *mCompilerContext;
+    bcc::RSCompilerDriver *mCompilerDriver;
+    bcc::RSExecutable *mExecutable;
+#else
     void *mScriptSO;
     RootFunc_t mRoot;
     RootFunc_t mRootExpand;
@@ -102,15 +114,17 @@ protected:
     bool *mFieldIsObject;
     uint32_t *mForEachSignatures;
 
-    Allocation **mBoundAllocs;
-    void * mIntrinsicData;
-    bool mIsThreadable;
-
     // for populate script
     //int mVersionMajor;
     //int mVersionMinor;
     size_t mExportedVariableCount;
     size_t mExportedFunctionCount;
+#endif
+
+    Allocation **mBoundAllocs;
+    void * mIntrinsicData;
+    bool mIsThreadable;
+
 };
 
 
