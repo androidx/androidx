@@ -2009,68 +2009,6 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    boolean dispatchCreateSupportOptionsMenu(android.support.v4.view.Menu menu,
-            android.support.v4.view.MenuInflater inflater) {
-        boolean show = false;
-        ArrayList<Fragment> newMenus = null;
-        if (mAdded != null) {
-            for (int i = 0; i < mAdded.size(); i++) {
-                Fragment f = mAdded.get(i);
-                if (f != null) {
-                    if (f.performCreateSupportOptionsMenu(menu, inflater)) {
-                        show = true;
-                        if (newMenus == null) {
-                            newMenus = new ArrayList<Fragment>();
-                        }
-                    }
-                    newMenus.add(f);
-                }
-            }
-        }
-
-        if (mCreatedMenus != null) {
-            for (int i = 0; i < mCreatedMenus.size(); i++) {
-                Fragment f = mCreatedMenus.get(i);
-                if (newMenus == null || !newMenus.contains(f)) {
-                    f.onDestroyOptionsMenu();
-                }
-            }
-        }
-
-        mCreatedMenus = newMenus;
-
-        return show;
-    }
-
-    boolean dispatchPrepareSupportOptionsMenu(android.support.v4.view.Menu menu) {
-        boolean show = false;
-        if (mAdded != null) {
-            for (int i = 0; i < mAdded.size(); i++) {
-                Fragment f = mAdded.get(i);
-                if (f != null) {
-                    if (f.performPrepareSupportOptionsMenu(menu)) {
-                        show = true;
-                    }
-                }
-            }
-        }
-        return show;
-    }
-
-    boolean dispatchSupportOptionsItemSelected(android.support.v4.view.MenuItem item) {
-        if (mAdded != null) {
-            for (int i = 0; i < mAdded.size(); i++) {
-                Fragment f = mAdded.get(i);
-                if (f!= null) {
-                    if (f.performSupportOptionsItemSelected(item)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    
     public static int reverseTransit(int transit) {
         int rev = 0;
         switch (transit) {
