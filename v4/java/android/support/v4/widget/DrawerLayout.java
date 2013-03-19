@@ -1031,6 +1031,9 @@ public class DrawerLayout extends ViewGroup {
                 openDrawer(toOpen);
             }
         }
+
+        setDrawerLockMode(ss.lockModeLeft, Gravity.LEFT);
+        setDrawerLockMode(ss.lockModeRight, Gravity.RIGHT);
     }
 
     @Override
@@ -1054,6 +1057,9 @@ public class DrawerLayout extends ViewGroup {
             }
         }
 
+        ss.lockModeLeft = mLockModeLeft;
+        ss.lockModeRight = mLockModeRight;
+
         return ss;
     }
 
@@ -1062,6 +1068,8 @@ public class DrawerLayout extends ViewGroup {
      */
     protected static class SavedState extends BaseSavedState {
         int openDrawerGravity = Gravity.NO_GRAVITY;
+        int lockModeLeft = LOCK_MODE_UNLOCKED;
+        int lockModeRight = LOCK_MODE_UNLOCKED;
 
         public SavedState(Parcel in) {
             super(in);
