@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package android.support.v4.media;
+package android.support.v7.media;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Build;
+import android.support.v7.mediarouter.R;
 import android.util.Log;
 import android.view.Display;
 
@@ -122,9 +124,9 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         private void publishRoutes() {
-            // TODO: get route names from resources
-            // TODO: add an icon for the route
-            RouteDescriptor defaultRoute = new RouteDescriptor(DEFAULT_ROUTE_ID, "System");
+            Resources r = getContext().getResources();
+            RouteDescriptor defaultRoute = new RouteDescriptor(
+                    DEFAULT_ROUTE_ID, r.getString(R.string.system_route_name));
             defaultRoute.setControlFilters(CONTROL_FILTERS);
             defaultRoute.setPlaybackStream(PLAYBACK_STREAM);
             defaultRoute.setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL);
@@ -248,9 +250,9 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             mCallbackObj = createCallbackObj();
             mVolumeCallbackObj = createVolumeCallbackObj();
 
-            // TODO: get category name from a resource
+            Resources r = context.getResources();
             mUserRouteCategoryObj = MediaRouterJellybean.createRouteCategory(
-                    mRouterObj, "Devices", false);
+                    mRouterObj, r.getString(R.string.user_route_category_name), false);
 
             addInitialSystemRoutes();
             MediaRouterJellybean.addCallback(mRouterObj, ALL_ROUTE_TYPES, mCallbackObj);

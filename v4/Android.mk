@@ -14,9 +14,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Note: the source code is in java/, not src/, because this code is also part of
-# the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
-
 # A helper sub-library that makes direct use of Eclair APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-eclair

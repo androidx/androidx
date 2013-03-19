@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.media;
+package android.support.v7.media;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.support.v4.media.MediaRouter.ControlRequestCallback;
+import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.text.TextUtils;
 
 import java.util.concurrent.CopyOnWriteArrayList;

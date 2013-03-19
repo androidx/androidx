@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.media;
+package android.support.v7.media;
 
 import android.app.Service;
 import android.content.Intent;
@@ -26,7 +26,7 @@ import android.os.DeadObjectException;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v4.media.MediaRouteProvider.ProviderDescriptor;
+import android.support.v7.media.MediaRouteProvider.ProviderDescriptor;
 import android.util.Log;
 import android.util.SparseArray;
 
