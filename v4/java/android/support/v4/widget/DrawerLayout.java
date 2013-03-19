@@ -554,9 +554,15 @@ public class DrawerLayout extends ViewGroup {
                 continue;
             }
 
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
             if (isContentView(child)) {
                 // Content views get measured at exactly the layout's size.
-                child.measure(widthMeasureSpec, heightMeasureSpec);
+                final int contentWidthSpec = MeasureSpec.makeMeasureSpec(
+                        widthSize - lp.leftMargin - lp.rightMargin, MeasureSpec.EXACTLY);
+                final int contentHeightSpec = MeasureSpec.makeMeasureSpec(
+                        heightSize - lp.topMargin - lp.bottomMargin, MeasureSpec.EXACTLY);
+                child.measure(contentWidthSpec, contentHeightSpec);
             } else if (isDrawerView(child)) {
                 final int childGravity =
                         getDrawerViewGravity(child) & Gravity.HORIZONTAL_GRAVITY_MASK;
@@ -565,9 +571,13 @@ public class DrawerLayout extends ViewGroup {
                             gravityToString(childGravity) + " but this " + TAG + " already has a " +
                             "drawer view along that edge");
                 }
-                final int drawerWidthSpec = getChildMeasureSpec(widthMeasureSpec, mMinDrawerMargin,
-                        child.getLayoutParams().width);
-                child.measure(drawerWidthSpec, heightMeasureSpec);
+                final int drawerWidthSpec = getChildMeasureSpec(widthMeasureSpec,
+                        mMinDrawerMargin + lp.leftMargin + lp.rightMargin,
+                        lp.width);
+                final int drawerHeightSpec = getChildMeasureSpec(heightMeasureSpec,
+                        lp.topMargin + lp.bottomMargin,
+                        lp.height);
+                child.measure(drawerWidthSpec, drawerHeightSpec);
             } else {
                 throw new IllegalStateException("Child " + child + " at index " + i +
                         " does not have a valid layout_gravity - must be Gravity.LEFT, " +
@@ -587,12 +597,15 @@ public class DrawerLayout extends ViewGroup {
                 continue;
             }
 
-            if (isContentView(child)) {
-                child.layout(0, 0, child.getMeasuredWidth(), child.getMeasuredHeight());
-            } else { // Drawer, if it wasn't onMeasure would have thrown an exception.
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
+            if (isContentView(child)) {
+                child.layout(lp.leftMargin, lp.topMargin,
+                        lp.leftMargin + child.getMeasuredWidth(),
+                        lp.topMargin + child.getMeasuredHeight());
+            } else { // Drawer, if it wasn't onMeasure would have thrown an exception.
                 final int childWidth = child.getMeasuredWidth();
+                final int childHeight = child.getMeasuredHeight();
                 int childLeft;
 
                 if (checkDrawerViewGravity(child, Gravity.LEFT)) {
@@ -601,7 +614,40 @@ public class DrawerLayout extends ViewGroup {
                     childLeft = r - l - (int) (childWidth * lp.onScreen);
                 }
 
-                child.layout(childLeft, 0, childLeft + childWidth, child.getMeasuredHeight());
+                final int vgrav = lp.gravity & Gravity.VERTICAL_GRAVITY_MASK;
+
+                switch (vgrav) {
+                    default:
+                    case Gravity.TOP: {
+                        child.layout(childLeft, lp.topMargin, childLeft + childWidth, childHeight);
+                        break;
+                    }
+
+                    case Gravity.BOTTOM: {
+                        final int height = b - t;
+                        child.layout(childLeft,
+                                height - lp.bottomMargin - child.getMeasuredHeight(),
+                                childLeft + childWidth,
+                                height - lp.bottomMargin);
+                        break;
+                    }
+
+                    case Gravity.CENTER_VERTICAL: {
+                        final int height = b - t;
+                        int childTop = (height - childHeight) / 2;
+
+                        // Offset for margins. If things don't fit right because of
+                        // bad measurement before, oh well.
+                        if (childTop < lp.topMargin) {
+                            childTop = lp.topMargin;
+                        } else if (childTop + childHeight > height - lp.bottomMargin) {
+                            childTop = height - lp.bottomMargin - childHeight;
+                        }
+                        child.layout(childLeft, childTop, childLeft + childWidth,
+                                childTop + childHeight);
+                        break;
+                    }
+                }
 
                 if (lp.onScreen == 0) {
                     child.setVisibility(INVISIBLE);
@@ -645,6 +691,7 @@ public class DrawerLayout extends ViewGroup {
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        final int height = getHeight();
         final boolean drawingContent = isContentView(child);
         int clipLeft = 0, clipRight = getWidth();
 
@@ -654,7 +701,8 @@ public class DrawerLayout extends ViewGroup {
             for (int i = 0; i < childCount; i++) {
                 final View v = getChildAt(i);
                 if (v == child || v.getVisibility() != VISIBLE ||
-                        !hasOpaqueBackground(v) || !isDrawerView(v)) {
+                        !hasOpaqueBackground(v) || !isDrawerView(v) ||
+                        v.getHeight() < height) {
                     continue;
                 }
 
@@ -971,6 +1019,8 @@ public class DrawerLayout extends ViewGroup {
     protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         return p instanceof LayoutParams
                 ? new LayoutParams((LayoutParams) p)
+                : p instanceof ViewGroup.MarginLayoutParams
+                ? new LayoutParams((MarginLayoutParams) p)
                 : new LayoutParams(p);
     }
 
@@ -1233,9 +1283,14 @@ public class DrawerLayout extends ViewGroup {
                 return Math.max(width - child.getWidth(), Math.min(left, width));
             }
         }
+
+        @Override
+        public int clampViewPositionVertical(View child, int top, int dy) {
+            return child.getTop();
+        }
     }
 
-    public static class LayoutParams extends ViewGroup.LayoutParams {
+    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
 
         public int gravity = Gravity.NO_GRAVITY;
         float onScreen;
@@ -1265,6 +1320,10 @@ public class DrawerLayout extends ViewGroup {
         }
 
         public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
+
+        public LayoutParams(ViewGroup.MarginLayoutParams source) {
             super(source);
         }
     }
