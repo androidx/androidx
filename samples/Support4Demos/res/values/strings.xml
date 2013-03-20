@@ -32,7 +32,9 @@
     <string name="violet">Violet</string>
     <string name="receive_result_instructions">Press the button to get an activity result, which will be displayed here:</string>
     <string name="receive_result_result">Get Result</string>
-    
+
+    <!-- Fragment API -->
+
     <string name="fragment_alert_dialog_support">Fragment/Alert Dialog</string>
 
     <string name="fragment_arguments_support">Fragment/Arguments</string>
@@ -136,19 +138,7 @@
 
     <string name="file_provider_example">FileProvider example</string>
 
-    <!-- MediaRouter -->
-
-    <string name="sample_media_router_activity">Media/MediaRouter</string>
-    <string name="sample_media_router_text">This activity demonstrates how to
-            use MediaRouter from the support library.  Select a route from the action bar.</string>
-    <string name="sample_media_router_play_on">Play on...</string>
-
-    <string name="play_button_text">Play</string>
-    <string name="statistics_button_text">Show Statistics</string>
-
-    <string name="sample_media_route_provider_service">Media Route Provider Service Support Library Sample</string>
-    <string name="fixed_volume_route_name">Fixed Volume Remote Playback Route</string>
-    <string name="variable_volume_route_name">Variable Volume Remote Playback Route</string>
+    <!-- Text API -->
 
     <string name="without_bidiformatter">Without BidiFormatter:</string>
     <string name="with_bidiformatter">With BidiFormatter:</string>
