@@ -60,5 +60,29 @@
                 <action android:name="android.media.MediaRouteProviderService" />
             </intent-filter>
         </service>
+
+        <!-- GridLayout Support Samples -->
+
+        <activity android:name=".view.GridLayout1" android:label="Views/Layouts/GridLayout/1. Simple Form">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".view.GridLayout2" android:label="Views/Layouts/GridLayout/2. Form (XML)">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".view.GridLayout3" android:label="Views/Layouts/GridLayout/3. Form (Java)">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
