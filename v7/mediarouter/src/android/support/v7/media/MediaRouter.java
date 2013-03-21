@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.media;
+package android.support.v7.media;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -28,9 +28,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.hardware.display.DisplayManagerCompat;
-import android.support.v4.media.MediaRouteProvider.RouteDescriptor;
-import android.support.v4.media.MediaRouteProvider.ProviderDescriptor;
-import android.support.v4.media.MediaRouteProvider.ProviderMetadata;
+import android.support.v7.media.MediaRouteProvider.RouteDescriptor;
+import android.support.v7.media.MediaRouteProvider.ProviderDescriptor;
+import android.support.v7.media.MediaRouteProvider.ProviderMetadata;
 import android.util.Log;
 import android.view.Display;
 

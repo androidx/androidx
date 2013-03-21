@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.media;
+package android.support.v7.media;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,7 +28,7 @@ import android.os.RemoteException;
 import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Messenger;
-import android.support.v4.media.MediaRouter.ControlRequestCallback;
+import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -90,7 +90,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         Intent service = new Intent(MediaRouteProviderService.SERVICE_INTERFACE);
         service.setComponent(mComponentName);
         try {
-            // TODO: Should this use BIND_ALLOW_OOM_MANAGEMENT?
             mBound = getContext().bindService(service, this, Context.BIND_AUTO_CREATE);
             if (!mBound && DEBUG) {
                 Log.d(TAG, this + ": Bind failed");
