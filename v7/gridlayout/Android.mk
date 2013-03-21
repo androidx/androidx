@@ -14,27 +14,16 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Note: the source code is in java/, not src/, because this code is also part of
-# the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
-
-# A helper sub-library that contains the R class only. Used to compiled the final library
-# without being included in it.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v7-gridlayout-r
-LOCAL_SRC_FILES := $(call all-java-files-under, gridlayout/gen)
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
 # Here is the final static library that apps can link against.
+# The R class is automatically excluded from the generated library.
+# Applications that use this library must specify LOCAL_RESOURCE_DIR
+# in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-gridlayout
-#LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, gridlayout/src)
-LOCAL_JAVA_LIBRARIES += \
-        android-support-v7-gridlayout-r
-
+LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
 $(call dist-for-goals, droidcore sdk, $(LOCAL_BUILT_MODULE):android-support-v7-gridlayout.jar)
+
