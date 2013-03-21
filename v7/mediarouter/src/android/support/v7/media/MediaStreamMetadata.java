@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package android.support.v4.media;
+package android.support.v7.media;
 
-final class MediaRouterJellybeanMr2 {
-    public static Object getDefaultRoute(Object routerObj) {
-        return ((android.media.MediaRouter)routerObj).getDefaultRoute();
+import android.os.Bundle;
+
+/**
+ * Constants for specifying metadata about a media stream as a {@link Bundle}.
+ */
+public final class MediaStreamMetadata {
+    private MediaStreamMetadata() {
     }
 }
