@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.support.v4.view.MenuInflater;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -119,8 +118,6 @@ public class FragmentActivity extends Activity {
     HashMap<String, LoaderManagerImpl> mAllLoaderManagers;
     LoaderManagerImpl mLoaderManager;
 
-    MenuInflater mMenuInflater;
-    
     static final class NonConfigurationInstances {
         Object activity;
         Object custom;
@@ -633,102 +630,6 @@ public class FragmentActivity extends Activity {
         // Whoops, older platform...  we'll use a hack, to manually rebuild
         // the options menu the next time it is prepared.
         mOptionsMenuInvalidated = true;
-    }
-
-    /**
-     * Support library version of onPrepareOptionsMenu.
-     *
-     * Prepare the Screen's standard options menu to be displayed.  This is
-     * called right before the menu is shown, every time it is shown.  You can
-     * use this method to efficiently enable/disable items or otherwise
-     * dynamically modify the contents.
-     *
-     * <p>The default implementation updates the system menu items based on the
-     * activity's state.  Deriving classes should always call through to the
-     * base class implementation.
-     *
-     * @param menu The options menu as last shown or first initialized by
-     *             onCreateSupportOptionsMenu().
-     *
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     *
-     * @see #onPrepareSupportOptionsMenu
-     * @see #onCreateSupportOptionsMenu
-     */
-    public boolean onPrepareSupportOptionsMenu(android.support.v4.view.Menu menu) {
-        return true;
-    }
-
-    /**
-     * Support library version of onCreateOptionsMenu.
-     *
-     * Initialize the contents of the Activity's standard options menu.  You
-     * should place your menu items in to <var>menu</var>.
-     *
-     * <p>This is only called once, the first time the options menu is
-     * displayed.  To update the menu every time it is displayed, see
-     * {@link #onPrepareSupportOptionsMenu}.
-     *
-     * <p>The default implementation populates the menu with standard system
-     * menu items.  These are placed in the {@link android.support.v4.view.Menu#CATEGORY_SYSTEM}
-     * group so that they will be correctly ordered with application-defined menu items.
-     * Deriving classes should always call through to the base implementation.
-     *
-     * <p>You can safely hold on to <var>menu</var> (and any items created
-     * from it), making modifications to it as desired, until the next
-     * time onCreateSupportOptionsMenu() is called.
-     *
-     * <p>When you add items to the menu, you can implement the Activity's
-     * {@link #onSupportOptionsItemSelected} method to handle them there.
-     *
-     * @param menu The options menu in which you place your items.
-     *
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     *
-     * @see #onCreateSupportOptionsMenu
-     * @see #onPrepareSupportOptionsMenu
-     * @see #onSupportOptionsItemSelected
-     */
-    public boolean onCreateSupportOptionsMenu(android.support.v4.view.Menu menu) {
-        return true;
-    }
-
-    /**
-     * This hook is called whenever an item in your options menu is selected.
-     * The default implementation simply returns false to have the normal
-     * processing happen (calling the item's Runnable or sending a message to
-     * its Handler as appropriate).  You can use this method for any items
-     * for which you would like to do processing without those other
-     * facilities.
-     *
-     * <p>Derived classes should call through to the base class for it to
-     * perform the default menu handling.</p>
-     *
-     * @param item The menu item that was selected.
-     *
-     * @return boolean Return false to allow normal menu processing to
-     *         proceed, true to consume it here.
-     *
-     * @see #onCreateSupportOptionsMenu
-     */
-    public boolean onSupportOptionsItemSelected(android.support.v4.view.MenuItem item) {
-        return false;
-    }
-
-    /**
-     * Returns a {@link MenuInflater} with this context.
-     */
-    public MenuInflater getCompatMenuInflater() {
-        if (mMenuInflater == null) {
-            mMenuInflater = createCompatMenuInflater();
-        }
-        return mMenuInflater;
-    }
-
-    MenuInflater createCompatMenuInflater() {
-        return null;
     }
 
     /**
