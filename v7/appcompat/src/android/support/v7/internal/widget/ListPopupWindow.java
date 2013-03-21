@@ -1229,7 +1229,7 @@ public class ListPopupWindow {
          * @return The next selectable position starting at position and then searching either up or
          *         down. Returns {@link #INVALID_POSITION} if nothing can be found.
          */
-        int lookForSelectablePosition(int position, boolean lookDown) {
+        private int lookForSelectablePosition(int position, boolean lookDown) {
             final ListAdapter adapter = getAdapter();
             if (adapter == null || isInTouchMode()) {
                 return INVALID_POSITION;

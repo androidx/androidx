@@ -25,6 +25,7 @@ import android.view.ContextMenu;
 import android.view.View;
 
 class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implements MenuItem {
+    private ActionProvider mActionProvider;
 
     MenuItemWrapperHC(android.view.MenuItem object) {
         super(object);
@@ -225,14 +226,15 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
 
     @Override
     public MenuItem setActionProvider(ActionProvider actionProvider) {
-        // APIv14+ API
-        return null;
+        mActionProvider = actionProvider;
+        mWrappedObject.setActionProvider(actionProvider != null ?
+                new ActionProviderWrapper(actionProvider) : null);
+        return this;
     }
 
     @Override
     public ActionProvider getActionProvider() {
-        // APIv14+ API
-        return null;
+        return mActionProvider;
     }
 
     @Override
@@ -279,6 +281,45 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
         @Override
         public boolean onMenuItemClick(android.view.MenuItem item) {
             return mWrappedObject.onMenuItemClick(getMenuItemWrapper(item));
+        }
+    }
+
+    private final class ActionProviderWrapper extends android.view.ActionProvider {
+        private final ActionProvider mInner;
+
+        public ActionProviderWrapper(ActionProvider inner) {
+            super(inner.getContext());
+            mInner = inner;
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public View onCreateActionView() {
+            return mInner.onCreateActionView();
+        }
+
+        @Override
+        public boolean isVisible() {
+            return true;
+        }
+
+        @Override
+        public void refreshVisibility() {
+        }
+
+        @Override
+        public boolean onPerformDefaultAction() {
+            return mInner.onPerformDefaultAction();
+        }
+
+        @Override
+        public boolean hasSubMenu() {
+            return mInner.hasSubMenu();
+        }
+
+        @Override
+        public void onPrepareSubMenu(android.view.SubMenu subMenu) {
+            // TODO: implement this
         }
     }
 }

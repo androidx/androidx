@@ -25,7 +25,7 @@ import android.view.View;
  * also implements other functions such a performing a default action.
  *
  * <p>An ActionProvider can be
- * optionally specified for a {@link android.support.v4.view.MenuItem} and in such a case it will be
+ * optionally specified for a {@link android.support.v7.view.MenuItem} and in such a case it will be
  * responsible for
  * creating the action view that appears in the {@link android.app.ActionBar} as a substitute for
  * the menu item when the item is displayed as an action item. Also the provider is responsible for
@@ -35,8 +35,8 @@ import android.view.View;
  *
  * <p>There are two ways for using an action provider for creating and handling of action views:
  *
- * <ul><li> Setting the action provider on a {@link android.support.v4.view.MenuItem} directly by
- * calling {@link android.support.v4.view.MenuItem#setActionProvider(ActionProvider)}. </li>
+ * <ul><li> Setting the action provider on a {@link android.support.v7.view.MenuItem} directly by
+ * calling {@link android.support.v7.view.MenuItem#setActionProvider(ActionProvider)}. </li>
  *
  * <li>Declaring the action provider in the menu XML resource. For example:
  *
@@ -51,10 +51,11 @@ import android.view.View;
  * </pre>
  * </li></ul></p>
  *
- * @see android.support.v4.view.MenuItem#setActionProvider(ActionProvider)
- * @see android.support.v4.view.MenuItem#getActionProvider()
+ * @see android.support.v7.view.MenuItem#setActionProvider(ActionProvider)
+ * @see android.support.v7.view.MenuItem#getActionProvider()
  */
 public abstract class ActionProvider {
+    private final Context mContext;
 
     private SubUiVisibilityListener mSubUiVisibilityListener;
 
@@ -64,6 +65,14 @@ public abstract class ActionProvider {
      * @param context Context for accessing resources.
      */
     public ActionProvider(Context context) {
+        mContext = context;
+    }
+
+    /**
+     * Gets the context associated with this action provider.
+     */
+    public Context getContext() {
+        return mContext;
     }
 
     /**
@@ -83,7 +92,7 @@ public abstract class ActionProvider {
      * <p> A menu item selection is processed in the following order:
      *
      * <ul><li>Receiving a call to
-     * {@link android.support.v4.view.MenuItem.OnMenuItemClickListener#onMenuItemClick
+     * {@link android.support.v7.view.MenuItem.OnMenuItemClickListener#onMenuItemClick
      * MenuItem.OnMenuItemClickListener.onMenuItemClick}.</li>
      *
      * <li>Receiving a call to
@@ -96,7 +105,7 @@ public abstract class ActionProvider {
      * Fragment.onSupportOptionsItemSelected(MenuItem)}</li>
      *
      * <li>Launching the {@link android.content.Intent} set via
-     * {@link android.support.v4.view.MenuItem#setIntent(android.content.Intent)
+     * {@link android.support.v7.view.MenuItem#setIntent(android.content.Intent)
      * MenuItem.setIntent(android.content.Intent)}
      * </li>
      *
