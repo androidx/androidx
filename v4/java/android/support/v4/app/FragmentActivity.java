@@ -615,7 +615,9 @@ public class FragmentActivity extends Activity {
     }
 
     /**
-     * Invalidate the activity's options menu. This will cause relevant presentations
+     * Support library version of {@link Activity#invalidateOptionsMenu}.
+     *
+     * <p>Invalidate the activity's options menu. This will cause relevant presentations
      * of the menu to fully update via calls to onCreateOptionsMenu and
      * onPrepareOptionsMenu the next time the menu is requested.
      */
