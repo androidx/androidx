@@ -1320,66 +1320,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return false;
     }
 
-    // SUPPORT MENU
-
-    /**
-     * Initialize the contents of the Activity's standard options menu.  You
-     * should place your menu items in to <var>menu</var>.  For this method
-     * to be called, you must have first called {@link #setHasOptionsMenu}.  See
-     * {@link android.app.Activity#onCreateOptionsMenu(android.view.Menu) Activity.onCreateOptionsMenu}
-     * for more information.
-     *
-     * @param menu The options menu in which you place your items.
-     *
-     * @see #setHasOptionsMenu
-     * @see #onPrepareSupportOptionsMenu
-     * @see #onSupportOptionsItemSelected
-     */
-    public void onCreateSupportOptionsMenu(android.support.v4.view.Menu menu,
-            android.support.v4.view.MenuInflater inflater) {
-    }
-
-    /**
-     * Prepare the Screen's standard options menu to be displayed.  This is
-     * called right before the menu is shown, every time it is shown.  You can
-     * use this method to efficiently enable/disable items or otherwise
-     * dynamically modify the contents.  See
-     * {@link android.app.Activity#onPrepareOptionsMenu(android.view.Menu) Activity.onPrepareOptionsMenu}
-     * for more information.
-     *
-     * @param menu The options menu as last shown or first initialized by
-     *             onCreateSupportOptionsMenu().
-     *
-     * @see #setHasOptionsMenu
-     * @see #onCreateSupportOptionsMenu
-     */
-    public void onPrepareSupportOptionsMenu(android.support.v4.view.Menu menu) {
-    }
-
-    /**
-     * This hook is called whenever an item in your options menu is selected.
-     * The default implementation simply returns false to have the normal
-     * processing happen (calling the item's Runnable or sending a message to
-     * its Handler as appropriate).  You can use this method for any items
-     * for which you would like to do processing without those other
-     * facilities.
-     *
-     * <p>Derived classes should call through to the base class for it to
-     * perform the default menu handling.
-     *
-     * @param item The menu item that was selected.
-     *
-     * @return boolean Return false to allow normal menu processing to
-     *         proceed, true to consume it here.
-     *
-     * @see #onCreateSupportOptionsMenu
-     */
-    public boolean onSupportOptionsItemSelected(android.support.v4.view.MenuItem item) {
-        return false;
-    }
-
-    // END SUPPORT MENU
-    
     /**
      * Print the Fragments's state into the given stream.
      *
@@ -1661,54 +1601,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 mChildFragmentManager.dispatchOptionsMenuClosed(menu);
             }
         }
-    }
-
-    boolean performCreateSupportOptionsMenu(android.support.v4.view.Menu menu,
-            android.support.v4.view.MenuInflater inflater) {
-        boolean show = false;
-        if (!mHidden) {
-            if (mHasMenu && mMenuVisible) {
-                show = true;
-                onCreateSupportOptionsMenu(menu, inflater);
-            }
-
-            if (mChildFragmentManager != null) {
-                show |= mChildFragmentManager.dispatchCreateSupportOptionsMenu(menu, inflater);
-            }
-        }
-        return show;
-    }
-
-    boolean performPrepareSupportOptionsMenu(android.support.v4.view.Menu menu) {
-        boolean show = false;
-        if (!mHidden) {
-            if (mHasMenu && mMenuVisible) {
-                show = true;
-                onPrepareSupportOptionsMenu(menu);
-            }
-
-            if (mChildFragmentManager != null) {
-                show |=  mChildFragmentManager.dispatchPrepareSupportOptionsMenu(menu);
-            }
-        }
-        return show;
-    }
-
-    boolean performSupportOptionsItemSelected(android.support.v4.view.MenuItem item) {
-        if (!mHidden) {
-            if (mHasMenu && mMenuVisible) {
-                if (onSupportOptionsItemSelected(item)) {
-                    return true;
-                }
-            }
-
-            if (mChildFragmentManager != null) {
-                if (mChildFragmentManager.dispatchSupportOptionsItemSelected(item)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     void performSaveInstanceState(Bundle outState) {
