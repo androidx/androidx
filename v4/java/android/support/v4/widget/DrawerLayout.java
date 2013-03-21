@@ -1256,6 +1256,14 @@ public class DrawerLayout extends ViewGroup {
         }
 
         @Override
+        public void onEdgeLocked(int edgeFlags) {
+            final View drawer = findDrawerWithGravity(mGravity);
+            if (drawer != null) {
+                closeDrawer(drawer);
+            }
+        }
+
+        @Override
         public void onEdgeDragStarted(int edgeFlags, int pointerId) {
             final View toCapture;
             if ((edgeFlags & ViewDragHelper.EDGE_LEFT) == ViewDragHelper.EDGE_LEFT) {
