@@ -99,6 +99,7 @@ public class ViewDragHelper {
     private float[] mLastMotionY;
     private int[] mInitialEdgesTouched;
     private int[] mEdgeDragsInProgress;
+    private int[] mEdgeDragsLocked;
 
     private VelocityTracker mVelocityTracker;
     private float mMaxVelocity;
@@ -190,6 +191,15 @@ public class ViewDragHelper {
          * @see #EDGE_BOTTOM
          */
         public void onEdgeTouched(int edgeFlags, int pointerId) {}
+
+        /**
+         * Called when the given edge has become locked. This can happen if an edge drag
+         * was preliminarily rejected before beginning, but after {@link #onEdgeTouched(int, int)}
+         * was called.
+         *
+         * @param edgeFlags A combination of edge flags describing the edge(s) locked
+         */
+        public void onEdgeLocked(int edgeFlags) {}
 
         /**
          * Called when the user has started a deliberate drag away from one
@@ -692,6 +702,7 @@ public class ViewDragHelper {
         Arrays.fill(mLastMotionY, 0);
         Arrays.fill(mInitialEdgesTouched, 0);
         Arrays.fill(mEdgeDragsInProgress, 0);
+        Arrays.fill(mEdgeDragsLocked, 0);
     }
 
     private void clearMotionHistory(int pointerId) {
@@ -704,6 +715,7 @@ public class ViewDragHelper {
         mLastMotionY[pointerId] = 0;
         mInitialEdgesTouched[pointerId] = 0;
         mEdgeDragsInProgress[pointerId] = 0;
+        mEdgeDragsLocked[pointerId] = 0;
     }
 
     private void ensureMotionHistorySizeForId(int pointerId) {
@@ -714,6 +726,7 @@ public class ViewDragHelper {
             float[] lmy = new float[pointerId + 1];
             int[] iit = new int[pointerId + 1];
             int[] edip = new int[pointerId + 1];
+            int[] edl = new int[pointerId + 1];
 
             if (mInitialMotionX != null) {
                 System.arraycopy(mInitialMotionX, 0, imx, 0, mInitialMotionX.length);
@@ -722,6 +735,7 @@ public class ViewDragHelper {
                 System.arraycopy(mLastMotionY, 0, lmy, 0, mLastMotionY.length);
                 System.arraycopy(mInitialEdgesTouched, 0, iit, 0, mInitialEdgesTouched.length);
                 System.arraycopy(mEdgeDragsInProgress, 0, edip, 0, mEdgeDragsInProgress.length);
+                System.arraycopy(mEdgeDragsLocked, 0, edl, 0, mEdgeDragsLocked.length);
             }
 
             mInitialMotionX = imx;
@@ -730,6 +744,7 @@ public class ViewDragHelper {
             mLastMotionY = lmy;
             mInitialEdgesTouched = iit;
             mEdgeDragsInProgress = edip;
+            mEdgeDragsLocked = edl;
         }
     }
 
@@ -1086,16 +1101,16 @@ public class ViewDragHelper {
 
     private void reportNewEdgeDrags(float dx, float dy, int pointerId) {
         int dragsStarted = 0;
-        if (checkNewEdgeDrag(dx, pointerId, EDGE_LEFT)) {
+        if (checkNewEdgeDrag(dx, dy, pointerId, EDGE_LEFT)) {
             dragsStarted |= EDGE_LEFT;
         }
-        if (checkNewEdgeDrag(dy, pointerId, EDGE_TOP)) {
+        if (checkNewEdgeDrag(dy, dx, pointerId, EDGE_TOP)) {
             dragsStarted |= EDGE_TOP;
         }
-        if (checkNewEdgeDrag(dx, pointerId, EDGE_RIGHT)) {
+        if (checkNewEdgeDrag(dx, dy, pointerId, EDGE_RIGHT)) {
             dragsStarted |= EDGE_RIGHT;
         }
-        if (checkNewEdgeDrag(dy, pointerId, EDGE_BOTTOM)) {
+        if (checkNewEdgeDrag(dy, dx, pointerId, EDGE_BOTTOM)) {
             dragsStarted |= EDGE_BOTTOM;
         }
 
@@ -1105,10 +1120,21 @@ public class ViewDragHelper {
         }
     }
 
-    private boolean checkNewEdgeDrag(float delta, int pointerId, int edge) {
-        return (mTrackingEdges & edge) == edge &&
-                (mInitialEdgesTouched[pointerId] & edge) == edge &&
-                Math.abs(delta) > mTouchSlop &&
+    private boolean checkNewEdgeDrag(float delta, float odelta, int pointerId, int edge) {
+        final float absDelta = Math.abs(delta);
+        final float absODelta = Math.abs(odelta);
+
+        if ((mTrackingEdges & edge) == 0 || (mEdgeDragsLocked[pointerId] & edge) == edge ||
+                (mEdgeDragsInProgress[pointerId] & edge) == edge ||
+                (absDelta < mTouchSlop && absODelta < mTouchSlop)) {
+            return false;
+        }
+        if (absDelta < absODelta * 0.75f) {
+            mEdgeDragsLocked[pointerId] |= edge;
+            mCallback.onEdgeLocked(edge);
+            return false;
+        }
+        return (mInitialEdgesTouched[pointerId] & edge) == edge &&
                 (mEdgeDragsInProgress[pointerId] & edge) == 0;
     }
 
