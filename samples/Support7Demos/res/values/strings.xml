@@ -19,7 +19,7 @@
 
     <!-- MediaRouter -->
 
-    <string name="sample_media_router_activity">Media/MediaRouter</string>
+    <string name="sample_media_router_activity">MediaRouter</string>
     <string name="sample_media_router_text">This activity demonstrates how to
             use MediaRouter from the support library.  Select a route from the action bar.</string>
     <string name="sample_media_router_play_on">Play on...</string>
@@ -32,8 +32,49 @@
     <string name="variable_volume_route_name">Variable Volume Remote Playback Route</string>
 
     <!-- GridLayout -->
+
+    <string name="grid_layout_1">GridLayout/1. Simple Form</string>
+    <string name="grid_layout_2">GridLayout/2. Form (XML)</string>
+    <string name="grid_layout_3">GridLayout/3. Form (Java)</string>
+
     <string name="grid_layout_1_instructions">Type here:</string>
     <string name="grid_layout_1_ok">Ok</string>
     <string name="grid_layout_1_cancel">Cancel</string>
+
+    <!-- ActionBar -->
+
+    <string name="action_bar_mechanics">AppCompat/Action Bar/Action Bar Mechanics</string>
+    <string name="action_bar_usage">AppCompat/Action Bar/Action Bar Usage</string>
+    <string name="action_bar_tabs">AppCompat/Action Bar/Action Bar Tabs</string>
+    <string name="action_bar_settings_action_provider">AppCompat/Action Bar/Settings Action Provider</string>
+    <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
+
+    <string name="action_bar_search">Search</string>
+    <string name="action_bar_add">Add</string>
+    <string name="action_bar_edit">Edit</string>
+    <string name="action_bar_share">Share</string>
+    <string name="action_bar_sort">Sort</string>
+    <string name="action_bar_sort_alpha">Alphabetically</string>
+    <string name="action_bar_sort_size">By size</string>
+    <string name="action_bar_settings">Settings</string>
+
+    <string name="action_bar_display_options">AppCompat/Action Bar/Display Options</string>
+    <string name="toggle_home_as_up">DISPLAY_HOME_AS_UP</string>
+    <string name="toggle_show_home">DISPLAY_SHOW_HOME</string>
+    <string name="toggle_use_logo">DISPLAY_USE_LOGO</string>
+    <string name="toggle_show_title">DISPLAY_SHOW_TITLE</string>
+    <string name="toggle_show_custom">DISPLAY_SHOW_CUSTOM</string>
+    <string name="toggle_navigation">Navigation</string>
+    <string name="cycle_custom_gravity">Cycle Custom View Gravity</string>
+    <string name="toggle_visibility">Toggle Visibility</string>
+    <string name="toggle_system_ui">Toggle System UI</string>
+
+    <string name="display_options_custom_button">Custom View!</string>
+    <string name="display_options_menu_item">Menu Item</string>
+
+    <string name="btn_add_tab">Add new tab</string>
+    <string name="btn_remove_tab">Remove last tab</string>
+    <string name="btn_toggle_tabs">Toggle tab mode</string>
+    <string name="btn_remove_all_tabs">Remove all tabs</string>
 
 </resources>

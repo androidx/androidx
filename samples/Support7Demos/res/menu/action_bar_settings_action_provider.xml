@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2012 Google Inc.
+<!-- Copyright (C) 2011 Google Inc.
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,13 +13,15 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
-<!-- TODO: Use MediaRouter support library -->
-    <item android:id="@+id/menu_media_route"
-        android:title="@string/sample_media_router_play_on"
-        android:showAsAction="always"
-        android:orderInCategory="1"
-        android:actionProviderClass="android.app.MediaRouteActionProvider"/>
+    <item android:id="@+id/menu_item_action_provider_action_bar"
+        android:title="@string/action_bar_settings"
+        app:showAsAction="ifRoom"
+        app:actionProviderClass="com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider"/>
+
+    <item android:id="@+id/menu_item_action_provider_overflow"
+        android:title="@string/action_bar_settings"
+        app:showAsAction="never"
+        app:actionProviderClass="com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider"/>
 </menu>

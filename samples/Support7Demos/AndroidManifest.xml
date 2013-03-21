@@ -49,7 +49,7 @@
                 android:label="@string/sample_media_router_activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SUPPORT4_SAMPLE_CODE" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
@@ -63,24 +63,74 @@
 
         <!-- GridLayout Support Samples -->
 
-        <activity android:name=".view.GridLayout1" android:label="Views/Layouts/GridLayout/1. Simple Form">
+        <activity android:name=".view.GridLayout1"
+                android:label="@string/grid_layout_1">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SUPPORT4_SAMPLE_CODE" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.GridLayout2" android:label="Views/Layouts/GridLayout/2. Form (XML)">
+        <activity android:name=".view.GridLayout2"
+                android:label="@string/grid_layout_2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SUPPORT4_SAMPLE_CODE" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.GridLayout3" android:label="Views/Layouts/GridLayout/3. Form (Java)">
+        <activity android:name=".view.GridLayout3"
+                android:label="@string/grid_layout_3">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SUPPORT4_SAMPLE_CODE" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <!-- Action Bar Samples -->
+        <activity android:name=".app.ActionBarMechanics"
+                android:label="@string/action_bar_mechanics"
+                android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ActionBarUsage"
+                android:label="@string/action_bar_usage"
+                android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ActionBarDisplayOptions"
+                android:label="@string/action_bar_display_options"
+                android:logo="@drawable/apidemo_androidlogo"
+                android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ActionBarTabs"
+                android:label="@string/action_bar_tabs"
+                android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ActionBarSettingsActionProviderActivity"
+                android:label="@string/action_bar_settings_action_provider"
+                android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
