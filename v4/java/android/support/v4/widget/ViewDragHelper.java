@@ -1124,18 +1124,18 @@ public class ViewDragHelper {
         final float absDelta = Math.abs(delta);
         final float absODelta = Math.abs(odelta);
 
-        if ((mTrackingEdges & edge) == 0 || (mEdgeDragsLocked[pointerId] & edge) == edge ||
+        if ((mInitialEdgesTouched[pointerId] & edge) != edge  || (mTrackingEdges & edge) == 0 ||
+                (mEdgeDragsLocked[pointerId] & edge) == edge ||
                 (mEdgeDragsInProgress[pointerId] & edge) == edge ||
                 (absDelta < mTouchSlop && absODelta < mTouchSlop)) {
             return false;
         }
-        if (absDelta < absODelta * 0.75f) {
+        if (absDelta < absODelta * 0.5f) {
             mEdgeDragsLocked[pointerId] |= edge;
             mCallback.onEdgeLocked(edge);
             return false;
         }
-        return (mInitialEdgesTouched[pointerId] & edge) == edge &&
-                (mEdgeDragsInProgress[pointerId] & edge) == 0;
+        return (mEdgeDragsInProgress[pointerId] & edge) == 0;
     }
 
     /**
