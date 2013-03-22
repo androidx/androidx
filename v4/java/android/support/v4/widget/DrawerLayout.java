@@ -1258,7 +1258,7 @@ public class DrawerLayout extends ViewGroup {
         @Override
         public void onEdgeLocked(int edgeFlags) {
             final View drawer = findDrawerWithGravity(mGravity);
-            if (drawer != null) {
+            if (drawer != null && !isDrawerOpen(drawer)) {
                 closeDrawer(drawer);
             }
         }
