@@ -309,5 +309,13 @@
         </provider>
 <!-- END_INCLUDE(file_provider_declaration) -->
 
+        <activity android:name=".media.TransportControllerActivity"
+                android:label="@string/sample_transport_controller_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

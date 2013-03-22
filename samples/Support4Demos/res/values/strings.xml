@@ -133,15 +133,19 @@
     <string name="share_text">Share some text</string>
     <string name="share_file">Share a file</string>
     <string name="share_multiple_file">Share multiple files</string>
-    <string name="sharing_support_title">ShareCompat Demo</string>
+    <string name="sharing_support_title">App/ShareCompat Demo</string>
     <string name="sharing_receiver_title">ShareCompat Receiver</string>
 
-    <string name="file_provider_example">FileProvider example</string>
+    <string name="file_provider_example">Content/FileProvider example</string>
 
     <!-- Text API -->
 
     <string name="without_bidiformatter">Without BidiFormatter:</string>
     <string name="with_bidiformatter">With BidiFormatter:</string>
-    <string name="bidiformatter_support_title">BidiFormatter Demo</string>
+    <string name="bidiformatter_support_title">Text/BidiFormatter Demo</string>
+
+    <!-- TransportController -->
+
+    <string name="sample_transport_controller_activity">Media/TransportController</string>
 
 </resources>
