@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.view.KeyEvent;
+import android.view.View;
 
 /**
  * Helper for accessing features in {@link KeyEvent} introduced after
@@ -32,6 +33,9 @@ public class KeyEventCompat {
         public boolean metaStateHasNoModifiers(int metaState);
         public void startTracking(KeyEvent event);
         public boolean isTracking(KeyEvent event);
+        public Object getKeyDispatcherState(View view);
+        public boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
+                    Object target);
     }
 
     /**
@@ -98,6 +102,17 @@ public class KeyEventCompat {
         public boolean isTracking(KeyEvent event) {
             return false;
         }
+
+        @Override
+        public Object getKeyDispatcherState(View view) {
+            return null;
+        }
+
+        @Override
+        public boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
+                    Object target) {
+            return event.dispatch(receiver);
+        }
     }
 
     static class EclairKeyEventVersionImpl extends BaseKeyEventVersionImpl {
@@ -109,6 +124,17 @@ public class KeyEventCompat {
         @Override
         public boolean isTracking(KeyEvent event) {
             return KeyEventCompatEclair.isTracking(event);
+        }
+
+        @Override
+        public Object getKeyDispatcherState(View view) {
+            return KeyEventCompatEclair.getKeyDispatcherState(view);
+        }
+
+        @Override
+        public boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
+                    Object target) {
+            return KeyEventCompatEclair.dispatch(event, receiver, state, target);
         }
     }
 
@@ -172,5 +198,14 @@ public class KeyEventCompat {
 
     public static boolean isTracking(KeyEvent event) {
         return IMPL.isTracking(event);
+    }
+
+    public static Object getKeyDispatcherState(View view) {
+        return IMPL.getKeyDispatcherState(view);
+    }
+
+    public static boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
+                Object target) {
+        return IMPL.dispatch(event, receiver, state, target);
     }
 }
