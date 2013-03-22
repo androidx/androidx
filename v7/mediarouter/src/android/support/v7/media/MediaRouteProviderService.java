@@ -359,7 +359,7 @@ public abstract class MediaRouteProviderService extends Service {
             MediaRouteProvider.RouteController controller =
                     client.getRouteController(controllerId);
             if (controller != null) {
-                controller.select();
+                controller.onSelect();
                 if (DEBUG) {
                     Log.d(TAG, client + ": Route selected"
                             + ", controllerId=" + controllerId);
@@ -378,7 +378,7 @@ public abstract class MediaRouteProviderService extends Service {
             MediaRouteProvider.RouteController controller =
                     client.getRouteController(controllerId);
             if (controller != null) {
-                controller.unselect();
+                controller.onUnselect();
                 if (DEBUG) {
                     Log.d(TAG, client + ": Route unselected"
                             + ", controllerId=" + controllerId);
@@ -397,7 +397,7 @@ public abstract class MediaRouteProviderService extends Service {
             MediaRouteProvider.RouteController controller =
                     client.getRouteController(controllerId);
             if (controller != null) {
-                controller.setVolume(volume);
+                controller.onSetVolume(volume);
                 if (DEBUG) {
                     Log.d(TAG, client + ": Route volume changed"
                             + ", controllerId=" + controllerId + ", volume=" + volume);
@@ -416,7 +416,7 @@ public abstract class MediaRouteProviderService extends Service {
             MediaRouteProvider.RouteController controller =
                     client.getRouteController(controllerId);
             if (controller != null) {
-                controller.updateVolume(delta);
+                controller.onUpdateVolume(delta);
                 if (DEBUG) {
                     Log.d(TAG, client + ": Route volume updated"
                             + ", controllerId=" + controllerId + ", delta=" + delta);
@@ -453,7 +453,7 @@ public abstract class MediaRouteProviderService extends Service {
                         }
                     };
                 }
-                if (controller.sendControlRequest(intent, callback)) {
+                if (controller.onControlRequest(intent, callback)) {
                     if (DEBUG) {
                         Log.d(TAG, client + ": Route control request delivered"
                                 + ", controllerId=" + controllerId + ", intent=" + intent);
@@ -590,7 +590,7 @@ public abstract class MediaRouteProviderService extends Service {
         public void dispose() {
             int count = mControllers.size();
             for (int i = 0; i < count; i++) {
-                mControllers.valueAt(i).release();
+                mControllers.valueAt(i).onRelease();
             }
             mControllers.clear();
 
@@ -615,7 +615,7 @@ public abstract class MediaRouteProviderService extends Service {
             MediaRouteProvider.RouteController controller = mControllers.get(controllerId);
             if (controller != null) {
                 mControllers.remove(controllerId);
-                controller.release();
+                controller.onRelease();
                 return true;
             }
             return false;

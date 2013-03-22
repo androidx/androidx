@@ -150,13 +150,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         final class DefaultRouteController extends RouteController {
             @Override
-            public void setVolume(int volume) {
+            public void onSetVolume(int volume) {
                 mAudioManager.setStreamVolume(PLAYBACK_STREAM, volume, 0);
                 publishRoutes();
             }
 
             @Override
-            public void updateVolume(int delta) {
+            public void onUpdateVolume(int delta) {
                 int volume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);
                 int maxVolume = mAudioManager.getStreamMaxVolume(PLAYBACK_STREAM);
                 int newVolume = Math.min(maxVolume, Math.max(0, volume + delta));
