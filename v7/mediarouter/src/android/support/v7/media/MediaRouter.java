@@ -534,7 +534,7 @@ public final class MediaRouter {
         }
 
         /**
-         * Gets the the stream over which the playback associated with this route is performed.
+         * Gets the audio stream over which the playback associated with this route is performed.
          *
          * @return The stream over which the playback associated with this route is performed.
          */
