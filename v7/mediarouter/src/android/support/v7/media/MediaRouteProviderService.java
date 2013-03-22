@@ -261,9 +261,9 @@ public abstract class MediaRouteProviderService extends Service {
                                 + "Provider package name: " + providerPackage
                                 + ".  Service package name: " + getPackageName() + ".");
                     }
+                    mProvider = provider;
+                    mProvider.addCallback(mProviderCallback);
                 }
-                mProvider = provider;
-                mProvider.addCallback(mProviderCallback);
             }
             if (mProvider != null) {
                 return mReceiveMessenger.getBinder();

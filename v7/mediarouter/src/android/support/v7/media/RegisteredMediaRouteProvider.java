@@ -552,13 +552,13 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                         return true;
 
                     case MediaRouteProviderService.SERVICE_MSG_REGISTERED:
-                        if (obj instanceof Bundle) {
+                        if (obj == null || obj instanceof Bundle) {
                             return connection.onRegistered(requestId, arg, (Bundle)obj);
                         }
                         break;
 
                     case MediaRouteProviderService.SERVICE_MSG_DESCRIPTOR_CHANGED:
-                        if (obj instanceof Bundle) {
+                        if (obj == null || obj instanceof Bundle) {
                             return connection.onDescriptorChanged((Bundle)obj);
                         }
                         break;
