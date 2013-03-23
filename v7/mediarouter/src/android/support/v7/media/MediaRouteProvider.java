@@ -640,19 +640,19 @@ public abstract class MediaRouteProvider {
         /**
          * Releases the route controller, allowing it to free its resources.
          */
-        public void release() {
+        public void onRelease() {
         }
 
         /**
          * Selects the route.
          */
-        public void select() {
+        public void onSelect() {
         }
 
         /**
          * Unselects the route.
          */
-        public void unselect() {
+        public void onUnselect() {
         }
 
         /**
@@ -660,7 +660,7 @@ public abstract class MediaRouteProvider {
          *
          * @param volume The new volume value between 0 and {@link RouteDescriptor#getVolumeMax}.
          */
-        public void setVolume(int volume) {
+        public void onSetVolume(int volume) {
         }
 
         /**
@@ -668,12 +668,12 @@ public abstract class MediaRouteProvider {
          *
          * @param delta The delta to add to the current volume.
          */
-        public void updateVolume(int delta) {
+        public void onUpdateVolume(int delta) {
         }
 
         /**
-         * Sends a {@link MediaControlIntent media control} request to be performed
-         * asynchronously by the route's destination.
+         * Performs a {@link MediaControlIntent media control} request
+         * asynchronously on behalf of the route.
          *
          * @param intent A {@link MediaControlIntent media control intent}.
          * @param callback A {@link ControlRequestCallback} to invoke with the result
@@ -684,7 +684,7 @@ public abstract class MediaRouteProvider {
          *
          * @see MediaControlIntent
          */
-        public boolean sendControlRequest(Intent intent, ControlRequestCallback callback) {
+        public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
             return false;
         }
     }

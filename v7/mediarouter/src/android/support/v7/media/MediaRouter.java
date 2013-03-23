@@ -1049,7 +1049,7 @@ public final class MediaRouter {
         public void sendControlRequest(RouteInfo route,
                 Intent intent, ControlRequestCallback callback) {
             if (route == mSelectedRoute && mSelectedRouteController != null) {
-                if (mSelectedRouteController.sendControlRequest(intent, callback)) {
+                if (mSelectedRouteController.onControlRequest(intent, callback)) {
                     return;
                 }
             }
@@ -1060,13 +1060,13 @@ public final class MediaRouter {
 
         public void requestSetVolume(RouteInfo route, int volume) {
             if (route == mSelectedRoute && mSelectedRouteController != null) {
-                mSelectedRouteController.setVolume(volume);
+                mSelectedRouteController.onSetVolume(volume);
             }
         }
 
         public void requestUpdateVolume(RouteInfo route, int delta) {
             if (route == mSelectedRoute && mSelectedRouteController != null) {
-                mSelectedRouteController.updateVolume(delta);
+                mSelectedRouteController.onUpdateVolume(delta);
             }
         }
 
@@ -1278,8 +1278,8 @@ public final class MediaRouter {
                 if (mSelectedRoute != null) {
                     mCallbackHandler.post(CallbackHandler.MSG_ROUTE_UNSELECTED, mSelectedRoute);
                     if (mSelectedRouteController != null) {
-                        mSelectedRouteController.unselect();
-                        mSelectedRouteController.release();
+                        mSelectedRouteController.onUnselect();
+                        mSelectedRouteController.onRelease();
                         mSelectedRouteController = null;
                     }
                 }
@@ -1290,7 +1290,7 @@ public final class MediaRouter {
                     mSelectedRouteController = route.getProviderInstance().onCreateRouteController(
                             route.mDescriptorId);
                     if (mSelectedRouteController != null) {
-                        mSelectedRouteController.select();
+                        mSelectedRouteController.onSelect();
                     }
                     mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute);
                 }

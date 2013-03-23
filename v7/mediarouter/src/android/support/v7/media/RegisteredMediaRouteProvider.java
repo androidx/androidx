@@ -261,12 +261,12 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public void release() {
+        public void onRelease() {
             onControllerReleased(this);
         }
 
         @Override
-        public void select() {
+        public void onSelect() {
             mSelected = true;
             if (mConnection != null) {
                 mConnection.selectRoute(mControllerId);
@@ -274,7 +274,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public void unselect() {
+        public void onUnselect() {
             mSelected = false;
             if (mConnection != null) {
                 mConnection.unselectRoute(mControllerId);
@@ -282,7 +282,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public void setVolume(int volume) {
+        public void onSetVolume(int volume) {
             if (mConnection != null) {
                 mConnection.setVolume(mControllerId, volume);
             } else {
@@ -292,7 +292,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public void updateVolume(int delta) {
+        public void onUpdateVolume(int delta) {
             if (mConnection != null) {
                 mConnection.updateVolume(mControllerId, delta);
             } else {
@@ -301,7 +301,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public boolean sendControlRequest(Intent intent, ControlRequestCallback callback) {
+        public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
             if (mConnection != null) {
                 return mConnection.sendControlRequest(mControllerId, intent, callback);
             }
