@@ -184,15 +184,19 @@ public class SampleMediaRouterActivity extends Activity {
                 @Override
                 public void onResult(int result, Bundle data) {
                     switch (result) {
-                        case REQUEST_SUCCEEDED:
-                            Log.d(TAG, "Play request succeeded: data=" + data);
+                        case REQUEST_SUCCEEDED: {
+                            String streamId = data != null ? data.getString(
+                                    MediaControlIntent.EXTRA_STREAM_ID) : null;
+
+                            Log.d(TAG, "Play request succeeded: streamId=" + streamId);
                             Toast.makeText(SampleMediaRouterActivity.this,
                                     "Now playing " + item.mName,
                                     Toast.LENGTH_LONG).show();
                             break;
+                        }
 
                         case REQUEST_FAILED:
-                            Log.d(TAG, "Play request failed: data=" + data);
+                            Log.d(TAG, "Play request failed.");
                             Toast.makeText(SampleMediaRouterActivity.this,
                                     "Unable to play " + item.mName,
                                     Toast.LENGTH_LONG).show();

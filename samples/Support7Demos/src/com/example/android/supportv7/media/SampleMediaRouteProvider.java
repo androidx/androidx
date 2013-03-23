@@ -32,6 +32,8 @@ import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.UUID;
+
 /**
  * Demonstrates how to create a custom media route provider.
  *
@@ -138,6 +140,10 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         setDescriptor(providerDescriptor);
     }
 
+    private String generateStreamId() {
+        return UUID.randomUUID().toString();
+    }
+
     private final class SampleRouteController extends MediaRouteProvider.RouteController {
         private final String mRouteId;
 
@@ -147,22 +153,22 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void release() {
+        public void onRelease() {
             Log.d(TAG, mRouteId + ": Controller released");
         }
 
         @Override
-        public void select() {
+        public void onSelect() {
             Log.d(TAG, mRouteId + ": Selected");
         }
 
         @Override
-        public void unselect() {
+        public void onUnselect() {
             Log.d(TAG, mRouteId + ": Unselected");
         }
 
         @Override
-        public void setVolume(int volume) {
+        public void onSetVolume(int volume) {
             Log.d(TAG, mRouteId + ": Set volume to " + volume);
             if (mRouteId.equals(VARIABLE_VOLUME_ROUTE_ID)) {
                 setVolumeInternal(volume);
@@ -170,7 +176,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void updateVolume(int delta) {
+        public void onUpdateVolume(int delta) {
             Log.d(TAG, mRouteId + ": Update volume by " + delta);
             if (mRouteId.equals(VARIABLE_VOLUME_ROUTE_ID)) {
                 setVolumeInternal(mVolume + delta);
@@ -186,7 +192,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public boolean sendControlRequest(Intent intent, ControlRequestCallback callback) {
+        public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
             Log.d(TAG, mRouteId + ": Received control request " + intent);
             if (intent.getAction().equals(MediaControlIntent.ACTION_PLAY)
                     && intent.hasCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
@@ -194,11 +200,26 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 mPlaybackCount +=1;
 
                 Uri uri = intent.getData();
-                Log.d(TAG, mRouteId + ": Received play request, uri=" + uri);
+                int queueBehavior = intent.getIntExtra(
+                        MediaControlIntent.EXTRA_QUEUE_BEHAVIOR,
+                        MediaControlIntent.QUEUE_BEHAVIOR_PLAY_NOW);
+                int position = intent.getIntExtra(
+                        MediaControlIntent.EXTRA_STREAM_POSITION, 0);
+                Bundle metadata = intent.getBundleExtra(MediaControlIntent.EXTRA_STREAM_METADATA);
+                Bundle headers = intent.getBundleExtra(MediaControlIntent.EXTRA_HTTP_HEADERS);
+                String streamId = generateStreamId();
+
+                Log.d(TAG, mRouteId + ": Received play request, uri=" + uri
+                        + ", queueBehavior=" + queueBehavior
+                        + ", position=" + position
+                        + ", metadata=" + metadata
+                        + ", headers=" + headers);
                 Toast.makeText(getContext(), "Route received play request: uri=" + uri,
                         Toast.LENGTH_LONG).show();
                 if (callback != null) {
-                    callback.onResult(ControlRequestCallback.REQUEST_SUCCEEDED, null);
+                    Bundle result = new Bundle();
+                    result.putString(MediaControlIntent.EXTRA_STREAM_ID, streamId);
+                    callback.onResult(ControlRequestCallback.REQUEST_SUCCEEDED, result);
                 }
                 return true;
             }
