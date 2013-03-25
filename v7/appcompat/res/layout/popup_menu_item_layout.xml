@@ -14,8 +14,7 @@
      limitations under the License.
 -->
 
-<!-- TODO(trevorjohns): This will need to be renamed once ListMenuItemView is copied over. -->
-<android.support.appcompat.view.menu.ListMenuItemView
+<android.support.v7.internal.view.menu.ListMenuItemView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="?attr/dropdownListPreferredItemHeight"
@@ -59,4 +58,4 @@
 
     <!-- Checkbox, and/or radio button will be inserted here. -->
 
-</android.support.appcompat.view.menu.ListMenuItemView>
+</android.support.v7.internal.view.menu.ListMenuItemView>
