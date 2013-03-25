@@ -28,9 +28,9 @@ import java.util.ArrayList;
 
 class ActionBarImplHC extends ActionBar {
 
-    Activity mActivity;
-    Callback mCallback;
-    android.app.ActionBar mActionBar;
+    final Activity mActivity;
+    final Callback mCallback;
+    final android.app.ActionBar mActionBar;
 
     private ArrayList<WeakReference<OnMenuVisibilityListenerWrapper>> mAddedMenuVisWrappers =
             new ArrayList<WeakReference<OnMenuVisibilityListenerWrapper>>();
