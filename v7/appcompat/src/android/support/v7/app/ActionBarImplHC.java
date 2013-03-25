@@ -101,7 +101,8 @@ class ActionBarImplHC extends ActionBar {
 
     @Override
     public void setListNavigationCallbacks(SpinnerAdapter adapter, OnNavigationListener callback) {
-        mActionBar.setListNavigationCallbacks(adapter, new OnNavigationListenerWrapper(callback));
+        mActionBar.setListNavigationCallbacks(adapter,
+                callback != null ? new OnNavigationListenerWrapper(callback) : null);
     }
 
     @Override
@@ -300,9 +301,11 @@ class ActionBarImplHC extends ActionBar {
 
     @Override
     public void addOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
-        OnMenuVisibilityListenerWrapper w = new OnMenuVisibilityListenerWrapper(listener);
-        mAddedMenuVisWrappers.add(new WeakReference<OnMenuVisibilityListenerWrapper>(w));
-        mActionBar.addOnMenuVisibilityListener(w);
+        if (listener != null) {
+            OnMenuVisibilityListenerWrapper w = new OnMenuVisibilityListenerWrapper(listener);
+            mAddedMenuVisWrappers.add(new WeakReference<OnMenuVisibilityListenerWrapper>(w));
+            mActionBar.addOnMenuVisibilityListener(w);
+        }
     }
 
     @Override
