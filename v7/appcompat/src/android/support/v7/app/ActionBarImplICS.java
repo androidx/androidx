@@ -17,11 +17,32 @@
 package android.support.v7.app;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 
 class ActionBarImplICS extends ActionBarImplHC {
 
     public ActionBarImplICS(Activity activity, Callback callback) {
         super(activity, callback);
+    }
+
+    @Override
+    public void setIcon(int resId) {
+        mActionBar.setIcon(resId);
+    }
+
+    @Override
+    public void setIcon(Drawable icon) {
+        mActionBar.setIcon(icon);
+    }
+
+    @Override
+    public void setLogo(int resId) {
+        mActionBar.setLogo(resId);
+    }
+
+    @Override
+    public void setLogo(Drawable logo) {
+        mActionBar.setLogo(logo);
     }
 
 }
