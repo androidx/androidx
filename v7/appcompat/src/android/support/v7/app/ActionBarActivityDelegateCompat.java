@@ -26,6 +26,8 @@ import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
+import android.support.v7.internal.widget.ActionBarContainer;
+import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.view.MenuItem;
 import android.view.LayoutInflater;
@@ -33,16 +35,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-class ActionBarActivityDelegateCompat implements ActionBarActivity.ActionBarActivityDelegate,
+class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implements
         MenuPresenter.Callback, MenuBuilder.Callback {
 
-    final ActionBarActivity mActivity;
     ActionBarView mActionBarView;
     ListMenuPresenter mListMenuPresenter;
     MenuBuilder mMenu;
 
     ActionBarActivityDelegateCompat(ActionBarActivity activity) {
-        mActivity = activity;
+        super(activity);
     }
 
     @Override
@@ -136,6 +137,38 @@ class ActionBarActivityDelegateCompat implements ActionBarActivity.ActionBarActi
                 mActivity.superSetContentView(R.layout.action_bar_decor);
             }
             mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
+
+            /**
+             * Split Action Bar
+             */
+            boolean splitWhenNarrow = UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW
+                    .equals(getUiOptionsFromMetadata());
+            boolean splitActionBar;
+
+            if (splitWhenNarrow) {
+                splitActionBar = mActivity.getResources()
+                        .getBoolean(R.bool.split_action_bar_is_narrow);
+            } else {
+                TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
+                splitActionBar = a
+                        .getBoolean(R.styleable.ActionBarWindow_windowSplitActionBar, false);
+                a.recycle();
+            }
+
+            final ActionBarContainer splitView = (ActionBarContainer) mActivity.findViewById(
+                    R.id.split_action_bar);
+            if (splitView != null) {
+                mActionBarView.setSplitView(splitView);
+                mActionBarView.setSplitActionBar(splitActionBar);
+                mActionBarView.setSplitWhenNarrow(splitWhenNarrow);
+
+                final ActionBarContextView cab = (ActionBarContextView) mActivity.findViewById(
+                        R.id.action_context_bar);
+                cab.setSplitView(splitView);
+                cab.setSplitActionBar(splitActionBar);
+                cab.setSplitWhenNarrow(splitWhenNarrow);
+            }
+
             mActivity.mSubDecorInstalled = true;
         }
     }
