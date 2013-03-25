@@ -8,7 +8,7 @@
          through alias "my_external" -->
     <external-path name="my_external" />
 
-    <!-- Offer access to files under "/proc" through alias "my_proc" -->
-    <root-path name="my_proc" path="proc/" />
+    <!-- Offer access to files under Context.getCacheDir() -->
+    <cache-path name="my_cache" />
 </paths>
 <!-- END_INCLUDE(file_provider_paths_declaration) -->
