@@ -16,10 +16,12 @@
 
 package android.support.v7.app;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,6 +70,14 @@ abstract class ActionBarActivityDelegate {
 
     abstract boolean onPreparePanel(int featureId, View view, android.view.Menu frameworkMenu);
 
+    abstract boolean onBackPressed();
+
+    abstract ActionMode startSupportActionMode(ActionMode.Callback callback);
+
+    abstract void onActionModeFinished(android.view.ActionMode mode);
+
+    abstract void onActionModeStarted(android.view.ActionMode mode);
+
     protected final String getUiOptionsFromMetadata() {
         try {
             PackageManager pm = mActivity.getPackageManager();
@@ -84,6 +94,17 @@ abstract class ActionBarActivityDelegate {
                     .getSimpleName() + "' not in manifest");
             return null;
         }
+    }
+
+    protected final Context getActionBarThemedContext() {
+        Context context = mActivity;
+
+        // If we have an action bar, initialize the menu with a context themed from it.
+        ActionBar ab = mActivity.getSupportActionBar();
+        if (ab != null) {
+            context = ab.getThemedContext();
+        }
+        return context;
     }
 
 }
