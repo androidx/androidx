@@ -619,18 +619,20 @@ public class ViewPager extends ViewGroup {
     }
 
     void setChildrenDrawingOrderEnabledCompat(boolean enable) {
-        if (mSetChildrenDrawingOrderEnabled == null) {
-            try {
-                mSetChildrenDrawingOrderEnabled = ViewGroup.class.getDeclaredMethod(
-                        "setChildrenDrawingOrderEnabled", new Class[] { Boolean.TYPE });
-            } catch (NoSuchMethodException e) {
-                Log.e(TAG, "Can't find setChildrenDrawingOrderEnabled", e);
+        if (Build.VERSION.SDK_INT >= 7) {
+            if (mSetChildrenDrawingOrderEnabled == null) {
+                try {
+                    mSetChildrenDrawingOrderEnabled = ViewGroup.class.getDeclaredMethod(
+                            "setChildrenDrawingOrderEnabled", new Class[] { Boolean.TYPE });
+                } catch (NoSuchMethodException e) {
+                    Log.e(TAG, "Can't find setChildrenDrawingOrderEnabled", e);
+                }
             }
-        }
-        try {
-            mSetChildrenDrawingOrderEnabled.invoke(this, enable);
-        } catch (Exception e) {
-            Log.e(TAG, "Error changing children drawing order", e);
+            try {
+                mSetChildrenDrawingOrderEnabled.invoke(this, enable);
+            } catch (Exception e) {
+                Log.e(TAG, "Error changing children drawing order", e);
+            }
         }
     }
 
@@ -921,6 +923,7 @@ public class ViewPager extends ViewGroup {
         }
 
         if (mAdapter == null) {
+            sortChildDrawingOrder();
             return;
         }
 
@@ -930,6 +933,7 @@ public class ViewPager extends ViewGroup {
         // that position, avoiding glitches from happening at that point.
         if (mPopulatePending) {
             if (DEBUG) Log.i(TAG, "populate is pending, skipping for now...");
+            sortChildDrawingOrder();
             return;
         }
 
@@ -1063,14 +1067,6 @@ public class ViewPager extends ViewGroup {
 
         // Check width measurement of current pages and drawing sort order.
         // Update LayoutParams as needed.
-        final boolean sort = mDrawingOrder != DRAW_ORDER_DEFAULT;
-        if (sort) {
-            if (mDrawingOrderedChildren == null) {
-                mDrawingOrderedChildren = new ArrayList<View>();
-            } else {
-                mDrawingOrderedChildren.clear();
-            }
-        }
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
@@ -1084,11 +1080,8 @@ public class ViewPager extends ViewGroup {
                     lp.position = ii.position;
                 }
             }
-            if (sort) mDrawingOrderedChildren.add(child);
         }
-        if (sort) {
-            Collections.sort(mDrawingOrderedChildren, sPositionComparator);
-        }
+        sortChildDrawingOrder();
 
         if (hasFocus()) {
             View currentFocused = findFocus();
@@ -1104,6 +1097,22 @@ public class ViewPager extends ViewGroup {
                     }
                 }
             }
+        }
+    }
+
+    private void sortChildDrawingOrder() {
+        if (mDrawingOrder != DRAW_ORDER_DEFAULT) {
+            if (mDrawingOrderedChildren == null) {
+                mDrawingOrderedChildren = new ArrayList<View>();
+            } else {
+                mDrawingOrderedChildren.clear();
+            }
+            final int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View child = getChildAt(i);
+                mDrawingOrderedChildren.add(child);
+            }
+            Collections.sort(mDrawingOrderedChildren, sPositionComparator);
         }
     }
 
