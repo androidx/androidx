@@ -80,7 +80,7 @@ public class ViewDragHelper {
      */
     public static final int EDGE_BOTTOM = 1 << 3;
 
-    private static final int EDGE_SIZE = 16; // dp
+    private static final int EDGE_SIZE = 24; // dp
 
     private static final int BASE_SETTLE_DURATION = 256; // ms
     private static final int MAX_SETTLE_DURATION = 600; // ms
@@ -193,13 +193,17 @@ public class ViewDragHelper {
         public void onEdgeTouched(int edgeFlags, int pointerId) {}
 
         /**
-         * Called when the given edge has become locked. This can happen if an edge drag
+         * Called when the given edge may become locked. This can happen if an edge drag
          * was preliminarily rejected before beginning, but after {@link #onEdgeTouched(int, int)}
-         * was called.
+         * was called. This method should return true to lock this edge or false to leave it
+         * unlocked. The default behavior is to leave edges unlocked.
          *
          * @param edgeFlags A combination of edge flags describing the edge(s) locked
+         * @return true to lock the edge, false to leave it unlocked
          */
-        public void onEdgeLocked(int edgeFlags) {}
+        public boolean onEdgeLock(int edgeFlags) {
+            return false;
+        }
 
         /**
          * Called when the user has started a deliberate drag away from one
@@ -389,6 +393,17 @@ public class ViewDragHelper {
      */
     public void setEdgeTrackingEnabled(int edgeFlags) {
         mTrackingEdges = edgeFlags;
+    }
+
+    /**
+     * Return the size of an edge. This is the range in pixels along the edges of this view
+     * that will actively detect edge touches or drags if edge tracking is enabled.
+     *
+     * @return The size of an edge in pixels
+     * @see #setEdgeTrackingEnabled(int)
+     */
+    public int getEdgeSize() {
+        return mEdgeSize;
     }
 
     /**
@@ -1130,9 +1145,8 @@ public class ViewDragHelper {
                 (absDelta < mTouchSlop && absODelta < mTouchSlop)) {
             return false;
         }
-        if (absDelta < absODelta * 0.5f) {
+        if (absDelta < absODelta * 0.5f && mCallback.onEdgeLock(edge)) {
             mEdgeDragsLocked[pointerId] |= edge;
-            mCallback.onEdgeLocked(edge);
             return false;
         }
         return (mEdgeDragsInProgress[pointerId] & edge) == 0;

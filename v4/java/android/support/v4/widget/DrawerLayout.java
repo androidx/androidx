@@ -52,8 +52,6 @@ import android.view.ViewGroup;
 public class DrawerLayout extends ViewGroup {
     private static final String TAG = "DrawerLayout";
 
-    private static final int INVALID_POINTER = -1;
-
     /**
      * Indicates that any drawers are in an idle, settled state. No animation is in progress.
      */
@@ -88,16 +86,18 @@ public class DrawerLayout extends ViewGroup {
 
     private static final int MIN_DRAWER_MARGIN = 64; // dp
 
-    private static final int DRAWER_PEEK_DISTANCE = 16; // dp
-
     private static final int DEFAULT_SCRIM_COLOR = 0x99000000;
+
+    /**
+     * Experimental feature.
+     */
+    private static final boolean ALLOW_EDGE_LOCK = false;
 
     private static final int[] LAYOUT_ATTRS = new int[] {
             android.R.attr.layout_gravity
     };
 
     private int mMinDrawerMargin;
-    private int mDrawerPeekDistance;
 
     private int mScrimColor = DEFAULT_SCRIM_COLOR;
     private float mScrimOpacity;
@@ -189,7 +189,6 @@ public class DrawerLayout extends ViewGroup {
 
         final float density = getResources().getDisplayMetrics().density;
         mMinDrawerMargin = (int) (MIN_DRAWER_MARGIN * density + 0.5f);
-        mDrawerPeekDistance = (int) (DRAWER_PEEK_DISTANCE * density + 0.5f);
 
         final ViewDragCallback leftCallback = new ViewDragCallback(Gravity.LEFT);
         final ViewDragCallback rightCallback = new ViewDragCallback(Gravity.RIGHT);
@@ -729,8 +728,9 @@ public class DrawerLayout extends ViewGroup {
         } else if (mShadowLeft != null && checkDrawerViewGravity(child, Gravity.LEFT)) {
             final int shadowWidth = mShadowLeft.getIntrinsicWidth();
             final int childRight = child.getRight();
+            final int drawerPeekDistance = mLeftDragger.getEdgeSize();
             final float alpha =
-                    Math.max(0, Math.min((float) childRight / mDrawerPeekDistance, 1.f));
+                    Math.max(0, Math.min((float) childRight / drawerPeekDistance, 1.f));
             mShadowLeft.setBounds(childRight, child.getTop(),
                     childRight + shadowWidth, child.getBottom());
             mShadowLeft.setAlpha((int) (0xff * alpha));
@@ -739,8 +739,9 @@ public class DrawerLayout extends ViewGroup {
             final int shadowWidth = mShadowRight.getIntrinsicWidth();
             final int childLeft = child.getLeft();
             final int showing = getWidth() - childLeft;
+            final int drawerPeekDistance = mRightDragger.getEdgeSize();
             final float alpha =
-                    Math.max(0, Math.min((float) showing / mDrawerPeekDistance, 1.f));
+                    Math.max(0, Math.min((float) showing / drawerPeekDistance, 1.f));
             mShadowRight.setBounds(childLeft - shadowWidth, child.getTop(),
                     childLeft, child.getBottom());
             mShadowRight.setAlpha((int) (0xff * alpha));
@@ -788,25 +789,7 @@ public class DrawerLayout extends ViewGroup {
                 closeDrawers(true);
             }
         }
-        return interceptForDrag || interceptForTap;
-    }
-
-    @Override
-    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final LayoutParams lp = (LayoutParams) getChildAt(i).getLayoutParams();
-
-            if (lp.isPeeking) {
-                // Don't disallow intercept at all if we have a peeking view, we're probably
-                // going to intercept it later anyway.
-                return;
-            }
-        }
-        super.requestDisallowInterceptTouchEvent(disallowIntercept);
-        if (disallowIntercept) {
-            closeDrawers(true);
-        }
+        return interceptForDrag || interceptForTap || hasPeekingDrawer();
     }
 
     @Override
@@ -854,6 +837,13 @@ public class DrawerLayout extends ViewGroup {
         }
 
         return wantTouchEvents;
+    }
+
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+        if (disallowIntercept) {
+            closeDrawers(true);
+        }
     }
 
     /**
@@ -1008,6 +998,17 @@ public class DrawerLayout extends ViewGroup {
             throw new IllegalArgumentException("View " + drawer + " is not a drawer");
         }
         return ((LayoutParams) drawer.getLayoutParams()).onScreen > 0;
+    }
+
+    private boolean hasPeekingDrawer() {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final LayoutParams lp = (LayoutParams) getChildAt(i).getLayoutParams();
+            if (lp.isPeeking) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -1234,12 +1235,13 @@ public class DrawerLayout extends ViewGroup {
             final int childLeft;
             final boolean leftEdge =
                     (edgeFlags & ViewDragHelper.EDGE_LEFT) == ViewDragHelper.EDGE_LEFT;
+            final int peekDistance = mDragger.getEdgeSize();
             if (leftEdge) {
                 toCapture = findDrawerWithGravity(Gravity.LEFT);
-                childLeft = -toCapture.getWidth() + mDrawerPeekDistance;
+                childLeft = (toCapture != null ? -toCapture.getWidth() : 0) + peekDistance;
             } else {
                 toCapture = findDrawerWithGravity(Gravity.RIGHT);
-                childLeft = getWidth() - mDrawerPeekDistance;
+                childLeft = getWidth() - peekDistance;
             }
 
             // Only peek if it would mean making the drawer more visible and the drawer isn't locked
@@ -1256,11 +1258,15 @@ public class DrawerLayout extends ViewGroup {
         }
 
         @Override
-        public void onEdgeLocked(int edgeFlags) {
-            final View drawer = findDrawerWithGravity(mGravity);
-            if (drawer != null && !isDrawerOpen(drawer)) {
-                closeDrawer(drawer);
+        public boolean onEdgeLock(int edgeFlags) {
+            if (ALLOW_EDGE_LOCK) {
+                final View drawer = findDrawerWithGravity(mGravity);
+                if (drawer != null && !isDrawerOpen(drawer)) {
+                    closeDrawer(drawer);
+                }
+                return true;
             }
+            return false;
         }
 
         @Override
