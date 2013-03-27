@@ -59,4 +59,13 @@
 
     </style>
 
+
+    <!-- Menu/item attributes -->
+    <style name="Theme.AppCompat.CompactMenu" parent="Theme.AppCompat.Base.CompactMenu">
+    </style>
+
+    <style name="Theme.AppCompat.CompactMenu.Dialog"
+           parent="Theme.AppCompat.Base.CompactMenu.Dialog">
+    </style>
+
 </resources>
