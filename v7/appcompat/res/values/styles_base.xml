@@ -33,6 +33,7 @@
 
         <item name="background">@drawable/ab_transparent_dark_holo</item>
         <item name="backgroundStacked">@drawable/ab_stacked_transparent_dark_holo</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_transparent_dark_holo</item>
 
         <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
@@ -44,6 +45,7 @@
     <style name="Widget.AppCompat.Light.Base.ActionBar" parent="Widget.AppCompat.Base.ActionBar">
         <item name="background">@drawable/ab_transparent_light_holo</item>
         <item name="backgroundStacked">@drawable/ab_stacked_transparent_light_holo</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_transparent_light_holo</item>
 
         <!-- TODO chrisbanes: Change these to Light themes -->
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
@@ -53,12 +55,14 @@
     <style name="Widget.AppCompat.Base.ActionBar.Solid" parent="Widget.AppCompat.Base.ActionBar">
         <item name="background">@drawable/ab_solid_dark_holo</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_dark_holo</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_dark_holo</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.Solid"
            parent="Widget.AppCompat.Light.Base.ActionBar">
         <item name="background">@drawable/ab_solid_light_holo</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_light_holo</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_light_holo</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"

@@ -16,10 +16,24 @@
 
 package android.support.v7.app;
 
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
+
 class ActionBarActivityDelegateICS extends ActionBarActivityDelegateHC {
 
     ActionBarActivityDelegateICS(ActionBarActivity activity) {
         super(activity);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        // Set framework uiOptions from the support metadata value
+        if (UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW.equals(getUiOptionsFromMetadata())) {
+            mActivity.getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW,
+                    ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
+        }
+
+        super.onCreate(savedInstanceState);
     }
 
     @Override
