@@ -170,7 +170,7 @@ public abstract class MediaRouteProvider {
     /**
      * Called by the media router to obtain a route controller for a particular route.
      * <p>
-     * The media router will invoke the {@link RouteController#release} method of the route
+     * The media router will invoke the {@link RouteController#onRelease} method of the route
      * controller when it is no longer needed to allow it to free its resources.
      * </p>
      *
@@ -621,12 +621,12 @@ public abstract class MediaRouteProvider {
      * <p>
      * The media router obtains a route controller for a route whenever it needs
      * to control a route.  When a route is selected, the media router invokes
-     * the {@link #select} method of its route controller.  While selected,
+     * the {@link #onSelect} method of its route controller.  While selected,
      * the media router may call other methods of the route controller to
      * request that it perform certain actions to the route.  When a route is
-     * unselected, the media router invokes the {@link #unselect} method of its
+     * unselected, the media router invokes the {@link #onUnselect} method of its
      * route controller.  When the media route no longer needs the route controller
-     * it will invoke the {@link #release} method to allow the route controller
+     * it will invoke the {@link #onRelease} method to allow the route controller
      * to free its resources.
      * </p><p>
      * There may be multiple route controllers simultaneously active for the
