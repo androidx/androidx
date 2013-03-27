@@ -310,24 +310,4 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         return super.onPreparePanel(featureId, view, menu);
     }
 
-    interface ActionBarActivityDelegate {
-        ActionBar createSupportActionBar();
-        void onCreate(Bundle savedInstanceState);
-        void onPostCreate(Bundle savedInstanceState);
-        void onConfigurationChanged(Configuration newConfig);
-        void setContentView(View v);
-        void setContentView(int resId);
-        void setContentView(View v, ViewGroup.LayoutParams lp);
-        void addContentView(View v, ViewGroup.LayoutParams lp);
-        boolean requestWindowFeature(int featureId);
-        void setTitle(CharSequence title);
-        void supportInvalidateOptionsMenu();
-
-        // Methods used to create and respond to options menu
-        View onCreatePanelView(int featureId);
-        boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu);
-        boolean onMenuItemSelected(int featureId, android.view.MenuItem frameworkItem);
-        boolean onPreparePanel(int featureId, View view, android.view.Menu frameworkMenu);
-    }
-
 }
