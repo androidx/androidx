@@ -26,13 +26,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-class ActionBarActivityDelegateHC implements ActionBarActivity.ActionBarActivityDelegate {
+class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
 
-    final ActionBarActivity mActivity;
     Menu mMenu;
 
     ActionBarActivityDelegateHC(ActionBarActivity activity) {
-        mActivity = activity;
+        super(activity);
     }
 
     @Override

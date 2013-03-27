@@ -53,6 +53,7 @@
         <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
+        <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
         <item name="actionBarSize">@dimen/action_bar_size</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
@@ -104,6 +105,7 @@
             @style/Widget.AppCompat.Light.ActionButton.Overflow
         </item>
         <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar</item>
+        <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
         <item name="actionBarSize">@dimen/action_bar_size</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
