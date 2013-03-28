@@ -69,6 +69,14 @@
            parent="Widget.AppCompat.Light.Base.ActionButton">
     </style>
 
+    <style name="Widget.AppCompat.ActionButton.CloseMode"
+           parent="Widget.AppCompat.Base.ActionButton.CloseMode">
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActionButton.CloseMode"
+           parent="Widget.AppCompat.Light.Base.ActionButton.CloseMode">
+    </style>
+
     <style name="Widget.AppCompat.ActionButton.Overflow"
            parent="Widget.AppCompat.Base.ActionButton.Overflow">
     </style>

@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.view;
+package android.support.v7.view;
 
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
-import android.view.MenuInflater;
 import android.view.View;
 
 /**
