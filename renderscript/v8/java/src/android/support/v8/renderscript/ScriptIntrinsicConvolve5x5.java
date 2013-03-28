@@ -22,11 +22,11 @@ import android.util.Log;
  * Intrinsic for applying a 5x5 convolve to an allocation.
  *
  **/
-public final class ScriptIntrinsicConvolve5x5 extends ScriptIntrinsic {
+public class ScriptIntrinsicConvolve5x5 extends ScriptIntrinsic {
     private final float[] mValues = new float[25];
     private Allocation mInput;
 
-    private ScriptIntrinsicConvolve5x5(int id, RenderScript rs) {
+    ScriptIntrinsicConvolve5x5(int id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -48,6 +48,10 @@ public final class ScriptIntrinsicConvolve5x5 extends ScriptIntrinsic {
      * @return ScriptIntrinsicConvolve5x5
      */
     public static ScriptIntrinsicConvolve5x5 create(RenderScript rs, Element e) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) rs;
+            return ScriptIntrinsicConvolve5x5Thunker.create(rs, e);
+        }
         int id = rs.nScriptIntrinsicCreate(4, e.getID(rs));
         return new ScriptIntrinsicConvolve5x5(id, rs);
 

@@ -24,22 +24,14 @@ import android.util.Log;
  * tables are 256 entries in size and can cover the full value
  * range of {@link Element#U8_4}.
  **/
-public final class ScriptIntrinsicLUT extends ScriptIntrinsic {
+public class ScriptIntrinsicLUT extends ScriptIntrinsic {
     private final Matrix4f mMatrix = new Matrix4f();
     private Allocation mTables;
     private final byte mCache[] = new byte[1024];
     private boolean mDirty = true;
 
-    private ScriptIntrinsicLUT(int id, RenderScript rs) {
+    protected ScriptIntrinsicLUT(int id, RenderScript rs) {
         super(id, rs);
-        mTables = Allocation.createSized(rs, Element.U8(rs), 1024);
-        for (int ct=0; ct < 256; ct++) {
-            mCache[ct] = (byte)ct;
-            mCache[ct + 256] = (byte)ct;
-            mCache[ct + 512] = (byte)ct;
-            mCache[ct + 768] = (byte)ct;
-        }
-        setVar(0, mTables);
     }
 
     /**
@@ -53,9 +45,23 @@ public final class ScriptIntrinsicLUT extends ScriptIntrinsic {
      * @return ScriptIntrinsicLUT
      */
     public static ScriptIntrinsicLUT create(RenderScript rs, Element e) {
-        int id = rs.nScriptIntrinsicCreate(3, e.getID(rs));
-        return new ScriptIntrinsicLUT(id, rs);
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) rs;
+            return ScriptIntrinsicLUTThunker.create(rs, e);
+        }
 
+        int id = rs.nScriptIntrinsicCreate(3, e.getID(rs));
+
+        ScriptIntrinsicLUT si = new ScriptIntrinsicLUT(id, rs);
+        si.mTables = Allocation.createSized(rs, Element.U8(rs), 1024);
+        for (int ct=0; ct < 256; ct++) {
+            si.mCache[ct] = (byte)ct;
+            si.mCache[ct + 256] = (byte)ct;
+            si.mCache[ct + 512] = (byte)ct;
+            si.mCache[ct + 768] = (byte)ct;
+        }
+        si.setVar(0, si.mTables);
+        return si;
     }
 
 

@@ -26,11 +26,11 @@ import android.util.Log;
  *
  *
  **/
-public final class ScriptIntrinsicBlur extends ScriptIntrinsic {
+public class ScriptIntrinsicBlur extends ScriptIntrinsic {
     private final float[] mValues = new float[9];
     private Allocation mInput;
 
-    private ScriptIntrinsicBlur(int id, RenderScript rs) {
+    protected ScriptIntrinsicBlur(int id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -46,6 +46,10 @@ public final class ScriptIntrinsicBlur extends ScriptIntrinsic {
      * @return ScriptIntrinsicBlur
      */
     public static ScriptIntrinsicBlur create(RenderScript rs, Element e) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) rs;
+            return ScriptIntrinsicBlurThunker.create(rs, e);
+        }
         if ((e != Element.U8_4(rs)) && e != (Element.U8(rs))) {
             throw new RSIllegalArgumentException("Unsuported element type.");
         }

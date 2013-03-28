@@ -50,6 +50,12 @@ public class BaseObj {
      */
     int getID(RenderScript rs) {
         mRS.validate();
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker)rs;
+            if (getNObj() != null) {
+                return getNObj().hashCode();
+            }
+        }
         if (mDestroyed) {
             throw new RSInvalidStateException("using a destroyed object.");
         }
@@ -62,8 +68,12 @@ public class BaseObj {
         return mID;
     }
 
+    android.renderscript.BaseObj getNObj() {
+        return null;
+    }
+
     void checkValid() {
-        if (mID == 0) {
+        if ((mID == 0) && (getNObj() == null)) {
             throw new RSIllegalArgumentException("Invalid object.");
         }
     }

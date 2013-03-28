@@ -55,6 +55,14 @@ public class ScriptC extends Script {
      */
     protected ScriptC(RenderScript rs, Resources resources, int resourceID) {
         super(0, rs);
+
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker)rs;
+            ScriptCThunker s = new ScriptCThunker(rst, resources, resourceID);
+            mT = s;
+            return;
+        }
+
         int id = internalCreate(rs, resources, resourceID);
         if (id == 0) {
             throw new RSRuntimeException("Loading of ScriptC script failed.");
