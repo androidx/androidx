@@ -38,20 +38,20 @@
            parent="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionBar.Title"
-           parent="TextAppearance.AppCompat.Base.ActionBar.Title">
+    <style name="TextAppearance.AppCompat.Widget.ActionBar.Title"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Title">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionBar.Subtitle"
-           parent="TextAppearance.AppCompat.Base.ActionBar.Subtitle">
+    <style name="TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionBar.Title.Inverse"
-           parent="TextAppearance.AppCompat.Base.ActionBar.Title.Inverse">
+    <style name="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionBar.Subtitle.Inverse"
-           parent="TextAppearance.AppCompat.Base.ActionBar.Subtitle.Inverse">
+    <style name="TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse">
     </style>
 
     <style name="Widget.AppCompat.ProgressBar.Horizontal"
@@ -120,33 +120,34 @@
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Menu"
-           parent="TextAppearance.AppCompat.Base.Widget.ActionBar.Menu">
+           parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Menu">
     </style>
 
     <style name="Widget.AppCompat.ActionMode" parent="Widget.AppCompat.Base.ActionMode">
     </style>
 
-    <style name="Widget.AppCompat.Light.ActionMode.Inverse" parent="Widget.AppCompat.Light.Base.ActionMode.Inverse">
+    <style name="Widget.AppCompat.Light.ActionMode.Inverse"
+           parent="Widget.AppCompat.Light.Base.ActionMode.Inverse">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionMode.Title"
-           parent="TextAppearance.AppCompat.Base.ActionMode.Title">
+    <style name="TextAppearance.AppCompat.Widget.ActionMode.Title"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionMode.Title">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionMode.Subtitle"
-           parent="TextAppearance.AppCompat.Base.ActionMode.Subtitle">
+    <style name="TextAppearance.AppCompat.Widget.ActionMode.Subtitle"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionMode.Title.Inverse"
-           parent="TextAppearance.AppCompat.Base.ActionMode.Title.Inverse">
+    <style name="TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionMode.Title.Inverse">
     </style>
 
-    <style name="TextAppearance.AppCompat.ActionMode.Subtitle.Inverse"
-           parent="TextAppearance.AppCompat.Base.ActionMode.Subtitle.Inverse">
+    <style name="TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse"
+           parent="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle.Inverse">
     </style>
 
-    <style name="TextAppearance.AppCompat.DropDownItem"
-           parent="TextAppearance.AppCompat.Base.DropDownItem">
+    <style name="TextAppearance.AppCompat.Widget.DropDownItem"
+           parent="TextAppearance.AppCompat.Widget.Base.DropDownItem">
     </style>
 
     <style name="Widget.AppCompat.Spinner.DropDown.ActionBar"
