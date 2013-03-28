@@ -20,8 +20,13 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.view.ActionMode;
+import android.support.v7.view.MenuInflater;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +38,26 @@ abstract class ActionBarActivityDelegate {
 
     private static final String TAG = "ActionBarActivityDelegate";
 
+    static ActionBarActivityDelegate createDelegate(ActionBarActivity activity) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new ActionBarActivityDelegateICS(activity);
+        } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
+            return new ActionBarActivityDelegateHC(activity);
+        } else {
+            return new ActionBarActivityDelegateCompat(activity);
+        }
+    }
+
     final ActionBarActivity mActivity;
+
+    private ActionBar mActionBar;
+    private MenuInflater mMenuInflater;
+
+    // true if this activity has an action bar.
+    boolean mHasActionBar;
+    // true if this activity's action bar overlays other activity content.
+    boolean mOverlayActionBar;
 
     ActionBarActivityDelegate(ActionBarActivity activity) {
         mActivity = activity;
@@ -41,7 +65,40 @@ abstract class ActionBarActivityDelegate {
 
     abstract ActionBar createSupportActionBar();
 
-    abstract void onCreate(Bundle savedInstanceState);
+    final ActionBar getSupportActionBar() {
+        // The Action Bar should be lazily created as mHasActionBar or mOverlayActionBar
+        // could change after onCreate
+        if (mHasActionBar || mOverlayActionBar) {
+            if (mActionBar == null) {
+                mActionBar = createSupportActionBar();
+            }
+        } else {
+            // If we're not set to have a Action Bar, null it just in case it's been set
+            mActionBar = null;
+        }
+        return mActionBar;
+    }
+
+    MenuInflater getSupportMenuInflater() {
+        if (mMenuInflater == null) {
+            mMenuInflater = new SupportMenuInflater(mActivity);
+        }
+        return mMenuInflater;
+    }
+
+    void onCreate(Bundle savedInstanceState) {
+        TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
+
+        if (!a.hasValue(R.styleable.ActionBarWindow_windowActionBar)) {
+            a.recycle();
+            throw new IllegalStateException(
+                    "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
+        }
+
+        mHasActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBar, false);
+        mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay, false);
+        a.recycle();
+    }
 
     abstract void onPostCreate(Bundle savedInstanceState);
 
@@ -100,7 +157,7 @@ abstract class ActionBarActivityDelegate {
         Context context = mActivity;
 
         // If we have an action bar, initialize the menu with a context themed from it.
-        ActionBar ab = mActivity.getSupportActionBar();
+        ActionBar ab = getSupportActionBar();
         if (ab != null) {
             context = ab.getThemedContext();
         }

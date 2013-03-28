@@ -40,12 +40,15 @@ import android.view.Window;
 class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implements
         MenuPresenter.Callback, MenuBuilder.Callback {
 
-    ActionBarView mActionBarView;
-    ListMenuPresenter mListMenuPresenter;
-    MenuBuilder mMenu;
+    private ActionBarView mActionBarView;
+    private ListMenuPresenter mListMenuPresenter;
+    private MenuBuilder mMenu;
 
-    ActionMode mActionMode;
-    MenuBuilder mActionModeMenu;
+    private ActionMode mActionMode;
+    private MenuBuilder mActionModeMenu;
+
+    // true if we have installed a window sub-decor layout.
+    private boolean mSubDecorInstalled;
 
     ActionBarActivityDelegateCompat(ActionBarActivity activity) {
         super(activity);
@@ -57,14 +60,10 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-    }
-
-    @Override
     public void onPostCreate(Bundle savedInstanceState) {
         // After the Activity has been created and the content views added, we need to make sure
         // that we've inflated the app's menu, so that Action Items can be rendered.
-        if (mActivity.mSubDecorInstalled) {
+        if (mSubDecorInstalled) {
             supportInvalidateOptionsMenu();
         }
     }
@@ -73,11 +72,10 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     public void onConfigurationChanged(Configuration newConfig) {
         // If this is called before sub-decor is installed, ActionBar will not
         // be properly initialized.
-        if (mActivity.mHasActionBar && mActivity.mSubDecorInstalled) {
+        if (mHasActionBar && mSubDecorInstalled) {
             // Note: The action bar will need to access
             // view changes from superclass.
-            ActionBarImplCompat actionBar =
-                    (ActionBarImplCompat) mActivity.getSupportActionBar();
+            ActionBarImplCompat actionBar = (ActionBarImplCompat) getSupportActionBar();
             actionBar.onConfigurationChanged(newConfig);
         }
     }
@@ -85,7 +83,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     @Override
     public void setContentView(View v) {
         ensureSubDecor();
-        if (mActivity.mHasActionBar) {
+        if (mHasActionBar) {
             final ViewGroup contentParent =
                     (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
             contentParent.removeAllViews();
@@ -98,7 +96,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     @Override
     public void setContentView(int resId) {
         ensureSubDecor();
-        if (mActivity.mHasActionBar) {
+        if (mHasActionBar) {
             final ViewGroup contentParent =
                     (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
             contentParent.removeAllViews();
@@ -112,7 +110,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     @Override
     public void setContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
-        if (mActivity.mHasActionBar) {
+        if (mHasActionBar) {
             final ViewGroup contentParent =
                     (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
             contentParent.removeAllViews();
@@ -125,7 +123,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     @Override
     public void addContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
-        if (mActivity.mHasActionBar) {
+        if (mHasActionBar) {
             final ViewGroup contentParent =
                     (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
             contentParent.addView(v, lp);
@@ -135,8 +133,8 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     private void ensureSubDecor() {
-        if (mActivity.mHasActionBar && !mActivity.mSubDecorInstalled) {
-            if (mActivity.mOverlayActionBar) {
+        if (mHasActionBar && !mSubDecorInstalled) {
+            if (mOverlayActionBar) {
                 mActivity.superSetContentView(R.layout.action_bar_decor_overlay);
             } else {
                 mActivity.superSetContentView(R.layout.action_bar_decor);
@@ -174,7 +172,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
                 cab.setSplitWhenNarrow(splitWhenNarrow);
             }
 
-            mActivity.mSubDecorInstalled = true;
+            mSubDecorInstalled = true;
         }
     }
 
@@ -182,10 +180,10 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     public boolean requestWindowFeature(int featureId) {
         switch (featureId) {
             case WindowCompat.FEATURE_ACTION_BAR:
-                mActivity.mHasActionBar = true;
+                mHasActionBar = true;
                 return true;
             case WindowCompat.FEATURE_ACTION_BAR_OVERLAY:
-                mActivity.mOverlayActionBar = true;
+                mOverlayActionBar = true;
                 return true;
             default:
                 return mActivity.requestWindowFeature(featureId);
@@ -194,7 +192,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
 
     @Override
     public void setTitle(CharSequence title) {
-        ActionBar ab = mActivity.getSupportActionBar();
+        ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.setTitle(title);
         }
@@ -281,7 +279,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         //    return true;
         //}
 
-        ActionBar ab = mActivity.getSupportActionBar();
+        ActionBar ab = getSupportActionBar();
         if (item.getItemId() == R.id.home && ab != null &&
                 (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
             if (mActivity.getParent() == null) {
@@ -323,10 +321,9 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
         ActionMode mode = null;
 
-        ActionBar ab = mActivity.getSupportActionBar();
+        ActionBarImplCompat ab = (ActionBarImplCompat) getSupportActionBar();
         if (ab != null) {
-            // TODO chrisbanes: Tidy this up when delegate structure changes are merged
-            mActionMode = ((ActionBarImplCompat) ab).startActionMode(wrappedCallback);
+            mActionMode = ab.startActionMode(wrappedCallback);
         }
 
         if (mActionMode != null) {

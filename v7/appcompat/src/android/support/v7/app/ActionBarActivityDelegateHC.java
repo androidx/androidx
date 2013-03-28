@@ -20,9 +20,9 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
-import android.support.v7.view.ActionMode;
 import android.support.v7.internal.view.ActionModeWrapper;
 import android.support.v7.internal.view.menu.MenuWrapper;
+import android.support.v7.view.ActionMode;
 import android.support.v7.view.Menu;
 import android.support.v7.view.MenuItem;
 import android.view.View;
@@ -44,12 +44,14 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (mActivity.mHasActionBar) {
+        super.onCreate(savedInstanceState);
+
+        if (mHasActionBar) {
             // If action bar is requested by inheriting from the appcompat theme,
             // the system will not know about that. So explicitly request for an action bar.
             mActivity.requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
         }
-        if (mActivity.mOverlayActionBar) {
+        if (mOverlayActionBar) {
             mActivity.requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
         }
     }
