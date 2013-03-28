@@ -16,9 +16,12 @@
 
 package android.support.v7.app;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
+import android.support.v7.view.ActionMode;
+import android.support.v7.internal.view.ActionModeWrapper;
 import android.support.v7.internal.view.menu.MenuWrapper;
 import android.support.v7.view.Menu;
 import android.support.v7.view.MenuItem;
@@ -141,7 +144,47 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     }
 
     @Override
+    public ActionMode startSupportActionMode(ActionMode.Callback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException("ActionMode callback can not be null.");
+        }
+
+        Context context = getActionBarThemedContext();
+
+        ActionModeWrapper.CallbackWrapper wrappedCallback = new ActionModeWrapper.CallbackWrapper(
+                context, callback);
+        ActionModeWrapper wrappedMode = null;
+
+        android.view.ActionMode frameworkMode = mActivity.startActionMode(wrappedCallback);
+
+        if (frameworkMode != null) {
+            wrappedMode = new ActionModeWrapper(context,
+                    mActivity.startActionMode(wrappedCallback));
+            wrappedCallback.setLastStartedActionMode(wrappedMode);
+        }
+
+        return wrappedMode;
+    }
+
+    @Override
+    public void onActionModeStarted(android.view.ActionMode mode) {
+        mActivity.onSupportActionModeStarted(
+                new ActionModeWrapper(getActionBarThemedContext(), mode));
+    }
+
+    @Override
+    public void onActionModeFinished(android.view.ActionMode mode) {
+        mActivity.onSupportActionModeFinished(
+                new ActionModeWrapper(getActionBarThemedContext(), mode));
+    }
+
+    @Override
     public void supportInvalidateOptionsMenu() {
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return false;
     }
 
 }

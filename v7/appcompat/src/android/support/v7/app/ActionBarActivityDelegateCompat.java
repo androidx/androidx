@@ -29,6 +29,8 @@ import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContainer;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
+import android.support.v7.view.ActionMode;
+import android.support.v7.view.Menu;
 import android.support.v7.view.MenuItem;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +43,9 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     ActionBarView mActionBarView;
     ListMenuPresenter mListMenuPresenter;
     MenuBuilder mMenu;
+
+    ActionMode mActionMode;
+    MenuBuilder mActionModeMenu;
 
     ActionBarActivityDelegateCompat(ActionBarActivity activity) {
         super(activity);
@@ -203,22 +208,27 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             boolean show = true;
             MenuBuilder menu = mMenu;
 
-            if (menu == null) {
-                // We don't have a menu created, so create one
-                menu = createMenu();
-                setMenu(menu);
+            if (mActionMode == null) {
+                // We only want to dispatch Activity/Fragment menu calls if there isn't
+                // currently an action mode
 
-                // Make sure we're not dispatching item changes to presenters
-                menu.stopDispatchingItemsChanged();
-                // Dispatch onCreateSupportOptionsMenu
-                show = dispatchCreateSupportOptionsMenu(menu);
-            }
+                if (menu == null) {
+                    // We don't have a menu created, so create one
+                    menu = createMenu();
+                    setMenu(menu);
 
-            if (show) {
-                // Make sure we're not dispatching item changes to presenters
-                menu.stopDispatchingItemsChanged();
-                // Dispatch onPrepareSupportOptionsMenu
-                show = dispatchPrepareSupportOptionsMenu(menu);
+                    // Make sure we're not dispatching item changes to presenters
+                    menu.stopDispatchingItemsChanged();
+                    // Dispatch onCreateSupportOptionsMenu
+                    show = dispatchCreateSupportOptionsMenu(menu);
+                }
+
+                if (show) {
+                    // Make sure we're not dispatching item changes to presenters
+                    menu.stopDispatchingItemsChanged();
+                    // Dispatch onPrepareSupportOptionsMenu
+                    show = dispatchPrepareSupportOptionsMenu(menu);
+                }
             }
 
             if (show) {
@@ -301,6 +311,31 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     @Override
+    public ActionMode startSupportActionMode(ActionMode.Callback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException("ActionMode callback can not be null.");
+        }
+
+        if (mActionMode != null) {
+            mActionMode.finish();
+        }
+
+        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
+        ActionMode mode = null;
+
+        ActionBar ab = mActivity.getSupportActionBar();
+        if (ab != null) {
+            // TODO chrisbanes: Tidy this up when delegate structure changes are merged
+            mActionMode = ((ActionBarImplCompat) ab).startActionMode(wrappedCallback);
+        }
+
+        if (mActionMode != null) {
+            mActivity.onSupportActionModeStarted(mActionMode);
+        }
+        return mActionMode;
+    }
+
+    @Override
     public void supportInvalidateOptionsMenu() {
         final MenuBuilder menu = createMenu();
 
@@ -316,15 +351,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     private MenuBuilder createMenu() {
-        Context context = mActivity;
-
-        // If we have an action bar, initialize the menu with a context themed from it.
-        ActionBar ab = mActivity.getSupportActionBar();
-        if (ab != null) {
-            context = ab.getThemedContext();
-        }
-
-        MenuBuilder menu = new MenuBuilder(context);
+        MenuBuilder menu = new MenuBuilder(getActionBarThemedContext());
         menu.setCallback(this);
         return menu;
     }
@@ -359,7 +386,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             mListMenuPresenter = new ListMenuPresenter(
                     R.layout.list_menu_item_layout, listPresenterTheme);
             mListMenuPresenter.setCallback(cb);
-            mMenu.addMenuPresenter(mListMenuPresenter);
+            updateListMenuPresenterMenu();
         } else {
             // Make sure we update the ListView
             mListMenuPresenter.updateMenuView(false);
@@ -378,12 +405,40 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         }
         mMenu = menu;
 
-        if (menu != null && mListMenuPresenter != null) {
+        if (mActionModeMenu == null && menu != null && mListMenuPresenter != null) {
+            // Only update list menu if there isn't an action mode menu
             menu.addMenuPresenter(mListMenuPresenter);
         }
         if (mActionBarView != null) {
             mActionBarView.setMenu(menu, this);
         }
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        // Back cancels action modes first.
+        if (mActionMode != null) {
+            mActionMode.finish();
+            return true;
+        }
+
+        // Next collapse any expanded action views.
+        if (mActionBarView != null && mActionBarView.hasExpandedActionView()) {
+            mActionBarView.collapseActionView();
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void onActionModeStarted(android.view.ActionMode mode) {
+        // Will never be called
+    }
+
+    @Override
+    public void onActionModeFinished(android.view.ActionMode mode) {
+        // Will never be called
     }
 
     private boolean dispatchCreateSupportOptionsMenu(MenuBuilder menu) {
@@ -402,6 +457,64 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         // FIXME: Reintroduce support options menu dispatch through facade.
         //goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(menu);
         return goforit;
+    }
+
+    private void setActionModeMenu(MenuBuilder menu) {
+        // Make sure that there are no menu's updating the list menu
+        if (mActionModeMenu != null) {
+            mActionModeMenu.removeMenuPresenter(mListMenuPresenter);
+        }
+        if (mMenu != null) {
+            mMenu.removeMenuPresenter(mListMenuPresenter);
+        }
+        mActionModeMenu = menu;
+
+        if (mListMenuPresenter != null) {
+            updateListMenuPresenterMenu();
+        }
+    }
+
+    private void updateListMenuPresenterMenu() {
+        if (mActionModeMenu != null) {
+            // We have a menu from an action mode so use it in the list menu
+            mActionModeMenu.addMenuPresenter(mListMenuPresenter);
+        } else if (mMenu != null) {
+            // We have a menu from the activity/fragments so use it in the list menu
+            mMenu.addMenuPresenter(mListMenuPresenter);
+        }
+    }
+
+    /**
+     * Clears out internal reference when the action mode is destroyed.
+     */
+    private class ActionModeCallbackWrapper implements ActionMode.Callback {
+        private ActionMode.Callback mWrapped;
+
+        public ActionModeCallbackWrapper(ActionMode.Callback wrapped) {
+            mWrapped = wrapped;
+        }
+
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            return mWrapped.onCreateActionMode(mode, menu);
+        }
+
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            final boolean wrappedValue = mWrapped.onPrepareActionMode(mode, menu);
+            setActionModeMenu((MenuBuilder) menu);
+            return wrappedValue;
+        }
+
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            return mWrapped.onActionItemClicked(mode, item);
+        }
+
+        public void onDestroyActionMode(ActionMode mode) {
+            mWrapped.onDestroyActionMode(mode);
+            mActivity.onSupportActionModeFinished(mode);
+
+            setActionModeMenu(null);
+            mActionMode = null;
+        }
     }
 
 }
