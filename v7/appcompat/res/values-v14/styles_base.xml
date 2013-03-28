@@ -75,6 +75,14 @@
            parent="android:Widget.Holo.Light.ActionButton">
     </style>
 
+    <style name="Widget.AppCompat.Base.ActionButton.CloseMode"
+           parent="android:Widget.Holo.ActionButton.CloseMode">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionButton.CloseMode"
+           parent="android:Widget.Holo.Light.ActionButton.CloseMode">
+    </style>
+
     <style name="Widget.AppCompat.Base.ActionButton.Overflow"
            parent="android:Widget.Holo.ActionButton.Overflow">
     </style>

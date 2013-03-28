@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.view.ActionMode;
 import android.support.v7.view.MenuInflater;
 import android.support.v7.view.MenuItem;
 import android.support.v7.internal.view.SupportMenuInflater;
@@ -191,6 +192,34 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         mImpl.supportInvalidateOptionsMenu();
     }
 
+    @Override
+    public final void onActionModeFinished(android.view.ActionMode mode) {
+        mImpl.onActionModeFinished(mode);
+    }
+
+    @Override
+    public final void onActionModeStarted(android.view.ActionMode mode) {
+        mImpl.onActionModeStarted(mode);
+    }
+
+    /**
+     * Notifies the Activity that a support action mode has been started.
+     * Activity subclasses overriding this method should call the superclass implementation.
+     *
+     * @param mode The new action mode.
+     */
+    public void onSupportActionModeStarted(ActionMode mode) {
+    }
+
+    /**
+     * Notifies the activity that a support action mode has finished.
+     * Activity subclasses overriding this method should call the superclass implementation.
+     *
+     * @param mode The action mode that just finished.
+     */
+    public void onSupportActionModeFinished(ActionMode mode) {
+    }
+
     /**
      * Support library version of {@link Activity#onPrepareOptionsMenu}.
      *
@@ -286,6 +315,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         return false;
     }
 
+    public ActionMode startSupportActionMode(ActionMode.Callback callback) {
+        return mImpl.startSupportActionMode(callback);
+    }
+
     void superSetContentView(int resId) {
         super.setContentView(resId);
     }
@@ -308,6 +341,13 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     boolean superOnPreparePanelMenu(int featureId, View view, android.view.Menu menu) {
         return super.onPreparePanel(featureId, view, menu);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!mImpl.onBackPressed()) {
+            super.onBackPressed();
+        }
     }
 
 }

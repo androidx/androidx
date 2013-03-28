@@ -25,7 +25,8 @@ import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ActionBarPolicy;
-import android.support.v7.internal.view.ActionMode;
+import android.support.v7.view.ActionMode;
+import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
 import android.support.v7.internal.widget.ActionBarContainer;
@@ -34,11 +35,11 @@ import android.support.v7.internal.widget.ActionBarOverlayLayout;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.internal.widget.ScrollingTabContainerView;
 import android.support.v7.view.Menu;
+import android.support.v7.view.MenuInflater;
 import android.support.v7.view.MenuItem;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -528,10 +529,24 @@ class ActionBarImplCompat extends ActionBar {
         }
     }
 
+    private void showForActionMode() {
+        if (!mShowingForMode) {
+            mShowingForMode = true;
+            updateVisibility(false);
+        }
+    }
+
     @Override
     public void hide() {
         if (!mHiddenByApp) {
             mHiddenByApp = true;
+            updateVisibility(false);
+        }
+    }
+
+    private void hideForActionMode() {
+        if (mShowingForMode) {
+            mShowingForMode = false;
             updateVisibility(false);
         }
     }
@@ -549,6 +564,46 @@ class ActionBarImplCompat extends ActionBar {
     @Override
     public void removeOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         mMenuVisibilityListeners.remove(listener);
+    }
+
+    public ActionMode startActionMode(ActionMode.Callback callback) {
+        if (mActionMode != null) {
+            mActionMode.finish();
+        }
+
+        mContextView.killMode();
+        ActionModeImpl mode = new ActionModeImpl(callback);
+        if (mode.dispatchOnCreate()) {
+            mode.invalidate();
+            mContextView.initForMode(mode);
+            animateToMode(true);
+            if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
+                if (mSplitView.getVisibility() != View.VISIBLE) {
+                    mSplitView.setVisibility(View.VISIBLE);
+                    if (mOverlayLayout != null) {
+                        mOverlayLayout.requestFitSystemWindows();
+                    }
+                }
+            }
+            mContextView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            mActionMode = mode;
+            return mode;
+        }
+        return null;
+    }
+
+    void animateToMode(boolean toActionMode) {
+        if (toActionMode) {
+            showForActionMode();
+        } else {
+            hideForActionMode();
+        }
+
+        mActionView.animateToVisibility(toActionMode ? View.INVISIBLE : View.VISIBLE);
+        mContextView.animateToVisibility(toActionMode ? View.VISIBLE : View.GONE);
+        if (mTabScrollView != null && !mActionView.hasEmbeddedTabs() && mActionView.isCollapsed()) {
+            mTabScrollView.setVisibility(toActionMode ? View.GONE : View.VISIBLE);
+        }
     }
 
     /**
@@ -677,10 +732,7 @@ class ActionBarImplCompat extends ActionBar {
         }
     }
 
-    /**
-     * @hide
-     */
-    public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
+    class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
 
         private ActionMode.Callback mCallback;
         private MenuBuilder mMenu;
@@ -695,7 +747,7 @@ class ActionBarImplCompat extends ActionBar {
 
         @Override
         public MenuInflater getMenuInflater() {
-            return new MenuInflater(getThemedContext());
+            return new SupportMenuInflater(getThemedContext());
         }
 
         @Override
@@ -723,7 +775,7 @@ class ActionBarImplCompat extends ActionBar {
                 mCallback.onDestroyActionMode(this);
             }
             mCallback = null;
-            //animateToMode(false);
+            animateToMode(false);
 
             // Clear out the context mode views after the animation finishes
             mContextView.closeMode();
@@ -734,7 +786,7 @@ class ActionBarImplCompat extends ActionBar {
 
         @Override
         public void invalidate() {
-            //mMenu.stopDispatchingItemsChanged();
+            mMenu.stopDispatchingItemsChanged();
             try {
                 mCallback.onPrepareActionMode(this, mMenu);
             } finally {
@@ -747,7 +799,7 @@ class ActionBarImplCompat extends ActionBar {
             try {
                 return mCallback.onCreateActionMode(this, mMenu);
             } finally {
-                //mMenu.startDispatchingItemsChanged();
+                mMenu.startDispatchingItemsChanged();
             }
         }
 

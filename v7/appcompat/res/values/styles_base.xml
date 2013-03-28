@@ -89,6 +89,14 @@
            parent="Widget.AppCompat.Base.ActionButton">
     </style>
 
+    <style name="Widget.AppCompat.Base.ActionButton.CloseMode"
+           parent="Widget.AppCompat.Base.ActionButton">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionButton.CloseMode"
+           parent="Widget.AppCompat.Light.Base.ActionButton">
+    </style>
+
     <style name="Widget.AppCompat.Base.ActionButton.Overflow" parent="">
     </style>
 
@@ -145,9 +153,9 @@
     </style>
 
     <style name="Widget.AppCompat.Base.ActionMode" parent="">
-        <item name="android:background">?attr/actionModeBackground</item>
+        <item name="background">?attr/actionModeBackground</item>
         <item name="backgroundSplit">?attr/actionModeSplitBackground</item>
-        <item name="android:height">?attr/actionBarSize</item>
+        <item name="height">?attr/actionBarSize</item>
         <item name="titleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Title</item>
         <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Subtitle
         </item>
