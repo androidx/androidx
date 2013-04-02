@@ -16,6 +16,7 @@
 
 package android.support.v8.renderscript;
 
+import android.os.SystemProperties;
 
 /**
  * Utility class for packing arguments and structures from Android system objects to
@@ -29,7 +30,9 @@ public class FieldPacker {
 
     private boolean shouldThunk() {
         if (thunk == 0) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 ||
+                SystemProperties.getInt("debug.rs.forcenative", 0) != 0) {
+
                 thunk = 1;
             } else {
                 thunk = -1;
