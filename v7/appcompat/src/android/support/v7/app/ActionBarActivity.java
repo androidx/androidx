@@ -18,16 +18,13 @@ package android.support.v7.app;
 
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.WindowCompat;
-import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.MenuInflater;
 import android.support.v7.view.MenuItem;
-import android.support.v7.internal.view.SupportMenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -37,17 +34,6 @@ import android.view.Window;
  */
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback {
     ActionBarActivityDelegate mImpl;
-    ActionBar mActionBar;
-    MenuInflater mMenuInflater;
-
-    // true if the compatibility implementation has installed a window sub-decor layout.
-    boolean mSubDecorInstalled;
-
-    // true if this activity has an action bar.
-    boolean mHasActionBar;
-
-    // true if this activity's action bar overlays other activity content.
-    boolean mOverlayActionBar;
 
     /**
      * Support library version of {@link Activity#getActionBar}.
@@ -57,17 +43,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @return The Activity's ActionBar, or null if it does not have one.
      */
     public ActionBar getSupportActionBar() {
-        // The Action Bar should be lazily created as mHasActionBar or mOverlayActionBar
-        // could change after onCreate
-        if (mHasActionBar || mOverlayActionBar) {
-            if (mActionBar == null) {
-                mActionBar = mImpl.createSupportActionBar();
-            }
-        } else {
-            // If we're not set to have a Action Bar, null it just in case it's been set
-            mActionBar = null;
-        }
-        return mActionBar;
+        return mImpl.getSupportActionBar();
     }
 
     /**
@@ -78,10 +54,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @return The Activity's menu inflater.
      */
     public MenuInflater getSupportMenuInflater() {
-        if (mMenuInflater == null) {
-            mMenuInflater = new SupportMenuInflater(this);
-        }
-        return mMenuInflater;
+        return mImpl.getSupportMenuInflater();
     }
 
     @Override
@@ -102,21 +75,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mImpl = new ActionBarActivityDelegateICS(this);
-        } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
-            mImpl = new ActionBarActivityDelegateHC(this);
-        } else {
-            mImpl = new ActionBarActivityDelegateCompat(this);
-        }
-
-        TypedArray a = obtainStyledAttributes(R.styleable.ActionBarWindow);
-        mHasActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBar, false);
-        mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay, false);
-        a.recycle();
-
+        mImpl = ActionBarActivityDelegate.createDelegate(this);
         mImpl.onCreate(savedInstanceState);
     }
 
