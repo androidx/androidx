@@ -27,8 +27,8 @@
         <item name="height">?attr/actionBarSize</item>
         <item name="homeLayout">@layout/action_bar_home</item>
 
-        <item name="titleTextStyle">@style/TextAppearance.AppCompat.ActionBar.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.ActionBar.Subtitle
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle
         </item>
 
         <item name="background">@drawable/ab_transparent_dark_holo</item>
@@ -68,10 +68,10 @@
     <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"
            parent="Widget.AppCompat.Base.ActionBar.Solid">
         <item name="titleTextStyle">
-            @style/TextAppearance.AppCompat.ActionBar.Title.Inverse
+            @style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse
         </item>
         <item name="subtitleTextStyle">
-            @style/TextAppearance.AppCompat.ActionBar.Subtitle.Inverse
+            @style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse
         </item>
     </style>
 
@@ -156,56 +156,59 @@
         <item name="background">?attr/actionModeBackground</item>
         <item name="backgroundSplit">?attr/actionModeSplitBackground</item>
         <item name="height">?attr/actionBarSize</item>
-        <item name="titleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Subtitle
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle
         </item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
            parent="Widget.AppCompat.Base.ActionMode">
-        <item name="titleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Title.Inverse</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.ActionMode.Subtitle.Inverse
+        <item name="titleTextStyle">
+            @style/TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse
+        </item>
+        <item name="subtitleTextStyle">
+            @style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse
         </item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionMode.Title"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title"
            parent="android:TextAppearance.Medium">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionMode.Subtitle"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle"
            parent="android:TextAppearance.Small">
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionMode.Title.Inverse"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title.Inverse"
            parent="android:TextAppearance.Medium.Inverse">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionMode.Subtitle.Inverse"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle.Inverse"
            parent="android:TextAppearance.Small.Inverse">
         <item name="android:textColor">?android:attr/textColorSecondaryInverse</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.Widget.ActionBar.Menu"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Menu"
            parent="android:TextAppearance.Small">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">?attr/actionMenuTextColor</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionBar.Title"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title"
            parent="android:TextAppearance.Medium">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionBar.Subtitle"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle"
            parent="android:TextAppearance.Small">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionBar.Title.Inverse"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse"
            parent="android:TextAppearance.Medium.Inverse">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.ActionBar.Subtitle.Inverse"
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
            parent="android:TextAppearance.Small.Inverse">
     </style>
 
@@ -248,7 +251,7 @@
     </style>
 
     <style name="Widget.AppCompat.Base.DropDownItem.Spinner" parent="">
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.DropDownItem
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.DropDownItem
         </item>
         <item name="android:paddingLeft">8dp</item>
         <item name="android:paddingRight">8dp</item>
@@ -268,7 +271,8 @@
         <item name="android:listSelector">@drawable/list_selector_holo_light</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.DropDownItem" parent="android:TextAppearance.Small">
+    <style name="TextAppearance.AppCompat.Widget.Base.DropDownItem"
+           parent="android:TextAppearance.Small">
         <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
     </style>
 
