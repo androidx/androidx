@@ -30,8 +30,6 @@ import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.support.v7.appcompat.R;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
 import android.support.v7.internal.view.CollapsibleActionView;
 import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.internal.view.menu.ActionMenuPresenter;
@@ -41,6 +39,8 @@ import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
+import android.support.v7.view.Menu;
+import android.support.v7.view.MenuItem;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -51,12 +51,9 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
@@ -103,8 +100,8 @@ public class ActionBarView extends AbsActionBarView {
     private LinearLayout mListNavLayout;
     private ScrollingTabContainerView mTabScrollView;
     private View mCustomNavView;
-    private ProgressBar mProgressView;
-    private ProgressBar mIndeterminateProgressView;
+    private ProgressBarICS mProgressView;
+    private ProgressBarICS mIndeterminateProgressView;
 
     private int mProgressBarPadding;
     private int mItemPadding;
@@ -304,7 +301,7 @@ public class ActionBarView extends AbsActionBarView {
     }
 
     public void initProgress() {
-        mProgressView = new ProgressBar(mContext, null, mProgressStyle);
+        mProgressView = new ProgressBarICS(mContext, null, 0, mProgressStyle);
         mProgressView.setId(R.id.progress_horizontal);
         mProgressView.setMax(10000);
         mProgressView.setVisibility(GONE);
@@ -312,7 +309,8 @@ public class ActionBarView extends AbsActionBarView {
     }
 
     public void initIndeterminateProgress() {
-        mIndeterminateProgressView = new ProgressBar(mContext, null, mIndeterminateProgressStyle);
+        mIndeterminateProgressView = new ProgressBarICS(mContext, null, 0,
+                mIndeterminateProgressStyle);
         mIndeterminateProgressView.setId(R.id.progress_circular);
         mIndeterminateProgressView.setVisibility(GONE);
         addView(mIndeterminateProgressView);

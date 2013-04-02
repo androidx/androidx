@@ -58,8 +58,8 @@
            parent="Widget.AppCompat.Base.ProgressBar.Horizontal">
     </style>
 
-    <style name="Widget.AppCompat.ProgressBar.Small"
-           parent="Widget.AppCompat.Base.ProgressBar.Small">
+    <style name="Widget.AppCompat.ProgressBar"
+           parent="Widget.AppCompat.Base.ProgressBar">
     </style>
 
     <style name="Widget.AppCompat.ActionButton" parent="Widget.AppCompat.Base.ActionButton">

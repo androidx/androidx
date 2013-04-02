@@ -174,8 +174,8 @@
            parent="android:Widget.Holo.ProgressBar.Horizontal">
     </style>
 
-    <style name="Widget.AppCompat.Base.ProgressBar.Small"
-           parent="android:Widget.Holo.ProgressBar.Small">
+    <style name="Widget.AppCompat.Base.ProgressBar"
+           parent="android:Widget.Holo.ProgressBar">
     </style>
 
 </resources>

@@ -81,7 +81,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     }
 
     @Override
-    public boolean requestWindowFeature(int featureId) {
+    public boolean supportRequestWindowFeature(int featureId) {
         return mActivity.requestWindowFeature(featureId);
     }
 
@@ -168,6 +168,26 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     public void onActionModeStarted(android.view.ActionMode mode) {
         mActivity.onSupportActionModeStarted(
                 new ActionModeWrapper(getActionBarThemedContext(), mode));
+    }
+
+    @Override
+    void setSupportProgressBarVisibility(boolean visible) {
+        mActivity.setProgressBarVisibility(visible);
+    }
+
+    @Override
+    void setSupportProgressBarIndeterminateVisibility(boolean visible) {
+        mActivity.setProgressBarIndeterminateVisibility(visible);
+    }
+
+    @Override
+    void setSupportProgressBarIndeterminate(boolean indeterminate) {
+        mActivity.setProgressBarIndeterminate(indeterminate);
+    }
+
+    @Override
+    void setSupportProgress(int progress) {
+        mActivity.setProgress(progress);
     }
 
     @Override

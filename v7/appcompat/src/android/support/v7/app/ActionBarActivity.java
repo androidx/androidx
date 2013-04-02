@@ -133,7 +133,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @see android.view.Window#requestFeature
      */
     public boolean supportRequestWindowFeature(int featureId) {
-        return mImpl.requestWindowFeature(featureId);
+        return mImpl.supportRequestWindowFeature(featureId);
     }
 
     @Override
@@ -301,6 +301,65 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         if (!mImpl.onBackPressed()) {
             super.onBackPressed();
         }
+    }
+
+    /**
+     * Support library version of {@link Activity#setProgressBarVisibility(boolean)}
+     * <p>
+     * Sets the visibility of the progress bar in the title.
+     * <p>
+     * In order for the progress bar to be shown, the feature must be requested
+     * via {@link #supportRequestWindowFeature(int)}.
+     *
+     * @param visible Whether to show the progress bars in the title.
+     */
+    public void setSupportProgressBarVisibility(boolean visible) {
+        mImpl.setSupportProgressBarVisibility(visible);
+    }
+
+    /**
+     * Support library version of {@link Activity#setProgressBarIndeterminateVisibility(boolean)}
+     * <p>
+     * Sets the visibility of the indeterminate progress bar in the title.
+     * <p>
+     * In order for the progress bar to be shown, the feature must be requested
+     * via {@link #supportRequestWindowFeature(int)}.
+     *
+     * @param visible Whether to show the progress bars in the title.
+     */
+    public void setSupportProgressBarIndeterminateVisibility(boolean visible) {
+        mImpl.setSupportProgressBarIndeterminateVisibility(visible);
+    }
+
+    /**
+     * Support library version of {@link Activity#setProgressBarIndeterminate(boolean)}
+     * <p>
+     * Sets whether the horizontal progress bar in the title should be indeterminate (the circular
+     * is always indeterminate).
+     * <p>
+     * In order for the progress bar to be shown, the feature must be requested
+     * via {@link #supportRequestWindowFeature(int)}.
+     *
+     * @param indeterminate Whether the horizontal progress bar should be indeterminate.
+     */
+    public void setSupportProgressBarIndeterminate(boolean indeterminate) {
+        mImpl.setSupportProgressBarIndeterminate(indeterminate);
+    }
+
+    /**
+     * Support library version of {@link Activity#setProgress(int)}.
+     * <p>
+     * Sets the progress for the progress bars in the title.
+     * <p>
+     * In order for the progress bar to be shown, the feature must be requested
+     * via {@link #supportRequestWindowFeature(int)}.
+     *
+     * @param progress The progress for the progress bar. Valid ranges are from
+     *            0 to 10000 (both inclusive). If 10000 is given, the progress
+     *            bar will be completely filled and will fade out.
+     */
+    public void setSupportProgress(int progress) {
+        mImpl.setSupportProgress(progress);
     }
 
 }
