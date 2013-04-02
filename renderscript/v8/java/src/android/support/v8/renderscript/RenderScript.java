@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import android.os.Process;
 import android.util.Log;
 import android.view.Surface;
 
-
+import android.os.SystemProperties;
 
 /**
  * Renderscript base master class.  An instance of this class creates native
@@ -50,16 +50,6 @@ public class RenderScript {
     static final boolean LOG_ENABLED = false;
 
     private Context mApplicationContext;
-    boolean mUseNativeRS;
-
-    static class NRS {
-        android.renderscript.RenderScript mRS;
-
-        android.renderscript.RenderScript getRS() {
-            return mRS;
-        }
-    }
-    NRS mNRS;
 
     /*
      * We use a class initializer to allow the native code to cache some
@@ -92,6 +82,8 @@ public class RenderScript {
     native int  nContextPeekMessage(int con, int[] subID);
     native void nContextInitToClient(int con);
     native void nContextDeinitToClient(int con);
+
+    static boolean isNative = false;
 
     /**
      * Name of the file that holds the object cache.
@@ -634,6 +626,19 @@ public class RenderScript {
 
     public void setMessageHandler(RSMessageHandler msg) {
         mMessageCallback = msg;
+        if (isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) this;
+            android.renderscript.RenderScript.RSMessageHandler newmsg =
+                new android.renderscript.RenderScript.RSMessageHandler() {
+                    public void run()  {
+                        mMessageCallback.mData = mData;
+                        mMessageCallback.mID = mID;
+                        mMessageCallback.mLength = mLength;
+                        mMessageCallback.run();
+                    }
+                };
+            rst.mN.setMessageHandler(newmsg);
+        }
     }
     public RSMessageHandler getMessageHandler() {
         return mMessageCallback;
@@ -673,6 +678,18 @@ public class RenderScript {
 
     public void setErrorHandler(RSErrorHandler msg) {
         mErrorCallback = msg;
+        if (isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) this;
+            android.renderscript.RenderScript.RSErrorHandler newmsg =
+                new android.renderscript.RenderScript.RSErrorHandler() {
+                    public void run()  {
+                        mErrorCallback.mErrorMessage = mErrorMessage;
+                        mErrorCallback.mErrorNum = mErrorNum;
+                        mErrorCallback.run();
+                    }
+                };
+            rst.mN.setErrorHandler(newmsg);
+        }
     }
     public RSErrorHandler getErrorHandler() {
         return mErrorCallback;
@@ -825,6 +842,13 @@ public class RenderScript {
     public static RenderScript create(Context ctx, int sdkVersion, ContextType ct) {
         RenderScript rs = new RenderScript(ctx);
 
+        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 ||
+            SystemProperties.getInt("debug.rs.forcenative", 0) != 0) {
+            android.util.Log.v(LOG_TAG, "RS native mode");
+            return RenderScriptThunker.create(ctx, sdkVersion);
+        }
+
+        android.util.Log.v(LOG_TAG, "RS compat mode");
         rs.mDev = rs.nDeviceCreate();
         rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID);
         if (rs.mContext == 0) {

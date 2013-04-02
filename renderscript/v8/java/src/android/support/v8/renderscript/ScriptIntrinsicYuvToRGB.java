@@ -24,7 +24,7 @@ package android.support.v8.renderscript;
  * element type. The output is RGBA, the alpha channel will be
  * set to 255.
  */
-public final class ScriptIntrinsicYuvToRGB extends ScriptIntrinsic {
+public class ScriptIntrinsicYuvToRGB extends ScriptIntrinsic {
     private Allocation mInput;
 
     ScriptIntrinsicYuvToRGB(int id, RenderScript rs) {
@@ -42,6 +42,11 @@ public final class ScriptIntrinsicYuvToRGB extends ScriptIntrinsic {
      * @return ScriptIntrinsicYuvToRGB
      */
     public static ScriptIntrinsicYuvToRGB create(RenderScript rs, Element e) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) rs;
+            return ScriptIntrinsicYuvToRGBThunker.create(rs, e);
+        }
+
         // 6 comes from RS_SCRIPT_INTRINSIC_YUV_TO_RGB in rsDefines.h
         int id = rs.nScriptIntrinsicCreate(6, e.getID(rs));
         ScriptIntrinsicYuvToRGB si = new ScriptIntrinsicYuvToRGB(id, rs);

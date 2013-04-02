@@ -322,6 +322,16 @@ public class Sampler extends BaseObj {
         }
 
         public Sampler create() {
+            if (mRS.isNative) {
+                RenderScriptThunker rst = (RenderScriptThunker)mRS;
+                SamplerThunker.Builder b = new SamplerThunker.Builder(rst);
+                b.setMinification(mMin);
+                b.setMagnification(mMag);
+                b.setWrapS(mWrapS);
+                b.setWrapT(mWrapT);
+                b.setAnisotropy(mAniso);
+                return b.create();
+            }
             mRS.validate();
             int id = mRS.nSamplerCreate(mMag.mID, mMin.mID,
                                         mWrapS.mID, mWrapT.mID, mWrapR.mID, mAniso);

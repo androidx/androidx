@@ -27,11 +27,11 @@ import android.util.Log;
  * rsMatrixMultiply() and writing it to the output after
  * conversion back to {@link Element#U8_4}.
  **/
-public final class ScriptIntrinsicColorMatrix extends ScriptIntrinsic {
+public class ScriptIntrinsicColorMatrix extends ScriptIntrinsic {
     private final Matrix4f mMatrix = new Matrix4f();
     private Allocation mInput;
 
-    private ScriptIntrinsicColorMatrix(int id, RenderScript rs) {
+    protected ScriptIntrinsicColorMatrix(int id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -47,7 +47,12 @@ public final class ScriptIntrinsicColorMatrix extends ScriptIntrinsic {
      * @return ScriptIntrinsicColorMatrix
      */
     public static ScriptIntrinsicColorMatrix create(RenderScript rs, Element e) {
-        if (e != Element.U8_4(rs)) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) rs;
+            return ScriptIntrinsicColorMatrixThunker.create(rs, e);
+        }
+
+        if (!e.isCompatible(Element.U8_4(rs))) {
             throw new RSIllegalArgumentException("Unsuported element type.");
         }
         int id = rs.nScriptIntrinsicCreate(2, e.getID(rs));

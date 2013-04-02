@@ -40,7 +40,7 @@ import java.util.ArrayList;
  * a cycle within a ScriptGroup will throw an exception.
  *
  **/
-public final class ScriptGroup extends BaseObj {
+public class ScriptGroup extends BaseObj {
     IO mOutputs[];
     IO mInputs[];
 
@@ -165,6 +165,8 @@ public final class ScriptGroup extends BaseObj {
         private ArrayList<ConnectLine> mLines = new ArrayList<ConnectLine>();
         private int mKernelCount;
 
+        private ScriptGroupThunker.Builder mT;
+
         /**
          * Create a builder for generating a ScriptGroup.
          *
@@ -172,6 +174,9 @@ public final class ScriptGroup extends BaseObj {
          * @param rs The Renderscript context.
          */
         public Builder(RenderScript rs) {
+            if (rs.isNative) {
+                mT = new ScriptGroupThunker.Builder(rs);
+            }
             mRS = rs;
         }
 
@@ -273,6 +278,11 @@ public final class ScriptGroup extends BaseObj {
          * @return Builder Returns this.
          */
         public Builder addKernel(Script.KernelID k) {
+            if (mT != null) {
+                mT.addKernel(k);
+                return this;
+            }
+
             if (mLines.size() != 0) {
                 throw new RSInvalidStateException(
                     "Kernels may not be added once connections exist.");
@@ -309,6 +319,11 @@ public final class ScriptGroup extends BaseObj {
         public Builder addConnection(Type t, Script.KernelID from, Script.FieldID to) {
             //android.util.Log.v("RSR", "addConnection " + t +", " + from + ", " + to);
 
+            if (mT != null) {
+                mT.addConnection(t, from, to);
+                return this;
+            }
+
             Node nf = findNode(from);
             if (nf == null) {
                 throw new RSInvalidStateException("From script not found.");
@@ -344,6 +359,11 @@ public final class ScriptGroup extends BaseObj {
         public Builder addConnection(Type t, Script.KernelID from, Script.KernelID to) {
             //android.util.Log.v("RSR", "addConnection " + t +", " + from + ", " + to);
 
+            if (mT != null) {
+                mT.addConnection(t, from, to);
+                return this;
+            }
+
             Node nf = findNode(from);
             if (nf == null) {
                 throw new RSInvalidStateException("From script not found.");
@@ -373,6 +393,10 @@ public final class ScriptGroup extends BaseObj {
          * @return ScriptGroup The new ScriptGroup
          */
         public ScriptGroup create() {
+
+            if (mT != null) {
+                return mT.create();
+            }
 
             if (mNodes.size() == 0) {
                 throw new RSInvalidStateException("Empty script groups are not allowed");
