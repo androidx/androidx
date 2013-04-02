@@ -201,12 +201,13 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
 
                 Uri uri = intent.getData();
                 int queueBehavior = intent.getIntExtra(
-                        MediaControlIntent.EXTRA_QUEUE_BEHAVIOR,
-                        MediaControlIntent.QUEUE_BEHAVIOR_PLAY_NOW);
+                        MediaControlIntent.EXTRA_STREAM_QUEUE_BEHAVIOR,
+                        MediaControlIntent.STREAM_QUEUE_BEHAVIOR_PLAY_NOW);
                 int position = intent.getIntExtra(
                         MediaControlIntent.EXTRA_STREAM_POSITION, 0);
                 Bundle metadata = intent.getBundleExtra(MediaControlIntent.EXTRA_STREAM_METADATA);
-                Bundle headers = intent.getBundleExtra(MediaControlIntent.EXTRA_HTTP_HEADERS);
+                Bundle headers = intent.getBundleExtra(
+                        MediaControlIntent.EXTRA_STREAM_HTTP_HEADERS);
                 String streamId = generateStreamId();
 
                 Log.d(TAG, mRouteId + ": Received play request, uri=" + uri
