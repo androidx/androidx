@@ -19,7 +19,6 @@ package android.support.v7.app;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
@@ -50,6 +49,22 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
 
+    private boolean mInvalidateMenuPosted;
+    private final Runnable mInvalidateMenuRunnable = new Runnable() {
+        @Override
+        public void run() {
+            final MenuBuilder menu = createMenu();
+            if (dispatchCreateSupportOptionsMenu(menu) &&
+                    dispatchPrepareSupportOptionsMenu(menu)) {
+                setMenu(menu);
+            } else {
+                setMenu(null);
+            }
+
+            mInvalidateMenuPosted = false;
+        }
+    };
+
     ActionBarActivityDelegateCompat(ActionBarActivity activity) {
         super(activity);
     }
@@ -57,15 +72,6 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     @Override
     public ActionBar createSupportActionBar() {
         return new ActionBarImplCompat(mActivity, mActivity);
-    }
-
-    @Override
-    public void onPostCreate(Bundle savedInstanceState) {
-        // After the Activity has been created and the content views added, we need to make sure
-        // that we've inflated the app's menu, so that Action Items can be rendered.
-        if (mSubDecorInstalled) {
-            supportInvalidateOptionsMenu();
-        }
     }
 
     @Override
@@ -173,6 +179,8 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             }
 
             mSubDecorInstalled = true;
+
+            supportInvalidateOptionsMenu();
         }
     }
 
@@ -334,16 +342,9 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
 
     @Override
     public void supportInvalidateOptionsMenu() {
-        final MenuBuilder menu = createMenu();
-
-        // No need to use start/stopDispatchingItemsChanged here
-        // as there are no presenters attached yet
-
-        if (dispatchCreateSupportOptionsMenu(menu) &&
-                dispatchPrepareSupportOptionsMenu(menu)) {
-            setMenu(menu);
-        } else {
-            setMenu(null);
+        if (!mInvalidateMenuPosted) {
+            mInvalidateMenuPosted = true;
+            mActivity.getWindow().getDecorView().post(mInvalidateMenuRunnable);
         }
     }
 

@@ -74,15 +74,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         mImpl = ActionBarActivityDelegate.createDelegate(this);
+        super.onCreate(savedInstanceState);
         mImpl.onCreate(savedInstanceState);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mImpl.onPostCreate(savedInstanceState);
     }
 
     @Override
@@ -144,8 +138,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public void supportInvalidateOptionsMenu() {
-        // Only call up to super on HC+, mImpl will handle otherwise
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+        // Only call up to super on HC+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             super.supportInvalidateOptionsMenu();
         }
         mImpl.supportInvalidateOptionsMenu();
