@@ -22,11 +22,11 @@ import android.util.Log;
  * Intrinsic for applying a 3x3 convolve to an allocation.
  *
  **/
-public final class ScriptIntrinsicConvolve3x3 extends ScriptIntrinsic {
+public class ScriptIntrinsicConvolve3x3 extends ScriptIntrinsic {
     private final float[] mValues = new float[9];
     private Allocation mInput;
 
-    private ScriptIntrinsicConvolve3x3(int id, RenderScript rs) {
+    ScriptIntrinsicConvolve3x3(int id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -47,8 +47,13 @@ public final class ScriptIntrinsicConvolve3x3 extends ScriptIntrinsic {
      * @return ScriptIntrinsicConvolve3x3
      */
     public static ScriptIntrinsicConvolve3x3 create(RenderScript rs, Element e) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) rs;
+            return ScriptIntrinsicConvolve3x3Thunker.create(rs, e);
+        }
+
         float f[] = { 0, 0, 0, 0, 1, 0, 0, 0, 0};
-        if (e != Element.U8_4(rs)) {
+        if (!e.isCompatible(Element.U8_4(rs))) {
             throw new RSIllegalArgumentException("Unsuported element type.");
         }
         int id = rs.nScriptIntrinsicCreate(1, e.getID(rs));

@@ -122,6 +122,13 @@ public class Type extends BaseObj {
     }
 
     /**
+     * @hide
+     */
+    public int getYuv() {
+        return mDimYuv;
+    }
+
+    /**
      * Return the total number of accessable cells in the Type.
      *
      * @return int
@@ -290,9 +297,16 @@ public class Type extends BaseObj {
                 }
             }
 
-            int id = mRS.nTypeCreate(mElement.getID(mRS),
-                                     mDimX, mDimY, mDimZ, mDimMipmaps, mDimFaces, mYuv);
-            Type t = new Type(id, mRS);
+            Type t;
+            if (mRS.isNative) {
+                RenderScriptThunker rst = (RenderScriptThunker)mRS;
+                t = TypeThunker.create(rst, mElement, mDimX, mDimY, mDimZ,
+                                       mDimMipmaps, mDimFaces, mYuv);
+            } else {
+                int id = mRS.nTypeCreate(mElement.getID(mRS),
+                                         mDimX, mDimY, mDimZ, mDimMipmaps, mDimFaces, mYuv);
+                t = new Type(id, mRS);
+            }
             t.mElement = mElement;
             t.mDimX = mDimX;
             t.mDimY = mDimY;

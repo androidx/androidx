@@ -22,6 +22,12 @@ import android.util.SparseArray;
  *
  **/
 public class Script extends BaseObj {
+    ScriptCThunker mT;
+
+    android.renderscript.Script getNObj() {
+        return mT;
+    }
+
 
     /**
      * KernelID is an identifier for a Script + root function pair. It is used
@@ -32,6 +38,7 @@ public class Script extends BaseObj {
      *
      */
     public static final class KernelID extends BaseObj {
+        android.renderscript.Script.KernelID mN;
         Script mScript;
         int mSlot;
         int mSig;
@@ -61,12 +68,25 @@ public class Script extends BaseObj {
             return k;
         }
 
+        // Any native callers to createKernelID must initialize their own native IDs
+        // excpet ScriptCThunker
+        if (mRS.isNative == true) {
+            k = new KernelID(0, mRS, this, slot, sig);
+            if (mT != null) {
+                k.mN = mT.thunkCreateKernelID(slot, sig, ein, eout);
+            }
+            mKIDs.put(slot, k);
+            return k;
+        }
+
+
         int id = mRS.nScriptKernelIDCreate(getID(mRS), slot, sig);
         if (id == 0) {
             throw new RSDriverException("Failed to create KernelID");
         }
 
         k = new KernelID(id, mRS, this, slot, sig);
+
         mKIDs.put(slot, k);
         return k;
     }
@@ -80,6 +100,7 @@ public class Script extends BaseObj {
      *
      */
     public static final class FieldID extends BaseObj {
+        android.renderscript.Script.FieldID mN;
         Script mScript;
         int mSlot;
         FieldID(int id, RenderScript rs, Script s, int slot) {
@@ -99,6 +120,17 @@ public class Script extends BaseObj {
      * @return FieldID
      */
     protected FieldID createFieldID(int slot, Element e) {
+
+        // Any thunking caller to createFieldID must create its own native IDs
+        // except ScriptC
+        if (mRS.isNative == true) {
+            FieldID f = new FieldID(0, mRS, this, slot);
+            if (mT != null) {
+                f.mN = mT.thunkCreateFieldID(slot, e);
+            }
+            mFIDs.put(slot, f);
+            return f;
+        }
         FieldID f = mFIDs.get(slot);
         if (f != null) {
             return f;
@@ -121,6 +153,11 @@ public class Script extends BaseObj {
      * @param slot
      */
     protected void invoke(int slot) {
+        if (mT != null) {
+            mT.thunkInvoke(slot);
+            return;
+        }
+
         mRS.nScriptInvoke(getID(mRS), slot);
     }
 
@@ -131,6 +168,11 @@ public class Script extends BaseObj {
      * @param v
      */
     protected void invoke(int slot, FieldPacker v) {
+        if (mT != null) {
+            mT.thunkInvoke(slot, v);
+            return;
+        }
+
         if (v != null) {
             mRS.nScriptInvokeV(getID(mRS), slot, v.getData());
         } else {
@@ -141,12 +183,52 @@ public class Script extends BaseObj {
     /**
      * Only intended for use by generated reflected code.
      *
+     * @param va
+     * @param slot
+     */
+    public void bindAllocation(Allocation va, int slot) {
+        if (mT != null) {
+            mT.thunkBindAllocation(va, slot);
+            return;
+        }
+
+        mRS.validate();
+        if (va != null) {
+            mRS.nScriptBindAllocation(getID(mRS), va.getID(mRS), slot);
+        } else {
+            mRS.nScriptBindAllocation(getID(mRS), 0, slot);
+        }
+    }
+
+    public void setTimeZone(String timeZone) {
+        if (mT != null) {
+            mT.thunkSetTimeZone(timeZone);
+            return;
+        }
+
+        mRS.validate();
+        try {
+            mRS.nScriptSetTimeZone(getID(mRS), timeZone.getBytes("UTF-8"));
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * Only intended for use by generated reflected code.
+     *
      * @param slot
      * @param ain
      * @param aout
      * @param v
      */
     protected void forEach(int slot, Allocation ain, Allocation aout, FieldPacker v) {
+        if (mT != null) {
+            mT.thunkForEach(slot, ain, aout, v);
+            return;
+        }
+
         if (ain == null && aout == null) {
             throw new RSIllegalArgumentException(
                 "At least one of ain or aout is required to be non-null.");
@@ -195,22 +277,6 @@ public class Script extends BaseObj {
         super(id, rs);
     }
 
-
-    /**
-     * Only intended for use by generated reflected code.
-     *
-     * @param va
-     * @param slot
-     */
-    public void bindAllocation(Allocation va, int slot) {
-        mRS.validate();
-        if (va != null) {
-            mRS.nScriptBindAllocation(getID(mRS), va.getID(mRS), slot);
-        } else {
-            mRS.nScriptBindAllocation(getID(mRS), 0, slot);
-        }
-    }
-
     /**
      * Only intended for use by generated reflected code.
      *
@@ -218,6 +284,11 @@ public class Script extends BaseObj {
      * @param v
      */
     public void setVar(int index, float v) {
+        if (mT != null) {
+            mT.thunkSetVar(index, v);
+            return;
+        }
+
         mRS.nScriptSetVarF(getID(mRS), index, v);
     }
 
@@ -228,6 +299,11 @@ public class Script extends BaseObj {
      * @param v
      */
     public void setVar(int index, double v) {
+        if (mT != null) {
+            mT.thunkSetVar(index, v);
+            return;
+        }
+
         mRS.nScriptSetVarD(getID(mRS), index, v);
     }
 
@@ -238,6 +314,11 @@ public class Script extends BaseObj {
      * @param v
      */
     public void setVar(int index, int v) {
+        if (mT != null) {
+            mT.thunkSetVar(index, v);
+            return;
+        }
+
         mRS.nScriptSetVarI(getID(mRS), index, v);
     }
 
@@ -248,6 +329,11 @@ public class Script extends BaseObj {
      * @param v
      */
     public void setVar(int index, long v) {
+        if (mT != null) {
+            mT.thunkSetVar(index, v);
+            return;
+        }
+
         mRS.nScriptSetVarJ(getID(mRS), index, v);
     }
 
@@ -258,6 +344,11 @@ public class Script extends BaseObj {
      * @param v
      */
     public void setVar(int index, boolean v) {
+        if (mT != null) {
+            mT.thunkSetVar(index, v);
+            return;
+        }
+
         mRS.nScriptSetVarI(getID(mRS), index, v ? 1 : 0);
     }
 
@@ -268,6 +359,11 @@ public class Script extends BaseObj {
      * @param o
      */
     public void setVar(int index, BaseObj o) {
+        if (mT != null) {
+            mT.thunkSetVar(index, o);
+            return;
+        }
+
         mRS.nScriptSetVarObj(getID(mRS), index, (o == null) ? 0 : o.getID(mRS));
     }
 
@@ -278,6 +374,11 @@ public class Script extends BaseObj {
      * @param v
      */
     public void setVar(int index, FieldPacker v) {
+        if (mT != null) {
+            mT.thunkSetVar(index, v);
+            return;
+        }
+
         mRS.nScriptSetVarV(getID(mRS), index, v.getData());
     }
 
@@ -290,16 +391,12 @@ public class Script extends BaseObj {
      * @param dims
      */
     public void setVar(int index, FieldPacker v, Element e, int[] dims) {
-        mRS.nScriptSetVarVE(getID(mRS), index, v.getData(), e.getID(mRS), dims);
-    }
-
-    public void setTimeZone(String timeZone) {
-        mRS.validate();
-        try {
-            mRS.nScriptSetTimeZone(getID(mRS), timeZone.getBytes("UTF-8"));
-        } catch (java.io.UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+        if (mT != null) {
+            mT.thunkSetVar(index, v, e, dims);
+            return;
         }
+
+        mRS.nScriptSetVarVE(getID(mRS), index, v.getData(), e.getID(mRS), dims);
     }
 
     public static class Builder {
