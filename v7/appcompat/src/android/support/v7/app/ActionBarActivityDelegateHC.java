@@ -57,10 +57,6 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     }
 
     @Override
-    public void onPostCreate(Bundle savedInstanceState) {
-    }
-
-    @Override
     public void onConfigurationChanged(Configuration newConfig) {
     }
 
