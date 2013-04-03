@@ -141,7 +141,7 @@
 
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">@dimen/panel_menu_list_width</item>
-        <item name="panelMenuListTheme">@style/Theme.AppCompat.Light.CompactMenu</item>
+        <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
 
     </style>
 
@@ -173,30 +173,20 @@
         <!-- Dropdown Spinner Attributes -->
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
 
-        <!-- Panel attributes -->
-        <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
-
     </style>
 
     <!-- Menu/item attributes -->
-
     <style name="Theme.AppCompat.Base.CompactMenu" parent="">
-        <item name="android:itemTextAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:itemTextAppearance">
+            @style/TextAppearance.Widget.AppCompat.ExpandedMenu.Item</item>
         <item name="android:listViewStyle">@android:style/Widget.ListView.Menu</item>
-        <item name="android:background">@null</item>
     </style>
 
-    <style name="Theme.AppCompat.Base.Light.CompactMenu" parent="">
-        <item name="android:itemTextAppearance">?android:attr/textAppearanceMediumInverse</item>
+
+    <style name="Theme.AppCompat.Base.CompactMenu.Dialog" parent="">
+        <item name="android:itemTextAppearance">
+            @style/TextAppearance.AppCompat.Base.CompactMenu.Dialog</item>
         <item name="android:listViewStyle">@android:style/Widget.ListView.Menu</item>
-        <item name="android:background">@null</item>
-    </style>
-
-    <!-- These aren't Base, but they have no use globally -->
-    <style name="Theme.AppCompat.CompactMenu" parent="Theme.AppCompat.Base.CompactMenu">
-    </style>
-
-    <style name="Theme.AppCompat.Light.CompactMenu" parent="Theme.AppCompat.Base.Light.CompactMenu">
     </style>
 
 </resources>
