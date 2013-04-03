@@ -276,5 +276,16 @@
         <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
     </style>
 
+    <style name="TextAppearance.Widget.AppCompat.Base.ExpandedMenu.Item"
+           parent="android:TextAppearance.Widget.IconMenu.Item">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <!-- Mimic text appearance in select_dialog_item.xml -->
+    <style name="TextAppearance.AppCompat.Base.CompactMenu.Dialog"
+           parent="android:TextAppearance.Medium">
+        <item name="android:textColor">@android:color/primary_text_light</item>
+    </style>
+
 
 </resources>
