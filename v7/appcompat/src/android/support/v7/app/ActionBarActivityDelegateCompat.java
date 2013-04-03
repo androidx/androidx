@@ -87,6 +87,22 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     @Override
+    public void onStop() {
+        ActionBarImplCompat ab = (ActionBarImplCompat) getSupportActionBar();
+        if (ab != null) {
+            ab.setShowHideAnimationEnabled(false);
+        }
+    }
+
+    @Override
+    public void onPostResume() {
+        ActionBarImplCompat ab = (ActionBarImplCompat) getSupportActionBar();
+        if (ab != null) {
+            ab.setShowHideAnimationEnabled(true);
+        }
+    }
+
+    @Override
     public void setContentView(View v) {
         ensureSubDecor();
         if (mHasActionBar) {

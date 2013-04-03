@@ -102,6 +102,10 @@ abstract class ActionBarActivityDelegate {
 
     abstract void onConfigurationChanged(Configuration newConfig);
 
+    abstract void onStop();
+
+    abstract void onPostResume();
+
     abstract void setContentView(View v);
 
     abstract void setContentView(int resId);
