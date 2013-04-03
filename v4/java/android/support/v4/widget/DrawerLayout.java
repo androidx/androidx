@@ -89,6 +89,11 @@ public class DrawerLayout extends ViewGroup {
     private static final int DEFAULT_SCRIM_COLOR = 0x99000000;
 
     /**
+     * Length of time to delay before peeking the drawer.
+     */
+    private static final int PEEK_DELAY = 160; // ms
+
+    /**
      * Experimental feature.
      */
     private static final boolean ALLOW_EDGE_LOCK = false;
@@ -105,11 +110,14 @@ public class DrawerLayout extends ViewGroup {
 
     private final ViewDragHelper mLeftDragger;
     private final ViewDragHelper mRightDragger;
+    private final ViewDragCallback mLeftCallback;
+    private final ViewDragCallback mRightCallback;
     private int mDrawerState;
     private boolean mInLayout;
     private boolean mFirstLayout = true;
     private int mLockModeLeft;
     private int mLockModeRight;
+    private boolean mDisallowInterceptRequested;
 
     private DrawerListener mListener;
 
@@ -190,16 +198,16 @@ public class DrawerLayout extends ViewGroup {
         final float density = getResources().getDisplayMetrics().density;
         mMinDrawerMargin = (int) (MIN_DRAWER_MARGIN * density + 0.5f);
 
-        final ViewDragCallback leftCallback = new ViewDragCallback(Gravity.LEFT);
-        final ViewDragCallback rightCallback = new ViewDragCallback(Gravity.RIGHT);
+        mLeftCallback = new ViewDragCallback(Gravity.LEFT);
+        mRightCallback = new ViewDragCallback(Gravity.RIGHT);
 
-        mLeftDragger = ViewDragHelper.create(this, 0.5f, leftCallback);
+        mLeftDragger = ViewDragHelper.create(this, 0.5f, mLeftCallback);
         mLeftDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
-        leftCallback.setDragger(mLeftDragger);
+        mLeftCallback.setDragger(mLeftDragger);
 
-        mRightDragger = ViewDragHelper.create(this, 0.5f, rightCallback);
+        mRightDragger = ViewDragHelper.create(this, 0.5f, mRightCallback);
         mRightDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
-        rightCallback.setDragger(mRightDragger);
+        mRightCallback.setDragger(mRightDragger);
 
         // So that we can catch the back button
         setFocusableInTouchMode(true);
@@ -781,14 +789,26 @@ public class DrawerLayout extends ViewGroup {
                         isContentView(mLeftDragger.findTopChildUnder((int) x, (int) y))) {
                     interceptForTap = true;
                 }
+                mDisallowInterceptRequested = false;
+                break;
+            }
+
+            case MotionEvent.ACTION_MOVE: {
+                // If we cross the touch slop, don't perform the delayed peek for an edge touch.
+                if (mLeftDragger.checkTouchSlop(ViewDragHelper.DIRECTION_ALL)) {
+                    mLeftCallback.removeCallbacks();
+                    mRightCallback.removeCallbacks();
+                }
                 break;
             }
 
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP: {
                 closeDrawers(true);
+                mDisallowInterceptRequested = false;
             }
         }
+
         return interceptForDrag || interceptForTap || hasPeekingDrawer();
     }
 
@@ -806,6 +826,7 @@ public class DrawerLayout extends ViewGroup {
                 final float y = ev.getY();
                 mInitialMotionX = x;
                 mInitialMotionY = y;
+                mDisallowInterceptRequested = false;
                 break;
             }
 
@@ -827,11 +848,13 @@ public class DrawerLayout extends ViewGroup {
                     }
                 }
                 closeDrawers(peekingOnly);
+                mDisallowInterceptRequested = false;
                 break;
             }
 
             case MotionEvent.ACTION_CANCEL: {
                 closeDrawers(true);
+                mDisallowInterceptRequested = false;
                 break;
             }
         }
@@ -840,7 +863,12 @@ public class DrawerLayout extends ViewGroup {
     }
 
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+        if (!mLeftDragger.isEdgeTouched(ViewDragHelper.EDGE_LEFT) &&
+                !mRightDragger.isEdgeTouched(ViewDragHelper.EDGE_RIGHT)) {
+            // If we have an edge touch we want to skip this and track it for later instead.
+            super.requestDisallowInterceptTouchEvent(disallowIntercept);
+        }
+        mDisallowInterceptRequested = disallowIntercept;
         if (disallowIntercept) {
             closeDrawers(true);
         }
@@ -876,6 +904,9 @@ public class DrawerLayout extends ViewGroup {
 
             lp.isPeeking = false;
         }
+
+        mLeftCallback.removeCallbacks();
+        mRightCallback.removeCallbacks();
 
         if (needsInvalidate) {
             invalidate();
@@ -1152,9 +1183,14 @@ public class DrawerLayout extends ViewGroup {
     }
 
     private class ViewDragCallback extends ViewDragHelper.Callback {
-
         private final int mGravity;
         private ViewDragHelper mDragger;
+
+        private final Runnable mPeekRunnable = new Runnable() {
+            @Override public void run() {
+                peekDrawer();
+            }
+        };
 
         public ViewDragCallback(int gravity) {
             mGravity = gravity;
@@ -1162,6 +1198,10 @@ public class DrawerLayout extends ViewGroup {
 
         public void setDragger(ViewDragHelper dragger) {
             mDragger = dragger;
+        }
+
+        public void removeCallbacks() {
+            DrawerLayout.this.removeCallbacks(mPeekRunnable);
         }
 
         @Override
@@ -1231,11 +1271,14 @@ public class DrawerLayout extends ViewGroup {
 
         @Override
         public void onEdgeTouched(int edgeFlags, int pointerId) {
+            postDelayed(mPeekRunnable, PEEK_DELAY);
+        }
+
+        private void peekDrawer() {
             final View toCapture;
             final int childLeft;
-            final boolean leftEdge =
-                    (edgeFlags & ViewDragHelper.EDGE_LEFT) == ViewDragHelper.EDGE_LEFT;
             final int peekDistance = mDragger.getEdgeSize();
+            final boolean leftEdge = mGravity == Gravity.LEFT;
             if (leftEdge) {
                 toCapture = findDrawerWithGravity(Gravity.LEFT);
                 childLeft = (toCapture != null ? -toCapture.getWidth() : 0) + peekDistance;
@@ -1243,7 +1286,6 @@ public class DrawerLayout extends ViewGroup {
                 toCapture = findDrawerWithGravity(Gravity.RIGHT);
                 childLeft = getWidth() - peekDistance;
             }
-
             // Only peek if it would mean making the drawer more visible and the drawer isn't locked
             if (toCapture != null && ((leftEdge && toCapture.getLeft() < childLeft) ||
                     (!leftEdge && toCapture.getLeft() > childLeft)) &&

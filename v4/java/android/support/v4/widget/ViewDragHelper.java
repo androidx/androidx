@@ -80,6 +80,26 @@ public class ViewDragHelper {
      */
     public static final int EDGE_BOTTOM = 1 << 3;
 
+    /**
+     * Edge flag set indicating all edges should be affected.
+     */
+    public static final int EDGE_ALL = EDGE_LEFT | EDGE_TOP | EDGE_RIGHT | EDGE_BOTTOM;
+
+    /**
+     * Indicates that a check should occur along the horizontal axis
+     */
+    public static final int DIRECTION_HORIZONTAL = 1 << 0;
+
+    /**
+     * Indicates that a check should occur along the vertical axis
+     */
+    public static final int DIRECTION_VERTICAL = 1 << 1;
+
+    /**
+     * Indicates that a check should occur along all axes
+     */
+    public static final int DIRECTION_ALL = DIRECTION_HORIZONTAL | DIRECTION_VERTICAL;
+
     private static final int EDGE_SIZE = 24; // dp
 
     private static final int BASE_SETTLE_DURATION = 256; // ms
@@ -100,6 +120,7 @@ public class ViewDragHelper {
     private int[] mInitialEdgesTouched;
     private int[] mEdgeDragsInProgress;
     private int[] mEdgeDragsLocked;
+    private int mPointersDown;
 
     private VelocityTracker mVelocityTracker;
     private float mMaxVelocity;
@@ -718,6 +739,7 @@ public class ViewDragHelper {
         Arrays.fill(mInitialEdgesTouched, 0);
         Arrays.fill(mEdgeDragsInProgress, 0);
         Arrays.fill(mEdgeDragsLocked, 0);
+        mPointersDown = 0;
     }
 
     private void clearMotionHistory(int pointerId) {
@@ -731,6 +753,7 @@ public class ViewDragHelper {
         mInitialEdgesTouched[pointerId] = 0;
         mEdgeDragsInProgress[pointerId] = 0;
         mEdgeDragsLocked[pointerId] = 0;
+        mPointersDown &= ~(1 << pointerId);
     }
 
     private void ensureMotionHistorySizeForId(int pointerId) {
@@ -768,6 +791,7 @@ public class ViewDragHelper {
         mInitialMotionX[pointerId] = mLastMotionX[pointerId] = x;
         mInitialMotionY[pointerId] = mLastMotionY[pointerId] = y;
         mInitialEdgesTouched[pointerId] = getEdgesTouched((int) x, (int) y);
+        mPointersDown |= 1 << pointerId;
     }
 
     private void saveLastMotion(MotionEvent ev) {
@@ -779,6 +803,23 @@ public class ViewDragHelper {
             mLastMotionX[pointerId] = x;
             mLastMotionY[pointerId] = y;
         }
+    }
+
+    /**
+     * Check if the given pointer ID represents a pointer that is currently down (to the best
+     * of the ViewDragHelper's knowledge).
+     *
+     * <p>The state used to report this information is populated by the methods
+     * {@link #shouldInterceptTouchEvent(android.view.MotionEvent)} or
+     * {@link #processTouchEvent(android.view.MotionEvent)}. If one of these methods has not
+     * been called for all relevant MotionEvents to track, the information reported
+     * by this method may be stale or incorrect.</p>
+     *
+     * @param pointerId pointer ID to check; corresponds to IDs provided by MotionEvent
+     * @return true if the pointer with the given ID is still down
+     */
+    public boolean isPointerDown(int pointerId) {
+        return (mPointersDown & 1 << pointerId) != 0;
     }
 
     void setDragState(int state) {
@@ -932,7 +973,7 @@ public class ViewDragHelper {
                     }
 
                     final View toCapture = findTopChildUnder((int) x, (int) y);
-                    if (toCapture != null && slopCheck(toCapture, dx, dy) &&
+                    if (toCapture != null && checkTouchSlop(toCapture, dx, dy) &&
                             tryCaptureViewForDrag(toCapture, pointerId)) {
                         break;
                     }
@@ -1055,7 +1096,7 @@ public class ViewDragHelper {
                         }
 
                         final View toCapture = findTopChildUnder((int) x, (int) y);
-                        if (slopCheck(toCapture, dx, dy) &&
+                        if (checkTouchSlop(toCapture, dx, dy) &&
                                 tryCaptureViewForDrag(toCapture, pointerId)) {
                             break;
                         }
@@ -1142,14 +1183,14 @@ public class ViewDragHelper {
         if ((mInitialEdgesTouched[pointerId] & edge) != edge  || (mTrackingEdges & edge) == 0 ||
                 (mEdgeDragsLocked[pointerId] & edge) == edge ||
                 (mEdgeDragsInProgress[pointerId] & edge) == edge ||
-                (absDelta < mTouchSlop && absODelta < mTouchSlop)) {
+                (absDelta <= mTouchSlop && absODelta <= mTouchSlop)) {
             return false;
         }
         if (absDelta < absODelta * 0.5f && mCallback.onEdgeLock(edge)) {
             mEdgeDragsLocked[pointerId] |= edge;
             return false;
         }
-        return (mEdgeDragsInProgress[pointerId] & edge) == 0;
+        return (mEdgeDragsInProgress[pointerId] & edge) == 0 && absDelta > mTouchSlop;
     }
 
     /**
@@ -1162,7 +1203,7 @@ public class ViewDragHelper {
      * @param dy Motion since initial position along Y axis
      * @return true if the touch slop has been crossed
      */
-    private boolean slopCheck(View child, float dx, float dy) {
+    private boolean checkTouchSlop(View child, float dx, float dy) {
         if (child == null) {
             return false;
         }
@@ -1177,6 +1218,99 @@ public class ViewDragHelper {
             return Math.abs(dy) > mTouchSlop;
         }
         return false;
+    }
+
+    /**
+     * Check if any pointer tracked in the current gesture has crossed
+     * the required slop threshold.
+     *
+     * <p>This depends on internal state populated by
+     * {@link #shouldInterceptTouchEvent(android.view.MotionEvent)} or
+     * {@link #processTouchEvent(android.view.MotionEvent)}. You should only rely on
+     * the results of this method after all currently available touch data
+     * has been provided to one of these two methods.</p>
+     *
+     * @param directions Combination of direction flags, see {@link #DIRECTION_HORIZONTAL},
+     *                   {@link #DIRECTION_VERTICAL}, {@link #DIRECTION_ALL}
+     * @return true if the slop threshold has been crossed, false otherwise
+     */
+    public boolean checkTouchSlop(int directions) {
+        final int count = mInitialMotionX.length;
+        for (int i = 0; i < count; i++) {
+            if (checkTouchSlop(directions, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the specified pointer tracked in the current gesture has crossed
+     * the required slop threshold.
+     *
+     * <p>This depends on internal state populated by
+     * {@link #shouldInterceptTouchEvent(android.view.MotionEvent)} or
+     * {@link #processTouchEvent(android.view.MotionEvent)}. You should only rely on
+     * the results of this method after all currently available touch data
+     * has been provided to one of these two methods.</p>
+     *
+     * @param directions Combination of direction flags, see {@link #DIRECTION_HORIZONTAL},
+     *                   {@link #DIRECTION_VERTICAL}, {@link #DIRECTION_ALL}
+     * @param pointerId ID of the pointer to slop check as specified by MotionEvent
+     * @return true if the slop threshold has been crossed, false otherwise
+     */
+    public boolean checkTouchSlop(int directions, int pointerId) {
+        if (!isPointerDown(pointerId)) {
+            return false;
+        }
+
+        final boolean checkHorizontal = (directions & DIRECTION_HORIZONTAL) == DIRECTION_HORIZONTAL;
+        final boolean checkVertical = (directions & DIRECTION_VERTICAL) == DIRECTION_VERTICAL;
+
+        final float dx = mLastMotionX[pointerId] - mInitialMotionX[pointerId];
+        final float dy = mLastMotionY[pointerId] - mInitialMotionY[pointerId];
+
+        if (checkHorizontal && checkVertical) {
+            return dx * dx + dy * dy > mTouchSlop * mTouchSlop;
+        } else if (checkHorizontal) {
+            return Math.abs(dx) > mTouchSlop;
+        } else if (checkVertical) {
+            return Math.abs(dy) > mTouchSlop;
+        }
+        return false;
+    }
+
+    /**
+     * Check if any of the edges specified were initially touched in the currently active gesture.
+     * If there is no currently active gesture this method will return false.
+     *
+     * @param edges Edges to check for an initial edge touch. See {@link #EDGE_LEFT},
+     *              {@link #EDGE_TOP}, {@link #EDGE_RIGHT}, {@link #EDGE_BOTTOM} and
+     *              {@link #EDGE_ALL}
+     * @return true if any of the edges specified were initially touched in the current gesture
+     */
+    public boolean isEdgeTouched(int edges) {
+        final int count = mInitialEdgesTouched.length;
+        for (int i = 0; i < count; i++) {
+            if (isEdgeTouched(edges, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if any of the edges specified were initially touched by the pointer with
+     * the specified ID. If there is no currently active gesture or if there is no pointer with
+     * the given ID currently down this method will return false.
+     *
+     * @param edges Edges to check for an initial edge touch. See {@link #EDGE_LEFT},
+     *              {@link #EDGE_TOP}, {@link #EDGE_RIGHT}, {@link #EDGE_BOTTOM} and
+     *              {@link #EDGE_ALL}
+     * @return true if any of the edges specified were initially touched in the current gesture
+     */
+    public boolean isEdgeTouched(int edges, int pointerId) {
+        return isPointerDown(pointerId) && (mInitialEdgesTouched[pointerId] & edges) != 0;
     }
 
     private void releaseViewForPointerUp() {
