@@ -16,6 +16,7 @@
 
 package android.support.v7.media;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 /**
@@ -24,4 +25,60 @@ import android.os.Bundle;
 public final class MediaStreamMetadata {
     private MediaStreamMetadata() {
     }
+
+    /**
+     * Metadata key: Album art.
+     * <p>
+     * The value is a {@link Bitmap}.
+     * </p>
+     */
+    public static final String KEY_ALBUM_ART = "ALBUM_ART";
+
+    /**
+     * Metadata key: Album artist.
+     * <p>
+     * The value is a string suitable for display.
+     * </p>
+     */
+    public static final String KEY_ALBUM_ARTIST = "ALBUM_ARTIST";
+
+    /**
+     * Metadata key: Album title.
+     * <p>
+     * The value is a string suitable for display.
+     * </p>
+     */
+    public static final String KEY_ALBUM_TITLE = "ALBUM_TITLE";
+
+    /**
+     * Metadata key: Track artist.
+     * <p>
+     * The value is a string suitable for display.
+     * </p>
+     */
+    public static final String KEY_TRACK_ARTIST = "TRACK_ARTIST";
+
+    /**
+     * Metadata key: Track number.
+     * <p>
+     * The value is an integer track number.
+     * </p>
+     */
+    public static final String KEY_TRACK_NUMBER = "TRACK_NUMBER";
+
+    /**
+     * Metadata key: Track title.
+     * <p>
+     * The value is a string suitable for display.
+     * </p>
+     */
+    public static final String KEY_TRACK_TITLE = "TRACK_TITLE";
+
+    /**
+     * Metadata key: Year of publication.
+     * <p>
+     * The value is an integer year number.
+     * </p>
+     */
+    public static final String KEY_YEAR = "YEAR";
 }
