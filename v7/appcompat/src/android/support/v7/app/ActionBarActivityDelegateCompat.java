@@ -38,7 +38,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implements
-        MenuPresenter.Callback, MenuBuilder.Callback {
+        MenuPresenter.Callback, MenuBuilder.Callback, ActionBarView.Callback {
 
     private ActionBarView mActionBarView;
     private ListMenuPresenter mListMenuPresenter;
@@ -166,6 +166,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
                 mActivity.superSetContentView(R.layout.action_bar_decor);
             }
             mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
+            mActionBarView.setViewCallback(this);
 
             /**
              * Progress Bars
@@ -315,27 +316,10 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
 
     @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-        if (mActivity.onSupportOptionsItemSelected(item)) {
-            return true;
-        }
-        // FIXME: Reintroduce support options menu dispatch through facade.
-        //if (mActivity.mFragments.dispatchSupportOptionsItemSelected(item)) {
-        //    return true;
-        //}
-
-        ActionBar ab = getSupportActionBar();
-        if (item.getItemId() == R.id.home && ab != null &&
-                (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
-            if (mActivity.getParent() == null) {
-                // TODO: Implement "Up" button
-                // return mActivity.onNavigateUp();
-            } else {
-                // TODO: Implement "Up" button
-                // return mParent.onNavigateUpFromChild(this);
-            }
-        }
-        return false;
+        return onMenuItemSelectedInternal(item);
     }
+
+
 
     @Override
     public void onMenuModeChange(MenuBuilder menu) {
@@ -618,6 +602,40 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             pb.setVisibility(View.INVISIBLE);
         }
         return pb;
+    }
+
+    /**
+     *  From ActionBarView.Callback
+     */
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            return onMenuItemSelectedInternal(item);
+        }
+        return false;
+    }
+
+    private boolean onMenuItemSelectedInternal(MenuItem item) {
+        if (mActivity.onSupportOptionsItemSelected(item)) {
+            return true;
+        }
+        // FIXME: Reintroduce support options menu dispatch through facade.
+        //if (mActivity.mFragments.dispatchSupportOptionsItemSelected(item)) {
+        //    return true;
+        //}
+
+        ActionBar ab = getSupportActionBar();
+        if (item.getItemId() == android.R.id.home && ab != null &&
+                (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+            if (mActivity.getParent() == null) {
+                // TODO: Implement "Up" button
+                // return mActivity.onNavigateUp();
+            } else {
+                // TODO: Implement "Up" button
+                // return mParent.onNavigateUpFromChild(this);
+            }
+        }
+        return false;
     }
 
     /**
