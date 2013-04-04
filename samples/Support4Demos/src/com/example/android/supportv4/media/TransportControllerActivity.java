@@ -36,6 +36,32 @@ public class TransportControllerActivity extends Activity {
     private VideoView mVideoView;
     private TransportController mTransportController;
 
+    /**
+     * Handle media buttons to start/stop video playback.  Real implementations
+     * will probably handle more buttons, like skip and fast-forward.
+     */
+    public class PlayerControlCallbacks extends TransportController.Callbacks {
+        public boolean onMediaButtonDown(int keyCode, KeyEvent event) {
+            switch (keyCode) {
+                case TransportController.KEYCODE_MEDIA_PLAY:
+                    mVideoView.start();
+                    return true;
+                case TransportController.KEYCODE_MEDIA_PAUSE:
+                case KeyEvent.KEYCODE_MEDIA_STOP:
+                    mVideoView.pause();
+                    return true;
+                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                case KeyEvent.KEYCODE_HEADSETHOOK:
+                    if (mVideoView.isPlaying()) {
+                        mVideoView.pause();
+                    } else {
+                        mVideoView.start();
+                    }
+            }
+            return true;
+        }
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -46,8 +72,7 @@ public class TransportControllerActivity extends Activity {
 
         // Create transport controller to control video; use the standard
         // control callbacks that knows how to talk to a MediaPlayerControl.
-        mTransportController = new TransportController(this,
-                new TransportController.PlayerControlCallbacks(mVideoView));
+        mTransportController = new TransportController(this, new PlayerControlCallbacks());
 
         // We're just playing a built-in demo video.
         mVideoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() +
