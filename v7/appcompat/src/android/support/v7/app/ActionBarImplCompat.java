@@ -43,6 +43,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.SpinnerAdapter;
 
 import java.lang.ref.WeakReference;
@@ -986,12 +988,56 @@ class ActionBarImplCompat extends ActionBar {
         }
     }
 
+    public void setShowHideAnimationEnabled(boolean enabled) {
+        mShowHideAnimationEnabled = enabled;
+        if (!enabled) {
+            mTopVisibilityView.clearAnimation();
+            if (mSplitView != null) {
+                mSplitView.clearAnimation();
+            }
+        }
+    }
+
     public void doShow(boolean fromSystem) {
+        mTopVisibilityView.clearAnimation();
+        if (mTopVisibilityView.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        if (mShowHideAnimationEnabled) {
+            Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_top);
+            mTopVisibilityView.startAnimation(anim);
+        }
         mTopVisibilityView.setVisibility(View.VISIBLE);
+
+        if (mSplitView != null && mSplitView.getVisibility() != View.VISIBLE) {
+            if (mShowHideAnimationEnabled) {
+                Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_bottom);
+                mSplitView.startAnimation(anim);
+            }
+            mSplitView.setVisibility(View.VISIBLE);
+        }
     }
 
     public void doHide(boolean fromSystem) {
+        mTopVisibilityView.clearAnimation();
+        if (mTopVisibilityView.getVisibility() == View.GONE) {
+            return;
+        }
+
+        if (mShowHideAnimationEnabled) {
+            Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_out_top);
+            mTopVisibilityView.startAnimation(anim);
+        }
         mTopVisibilityView.setVisibility(View.GONE);
+
+        if (mSplitView != null && mSplitView.getVisibility() != View.GONE) {
+            if (mShowHideAnimationEnabled) {
+                Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_out_bottom);
+                mSplitView.startAnimation(anim);
+            }
+            mSplitView.setVisibility(View.GONE);
+        }
     }
 
 }

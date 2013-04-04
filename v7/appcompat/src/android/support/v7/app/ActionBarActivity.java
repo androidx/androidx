@@ -86,6 +86,18 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        mImpl.onStop();
+    }
+
+    @Override
+    public void onPostResume() {
+        super.onPostResume();
+        mImpl.onPostResume();
+    }
+
+    @Override
     public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
         return mImpl.onCreatePanelMenu(featureId, frameworkMenu);
     }
