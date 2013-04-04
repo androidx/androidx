@@ -106,38 +106,6 @@ public class TransportController {
         }
     }
 
-    /**
-     * Convenience implementation of {@link Callbacks} that transforms key
-     * actions to operations on a {@link MediaController.MediaPlayerControl}.
-     */
-    public static class PlayerControlCallbacks extends Callbacks {
-        private final MediaController.MediaPlayerControl mPlayerControl;
-
-        public PlayerControlCallbacks(MediaController.MediaPlayerControl playerControl) {
-            mPlayerControl = playerControl;
-        }
-
-        public boolean onMediaButtonDown(int keyCode, KeyEvent event) {
-            switch (keyCode) {
-                case KEYCODE_MEDIA_PLAY:
-                    mPlayerControl.start();
-                    return true;
-                case KEYCODE_MEDIA_PAUSE:
-                case KeyEvent.KEYCODE_MEDIA_STOP:
-                    mPlayerControl.pause();
-                    return true;
-                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                case KeyEvent.KEYCODE_HEADSETHOOK:
-                    if (mPlayerControl.isPlaying()) {
-                        mPlayerControl.pause();
-                    } else {
-                        mPlayerControl.start();
-                    }
-            }
-            return true;
-        }
-    }
-
     public TransportController(Activity activity, Callbacks callbacks) {
         this(activity, null, callbacks);
     }
