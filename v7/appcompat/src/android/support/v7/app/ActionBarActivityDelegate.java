@@ -110,11 +110,11 @@ abstract class ActionBarActivityDelegate {
 
     abstract void addContentView(View v, ViewGroup.LayoutParams lp);
 
-    abstract boolean requestWindowFeature(int featureId);
-
     abstract void setTitle(CharSequence title);
 
     abstract void supportInvalidateOptionsMenu();
+
+    abstract boolean supportRequestWindowFeature(int featureId);
 
     // Methods used to create and respond to options menu
     abstract View onCreatePanelView(int featureId);
@@ -132,6 +132,14 @@ abstract class ActionBarActivityDelegate {
     abstract void onActionModeFinished(android.view.ActionMode mode);
 
     abstract void onActionModeStarted(android.view.ActionMode mode);
+
+    abstract void setSupportProgressBarVisibility(boolean visible) ;
+
+    abstract void setSupportProgressBarIndeterminateVisibility(boolean visible);
+
+    abstract void setSupportProgressBarIndeterminate(boolean indeterminate);
+
+    abstract void setSupportProgress(int progress);
 
     protected final String getUiOptionsFromMetadata() {
         try {

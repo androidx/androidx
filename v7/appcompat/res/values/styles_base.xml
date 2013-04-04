@@ -39,7 +39,7 @@
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
 
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
-        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Small</item>
+        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar" parent="Widget.AppCompat.Base.ActionBar">
@@ -49,7 +49,7 @@
 
         <!-- TODO chrisbanes: Change these to Light themes -->
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
-        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Small</item>
+        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.Solid" parent="Widget.AppCompat.Base.ActionBar">
@@ -212,22 +212,11 @@
            parent="android:TextAppearance.Small.Inverse">
     </style>
 
-    <style name="Widget.AppCompat.Base.ProgressBar.Horizontal" parent="android:Widget.ProgressBar">
-        <item name="android:indeterminateOnly">false</item>
-        <item name="android:progressDrawable">@android:drawable/progress_horizontal</item>
-        <item name="android:indeterminateDrawable">
-            @android:drawable/progress_indeterminate_horizontal
-        </item>
-        <item name="android:minHeight">20dip</item>
-        <item name="android:maxHeight">20dip</item>
+    <style name="Widget.AppCompat.Base.ProgressBar.Horizontal"
+           parent="android:Widget.ProgressBar.Horizontal">
     </style>
 
-    <style name="Widget.AppCompat.Base.ProgressBar.Small" parent="android:Widget.ProgressBar">
-        <item name="android:indeterminateDrawable">@drawable/progress_small_white</item>
-        <item name="android:minWidth">16dip</item>
-        <item name="android:maxWidth">16dip</item>
-        <item name="android:minHeight">16dip</item>
-        <item name="android:maxHeight">16dip</item>
+    <style name="Widget.AppCompat.Base.ProgressBar" parent="android:Widget.ProgressBar">
     </style>
 
     <!-- Action Bar Spinner Widgets -->
