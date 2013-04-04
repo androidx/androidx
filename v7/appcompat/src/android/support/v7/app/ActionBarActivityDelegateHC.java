@@ -61,6 +61,14 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     }
 
     @Override
+    public void onStop() {
+    }
+
+    @Override
+    public void onPostResume() {
+    }
+
+    @Override
     public void setContentView(View v) {
         mActivity.superSetContentView(v);
     }
