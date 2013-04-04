@@ -28,6 +28,7 @@ import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContainer;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
+import android.support.v7.internal.widget.ProgressBarICS;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.Menu;
 import android.support.v7.view.MenuItem;
@@ -48,6 +49,9 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
 
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
+
+    // Used to keep track of Progress Bar Window features
+    private boolean mFeatureProgress, mFeatureIndeterminateProgress;
 
     private boolean mInvalidateMenuPosted;
     private final Runnable mInvalidateMenuRunnable = new Runnable() {
@@ -148,6 +152,16 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
 
             /**
+             * Progress Bars
+             */
+            if (mFeatureProgress) {
+                mActionBarView.initProgress();
+            }
+            if (mFeatureIndeterminateProgress) {
+                mActionBarView.initIndeterminateProgress();
+            }
+
+            /**
              * Split Action Bar
              */
             boolean splitWhenNarrow = UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW
@@ -185,13 +199,19 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     @Override
-    public boolean requestWindowFeature(int featureId) {
+    public boolean supportRequestWindowFeature(int featureId) {
         switch (featureId) {
             case WindowCompat.FEATURE_ACTION_BAR:
                 mHasActionBar = true;
                 return true;
             case WindowCompat.FEATURE_ACTION_BAR_OVERLAY:
                 mOverlayActionBar = true;
+                return true;
+            case Window.FEATURE_PROGRESS:
+                mFeatureProgress = true;
+                return true;
+            case Window.FEATURE_INDETERMINATE_PROGRESS:
+                mFeatureIndeterminateProgress = true;
                 return true;
             default:
                 return mActivity.requestWindowFeature(featureId);
@@ -435,6 +455,29 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     @Override
+    void setSupportProgressBarVisibility(boolean visible) {
+        updateProgressBars(visible ? Window.PROGRESS_VISIBILITY_ON :
+                Window.PROGRESS_VISIBILITY_OFF);
+    }
+
+    @Override
+    void setSupportProgressBarIndeterminateVisibility(boolean visible) {
+        updateProgressBars(visible ? Window.PROGRESS_VISIBILITY_ON :
+                Window.PROGRESS_VISIBILITY_OFF);
+    }
+
+    @Override
+    void setSupportProgressBarIndeterminate(boolean indeterminate) {
+        updateProgressBars(indeterminate ? Window.PROGRESS_INDETERMINATE_ON
+                : Window.PROGRESS_INDETERMINATE_OFF);
+    }
+
+    @Override
+    void setSupportProgress(int progress) {
+        updateProgressBars(Window.PROGRESS_START + progress);
+    }
+
+    @Override
     public void onActionModeFinished(android.view.ActionMode mode) {
         // Will never be called
     }
@@ -480,6 +523,85 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             // We have a menu from the activity/fragments so use it in the list menu
             mMenu.addMenuPresenter(mListMenuPresenter);
         }
+    }
+
+    /**
+     * Progress Bar function. Mostly extracted from PhoneWindow.java
+     */
+    private void updateProgressBars(int value) {
+        ProgressBarICS circularProgressBar = getCircularProgressBar();
+        ProgressBarICS horizontalProgressBar = getHorizontalProgressBar();
+
+        if (value == Window.PROGRESS_VISIBILITY_ON) {
+            if (mFeatureProgress) {
+                int level = horizontalProgressBar.getProgress();
+                int visibility = (horizontalProgressBar.isIndeterminate() || level < 10000) ?
+                        View.VISIBLE : View.INVISIBLE;
+                horizontalProgressBar.setVisibility(visibility);
+            }
+            if (mFeatureIndeterminateProgress) {
+                circularProgressBar.setVisibility(View.VISIBLE);
+            }
+        } else if (value == Window.PROGRESS_VISIBILITY_OFF) {
+            if (mFeatureProgress) {
+                horizontalProgressBar.setVisibility(View.GONE);
+            }
+            if (mFeatureIndeterminateProgress) {
+                circularProgressBar.setVisibility(View.GONE);
+            }
+        } else if (value == Window.PROGRESS_INDETERMINATE_ON) {
+            horizontalProgressBar.setIndeterminate(true);
+        } else if (value == Window.PROGRESS_INDETERMINATE_OFF) {
+            horizontalProgressBar.setIndeterminate(false);
+        } else if (Window.PROGRESS_START <= value && value <= Window.PROGRESS_END) {
+            // We want to set the progress value before testing for visibility
+            // so that when the progress bar becomes visible again, it has the
+            // correct level.
+            horizontalProgressBar.setProgress(value - Window.PROGRESS_START);
+
+            if (value < Window.PROGRESS_END) {
+                showProgressBars(horizontalProgressBar, circularProgressBar);
+            } else {
+                hideProgressBars(horizontalProgressBar, circularProgressBar);
+            }
+        }
+    }
+
+    private void showProgressBars(ProgressBarICS horizontalProgressBar,
+            ProgressBarICS spinnyProgressBar) {
+        if (mFeatureIndeterminateProgress && spinnyProgressBar.getVisibility() == View.INVISIBLE) {
+            spinnyProgressBar.setVisibility(View.VISIBLE);
+        }
+        // Only show the progress bars if the primary progress is not complete
+        if (mFeatureProgress && horizontalProgressBar.getProgress() < 10000) {
+            horizontalProgressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideProgressBars(ProgressBarICS horizontalProgressBar,
+            ProgressBarICS spinnyProgressBar) {
+        if (mFeatureIndeterminateProgress && spinnyProgressBar.getVisibility() == View.VISIBLE) {
+            spinnyProgressBar.setVisibility(View.INVISIBLE);
+        }
+        if (mFeatureProgress && horizontalProgressBar.getVisibility() == View.VISIBLE) {
+            horizontalProgressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private ProgressBarICS getCircularProgressBar() {
+        ProgressBarICS pb = (ProgressBarICS) mActionBarView.findViewById(R.id.progress_circular);
+        if (pb != null) {
+            pb.setVisibility(View.INVISIBLE);
+        }
+        return pb;
+    }
+
+    private ProgressBarICS getHorizontalProgressBar() {
+        ProgressBarICS pb = (ProgressBarICS) mActionBarView.findViewById(R.id.progress_horizontal);
+        if (pb != null) {
+            pb.setVisibility(View.INVISIBLE);
+        }
+        return pb;
     }
 
     /**
