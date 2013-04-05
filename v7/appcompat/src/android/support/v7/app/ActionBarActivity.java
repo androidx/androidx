@@ -109,15 +109,42 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public View onCreatePanelView(int featureId) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL)
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             return mImpl.onCreatePanelView(featureId);
-        else {
+        } else {
             return super.onCreatePanelView(featureId);
         }
     }
 
+    /**
+     * You should override {@link #onCreateSupportOptionsMenu(android.support.v7.view.Menu)} when
+     * using the support Action Bar.
+     */
     @Override
-    public boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
+    public final boolean onCreateOptionsMenu(android.view.Menu menu) {
+        return false;
+    }
+
+    /**
+     * You should override {@link #onPrepareSupportOptionsMenu(android.support.v7.view.Menu)} when
+     * using the support Action Bar.
+     */
+    @Override
+    public final boolean onPrepareOptionsMenu(android.view.Menu menu) {
+        return false;
+    }
+
+    /**
+     * You should override {@link #onSupportOptionsItemSelected(android.support.v7.view.MenuItem)}
+     * when using the support Action Bar.
+     */
+    @Override
+    public final boolean onOptionsItemSelected(android.view.MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public final boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
         if (mImpl.onMenuItemSelected(featureId, item)) {
             return true;
         }
