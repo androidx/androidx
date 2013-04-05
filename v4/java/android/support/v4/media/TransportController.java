@@ -23,7 +23,6 @@ import android.os.Build;
 import android.support.v4.view.KeyEventCompat;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.MediaController;
 
 /**
  * Helper for implementing a media transport control (with play, pause, skip, and
@@ -37,10 +36,15 @@ public class TransportController {
     final View mView;
     final Object mDispatcherState;
     final TransportControllerJellybeanMR2 mController;
-    final TransportControllerJellybeanMR2.KeyCallback mTransportKeyCallback
-            = new TransportControllerJellybeanMR2.KeyCallback() {
+    final TransportControllerJellybeanMR2.TransportCallback mTransportKeyCallback
+            = new TransportControllerJellybeanMR2.TransportCallback() {
+        @Override
         public void handleKey(KeyEvent key) {
             key.dispatch(mKeyEventCallback);
+        }
+        @Override
+        public void handleAudioFocusChange(int focusChange) {
+            mCallbacks.onAudioFocusChange(TransportController.this, focusChange);
         }
     };
 
@@ -98,11 +102,62 @@ public class TransportController {
      * while your window is in focus.
      */
     public static class Callbacks {
+        /**
+         * Report that a media button has been pressed.  This is like
+         * {@link KeyEvent.Callback#onKeyDown(int, android.view.KeyEvent)} but
+         * will only deliver media keys.
+         * @param keyCode The code of the media key.
+         * @param event The full key event.
+         * @return Indicate whether the key has been consumed.  The default
+         * implementation always returns true.  This only matters for keys
+         * being dispatched here from
+         * {@link TransportController#dispatchKeyEvent(android.view.KeyEvent)
+         * TransportController.dispatchKeyEvent}, and determines whether the key
+         * continues on to its default key handling (which for media keys means
+         * being delivered to the current media remote control, which should
+         * be us).
+         */
         public boolean onMediaButtonDown(int keyCode, KeyEvent event) {
             return true;
         }
+
+        /**
+         * Report that a media button has been pressed.  This is like
+         * {@link KeyEvent.Callback#onKeyUp(int, android.view.KeyEvent)} but
+         * will only deliver media keys.
+         * @param keyCode The code of the media key.
+         * @param event The full key event.
+         * @return Indicate whether the key has been consumed.  The default
+         * implementation always returns true.  This only matters for keys
+         * being dispatched here from
+         * {@link TransportController#dispatchKeyEvent(android.view.KeyEvent)
+         * TransportController.dispatchKeyEvent}, and determines whether the key
+         * continues on to its default key handling (which for media keys means
+         * being delivered to the current media remote control, which should
+         * be us).
+         */
         public boolean onMediaButtonUp(int keyCode, KeyEvent event) {
             return true;
+        }
+
+        /**
+         * Report that audio focus has changed on the app.  This only happens if
+         * you have indicated you have started playing with
+         * {@link TransportController#startPlaying TransportController.startPlaying},
+         * which takes audio focus for you.
+         * @param focusChange The type of focus change, as per
+         * {@link android.media.AudioManager.OnAudioFocusChangeListener#onAudioFocusChange(int)
+         * OnAudioFocusChangeListener.onAudioFocusChange}.  The default implementation will
+         * deliver a {@link KeyEvent#KEYCODE_MEDIA_STOP}
+         * when receiving {@link android.media.AudioManager#AUDIOFOCUS_LOSS},
+         * {@link KeyEvent#KEYCODE_MEDIA_PAUSE}
+         * when receiving {@link android.media.AudioManager#AUDIOFOCUS_LOSS_TRANSIENT}
+         * or {@link android.media.AudioManager#AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}, and
+         * {@link KeyEvent#KEYCODE_MEDIA_PLAY}
+         * when receiving {@link android.media.AudioManager#AUDIOFOCUS_GAIN}.
+         */
+        public void onAudioFocusChange(TransportController transport, int focusChange) {
+            transport.handleAudioFocusChange(focusChange);
         }
     }
 
@@ -153,11 +208,47 @@ public class TransportController {
     }
 
     /**
+     * Move the controller into the playing state.  This updates the remote control
+     * client to indicate it is playing, and takes audio focus for the app.
+     */
+    public void startPlaying() {
+        if (mController != null) {
+            mController.startPlaying();
+        }
+    }
+
+    /**
+     * Move the controller into the paused state.  This updates the remote control
+     * client to indicate it is paused, but keeps audio focus.
+     */
+    public void pausePlaying() {
+        if (mController != null) {
+            mController.pausePlaying();
+        }
+    }
+
+    /**
+     * Move the controller into the stopped state.  This updates the remote control
+     * client to indicate it is stopped, and removes audio focus from the app.
+     */
+    public void stopPlaying() {
+        if (mController != null) {
+            mController.stopPlaying();
+        }
+    }
+
+    /**
      * Optionally call when no longer using the TransportController.  Its resources
      * will also be automatically cleaned up when your activity/view is detached from
      * its window, so you don't normally need to call this explicitly.
      */
     public void destroy() {
         mController.destroy();
+    }
+
+    void handleAudioFocusChange(int focusChange) {
+        if (mController != null) {
+            mController.handleAudioFocusChange(focusChange);
+        }
     }
 }
