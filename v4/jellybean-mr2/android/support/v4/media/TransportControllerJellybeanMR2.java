@@ -149,11 +149,20 @@ public class TransportControllerJellybeanMR2 {
         }
     }
 
+    public void refreshState(boolean playing, int transportControls) {
+        if (mRemoteControl != null) {
+            mRemoteControl.setPlaybackState(playing ? RemoteControlClient.PLAYSTATE_PLAYING
+                    : RemoteControlClient.PLAYSTATE_STOPPED);
+            mRemoteControl.setTransportControlFlags(transportControls);
+        }
+    }
+
     public void pausePlaying() {
         if (mPlayState == RemoteControlClient.PLAYSTATE_PLAYING) {
             mPlayState = RemoteControlClient.PLAYSTATE_PAUSED;
             mRemoteControl.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
         }
+        dropAudioFocus();
     }
 
     public void stopPlaying() {
@@ -162,29 +171,6 @@ public class TransportControllerJellybeanMR2 {
             mRemoteControl.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
         }
         dropAudioFocus();
-    }
-
-    void handleAudioFocusChange(int focusChange) {
-        int keyCode = 0;
-        switch (focusChange) {
-            case AudioManager.AUDIOFOCUS_GAIN:
-                keyCode = KeyEvent.KEYCODE_MEDIA_PLAY;
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS:
-                keyCode = KeyEvent.KEYCODE_MEDIA_STOP;
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                keyCode = KeyEvent.KEYCODE_MEDIA_PAUSE;
-                break;
-        }
-        if (keyCode != 0) {
-            final long now = SystemClock.uptimeMillis();
-            mTransportCallback.handleKey(new KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0, 0,
-                    KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0, InputDevice.SOURCE_KEYBOARD));
-            mTransportCallback.handleKey(new KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0, 0,
-                    KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0, InputDevice.SOURCE_KEYBOARD));
-        }
     }
 
     void dropAudioFocus() {
