@@ -16,6 +16,8 @@
 
 package com.example.android.supportv4.media;
 
+import android.support.v4.media.TransportMediator;
+import android.support.v4.media.TransportPerformer;
 import com.example.android.supportv4.R;
 
 import android.app.ActionBar;
@@ -31,8 +33,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.VideoView;
 
-import android.support.v4.media.TransportController;
-
 public class TransportControllerActivity extends Activity {
 
     /**
@@ -40,92 +40,70 @@ public class TransportControllerActivity extends Activity {
      * file path.
      */
     private Content mContent;
-    private TransportController mTransportController;
+    private TransportMediator mTransportMediator;
     private MediaController mMediaController;
-
-    /**
-     * Handle media buttons to start/stop video playback.  Real implementations
-     * will probably handle more buttons, like skip and fast-forward.
-     */
-    TransportController.Callbacks mTransportCallbacks = new TransportController.Callbacks() {
-        public boolean onMediaButtonDown(int keyCode, KeyEvent event) {
-            switch (keyCode) {
-                case TransportController.KEYCODE_MEDIA_PLAY:
-                    mMediaPlayerControl.start();
-                    return true;
-                case TransportController.KEYCODE_MEDIA_PAUSE:
-                case KeyEvent.KEYCODE_MEDIA_STOP:
-                    mMediaPlayerControl.pause();
-                    return true;
-                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                case KeyEvent.KEYCODE_HEADSETHOOK:
-                    if (mContent.isPlaying()) {
-                        mMediaPlayerControl.pause();
-                    } else {
-                        mMediaPlayerControl.start();
-                    }
-            }
-            return true;
-        }
-    };
 
     /**
      * Handle actions from on-screen media controls.  Most of these are simple re-directs
      * to the VideoView; some we need to capture to update our state.
      */
-    MediaController.MediaPlayerControl mMediaPlayerControl
-            = new MediaController.MediaPlayerControl() {
+    TransportPerformer mTransportPerformer = new TransportPerformer() {
 
         @Override
-        public void start() {
-            mTransportController.startPlaying();
+        public void onStart() {
             mContent.start();
         }
 
         @Override
-        public void pause() {
-            mTransportController.pausePlaying();
+        public void onStop() {
             mContent.pause();
         }
 
         @Override
-        public int getDuration() {
+        public void onPause() {
+            mContent.pause();
+        }
+
+        @Override
+        public int onGetDuration() {
             return mContent.getDuration();
         }
 
         @Override
-        public int getCurrentPosition() {
+        public int onGetCurrentPosition() {
             return mContent.getCurrentPosition();
         }
 
         @Override
-        public void seekTo(int pos) {
+        public void onSeekTo(int pos) {
             mContent.seekTo(pos);
         }
 
         @Override
-        public boolean isPlaying() {
+        public boolean onIsPlaying() {
             return mContent.isPlaying();
         }
 
         @Override
-        public int getBufferPercentage() {
+        public int onGetBufferPercentage() {
             return mContent.getBufferPercentage();
         }
 
         @Override
-        public boolean canPause() {
-            return mContent.canPause();
-        }
-
-        @Override
-        public boolean canSeekBackward() {
-            return mContent.canSeekBackward();
-        }
-
-        @Override
-        public boolean canSeekForward() {
-            return mContent.canSeekForward();
+        public int onGetTransportControlFlags() {
+            int flags = TransportMediator.FLAG_KEY_MEDIA_PLAY
+                    | TransportMediator.FLAG_KEY_MEDIA_PLAY_PAUSE
+                    | TransportMediator.FLAG_KEY_MEDIA_STOP;
+            if (mContent.canPause()) {
+                flags |= TransportMediator.FLAG_KEY_MEDIA_PAUSE;
+            }
+            if (mContent.canSeekBackward()) {
+                flags |= TransportMediator.FLAG_KEY_MEDIA_REWIND;
+            }
+            if (mContent.canSeekForward()) {
+                flags |= TransportMediator.FLAG_KEY_MEDIA_FAST_FORWARD;
+            }
+            return flags;
         }
     };
 
@@ -139,7 +117,7 @@ public class TransportControllerActivity extends Activity {
             ActionBar.OnMenuVisibilityListener, MediaPlayer.OnPreparedListener,
             MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
         Activity mActivity;
-        TransportController mTransportController;
+        TransportMediator mTransportMediator;
         MediaController mMediaController;
         boolean mAddedMenuListener;
         boolean mMenusOpen;
@@ -169,12 +147,12 @@ public class TransportControllerActivity extends Activity {
             setOnErrorListener(this);
         }
 
-        public void init(Activity activity, TransportController transportController,
+        public void init(Activity activity, TransportMediator transportMediator,
                 MediaController mediaController) {
             // This called by the containing activity to supply the surrounding
             // state of the video player that it will interact with.
             mActivity = activity;
-            mTransportController = transportController;
+            mTransportMediator = transportMediator;
             mMediaController = mediaController;
             pause();
         }
@@ -231,13 +209,13 @@ public class TransportControllerActivity extends Activity {
 
         @Override
         public void onCompletion(MediaPlayer mp) {
-            mTransportController.pausePlaying();
+            mTransportMediator.pausePlaying();
             pause();
         }
 
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            mTransportController.pausePlaying();
+            mTransportMediator.pausePlaying();
             pause();
             return false;
         }
@@ -309,16 +287,16 @@ public class TransportControllerActivity extends Activity {
         // Find the video player in our UI.
         mContent = (Content) findViewById(R.id.content);
 
-        // Create and initialize the media control UI.
-        mMediaController = (MediaController) findViewById(R.id.media_controller);
-        mMediaController.setMediaPlayer(mMediaPlayerControl);
-
         // Create transport controller to control video, giving the callback
         // interface to receive actions from.
-        mTransportController = new TransportController(this, mTransportCallbacks);
+        mTransportMediator = new TransportMediator(this, mTransportPerformer);
+
+        // Create and initialize the media control UI.
+        mMediaController = (MediaController) findViewById(R.id.media_controller);
+        mMediaController.setMediaPlayer(mTransportMediator);
 
         // We're just playing a built-in demo video.
-        mContent.init(this, mTransportController, mMediaController);
+        mContent.init(this, mTransportMediator, mMediaController);
         mContent.setVideoURI(Uri.parse("android.resource://" + getPackageName() +
                 "/" + R.raw.videoviewdemo));
     }
@@ -328,7 +306,7 @@ public class TransportControllerActivity extends Activity {
         // We first dispatch keys to the transport controller -- we want it
         // to get to consume any media keys rather than letting whoever has focus
         // in the view hierarchy to potentially eat it.
-        if (mTransportController.dispatchKeyEvent(event)) {
+        if (mTransportMediator.dispatchKeyEvent(event)) {
             return true;
         }
 

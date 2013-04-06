@@ -16,6 +16,9 @@
 
 package com.example.android.supportv4.media;
 
+import android.support.v4.media.TransportController;
+import android.support.v4.media.TransportMediator;
+import android.support.v4.media.TransportStateListener;
 import com.example.android.supportv4.R;
 
 import android.content.Context;
@@ -40,28 +43,38 @@ import java.util.Locale;
  */
 public class MediaController extends FrameLayout {
 
-    private MediaPlayerControl  mPlayer;
+    private TransportController mController;
     private Context mContext;
     private ProgressBar mProgress;
     private TextView mEndTime, mCurrentTime;
-    private boolean             mDragging;
-    private boolean             mUseFastForward;
-    private boolean             mFromXml;
-    private boolean             mListenersSet;
+    private boolean mDragging;
+    private boolean mUseFastForward;
+    private boolean mListenersSet;
+    private boolean mShowNext, mShowPrev;
     private View.OnClickListener mNextListener, mPrevListener;
-    StringBuilder               mFormatBuilder;
+    StringBuilder mFormatBuilder;
     Formatter mFormatter;
     private ImageButton mPauseButton;
-    private ImageButton         mFfwdButton;
-    private ImageButton         mRewButton;
-    private ImageButton         mNextButton;
-    private ImageButton         mPrevButton;
+    private ImageButton mFfwdButton;
+    private ImageButton mRewButton;
+    private ImageButton mNextButton;
+    private ImageButton mPrevButton;
+
+    private TransportStateListener mStateListener = new TransportStateListener() {
+        @Override
+        public void onPlayingChanged(TransportController controller) {
+            updatePausePlay();
+        }
+        @Override
+        public void onTransportControlsChanged(TransportController controller) {
+            updateButtons();
+        }
+    };
 
     public MediaController(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
         mUseFastForward = true;
-        mFromXml = true;
         LayoutInflater inflate = (LayoutInflater)
                 mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflate.inflate(R.layout.media_controller, this, true);
@@ -78,9 +91,33 @@ public class MediaController extends FrameLayout {
         this(context, true);
     }
 
-    public void setMediaPlayer(MediaPlayerControl player) {
-        mPlayer = player;
+    public void setMediaPlayer(TransportController controller) {
+        if (getWindowToken() != null) {
+            if (mController != null) {
+                mController.unregisterStateListener(mStateListener);
+            }
+            if (controller != null) {
+                controller.registerStateListener(mStateListener);
+            }
+        }
+        mController = controller;
         updatePausePlay();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (mController != null) {
+            mController.registerStateListener(mStateListener);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mController != null) {
+            mController.unregisterStateListener(mStateListener);
+        }
     }
 
     private void initControllerView() {
@@ -93,26 +130,22 @@ public class MediaController extends FrameLayout {
         mFfwdButton = (ImageButton) findViewById(R.id.ffwd);
         if (mFfwdButton != null) {
             mFfwdButton.setOnClickListener(mFfwdListener);
-            if (!mFromXml) {
-                mFfwdButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
-            }
+            mFfwdButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
         }
 
         mRewButton = (ImageButton) findViewById(R.id.rew);
         if (mRewButton != null) {
             mRewButton.setOnClickListener(mRewListener);
-            if (!mFromXml) {
-                mRewButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
-            }
+            mRewButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
         }
 
         // By default these are hidden. They will be enabled when setPrevNextListeners() is called
         mNextButton = (ImageButton) findViewById(R.id.next);
-        if (mNextButton != null && !mFromXml && !mListenersSet) {
+        if (mNextButton != null && !mListenersSet) {
             mNextButton.setVisibility(View.GONE);
         }
         mPrevButton = (ImageButton) findViewById(R.id.prev);
-        if (mPrevButton != null && !mFromXml && !mListenersSet) {
+        if (mPrevButton != null && !mListenersSet) {
             mPrevButton.setVisibility(View.GONE);
         }
 
@@ -137,28 +170,34 @@ public class MediaController extends FrameLayout {
      * Disable pause or seek buttons if the stream cannot be paused or seeked.
      * This requires the control interface to be a MediaPlayerControlExt
      */
-    private void disableUnsupportedButtons() {
-        try {
-            if (mPauseButton != null && !mPlayer.canPause()) {
-                mPauseButton.setEnabled(false);
-            }
-            if (mRewButton != null && !mPlayer.canSeekBackward()) {
-                mRewButton.setEnabled(false);
-            }
-            if (mFfwdButton != null && !mPlayer.canSeekForward()) {
-                mFfwdButton.setEnabled(false);
-            }
-        } catch (IncompatibleClassChangeError ex) {
-            // We were given an old version of the interface, that doesn't have
-            // the canPause/canSeekXYZ methods. This is OK, it just means we
-            // assume the media can be paused and seeked, and so we don't disable
-            // the buttons.
+    void updateButtons() {
+        int flags = mController.getTransportControlFlags();
+        boolean enabled = isEnabled();
+        if (mPauseButton != null) {
+            mPauseButton.setEnabled(enabled && (flags&TransportMediator.FLAG_KEY_MEDIA_PAUSE) != 0);
+        }
+        if (mRewButton != null) {
+            mRewButton.setEnabled(enabled && (flags&TransportMediator.FLAG_KEY_MEDIA_REWIND) != 0);
+        }
+        if (mFfwdButton != null) {
+            mFfwdButton.setEnabled(enabled &&
+                    (flags&TransportMediator.FLAG_KEY_MEDIA_FAST_FORWARD) != 0);
+        }
+        if (mPrevButton != null) {
+            mShowPrev = (flags&TransportMediator.FLAG_KEY_MEDIA_PREVIOUS) != 0
+                    || mPrevListener != null;
+            mPrevButton.setEnabled(enabled && mShowPrev);
+        }
+        if (mNextButton != null) {
+            mShowNext = (flags&TransportMediator.FLAG_KEY_MEDIA_NEXT) != 0
+                    || mNextListener != null;
+            mNextButton.setEnabled(enabled && mShowNext);
         }
     }
 
     public void refresh() {
         updateProgress();
-        disableUnsupportedButtons();
+        updateButtons();
         updatePausePlay();
     }
 
@@ -178,18 +217,18 @@ public class MediaController extends FrameLayout {
     }
 
     public int updateProgress() {
-        if (mPlayer == null || mDragging) {
+        if (mController == null || mDragging) {
             return 0;
         }
-        int position = mPlayer.getCurrentPosition();
-        int duration = mPlayer.getDuration();
+        int position = mController.getCurrentPosition();
+        int duration = mController.getDuration();
         if (mProgress != null) {
             if (duration > 0) {
                 // use long to avoid overflow
                 long pos = 1000L * position / duration;
                 mProgress.setProgress( (int) pos);
             }
-            int percent = mPlayer.getBufferPercentage();
+            int percent = mController.getBufferPercentage();
             mProgress.setSecondaryProgress(percent * 10);
         }
 
@@ -211,7 +250,7 @@ public class MediaController extends FrameLayout {
         if (mPauseButton == null)
             return;
 
-        if (mPlayer.isPlaying()) {
+        if (mController.isPlaying()) {
             mPauseButton.setImageResource(android.R.drawable.ic_media_pause);
         } else {
             mPauseButton.setImageResource(android.R.drawable.ic_media_play);
@@ -219,10 +258,10 @@ public class MediaController extends FrameLayout {
     }
 
     private void doPauseResume() {
-        if (mPlayer.isPlaying()) {
-            mPlayer.pause();
+        if (mController.isPlaying()) {
+            mController.pausePlaying();
         } else {
-            mPlayer.start();
+            mController.startPlaying();
         }
         updatePausePlay();
     }
@@ -250,9 +289,9 @@ public class MediaController extends FrameLayout {
                 return;
             }
 
-            long duration = mPlayer.getDuration();
+            long duration = mController.getDuration();
             long newposition = (duration * progress) / 1000L;
-            mPlayer.seekTo( (int) newposition);
+            mController.seekTo((int) newposition);
             if (mCurrentTime != null)
                 mCurrentTime.setText(stringForTime( (int) newposition));
         }
@@ -266,26 +305,8 @@ public class MediaController extends FrameLayout {
 
     @Override
     public void setEnabled(boolean enabled) {
-        if (mPauseButton != null) {
-            mPauseButton.setEnabled(enabled);
-        }
-        if (mFfwdButton != null) {
-            mFfwdButton.setEnabled(enabled);
-        }
-        if (mRewButton != null) {
-            mRewButton.setEnabled(enabled);
-        }
-        if (mNextButton != null) {
-            mNextButton.setEnabled(enabled && mNextListener != null);
-        }
-        if (mPrevButton != null) {
-            mPrevButton.setEnabled(enabled && mPrevListener != null);
-        }
-        if (mProgress != null) {
-            mProgress.setEnabled(enabled);
-        }
-        disableUnsupportedButtons();
         super.setEnabled(enabled);
+        updateButtons();
     }
 
     @Override
@@ -302,18 +323,18 @@ public class MediaController extends FrameLayout {
 
     private View.OnClickListener mRewListener = new View.OnClickListener() {
         public void onClick(View v) {
-            int pos = mPlayer.getCurrentPosition();
+            int pos = mController.getCurrentPosition();
             pos -= 5000; // milliseconds
-            mPlayer.seekTo(pos);
+            mController.seekTo(pos);
             updateProgress();
         }
     };
 
     private View.OnClickListener mFfwdListener = new View.OnClickListener() {
         public void onClick(View v) {
-            int pos = mPlayer.getCurrentPosition();
+            int pos = mController.getCurrentPosition();
             pos += 15000; // milliseconds
-            mPlayer.seekTo(pos);
+            mController.seekTo(pos);
             updateProgress();
         }
     };
@@ -321,12 +342,12 @@ public class MediaController extends FrameLayout {
     private void installPrevNextListeners() {
         if (mNextButton != null) {
             mNextButton.setOnClickListener(mNextListener);
-            mNextButton.setEnabled(mNextListener != null);
+            mNextButton.setEnabled(mShowNext);
         }
 
         if (mPrevButton != null) {
             mPrevButton.setOnClickListener(mPrevListener);
-            mPrevButton.setEnabled(mPrevListener != null);
+            mPrevButton.setEnabled(mShowPrev);
         }
     }
 
@@ -337,24 +358,13 @@ public class MediaController extends FrameLayout {
 
         installPrevNextListeners();
 
-        if (mNextButton != null && !mFromXml) {
+        if (mNextButton != null) {
             mNextButton.setVisibility(View.VISIBLE);
+            mShowNext = true;
         }
-        if (mPrevButton != null && !mFromXml) {
+        if (mPrevButton != null) {
             mPrevButton.setVisibility(View.VISIBLE);
+            mShowPrev = true;
         }
-    }
-
-    public interface MediaPlayerControl {
-        void    start();
-        void    pause();
-        int     getDuration();
-        int     getCurrentPosition();
-        void    seekTo(int pos);
-        boolean isPlaying();
-        int     getBufferPercentage();
-        boolean canPause();
-        boolean canSeekBackward();
-        boolean canSeekForward();
     }
 }
