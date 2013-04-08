@@ -98,9 +98,6 @@ class ActionBarImplCompat extends ActionBar {
     private boolean mShowingForMode;
 
     private boolean mNowShowing = true;
-
-    // TODO: What to do about animations?
-    // private Animator mCurrentShowAnim;
     private boolean mShowHideAnimationEnabled;
 
     private Callback mCallback;
@@ -901,10 +898,6 @@ class ActionBarImplCompat extends ActionBar {
             mContextView.showOverflowMenu();
         }
     }
-
-    /**
-     * TODO(trevorjohns): Methods below this line were missing! **********************************
-     */
 
     private void ensureTabsExist() {
         if (mTabScrollView != null) {
