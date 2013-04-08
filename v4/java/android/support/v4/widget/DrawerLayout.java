@@ -25,6 +25,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -118,6 +119,7 @@ public class DrawerLayout extends ViewGroup {
     private int mLockModeLeft;
     private int mLockModeRight;
     private boolean mDisallowInterceptRequested;
+    private boolean mChildrenCanceledTouch;
 
     private DrawerListener mListener;
 
@@ -800,6 +802,7 @@ public class DrawerLayout extends ViewGroup {
                     interceptForTap = true;
                 }
                 mDisallowInterceptRequested = false;
+                mChildrenCanceledTouch = false;
                 break;
             }
 
@@ -816,10 +819,11 @@ public class DrawerLayout extends ViewGroup {
             case MotionEvent.ACTION_UP: {
                 closeDrawers(true);
                 mDisallowInterceptRequested = false;
+                mChildrenCanceledTouch = false;
             }
         }
 
-        return interceptForDrag || interceptForTap || hasPeekingDrawer();
+        return interceptForDrag || interceptForTap || hasPeekingDrawer() || mChildrenCanceledTouch;
     }
 
     @Override
@@ -837,6 +841,7 @@ public class DrawerLayout extends ViewGroup {
                 mInitialMotionX = x;
                 mInitialMotionY = y;
                 mDisallowInterceptRequested = false;
+                mChildrenCanceledTouch = false;
                 break;
             }
 
@@ -865,6 +870,7 @@ public class DrawerLayout extends ViewGroup {
             case MotionEvent.ACTION_CANCEL: {
                 closeDrawers(true);
                 mDisallowInterceptRequested = false;
+                mChildrenCanceledTouch = false;
                 break;
             }
         }
@@ -1091,6 +1097,21 @@ public class DrawerLayout extends ViewGroup {
         return null;
     }
 
+    void cancelChildViewTouch() {
+        // Cancel child touches
+        if (!mChildrenCanceledTouch) {
+            final long now = SystemClock.uptimeMillis();
+            final MotionEvent cancelEvent = MotionEvent.obtain(now, now,
+                    MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
+            final int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                getChildAt(i).dispatchTouchEvent(cancelEvent);
+            }
+            cancelEvent.recycle();
+            mChildrenCanceledTouch = true;
+        }
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && hasVisibleDrawer()) {
@@ -1306,6 +1327,8 @@ public class DrawerLayout extends ViewGroup {
                 invalidate();
 
                 closeOtherDrawer();
+
+                cancelChildViewTouch();
             }
         }
 
