@@ -42,7 +42,19 @@ import android.view.ViewGroup;
  * interactive "drawer" views to be pulled out from the edge of the window.
  *
  * <p>Drawer positioning and layout is controlled using the <code>android:layout_gravity</code>
- * attribute on child views corresponding to </p>
+ * attribute on child views corresponding to which side of the view you want the drawer
+ * to emerge from: left or right. (Or start/end on platform versions that support layout direction.)
+ * </p>
+ *
+ * <p>To use a DrawerLayout, position your primary content view as the first child with
+ * a width and height of <code>match_parent</code>. Add drawers as child views after the main
+ * content view and set the <code>layout_gravity</code> appropriately. Drawers commonly use
+ * <code>match_parent</code> for height with a fixed width.</p>
+ *
+ * <p>{@link DrawerListener} can be used to monitor the state and motion of drawer views.
+ * Avoid performing expensive operations such as layout during animation as it can cause
+ * stuttering; try to perform expensive operations during the {@link #STATE_IDLE} state.
+ * {@link SimpleDrawerListener} offers default/no-op implementations of each callback method.</p>
  *
  * <p>As per the Android Design guide, any drawers positioned to the left/start should
  * always contain content for navigating around the application, whereas any drawers
