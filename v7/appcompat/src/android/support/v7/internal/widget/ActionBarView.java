@@ -130,7 +130,7 @@ public class ActionBarView extends AbsActionBarView {
     private ExpandedActionViewMenuPresenter mExpandedMenuPresenter;
     View mExpandedActionView;
 
-    Window.Callback mWindowCallback;
+    Callback mViewCallback;
 
     private final AdapterViewICS.OnItemSelectedListener mNavItemSelectedListener =
             new AdapterViewICS.OnItemSelectedListener() {
@@ -158,8 +158,7 @@ public class ActionBarView extends AbsActionBarView {
 
     private final OnClickListener mUpClickListener = new OnClickListener() {
         public void onClick(View v) {
-            //TODO(anirudhd): Window callback is not implemented yet.
-            //mWindowCallback.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, mLogoNavItem);
+            mViewCallback.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, mLogoNavItem);
         }
     };
 
@@ -245,7 +244,7 @@ public class ActionBarView extends AbsActionBarView {
 
         mContentHeight = a.getLayoutDimension(R.styleable.ActionBar_height, 0);
         a.recycle();
-        mLogoNavItem = new ActionMenuItem(context, 0, R.id.home, 0, 0, mTitle);
+        mLogoNavItem = new ActionMenuItem(context, 0, android.R.id.home, 0, 0, mTitle);
         mHomeLayout.setOnClickListener(mUpClickListener);
         mHomeLayout.setClickable(true);
         mHomeLayout.setFocusable(true);
@@ -278,12 +277,12 @@ public class ActionBarView extends AbsActionBarView {
     }
 
     /**
-     * Set the window callback used to invoke menu items; used for dispatching home button presses.
+     * Set the view callback used to invoke menu items; used for dispatching home button presses.
      *
-     * @param cb Window callback to dispatch to
+     * @param cb View callback to dispatch to
      */
-    public void setWindowCallback(Window.Callback cb) {
-        mWindowCallback = cb;
+    public void setViewCallback(Callback cb) {
+        mViewCallback = cb;
     }
 
     @Override
@@ -1482,6 +1481,15 @@ public class ActionBarView extends AbsActionBarView {
         @Override
         public void onRestoreInstanceState(Parcelable state) {
         }
+    }
+
+    /**
+     * Emulates the necessary methods from {@link android.view.Window.Callback}
+     */
+    public interface Callback {
+
+        boolean onMenuItemSelected (int featureId, android.support.v7.view.MenuItem item);
+
     }
 }
 
