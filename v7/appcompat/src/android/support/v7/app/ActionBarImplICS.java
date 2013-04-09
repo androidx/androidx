@@ -17,12 +17,18 @@
 package android.support.v7.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 class ActionBarImplICS extends ActionBarImplHC {
 
     public ActionBarImplICS(Activity activity, Callback callback) {
         super(activity, callback);
+    }
+
+    @Override
+    public Context getThemedContext() {
+        return mActionBar.getThemedContext();
     }
 
     @Override
