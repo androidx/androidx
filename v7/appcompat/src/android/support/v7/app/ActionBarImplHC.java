@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.widget.SpinnerAdapter;
 
@@ -71,32 +72,27 @@ class ActionBarImplHC extends ActionBar {
 
     @Override
     public void setCustomView(int resId) {
-        // TODO: do layoutparams translation
         mActionBar.setCustomView(resId);
     }
 
     @Override
     public void setIcon(int resId) {
-        // TODO compatibility impl?
-        //mActionBar.setIcon(resId);
+        Log.i("ActionBarCompat", "setIcon() is not available when running on Honeycomb devices.");
     }
 
     @Override
     public void setIcon(Drawable icon) {
-        // TODO compatibility impl?
-        //mActionBar.setIcon(icon);
+        Log.i("ActionBarCompat", "setIcon() is not available when running on Honeycomb devices.");
     }
 
     @Override
     public void setLogo(int resId) {
-        // TODO compatibility impl?
-        //mActionBar.setLogo(resId);
+        Log.i("ActionBarCompat", "setLogo() is not available when running on Honeycomb devices.");
     }
 
     @Override
     public void setLogo(Drawable logo) {
-        // TODO compatibility impl?
-        //mActionBar.setLogo(logo);
+        Log.i("ActionBarCompat", "setLogo() is not available when running on Honeycomb devices.");
     }
 
     @Override
@@ -220,7 +216,6 @@ class ActionBarImplHC extends ActionBar {
 
     @Override
     public void addTab(Tab tab) {
-        // TODO(trevorjohns): Remove downcast here!
         mActionBar.addTab(((TabWrapper) tab).mWrappedTab);
     }
 
