@@ -103,7 +103,7 @@ public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClick
         if (!mAdapter.isEmpty()) {
             if (mMenuView == null) {
                 mMenuView = (ExpandedMenuView) mInflater.inflate(
-                        R.layout.expanded_menu_layout, root, false);
+                        R.layout.abc_expanded_menu_layout, root, false);
                 mMenuView.setAdapter(mAdapter);
                 mMenuView.setOnItemClickListener(this);
             }

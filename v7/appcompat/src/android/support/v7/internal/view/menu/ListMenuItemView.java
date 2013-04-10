@@ -246,7 +246,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
 
     private void insertIconView() {
         LayoutInflater inflater = getInflater();
-        mIconView = (ImageView) inflater.inflate(R.layout.list_menu_item_icon,
+        mIconView = (ImageView) inflater.inflate(R.layout.abc_list_menu_item_icon,
                 this, false);
         addView(mIconView, 0);
     }
@@ -254,7 +254,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
     private void insertRadioButton() {
         LayoutInflater inflater = getInflater();
         mRadioButton =
-                (RadioButton) inflater.inflate(R.layout.list_menu_item_radio,
+                (RadioButton) inflater.inflate(R.layout.abc_list_menu_item_radio,
                         this, false);
         addView(mRadioButton);
     }
@@ -262,7 +262,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
     private void insertCheckBox() {
         LayoutInflater inflater = getInflater();
         mCheckBox =
-                (CheckBox) inflater.inflate(R.layout.list_menu_item_checkbox,
+                (CheckBox) inflater.inflate(R.layout.abc_list_menu_item_checkbox,
                         this, false);
         addView(mCheckBox);
     }

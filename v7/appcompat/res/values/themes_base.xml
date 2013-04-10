@@ -32,11 +32,11 @@
 
         <item name="buttonBarStyle">@android:style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
-        <item name="selectableItemBackground">@drawable/item_background_holo_dark</item>
-        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
+        <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_dark</item>
 
-        <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
-        <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
+        <item name="dividerVertical">@drawable/abc_appcompat_divider_dark</item>
+        <item name="dividerHorizontal">@drawable/abc_appcompat_divider_dark</item>
 
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
         <item name="listPreferredItemHeightSmall">48dp</item>
@@ -69,9 +69,9 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">@drawable/cab_background_top_holo_dark</item>
-        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_holo_dark</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_cab_done_holo_dark</item>
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_holo_dark</item>
+        <item name="actionModeSplitBackground">@drawable/abc_cab_background_bottom_holo_dark</item>
+        <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_holo_dark</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode
         </item>
 
@@ -89,11 +89,11 @@
 
         <item name="buttonBarStyle">@android:style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
-        <item name="selectableItemBackground">@drawable/item_background_holo_light</item>
-        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_light</item>
+        <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_light</item>
 
-        <item name="dividerVertical">@drawable/appcompat_divider_light</item>
-        <item name="dividerHorizontal">@drawable/appcompat_divider_light</item>
+        <item name="dividerVertical">@drawable/abc_appcompat_divider_light</item>
+        <item name="dividerHorizontal">@drawable/abc_appcompat_divider_light</item>
 
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
         <item name="listPreferredItemHeightSmall">48dp</item>
@@ -125,9 +125,9 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">@drawable/cab_background_top_holo_light</item>
-        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_holo_light</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_cab_done_holo_light</item>
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_holo_light</item>
+        <item name="actionModeSplitBackground">@drawable/abc_cab_background_bottom_holo_light</item>
+        <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_holo_light</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode
         </item>
 
@@ -147,13 +147,13 @@
 
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
-        <item name="dividerVertical">@drawable/appcompat_divider_dark</item>
-        <item name="dividerHorizontal">@drawable/appcompat_divider_dark</item>
-        <item name="homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
+        <item name="dividerVertical">@drawable/abc_appcompat_divider_dark</item>
+        <item name="dividerHorizontal">@drawable/abc_appcompat_divider_dark</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_dark</item>
 
         <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse</item>
         <item name="actionBarWidgetTheme">@style/Theme.AppCompat</item>
-        <item name="actionBarItemBackground">@drawable/item_background_holo_dark</item>
+        <item name="actionBarItemBackground">@drawable/abc_item_background_holo_dark</item>
         <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView.Inverse
         </item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.Light.ActionBar.TabBar.Inverse
@@ -164,9 +164,9 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.Light.ActionMode.Inverse</item>
-        <item name="actionModeBackground">@drawable/cab_background_top_holo_dark</item>
-        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_holo_dark</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_cab_done_holo_dark</item>
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_holo_dark</item>
+        <item name="actionModeSplitBackground">@drawable/abc_cab_background_bottom_holo_dark</item>
+        <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_holo_dark</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode
         </item>
 

@@ -47,7 +47,7 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
 
     private static final String TAG = "MenuPopupHelper";
 
-    static final int ITEM_LAYOUT = R.layout.popup_menu_item_layout;
+    static final int ITEM_LAYOUT = R.layout.abc_popup_menu_item_layout;
 
     private Context mContext;
     private LayoutInflater mInflater;

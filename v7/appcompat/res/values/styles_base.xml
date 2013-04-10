@@ -23,17 +23,17 @@
 
     <style name="Widget.AppCompat.Base.ActionBar" parent="">
         <item name="displayOptions">useLogo|showHome|showTitle</item>
-        <item name="divider">@drawable/action_bar_divider</item>
+        <item name="divider">@drawable/abc_action_bar_divider</item>
         <item name="height">?attr/actionBarSize</item>
-        <item name="homeLayout">@layout/action_bar_home</item>
+        <item name="homeLayout">@layout/abc_action_bar_home</item>
 
         <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Title</item>
         <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle
         </item>
 
-        <item name="background">@drawable/ab_transparent_dark_holo</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_transparent_dark_holo</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_transparent_dark_holo</item>
+        <item name="background">@drawable/abc_ab_transparent_dark_holo</item>
+        <item name="backgroundStacked">@drawable/abc_ab_stacked_transparent_dark_holo</item>
+        <item name="backgroundSplit">@drawable/abc_ab_bottom_transparent_dark_holo</item>
 
         <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
@@ -43,25 +43,25 @@
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar" parent="Widget.AppCompat.Base.ActionBar">
-        <item name="background">@drawable/ab_transparent_light_holo</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_transparent_light_holo</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_transparent_light_holo</item>
+        <item name="background">@drawable/abc_ab_transparent_light_holo</item>
+        <item name="backgroundStacked">@drawable/abc_ab_stacked_transparent_light_holo</item>
+        <item name="backgroundSplit">@drawable/abc_ab_bottom_transparent_light_holo</item>
 
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
         <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.Solid" parent="Widget.AppCompat.Base.ActionBar">
-        <item name="background">@drawable/ab_solid_dark_holo</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_dark_holo</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_dark_holo</item>
+        <item name="background">@drawable/abc_ab_solid_dark_holo</item>
+        <item name="backgroundStacked">@drawable/abc_ab_stacked_solid_dark_holo</item>
+        <item name="backgroundSplit">@drawable/abc_ab_bottom_solid_dark_holo</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.Solid"
            parent="Widget.AppCompat.Light.Base.ActionBar">
-        <item name="background">@drawable/ab_solid_light_holo</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_light_holo</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_light_holo</item>
+        <item name="background">@drawable/abc_ab_solid_light_holo</item>
+        <item name="backgroundStacked">@drawable/abc_ab_stacked_solid_light_holo</item>
+        <item name="backgroundSplit">@drawable/abc_ab_bottom_solid_light_holo</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"
@@ -118,7 +118,7 @@
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabView" parent="">
-        <item name="android:background">@drawable/tab_indicator_ab_holo</item>
+        <item name="android:background">@drawable/abc_tab_indicator_ab_holo</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
@@ -222,20 +222,20 @@
 
     <style name="Widget.AppCompat.Base.Spinner" parent="">
         <item name="spinnerMode">dropdown</item>
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_holo_dark</item>
-        <item name="android:dropDownSelector">@drawable/list_selector_holo_dark</item>
+        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
+        <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
         <item name="android:gravity">left|center_vertical</item>
         <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/spinner_ab_holo_dark</item>
+        <item name="android:background">@drawable/abc_spinner_ab_holo_dark</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.Spinner" parent="Widget.AppCompat.Base.Spinner">
-        <item name="android:dropDownSelector">@drawable/list_selector_holo_light</item>
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_holo_light</item>
-        <item name="android:background">@drawable/spinner_ab_holo_light</item>
+        <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
+        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_light</item>
+        <item name="android:background">@drawable/abc_spinner_ab_holo_light</item>
     </style>
 
     <style name="Widget.AppCompat.Base.DropDownItem.Spinner" parent="">
@@ -251,12 +251,12 @@
     </style>
 
     <style name="Widget.AppCompat.Base.ListView.DropDown" parent="android:Widget.ListView">
-        <item name="android:listSelector">@drawable/list_selector_holo_dark</item>
+        <item name="android:listSelector">@drawable/abc_list_selector_holo_dark</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ListView.DropDown"
            parent="android:Widget.ListView">
-        <item name="android:listSelector">@drawable/list_selector_holo_light</item>
+        <item name="android:listSelector">@drawable/abc_list_selector_holo_light</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.DropDownItem"
@@ -277,16 +277,16 @@
 
 
     <style name="Widget.AppCompat.Base.PopupMenu" parent="">
-        <item name="android:dropDownSelector">@drawable/list_selector_holo_dark</item>
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_holo_dark</item>
+        <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
+        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.PopupMenu" parent="">
-        <item name="android:dropDownSelector">@drawable/list_selector_holo_light</item>
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_holo_light</item>
+        <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
+        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_light</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
