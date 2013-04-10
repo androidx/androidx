@@ -178,4 +178,27 @@
            parent="android:Widget.Holo.ProgressBar">
     </style>
 
+    <style name="Widget.AppCompat.Base.PopupMenu" parent="android:Widget.Holo.PopupMenu">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.PopupMenu"
+           parent="android:Widget.Holo.Light.PopupMenu">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large"
+           parent="android:TextAppearance.Holo.Widget.PopupMenu.Large">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Small"
+           parent="android:TextAppearance.Holo.Widget.PopupMenu.Small">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Large"
+           parent="android:TextAppearance.Holo.Widget.PopupMenu.Large">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Small"
+           parent="android:TextAppearance.Holo.Widget.PopupMenu.Small">
+    </style>
+
 </resources>
