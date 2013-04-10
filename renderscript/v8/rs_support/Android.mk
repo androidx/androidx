@@ -126,7 +126,7 @@ LOCAL_SRC_FILES += \
 	cpu_ref/rsCpuIntrinsics_neon.S
 endif
 
-LOCAL_SHARED_LIBRARIES += libcutils libutils libdl
+LOCAL_SHARED_LIBRARIES += libcutils libutils liblog libdl
 
 LOCAL_C_INCLUDES += system/core/include
 LOCAL_C_INCLUDES += frameworks/native/include
@@ -141,5 +141,3 @@ LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)
-
-
