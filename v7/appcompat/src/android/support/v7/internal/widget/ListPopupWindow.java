@@ -515,8 +515,6 @@ public class ListPopupWindow {
         int heightSpec = 0;
 
         boolean noInputMethod = isInputMethodNotNeeded();
-        // TODO(anirudhd) : Test and replicate this behaviour
-        // mPopup.setAllowScrollingAnchorParent(!noInputMethod);
 
         if (mPopup.isShowing()) {
             if (mDropDownWidth == ViewGroup.LayoutParams.FILL_PARENT) {
@@ -1217,7 +1215,6 @@ public class ListPopupWindow {
         public DropDownListView(Context context, boolean hijackFocus) {
             super(context, null, R.attr.dropDownListViewStyle);
             mHijackFocus = hijackFocus;
-            // TODO: Add an API to control this
             setCacheColorHint(0); // Transparent, since the background drawable could be anything.
         }
 

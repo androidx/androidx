@@ -121,8 +121,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
                     R.integer.max_action_buttons);
         }
         if (mMenu != null) {
-            // TODO(trevorjohns): Figure out what to do about mMenu.onItemsChanged()
-            //mMenu.onItemsChanged(true);
+            mMenu.onItemsChanged(true);
         }
     }
 
