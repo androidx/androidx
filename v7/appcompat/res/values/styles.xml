@@ -177,4 +177,27 @@
            parent="TextAppearance.Widget.AppCompat.Base.ExpandedMenu.Item">
     </style>
 
+    <style name="Widget.AppCompat.PopupMenu" parent="Widget.AppCompat.Base.PopupMenu">
+    </style>
+
+    <style name="Widget.AppCompat.Light.PopupMenu"
+           parent="Widget.AppCompat.Light.Base.PopupMenu">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Widget.PopupMenu.Large"
+           parent="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Widget.PopupMenu.Small"
+           parent="TextAppearance.AppCompat.Base.Widget.PopupMenu.Small">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Large"
+           parent="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Large">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+           parent="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Small">
+    </style>
+
 </resources>
