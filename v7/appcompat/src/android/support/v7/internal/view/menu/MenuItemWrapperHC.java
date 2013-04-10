@@ -319,7 +319,7 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
 
         @Override
         public void onPrepareSubMenu(android.view.SubMenu subMenu) {
-            // TODO: implement this
+            mInner.onPrepareSubMenu(new SubMenuWrapperHC(subMenu));
         }
     }
 }

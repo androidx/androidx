@@ -47,7 +47,6 @@
         <item name="backgroundStacked">@drawable/ab_stacked_transparent_light_holo</item>
         <item name="backgroundSplit">@drawable/ab_bottom_transparent_light_holo</item>
 
-        <!-- TODO chrisbanes: Change these to Light themes -->
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
         <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
     </style>

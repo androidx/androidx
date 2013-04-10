@@ -29,8 +29,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-// TODO(trevorjohns): Lots of things here have been commented out. This needs to be addressed.
-
 /**
  * @hide
  */
