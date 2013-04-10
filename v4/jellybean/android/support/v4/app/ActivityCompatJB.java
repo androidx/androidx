@@ -29,4 +29,8 @@ class ActivityCompatJB {
     public static void startActivityForResult(Activity activity, Intent intent, int requestCode, Bundle options) {
         activity.startActivityForResult(intent, requestCode, options);
     }
+
+    public static void finishAffinity(Activity activity) {
+        activity.finishAffinity();
+    }
 }

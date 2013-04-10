@@ -316,10 +316,8 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
 
     @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-        return onMenuItemSelectedInternal(item);
+        return mActivity.onSupportMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
     }
-
-
 
     @Override
     public void onMenuModeChange(MenuBuilder menu) {
@@ -608,34 +606,8 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
      *  From ActionBarView.Callback
      */
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            return onMenuItemSelectedInternal(item);
-        }
-        return false;
-    }
-
-    private boolean onMenuItemSelectedInternal(MenuItem item) {
-        if (mActivity.onSupportOptionsItemSelected(item)) {
-            return true;
-        }
-        // FIXME: Reintroduce support options menu dispatch through facade.
-        //if (mActivity.mFragments.dispatchSupportOptionsItemSelected(item)) {
-        //    return true;
-        //}
-
-        ActionBar ab = getSupportActionBar();
-        if (item.getItemId() == android.R.id.home && ab != null &&
-                (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
-            if (mActivity.getParent() == null) {
-                // TODO: Implement "Up" button
-                // return mActivity.onNavigateUp();
-            } else {
-                // TODO: Implement "Up" button
-                // return mParent.onNavigateUpFromChild(this);
-            }
-        }
-        return false;
+    public boolean onMenuItemSelected(int featureId, android.support.v7.view.MenuItem item) {
+        return mActivity.onSupportMenuItemSelected(featureId, item);
     }
 
     /**

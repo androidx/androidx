@@ -119,4 +119,20 @@ public class ActivityCompat extends ContextCompat {
             activity.startActivityForResult(intent, requestCode);
         }
     }
+
+    /**
+     * Finish this activity, and tries to finish all activities immediately below it
+     * in the current task that have the same affinity.
+     *
+     * <p>On Android 4.1+ calling this method will call through to the native version of this
+     * method. For other platforms {@link Activity#finish()} will be called instead.</p>
+     */
+    public static void finishAffinity(Activity activity) {
+        if (Build.VERSION.SDK_INT >= 16) {
+            ActivityCompatJB.finishAffinity(activity);
+        } else {
+            activity.finish();
+        }
+    }
+
 }

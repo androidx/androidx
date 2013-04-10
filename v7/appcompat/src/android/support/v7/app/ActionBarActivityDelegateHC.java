@@ -24,7 +24,6 @@ import android.support.v7.internal.view.ActionModeWrapper;
 import android.support.v7.internal.view.menu.MenuWrapper;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -119,17 +118,8 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
 
     @Override
     public boolean onMenuItemSelected(int featureId, android.view.MenuItem frameworkItem) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            MenuItem wrappedItem = MenuWrapper.createMenuItemWrapper(frameworkItem);
-            if (mActivity.onSupportOptionsItemSelected(wrappedItem)) {
-                return true;
-            }
-            // FIXME: Reintroduce support options menu dispatch through facade.
-            //if (mActivity.mFragments.dispatchSupportOptionsItemSelected(wrappedItem)) {
-            //    return true;
-            //}
-        }
-        return false;
+        return mActivity.onSupportMenuItemSelected(featureId,
+                MenuWrapper.createMenuItemWrapper(frameworkItem));
     }
 
     @Override
