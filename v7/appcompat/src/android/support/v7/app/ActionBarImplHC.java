@@ -271,7 +271,8 @@ class ActionBarImplHC extends ActionBar {
 
     @Override
     public Context getThemedContext() {
-        return mActionBar.getThemedContext();
+        // v11 doesn't have the actionBarWidgetTheme attr, so just use the Activity
+        return mActivity;
     }
 
     @Override

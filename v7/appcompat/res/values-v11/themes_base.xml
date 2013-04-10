@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2012 The Android Open Source Project
+<!-- Copyright (C) 2013 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
           Themes in the "Theme.AppCompat" family are meant to be extended or used
           directly by apps.
 
-          This is the values-v14/ file that only declares the Base themes for
-          Ice Cream Sandwich+. You probably want to edit values/themes.xml instead. -->
+          This is the values-v11/ file that only declares the Base themes for
+          Honeycomb+. You probably want to edit values/themes.xml instead. -->
     <eat-comment/>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
@@ -35,11 +35,10 @@
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="listPreferredItemHeightLarge">?android:attr/listPreferredItemHeightLarge</item>
-        <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
-        <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
-        </item>
+        <item name="listPreferredItemHeightSmall">48dp</item>
+        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemPaddingLeft">8dip</item>
+        <item name="listPreferredItemPaddingRight">8dip</item>
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
@@ -50,27 +49,15 @@
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="listPreferredItemHeightLarge">?android:attr/listPreferredItemHeightLarge</item>
-        <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
-        <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
-        </item>
+        <item name="listPreferredItemHeightSmall">48dp</item>
+        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemPaddingLeft">8dip</item>
+        <item name="listPreferredItemPaddingRight">8dip</item>
     </style>
 
-    <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
+    <!-- Base platform-dependent theme. There is no DarkActionBar theme in v11, so we use Light -->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar"
-           parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- Copy system flag values for our use -->
-        <item name="windowActionBar">?android:attr/windowActionBar</item>
-        <item name="actionBarSize">?android:attr/actionBarSize</item>
-
-        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="listPreferredItemHeightLarge">?android:attr/listPreferredItemHeightLarge</item>
-        <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
-        <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
-        </item>
+           parent="Theme.Base.AppCompat.Light">
     </style>
 
 </resources>
