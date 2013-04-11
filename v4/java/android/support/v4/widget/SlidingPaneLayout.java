@@ -529,6 +529,10 @@ public class SlidingPaneLayout extends ViewGroup {
         int xStart = paddingLeft;
         int nextXStart = xStart;
 
+        if (mFirstLayout) {
+            mSlideOffset = mCanSlide && mPreservedOpenState ? 1.f : 0.f;
+        }
+
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
 
@@ -567,7 +571,6 @@ public class SlidingPaneLayout extends ViewGroup {
 
         if (mFirstLayout) {
             if (mCanSlide) {
-                mSlideOffset = mPreservedOpenState ? 1.f : 0;
                 if (mParallaxBy != 0) {
                     parallaxOtherViews(mSlideOffset);
                 }
@@ -576,7 +579,6 @@ public class SlidingPaneLayout extends ViewGroup {
                 }
             } else {
                 // Reset the dim level of all children; it's irrelevant when nothing moves.
-                mSlideOffset = 0;
                 for (int i = 0; i < childCount; i++) {
                     dimChildView(getChildAt(i), 0, mSliderFadeColor);
                 }
@@ -785,15 +787,9 @@ public class SlidingPaneLayout extends ViewGroup {
         return mCanSlide;
     }
 
-    private boolean performDrag(int newLeft) {
+    private void onPanelDragged(int newLeft) {
         final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
         final int leftBound = getPaddingLeft() + lp.leftMargin;
-
-        final float oldLeft = mSlideableView.getLeft();
-
-        final int dxPane = (int) (newLeft - oldLeft);
-
-        mSlideableView.offsetLeftAndRight(dxPane);
 
         mSlideOffset = (float) (newLeft - leftBound) / mSlideRange;
 
@@ -805,8 +801,6 @@ public class SlidingPaneLayout extends ViewGroup {
             dimChildView(mSlideableView, mSlideOffset, mSliderFadeColor);
         }
         dispatchOnPanelSlide(mSlideableView);
-
-        return true;
     }
 
     private void dimChildView(View v, float mag, int fadeColor) {
@@ -1082,7 +1076,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-            performDrag(left);
+            onPanelDragged(left);
             invalidate();
         }
 
