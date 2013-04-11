@@ -573,7 +573,6 @@ public class ListPopupWindow {
             }
 
             mPopup.setWindowLayoutMode(widthSpec, heightSpec);
-            setClipToScreenEnabled(mPopup, true);
 
             // use outside touchable to dismiss drop down when touching outside of it, so
             // only set this if the dropdown is not always visible
@@ -590,19 +589,6 @@ public class ListPopupWindow {
                 mHandler.post(mHideSelector);
             }
         }
-    }
-
-    public static void setClipToScreenEnabled(PopupWindow mPopup, boolean enabled) {
-        try {
-            Field f = mPopup.getClass().getDeclaredField("mClipToScreen");
-            f.setAccessible(true);
-            f.setBoolean(mPopup, enabled);
-        } catch (NoSuchFieldException e) {
-            // No field
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        mPopup.setClippingEnabled(!enabled);
     }
 
     /**
@@ -913,25 +899,6 @@ public class ListPopupWindow {
     }
 
     /**
-     * Filter pre-IME key events. By forwarding {@link View#onKeyPreIme(int, KeyEvent)} events to
-     * this function, views using ListPopupWindow can have it dismiss the popup when the back key is
-     * pressed.
-     *
-     * @param keyCode keyCode param passed to the host view's onKeyPreIme
-     * @param event   event param passed to the host view's onKeyPreIme
-     * @return true if the event was handled, false if it was ignored.
-     * @see #setModal(boolean)
-     */
-    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && isShowing()) {
-            // special case for the back key, we do not even try to send it
-            // to the drop down list but instead, consume it immediately
-            //TODO(anirudhd): No dispatcher APIs in eclair
-        }
-        return false;
-    }
-
-    /**
      * <p>Builds the popup window's content and returns the height the popup should have. Returns -1
      * when the content already exists.</p>
      *
@@ -1140,21 +1107,6 @@ public class ListPopupWindow {
         }
 
         return returnedHeight;
-    }
-
-    /**
-     * Set the layout direction for this popup. Should be a resolved direction as the popup as no
-     * capacity to do the resolution on his own.
-     *
-     * @param layoutDirection One of {@link View#LAYOUT_DIRECTION_LTR}, {@link
-     *                        View#LAYOUT_DIRECTION_RTL},
-     */
-    public void setLayoutDirection(int layoutDirection) {
-        mLayoutDirection = layoutDirection;
-        if (mDropDownList != null) {
-            // BiDi support
-            // mDropDownList.setLayoutDirection(mLayoutDirection);
-        }
     }
 
     /**
