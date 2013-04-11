@@ -570,13 +570,21 @@ public class SlidingPaneLayout extends ViewGroup {
             nextXStart += child.getWidth();
         }
 
-        if (mFirstLayout && mCanSlide) {
-            mSlideOffset = mPreservedOpenState ? 1.f : 0;
-            if (mParallaxBy != 0) {
-                parallaxOtherViews(mSlideOffset);
-            }
-            if (((LayoutParams) mSlideableView.getLayoutParams()).dimWhenOffset) {
-                dimChildView(mSlideableView, mSlideOffset, mSliderFadeColor);
+        if (mFirstLayout) {
+            if (mCanSlide) {
+                mSlideOffset = mPreservedOpenState ? 1.f : 0;
+                if (mParallaxBy != 0) {
+                    parallaxOtherViews(mSlideOffset);
+                }
+                if (((LayoutParams) mSlideableView.getLayoutParams()).dimWhenOffset) {
+                    dimChildView(mSlideableView, mSlideOffset, mSliderFadeColor);
+                }
+            } else {
+                // Reset the dim level of all children; it's irrelevant when nothing moves.
+                mSlideOffset = 0;
+                for (int i = 0; i < childCount; i++) {
+                    dimChildView(getChildAt(i), 0, mSliderFadeColor);
+                }
             }
         }
 
@@ -822,7 +830,11 @@ public class SlidingPaneLayout extends ViewGroup {
             }
             invalidateChildRegion(v);
         } else if (ViewCompat.getLayerType(v) != ViewCompat.LAYER_TYPE_NONE) {
+            if (lp.dimPaint != null) {
+                lp.dimPaint.setColorFilter(null);
+            }
             ViewCompat.setLayerType(v, ViewCompat.LAYER_TYPE_NONE, null);
+            invalidateChildRegion(v);
         }
     }
 
