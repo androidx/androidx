@@ -998,14 +998,14 @@ class ActionBarImplCompat extends ActionBar {
         }
 
         if (mShowHideAnimationEnabled) {
-            Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_top);
+            Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.abc_slide_in_top);
             mTopVisibilityView.startAnimation(anim);
         }
         mTopVisibilityView.setVisibility(View.VISIBLE);
 
         if (mSplitView != null && mSplitView.getVisibility() != View.VISIBLE) {
             if (mShowHideAnimationEnabled) {
-                Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_bottom);
+                Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.abc_slide_in_bottom);
                 mSplitView.startAnimation(anim);
             }
             mSplitView.setVisibility(View.VISIBLE);
@@ -1019,14 +1019,15 @@ class ActionBarImplCompat extends ActionBar {
         }
 
         if (mShowHideAnimationEnabled) {
-            Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_out_top);
+            Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.abc_slide_out_top);
             mTopVisibilityView.startAnimation(anim);
         }
         mTopVisibilityView.setVisibility(View.GONE);
 
         if (mSplitView != null && mSplitView.getVisibility() != View.GONE) {
             if (mShowHideAnimationEnabled) {
-                Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.slide_out_bottom);
+                Animation anim = AnimationUtils
+                        .loadAnimation(mContext, R.anim.abc_slide_out_bottom);
                 mSplitView.startAnimation(anim);
             }
             mSplitView.setVisibility(View.GONE);

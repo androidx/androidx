@@ -69,7 +69,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         setContentHeight(abp.getTabContainerHeight());
         mStackedTabMaxWidth = abp.getStackedTabMaxWidth();
 
-        mTabLayout = (LinearLayout) mInflater.inflate(R.layout.action_bar_tabbar, this, false);
+        mTabLayout = (LinearLayout) mInflater.inflate(R.layout.abc_action_bar_tabbar, this, false);
         addView(mTabLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
     }
@@ -233,7 +233,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private TabView createTabView(ActionBar.Tab tab, boolean forAdapter) {
-        final TabView tabView = (TabView) mInflater.inflate(R.layout.action_bar_tab, mTabLayout,
+        final TabView tabView = (TabView) mInflater.inflate(R.layout.abc_action_bar_tab, mTabLayout,
                 false);
         tabView.attach(this, tab, forAdapter);
 

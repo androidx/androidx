@@ -213,7 +213,7 @@ public class ActionBarView extends AbsActionBarView {
 
         final int homeResId = a.getResourceId(
                 R.styleable.ActionBar_homeLayout,
-                R.layout.action_bar_home);
+                R.layout.abc_action_bar_home);
 
         mHomeLayout = (HomeView) inflater.inflate(homeResId, this, false);
 
@@ -673,7 +673,7 @@ public class ActionBarView extends AbsActionBarView {
                         mSpinner = new SpinnerICS(mContext, null,
                                 R.attr.actionDropDownStyle);
                         mListNavLayout = (LinearLayout) LayoutInflater.from(mContext).inflate(
-                                R.layout.action_bar_view_list_nav_layout, null);
+                                R.layout.abc_action_bar_view_list_nav_layout, null);
                         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                                 LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
                         params.gravity = Gravity.CENTER;
@@ -754,7 +754,7 @@ public class ActionBarView extends AbsActionBarView {
     private void initTitle() {
         if (mTitleLayout == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            mTitleLayout = (LinearLayout) inflater.inflate(R.layout.action_bar_title_item,
+            mTitleLayout = (LinearLayout) inflater.inflate(R.layout.abc_action_bar_title_item,
                     this, false);
             mTitleView = (TextView) mTitleLayout.findViewById(R.id.action_bar_title);
             mSubtitleView = (TextView) mTitleLayout.findViewById(R.id.action_bar_subtitle);

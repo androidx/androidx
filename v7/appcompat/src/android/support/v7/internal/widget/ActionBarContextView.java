@@ -166,7 +166,7 @@ public class ActionBarContextView extends AbsActionBarView {
     private void initTitle() {
         if (mTitleLayout == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            inflater.inflate(R.layout.action_bar_title_item, this);
+            inflater.inflate(R.layout.abc_action_bar_title_item, this);
             mTitleLayout = (LinearLayout) getChildAt(getChildCount() - 1);
             mTitleView = (TextView) mTitleLayout.findViewById(R.id.action_bar_title);
             mSubtitleView = (TextView) mTitleLayout.findViewById(R.id.action_bar_subtitle);
@@ -193,7 +193,7 @@ public class ActionBarContextView extends AbsActionBarView {
     public void initForMode(final ActionMode mode) {
         if (mClose == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            mClose = inflater.inflate(R.layout.action_mode_close_item, this, false);
+            mClose = inflater.inflate(R.layout.abc_action_mode_close_item, this, false);
             addView(mClose);
         } else if (mClose.getParent() == null) {
             addView(mClose);
