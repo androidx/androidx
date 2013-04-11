@@ -882,13 +882,21 @@ public class RenderScript {
     public static RenderScript create(Context ctx, int sdkVersion, ContextType ct) {
         RenderScript rs = new RenderScript(ctx);
 
-        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 ||
-            SystemProperties.getInt("debug.rs.forcenative", 0) != 0) {
+        // !!!!!!!!!!!!!! FIXME BEFORE MR2 SHIP !!!!!!!!!!!!!!
+        // This forces the compatibility library on
+        // All bundled builds will work, but any prebuilts built from this will cause catastrophic problems
+
+        //        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 ||
+        //            SystemProperties.getInt("debug.rs.forcenative", 0) != 0) {
+        {
             android.util.Log.v(LOG_TAG, "RS native mode");
             return RenderScriptThunker.create(ctx, sdkVersion);
         }
 
-        android.util.Log.v(LOG_TAG, "RS compat mode");
+        // !!!!!!!!!!!!!! FIXME BEFORE MR2 SHIP !!!!!!!!!!!!!!
+        // This forces the compatibility library on
+        // All bundled builds will work, but any prebuilts built from this will cause catastrophic problems
+        /*        android.util.Log.v(LOG_TAG, "RS compat mode");
         rs.mDev = rs.nDeviceCreate();
         rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID);
         if (rs.mContext == 0) {
@@ -896,7 +904,7 @@ public class RenderScript {
         }
         rs.mMessageThread = new MessageThread(rs);
         rs.mMessageThread.start();
-        return rs;
+        return rs;*/
     }
 
     /**
