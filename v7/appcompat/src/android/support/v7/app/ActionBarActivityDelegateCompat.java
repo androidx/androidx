@@ -161,9 +161,9 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     private void ensureSubDecor() {
         if (mHasActionBar && !mSubDecorInstalled) {
             if (mOverlayActionBar) {
-                mActivity.superSetContentView(R.layout.action_bar_decor_overlay);
+                mActivity.superSetContentView(R.layout.abc_action_bar_decor_overlay);
             } else {
-                mActivity.superSetContentView(R.layout.action_bar_decor);
+                mActivity.superSetContentView(R.layout.abc_action_bar_decor);
             }
             mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
             mActionBarView.setViewCallback(this);
@@ -400,7 +400,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             a.recycle();
 
             mListMenuPresenter = new ListMenuPresenter(
-                    R.layout.list_menu_item_layout, listPresenterTheme);
+                    R.layout.abc_list_menu_item_layout, listPresenterTheme);
             mListMenuPresenter.setCallback(cb);
             updateListMenuPresenterMenu();
         } else {

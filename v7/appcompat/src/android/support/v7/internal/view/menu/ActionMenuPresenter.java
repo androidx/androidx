@@ -71,8 +71,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
     int mOpenSubMenuId;
 
     public ActionMenuPresenter(Context context) {
-        super(context, android.support.v7.appcompat.R.layout.action_menu_layout,
-                android.support.v7.appcompat.R.layout.action_menu_item_layout);
+        super(context, R.layout.abc_action_menu_layout, R.layout.abc_action_menu_item_layout);
     }
 
     @Override
