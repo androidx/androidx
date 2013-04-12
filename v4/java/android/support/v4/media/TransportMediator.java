@@ -35,6 +35,15 @@ import java.util.ArrayList;
  * is represented by a single {@link TransportPerformer} that must be supplied to
  * this class.  On-screen controls that want to control and show the state of the
  * player should do this through calls to the {@link TransportController} interface.
+ *
+ * <p>Here is a simple but fairly complete sample of a video player that is built
+ * around this class.  Note that the MediaController class used here is not the one
+ * included in the standard Android framework, but a custom implementation.  Real
+ * applications often implement their own transport controls, or you can copy the
+ * implementation here out of Support4Demos.</p>
+ *
+ * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/media/TransportControllerActivity.java
+ *      complete}
  */
 public class TransportMediator extends TransportController {
     final Context mContext;
