@@ -20,6 +20,7 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.LinearLayoutICS;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -31,7 +32,7 @@ import android.widget.LinearLayout;
 /**
  * @hide
  */
-public class ActionMenuView extends LinearLayout implements MenuBuilder.ItemInvoker, MenuView {
+public class ActionMenuView extends LinearLayoutICS implements MenuBuilder.ItemInvoker, MenuView {
 
     private static final String TAG = "ActionMenuView";
 

@@ -35,8 +35,8 @@
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_dark</item>
 
-        <item name="dividerVertical">@drawable/abc_appcompat_divider_dark</item>
-        <item name="dividerHorizontal">@drawable/abc_appcompat_divider_dark</item>
+        <item name="dividerVertical">@drawable/abc_list_divider_holo_dark</item>
+        <item name="dividerHorizontal">@drawable/abc_list_divider_holo_dark</item>
 
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
         <item name="listPreferredItemHeightSmall">48dp</item>
@@ -92,8 +92,8 @@
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_light</item>
 
-        <item name="dividerVertical">@drawable/abc_appcompat_divider_light</item>
-        <item name="dividerHorizontal">@drawable/abc_appcompat_divider_light</item>
+        <item name="dividerVertical">@drawable/abc_list_divider_holo_light</item>
+        <item name="dividerHorizontal">@drawable/abc_list_divider_holo_light</item>
 
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
         <item name="listPreferredItemHeightSmall">48dp</item>
@@ -147,12 +147,11 @@
 
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
-        <item name="dividerVertical">@drawable/abc_appcompat_divider_dark</item>
-        <item name="dividerHorizontal">@drawable/abc_appcompat_divider_dark</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_dark</item>
 
         <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse</item>
         <item name="actionBarWidgetTheme">@style/Theme.AppCompat</item>
+        <item name="actionBarDivider">@drawable/abc_list_divider_holo_dark</item>
         <item name="actionBarItemBackground">@drawable/abc_item_background_holo_dark</item>
         <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView.Inverse
         </item>
