@@ -16,6 +16,7 @@
 
 package com.example.android.supportv4.media;
 
+//BEGIN_INCLUDE(complete)
 import android.support.v4.media.TransportMediator;
 import android.support.v4.media.TransportPerformer;
 import com.example.android.supportv4.R;
@@ -48,49 +49,39 @@ public class TransportControllerActivity extends Activity {
      * to the VideoView; some we need to capture to update our state.
      */
     TransportPerformer mTransportPerformer = new TransportPerformer() {
-
-        @Override
-        public void onStart() {
+        @Override public void onStart() {
             mContent.start();
         }
 
-        @Override
-        public void onStop() {
+        @Override public void onStop() {
             mContent.pause();
         }
 
-        @Override
-        public void onPause() {
+        @Override public void onPause() {
             mContent.pause();
         }
 
-        @Override
-        public int onGetDuration() {
+        @Override public int onGetDuration() {
             return mContent.getDuration();
         }
 
-        @Override
-        public int onGetCurrentPosition() {
+        @Override public int onGetCurrentPosition() {
             return mContent.getCurrentPosition();
         }
 
-        @Override
-        public void onSeekTo(int pos) {
+        @Override public void onSeekTo(int pos) {
             mContent.seekTo(pos);
         }
 
-        @Override
-        public boolean onIsPlaying() {
+        @Override public boolean onIsPlaying() {
             return mContent.isPlaying();
         }
 
-        @Override
-        public int onGetBufferPercentage() {
+        @Override public int onGetBufferPercentage() {
             return mContent.getBufferPercentage();
         }
 
-        @Override
-        public int onGetTransportControlFlags() {
+        @Override public int onGetTransportControlFlags() {
             int flags = TransportMediator.FLAG_KEY_MEDIA_PLAY
                     | TransportMediator.FLAG_KEY_MEDIA_PLAY_PAUSE
                     | TransportMediator.FLAG_KEY_MEDIA_STOP;
@@ -313,3 +304,4 @@ public class TransportControllerActivity extends Activity {
         return super.dispatchKeyEvent(event);
     }
 }
+//END_INCLUDE(complete)
