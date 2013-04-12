@@ -26,16 +26,19 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 
 /**
  * DrawerLayout acts as a top-level container for window content that allows for
@@ -225,6 +228,8 @@ public class DrawerLayout extends ViewGroup {
 
         // So that we can catch the back button
         setFocusableInTouchMode(true);
+
+        ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
     }
 
     /**
@@ -455,6 +460,7 @@ public class DrawerLayout extends ViewGroup {
             if (mListener != null) {
                 mListener.onDrawerClosed(drawerView);
             }
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
     }
 
@@ -465,6 +471,7 @@ public class DrawerLayout extends ViewGroup {
             if (mListener != null) {
                 mListener.onDrawerOpened(drawerView);
             }
+            drawerView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
     }
 
@@ -1426,6 +1433,33 @@ public class DrawerLayout extends ViewGroup {
 
         public LayoutParams(ViewGroup.MarginLayoutParams source) {
             super(source);
+        }
+    }
+
+    class AccessibilityDelegate extends AccessibilityDelegateCompat {
+        @Override
+        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+            final int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View child = getChildAt(i);
+                if (!filter(child)) {
+                    info.addChild(child);
+                }
+            }
+        }
+
+        @Override
+        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
+                AccessibilityEvent event) {
+            if (!filter(child)) {
+                return super.onRequestSendAccessibilityEvent(host, child, event);
+            }
+            return false;
+        }
+
+        public boolean filter(View child) {
+            final View openDrawer = findOpenDrawer();
+            return openDrawer != null && openDrawer != child;
         }
     }
 }
