@@ -20,26 +20,58 @@ import android.os.SystemClock;
 import android.view.KeyEvent;
 
 /**
- * Class through which you receive information about media transport actions.
- * These may either come from key events dispatched directly to your UI, or
+ * Implemented by the playback side of the media system, to respond to
+ * requests to perform actions and to retrieve its current state.  These
+ * requests may either come from key events dispatched directly to your UI, or
  * events sent over a media button event receiver that this class keeps active
  * while your window is in focus.
  */
 public abstract class TransportPerformer {
+    /**
+     * Request to start playback on the media, resuming from whatever current state
+     * (position etc) it is in.
+     */
     public abstract void onStart();
 
-    public abstract void onStop();
-
+    /**
+     * Request to pause playback of the media, staying at the current playback position
+     * and other state so a later call to {@link #onStart()} will resume at the same place.
+     */
     public abstract void onPause();
 
+    /**
+     * Request to completely stop playback of the media, clearing whatever state the
+     * player thinks is appropriate.
+     */
+    public abstract void onStop();
+
+    /**
+     * Request to return the duration of the current media, in milliseconds.
+     */
     public abstract int onGetDuration();
 
+    /**
+     * Request to return the current playback position, in milliseconds.
+     */
     public abstract int onGetCurrentPosition();
 
+    /**
+     * Request to move the current playback position.
+     * @param pos New position to move to, in milliseconds.
+     */
     public abstract void onSeekTo(int pos);
 
+    /**
+     * Request to find out whether the player is currently playing its media.
+     */
     public abstract boolean onIsPlaying();
 
+    /**
+     * Request to find out how much of the media has been buffered on the local device.
+     * @return Return a percentage (0-100) indicating how much of the total data
+     * has been buffered.  The default implementation returns 100, meaning the content
+     * is always on the local device.
+     */
     public int onGetBufferPercentage() {
         return 100;
     }
@@ -114,7 +146,7 @@ public abstract class TransportPerformer {
     }
 
     /**
-     * Report that a media button has been pressed.  This is like
+     * Report that a media button has been released.  This is like
      * {@link KeyEvent.Callback#onKeyUp(int, android.view.KeyEvent)} but
      * will only deliver media keys.  The default implementation does nothing.
      * @param keyCode The code of the media key.
