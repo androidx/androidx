@@ -17,28 +17,76 @@
 package android.support.v4.media;
 
 /**
- * Base interface to controlling a media transport.
+ * Base interface to controlling a media transport.  This is the
+ * interface for implementing things like on-screen controls: it
+ * allows them to request changes in playback, retrieve the current
+ * playback state, and monitor for changes to the playback state.
  */
 public abstract class TransportController {
+    /**
+     * Start listening to changes in playback state.
+     */
     public abstract void registerStateListener(TransportStateListener listener);
 
+    /**
+     * Stop listening to changes in playback state.
+     */
     public abstract void unregisterStateListener(TransportStateListener listener);
 
+    /**
+     * Request that the player start its playback at its current position.
+     */
     public abstract void startPlaying();
 
+    /**
+     * Request that the player pause its playback and stay at its current position.
+     */
     public abstract void pausePlaying();
 
+    /**
+     * Request that the player stop its playback; it may clear its state in whatever
+     * way is appropriate.
+     */
     public abstract void stopPlaying();
 
+    /**
+     * Retrieve the total duration of the media stream, in milliseconds.
+     */
     public abstract int getDuration();
 
+    /**
+     * Retrieve the current playback location in the media stream, in milliseconds.
+     */
     public abstract int getCurrentPosition();
 
+    /**
+     * Move to a new location in the media stream.
+     * @param pos Position to move to, in milliseconds.
+     */
     public abstract void seekTo(int pos);
 
+    /**
+     * Return whether the player is currently playing its stream.
+     */
     public abstract boolean isPlaying();
 
+    /**
+     * Retrieve amount, in percentage (0-100), that the media stream has been buffered
+     * on to the local device.  Return 100 if the stream is always local.
+     */
     public abstract int getBufferPercentage();
 
+    /**
+     * Retrieve the flags for the media transport control buttons that this transport supports.
+     * Result is a combination of the following flags:
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_PREVIOUS},
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_REWIND},
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_PLAY},
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_PLAY_PAUSE},
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_PAUSE},
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_STOP},
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_FAST_FORWARD},
+     *      {@link TransportMediator#FLAG_KEY_MEDIA_NEXT}
+     */
     public abstract int getTransportControlFlags();
 }
