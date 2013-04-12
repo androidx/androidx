@@ -272,6 +272,14 @@ public final class BidiFormatter {
     private final TextDirectionHeuristicCompat mDefaultTextDirectionHeuristicCompat;
 
     /**
+     * Factory for creating an instance of BidiFormatter for the default locale directionality.
+     *
+     */
+    public static BidiFormatter getInstance() {
+        return new Builder().build();
+    }
+
+    /**
      * Factory for creating an instance of BidiFormatter given the context directionality.
      *
      * @param rtlContext Whether the context directionality is RTL.
