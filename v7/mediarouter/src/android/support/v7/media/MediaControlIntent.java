@@ -33,6 +33,73 @@ import android.net.Uri;
  * the media route's destination to control media playback.  Media control
  * actions may only apply to routes that support certain media control categories.
  * </ul>
+ *
+ * <h3>Route Categories</h3>
+ * <p>
+ * Routes are classified by the categories of actions that they support.  The following
+ * standard categories are defined.
+ * </p><ul>
+ * <li>{@link #CATEGORY_LIVE_AUDIO Live audio}: The route supports streaming live audio
+ * from the device to the destination.  Live audio routes include local speakers
+ * and Bluetooth headsets.
+ * <li>{@link #CATEGORY_LIVE_VIDEO Live video}: The route supports streaming live video
+ * from the device to the destination.  Live video routes include local displays
+ * and wireless displays that support mirroring and
+ * {@link android.app.Presentation presentations}.
+ * <li>{@link #CATEGORY_REMOTE_PLAYBACK Remote playback}: The route supports sending
+ * remote playback requests for media content to the destination.  The content to be
+ * played is identified by a Uri and mime-type.
+ * </ul>
+ *
+ * <h3>Remote Playback</h3>
+ * <p>
+ * Media control intents are frequently used to start remote playback of media
+ * on a destination using remote playback actions from the
+ * {@link #CATEGORY_REMOTE_PLAYBACK remote playback category}.
+ * </p><p>
+ * The {@link #ACTION_PLAY} action enqueues the Uri of content to be played and obtains
+ * a media item id that can be used to control playback.
+ * </p>
+ *
+ * <h4>Media Items</h4>
+ * <p>
+ * A media item id is an opaque token that represents the playback request.
+ * The application must supply the media item id when sending control requests to
+ * {@link #ACTION_PAUSE pause}, {@link #ACTION_RESUME resume}, {@link #ACTION_SEEK seek},
+ * {@link #ACTION_GET_STATUS get status}, {@link #ACTION_GET_PROGRESS get progress},
+ * or perform other actions to affect playback.
+ * </p><p>
+ * Each remote playback action is bound to a specific media item.  If a
+ * media item has finished, been canceled or encountered an error, then most
+ * actions other than status requests will fail.  In particular, actions such as
+ * {@link #ACTION_PAUSE} always control playback of a specific media item rather
+ * than acting globally upon whatever happens to be playing at the moment.
+ * </p>
+ *
+ * <h4>Queue Behavior</h4>
+ * <p>
+ * To provide a seamless media experience, the application can enqueue a limited number
+ * of items to play in succession.  The destination can take advantage of its
+ * queue to optimize continuous playback, starting the next media item automatically
+ * as soon as the previous one finishes.
+ * </p><p>
+ * By default, the {@link #ACTION_PLAY play action} causes the destination to stop
+ * whatever is currently playing, clear the queue of pending items, then begin playing
+ * the newly requested content.  By supplying a
+ * {@link #EXTRA_ITEM_QUEUE_BEHAVIOR queue behavior} parameter as part of the playback
+ * request, the application can specify whether the media item should
+ * {@link #ITEM_QUEUE_BEHAVIOR_PLAY_NOW play now},
+ * {@link #ITEM_QUEUE_BEHAVIOR_PLAY_NOW play next},
+ * or {@link #ITEM_QUEUE_BEHAVIOR_PLAY_NOW play later},
+ * </p><p>
+ * Typically the application will start by queuing two media items at once: one item to
+ * play now and one item to play later.  When the first item finishes, the next item
+ * will begin playing immediately.  The application can then enqueue another media item to
+ * play next (without interrupting current playback), and so on.
+ * </p><p>
+ * The application can also enqueue additional items to play later although queuing
+ * just two items at a time is usually sufficient for continuous playback.
+ * </p>
  */
 public final class MediaControlIntent {
     /**
@@ -87,13 +154,15 @@ public final class MediaControlIntent {
             "android.media.intent.category.REMOTE_PLAYBACK";
 
     /**
-     * Media control action: Play.
+     * Media control action: Play media item.
      * <p>
      * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
      * media control.
      * </p><p>
      * This action causes a remote playback route to start playing content with
      * the {@link Uri} specified in the {@link Intent}'s {@link Intent#getData() data uri}.
+     * The action returns a media item id which can be used to control playback
+     * using other remote playback actions.
      * </p><p>
      * Once initiated, playback of the specified content will be queued and managed
      * independently by the destination.  The application will receive status
@@ -103,35 +172,34 @@ public final class MediaControlIntent {
      * responsible for following HTTP redirects to a reasonable depth of at least 3
      * levels as might typically be handled by a web browser.  If an HTTP error
      * occurs, then the destination should send a status update back to the client
-     * indicating the {@link MediaStreamStatus#PLAYBACK_STATE_ERROR error}
-     * {@link MediaStreamStatus#KEY_PLAYBACK_STATE state}
-     * and include the {@link MediaStreamStatus#KEY_HTTP_STATUS_CODE HTTP status code}.
+     * indicating the {@link MediaItemStatus#PLAYBACK_STATE_ERROR error}
+     * {@link MediaItemStatus#KEY_PLAYBACK_STATE state}
+     * and include the {@link MediaItemStatus#KEY_HTTP_STATUS_CODE HTTP status code}.
      * </p>
      *
      * <h3>Request parameters</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_QUEUE_BEHAVIOR}: specifies when the content should be played.
-     * <li>{@link #EXTRA_STREAM_POSITION}: specifies the initial start position of the
-     * content stream.
-     * <li>{@link #EXTRA_STREAM_METADATA}: specifies metadata associated with the
-     * content stream such as the title of a song.
-     * <li>{@link #EXTRA_STREAM_STATUS_UPDATE_RECEIVER}: specifies a {@link PendingIntent}
-     * for a broadcast receiver that will receive status updates.
-     * <li>{@link #EXTRA_STREAM_HTTP_HEADERS}: specifies HTTP headers to supply to the
-     * server when requesting the content stream.
+     * <li>{@link #EXTRA_ITEM_QUEUE_BEHAVIOR}: specifies when the content should be played.
+     * <li>{@link #EXTRA_ITEM_POSITION}: specifies the initial start position of the content.
+     * <li>{@link #EXTRA_ITEM_METADATA}: specifies metadata associated with the
+     * content such as the title of a song.
+     * <li>{@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER}: specifies a {@link PendingIntent}
+     * for a broadcast receiver that will receive status updates about the media item.
+     * <li>{@link #EXTRA_ITEM_HTTP_HEADERS}: specifies HTTP headers to supply to the
+     * server when fetching the content.
      * </ul>
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_ID}: specifies a string identifier to use to refer
-     * to the media stream in subsequent requests such as {@link #ACTION_SEEK}.
+     * <li>{@link #EXTRA_ITEM_ID}: specifies an opaque string identifier to use to refer
+     * to the media item in subsequent requests such as {@link #ACTION_PAUSE}.
      * </ul>
      *
      * <h3>Status updates</h3>
      * <p>
-     * If the client supplies a {@link #EXTRA_STREAM_STATUS_UPDATE_RECEIVER status update receiver}
+     * If the client supplies a {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER status update receiver}
      * then the media route provider is responsible for sending status updates to the receiver
-     * when significant state changes occur.
+     * when significant media item state changes occur.
      * </p>
      *
      * <h3>Example</h3>
@@ -141,15 +209,15 @@ public final class MediaControlIntent {
      * Intent intent = new Intent(MediaControlIntent.ACTION_PLAY);
      * intent.addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
      * intent.setDataAndType("http://example.com/videos/movie.mp4", "video/mp4");
-     * intent.putExtra(MediaControlIntent.EXTRA_QUEUE_BEHAVIOR,
-     *         MediaControlIntent.QUEUE_BEHAVIOR_PLAY_NEXT);
+     * intent.putExtra(MediaControlIntent.EXTRA_ITEM_QUEUE_BEHAVIOR,
+     *         MediaControlIntent.ITEM_QUEUE_BEHAVIOR_PLAY_NEXT);
      * if (route.supportsControlRequest(intent)) {
      *     MediaRouter.ControlRequestCallback callback = new MediaRouter.ControlRequestCallback() {
      *         public void onResult(int result, Bundle data) {
      *             if (result == REQUEST_SUCCEEDED) {
      *                 // The request succeeded.
-     *                 // The content stream may be controlled using the returned stream id...
-     *                 String id = data.getStringExtra(MediaControlIntent.EXTRA_STREAM_ID);
+     *                 // Playback may be controlled using the returned item id...
+     *                 String id = data.getStringExtra(MediaControlIntent.EXTRA_ITEM_ID);
      *             }
      *         }
      *     };
@@ -158,33 +226,38 @@ public final class MediaControlIntent {
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
+     * @see #ACTION_SEEK
+     * @see #ACTION_STOP
+     * @see #ACTION_PAUSE
+     * @see #ACTION_RESUME
+     * @see #ACTION_GET_PROGRESS
+     * @see #ACTION_GET_STATUS
      */
     public static final String ACTION_PLAY = "android.media.intent.action.PLAY";
 
     /**
-     * Media control action: Seek to a new playback position.
+     * Media control action: Seek media item to a new playback position.
      * <p>
      * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
      * media control.
      * </p><p>
      * This action causes a remote playback route to modify the current playback
-     * position of the specified media stream.
+     * position of the specified media item.
      * </p><p>
-     * This action should generally not affect the current playback state of the media stream.
-     * If the stream is paused, then seeking should set the position but leave
-     * the stream paused.  Likewise if the stream is playing, then seeking should
-     * continue playing from the new position.  If the stream has not yet started
+     * This action should generally not affect the current playback state of the media item.
+     * If the item is paused, then seeking should set the position but leave
+     * the item paused.  Likewise if the item is playing, then seeking should
+     * continue playing from the new position.  If the item has not yet started
      * playing, then the new playback position should be remembered and used as the
-     * initial position for the stream.
+     * initial position for the item.
      * </p>
      *
      * <h3>Request parameters</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_ID}: specifies the stream id of the stream to be
+     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
      * controlled.  This value was returned as a result from the
      * {@link #ACTION_PLAY play} action.
-     * <li>{@link #EXTRA_STREAM_POSITION}: specifies the new position of the
-     * content stream.
+     * <li>{@link #EXTRA_ITEM_POSITION}: specifies the new position of the content.
      * </ul>
      *
      * <h3>Result data</h3>
@@ -198,21 +271,52 @@ public final class MediaControlIntent {
     public static final String ACTION_SEEK = "android.media.intent.action.SEEK";
 
     /**
-     * Media control action: Pause playback.
+     * Media control action: Stop media item playback.
+     * <p>
+     * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
+     * media control.
+     * </p><p>
+     * This action causes a remote playback route to stop playback of the
+     * specified media item.
+     * </p><p>
+     * If the media item has not started playing yet, then the media item should
+     * be stopped and removed from the queue.
+     * </p>
+     *
+     * <h3>Request parameters</h3>
+     * <ul>
+     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
+     * controlled.  This value was returned as a result from the
+     * {@link #ACTION_PLAY play} action.
+     * </ul>
+     *
+     * <h3>Result data</h3>
+     * <ul>
+     * <li>(none)
+     * </ul>
+     *
+     * @see MediaRouter.RouteInfo#sendControlRequest
+     * @see #CATEGORY_REMOTE_PLAYBACK
+     */
+    public static final String ACTION_STOP = "android.media.intent.action.STOP";
+
+
+    /**
+     * Media control action: Pause media item playback.
      * <p>
      * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
      * media control.
      * </p><p>
      * This action causes a remote playback route to pause playback of the
-     * specified stream.
+     * specified media item.
      * </p><p>
-     * If the stream has not started playing yet, then the request to pause should
-     * be remembered such that the stream will initially start in a paused state.
+     * If the media item has not started playing yet, then the request to pause should
+     * be remembered such that the item will initially start in a paused state.
      * </p>
      *
      * <h3>Request parameters</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_ID}: specifies the stream id of the stream to be
+     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
      * controlled.  This value was returned as a result from the
      * {@link #ACTION_PLAY play} action.
      * </ul>
@@ -224,22 +328,23 @@ public final class MediaControlIntent {
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
+     * @see #ACTION_RESUME
      */
     public static final String ACTION_PAUSE = "android.media.intent.action.PAUSE";
 
     /**
-     * Media control action: Resume playback (unpause).
+     * Media control action: Resume media item playback (unpause).
      * <p>
      * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
      * media control.
      * </p><p>
      * This action causes a remote playback route to resume playback of the
-     * specified stream.  Reverses the effects of {@link #ACTION_PAUSE}.
+     * specified media item.  Reverses the effects of {@link #ACTION_PAUSE}.
      * </p>
      *
      * <h3>Request parameters</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_ID}: specifies the stream id of the stream to be
+     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
      * controlled.  This value was returned as a result from the
      * {@link #ACTION_PLAY play} action.
      * </ul>
@@ -251,58 +356,60 @@ public final class MediaControlIntent {
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
+     * @see #ACTION_PAUSE
      */
     public static final String ACTION_RESUME = "android.media.intent.action.RESUME";
 
     /**
-     * Media control action: Get status.
+     * Media control action: Get media item status.
      * <p>
      * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
      * media control.
      * </p><p>
      * This action asks a remote playback route to provide updated status information
-     * about playback of the specified stream.
+     * about playback of the specified media item.
      * </p>
      *
      * <h3>Request parameters</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_ID}: specifies the stream id of the stream to be
-     * queried.  This value was returned as a result from the
+     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
+     * controlled.  This value was returned as a result from the
      * {@link #ACTION_PLAY play} action.
      * </ul>
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_STATUS}: specifies the status of the stream.
+     * <li>{@link #EXTRA_ITEM_STATUS}: specifies the status of the stream.
      * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
+     * @see #EXTRA_ITEM_STATUS_UPDATE_RECEIVER
      */
     public static final String ACTION_GET_STATUS = "android.media.intent.action.GET_STATUS";
 
     /**
-     * Media control action: Get progress.
+     * Media control action: Get media item progress.
      * <p>
      * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
      * media control.
      * </p><p>
-     * This action asks a remote playback route to provide the stream playback
+     * This action asks a remote playback route to provide media item playback
      * progress information.  The client may use this information to provide feedback
      * to the user about the current playback position and overall duration.
      * </p>
      *
      * <h3>Request parameters</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_ID}: specifies the stream id of the stream to be
-     * queried.  This value was returned as a result from the
+     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
+     * controlled.  This value was returned as a result from the
      * {@link #ACTION_PLAY play} action.
      * </ul>
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li>{@link #EXTRA_STREAM_POSITION}: specifies the stream playback position.
-     * <li>{@link #EXTRA_STREAM_DURATION}: specifies the stream overall duration.
+     * <li>{@link #EXTRA_ITEM_POSITION}: specifies the content playback position.
+     * <li>{@link #EXTRA_ITEM_DURATION}: specifies the overall duration of the content.
      * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
@@ -311,62 +418,62 @@ public final class MediaControlIntent {
     public static final String ACTION_GET_PROGRESS = "android.media.intent.action.GET_PROGRESS";
 
     /**
-     * Integer extra: Queue behavior.
+     * Integer extra: Media item queue behavior.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify when the requested content should be
+     * Used with {@link #ACTION_PLAY} to specify when the requested  should be
      * played.  The default is to play the content immediately.
      * </p><p>
-     * The value must be one of {@link #STREAM_QUEUE_BEHAVIOR_PLAY_NOW},
-     * {@link #STREAM_QUEUE_BEHAVIOR_PLAY_NEXT}, or {@link #STREAM_QUEUE_BEHAVIOR_PLAY_LATER}.
+     * The value must be one of {@link #ITEM_QUEUE_BEHAVIOR_PLAY_NOW},
+     * {@link #ITEM_QUEUE_BEHAVIOR_PLAY_NEXT}, or {@link #ITEM_QUEUE_BEHAVIOR_PLAY_LATER}.
      * </p>
      *
      * @see #ACTION_PLAY
      */
-    public static final String EXTRA_STREAM_QUEUE_BEHAVIOR =
+    public static final String EXTRA_ITEM_QUEUE_BEHAVIOR =
             "android.media.intent.extra.QUEUE_BEHAVIOR";
 
     /**
-     * Value for {@link #EXTRA_STREAM_QUEUE_BEHAVIOR}: Play now.
+     * Value for {@link #EXTRA_ITEM_QUEUE_BEHAVIOR}: Play now.
      * <p>
      * This is the default queue behavior.
      * </p><p>
-     * Requests that the new content stream play immediately, canceling the currently playing
-     * stream and all subsequent items in the queue.  When this control request returns, the
-     * queue will contain exactly one item consisting of the newly requested content.
+     * Requests that the new content be played immediately, canceling the currently playing
+     * media item and all subsequent items in the queue.  When this control request returns,
+     * the queue will contain exactly one item consisting of the newly requested content.
      * </p>
      *
-     * @see #EXTRA_STREAM_QUEUE_BEHAVIOR
+     * @see #EXTRA_ITEM_QUEUE_BEHAVIOR
      */
-    public static final int STREAM_QUEUE_BEHAVIOR_PLAY_NOW = 0;
+    public static final int ITEM_QUEUE_BEHAVIOR_PLAY_NOW = 0;
 
     /**
-     * Value for {@link #EXTRA_STREAM_QUEUE_BEHAVIOR}: Play next.
+     * Value for {@link #EXTRA_ITEM_QUEUE_BEHAVIOR}: Play next.
      * <p>
-     * Requests that the new content stream be enqueued to play next after the currently playing
-     * stream, canceling all subsequent items in the queue.  When this control request returns,
-     * the queue will contain either one or two items consisting of the currently playing
-     * content, if any, followed by the newly requested content.
+     * Requests that the new content be enqueued to play next after the currently playing
+     * media item, canceling all subsequent items in the queue.  When this control request
+     * returns, the queue will contain either one or two items consisting of the currently
+     * playing content, if any, followed by the newly requested content.
      * </p>
      *
-     * @see #EXTRA_STREAM_QUEUE_BEHAVIOR
+     * @see #EXTRA_ITEM_QUEUE_BEHAVIOR
      */
-    public static final int STREAM_QUEUE_BEHAVIOR_PLAY_NEXT = 1;
+    public static final int ITEM_QUEUE_BEHAVIOR_PLAY_NEXT = 1;
 
     /**
-     * Value for {@link #EXTRA_STREAM_QUEUE_BEHAVIOR}: Play later.
+     * Value for {@link #EXTRA_ITEM_QUEUE_BEHAVIOR}: Play later.
      * <p>
-     * Requests that the new content stream be enqueued to play later after all other items
+     * Requests that the new content be enqueued to play later after all other media items
      * currently in the queue.  When this control request returns, the queue will contain at
      * least one item consisting of the currently playing content and all previously
      * enqueued items followed by the newly requested content.
      * </p>
      *
-     * @see #EXTRA_STREAM_QUEUE_BEHAVIOR
+     * @see #EXTRA_ITEM_QUEUE_BEHAVIOR
      */
-    public static final int STREAM_QUEUE_BEHAVIOR_PLAY_LATER = 2;
+    public static final int ITEM_QUEUE_BEHAVIOR_PLAY_LATER = 2;
 
     /**
-     * Integer extra: Stream position.
+     * Integer extra: Media item content position.
      * <p>
      * Used with {@link #ACTION_PLAY} to specify the starting playback position.
      * </p><p>
@@ -374,114 +481,119 @@ public final class MediaControlIntent {
      * </p><p>
      * Used with {@link #ACTION_GET_PROGRESS} to report the current playback position.
      * </p><p>
-     * The value is an integer number of seconds from the beginning of the
-     * content stream.
+     * The value is an integer number of seconds from the beginning of the content.
      * <p>
      *
      * @see #ACTION_PLAY
      * @see #ACTION_SEEK
      * @see #ACTION_GET_PROGRESS
      */
-    public static final String EXTRA_STREAM_POSITION =
-            "android.media.intent.extra.STREAM_POSITION";
+    public static final String EXTRA_ITEM_POSITION =
+            "android.media.intent.extra.ITEM_POSITION";
 
     /**
-     * Integer extra: Stream duration.
+     * Integer extra: Media item content duration.
      * <p>
-     * Used with {@link #ACTION_GET_PROGRESS} to report the overall duration of the stream.
+     * Used with {@link #ACTION_GET_PROGRESS} to report the overall duration of the
+     * media item content.
      * </p><p>
-     * The value is an integer number of seconds from the beginning of the
-     * content stream.
+     * The value is an integer number of seconds from the beginning of the content.
      * <p>
      *
      * @see #ACTION_GET_PROGRESS
      */
-    public static final String EXTRA_STREAM_DURATION =
-            "android.media.intent.extra.STREAM_DURATION";
+    public static final String EXTRA_ITEM_DURATION =
+            "android.media.intent.extra.ITEM_DURATION";
 
     /**
-     * Bundle extra: Stream metadata.
+     * Bundle extra: Media item metadata.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify metadata associated with a
-     * content stream.
+     * Used with {@link #ACTION_PLAY} to specify metadata associated with the content
+     * of a media item.
      * </p><p>
      * The value is a {@link android.os.Bundle} of metadata keys and values as defined
-     * in {@link MediaStreamMetadata}.
+     * in {@link MediaItemMetadata}.
      * </p>
      *
      * @see #ACTION_PLAY
      */
-    public static final String EXTRA_STREAM_METADATA =
-            "android.media.intent.extra.STREAM_METADATA";
+    public static final String EXTRA_ITEM_METADATA =
+            "android.media.intent.extra.ITEM_METADATA";
 
     /**
-     * Bundle extra: Stream id.
+     * Bundle extra: Media item id.
      * <p>
-     * Returned as a result from {@link #ACTION_PLAY} to provide a unique id
-     * for the requested content stream which may then be used to issue subsequent
-     * requests to control that content stream.
+     * Returned as a result from {@link #ACTION_PLAY} to provide an opaque unique id
+     * for the requested media item which may then be used to issue subsequent
+     * requests to control the content.
      * </p><p>
-     * Used with various actions to specify the id of the stream to be controlled.
+     * Used with various actions to specify the id of the media item to be controlled.
      * </p><p>
      * The value is a unique string value generated by the media route provider
-     * to represent one particular content stream.
+     * to represent one particular media item.
      * </p>
      *
      * @see #ACTION_PLAY
+     * @see #ACTION_STOP
      * @see #ACTION_SEEK
      * @see #ACTION_PAUSE
      * @see #ACTION_RESUME
      * @see #ACTION_GET_STATUS
      */
-    public static final String EXTRA_STREAM_ID =
-            "android.media.intent.extra.STREAM_ID";
+    public static final String EXTRA_ITEM_ID =
+            "android.media.intent.extra.ITEM_ID";
 
     /**
-     * Bundle extra: Stream status.
+     * Bundle extra: Media item status.
      * <p>
      * Returned as a result from {@link #ACTION_GET_STATUS} and in broadcasts
-     * sent to a {@link #EXTRA_STREAM_STATUS_UPDATE_RECEIVER status update receiver}
-     * to describe the status of the stream.
+     * sent to a {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER status update receiver}
+     * to describe the status of the media item.
      * </p><p>
      * The value is a {@link android.os.Bundle} of status keys and values as defined
-     * in {@link MediaStreamStatus}.
+     * in {@link MediaItemStatus}.
      * </p>
      *
      * @see #ACTION_PLAY
-     * @see #ACTION_SEEK
-     * @see #ACTION_PAUSE
-     * @see #ACTION_RESUME
      * @see #ACTION_GET_STATUS
      */
-    public static final String EXTRA_STREAM_STATUS =
-            "android.media.intent.extra.STREAM_STATUS";
+    public static final String EXTRA_ITEM_STATUS =
+            "android.media.intent.extra.ITEM_STATUS";
 
     /**
-     * Bundle extra: Stream status update receiver.
+     * Bundle extra: Media item status update receiver.
      * <p>
      * Used with {@link #ACTION_PLAY} to specify a {@link PendingIntent} for a
-     * broadcast receiver that will receive status updates.
+     * broadcast receiver that will receive status updates about a media item.
      * </p><p>
-     * Whenever the status of the stream changes, the media route provider will
-     * send a broadcast to the pending intent which includes the {@link #EXTRA_STREAM_STATUS}
-     * that describes the new status.
+     * Whenever the status of the media item changes, the media route provider will
+     * send a broadcast to the pending intent with extras that describe
+     * the status of the media item.
      * </p><p>
      * The value is a {@link PendingIntent}.
      * </p>
      *
+     * <h3>Broadcast extras</h3>
+     * <ul>
+     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
+     * controlled.  This value was returned as a result from the
+     * {@link #ACTION_PLAY play} action.
+     * <li>{@link #EXTRA_ITEM_STATUS}: specifies the status of the stream.
+     * </ul>
+     *
      * @see #ACTION_PLAY
      */
-    public static final String EXTRA_STREAM_STATUS_UPDATE_RECEIVER =
-            "android.media.intent.extra.STREAM_STATUS_UPDATE_RECEIVER";
+    public static final String EXTRA_ITEM_STATUS_UPDATE_RECEIVER =
+            "android.media.intent.extra.ITEM_STATUS_UPDATE_RECEIVER";
 
     /**
      * Bundle extra: HTTP headers.
      * <p>
      * Used with {@link #ACTION_PLAY} to specify HTTP headers to be included when
-     * connecting to the media stream indicated by the data Uri.
+     * fetching to the content indicated by the media item's data Uri.
      * </p><p>
      * This extra may be used to provide authentication tokens and other
-     * parameters to the server separately from the media stream's data Uri.
+     * parameters to the server separately from the media item's data Uri.
      * </p><p>
      * The value is a {@link android.os.Bundle} of string based key value pairs
      * that describe the HTTP headers.
@@ -489,7 +601,7 @@ public final class MediaControlIntent {
      *
      * @see #ACTION_PLAY
      */
-    public static final String EXTRA_STREAM_HTTP_HEADERS =
+    public static final String EXTRA_ITEM_HTTP_HEADERS =
             "android.media.intent.extra.HTTP_HEADERS";
 
     private MediaControlIntent() {

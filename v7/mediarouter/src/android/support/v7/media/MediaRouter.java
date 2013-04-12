@@ -472,7 +472,7 @@ public final class MediaRouter {
          * {@link MediaControlIntent media control} request.
          * <p>
          * Media control requests are used to request the route to perform
-         * actions such as starting remote playback of a content stream.
+         * actions such as starting remote playback of a media item.
          * </p>
          *
          * @param intent A {@link MediaControlIntent media control intent}.
@@ -502,7 +502,7 @@ public final class MediaRouter {
          * asynchronously by the route's destination.
          * <p>
          * Media control requests are used to request the route to perform
-         * actions such as starting remote playback of a content stream.
+         * actions such as starting remote playback of a media item.
          * </p><p>
          * This function may only be called on a selected route.  Control requests
          * sent to unselected routes will fail.
