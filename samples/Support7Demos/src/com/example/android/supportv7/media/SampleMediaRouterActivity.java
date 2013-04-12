@@ -186,7 +186,7 @@ public class SampleMediaRouterActivity extends Activity {
                     switch (result) {
                         case REQUEST_SUCCEEDED: {
                             String streamId = data != null ? data.getString(
-                                    MediaControlIntent.EXTRA_STREAM_ID) : null;
+                                    MediaControlIntent.EXTRA_ITEM_ID) : null;
 
                             Log.d(TAG, "Play request succeeded: streamId=" + streamId);
                             Toast.makeText(SampleMediaRouterActivity.this,

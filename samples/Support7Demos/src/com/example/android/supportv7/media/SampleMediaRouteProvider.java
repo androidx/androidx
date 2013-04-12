@@ -201,13 +201,13 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
 
                 Uri uri = intent.getData();
                 int queueBehavior = intent.getIntExtra(
-                        MediaControlIntent.EXTRA_STREAM_QUEUE_BEHAVIOR,
-                        MediaControlIntent.STREAM_QUEUE_BEHAVIOR_PLAY_NOW);
+                        MediaControlIntent.EXTRA_ITEM_QUEUE_BEHAVIOR,
+                        MediaControlIntent.ITEM_QUEUE_BEHAVIOR_PLAY_NOW);
                 int position = intent.getIntExtra(
-                        MediaControlIntent.EXTRA_STREAM_POSITION, 0);
-                Bundle metadata = intent.getBundleExtra(MediaControlIntent.EXTRA_STREAM_METADATA);
+                        MediaControlIntent.EXTRA_ITEM_POSITION, 0);
+                Bundle metadata = intent.getBundleExtra(MediaControlIntent.EXTRA_ITEM_METADATA);
                 Bundle headers = intent.getBundleExtra(
-                        MediaControlIntent.EXTRA_STREAM_HTTP_HEADERS);
+                        MediaControlIntent.EXTRA_ITEM_HTTP_HEADERS);
                 String streamId = generateStreamId();
 
                 Log.d(TAG, mRouteId + ": Received play request, uri=" + uri
@@ -219,7 +219,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                         Toast.LENGTH_LONG).show();
                 if (callback != null) {
                     Bundle result = new Bundle();
-                    result.putString(MediaControlIntent.EXTRA_STREAM_ID, streamId);
+                    result.putString(MediaControlIntent.EXTRA_ITEM_ID, streamId);
                     callback.onResult(ControlRequestCallback.REQUEST_SUCCEEDED, result);
                 }
                 return true;
