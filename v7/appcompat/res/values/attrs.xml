@@ -451,8 +451,19 @@
         <attr name="disableChildrenWhenDisabled" format="boolean" />
     </declare-styleable>
 
-
-    <attr name="dividerPadding" format="dimension"/>
+    <declare-styleable name="LinearLayoutICS">
+        <!-- Drawable to use as a vertical divider between buttons. -->
+        <attr name="divider" />
+        <!-- Setting for which dividers to show. -->
+        <attr name="showDividers">
+            <flag name="none" value="0" />
+            <flag name="beginning" value="1" />
+            <flag name="middle" value="2" />
+            <flag name="end" value="4" />
+        </attr>
+        <!-- Size of padding on either end of a divider. -->
+        <attr name="dividerPadding" format="dimension" />
+    </declare-styleable>
 
     <!-- Default Spinner style. -->
     <attr name="spinnerStyle" format="reference" />
