@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
@@ -28,14 +29,17 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -246,6 +250,8 @@ public class SlidingPaneLayout extends ViewGroup {
 
         setWillNotDraw(false);
 
+        ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
+
         mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
         mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
     }
@@ -318,12 +324,64 @@ public class SlidingPaneLayout extends ViewGroup {
         if (mPanelSlideListener != null) {
             mPanelSlideListener.onPanelOpened(panel);
         }
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     void dispatchOnPanelClosed(View panel) {
         if (mPanelSlideListener != null) {
             mPanelSlideListener.onPanelClosed(panel);
         }
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+    }
+
+    void updateObscuredViewsVisibility(View panel) {
+        final int left;
+        final int right;
+        final int top;
+        final int bottom;
+        if (panel != null && hasOpaqueBackground(panel)) {
+            left = panel.getLeft();
+            right = panel.getRight();
+            top = panel.getTop();
+            bottom = panel.getBottom();
+        } else {
+            left = right = top = bottom = 0;
+        }
+
+        for (int i = 0, childCount = getChildCount(); i < childCount; i++) {
+            final View child = getChildAt(i);
+
+            if (child == panel) {
+                // There are still more children above the panel but they won't be affected.
+                break;
+            }
+
+            final int vis;
+            if (child.getLeft() >= left && child.getTop() >= top &&
+                    child.getRight() <= right && child.getBottom() <= bottom) {
+                vis = INVISIBLE;
+            } else {
+                vis = VISIBLE;
+            }
+            child.setVisibility(vis);
+        }
+    }
+
+    void setAllChildrenVisible() {
+        for (int i = 0, childCount = getChildCount(); i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() == INVISIBLE) {
+                child.setVisibility(VISIBLE);
+            }
+        }
+    }
+
+    private static boolean hasOpaqueBackground(View v) {
+        final Drawable bg = v.getBackground();
+        if (bg != null) {
+            return bg.getOpacity() == PixelFormat.OPAQUE;
+        }
+        return false;
     }
 
     @Override
@@ -583,6 +641,7 @@ public class SlidingPaneLayout extends ViewGroup {
                     dimChildView(getChildAt(i), 0, mSliderFadeColor);
                 }
             }
+            updateObscuredViewsVisibility(mSlideableView);
         }
 
         mFirstLayout = false;
@@ -885,6 +944,7 @@ public class SlidingPaneLayout extends ViewGroup {
         int x = (int) (leftBound + slideOffset * mSlideRange);
 
         if (mDragHelper.smoothSlideViewTo(mSlideableView, x, mSlideableView.getTop())) {
+            setAllChildrenVisible();
             ViewCompat.postInvalidateOnAnimation(this);
             return true;
         }
@@ -1065,6 +1125,7 @@ public class SlidingPaneLayout extends ViewGroup {
         public void onViewDragStateChanged(int state) {
             if (mDragHelper.getViewDragState() == ViewDragHelper.STATE_IDLE) {
                 if (mSlideOffset == 0) {
+                    updateObscuredViewsVisibility(mSlideableView);
                     dispatchOnPanelClosed(mSlideableView);
                     mPreservedOpenState = false;
                 } else {
@@ -1072,6 +1133,12 @@ public class SlidingPaneLayout extends ViewGroup {
                     mPreservedOpenState = true;
                 }
             }
+        }
+
+        @Override
+        public void onViewCaptured(View capturedChild, int activePointerId) {
+            // Make all child views visible in preparation for sliding things around
+            setAllChildrenVisible();
         }
 
         @Override
@@ -1257,6 +1324,32 @@ public class SlidingPaneLayout extends ViewGroup {
         @Override
         public void invalidateChildRegion(SlidingPaneLayout parent, View child) {
             ViewCompat.setLayerPaint(child, ((LayoutParams) child.getLayoutParams()).dimPaint);
+        }
+    }
+
+    class AccessibilityDelegate extends AccessibilityDelegateCompat {
+        @Override
+        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+            final int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View child = getChildAt(i);
+                if (!filter(child)) {
+                    info.addChild(child);
+                }
+            }
+        }
+
+        @Override
+        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
+                AccessibilityEvent event) {
+            if (!filter(child)) {
+                return super.onRequestSendAccessibilityEvent(host, child, event);
+            }
+            return false;
+        }
+
+        public boolean filter(View child) {
+            return isDimmed(child);
         }
     }
 }
