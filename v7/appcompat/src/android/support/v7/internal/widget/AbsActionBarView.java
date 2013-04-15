@@ -25,6 +25,8 @@ import android.support.v7.internal.view.menu.ActionMenuView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 abstract class AbsActionBarView extends ViewGroup {
 
@@ -114,7 +116,20 @@ abstract class AbsActionBarView extends ViewGroup {
     }
 
     public void animateToVisibility(int visibility) {
-        setVisibility(visibility);
+        clearAnimation();
+
+        if (visibility != getVisibility()) {
+            Animation anim = AnimationUtils.loadAnimation(getContext(),
+                    visibility == View.VISIBLE ? R.anim.abc_fade_in : R.anim.abc_fade_out);
+
+            startAnimation(anim);
+            setVisibility(visibility);
+
+            if (mSplitView != null && mMenuView != null) {
+                mMenuView.startAnimation(anim);
+                mMenuView.setVisibility(visibility);
+            }
+        }
     }
 
     @Override
