@@ -45,7 +45,6 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     private MenuBuilder mMenu;
 
     private ActionMode mActionMode;
-    private MenuBuilder mActionModeMenu;
 
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
@@ -345,7 +344,6 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         }
 
         final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
-        ActionMode mode = null;
 
         ActionBarImplCompat ab = (ActionBarImplCompat) getSupportActionBar();
         if (ab != null) {
@@ -402,7 +400,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
             mListMenuPresenter = new ListMenuPresenter(
                     R.layout.abc_list_menu_item_layout, listPresenterTheme);
             mListMenuPresenter.setCallback(cb);
-            updateListMenuPresenterMenu();
+            mMenu.addMenuPresenter(mListMenuPresenter);
         } else {
             // Make sure we update the ListView
             mListMenuPresenter.updateMenuView(false);
@@ -421,7 +419,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         }
         mMenu = menu;
 
-        if (mActionModeMenu == null && menu != null && mListMenuPresenter != null) {
+        if (menu != null && mListMenuPresenter != null) {
             // Only update list menu if there isn't an action mode menu
             menu.addMenuPresenter(mListMenuPresenter);
         }
@@ -496,31 +494,6 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         // FIXME: Reintroduce support options menu dispatch through facade.
         //goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(menu);
         return goforit;
-    }
-
-    private void setActionModeMenu(MenuBuilder menu) {
-        // Make sure that there are no menu's updating the list menu
-        if (mActionModeMenu != null) {
-            mActionModeMenu.removeMenuPresenter(mListMenuPresenter);
-        }
-        if (mMenu != null) {
-            mMenu.removeMenuPresenter(mListMenuPresenter);
-        }
-        mActionModeMenu = menu;
-
-        if (mListMenuPresenter != null) {
-            updateListMenuPresenterMenu();
-        }
-    }
-
-    private void updateListMenuPresenterMenu() {
-        if (mActionModeMenu != null) {
-            // We have a menu from an action mode so use it in the list menu
-            mActionModeMenu.addMenuPresenter(mListMenuPresenter);
-        } else if (mMenu != null) {
-            // We have a menu from the activity/fragments so use it in the list menu
-            mMenu.addMenuPresenter(mListMenuPresenter);
-        }
     }
 
     /**
@@ -625,9 +598,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         }
 
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            final boolean wrappedValue = mWrapped.onPrepareActionMode(mode, menu);
-            setActionModeMenu((MenuBuilder) menu);
-            return wrappedValue;
+            return mWrapped.onPrepareActionMode(mode, menu);
         }
 
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
@@ -637,8 +608,6 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         public void onDestroyActionMode(ActionMode mode) {
             mWrapped.onDestroyActionMode(mode);
             mActivity.onSupportActionModeFinished(mode);
-
-            setActionModeMenu(null);
             mActionMode = null;
         }
     }
