@@ -46,6 +46,13 @@
         <item name="background">@drawable/abc_ab_transparent_light_holo</item>
         <item name="backgroundStacked">@drawable/abc_ab_stacked_transparent_light_holo</item>
         <item name="backgroundSplit">@drawable/abc_ab_bottom_transparent_light_holo</item>
+
+        <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.Light.ActionButton.Overflow
+        </item>
+
+        <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
+        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.Solid" parent="Widget.AppCompat.Base.ActionBar">
@@ -68,6 +75,9 @@
         </item>
         <item name="subtitleTextStyle">
             @style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse
+        </item>
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow
         </item>
     </style>
 
@@ -93,11 +103,14 @@
            parent="Widget.AppCompat.Light.Base.ActionButton">
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionButton.Overflow" parent="">
+    <style name="Widget.AppCompat.Base.ActionButton.Overflow"
+           parent="Widget.AppCompat.Base.ActionButton">
+        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_normal_holo_dark</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionButton.Overflow"
-           parent="Widget.AppCompat.Base.ActionButton.Overflow">
+           parent="Widget.AppCompat.Light.Base.ActionButton">
+        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_normal_holo_light</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabBar" parent="">
