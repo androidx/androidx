@@ -19,6 +19,7 @@ package android.support.v4.view.accessibility;
 import android.os.Build;
 import android.os.Parcelable;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -517,8 +518,12 @@ public class AccessibilityRecordCompat {
 
     private final Object mRecord;
 
-    /*
-     * Hide constructor from clients.
+    /**
+     * @deprecated This is not type safe. If you want to modify an
+     * {@link AccessibilityEvent}'s properties defined in
+     * {@link android.view.accessibility.AccessibilityRecord} use
+     * {@link #from(AccessibilityEvent)}. This method will be removed
+     * in a subsequent release of the support library.
      */
     public AccessibilityRecordCompat(Object record) {
         mRecord = record;
@@ -526,6 +531,9 @@ public class AccessibilityRecordCompat {
 
     /**
      * @return The wrapped implementation.
+     *
+     * @deprecated This method will be removed in a subsequent release of
+     * the support library.
      */
     public Object getImpl() {
         return mRecord;
