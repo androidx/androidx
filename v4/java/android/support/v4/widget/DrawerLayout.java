@@ -1493,7 +1493,6 @@ public class DrawerLayout extends ViewGroup {
             src.getBoundsInScreen(rect);
             dest.setBoundsInScreen(rect);
 
-            dest.setViewIdResourceName(src.getViewIdResourceName());
             dest.setVisibleToUser(src.isVisibleToUser());
             dest.setPackageName(src.getPackageName());
             dest.setClassName(src.getClassName());
