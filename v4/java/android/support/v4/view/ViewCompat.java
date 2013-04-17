@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
 /**
@@ -133,7 +134,6 @@ public class ViewCompat {
      */
     public static final int LAYOUT_DIRECTION_LOCALE = 3;
 
-
     interface ViewCompatImpl {
         public boolean canScrollHorizontally(View v, int direction);
         public boolean canScrollVertically(View v, int direction);
@@ -160,6 +160,7 @@ public class ViewCompat {
         public void setLayerPaint(View view, Paint paint);
         public int getLayoutDirection(View view);
         public void setLayoutDirection(View view, int layoutDirection);
+        public ViewParent getParentForAccessibility(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -245,6 +246,11 @@ public class ViewCompat {
         @Override
         public void setLayoutDirection(View view, int layoutDirection) {
             // No-op
+        }
+
+        @Override
+        public ViewParent getParentForAccessibility(View view) {
+            return view.getParent();
         }
     }
 
@@ -350,6 +356,11 @@ public class ViewCompat {
                 return new AccessibilityNodeProviderCompat(compat);
             }
             return null;
+        }
+
+        @Override
+        public ViewParent getParentForAccessibility(View view) {
+            return ViewCompatJB.getParentForAccessibility(view);
         }
     }
 
@@ -884,5 +895,17 @@ public class ViewCompat {
      */
     public static void setLayoutDirection(View view, int layoutDirection) {
         IMPL.setLayoutDirection(view, layoutDirection);
+    }
+
+    /**
+     * Gets the parent for accessibility purposes. Note that the parent for
+     * accessibility is not necessary the immediate parent. It is the first
+     * predecessor that is important for accessibility.
+     *
+     * @param view View to retrieve parent for
+     * @return The parent for use in accessibility inspection
+     */
+    public static ViewParent getParentForAccessibility(View view) {
+        return IMPL.getParentForAccessibility(view);
     }
 }
