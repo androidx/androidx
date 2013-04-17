@@ -34,6 +34,7 @@ public class AccessibilityServiceInfoCompat {
         public boolean getCanRetrieveWindowContent(AccessibilityServiceInfo info);
         public String getDescription(AccessibilityServiceInfo info);
         public String getSettingsActivityName(AccessibilityServiceInfo info);
+        public int getCapabilities(AccessibilityServiceInfo info);
     }
 
     static class AccessibilityServiceInfoStubImpl implements AccessibilityServiceInfoVersionImpl {
@@ -56,6 +57,10 @@ public class AccessibilityServiceInfoCompat {
 
         public String getSettingsActivityName(AccessibilityServiceInfo info) {
             return null;
+        }
+
+        public int getCapabilities(AccessibilityServiceInfo info) {
+            return 0;
         }
     }
 
@@ -85,17 +90,59 @@ public class AccessibilityServiceInfoCompat {
         public String getSettingsActivityName(AccessibilityServiceInfo info) {
             return AccessibilityServiceInfoCompatIcs.getSettingsActivityName(info);
         }
+
+        @Override
+        public int getCapabilities(AccessibilityServiceInfo info) {
+            if (getCanRetrieveWindowContent(info)) {
+                return CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT;
+            }
+            return 0;
+        }
+    }
+
+    static class AccessibilityServiceInfoJellyBeanMr2 extends AccessibilityServiceInfoIcsImpl {
+        @Override
+        public int getCapabilities(AccessibilityServiceInfo info) {
+            return AccessibilityServiceInfoCompatJellyBeanMr2.getCapabilities(info);
+        }
     }
 
     static {
-        if (Build.VERSION.SDK_INT >= 14) { // ICS
+        // TODO: Update this as soon as the APIs are final (bug:8644149)
+        if ("JellyBeanMR2".equals(Build.VERSION.CODENAME)) {
+            IMPL = new AccessibilityServiceInfoJellyBeanMr2();
+        } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new AccessibilityServiceInfoIcsImpl();
         } else {
             IMPL = new AccessibilityServiceInfoStubImpl();
         }
     }
 
+    // Capabilities
+
     private static final AccessibilityServiceInfoVersionImpl IMPL;
+
+    /**
+     * Capability: This accessibility service can retrieve the active window content.
+     */
+    public static final int CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT = 0x00000001;
+
+    /**
+     * Capability: This accessibility service can request touch exploration mode in which
+     * touched items are spoken aloud and the UI can be explored via gestures.
+     */
+    public static final int CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION = 0x00000002;
+
+    /**
+     * Capability: This accessibility service can request enhanced web accessibility
+     * enhancements. For example, installing scripts to make app content more accessible.
+     */
+    public static final int CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY = 0x00000004;
+
+    /**
+     * Capability: This accessibility service can filter the key event stream.
+     */
+    public static final int CAPABILITY_CAN_FILTER_KEY_EVENTS = 0x00000008;
 
     // Feedback types
 
@@ -117,6 +164,13 @@ public class AccessibilityServiceInfoCompat {
     public static final int FEEDBACK_ALL_MASK = 0xFFFFFFFF;
 
     // Flags
+
+    /**
+     * If an {@link AccessibilityService} is the default for a given type.
+     * Default service is invoked only if no package specific one exists. In case of
+     * more than one package specific service only the earlier registered is notified.
+     */
+    public static final int DEFAULT = 0x0000001;
 
     /**
      * If this flag is set the system will regard views that are not important
@@ -161,9 +215,10 @@ public class AccessibilityServiceInfoCompat {
      * <p>
      * For accessibility services targeting API version higher than
      * {@link Build.VERSION_CODES#JELLY_BEAN_MR1} that want to set
-     * this flag have to request the
-     * {@link android.Manifest.permission#CAN_REQUEST_TOUCH_EXPLORATION_MODE}
-     * permission or the flag will be ignored.
+     * this flag have to declare this capability in their meta-data by setting
+     * the attribute canRequestTouchExplorationMode to true, otherwise this flag
+     * will be ignored. For how to declare the meta-data of a service refer to
+     * {@value AccessibilityService#SERVICE_META_DATA}.
      * </p>
      * <p>
      * Services targeting API version equal to or lower than
@@ -184,9 +239,10 @@ public class AccessibilityServiceInfoCompat {
      * device will not have enhanced web accessibility enabled since there may be
      * another enabled service that requested it.
      * <p>
-     * Clients that want to set this flag have to request the
-     * {@link android.Manifest.permission#CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY}
-     * permission or the flag will be ignored.
+     * Services that want to set this flag have to declare this capability
+     * in their meta-data by setting the attribute canRequestEnhancedWebAccessibility
+     * to true, otherwise this flag will be ignored. For how to declare the meta-data
+     * of a service refer to {@value AccessibilityService#SERVICE_META_DATA}.
      * </p>
      */
     public static final int FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY = 0x00000008;
@@ -199,6 +255,24 @@ public class AccessibilityServiceInfoCompat {
      * useful for UI test automation. This flag is not set by default.
      */
     public static final int FLAG_REPORT_VIEW_IDS = 0x00000010;
+
+    /**
+     * This flag requests from the system to filter key events. If this flag
+     * is set the accessibility service will receive the key events before
+     * applications allowing it implement global shortcuts. Setting this flag
+     * does not guarantee that this service will filter key events since only
+     * one service can do so at any given time. This avoids user confusion due
+     * to behavior change in case different key filtering services are enabled.
+     * If there is already another key filtering service enabled, this one will
+     * not receive key events.
+     * <p>
+     * Services that want to set this flag have to declare this capability
+     * in their meta-data by setting the attribute canRequestFilterKeyEvents
+     * to true, otherwise this flag will be ignored. For how to declare the meta
+     * -data of a service refer to {@value AccessibilityService#SERVICE_META_DATA}.
+     * </p>
+     */
+    public static final int FLAG_REQUEST_FILTER_KEY_EVENTS = 0x00000020;
 
     /*
      * Hide constructor
@@ -319,10 +393,59 @@ public class AccessibilityServiceInfoCompat {
      */
     public static String flagToString(int flag) {
         switch (flag) {
-            case AccessibilityServiceInfo.DEFAULT:
+            case DEFAULT:
                 return "DEFAULT";
+            case FLAG_INCLUDE_NOT_IMPORTANT_VIEWS:
+                return "FLAG_INCLUDE_NOT_IMPORTANT_VIEWS";
+            case FLAG_REQUEST_TOUCH_EXPLORATION_MODE:
+                return "FLAG_REQUEST_TOUCH_EXPLORATION_MODE";
+            case FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY:
+                return "FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY";
+            case FLAG_REPORT_VIEW_IDS:
+                return "FLAG_REPORT_VIEW_IDS";
+            case FLAG_REQUEST_FILTER_KEY_EVENTS:
+                return "FLAG_REQUEST_FILTER_KEY_EVENTS";
             default:
                 return null;
+        }
+    }
+
+    /**
+     * Returns the bit mask of capabilities this accessibility service has such as
+     * being able to retrieve the active window content, etc.
+     *
+     * @param info The service info whose capabilities to get.
+     * @return The capability bit mask.
+     *
+     * @see #CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT
+     * @see #CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION
+     * @see #CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY
+     * @see #CAPABILITY_CAN_FILTER_KEY_EVENTS
+     */
+    public static int getCapabilities(AccessibilityServiceInfo info) {
+        return IMPL.getCapabilities(info);
+    }
+
+    /**
+     * Returns the string representation of a capability. For example,
+     * {@link #CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT} is represented
+     * by the string CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT.
+     *
+     * @param capability The capability.
+     * @return The string representation.
+     */
+    public static String capabilityToString(int capability) {
+        switch (capability) {
+            case CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT:
+                return "CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT";
+            case CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION:
+                return "CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION";
+            case CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY:
+                return "CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY";
+            case CAPABILITY_CAN_FILTER_KEY_EVENTS:
+                return "CAPABILITY_CAN_FILTER_KEY_EVENTS";
+            default:
+                return "UNKNOWN";
         }
     }
 }
