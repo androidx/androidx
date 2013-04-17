@@ -912,8 +912,13 @@ public class SlidingPaneLayout extends ViewGroup {
                     child.setDrawingCacheEnabled(true);
                 }
                 final Bitmap cache = child.getDrawingCache();
-                canvas.drawBitmap(cache, child.getLeft(), child.getTop(), lp.dimPaint);
-                result = false;
+                if (cache != null) {
+                    canvas.drawBitmap(cache, child.getLeft(), child.getTop(), lp.dimPaint);
+                    result = false;
+                } else {
+                    Log.e(TAG, "drawChild: child view " + child + " returned null drawing cache");
+                    result = super.drawChild(canvas, child, drawingTime);
+                }
             } else {
                 if (child.isDrawingCacheEnabled()) {
                     child.setDrawingCacheEnabled(false);
