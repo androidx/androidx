@@ -117,6 +117,8 @@
            parent="android:Widget.Holo.ProgressBar">
     </style>
 
+    <style name="Widget.AppCompat.Base.ListView.Menu" parent="android:Widget.ListView.Menu">
+    </style>
 
     <!--
         Inverse styles. As we don't have a DarkActionBar theme on v11, these extend

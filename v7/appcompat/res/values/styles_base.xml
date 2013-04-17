@@ -274,8 +274,8 @@
     </style>
 
     <style name="TextAppearance.Widget.AppCompat.Base.ExpandedMenu.Item"
-           parent="android:TextAppearance.Widget.IconMenu.Item">
-        <item name="android:textSize">18sp</item>
+           parent="android:TextAppearance.Medium">
+        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
     </style>
 
     <!-- Mimic text appearance in select_dialog_item.xml -->
@@ -284,6 +284,10 @@
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
+    <style name="Widget.AppCompat.Base.ListView.Menu" parent="android:Widget.ListView.Menu">
+        <item name="android:listSelector">?attr/listChoiceBackgroundIndicator</item>
+        <item name="android:divider">?attr/dividerHorizontal</item>
+    </style>
 
     <style name="Widget.AppCompat.Base.PopupMenu" parent="">
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
@@ -303,13 +307,13 @@
 
     <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large"
            parent="android:TextAppearance.Widget">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
         <item name="android:textSize">18sp</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Small"
            parent="android:TextAppearance.Widget">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
         <item name="android:textSize">14sp</item>
     </style>
 
