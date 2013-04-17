@@ -110,6 +110,13 @@
     <string name="start_service">Start Service</string>
     <string name="stop_service">Stop Service</string>
 
+    <string name="simple_wakeful_controller">Content/Simple WakefulReceiver</string>
+
+    <string name="simple_wakeful_controller_msg">Demonstrates use of WakefulBroadcastReceiver
+        to keep the device awake while dispatching a broadcast to a service.</string>
+    <string name="schedule_wakeful_alarm">Wakeup in 30 seconds</string>
+    <string name="simple_wakeful_scheduled">Alarm scheduled</string>
+
     <!-- Accessibility API -->
 
     <string name="accessibility_manager_title">Accessibility/Accessibility Manager</string>

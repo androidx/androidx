@@ -23,6 +23,7 @@
     package="com.example.android.supportv4">
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="13" />
 
@@ -241,6 +242,17 @@
         </activity>
         <service android:name=".content.LocalServiceBroadcaster$LocalService"
                 android:stopWithTask="true" />
+
+        <activity android:name=".content.SimpleWakefulController"
+                  android:label="@string/simple_wakeful_controller">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name=".content.SimpleWakefulReceiver" />
+        <service android:name=".content.SimpleWakefulService" />
 
         <activity android:name=".accessibility.AccessibilityManagerSupportActivity"
                 android:label="@string/accessibility_manager_title">
