@@ -277,6 +277,9 @@
         <!-- Default Panel Menu style. -->
         <attr name="panelMenuListTheme" format="reference" />
 
+        <!-- Drawable used as a background for selected list items. -->
+        <attr name="listChoiceBackgroundIndicator" format="reference" />
+
     </declare-styleable>
 
     <declare-styleable name="MenuView">

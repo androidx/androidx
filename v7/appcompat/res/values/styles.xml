@@ -184,6 +184,9 @@
            parent="Widget.AppCompat.Light.Base.PopupMenu">
     </style>
 
+    <style name="Widget.AppCompat.ListView.Menu" parent="Widget.AppCompat.Base.ListView.Menu">
+    </style>
+
     <style name="TextAppearance.AppCompat.Widget.PopupMenu.Large"
            parent="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large">
     </style>
