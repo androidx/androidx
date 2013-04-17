@@ -39,6 +39,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.reflect.Field;
@@ -1333,8 +1334,22 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     class AccessibilityDelegate extends AccessibilityDelegateCompat {
+        private final Rect mTmpRect = new Rect();
+
         @Override
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+            final AccessibilityNodeInfoCompat superNode = AccessibilityNodeInfoCompat.obtain(info);
+            super.onInitializeAccessibilityNodeInfo(host, superNode);
+
+            info.setSource(host);
+            final ViewParent parent = ViewCompat.getParentForAccessibility(host);
+            if (parent instanceof View) {
+                info.setParent((View) parent);
+            }
+            copyNodeInfoNoChildren(info, superNode);
+
+            superNode.recycle();
+
             final int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
@@ -1355,6 +1370,38 @@ public class SlidingPaneLayout extends ViewGroup {
 
         public boolean filter(View child) {
             return isDimmed(child);
+        }
+
+        /**
+         * This should really be in AccessibilityNodeInfoCompat, but there unfortunately
+         * seem to be a few elements that are not easily cloneable using the underlying API.
+         * Leave it private here as it's not general-purpose useful.
+         */
+        private void copyNodeInfoNoChildren(AccessibilityNodeInfoCompat dest,
+                AccessibilityNodeInfoCompat src) {
+            final Rect rect = mTmpRect;
+
+            src.getBoundsInParent(rect);
+            dest.setBoundsInParent(rect);
+
+            src.getBoundsInScreen(rect);
+            dest.setBoundsInScreen(rect);
+
+            dest.setViewIdResourceName(src.getViewIdResourceName());
+            dest.setVisibleToUser(src.isVisibleToUser());
+            dest.setPackageName(src.getPackageName());
+            dest.setClassName(src.getClassName());
+            dest.setContentDescription(src.getContentDescription());
+
+            dest.setEnabled(src.isEnabled());
+            dest.setClickable(src.isClickable());
+            dest.setFocusable(src.isFocusable());
+            dest.setFocused(src.isFocused());
+            dest.setAccessibilityFocused(src.isAccessibilityFocused());
+            dest.setSelected(src.isSelected());
+            dest.setLongClickable(src.isLongClickable());
+
+            dest.addAction(src.getActions());
         }
     }
 }

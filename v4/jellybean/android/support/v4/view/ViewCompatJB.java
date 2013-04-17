@@ -18,6 +18,7 @@ package android.support.v4.view;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewParent;
 
 /**
  * Jellybean-specific View API access
@@ -63,5 +64,9 @@ public class ViewCompatJB {
 
     public static Object getAccessibilityNodeProvider(View view) {
         return view.getAccessibilityNodeProvider();
+    }
+
+    public static ViewParent getParentForAccessibility(View view) {
+        return view.getParentForAccessibility();
     }
 }
