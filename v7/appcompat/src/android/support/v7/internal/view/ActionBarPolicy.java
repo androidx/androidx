@@ -52,12 +52,6 @@ public class ActionBarPolicy {
     }
 
     public boolean hasEmbeddedTabs() {
-        final int targetSdk = mContext.getApplicationInfo().targetSdkVersion;
-        // DISABLED: Compatibility implementation will not be used on JB
-        /*if (targetSdk >= Build.VERSION_CODES.JELLY_BEAN) {
-          return mContext.getResources().getBoolean(R.bool.action_bar_embed_tabs);
-        }*/
-
         // The embedded tabs policy changed in Jellybean; give older apps the old policy
         // so they get what they expect.
         return mContext.getResources().getBoolean(R.bool.action_bar_embed_tabs_pre_jb);
