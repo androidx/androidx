@@ -112,6 +112,11 @@ public class DrawerLayout extends ViewGroup {
     private static final int PEEK_DELAY = 160; // ms
 
     /**
+     * Minimum velocity that will be detected as a fling
+     */
+    private static final int MIN_FLING_VELOCITY = 400; // dips per second
+
+    /**
      * Experimental feature.
      */
     private static final boolean ALLOW_EDGE_LOCK = false;
@@ -216,16 +221,19 @@ public class DrawerLayout extends ViewGroup {
 
         final float density = getResources().getDisplayMetrics().density;
         mMinDrawerMargin = (int) (MIN_DRAWER_MARGIN * density + 0.5f);
+        final float minVel = MIN_FLING_VELOCITY * density;
 
         mLeftCallback = new ViewDragCallback(Gravity.LEFT);
         mRightCallback = new ViewDragCallback(Gravity.RIGHT);
 
         mLeftDragger = ViewDragHelper.create(this, 0.5f, mLeftCallback);
         mLeftDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+        mLeftDragger.setMinVelocity(minVel);
         mLeftCallback.setDragger(mLeftDragger);
 
         mRightDragger = ViewDragHelper.create(this, 0.5f, mRightCallback);
         mRightDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
+        mRightDragger.setMinVelocity(minVel);
         mRightCallback.setDragger(mRightDragger);
 
         // So that we can catch the back button
@@ -1054,6 +1062,23 @@ public class DrawerLayout extends ViewGroup {
     }
 
     /**
+     * Check if the given drawer view is currently in an open state.
+     * To be considered "open" the drawer must have settled into its fully
+     * visible state. If there is no drawer with the given gravity this method
+     * will return false.
+     *
+     * @param drawerGravity Gravity of the drawer to check
+     * @return true if the given drawer view is in an open state
+     */
+    public boolean isDrawerOpen(int drawerGravity) {
+        final View drawerView = findDrawerWithGravity(drawerGravity);
+        if (drawerView != null) {
+            return isDrawerOpen(drawerView);
+        }
+        return false;
+    }
+
+    /**
      * Check if a given drawer view is currently visible on-screen. The drawer
      * may be only peeking onto the screen, fully extended, or anywhere inbetween.
      *
@@ -1066,6 +1091,22 @@ public class DrawerLayout extends ViewGroup {
             throw new IllegalArgumentException("View " + drawer + " is not a drawer");
         }
         return ((LayoutParams) drawer.getLayoutParams()).onScreen > 0;
+    }
+
+    /**
+     * Check if a given drawer view is currently visible on-screen. The drawer
+     * may be only peeking onto the screen, fully extended, or anywhere inbetween.
+     * If there is no drawer with the given gravity this method will return false.
+     *
+     * @param drawerGravity Gravity of the drawer to check
+     * @return true if the given drawer is visible on-screen
+     */
+    public boolean isDrawerVisible(int drawerGravity) {
+        final View drawerView = findDrawerWithGravity(drawerGravity);
+        if (drawerView != null) {
+            return isDrawerVisible(drawerView);
+        }
+        return false;
     }
 
     private boolean hasPeekingDrawer() {
