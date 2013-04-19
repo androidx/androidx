@@ -51,11 +51,11 @@ public class TransportMediator extends TransportController {
     final AudioManager mAudioManager;
     final View mView;
     final Object mDispatcherState;
-    final TransportControllerJellybeanMR2 mController;
+    final TransportMediatorJellybeanMR2 mController;
     final ArrayList<TransportStateListener> mListeners
             = new ArrayList<TransportStateListener>();
-    final TransportControllerJellybeanMR2.TransportCallback mTransportKeyCallback
-            = new TransportControllerJellybeanMR2.TransportCallback() {
+    final TransportMediatorCallback mTransportKeyCallback
+            = new TransportMediatorCallback() {
         @Override
         public void handleKey(KeyEvent key) {
             key.dispatch(mKeyEventCallback);
@@ -63,6 +63,16 @@ public class TransportMediator extends TransportController {
         @Override
         public void handleAudioFocusChange(int focusChange) {
             mCallbacks.onAudioFocusChange(focusChange);
+        }
+
+        @Override
+        public long getPlaybackPosition() {
+            return mCallbacks.onGetCurrentPosition();
+        }
+
+        @Override
+        public void playbackPositionUpdate(long newPositionMs) {
+            mCallbacks.onSeekTo(newPositionMs);
         }
     };
 
@@ -153,7 +163,7 @@ public class TransportMediator extends TransportController {
         mView = activity != null ? activity.getWindow().getDecorView() : view;
         mDispatcherState = KeyEventCompat.getKeyDispatcherState(mView);
         if (Build.VERSION.SDK_INT >= 18 || Build.VERSION.CODENAME.equals("JellyBeanMR2")) {
-            mController = new TransportControllerJellybeanMR2(mContext, mAudioManager,
+            mController = new TransportMediatorJellybeanMR2(mContext, mAudioManager,
                     mView, mTransportKeyCallback);
         } else {
             mController = null;
@@ -168,6 +178,13 @@ public class TransportMediator extends TransportController {
      * {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR2}.  You should always check for
      * null here and not do anything with the RemoteControlClient if none is given; this
      * way you don't need to worry about the current platform API version.
+     *
+     * <p>Note that this class takes possession of the
+     * {@link android.media.RemoteControlClient.OnGetPlaybackPositionListener} and
+     * {@link android.media.RemoteControlClient.OnPlaybackPositionUpdateListener} callbacks;
+     * you will interact with these through
+     * {@link TransportPerformer#onGetCurrentPosition() TransportPerformer.onGetCurrentPosition} and
+     * {@link TransportPerformer#onSeekTo TransportPerformer.onSeekTo}, respectively.</p>
      */
     public Object getRemoteControlClient() {
         return mController != null ? mController.getRemoteControlClient() : null;
@@ -221,6 +238,7 @@ public class TransportMediator extends TransportController {
     private void pushControllerState() {
         if (mController != null) {
             mController.refreshState(mCallbacks.onIsPlaying(),
+                    mCallbacks.onGetCurrentPosition(),
                     mCallbacks.onGetTransportControlFlags());
         }
     }
@@ -274,17 +292,17 @@ public class TransportMediator extends TransportController {
     }
 
     @Override
-    public int getDuration() {
+    public long getDuration() {
         return mCallbacks.onGetDuration();
     }
 
     @Override
-    public int getCurrentPosition() {
+    public long getCurrentPosition() {
         return mCallbacks.onGetCurrentPosition();
     }
 
     @Override
-    public void seekTo(int pos) {
+    public void seekTo(long pos) {
         mCallbacks.onSeekTo(pos);
     }
 
