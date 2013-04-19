@@ -30,7 +30,9 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -2682,11 +2684,12 @@ public class ViewPager extends ViewGroup {
 
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-        // ViewPagers should only report accessibility info for the current page,
-        // otherwise things get very confusing.
+        // Dispatch scroll events from this ViewPager.
+        if (event.getEventType() == AccessibilityEventCompat.TYPE_VIEW_SCROLLED) {
+            return super.dispatchPopulateAccessibilityEvent(event);
+        }
 
-        // TODO: Should this note something about the paging container?
-
+        // Dispatch all other accessibility events from the current page.
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
@@ -2728,17 +2731,24 @@ public class ViewPager extends ViewGroup {
         public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(host, event);
             event.setClassName(ViewPager.class.getName());
+            final AccessibilityRecordCompat recordCompat = AccessibilityRecordCompat.from(event);
+            recordCompat.setScrollable(canScroll());
+            if (event.getEventType() == AccessibilityEventCompat.TYPE_VIEW_SCROLLED) {
+                recordCompat.setItemCount(mAdapter.getCount());
+                recordCompat.setFromIndex(mCurItem);
+                recordCompat.setToIndex(mCurItem);
+            }
         }
 
         @Override
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(host, info);
             info.setClassName(ViewPager.class.getName());
-            info.setScrollable(mAdapter != null && mAdapter.getCount() > 1);
-            if (mAdapter != null && mCurItem >= 0 && mCurItem < mAdapter.getCount() - 1) {
+            info.setScrollable(canScroll());
+            if (canScrollForward()) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
             }
-            if (mAdapter != null && mCurItem > 0 && mCurItem < mAdapter.getCount()) {
+            if (canScrollBackward()) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
             }
         }
@@ -2750,19 +2760,31 @@ public class ViewPager extends ViewGroup {
             }
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD: {
-                    if (mAdapter != null && mCurItem >= 0 && mCurItem < mAdapter.getCount() - 1) {
+                    if (canScrollForward()) {
                         setCurrentItem(mCurItem + 1);
                         return true;
                     }
                 } return false;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD: {
-                    if (mAdapter != null && mCurItem > 0 && mCurItem < mAdapter.getCount()) {
+                    if (canScrollBackward()) {
                         setCurrentItem(mCurItem - 1);
                         return true;
                     }
                 } return false;
             }
             return false;
+        }
+
+        private boolean canScroll() {
+            return (mAdapter != null) && (mAdapter.getCount() > 1);
+        }
+
+        private boolean canScrollForward() {
+            return (mAdapter != null) && (mCurItem >= 0) && (mCurItem < (mAdapter.getCount() - 1));
+        }
+
+        private boolean canScrollBackward() {
+            return (mAdapter != null) && (mCurItem > 0) && (mCurItem < mAdapter.getCount());
         }
     }
 
