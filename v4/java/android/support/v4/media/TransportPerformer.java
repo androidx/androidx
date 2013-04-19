@@ -48,18 +48,18 @@ public abstract class TransportPerformer {
     /**
      * Request to return the duration of the current media, in milliseconds.
      */
-    public abstract int onGetDuration();
+    public abstract long onGetDuration();
 
     /**
      * Request to return the current playback position, in milliseconds.
      */
-    public abstract int onGetCurrentPosition();
+    public abstract long onGetCurrentPosition();
 
     /**
      * Request to move the current playback position.
      * @param pos New position to move to, in milliseconds.
      */
-    public abstract void onSeekTo(int pos);
+    public abstract void onSeekTo(long pos);
 
     /**
      * Request to find out whether the player is currently playing its media.

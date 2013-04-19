@@ -52,18 +52,18 @@ public abstract class TransportController {
     /**
      * Retrieve the total duration of the media stream, in milliseconds.
      */
-    public abstract int getDuration();
+    public abstract long getDuration();
 
     /**
      * Retrieve the current playback location in the media stream, in milliseconds.
      */
-    public abstract int getCurrentPosition();
+    public abstract long getCurrentPosition();
 
     /**
      * Move to a new location in the media stream.
      * @param pos Position to move to, in milliseconds.
      */
-    public abstract void seekTo(int pos);
+    public abstract void seekTo(long pos);
 
     /**
      * Return whether the player is currently playing its stream.

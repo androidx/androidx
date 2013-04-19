@@ -23,19 +23,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.RemoteControlClient;
-import android.os.SystemClock;
 import android.util.Log;
-import android.view.InputDevice;
-import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-public class TransportControllerJellybeanMR2 {
+public class TransportMediatorJellybeanMR2
+        implements RemoteControlClient.OnGetPlaybackPositionListener,
+        RemoteControlClient.OnPlaybackPositionUpdateListener {
     final Context mContext;
     final AudioManager mAudioManager;
     final View mTargetView;
-    final TransportCallback mTransportCallback;
+    final TransportMediatorCallback mTransportCallback;
     final String mReceiverAction;
     final IntentFilter mReceiverFilter;
     final Intent mIntent;
@@ -83,13 +82,8 @@ public class TransportControllerJellybeanMR2 {
     int mPlayState = 0;
     boolean mAudioFocused;
 
-    public interface TransportCallback {
-        public void handleKey(KeyEvent key);
-        public void handleAudioFocusChange(int focusChange);
-    }
-
-    public TransportControllerJellybeanMR2(Context context, AudioManager audioManager,
-            View view, TransportCallback transportCallback) {
+    public TransportMediatorJellybeanMR2(Context context, AudioManager audioManager,
+            View view, TransportMediatorCallback transportCallback) {
         mContext = context;
         mAudioManager = audioManager;
         mTargetView = view;
@@ -118,6 +112,8 @@ public class TransportControllerJellybeanMR2 {
         mPendingIntent = PendingIntent.getBroadcast(mContext, 0, mIntent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
         mRemoteControl = new RemoteControlClient(mPendingIntent);
+        mRemoteControl.setOnGetPlaybackPositionListener(this);
+        mRemoteControl.setPlaybackPositionUpdateListener(this);
     }
 
     void gainFocus() {
@@ -149,10 +145,20 @@ public class TransportControllerJellybeanMR2 {
         }
     }
 
-    public void refreshState(boolean playing, int transportControls) {
+    @Override
+    public long onGetPlaybackPosition() {
+        return mTransportCallback.getPlaybackPosition();
+    }
+
+    @Override
+    public void onPlaybackPositionUpdate(long newPositionMs) {
+        mTransportCallback.playbackPositionUpdate(newPositionMs);
+    }
+
+    public void refreshState(boolean playing, long position, int transportControls) {
         if (mRemoteControl != null) {
             mRemoteControl.setPlaybackState(playing ? RemoteControlClient.PLAYSTATE_PLAYING
-                    : RemoteControlClient.PLAYSTATE_STOPPED);
+                    : RemoteControlClient.PLAYSTATE_STOPPED, position, playing ? 1 : 0);
             mRemoteControl.setTransportControlFlags(transportControls);
         }
     }
