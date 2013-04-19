@@ -61,16 +61,16 @@ public class TransportControllerActivity extends Activity {
             mContent.pause();
         }
 
-        @Override public int onGetDuration() {
+        @Override public long onGetDuration() {
             return mContent.getDuration();
         }
 
-        @Override public int onGetCurrentPosition() {
+        @Override public long onGetCurrentPosition() {
             return mContent.getCurrentPosition();
         }
 
-        @Override public void onSeekTo(int pos) {
-            mContent.seekTo(pos);
+        @Override public void onSeekTo(long pos) {
+            mContent.seekTo((int)pos);
         }
 
         @Override public boolean onIsPlaying() {

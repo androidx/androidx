@@ -216,12 +216,12 @@ public class MediaController extends FrameLayout {
         }
     }
 
-    public int updateProgress() {
+    public long updateProgress() {
         if (mController == null || mDragging) {
             return 0;
         }
-        int position = mController.getCurrentPosition();
-        int duration = mController.getDuration();
+        long position = mController.getCurrentPosition();
+        long duration = mController.getDuration();
         if (mProgress != null) {
             if (duration > 0) {
                 // use long to avoid overflow
@@ -233,9 +233,9 @@ public class MediaController extends FrameLayout {
         }
 
         if (mEndTime != null)
-            mEndTime.setText(stringForTime(duration));
+            mEndTime.setText(stringForTime((int)duration));
         if (mCurrentTime != null)
-            mCurrentTime.setText(stringForTime(position));
+            mCurrentTime.setText(stringForTime((int)position));
 
         return position;
     }
@@ -323,7 +323,7 @@ public class MediaController extends FrameLayout {
 
     private View.OnClickListener mRewListener = new View.OnClickListener() {
         public void onClick(View v) {
-            int pos = mController.getCurrentPosition();
+            long pos = mController.getCurrentPosition();
             pos -= 5000; // milliseconds
             mController.seekTo(pos);
             updateProgress();
@@ -332,7 +332,7 @@ public class MediaController extends FrameLayout {
 
     private View.OnClickListener mFfwdListener = new View.OnClickListener() {
         public void onClick(View v) {
-            int pos = mController.getCurrentPosition();
+            long pos = mController.getCurrentPosition();
             pos += 15000; // milliseconds
             mController.seekTo(pos);
             updateProgress();
