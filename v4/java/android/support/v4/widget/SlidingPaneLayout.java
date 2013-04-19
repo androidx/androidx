@@ -108,6 +108,11 @@ public class SlidingPaneLayout extends ViewGroup {
     private int mSliderFadeColor = DEFAULT_FADE_COLOR;
 
     /**
+     * Minimum velocity that will be detected as a fling
+     */
+    private static final int MIN_FLING_VELOCITY = 400; // dips per second
+
+    /**
      * The fade color used for the panel covered by the slider. 0 = no fading.
      */
     private int mCoveredFadeColor;
@@ -255,6 +260,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
         mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
         mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+        mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
     }
 
     /**

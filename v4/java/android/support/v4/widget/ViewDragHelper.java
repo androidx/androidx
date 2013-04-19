@@ -392,6 +392,27 @@ public class ViewDragHelper {
     }
 
     /**
+     * Set the minimum velocity that will be detected as having a magnitude greater than zero
+     * in pixels per second. Callback methods accepting a velocity will be clamped appropriately.
+     *
+     * @param minVel Minimum velocity to detect
+     */
+    public void setMinVelocity(float minVel) {
+        mMinVelocity = minVel;
+    }
+
+    /**
+     * Return the currently configured minimum velocity. Any flings with a magnitude less
+     * than this value in pixels per second. Callback methods accepting a velocity will receive
+     * zero as a velocity value if the real detected velocity was below this threshold.
+     *
+     * @return the minimum velocity that will be detected
+     */
+    public float getMinVelocity() {
+        return mMinVelocity;
+    }
+
+    /**
      * Retrieve the current drag state of this helper. This will return one of
      * {@link #STATE_IDLE}, {@link #STATE_DRAGGING} or {@link #STATE_SETTLING}.
      * @return The current drag state
@@ -627,6 +648,23 @@ public class ViewDragHelper {
      */
     private int clampMag(int value, int absMin, int absMax) {
         final int absValue = Math.abs(value);
+        if (absValue < absMin) return 0;
+        if (absValue > absMax) return value > 0 ? absMax : -absMax;
+        return value;
+    }
+
+    /**
+     * Clamp the magnitude of value for absMin and absMax.
+     * If the value is below the minimum, it will be clamped to zero.
+     * If the value is above the maximum, it will be clamped to the maximum.
+     *
+     * @param value Value to clamp
+     * @param absMin Absolute value of the minimum significant value to return
+     * @param absMax Absolute value of the maximum value to return
+     * @return The clamped value with the same sign as <code>value</code>
+     */
+    private float clampMag(float value, float absMin, float absMax) {
+        final float absValue = Math.abs(value);
         if (absValue < absMin) return 0;
         if (absValue > absMax) return value > 0 ? absMax : -absMax;
         return value;
@@ -1315,8 +1353,13 @@ public class ViewDragHelper {
 
     private void releaseViewForPointerUp() {
         mVelocityTracker.computeCurrentVelocity(1000, mMaxVelocity);
-        dispatchViewReleased(VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),
-                VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId));
+        final float xvel = clampMag(
+                VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),
+                mMinVelocity, mMaxVelocity);
+        final float yvel = clampMag(
+                VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId),
+                mMinVelocity, mMaxVelocity);
+        dispatchViewReleased(xvel, yvel);
     }
 
     private void dragTo(int left, int top, int dx, int dy) {
