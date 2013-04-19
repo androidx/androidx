@@ -77,4 +77,13 @@
     <string name="btn_toggle_tabs">Toggle tab mode</string>
     <string name="btn_remove_all_tabs">Remove all tabs</string>
 
+    <string name="action_bar_fragment_menu">AppCompat/Action Bar/Fragment Menu</string>
+    <string name="action_bar_fragment_menu_msg">Build menus from three fragments, the last one
+        nested, allowing you to hide them to remove them...</string>
+    <string name="action_bar_fragment_menu1">Show fragment 1</string>
+    <string name="action_bar_fragment_menu2">Show fragment 2</string>
+    <string name="action_bar_fragment_menu3">Show nested fragment (within fragment 2)</string>
+    <string name="action_bar_fragment_has_options_menu">Set has options menu to true</string>
+    <string name="action_bar_fragment_menu_visibility">Set menu visibility to true</string>
+
 </resources>
