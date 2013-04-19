@@ -506,10 +506,15 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         protected void updateSystemRouteDescriptor(SystemRouteRecord record) {
             // We must always recreate the route descriptor when making any changes
             // because they are intended to be immutable once published.
-            String name = MediaRouterJellybean.RouteInfo.getName(
-                    record.mRouteObj, getContext()).toString();
+
+            // Routes should not have null names but it may happen for badly configured
+            // user routes.  We tolerate this by using an empty name string here but
+            // such unnamed routes will be discarded by the media router upstream
+            // (with a log message so we can track down the problem).
+            CharSequence name = MediaRouterJellybean.RouteInfo.getName(
+                    record.mRouteObj, getContext());
             record.mRouteDescriptor = new RouteDescriptor(
-                    record.mRouteDescriptorId, name);
+                    record.mRouteDescriptorId, name != null ? name.toString() : "");
 
             int supportedTypes = MediaRouterJellybean.RouteInfo.getSupportedTypes(
                     record.mRouteObj);
