@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package android.support.v4.text.bidi;
+package android.support.v4.text;
 
-import android.support.v4.text.TextDirectionHeuristicCompat;
-import android.support.v4.text.TextDirectionHeuristicsCompat;
-import android.support.v4.text.TextUtilsCompat;
 import android.support.v4.view.ViewCompat;
 
 import java.util.Locale;
@@ -37,10 +34,8 @@ import static android.support.v4.text.TextDirectionHeuristicsCompat.FIRSTSTRONG_
  * and the text surrounding it may be displayed incorrectly unless the inserted string is explicitly
  * separated from the surrounding text in a "wrapper" that:
  * <p>
- * - Declares its directionality so that the string is displayed correctly. This can be done in HTML
- *   markup (e.g. a 'span dir="rtl"' element) by {@link #spanWrap} and similar methods, or - only in
- *   contexts where markup can't be used - in Unicode bidi formatting codes by {@link #unicodeWrap}
- *   and similar methods.
+ * - Declares its directionality so that the string is displayed correctly. This can be done in
+ *   Unicode bidi formatting codes by {@link #unicodeWrap} and similar methods.
  * <p>
  * - Isolates the string's directionality, so it does not unduly affect the surrounding content.
  *   Currently, this can only be done using invisible Unicode characters of the same direction as
@@ -79,16 +74,6 @@ import static android.support.v4.text.TextDirectionHeuristicsCompat.FIRSTSTRONG_
  * estimated at run-time. The bidi formatter can do this automatically using the default
  * first-strong estimation algorithm. It can also be configured to use a custom directionality
  * estimation object.
- * <p>
- * 3. Escaping
- * When wrapping plain text - i.e. text that is not already HTML or HTML-escaped - in HTML markup,
- * the text must first be HTML-escaped to prevent XSS attacks and other nasty business. This of
- * course is always true, but the escaping can not be done after the string has already been wrapped
- * in markup, so the bidi formatter also serves as a last chance and includes escaping services.
- * <p>
- * Thus, in a single call, the formatter will escape the input string as specified, determine its
- * directionality, and wrap it as necessary. It is then up to the caller to insert the return value
- * in the output.
  */
 public final class BidiFormatter {
 
@@ -131,36 +116,6 @@ public final class BidiFormatter {
      * String representation of RLM
      */
     private static final String RLM_STRING = Character.toString(RLM);
-
-    /**
-     * "ltr" string constant.
-     */
-    private static final String LTR_STRING = "ltr";
-
-    /**
-     * "rtl" string constant.
-     */
-    private static final String RTL_STRING = "rtl";
-
-    /**
-     * "dir=\"ltr\"" string constant.
-     */
-    private static final String DIR_LTR_STRING = "dir=\"ltr\"";
-
-    /**
-     * "dir=\"rtl\"" string constant.
-     */
-    private static final String DIR_RTL_STRING = "dir=\"rtl\"";
-
-    /**
-     * "right" string constant.
-     */
-    private static final String RIGHT = "right";
-
-    /**
-     * "left" string constant.
-     */
-    private static final String LEFT = "left";
 
     /**
      * Empty string constant.
@@ -324,96 +279,13 @@ public final class BidiFormatter {
     }
 
     /**
-     * Returns "rtl" if {@code str}'s estimated directionality is RTL, and "ltr" if it is LTR.
-     *
-     * @param str String whose directionality is to be estimated.
-     * @return "rtl" if {@code str}'s estimated directionality is RTL, and "ltr" otherwise.
-     */
-    public String dirAttrValue(String str) {
-        return dirAttrValue(isRtl(str));
-    }
-
-    /**
-     * Operates like {@link #dirAttrValue(String)}, but uses a given heuristic to estimate the
-     * {@code str}'s directionality.
-     *
-     * @param str String whose directionality is to be estimated.
-     * @param heuristic The text direction heuristic that will be used to estimate the {@code str}'s
-     *                  directionality.
-     * @return "rtl" if {@code str}'s estimated directionality is RTL, and "ltr" otherwise.
-     */
-    public String dirAttrValue(String str, TextDirectionHeuristicCompat heuristic) {
-        return dirAttrValue(heuristic.isRtl(str, 0, str.length()));
-    }
-
-    /**
-     * Returns "rtl" if the given directionality is RTL, and "ltr" if it is LTR.
-     *
-     * @param isRtl Whether the directionality is RTL or not.
-     * @return "rtl" if the given directionality is RTL, and "ltr" otherwise.
-     */
-    public String dirAttrValue(boolean isRtl) {
-        return isRtl ? RTL_STRING : LTR_STRING;
-    }
-
-    /**
-     * Returns "dir=\"ltr\"" or "dir=\"rtl\"", depending on {@code str}'s estimated directionality,
-     * if it is not the same as the context directionality. Otherwise, returns the empty string.
-     *
-     * @param str String whose directionality is to be estimated.
-     * @return "dir=\"rtl\"" for RTL text in non-RTL context; "dir=\"ltr\"" for LTR text in non-LTR
-     *     context; else, the empty string.
-     */
-    public String dirAttr(String str) {
-        return dirAttr(isRtl(str));
-    }
-
-    /**
-     * Operates like {@link #dirAttr(String)}, but uses a given heuristic to estimate the
-     * {@code str}'s directionality.
-     *
-     * @param str String whose directionality is to be estimated.
-     * @param heuristic The text direction heuristic that will be used to estimate the {@code str}'s
-     *                  directionality.
-     * @return "dir=\"rtl\"" for RTL text in non-RTL context; "dir=\"ltr\"" for LTR text in non-LTR
-     *     context; else, the empty string.
-     */
-    public String dirAttr(String str, TextDirectionHeuristicCompat heuristic) {
-        return dirAttr(heuristic.isRtl(str, 0, str.length()));
-    }
-
-    /**
-     * Returns "dir=\"ltr\"" or "dir=\"rtl\"", depending on the given directionality, if it is not
-     * the same as the context directionality. Otherwise, returns the empty string.
-     *
-     * @param isRtl Whether the directionality is RTL or not
-     * @return "dir=\"rtl\"" for RTL text in non-RTL context; "dir=\"ltr\"" for LTR text in non-LTR
-     *     context; else, the empty string.
-     */
-    public String dirAttr(boolean isRtl) {
-        return (isRtl != mIsRtlContext) ? (isRtl ? DIR_RTL_STRING :  DIR_LTR_STRING) : EMPTY_STRING;
-    }
-
-    /**
      * Returns a Unicode bidi mark matching the context directionality (LRM or RLM) if either the
      * overall or the exit directionality of a given string is opposite to the context directionality.
      * Putting this after the string (including its directionality declaration wrapping) prevents it
      * from "sticking" to other opposite-directionality text or a number appearing after it inline
      * with only neutral content in between. Otherwise returns the empty string. While the exit
      * directionality is determined by scanning the end of the string, the overall directionality is
-     * given explicitly in {@code dir}.
-     *
-     * @param str String after which the mark may need to appear.
-     * @return LRM for RTL text in LTR context; RLM for LTR text in RTL context;
-     *     else, the empty string.
-     */
-    public String markAfter(String str) {
-        return markAfter(str, mDefaultTextDirectionHeuristicCompat);
-    }
-
-    /**
-     * Operates like {@link #markAfter(String)}, but uses a given heuristic to estimate the
-     * {@code str}'s directionality.
+     * given explicitly by a heuristic to estimate the {@code str}'s directionality.
      *
      * @param str String after which the mark may need to appear.
      * @param heuristic The text direction heuristic that will be used to estimate the {@code str}'s
@@ -421,7 +293,7 @@ public final class BidiFormatter {
      * @return LRM for RTL text in LTR context; RLM for LTR text in RTL context;
      *     else, the empty string.
      */
-    public String markAfter(String str, TextDirectionHeuristicCompat heuristic) {
+    private String markAfter(String str, TextDirectionHeuristicCompat heuristic) {
         final boolean isRtl = heuristic.isRtl(str, 0, str.length());
         // getExitDir() is called only if needed (short-circuit).
         if (!mIsRtlContext && (isRtl || getExitDir(str) == DIR_RTL)) {
@@ -437,22 +309,10 @@ public final class BidiFormatter {
      * Returns a Unicode bidi mark matching the context directionality (LRM or RLM) if either the
      * overall or the entry directionality of a given string is opposite to the context
      * directionality. Putting this before the string (including its directionality declaration
-     * wrapping) prevents it from "sticking" to other opposite-directionality text appearing before it
-     * inline with only neutral content in between. Otherwise returns the empty string. While the
+     * wrapping) prevents it from "sticking" to other opposite-directionality text appearing before
+     * it inline with only neutral content in between. Otherwise returns the empty string. While the
      * entry directionality is determined by scanning the beginning of the string, the overall
-     * directionality is given explicitly in {@code dir}.
-     *
-     * @param str String before which the mark may need to appear.
-     * @return LRM for RTL text in LTR context; RLM for LTR text in RTL context;
-     *     else, the empty string.
-     */
-    public String markBefore(String str) {
-        return markBefore(str, mDefaultTextDirectionHeuristicCompat);
-    }
-
-    /**
-     * Operates like {@link #markBefore(String)}, but uses a given heuristic to estimate the
-     * {@code str}'s directionality.
+     * directionality is given explicitly by a heuristic to estimate the {@code str}'s directionality.
      *
      * @param str String before which the mark may need to appear.
      * @param heuristic The text direction heuristic that will be used to estimate the {@code str}'s
@@ -460,7 +320,7 @@ public final class BidiFormatter {
      * @return LRM for RTL text in LTR context; RLM for LTR text in RTL context;
      *     else, the empty string.
      */
-    public String markBefore(String str, TextDirectionHeuristicCompat heuristic) {
+    private String markBefore(String str, TextDirectionHeuristicCompat heuristic) {
         final boolean isRtl = heuristic.isRtl(str, 0, str.length());
         // getEntryDir() is called only if needed (short-circuit).
         if (!mIsRtlContext && (isRtl || getEntryDir(str) == DIR_RTL)) {
@@ -470,30 +330,6 @@ public final class BidiFormatter {
             return RLM_STRING;
         }
         return EMPTY_STRING;
-    }
-
-    /**
-     * Returns the Unicode bidi mark matching the context directionality (LRM for LTR context
-     * directionality, RLM for RTL context directionality).
-     */
-    public String mark() {
-        return mIsRtlContext ? RLM_STRING : LRM_STRING;
-    }
-
-    /**
-     * Returns "right" for RTL context directionality. Otherwise for LTR context directionality
-     * returns "left".
-     */
-    public String startEdge() {
-        return mIsRtlContext ? RIGHT : LEFT;
-    }
-
-    /**
-     * Returns "left" for RTL context directionality. Otherwise for LTR context directionality
-     * returns "right".
-     */
-    public String endEdge() {
-        return mIsRtlContext ? LEFT : RIGHT;
     }
 
     /**
@@ -508,95 +344,9 @@ public final class BidiFormatter {
     }
 
     /**
-     * Formats a given string of unknown directionality for use in HTML output of the context
-     * directionality, so an opposite-directionality string is neither garbled nor garbles its
-     * surroundings.
-     * <p>
-     * The algorithm: estimates the directionality of the given string using the given heuristic.
-     * If the directionality is known, pass TextDirectionHeuristics.LTR or RTL for heuristic.
-     * In case its directionality doesn't match the context directionality, wraps it with a 'span'
-     * element and adds a "dir" attribute (either 'dir=\"rtl\"' or 'dir=\"ltr\"').
-     * <p>
-     * If {@code isolate}, directionally isolates the string so that it does not garble its
-     * surroundings. Currently, this is done by "resetting" the directionality after the string by
-     * appending a trailing Unicode bidi mark matching the context directionality (LRM or RLM) when
-     * either the overall directionality or the exit directionality of the string is opposite to that
-     * of the context. If the formatter was built using {@link Builder#stereoReset(boolean)} and
-     * passing "true" as an argument, also prepends a Unicode bidi mark matching the context
-     * directionality when either the overall directionality or the entry directionality of the
-     * string is opposite to that of the context.
-     * <p>
-     *
-     * @param str The input string.
-     * @param heuristic The algorithm to be used to estimate the string's overall direction.
-     * @param isolate Whether to directionally isolate the string to prevent it from garbling the
-     *     content around it.
-     * @return Input string after applying the above processing.
-     */
-    public String spanWrap(String str, TextDirectionHeuristicCompat heuristic, boolean isolate) {
-        final boolean isRtl = heuristic.isRtl(str, 0, str.length());
-        String origStr = str;
-        str = TextUtilsCompat.htmlEncode(str);
-
-        StringBuilder result = new StringBuilder();
-        if (getStereoReset() && isolate) {
-            result.append(markBefore(origStr,
-                    isRtl ? TextDirectionHeuristicsCompat.RTL : TextDirectionHeuristicsCompat.LTR));
-        }
-        if (isRtl != mIsRtlContext) {
-            result.append("<span ").append(dirAttr(isRtl)).append('>').append(str).append("</span>");
-        } else {
-            result.append(str);
-        }
-        if (isolate) {
-            result.append(markAfter(origStr,
-                    isRtl ? TextDirectionHeuristicsCompat.RTL : TextDirectionHeuristicsCompat.LTR));
-        }
-        return result.toString();
-    }
-
-    /**
-     * Operates like {@link #spanWrap(String, android.support.v4.text.TextDirectionHeuristicCompat, boolean)}, but assumes
-     * {@code isolate} is true.
-     *
-     * @param str The input string.
-     * @param heuristic The algorithm to be used to estimate the string's overall direction.
-     * @return Input string after applying the above processing.
-     */
-    public String spanWrap(String str, TextDirectionHeuristicCompat heuristic) {
-        return spanWrap(str, heuristic, true /* isolate */);
-    }
-
-    /**
-     * Operates like {@link #spanWrap(String, android.support.v4.text.TextDirectionHeuristicCompat, boolean)}, but uses the
-     * formatter's default direction estimation algorithm.
-     *
-     * @param str The input string.
-     * @param isolate Whether to directionally isolate the string to prevent it from garbling the
-     *     content around it
-     * @return Input string after applying the above processing.
-     */
-    public String spanWrap(String str, boolean isolate) {
-        return spanWrap(str, mDefaultTextDirectionHeuristicCompat, isolate);
-    }
-
-    /**
-     * Operates like {@link #spanWrap(String, android.support.v4.text.TextDirectionHeuristicCompat, boolean)}, but uses the
-     * formatter's default direction estimation algorithm and assumes {@code isolate} is true.
-     *
-     * @param str The input string.
-     * @return Input string after applying the above processing.
-     */
-    public String spanWrap(String str) {
-        return spanWrap(str, mDefaultTextDirectionHeuristicCompat, true /* isolate */);
-    }
-
-    /**
      * Formats a string of given directionality for use in plain-text output of the context
      * directionality, so an opposite-directionality string is neither garbled nor garbles its
-     * surroundings. As opposed to {@link #spanWrap}, this makes use of Unicode bidi
-     * formatting characters. In HTML, its *only* valid use is inside of elements that do not allow
-     * markup, e.g. the 'option' and 'title' elements.
+     * surroundings. This makes use of Unicode bidi formatting characters.
      * <p>
      * The algorithm: In case the given directionality doesn't match the context directionality, wraps
      * the string with Unicode bidi formatting characters: RLE+{@code str}+PDF for RTL text, or
