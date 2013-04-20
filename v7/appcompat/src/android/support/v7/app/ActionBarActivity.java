@@ -22,22 +22,29 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.view.ActionMode;
+import android.support.v7.view.Menu;
 import android.support.v7.view.MenuInflater;
 import android.support.v7.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Base class for activities that use the support library action bar features.
  */
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback {
     ActionBarActivityDelegate mImpl;
+    private ArrayList<ActionBarFragmentCallbacks> mCreatedMenus;
 
     /**
      * Support library version of {@link Activity#getActionBar}.
@@ -313,10 +320,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
                     return true;
                 }
 
-                // FIXME Fix Fragments Menu
-                //if (mFragments.dispatchOptionsItemSelected(item)) {
-                //    return true;
-                //}
+                if (dispatchSupportOptionsItemSelectedToFragments(
+                        getSupportFragmentManager(), item)) {
+                    return true;
+                }
 
                 ActionBar ab = getSupportActionBar();
                 if (item.getItemId() == android.R.id.home && ab != null &&
@@ -328,6 +335,119 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             default:
                 return false;
         }
+    }
+
+    private boolean dispatchSupportOptionsItemSelectedToFragments(
+            FragmentManager fragmentManager, MenuItem item) {
+        if (fragmentManager != null) {
+            final List<Fragment> fragments = fragmentManager.getFragments();
+            if (fragments != null) {
+                final int count = fragments.size();
+                for (int i = 0; i < count; i++) {
+                    final Fragment fragment = fragments.get(i);
+                    if (!fragment.isHidden()) {
+                        if (fragment.hasOptionsMenu() && fragment.isMenuVisible()
+                                && fragment instanceof ActionBarFragmentCallbacks) {
+                            final ActionBarFragmentCallbacks callbacks =
+                                    (ActionBarFragmentCallbacks)fragment;
+                            if (callbacks.onSupportOptionsItemSelected(item)) {
+                                return true;
+                            }
+                        }
+                        if (dispatchSupportOptionsItemSelectedToFragments(
+                                fragment.getChildFragmentManager(), item)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean dispatchCreateSupportOptionsMenu(Menu menu) {
+        boolean show = onCreateSupportOptionsMenu(menu);
+
+        ArrayList<ActionBarFragmentCallbacks> newMenus =
+                new ArrayList<ActionBarFragmentCallbacks>();
+        show |= dispatchCreateSupportOptionsMenuToFragments(
+                getSupportFragmentManager(), menu, newMenus);
+        if (newMenus.isEmpty()) {
+            newMenus = null;
+        }
+
+        if (mCreatedMenus != null) {
+            final int count = mCreatedMenus.size();
+            for (int i = 0; i < count; i++) {
+                ActionBarFragmentCallbacks callbacks = mCreatedMenus.get(i);
+                if (newMenus == null || !newMenus.contains(callbacks)) {
+                    callbacks.onDestroySupportOptionsMenu();
+                }
+            }
+        }
+        mCreatedMenus = newMenus;
+        return show;
+    }
+
+    private boolean dispatchCreateSupportOptionsMenuToFragments(
+            FragmentManager fragmentManager, Menu menu,
+            ArrayList<ActionBarFragmentCallbacks> newMenus) {
+        boolean show = false;
+        if (fragmentManager != null) {
+            final List<Fragment> fragments = fragmentManager.getFragments();
+            if (fragments != null) {
+                final int count = fragments.size();
+                for (int i = 0; i < count; i++) {
+                    final Fragment fragment = fragments.get(i);
+                    if (!fragment.isHidden()) {
+                        if (fragment.hasOptionsMenu() && fragment.isMenuVisible()
+                                && fragment instanceof ActionBarFragmentCallbacks) {
+                            final ActionBarFragmentCallbacks callbacks =
+                                    (ActionBarFragmentCallbacks)fragment;
+                            show = true;
+                            callbacks.onCreateSupportOptionsMenu(menu, getSupportMenuInflater());
+                            newMenus.add(callbacks);
+                        }
+                        show |= dispatchCreateSupportOptionsMenuToFragments(
+                                fragment.getChildFragmentManager(), menu, newMenus);
+                    }
+                }
+            }
+        }
+        return show;
+    }
+
+    boolean dispatchPrepareSupportOptionsMenu(Menu menu) {
+        boolean show = onPrepareSupportOptionsMenu(menu);
+        show |= dispatchPrepareSupportOptionsMenuToFragments(
+                getSupportFragmentManager(), menu);
+        return show;
+    }
+
+    private boolean dispatchPrepareSupportOptionsMenuToFragments(
+            FragmentManager fragmentManager, Menu menu) {
+        boolean show = false;
+        if (fragmentManager != null) {
+            final List<Fragment> fragments = fragmentManager.getFragments();
+            if (fragments != null) {
+                final int count = fragments.size();
+                for (int i = 0; i < count; i++) {
+                    final Fragment fragment = fragments.get(i);
+                    if (!fragment.isHidden()) {
+                        if (fragment.hasOptionsMenu() && fragment.isMenuVisible()
+                                && fragment instanceof ActionBarFragmentCallbacks) {
+                            final ActionBarFragmentCallbacks callbacks =
+                                    (ActionBarFragmentCallbacks)fragment;
+                            show = true;
+                            callbacks.onPrepareSupportOptionsMenu(menu);
+                        }
+                        show |= dispatchPrepareSupportOptionsMenuToFragments(
+                                fragment.getChildFragmentManager(), menu);
+                    }
+                }
+            }
+        }
+        return show;
     }
 
     public ActionMode startSupportActionMode(ActionMode.Callback callback) {
