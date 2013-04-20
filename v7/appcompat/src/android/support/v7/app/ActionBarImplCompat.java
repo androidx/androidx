@@ -323,6 +323,11 @@ class ActionBarImplCompat extends ActionBar {
     }
 
     @Override
+    public void setHomeButtonEnabled(boolean enable) {
+        mActionView.setHomeButtonEnabled(enable);
+    }
+
+    @Override
     public void setBackgroundDrawable(Drawable d) {
         mContainerView.setPrimaryBackground(d);
     }
