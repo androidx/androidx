@@ -44,6 +44,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
@@ -183,6 +184,9 @@ public class SlidingPaneLayout extends ViewGroup {
     private boolean mFirstLayout = true;
 
     private final Rect mTmpRect = new Rect();
+
+    private final ArrayList<DisableLayerRunnable> mPostedRunnables =
+            new ArrayList<DisableLayerRunnable>();
 
     static final SlidingPanelLayoutImpl IMPL;
 
@@ -401,6 +405,12 @@ public class SlidingPaneLayout extends ViewGroup {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mFirstLayout = true;
+
+        for (int i = 0, count = mPostedRunnables.size(); i < count; i++) {
+            final DisableLayerRunnable dlr = mPostedRunnables.get(i);
+            dlr.run();
+        }
+        mPostedRunnables.clear();
     }
 
     @Override
@@ -888,8 +898,9 @@ public class SlidingPaneLayout extends ViewGroup {
             if (lp.dimPaint != null) {
                 lp.dimPaint.setColorFilter(null);
             }
-            ViewCompat.setLayerType(v, ViewCompat.LAYER_TYPE_NONE, null);
-            invalidateChildRegion(v);
+            final DisableLayerRunnable dlr = new DisableLayerRunnable(v);
+            mPostedRunnables.add(dlr);
+            ViewCompat.postOnAnimation(this, dlr);
         }
     }
 
@@ -1407,6 +1418,23 @@ public class SlidingPaneLayout extends ViewGroup {
             dest.setLongClickable(src.isLongClickable());
 
             dest.addAction(src.getActions());
+        }
+    }
+
+    private class DisableLayerRunnable implements Runnable {
+        final View mChildView;
+
+        DisableLayerRunnable(View childView) {
+            mChildView = childView;
+        }
+
+        @Override
+        public void run() {
+            if (mChildView.getParent() == SlidingPaneLayout.this) {
+                ViewCompat.setLayerType(mChildView, ViewCompat.LAYER_TYPE_NONE, null);
+                invalidateChildRegion(mChildView);
+            }
+            mPostedRunnables.remove(this);
         }
     }
 }
