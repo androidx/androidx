@@ -270,6 +270,10 @@ class SpinnerICS extends AbsSpinnerICS implements OnClickListener {
         throw new RuntimeException("setOnItemClickListener cannot be used with a spinner.");
     }
 
+    void setOnItemClickListenerInt(OnItemClickListener l) {
+        super.setOnItemClickListener(l);
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -680,6 +684,9 @@ class SpinnerICS extends AbsSpinnerICS implements OnClickListener {
 
         public void onClick(DialogInterface dialog, int which) {
             setSelection(which);
+            if (mOnItemClickListener != null) {
+                performItemClick(null, which, mListAdapter.getItemId(which));
+            }
             dismiss();
         }
     }
@@ -700,6 +707,9 @@ class SpinnerICS extends AbsSpinnerICS implements OnClickListener {
                     new OnItemClickListener() {
                 public void onItemClick(AdapterViewICS parent, View v, int position, long id) {
                     SpinnerICS.this.setSelection(position);
+                    if (mOnItemClickListener != null) {
+                        SpinnerICS.this.performItemClick(v, position, mAdapter.getItemId(position));
+                    }
                     dismiss();
                 }
             });

@@ -28,13 +28,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 /**
@@ -42,14 +40,14 @@ import android.widget.TextView;
  * configurations or circumstances.
  */
 public class ScrollingTabContainerView extends HorizontalScrollView
-        implements AdapterView.OnItemClickListener {
+        implements AdapterViewICS.OnItemClickListener {
 
     private static final String TAG = "ScrollingTabContainerView";
     Runnable mTabSelector;
     private TabClickListener mTabClickListener;
 
     private LinearLayout mTabLayout;
-    private Spinner mTabSpinner;
+    private SpinnerICS mTabSpinner;
     private boolean mAllowCollapse;
 
     private final LayoutInflater mInflater;
@@ -183,12 +181,12 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         requestLayout();
     }
 
-    private Spinner createSpinner() {
-        final Spinner spinner = new Spinner(getContext(), null,
+    private SpinnerICS createSpinner() {
+        final SpinnerICS spinner = new SpinnerICS(getContext(), null,
                 R.attr.actionDropDownStyle);
         spinner.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.FILL_PARENT));
-        spinner.setOnItemClickListener(this);
+        spinner.setOnItemClickListenerInt(this);
         return spinner;
     }
 
@@ -313,7 +311,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemClick(AdapterViewICS<?> parent, View view, int position, long id) {
         TabView tabView = (TabView) view;
         tabView.getTab().select();
     }
