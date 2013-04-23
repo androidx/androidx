@@ -50,7 +50,7 @@ import android.widget.SpinnerAdapter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-class ActionBarImplCompat extends ActionBar {
+class ActionBarImplBase extends ActionBar {
     private Context mContext;
     private Context mThemedContext;
     private ActionBarActivity mActivity;
@@ -102,7 +102,7 @@ class ActionBarImplCompat extends ActionBar {
 
     private Callback mCallback;
 
-    public ActionBarImplCompat(ActionBarActivity activity, Callback callback) {
+    public ActionBarImplBase(ActionBarActivity activity, Callback callback) {
         mActivity = activity;
         mContext = activity;
         mCallback = callback;

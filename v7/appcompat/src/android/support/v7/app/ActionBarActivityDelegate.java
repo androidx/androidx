@@ -45,7 +45,7 @@ abstract class ActionBarActivityDelegate {
         } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
             return new ActionBarActivityDelegateHC(activity);
         } else {
-            return new ActionBarActivityDelegateCompat(activity);
+            return new ActionBarActivityDelegateBase(activity);
         }
     }
 
