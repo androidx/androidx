@@ -221,8 +221,8 @@ public class AccessibilityEventCompat {
      * that can be used to manipulate the event properties defined in
      * {@link android.view.accessibility.AccessibilityRecord}.
      * <p>
-     * <strong>Note:</strong> Do not call {@link #recycle()} on the returned
-     * {@link AccessibilityRecordCompat}. Call {@link AccessibilityEvent#recycle()}
+     * <strong>Note:</strong> Do not call {@link AccessibilityRecordCompat#recycle()} on the
+     * returned {@link AccessibilityRecordCompat}. Call {@link AccessibilityEvent#recycle()}
      * in case you want to recycle the event.
      * </p>
      *
