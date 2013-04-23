@@ -215,4 +215,21 @@ public class AccessibilityEventCompat {
     public static AccessibilityRecordCompat getRecord(AccessibilityEvent event, int index) {
         return new AccessibilityRecordCompat(IMPL.getRecord(event, index));
     }
+
+    /**
+     * Creates an {@link AccessibilityRecordCompat} from an {@link AccessibilityEvent}
+     * that can be used to manipulate the event properties defined in
+     * {@link android.view.accessibility.AccessibilityRecord}.
+     * <p>
+     * <strong>Note:</strong> Do not call {@link #recycle()} on the returned
+     * {@link AccessibilityRecordCompat}. Call {@link AccessibilityEvent#recycle()}
+     * in case you want to recycle the event.
+     * </p>
+     *
+     * @param event The from which to create a record.
+     * @return An {@link AccessibilityRecordCompat}.
+     */
+    public static AccessibilityRecordCompat asRecord(AccessibilityEvent event) {
+        return new AccessibilityRecordCompat(event);
+    }
 }
