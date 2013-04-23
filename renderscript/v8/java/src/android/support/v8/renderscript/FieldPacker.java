@@ -222,7 +222,11 @@ public class FieldPacker {
 
     public void addObj(BaseObj obj) {
         if (shouldThunk()) {
-            mN.addObj(obj.getNObj());
+            if (obj != null) {
+                mN.addObj(obj.getNObj());
+            } else {
+                mN.addObj(null);
+            }
             return;
         }
         if (obj != null) {
