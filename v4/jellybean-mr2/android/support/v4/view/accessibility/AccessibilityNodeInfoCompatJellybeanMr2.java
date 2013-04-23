@@ -20,11 +20,11 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 public class AccessibilityNodeInfoCompatJellybeanMr2 {
 
-    public static void setViewIdResourceName(Object info, CharSequence viewId) {
+    public static void setViewIdResourceName(Object info, String viewId) {
         ((AccessibilityNodeInfo) info).setViewIdResourceName(viewId);
     }
 
-    public static CharSequence getViewIdResourceName(Object info) {
+    public static String getViewIdResourceName(Object info) {
         return ((AccessibilityNodeInfo) info).getViewIdResourceName();
     }
 }
