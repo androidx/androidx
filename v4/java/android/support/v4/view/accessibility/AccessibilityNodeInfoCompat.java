@@ -93,8 +93,8 @@ public class AccessibilityNodeInfoCompat {
         public CharSequence getContentDescription(Object info);
         public void setContentDescription(Object info, CharSequence contentDescription);
         public void recycle(Object info);
-        public CharSequence getViewIdResourceName(Object info);
-        public void setViewIdResourceName(Object info, CharSequence viewId);
+        public String getViewIdResourceName(Object info);
+        public void setViewIdResourceName(Object info, String viewId);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -399,12 +399,12 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
-        public CharSequence getViewIdResourceName(Object info) {
+        public String getViewIdResourceName(Object info) {
             return null;
         }
 
         @Override
-        public void setViewIdResourceName(Object info, CharSequence viewId) {
+        public void setViewIdResourceName(Object info, String viewId) {
 
         }
     }
@@ -716,12 +716,12 @@ public class AccessibilityNodeInfoCompat {
     static class AccessibilityNodeInfoJellybeanMr2Impl extends AccessibilityNodeInfoJellybeanImpl {
 
         @Override
-        public CharSequence getViewIdResourceName(Object info) {
+        public String getViewIdResourceName(Object info) {
             return AccessibilityNodeInfoCompatJellybeanMr2.getViewIdResourceName(info);
         }
 
         @Override
-        public void setViewIdResourceName(Object info, CharSequence viewId) {
+        public void setViewIdResourceName(Object info, String viewId) {
             AccessibilityNodeInfoCompatJellybeanMr2.setViewIdResourceName(info, viewId);
         }
     }
@@ -1858,7 +1858,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param viewId The id resource name.
      */
-    public void setViewIdResourceName(CharSequence viewId) {
+    public void setViewIdResourceName(String viewId) {
         IMPL.setViewIdResourceName(mInfo, viewId);
     }
 
@@ -1874,7 +1874,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @return The id resource name.
      */
-    public CharSequence getViewIdResourceName() {
+    public String getViewIdResourceName() {
         return IMPL.getViewIdResourceName(mInfo);
     }
 
