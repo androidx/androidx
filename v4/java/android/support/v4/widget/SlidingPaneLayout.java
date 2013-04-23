@@ -346,6 +346,10 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     void updateObscuredViewsVisibility(View panel) {
+        final int leftBound = getPaddingLeft();
+        final int rightBound = getWidth() - getPaddingRight();
+        final int topBound = getPaddingTop();
+        final int bottomBound = getHeight() - getPaddingBottom();
         final int left;
         final int right;
         final int top;
@@ -367,9 +371,13 @@ public class SlidingPaneLayout extends ViewGroup {
                 break;
             }
 
+            final int clampedChildLeft = Math.max(leftBound, child.getLeft());
+            final int clampedChildTop = Math.max(topBound, child.getTop());
+            final int clampedChildRight = Math.min(rightBound, child.getRight());
+            final int clampedChildBottom = Math.min(bottomBound, child.getBottom());
             final int vis;
-            if (child.getLeft() >= left && child.getTop() >= top &&
-                    child.getRight() <= right && child.getBottom() <= bottom) {
+            if (clampedChildLeft >= left && clampedChildTop >= top &&
+                    clampedChildRight <= right && clampedChildBottom <= bottom) {
                 vis = INVISIBLE;
             } else {
                 vis = VISIBLE;
