@@ -479,21 +479,11 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
     }
 
     private boolean dispatchCreateSupportOptionsMenu(MenuBuilder menu) {
-        // Allow activity to inflate menu contents
-        boolean show = mActivity.onCreateSupportOptionsMenu(menu);
-
-        // FIXME: Reintroduce support options menu dispatch through facade.
-        //show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(menu,
-        //        mActivity.getCompatMenuInflater());
-
-        return show;
+        return mActivity.dispatchCreateSupportOptionsMenu(menu);
     }
 
     private boolean dispatchPrepareSupportOptionsMenu(MenuBuilder menu) {
-        boolean goforit = mActivity.onPrepareSupportOptionsMenu(menu);
-        // FIXME: Reintroduce support options menu dispatch through facade.
-        //goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(menu);
-        return goforit;
+        return mActivity.dispatchPrepareSupportOptionsMenu(menu);
     }
 
     /**

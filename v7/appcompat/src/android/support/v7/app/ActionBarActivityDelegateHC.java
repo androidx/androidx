@@ -106,11 +106,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
             if (mMenu == null) {
                 mMenu = MenuWrapper.createMenuWrapper(frameworkMenu);
             }
-            boolean show = mActivity.onCreateSupportOptionsMenu(mMenu);
-            // FIXME: Reintroduce support options menu dispatch through facade.
-            //show |= mActivity.mFragments.dispatchCreateSupportOptionsMenu(mMenu,
-            //        mActivity.getCompatMenuInflater());
-            return show;
+            return mActivity.dispatchCreateSupportOptionsMenu(mMenu);
         } else {
             return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
         }
@@ -125,10 +121,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     @Override
     public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL && mMenu != null) {
-            boolean goforit = mActivity.onPrepareSupportOptionsMenu(mMenu);
-            // FIXME: Reintroduce support options menu dispatch through facade.
-            //goforit |= mActivity.mFragments.dispatchPrepareSupportOptionsMenu(mMenu);
-            return goforit;
+            return mActivity.dispatchPrepareSupportOptionsMenu(mMenu);
         } else {
             return mActivity.superOnPreparePanelMenu(featureId, view, menu);
         }
