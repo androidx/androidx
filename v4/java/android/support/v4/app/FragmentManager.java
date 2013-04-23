@@ -46,6 +46,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentManager}.
@@ -290,6 +291,14 @@ public abstract class FragmentManager {
      * the given reference.
      */
     public abstract Fragment getFragment(Bundle bundle, String key);
+
+    /**
+     * Get a list of all fragments that have been added to the fragment manager.
+     *
+     * @return The list of all fragments or null if none.
+     * @hide
+     */
+    public abstract List<Fragment> getFragments();
 
     /**
      * Save the current instance state of the given Fragment.  This can be
@@ -565,6 +574,11 @@ final class FragmentManagerImpl extends FragmentManager {
                     + key + ": index " + index));
         }
         return f;
+    }
+
+    @Override
+    public List<Fragment> getFragments() {
+        return mActive;
     }
 
     @Override
