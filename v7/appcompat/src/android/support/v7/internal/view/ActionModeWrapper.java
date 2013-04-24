@@ -19,8 +19,8 @@ package android.support.v7.internal.view;
 import android.content.Context;
 import android.support.v7.internal.view.menu.MenuWrapper;
 import android.support.v7.view.ActionMode;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 
 /**

@@ -25,7 +25,6 @@ import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ActionBarPolicy;
-import android.support.v7.view.ActionMode;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
@@ -34,12 +33,14 @@ import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarOverlayLayout;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.internal.widget.ScrollingTabContainerView;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuInflater;
-import android.support.v7.view.MenuItem;
+import android.support.v7.view.ActionMode;
+import android.support.v4.internal.view.SupportMenuItem;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -362,12 +363,6 @@ class ActionBarImplBase extends ActionBar {
                 mTabScrollView.setVisibility(View.GONE);
                 break;
         }
-        // Removed: Not needed on older devices.
-        /*if (oldMode != mode && !mHasEmbeddedTabs) {
-            if (mOverlayLayout != null) {
-                mOverlayLayout.requestFitSystemWindows();
-            }
-        }*/
         mActionView.setNavigationMode(mode);
         switch (mode) {
             case NAVIGATION_MODE_TABS:
@@ -584,9 +579,6 @@ class ActionBarImplBase extends ActionBar {
             if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
                 if (mSplitView.getVisibility() != View.VISIBLE) {
                     mSplitView.setVisibility(View.VISIBLE);
-                    if (mOverlayLayout != null) {
-                        mOverlayLayout.requestFitSystemWindows();
-                    }
                 }
             }
             mContextView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
@@ -745,7 +737,7 @@ class ActionBarImplBase extends ActionBar {
         public ActionModeImpl(ActionMode.Callback callback) {
             mCallback = callback;
             mMenu = new MenuBuilder(getThemedContext())
-                    .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    .setDefaultShowAsAction(SupportMenuItem.SHOW_AS_ACTION_IF_ROOM);
             mMenu.setCallback(this);
         }
 
@@ -917,10 +909,6 @@ class ActionBarImplBase extends ActionBar {
         } else {
             if (getNavigationMode() == NAVIGATION_MODE_TABS) {
                 tabScroller.setVisibility(View.VISIBLE);
-                // Removed: Not needed on older devices.
-                /*if (mOverlayLayout != null) {
-                  mOverlayLayout.requestFitSystemWindows();
-                }*/
             } else {
                 tabScroller.setVisibility(View.GONE);
             }

@@ -26,8 +26,10 @@ import android.os.Bundle;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.view.ActionMode;
-import android.support.v7.view.MenuInflater;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -42,6 +44,8 @@ abstract class ActionBarActivityDelegate {
         final int version = Build.VERSION.SDK_INT;
         if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new ActionBarActivityDelegateICS(activity);
+        } else if (version >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+            return new ActionBarActivityDelegateHCMR1(activity);
         } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
             return new ActionBarActivityDelegateHC(activity);
         } else {
@@ -123,21 +127,17 @@ abstract class ActionBarActivityDelegate {
     // Methods used to create and respond to options menu
     abstract View onCreatePanelView(int featureId);
 
-    abstract boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu);
+    abstract boolean onPreparePanel(int featureId, View view, Menu menu);
 
-    abstract boolean onMenuItemSelected(int featureId, android.view.MenuItem frameworkItem);
+    abstract boolean onCreatePanelMenu(int featureId, Menu menu);
 
-    abstract boolean onPreparePanel(int featureId, View view, android.view.Menu frameworkMenu);
+    abstract boolean onMenuItemSelected(int featureId, MenuItem item);
 
     abstract boolean onBackPressed();
 
     abstract ActionMode startSupportActionMode(ActionMode.Callback callback);
 
-    abstract void onActionModeFinished(android.view.ActionMode mode);
-
-    abstract void onActionModeStarted(android.view.ActionMode mode);
-
-    abstract void setSupportProgressBarVisibility(boolean visible) ;
+    abstract void setSupportProgressBarVisibility(boolean visible);
 
     abstract void setSupportProgressBarIndeterminateVisibility(boolean visible);
 
@@ -173,5 +173,4 @@ abstract class ActionBarActivityDelegate {
         }
         return context;
     }
-
 }

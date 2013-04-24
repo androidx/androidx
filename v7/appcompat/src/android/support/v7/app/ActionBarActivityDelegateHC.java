@@ -23,13 +23,17 @@ import android.support.v4.view.WindowCompat;
 import android.support.v7.internal.view.ActionModeWrapper;
 import android.support.v7.internal.view.menu.MenuWrapper;
 import android.support.v7.view.ActionMode;
-import android.support.v7.view.Menu;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
 
 class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
-
     Menu mMenu;
 
     ActionBarActivityDelegateHC(ActionBarActivity activity) {
@@ -53,6 +57,28 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
         if (mOverlayActionBar) {
             mActivity.requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
         }
+
+        /*
+         * This goofy move needs some explanation.
+         *
+         * The verifier on older platform versions has some interesting side effects if
+         * a class defines a method that takes a parameter of a type that doesn't exist.
+         * In this case, that type is android.view.ActionMode. Therefore, ActionBarActivity
+         * cannot override the onActionModeStarted/Finished methods without causing nastiness
+         * when it is loaded on older platform versions.
+         *
+         * Since these methods are actually part of the window callback and not intrinsic to
+         * Activity itself, we can install a little shim with the window instead that knows
+         * about the ActionMode class. Note that this means that any new methods added to
+         * Window.Callback in the future won't get proxied without updating the support lib,
+         * but we shouldn't be adding new methods to public interfaces that way anyway...right? ;)
+         */
+        final Window w = mActivity.getWindow();
+        w.setCallback(createWindowCallbackWrapper(w.getCallback()));
+    }
+
+    Window.Callback createWindowCallbackWrapper(Window.Callback cb) {
+        return new WindowCallbackWrapper(cb);
     }
 
     @Override
@@ -99,32 +125,30 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     }
 
     @Override
-    public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            // This is a boundary where we transition from framework Menu objects to support
-            // library Menu objects.
+    public boolean onCreatePanelMenu(int featureId, Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL || featureId == Window.FEATURE_ACTION_BAR) {
             if (mMenu == null) {
-                mMenu = MenuWrapper.createMenuWrapper(frameworkMenu);
+                mMenu = MenuWrapper.createMenuWrapper(menu);
             }
-            return mActivity.dispatchCreateSupportOptionsMenu(mMenu);
-        } else {
-            return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
+            return mActivity.superOnCreatePanelMenu(featureId, mMenu);
         }
+        return mActivity.superOnCreatePanelMenu(featureId, menu);
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, android.view.MenuItem frameworkItem) {
-        return mActivity.onSupportMenuItemSelected(featureId,
-                MenuWrapper.createMenuItemWrapper(frameworkItem));
+    public boolean onPreparePanel(int featureId, View view, Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL || featureId == Window.FEATURE_ACTION_BAR) {
+            return mActivity.superOnPreparePanel(featureId, view, mMenu);
+        }
+        return mActivity.superOnPreparePanel(featureId, view, menu);
     }
 
     @Override
-    public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL && mMenu != null) {
-            return mActivity.dispatchPrepareSupportOptionsMenu(mMenu);
-        } else {
-            return mActivity.superOnPreparePanelMenu(featureId, view, menu);
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            item = MenuWrapper.createMenuItemWrapper(item);
         }
+        return mActivity.superOnMenuItemSelected(featureId, item);
     }
 
     @Override
@@ -155,7 +179,6 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
         return wrappedMode;
     }
 
-    @Override
     public void onActionModeStarted(android.view.ActionMode mode) {
         mActivity.onSupportActionModeStarted(
                 new ActionModeWrapper(getActionBarThemedContext(), mode));
@@ -181,7 +204,6 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
         mActivity.setProgress(progress);
     }
 
-    @Override
     public void onActionModeFinished(android.view.ActionMode mode) {
         mActivity.onSupportActionModeFinished(
                 new ActionModeWrapper(getActionBarThemedContext(), mode));
@@ -189,6 +211,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
 
     @Override
     public void supportInvalidateOptionsMenu() {
+        mMenu = null;
     }
 
     @Override
@@ -196,4 +219,123 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
         return false;
     }
 
+    static class WindowCallbackWrapper implements Window.Callback {
+        final Window.Callback mWrapped;
+
+        public WindowCallbackWrapper(Window.Callback wrapped) {
+            mWrapped = wrapped;
+        }
+
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent event) {
+            return mWrapped.dispatchKeyEvent(event);
+        }
+
+        @Override
+        public boolean dispatchKeyShortcutEvent(KeyEvent event) {
+            return mWrapped.dispatchKeyShortcutEvent(event);
+        }
+
+        @Override
+        public boolean dispatchTouchEvent(MotionEvent event) {
+            return mWrapped.dispatchTouchEvent(event);
+        }
+
+        @Override
+        public boolean dispatchTrackballEvent(MotionEvent event) {
+            return mWrapped.dispatchTrackballEvent(event);
+        }
+
+        public boolean dispatchGenericMotionEvent(MotionEvent event) {
+            // This method didn't exist until API 12. Overridden elsewhere.
+            return false;
+        }
+
+        @Override
+        public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+            return mWrapped.dispatchPopulateAccessibilityEvent(event);
+        }
+
+        @Override
+        public View onCreatePanelView(int featureId) {
+            return mWrapped.onCreatePanelView(featureId);
+        }
+
+        @Override
+        public boolean onCreatePanelMenu(int featureId, Menu menu) {
+            return mWrapped.onCreatePanelMenu(featureId, menu);
+        }
+
+        @Override
+        public boolean onPreparePanel(int featureId, View view, Menu menu) {
+            return mWrapped.onPreparePanel(featureId, view, menu);
+        }
+
+        @Override
+        public boolean onMenuOpened(int featureId, Menu menu) {
+            return mWrapped.onMenuOpened(featureId, menu);
+        }
+
+        @Override
+        public boolean onMenuItemSelected(int featureId, MenuItem item) {
+            return mWrapped.onMenuItemSelected(featureId, item);
+        }
+
+        @Override
+        public void onWindowAttributesChanged(WindowManager.LayoutParams attrs) {
+            mWrapped.onWindowAttributesChanged(attrs);
+        }
+
+        @Override
+        public void onContentChanged() {
+            mWrapped.onContentChanged();
+        }
+
+        @Override
+        public void onWindowFocusChanged(boolean hasFocus) {
+            mWrapped.onWindowFocusChanged(hasFocus);
+        }
+
+        @Override
+        public void onAttachedToWindow() {
+            mWrapped.onAttachedToWindow();
+        }
+
+        @Override
+        public void onDetachedFromWindow() {
+            mWrapped.onDetachedFromWindow();
+        }
+
+        @Override
+        public void onPanelClosed(int featureId, Menu menu) {
+            mWrapped.onPanelClosed(featureId, menu);
+        }
+
+        @Override
+        public boolean onSearchRequested() {
+            return mWrapped.onSearchRequested();
+        }
+
+        @Override
+        public android.view.ActionMode onWindowStartingActionMode(
+                android.view.ActionMode.Callback callback) {
+            return mWrapped.onWindowStartingActionMode(callback);
+        }
+
+        /*
+         * And here are the money methods, the reason why this wrapper exists:
+         */
+
+        @Override
+        public void onActionModeStarted(android.view.ActionMode mode) {
+            mWrapped.onActionModeStarted(mode);
+            onActionModeStarted(mode);
+        }
+
+        @Override
+        public void onActionModeFinished(android.view.ActionMode mode) {
+            mWrapped.onActionModeFinished(mode);
+            onActionModeFinished(mode);
+        }
+    }
 }

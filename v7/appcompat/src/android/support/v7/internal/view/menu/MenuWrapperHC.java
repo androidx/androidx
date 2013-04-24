@@ -18,12 +18,13 @@ package android.support.v7.internal.view.menu;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
+import android.support.v4.internal.view.SupportMenu;
+import android.support.v4.internal.view.SupportMenuItem;
 import android.view.KeyEvent;
+import android.view.MenuItem;
+import android.view.SubMenu;
 
-class MenuWrapperHC extends BaseMenuWrapper<android.view.Menu> implements Menu {
+class MenuWrapperHC extends BaseMenuWrapper<android.view.Menu> implements SupportMenu {
 
     MenuWrapperHC(android.view.Menu object) {
         super(object);
@@ -169,7 +170,7 @@ class MenuWrapperHC extends BaseMenuWrapper<android.view.Menu> implements Menu {
     }
 
     @Override
-    MenuItem createMenuItemWrapper(android.view.MenuItem menuItem) {
+    SupportMenuItem createMenuItemWrapper(android.view.MenuItem menuItem) {
         return new MenuItemWrapperHC(menuItem);
     }
 

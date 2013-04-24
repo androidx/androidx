@@ -16,26 +16,26 @@
 
 package android.support.v7.internal.view;
 
-import android.support.v7.appcompat.R;
-import android.support.v7.internal.view.menu.MenuItemImpl;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuInflater;
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
-import android.support.v7.view.ActionProvider;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.view.menu.MenuItemImpl;
+import android.support.v4.view.ActionProvider;
+import android.support.v4.internal.view.SupportMenu;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 import android.view.InflateException;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -50,7 +50,7 @@ import java.lang.reflect.Method;
  * it only works with an XmlPullParser returned from a compiled resource (R.
  * <em>something</em> file.)
  */
-public class SupportMenuInflater implements MenuInflater {
+public class SupportMenuInflater extends MenuInflater {
     private static final String LOG_TAG = "SupportMenuInflater";
 
     /** Menu tag name in XML. */
@@ -82,21 +82,9 @@ public class SupportMenuInflater implements MenuInflater {
      * @see Activity#getMenuInflater()
      */
     public SupportMenuInflater(Context context) {
+        super(context);
         mContext = context;
         mRealOwner = context;
-        mActionViewConstructorArguments = new Object[] {context};
-        mActionProviderConstructorArguments = mActionViewConstructorArguments;
-    }
-
-    /**
-     * Constructs a menu inflater.
-     *
-     * @see Activity#getMenuInflater()
-     * @hide
-     */
-    public SupportMenuInflater(Context context, Object realOwner) {
-        mContext = context;
-        mRealOwner = realOwner;
         mActionViewConstructorArguments = new Object[] {context};
         mActionProviderConstructorArguments = mActionViewConstructorArguments;
     }
@@ -354,7 +342,8 @@ public class SupportMenuInflater implements MenuInflater {
             itemId = a.getResourceId(R.styleable.MenuItem_android_id, defaultItemId);
             final int category = a.getInt(R.styleable.MenuItem_android_menuCategory, groupCategory);
             final int order = a.getInt(R.styleable.MenuItem_android_orderInCategory, groupOrder);
-            itemCategoryOrder = (category & Menu.CATEGORY_MASK) | (order & Menu.USER_MASK);
+            itemCategoryOrder = (category & SupportMenu.CATEGORY_MASK) |
+                    (order & SupportMenu.USER_MASK);
             itemTitle = a.getText(R.styleable.MenuItem_android_title);
             itemTitleCondensed = a.getText(R.styleable.MenuItem_android_titleCondensed);
             itemIconResId = a.getResourceId(R.styleable.MenuItem_android_icon, 0);
@@ -416,7 +405,7 @@ public class SupportMenuInflater implements MenuInflater {
                     .setNumericShortcut(itemNumericShortcut);
 
             if (itemShowAsAction >= 0) {
-                item.setShowAsAction(itemShowAsAction);
+                MenuItemCompat.setShowAsAction(item, itemShowAsAction);
             }
 
             if (itemListenerMethodName != null) {
@@ -428,31 +417,29 @@ public class SupportMenuInflater implements MenuInflater {
                         new InflatedOnMenuItemClickListener(mRealOwner, itemListenerMethodName));
             }
 
-            if (item instanceof MenuItemImpl) {
-                MenuItemImpl impl = (MenuItemImpl) item;
-                if (itemCheckable >= 2) {
-                    impl.setExclusiveCheckable(true);
-                }
+            final MenuItemImpl impl = item instanceof MenuItemImpl ? (MenuItemImpl) item : null;
+            if (impl != null && itemCheckable >= 2) {
+                impl.setExclusiveCheckable(true);
             }
 
             boolean actionViewSpecified = false;
             if (itemActionViewClassName != null) {
                 View actionView = (View) newInstance(itemActionViewClassName,
                         ACTION_VIEW_CONSTRUCTOR_SIGNATURE, mActionViewConstructorArguments);
-                item.setActionView(actionView);
+                MenuItemCompat.setActionView(item, actionView);
                 actionViewSpecified = true;
             }
             if (itemActionViewLayout > 0) {
                 if (!actionViewSpecified) {
-                    item.setActionView(itemActionViewLayout);
+                    MenuItemCompat.setActionView(item, itemActionViewLayout);
                     actionViewSpecified = true;
                 } else {
                     Log.w(LOG_TAG, "Ignoring attribute 'itemActionViewLayout'."
                             + " Action view already specified.");
                 }
             }
-            if (itemActionProvider != null) {
-                item.setActionProvider(itemActionProvider);
+            if (impl != null && itemActionProvider != null) {
+                impl.setSupportActionProvider(itemActionProvider);
             }
         }
 

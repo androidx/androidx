@@ -931,10 +931,6 @@ public abstract class ActionBar {
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
         }
-
-        public android.app.ActionBar.LayoutParams toNative() {
-            return new android.app.ActionBar.LayoutParams(width, height, gravity);
-        }
     }
 
     /**

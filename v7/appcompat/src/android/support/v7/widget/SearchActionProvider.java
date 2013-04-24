@@ -18,7 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.support.v4.widget.SearchViewCompat;
-import android.support.v7.view.ActionProvider;
+import android.support.v4.view.ActionProvider;
 import android.view.View;
 
 /**

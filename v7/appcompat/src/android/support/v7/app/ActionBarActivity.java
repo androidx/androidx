@@ -22,29 +22,23 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.view.ActionMode;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuInflater;
-import android.support.v7.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class for activities that use the support library action bar features.
  */
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback {
     ActionBarActivityDelegate mImpl;
-    private ArrayList<ActionBarFragmentCallbacks> mCreatedMenus;
 
     /**
      * Support library version of {@link Activity#getActionBar}.
@@ -84,6 +78,11 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
+    public void addContentView(View view, ViewGroup.LayoutParams params) {
+        mImpl.addContentView(view, params);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         mImpl = ActionBarActivityDelegate.createDelegate(this);
         super.onCreate(savedInstanceState);
@@ -109,16 +108,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
-    public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
-        return mImpl.onCreatePanelMenu(featureId, frameworkMenu);
-    }
-
-    @Override
-    public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
-        return mImpl.onPreparePanel(featureId, view, menu);
-    }
-
-    @Override
     public View onCreatePanelView(int featureId) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             return mImpl.onCreatePanelView(featureId);
@@ -127,39 +116,18 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
     }
 
-    /**
-     * You should override {@link #onCreateSupportOptionsMenu(android.support.v7.view.Menu)} when
-     * using the support Action Bar.
-     */
-    @Override
-    public final boolean onCreateOptionsMenu(android.view.Menu menu) {
-        return false;
-    }
-
-    /**
-     * You should override {@link #onPrepareSupportOptionsMenu(android.support.v7.view.Menu)} when
-     * using the support Action Bar.
-     */
-    @Override
-    public final boolean onPrepareOptionsMenu(android.view.Menu menu) {
-        return false;
-    }
-
-    /**
-     * You should override {@link #onSupportOptionsItemSelected(android.support.v7.view.MenuItem)}
-     * when using the support Action Bar.
-     */
-    @Override
-    public final boolean onOptionsItemSelected(android.view.MenuItem item) {
-        return false;
-    }
-
     @Override
     public final boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
         if (mImpl.onMenuItemSelected(featureId, item)) {
             return true;
         }
-        return super.onMenuItemSelected(featureId, item);
+
+        final ActionBar ab = getSupportActionBar();
+        if (item.getItemId() == android.R.id.home && ab != null &&
+                (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+            return onSupportNavigateUp();
+        }
+        return false;
     }
 
     @Override
@@ -195,16 +163,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         mImpl.supportInvalidateOptionsMenu();
     }
 
-    @Override
-    public final void onActionModeFinished(android.view.ActionMode mode) {
-        mImpl.onActionModeFinished(mode);
-    }
-
-    @Override
-    public final void onActionModeStarted(android.view.ActionMode mode) {
-        mImpl.onActionModeStarted(mode);
-    }
-
     /**
      * Notifies the Activity that a support action mode has been started.
      * Activity subclasses overriding this method should call the superclass implementation.
@@ -223,235 +181,18 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     public void onSupportActionModeFinished(ActionMode mode) {
     }
 
-    /**
-     * Support library version of {@link Activity#onPrepareOptionsMenu}.
-     *
-     * <p>Prepare the Screen's standard options menu to be displayed.  This is
-     * called right before the menu is shown, every time it is shown.  You can
-     * use this method to efficiently enable/disable items or otherwise
-     * dynamically modify the contents.
-     *
-     * <p>The default implementation updates the system menu items based on the
-     * activity's state.  Deriving classes should always call through to the
-     * base class implementation.
-     *
-     * @param menu The options menu as last shown or first initialized by
-     *             onCreateSupportOptionsMenu().
-     *
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     *
-     * @see #onCreateSupportOptionsMenu
-     */
-    public boolean onPrepareSupportOptionsMenu(android.support.v7.view.Menu menu) {
-        return true;
-    }
-
-    /**
-     * Support library version of {@link Activity#onCreateOptionsMenu}.
-     *
-     * <p>Initialize the contents of the Activity's standard options menu.  You
-     * should place your menu items in to <var>menu</var>.
-     *
-     * <p>This is only called once, the first time the options menu is
-     * displayed.  To update the menu every time it is displayed, see
-     * {@link #onPrepareSupportOptionsMenu}.
-     *
-     * <p>The default implementation populates the menu with standard system
-     * menu items.  These are placed in the {@link android.support.v7.view.Menu#CATEGORY_SYSTEM}
-     * group so that they will be correctly ordered with application-defined menu items.
-     * Deriving classes should always call through to the base implementation.
-     *
-     * <p>You can safely hold on to <var>menu</var> (and any items created
-     * from it), making modifications to it as desired, until the next
-     * time onCreateSupportOptionsMenu() is called.
-     *
-     * <p>When you add items to the menu, you can implement the Activity's
-     * {@link #onSupportOptionsItemSelected} method to handle them there.
-     *
-     * @param menu The options menu in which you place your items.
-     *
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     *
-     * @see #onPrepareSupportOptionsMenu
-     * @see #onSupportOptionsItemSelected
-     */
-    public boolean onCreateSupportOptionsMenu(android.support.v7.view.Menu menu) {
-        return true;
-    }
-
-    /**
-     * Support library version of {@link Activity#onOptionsItemSelected}.
-     *
-     * <p>This hook is called whenever an item in your options menu is selected.
-     * The default implementation simply returns false to have the normal
-     * processing happen (calling the item's Runnable or sending a message to
-     * its Handler as appropriate).  You can use this method for any items
-     * for which you would like to do processing without those other
-     * facilities.
-     *
-     * <p>Derived classes should call through to the base class for it to
-     * perform the default menu handling.</p>
-     *
-     * @param item The menu item that was selected.
-     *
-     * @return boolean Return false to allow normal menu processing to
-     *         proceed, true to consume it here.
-     *
-     * @see #onPrepareSupportOptionsMenu
-     * @see #onCreateSupportOptionsMenu
-     */
-    public boolean onSupportOptionsItemSelected(android.support.v7.view.MenuItem item) {
-        return false;
-    }
-
-    /**
-     * Support library version of {@link Activity#onMenuItemSelected}.
-     *
-     * <p>This calls through to the {@link #onSupportOptionsItemSelected}
-     * method for the {@link android.view.Window#FEATURE_OPTIONS_PANEL}
-     * panel, so that subclasses of Activity don't need to deal with feature codes.
-     */
-    public boolean onSupportMenuItemSelected(int featureId, MenuItem item) {
-        switch (featureId) {
-            case Window.FEATURE_OPTIONS_PANEL:
-                if (onSupportOptionsItemSelected(item)) {
-                    return true;
-                }
-
-                if (dispatchSupportOptionsItemSelectedToFragments(
-                        getSupportFragmentManager(), item)) {
-                    return true;
-                }
-
-                ActionBar ab = getSupportActionBar();
-                if (item.getItemId() == android.R.id.home && ab != null &&
-                        (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
-                    return onSupportNavigateUp();
-                }
-                return false;
-
-            default:
-                return false;
-        }
-    }
-
-    private boolean dispatchSupportOptionsItemSelectedToFragments(
-            FragmentManager fragmentManager, MenuItem item) {
-        if (fragmentManager != null) {
-            final List<Fragment> fragments = fragmentManager.getFragments();
-            if (fragments != null) {
-                final int count = fragments.size();
-                for (int i = 0; i < count; i++) {
-                    final Fragment fragment = fragments.get(i);
-                    if (!fragment.isHidden()) {
-                        if (fragment.hasOptionsMenu() && fragment.isMenuVisible()
-                                && fragment instanceof ActionBarFragmentCallbacks) {
-                            final ActionBarFragmentCallbacks callbacks =
-                                    (ActionBarFragmentCallbacks)fragment;
-                            if (callbacks.onSupportOptionsItemSelected(item)) {
-                                return true;
-                            }
-                        }
-                        if (dispatchSupportOptionsItemSelectedToFragments(
-                                fragment.getChildFragmentManager(), item)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    boolean dispatchCreateSupportOptionsMenu(Menu menu) {
-        boolean show = onCreateSupportOptionsMenu(menu);
-
-        ArrayList<ActionBarFragmentCallbacks> newMenus =
-                new ArrayList<ActionBarFragmentCallbacks>();
-        show |= dispatchCreateSupportOptionsMenuToFragments(
-                getSupportFragmentManager(), menu, newMenus);
-        if (newMenus.isEmpty()) {
-            newMenus = null;
-        }
-
-        if (mCreatedMenus != null) {
-            final int count = mCreatedMenus.size();
-            for (int i = 0; i < count; i++) {
-                ActionBarFragmentCallbacks callbacks = mCreatedMenus.get(i);
-                if (newMenus == null || !newMenus.contains(callbacks)) {
-                    callbacks.onDestroySupportOptionsMenu();
-                }
-            }
-        }
-        mCreatedMenus = newMenus;
-        return show;
-    }
-
-    private boolean dispatchCreateSupportOptionsMenuToFragments(
-            FragmentManager fragmentManager, Menu menu,
-            ArrayList<ActionBarFragmentCallbacks> newMenus) {
-        boolean show = false;
-        if (fragmentManager != null) {
-            final List<Fragment> fragments = fragmentManager.getFragments();
-            if (fragments != null) {
-                final int count = fragments.size();
-                for (int i = 0; i < count; i++) {
-                    final Fragment fragment = fragments.get(i);
-                    if (!fragment.isHidden()) {
-                        if (fragment.hasOptionsMenu() && fragment.isMenuVisible()
-                                && fragment instanceof ActionBarFragmentCallbacks) {
-                            final ActionBarFragmentCallbacks callbacks =
-                                    (ActionBarFragmentCallbacks)fragment;
-                            show = true;
-                            callbacks.onCreateSupportOptionsMenu(menu, getSupportMenuInflater());
-                            newMenus.add(callbacks);
-                        }
-                        show |= dispatchCreateSupportOptionsMenuToFragments(
-                                fragment.getChildFragmentManager(), menu, newMenus);
-                    }
-                }
-            }
-        }
-        return show;
-    }
-
-    boolean dispatchPrepareSupportOptionsMenu(Menu menu) {
-        boolean show = onPrepareSupportOptionsMenu(menu);
-        show |= dispatchPrepareSupportOptionsMenuToFragments(
-                getSupportFragmentManager(), menu);
-        return show;
-    }
-
-    private boolean dispatchPrepareSupportOptionsMenuToFragments(
-            FragmentManager fragmentManager, Menu menu) {
-        boolean show = false;
-        if (fragmentManager != null) {
-            final List<Fragment> fragments = fragmentManager.getFragments();
-            if (fragments != null) {
-                final int count = fragments.size();
-                for (int i = 0; i < count; i++) {
-                    final Fragment fragment = fragments.get(i);
-                    if (!fragment.isHidden()) {
-                        if (fragment.hasOptionsMenu() && fragment.isMenuVisible()
-                                && fragment instanceof ActionBarFragmentCallbacks) {
-                            final ActionBarFragmentCallbacks callbacks =
-                                    (ActionBarFragmentCallbacks)fragment;
-                            show = true;
-                            callbacks.onPrepareSupportOptionsMenu(menu);
-                        }
-                        show |= dispatchPrepareSupportOptionsMenuToFragments(
-                                fragment.getChildFragmentManager(), menu);
-                    }
-                }
-            }
-        }
-        return show;
-    }
-
     public ActionMode startSupportActionMode(ActionMode.Callback callback) {
         return mImpl.startSupportActionMode(callback);
+    }
+
+    @Override
+    public boolean onCreatePanelMenu(int featureId, Menu menu) {
+        return mImpl.onCreatePanelMenu(featureId, menu);
+    }
+
+    @Override
+    public boolean onPreparePanel(int featureId, View view, Menu menu) {
+        return mImpl.onPreparePanel(featureId, view, menu);
     }
 
     void superSetContentView(int resId) {
@@ -474,8 +215,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         return super.onCreatePanelMenu(featureId, frameworkMenu);
     }
 
-    boolean superOnPreparePanelMenu(int featureId, View view, android.view.Menu menu) {
+    boolean superOnPreparePanel(int featureId, View view, android.view.Menu menu) {
         return super.onPreparePanel(featureId, view, menu);
+    }
+
+    boolean superOnMenuItemSelected(int featureId, MenuItem menuItem) {
+        return super.onMenuItemSelected(featureId, menuItem);
     }
 
     @Override

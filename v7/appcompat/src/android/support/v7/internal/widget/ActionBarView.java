@@ -39,8 +39,8 @@ import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
+import android.support.v4.internal.view.SupportMenu;
+import android.support.v4.internal.view.SupportMenuItem;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -130,7 +130,7 @@ public class ActionBarView extends AbsActionBarView {
     private ExpandedActionViewMenuPresenter mExpandedMenuPresenter;
     View mExpandedActionView;
 
-    Callback mViewCallback;
+    Window.Callback mWindowCallback;
 
     private final AdapterViewICS.OnItemSelectedListener mNavItemSelectedListener =
             new AdapterViewICS.OnItemSelectedListener() {
@@ -158,7 +158,7 @@ public class ActionBarView extends AbsActionBarView {
 
     private final OnClickListener mUpClickListener = new OnClickListener() {
         public void onClick(View v) {
-            mViewCallback.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, mLogoNavItem);
+            mWindowCallback.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, mLogoNavItem);
         }
     };
 
@@ -281,8 +281,8 @@ public class ActionBarView extends AbsActionBarView {
      *
      * @param cb View callback to dispatch to
      */
-    public void setViewCallback(Callback cb) {
-        mViewCallback = cb;
+    public void setWindowCallback(Window.Callback cb) {
+        mWindowCallback = cb;
     }
 
     @Override
@@ -383,7 +383,7 @@ public class ActionBarView extends AbsActionBarView {
         mCallback = callback;
     }
 
-    public void setMenu(Menu menu, MenuPresenter.Callback cb) {
+    public void setMenu(SupportMenu menu, MenuPresenter.Callback cb) {
         if (menu == mOptionsMenu) {
             return;
         }
@@ -1179,7 +1179,8 @@ public class ActionBarView extends AbsActionBarView {
 
         if (state.expandedMenuItemId != 0 &&
                 mExpandedMenuPresenter != null && mOptionsMenu != null) {
-            final MenuItem item = mOptionsMenu.findItem(state.expandedMenuItemId);
+            final SupportMenuItem item =
+                    (SupportMenuItem) mOptionsMenu.findItem(state.expandedMenuItemId);
             if (item != null) {
                 item.expandActionView();
             }
@@ -1363,7 +1364,7 @@ public class ActionBarView extends AbsActionBarView {
                 if (mMenu != null) {
                     final int count = mMenu.size();
                     for (int i = 0; i < count; i++) {
-                        final MenuItem item = mMenu.getItem(i);
+                        final SupportMenuItem item = (SupportMenuItem) mMenu.getItem(i);
                         if (item == mCurrentExpandedItem) {
                             found = true;
                             break;
@@ -1481,15 +1482,6 @@ public class ActionBarView extends AbsActionBarView {
         @Override
         public void onRestoreInstanceState(Parcelable state) {
         }
-    }
-
-    /**
-     * Emulates the necessary methods from {@link android.view.Window.Callback}
-     */
-    public interface Callback {
-
-        boolean onMenuItemSelected (int featureId, android.support.v7.view.MenuItem item);
-
     }
 }
 

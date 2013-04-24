@@ -16,17 +16,18 @@
 
 package android.support.v7.internal.view.menu;
 
-import android.content.Context;
-import android.support.v7.view.ActionProvider;
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
-
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.ActionProvider;
+import android.support.v4.internal.view.SupportMenuItem;
+import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewDebug;
 import android.widget.LinearLayout;
@@ -34,7 +35,7 @@ import android.widget.LinearLayout;
 /**
  * @hide
  */
-public final class MenuItemImpl implements MenuItem {
+public final class MenuItemImpl implements SupportMenuItem {
 
     private static final String TAG = "MenuItemImpl";
 
@@ -74,7 +75,7 @@ public final class MenuItemImpl implements MenuItem {
     private SubMenuBuilder mSubMenu;
 
     private Runnable mItemCallback;
-    private MenuItem.OnMenuItemClickListener mClickListener;
+    private SupportMenuItem.OnMenuItemClickListener mClickListener;
 
     private int mFlags = ENABLED;
     private static final int CHECKABLE = 0x00000001;
@@ -88,7 +89,7 @@ public final class MenuItemImpl implements MenuItem {
 
     private View mActionView;
     private ActionProvider mActionProvider;
-    private OnActionExpandListener mOnActionExpandListener;
+    private MenuItemCompat.OnActionExpandListener mOnActionExpandListener;
     private boolean mIsActionViewExpanded = false;
 
     /**
@@ -343,7 +344,7 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     /**
-     * Gets the title for a particular {@link ItemView}
+     * Gets the title for a particular {@link MenuView.ItemView}
      *
      * @param itemView The ItemView that is receiving the title
      * @return Either the title or condensed title based on what the ItemView prefers
@@ -563,7 +564,7 @@ public final class MenuItemImpl implements MenuItem {
         mMenu.onItemActionRequestChanged(this);
     }
 
-    public MenuItem setActionView(View view) {
+    public SupportMenuItem setActionView(View view) {
         mActionView = view;
         mActionProvider = null;
         if (view != null && view.getId() == View.NO_ID && mId > 0) {
@@ -573,7 +574,7 @@ public final class MenuItemImpl implements MenuItem {
         return this;
     }
 
-    public MenuItem setActionView(int resId) {
+    public SupportMenuItem setActionView(int resId) {
         final Context context = mMenu.getContext();
         final LayoutInflater inflater = LayoutInflater.from(context);
         setActionView(inflater.inflate(resId, new LinearLayout(context), false));
@@ -591,11 +592,23 @@ public final class MenuItemImpl implements MenuItem {
         }
     }
 
-    public ActionProvider getActionProvider() {
+    @Override
+    public MenuItem setActionProvider(android.view.ActionProvider actionProvider) {
+        throw new UnsupportedOperationException(
+                "Implementation should use setSupportActionProvider!");
+    }
+
+    @Override
+    public android.view.ActionProvider getActionProvider() {
+        throw new UnsupportedOperationException(
+                "Implementation should use getSupportActionProvider!");
+    }
+
+    public ActionProvider getSupportActionProvider() {
         return mActionProvider;
     }
 
-    public MenuItem setActionProvider(ActionProvider actionProvider) {
+    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
         mActionView = null;
         mActionProvider = actionProvider;
         mMenu.onItemsChanged(true); // Measurement can be changed
@@ -603,7 +616,7 @@ public final class MenuItemImpl implements MenuItem {
     }
 
     @Override
-    public MenuItem setShowAsActionFlags(int actionEnum) {
+    public SupportMenuItem setShowAsActionFlags(int actionEnum) {
         setShowAsAction(actionEnum);
         return this;
     }
@@ -640,8 +653,7 @@ public final class MenuItemImpl implements MenuItem {
         return false;
     }
 
-    @Override
-    public MenuItem setOnActionExpandListener(OnActionExpandListener listener) {
+    public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener) {
         mOnActionExpandListener = listener;
         return this;
     }
@@ -657,5 +669,11 @@ public final class MenuItemImpl implements MenuItem {
 
     public boolean isActionViewExpanded() {
         return mIsActionViewExpanded;
+    }
+
+    @Override
+    public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
+        throw new UnsupportedOperationException(
+                "Implementation should use setSupportOnActionExpandListener!");
     }
 }

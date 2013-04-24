@@ -16,8 +16,8 @@
 
 package android.support.v7.internal.view.menu;
 
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
+import android.support.v4.internal.view.SupportMenuItem;
+import android.view.SubMenu;
 
 class SubMenuWrapperICS extends SubMenuWrapperHC implements SubMenu {
 
@@ -26,7 +26,7 @@ class SubMenuWrapperICS extends SubMenuWrapperHC implements SubMenu {
     }
 
     @Override
-    MenuItem createMenuItemWrapper(android.view.MenuItem menuItem) {
+    SupportMenuItem createMenuItemWrapper(android.view.MenuItem menuItem) {
         return new MenuItemWrapperICS(menuItem);
     }
 
