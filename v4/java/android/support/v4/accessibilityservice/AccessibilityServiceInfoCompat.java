@@ -108,8 +108,7 @@ public class AccessibilityServiceInfoCompat {
     }
 
     static {
-        // TODO: Update this as soon as the APIs are final (bug:8644149)
-        if ("JellyBeanMR2".equals(Build.VERSION.CODENAME)) {
+        if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
             IMPL = new AccessibilityServiceInfoJellyBeanMr2();
         } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new AccessibilityServiceInfoIcsImpl();
