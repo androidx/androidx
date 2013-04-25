@@ -249,6 +249,11 @@ public class Script extends BaseObj {
     }
 
     protected void forEach(int slot, Allocation ain, Allocation aout, FieldPacker v, LaunchOptions sc) {
+        if (mT != null) {
+            mT.thunkForEach(slot, ain, aout, v, sc);
+            return;
+        }
+
         if (ain == null && aout == null) {
             throw new RSIllegalArgumentException(
                 "At least one of ain or aout is required to be non-null.");
