@@ -162,7 +162,7 @@ public class TransportMediator extends TransportController {
         mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
         mView = activity != null ? activity.getWindow().getDecorView() : view;
         mDispatcherState = KeyEventCompat.getKeyDispatcherState(mView);
-        if (Build.VERSION.SDK_INT >= 18 || Build.VERSION.CODENAME.equals("JellyBeanMR2")) {
+        if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
             mController = new TransportMediatorJellybeanMR2(mContext, mAudioManager,
                     mView, mTransportKeyCallback);
         } else {
