@@ -92,6 +92,31 @@ class ScriptCThunker extends android.renderscript.ScriptC {
         forEach(slot, nin, nout, nfp);
     }
 
+    void thunkForEach(int slot, Allocation ain, Allocation aout, FieldPacker v,
+                      android.support.v8.renderscript.Script.LaunchOptions sc) {
+        android.renderscript.Script.LaunchOptions lo = null;
+        if (sc != null) {
+            lo = new android.renderscript.Script.LaunchOptions();
+            if (sc.getXEnd() > 0) lo.setX(sc.getXStart(), sc.getXEnd());
+            if (sc.getYEnd() > 0) lo.setY(sc.getYStart(), sc.getYEnd());
+            if (sc.getZEnd() > 0) lo.setZ(sc.getZStart(), sc.getZEnd());
+        }
+
+        android.renderscript.Allocation nin = null;
+        android.renderscript.Allocation nout = null;
+        android.renderscript.FieldPacker nfp = null;
+        if (ain != null) {
+            nin = ((AllocationThunker)ain).mN;
+        }
+        if (aout != null) {
+            nout = ((AllocationThunker)aout).mN;
+        }
+        if (v != null) {
+            nfp = new android.renderscript.FieldPacker(v.getData());
+        }
+        forEach(slot, nin, nout, nfp, lo);
+    }
+
     void thunkSetVar(int index, float v) {
         setVar(index, v);
     }
