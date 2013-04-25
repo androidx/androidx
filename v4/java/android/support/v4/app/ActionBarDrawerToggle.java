@@ -241,7 +241,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
      * @return true if the event was handled and further processing should not occur
      */
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item != null && item.getItemId() == ID_HOME) {
+        if (item != null && item.getItemId() == ID_HOME && mDrawerIndicatorEnabled) {
             if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
                 mDrawerLayout.closeDrawer(GravityCompat.START);
             } else {
