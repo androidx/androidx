@@ -261,6 +261,7 @@ public class SlidingPaneLayout extends ViewGroup {
         setWillNotDraw(false);
 
         ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
+        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
         mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
         mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
