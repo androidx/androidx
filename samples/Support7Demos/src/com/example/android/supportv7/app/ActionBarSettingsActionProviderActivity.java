@@ -16,19 +16,18 @@
 
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionProvider;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
+import android.support.v4.view.ActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import com.example.android.supportv7.R;
 
 /**
  * This activity demonstrates how to implement an {@link android.view.ActionProvider}
@@ -38,14 +37,14 @@ import android.widget.Toast;
  */
 public class ActionBarSettingsActionProviderActivity extends ActionBarActivity {
     @Override
-    public boolean onCreateSupportOptionsMenu(Menu menu) {
-        super.onCreateSupportOptionsMenu(menu);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         getSupportMenuInflater().inflate(R.menu.action_bar_settings_action_provider, menu);
         return true;
     }
 
     @Override
-    public boolean onSupportOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // If this callback does not handle the item click, onPerformDefaultAction
         // of the ActionProvider is invoked. Hence, the provider encapsulates the
         // complete functionality of the menu item.

@@ -16,6 +16,9 @@
 
 package com.example.android.supportv7.app;
 
+import android.support.v4.view.MenuItemCompat;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.example.android.supportv7.R;
 
 import android.os.Bundle;
@@ -23,11 +26,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarFragment;
-import android.support.v7.app.ActionBarFragmentCallbacks;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuInflater;
-import android.support.v7.view.MenuItem;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -128,7 +127,7 @@ public class ActionBarFragmentMenu extends ActionBarActivity {
      * have a UI (it does not implement onCreateView), but it could also
      * have one if it wanted.
      */
-    public static class MenuFragment extends ActionBarFragment {
+    public static class MenuFragment extends Fragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -136,14 +135,14 @@ public class ActionBarFragmentMenu extends ActionBarActivity {
         }
 
         @Override
-        public void onCreateSupportOptionsMenu(Menu menu, MenuInflater inflater) {
-            menu.add("Menu 1a").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            menu.add("Menu 1b").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            super.onCreateSupportOptionsMenu(menu, inflater);
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            MenuItemCompat.setShowAsAction(menu.add("Menu 1a"), MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            MenuItemCompat.setShowAsAction(menu.add("Menu 1b"), MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            super.onCreateOptionsMenu(menu, inflater);
         }
 
         @Override
-        public boolean onSupportOptionsItemSelected(MenuItem item) {
+        public boolean onOptionsItemSelected(MenuItem item) {
             if (item.getTitle().equals("Menu 1a")) {
                 Toast.makeText(getActivity(), "Selected Menu 1a.", Toast.LENGTH_SHORT).show();
                 return true;
@@ -152,17 +151,14 @@ public class ActionBarFragmentMenu extends ActionBarActivity {
                 Toast.makeText(getActivity(), "Selected Menu 1b.", Toast.LENGTH_SHORT).show();
                 return true;
             }
-            return super.onSupportOptionsItemSelected(item);
+            return super.onOptionsItemSelected(item);
         }
     }
 
     /**
      * Second fragment with a menu.
-     * This one demonstrates that you can extend any other fragment as long
-     * as you implement the callback interface.
      */
-    public static class Menu2Fragment extends Fragment
-            implements ActionBarFragmentCallbacks {
+    public static class Menu2Fragment extends Fragment {
         Menu3Fragment mFragment3;
 
         @Override
@@ -181,20 +177,12 @@ public class ActionBarFragmentMenu extends ActionBarActivity {
         }
 
         @Override
-        public void onCreateSupportOptionsMenu(Menu menu, MenuInflater inflater) {
-            menu.add("Menu 2").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            MenuItemCompat.setShowAsAction(menu.add("Menu 2"), MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 
         @Override
-        public void onDestroySupportOptionsMenu() {
-        }
-
-        @Override
-        public void onPrepareSupportOptionsMenu(Menu menu) {
-        }
-
-        @Override
-        public boolean onSupportOptionsItemSelected(MenuItem item) {
+        public boolean onOptionsItemSelected(MenuItem item) {
             if (item.getTitle().equals("Menu 2")) {
                 Toast.makeText(getActivity(), "Selected Menu 2.", Toast.LENGTH_SHORT).show();
                 return true;
@@ -207,7 +195,7 @@ public class ActionBarFragmentMenu extends ActionBarActivity {
      * Third fragment with a menu.
      * This one is nested within the second.
      */
-    public static class Menu3Fragment extends ActionBarFragment {
+    public static class Menu3Fragment extends Fragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -215,35 +203,35 @@ public class ActionBarFragmentMenu extends ActionBarActivity {
         }
 
         @Override
-        public void onCreateSupportOptionsMenu(Menu menu, MenuInflater inflater) {
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             Toast.makeText(getActivity(), "Created nested fragment's menu.",
                     Toast.LENGTH_SHORT).show();
             inflater.inflate(R.menu.display_options_actions, menu);
-            super.onCreateSupportOptionsMenu(menu, inflater);
+            super.onCreateOptionsMenu(menu, inflater);
         }
 
         @Override
-        public void onDestroySupportOptionsMenu() {
+        public void onDestroyOptionsMenu() {
             Toast.makeText(getActivity(), "Destroyed nested fragment's menu.",
                     Toast.LENGTH_SHORT).show();
-            super.onDestroySupportOptionsMenu();
+            super.onDestroyOptionsMenu();
         }
 
         @Override
-        public void onPrepareSupportOptionsMenu(Menu menu) {
+        public void onPrepareOptionsMenu(Menu menu) {
             Toast.makeText(getActivity(), "Prepared nested fragment's menu.",
                     Toast.LENGTH_SHORT).show();
-            super.onPrepareSupportOptionsMenu(menu);
+            super.onPrepareOptionsMenu(menu);
         }
 
         @Override
-        public boolean onSupportOptionsItemSelected(MenuItem item) {
+        public boolean onOptionsItemSelected(MenuItem item) {
             if (item.getItemId() == R.id.simple_item) {
                 Toast.makeText(getActivity(), "Selected nested fragment's menu item.",
                         Toast.LENGTH_SHORT).show();
                 return true;
             }
-            return super.onSupportOptionsItemSelected(item);
+            return super.onOptionsItemSelected(item);
         }
     }
 }

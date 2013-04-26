@@ -20,8 +20,8 @@
     android:layout_gravity="center"
     android:focusable="true"
     android:addStatesFromChildren="true"
-    android:background="?android:attr/actionBarItemBackground"
-    style="?android:attr/actionButtonStyle">
+    android:background="?attr/actionBarItemBackground"
+    style="?attr/actionButtonStyle">
 
     <ImageButton android:id="@+id/button"
         android:background="@drawable/ic_launcher_settings"

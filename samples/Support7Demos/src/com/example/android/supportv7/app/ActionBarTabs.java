@@ -15,19 +15,18 @@
  */
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates the use of action bar tabs and how they interact

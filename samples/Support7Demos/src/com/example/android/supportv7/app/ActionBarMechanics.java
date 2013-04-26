@@ -16,10 +16,11 @@
 package com.example.android.supportv7.app;
 
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 /**
@@ -43,7 +44,7 @@ public class ActionBarMechanics extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateSupportOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Menu items default to never show in the action bar. On most devices this means
         // they will show in the standard options menu panel when the menu button is pressed.
         // On xlarge-screen devices a "More" button will appear in the far right of the
@@ -55,7 +56,7 @@ public class ActionBarMechanics extends ActionBarActivity {
         // Items that show as actions should favor the "if room" setting, which will
         // prevent too many buttons from crowding the bar. Extra items will show in the
         // overflow area.
-        actionItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        MenuItemCompat.setShowAsAction(actionItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 
         // Items that show as actions are strongly encouraged to use an icon.
         // These icons are shown without a text description, and therefore should
@@ -65,7 +66,7 @@ public class ActionBarMechanics extends ActionBarActivity {
     }
 
     @Override
-    public boolean onSupportOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
         return true;
     }

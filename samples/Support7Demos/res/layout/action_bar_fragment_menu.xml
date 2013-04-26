@@ -23,14 +23,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/action_bar_fragment_menu_msg" />
 
     <CheckBox android:id="@+id/menu1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:checked="true"
         android:text="@string/action_bar_fragment_menu1">
     </CheckBox>
@@ -38,7 +36,6 @@
     <CheckBox android:id="@+id/menu2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:checked="true"
         android:text="@string/action_bar_fragment_menu2">
     </CheckBox>
@@ -46,7 +43,6 @@
     <CheckBox android:id="@+id/menu3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:checked="true"
         android:text="@string/action_bar_fragment_menu3">
     </CheckBox>
@@ -54,7 +50,6 @@
     <CheckBox android:id="@+id/has_options_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:checked="true"
         android:text="@string/action_bar_fragment_has_options_menu">
     </CheckBox>
@@ -62,7 +57,6 @@
     <CheckBox android:id="@+id/menu_visibility"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:checked="true"
         android:text="@string/action_bar_fragment_menu_visibility">
     </CheckBox>

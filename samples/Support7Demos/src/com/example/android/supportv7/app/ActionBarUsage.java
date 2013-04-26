@@ -15,20 +15,18 @@
  */
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SearchViewCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuInflater;
-import android.support.v7.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of the Action Bar. The default Honeycomb theme
@@ -48,25 +46,25 @@ public class ActionBarUsage extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateSupportOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.actions, menu);
-        View searchView = menu.findItem(R.id.action_search).getActionView();
+        View searchView = MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchViewCompat.setOnQueryTextListener(searchView, mOnQueryTextListener);
         return true;
     }
 
     @Override
-    public boolean onPrepareSupportOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
         if (mSortMode != -1) {
             Drawable icon = menu.findItem(mSortMode).getIcon();
             menu.findItem(R.id.action_sort).setIcon(icon);
         }
-        return super.onPrepareSupportOptionsMenu(menu);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
-    public boolean onSupportOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
         return true;
     }
