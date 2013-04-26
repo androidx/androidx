@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Implementation of the {@link android.support.v4.view.Menu} interface for creating a
+ * Implementation of the {@link android.support.v7.view.Menu} interface for creating a
  * standard menu UI.
  */
 public class MenuBuilder implements Menu {

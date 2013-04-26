@@ -96,13 +96,13 @@ public abstract class ActionProvider {
      * MenuItem.OnMenuItemClickListener.onMenuItemClick}.</li>
      *
      * <li>Receiving a call to
-     * {@link android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)}
-     * FragmentActivity.onSupportOptionsItemSelected(MenuItem)}
+     * {@link android.support.v7.app.ActionBarActivity#onSupportOptionsItemSelected(MenuItem)}
+     * ActionBarActivity.onSupportOptionsItemSelected(MenuItem)}
      * </li>
      *
      * <li>Receiving a call to
-     * {@link android.support.v4.app.Fragment#onSupportOptionsItemSelected(MenuItem)}
-     * Fragment.onSupportOptionsItemSelected(MenuItem)}</li>
+     * {@link android.support.v7.app.ActionBarFragment#onSupportOptionsItemSelected(MenuItem)}
+     * ActionBarFragment.onSupportOptionsItemSelected(MenuItem)}</li>
      *
      * <li>Launching the {@link android.content.Intent} set via
      * {@link android.support.v7.view.MenuItem#setIntent(android.content.Intent)

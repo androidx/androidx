@@ -29,7 +29,7 @@ import android.view.KeyEvent;
  * easiest way of adding menu items is inflating an XML file into the
  * {@link Menu} via {@link MenuInflater}. The easiest way of attaching code to
  * clicks is via
- * {@link android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)}.
+ * {@link android.support.v7.app.ActionBarActivity#onSupportOptionsItemSelected(MenuItem)}.
  *
  * <p>Different menu types support different features:
  *
