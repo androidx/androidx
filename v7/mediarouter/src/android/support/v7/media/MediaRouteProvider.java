@@ -183,6 +183,33 @@ public abstract class MediaRouteProvider {
     }
 
     /**
+     * Called by the media router when the provider should start actively scanning
+     * for changes to routes.
+     * <p>
+     * Typically this callback is invoked when the media route picker dialog has been
+     * opened by the user to ensure that the set of known routes is fresh and up to date.
+     * </p>
+     *
+     * @see ProviderDescriptor#setActiveScanRequired
+     */
+    public void onStartActiveScan() {
+    }
+
+    /**
+     * Called by the media router when the provider should stop actively scanning
+     * for changes to routes.  The provider may continue passively scanning for changes
+     * to routes as long as its scans are low power and non-intrusive.
+     * <p>
+     * Typically this callback is invoked when the media route picker dialog has been
+     * closed by the user.
+     * </p>
+     *
+     * @see ProviderDescriptor#setActiveScanRequired
+     */
+    public void onStopActiveScan() {
+    }
+
+    /**
      * Describes immutable properties of the route provider itself.
      */
     static final class ProviderMetadata {
@@ -205,6 +232,7 @@ public abstract class MediaRouteProvider {
      */
     public static final class ProviderDescriptor {
         private static final String KEY_ROUTES = "routes";
+        private static final String KEY_ACTIVE_SCAN_REQUIRED = "activeScanRequired";
 
         private final Bundle mBundle;
         private RouteDescriptor[] mRoutes;
@@ -247,6 +275,33 @@ public abstract class MediaRouteProvider {
             }
             mRoutes = routes;
             mBundle.putParcelableArray(KEY_ROUTES, RouteDescriptor.toParcelableArray(routes));
+        }
+
+        /**
+         * Returns true if the provider requires active scans to discover routes.
+         */
+        public boolean isActiveScanRequired() {
+            return mBundle.getBoolean(KEY_ACTIVE_SCAN_REQUIRED, false);
+        }
+
+        /**
+         * Sets whether the provider requires active scans to discover routes.
+         * <p>
+         * To provide the best user experience, a media route provider should passively
+         * discover and publish changes to route descriptors in the background.
+         * However, for some providers, scanning for routes may use a significant
+         * amount of power or may interfere with wireless network connectivity.
+         * If this is the case, then the provider should indicate that it requires
+         * active scans by setting this flag.
+         * </p><p>
+         * Even if this flag is not set, the provider will be given an opportunity
+         * to perform a scan to update the route descriptors that it has published
+         * when the route picker dialog is opened.  The provider should only set
+         * this flag if it is unable to discover routes without active scans at all.
+         * </p>
+         */
+        public void setActiveScanRequired(boolean required) {
+            mBundle.putBoolean(KEY_ACTIVE_SCAN_REQUIRED, required);
         }
 
         /**
@@ -431,6 +486,10 @@ public abstract class MediaRouteProvider {
 
         /**
          * Sets whether the route is enabled.
+         * <p>
+         * Disabled routes represent routes that a route provider knows about, such as paired
+         * Wifi Display receivers, but that are not currently available for use.
+         * </p>
          */
         public void setEnabled(boolean enabled) {
             mBundle.putBoolean(KEY_ENABLED, enabled);
