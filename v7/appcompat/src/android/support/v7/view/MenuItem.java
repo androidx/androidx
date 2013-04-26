@@ -411,7 +411,7 @@ public interface MenuItem {
     /**
      * Set a custom listener for invocation of this menu item. In most situations, it is more
      * efficient and easier to use
-     * {@link android.support.v4.app.FragmentActivity#onSupportOptionsItemSelected(MenuItem)}.
+     * {@link android.support.v7.app.ActionBarActivity#onSupportOptionsItemSelected(MenuItem)}.
      *
      * @param menuItemClickListener The object to receive invokations.
      * @return This Item so additional setters can be called.
