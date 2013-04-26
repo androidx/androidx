@@ -63,6 +63,7 @@ public abstract class MediaRouteProviderService extends Service {
     private final ProviderCallback mProviderCallback;
 
     private MediaRouteProvider mProvider;
+    private int mActiveScanClientCount;
 
     /**
      * The {@link Intent} that must be declared as handled by the service.
@@ -150,6 +151,20 @@ public abstract class MediaRouteProviderService extends Service {
      * - obj     : media control intent
      */
     static final int CLIENT_MSG_ROUTE_CONTROL_REQUEST = 9;
+
+    /** (client v1)
+     * Start active scan.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     */
+    static final int CLIENT_MSG_START_ACTIVE_SCAN = 10;
+
+    /** (client v1)
+     * Stop active scan.
+     * - replyTo : client messenger
+     * - arg1    : request id
+     */
+    static final int CLIENT_MSG_STOP_ACTIVE_SCAN = 11;
 
     static final String CLIENT_DATA_ROUTE_ID = "routeId";
     static final String CLIENT_DATA_VOLUME = "volume";
@@ -465,6 +480,36 @@ public abstract class MediaRouteProviderService extends Service {
         return false;
     }
 
+    private boolean onStartActiveScan(Messenger messenger, int requestId) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            boolean actuallyStarted = client.startActiveScan();
+            if (DEBUG) {
+                Log.d(TAG, client + ": Start active scan"
+                        + ", actuallyStarted=" + actuallyStarted
+                        + ", activeScanClientCount=" + mActiveScanClientCount);
+            }
+            sendGenericSuccess(messenger, requestId);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean onStopActiveScan(Messenger messenger, int requestId) {
+        ClientRecord client = getClient(messenger);
+        if (client != null) {
+            boolean actuallyStopped = client.stopActiveScan();
+            if (DEBUG) {
+                Log.d(TAG, client + ": Stop active scan"
+                        + ", actuallyStopped= " + actuallyStopped
+                        + ", activeScanClientCount=" + mActiveScanClientCount);
+            }
+            sendGenericSuccess(messenger, requestId);
+            return true;
+        }
+        return false;
+    }
+
     private void sendDescriptorChanged(MediaRouteProvider.ProviderDescriptor descriptor) {
         Bundle descriptorBundle = descriptor != null ? descriptor.asBundle() : null;
         final int count = mClients.size();
@@ -568,6 +613,7 @@ public abstract class MediaRouteProviderService extends Service {
     private final class ClientRecord implements DeathRecipient {
         public final Messenger mMessenger;
         public final int mVersion;
+        public boolean mActiveScanRequested;
 
         private final SparseArray<MediaRouteProvider.RouteController> mControllers =
                 new SparseArray<MediaRouteProvider.RouteController>();
@@ -595,6 +641,8 @@ public abstract class MediaRouteProviderService extends Service {
             mControllers.clear();
 
             mMessenger.getBinder().unlinkToDeath(this, 0);
+
+            stopActiveScan();
         }
 
         public boolean hasMessenger(Messenger other) {
@@ -625,6 +673,29 @@ public abstract class MediaRouteProviderService extends Service {
             return mControllers.get(controllerId);
         }
 
+        public boolean startActiveScan() {
+            if (!mActiveScanRequested) {
+                mActiveScanRequested = true;
+                mActiveScanClientCount += 1;
+                if (mActiveScanClientCount == 1) {
+                    mProvider.onStartActiveScan();
+                }
+            }
+            return false;
+        }
+
+        public boolean stopActiveScan() {
+            if (mActiveScanRequested) {
+                mActiveScanRequested = false;
+                mActiveScanClientCount -= 1;
+                if (mActiveScanClientCount == 0) {
+                    mProvider.onStopActiveScan();
+                }
+            }
+            return false;
+        }
+
+        // Runs on a binder thread.
         @Override
         public void binderDied() {
             mPrivateHandler.obtainMessage(PRIVATE_MSG_CLIENT_DIED, mMessenger).sendToTarget();
@@ -731,6 +802,12 @@ public abstract class MediaRouteProviderService extends Service {
                                     messenger, requestId, arg, (Intent)obj);
                         }
                         break;
+
+                    case CLIENT_MSG_START_ACTIVE_SCAN:
+                        return service.onStartActiveScan(messenger, requestId);
+
+                    case CLIENT_MSG_STOP_ACTIVE_SCAN:
+                        return service.onStopActiveScan(messenger, requestId);
                 }
             }
             return false;
