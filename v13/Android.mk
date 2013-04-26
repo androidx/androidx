@@ -32,14 +32,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, ics-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-ics
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-# A helper sub-library that makes direct use of K APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-k
-LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, k)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-ics-mr1
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
 # -----------------------------------------------------------------------
 
 include $(CLEAR_VARS)
@@ -47,7 +39,7 @@ LOCAL_MODULE := android-support-v13
 LOCAL_SDK_VERSION := 13
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-        android-support-v13-k
+        android-support-v13-ics-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
