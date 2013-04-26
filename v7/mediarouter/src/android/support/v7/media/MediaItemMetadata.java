@@ -16,6 +16,7 @@
 
 package android.support.v7.media;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 /**

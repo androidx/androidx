@@ -50,6 +50,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     private boolean mBound;
     private Connection mActiveConnection;
     private boolean mConnectionReady;
+    private boolean mActiveScanRequested;
 
     public RegisteredMediaRouteProvider(Context context, ComponentName componentName) {
         super(context, new ProviderMetadata(componentName.getPackageName()));
@@ -75,6 +76,22 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             }
         }
         return null;
+    }
+
+    @Override
+    public void onStartActiveScan() {
+        if (mConnectionReady) {
+            mActiveScanRequested = true;
+            mActiveConnection.startActiveScan();
+        }
+    }
+
+    @Override
+    public void onStopActiveScan() {
+        if (mConnectionReady) {
+            mActiveScanRequested = false;
+            mActiveConnection.stopActiveScan();
+        }
     }
 
     public boolean hasComponentName(String packageName, String className) {
@@ -157,6 +174,9 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         if (mActiveConnection == connection) {
             mConnectionReady = true;
             attachControllersToConnection();
+            if (mActiveScanRequested) {
+                mActiveConnection.startActiveScan();
+            }
         }
     }
 
@@ -477,6 +497,16 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                 return true;
             }
             return false;
+        }
+
+        public void startActiveScan() {
+            sendRequest(MediaRouteProviderService.CLIENT_MSG_START_ACTIVE_SCAN,
+                    mNextRequestId++, 0, null, null);
+        }
+
+        public void stopActiveScan() {
+            sendRequest(MediaRouteProviderService.CLIENT_MSG_STOP_ACTIVE_SCAN,
+                    mNextRequestId++, 0, null, null);
         }
 
         private boolean sendRequest(int what, int requestId, int arg, Object obj, Bundle data) {
