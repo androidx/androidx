@@ -18,14 +18,25 @@ package android.support.v7.media;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.util.Log;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 final class MediaRouterJellybean {
+    private static final String TAG = "MediaRouterJellybean";
+
     public static final int ROUTE_TYPE_LIVE_AUDIO = 0x1;
     public static final int ROUTE_TYPE_LIVE_VIDEO = 0x2;
     public static final int ROUTE_TYPE_USER = 0x00800000;
+
+    public static final int ALL_ROUTE_TYPES =
+            MediaRouterJellybean.ROUTE_TYPE_LIVE_AUDIO
+            | MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO
+            | MediaRouterJellybean.ROUTE_TYPE_USER;
 
     public static Object getMediaRouter(Context context) {
         return context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
@@ -101,8 +112,6 @@ final class MediaRouterJellybean {
     }
 
     public static final class RouteInfo {
-        public static final Class<?> clazz = android.media.MediaRouter.RouteInfo.class;
-
         public static CharSequence getName(Object routeObj, Context context) {
             return ((android.media.MediaRouter.RouteInfo)routeObj).getName(context);
         }
@@ -256,6 +265,94 @@ final class MediaRouterJellybean {
     public static interface VolumeCallback {
         public void onVolumeSetRequest(Object routeObj, int volume);
         public void onVolumeUpdateRequest(Object routeObj, int direction);
+    }
+
+    /**
+     * Workaround for limitations of selectRoute() on JB and JB MR1.
+     * Do not use on JB MR2 and above.
+     */
+    public static final class SelectRouteWorkaround {
+        private Method mSelectRouteIntMethod;
+
+        public SelectRouteWorkaround() {
+            if (Build.VERSION.SDK_INT < 16 || Build.VERSION.SDK_INT > 17) {
+                throw new UnsupportedOperationException();
+            }
+            try {
+                mSelectRouteIntMethod = android.media.MediaRouter.class.getMethod(
+                        "selectRouteInt", int.class, android.media.MediaRouter.RouteInfo.class);
+            } catch (NoSuchMethodException ex) {
+            }
+        }
+
+        public void selectRoute(Object routerObj, int types, Object routeObj) {
+            android.media.MediaRouter router = (android.media.MediaRouter)routerObj;
+            android.media.MediaRouter.RouteInfo route =
+                    (android.media.MediaRouter.RouteInfo)routeObj;
+
+            int routeTypes = route.getSupportedTypes();
+            if ((routeTypes & ROUTE_TYPE_USER) == 0) {
+                // Handle non-user routes.
+                // On JB and JB MR1, the selectRoute() API only supports programmatically
+                // selecting user routes.  So instead we rely on the hidden selectRouteInt()
+                // method on these versions of the platform.
+                // This limitation was removed in JB MR2.
+                if (mSelectRouteIntMethod != null) {
+                    try {
+                        mSelectRouteIntMethod.invoke(router, types, route);
+                        return; // success!
+                    } catch (IllegalAccessException ex) {
+                        Log.w(TAG, "Cannot programmatically select non-user route.  "
+                                + "Media routing may not work.", ex);
+                    } catch (InvocationTargetException ex) {
+                        Log.w(TAG, "Cannot programmatically select non-user route.  "
+                                + "Media routing may not work.", ex);
+                    }
+                } else {
+                    Log.w(TAG, "Cannot programmatically select non-user route "
+                            + "because the platform is missing the selectRouteInt() "
+                            + "method.  Media routing may not work.");
+                }
+            }
+
+            // Default handling.
+            router.selectRoute(types, route);
+        }
+    }
+
+    /**
+     * Workaround the fact that the getDefaultRoute() method does not exist in JB and JB MR1.
+     * Do not use on JB MR2 and above.
+     */
+    public static final class GetDefaultRouteWorkaround {
+        private Method mGetSystemAudioRouteMethod;
+
+        public GetDefaultRouteWorkaround() {
+            if (Build.VERSION.SDK_INT < 16 || Build.VERSION.SDK_INT > 17) {
+                throw new UnsupportedOperationException();
+            }
+            try {
+                mGetSystemAudioRouteMethod =
+                        android.media.MediaRouter.class.getMethod("getSystemAudioRoute");
+            } catch (NoSuchMethodException ex) {
+            }
+        }
+
+        public Object getDefaultRoute(Object routerObj) {
+            android.media.MediaRouter router = (android.media.MediaRouter)routerObj;
+
+            if (mGetSystemAudioRouteMethod != null) {
+                try {
+                    return mGetSystemAudioRouteMethod.invoke(router);
+                } catch (IllegalAccessException ex) {
+                } catch (InvocationTargetException ex) {
+                }
+            }
+
+            // Could not find the method or it does not work.
+            // Return the first route and hope for the best.
+            return router.getRouteAt(0);
+        }
     }
 
     static class CallbackProxy<T extends Callback>

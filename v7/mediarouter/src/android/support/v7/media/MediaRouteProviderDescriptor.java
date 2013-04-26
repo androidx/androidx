@@ -1,0 +1,291 @@
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package android.support.v7.media;
+
+import android.content.IntentFilter;
+import android.os.Bundle;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Describes the state of a media route provider and the routes that it publishes.
+ * <p>
+ * This object is immutable once created using a {@link Builder} instance.
+ * </p>
+ */
+public final class MediaRouteProviderDescriptor {
+    private static final String KEY_ROUTES = "routes";
+    private static final String KEY_ACTIVE_SCAN_REQUIRED = "activeScanRequired";
+    private static final String KEY_DISCOVERABLE_CONTROL_FILTERS =
+            "discoverableControlFilters";
+
+    private final Bundle mBundle;
+    private List<MediaRouteDescriptor> mRoutes;
+    private List<IntentFilter> mDiscoverableControlFilters;
+
+    private MediaRouteProviderDescriptor(Bundle bundle,
+            List<MediaRouteDescriptor> routes, List<IntentFilter> discoverableControlFilters) {
+        mBundle = bundle;
+        mRoutes = routes;
+        mDiscoverableControlFilters = discoverableControlFilters;
+    }
+
+    /**
+     * Gets the list of all routes that this provider has published.
+     */
+    public List<MediaRouteDescriptor> getRoutes() {
+        ensureRoutes();
+        return mRoutes;
+    }
+
+    private void ensureRoutes() {
+        if (mRoutes == null) {
+            ArrayList<Bundle> routeBundles = mBundle.<Bundle>getParcelableArrayList(KEY_ROUTES);
+            if (routeBundles == null || routeBundles.isEmpty()) {
+                mRoutes = Collections.<MediaRouteDescriptor>emptyList();
+            } else {
+                final int count = routeBundles.size();
+                mRoutes = new ArrayList<MediaRouteDescriptor>(count);
+                for (int i = 0; i < count; i++) {
+                    mRoutes.add(MediaRouteDescriptor.fromBundle(routeBundles.get(i)));
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets a list of {@link MediaControlIntent media route control filters} that
+     * describe the union of capabilities of all routes that this provider can
+     * possibly discover.
+     *
+     * @see MediaRouter.ProviderInfo#getDiscoverableControlFilters
+     */
+    public List<IntentFilter> getDiscoverableControlFilters() {
+        ensureDiscoverableControlFilters();
+        return mDiscoverableControlFilters;
+    }
+
+    private void ensureDiscoverableControlFilters() {
+        if (mDiscoverableControlFilters == null) {
+            mDiscoverableControlFilters =
+                    mBundle.<IntentFilter>getParcelableArrayList(KEY_DISCOVERABLE_CONTROL_FILTERS);
+            if (mDiscoverableControlFilters == null || mDiscoverableControlFilters.isEmpty()) {
+                mDiscoverableControlFilters = Collections.<IntentFilter>emptyList();
+            }
+        }
+    }
+
+    /**
+     * Returns true if the provider requires active scans to discover routes.
+     *
+     * @see MediaRouter.ProviderInfo#isActiveScanRequired
+     * @see MediaRouter#CALLBACK_FLAG_ACTIVE_SCAN
+     */
+    public boolean isActiveScanRequired() {
+        return mBundle.getBoolean(KEY_ACTIVE_SCAN_REQUIRED, false);
+    }
+
+    /**
+     * Returns true if the route provider descriptor and all of the routes that
+     * it contains have all of the required fields.
+     * <p>
+     * This verification is deep.  If the provider descriptor is known to be
+     * valid then it is not necessary to call {@link #isValid} on each of its routes.
+     * </p>
+     */
+    public boolean isValid() {
+        ensureDiscoverableControlFilters();
+        if (mDiscoverableControlFilters.contains(null)) {
+            return false;
+        }
+        ensureRoutes();
+        final int routeCount = mRoutes.size();
+        for (int i = 0; i < routeCount; i++) {
+            MediaRouteDescriptor route = mRoutes.get(i);
+            if (route == null || !route.isValid()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("MediaRouteProviderDescriptor{ ");
+        result.append("isActiveScanRequired=").append(isActiveScanRequired());
+        result.append(", discoverableControlFilters=").append(
+                Arrays.toString(getDiscoverableControlFilters().toArray()));
+        result.append(", routes=").append(
+                Arrays.toString(getRoutes().toArray()));
+        result.append(", isValid=").append(isValid());
+        result.append("}");
+        return result.toString();
+    }
+
+    /**
+     * Converts this object to a bundle for serialization.
+     *
+     * @return The contents of the object represented as a bundle.
+     */
+    public Bundle asBundle() {
+        return mBundle;
+    }
+
+    /**
+     * Creates an instance from a bundle.
+     *
+     * @param bundle The bundle, or null if none.
+     * @return The new instance, or null if the bundle was null.
+     */
+    public static MediaRouteProviderDescriptor fromBundle(Bundle bundle) {
+        return bundle != null ? new MediaRouteProviderDescriptor(bundle, null, null) : null;
+    }
+
+    /**
+     * Builder for {@link MediaRouteProviderDescriptor media route provider descriptors}.
+     */
+    public static final class Builder {
+        private final Bundle mBundle;
+        private ArrayList<MediaRouteDescriptor> mRoutes;
+        private ArrayList<IntentFilter> mDiscoverableControlFilters;
+
+        /**
+         * Creates an empty media route provider descriptor builder.
+         */
+        public Builder() {
+            mBundle = new Bundle();
+        }
+
+        /**
+         * Creates a media route provider descriptor builder whose initial contents are
+         * copied from an existing descriptor.
+         */
+        public Builder(MediaRouteProviderDescriptor descriptor) {
+            if (descriptor == null) {
+                throw new IllegalArgumentException("descriptor must not be null");
+            }
+
+            mBundle = new Bundle(descriptor.mBundle);
+
+            descriptor.ensureRoutes();
+            if (!descriptor.mRoutes.isEmpty()) {
+                mRoutes = new ArrayList<MediaRouteDescriptor>(descriptor.mRoutes);
+            }
+
+            descriptor.ensureDiscoverableControlFilters();
+            if (!descriptor.mDiscoverableControlFilters.isEmpty()) {
+                mDiscoverableControlFilters = new ArrayList<IntentFilter>(
+                        descriptor.mDiscoverableControlFilters);
+            }
+        }
+
+        /**
+         * Adds a route.
+         */
+        public Builder addRoute(MediaRouteDescriptor route) {
+            if (route == null) {
+                throw new IllegalArgumentException("route must not be null");
+            }
+
+            if (mRoutes == null) {
+                mRoutes = new ArrayList<MediaRouteDescriptor>();
+            } else if (mRoutes.contains(route)) {
+                throw new IllegalArgumentException("route descriptor already added");
+            }
+            mRoutes.add(route);
+            return this;
+        }
+
+        /**
+         * Adds a list of routes.
+         */
+        public Builder addRoutes(List<MediaRouteDescriptor> routes) {
+            if (routes == null) {
+                throw new IllegalArgumentException("routes must not be null");
+            }
+
+            final int count = routes.size();
+            for (int i = 0; i < count; i++) {
+                addRoute(routes.get(i));
+            }
+            return this;
+        }
+
+        /**
+         * Adds a {@link MediaControlIntent media control intent} filter.
+         */
+        public Builder addDiscoverableControlFilter(IntentFilter filter) {
+            if (filter == null) {
+                throw new IllegalArgumentException("filter must not be null");
+            }
+
+            if (mDiscoverableControlFilters == null) {
+                mDiscoverableControlFilters = new ArrayList<IntentFilter>();
+            }
+            if (!mDiscoverableControlFilters.contains(filter)) {
+                mDiscoverableControlFilters.add(filter);
+            }
+            return this;
+        }
+
+        /**
+         * Adds a list of {@link MediaControlIntent media control intent} filters.
+         */
+        public Builder addDiscoverableControlFilters(List<IntentFilter> filters) {
+            if (filters == null) {
+                throw new IllegalArgumentException("filters must not be null");
+            }
+
+            final int count = filters.size();
+            for (int i = 0; i < count; i++) {
+                addDiscoverableControlFilter(filters.get(i));
+            }
+            return this;
+        }
+
+        /**
+         * Sets whether the provider requires active scans to discover routes.
+         */
+        public Builder setActiveScanRequired(boolean required) {
+            mBundle.putBoolean(KEY_ACTIVE_SCAN_REQUIRED, required);
+            return this;
+        }
+
+        /**
+         * Builds the {@link MediaRouteProviderDescriptor media route provider descriptor}.
+         */
+        public MediaRouteProviderDescriptor build() {
+            if (mRoutes != null) {
+                final int count = mRoutes.size();
+                ArrayList<Bundle> routeBundles = new ArrayList<Bundle>(count);
+                for (int i = 0; i < count; i++) {
+                    routeBundles.add(mRoutes.get(i).asBundle());
+                }
+                mBundle.putParcelableArrayList(KEY_ROUTES, routeBundles);
+            }
+            if (mDiscoverableControlFilters != null) {
+                mBundle.putParcelableArrayList(KEY_DISCOVERABLE_CONTROL_FILTERS,
+                        mDiscoverableControlFilters);
+            }
+            return new MediaRouteProviderDescriptor(mBundle,
+                    mRoutes, mDiscoverableControlFilters);
+        }
+    }
+}
