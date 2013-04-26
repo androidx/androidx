@@ -37,7 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implements
+class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         MenuPresenter.Callback, MenuBuilder.Callback, ActionBarView.Callback {
 
     private ActionBarView mActionBarView;
@@ -68,13 +68,13 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         }
     };
 
-    ActionBarActivityDelegateCompat(ActionBarActivity activity) {
+    ActionBarActivityDelegateBase(ActionBarActivity activity) {
         super(activity);
     }
 
     @Override
     public ActionBar createSupportActionBar() {
-        return new ActionBarImplCompat(mActivity, mActivity);
+        return new ActionBarImplBase(mActivity, mActivity);
     }
 
     @Override
@@ -84,14 +84,14 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
         if (mHasActionBar && mSubDecorInstalled) {
             // Note: The action bar will need to access
             // view changes from superclass.
-            ActionBarImplCompat actionBar = (ActionBarImplCompat) getSupportActionBar();
+            ActionBarImplBase actionBar = (ActionBarImplBase) getSupportActionBar();
             actionBar.onConfigurationChanged(newConfig);
         }
     }
 
     @Override
     public void onStop() {
-        ActionBarImplCompat ab = (ActionBarImplCompat) getSupportActionBar();
+        ActionBarImplBase ab = (ActionBarImplBase) getSupportActionBar();
         if (ab != null) {
             ab.setShowHideAnimationEnabled(false);
         }
@@ -99,7 +99,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
 
     @Override
     public void onPostResume() {
-        ActionBarImplCompat ab = (ActionBarImplCompat) getSupportActionBar();
+        ActionBarImplBase ab = (ActionBarImplBase) getSupportActionBar();
         if (ab != null) {
             ab.setShowHideAnimationEnabled(true);
         }
@@ -345,7 +345,7 @@ class ActionBarActivityDelegateCompat extends ActionBarActivityDelegate implemen
 
         final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
 
-        ActionBarImplCompat ab = (ActionBarImplCompat) getSupportActionBar();
+        ActionBarImplBase ab = (ActionBarImplBase) getSupportActionBar();
         if (ab != null) {
             mActionMode = ab.startActionMode(wrappedCallback);
         }
