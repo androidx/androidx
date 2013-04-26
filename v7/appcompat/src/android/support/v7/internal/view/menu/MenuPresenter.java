@@ -60,7 +60,7 @@ public interface MenuPresenter {
     public void initForMenu(Context context, MenuBuilder menu);
 
     /**
-     * Retrieve a MenuView to display the menu specified in {@link #initForMenu(Context, Menu)}.
+     * Retrieve a MenuView to display the menu specified in {@link #initForMenu}.
      *
      * @param root Intended parent of the MenuView.
      * @return A freshly created MenuView.

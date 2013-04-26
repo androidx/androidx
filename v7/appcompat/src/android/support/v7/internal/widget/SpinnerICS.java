@@ -1,5 +1,3 @@
-package android.support.v7.internal.widget;
-
 /*
  * Copyright (C) 2007 The Android Open Source Project
  *
@@ -15,6 +13,8 @@ package android.support.v7.internal.widget;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package android.support.v7.internal.widget;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,7 +32,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 
@@ -44,7 +43,7 @@ import android.widget.SpinnerAdapter;
  * <p>See the <a href="{@docRoot}resources/tutorials/views/hello-spinner.html">Spinner
  * tutorial</a>.</p>
  *
- * @attr ref R.styleable#Spinner_prompt
+ * @attr ref android.support.v7.appcompat.R.styleable#Spinner_prompt
  */
 class SpinnerICS extends AbsSpinnerICS implements OnClickListener {
     private static final String TAG = "Spinner";

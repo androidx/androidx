@@ -30,21 +30,19 @@ import android.widget.ListView;
  * The expanded menu view is a list-like menu with all of the available menu items.  It is opened
  * by the user clicking no the 'More' button on the icon menu view.
  */
-public final class ExpandedMenuView extends ListView implements ItemInvoker, MenuView, OnItemClickListener {
+public final class ExpandedMenuView extends ListView
+        implements ItemInvoker, MenuView, OnItemClickListener {
     private MenuBuilder mMenu;
 
     /** Default animations for this menu */
     private int mAnimations;
 
-    /**
-     * Instantiates the ExpandedMenuView that is linked with the provided MenuBuilder.
-     * @param menu The model for the menu which this MenuView will display
-     */
     public ExpandedMenuView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnItemClickListener(this);
     }
 
+    @Override
     public void initialize(MenuBuilder menu) {
         mMenu = menu;
     }
@@ -57,14 +55,18 @@ public final class ExpandedMenuView extends ListView implements ItemInvoker, Men
         setChildrenDrawingCacheEnabled(false);
     }
 
+    @Override
     public boolean invokeItem(MenuItemImpl item) {
         return mMenu.performItemAction(item, 0);
     }
 
+    @Override
+    @SuppressWarnings("rawtypes")
     public void onItemClick(AdapterView parent, View v, int position, long id) {
         invokeItem((MenuItemImpl) getAdapter().getItem(position));
     }
 
+    @Override
     public int getWindowAnimations() {
         return mAnimations;
     }
