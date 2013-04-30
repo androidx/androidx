@@ -18,15 +18,17 @@ package com.example.android.supportv7.media;
 
 import com.example.android.supportv7.R;
 
-import android.app.Activity;
-import android.app.MediaRouteActionProvider;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.MediaRouteActionProvider;
 import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouter.RouteInfo;
 import android.support.v7.media.MediaRouter.ProviderInfo;
+import android.support.v7.media.MediaRouteSelector;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,10 +51,11 @@ import android.widget.Toast;
  * targets.
  * </p>
  */
-public class SampleMediaRouterActivity extends Activity {
+public class SampleMediaRouterActivity extends ActionBarActivity {
     private final String TAG = "MediaRouterSupport";
 
     private MediaRouter mMediaRouter;
+    private MediaRouteSelector mSelector;
     private ArrayAdapter<MediaItem> mMediaItems;
     private TextView mInfoTextView;
     private ListView mMediaListView;
@@ -66,6 +69,14 @@ public class SampleMediaRouterActivity extends Activity {
 
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
+
+        // Create a route selector for the type of routes that we care about.
+        mSelector = new MediaRouteSelector.Builder()
+                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
+                .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
+                .build();
 
         // Populate an array adapter with fake media items.
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
@@ -114,7 +125,8 @@ public class SampleMediaRouterActivity extends Activity {
         super.onResume();
 
         // Listen for changes to media routes.
-        mMediaRouter.addCallback(mMediaRouterCallback);
+        mMediaRouter.addCallback(mSelector, mCallback,
+                MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS);
         updateRouteStatus();
     }
 
@@ -124,10 +136,9 @@ public class SampleMediaRouterActivity extends Activity {
         super.onPause();
 
         // Stop listening for changes to media routes.
-        mMediaRouter.removeCallback(mMediaRouterCallback);
+        mMediaRouter.removeCallback(mCallback);
     }
 
-    // TODO: Use ActionBar support library.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Be sure to call the super class.
@@ -136,14 +147,10 @@ public class SampleMediaRouterActivity extends Activity {
         // Inflate the menu and configure the media router action provider.
         getMenuInflater().inflate(R.menu.sample_media_router_menu, menu);
 
-        // TODO: Use support library media route action provider.
-        MenuItem mediaRouteMenuItem = menu.findItem(R.id.menu_media_route);
+        MenuItem mediaRouteMenuItem = menu.findItem(R.id.media_route_menu_item);
         MediaRouteActionProvider mediaRouteActionProvider =
-                (MediaRouteActionProvider)mediaRouteMenuItem.getActionProvider();
-        mediaRouteActionProvider.setRouteTypes(
-                android.media.MediaRouter.ROUTE_TYPE_LIVE_AUDIO
-                | android.media.MediaRouter.ROUTE_TYPE_LIVE_VIDEO
-                | android.media.MediaRouter.ROUTE_TYPE_USER);
+                (MediaRouteActionProvider)MenuItemCompat.getActionProvider(mediaRouteMenuItem);
+        mediaRouteActionProvider.setRouteSelector(mSelector);
 
         // Return true to show the menu.
         return true;
@@ -277,7 +284,7 @@ public class SampleMediaRouterActivity extends Activity {
         return null;
     }
 
-    private final MediaRouter.Callback mMediaRouterCallback = new MediaRouter.Callback() {
+    private final MediaRouter.Callback mCallback = new MediaRouter.Callback() {
         @Override
         public void onRouteAdded(MediaRouter router, RouteInfo route) {
             Log.d(TAG, "onRouteAdded: route=" + route);
@@ -325,6 +332,11 @@ public class SampleMediaRouterActivity extends Activity {
         public void onProviderRemoved(MediaRouter router, ProviderInfo provider) {
             Log.d(TAG, "onRouteProviderRemoved: provider=" + provider);
         }
+
+        @Override
+        public void onProviderChanged(MediaRouter router, ProviderInfo provider) {
+            Log.d(TAG, "onRouteProviderChanged: provider=" + provider);
+        }
     };
 
     private static final class MediaItem {
@@ -340,5 +352,19 @@ public class SampleMediaRouterActivity extends Activity {
         public String toString() {
             return mName;
         }
+    }
+
+    /**
+     * Trivial subclass of this activity used to provide another copy of the
+     * same activity using a light theme instead of the dark theme.
+     */
+    public static class Light extends SampleMediaRouterActivity {
+    }
+
+    /**
+     * Trivial subclass of this activity used to provide another copy of the
+     * same activity using a light theme with dark action bar instead of the dark theme.
+     */
+    public static class LightWithDarkActionBar extends SampleMediaRouterActivity {
     }
 }

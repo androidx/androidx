@@ -29,9 +29,12 @@ import android.os.Bundle;
 import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouter.ControlRequestCallback;
+import android.support.v7.media.MediaRouteProviderDescriptor;
+import android.support.v7.media.MediaRouteDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -51,7 +54,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
      * supported by this provider's routes.
      */
     public static final String CATEGORY_SAMPLE_ROUTE =
-            "com.example.android.supportv4.media.CATEGORY_SAMPLE_ROUTE";
+            "com.example.android.supportv7.media.CATEGORY_SAMPLE_ROUTE";
 
     /**
      * A custom media control intent action for special requests that are
@@ -64,29 +67,31 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
      * @see #DATA_PLAYBACK_COUNT
      */
     public static final String ACTION_GET_STATISTICS =
-            "com.example.android.supportv4.media.ACTION_GET_STATISTICS";
+            "com.example.android.supportv7.media.ACTION_GET_STATISTICS";
 
     /**
      * {@link #ACTION_GET_STATISTICS} result data: Number of times the
      * playback action was invoked.
      */
     public static final String DATA_PLAYBACK_COUNT =
-            "com.example.android.supportv4.media.EXTRA_PLAYBACK_COUNT";
+            "com.example.android.supportv7.media.EXTRA_PLAYBACK_COUNT";
 
-    private static final IntentFilter[] CONTROL_FILTERS;
+    private static final ArrayList<IntentFilter> CONTROL_FILTERS;
     static {
-        CONTROL_FILTERS = new IntentFilter[2];
+        IntentFilter f1 = new IntentFilter();
+        f1.addCategory(CATEGORY_SAMPLE_ROUTE);
+        f1.addAction(ACTION_GET_STATISTICS);
 
-        CONTROL_FILTERS[0] = new IntentFilter();
-        CONTROL_FILTERS[0].addCategory(CATEGORY_SAMPLE_ROUTE);
-        CONTROL_FILTERS[0].addAction(ACTION_GET_STATISTICS);
+        IntentFilter f2 = new IntentFilter();
+        f2.addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
+        f2.addAction(MediaControlIntent.ACTION_PLAY);
+        f2.addDataScheme("http");
+        f2.addDataScheme("https");
+        addDataTypeUnchecked(f2, "video/*");
 
-        CONTROL_FILTERS[1] = new IntentFilter();
-        CONTROL_FILTERS[1].addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
-        CONTROL_FILTERS[1].addAction(MediaControlIntent.ACTION_PLAY);
-        CONTROL_FILTERS[1].addDataScheme("http");
-        CONTROL_FILTERS[1].addDataScheme("https");
-        addDataTypeUnchecked(CONTROL_FILTERS[1], "video/*");
+        CONTROL_FILTERS = new ArrayList<IntentFilter>();
+        CONTROL_FILTERS.add(f1);
+        CONTROL_FILTERS.add(f2);
     }
 
     private static void addDataTypeUnchecked(IntentFilter filter, String type) {
@@ -114,29 +119,33 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
     private void publishRoutes() {
         Resources r = getContext().getResources();
 
-        RouteDescriptor routeDescriptor1 = new RouteDescriptor(
+        MediaRouteDescriptor routeDescriptor1 = new MediaRouteDescriptor.Builder(
                 FIXED_VOLUME_ROUTE_ID,
-                r.getString(R.string.fixed_volume_route_name));
-        routeDescriptor1.setControlFilters(CONTROL_FILTERS);
-        routeDescriptor1.setIconResource(R.drawable.media_route_icon);
-        routeDescriptor1.setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE);
-        routeDescriptor1.setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED);
-        routeDescriptor1.setVolume(VOLUME_MAX);
+                r.getString(R.string.fixed_volume_route_name))
+                .addControlFilters(CONTROL_FILTERS)
+                .setIconResource(R.drawable.media_route_icon)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)
+                .setVolume(VOLUME_MAX)
+                .build();
 
-        RouteDescriptor routeDescriptor2 = new RouteDescriptor(
+        MediaRouteDescriptor routeDescriptor2 = new MediaRouteDescriptor.Builder(
                 VARIABLE_VOLUME_ROUTE_ID,
-                r.getString(R.string.variable_volume_route_name));
-        routeDescriptor2.setControlFilters(CONTROL_FILTERS);
-        routeDescriptor2.setIconResource(R.drawable.media_route_icon);
-        routeDescriptor2.setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE);
-        routeDescriptor2.setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE);
-        routeDescriptor2.setVolumeMax(VOLUME_MAX);
-        routeDescriptor2.setVolume(mVolume);
+                r.getString(R.string.variable_volume_route_name))
+                .addControlFilters(CONTROL_FILTERS)
+                .setIconResource(R.drawable.media_route_icon)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                .setVolumeMax(VOLUME_MAX)
+                .setVolume(mVolume)
+                .build();
 
-        ProviderDescriptor providerDescriptor = new ProviderDescriptor();
-        providerDescriptor.setRoutes(new RouteDescriptor[] {
-            routeDescriptor1, routeDescriptor2
-        });
+        MediaRouteProviderDescriptor providerDescriptor =
+                new MediaRouteProviderDescriptor.Builder()
+                .addRoute(routeDescriptor1)
+                .addRoute(routeDescriptor2)
+                .addDiscoverableControlFilters(CONTROL_FILTERS)
+                .build();
         setDescriptor(providerDescriptor);
     }
 

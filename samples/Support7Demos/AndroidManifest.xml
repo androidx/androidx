@@ -46,7 +46,26 @@
         <!-- MediaRouter Support Samples -->
 
         <activity android:name=".media.SampleMediaRouterActivity"
-                android:label="@string/sample_media_router_activity">
+                android:label="@string/sample_media_router_activity_dark"
+                android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".media.SampleMediaRouterActivity$Light"
+                android:label="@string/sample_media_router_activity_light"
+                android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".media.SampleMediaRouterActivity$LightWithDarkActionBar"
+                android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
+                android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -55,7 +74,7 @@
 
         <service android:name=".media.SampleMediaRouteProviderService"
                 android:label="@string/sample_media_route_provider_service"
-                android:process=":mediarouteprovider">
+                android:process=":mrp">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
             </intent-filter>
