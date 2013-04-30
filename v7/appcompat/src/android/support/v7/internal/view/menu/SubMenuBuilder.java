@@ -18,9 +18,9 @@ package android.support.v7.internal.view.menu;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 
 /**

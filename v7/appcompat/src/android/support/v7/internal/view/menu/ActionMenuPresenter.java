@@ -24,10 +24,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ActionBarPolicy;
-import android.support.v7.view.ActionProvider;
-import android.support.v7.view.MenuItem;
+import android.support.v4.view.ActionProvider;
 import android.support.v7.internal.view.menu.ActionMenuView.ActionMenuChildView;
 import android.util.SparseBooleanArray;
+import android.view.MenuItem;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -196,7 +196,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
             final ArrayList<MenuItemImpl> actionItems = mMenu.getActionItems();
             final int count = actionItems.size();
             for (int i = 0; i < count; i++) {
-                final ActionProvider provider = actionItems.get(i).getActionProvider();
+                final ActionProvider provider = actionItems.get(i).getSupportActionProvider();
                 if (provider != null) {
                     provider.setSubUiVisibilityListener(this);
                 }

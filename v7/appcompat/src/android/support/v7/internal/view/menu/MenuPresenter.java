@@ -16,8 +16,6 @@
 
 package android.support.v7.internal.view.menu;
 
-import android.support.v7.view.Menu;
-
 import android.content.Context;
 import android.os.Parcelable;
 import android.view.ViewGroup;
@@ -60,7 +58,8 @@ public interface MenuPresenter {
     public void initForMenu(Context context, MenuBuilder menu);
 
     /**
-     * Retrieve a MenuView to display the menu specified in {@link #initForMenu}.
+     * Retrieve a MenuView to display the menu specified in
+     * {@link #initForMenu(Context, MenuBuilder)}.
      *
      * @param root Intended parent of the MenuView.
      * @return A freshly created MenuView.

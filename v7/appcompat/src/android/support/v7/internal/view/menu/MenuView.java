@@ -16,9 +16,6 @@
 
 package android.support.v7.internal.view.menu;
 
-import android.support.v7.internal.view.menu.MenuBuilder;
-import android.support.v7.internal.view.menu.MenuItemImpl;
-
 import android.graphics.drawable.Drawable;
 
 /**
@@ -54,8 +51,7 @@ public interface MenuView {
          * inflated.
          *
          * @param itemData The item that this ItemView should display.
-         * @param menuType The type of this menu, one of {@link MenuBuilder#TYPE_ICON}, {@link
-         *                 MenuBuilder#TYPE_EXPANDED}, {@link MenuBuilder#TYPE_DIALOG}).
+         * @param menuType The type of this menu, one of TYPE_ICON, TYPE_EXPANDED or TYPE_DIALOG.
          */
         public void initialize(MenuItemImpl itemData, int menuType);
 

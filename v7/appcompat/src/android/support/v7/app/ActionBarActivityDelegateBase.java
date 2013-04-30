@@ -25,20 +25,24 @@ import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
+import android.support.v7.internal.view.menu.MenuWrapper;
 import android.support.v7.internal.widget.ActionBarContainer;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.internal.widget.ProgressBarICS;
 import android.support.v7.view.ActionMode;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.FrameLayout;
 
 class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
-        MenuPresenter.Callback, MenuBuilder.Callback, ActionBarView.Callback {
+        MenuPresenter.Callback, MenuBuilder.Callback {
+    private static final String TAG = "ActionBarActivityDelegateBase";
 
     private ActionBarView mActionBarView;
     private ListMenuPresenter mListMenuPresenter;
@@ -57,8 +61,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         @Override
         public void run() {
             final MenuBuilder menu = createMenu();
-            if (dispatchCreateSupportOptionsMenu(menu) &&
-                    dispatchPrepareSupportOptionsMenu(menu)) {
+            if (mActivity.superOnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu) &&
+                    mActivity.superOnPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, menu)) {
                 setMenu(menu);
             } else {
                 setMenu(null);
@@ -74,6 +78,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
     @Override
     public ActionBar createSupportActionBar() {
+        ensureSubDecor();
         return new ActionBarImplBase(mActivity, mActivity);
     }
 
@@ -165,7 +170,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                 mActivity.superSetContentView(R.layout.abc_action_bar_decor);
             }
             mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
-            mActionBarView.setViewCallback(this);
+            mActionBarView.setWindowCallback(mActivity);
 
             /**
              * Progress Bars
@@ -262,14 +267,14 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                     // Make sure we're not dispatching item changes to presenters
                     menu.stopDispatchingItemsChanged();
                     // Dispatch onCreateSupportOptionsMenu
-                    show = dispatchCreateSupportOptionsMenu(menu);
+                    show = mActivity.superOnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu);
                 }
 
                 if (show) {
                     // Make sure we're not dispatching item changes to presenters
                     menu.stopDispatchingItemsChanged();
                     // Dispatch onPrepareSupportOptionsMenu
-                    show = dispatchPrepareSupportOptionsMenu(menu);
+                    show = mActivity.superOnPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, menu);
                 }
             }
 
@@ -288,34 +293,32 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     @Override
-    public boolean onCreatePanelMenu(int featureId, android.view.Menu frameworkMenu) {
-        if (Window.FEATURE_OPTIONS_PANEL != featureId) {
-            return mActivity.superOnCreatePanelMenu(featureId, frameworkMenu);
+    public boolean onCreatePanelMenu(int featureId, Menu menu) {
+        if (featureId != Window.FEATURE_OPTIONS_PANEL) {
+            return mActivity.superOnCreatePanelMenu(featureId, menu);
         }
-
-        // Should never get here as FEATURE_OPTIONS_PANEL is handled by onCreatePanelView
         return false;
     }
 
     @Override
-    public boolean onPreparePanel(int featureId, View view, android.view.Menu menu) {
-        if (Window.FEATURE_OPTIONS_PANEL != featureId) {
-            return mActivity.superOnPreparePanelMenu(featureId, view, menu);
+    public boolean onPreparePanel(int featureId, View view, Menu menu) {
+        if (featureId != Window.FEATURE_OPTIONS_PANEL) {
+            return mActivity.superOnPreparePanel(featureId, view, menu);
         }
-
-        // Should never get here as FEATURE_OPTIONS_PANEL is handled by onCreatePanelView
         return false;
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, android.view.MenuItem frameworkItem) {
-        // We don't want to handle framework items here
-        return false;
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            item = MenuWrapper.createMenuItemWrapper(item);
+        }
+        return mActivity.superOnMenuItemSelected(featureId, item);
     }
 
     @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-        return mActivity.onSupportMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
+        return mActivity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
     }
 
     @Override
@@ -406,7 +409,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             mListMenuPresenter.updateMenuView(false);
         }
 
-        return mListMenuPresenter.getMenuView(null);
+        return mListMenuPresenter.getMenuView(new FrameLayout(context));
     }
 
     private void setMenu(MenuBuilder menu) {
@@ -446,11 +449,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     @Override
-    public void onActionModeStarted(android.view.ActionMode mode) {
-        // Will never be called
-    }
-
-    @Override
     void setSupportProgressBarVisibility(boolean visible) {
         updateProgressBars(visible ? Window.PROGRESS_VISIBILITY_ON :
                 Window.PROGRESS_VISIBILITY_OFF);
@@ -471,19 +469,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     @Override
     void setSupportProgress(int progress) {
         updateProgressBars(Window.PROGRESS_START + progress);
-    }
-
-    @Override
-    public void onActionModeFinished(android.view.ActionMode mode) {
-        // Will never be called
-    }
-
-    private boolean dispatchCreateSupportOptionsMenu(MenuBuilder menu) {
-        return mActivity.dispatchCreateSupportOptionsMenu(menu);
-    }
-
-    private boolean dispatchPrepareSupportOptionsMenu(MenuBuilder menu) {
-        return mActivity.dispatchPrepareSupportOptionsMenu(menu);
     }
 
     /**
@@ -563,14 +548,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             pb.setVisibility(View.INVISIBLE);
         }
         return pb;
-    }
-
-    /**
-     *  From ActionBarView.Callback
-     */
-    @Override
-    public boolean onMenuItemSelected(int featureId, android.support.v7.view.MenuItem item) {
-        return mActivity.onSupportMenuItemSelected(featureId, item);
     }
 
     /**
