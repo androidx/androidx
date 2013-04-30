@@ -47,7 +47,7 @@ public class ActionBarUsage extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actions, menu);
         View searchView = MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchViewCompat.setOnQueryTextListener(searchView, mOnQueryTextListener);

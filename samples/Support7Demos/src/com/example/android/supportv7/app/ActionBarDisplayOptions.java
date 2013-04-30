@@ -64,7 +64,7 @@ public class ActionBarDisplayOptions extends ActionBarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.display_options_actions, menu);
+        getMenuInflater().inflate(R.menu.display_options_actions, menu);
         return true;
     }
 

@@ -39,7 +39,7 @@ public class ActionBarSettingsActionProviderActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getSupportMenuInflater().inflate(R.menu.action_bar_settings_action_provider, menu);
+        getMenuInflater().inflate(R.menu.action_bar_settings_action_provider, menu);
         return true;
     }
 
