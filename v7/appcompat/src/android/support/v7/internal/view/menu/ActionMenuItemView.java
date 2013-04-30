@@ -23,11 +23,14 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v7.appcompat.R;
 import android.text.TextUtils;
+import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Locale;
 
 /**
  * @hide
@@ -69,6 +72,8 @@ public class ActionMenuItemView extends TextView
 
         setOnClickListener(this);
         setOnLongClickListener(this);
+
+        setTransformationMethod(new AllCapsTransformationMethod());
 
         mSavedPaddingLeft = -1;
     }
@@ -226,6 +231,24 @@ public class ActionMenuItemView extends TextView
             final int w = getMeasuredWidth();
             final int dw = mIcon.getIntrinsicWidth();
             super.setPadding((w - dw) / 2, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+        }
+    }
+
+    private class AllCapsTransformationMethod implements TransformationMethod {
+        private Locale mLocale;
+
+        public AllCapsTransformationMethod() {
+            mLocale = getContext().getResources().getConfiguration().locale;
+        }
+
+        @Override
+        public CharSequence getTransformation(CharSequence source, View view) {
+            return source != null ? source.toString().toUpperCase(mLocale) : null;
+        }
+
+        @Override
+        public void onFocusChanged(View view, CharSequence sourceText, boolean focused,
+                int direction, Rect previouslyFocusedRect) {
         }
     }
 }

@@ -16,30 +16,31 @@
 
 package android.support.v7.internal.view.menu;
 
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
+import android.support.v4.internal.view.SupportMenuItem;
+import android.view.MenuItem;
+import android.view.SubMenu;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
 abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
 
-    private HashMap<android.view.MenuItem, MenuItem> mMenuItems;
+    private HashMap<MenuItem, SupportMenuItem> mMenuItems;
 
-    private HashMap<android.view.SubMenu, SubMenu> mSubMenus;
+    private HashMap<SubMenu, SubMenu> mSubMenus;
 
     BaseMenuWrapper(T object) {
         super(object);
     }
 
-    final MenuItem getMenuItemWrapper(android.view.MenuItem frameworkItem) {
+    final SupportMenuItem getMenuItemWrapper(android.view.MenuItem frameworkItem) {
         if (frameworkItem != null) {
             // Instantiate HashMap if null
             if (mMenuItems == null) {
-                mMenuItems = new HashMap<android.view.MenuItem, MenuItem>();
+                mMenuItems = new HashMap<MenuItem, SupportMenuItem>();
             }
 
-            MenuItem compatItem = mMenuItems.get(frameworkItem);
+            SupportMenuItem compatItem = mMenuItems.get(frameworkItem);
 
             if (null == compatItem) {
                 compatItem = createMenuItemWrapper(frameworkItem);
@@ -112,7 +113,7 @@ abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
         }
     }
 
-    abstract MenuItem createMenuItemWrapper(android.view.MenuItem menuItem);
+    abstract SupportMenuItem createMenuItemWrapper(android.view.MenuItem menuItem);
 
     abstract SubMenu createSubMenuWrapper(android.view.SubMenu subMenu);
 

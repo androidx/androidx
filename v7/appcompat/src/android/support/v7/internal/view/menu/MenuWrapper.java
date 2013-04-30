@@ -17,8 +17,8 @@
 package android.support.v7.internal.view.menu;
 
 import android.os.Build;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class MenuWrapper {
 
@@ -29,7 +29,7 @@ public class MenuWrapper {
             return new MenuWrapperICS(frameworkMenu);
         }
 
-        return null;
+        return frameworkMenu;
     }
 
     public static MenuItem createMenuItemWrapper(android.view.MenuItem frameworkMenuItem) {
@@ -39,7 +39,7 @@ public class MenuWrapper {
             return new MenuItemWrapperICS(frameworkMenuItem);
         }
 
-        return null;
+        return frameworkMenuItem;
     }
 
 }

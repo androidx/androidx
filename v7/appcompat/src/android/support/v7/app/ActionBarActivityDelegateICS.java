@@ -19,7 +19,7 @@ package android.support.v7.app;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
-class ActionBarActivityDelegateICS extends ActionBarActivityDelegateHC {
+class ActionBarActivityDelegateICS extends ActionBarActivityDelegateHCMR1 {
 
     ActionBarActivityDelegateICS(ActionBarActivity activity) {
         super(activity);
