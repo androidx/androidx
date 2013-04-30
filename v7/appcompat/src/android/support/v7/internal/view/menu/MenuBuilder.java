@@ -12,15 +12,17 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.view.ActionProvider;
-import android.support.v7.view.Menu;
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
+import android.support.v4.view.ActionProvider;
+import android.support.v4.internal.view.SupportMenu;
+import android.support.v4.internal.view.SupportMenuItem;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
@@ -29,10 +31,10 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Implementation of the {@link android.support.v7.view.Menu} interface for creating a
+ * Implementation of the {@link android.support.v4.internal.view.SupportMenu} interface for creating a
  * standard menu UI.
  */
-public class MenuBuilder implements Menu {
+public class MenuBuilder implements SupportMenu {
 
     private static final String TAG = "MenuBuilder";
 
@@ -107,7 +109,7 @@ public class MenuBuilder implements Menu {
     /**
      * Default value for how added items should show in the action list.
      */
-    private int mDefaultShowAsAction = MenuItem.SHOW_AS_ACTION_NEVER;
+    private int mDefaultShowAsAction = SupportMenuItem.SHOW_AS_ACTION_NEVER;
 
     /**
      * Current use case is Context Menus: As Views populate the context menu, each one has extra
@@ -333,13 +335,13 @@ public class MenuBuilder implements Menu {
         final int itemCount = size();
         for (int i = 0; i < itemCount; i++) {
             final MenuItem item = getItem(i);
-            final View v = item.getActionView();
+            final View v = MenuItemCompat.getActionView(item);
             if (v != null && v.getId() != View.NO_ID) {
                 if (viewStates == null) {
                     viewStates = new SparseArray<Parcelable>();
                 }
                 v.saveHierarchyState(viewStates);
-                if (item.isActionViewExpanded()) {
+                if (MenuItemCompat.isActionViewExpanded(item)) {
                     outStates.putInt(EXPANDED_ACTION_VIEW_ID, item.getItemId());
                 }
             }
@@ -365,7 +367,7 @@ public class MenuBuilder implements Menu {
         final int itemCount = size();
         for (int i = 0; i < itemCount; i++) {
             final MenuItem item = getItem(i);
-            final View v = item.getActionView();
+            final View v = MenuItemCompat.getActionView(item);
             if (v != null && v.getId() != View.NO_ID) {
                 v.restoreHierarchyState(viewStates);
             }
@@ -379,7 +381,7 @@ public class MenuBuilder implements Menu {
         if (expandedId > 0) {
             MenuItem itemToExpand = findItem(expandedId);
             if (itemToExpand != null) {
-                itemToExpand.expandActionView();
+                MenuItemCompat.expandActionView(itemToExpand);
             }
         }
     }
@@ -898,7 +900,7 @@ public class MenuBuilder implements Menu {
 
         boolean invoked = itemImpl.invoke();
 
-        final ActionProvider provider = item.getActionProvider();
+        final ActionProvider provider = itemImpl.getSupportActionProvider();
         final boolean providerHasSubMenu = provider != null && provider.hasSubMenu();
         if (itemImpl.hasCollapsibleActionView()) {
             invoked |= itemImpl.expandActionView();

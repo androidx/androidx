@@ -30,4 +30,12 @@ class MenuItemCompatHoneycomb {
     public static MenuItem setActionView(MenuItem item, View view) {
         return item.setActionView(view);
     }
+
+    public static MenuItem setActionView(MenuItem item, int resId) {
+        return item.setActionView(resId);
+    }
+
+    public static View getActionView(MenuItem item) {
+        return item.getActionView();
+    }
 }

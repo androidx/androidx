@@ -18,13 +18,15 @@ package android.support.v7.internal.view.menu;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.v7.view.ActionProvider;
-import android.support.v7.view.MenuItem;
-import android.support.v7.view.SubMenu;
+import android.support.v4.view.ActionProvider;
+import android.support.v4.internal.view.SupportMenuItem;
+import android.support.v4.view.MenuItemCompat;
 import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 
-class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implements MenuItem {
+class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implements SupportMenuItem {
     private ActionProvider mActionProvider;
 
     MenuItemWrapperHC(android.view.MenuItem object) {
@@ -225,7 +227,17 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
     }
 
     @Override
-    public MenuItem setActionProvider(ActionProvider actionProvider) {
+    public MenuItem setActionProvider(android.view.ActionProvider actionProvider) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public android.view.ActionProvider getActionProvider() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
         mActionProvider = actionProvider;
         mWrappedObject.setActionProvider(actionProvider != null ?
                 new ActionProviderWrapper(actionProvider) : null);
@@ -233,7 +245,7 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
     }
 
     @Override
-    public ActionProvider getActionProvider() {
+    public ActionProvider getSupportActionProvider() {
         return mActionProvider;
     }
 
@@ -256,13 +268,18 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
     }
 
     @Override
-    public MenuItem setOnActionExpandListener(OnActionExpandListener listener) {
+    public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener) {
         // APIv14+ API
         return null;
     }
 
     @Override
-    MenuItem createMenuItemWrapper(android.view.MenuItem menuItem) {
+    SupportMenuItem createMenuItemWrapper(MenuItem menuItem) {
         return new MenuItemWrapperHC(menuItem);
     }
 
