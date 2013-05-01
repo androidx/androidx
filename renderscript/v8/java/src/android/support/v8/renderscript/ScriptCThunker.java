@@ -134,6 +134,10 @@ class ScriptCThunker extends android.renderscript.ScriptC {
     }
 
     void thunkSetVar(int index, BaseObj o) {
+        if (o == null) {
+            setVar(index, 0);
+            return;
+        }
         setVar(index, o.getNObj());
     }
     void thunkSetVar(int index, FieldPacker v) {
