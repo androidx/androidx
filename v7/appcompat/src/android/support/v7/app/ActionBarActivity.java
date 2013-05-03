@@ -51,15 +51,9 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         return mImpl.getSupportActionBar();
     }
 
-    /**
-     * Support library version of {@link Activity#getMenuInflater}.
-     *
-     * <p>Returns a {@link MenuInflater} with this context.
-     *
-     * @return The Activity's menu inflater.
-     */
-    public MenuInflater getSupportMenuInflater() {
-        return mImpl.getSupportMenuInflater();
+    @Override
+    public MenuInflater getMenuInflater() {
+        return mImpl.getMenuInflater();
     }
 
     @Override
