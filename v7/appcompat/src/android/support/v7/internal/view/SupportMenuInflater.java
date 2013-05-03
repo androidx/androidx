@@ -100,6 +100,12 @@ public class SupportMenuInflater extends MenuInflater {
      */
     @Override
     public void inflate(int menuRes, Menu menu) {
+        // If we're not dealing with a SupportMenu instance, let super handle
+        if (!(menu instanceof SupportMenu)) {
+            super.inflate(menuRes, menu);
+            return;
+        }
+
         XmlResourceParser parser = null;
         try {
             parser = mContext.getResources().getLayout(menuRes);

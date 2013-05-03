@@ -83,7 +83,7 @@ abstract class ActionBarActivityDelegate {
         return mActionBar;
     }
 
-    MenuInflater getSupportMenuInflater() {
+    MenuInflater getMenuInflater() {
         if (mMenuInflater == null) {
             mMenuInflater = new SupportMenuInflater(mActivity);
         }
