@@ -988,8 +988,9 @@ public class ViewPager extends ViewGroup {
             float extraWidthLeft = 0.f;
             int itemIndex = curIndex - 1;
             ItemInfo ii = itemIndex >= 0 ? mItems.get(itemIndex) : null;
-            final float leftWidthNeeded = 2.f - curItem.widthFactor +
-                                          (float) getPaddingLeft() / (float) getClientWidth();
+            final int clientWidth = getClientWidth();
+            final float leftWidthNeeded = clientWidth <= 0 ? 0 :
+                    2.f - curItem.widthFactor + (float) getPaddingLeft() / (float) clientWidth;
             for (int pos = mCurItem - 1; pos >= 0; pos--) {
                 if (extraWidthLeft >= leftWidthNeeded && pos < startPos) {
                     if (ii == null) {
@@ -1022,8 +1023,8 @@ public class ViewPager extends ViewGroup {
             itemIndex = curIndex + 1;
             if (extraWidthRight < 2.f) {
                 ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
-                final float rightWidthNeeded = (float) getPaddingRight() / (float) getClientWidth()
-                                               + 2.f;
+                final float rightWidthNeeded = clientWidth <= 0 ? 0 :
+                        (float) getPaddingRight() / (float) clientWidth + 2.f;
                 for (int pos = mCurItem + 1; pos < N; pos++) {
                     if (extraWidthRight >= rightWidthNeeded && pos > endPos) {
                         if (ii == null) {
