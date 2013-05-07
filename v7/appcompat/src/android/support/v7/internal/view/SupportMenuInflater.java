@@ -444,8 +444,8 @@ public class SupportMenuInflater extends MenuInflater {
                             + " Action view already specified.");
                 }
             }
-            if (impl != null && itemActionProvider != null) {
-                impl.setSupportActionProvider(itemActionProvider);
+            if (itemActionProvider != null) {
+                MenuItemCompat.setActionProvider(item, itemActionProvider);
             }
         }
 

@@ -585,7 +585,7 @@ public final class MenuItemImpl implements SupportMenuItem {
         if (mActionView != null) {
             return mActionView;
         } else if (mActionProvider != null) {
-            mActionView = mActionProvider.onCreateActionView();
+            mActionView = mActionProvider.onCreateActionView(this);
             return mActionView;
         } else {
             return null;
@@ -609,9 +609,24 @@ public final class MenuItemImpl implements SupportMenuItem {
     }
 
     public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
+        if (mActionProvider == actionProvider) {
+            return this;
+        }
+
         mActionView = null;
+        if (mActionProvider != null) {
+            mActionProvider.setVisibilityListener(null);
+        }
         mActionProvider = actionProvider;
         mMenu.onItemsChanged(true); // Measurement can be changed
+        if (actionProvider != null) {
+            actionProvider.setVisibilityListener(new ActionProvider.VisibilityListener() {
+                @Override
+                public void onActionProviderVisibilityChanged(boolean isVisible) {
+                    setVisible(isVisible);
+                }
+            });
+        }
         return this;
     }
 
