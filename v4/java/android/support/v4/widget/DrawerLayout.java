@@ -32,6 +32,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewGroupCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -240,6 +241,7 @@ public class DrawerLayout extends ViewGroup {
         setFocusableInTouchMode(true);
 
         ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
+        ViewGroupCompat.setMotionEventSplittingEnabled(this, false);
     }
 
     /**
