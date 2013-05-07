@@ -312,16 +312,19 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
         @Override
         @SuppressWarnings("deprecation")
         public View onCreateActionView() {
-            return mInner.onCreateActionView();
+            return mInner.onCreateActionView(mWrappedObject);
         }
 
-        @Override
+        public boolean overridesItemVisibility() {
+            return mInner.overridesItemVisibility();
+        }
+
         public boolean isVisible() {
-            return true;
+            return mInner.isVisible();
         }
 
-        @Override
         public void refreshVisibility() {
+            mInner.refreshVisibility();
         }
 
         @Override

@@ -99,9 +99,9 @@ class MenuItemWrapperICS extends MenuItemWrapperHC {
         }
     }
 
-    private class ActionProviderWrapper extends android.view.ActionProvider {
+    class ActionProviderWrapper extends android.view.ActionProvider {
 
-        private final ActionProvider mWrappedObject;
+        final ActionProvider mWrappedObject;
 
         public ActionProviderWrapper(ActionProvider object) {
             super(null);
@@ -110,8 +110,21 @@ class MenuItemWrapperICS extends MenuItemWrapperHC {
 
         @Override
         public View onCreateActionView() {
-            return mWrappedObject.onCreateActionView();
+            return mWrappedObject.onCreateActionView(MenuItemWrapperICS.this.mWrappedObject);
         }
+
+        public boolean overridesItemVisibility() {
+            return mWrappedObject.overridesItemVisibility();
+        }
+
+        public boolean isVisible() {
+            return mWrappedObject.isVisible();
+        }
+
+        public void refreshVisibility() {
+            mWrappedObject.refreshVisibility();
+        }
+
 
         @Override
         public boolean onPerformDefaultAction() {
