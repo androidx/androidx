@@ -134,11 +134,6 @@ public class MenuBuilder implements SupportMenu {
     View mHeaderView;
 
     /**
-     * Contains the state of the View hierarchy for all menu views when the menu was frozen.
-     */
-    private SparseArray<Parcelable> mFrozenViewStates;
-
-    /**
      * Prevents onItemsChanged from doing its junk, useful for batching commands that may
      * individually call onItemsChanged.
      */
@@ -414,30 +409,37 @@ public class MenuBuilder implements SupportMenu {
         return item;
     }
 
+    @Override
     public MenuItem add(CharSequence title) {
         return addInternal(0, 0, 0, title);
     }
 
+    @Override
     public MenuItem add(int titleRes) {
         return addInternal(0, 0, 0, mResources.getString(titleRes));
     }
 
+    @Override
     public MenuItem add(int group, int id, int categoryOrder, CharSequence title) {
         return addInternal(group, id, categoryOrder, title);
     }
 
+    @Override
     public MenuItem add(int group, int id, int categoryOrder, int title) {
         return addInternal(group, id, categoryOrder, mResources.getString(title));
     }
 
+    @Override
     public SubMenu addSubMenu(CharSequence title) {
         return addSubMenu(0, 0, 0, title);
     }
 
+    @Override
     public SubMenu addSubMenu(int titleRes) {
         return addSubMenu(0, 0, 0, mResources.getString(titleRes));
     }
 
+    @Override
     public SubMenu addSubMenu(int group, int id, int categoryOrder, CharSequence title) {
         final MenuItemImpl item = (MenuItemImpl) addInternal(group, id, categoryOrder, title);
         final SubMenuBuilder subMenu = new SubMenuBuilder(mContext, this, item);
@@ -446,10 +448,12 @@ public class MenuBuilder implements SupportMenu {
         return subMenu;
     }
 
+    @Override
     public SubMenu addSubMenu(int group, int id, int categoryOrder, int title) {
         return addSubMenu(group, id, categoryOrder, mResources.getString(title));
     }
 
+    @Override
     public int addIntentOptions(int group, int id, int categoryOrder, ComponentName caller,
             Intent[] specifics, Intent intent, int flags, MenuItem[] outSpecificItems) {
         PackageManager pm = mContext.getPackageManager();
@@ -479,10 +483,12 @@ public class MenuBuilder implements SupportMenu {
         return N;
     }
 
+    @Override
     public void removeItem(int id) {
         removeItemAtInt(findItemIndex(id), true);
     }
 
+    @Override
     public void removeGroup(int group) {
         final int i = findGroupIndex(group);
 
@@ -532,6 +538,7 @@ public class MenuBuilder implements SupportMenu {
         onItemsChanged(true);
     }
 
+    @Override
     public void clear() {
         if (mExpandedItem != null) {
             collapseItemActionView(mExpandedItem);
@@ -561,6 +568,7 @@ public class MenuBuilder implements SupportMenu {
         }
     }
 
+    @Override
     public void setGroupCheckable(int group, boolean checkable, boolean exclusive) {
         final int N = mItems.size();
 
@@ -573,6 +581,7 @@ public class MenuBuilder implements SupportMenu {
         }
     }
 
+    @Override
     public void setGroupVisible(int group, boolean visible) {
         final int N = mItems.size();
 
@@ -594,6 +603,7 @@ public class MenuBuilder implements SupportMenu {
         }
     }
 
+    @Override
     public void setGroupEnabled(int group, boolean enabled) {
         final int N = mItems.size();
 
@@ -605,6 +615,7 @@ public class MenuBuilder implements SupportMenu {
         }
     }
 
+    @Override
     public boolean hasVisibleItems() {
         final int size = size();
 
@@ -618,6 +629,7 @@ public class MenuBuilder implements SupportMenu {
         return false;
     }
 
+    @Override
     public MenuItem findItem(int id) {
         final int size = size();
         for (int i = 0; i < size; i++) {
@@ -671,21 +683,22 @@ public class MenuBuilder implements SupportMenu {
         return -1;
     }
 
+    @Override
     public int size() {
         return mItems.size();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public MenuItem getItem(int index) {
         return mItems.get(index);
     }
 
+    @Override
     public boolean isShortcutKey(int keyCode, KeyEvent event) {
         return findItemWithShortcutForKey(keyCode, event) != null;
     }
 
+    @Override
     public void setQwertyMode(boolean isQwerty) {
         mQwertyMode = isQwerty;
 
@@ -780,6 +793,7 @@ public class MenuBuilder implements SupportMenu {
         return 0;
     }
 
+    @Override
     public boolean performShortcut(int keyCode, KeyEvent event, int flags) {
         final MenuItemImpl item = findItemWithShortcutForKey(keyCode, event);
 
@@ -802,6 +816,7 @@ public class MenuBuilder implements SupportMenu {
      * (the ALT-enabled char corresponds to the shortcut) associated
      * with the keyCode.
      */
+    @SuppressWarnings("deprecation")
     void findItemsWithShortcutForKey(List<MenuItemImpl> items, int keyCode, KeyEvent event) {
         final boolean qwerty = isQwertyMode();
         final int metaState = event.getMetaState();
@@ -846,6 +861,7 @@ public class MenuBuilder implements SupportMenu {
      * On the other hand, if two (or more) shortcuts corresponds to the same key,
      * we have to only return the exact match.
      */
+    @SuppressWarnings("deprecation")
     MenuItemImpl findItemWithShortcutForKey(int keyCode, KeyEvent event) {
         // Get all items that can be associated directly or indirectly with the keyCode
         ArrayList<MenuItemImpl> items = mTempShortcutItemList;
@@ -886,6 +902,7 @@ public class MenuBuilder implements SupportMenu {
         return null;
     }
 
+    @Override
     public boolean performIdentifierAction(int id, int flags) {
         // Look for an item whose identifier is the id.
         return performItemAction(findItem(id), flags);
@@ -956,9 +973,7 @@ public class MenuBuilder implements SupportMenu {
         mIsClosing = false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void close() {
         close(true);
     }

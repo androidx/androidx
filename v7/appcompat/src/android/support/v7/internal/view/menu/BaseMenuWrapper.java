@@ -43,7 +43,7 @@ abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
             SupportMenuItem compatItem = mMenuItems.get(frameworkItem);
 
             if (null == compatItem) {
-                compatItem = createMenuItemWrapper(frameworkItem);
+                compatItem = MenuWrapperFactory.createSupportMenuItemWrapper(frameworkItem);
                 mMenuItems.put(frameworkItem, compatItem);
             }
 
@@ -62,7 +62,7 @@ abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
             SubMenu compatSubMenu = mSubMenus.get(frameworkSubMenu);
 
             if (null == compatSubMenu) {
-                compatSubMenu = createSubMenuWrapper(frameworkSubMenu);
+                compatSubMenu = MenuWrapperFactory.createSupportSubMenuWrapper(frameworkSubMenu);
                 mSubMenus.put(frameworkSubMenu, compatSubMenu);
             }
             return compatSubMenu;
@@ -112,9 +112,4 @@ abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
             }
         }
     }
-
-    abstract SupportMenuItem createMenuItemWrapper(android.view.MenuItem menuItem);
-
-    abstract SubMenu createSubMenuWrapper(android.view.SubMenu subMenu);
-
 }
