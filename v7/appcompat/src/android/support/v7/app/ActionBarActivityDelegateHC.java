@@ -219,7 +219,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
         return false;
     }
 
-    static class WindowCallbackWrapper implements Window.Callback {
+    class WindowCallbackWrapper implements Window.Callback {
         final Window.Callback mWrapped;
 
         public WindowCallbackWrapper(Window.Callback wrapped) {
@@ -329,13 +329,13 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
         @Override
         public void onActionModeStarted(android.view.ActionMode mode) {
             mWrapped.onActionModeStarted(mode);
-            onActionModeStarted(mode);
+            ActionBarActivityDelegateHC.this.onActionModeStarted(mode);
         }
 
         @Override
         public void onActionModeFinished(android.view.ActionMode mode) {
             mWrapped.onActionModeFinished(mode);
-            onActionModeFinished(mode);
+            ActionBarActivityDelegateHC.this.onActionModeFinished(mode);
         }
     }
 }

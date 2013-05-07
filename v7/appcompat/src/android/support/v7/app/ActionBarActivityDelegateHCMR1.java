@@ -31,7 +31,8 @@ class ActionBarActivityDelegateHCMR1 extends ActionBarActivityDelegateHC {
         return new WindowCallbackWrapperHCMR1(cb);
     }
 
-    static class WindowCallbackWrapperHCMR1 extends WindowCallbackWrapper {
+    class WindowCallbackWrapperHCMR1 extends WindowCallbackWrapper {
+
         public WindowCallbackWrapperHCMR1(Window.Callback wrapped) {
             super(wrapped);
         }
