@@ -16,14 +16,9 @@
 
 package android.support.v7.internal.view.menu;
 
-import android.support.v4.view.ActionProvider;
-import android.support.v4.internal.view.SupportMenuItem;
 import android.view.MenuItem;
-import android.view.SubMenu;
-import android.view.View;
 
 class MenuItemWrapperICS extends MenuItemWrapperHC {
-
     MenuItemWrapperICS(android.view.MenuItem object) {
         super(object);
     }
@@ -37,17 +32,6 @@ class MenuItemWrapperICS extends MenuItemWrapperHC {
     @Override
     public android.view.ActionProvider getActionProvider() {
         return mWrappedObject.getActionProvider();
-    }
-
-    @Override
-    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
-        mWrappedObject.setActionProvider(new ActionProviderWrapper(actionProvider));
-        return this;
-    }
-
-    @Override
-    public ActionProvider getSupportActionProvider() {
-        return ((ActionProviderWrapper) mWrappedObject.getActionProvider()).getWrappedObject();
     }
 
     @Override
@@ -67,18 +51,9 @@ class MenuItemWrapperICS extends MenuItemWrapperHC {
 
     @Override
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
-        mWrappedObject.setOnActionExpandListener(new OnActionExpandListenerWrapper(listener));
+        mWrappedObject.setOnActionExpandListener(listener != null ?
+                new OnActionExpandListenerWrapper(listener) : null);
         return this;
-    }
-
-    @Override
-    SupportMenuItem createMenuItemWrapper(MenuItem menuItem) {
-        return new MenuItemWrapperICS(menuItem);
-    }
-
-    @Override
-    SubMenu createSubMenuWrapper(android.view.SubMenu subMenu) {
-        return new SubMenuWrapperICS(subMenu);
     }
 
     private class OnActionExpandListenerWrapper extends BaseWrapper<MenuItem.OnActionExpandListener>
@@ -98,52 +73,4 @@ class MenuItemWrapperICS extends MenuItemWrapperHC {
             return mWrappedObject.onMenuItemActionCollapse(getMenuItemWrapper(item));
         }
     }
-
-    class ActionProviderWrapper extends android.view.ActionProvider {
-
-        final ActionProvider mWrappedObject;
-
-        public ActionProviderWrapper(ActionProvider object) {
-            super(null);
-            mWrappedObject = object;
-        }
-
-        @Override
-        public View onCreateActionView() {
-            return mWrappedObject.onCreateActionView(MenuItemWrapperICS.this.mWrappedObject);
-        }
-
-        public boolean overridesItemVisibility() {
-            return mWrappedObject.overridesItemVisibility();
-        }
-
-        public boolean isVisible() {
-            return mWrappedObject.isVisible();
-        }
-
-        public void refreshVisibility() {
-            mWrappedObject.refreshVisibility();
-        }
-
-
-        @Override
-        public boolean onPerformDefaultAction() {
-            return mWrappedObject.onPerformDefaultAction();
-        }
-
-        @Override
-        public boolean hasSubMenu() {
-            return mWrappedObject.hasSubMenu();
-        }
-
-        @Override
-        public void onPrepareSubMenu(android.view.SubMenu subMenu) {
-            mWrappedObject.onPrepareSubMenu(getSubMenuWrapper(subMenu));
-        }
-
-        ActionProvider getWrappedObject() {
-            return mWrappedObject;
-        }
-    }
-
 }

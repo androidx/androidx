@@ -25,7 +25,7 @@ import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
-import android.support.v7.internal.view.menu.MenuWrapper;
+import android.support.v7.internal.view.menu.MenuWrapperFactory;
 import android.support.v7.internal.widget.ActionBarContainer;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
@@ -311,7 +311,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            item = MenuWrapper.createMenuItemWrapper(item);
+            item = MenuWrapperFactory.createMenuItemWrapper(item);
         }
         return mActivity.superOnMenuItemSelected(featureId, item);
     }

@@ -21,7 +21,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.internal.view.ActionModeWrapper;
-import android.support.v7.internal.view.menu.MenuWrapper;
+import android.support.v7.internal.view.menu.MenuWrapperFactory;
 import android.support.v7.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -128,7 +128,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     public boolean onCreatePanelMenu(int featureId, Menu menu) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL || featureId == Window.FEATURE_ACTION_BAR) {
             if (mMenu == null) {
-                mMenu = MenuWrapper.createMenuWrapper(menu);
+                mMenu = MenuWrapperFactory.createMenuWrapper(menu);
             }
             return mActivity.superOnCreatePanelMenu(featureId, mMenu);
         }
@@ -146,7 +146,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            item = MenuWrapper.createMenuItemWrapper(item);
+            item = MenuWrapperFactory.createMenuItemWrapper(item);
         }
         return mActivity.superOnMenuItemSelected(featureId, item);
     }

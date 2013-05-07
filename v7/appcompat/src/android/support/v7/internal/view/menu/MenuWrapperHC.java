@@ -168,15 +168,4 @@ class MenuWrapperHC extends BaseMenuWrapper<android.view.Menu> implements Suppor
     public void setQwertyMode(boolean isQwerty) {
         mWrappedObject.setQwertyMode(isQwerty);
     }
-
-    @Override
-    SupportMenuItem createMenuItemWrapper(android.view.MenuItem menuItem) {
-        return new MenuItemWrapperHC(menuItem);
-    }
-
-    @Override
-    SubMenu createSubMenuWrapper(android.view.SubMenu subMenu) {
-        return new SubMenuWrapperHC(subMenu);
-    }
-
 }

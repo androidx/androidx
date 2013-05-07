@@ -27,8 +27,6 @@ import android.view.SubMenu;
 import android.view.View;
 
 class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implements SupportMenuItem {
-    private ActionProvider mActionProvider;
-
     MenuItemWrapperHC(android.view.MenuItem object) {
         super(object);
     }
@@ -188,8 +186,8 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
 
     @Override
     public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener menuItemClickListener) {
-        mWrappedObject.setOnMenuItemClickListener(
-                new OnMenuItemClickListenerWrapper(menuItemClickListener));
+        mWrappedObject.setOnMenuItemClickListener(menuItemClickListener != null ?
+                new OnMenuItemClickListenerWrapper(menuItemClickListener) : null);
         return this;
     }
 
@@ -227,26 +225,29 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
     }
 
     @Override
-    public MenuItem setActionProvider(android.view.ActionProvider actionProvider) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public android.view.ActionProvider getActionProvider() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
-        mActionProvider = actionProvider;
         mWrappedObject.setActionProvider(actionProvider != null ?
-                new ActionProviderWrapper(actionProvider) : null);
+                createActionProviderWrapper(actionProvider) : null);
         return this;
     }
 
     @Override
     public ActionProvider getSupportActionProvider() {
-        return mActionProvider;
+        ActionProviderWrapper providerWrapper =
+                (ActionProviderWrapper)mWrappedObject.getActionProvider();
+        return providerWrapper.mInner;
+    }
+
+    @Override
+    public MenuItem setActionProvider(android.view.ActionProvider actionProvider) {
+        // APIv14+ API
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public android.view.ActionProvider getActionProvider() {
+        // APIv14+ API
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -269,23 +270,19 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
 
     @Override
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
+        // APIv14+ API
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener) {
+    public SupportMenuItem setSupportOnActionExpandListener(
+            MenuItemCompat.OnActionExpandListener listener) {
         // APIv14+ API
         return null;
     }
 
-    @Override
-    SupportMenuItem createMenuItemWrapper(MenuItem menuItem) {
-        return new MenuItemWrapperHC(menuItem);
-    }
-
-    @Override
-    SubMenu createSubMenuWrapper(android.view.SubMenu subMenu) {
-        return new SubMenuWrapperHC(subMenu);
+    ActionProviderWrapper createActionProviderWrapper(ActionProvider provider) {
+        return new ActionProviderWrapper(provider);
     }
 
     private class OnMenuItemClickListenerWrapper extends BaseWrapper<OnMenuItemClickListener>
@@ -301,8 +298,8 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
         }
     }
 
-    private final class ActionProviderWrapper extends android.view.ActionProvider {
-        private final ActionProvider mInner;
+    class ActionProviderWrapper extends android.view.ActionProvider {
+        final ActionProvider mInner;
 
         public ActionProviderWrapper(ActionProvider inner) {
             super(inner.getContext());
@@ -313,18 +310,6 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
         @SuppressWarnings("deprecation")
         public View onCreateActionView() {
             return mInner.onCreateActionView(mWrappedObject);
-        }
-
-        public boolean overridesItemVisibility() {
-            return mInner.overridesItemVisibility();
-        }
-
-        public boolean isVisible() {
-            return mInner.isVisible();
-        }
-
-        public void refreshVisibility() {
-            mInner.refreshVisibility();
         }
 
         @Override
@@ -339,7 +324,7 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
 
         @Override
         public void onPrepareSubMenu(android.view.SubMenu subMenu) {
-            mInner.onPrepareSubMenu(new SubMenuWrapperHC(subMenu));
+            mInner.onPrepareSubMenu(getSubMenuWrapper(subMenu));
         }
     }
 }

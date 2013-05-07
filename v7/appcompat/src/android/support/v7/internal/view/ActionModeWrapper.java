@@ -17,7 +17,7 @@
 package android.support.v7.internal.view;
 
 import android.content.Context;
-import android.support.v7.internal.view.menu.MenuWrapper;
+import android.support.v7.internal.view.menu.MenuWrapperFactory;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -83,7 +83,7 @@ public class ActionModeWrapper extends ActionMode {
 
     @Override
     public Menu getMenu() {
-        return MenuWrapper.createMenuWrapper(mWrappedObject.getMenu());
+        return MenuWrapperFactory.createMenuWrapper(mWrappedObject.getMenu());
     }
 
     @Override
@@ -138,20 +138,20 @@ public class ActionModeWrapper extends ActionMode {
         @Override
         public boolean onCreateActionMode(android.view.ActionMode mode, android.view.Menu menu) {
             return mWrappedCallback.onCreateActionMode(getActionModeWrapper(mode),
-                    MenuWrapper.createMenuWrapper(menu));
+                    MenuWrapperFactory.createMenuWrapper(menu));
         }
 
         @Override
         public boolean onPrepareActionMode(android.view.ActionMode mode, android.view.Menu menu) {
             return mWrappedCallback.onPrepareActionMode(getActionModeWrapper(mode),
-                    MenuWrapper.createMenuWrapper(menu));
+                    MenuWrapperFactory.createMenuWrapper(menu));
         }
 
         @Override
         public boolean onActionItemClicked(android.view.ActionMode mode,
                 android.view.MenuItem item) {
             return mWrappedCallback.onActionItemClicked(getActionModeWrapper(mode),
-                    MenuWrapper.createMenuItemWrapper(item));
+                    MenuWrapperFactory.createMenuItemWrapper(item));
         }
 
         @Override
