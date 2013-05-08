@@ -153,6 +153,7 @@
     <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_dark</item>
 
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse</item>
         <item name="actionBarWidgetTheme">@style/Theme.AppCompat</item>
         <item name="actionBarDivider">@drawable/abc_list_divider_holo_dark</item>
