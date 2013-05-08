@@ -17,12 +17,12 @@
 package android.support.v7.internal.view.menu;
 
 import android.graphics.drawable.Drawable;
+import android.support.v4.internal.view.SupportSubMenu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
-class SubMenuWrapperHC extends MenuWrapperHC implements SubMenu {
-
+class SubMenuWrapperHC extends MenuWrapperHC implements SupportSubMenu {
     SubMenuWrapperHC(android.view.SubMenu subMenu) {
         super(subMenu);
     }
