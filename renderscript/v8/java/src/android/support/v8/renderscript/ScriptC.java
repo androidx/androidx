@@ -103,8 +103,8 @@ public class ScriptC extends Script {
         String resName = resources.getResourceEntryName(resourceID);
         String cachePath = rs.getApplicationContext().getCacheDir().toString();
 
-        Log.v(TAG, "Create script for resource = " + resName + ", " + pgmLength + ", " + pgm);
-        Log.v(TAG, " path = " + cachePath);
+        //        Log.v(TAG, "Create script for resource = " + resName + ", " + pgmLength + ", " + pgm);
+        //Log.v(TAG, " path = " + cachePath);
         return rs.nScriptCCreate(resName, cachePath, pgm, pgmLength);
     }
 }
