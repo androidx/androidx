@@ -846,7 +846,7 @@ public class RenderScript {
                 } catch(InterruptedException e) {
                 }
             }
-            Log.d(LOG_TAG, "MessageThread exiting.");
+            //Log.d(LOG_TAG, "MessageThread exiting.");
         }
     }
 
