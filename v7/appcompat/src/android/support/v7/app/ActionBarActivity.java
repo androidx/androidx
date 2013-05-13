@@ -37,7 +37,8 @@ import android.view.Window;
 /**
  * Base class for activities that use the support library action bar features.
  */
-public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback {
+public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback,
+        TaskStackBuilder.SupportParentable {
     ActionBarActivityDelegate mImpl;
 
     /**
@@ -328,11 +329,34 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     public void onPrepareSupportNavigateUpTaskStack(TaskStackBuilder builder) {
     }
 
+    /**
+     * This method is called whenever the user chooses to navigate Up within your application's
+     * activity hierarchy from the action bar.
+     *
+     * <p>If a parent was specified in the manifest for this activity or an activity-alias to it,
+     * default Up navigation will be handled automatically. See
+     * {@link #getSupportParentActivityIntent()} for how to specify the parent. If any activity
+     * along the parent chain requires extra Intent arguments, the Activity subclass
+     * should override the method {@link #onPrepareSupportNavigateUpTaskStack(TaskStackBuilder)}
+     * to supply those arguments.</p>
+     *
+     * <p>See <a href="{@docRoot}guide/topics/fundamentals/tasks-and-back-stack.html">Tasks and
+     * Back Stack</a> from the developer guide and
+     * <a href="{@docRoot}design/patterns/navigation.html">Navigation</a> from the design guide
+     * for more information about navigating within your app.</p>
+     *
+     * <p>See the {@link TaskStackBuilder} class and the Activity methods
+     * {@link #getSupportParentActivityIntent()}, {@link #supportShouldUpRecreateTask(Intent)}, and
+     * {@link #supportNavigateUpTo(Intent)} for help implementing custom Up navigation.</p>
+     *
+     * @return true if Up navigation completed successfully and this Activity was finished,
+     *         false otherwise.
+     */
     public boolean onSupportNavigateUp() {
-        Intent upIntent = NavUtils.getParentActivityIntent(this);
+        Intent upIntent = getSupportParentActivityIntent();
 
         if (upIntent != null) {
-            if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+            if (supportShouldUpRecreateTask(upIntent)) {
                 TaskStackBuilder b = TaskStackBuilder.create(this);
                 onCreateSupportNavigateUpTaskStack(b);
                 onPrepareSupportNavigateUpTaskStack(b);
@@ -348,11 +372,57 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             } else {
                 // This activity is part of the application's task, so simply
                 // navigate up to the hierarchical parent activity.
-                NavUtils.navigateUpTo(this, upIntent);
+                supportNavigateUpTo(upIntent);
             }
             return true;
         }
         return false;
+    }
+
+    /**
+     * Obtain an {@link Intent} that will launch an explicit target activity
+     * specified by sourceActivity's {@link NavUtils#PARENT_ACTIVITY} &lt;meta-data&gt;
+     * element in the application's manifest. If the device is running
+     * Jellybean or newer, the android:parentActivityName attribute will be preferred
+     * if it is present.
+     *
+     * @return a new Intent targeting the defined parent activity of sourceActivity
+     */
+    public Intent getSupportParentActivityIntent() {
+        return NavUtils.getParentActivityIntent(this);
+    }
+
+    /**
+     * Returns true if sourceActivity should recreate the task when navigating 'up'
+     * by using targetIntent.
+     *
+     * <p>If this method returns false the app can trivially call
+     * {@link #supportNavigateUpTo(Intent)} using the same parameters to correctly perform
+     * up navigation. If this method returns false, the app should synthesize a new task stack
+     * by using {@link TaskStackBuilder} or another similar mechanism to perform up navigation.</p>
+     *
+     * @param targetIntent An intent representing the target destination for up navigation
+     * @return true if navigating up should recreate a new task stack, false if the same task
+     *         should be used for the destination
+     */
+    public boolean supportShouldUpRecreateTask(Intent targetIntent) {
+        return NavUtils.shouldUpRecreateTask(this, targetIntent);
+    }
+
+    /**
+     * Navigate from sourceActivity to the activity specified by upIntent, finishing sourceActivity
+     * in the process. upIntent will have the flag {@link Intent#FLAG_ACTIVITY_CLEAR_TOP} set
+     * by this method, along with any others required for proper up navigation as outlined
+     * in the Android Design Guide.
+     *
+     * <p>This method should be used when performing up navigation from within the same task
+     * as the destination. If up navigation should cross tasks in some cases, see
+     * {@link #supportShouldUpRecreateTask(Intent)}.</p>
+     *
+     * @param upIntent An intent representing the target destination for up navigation
+     */
+    public void supportNavigateUpTo(Intent upIntent) {
+        NavUtils.navigateUpTo(this, upIntent);
     }
 
 }
