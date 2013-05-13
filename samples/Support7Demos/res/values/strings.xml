@@ -70,7 +70,6 @@
     <string name="toggle_navigation">Navigation</string>
     <string name="cycle_custom_gravity">Cycle Custom View Gravity</string>
     <string name="toggle_visibility">Toggle Visibility</string>
-    <string name="toggle_system_ui">Toggle System UI</string>
 
     <string name="display_options_custom_button">Custom View!</string>
     <string name="display_options_menu_item">Menu Item</string>

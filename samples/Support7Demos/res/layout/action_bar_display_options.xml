@@ -51,9 +51,5 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/toggle_visibility" />
-        <Button android:id="@+id/toggle_system_ui"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/toggle_system_ui" />
     </LinearLayout>
 </ScrollView>

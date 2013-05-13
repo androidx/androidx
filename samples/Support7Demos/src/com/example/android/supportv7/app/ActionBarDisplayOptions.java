@@ -22,9 +22,9 @@ import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+
 import com.example.android.supportv7.R;
 
 /**
@@ -48,7 +48,6 @@ public class ActionBarDisplayOptions extends ActionBarActivity
         findViewById(R.id.toggle_navigation).setOnClickListener(this);
         findViewById(R.id.cycle_custom_gravity).setOnClickListener(this);
         findViewById(R.id.toggle_visibility).setOnClickListener(this);
-        findViewById(R.id.toggle_system_ui).setOnClickListener(this);
 
         // Configure several action bar elements that will be toggled by display options.
         mCustomView = getLayoutInflater().inflate(R.layout.action_bar_display_options_custom, null);
@@ -123,15 +122,6 @@ public class ActionBarDisplayOptions extends ActionBarActivity
                     bar.hide();
                 } else {
                     bar.show();
-                }
-                return;
-            case R.id.toggle_system_ui:
-                if ((getWindow().getDecorView().getSystemUiVisibility()
-                        & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
-                    getWindow().getDecorView().setSystemUiVisibility(0);
-                } else {
-                    getWindow().getDecorView().setSystemUiVisibility(
-                            View.SYSTEM_UI_FLAG_FULLSCREEN);
                 }
                 return;
         }
