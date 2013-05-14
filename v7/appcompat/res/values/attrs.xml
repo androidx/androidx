@@ -474,5 +474,6 @@
     <!-- Default Spinner style. -->
     <attr name="spinnerDropDownItemStyle" format="reference" />
 
-
+    <!-- Specifies whether the theme is light, otherwise it is dark. -->
+    <attr name="isLightTheme" format="boolean" />
 </resources>
