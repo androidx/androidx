@@ -26,7 +26,6 @@ import android.os.DeadObjectException;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v7.media.MediaRouteProvider.ProviderDescriptor;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -54,7 +53,7 @@ import java.util.ArrayList;
  */
 public abstract class MediaRouteProviderService extends Service {
     private static final String TAG = "MediaRouteProviderService";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final ArrayList<ClientRecord> mClients = new ArrayList<ClientRecord>();
     private final ReceiveHandler mReceiveHandler;
@@ -63,7 +62,7 @@ public abstract class MediaRouteProviderService extends Service {
     private final ProviderCallback mProviderCallback;
 
     private MediaRouteProvider mProvider;
-    private int mActiveScanClientCount;
+    private MediaRouteDiscoveryRequest mCompositeDiscoveryRequest;
 
     /**
      * The {@link Intent} that must be declared as handled by the service.
@@ -153,18 +152,12 @@ public abstract class MediaRouteProviderService extends Service {
     static final int CLIENT_MSG_ROUTE_CONTROL_REQUEST = 9;
 
     /** (client v1)
-     * Start active scan.
+     * Sets the discovery request.
      * - replyTo : client messenger
      * - arg1    : request id
+     * - obj     : discovery request bundle, or null if none
      */
-    static final int CLIENT_MSG_START_ACTIVE_SCAN = 10;
-
-    /** (client v1)
-     * Stop active scan.
-     * - replyTo : client messenger
-     * - arg1    : request id
-     */
-    static final int CLIENT_MSG_STOP_ACTIVE_SCAN = 11;
+    static final int CLIENT_MSG_SET_DISCOVERY_REQUEST = 10;
 
     static final String CLIENT_DATA_ROUTE_ID = "routeId";
     static final String CLIENT_DATA_VOLUME = "volume";
@@ -277,7 +270,7 @@ public abstract class MediaRouteProviderService extends Service {
                                 + ".  Service package name: " + getPackageName() + ".");
                     }
                     mProvider = provider;
-                    mProvider.addCallback(mProviderCallback);
+                    mProvider.setCallback(mProviderCallback);
                 }
             }
             if (mProvider != null) {
@@ -298,7 +291,7 @@ public abstract class MediaRouteProviderService extends Service {
                         Log.d(TAG, client + ": Registered, version=" + version);
                     }
                     if (requestId != 0) {
-                        ProviderDescriptor descriptor = mProvider.getDescriptor();
+                        MediaRouteProviderDescriptor descriptor = mProvider.getDescriptor();
                         sendReply(messenger, SERVICE_MSG_REGISTERED,
                                 requestId, SERVICE_VERSION_CURRENT,
                                 descriptor != null ? descriptor.asBundle() : null, null);
@@ -480,14 +473,15 @@ public abstract class MediaRouteProviderService extends Service {
         return false;
     }
 
-    private boolean onStartActiveScan(Messenger messenger, int requestId) {
+    private boolean onSetDiscoveryRequest(Messenger messenger, int requestId,
+            MediaRouteDiscoveryRequest request) {
         ClientRecord client = getClient(messenger);
         if (client != null) {
-            boolean actuallyStarted = client.startActiveScan();
+            boolean actuallyChanged = client.setDiscoveryRequest(request);
             if (DEBUG) {
-                Log.d(TAG, client + ": Start active scan"
-                        + ", actuallyStarted=" + actuallyStarted
-                        + ", activeScanClientCount=" + mActiveScanClientCount);
+                Log.d(TAG, client + ": Set discovery request, request=" + request
+                        + ", actuallyChanged=" + actuallyChanged
+                        + ", compositeDiscoveryRequest=" + mCompositeDiscoveryRequest);
             }
             sendGenericSuccess(messenger, requestId);
             return true;
@@ -495,22 +489,7 @@ public abstract class MediaRouteProviderService extends Service {
         return false;
     }
 
-    private boolean onStopActiveScan(Messenger messenger, int requestId) {
-        ClientRecord client = getClient(messenger);
-        if (client != null) {
-            boolean actuallyStopped = client.stopActiveScan();
-            if (DEBUG) {
-                Log.d(TAG, client + ": Stop active scan"
-                        + ", actuallyStopped= " + actuallyStopped
-                        + ", activeScanClientCount=" + mActiveScanClientCount);
-            }
-            sendGenericSuccess(messenger, requestId);
-            return true;
-        }
-        return false;
-    }
-
-    private void sendDescriptorChanged(MediaRouteProvider.ProviderDescriptor descriptor) {
+    private void sendDescriptorChanged(MediaRouteProviderDescriptor descriptor) {
         Bundle descriptorBundle = descriptor != null ? descriptor.asBundle() : null;
         final int count = mClients.size();
         for (int i = 0; i < count; i++) {
@@ -521,6 +500,39 @@ public abstract class MediaRouteProviderService extends Service {
                 Log.d(TAG, client + ": Sent descriptor change event, descriptor=" + descriptor);
             }
         }
+    }
+
+    private boolean updateCompositeDiscoveryRequest() {
+        MediaRouteDiscoveryRequest composite = null;
+        MediaRouteSelector.Builder selectorBuilder = null;
+        boolean activeScan = false;
+        final int count = mClients.size();
+        for (int i = 0; i < count; i++) {
+            MediaRouteDiscoveryRequest request = mClients.get(i).mDiscoveryRequest;
+            if (request != null
+                    && (!request.getSelector().isEmpty() || request.isActiveScan())) {
+                activeScan |= request.isActiveScan();
+                if (composite == null) {
+                    composite = request;
+                } else {
+                    if (selectorBuilder == null) {
+                        selectorBuilder = new MediaRouteSelector.Builder(composite.getSelector());
+                    }
+                    selectorBuilder.addSelector(request.getSelector());
+                }
+            }
+        }
+        if (selectorBuilder != null) {
+            composite = new MediaRouteDiscoveryRequest(selectorBuilder.build(), activeScan);
+        }
+        if (mCompositeDiscoveryRequest != composite
+                && (mCompositeDiscoveryRequest == null
+                        || !mCompositeDiscoveryRequest.equals(composite))) {
+            mCompositeDiscoveryRequest = composite;
+            mProvider.setDiscoveryRequest(composite);
+            return true;
+        }
+        return false;
     }
 
     private ClientRecord getClient(Messenger messenger) {
@@ -575,7 +587,7 @@ public abstract class MediaRouteProviderService extends Service {
     /**
      * Returns true if the messenger object is valid.
      * <p>
-     * The messenger contructor and unparceling code does not check whether the
+     * The messenger constructor and unparceling code does not check whether the
      * provided IBinder is a valid IMessenger object.  As a result, it's possible
      * for a peer to send an invalid IBinder that will result in crashes downstream.
      * This method checks that the messenger is in a valid state.
@@ -605,7 +617,7 @@ public abstract class MediaRouteProviderService extends Service {
     private final class ProviderCallback extends MediaRouteProvider.Callback {
         @Override
         public void onDescriptorChanged(MediaRouteProvider provider,
-                ProviderDescriptor descriptor) {
+                MediaRouteProviderDescriptor descriptor) {
             sendDescriptorChanged(descriptor);
         }
     }
@@ -613,7 +625,7 @@ public abstract class MediaRouteProviderService extends Service {
     private final class ClientRecord implements DeathRecipient {
         public final Messenger mMessenger;
         public final int mVersion;
-        public boolean mActiveScanRequested;
+        public MediaRouteDiscoveryRequest mDiscoveryRequest;
 
         private final SparseArray<MediaRouteProvider.RouteController> mControllers =
                 new SparseArray<MediaRouteProvider.RouteController>();
@@ -642,7 +654,7 @@ public abstract class MediaRouteProviderService extends Service {
 
             mMessenger.getBinder().unlinkToDeath(this, 0);
 
-            stopActiveScan();
+            setDiscoveryRequest(null);
         }
 
         public boolean hasMessenger(Messenger other) {
@@ -673,24 +685,11 @@ public abstract class MediaRouteProviderService extends Service {
             return mControllers.get(controllerId);
         }
 
-        public boolean startActiveScan() {
-            if (!mActiveScanRequested) {
-                mActiveScanRequested = true;
-                mActiveScanClientCount += 1;
-                if (mActiveScanClientCount == 1) {
-                    mProvider.onStartActiveScan();
-                }
-            }
-            return false;
-        }
-
-        public boolean stopActiveScan() {
-            if (mActiveScanRequested) {
-                mActiveScanRequested = false;
-                mActiveScanClientCount -= 1;
-                if (mActiveScanClientCount == 0) {
-                    mProvider.onStopActiveScan();
-                }
+        public boolean setDiscoveryRequest(MediaRouteDiscoveryRequest request) {
+            if (mDiscoveryRequest != request
+                    && (mDiscoveryRequest == null || !mDiscoveryRequest.equals(request))) {
+                mDiscoveryRequest = request;
+                return updateCompositeDiscoveryRequest();
             }
             return false;
         }
@@ -803,11 +802,14 @@ public abstract class MediaRouteProviderService extends Service {
                         }
                         break;
 
-                    case CLIENT_MSG_START_ACTIVE_SCAN:
-                        return service.onStartActiveScan(messenger, requestId);
-
-                    case CLIENT_MSG_STOP_ACTIVE_SCAN:
-                        return service.onStopActiveScan(messenger, requestId);
+                    case CLIENT_MSG_SET_DISCOVERY_REQUEST: {
+                        if (obj instanceof Bundle) {
+                            MediaRouteDiscoveryRequest request =
+                                    MediaRouteDiscoveryRequest.fromBundle((Bundle)obj);
+                            return service.onSetDiscoveryRequest(
+                                    messenger, requestId, request.isValid() ? request : null);
+                        }
+                    }
                 }
             }
             return false;
