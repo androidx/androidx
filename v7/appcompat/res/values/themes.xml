@@ -27,6 +27,7 @@
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat" parent="Theme.Base.AppCompat">
+        <item name="isLightTheme">false</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
@@ -46,6 +47,7 @@
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
     <style name="Theme.AppCompat.Light" parent="Theme.Base.AppCompat.Light">
+        <item name="isLightTheme">true</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
@@ -66,6 +68,7 @@
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat.Light.DarkActionBar"
            parent="Theme.Base.AppCompat.Light.DarkActionBar">
+        <item name="isLightTheme">true</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
