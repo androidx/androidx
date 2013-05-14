@@ -14,12 +14,27 @@
 
 LOCAL_PATH := $(call my-dir)
 
+# Build the resources using the current SDK version.
+# We do this here because the final static library must be compiled with an older
+# SDK version than the resources.  The resources library and the R class that it
+# contains will not be linked into the final static library.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v7-mediarouter-res
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
+	frameworks/support/v7/appcompat/res
+LOCAL_AAPT_FLAGS := \
+	--auto-add-overlay \
+	--extra-packages android.support.v7.appcompat
+LOCAL_JAR_EXCLUDE_FILES := none
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
 # A helper sub-library that makes direct use of JellyBean APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-jellybean
 LOCAL_SDK_VERSION := 16
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # A helper sub-library that makes direct use of JellyBean MR1 APIs.
@@ -27,7 +42,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-jellybean-mr1
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -36,7 +50,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-jellybean-mr2
 LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr2)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -46,11 +59,10 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter
-LOCAL_SDK_VERSION := 4
+LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr2
-LOCAL_JAVA_LIBRARIES := android-support-v4
+LOCAL_JAVA_LIBRARIES := android-support-v4 android-support-v7-mediarouter-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
