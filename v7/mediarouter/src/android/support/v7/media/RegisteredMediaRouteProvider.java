@@ -34,6 +34,7 @@ import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Maintains a connection to a particular media route provider service.
@@ -41,7 +42,7 @@ import java.util.ArrayList;
 final class RegisteredMediaRouteProvider extends MediaRouteProvider
         implements ServiceConnection {
     private static final String TAG = "RegisteredMediaRouteProvider";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final ComponentName mComponentName;
     private final PrivateHandler mPrivateHandler;
@@ -50,7 +51,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     private boolean mBound;
     private Connection mActiveConnection;
     private boolean mConnectionReady;
-    private boolean mActiveScanRequested;
 
     public RegisteredMediaRouteProvider(Context context, ComponentName componentName) {
         super(context, new ProviderMetadata(componentName.getPackageName()));
@@ -61,11 +61,13 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
     @Override
     public RouteController onCreateRouteController(String routeId) {
-        ProviderDescriptor descriptor = getDescriptor();
+        MediaRouteProviderDescriptor descriptor = getDescriptor();
         if (descriptor != null) {
-            RouteDescriptor[] routes = descriptor.getRoutes();
-            for (int i = 0; i < routes.length; i++) {
-                if (routes[i].getId().equals(routeId)) {
+            List<MediaRouteDescriptor> routes = descriptor.getRoutes();
+            final int count = routes.size();
+            for (int i = 0; i < count; i++) {
+                final MediaRouteDescriptor route = routes.get(i);
+                if (route.getId().equals(routeId)) {
                     Controller controller = new Controller(routeId);
                     mControllers.add(controller);
                     if (mConnectionReady) {
@@ -79,18 +81,9 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     }
 
     @Override
-    public void onStartActiveScan() {
+    public void onDiscoveryRequestChanged(MediaRouteDiscoveryRequest request) {
         if (mConnectionReady) {
-            mActiveScanRequested = true;
-            mActiveConnection.startActiveScan();
-        }
-    }
-
-    @Override
-    public void onStopActiveScan() {
-        if (mConnectionReady) {
-            mActiveScanRequested = false;
-            mActiveConnection.stopActiveScan();
+            mActiveConnection.setDiscoveryRequest(request);
         }
     }
 
@@ -174,8 +167,10 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         if (mActiveConnection == connection) {
             mConnectionReady = true;
             attachControllersToConnection();
-            if (mActiveScanRequested) {
-                mActiveConnection.startActiveScan();
+
+            MediaRouteDiscoveryRequest request = getDiscoveryRequest();
+            if (request != null) {
+                mActiveConnection.setDiscoveryRequest(request);
             }
         }
     }
@@ -199,7 +194,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     }
 
     private void onConnectionDescriptorChanged(Connection connection,
-            ProviderDescriptor descriptor) {
+            MediaRouteProviderDescriptor descriptor) {
         if (mActiveConnection == connection) {
             if (DEBUG) {
                 Log.d(TAG, this + ": Descriptor changed, descriptor=" + descriptor);
@@ -411,7 +406,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                 mPendingRegisterRequestId = 0;
                 mServiceVersion = serviceVersion;
                 onConnectionDescriptorChanged(this,
-                        ProviderDescriptor.fromBundle(descriptorBundle));
+                        MediaRouteProviderDescriptor.fromBundle(descriptorBundle));
                 onConnectionReady(this);
                 return true;
             }
@@ -421,7 +416,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         public boolean onDescriptorChanged(Bundle descriptorBundle) {
             if (mServiceVersion != 0) {
                 onConnectionDescriptorChanged(this,
-                        ProviderDescriptor.fromBundle(descriptorBundle));
+                        MediaRouteProviderDescriptor.fromBundle(descriptorBundle));
                 return true;
             }
             return false;
@@ -499,14 +494,9 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             return false;
         }
 
-        public void startActiveScan() {
-            sendRequest(MediaRouteProviderService.CLIENT_MSG_START_ACTIVE_SCAN,
-                    mNextRequestId++, 0, null, null);
-        }
-
-        public void stopActiveScan() {
-            sendRequest(MediaRouteProviderService.CLIENT_MSG_STOP_ACTIVE_SCAN,
-                    mNextRequestId++, 0, null, null);
+        public void setDiscoveryRequest(MediaRouteDiscoveryRequest request) {
+            sendRequest(MediaRouteProviderService.CLIENT_MSG_SET_DISCOVERY_REQUEST,
+                    mNextRequestId++, 0, request != null ? request.asBundle() : null, null);
         }
 
         private boolean sendRequest(int what, int requestId, int arg, Object obj, Bundle data) {

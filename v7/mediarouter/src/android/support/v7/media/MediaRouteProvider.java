@@ -18,16 +18,10 @@ package android.support.v7.media;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.text.TextUtils;
-
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Media route providers are used to publish additional media routes for
@@ -35,25 +29,43 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * as a service to publish additional media routes to all applications
  * in the system.
  * <p>
- * Applications and services should extend this class to publish additional media routes
- * to the {@link MediaRouter}.  To make additional media routes available within
- * your application, call {@link MediaRouter#addProvider} to add your provider to
- * the media router.  To make additional media routes available to all applications
- * in the system, register a media route provider service in your manifest.
+ * The purpose of a media route provider is to discover media routes that satisfy
+ * the criteria specified by the current {@link MediaRouteDiscoveryRequest} and publish a
+ * {@link MediaRouteProviderDescriptor} with information about each route by calling
+ * {@link #setDescriptor} to notify the currently registered {@link Callback}.
+ * </p><p>
+ * The provider should watch for changes to the discovery request by implementing
+ * {@link #onDiscoveryRequestChanged} and updating the set of routes that it is
+ * attempting to discover.  It should also handle route control requests such
+ * as volume changes or {@link MediaControlIntent media control intents}
+ * by implementing {@link #onCreateRouteController} to return a {@link RouteController}
+ * for a particular route.
+ * </p><p>
+ * A media route provider may be used privately within the scope of a single
+ * application process by calling {@link MediaRouter#addProvider MediaRouter.addProvider}
+ * to add it to the local {@link MediaRouter}.  A media route provider may also be made
+ * available globally to all applications by registering a {@link MediaRouteProviderService}
+ * in the provider's manifest.  When the media route provider is registered
+ * as a service, all applications that use the media router API will be able to
+ * discover and used the provider's routes without having to install anything else.
  * </p><p>
  * This object must only be accessed on the main thread.
  * </p>
  */
 public abstract class MediaRouteProvider {
     private static final int MSG_DELIVER_DESCRIPTOR_CHANGED = 1;
+    private static final int MSG_DELIVER_DISCOVERY_REQUEST_CHANGED = 2;
 
     private final Context mContext;
     private final ProviderMetadata mMetadata;
     private final ProviderHandler mHandler = new ProviderHandler();
-    private final CopyOnWriteArrayList<Callback> mCallbacks =
-            new CopyOnWriteArrayList<Callback>();
 
-    private ProviderDescriptor mDescriptor;
+    private Callback mCallback;
+
+    private MediaRouteDiscoveryRequest mDiscoveryRequest;
+    private boolean mPendingDiscoveryRequestChange;
+
+    private MediaRouteProviderDescriptor mDescriptor;
     private boolean mPendingDescriptorChange;
 
     /**
@@ -85,8 +97,94 @@ public abstract class MediaRouteProvider {
         return mContext;
     }
 
-    final ProviderMetadata getMetadata() {
+    /**
+     * Gets the provider's handler which is associated with the main thread.
+     */
+    public final Handler getHandler() {
+        return mHandler;
+    }
+
+    /**
+     * Gets some metadata about the provider's implementation.
+     */
+    public final ProviderMetadata getMetadata() {
         return mMetadata;
+    }
+
+    /**
+     * Sets a callback to invoke when the provider's descriptor changes.
+     *
+     * @param callback The callback to use, or null if none.
+     */
+    public final void setCallback(Callback callback) {
+        MediaRouter.checkCallingThread();
+        mCallback = callback;
+    }
+
+    /**
+     * Gets the current discovery request which informs the provider about the
+     * kinds of routes to discover and whether to perform active scanning.
+     *
+     * @return The current discovery request, or null if no discovery is needed at this time.
+     *
+     * @see #onDiscoveryRequestChanged
+     */
+    public final MediaRouteDiscoveryRequest getDiscoveryRequest() {
+        return mDiscoveryRequest;
+    }
+
+    /**
+     * Sets a discovery request to inform the provider about the kinds of
+     * routes that its clients would like to discover and whether to perform active scanning.
+     *
+     * @param request The discovery request, or null if no discovery is needed at this time.
+     *
+     * @see #onDiscoveryRequestChanged
+     */
+    public final void setDiscoveryRequest(MediaRouteDiscoveryRequest request) {
+        MediaRouter.checkCallingThread();
+
+        if (mDiscoveryRequest == request
+                || (mDiscoveryRequest != null && mDiscoveryRequest.equals(request))) {
+            return;
+        }
+
+        mDiscoveryRequest = request;
+        if (!mPendingDiscoveryRequestChange) {
+            mPendingDiscoveryRequestChange = true;
+            mHandler.sendEmptyMessage(MSG_DELIVER_DISCOVERY_REQUEST_CHANGED);
+        }
+    }
+
+    private void deliverDiscoveryRequestChanged() {
+        mPendingDiscoveryRequestChange = false;
+        onDiscoveryRequestChanged(mDiscoveryRequest);
+    }
+
+    /**
+     * Called by the media router when the {@link MediaRouteDiscoveryRequest discovery request}
+     * has changed.
+     * <p>
+     * Whenever an applications calls {@link MediaRouter#addCallback} to register
+     * a callback, it also provides a selector to specify the kinds of routes that
+     * it is interested in.  The media router combines all of these selectors together
+     * to generate a {@link MediaRouteDiscoveryRequest} and notifies each provider when a change
+     * occurs by calling {@link #setDiscoveryRequest} which posts a message to invoke
+     * this method asynchronously.
+     * </p><p>
+     * The provider should examine the {@link MediaControlIntent media control categories}
+     * in the discovery request's {@link MediaRouteSelector selector} to determine what
+     * kinds of routes it should try to discover and whether it should perform active
+     * or passive scans.  In many cases, the provider may be able to save power by
+     * determining that the selector does not contain any categories that it supports
+     * and it can therefore avoid performing any scans at all.
+     * </p>
+     *
+     * @param request The new discovery request, or null if no discovery is needed at this time.
+     *
+     * @see MediaRouter#addCallback
+     */
+    public void onDiscoveryRequestChanged(MediaRouteDiscoveryRequest request) {
     }
 
     /**
@@ -94,28 +192,29 @@ public abstract class MediaRouteProvider {
      * <p>
      * The descriptor describes the state of the media route provider and
      * the routes that it publishes.  Watch for changes to the descriptor
-     * by registering a {@link Callback callback} with {@link #addCallback}.
+     * by registering a {@link Callback callback} with {@link #setCallback}.
      * </p>
      *
-     * @return The media route provider descriptor, or null if none.  This object
-     * and all of its contents should be treated as if it were immutable so that it is
-     * safe for clients to cache it.
+     * @return The media route provider descriptor, or null if none.
+     *
+     * @see Callback#onDescriptorChanged
      */
-    public final ProviderDescriptor getDescriptor() {
+    public final MediaRouteProviderDescriptor getDescriptor() {
         return mDescriptor;
     }
 
     /**
      * Sets the provider's descriptor.
      * <p>
-     * Asynchronously notifies all registered {@link Callback callbacks} about the change.
+     * The provider must call this method to notify the currently registered
+     * {@link Callback callback} about the change to the provider's descriptor.
      * </p>
      *
      * @param descriptor The updated route provider descriptor, or null if none.
-     * This object and all of its contents should be treated as if it were immutable
-     * so that it is safe for clients to cache it.
+     *
+     * @see Callback#onDescriptorChanged
      */
-    public final void setDescriptor(ProviderDescriptor descriptor) {
+    public final void setDescriptor(MediaRouteProviderDescriptor descriptor) {
         MediaRouter.checkCallingThread();
 
         if (mDescriptor != descriptor) {
@@ -130,41 +229,9 @@ public abstract class MediaRouteProvider {
     private void deliverDescriptorChanged() {
         mPendingDescriptorChange = false;
 
-        if (!mCallbacks.isEmpty()) {
-            final ProviderDescriptor currentDescriptor = mDescriptor;
-            for (Callback callback : mCallbacks) {
-                callback.onDescriptorChanged(this, currentDescriptor);
-            }
+        if (mCallback != null) {
+            mCallback.onDescriptorChanged(this, mDescriptor);
         }
-    }
-
-    /**
-     * Adds a callback to be invoked on the main thread when information about a route
-     * provider and its routes changes.
-     *
-     * @param callback The callback to add.
-     */
-    public final void addCallback(Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("callback");
-        }
-
-        if (!mCallbacks.contains(callback)) {
-            mCallbacks.add(callback);
-        }
-    }
-
-    /**
-     * Removes a callback.
-     *
-     * @param callback The callback to remove.
-     */
-    public final void removeCallback(Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("callback");
-        }
-
-        mCallbacks.remove(callback);
     }
 
     /**
@@ -183,38 +250,19 @@ public abstract class MediaRouteProvider {
     }
 
     /**
-     * Called by the media router when the provider should start actively scanning
-     * for changes to routes.
+     * Describes properties of the route provider's implementation.
      * <p>
-     * Typically this callback is invoked when the media route picker dialog has been
-     * opened by the user to ensure that the set of known routes is fresh and up to date.
+     * This object is immutable once created.
      * </p>
-     *
-     * @see ProviderDescriptor#setActiveScanRequired
      */
-    public void onStartActiveScan() {
-    }
-
-    /**
-     * Called by the media router when the provider should stop actively scanning
-     * for changes to routes.  The provider may continue passively scanning for changes
-     * to routes as long as its scans are low power and non-intrusive.
-     * <p>
-     * Typically this callback is invoked when the media route picker dialog has been
-     * closed by the user.
-     * </p>
-     *
-     * @see ProviderDescriptor#setActiveScanRequired
-     */
-    public void onStopActiveScan() {
-    }
-
-    /**
-     * Describes immutable properties of the route provider itself.
-     */
-    static final class ProviderMetadata {
+    public static final class ProviderMetadata {
         private final String mPackageName;
 
+        /**
+         * Creates a provider metadata object.
+         *
+         * @param packageName The provider application's package name.
+         */
         public ProviderMetadata(String packageName) {
             if (TextUtils.isEmpty(packageName)) {
                 throw new IllegalArgumentException("packageName must not be null or empty");
@@ -222,456 +270,16 @@ public abstract class MediaRouteProvider {
             mPackageName = packageName;
         }
 
+        /**
+         * Gets the provider application's package name.
+         */
         public String getPackageName() {
             return mPackageName;
         }
-    }
-
-    /**
-     * Describes the state of a media route provider and the routes that it publishes.
-     */
-    public static final class ProviderDescriptor {
-        private static final String KEY_ROUTES = "routes";
-        private static final String KEY_ACTIVE_SCAN_REQUIRED = "activeScanRequired";
-
-        private final Bundle mBundle;
-        private RouteDescriptor[] mRoutes;
-
-        /**
-         * Creates a route provider descriptor.
-         */
-        public ProviderDescriptor() {
-            mBundle = new Bundle();
-        }
-
-        /**
-         * Creates a copy of another route provider descriptor.
-         */
-        public ProviderDescriptor(ProviderDescriptor other) {
-            mBundle = new Bundle(other.mBundle);
-        }
-
-        ProviderDescriptor(Bundle bundle) {
-            mBundle = bundle;
-        }
-
-        /**
-         * Gets the list of all routes that this provider has published.
-         */
-        public RouteDescriptor[] getRoutes() {
-            if (mRoutes == null) {
-                mRoutes = RouteDescriptor.fromParcelableArray(
-                        mBundle.getParcelableArray(KEY_ROUTES));
-            }
-            return mRoutes;
-        }
-
-        /**
-         * Sets the list of all routes that this provider has published.
-         */
-        public void setRoutes(RouteDescriptor[] routes) {
-            if (routes == null) {
-                throw new IllegalArgumentException("routes must not be null");
-            }
-            mRoutes = routes;
-            mBundle.putParcelableArray(KEY_ROUTES, RouteDescriptor.toParcelableArray(routes));
-        }
-
-        /**
-         * Returns true if the provider requires active scans to discover routes.
-         */
-        public boolean isActiveScanRequired() {
-            return mBundle.getBoolean(KEY_ACTIVE_SCAN_REQUIRED, false);
-        }
-
-        /**
-         * Sets whether the provider requires active scans to discover routes.
-         * <p>
-         * To provide the best user experience, a media route provider should passively
-         * discover and publish changes to route descriptors in the background.
-         * However, for some providers, scanning for routes may use a significant
-         * amount of power or may interfere with wireless network connectivity.
-         * If this is the case, then the provider should indicate that it requires
-         * active scans by setting this flag.
-         * </p><p>
-         * Even if this flag is not set, the provider will be given an opportunity
-         * to perform a scan to update the route descriptors that it has published
-         * when the route picker dialog is opened.  The provider should only set
-         * this flag if it is unable to discover routes without active scans at all.
-         * </p>
-         */
-        public void setActiveScanRequired(boolean required) {
-            mBundle.putBoolean(KEY_ACTIVE_SCAN_REQUIRED, required);
-        }
-
-        /**
-         * Returns true if the route provider descriptor and all of the routes that
-         * it contains have all of the required fields.
-         * <p>
-         * This verification is deep.  If the provider descriptor is known to be
-         * valid then it is not necessary to call {@link #isValid} on each of its routes.
-         * </p>
-         */
-        public boolean isValid() {
-            for (RouteDescriptor route : getRoutes()) {
-                if (route == null || !route.isValid()) {
-                    return false;
-                }
-            }
-            return true;
-        }
 
         @Override
         public String toString() {
-            return "RouteProviderDescriptor{" + mBundle.toString() + "}";
-        }
-
-        Bundle asBundle() {
-            return mBundle;
-        }
-
-        static ProviderDescriptor fromBundle(Bundle bundle) {
-            return bundle != null ? new ProviderDescriptor(bundle) : null;
-        }
-    }
-
-    /**
-     * Describes the properties of a route.
-     * <p>
-     * Each route is uniquely identified by an opaque id string.  This token
-     * may take any form as long as it is unique within the media route provider.
-     * </p>
-     */
-    public static final class RouteDescriptor {
-        static final RouteDescriptor[] EMPTY_ROUTE_ARRAY = new RouteDescriptor[0];
-        static final IntentFilter[] EMTPY_FILTER_ARRAY = new IntentFilter[0];
-
-        private static final String KEY_ID = "id";
-        private static final String KEY_NAME = "name";
-        private static final String KEY_STATUS = "status";
-        private static final String KEY_ICON_RESOURCE = "iconId";
-        private static final String KEY_ENABLED = "enabled";
-        private static final String KEY_CONTROL_FILTERS = "controlFilters";
-        private static final String KEY_PLAYBACK_TYPE = "playbackType";
-        private static final String KEY_PLAYBACK_STREAM = "playbackStream";
-        private static final String KEY_VOLUME = "volume";
-        private static final String KEY_VOLUME_MAX = "volumeMax";
-        private static final String KEY_VOLUME_HANDLING = "volumeHandling";
-        private static final String KEY_PRESENTATION_DISPLAY_ID = "presentationDisplayId";
-        private static final String KEY_EXTRAS = "extras";
-
-        private final Bundle mBundle;
-        private IntentFilter[] mControlFilters;
-        private Drawable mIconDrawable;
-
-        /**
-         * Creates a route descriptor.
-         *
-         * @param id The unique id of the route.
-         * @param name The user-friendly name of the route.
-         */
-        public RouteDescriptor(String id, String name) {
-            mBundle = new Bundle();
-            setId(id);
-            setName(name);
-        }
-
-        /**
-         * Creates a copy of another route descriptor.
-         */
-        public RouteDescriptor(RouteDescriptor other) {
-            mBundle = new Bundle(other.mBundle);
-        }
-
-        RouteDescriptor(Bundle bundle) {
-            mBundle = bundle;
-        }
-
-        /**
-         * Gets the unique id of the route.
-         */
-        public String getId() {
-            return mBundle.getString(KEY_ID);
-        }
-
-        /**
-         * Sets the unique id of the route.
-         */
-        public void setId(String id) {
-            mBundle.putString(KEY_ID, id);
-        }
-
-        /**
-         * Gets the user-friendly name of the route.
-         */
-        public String getName() {
-            return mBundle.getString(KEY_NAME);
-        }
-
-        /**
-         * Sets the user-friendly name of the route.
-         */
-        public void setName(String name) {
-            mBundle.putString(KEY_NAME, name);
-        }
-
-        /**
-         * Gets the user-friendly status of the route.
-         */
-        public String getStatus() {
-            return mBundle.getString(KEY_STATUS);
-        }
-
-        /**
-         * Sets the user-friendly status of the route.
-         */
-        public void setStatus(String status) {
-            mBundle.putString(KEY_STATUS, status);
-        }
-
-        /**
-         * Gets a drawable to display as the route's icon.
-         * <p>
-         * Because drawables cannot be transferred to other processes, this method may
-         * only be used by media route providers that reside in the same process
-         * as the application.  When implementing a media route provider service, use
-         * {@link #getIconResource} instead.
-         * </p>
-         */
-        public Drawable getIconDrawable() {
-            return mIconDrawable;
-        }
-
-        /**
-         * Sets a drawable to display as the route's icon.
-         * <p>
-         * Because drawables cannot be transferred to other processes, this method may
-         * only be used by media route providers that reside in the same process
-         * as the application.  When implementing a media route provider service, use
-         * {@link #setIconResource} instead.
-         * </p>
-         */
-        public void setIconDrawable(Drawable drawable) {
-            mIconDrawable = drawable;
-        }
-
-        /**
-         * Gets the id of a drawable resource to display as the route's icon.
-         * <p>
-         * The specified drawable resource id will be loaded from the media route
-         * provider's package.
-         * </p>
-         */
-        public int getIconResource() {
-            return mBundle.getInt(KEY_ICON_RESOURCE);
-        }
-
-        /**
-         * Sets the id of a drawable resource to display as the route's icon.
-         * <p>
-         * The specified drawable resource id will be loaded from the media route
-         * provider's package.
-         * </p>
-         */
-        public void setIconResource(int id) {
-            mBundle.putInt(KEY_ICON_RESOURCE, id);
-        }
-
-        /**
-         * Gets whether the route is enabled.
-         */
-        public boolean isEnabled() {
-            return mBundle.getBoolean(KEY_ENABLED, true);
-        }
-
-        /**
-         * Sets whether the route is enabled.
-         * <p>
-         * Disabled routes represent routes that a route provider knows about, such as paired
-         * Wifi Display receivers, but that are not currently available for use.
-         * </p>
-         */
-        public void setEnabled(boolean enabled) {
-            mBundle.putBoolean(KEY_ENABLED, enabled);
-        }
-
-        /**
-         * Gets the route's {@link MediaControlIntent media control intent} filters.
-         */
-        public IntentFilter[] getControlFilters() {
-            if (mControlFilters == null) {
-                Parcelable[] filters = mBundle.getParcelableArray(KEY_CONTROL_FILTERS);
-                if (filters instanceof IntentFilter[]) {
-                    mControlFilters = (IntentFilter[])filters;
-                } else if (filters != null && filters.length > 0) {
-                    mControlFilters = new IntentFilter[filters.length];
-                    System.arraycopy(filters, 0, mControlFilters, 0, filters.length);
-                } else {
-                    mControlFilters = EMTPY_FILTER_ARRAY;
-                }
-            }
-            return mControlFilters;
-        }
-
-        /**
-         * Sets the route's {@link MediaControlIntent media control intent} filters.
-         */
-        public void setControlFilters(IntentFilter[] controlFilters) {
-            if (controlFilters == null) {
-                throw new IllegalArgumentException("controlFilters must not be null");
-            }
-            mControlFilters = controlFilters;
-            mBundle.putParcelableArray(KEY_CONTROL_FILTERS, controlFilters);
-        }
-
-        /**
-         * Gets the route's playback type.
-         */
-        public int getPlaybackType() {
-            return mBundle.getInt(KEY_PLAYBACK_TYPE, MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE);
-        }
-
-        /**
-         * Sets the route's playback type.
-         */
-        public void setPlaybackType(int playbackType) {
-            mBundle.putInt(KEY_PLAYBACK_TYPE, playbackType);
-        }
-
-        /**
-         * Gets the route's playback stream.
-         */
-        public int getPlaybackStream() {
-            return mBundle.getInt(KEY_PLAYBACK_STREAM, -1);
-        }
-
-        /**
-         * Sets the route's playback stream.
-         */
-        public void setPlaybackStream(int playbackStream) {
-            mBundle.putInt(KEY_PLAYBACK_STREAM, playbackStream);
-        }
-
-        /**
-         * Gets the route's current volume, or 0 if unknown.
-         */
-        public int getVolume() {
-            return mBundle.getInt(KEY_VOLUME);
-        }
-
-        /**
-         * Sets the route's current volume, or 0 if unknown.
-         */
-        public void setVolume(int volume) {
-            mBundle.putInt(KEY_VOLUME, volume);
-        }
-
-        /**
-         * Gets the route's maximum volume, or 0 if unknown.
-         */
-        public int getVolumeMax() {
-            return mBundle.getInt(KEY_VOLUME_MAX);
-        }
-
-        /**
-         * Sets the route's maximum volume, or 0 if unknown.
-         */
-        public void setVolumeMax(int volumeMax) {
-            mBundle.putInt(KEY_VOLUME_MAX, volumeMax);
-        }
-
-        /**
-         * Gets the route's volume handling.
-         */
-        public int getVolumeHandling() {
-            return mBundle.getInt(KEY_VOLUME_HANDLING,
-                    MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED);
-        }
-
-        /**
-         * Sets the route's volume handling.
-         */
-        public void setVolumeHandling(int volumeHandling) {
-            mBundle.putInt(KEY_VOLUME_HANDLING, volumeHandling);
-        }
-
-        /**
-         * Gets the route's presentation display id, or -1 if none.
-         */
-        public int getPresentationDisplayId() {
-            return mBundle.getInt(KEY_PRESENTATION_DISPLAY_ID, -1);
-        }
-
-        /**
-         * Sets the route's presentation display id, or -1 if none.
-         */
-        public void setPresentationDisplayId(int presentationDisplayId) {
-            mBundle.putInt(KEY_PRESENTATION_DISPLAY_ID, presentationDisplayId);
-        }
-
-        /**
-         * Gets a bundle of extras for this route descriptor.
-         * The extras will be ignored by the media router but they may be used
-         * by applications.
-         */
-        public Bundle getExtras() {
-            return mBundle.getBundle(KEY_EXTRAS);
-        }
-
-        /**
-         * Sets a bundle of extras for this route descriptor.
-         * The extras will be ignored by the media router but they may be used
-         * by applications.
-         */
-        public void setExtras(Bundle extras) {
-            mBundle.putBundle(KEY_EXTRAS, extras);
-        }
-
-        /**
-         * Returns true if the route descriptor has all of the required fields.
-         */
-        public boolean isValid() {
-            if (TextUtils.isEmpty(getId())
-                    || TextUtils.isEmpty(getName())) {
-                return false;
-            }
-            for (IntentFilter filter : getControlFilters()) {
-                if (filter == null) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "RouteDescriptor{" + mBundle.toString() + "}";
-        }
-
-        Bundle asBundle() {
-            return mBundle;
-        }
-
-        static Parcelable[] toParcelableArray(RouteDescriptor[] descriptors) {
-            if (descriptors != null && descriptors.length > 0) {
-                Parcelable[] bundles = new Parcelable[descriptors.length];
-                for (int i = 0; i < descriptors.length; i++) {
-                    bundles[i] = descriptors[i].asBundle();
-                }
-                return bundles;
-            }
-            return null;
-        }
-
-        static RouteDescriptor[] fromParcelableArray(Parcelable[] bundles) {
-            if (bundles != null && bundles.length > 0) {
-                RouteDescriptor[] descriptors = new RouteDescriptor[bundles.length];
-                for (int i = 0; i < bundles.length; i++) {
-                    descriptors[i] = new RouteDescriptor((Bundle)bundles[i]);
-                }
-                return descriptors;
-            }
-            return EMPTY_ROUTE_ARRAY;
+            return "ProviderMetadata{ packageName=" + mPackageName + " }";
         }
     }
 
@@ -717,7 +325,7 @@ public abstract class MediaRouteProvider {
         /**
          * Requests to set the volume of the route.
          *
-         * @param volume The new volume value between 0 and {@link RouteDescriptor#getVolumeMax}.
+         * @param volume The new volume value between 0 and {@link MediaRouteDescriptor#getVolumeMax}.
          */
         public void onSetVolume(int volume) {
         }
@@ -738,7 +346,7 @@ public abstract class MediaRouteProvider {
          * @param callback A {@link ControlRequestCallback} to invoke with the result
          * of the request, or null if no result is required.
          * @return True if the controller intends to handle the request and will
-         * invoke the callback when finished.  False if the contorller will not
+         * invoke the callback when finished.  False if the controller will not
          * handle the request and will not invoke the callback.
          *
          * @see MediaControlIntent
@@ -755,12 +363,11 @@ public abstract class MediaRouteProvider {
         /**
          * Called when information about a route provider and its routes changes.
          *
-         * @param provider The media route provider that changed.
-         * and all of its contents should be treated as if it were immutable so that it is
-         * safe for clients to cache it.
+         * @param provider The media route provider that changed, never null.
+         * @param descriptor The new media route provider descriptor, or null if none.
          */
         public void onDescriptorChanged(MediaRouteProvider provider,
-                ProviderDescriptor descriptor) {
+                MediaRouteProviderDescriptor descriptor) {
         }
     }
 
@@ -770,6 +377,9 @@ public abstract class MediaRouteProvider {
             switch (msg.what) {
                 case MSG_DELIVER_DESCRIPTOR_CHANGED:
                     deliverDescriptorChanged();
+                    break;
+                case MSG_DELIVER_DISCOVERY_REQUEST_CHANGED:
+                    deliverDiscoveryRequestChanged();
                     break;
             }
         }
