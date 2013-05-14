@@ -69,6 +69,10 @@ import java.util.Iterator;
 public class TaskStackBuilder implements Iterable<Intent> {
     private static final String TAG = "TaskStackBuilder";
 
+    public interface SupportParentable {
+        Intent getSupportParentActivityIntent();
+    }
+
     interface TaskStackBuilderImpl {
         PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
                 int flags, Bundle options);
@@ -190,7 +194,14 @@ public class TaskStackBuilder implements Iterable<Intent> {
      * @return This TaskStackBuilder for method chaining
      */
     public TaskStackBuilder addParentStack(Activity sourceActivity) {
-        final Intent parent = NavUtils.getParentActivityIntent(sourceActivity);
+        Intent parent = null;
+        if (sourceActivity instanceof SupportParentable) {
+            parent = ((SupportParentable) sourceActivity).getSupportParentActivityIntent();
+        }
+        if (parent == null) {
+            parent = NavUtils.getParentActivityIntent(sourceActivity);
+        }
+
         if (parent != null) {
             // We have the actual parent intent, build the rest from static metadata
             // then add the direct parent intent to the end.
