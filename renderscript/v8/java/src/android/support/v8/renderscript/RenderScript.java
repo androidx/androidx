@@ -57,21 +57,8 @@ public class RenderScript {
      */
     @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
     static boolean sInitialized;
+    static Object lock = new Object();
     native static void _nInit();
-
-
-    static {
-        sInitialized = false;
-        try {
-            System.loadLibrary("RSSupport");
-            System.loadLibrary("rsjni");
-            _nInit();
-            sInitialized = true;
-        } catch (UnsatisfiedLinkError e) {
-            Log.e(LOG_TAG, "Error loading RS jni library: " + e);
-            throw new RSRuntimeException("Error loading RS jni library: " + e);
-        }
-    }
 
     // Non-threadsafe functions.
     native int  nDeviceCreate();
@@ -887,6 +874,19 @@ public class RenderScript {
 
             android.util.Log.v(LOG_TAG, "RS native mode");
             return RenderScriptThunker.create(ctx, sdkVersion);
+        }
+        synchronized(lock) {
+            if (sInitialized == false) {
+                try {
+                    System.loadLibrary("RSSupport");
+                    System.loadLibrary("rsjni");
+                    _nInit();
+                    sInitialized = true;
+                } catch (UnsatisfiedLinkError e) {
+                    Log.e(LOG_TAG, "Error loading RS jni library: " + e);
+                    throw new RSRuntimeException("Error loading RS jni library: " + e);
+                }
+            }
         }
 
         android.util.Log.v(LOG_TAG, "RS compat mode");
