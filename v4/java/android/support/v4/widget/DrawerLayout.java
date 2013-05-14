@@ -639,6 +639,7 @@ public class DrawerLayout extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         mInLayout = true;
+        final int width = r - l;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
@@ -658,11 +659,16 @@ public class DrawerLayout extends ViewGroup {
                 final int childHeight = child.getMeasuredHeight();
                 int childLeft;
 
+                final float newOffset;
                 if (checkDrawerViewGravity(child, Gravity.LEFT)) {
                     childLeft = -childWidth + (int) (childWidth * lp.onScreen);
+                    newOffset = (float) (childWidth + childLeft) / childWidth;
                 } else { // Right; onMeasure checked for us.
-                    childLeft = r - l - (int) (childWidth * lp.onScreen);
+                    childLeft = width - (int) (childWidth * lp.onScreen);
+                    newOffset = (float) (width - childLeft) / childWidth;
                 }
+
+                final boolean changeOffset = newOffset != lp.onScreen;
 
                 final int vgrav = lp.gravity & Gravity.VERTICAL_GRAVITY_MASK;
 
@@ -699,8 +705,13 @@ public class DrawerLayout extends ViewGroup {
                     }
                 }
 
-                if (lp.onScreen == 0) {
-                    child.setVisibility(INVISIBLE);
+                if (changeOffset) {
+                    setDrawerViewOffset(child, newOffset);
+                }
+
+                final int newVisibility = lp.onScreen > 0 ? VISIBLE : INVISIBLE;
+                if (child.getVisibility() != newVisibility) {
+                    child.setVisibility(newVisibility);
                 }
             }
         }
