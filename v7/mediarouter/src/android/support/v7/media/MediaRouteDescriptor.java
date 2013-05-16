@@ -37,7 +37,7 @@ import java.util.List;
 public final class MediaRouteDescriptor {
     private static final String KEY_ID = "id";
     private static final String KEY_NAME = "name";
-    private static final String KEY_STATUS = "status";
+    private static final String KEY_DESCRIPTION = "status";
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_CONNECTING = "connecting";
     private static final String KEY_CONTROL_FILTERS = "controlFilters";
@@ -65,17 +65,25 @@ public final class MediaRouteDescriptor {
     }
 
     /**
-     * Gets the user-friendly name of the route.
+     * Gets the user-visible name of the route.
+     * <p>
+     * The route name identifies the destination represented by the route.
+     * It may be a user-supplied name, an alias, or device serial number.
+     * </p>
      */
     public String getName() {
         return mBundle.getString(KEY_NAME);
     }
 
     /**
-     * Gets the user-friendly status of the route.
+     * Gets the user-visible description of the route.
+     * <p>
+     * The route description describes the kind of destination represented by the route.
+     * It may be a user-supplied string, a model number or brand of device.
+     * </p>
      */
-    public String getStatus() {
-        return mBundle.getString(KEY_STATUS);
+    public String getDescription() {
+        return mBundle.getString(KEY_DESCRIPTION);
     }
 
     /**
@@ -180,7 +188,7 @@ public final class MediaRouteDescriptor {
         result.append("MediaRouteDescriptor{ ");
         result.append("id=").append(getId());
         result.append(", name=").append(getName());
-        result.append(", status=").append(getStatus());
+        result.append(", description=").append(getDescription());
         result.append(", isEnabled=").append(isEnabled());
         result.append(", isConnecting=").append(isConnecting());
         result.append(", controlFilters=").append(Arrays.toString(getControlFilters().toArray()));
@@ -226,7 +234,7 @@ public final class MediaRouteDescriptor {
          * Creates a media route descriptor builder.
          *
          * @param id The unique id of the route.
-         * @param name The user-friendly name of the route.
+         * @param name The user-visible name of the route.
          */
         public Builder(String id, String name) {
             mBundle = new Bundle();
@@ -260,7 +268,11 @@ public final class MediaRouteDescriptor {
         }
 
         /**
-         * Sets the user-friendly name of the route.
+         * Sets the user-visible name of the route.
+         * <p>
+         * The route name identifies the destination represented by the route.
+         * It may be a user-supplied name, an alias, or device serial number.
+         * </p>
          */
         public Builder setName(String name) {
             mBundle.putString(KEY_NAME, name);
@@ -268,10 +280,14 @@ public final class MediaRouteDescriptor {
         }
 
         /**
-         * Sets the user-friendly status of the route.
+         * Sets the user-visible description of the route.
+         * <p>
+         * The route description describes the kind of destination represented by the route.
+         * It may be a user-supplied string, a model number or brand of device.
+         * </p>
          */
-        public Builder setStatus(String status) {
-            mBundle.putString(KEY_STATUS, status);
+        public Builder setDescription(String description) {
+            mBundle.putString(KEY_DESCRIPTION, description);
             return this;
         }
 
