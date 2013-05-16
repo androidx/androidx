@@ -122,8 +122,8 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         MediaRouteDescriptor routeDescriptor1 = new MediaRouteDescriptor.Builder(
                 FIXED_VOLUME_ROUTE_ID,
                 r.getString(R.string.fixed_volume_route_name))
+                .setDescription(r.getString(R.string.sample_route_description))
                 .addControlFilters(CONTROL_FILTERS)
-                .setIconResource(R.drawable.media_route_icon)
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)
                 .setVolume(VOLUME_MAX)
@@ -132,8 +132,8 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         MediaRouteDescriptor routeDescriptor2 = new MediaRouteDescriptor.Builder(
                 VARIABLE_VOLUME_ROUTE_ID,
                 r.getString(R.string.variable_volume_route_name))
+                .setDescription(r.getString(R.string.sample_route_description))
                 .addControlFilters(CONTROL_FILTERS)
-                .setIconResource(R.drawable.media_route_icon)
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)

@@ -127,7 +127,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         // Listen for changes to media routes.
         mMediaRouter.addCallback(mSelector, mCallback,
                 MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS);
-        updateRouteStatus();
+        updateRouteDescription();
     }
 
     @Override
@@ -156,11 +156,11 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         return true;
     }
 
-    private void updateRouteStatus() {
+    private void updateRouteDescription() {
         RouteInfo route = mMediaRouter.getSelectedRoute();
         mInfoTextView.setText("Currently selected route: " + route.getName()
                 + " from provider " + route.getProvider().getPackageName()
-                + ", status: " + route.getStatus());
+                + ", description: " + route.getDescription());
         updateButtons();
     }
 
@@ -293,7 +293,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         @Override
         public void onRouteChanged(MediaRouter router, RouteInfo route) {
             Log.d(TAG, "onRouteChanged: route=" + route);
-            updateRouteStatus();
+            updateRouteDescription();
         }
 
         @Override
@@ -304,13 +304,13 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         @Override
         public void onRouteSelected(MediaRouter router, RouteInfo route) {
             Log.d(TAG, "onRouteSelected: route=" + route);
-            updateRouteStatus();
+            updateRouteDescription();
         }
 
         @Override
         public void onRouteUnselected(MediaRouter router, RouteInfo route) {
             Log.d(TAG, "onRouteUnselected: route=" + route);
-            updateRouteStatus();
+            updateRouteDescription();
         }
 
         @Override
