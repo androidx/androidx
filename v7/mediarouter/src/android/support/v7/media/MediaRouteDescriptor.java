@@ -22,6 +22,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -372,14 +373,15 @@ public final class MediaRouteDescriptor {
         /**
          * Adds a list of {@link MediaControlIntent media control intent} filters for the route.
          */
-        public Builder addControlFilters(List<IntentFilter> filters) {
+        public Builder addControlFilters(Collection<IntentFilter> filters) {
             if (filters == null) {
                 throw new IllegalArgumentException("filters must not be null");
             }
 
-            final int count = filters.size();
-            for (int i = 0; i < count; i++) {
-                addControlFilter(filters.get(i));
+            if (!filters.isEmpty()) {
+                for (IntentFilter filter : filters) {
+                    addControlFilter(filter);
+                }
             }
             return this;
         }

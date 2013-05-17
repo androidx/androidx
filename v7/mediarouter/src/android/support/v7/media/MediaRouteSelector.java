@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -258,14 +259,15 @@ public final class MediaRouteSelector {
          * such as {@link MediaControlIntent#CATEGORY_LIVE_AUDIO}.
          * @return The builder instance for chaining.
          */
-        public Builder addControlCategories(List<String> categories) {
+        public Builder addControlCategories(Collection<String> categories) {
             if (categories == null) {
                 throw new IllegalArgumentException("categories must not be null");
             }
 
-            final int count = categories.size();
-            for (int i = 0; i < count; i++) {
-                addControlCategory(categories.get(i));
+            if (!categories.isEmpty()) {
+                for (String category : categories) {
+                    addControlCategory(category);
+                }
             }
             return this;
         }
