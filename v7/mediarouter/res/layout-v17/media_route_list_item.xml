@@ -19,12 +19,6 @@
               android:layout_height="?android:attr/listPreferredItemHeight"
               android:gravity="center_vertical">
 
-    <ImageView android:id="@android:id/icon"
-               android:layout_width="56dp"
-               android:layout_height="56dp"
-               android:scaleType="center"
-               android:duplicateParentState="true" />
-
     <LinearLayout android:layout_width="0dp"
                   android:layout_height="match_parent"
                   android:layout_weight="1"

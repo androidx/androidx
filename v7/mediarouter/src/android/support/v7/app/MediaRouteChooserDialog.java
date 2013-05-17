@@ -22,13 +22,13 @@ import android.os.Bundle;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.mediarouter.R;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -181,13 +181,17 @@ public class MediaRouteChooserDialog extends Dialog {
             if (view == null) {
                 view = mInflater.inflate(R.layout.media_route_list_item, parent, false);
             }
+            MediaRouter.RouteInfo route = getItem(position);
             TextView text1 = (TextView)view.findViewById(android.R.id.text1);
             TextView text2 = (TextView)view.findViewById(android.R.id.text2);
-            ImageView icon = (ImageView)view.findViewById(android.R.id.icon);
-            MediaRouter.RouteInfo route = getItem(position);
             text1.setText(route.getName());
-            text2.setText(route.getStatus());
-            icon.setImageDrawable(route.getIconDrawable());
+            String status = route.getStatus();
+            if (TextUtils.isEmpty(status)) {
+                text2.setVisibility(View.GONE);
+            } else {
+                text2.setVisibility(View.VISIBLE);
+                text2.setText(status);
+            }
             view.setEnabled(route.isEnabled());
             return view;
         }

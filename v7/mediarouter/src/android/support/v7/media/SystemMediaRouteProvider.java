@@ -569,8 +569,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             if (status != null) {
                 builder.setStatus(status.toString());
             }
-            builder.setIconDrawable(
-                    MediaRouterJellybean.RouteInfo.getIconDrawable(record.mRouteObj));
             builder.setPlaybackType(
                     MediaRouterJellybean.RouteInfo.getPlaybackType(record.mRouteObj));
             builder.setPlaybackStream(
@@ -588,8 +586,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     record.mRouteObj, record.mRoute.getName());
             MediaRouterJellybean.UserRouteInfo.setStatus(
                     record.mRouteObj, normalizeStatus(record.mRoute.getStatus()));
-            MediaRouterJellybean.UserRouteInfo.setIconDrawable(
-                    record.mRouteObj, record.mRoute.getIconDrawable());
             MediaRouterJellybean.UserRouteInfo.setPlaybackType(
                     record.mRouteObj, record.mRoute.getPlaybackType());
             MediaRouterJellybean.UserRouteInfo.setPlaybackStream(

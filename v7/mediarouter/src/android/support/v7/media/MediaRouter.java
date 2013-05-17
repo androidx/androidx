@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -525,8 +524,6 @@ public final class MediaRouter {
         private final String mDescriptorId;
         private String mName;
         private String mStatus;
-        private Drawable mIconDrawable;
-        private int mIconResource;
         private boolean mEnabled;
         private boolean mConnecting;
         private final ArrayList<IntentFilter> mControlFilters = new ArrayList<IntentFilter>();
@@ -609,30 +606,6 @@ public final class MediaRouter {
          */
         public String getStatus() {
             return mStatus;
-        }
-
-        /**
-         * Get the icon representing this route.
-         * This icon will be used in picker UIs if available.
-         *
-         * @return The icon representing this route or null if no icon is available.
-         */
-        public Drawable getIconDrawable() {
-            checkCallingThread();
-            if (mIconDrawable == null) {
-                if (mIconResource != 0) {
-                    Resources resources = mProvider.getResources();
-                    if (resources != null) {
-                        try {
-                            mIconDrawable = resources.getDrawable(mIconResource);
-                        } catch (Resources.NotFoundException ex) {
-                            Log.w(TAG, "Unable to load media route icon drawable resource "
-                                    + "from provider.", ex);
-                        }
-                    }
-                }
-            }
-            return mIconDrawable;
         }
 
         /**
@@ -959,16 +932,6 @@ public final class MediaRouter {
                     }
                     if (!equal(mStatus, descriptor.getStatus())) {
                         mStatus = descriptor.getStatus();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mIconResource != descriptor.getIconResource()) {
-                        mIconResource = descriptor.getIconResource();
-                        mIconDrawable = null;
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mIconResource == 0
-                            && mIconDrawable != descriptor.getIconDrawable()) {
-                        mIconDrawable = descriptor.getIconDrawable();
                         changes |= CHANGE_GENERAL;
                     }
                     if (mEnabled != descriptor.isEnabled()) {
