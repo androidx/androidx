@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -216,14 +217,15 @@ public final class MediaRouteProviderDescriptor {
         /**
          * Adds a list of routes.
          */
-        public Builder addRoutes(List<MediaRouteDescriptor> routes) {
+        public Builder addRoutes(Collection<MediaRouteDescriptor> routes) {
             if (routes == null) {
                 throw new IllegalArgumentException("routes must not be null");
             }
 
-            final int count = routes.size();
-            for (int i = 0; i < count; i++) {
-                addRoute(routes.get(i));
+            if (!routes.isEmpty()) {
+                for (MediaRouteDescriptor route : routes) {
+                    addRoute(route);
+                }
             }
             return this;
         }
@@ -248,14 +250,15 @@ public final class MediaRouteProviderDescriptor {
         /**
          * Adds a list of {@link MediaControlIntent media control intent} filters.
          */
-        public Builder addDiscoverableControlFilters(List<IntentFilter> filters) {
+        public Builder addDiscoverableControlFilters(Collection<IntentFilter> filters) {
             if (filters == null) {
                 throw new IllegalArgumentException("filters must not be null");
             }
 
-            final int count = filters.size();
-            for (int i = 0; i < count; i++) {
-                addDiscoverableControlFilter(filters.get(i));
+            if (!filters.isEmpty()) {
+                for (IntentFilter filter : filters) {
+                    addDiscoverableControlFilter(filter);
+                }
             }
             return this;
         }
