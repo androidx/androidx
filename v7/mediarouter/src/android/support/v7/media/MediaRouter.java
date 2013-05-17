@@ -523,7 +523,7 @@ public final class MediaRouter {
         private final ProviderInfo mProvider;
         private final String mDescriptorId;
         private String mName;
-        private String mStatus;
+        private String mDescription;
         private boolean mEnabled;
         private boolean mConnecting;
         private final ArrayList<IntentFilter> mControlFilters = new ArrayList<IntentFilter>();
@@ -589,9 +589,13 @@ public final class MediaRouter {
         }
 
         /**
-         * Gets the name of this route.
+         * Gets the user-visible name of the route.
+         * <p>
+         * The route name identifies the destination represented by the route.
+         * It may be a user-supplied name, an alias, or device serial number.
+         * </p>
          *
-         * @return The user-friendly name of a media route. This is the string presented
+         * @return The user-visible name of a media route.  This is the string presented
          * to users who may select this as the active route.
          */
         public String getName() {
@@ -599,13 +603,16 @@ public final class MediaRouter {
         }
 
         /**
-         * Gets the status of this route.
+         * Gets the user-visible description of the route.
+         * <p>
+         * The route description describes the kind of destination represented by the route.
+         * It may be a user-supplied string, a model number or brand of device.
+         * </p>
          *
-         * @return The user-friendly status for a media route. This may include a description
-         * of the currently playing media, if available.
+         * @return The description of the route, or null if none.
          */
-        public String getStatus() {
-            return mStatus;
+        public String getDescription() {
+            return mDescription;
         }
 
         /**
@@ -907,7 +914,7 @@ public final class MediaRouter {
         @Override
         public String toString() {
             return "MediaRouter.RouteInfo{ name=" + mName
-                    + ", status=" + mStatus
+                    + ", description=" + mDescription
                     + ", enabled=" + mEnabled
                     + ", connecting=" + mConnecting
                     + ", playbackType=" + mPlaybackType
@@ -930,8 +937,8 @@ public final class MediaRouter {
                         mName = descriptor.getName();
                         changes |= CHANGE_GENERAL;
                     }
-                    if (!equal(mStatus, descriptor.getStatus())) {
-                        mStatus = descriptor.getStatus();
+                    if (!equal(mDescription, descriptor.getDescription())) {
+                        mDescription = descriptor.getDescription();
                         changes |= CHANGE_GENERAL;
                     }
                     if (mEnabled != descriptor.isEnabled()) {

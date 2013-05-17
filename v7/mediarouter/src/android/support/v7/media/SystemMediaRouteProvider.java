@@ -565,10 +565,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 builder.addControlFilters(LIVE_VIDEO_CONTROL_FILTERS);
             }
 
-            CharSequence status = MediaRouterJellybean.RouteInfo.getStatus(record.mRouteObj);
-            if (status != null) {
-                builder.setStatus(status.toString());
-            }
             builder.setPlaybackType(
                     MediaRouterJellybean.RouteInfo.getPlaybackType(record.mRouteObj));
             builder.setPlaybackStream(
@@ -584,8 +580,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         protected void updateUserRouteProperties(UserRouteRecord record) {
             MediaRouterJellybean.UserRouteInfo.setName(
                     record.mRouteObj, record.mRoute.getName());
-            MediaRouterJellybean.UserRouteInfo.setStatus(
-                    record.mRouteObj, normalizeStatus(record.mRoute.getStatus()));
             MediaRouterJellybean.UserRouteInfo.setPlaybackType(
                     record.mRouteObj, record.mRoute.getPlaybackType());
             MediaRouterJellybean.UserRouteInfo.setPlaybackStream(
@@ -608,13 +602,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 mCallbackRegistered = true;
                 MediaRouterJellybean.addCallback(mRouterObj, mRouteTypes, mCallbackObj);
             }
-        }
-
-        // The framework MediaRouter crashes if we set a null status even though
-        // RouteInfo.getStatus() may return null.  So we need to use a different
-        // value instead.
-        private static String normalizeStatus(String status) {
-            return status != null ? status : "";
         }
 
         protected Object createCallbackObj() {
@@ -757,6 +744,18 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
+        protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
+                MediaRouteDescriptor.Builder builder) {
+            super.onBuildSystemRouteDescriptor(record, builder);
+
+            CharSequence description =
+                    MediaRouterJellybeanMr2.RouteInfo.getDescription(record.mRouteObj);
+            if (description != null) {
+                builder.setDescription(description.toString());
+            }
+        }
+
+        @Override
         protected void selectRoute(Object routeObj) {
             MediaRouterJellybean.selectRoute(mRouterObj,
                     MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
@@ -765,6 +764,14 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         @Override
         protected Object getDefaultRoute() {
             return MediaRouterJellybeanMr2.getDefaultRoute(mRouterObj);
+        }
+
+        @Override
+        protected void updateUserRouteProperties(UserRouteRecord record) {
+            super.updateUserRouteProperties(record);
+
+            MediaRouterJellybeanMr2.UserRouteInfo.setDescription(
+                    record.mRouteObj, record.mRoute.getDescription());
         }
 
         @Override

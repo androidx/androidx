@@ -185,12 +185,13 @@ public class MediaRouteChooserDialog extends Dialog {
             TextView text1 = (TextView)view.findViewById(android.R.id.text1);
             TextView text2 = (TextView)view.findViewById(android.R.id.text2);
             text1.setText(route.getName());
-            String status = route.getStatus();
-            if (TextUtils.isEmpty(status)) {
+            String description = route.getDescription();
+            if (TextUtils.isEmpty(description)) {
                 text2.setVisibility(View.GONE);
+                text2.setText("");
             } else {
                 text2.setVisibility(View.VISIBLE);
-                text2.setText(status);
+                text2.setText(description);
             }
             view.setEnabled(route.isEnabled());
             return view;
