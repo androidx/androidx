@@ -60,6 +60,7 @@
     <Button android:id="@+id/media_route_disconnect_button"
             android:layout_width="fill_parent"
             android:layout_height="56dp"
+            style="?android:attr/buttonBarButtonStyle"
             android:gravity="center"
             android:text="@string/media_route_controller_disconnect" />
 </LinearLayout>

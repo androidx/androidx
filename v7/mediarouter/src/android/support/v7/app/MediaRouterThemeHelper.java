@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.mediarouter.R;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -37,5 +38,10 @@ final class MediaRouterThemeHelper {
     public static int getThemeResource(Context context, int attr) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(attr, value, true) ? value.resourceId : 0;
+    }
+
+    public static Drawable getThemeDrawable(Context context, int attr) {
+        int res = getThemeResource(context, attr);
+        return res != 0 ? context.getResources().getDrawable(res) : null;
     }
 }

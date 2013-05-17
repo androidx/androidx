@@ -18,6 +18,7 @@ package android.support.v7.app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
@@ -47,8 +48,9 @@ public class MediaRouteControllerDialog extends Dialog {
     private final MediaRouterCallback mCallback;
     private final MediaRouter.RouteInfo mRoute;
 
-    private final int mMediaRouteConnectingDrawableRes;
-    private final int mMediaRouteOnDrawableRes;
+    private Drawable mMediaRouteConnectingDrawable;
+    private Drawable mMediaRouteOnDrawable;
+    private Drawable mCurrentIconDrawable;
 
     private LinearLayout mVolumeLayout;
     private ImageView mVolumeDivider;
@@ -70,11 +72,6 @@ public class MediaRouteControllerDialog extends Dialog {
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
-
-        mMediaRouteConnectingDrawableRes = MediaRouterThemeHelper.getThemeResource(
-                context, R.attr.mediaRouteConnectingDrawable);
-        mMediaRouteOnDrawableRes = MediaRouterThemeHelper.getThemeResource(
-                context, R.attr.mediaRouteOnDrawable);
     }
 
     /**
@@ -211,10 +208,34 @@ public class MediaRouteControllerDialog extends Dialog {
         setTitle(mRoute.getName());
         updateVolume();
 
-        getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
-                mRoute.isConnecting() ? mMediaRouteConnectingDrawableRes :
-                        mMediaRouteOnDrawableRes);
+        Drawable icon = getIconDrawable();
+        if (icon != mCurrentIconDrawable) {
+            mCurrentIconDrawable = icon;
+
+            // There seems to be a bug in the framework where feature drawables
+            // will not start animating unless they experience a transition from
+            // invisible to visible.  So we force the drawable to be invisible here.
+            // The window will make the drawable visible when attached.
+            icon.setVisible(false, true);
+            getWindow().setFeatureDrawable(Window.FEATURE_LEFT_ICON, icon);
+        }
         return true;
+    }
+
+    private Drawable getIconDrawable() {
+        if (mRoute.isConnecting()) {
+            if (mMediaRouteConnectingDrawable == null) {
+                mMediaRouteConnectingDrawable = MediaRouterThemeHelper.getThemeDrawable(
+                        getContext(), R.attr.mediaRouteConnectingDrawable);
+            }
+            return mMediaRouteConnectingDrawable;
+        } else {
+            if (mMediaRouteOnDrawable == null) {
+                mMediaRouteOnDrawable = MediaRouterThemeHelper.getThemeDrawable(
+                        getContext(), R.attr.mediaRouteOnDrawable);
+            }
+            return mMediaRouteOnDrawable;
+        }
     }
 
     private void updateVolume() {
