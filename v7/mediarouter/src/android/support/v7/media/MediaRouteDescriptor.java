@@ -16,7 +16,6 @@
 package android.support.v7.media;
 
 import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -39,7 +38,6 @@ public final class MediaRouteDescriptor {
     private static final String KEY_ID = "id";
     private static final String KEY_NAME = "name";
     private static final String KEY_STATUS = "status";
-    private static final String KEY_ICON_RESOURCE = "iconResource";
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_CONNECTING = "connecting";
     private static final String KEY_CONTROL_FILTERS = "controlFilters";
@@ -52,13 +50,10 @@ public final class MediaRouteDescriptor {
     private static final String KEY_EXTRAS = "extras";
 
     private final Bundle mBundle;
-    private final Drawable mIconDrawable;
     private List<IntentFilter> mControlFilters;
 
-    private MediaRouteDescriptor(Bundle bundle, Drawable iconDrawable,
-            List<IntentFilter> controlFilters) {
+    private MediaRouteDescriptor(Bundle bundle, List<IntentFilter> controlFilters) {
         mBundle = bundle;
-        mIconDrawable = iconDrawable;
         mControlFilters = controlFilters;
     }
 
@@ -81,28 +76,6 @@ public final class MediaRouteDescriptor {
      */
     public String getStatus() {
         return mBundle.getString(KEY_STATUS);
-    }
-
-    /**
-     * Gets a drawable to display as the route's icon.
-     * <p>
-     * Because drawables cannot be transferred to other processes, the icon resource
-     * is usually passed in {@link #getIconResource} instead.
-     * </p>
-     */
-    public Drawable getIconDrawable() {
-        return mIconDrawable;
-    }
-
-    /**
-     * Gets the id of a drawable resource to display as the route's icon.
-     * <p>
-     * The specified drawable resource id will be loaded from the media route
-     * provider's package.
-     * </p>
-     */
-    public int getIconResource() {
-        return mBundle.getInt(KEY_ICON_RESOURCE);
     }
 
     /**
@@ -211,8 +184,6 @@ public final class MediaRouteDescriptor {
         result.append(", isEnabled=").append(isEnabled());
         result.append(", isConnecting=").append(isConnecting());
         result.append(", controlFilters=").append(Arrays.toString(getControlFilters().toArray()));
-        result.append(", iconDrawable=").append(getIconDrawable());
-        result.append(", iconResource=").append(getIconResource());
         result.append(", playbackType=").append(getPlaybackType());
         result.append(", playbackStream=").append(getPlaybackStream());
         result.append(", volume=").append(getVolume());
@@ -241,7 +212,7 @@ public final class MediaRouteDescriptor {
      * @return The new instance, or null if the bundle was null.
      */
     public static MediaRouteDescriptor fromBundle(Bundle bundle) {
-        return bundle != null ? new MediaRouteDescriptor(bundle, null, null) : null;
+        return bundle != null ? new MediaRouteDescriptor(bundle, null) : null;
     }
 
     /**
@@ -249,7 +220,6 @@ public final class MediaRouteDescriptor {
      */
     public static final class Builder {
         private final Bundle mBundle;
-        private Drawable mIconDrawable;
         private ArrayList<IntentFilter> mControlFilters;
 
         /**
@@ -274,7 +244,6 @@ public final class MediaRouteDescriptor {
             }
 
             mBundle = new Bundle(descriptor.mBundle);
-            mIconDrawable = descriptor.mIconDrawable;
 
             descriptor.ensureControlFilters();
             if (!descriptor.mControlFilters.isEmpty()) {
@@ -303,32 +272,6 @@ public final class MediaRouteDescriptor {
          */
         public Builder setStatus(String status) {
             mBundle.putString(KEY_STATUS, status);
-            return this;
-        }
-
-        /**
-         * Sets a drawable to display as the route's icon.
-         * <p>
-         * Because drawables cannot be transferred to other processes, this method may
-         * only be used by media route providers that reside in the same process
-         * as the application.  When implementing a media route provider service, use
-         * {@link #setIconResource} instead.
-         * </p>
-         */
-        public Builder setIconDrawable(Drawable drawable) {
-            mIconDrawable = drawable;
-            return this;
-        }
-
-        /**
-         * Sets the id of a drawable resource to display as the route's icon.
-         * <p>
-         * The specified drawable resource id will be loaded from the media route
-         * provider's package.
-         * </p>
-         */
-        public Builder setIconResource(int id) {
-            mBundle.putInt(KEY_ICON_RESOURCE, id);
             return this;
         }
 
@@ -451,7 +394,7 @@ public final class MediaRouteDescriptor {
             if (mControlFilters != null) {
                 mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, mControlFilters);
             }
-            return new MediaRouteDescriptor(mBundle, mIconDrawable, mControlFilters);
+            return new MediaRouteDescriptor(mBundle, mControlFilters);
         }
     }
 }
