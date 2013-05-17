@@ -1095,11 +1095,12 @@ public final class MediaRouter {
         boolean updateDescriptor(MediaRouteProviderDescriptor descriptor) {
             if (mDescriptor != descriptor) {
                 mDescriptor = descriptor;
-
-                if (!mDiscoverableControlFilters.equals(
-                        descriptor.getDiscoverableControlFilters())) {
-                    mDiscoverableControlFilters.clear();
-                    mDiscoverableControlFilters.addAll(descriptor.getDiscoverableControlFilters());
+                if (descriptor != null) {
+                    if (!mDiscoverableControlFilters.equals(
+                            descriptor.getDiscoverableControlFilters())) {
+                        mDiscoverableControlFilters.clear();
+                        mDiscoverableControlFilters.addAll(descriptor.getDiscoverableControlFilters());
+                    }
                 }
                 return true;
             }

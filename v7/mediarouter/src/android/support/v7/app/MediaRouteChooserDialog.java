@@ -48,8 +48,6 @@ public class MediaRouteChooserDialog extends Dialog {
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
-    private final int mMediaRouteOffDrawableRes;
-
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
     private RouteAdapter mAdapter;
     private ListView mListView;
@@ -65,9 +63,6 @@ public class MediaRouteChooserDialog extends Dialog {
 
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
-
-        mMediaRouteOffDrawableRes = MediaRouterThemeHelper.getThemeResource(
-                context, R.attr.mediaRouteOffDrawable);
     }
 
     /**
@@ -110,8 +105,10 @@ public class MediaRouteChooserDialog extends Dialog {
         setContentView(R.layout.media_route_chooser_dialog);
         setTitle(R.string.media_route_chooser_title);
 
+        // Must be called after setContentView.
         getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
-                mMediaRouteOffDrawableRes); // must happen after setContentView
+                MediaRouterThemeHelper.getThemeResource(
+                        getContext(), R.attr.mediaRouteOffDrawable));
 
         mAdapter = new RouteAdapter(getContext());
         mListView = (ListView)findViewById(R.id.media_route_list);
