@@ -189,26 +189,22 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
             MediaRouter.ControlRequestCallback callback =
                     new MediaRouter.ControlRequestCallback() {
                 @Override
-                public void onResult(int result, Bundle data) {
-                    switch (result) {
-                        case REQUEST_SUCCEEDED: {
-                            String streamId = data != null ? data.getString(
-                                    MediaControlIntent.EXTRA_ITEM_ID) : null;
+                public void onResult(Bundle data) {
+                    String streamId = data != null ? data.getString(
+                            MediaControlIntent.EXTRA_ITEM_ID) : null;
 
-                            Log.d(TAG, "Play request succeeded: streamId=" + streamId);
-                            Toast.makeText(SampleMediaRouterActivity.this,
-                                    "Now playing " + item.mName,
-                                    Toast.LENGTH_LONG).show();
-                            break;
-                        }
+                    Log.d(TAG, "Play request succeeded: data=" + data + " , streamId=" + streamId);
+                    Toast.makeText(SampleMediaRouterActivity.this,
+                            "Now playing " + item.mName,
+                            Toast.LENGTH_LONG).show();
+                }
 
-                        case REQUEST_FAILED:
-                            Log.d(TAG, "Play request failed.");
-                            Toast.makeText(SampleMediaRouterActivity.this,
-                                    "Unable to play " + item.mName,
-                                    Toast.LENGTH_LONG).show();
-                            break;
-                    }
+                @Override
+                public void onError(String error, Bundle data) {
+                    Log.d(TAG, "Play request failed: error=" + error + ", data=" + data);
+                    Toast.makeText(SampleMediaRouterActivity.this,
+                            "Unable to play " + item.mName + ", error: " + error,
+                            Toast.LENGTH_LONG).show();
                 }
             };
 
@@ -227,30 +223,27 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         if (route.supportsControlRequest(intent)) {
             MediaRouter.ControlRequestCallback callback = new MediaRouter.ControlRequestCallback() {
                 @Override
-                public void onResult(int result, Bundle data) {
-                    switch (result) {
-                        case REQUEST_SUCCEEDED:
-                            Log.d(TAG, "Statistics request succeeded: data=" + data);
-                            if (data != null) {
-                                int playbackCount = data.getInt(
-                                        SampleMediaRouteProvider.DATA_PLAYBACK_COUNT, -1);
-                                Toast.makeText(SampleMediaRouterActivity.this,
-                                        "Total playback count: " + playbackCount,
-                                        Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(SampleMediaRouterActivity.this,
-                                        "Statistics query did not return any data",
-                                        Toast.LENGTH_LONG).show();
-                            }
-                            break;
-
-                        case REQUEST_FAILED:
-                            Log.d(TAG, "Statistics request failed: data=" + data);
-                            Toast.makeText(SampleMediaRouterActivity.this,
-                                    "Unable to query statistics.",
-                                    Toast.LENGTH_LONG).show();
-                            break;
+                public void onResult(Bundle data) {
+                    Log.d(TAG, "Statistics request succeeded: data=" + data);
+                    if (data != null) {
+                        int playbackCount = data.getInt(
+                                SampleMediaRouteProvider.DATA_PLAYBACK_COUNT, -1);
+                        Toast.makeText(SampleMediaRouterActivity.this,
+                                "Total playback count: " + playbackCount,
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(SampleMediaRouterActivity.this,
+                                "Statistics query did not return any data",
+                                Toast.LENGTH_LONG).show();
                     }
+                }
+
+                @Override
+                public void onError(String error, Bundle data) {
+                    Log.d(TAG, "Statistics request failed: error=" + error + ", data=" + data);
+                    Toast.makeText(SampleMediaRouterActivity.this,
+                            "Unable to query statistics, error: " + error,
+                            Toast.LENGTH_LONG).show();
                 }
             };
 

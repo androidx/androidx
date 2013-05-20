@@ -27,6 +27,7 @@ import android.media.MediaRouter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.media.MediaControlIntent;
+import android.support.v7.media.MediaItemStatus;
 import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.support.v7.media.MediaRouteProviderDescriptor;
@@ -212,24 +213,40 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 int queueBehavior = intent.getIntExtra(
                         MediaControlIntent.EXTRA_ITEM_QUEUE_BEHAVIOR,
                         MediaControlIntent.ITEM_QUEUE_BEHAVIOR_PLAY_NOW);
-                int position = intent.getIntExtra(
-                        MediaControlIntent.EXTRA_ITEM_POSITION, 0);
+                double contentPosition = intent.getDoubleExtra(
+                        MediaControlIntent.EXTRA_ITEM_CONTENT_POSITION, 0);
                 Bundle metadata = intent.getBundleExtra(MediaControlIntent.EXTRA_ITEM_METADATA);
                 Bundle headers = intent.getBundleExtra(
                         MediaControlIntent.EXTRA_ITEM_HTTP_HEADERS);
-                String streamId = generateStreamId();
 
                 Log.d(TAG, mRouteId + ": Received play request, uri=" + uri
                         + ", queueBehavior=" + queueBehavior
-                        + ", position=" + position
+                        + ", contentPosition=" + contentPosition
                         + ", metadata=" + metadata
                         + ", headers=" + headers);
-                Toast.makeText(getContext(), "Route received play request: uri=" + uri,
-                        Toast.LENGTH_LONG).show();
-                if (callback != null) {
-                    Bundle result = new Bundle();
-                    result.putString(MediaControlIntent.EXTRA_ITEM_ID, streamId);
-                    callback.onResult(ControlRequestCallback.REQUEST_SUCCEEDED, result);
+
+                if (uri.toString().contains("hats")) {
+                    // Simulate generating an error whenever the uri contains the word 'hats'.
+                    Toast.makeText(getContext(), "Route rejected play request: uri=" + uri
+                            + ", no hats allowed!", Toast.LENGTH_LONG).show();
+                    if (callback != null) {
+                        callback.onError("Simulated error.  No hats allowed!", null);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Route received play request: uri=" + uri,
+                            Toast.LENGTH_LONG).show();
+                    String streamId = generateStreamId();
+                    if (callback != null) {
+                        MediaItemStatus status = new MediaItemStatus.Builder(
+                                MediaItemStatus.PLAYBACK_STATE_PLAYING)
+                                .setContentPosition(contentPosition)
+                                .build();
+
+                        Bundle result = new Bundle();
+                        result.putString(MediaControlIntent.EXTRA_ITEM_ID, streamId);
+                        result.putBundle(MediaControlIntent.EXTRA_ITEM_STATUS, status.asBundle());
+                        callback.onResult(result);
+                    }
                 }
                 return true;
             }
@@ -239,7 +256,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 Bundle data = new Bundle();
                 data.putInt(DATA_PLAYBACK_COUNT, mPlaybackCount);
                 if (callback != null) {
-                    callback.onResult(ControlRequestCallback.REQUEST_SUCCEEDED, data);
+                    callback.onResult(data);
                 }
                 return true;
             }
