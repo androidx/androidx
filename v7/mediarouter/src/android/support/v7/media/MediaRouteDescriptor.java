@@ -200,7 +200,7 @@ public final class MediaRouteDescriptor {
         result.append(", presentationDisplayId=").append(getPresentationDisplayId());
         result.append(", extras=").append(getExtras());
         result.append(", isValid=").append(isValid());
-        result.append("}");
+        result.append(" }");
         return result.toString();
     }
 

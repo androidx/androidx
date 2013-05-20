@@ -27,7 +27,7 @@
                   android:visibility="gone">
         <ImageView android:layout_width="48dp"
                    android:layout_height="48dp"
-                   android:src="@drawable/ic_audio_vol"
+                   android:src="@drawable/mr_ic_audio_vol"
                    android:gravity="center"
                    android:scaleType="center" />
         <SeekBar android:id="@+id/media_route_volume_slider"
@@ -62,5 +62,5 @@
             android:layout_height="56dp"
             style="?android:attr/buttonBarButtonStyle"
             android:gravity="center"
-            android:text="@string/media_route_controller_disconnect" />
+            android:text="@string/mr_media_route_controller_disconnect" />
 </LinearLayout>

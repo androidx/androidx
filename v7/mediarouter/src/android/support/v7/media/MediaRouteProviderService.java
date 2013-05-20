@@ -188,19 +188,28 @@ public abstract class MediaRouteProviderService extends Service {
     static final int SERVICE_MSG_REGISTERED = 2;
 
     /** (service v1)
-     * Route control request result.
+     * Route control request success result.
      * - arg1    : request id
-     * - arg2    : result code
      * - obj     : result data bundle, or null
      */
-    static final int SERVICE_MSG_CONTROL_RESULT = 3;
+    static final int SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED = 3;
+
+    /** (service v1)
+     * Route control request failure result.
+     * - arg1    : request id
+     * - obj     : result data bundle, or null
+     * - SERVICE_DATA_ERROR: error message
+     */
+    static final int SERVICE_MSG_CONTROL_REQUEST_FAILED = 4;
 
     /** (service v1)
      * Route provider descriptor changed.  (unsolicited event)
      * - arg1    : reserved (0)
      * - obj     : route provider descriptor bundle, or null
      */
-    static final int SERVICE_MSG_DESCRIPTOR_CHANGED = 4;
+    static final int SERVICE_MSG_DESCRIPTOR_CHANGED = 5;
+
+    static final String SERVICE_DATA_ERROR = "error";
 
     /*
      * Recognized client version numbers.  (Reserved for future use.)
@@ -447,16 +456,37 @@ public abstract class MediaRouteProviderService extends Service {
                 if (requestId != 0) {
                     callback = new MediaRouter.ControlRequestCallback() {
                         @Override
-                        public void onResult(int result, Bundle data) {
+                        public void onResult(Bundle data) {
                             if (DEBUG) {
-                                Log.d(TAG, client + ": Route control request finished"
+                                Log.d(TAG, client + ": Route control request succeeded"
                                         + ", controllerId=" + controllerId
                                         + ", intent=" + intent
-                                        + ", result=" + result + ", data=" + data);
+                                        + ", data=" + data);
                             }
                             if (findClient(messenger) >= 0) {
-                                sendReply(messenger, SERVICE_MSG_CONTROL_RESULT,
-                                        requestId, result, data, null);
+                                sendReply(messenger, SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED,
+                                        requestId, 0, data, null);
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error, Bundle data) {
+                            if (DEBUG) {
+                                Log.d(TAG, client + ": Route control request failed"
+                                        + ", controllerId=" + controllerId
+                                        + ", intent=" + intent
+                                        + ", error=" + error + ", data=" + data);
+                            }
+                            if (findClient(messenger) >= 0) {
+                                if (error != null) {
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString(SERVICE_DATA_ERROR, error);
+                                    sendReply(messenger, SERVICE_MSG_CONTROL_REQUEST_FAILED,
+                                            requestId, 0, data, bundle);
+                                } else {
+                                    sendReply(messenger, SERVICE_MSG_CONTROL_REQUEST_FAILED,
+                                            requestId, 0, data, null);
+                                }
                             }
                         }
                     };

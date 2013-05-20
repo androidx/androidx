@@ -66,8 +66,7 @@ import android.net.Uri;
  * A media item id is an opaque token that represents the playback request.
  * The application must supply the media item id when sending control requests to
  * {@link #ACTION_PAUSE pause}, {@link #ACTION_RESUME resume}, {@link #ACTION_SEEK seek},
- * {@link #ACTION_GET_STATUS get status}, {@link #ACTION_GET_PROGRESS get progress},
- * or perform other actions to affect playback.
+ * {@link #ACTION_GET_STATUS get status}, or perform other actions to affect playback.
  * </p><p>
  * Each remote playback action is bound to a specific media item.  If a
  * media item has finished, been canceled or encountered an error, then most
@@ -171,16 +170,16 @@ public final class MediaControlIntent {
      * If the data uri specifies an HTTP or HTTPS scheme, then the destination is
      * responsible for following HTTP redirects to a reasonable depth of at least 3
      * levels as might typically be handled by a web browser.  If an HTTP error
-     * occurs, then the destination should send a status update back to the client
-     * indicating the {@link MediaItemStatus#PLAYBACK_STATE_ERROR error}
-     * {@link MediaItemStatus#KEY_PLAYBACK_STATE state}
-     * and include the {@link MediaItemStatus#KEY_HTTP_STATUS_CODE HTTP status code}.
+     * occurs, then the destination should send a {@link MediaItemStatus status update}
+     * back to the client indicating the {@link MediaItemStatus#PLAYBACK_STATE_ERROR error}
+     * {@link MediaItemStatus#getPlaybackState() playback state}
+     * and include the {@link MediaItemStatus#getHttpStatusCode() HTTP status code}.
      * </p>
      *
      * <h3>Request parameters</h3>
      * <ul>
      * <li>{@link #EXTRA_ITEM_QUEUE_BEHAVIOR}: specifies when the content should be played.
-     * <li>{@link #EXTRA_ITEM_POSITION}: specifies the initial start position of the content.
+     * <li>{@link #EXTRA_ITEM_CONTENT_POSITION}: specifies the initial content playback position.
      * <li>{@link #EXTRA_ITEM_METADATA}: specifies metadata associated with the
      * content such as the title of a song.
      * <li>{@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER}: specifies a {@link PendingIntent}
@@ -193,13 +192,20 @@ public final class MediaControlIntent {
      * <ul>
      * <li>{@link #EXTRA_ITEM_ID}: specifies an opaque string identifier to use to refer
      * to the media item in subsequent requests such as {@link #ACTION_PAUSE}.
+     * <li>{@link #EXTRA_ITEM_STATUS}: specifies the initial status of the item
+     * that has been enqueued.
      * </ul>
      *
      * <h3>Status updates</h3>
      * <p>
      * If the client supplies a {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER status update receiver}
      * then the media route provider is responsible for sending status updates to the receiver
-     * when significant media item state changes occur.
+     * when significant media item state changes occur such as when playback starts or
+     * stops.  The receiver will not be invoked for content playback position changes.
+     * The application may retrieve the current playback position when necessary
+     * using the {@link #ACTION_GET_STATUS} request.
+     * </p><p>
+     * Refer to {@link MediaItemStatus} for details.
      * </p>
      *
      * <h3>Example</h3>
@@ -230,7 +236,6 @@ public final class MediaControlIntent {
      * @see #ACTION_STOP
      * @see #ACTION_PAUSE
      * @see #ACTION_RESUME
-     * @see #ACTION_GET_PROGRESS
      * @see #ACTION_GET_STATUS
      */
     public static final String ACTION_PLAY = "android.media.intent.action.PLAY";
@@ -257,12 +262,12 @@ public final class MediaControlIntent {
      * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
      * controlled.  This value was returned as a result from the
      * {@link #ACTION_PLAY play} action.
-     * <li>{@link #EXTRA_ITEM_POSITION}: specifies the new position of the content.
+     * <li>{@link #EXTRA_ITEM_CONTENT_POSITION}: specifies the new position of the content.
      * </ul>
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li>(none)
+     * <li>{@link #EXTRA_ITEM_STATUS}: specifies the status of the stream.
      * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
@@ -292,7 +297,7 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li>(none)
+     * <li>{@link #EXTRA_ITEM_STATUS}: specifies the status of the stream.
      * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
@@ -323,7 +328,7 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li>(none)
+     * <li>{@link #EXTRA_ITEM_STATUS}: specifies the status of the stream.
      * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
@@ -351,7 +356,7 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li>(none)
+     * <li>{@link #EXTRA_ITEM_STATUS}: specifies the status of the stream.
      * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
@@ -361,13 +366,13 @@ public final class MediaControlIntent {
     public static final String ACTION_RESUME = "android.media.intent.action.RESUME";
 
     /**
-     * Media control action: Get media item status.
+     * Media control action: Get media item playback status and progress information.
      * <p>
      * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
      * media control.
      * </p><p>
-     * This action asks a remote playback route to provide updated status information
-     * about playback of the specified media item.
+     * This action asks a remote playback route to provide updated playback status and progress
+     * information about the specified media item.
      * </p>
      *
      * <h3>Request parameters</h3>
@@ -387,35 +392,6 @@ public final class MediaControlIntent {
      * @see #EXTRA_ITEM_STATUS_UPDATE_RECEIVER
      */
     public static final String ACTION_GET_STATUS = "android.media.intent.action.GET_STATUS";
-
-    /**
-     * Media control action: Get media item progress.
-     * <p>
-     * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
-     * media control.
-     * </p><p>
-     * This action asks a remote playback route to provide media item playback
-     * progress information.  The client may use this information to provide feedback
-     * to the user about the current playback position and overall duration.
-     * </p>
-     *
-     * <h3>Request parameters</h3>
-     * <ul>
-     * <li>{@link #EXTRA_ITEM_ID}: specifies the media item id of the playback to be
-     * controlled.  This value was returned as a result from the
-     * {@link #ACTION_PLAY play} action.
-     * </ul>
-     *
-     * <h3>Result data</h3>
-     * <ul>
-     * <li>{@link #EXTRA_ITEM_POSITION}: specifies the content playback position.
-     * <li>{@link #EXTRA_ITEM_DURATION}: specifies the overall duration of the content.
-     * </ul>
-     *
-     * @see MediaRouter.RouteInfo#sendControlRequest
-     * @see #CATEGORY_REMOTE_PLAYBACK
-     */
-    public static final String ACTION_GET_PROGRESS = "android.media.intent.action.GET_PROGRESS";
 
     /**
      * Integer extra: Media item queue behavior.
@@ -473,37 +449,21 @@ public final class MediaControlIntent {
     public static final int ITEM_QUEUE_BEHAVIOR_PLAY_LATER = 2;
 
     /**
-     * Integer extra: Media item content position.
+     * Double extra: Media item content position.
      * <p>
      * Used with {@link #ACTION_PLAY} to specify the starting playback position.
      * </p><p>
      * Used with {@link #ACTION_SEEK} to set a new playback position.
      * </p><p>
-     * Used with {@link #ACTION_GET_PROGRESS} to report the current playback position.
-     * </p><p>
-     * The value is an integer number of seconds from the beginning of the content.
+     * The value is a double-precision floating point number of seconds
+     * from the beginning of the content.
      * <p>
      *
      * @see #ACTION_PLAY
      * @see #ACTION_SEEK
-     * @see #ACTION_GET_PROGRESS
      */
-    public static final String EXTRA_ITEM_POSITION =
+    public static final String EXTRA_ITEM_CONTENT_POSITION =
             "android.media.intent.extra.ITEM_POSITION";
-
-    /**
-     * Integer extra: Media item content duration.
-     * <p>
-     * Used with {@link #ACTION_GET_PROGRESS} to report the overall duration of the
-     * media item content.
-     * </p><p>
-     * The value is an integer number of seconds from the beginning of the content.
-     * <p>
-     *
-     * @see #ACTION_GET_PROGRESS
-     */
-    public static final String EXTRA_ITEM_DURATION =
-            "android.media.intent.extra.ITEM_DURATION";
 
     /**
      * Bundle extra: Media item metadata.

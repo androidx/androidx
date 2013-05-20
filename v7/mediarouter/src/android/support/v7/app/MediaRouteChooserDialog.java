@@ -102,8 +102,8 @@ public class MediaRouteChooserDialog extends Dialog {
 
         getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
 
-        setContentView(R.layout.media_route_chooser_dialog);
-        setTitle(R.string.media_route_chooser_title);
+        setContentView(R.layout.mr_media_route_chooser_dialog);
+        setTitle(R.string.mr_media_route_chooser_title);
 
         // Must be called after setContentView.
         getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
@@ -176,7 +176,7 @@ public class MediaRouteChooserDialog extends Dialog {
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = convertView;
             if (view == null) {
-                view = mInflater.inflate(R.layout.media_route_list_item, parent, false);
+                view = mInflater.inflate(R.layout.mr_media_route_list_item, parent, false);
             }
             MediaRouter.RouteInfo route = getItem(position);
             TextView text1 = (TextView)view.findViewById(android.R.id.text1);
