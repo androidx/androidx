@@ -1099,7 +1099,8 @@ public final class MediaRouter {
                     if (!mDiscoverableControlFilters.equals(
                             descriptor.getDiscoverableControlFilters())) {
                         mDiscoverableControlFilters.clear();
-                        mDiscoverableControlFilters.addAll(descriptor.getDiscoverableControlFilters());
+                        mDiscoverableControlFilters.addAll(
+                                descriptor.getDiscoverableControlFilters());
                     }
                 }
                 return true;
@@ -1242,22 +1243,23 @@ public final class MediaRouter {
      */
     public static abstract class ControlRequestCallback {
         /**
-         * Result code: The media control action succeeded.
-         */
-        public static final int REQUEST_SUCCEEDED = 0;
-
-        /**
-         * Result code: The media control action failed.
-         */
-        public static final int REQUEST_FAILED = -1;
-
-        /**
-         * Called with the result of the media control request.
+         * Called when a media control request succeeds.
          *
-         * @param result The result code: {@link #REQUEST_SUCCEEDED}, or {@link #REQUEST_FAILED}.
-         * @param data Additional result data.  Contents depend on the media control action.
+         * @param data Result data, or null if none.
+         * Contents depend on the {@link MediaControlIntent media control action}.
          */
-        public void onResult(int result, Bundle data) {
+        public void onResult(Bundle data) {
+        }
+
+        /**
+         * Called when a media control request fails.
+         *
+         * @param error A localized error message which may be shown to the user, or null
+         * if the cause of the error is unclear.
+         * @param data Error data, or null if none.
+         * Contents depend on the {@link MediaControlIntent media control action}.
+         */
+        public void onError(String error, Bundle data) {
         }
     }
 
@@ -1360,7 +1362,7 @@ public final class MediaRouter {
                 }
             }
             if (callback != null) {
-                callback.onResult(ControlRequestCallback.REQUEST_FAILED, null);
+                callback.onError(null, null);
             }
         }
 

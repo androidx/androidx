@@ -128,7 +128,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             int maxVolume = mAudioManager.getStreamMaxVolume(PLAYBACK_STREAM);
             mLastReportedVolume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);
             MediaRouteDescriptor defaultRoute = new MediaRouteDescriptor.Builder(
-                    DEFAULT_ROUTE_ID, r.getString(R.string.system_route_name))
+                    DEFAULT_ROUTE_ID, r.getString(R.string.mr_system_route_name))
                     .addControlFilters(CONTROL_FILTERS)
                     .setPlaybackStream(PLAYBACK_STREAM)
                     .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL)
@@ -252,7 +252,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
             Resources r = context.getResources();
             mUserRouteCategoryObj = MediaRouterJellybean.createRouteCategory(
-                    mRouterObj, r.getString(R.string.user_route_category_name), false);
+                    mRouterObj, r.getString(R.string.mr_user_route_category_name), false);
 
             updateSystemRoutes();
         }

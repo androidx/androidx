@@ -376,7 +376,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         private void failPendingCallbacks() {
             int count = 0;
             for (int i = 0; i < mPendingCallbacks.size(); i++) {
-                mPendingCallbacks.get(i).onResult(ControlRequestCallback.REQUEST_FAILED, null);
+                mPendingCallbacks.get(i).onError(null, null);
             }
             mPendingCallbacks.clear();
         }
@@ -389,7 +389,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             ControlRequestCallback callback = mPendingCallbacks.get(requestId);
             if (callback != null) {
                 mPendingCallbacks.remove(requestId);
-                callback.onResult(ControlRequestCallback.REQUEST_FAILED, null);
+                callback.onError(null, null);
             }
             return true;
         }
@@ -422,12 +422,21 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             return false;
         }
 
-        public boolean onControlRequestResult(int requestId, int resultCode,
-                Bundle resultData) {
+        public boolean onControlRequestSucceeded(int requestId, Bundle data) {
             ControlRequestCallback callback = mPendingCallbacks.get(requestId);
             if (callback != null) {
                 mPendingCallbacks.remove(requestId);
-                callback.onResult(resultCode, resultData);
+                callback.onResult(data);
+                return true;
+            }
+            return false;
+        }
+
+        public boolean onControlRequestFailed(int requestId, String error, Bundle data) {
+            ControlRequestCallback callback = mPendingCallbacks.get(requestId);
+            if (callback != null) {
+                mPendingCallbacks.remove(requestId);
+                callback.onError(error, data);
                 return true;
             }
             return false;
@@ -552,14 +561,15 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             final int requestId = msg.arg1;
             final int arg = msg.arg2;
             final Object obj = msg.obj;
-            if (!processMessage(what, requestId, arg, obj)) {
+            final Bundle data = msg.peekData();
+            if (!processMessage(what, requestId, arg, obj, data)) {
                 if (DEBUG) {
                     Log.d(TAG, "Unhandled message from server: " + msg);
                 }
             }
         }
 
-        private boolean processMessage(int what, int requestId, int arg, Object obj) {
+        private boolean processMessage(int what, int requestId, int arg, Object obj, Bundle data) {
             Connection connection = mConnectionRef.get();
             if (connection != null) {
                 switch (what) {
@@ -583,13 +593,22 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                         }
                         break;
 
-                    case MediaRouteProviderService.SERVICE_MSG_CONTROL_RESULT:
+                    case MediaRouteProviderService.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED:
                         if (obj == null || obj instanceof Bundle) {
-                            return connection.onControlRequestResult(
-                                    requestId, arg, (Bundle)obj);
+                            return connection.onControlRequestSucceeded(
+                                    requestId, (Bundle)obj);
                         }
                         break;
-                }
+
+                    case MediaRouteProviderService.SERVICE_MSG_CONTROL_REQUEST_FAILED:
+                        if (obj == null || obj instanceof Bundle) {
+                            String error =
+                                    data.getString(MediaRouteProviderService.SERVICE_DATA_ERROR);
+                            return connection.onControlRequestFailed(
+                                    requestId, error, (Bundle)obj);
+                        }
+                        break;
+                 }
             }
             return false;
         }
