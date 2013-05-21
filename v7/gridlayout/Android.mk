@@ -23,7 +23,3 @@ LOCAL_MODULE := android-support-v7-gridlayout
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# Include this library in the build server's output directory
-$(call dist-for-goals, droidcore sdk, $(LOCAL_BUILT_MODULE):android-support-v7-gridlayout.jar)
-
