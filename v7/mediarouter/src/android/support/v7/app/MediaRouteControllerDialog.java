@@ -108,7 +108,7 @@ public class MediaRouteControllerDialog extends Dialog {
 
         getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
 
-        setContentView(R.layout.media_route_controller_dialog);
+        setContentView(R.layout.mr_media_route_controller_dialog);
 
         mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
         mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);

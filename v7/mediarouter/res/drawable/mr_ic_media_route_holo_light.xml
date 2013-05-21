@@ -14,11 +14,12 @@
      limitations under the License.
 -->
 
-<animation-list
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:oneshot="false">
-    <item android:drawable="@drawable/ic_media_route_on_0_holo_light" android:duration="500" />
-    <item android:drawable="@drawable/ic_media_route_on_1_holo_light" android:duration="500" />
-    <item android:drawable="@drawable/ic_media_route_on_2_holo_light" android:duration="500" />
-    <item android:drawable="@drawable/ic_media_route_on_1_holo_light" android:duration="500" />
-</animation-list>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:state_enabled="true"
+            android:drawable="@drawable/mr_ic_media_route_on_holo_light" />
+    <item android:state_checkable="true" android:state_enabled="true"
+            android:drawable="@drawable/mr_ic_media_route_connecting_holo_light" />
+    <item android:state_enabled="true"
+            android:drawable="@drawable/mr_ic_media_route_off_holo_light" />
+    <item android:drawable="@drawable/mr_ic_media_route_disabled_holo_light" />
+</selector>

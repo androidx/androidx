@@ -16,11 +16,18 @@
 
 package android.support.v7.media;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 /**
  * Constants for specifying metadata about a media item as a {@link Bundle}.
+ * <p>
+ * Media item metadata is described as a bundle of key/value pairs as defined
+ * in this class.  The documentation specifies the type of value associated
+ * with each key.
+ * </p><p>
+ * An application may specify additional custom metadata keys but there is no guarantee
+ * that they will be recognized by the destination.
+ * </p>
  */
 public final class MediaItemMetadata {
     /*
@@ -33,99 +40,83 @@ public final class MediaItemMetadata {
     }
 
     /**
-     * Metadata key: Album artist name.
+     * String key: Album artist name.
      * <p>
      * The value is a string suitable for display.
      * </p>
      */
-    public static final String KEY_ALBUM_ARTIST = "ALBUM_ARTIST";
+    public static final String KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
 
     /**
-     * Metadata key: Album title.
+     * String key: Album title.
      * <p>
      * The value is a string suitable for display.
      * </p>
      */
-    public static final String KEY_ALBUM_TITLE = "ALBUM_TITLE";
+    public static final String KEY_ALBUM_TITLE = "android.media.metadata.ALBUM_TITLE";
 
     /**
-     * Metadata key: Artwork Uri.
+     * String key: Artwork Uri.
      * <p>
      * The value is a string URI for an image file associated with the media item,
      * such as album or cover art.
      * </p>
-     *
-     * @see #KEY_ARTWORK_BITMAP
      */
-    public static final String KEY_ARTWORK_URI = "ARTWORK_URI";
+    public static final String KEY_ARTWORK_URI = "android.media.metadata.ARTWORK_URI";
 
     /**
-     * Metadata key: Artwork Bitmap.
-     * <p>
-     * The value is a {@link Bitmap} for an image file associated with the media item,
-     * such as album or cover art.
-     * </p><p>
-     * Because bitmaps can be large, use {@link #KEY_ARTWORK_URI} instead if the artwork can
-     * be downloaded from the network.
-     * </p>
-     *
-     * @see #KEY_ARTWORK_URI
-     */
-    public static final String KEY_ARTWORK_BITMAP = "ARTWORK_BITMAP";
-
-    /**
-     * Metadata key: Artist name.
+     * String key: Artist name.
      * <p>
      * The value is a string suitable for display.
      * </p>
      */
-    public static final String KEY_ARTIST = "ARTIST";
+    public static final String KEY_ARTIST = "android.media.metadata.ARTIST";
 
     /**
-     * Metadata key: Author name.
+     * String key: Author name.
      * <p>
      * The value is a string suitable for display.
      * </p>
      */
-    public static final String KEY_AUTHOR = "AUTHOR";
+    public static final String KEY_AUTHOR = "android.media.metadata.AUTHOR";
 
     /**
-     * Metadata key: Composer name.
+     * String key: Composer name.
      * <p>
      * The value is a string suitable for display.
      * </p>
      */
-    public static final String KEY_COMPOSER = "COMPOSER";
+    public static final String KEY_COMPOSER = "android.media.metadata.COMPOSER";
 
     /**
-     * Metadata key: Track title.
+     * String key: Track title.
      * <p>
      * The value is a string suitable for display.
      * </p>
      */
-    public static final String KEY_TITLE = "TITLE";
+    public static final String KEY_TITLE = "android.media.metadata.TITLE";
 
     /**
-     * Metadata key: Year of publication.
+     * Integer key: Year of publication.
      * <p>
      * The value is an integer year number.
      * </p>
      */
-    public static final String KEY_YEAR = "YEAR";
+    public static final String KEY_YEAR = "android.media.metadata.YEAR";
 
     /**
-     * Metadata key: Track number (such as a track on a CD).
+     * Integer key: Track number (such as a track on a CD).
      * <p>
      * The value is a one-based integer track number.
      * </p>
      */
-    public static final String KEY_TRACK_NUMBER = "TRACK_NUMBER";
+    public static final String KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
 
     /**
-     * Metadata key: Disc number within a collection.
+     * Integer key: Disc number within a collection.
      * <p>
      * The value is a one-based integer disc number.
      * </p>
      */
-    public static final String KEY_DISC_NUMBER = "DISC_NUMBER";
+    public static final String KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
 }

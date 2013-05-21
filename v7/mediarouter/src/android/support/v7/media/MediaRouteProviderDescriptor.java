@@ -136,7 +136,7 @@ public final class MediaRouteProviderDescriptor {
         result.append(", routes=").append(
                 Arrays.toString(getRoutes().toArray()));
         result.append(", isValid=").append(isValid());
-        result.append("}");
+        result.append(" }");
         return result.toString();
     }
 
