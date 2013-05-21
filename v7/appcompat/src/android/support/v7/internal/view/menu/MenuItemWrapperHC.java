@@ -18,8 +18,8 @@ package android.support.v7.internal.view.menu;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.ActionProvider;
 import android.support.v4.internal.view.SupportMenuItem;
+import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -226,16 +226,14 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
 
     @Override
     public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
-        mWrappedObject.setActionProvider(actionProvider != null ?
-                createActionProviderWrapper(actionProvider) : null);
+        // APIv14+ API
         return this;
     }
 
     @Override
     public ActionProvider getSupportActionProvider() {
-        ActionProviderWrapper providerWrapper =
-                (ActionProviderWrapper)mWrappedObject.getActionProvider();
-        return providerWrapper.mInner;
+        // APIv14+ API
+        return null;
     }
 
     @Override
@@ -281,10 +279,6 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
         return null;
     }
 
-    ActionProviderWrapper createActionProviderWrapper(ActionProvider provider) {
-        return new ActionProviderWrapper(provider);
-    }
-
     private class OnMenuItemClickListenerWrapper extends BaseWrapper<OnMenuItemClickListener>
             implements android.view.MenuItem.OnMenuItemClickListener {
 
@@ -295,36 +289,6 @@ class MenuItemWrapperHC extends BaseMenuWrapper<android.view.MenuItem> implement
         @Override
         public boolean onMenuItemClick(android.view.MenuItem item) {
             return mWrappedObject.onMenuItemClick(getMenuItemWrapper(item));
-        }
-    }
-
-    class ActionProviderWrapper extends android.view.ActionProvider {
-        final ActionProvider mInner;
-
-        public ActionProviderWrapper(ActionProvider inner) {
-            super(inner.getContext());
-            mInner = inner;
-        }
-
-        @Override
-        @SuppressWarnings("deprecation")
-        public View onCreateActionView() {
-            return mInner.onCreateActionView(mWrappedObject);
-        }
-
-        @Override
-        public boolean onPerformDefaultAction() {
-            return mInner.onPerformDefaultAction();
-        }
-
-        @Override
-        public boolean hasSubMenu() {
-            return mInner.hasSubMenu();
-        }
-
-        @Override
-        public void onPrepareSubMenu(android.view.SubMenu subMenu) {
-            mInner.onPrepareSubMenu(getSubMenuWrapper(subMenu));
         }
     }
 }
