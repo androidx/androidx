@@ -424,15 +424,38 @@ public class SlidingPaneLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        final int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
         if (widthMode != MeasureSpec.EXACTLY) {
-            throw new IllegalStateException("Width must have an exact value or MATCH_PARENT");
+            if (isInEditMode()) {
+                // Don't crash the layout editor. Consume all of the space if specified
+                // or pick a magic number from thin air otherwise.
+                // TODO Better communication with tools of this bogus state.
+                // It will crash on a real device.
+                if (widthMode == MeasureSpec.AT_MOST) {
+                    widthMode = MeasureSpec.EXACTLY;
+                } else if (widthMode == MeasureSpec.UNSPECIFIED) {
+                    widthMode = MeasureSpec.EXACTLY;
+                    widthSize = 300;
+                }
+            } else {
+                throw new IllegalStateException("Width must have an exact value or MATCH_PARENT");
+            }
         } else if (heightMode == MeasureSpec.UNSPECIFIED) {
-            throw new IllegalStateException("Height must not be UNSPECIFIED");
+            if (isInEditMode()) {
+                // Don't crash the layout editor. Pick a magic number from thin air instead.
+                // TODO Better communication with tools of this bogus state.
+                // It will crash on a real device.
+                if (heightMode == MeasureSpec.UNSPECIFIED) {
+                    heightMode = MeasureSpec.AT_MOST;
+                    heightSize = 300;
+                }
+            } else {
+                throw new IllegalStateException("Height must not be UNSPECIFIED");
+            }
         }
 
         int layoutHeight = 0;
