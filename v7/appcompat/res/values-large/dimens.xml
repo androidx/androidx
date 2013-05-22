@@ -13,10 +13,10 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <color name="transparent">#00000000</color>
 
-    <color name="search_url_text_normal">#7fa87f</color>
-    <color name="search_url_text_selected">@android:color/black</color>
-    <color name="search_url_text_pressed">@android:color/black</color>
+<resources>
+
+    <!-- Minimum width of the search view text entry area. -->
+    <dimen name="search_view_text_min_width">192dip</dimen>
+
 </resources>

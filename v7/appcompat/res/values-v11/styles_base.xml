@@ -148,4 +148,12 @@
            parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle">
     </style>
 
+    <style name="Widget.AppCompat.Base.AutoCompleteTextView"
+           parent="android:Widget.Holo.AutoCompleteTextView">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.AutoCompleteTextView"
+           parent="android:Widget.Holo.Light.AutoCompleteTextView">
+    </style>
+
 </resources>

@@ -224,6 +224,14 @@
         <attr name="paddingStart" format="dimension"/>
         <!-- Sets the padding, in pixels, of the end edge; see {@link android.R.attr#padding}. -->
         <attr name="paddingEnd" format="dimension"/>
+
+        <!-- Boolean that controls whether a view can take focus.  By default the user can not
+             move focus to a view; by setting this attribute to true the view is
+             allowed to take focus.  This value does not impact the behavior of
+             directly calling {@link android.view.View#requestFocus}, which will
+             always request focus regardless of this view.  It only impacts where
+             focus navigation will try to move focus. -->
+        <attr name="android:focusable" />
     </declare-styleable>
 
     <!-- =================== -->
@@ -476,4 +484,52 @@
 
     <!-- Specifies whether the theme is light, otherwise it is dark. -->
     <attr name="isLightTheme" format="boolean" />
+
+    <declare-styleable name="SearchView">
+        <!-- The default state of the SearchView. If true, it will be iconified when not in
+             use and expanded when clicked. -->
+        <attr name="iconifiedByDefault" format="boolean"/>
+        <!-- An optional maximum width of the SearchView. -->
+        <attr name="android:maxWidth" />
+        <!-- An optional query hint string to be displayed in the empty query field. -->
+        <attr name="queryHint" format="string" />
+        <!-- The IME options to set on the query text field. -->
+        <attr name="android:imeOptions" />
+        <!-- The input type to set on the query text field. -->
+        <attr name="android:inputType" />
+    </declare-styleable>
+
+    <!-- ============================ -->
+    <!-- SearchView styles and assets -->
+    <!-- ============================ -->
+    <eat-comment />
+    <!-- SearchView dropdown background -->
+    <attr name="searchDropdownBackground" format="reference" />
+    <!-- SearchView close button icon -->
+    <attr name="searchViewCloseIcon" format="reference" />
+    <!-- SearchView Go button icon -->
+    <attr name="searchViewGoIcon" format="reference" />
+    <!-- SearchView Search icon -->
+    <attr name="searchViewSearchIcon" format="reference" />
+    <!-- SearchView Voice button icon -->
+    <attr name="searchViewVoiceIcon" format="reference" />
+    <!-- SearchView query refinement icon -->
+    <attr name="searchViewEditQuery" format="reference" />
+    <!-- SearchView query refinement icon background -->
+    <attr name="searchViewEditQueryBackground" format="reference" />
+    <!-- SearchView text field background for the left section -->
+    <attr name="searchViewTextField" format="reference" />
+    <!-- SearchView text field background for the right section -->
+    <attr name="searchViewTextFieldRight" format="reference" />
+    <!-- The list item height for search results. @hide -->
+    <attr name="searchResultListItemHeight" format="dimension" />
+    <!-- Text color, typeface, size, and style for system search result title. Defaults to primary inverse text color. -->
+    <attr name="textAppearanceSearchResultTitle" format="reference" />
+    <!-- Text color, typeface, size, and style for system search result subtitle. Defaults to primary inverse text color. -->
+    <attr name="textAppearanceSearchResultSubtitle" format="reference" />
+    <!-- Text color for urls in search suggestions, used by things like global search -->
+    <attr name="textColorSearchUrl" format="reference|color" />
+    <!-- SearchView AutoCompleteTextView style -->
+    <attr name="searchViewAutoCompleteTextView" format="reference" />
+
 </resources>

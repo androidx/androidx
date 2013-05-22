@@ -203,4 +203,28 @@
            parent="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Small">
     </style>
 
+    <style name="TextAppearance.AppCompat.SearchResult.Title"
+           parent="TextAppearance.AppCompat.Base.SearchResult.Title">
+    </style>
+
+    <style name="TextAppearance.AppCompat.SearchResult.Subtitle"
+           parent="TextAppearance.AppCompat.Base.SearchResult.Subtitle">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Light.SearchResult.Title"
+           parent="TextAppearance.AppCompat.Light.Base.SearchResult.Title">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Light.SearchResult.Subtitle"
+           parent="TextAppearance.AppCompat.Light.Base.SearchResult.Subtitle">
+    </style>
+
+    <style name="Widget.AppCompat.AutoCompleteTextView"
+           parent="Widget.AppCompat.Base.AutoCompleteTextView">
+    </style>
+
+    <style name="Widget.AppCompat.Light.AutoCompleteTextView"
+           parent="Widget.AppCompat.Base.AutoCompleteTextView">
+    </style>
+
 </resources>
