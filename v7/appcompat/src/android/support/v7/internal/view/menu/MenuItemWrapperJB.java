@@ -18,6 +18,7 @@ package android.support.v7.internal.view.menu;
 
 import android.support.v4.view.ActionProvider;
 import android.view.MenuItem;
+import android.view.View;
 
 class MenuItemWrapperJB extends MenuItemWrapperICS {
     MenuItemWrapperJB(android.view.MenuItem object) {
@@ -25,14 +26,8 @@ class MenuItemWrapperJB extends MenuItemWrapperICS {
     }
 
     @Override
-    public MenuItem setActionProvider(android.view.ActionProvider provider) {
-        mWrappedObject.setActionProvider(provider);
-        return this;
-    }
-
-    @Override
-    public android.view.ActionProvider getActionProvider() {
-        return mWrappedObject.getActionProvider();
+    ActionProviderWrapper createActionProviderWrapper(ActionProvider provider) {
+        return new ActionProviderWrapperJB(provider);
     }
 
     class ActionProviderWrapperJB extends ActionProviderWrapper
@@ -41,6 +36,11 @@ class MenuItemWrapperJB extends MenuItemWrapperICS {
 
         public ActionProviderWrapperJB(ActionProvider inner) {
             super(inner);
+        }
+
+        @Override
+        public View onCreateActionView(MenuItem forItem) {
+            return mInner.onCreateActionView(forItem);
         }
 
         @Override
