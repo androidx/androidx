@@ -16,7 +16,10 @@
 
 package android.support.v7.internal.view.menu;
 
+import android.support.v4.internal.view.SupportMenuItem;
+import android.support.v4.view.ActionProvider;
 import android.view.MenuItem;
+import android.view.View;
 
 class MenuItemWrapperICS extends MenuItemWrapperHC {
     MenuItemWrapperICS(android.view.MenuItem object) {
@@ -56,6 +59,24 @@ class MenuItemWrapperICS extends MenuItemWrapperHC {
         return this;
     }
 
+    @Override
+    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
+        mWrappedObject.setActionProvider(actionProvider != null ?
+                createActionProviderWrapper(actionProvider) : null);
+        return this;
+    }
+
+    @Override
+    public ActionProvider getSupportActionProvider() {
+        ActionProviderWrapper providerWrapper =
+                (ActionProviderWrapper)mWrappedObject.getActionProvider();
+        return providerWrapper.mInner;
+    }
+
+    ActionProviderWrapper createActionProviderWrapper(ActionProvider provider) {
+        return new ActionProviderWrapper(provider);
+    }
+
     private class OnActionExpandListenerWrapper extends BaseWrapper<MenuItem.OnActionExpandListener>
             implements android.view.MenuItem.OnActionExpandListener {
 
@@ -71,6 +92,35 @@ class MenuItemWrapperICS extends MenuItemWrapperHC {
         @Override
         public boolean onMenuItemActionCollapse(android.view.MenuItem item) {
             return mWrappedObject.onMenuItemActionCollapse(getMenuItemWrapper(item));
+        }
+    }
+
+    class ActionProviderWrapper extends android.view.ActionProvider {
+        final ActionProvider mInner;
+
+        public ActionProviderWrapper(ActionProvider inner) {
+            super(inner.getContext());
+            mInner = inner;
+        }
+
+        @Override
+        public View onCreateActionView() {
+            return mInner.onCreateActionView();
+        }
+
+        @Override
+        public boolean onPerformDefaultAction() {
+            return mInner.onPerformDefaultAction();
+        }
+
+        @Override
+        public boolean hasSubMenu() {
+            return mInner.hasSubMenu();
+        }
+
+        @Override
+        public void onPrepareSubMenu(android.view.SubMenu subMenu) {
+            mInner.onPrepareSubMenu(getSubMenuWrapper(subMenu));
         }
     }
 }

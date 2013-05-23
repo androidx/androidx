@@ -495,6 +495,9 @@ public final class MenuItemImpl implements SupportMenuItem {
 
     @Override
     public boolean isVisible() {
+        if (mActionProvider != null && mActionProvider.overridesItemVisibility()) {
+            return (mFlags & HIDDEN) == 0 && mActionProvider.isVisible();
+        }
         return (mFlags & HIDDEN) == 0;
     }
 
@@ -659,7 +662,7 @@ public final class MenuItemImpl implements SupportMenuItem {
             actionProvider.setVisibilityListener(new ActionProvider.VisibilityListener() {
                 @Override
                 public void onActionProviderVisibilityChanged(boolean isVisible) {
-                    setVisible(isVisible);
+                    mMenu.onItemVisibleChanged(MenuItemImpl.this);
                 }
             });
         }
