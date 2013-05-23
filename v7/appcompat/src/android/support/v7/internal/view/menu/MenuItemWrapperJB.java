@@ -22,7 +22,8 @@ import android.view.View;
 
 class MenuItemWrapperJB extends MenuItemWrapperICS {
     MenuItemWrapperJB(android.view.MenuItem object) {
-        super(object);
+        // We do not want to use the emulation of Action Provider visibility override
+        super(object, false);
     }
 
     @Override
