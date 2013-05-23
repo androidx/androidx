@@ -55,7 +55,7 @@
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/action_bar_size</item>
+        <item name="actionBarSize">@dimen/abc_action_bar_size</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
         <item name="actionMenuTextAppearance">
@@ -76,7 +76,7 @@
         </item>
 
         <!-- Panel attributes -->
-        <item name="panelMenuListWidth">@dimen/panel_menu_list_width</item>
+        <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
         <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
         <item name="android:panelBackground">@drawable/abc_menu_hardkey_panel_holo_dark</item>
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_dark</item>
@@ -117,7 +117,7 @@
         <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar</item>
         <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/action_bar_size</item>
+        <item name="actionBarSize">@dimen/abc_action_bar_size</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
         <item name="actionMenuTextAppearance">
@@ -142,7 +142,7 @@
         </item>
 
         <!-- Panel attributes -->
-        <item name="panelMenuListWidth">@dimen/panel_menu_list_width</item>
+        <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
         <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
         <item name="android:panelBackground">@drawable/abc_menu_hardkey_panel_holo_light</item>
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>

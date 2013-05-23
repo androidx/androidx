@@ -70,7 +70,7 @@ abstract class AbsActionBarView extends ViewGroup {
         a.recycle();
         if (mSplitWhenNarrow) {
             setSplitActionBar(getContext().getResources().getBoolean(
-                    R.bool.split_action_bar_is_narrow));
+                    R.bool.abc_split_action_bar_is_narrow));
         }
         if (mActionMenuPresenter != null) {
             mActionMenuPresenter.onConfigurationChanged(newConfig);

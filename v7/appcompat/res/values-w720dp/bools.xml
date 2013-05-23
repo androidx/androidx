@@ -15,5 +15,5 @@
 -->
 
 <resources>
-    <bool name="action_bar_expanded_action_views_exclusive">false</bool>
+    <bool name="abc_action_bar_expanded_action_views_exclusive">false</bool>
 </resources>

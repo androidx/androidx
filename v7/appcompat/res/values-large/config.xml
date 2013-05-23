@@ -23,8 +23,8 @@
     <!-- Whether action menu items should obey the "withText" showAsAction.
          This may be set to false for situations where space is
          extremely limited. -->
-    <bool name="config_allowActionMenuItemTextWithIcon">true</bool>
+    <bool name="abc_config_allowActionMenuItemTextWithIcon">true</bool>
 
     <!-- see comment in values/config.xml -->
-    <dimen name="config_prefDialogWidth">440dp</dimen>
+    <dimen name="abc_config_prefDialogWidth">440dp</dimen>
 </resources>

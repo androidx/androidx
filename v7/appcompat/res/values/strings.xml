@@ -16,13 +16,13 @@
 
 <resources>
     <!-- Label for the "Done" button on the far left of action mode toolbars. -->
-    <string name="action_mode_done">Done</string>
+    <string name="abc_action_mode_done">Done</string>
     <!-- Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] -->
-    <string name="action_bar_home_description">Navigate home</string>
+    <string name="abc_action_bar_home_description">Navigate home</string>
     <!-- Content description for the action bar "up" affordance. [CHAR LIMIT=NONE] -->
-    <string name="action_bar_up_description">Navigate up</string>
+    <string name="abc_action_bar_up_description">Navigate up</string>
     <!-- Content description for the action menu overflow button. [CHAR LIMIT=NONE] -->
-    <string name="action_menu_overflow_description">More options</string>
+    <string name="abc_action_menu_overflow_description">More options</string>
 
     <!-- SearchView accessibility description for search button [CHAR LIMIT=NONE] -->
     <string name="abc_searchview_description_search">Search</string>

@@ -53,8 +53,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -767,7 +765,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
 
     private int getPreferredWidth() {
         return getContext().getResources()
-                .getDimensionPixelSize(R.dimen.search_view_preferred_width);
+                .getDimensionPixelSize(R.dimen.abc_search_view_preferred_width);
     }
 
     private void updateViewsVisibility(final boolean collapsed) {
@@ -1234,8 +1232,8 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             int anchorPadding = mSearchPlate.getPaddingLeft();
             Rect dropDownPadding = new Rect();
             int iconOffset = mIconifiedByDefault
-                    ? res.getDimensionPixelSize(R.dimen.dropdownitem_icon_width)
-                    + res.getDimensionPixelSize(R.dimen.dropdownitem_text_padding_left)
+                    ? res.getDimensionPixelSize(R.dimen.abc_dropdownitem_icon_width)
+                    + res.getDimensionPixelSize(R.dimen.abc_dropdownitem_text_padding_left)
                     : 0;
             mQueryTextView.getDropDownBackground().getPadding(dropDownPadding);
             int offset = anchorPadding - (dropDownPadding.left + iconOffset);

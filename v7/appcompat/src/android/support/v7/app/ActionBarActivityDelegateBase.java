@@ -31,7 +31,6 @@ import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.internal.widget.ProgressBarICS;
 import android.support.v7.view.ActionMode;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -191,7 +190,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
             if (splitWhenNarrow) {
                 splitActionBar = mActivity.getResources()
-                        .getBoolean(R.bool.split_action_bar_is_narrow);
+                        .getBoolean(R.bool.abc_split_action_bar_is_narrow);
             } else {
                 TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
                 splitActionBar = a

@@ -30,8 +30,8 @@
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:layout_marginRight="8dip"
-               android:layout_marginTop="@dimen/action_bar_icon_vertical_padding"
-               android:layout_marginBottom="@dimen/action_bar_icon_vertical_padding"
+               android:layout_marginTop="@dimen/abc_action_bar_icon_vertical_padding"
+               android:layout_marginBottom="@dimen/abc_action_bar_icon_vertical_padding"
                android:layout_gravity="center"
                android:adjustViewBounds="true"
                android:scaleType="fitCenter"/>
