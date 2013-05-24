@@ -1394,23 +1394,34 @@ public class SlidingPaneLayout extends ViewGroup {
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
             final AccessibilityNodeInfoCompat superNode = AccessibilityNodeInfoCompat.obtain(info);
             super.onInitializeAccessibilityNodeInfo(host, superNode);
+            copyNodeInfoNoChildren(info, superNode);
+            superNode.recycle();
 
+            info.setClassName(SlidingPaneLayout.class.getName());
             info.setSource(host);
+
             final ViewParent parent = ViewCompat.getParentForAccessibility(host);
             if (parent instanceof View) {
                 info.setParent((View) parent);
             }
-            copyNodeInfoNoChildren(info, superNode);
 
-            superNode.recycle();
-
+            // This is a best-approximation of addChildrenForAccessibility()
+            // that accounts for filtering.
             final int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
-                if (!filter(child)) {
+                if (!filter(child) && (child.getVisibility() == View.VISIBLE)) {
+                    child.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
                     info.addChild(child);
                 }
             }
+        }
+
+        @Override
+        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+            super.onInitializeAccessibilityEvent(host, event);
+
+            event.setClassName(SlidingPaneLayout.class.getName());
         }
 
         @Override
@@ -1455,6 +1466,8 @@ public class SlidingPaneLayout extends ViewGroup {
             dest.setLongClickable(src.isLongClickable());
 
             dest.addAction(src.getActions());
+
+            dest.setMovementGranularities(src.getMovementGranularities());
         }
     }
 
