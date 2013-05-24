@@ -42,6 +42,28 @@ import android.widget.Toast;
 /**
  * The media route button allows the user to select routes and to control the
  * currently selected route.
+ * <p>
+ * The application must specify the kinds of routes that the user should be allowed
+ * to select by specifying a {@link MediaRouteSelector selector} with the
+ * {@link #setRouteSelector} method.
+ * </p><p>
+ * When the default route is selected or when the currently selected route does not
+ * match the {@link #getRouteSelector() selector}, the button will appear in
+ * an inactive state indicating that the application is not connected to a
+ * route of the kind that it wants to use.  Clicking on the button opens
+ * a {@link MediaRouteChooserDialog} to allow the user to select a route.
+ * If no non-default routes match the selector and it is not possible for an active
+ * scan to discover any matching routes, then the button is disabled and cannot
+ * be clicked.
+ * </p><p>
+ * When a non-default route is selected that matches the selector, the button will
+ * appear in an active state indicating that the application is connected
+ * to a route of the kind that it wants to use.  The button may also appear
+ * in an intermediary connecting state if the route is in the process of connecting
+ * to the destination but has not yet completed doing so.  In either case, clicking
+ * on the button opens a {@link MediaRouteControllerDialog} to allow the user
+ * to control or disconnect from the current route.
+ * </p>
  *
  * <h3>Prerequisites</h3>
  * <p>
@@ -66,7 +88,6 @@ public class MediaRouteButton extends View {
 
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
 
-    private AttachCallback mAttachCallback;
     private boolean mAttachedToWindow;
 
     private Drawable mRemoteIndicator;
@@ -96,7 +117,7 @@ public class MediaRouteButton extends View {
     }
 
     public MediaRouteButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(MediaRouterThemeHelper.createThemedContext(context), attrs, defStyleAttr);
+        super(MediaRouterThemeHelper.createThemedContext(context, false), attrs, defStyleAttr);
         context = getContext();
 
         mRouter = MediaRouter.getInstance(context);
@@ -138,13 +159,15 @@ public class MediaRouteButton extends View {
         }
 
         if (!mSelector.equals(selector)) {
-            mSelector = selector;
-
             if (mAttachedToWindow) {
-                mRouter.removeCallback(mCallback);
-                mRouter.addCallback(selector, mCallback);
+                if (!mSelector.isEmpty()) {
+                    mRouter.removeCallback(mCallback);
+                }
+                if (!selector.isEmpty()) {
+                    mRouter.addCallback(selector, mCallback);
+                }
             }
-
+            mSelector = selector;
             refreshRoute();
         }
     }
@@ -152,10 +175,15 @@ public class MediaRouteButton extends View {
     /**
      * Show the route chooser or controller dialog.
      * <p>
-     * If the default route is selected, then shows the route chooser dialog.
-     * Otherwise, shows the route controller dialog which will offer the user
+     * If the default route is selected or if the currently selected route does
+     * not match the {@link #getRouteSelector selector}, then shows the route chooser dialog.
+     * Otherwise, shows the route controller dialog to offer the user
      * a choice to disconnect from the route or perform other control actions
      * such as setting the route's volume.
+     * </p><p>
+     * The application can customize the dialogs by overriding
+     * {@link #onCreateChooserDialogFragment()} or {@link #onCreateControllerDialogFragment()}
+     * as appropriate.
      * </p>
      *
      * @return True if the dialog was actually shown.
@@ -173,8 +201,8 @@ public class MediaRouteButton extends View {
             throw new IllegalStateException("The activity must be a subclass of FragmentActivity");
         }
 
-        MediaRouter.RouteInfo route = mRouter.updateSelectedRoute(mSelector);
-        if (route.isDefault()) {
+        MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
+        if (route.isDefault() || !route.matchesSelector(mSelector)) {
             if (fm.findFragmentByTag(CHOOSER_FRAGMENT_TAG) != null) {
                 Log.w(TAG, "showDialog(): Route chooser dialog already showing!");
                 return false;
@@ -243,14 +271,6 @@ public class MediaRouteButton extends View {
      */
     void setCheatSheetEnabled(boolean enable) {
         mCheatSheetEnabled = enable;
-    }
-
-    /**
-     * Sets a callback to be notified when the button is attached or detached
-     * from the window.
-     */
-    void setAttachCallback(AttachCallback callback) {
-        mAttachCallback = callback;
     }
 
     @Override
@@ -379,22 +399,18 @@ public class MediaRouteButton extends View {
         super.onAttachedToWindow();
 
         mAttachedToWindow = true;
-        mRouter.addCallback(mSelector, mCallback);
-        refreshRoute();
-
-        if (mAttachCallback != null) {
-            mAttachCallback.onAttachedToWindow();
+        if (!mSelector.isEmpty()) {
+            mRouter.addCallback(mSelector, mCallback);
         }
+        refreshRoute();
     }
 
     @Override
     public void onDetachedFromWindow() {
-        if (mAttachCallback != null) {
-            mAttachCallback.onDetachedFromWindow();
-        }
-
         mAttachedToWindow = false;
-        mRouter.removeCallback(mCallback);
+        if (!mSelector.isEmpty()) {
+            mRouter.removeCallback(mCallback);
+        }
 
         super.onDetachedFromWindow();
     }
@@ -465,9 +481,9 @@ public class MediaRouteButton extends View {
 
     private void refreshRoute() {
         if (mAttachedToWindow) {
-            final MediaRouter.RouteInfo route = mRouter.updateSelectedRoute(mSelector);
-            final boolean isRemote = !route.isDefault();
-            final boolean isConnecting = route.isConnecting();
+            final MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
+            final boolean isRemote = !route.isDefault() && route.matchesSelector(mSelector);
+            final boolean isConnecting = isRemote && route.isConnecting();
 
             boolean needsRefresh = false;
             if (mRemoteActive != isRemote) {

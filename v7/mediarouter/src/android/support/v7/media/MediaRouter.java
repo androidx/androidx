@@ -113,13 +113,15 @@ public final class MediaRouter {
      * might be discovered if an active scan were performed.
      * <p>
      * If no existing routes match the route selector, then this flag is used to
-     * determine whether to consider whether any route providers that require active
-     * scans might discover matching routes if an active scan were actually performed.
+     * determine whether route providers that require active scans might discover
+     * matching routes if an active scan were actually performed.
      * </p><p>
      * This flag may be used to decide whether to offer the route chooser dialog to the user.
-     * When the dialog is opened, an active scan will be performed which may cause
-     * additional routes to be discovered by any providers that require active scans.
+     * When the dialog is opened, route providers are provided an opportunity
+     * to perform active scans to discover additional routes.
      * </p>
+     *
+     * @see #CALLBACK_FLAG_ACTIVE_SCAN
      */
     public static final int AVAILABILITY_FLAG_CONSIDER_ACTIVE_SCAN = 1 << 1;
 
@@ -457,7 +459,11 @@ public final class MediaRouter {
     }
 
     /**
-     * Registers a media route provider globally for this application process.
+     * Registers a media route provider within this application process.
+     * <p>
+     * The provider will be added to the list of providers that all {@link MediaRouter}
+     * instances within this process can use to discover routes.
+     * </p>
      *
      * @param providerInstance The media route provider instance to add.
      *
@@ -477,7 +483,11 @@ public final class MediaRouter {
     }
 
     /**
-     * Unregisters a media route provider globally for this application process.
+     * Unregisters a media route provider within this application process.
+     * <p>
+     * The provider will be removed from the list of providers that all {@link MediaRouter}
+     * instances within this process can use to discover routes.
+     * </p>
      *
      * @param providerInstance The media route provider instance to remove.
      *
