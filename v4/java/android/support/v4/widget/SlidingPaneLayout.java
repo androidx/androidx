@@ -1411,7 +1411,9 @@ public class SlidingPaneLayout extends ViewGroup {
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
                 if (!filter(child) && (child.getVisibility() == View.VISIBLE)) {
-                    child.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                    // Force importance to "yes" since we can't read the value.
+                    ViewCompat.setImportantForAccessibility(
+                            child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
                     info.addChild(child);
                 }
             }
