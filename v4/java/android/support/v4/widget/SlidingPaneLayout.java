@@ -84,8 +84,6 @@ import java.util.ArrayList;
  * sized to fill all available space in the closed state. Weight on a pane that becomes covered
  * indicates that the pane should be sized to fill all available space except a small minimum strip
  * that the user may use to grab the slideable view and pull it back over into a closed state.</p>
- *
- * <p>Experimental. This class may be removed.</p>
  */
 public class SlidingPaneLayout extends ViewGroup {
     private static final String TAG = "SlidingPaneLayout";
