@@ -468,7 +468,7 @@ public class FragmentActivity extends Activity {
             }
             boolean goforit = super.onPreparePanel(featureId, view, menu);
             goforit |= mFragments.dispatchPrepareOptionsMenu(menu);
-            return goforit && menu.hasVisibleItems();
+            return goforit;
         }
         return super.onPreparePanel(featureId, view, menu);
     }
