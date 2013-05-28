@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.internal.view.ActionModeWrapper;
 import android.support.v7.internal.view.menu.MenuWrapperFactory;
@@ -217,6 +218,12 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegate {
     @Override
     public boolean onBackPressed() {
         return false;
+    }
+
+    @Override
+    public ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
+        // Return null so that ActionBarDrawableToggle uses it's standard impl
+        return null;
     }
 
     class WindowCallbackWrapper implements Window.Callback {

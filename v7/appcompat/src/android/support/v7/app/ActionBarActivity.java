@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
@@ -38,7 +39,7 @@ import android.view.Window;
  * Base class for activities that use the support library action bar features.
  */
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback,
-        TaskStackBuilder.SupportParentable {
+        TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider {
     ActionBarActivityDelegate mImpl;
 
     /**
@@ -425,4 +426,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         NavUtils.navigateUpTo(this, upIntent);
     }
 
+    @Override
+    public final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
+        return mImpl.getDrawerToggleDelegate();
+    }
 }

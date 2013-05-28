@@ -1191,6 +1191,14 @@ public class ActionBarView extends AbsActionBarView {
         }
     }
 
+    public void setHomeAsUpIndicator(Drawable indicator) {
+        mHomeLayout.setUpIndicator(indicator);
+    }
+
+    public void setHomeAsUpIndicator(int resId) {
+        mHomeLayout.setUpIndicator(resId);
+    }
+
     static class SavedState extends BaseSavedState {
 
         int expandedMenuItemId;
@@ -1226,12 +1234,11 @@ public class ActionBarView extends AbsActionBarView {
     }
 
     private static class HomeView extends FrameLayout {
-
-        private View mUpView;
-
+        private ImageView mUpView;
         private ImageView mIconView;
-
         private int mUpWidth;
+        private int mUpIndicatorRes;
+        private Drawable mDefaultUpIndicator;
 
         public HomeView(Context context) {
             this(context, null);
@@ -1249,6 +1256,25 @@ public class ActionBarView extends AbsActionBarView {
             mIconView.setImageDrawable(icon);
         }
 
+        public void setUpIndicator(Drawable d) {
+            mUpView.setImageDrawable(d != null ? d : mDefaultUpIndicator);
+            mUpIndicatorRes = 0;
+        }
+
+        public void setUpIndicator(int resId) {
+            mUpIndicatorRes = resId;
+            mUpView.setImageDrawable(resId != 0 ? getResources().getDrawable(resId) : null);
+        }
+
+        @Override
+        protected void onConfigurationChanged(Configuration newConfig) {
+            super.onConfigurationChanged(newConfig);
+            if (mUpIndicatorRes != 0) {
+                // Reload for config change
+                setUpIndicator(mUpIndicatorRes);
+            }
+        }
+
         @Override
         public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
             final CharSequence cdesc = getContentDescription();
@@ -1260,8 +1286,9 @@ public class ActionBarView extends AbsActionBarView {
 
         @Override
         protected void onFinishInflate() {
-            mUpView = findViewById(R.id.up);
+            mUpView = (ImageView) findViewById(R.id.up);
             mIconView = (ImageView) findViewById(R.id.home);
+            mDefaultUpIndicator = mUpView.getDrawable();
         }
 
         public int getLeftOffset() {

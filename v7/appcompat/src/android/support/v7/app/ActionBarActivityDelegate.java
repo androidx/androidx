@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.view.ActionMode;
@@ -144,6 +145,8 @@ abstract class ActionBarActivityDelegate {
     abstract void setSupportProgressBarIndeterminate(boolean indeterminate);
 
     abstract void setSupportProgress(int progress);
+
+    abstract ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
 
     protected final String getUiOptionsFromMetadata() {
         try {
