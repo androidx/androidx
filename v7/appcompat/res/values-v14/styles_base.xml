@@ -117,4 +117,24 @@
            parent="android:TextAppearance.Holo.Widget.PopupMenu.Small">
     </style>
 
+    <style name="TextAppearance.AppCompat.Base.SearchResult.Title"
+           parent="@android:TextAppearance.Holo.SearchResult.Title">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Base.SearchResult.Subtitle"
+            parent="@android:TextAppearance.Holo.SearchResult.Subtitle">
+    </style>
+
+    <!--
+        TextAppearance.Holo.Light.SearchResult.* aren't public so we extend from the default
+        versions instead (which are exactly the same).
+    -->
+    <style name="TextAppearance.AppCompat.Light.Base.SearchResult.Title"
+           parent="@android:TextAppearance.Holo.SearchResult.Title">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Light.Base.SearchResult.Subtitle"
+           parent="@android:TextAppearance.Holo.SearchResult.Subtitle">
+    </style>
+
 </resources>
