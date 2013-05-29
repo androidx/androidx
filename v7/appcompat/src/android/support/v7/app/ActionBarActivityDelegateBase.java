@@ -19,6 +19,8 @@ package android.support.v7.app;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
@@ -31,7 +33,6 @@ import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.internal.widget.ProgressBarICS;
 import android.support.v7.view.ActionMode;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +44,10 @@ import android.widget.FrameLayout;
 class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         MenuPresenter.Callback, MenuBuilder.Callback {
     private static final String TAG = "ActionBarActivityDelegateBase";
+
+    private static final int[] ACTION_BAR_DRAWABLE_TOGGLE_ATTRS = new int[] {
+            R.attr.homeAsUpIndicator
+    };
 
     private ActionBarView mActionBarView;
     private ListMenuPresenter mListMenuPresenter;
@@ -471,6 +476,11 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         updateProgressBars(Window.PROGRESS_START + progress);
     }
 
+    @Override
+    ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
+        return new ActionBarDrawableToggleImpl();
+    }
+
     /**
      * Progress Bar function. Mostly extracted from PhoneWindow.java
      */
@@ -576,6 +586,30 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             mWrapped.onDestroyActionMode(mode);
             mActivity.onSupportActionModeFinished(mode);
             mActionMode = null;
+        }
+    }
+
+    private class ActionBarDrawableToggleImpl
+            implements ActionBarDrawerToggle.Delegate {
+
+        @Override
+        public Drawable getThemeUpIndicator() {
+            final TypedArray a = mActivity.obtainStyledAttributes(ACTION_BAR_DRAWABLE_TOGGLE_ATTRS);
+            final Drawable result = a.getDrawable(0);
+            a.recycle();
+            return result;
+        }
+
+        @Override
+        public void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes) {
+            if (mActionBarView != null) {
+                mActionBarView.setHomeAsUpIndicator(upDrawable);
+            }
+        }
+
+        @Override
+        public void setActionBarDescription(int contentDescRes) {
+            // No support for setting Action Bar content description
         }
     }
 
