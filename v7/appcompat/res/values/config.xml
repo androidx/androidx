@@ -20,10 +20,10 @@
     <!-- Whether action menu items should obey the "withText" showAsAction
     flag. This may be set to false for situations where space is
     extremely limited. -->
-    <bool name="config_allowActionMenuItemTextWithIcon">false</bool>
+    <bool name="abc_config_allowActionMenuItemTextWithIcon">false</bool>
 
     <!-- The maximum width we would prefer dialogs to be.  0 if there is no
     maximum (let them grow as large as the screen).  Actual values are
     specified for -large and -xlarge configurations. -->
-    <dimen name="config_prefDialogWidth">320dp</dimen>
+    <dimen name="abc_config_prefDialogWidth">320dp</dimen>
 </resources>

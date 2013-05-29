@@ -196,7 +196,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
             if (splitWhenNarrow) {
                 splitActionBar = mActivity.getResources()
-                        .getBoolean(R.bool.split_action_bar_is_narrow);
+                        .getBoolean(R.bool.abc_split_action_bar_is_narrow);
             } else {
                 TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
                 splitActionBar = a

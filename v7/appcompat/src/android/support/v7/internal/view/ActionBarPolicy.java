@@ -38,7 +38,7 @@ public class ActionBarPolicy {
     }
 
     public int getMaxActionButtons() {
-        return mContext.getResources().getInteger(R.integer.max_action_buttons);
+        return mContext.getResources().getInteger(R.integer.abc_max_action_buttons);
     }
 
     public boolean showsOverflowMenuButton() {
@@ -54,7 +54,7 @@ public class ActionBarPolicy {
     public boolean hasEmbeddedTabs() {
         // The embedded tabs policy changed in Jellybean; give older apps the old policy
         // so they get what they expect.
-        return mContext.getResources().getBoolean(R.bool.action_bar_embed_tabs_pre_jb);
+        return mContext.getResources().getBoolean(R.bool.abc_action_bar_embed_tabs_pre_jb);
     }
 
     public int getTabContainerHeight() {
@@ -65,7 +65,7 @@ public class ActionBarPolicy {
         if (!hasEmbeddedTabs()) {
             // Stacked tabs; limit the height
             height = Math.min(height,
-                    r.getDimensionPixelSize(R.dimen.action_bar_stacked_max_height));
+                    r.getDimensionPixelSize(R.dimen.abc_action_bar_stacked_max_height));
         }
         a.recycle();
         return height;
@@ -79,6 +79,6 @@ public class ActionBarPolicy {
 
     public int getStackedTabMaxWidth() {
         return mContext.getResources().getDimensionPixelSize(
-                R.dimen.action_bar_stacked_tab_max_width);
+                R.dimen.abc_action_bar_stacked_tab_max_width);
     }
 }
