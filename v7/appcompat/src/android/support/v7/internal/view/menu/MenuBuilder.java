@@ -751,7 +751,7 @@ public class MenuBuilder implements SupportMenu {
     private void setShortcutsVisibleInner(boolean shortcutsVisible) {
         mShortcutsVisible = shortcutsVisible
                 && mResources.getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS
-                && mResources.getBoolean(R.bool.config_showMenuShortcutsWhenKeyboardPresent);
+                && mResources.getBoolean(R.bool.abc_config_showMenuShortcutsWhenKeyboardPresent);
     }
 
     /**

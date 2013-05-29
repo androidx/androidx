@@ -221,7 +221,7 @@ public class ActionBarView extends AbsActionBarView {
         mExpandedHomeLayout.setUp(true);
         mExpandedHomeLayout.setOnClickListener(mExpandedActionViewUpListener);
         mExpandedHomeLayout.setContentDescription(getResources().getText(
-                R.string.action_bar_up_description));
+                R.string.abc_action_bar_up_description));
 
         mTitleStyleRes = a.getResourceId(R.styleable.ActionBar_titleTextStyle, 0);
         mSubtitleStyleRes = a.getResourceId(R.styleable.ActionBar_subtitleTextStyle, 0);
@@ -342,7 +342,7 @@ public class ActionBarView extends AbsActionBarView {
                 if (!splitActionBar) {
                     mActionMenuPresenter.setExpandedActionViewsExclusive(
                             getResources().getBoolean(
-                                    R.bool.action_bar_expanded_action_views_exclusive));
+                                    R.bool.abc_action_bar_expanded_action_views_exclusive));
                 } else {
                     mActionMenuPresenter.setExpandedActionViewsExclusive(false);
                     // Allow full screen width in split mode.
@@ -414,7 +414,7 @@ public class ActionBarView extends AbsActionBarView {
         if (!mSplitActionBar) {
             mActionMenuPresenter.setExpandedActionViewsExclusive(
                     getResources().getBoolean(
-                            R.bool.action_bar_expanded_action_views_exclusive));
+                            R.bool.abc_action_bar_expanded_action_views_exclusive));
             configPresenters(builder);
             menuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
             final ViewGroup oldParent = (ViewGroup) menuView.getParent();
@@ -551,10 +551,10 @@ public class ActionBarView extends AbsActionBarView {
             mHomeLayout.setContentDescription(null);
         } else if ((mDisplayOptions & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
             mHomeLayout.setContentDescription(mContext.getResources().getText(
-                    R.string.action_bar_up_description));
+                    R.string.abc_action_bar_up_description));
         } else {
             mHomeLayout.setContentDescription(mContext.getResources().getText(
-                    R.string.action_bar_home_description));
+                    R.string.abc_action_bar_home_description));
         }
     }
 
@@ -619,10 +619,10 @@ public class ActionBarView extends AbsActionBarView {
             mHomeLayout.setContentDescription(null);
         } else if ((options & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
             mHomeLayout.setContentDescription(mContext.getResources().getText(
-                    R.string.action_bar_up_description));
+                    R.string.abc_action_bar_up_description));
         } else {
             mHomeLayout.setContentDescription(mContext.getResources().getText(
-                    R.string.action_bar_home_description));
+                    R.string.abc_action_bar_home_description));
         }
     }
 
