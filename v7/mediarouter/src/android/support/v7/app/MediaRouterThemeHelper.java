@@ -26,13 +26,14 @@ final class MediaRouterThemeHelper {
     private MediaRouterThemeHelper() {
     }
 
-    public static Context createThemedContext(Context context) {
-        TypedValue value = new TypedValue();
-        boolean isLightTheme =
-                context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
-                && value.data != 0;
-        return new ContextThemeWrapper(context,
-                isLightTheme ? R.style.Theme_MediaRouter_Light : R.style.Theme_MediaRouter);
+    public static Context createThemedContext(Context context, boolean forceDark) {
+        boolean isLightTheme = isLightTheme(context);
+        if (isLightTheme && forceDark) {
+            context = new ContextThemeWrapper(context, R.style.Theme_AppCompat);
+            isLightTheme = false;
+        }
+        return new ContextThemeWrapper(context, isLightTheme ?
+                R.style.Theme_MediaRouter_Light : R.style.Theme_MediaRouter);
     }
 
     public static int getThemeResource(Context context, int attr) {
@@ -43,5 +44,11 @@ final class MediaRouterThemeHelper {
     public static Drawable getThemeDrawable(Context context, int attr) {
         int res = getThemeResource(context, attr);
         return res != 0 ? context.getResources().getDrawable(res) : null;
+    }
+
+    private static boolean isLightTheme(Context context) {
+        TypedValue value = new TypedValue();
+        return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
+                && value.data != 0;
     }
 }

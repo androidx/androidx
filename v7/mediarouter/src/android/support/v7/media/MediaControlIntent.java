@@ -92,12 +92,13 @@ import android.net.Uri;
  * or {@link #ITEM_QUEUE_BEHAVIOR_PLAY_NOW play later},
  * </p><p>
  * Typically the application will start by queuing two media items at once: one item to
- * play now and one item to play later.  When the first item finishes, the next item
- * will begin playing immediately.  The application can then enqueue another media item to
+ * play now and one item to play next.  When the first item finishes, the next item
+ * will begin playing immediately.  The application can then enqueue a new media item to
  * play next (without interrupting current playback), and so on.
  * </p><p>
  * The application can also enqueue additional items to play later although queuing
- * just two items at a time is usually sufficient for continuous playback.
+ * one item to play now and one item to play next is usually sufficient to ensure
+ * continuous playback.
  * </p>
  */
 public final class MediaControlIntent {

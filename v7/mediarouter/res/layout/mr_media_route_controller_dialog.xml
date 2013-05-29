@@ -17,7 +17,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:divider="?android:attr/dividerHorizontal"
+              android:showDividers="middle">
     <!-- Optional volume slider section. -->
     <LinearLayout android:id="@+id/media_route_volume_layout"
                   android:layout_width="fill_parent"
@@ -37,30 +39,22 @@
                  android:layout_marginLeft="8dp"
                  android:layout_marginRight="8dp" />
     </LinearLayout>
-    <ImageView android:id="@+id/media_route_volume_divider"
-               android:layout_width="fill_parent"
-               android:layout_height="wrap_content"
-               android:src="?android:attr/listDivider" />
-               android:scaleType="fitXY"
-               android:visibility="gone" />
 
     <!-- Optional content view section. -->
     <FrameLayout android:id="@+id/media_route_control_frame"
                  android:layout_width="fill_parent"
                  android:layout_height="wrap_content"
                  android:visibility="gone" />
-    <ImageView android:id="@+id/media_route_control_divider"
-               android:layout_width="fill_parent"
-               android:layout_height="wrap_content"
-               android:src="?android:attr/listDivider" />
-               android:scaleType="fitXY"
-               android:visibility="gone" />
 
     <!-- Disconnect button. -->
-    <Button android:id="@+id/media_route_disconnect_button"
-            android:layout_width="fill_parent"
-            android:layout_height="56dp"
-            style="?android:attr/buttonBarButtonStyle"
-            android:gravity="center"
-            android:text="@string/mr_media_route_controller_disconnect" />
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  style="?android:attr/buttonBarStyle">
+        <Button android:id="@+id/media_route_disconnect_button"
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                style="?android:attr/buttonBarButtonStyle"
+                android:gravity="center"
+                android:text="@string/mr_media_route_controller_disconnect" />
+    </LinearLayout>
 </LinearLayout>
