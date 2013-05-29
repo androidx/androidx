@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,16 @@
 
 package android.support.v4.view;
 
-import android.animation.ValueAnimator;
-import android.graphics.Paint;
 import android.view.View;
+import android.view.ViewParent;
+import android.view.accessibility.AccessibilityEvent;
 
-class ViewCompatHC {
-    static long getFrameTime() {
-        return ValueAnimator.getFrameDelay();
-    }
-
-    public static float getAlpha(View view) {
-        return view.getAlpha();
-    }
-
-    public static void setLayerType(View view, int layerType, Paint paint) {
-        view.setLayerType(layerType, paint);
-    }
-
-    public static int getLayerType(View view) {
-        return view.getLayerType();
+/**
+ * ICS-specific ViewParent API implementation.
+ */
+public class ViewParentCompatICS {
+    public static boolean requestSendAccessibilityEvent(
+            ViewParent parent, View child, AccessibilityEvent event) {
+        return parent.requestSendAccessibilityEvent(child, event);
     }
 }

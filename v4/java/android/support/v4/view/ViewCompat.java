@@ -153,6 +153,7 @@ public class ViewCompat {
         public void setImportantForAccessibility(View view, int mode);
         public boolean performAccessibilityAction(View view, int action, Bundle arguments);
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
+        public float getAlpha(View view);
         public void setLayerType(View view, int layerType, Paint paint);
         public int getLayerType(View view);
         public int getLabelFor(View view);
@@ -222,6 +223,9 @@ public class ViewCompat {
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
             return null;
         }
+        public float getAlpha(View view) {
+            return 1.0f;
+        }
         public void setLayerType(View view, int layerType, Paint paint) {
             // No-op until layers became available (HC)
         }
@@ -266,13 +270,20 @@ public class ViewCompat {
     }
 
     static class HCViewCompatImpl extends GBViewCompatImpl {
+        @Override
         long getFrameTime() {
             return ViewCompatHC.getFrameTime();
         }
-        @Override public void setLayerType(View view, int layerType, Paint paint) {
+        @Override
+        public float getAlpha(View view) {
+            return ViewCompatHC.getAlpha(view);
+        }
+        @Override
+        public void setLayerType(View view, int layerType, Paint paint) {
             ViewCompatHC.setLayerType(view, layerType, paint);
         }
-        @Override public int getLayerType(View view)  {
+        @Override
+        public int getLayerType(View view)  {
             return ViewCompatHC.getLayerType(view);
         }
         @Override
@@ -730,7 +741,7 @@ public class ViewCompat {
      * </p>
      * <p>
      * If an {@link AccessibilityDelegateCompat} has been specified via calling
-     * {@link #setAccessibilityDelegate(View, AccessibilityDelegateCompat) its
+     * {@link #setAccessibilityDelegate(View, AccessibilityDelegateCompat)} its
      * {@link AccessibilityDelegateCompat#getAccessibilityNodeProvider(View)}
      * is responsible for handling this call.
      * </p>
@@ -742,6 +753,17 @@ public class ViewCompat {
      */
     public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
         return IMPL.getAccessibilityNodeProvider(view);
+    }
+
+    /**
+     * The opacity of the view. This is a value from 0 to 1, where 0 means the view is
+     * completely transparent and 1 means the view is completely opaque.
+     *
+     * <p>By default this is 1.0f. Prior to API 11, the returned value is always 1.0f.
+     * @return The opacity of the view.
+     */
+    public static float getAlpha(View view) {
+        return IMPL.getAlpha(view);
     }
 
     /**
