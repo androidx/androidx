@@ -27,6 +27,9 @@
     <!-- Title of the media route chooser dialog. [CHAR LIMIT=30] -->
     <string name="mr_media_route_chooser_title">Connect to device</string>
 
+    <!-- Placeholder text to show when no devices have been found. [CHAR LIMIT=50] -->
+    <string name="mr_media_route_chooser_searching">Searching for devices\u2026</string>
+
     <!-- Button to disconnect from a media route.  [CHAR LIMIT=30] -->
     <string name="mr_media_route_controller_disconnect">Disconnect</string>
 

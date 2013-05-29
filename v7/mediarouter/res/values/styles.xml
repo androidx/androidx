@@ -19,6 +19,7 @@
             parent="Widget.AppCompat.ActionButton">
         <item name="android:minWidth">56dp</item>
         <item name="android:minHeight">48dp</item>
+        <item name="android:padding">0dp</item>
         <item name="android:focusable">true</item>
         <item name="android:contentDescription">@string/mr_media_route_button_content_description</item>
         <item name="externalRouteEnabledDrawable">@drawable/mr_ic_media_route_holo_dark</item>
@@ -28,6 +29,7 @@
             parent="Widget.AppCompat.Light.ActionButton">
         <item name="android:minWidth">56dp</item>
         <item name="android:minHeight">48dp</item>
+        <item name="android:padding">0dp</item>
         <item name="android:focusable">true</item>
         <item name="android:contentDescription">@string/mr_media_route_button_content_description</item>
         <item name="externalRouteEnabledDrawable">@drawable/mr_ic_media_route_holo_light</item>

@@ -24,6 +24,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.ref.WeakReference;
+
 /**
  * The media route action provider displays a {@link MediaRouteButton media route button}
  * in the application's {@link ActionBar} to allow the user to select routes and
@@ -32,6 +34,12 @@ import android.view.ViewGroup;
  * The application must specify the kinds of routes that the user should be allowed
  * to select by specifying a {@link MediaRouteSelector selector} with the
  * {@link #setRouteSelector} method.
+ * </p><p>
+ * Refer to {@link MediaRouteButton} for a description of the button that will
+ * appear in the action bar menu.  Note that instead of disabling the button
+ * when no routes are available, the action provider will instead make the
+ * menu item invisible.  In this way, the button will only be visible when it
+ * is possible for the user to discover and select a matching route.
  * </p>
  *
  * <h3>Prerequisites</h3>
@@ -121,7 +129,6 @@ public class MediaRouteActionProvider extends ActionProvider {
     private final MediaRouterCallback mCallback;
 
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
-    private boolean mAttachedToWindow;
     private MediaRouteButton mButton;
 
     /**
@@ -133,7 +140,7 @@ public class MediaRouteActionProvider extends ActionProvider {
         super(context);
 
         mRouter = MediaRouter.getInstance(context);
-        mCallback = new MediaRouterCallback();
+        mCallback = new MediaRouterCallback(this);
     }
 
     /**
@@ -158,13 +165,20 @@ public class MediaRouteActionProvider extends ActionProvider {
         }
 
         if (!mSelector.equals(selector)) {
-            mSelector = selector;
-
-            if (mAttachedToWindow) {
+            // FIXME: We currently have no way of knowing whether the action provider
+            // is still needed by the UI.  Unfortunately this means the action provider
+            // may leak callbacks until garbage collection occurs.  This may result in
+            // media route providers doing more work than necessary in the short term
+            // while trying to discover routes that are no longer of interest to the
+            // application.  To solve this problem, the action provider will need some
+            // indication from the framework that it is being destroyed.
+            if (!mSelector.isEmpty()) {
                 mRouter.removeCallback(mCallback);
+            }
+            if (!selector.isEmpty()) {
                 mRouter.addCallback(selector, mCallback);
             }
-
+            mSelector = selector;
             refreshRoute();
 
             if (mButton != null) {
@@ -193,7 +207,6 @@ public class MediaRouteActionProvider extends ActionProvider {
 
         mButton = new MediaRouteButton(getContext());
         mButton.setCheatSheetEnabled(true);
-        mButton.setAttachCallback(new AttachCallback());
         mButton.setRouteSelector(mSelector);
         mButton.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -234,55 +247,53 @@ public class MediaRouteActionProvider extends ActionProvider {
     }
 
     private void refreshRoute() {
-        if (mAttachedToWindow) {
-            refreshVisibility();
-        }
+        refreshVisibility();
     }
 
-    private final class MediaRouterCallback extends MediaRouter.Callback {
+    private static final class MediaRouterCallback extends MediaRouter.Callback {
+        private final WeakReference<MediaRouteActionProvider> mProviderWeak;
+
+        public MediaRouterCallback(MediaRouteActionProvider provider) {
+            mProviderWeak = new WeakReference<MediaRouteActionProvider>(provider);
+        }
+
         @Override
         public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
-            refreshRoute();
+            refreshRoute(router);
         }
 
         @Override
         public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
-            refreshRoute();
+            refreshRoute(router);
         }
 
         @Override
         public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
-            refreshRoute();
+            refreshRoute(router);
         }
 
         @Override
         public void onProviderAdded(MediaRouter router, MediaRouter.ProviderInfo provider) {
-            refreshRoute();
+            refreshRoute(router);
         }
 
         @Override
         public void onProviderRemoved(MediaRouter router, MediaRouter.ProviderInfo provider) {
-            refreshRoute();
+            refreshRoute(router);
         }
 
         @Override
         public void onProviderChanged(MediaRouter router, MediaRouter.ProviderInfo provider) {
-            refreshRoute();
-        }
-    }
-
-    private final class AttachCallback implements MediaRouteButton.AttachCallback {
-        @Override
-        public void onAttachedToWindow() {
-            mAttachedToWindow = true;
-            mRouter.addCallback(mSelector, mCallback);
-            refreshRoute();
+            refreshRoute(router);
         }
 
-        @Override
-        public void onDetachedFromWindow() {
-            mAttachedToWindow = false;
-            mRouter.removeCallback(mCallback);
+        private void refreshRoute(MediaRouter router) {
+            MediaRouteActionProvider provider = mProviderWeak.get();
+            if (provider != null) {
+                provider.refreshRoute();
+            } else {
+                router.removeCallback(this);
+            }
         }
     }
 }

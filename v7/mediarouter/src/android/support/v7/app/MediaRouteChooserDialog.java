@@ -58,7 +58,7 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     public MediaRouteChooserDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context, true), theme);
         context = getContext();
 
         mRouter = MediaRouter.getInstance(context);
@@ -114,6 +114,7 @@ public class MediaRouteChooserDialog extends Dialog {
         mListView = (ListView)findViewById(R.id.media_route_list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
+        mListView.setEmptyView(findViewById(android.R.id.empty));
     }
 
     @Override

@@ -53,7 +53,6 @@ public class MediaRouteControllerDialog extends Dialog {
     private Drawable mCurrentIconDrawable;
 
     private LinearLayout mVolumeLayout;
-    private ImageView mVolumeDivider;
     private SeekBar mVolumeSlider;
     private boolean mVolumeSliderTouched;
 
@@ -66,7 +65,7 @@ public class MediaRouteControllerDialog extends Dialog {
     }
 
     public MediaRouteControllerDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context, true), theme);
         context = getContext();
 
         mRouter = MediaRouter.getInstance(context);
@@ -112,7 +111,6 @@ public class MediaRouteControllerDialog extends Dialog {
 
         mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
         mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);
-        mVolumeDivider = (ImageView)findViewById(R.id.media_route_volume_divider);
         mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -149,11 +147,8 @@ public class MediaRouteControllerDialog extends Dialog {
             if (mControlView != null) {
                 FrameLayout controlFrame =
                         (FrameLayout)findViewById(R.id.media_route_control_frame);
-                ImageView controlDivider =
-                        (ImageView)findViewById(R.id.media_route_control_divider);
                 controlFrame.addView(controlFrame);
                 controlFrame.setVisibility(View.VISIBLE);
-                controlDivider.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -242,12 +237,10 @@ public class MediaRouteControllerDialog extends Dialog {
         if (!mVolumeSliderTouched) {
             if (mRoute.getVolumeHandling() == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
                 mVolumeLayout.setVisibility(View.VISIBLE);
-                mVolumeDivider.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
             } else {
                 mVolumeLayout.setVisibility(View.GONE);
-                mVolumeDivider.setVisibility(View.GONE);
             }
         }
     }
