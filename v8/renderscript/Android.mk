@@ -21,7 +21,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := android.support.v8.renderscript
+LOCAL_MODULE := android-support-v8-renderscript
 #LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, java/src)
 
