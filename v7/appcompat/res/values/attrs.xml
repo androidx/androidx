@@ -532,4 +532,20 @@
     <!-- SearchView AutoCompleteTextView style -->
     <attr name="searchViewAutoCompleteTextView" format="reference" />
 
+    <!-- Attrbitutes for a ActivityChooserView. -->
+    <declare-styleable name="ActivityChooserView">
+        <!-- The maximal number of items initially shown in the activity list. -->
+        <attr name="initialActivityCount" format="string" />
+        <!-- The drawable to show in the button for expanding the activities overflow popup.
+             <strong>Note:</strong> Clients would like to set this drawable
+             as a clue about the action the chosen activity will perform. For
+             example, if share activity is to be chosen the drawable should
+             give a clue that sharing is to be performed.
+         -->
+        <attr name="expandActivityOverflowButtonDrawable" format="reference" />
+    </declare-styleable>
+
+    <!-- Default ActivityChooserView style. -->
+    <attr name="activityChooserViewStyle" format="reference" />
+
 </resources>

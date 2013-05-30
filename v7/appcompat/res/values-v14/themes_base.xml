@@ -32,8 +32,11 @@
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
+        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
         <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
+        <item name="dividerVertical">?android:attr/dividerVertical</item>
+        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
@@ -49,8 +52,11 @@
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
+        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
         <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
+        <item name="dividerVertical">?android:attr/dividerVertical</item>
+        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
@@ -67,8 +73,11 @@
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
+        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
         <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
+        <item name="dividerVertical">?android:attr/dividerVertical</item>
+        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
