@@ -227,4 +227,12 @@
            parent="Widget.AppCompat.Base.AutoCompleteTextView">
     </style>
 
+    <style name="Widget.AppCompat.ActivityChooserView"
+           parent="Widget.AppCompat.Base.ActivityChooserView">
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActivityChooserView"
+           parent="Widget.AppCompat.Light.Base.ActivityChooserView">
+    </style>
+
 </resources>

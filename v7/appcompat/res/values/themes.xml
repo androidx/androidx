@@ -45,6 +45,9 @@
             @style/TextAppearance.AppCompat.Widget.PopupMenu.Small
         </item>
 
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.PopupMenu</item>
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+
         <!-- SearchView attributes -->
         <item name="searchDropdownBackground">@drawable/abc_search_dropdown_dark</item>
         <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_dark</item>
@@ -65,6 +68,12 @@
         <item name="textAppearanceSearchResultSubtitle">
             @style/TextAppearance.AppCompat.SearchResult.Subtitle
         </item>
+
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_dark</item>
+
+        <!-- ShareActionProvider attributes -->
+        <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView</item>
+
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
@@ -87,6 +96,9 @@
             @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small
         </item>
 
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
+
         <!-- SearchView attributes -->
         <item name="searchDropdownBackground">@drawable/abc_search_dropdown_light</item>
         <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_light</item>
@@ -106,6 +118,12 @@
         </item>
         <item name="textAppearanceSearchResultSubtitle">
             @style/TextAppearance.AppCompat.Light.SearchResult.Subtitle
+        </item>
+
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_light</item>
+
+        <!-- ShareActionProvider attributes -->
+        <item name="activityChooserViewStyle">@style/Widget.AppCompat.Light.ActivityChooserView
         </item>
 
     </style>
@@ -131,6 +149,9 @@
             @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small
         </item>
 
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.PopupMenu</item>
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+
         <!-- SearchView attributes -->
         <item name="searchDropdownBackground">@drawable/abc_search_dropdown_dark</item>
         <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_dark</item>
@@ -151,6 +172,13 @@
         <item name="textAppearanceSearchResultSubtitle">
             @style/TextAppearance.AppCompat.SearchResult.Subtitle
         </item>
+
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_dark</item>
+
+        <!-- ShareActionProvider attributes -->
+        <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView
+        </item>
+
     </style>
 
 
