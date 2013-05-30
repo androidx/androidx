@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.v4.content.tests">
+    package="android.support.tests">
 
     <application>
         <uses-library android:name="android.test.runner" />
@@ -33,6 +33,6 @@
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="android.support.v4.content.tests" />
+        android:targetPackage="android.support.tests" />
 
 </manifest>
