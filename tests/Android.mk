@@ -7,6 +7,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, java)
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4
 LOCAL_JAVA_LIBRARIES := android.test.runner
-LOCAL_PACKAGE_NAME := AndroidSupport4Tests
+LOCAL_PACKAGE_NAME := AndroidSupportTests
 
 include $(BUILD_PACKAGE)
