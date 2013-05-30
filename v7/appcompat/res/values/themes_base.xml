@@ -65,7 +65,6 @@
 
         <!-- Dropdown Spinner Attributes -->
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
-        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
@@ -136,9 +135,6 @@
         <!-- Dropdown Spinner Attributes -->
         <item name="actionDropDownStyle">
             @style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar
-        </item>
-        <item name="dropDownListViewStyle">
-            @style/Widget.AppCompat.Light.ListView.DropDown
         </item>
 
         <!-- Panel attributes -->
