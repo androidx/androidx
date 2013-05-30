@@ -272,6 +272,7 @@ class ActionBarImplHC extends ActionBar {
     @Override
     public Context getThemedContext() {
         // v11 doesn't have the actionBarWidgetTheme attr, so just use the Activity
+        // This means DarkActionBar theme does not work on v11.
         return mActivity;
     }
 
