@@ -243,8 +243,7 @@ public class MediaRouteActionProvider extends ActionProvider {
     @Override
     public boolean isVisible() {
         return mRouter.isRouteAvailable(mSelector,
-                MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE
-                | MediaRouter.AVAILABILITY_FLAG_CONSIDER_ACTIVE_SCAN);
+                MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE);
     }
 
     private void refreshRoute() {

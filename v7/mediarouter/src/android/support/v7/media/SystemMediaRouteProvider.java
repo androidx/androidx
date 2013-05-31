@@ -139,7 +139,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
             MediaRouteProviderDescriptor providerDescriptor =
                     new MediaRouteProviderDescriptor.Builder()
-                    .addDiscoverableControlFilters(CONTROL_FILTERS)
                     .addRoute(defaultRoute)
                     .build();
             setDescriptor(providerDescriptor);
@@ -491,10 +490,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         protected void publishRoutes() {
             MediaRouteProviderDescriptor.Builder builder =
-                    new MediaRouteProviderDescriptor.Builder()
-                    .addDiscoverableControlFilters(LIVE_AUDIO_CONTROL_FILTERS)
-                    .addDiscoverableControlFilters(LIVE_VIDEO_CONTROL_FILTERS);
-
+                    new MediaRouteProviderDescriptor.Builder();
             int count = mSystemRouteRecords.size();
             for (int i = 0; i < count; i++) {
                 builder.addRoute(mSystemRouteRecords.get(i).mRouteDescriptor);
