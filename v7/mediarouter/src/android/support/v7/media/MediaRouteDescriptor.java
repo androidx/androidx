@@ -59,6 +59,11 @@ public final class MediaRouteDescriptor {
 
     /**
      * Gets the unique id of the route.
+     * <p>
+     * The route id associated with a route descriptor functions as a stable
+     * identifier for the route and must be unique among all routes offered
+     * by the provider.
+     * </p>
      */
     public String getId() {
         return mBundle.getString(KEY_ID);
@@ -261,6 +266,11 @@ public final class MediaRouteDescriptor {
 
         /**
          * Sets the unique id of the route.
+         * <p>
+         * The route id associated with a route descriptor functions as a stable
+         * identifier for the route and must be unique among all routes offered
+         * by the provider.
+         * </p>
          */
         public Builder setId(String id) {
             mBundle.putString(KEY_ID, id);

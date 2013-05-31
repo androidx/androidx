@@ -35,6 +35,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -551,6 +552,7 @@ public final class MediaRouter {
     public static final class RouteInfo {
         private final ProviderInfo mProvider;
         private final String mDescriptorId;
+        private final String mUniqueId;
         private String mName;
         private String mDescription;
         private boolean mEnabled;
@@ -605,9 +607,10 @@ public final class MediaRouter {
         static final int CHANGE_VOLUME = 1 << 1;
         static final int CHANGE_PRESENTATION_DISPLAY = 1 << 2;
 
-        RouteInfo(ProviderInfo provider, String descriptorId) {
+        RouteInfo(ProviderInfo provider, String descriptorId, String uniqueId) {
             mProvider = provider;
             mDescriptorId = descriptorId;
+            mUniqueId = uniqueId;
         }
 
         /**
@@ -615,6 +618,20 @@ public final class MediaRouter {
          */
         public ProviderInfo getProvider() {
             return mProvider;
+        }
+
+        /**
+         * Gets the unique id of the route.
+         * <p>
+         * The route unique id functions as a stable identifier by which the route is known.
+         * For example, an application can use this id as a token to remember the
+         * selected route across restarts or to communicate its identity to a service.
+         * </p>
+         *
+         * @return The unique id of the route, never null.
+         */
+        public String getId() {
+            return mUniqueId;
         }
 
         /**
@@ -942,7 +959,8 @@ public final class MediaRouter {
 
         @Override
         public String toString() {
-            return "MediaRouter.RouteInfo{ name=" + mName
+            return "MediaRouter.RouteInfo{ uniqueId=" + mUniqueId
+                    + ", name=" + mName
                     + ", description=" + mDescription
                     + ", enabled=" + mEnabled
                     + ", connecting=" + mConnecting
@@ -1559,7 +1577,8 @@ public final class MediaRouter {
                             final int sourceIndex = provider.findRouteByDescriptorId(id);
                             if (sourceIndex < 0) {
                                 // 1. Add the route to the list.
-                                RouteInfo route = new RouteInfo(provider, id);
+                                String uniqueId = assignRouteUniqueId(provider, id);
+                                RouteInfo route = new RouteInfo(provider, id, uniqueId);
                                 provider.mRoutes.add(targetIndex++, route);
                                 mRoutes.add(route);
                                 // 2. Create the route's contents.
@@ -1637,6 +1656,32 @@ public final class MediaRouter {
                 // Choose a new selected route if needed.
                 selectRouteIfNeeded();
             }
+        }
+
+        private String assignRouteUniqueId(ProviderInfo provider, String routeDescriptorId) {
+            // Although route descriptor ids are unique within a provider, it's
+            // possible for there to be two providers with the same package name.
+            // Therefore we must dedupe the composite id.
+            String uniqueId = provider.getPackageName() + ":" + routeDescriptorId;
+            if (findRouteByUniqueId(uniqueId) < 0) {
+                return uniqueId;
+            }
+            for (int i = 2; ; i++) {
+                String newUniqueId = String.format(Locale.US, "%s_%d", uniqueId, i);
+                if (findRouteByUniqueId(newUniqueId) < 0) {
+                    return newUniqueId;
+                }
+            }
+        }
+
+        private int findRouteByUniqueId(String uniqueId) {
+            final int count = mRoutes.size();
+            for (int i = 0; i < count; i++) {
+                if (mRoutes.get(i).mUniqueId.equals(uniqueId)) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         private void unselectRouteIfNeeded(RouteInfo route) {
