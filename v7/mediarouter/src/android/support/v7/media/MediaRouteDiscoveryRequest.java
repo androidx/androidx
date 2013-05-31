@@ -72,7 +72,7 @@ public final class MediaRouteDiscoveryRequest {
     /**
      * Returns true if active scanning should be performed.
      *
-     * @see MediaRouter#CALLBACK_FLAG_ACTIVE_SCAN
+     * @see MediaRouter#CALLBACK_FLAG_PERFORM_ACTIVE_SCAN
      */
     public boolean isActiveScan() {
         return mBundle.getBoolean(KEY_ACTIVE_SCAN);

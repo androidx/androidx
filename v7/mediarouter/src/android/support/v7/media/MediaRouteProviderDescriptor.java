@@ -96,7 +96,7 @@ public final class MediaRouteProviderDescriptor {
      * Returns true if the provider requires active scans to discover routes.
      *
      * @see MediaRouter.ProviderInfo#isActiveScanRequired
-     * @see MediaRouter#CALLBACK_FLAG_ACTIVE_SCAN
+     * @see MediaRouter#CALLBACK_FLAG_PERFORM_ACTIVE_SCAN
      */
     public boolean isActiveScanRequired() {
         return mBundle.getBoolean(KEY_ACTIVE_SCAN_REQUIRED, false);

@@ -83,21 +83,22 @@ import java.lang.ref.WeakReference;
  *         mCallback = new MyCallback();
  *     }
  *
- *     // Add the callback on resume to tell the media router what kinds of routes
+ *     // Add the callback on start to tell the media router what kinds of routes
  *     // the application is interested in so that it can try to discover suitable ones.
- *     public void onResume() {
- *         super.onResume();
+ *     public void onStart() {
+ *         super.onStart();
  *
- *         mediaRouter.addCallback(mSelector, mCallback);
+ *         mediaRouter.addCallback(mSelector, mCallback,
+ *                 MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
  *
  *         MediaRouter.RouteInfo route = mediaRouter.updateSelectedRoute(mSelector);
  *         // do something with the route...
  *     }
  *
- *     // Remove the selector on pause to tell the media router that it no longer
+ *     // Remove the selector on stop to tell the media router that it no longer
  *     // needs to invest effort trying to discover routes of these kinds for now.
- *     public void onPause() {
- *         super.onPause();
+ *     public void onStop() {
+ *         super.onStop();
  *
  *         mediaRouter.removeCallback(mCallback);
  *     }
