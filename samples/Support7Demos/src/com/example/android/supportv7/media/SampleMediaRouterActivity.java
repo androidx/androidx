@@ -21,11 +21,14 @@ import com.example.android.supportv7.R;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.app.MediaRouteDiscoveryFragment;
 import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouter;
+import android.support.v7.media.MediaRouter.Callback;
 import android.support.v7.media.MediaRouter.RouteInfo;
 import android.support.v7.media.MediaRouter.ProviderInfo;
 import android.support.v7.media.MediaRouteSelector;
@@ -52,7 +55,8 @@ import android.widget.Toast;
  * </p>
  */
 public class SampleMediaRouterActivity extends ActionBarActivity {
-    private final String TAG = "MediaRouterSupport";
+    private static final String TAG = "MediaRouterSupport";
+    private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
 
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mSelector;
@@ -77,6 +81,18 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
+
+        // Add a fragment to take care of media route discovery.
+        // This fragment automatically adds or removes a callback whenever the activity
+        // is started or stopped.
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.findFragmentByTag(DISCOVERY_FRAGMENT_TAG) == null) {
+            DiscoveryFragment fragment = new DiscoveryFragment();
+            fragment.setRouteSelector(mSelector);
+            fm.beginTransaction()
+                    .add(fragment, DISCOVERY_FRAGMENT_TAG)
+                    .commit();
+        }
 
         // Populate an array adapter with fake media items.
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
@@ -120,23 +136,11 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onStart() {
         // Be sure to call the super class.
-        super.onResume();
+        super.onStart();
 
-        // Listen for changes to media routes.
-        mMediaRouter.addCallback(mSelector, mCallback,
-                MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS);
         updateRouteDescription();
-    }
-
-    @Override
-    protected void onPause() {
-        // Be sure to call the super class.
-        super.onPause();
-
-        // Stop listening for changes to media routes.
-        mMediaRouter.removeCallback(mCallback);
     }
 
     @Override
@@ -277,60 +281,78 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         return null;
     }
 
-    private final MediaRouter.Callback mCallback = new MediaRouter.Callback() {
+    private final class DiscoveryFragment extends MediaRouteDiscoveryFragment {
         @Override
-        public void onRouteAdded(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteAdded: route=" + route);
+        public Callback onCreateCallback() {
+            // Return a custom callback that will simply log all of the route events
+            // for demonstration purposes.
+            return new MediaRouter.Callback() {
+                @Override
+                public void onRouteAdded(MediaRouter router, RouteInfo route) {
+                    Log.d(TAG, "onRouteAdded: route=" + route);
+                }
+
+                @Override
+                public void onRouteChanged(MediaRouter router, RouteInfo route) {
+                    Log.d(TAG, "onRouteChanged: route=" + route);
+                    updateRouteDescription();
+                }
+
+                @Override
+                public void onRouteRemoved(MediaRouter router, RouteInfo route) {
+                    Log.d(TAG, "onRouteRemoved: route=" + route);
+                }
+
+                @Override
+                public void onRouteSelected(MediaRouter router, RouteInfo route) {
+                    Log.d(TAG, "onRouteSelected: route=" + route);
+                    updateRouteDescription();
+                }
+
+                @Override
+                public void onRouteUnselected(MediaRouter router, RouteInfo route) {
+                    Log.d(TAG, "onRouteUnselected: route=" + route);
+                    updateRouteDescription();
+                }
+
+                @Override
+                public void onRouteVolumeChanged(MediaRouter router, RouteInfo route) {
+                    Log.d(TAG, "onRouteVolumeChanged: route=" + route);
+                }
+
+                @Override
+                public void onRoutePresentationDisplayChanged(
+                        MediaRouter router, RouteInfo route) {
+                    Log.d(TAG, "onRoutePresentationDisplayChanged: route=" + route);
+                }
+
+                @Override
+                public void onProviderAdded(MediaRouter router, ProviderInfo provider) {
+                    Log.d(TAG, "onRouteProviderAdded: provider=" + provider);
+                }
+
+                @Override
+                public void onProviderRemoved(MediaRouter router, ProviderInfo provider) {
+                    Log.d(TAG, "onRouteProviderRemoved: provider=" + provider);
+                }
+
+                @Override
+                public void onProviderChanged(MediaRouter router, ProviderInfo provider) {
+                    Log.d(TAG, "onRouteProviderChanged: provider=" + provider);
+                }
+            };
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteChanged: route=" + route);
-            updateRouteDescription();
+        public int onPrepareCallbackFlags() {
+            // Add the CALLBACK_FLAG_UNFILTERED_EVENTS flag to ensure that we will
+            // observe and log all route events including those that are for routes
+            // that do not match our selector.  This is only for demonstration purposes
+            // and should not be needed by most applications.
+            return super.onPrepareCallbackFlags()
+                    | MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS;
         }
-
-        @Override
-        public void onRouteRemoved(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteRemoved: route=" + route);
-        }
-
-        @Override
-        public void onRouteSelected(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteSelected: route=" + route);
-            updateRouteDescription();
-        }
-
-        @Override
-        public void onRouteUnselected(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteUnselected: route=" + route);
-            updateRouteDescription();
-        }
-
-        @Override
-        public void onRouteVolumeChanged(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteVolumeChanged: route=" + route);
-        }
-
-        @Override
-        public void onRoutePresentationDisplayChanged(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRoutePresentationDisplayChanged: route=" + route);
-        }
-
-        @Override
-        public void onProviderAdded(MediaRouter router, ProviderInfo provider) {
-            Log.d(TAG, "onRouteProviderAdded: provider=" + provider);
-        }
-
-        @Override
-        public void onProviderRemoved(MediaRouter router, ProviderInfo provider) {
-            Log.d(TAG, "onRouteProviderRemoved: provider=" + provider);
-        }
-
-        @Override
-        public void onProviderChanged(MediaRouter router, ProviderInfo provider) {
-            Log.d(TAG, "onRouteProviderChanged: provider=" + provider);
-        }
-    };
+    }
 
     private static final class MediaItem {
         public final String mName;

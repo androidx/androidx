@@ -145,7 +145,6 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 new MediaRouteProviderDescriptor.Builder()
                 .addRoute(routeDescriptor1)
                 .addRoute(routeDescriptor2)
-                .addDiscoverableControlFilters(CONTROL_FILTERS)
                 .build();
         setDescriptor(providerDescriptor);
     }
