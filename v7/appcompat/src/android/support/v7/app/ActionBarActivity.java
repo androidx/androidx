@@ -152,8 +152,8 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public void supportInvalidateOptionsMenu() {
-        // Only call up to super on HC+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        // Only call up to super on ICS+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             super.supportInvalidateOptionsMenu();
         }
         mImpl.supportInvalidateOptionsMenu();

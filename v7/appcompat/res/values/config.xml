@@ -26,4 +26,9 @@
     maximum (let them grow as large as the screen).  Actual values are
     specified for -large and -xlarge configurations. -->
     <dimen name="abc_config_prefDialogWidth">320dp</dimen>
+
+    <!-- Whether action menu items should be displayed in ALLCAPS or not.
+         Defaults to true. If this is not appropriate for specific locales
+         it should be disabled in that locale's resources. -->
+    <bool name="abc_config_actionMenuItemAllCaps">true</bool>
 </resources>

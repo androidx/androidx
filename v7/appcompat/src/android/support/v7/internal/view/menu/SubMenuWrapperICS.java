@@ -22,8 +22,8 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
-class SubMenuWrapperHC extends MenuWrapperHC implements SupportSubMenu {
-    SubMenuWrapperHC(android.view.SubMenu subMenu) {
+class SubMenuWrapperICS extends MenuWrapperICS implements SupportSubMenu {
+    SubMenuWrapperICS(android.view.SubMenu subMenu) {
         super(subMenu);
     }
 

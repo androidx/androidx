@@ -26,6 +26,8 @@ import android.view.View;
 /**
  * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to the
  * parent menu.
+ *
+ * @hide
  */
 public class SubMenuBuilder extends MenuBuilder implements SubMenu {
 
@@ -119,7 +121,6 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
 
     @Override
     public void clearHeader() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

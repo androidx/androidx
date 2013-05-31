@@ -27,6 +27,8 @@ import java.util.ArrayList;
  * Base class for MenuPresenters that have a consistent container view and item views. Behaves
  * similarly to an AdapterView in that existing item views will be reused if possible when items
  * change.
+ *
+ * @hide
  */
 public abstract class BaseMenuPresenter implements MenuPresenter {
 

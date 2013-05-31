@@ -548,4 +548,9 @@
     <!-- Default ActivityChooserView style. -->
     <attr name="activityChooserViewStyle" format="reference" />
 
+    <declare-styleable name="CompatTextView">
+        <!-- Present the text in ALL CAPS. This may use a small-caps form when available. -->
+        <attr name="textAllCaps" format="reference|boolean" />
+    </declare-styleable>
+
 </resources>

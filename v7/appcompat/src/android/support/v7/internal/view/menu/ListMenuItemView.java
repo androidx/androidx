@@ -33,6 +33,8 @@ import android.widget.TextView;
 
 /**
  * The item view for each item in the ListView-based MenuViews.
+ *
+ * @hide
  */
 public class ListMenuItemView extends LinearLayout implements MenuView.ItemView {
 

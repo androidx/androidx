@@ -24,9 +24,9 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-class MenuWrapperHC extends BaseMenuWrapper<android.view.Menu> implements SupportMenu {
+class MenuWrapperICS extends BaseMenuWrapper<android.view.Menu> implements SupportMenu {
 
-    MenuWrapperHC(android.view.Menu object) {
+    MenuWrapperICS(android.view.Menu object) {
         super(object);
     }
 

@@ -15,10 +15,6 @@
 -->
 
 <resources>
-    <dimen name="abc_action_bar_size">48dp</dimen>
-
-    <!-- Maximum height for a stacked tab bar as part of an action bar -->
-    <dimen name="abc_action_bar_stacked_max_height">48dp</dimen>
 
     <!-- The maximum number of action buttons that should be permitted within
          an action bar/action mode. This will be used to determine how many
@@ -44,6 +40,8 @@
     <dimen name="abc_action_bar_subtitle_bottom_margin">5dip</dimen>
     <!-- Minimum width for an action button in the menu area of an action bar -->
     <dimen name="abc_action_button_min_width">56dip</dimen>
+    <!-- Maximum height for a stacked tab bar as part of an action bar -->
+    <dimen name="abc_action_bar_stacked_max_height">48dp</dimen>
 
     <dimen name="abc_panel_menu_list_width">296dp</dimen>
 
