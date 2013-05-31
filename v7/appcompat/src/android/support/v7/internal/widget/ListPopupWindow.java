@@ -49,6 +49,8 @@ import java.util.Locale;
  *
  * @see android.widget.AutoCompleteTextView
  * @see android.widget.Spinner
+ *
+ * @hide
  */
 public class ListPopupWindow {
 

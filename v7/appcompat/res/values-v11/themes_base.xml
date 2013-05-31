@@ -27,49 +27,16 @@
           Honeycomb+. You probably want to edit values/themes.xml instead. -->
     <eat-comment/>
 
-    <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.Base.AppCompat" parent="android:Theme.Holo">
-        <!-- Copy system flag values for our use -->
-        <item name="windowActionBar">?android:attr/windowActionBar</item>
-        <item name="actionBarSize">?android:attr/actionBarSize</item>
-        <item name="actionBarItemBackground">?android:attr/selectableItemBackground</item>
-        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
-        <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
-        <item name="dividerVertical">?android:attr/dividerVertical</item>
-        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
-        <item name="actionBarWidgetTheme">@null</item>
-
-        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
-        <item name="listPreferredItemPaddingLeft">8dip</item>
-        <item name="listPreferredItemPaddingRight">8dip</item>
+    <!-- Base platform-dependent theme  -->
+    <style name="Theme.Base" parent="android:Theme.Holo">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
     </style>
 
-    <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light" parent="android:Theme.Holo.Light">
-        <!-- Copy system flag values for our use -->
-        <item name="windowActionBar">?android:attr/windowActionBar</item>
-        <item name="actionBarSize">?android:attr/actionBarSize</item>
-        <item name="actionBarItemBackground">?android:attr/selectableItemBackground</item>
-        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
-        <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
-        <item name="dividerVertical">?android:attr/dividerVertical</item>
-        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
-        <item name="actionBarWidgetTheme">@null</item>
-
-        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
-        <item name="listPreferredItemPaddingLeft">8dip</item>
-        <item name="listPreferredItemPaddingRight">8dip</item>
-    </style>
-
-    <!-- Base platform-dependent theme. There is no DarkActionBar theme in v11, so we use Light -->
-    <style name="Theme.Base.AppCompat.Light.DarkActionBar"
-           parent="Theme.Base.AppCompat.Light">
+    <!-- Base platform-dependent theme providing a light-themed activity. -->
+    <style name="Theme.Base.Light" parent="android:Theme.Holo.Light">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
     </style>
 
 </resources>

@@ -38,6 +38,8 @@ import java.util.ArrayList;
 
 /**
  * MenuPresenter for building action menus as seen in the action bar and action modes.
+ *
+ * @hide
  */
 public class ActionMenuPresenter extends BaseMenuPresenter
         implements ActionProvider.SubUiVisibilityListener {

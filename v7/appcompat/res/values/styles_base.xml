@@ -89,6 +89,7 @@
         <item name="android:minHeight">?attr/actionBarSize</item>
         <item name="android:gravity">center</item>
         <item name="android:maxLines">2</item>
+        <item name="textAllCaps">@bool/abc_config_actionMenuItemAllCaps</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionButton"
@@ -149,6 +150,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:ellipsize">marquee</item>
         <item name="android:maxLines">2</item>
+        <item name="textAllCaps">true</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabText"

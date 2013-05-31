@@ -21,6 +21,13 @@
      variants are for direct use or use as parent styles by the app. -->
     <eat-comment/>
 
+    <style name="Widget.AppCompat.Base.ActionBar"
+           parent="android:Widget.Holo.ActionBar">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionBar"
+           parent="android:Widget.Holo.Light.ActionBar">
+    </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.Solid"
            parent="android:Widget.Holo.ActionBar.Solid">
@@ -78,12 +85,28 @@
            parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">
     </style>
 
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title"
+           parent="android:TextAppearance.Holo.Widget.ActionBar.Title">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle"
+           parent="android:TextAppearance.Holo.Widget.ActionBar.Subtitle">
+    </style>
+
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse"
            parent="android:TextAppearance.Holo.Widget.ActionBar.Title.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
            parent="android:TextAppearance.Holo.Widget.ActionBar.Subtitle.Inverse">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title"
+           parent="android:TextAppearance.Holo.Widget.ActionMode.Title">
+    </style>
+
+    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle"
+           parent="android:TextAppearance.Holo.Widget.ActionMode.Subtitle">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title.Inverse"
@@ -94,28 +117,77 @@
            parent="android:TextAppearance.Holo.Widget.ActionMode.Subtitle.Inverse">
     </style>
 
+    <!-- Action Button Styles -->
+
+    <style name="Widget.AppCompat.Base.ActionButton" parent="android:Widget.Holo.ActionButton">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionButton"
+           parent="android:Widget.Holo.Light.ActionButton">
+    </style>
+
+    <style name="Widget.AppCompat.Base.ActionButton.CloseMode"
+           parent="android:Widget.Holo.ActionButton.CloseMode">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionButton.CloseMode"
+           parent="android:Widget.Holo.Light.ActionButton.CloseMode">
+    </style>
+
+    <style name="Widget.AppCompat.Base.ActionButton.Overflow"
+           parent="android:Widget.Holo.ActionButton.Overflow">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ActionButton.Overflow"
+           parent="android:Widget.Holo.Light.ActionButton.Overflow">
+    </style>
+
+    <!-- Spinner Widgets -->
+
+    <style name="Widget.AppCompat.Base.ListView.DropDown"
+           parent="android:Widget.Holo.ListView.DropDown"/>
+
+    <style name="Widget.AppCompat.Light.Base.ListView.DropDown"
+           parent="android:Widget.Holo.ListView.DropDown"/>
+
+    <style name="Widget.AppCompat.Base.DropDownItem.Spinner"
+           parent="android:Widget.Holo.DropDownItem.Spinner"/>
+
+    <style name="Widget.AppCompat.Light.Base.DropDownItem.Spinner"
+           parent="android:Widget.Holo.Light.DropDownItem.Spinner"/>
+
+    <style name="Widget.AppCompat.Base.Spinner" parent="android:Widget.Holo.Spinner" />
+
+    <style name="Widget.AppCompat.Light.Base.Spinner" parent="android:Widget.Holo.Light.Spinner"/>
+
+    <style name="Widget.AppCompat.Base.ListView.Menu" parent="android:Widget.ListView.Menu" />
+
+    <!-- Popup Menu -->
+
     <style name="Widget.AppCompat.Base.PopupMenu" parent="android:Widget.Holo.PopupMenu">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.PopupMenu"
-           parent="android:Widget.Holo.Light.PopupMenu">
+        parent="android:Widget.Holo.Light.PopupMenu">
     </style>
 
     <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large"
-           parent="android:TextAppearance.Holo.Widget.PopupMenu.Large">
+        parent="android:TextAppearance.Holo.Widget.PopupMenu.Large">
     </style>
 
     <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Small"
-           parent="android:TextAppearance.Holo.Widget.PopupMenu.Small">
+        parent="android:TextAppearance.Holo.Widget.PopupMenu.Small">
     </style>
 
     <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Large"
-           parent="android:TextAppearance.Holo.Widget.PopupMenu.Large">
+        parent="android:TextAppearance.Holo.Widget.PopupMenu.Large">
     </style>
 
     <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Small"
-           parent="android:TextAppearance.Holo.Widget.PopupMenu.Small">
+        parent="android:TextAppearance.Holo.Widget.PopupMenu.Small">
     </style>
+
+    <!-- Search View result styles -->
 
     <style name="TextAppearance.AppCompat.Base.SearchResult.Title"
            parent="@android:TextAppearance.Holo.SearchResult.Title">
@@ -126,7 +198,7 @@
     </style>
 
     <!--
-        TextAppearance.Holo.Light.SearchResult.* aren't public so we extend from the default
+        TextAppearance.Holo.Light.SearchResult.* are private so we extend from the default
         versions instead (which are exactly the same).
     -->
     <style name="TextAppearance.AppCompat.Light.Base.SearchResult.Title"

@@ -38,6 +38,8 @@ import android.widget.TextView;
 /**
  * This widget implements the dynamic action bar tab behavior that can change across different
  * configurations or circumstances.
+ *
+ * @hide
  */
 public class ScrollingTabContainerView extends HorizontalScrollView
         implements AdapterViewICS.OnItemClickListener {
@@ -316,6 +318,9 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         tabView.getTab().select();
     }
 
+    /**
+     * @hide
+     */
     public static class TabView extends LinearLayout {
 
         private ActionBar.Tab mTab;
@@ -404,7 +409,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
 
                 if (text != null) {
                     if (mTextView == null) {
-                        TextView textView = new TextView(getContext(), null,
+                        TextView textView = new CompatTextView(getContext(), null,
                                 R.attr.actionBarTabTextStyle);
                         textView.setEllipsize(TruncateAt.END);
                         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
