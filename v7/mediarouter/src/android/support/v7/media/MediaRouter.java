@@ -56,7 +56,7 @@ import java.util.List;
  */
 public final class MediaRouter {
     private static final String TAG = "MediaRouter";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Maintains global media router state for the process.
     // This field is initialized in MediaRouter.getInstance() before any
@@ -82,9 +82,14 @@ public final class MediaRouter {
      * effects on wireless connectivity.  Therefore it is important that active scanning
      * only be requested when it is actually needed to satisfy a user request to
      * discover and select a new route.
+     * </p><p>
+     * This flag implies {@link #CALLBACK_FLAG_REQUEST_DISCOVERY} but performing
+     * active scans is much more expensive than a normal discovery request.
      * </p>
+     *
+     * @see #CALLBACK_FLAG_REQUEST_DISCOVERY
      */
-    public static final int CALLBACK_FLAG_ACTIVE_SCAN = 1 << 0;
+    public static final int CALLBACK_FLAG_PERFORM_ACTIVE_SCAN = 1 << 0;
 
     /**
      * Flag for {@link #addCallback}: Do not filter route events.
@@ -94,6 +99,28 @@ public final class MediaRouter {
      * </p>
      */
     public static final int CALLBACK_FLAG_UNFILTERED_EVENTS = 1 << 1;
+
+    /**
+     * Flag for {@link #addCallback}: Request that route discovery be performed while this
+     * callback is registered.
+     * <p>
+     * When this flag is specified, the media router will try to discover routes.
+     * Although route discovery is intended to be efficient, checking for new routes may
+     * result in some network activity and could slowly drain the battery.  Therefore
+     * applications should only specify {@link #CALLBACK_FLAG_REQUEST_DISCOVERY} when
+     * they are running in the foreground and would like to provide the user with the
+     * option of connecting to new routes.
+     * </p><p>
+     * Applications should typically add a callback using this flag in the
+     * {@link android.app.Activity activity's} {@link android.app.Activity#onStart onStart}
+     * method and remove it in the {@link android.app.Activity#onStop onStop} method.
+     * The {@link android.support.v7.app.MediaRouteDiscoveryFragment} fragment may
+     * also be used for this purpose.
+     * </p>
+     *
+     * @see android.support.v7.app.MediaRouteDiscoveryFragment
+     */
+    public static final int CALLBACK_FLAG_REQUEST_DISCOVERY = 1 << 2;
 
     /**
      * Flag for {@link #isRouteAvailable}: Ignore the default route.
@@ -119,7 +146,7 @@ public final class MediaRouter {
      * to perform active scans to discover additional routes.
      * </p>
      *
-     * @see #CALLBACK_FLAG_ACTIVE_SCAN
+     * @see #CALLBACK_FLAG_PERFORM_ACTIVE_SCAN
      */
     public static final int AVAILABILITY_FLAG_CONSIDER_ACTIVE_SCAN = 1 << 1;
 
@@ -365,21 +392,22 @@ public final class MediaRouter {
      *                 .build();
      *     }
      *
-     *     // Add the callback on resume to tell the media router what kinds of routes
+     *     // Add the callback on start to tell the media router what kinds of routes
      *     // the application is interested in so that it can try to discover suitable ones.
-     *     public void onResume() {
-     *         super.onResume();
+     *     public void onStart() {
+     *         super.onStart();
      *
-     *         mediaRouter.addCallback(mSelector, mCallback);
+     *         mediaRouter.addCallback(mSelector, mCallback,
+     *                 MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
      *
      *         MediaRouter.RouteInfo route = mediaRouter.updateSelectedRoute(mSelector);
      *         // do something with the route...
      *     }
      *
-     *     // Remove the selector on pause to tell the media router that it no longer
+     *     // Remove the selector on stop to tell the media router that it no longer
      *     // needs to invest effort trying to discover routes of these kinds for now.
-     *     public void onPause() {
-     *         super.onPause();
+     *     public void onStop() {
+     *         super.onStop();
      *
      *         mediaRouter.removeCallback(mCallback);
      *     }
@@ -394,7 +422,7 @@ public final class MediaRouter {
      * callback would like to discover.
      * @param callback The callback to add.
      * @param flags Flags to control the behavior of the callback.
-     * May be zero or a combination of {@link #CALLBACK_FLAG_ACTIVE_SCAN} and
+     * May be zero or a combination of {@link #CALLBACK_FLAG_PERFORM_ACTIVE_SCAN} and
      * {@link #CALLBACK_FLAG_UNFILTERED_EVENTS}.
      * @see #removeCallback
      */
@@ -1484,6 +1512,7 @@ public final class MediaRouter {
 
         public void updateDiscoveryRequest() {
             // Combine all of the callback selectors and active scan flags.
+            boolean discover = false;
             boolean activeScan = false;
             MediaRouteSelector.Builder builder = new MediaRouteSelector.Builder();
             for (int i = mRouters.size(); --i >= 0; ) {
@@ -1495,13 +1524,17 @@ public final class MediaRouter {
                     for (int j = 0; j < count; j++) {
                         CallbackRecord callback = router.mCallbackRecords.get(j);
                         builder.addSelector(callback.mSelector);
-                        if ((callback.mFlags & CALLBACK_FLAG_ACTIVE_SCAN) != 0) {
+                        if ((callback.mFlags & CALLBACK_FLAG_PERFORM_ACTIVE_SCAN) != 0) {
                             activeScan = true;
+                            discover = true; // perform active scan implies request discovery
+                        }
+                        if ((callback.mFlags & CALLBACK_FLAG_REQUEST_DISCOVERY) != 0) {
+                            discover = true;
                         }
                     }
                 }
             }
-            MediaRouteSelector selector = builder.build();
+            MediaRouteSelector selector = discover ? builder.build() : MediaRouteSelector.EMPTY;
 
             // Create a new discovery request.
             if (mDiscoveryRequest != null

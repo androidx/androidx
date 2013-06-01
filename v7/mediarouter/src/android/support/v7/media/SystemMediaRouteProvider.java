@@ -783,7 +783,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             mCallbackRegistered = true;
             MediaRouterJellybeanMr2.addCallback(mRouterObj, mRouteTypes, mCallbackObj,
                     MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS
-                    | (mActiveScan ? MediaRouter.CALLBACK_FLAG_ACTIVE_SCAN : 0));
+                    | (mActiveScan ? MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN : 0));
         }
 
         @Override

@@ -52,8 +52,8 @@ import java.util.ArrayList;
  * </pre>
  */
 public abstract class MediaRouteProviderService extends Service {
-    private static final String TAG = "MediaRouteProviderService";
-    private static final boolean DEBUG = false;
+    private static final String TAG = "MediaRouteProviderSrv"; // max. 23 chars
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final ArrayList<ClientRecord> mClients = new ArrayList<ClientRecord>();
     private final ReceiveHandler mReceiveHandler;
@@ -833,11 +833,12 @@ public abstract class MediaRouteProviderService extends Service {
                         break;
 
                     case CLIENT_MSG_SET_DISCOVERY_REQUEST: {
-                        if (obj instanceof Bundle) {
+                        if (obj == null || obj instanceof Bundle) {
                             MediaRouteDiscoveryRequest request =
                                     MediaRouteDiscoveryRequest.fromBundle((Bundle)obj);
                             return service.onSetDiscoveryRequest(
-                                    messenger, requestId, request.isValid() ? request : null);
+                                    messenger, requestId,
+                                    request != null && request.isValid() ? request : null);
                         }
                     }
                 }

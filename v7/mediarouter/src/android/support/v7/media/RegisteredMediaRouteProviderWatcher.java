@@ -75,7 +75,7 @@ final class RegisteredMediaRouteProviderWatcher {
                     RegisteredMediaRouteProvider provider =
                             new RegisteredMediaRouteProvider(mContext,
                             new ComponentName(serviceInfo.packageName, serviceInfo.name));
-                    provider.bind();
+                    provider.start();
                     mProviders.add(targetIndex++, provider);
                     mRouter.addProvider(provider);
                 } else if (sourceIndex >= targetIndex) {
@@ -92,7 +92,7 @@ final class RegisteredMediaRouteProviderWatcher {
                 RegisteredMediaRouteProvider provider = mProviders.get(i);
                 mRouter.removeProvider(provider);
                 mProviders.remove(provider);
-                provider.unbind();
+                provider.stop();
             }
         }
     }
