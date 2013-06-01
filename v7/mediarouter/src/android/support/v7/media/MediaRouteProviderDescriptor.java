@@ -32,19 +32,14 @@ import java.util.List;
  */
 public final class MediaRouteProviderDescriptor {
     private static final String KEY_ROUTES = "routes";
-    private static final String KEY_ACTIVE_SCAN_REQUIRED = "activeScanRequired";
-    private static final String KEY_DISCOVERABLE_CONTROL_FILTERS =
-            "discoverableControlFilters";
 
     private final Bundle mBundle;
     private List<MediaRouteDescriptor> mRoutes;
-    private List<IntentFilter> mDiscoverableControlFilters;
 
     private MediaRouteProviderDescriptor(Bundle bundle,
-            List<MediaRouteDescriptor> routes, List<IntentFilter> discoverableControlFilters) {
+            List<MediaRouteDescriptor> routes) {
         mBundle = bundle;
         mRoutes = routes;
-        mDiscoverableControlFilters = discoverableControlFilters;
     }
 
     /**
@@ -71,38 +66,6 @@ public final class MediaRouteProviderDescriptor {
     }
 
     /**
-     * Gets a list of {@link MediaControlIntent media route control filters} that
-     * describe the union of capabilities of all routes that this provider can
-     * possibly discover.
-     *
-     * @see MediaRouter.ProviderInfo#getDiscoverableControlFilters
-     */
-    public List<IntentFilter> getDiscoverableControlFilters() {
-        ensureDiscoverableControlFilters();
-        return mDiscoverableControlFilters;
-    }
-
-    private void ensureDiscoverableControlFilters() {
-        if (mDiscoverableControlFilters == null) {
-            mDiscoverableControlFilters =
-                    mBundle.<IntentFilter>getParcelableArrayList(KEY_DISCOVERABLE_CONTROL_FILTERS);
-            if (mDiscoverableControlFilters == null || mDiscoverableControlFilters.isEmpty()) {
-                mDiscoverableControlFilters = Collections.<IntentFilter>emptyList();
-            }
-        }
-    }
-
-    /**
-     * Returns true if the provider requires active scans to discover routes.
-     *
-     * @see MediaRouter.ProviderInfo#isActiveScanRequired
-     * @see MediaRouter#CALLBACK_FLAG_PERFORM_ACTIVE_SCAN
-     */
-    public boolean isActiveScanRequired() {
-        return mBundle.getBoolean(KEY_ACTIVE_SCAN_REQUIRED, false);
-    }
-
-    /**
      * Returns true if the route provider descriptor and all of the routes that
      * it contains have all of the required fields.
      * <p>
@@ -111,10 +74,6 @@ public final class MediaRouteProviderDescriptor {
      * </p>
      */
     public boolean isValid() {
-        ensureDiscoverableControlFilters();
-        if (mDiscoverableControlFilters.contains(null)) {
-            return false;
-        }
         ensureRoutes();
         final int routeCount = mRoutes.size();
         for (int i = 0; i < routeCount; i++) {
@@ -130,10 +89,7 @@ public final class MediaRouteProviderDescriptor {
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("MediaRouteProviderDescriptor{ ");
-        result.append("isActiveScanRequired=").append(isActiveScanRequired());
-        result.append(", discoverableControlFilters=").append(
-                Arrays.toString(getDiscoverableControlFilters().toArray()));
-        result.append(", routes=").append(
+        result.append("routes=").append(
                 Arrays.toString(getRoutes().toArray()));
         result.append(", isValid=").append(isValid());
         result.append(" }");
@@ -156,7 +112,7 @@ public final class MediaRouteProviderDescriptor {
      * @return The new instance, or null if the bundle was null.
      */
     public static MediaRouteProviderDescriptor fromBundle(Bundle bundle) {
-        return bundle != null ? new MediaRouteProviderDescriptor(bundle, null, null) : null;
+        return bundle != null ? new MediaRouteProviderDescriptor(bundle, null) : null;
     }
 
     /**
@@ -165,7 +121,6 @@ public final class MediaRouteProviderDescriptor {
     public static final class Builder {
         private final Bundle mBundle;
         private ArrayList<MediaRouteDescriptor> mRoutes;
-        private ArrayList<IntentFilter> mDiscoverableControlFilters;
 
         /**
          * Creates an empty media route provider descriptor builder.
@@ -188,12 +143,6 @@ public final class MediaRouteProviderDescriptor {
             descriptor.ensureRoutes();
             if (!descriptor.mRoutes.isEmpty()) {
                 mRoutes = new ArrayList<MediaRouteDescriptor>(descriptor.mRoutes);
-            }
-
-            descriptor.ensureDiscoverableControlFilters();
-            if (!descriptor.mDiscoverableControlFilters.isEmpty()) {
-                mDiscoverableControlFilters = new ArrayList<IntentFilter>(
-                        descriptor.mDiscoverableControlFilters);
             }
         }
 
@@ -231,47 +180,6 @@ public final class MediaRouteProviderDescriptor {
         }
 
         /**
-         * Adds a {@link MediaControlIntent media control intent} filter.
-         */
-        public Builder addDiscoverableControlFilter(IntentFilter filter) {
-            if (filter == null) {
-                throw new IllegalArgumentException("filter must not be null");
-            }
-
-            if (mDiscoverableControlFilters == null) {
-                mDiscoverableControlFilters = new ArrayList<IntentFilter>();
-            }
-            if (!mDiscoverableControlFilters.contains(filter)) {
-                mDiscoverableControlFilters.add(filter);
-            }
-            return this;
-        }
-
-        /**
-         * Adds a list of {@link MediaControlIntent media control intent} filters.
-         */
-        public Builder addDiscoverableControlFilters(Collection<IntentFilter> filters) {
-            if (filters == null) {
-                throw new IllegalArgumentException("filters must not be null");
-            }
-
-            if (!filters.isEmpty()) {
-                for (IntentFilter filter : filters) {
-                    addDiscoverableControlFilter(filter);
-                }
-            }
-            return this;
-        }
-
-        /**
-         * Sets whether the provider requires active scans to discover routes.
-         */
-        public Builder setActiveScanRequired(boolean required) {
-            mBundle.putBoolean(KEY_ACTIVE_SCAN_REQUIRED, required);
-            return this;
-        }
-
-        /**
          * Builds the {@link MediaRouteProviderDescriptor media route provider descriptor}.
          */
         public MediaRouteProviderDescriptor build() {
@@ -283,12 +191,7 @@ public final class MediaRouteProviderDescriptor {
                 }
                 mBundle.putParcelableArrayList(KEY_ROUTES, routeBundles);
             }
-            if (mDiscoverableControlFilters != null) {
-                mBundle.putParcelableArrayList(KEY_DISCOVERABLE_CONTROL_FILTERS,
-                        mDiscoverableControlFilters);
-            }
-            return new MediaRouteProviderDescriptor(mBundle,
-                    mRoutes, mDiscoverableControlFilters);
+            return new MediaRouteProviderDescriptor(mBundle, mRoutes);
         }
     }
 }

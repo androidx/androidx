@@ -133,23 +133,6 @@ public final class MediaRouter {
      */
     public static final int AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE = 1 << 0;
 
-    /**
-     * Flag for {@link #isRouteAvailable}: Consider whether matching routes
-     * might be discovered if an active scan were performed.
-     * <p>
-     * If no existing routes match the route selector, then this flag is used to
-     * determine whether route providers that require active scans might discover
-     * matching routes if an active scan were actually performed.
-     * </p><p>
-     * This flag may be used to decide whether to offer the route chooser dialog to the user.
-     * When the dialog is opened, route providers are provided an opportunity
-     * to perform active scans to discover additional routes.
-     * </p>
-     *
-     * @see #CALLBACK_FLAG_PERFORM_ACTIVE_SCAN
-     */
-    public static final int AVAILABILITY_FLAG_CONSIDER_ACTIVE_SCAN = 1 << 1;
-
     MediaRouter(Context context) {
         mContext = context;
     }
@@ -312,21 +295,17 @@ public final class MediaRouter {
     }
 
     /**
-     * Returns true if there is a route that matches the specified selector
-     * or, depending on the specified availability flags, if it is possible to discover one.
+     * Returns true if there is a route that matches the specified selector.
      * <p>
-     * This method first considers whether there are any available
-     * routes that match the selector regardless of whether they are enabled or
-     * disabled.  If not and the {@link #AVAILABILITY_FLAG_CONSIDER_ACTIVE_SCAN} flag
-     * was specifies, then it considers whether any of the route providers
-     * could discover a matching route if an active scan were performed.
+     * This method returns true if there are any available routes that match the selector
+     * regardless of whether they are enabled or disabled.  If the
+     * {@link #AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE} flag is specified, then
+     * the method will only consider non-default routes.
      * </p>
      *
      * @param selector The selector to match.
      * @param flags Flags to control the determination of whether a route may be available.
-     * May be zero or a combination of
-     * {@link #AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE} and
-     * {@link #AVAILABILITY_FLAG_CONSIDER_ACTIVE_SCAN}.
+     * May be zero or {@link #AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE}.
      * @return True if a matching route may be available.
      */
     public boolean isRouteAvailable(MediaRouteSelector selector, int flags) {
@@ -1057,8 +1036,6 @@ public final class MediaRouter {
     public static final class ProviderInfo {
         private final MediaRouteProvider mProviderInstance;
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<RouteInfo>();
-        private final ArrayList<IntentFilter> mDiscoverableControlFilters =
-                new ArrayList<IntentFilter>();
 
         private final ProviderMetadata mMetadata;
         private MediaRouteProviderDescriptor mDescriptor;
@@ -1093,40 +1070,6 @@ public final class MediaRouter {
             return mRoutes;
         }
 
-        /**
-         * Returns true if the provider requires active scans to discover routes.
-         * <p>
-         * To provide the best user experience, a media route provider should passively
-         * discover and publish changes to route descriptors in the background.
-         * However, for some providers, scanning for routes may use a significant
-         * amount of power or may interfere with wireless network connectivity.
-         * If this is the case, then the provider will indicate that it requires
-         * active scans to discover routes by setting this flag.  Active scans
-         * will be performed when the user opens the route chooser dialog.
-         * </p>
-         */
-        public boolean isActiveScanRequired() {
-            checkCallingThread();
-            return mDescriptor != null && mDescriptor.isActiveScanRequired();
-        }
-
-        /**
-         * Gets a list of {@link MediaControlIntent media route control filters} that
-         * describe the union of capabilities of all routes that this provider can
-         * possibly discover.
-         * <p>
-         * Because a route provider may not know what to look for until an
-         * application actually asks for it, the contents of the discoverable control
-         * filter list may change depending on the route selectors that applications have
-         * actually specified when {@link MediaRouter#addCallback registering callbacks}
-         * on the media router to discover routes.
-         * </p>
-         */
-        public List<IntentFilter> getDiscoverableControlFilters() {
-            checkCallingThread();
-            return mDiscoverableControlFilters;
-        }
-
         Resources getResources() {
             if (mResources == null && !mResourcesNotAvailable) {
                 String packageName = getPackageName();
@@ -1145,14 +1088,6 @@ public final class MediaRouter {
         boolean updateDescriptor(MediaRouteProviderDescriptor descriptor) {
             if (mDescriptor != descriptor) {
                 mDescriptor = descriptor;
-                if (descriptor != null) {
-                    if (!mDiscoverableControlFilters.equals(
-                            descriptor.getDiscoverableControlFilters())) {
-                        mDiscoverableControlFilters.clear();
-                        mDiscoverableControlFilters.addAll(
-                                descriptor.getDiscoverableControlFilters());
-                    }
-                }
                 return true;
             }
             return false;
@@ -1171,7 +1106,6 @@ public final class MediaRouter {
         @Override
         public String toString() {
             return "MediaRouter.RouteProviderInfo{ packageName=" + getPackageName()
-                    + ", isActiveScanRequired=" + isActiveScanRequired()
                     + " }";
         }
     }
@@ -1490,19 +1424,6 @@ public final class MediaRouter {
                 }
                 if (route.matchesSelector(selector)) {
                     return true;
-                }
-            }
-
-            // Check whether any provider could possibly discover a matching route
-            // if a required active scan were performed.
-            if ((flags & AVAILABILITY_FLAG_CONSIDER_ACTIVE_SCAN) != 0) {
-                final int providerCount = mProviders.size();
-                for (int i = 0; i < providerCount; i++) {
-                    ProviderInfo provider = mProviders.get(i);
-                    if (provider.isActiveScanRequired() && selector.matchesControlFilters(
-                            provider.getDiscoverableControlFilters())) {
-                        return true;
-                    }
                 }
             }
 
