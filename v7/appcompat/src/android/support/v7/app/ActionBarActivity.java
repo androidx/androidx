@@ -92,13 +92,13 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
         mImpl.onStop();
     }
 
     @Override
-    public void onPostResume() {
+    protected void onPostResume() {
         super.onPostResume();
         mImpl.onPostResume();
     }
