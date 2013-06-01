@@ -28,6 +28,7 @@ import android.view.Display;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Provides routes for built-in system destinations such as the local display
@@ -305,13 +306,31 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         private boolean addSystemRouteNoPublish(Object routeObj) {
             if (getUserRouteRecord(routeObj) == null
                     && findSystemRouteRecord(routeObj) < 0) {
-                boolean isDefault = (getDefaultRoute() == routeObj);
-                SystemRouteRecord record = new SystemRouteRecord(routeObj, isDefault);
+                String id = assignRouteId(routeObj);
+                SystemRouteRecord record = new SystemRouteRecord(routeObj, id);
                 updateSystemRouteDescriptor(record);
                 mSystemRouteRecords.add(record);
                 return true;
             }
             return false;
+        }
+
+        private String assignRouteId(Object routeObj) {
+            // TODO: The framework media router should supply a unique route id that
+            // we can use here.  For now we use a hash of the route name and take care
+            // to dedupe it.
+            boolean isDefault = (getDefaultRoute() == routeObj);
+            String id = isDefault ? DEFAULT_ROUTE_ID :
+                    String.format(Locale.US, "ROUTE_%08x", getRouteName(routeObj).hashCode());
+            if (findSystemRouteRecordByDescriptorId(id) < 0) {
+                return id;
+            }
+            for (int i = 2; ; i++) {
+                String newId = String.format(Locale.US, "%s_%d", id, i);
+                if (findSystemRouteRecordByDescriptorId(newId) < 0) {
+                    return newId;
+                }
+            }
         }
 
         @Override
@@ -537,17 +556,19 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         protected void updateSystemRouteDescriptor(SystemRouteRecord record) {
             // We must always recreate the route descriptor when making any changes
             // because they are intended to be immutable once published.
+            MediaRouteDescriptor.Builder builder = new MediaRouteDescriptor.Builder(
+                    record.mRouteDescriptorId, getRouteName(record.mRouteObj));
+            onBuildSystemRouteDescriptor(record, builder);
+            record.mRouteDescriptor = builder.build();
+        }
 
+        protected String getRouteName(Object routeObj) {
             // Routes should not have null names but it may happen for badly configured
             // user routes.  We tolerate this by using an empty name string here but
             // such unnamed routes will be discarded by the media router upstream
             // (with a log message so we can track down the problem).
-            CharSequence name = MediaRouterJellybean.RouteInfo.getName(
-                    record.mRouteObj, getContext());
-            MediaRouteDescriptor.Builder builder = new MediaRouteDescriptor.Builder(
-                    record.mRouteDescriptorId, name != null ? name.toString() : "");
-            onBuildSystemRouteDescriptor(record, builder);
-            record.mRouteDescriptor = builder.build();
+            CharSequence name = MediaRouterJellybean.RouteInfo.getName(routeObj, getContext());
+            return name != null ? name.toString() : "";
         }
 
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
@@ -628,15 +649,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
          * and published by this route provider to the support library media router.
          */
         protected static final class SystemRouteRecord {
-            private static int sNextId;
-
             public final Object mRouteObj;
             public final String mRouteDescriptorId;
             public MediaRouteDescriptor mRouteDescriptor; // assigned immediately after creation
 
-            public SystemRouteRecord(Object routeObj, boolean isDefault) {
+            public SystemRouteRecord(Object routeObj, String id) {
                 mRouteObj = routeObj;
-                mRouteDescriptorId = isDefault ? DEFAULT_ROUTE_ID : "ROUTE_" + (sNextId++);
+                mRouteDescriptorId = id;
             }
         }
 
