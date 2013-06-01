@@ -41,13 +41,14 @@ import java.util.List;
  */
 final class RegisteredMediaRouteProvider extends MediaRouteProvider
         implements ServiceConnection {
-    private static final String TAG = "RegisteredMediaRouteProvider";
-    private static final boolean DEBUG = false;
+    private static final String TAG = "MediaRouteProviderProxy";  // max. 23 chars
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final ComponentName mComponentName;
     private final PrivateHandler mPrivateHandler;
     private final ArrayList<Controller> mControllers = new ArrayList<Controller>();
 
+    private boolean mStarted;
     private boolean mBound;
     private Connection mActiveConnection;
     private boolean mConnectionReady;
@@ -73,6 +74,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                     if (mConnectionReady) {
                         controller.attachConnection(mActiveConnection);
                     }
+                    updateBinding();
                     return controller;
                 }
             }
@@ -85,6 +87,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         if (mConnectionReady) {
             mActiveConnection.setDiscoveryRequest(request);
         }
+        updateBinding();
     }
 
     public boolean hasComponentName(String packageName, String className) {
@@ -92,41 +95,89 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                 && mComponentName.getClassName().equals(className);
     }
 
-    public void bind() {
-        if (DEBUG) {
-            Log.d(TAG, this + ": Binding");
-        }
-
-        Intent service = new Intent(MediaRouteProviderService.SERVICE_INTERFACE);
-        service.setComponent(mComponentName);
-        try {
-            mBound = getContext().bindService(service, this, Context.BIND_AUTO_CREATE);
-            if (!mBound && DEBUG) {
-                Log.d(TAG, this + ": Bind failed");
-            }
-        } catch (SecurityException ex) {
+    public void start() {
+        if (!mStarted) {
             if (DEBUG) {
-                Log.d(TAG, this + ": Bind failed", ex);
+                Log.d(TAG, this + ": Starting");
             }
+
+            mStarted = true;
+            updateBinding();
         }
     }
 
-    public void unbind() {
-        if (DEBUG) {
-            Log.d(TAG, this + ": Unbinding");
-        }
+    public void stop() {
+        if (mStarted) {
+            if (DEBUG) {
+                Log.d(TAG, this + ": Stopping");
+            }
 
-        disconnect();
-        if (mBound) {
-            mBound = false;
-            getContext().unbindService(this);
+            mStarted = false;
+            updateBinding();
         }
     }
 
     public void rebindIfDisconnected() {
-        if (mActiveConnection == null) {
+        if (mActiveConnection == null && shouldBind()) {
             unbind();
             bind();
+        }
+    }
+
+    private void updateBinding() {
+        if (shouldBind()) {
+            bind();
+        } else {
+            unbind();
+        }
+    }
+
+    private boolean shouldBind() {
+        if (mStarted) {
+            // Bind whenever there is a discovery request.
+            if (getDiscoveryRequest() != null) {
+                return true;
+            }
+
+            // Bind whenever the application has an active route controller.
+            // This means that one of this provider's routes is selected.
+            if (!mControllers.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void bind() {
+        if (!mBound) {
+            if (DEBUG) {
+                Log.d(TAG, this + ": Binding");
+            }
+
+            Intent service = new Intent(MediaRouteProviderService.SERVICE_INTERFACE);
+            service.setComponent(mComponentName);
+            try {
+                mBound = getContext().bindService(service, this, Context.BIND_AUTO_CREATE);
+                if (!mBound && DEBUG) {
+                    Log.d(TAG, this + ": Bind failed");
+                }
+            } catch (SecurityException ex) {
+                if (DEBUG) {
+                    Log.d(TAG, this + ": Bind failed", ex);
+                }
+            }
+        }
+    }
+
+    private void unbind() {
+        if (mBound) {
+            if (DEBUG) {
+                Log.d(TAG, this + ": Unbinding");
+            }
+
+            mBound = false;
+            disconnect();
+            getContext().unbindService(this);
         }
     }
 
@@ -216,6 +267,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     private void onControllerReleased(Controller controller) {
         mControllers.remove(controller);
         controller.detachConnection();
+        updateBinding();
     }
 
     private void attachControllersToConnection() {
@@ -557,58 +609,59 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
         @Override
         public void handleMessage(Message msg) {
-            final int what = msg.what;
-            final int requestId = msg.arg1;
-            final int arg = msg.arg2;
-            final Object obj = msg.obj;
-            final Bundle data = msg.peekData();
-            if (!processMessage(what, requestId, arg, obj, data)) {
-                if (DEBUG) {
-                    Log.d(TAG, "Unhandled message from server: " + msg);
+            Connection connection = mConnectionRef.get();
+            if (connection != null) {
+                final int what = msg.what;
+                final int requestId = msg.arg1;
+                final int arg = msg.arg2;
+                final Object obj = msg.obj;
+                final Bundle data = msg.peekData();
+                if (!processMessage(connection, what, requestId, arg, obj, data)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Unhandled message from server: " + msg);
+                    }
                 }
             }
         }
 
-        private boolean processMessage(int what, int requestId, int arg, Object obj, Bundle data) {
-            Connection connection = mConnectionRef.get();
-            if (connection != null) {
-                switch (what) {
-                    case MediaRouteProviderService.SERVICE_MSG_GENERIC_FAILURE:
-                        connection.onGenericFailure(requestId);
-                        return true;
+        private boolean processMessage(Connection connection,
+                int what, int requestId, int arg, Object obj, Bundle data) {
+            switch (what) {
+                case MediaRouteProviderService.SERVICE_MSG_GENERIC_FAILURE:
+                    connection.onGenericFailure(requestId);
+                    return true;
 
-                    case MediaRouteProviderService.SERVICE_MSG_GENERIC_SUCCESS:
-                        connection.onGenericSuccess(requestId);
-                        return true;
+                case MediaRouteProviderService.SERVICE_MSG_GENERIC_SUCCESS:
+                    connection.onGenericSuccess(requestId);
+                    return true;
 
-                    case MediaRouteProviderService.SERVICE_MSG_REGISTERED:
-                        if (obj == null || obj instanceof Bundle) {
-                            return connection.onRegistered(requestId, arg, (Bundle)obj);
-                        }
-                        break;
+                case MediaRouteProviderService.SERVICE_MSG_REGISTERED:
+                    if (obj == null || obj instanceof Bundle) {
+                        return connection.onRegistered(requestId, arg, (Bundle)obj);
+                    }
+                    break;
 
-                    case MediaRouteProviderService.SERVICE_MSG_DESCRIPTOR_CHANGED:
-                        if (obj == null || obj instanceof Bundle) {
-                            return connection.onDescriptorChanged((Bundle)obj);
-                        }
-                        break;
+                case MediaRouteProviderService.SERVICE_MSG_DESCRIPTOR_CHANGED:
+                    if (obj == null || obj instanceof Bundle) {
+                        return connection.onDescriptorChanged((Bundle)obj);
+                    }
+                    break;
 
-                    case MediaRouteProviderService.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED:
-                        if (obj == null || obj instanceof Bundle) {
-                            return connection.onControlRequestSucceeded(
-                                    requestId, (Bundle)obj);
-                        }
-                        break;
+                case MediaRouteProviderService.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED:
+                    if (obj == null || obj instanceof Bundle) {
+                        return connection.onControlRequestSucceeded(
+                                requestId, (Bundle)obj);
+                    }
+                    break;
 
-                    case MediaRouteProviderService.SERVICE_MSG_CONTROL_REQUEST_FAILED:
-                        if (obj == null || obj instanceof Bundle) {
-                            String error =
-                                    data.getString(MediaRouteProviderService.SERVICE_DATA_ERROR);
-                            return connection.onControlRequestFailed(
-                                    requestId, error, (Bundle)obj);
-                        }
-                        break;
-                 }
+                case MediaRouteProviderService.SERVICE_MSG_CONTROL_REQUEST_FAILED:
+                    if (obj == null || obj instanceof Bundle) {
+                        String error =
+                                data.getString(MediaRouteProviderService.SERVICE_DATA_ERROR);
+                        return connection.onControlRequestFailed(
+                                requestId, error, (Bundle)obj);
+                    }
+                    break;
             }
             return false;
         }

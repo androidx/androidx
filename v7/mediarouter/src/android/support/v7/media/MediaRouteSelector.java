@@ -38,7 +38,7 @@ import java.util.List;
  *         .build();
  *
  * MediaRouter router = MediaRouter.getInstance(context);
- * router.addCallback(selector, callback);
+ * router.addCallback(selector, callback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
  * </pre>
  */
 public final class MediaRouteSelector {
