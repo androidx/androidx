@@ -24,7 +24,7 @@ import java.net.SocketException;
 /**
  * Implementation of TrafficStatsCompat that can call ICS APIs.
  */
-public class TrafficStatsCompatIcs {
+class TrafficStatsCompatIcs {
     public static void clearThreadStatsTag() {
         TrafficStats.clearThreadStatsTag();
     }

@@ -18,7 +18,7 @@ package android.support.v4.view.accessibility;
 
 import android.view.accessibility.AccessibilityNodeInfo;
 
-public class AccessibilityNodeInfoCompatJellybeanMr2 {
+class AccessibilityNodeInfoCompatJellybeanMr2 {
 
     public static void setViewIdResourceName(Object info, String viewId) {
         ((AccessibilityNodeInfo) info).setViewIdResourceName(viewId);
