@@ -167,7 +167,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         }
     }
 
-    private void ensureSubDecor() {
+    final void ensureSubDecor() {
         if (mHasActionBar && !mSubDecorInstalled) {
             if (mOverlayActionBar) {
                 mActivity.superSetContentView(R.layout.abc_action_bar_decor_overlay);
