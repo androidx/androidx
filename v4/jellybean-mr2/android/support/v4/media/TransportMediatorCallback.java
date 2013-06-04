@@ -18,7 +18,7 @@ package android.support.v4.media;
 
 import android.view.KeyEvent;
 
-public interface TransportMediatorCallback {
+interface TransportMediatorCallback {
     public void handleKey(KeyEvent key);
     public void handleAudioFocusChange(int focusChange);
     public long getPlaybackPosition();
