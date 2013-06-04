@@ -28,7 +28,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-public class TransportMediatorJellybeanMR2
+class TransportMediatorJellybeanMR2
         implements RemoteControlClient.OnGetPlaybackPositionListener,
         RemoteControlClient.OnPlaybackPositionUpdateListener {
     final Context mContext;

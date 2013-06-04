@@ -23,7 +23,7 @@ import android.view.ViewParent;
 /**
  * Jellybean-specific View API access
  */
-public class ViewCompatJB {
+class ViewCompatJB {
 
     public static boolean hasTransientState(View view) {
         return view.hasTransientState();

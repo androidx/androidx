@@ -23,7 +23,7 @@ import android.content.Intent;
 /**
  * Implementation of TaskStackBuilder that can call Honeycomb APIs.
  */
-public class TaskStackBuilderHoneycomb {
+class TaskStackBuilderHoneycomb {
     public static PendingIntent getActivitiesPendingIntent(Context context, int requestCode,
             Intent[] intents, int flags) {
         return PendingIntent.getActivities(context, requestCode, intents, flags);
