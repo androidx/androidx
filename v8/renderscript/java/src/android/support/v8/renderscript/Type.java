@@ -23,29 +23,32 @@ import android.graphics.ImageFormat;
 import android.util.Log;
 
 /**
- * <p>A Type describes the {@link android.renderscript.Element} and dimensions used for an {@link
- * android.renderscript.Allocation} or a parallel operation. Types are created through {@link
- * android.renderscript.Type.Builder}.</p>
+ * <p>A Type describes the {@link android.support.v8.renderscript.Element} and
+ * dimensions used for an {@link android.support.v8.renderscript.Allocation} or
+ * a parallel operation. Types are created through
+ * {@link android.support.v8.renderscript.Type.Builder}.</p>
  *
- * <p>A Type always includes an {@link android.renderscript.Element} and an X
- * dimension. A Type may be multidimensional, up to three dimensions. A nonzero
- * value in the Y or Z dimensions indicates that the dimension is present. Note
- * that a Type with only a given X dimension and a Type with the same X
- * dimension but Y = 1 are not equivalent.</p>
+ * <p>A Type always includes an {@link android.support.v8.renderscript.Element}
+ * and an X dimension. A Type may be multidimensional, up to three dimensions.
+ * A nonzero value in the Y or Z dimensions indicates that the dimension is
+ * present. Note that a Type with only a given X dimension and a Type with the
+ * same X dimension but Y = 1 are not equivalent.</p>
  *
  * <p>A Type also supports inclusion of level of detail (LOD) or cube map
  * faces. LOD and cube map faces are booleans to indicate present or not
  * present. </p>
  *
  * <p>A Type also supports YUV format information to support an {@link
- * android.renderscript.Allocation} in a YUV format. The YUV formats supported
- * are {@link android.graphics.ImageFormat#YV12} and {@link
+ * android.support.v8.renderscript.Allocation} in a YUV format. The YUV formats
+ * supported are {@link android.graphics.ImageFormat#YV12} and {@link
  * android.graphics.ImageFormat#NV21}.</p>
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
- * <p>For more information about creating an application that uses RenderScript, read the
- * <a href="{@docRoot}guide/topics/renderscript/index.html">RenderScript</a> developer guide.</p>
+ * <p>For more information about creating an application that uses RenderScript,
+ * read the
+ * <a href="{@docRoot}guide/topics/renderscript/index.html">RenderScript</a>
+ * developer guide.</p>
  * </div>
  **/
 public class Type extends BaseObj {

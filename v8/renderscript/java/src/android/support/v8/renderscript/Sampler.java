@@ -33,9 +33,11 @@ import android.graphics.BitmapFactory;
  * function to return values from normalized coordinates.
  *
  * Any Allocation used with a Sampler must have been created with {@link
- * android.renderscript.Allocation#USAGE_GRAPHICS_TEXTURE}; using a Sampler on
- * an {@link android.renderscript.Allocation} that was not created with {@link
- * android.renderscript.Allocation#USAGE_GRAPHICS_TEXTURE} is undefined.
+ * android.support.v8.renderscript.Allocation#USAGE_GRAPHICS_TEXTURE}; using a
+ * Sampler on an {@link android.support.v8.renderscript.Allocation} that was not
+ * created with
+ * {@link android.support.v8.renderscript.Allocation#USAGE_GRAPHICS_TEXTURE} is
+ * undefined.
  **/
 public class Sampler extends BaseObj {
     public enum Value {
