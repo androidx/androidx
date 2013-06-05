@@ -19,9 +19,9 @@ package android.support.v8.renderscript;
 import android.util.Log;
 
 /**
- * BaseObj is the base class for interfacing with native renderscript objects.
- * It primarly contains code for tracking the native object ID and forcably
- * disconecting the object from the native allocation for early cleanup.
+ * BaseObj is the base class for all RenderScript objects owned by a RS context.
+ * It is responsible for lifetime management and resource tracking. This class
+ * should not be used by a user application.
  *
  **/
 public class BaseObj {
@@ -97,10 +97,9 @@ public class BaseObj {
     }
 
     /**
-     * destroy disconnects the object from the native object effectively
-     * rendering this java object dead.  The primary use is to force immediate
-     * cleanup of resources when it is believed the GC will not respond quickly
-     * enough.
+     * Frees any native resources associated with this object.  The
+     * primary use is to force immediate cleanup of resources when it is
+     * believed the GC will not respond quickly enough.
      */
     synchronized public void destroy() {
         if(mDestroyed) {

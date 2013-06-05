@@ -19,7 +19,7 @@ package android.support.v8.renderscript;
 
 /**
  * Base class for all exceptions thrown by the Android
- * Renderscript
+ * RenderScript
  */
 public class RSDriverException extends RSRuntimeException {
     public RSDriverException(String string) {

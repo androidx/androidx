@@ -20,6 +20,11 @@ import android.util.Log;
 
 /**
  *
+ * Intrinsic for converting RGB to RGBA by using a 3D lookup table.  The
+ * incoming r,g,b values are use as normalized x,y,z coordinates into a 3D
+ * allocation.  The 8 nearest values are sampled and linearly interpolated.  The
+ * result is placed in the output.
+ *
  * @hide
  **/
 public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
@@ -36,7 +41,7 @@ public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
      *
      * The defaults tables are identity.
      *
-     * @param rs The Renderscript context
+     * @param rs The RenderScript context
      * @param e Element type for intputs and outputs
      *
      * @return ScriptIntrinsic3DLUT
@@ -54,6 +59,13 @@ public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
 
         return new ScriptIntrinsic3DLUT(id, rs, e);
     }
+
+    /**
+     * Sets the {@link android.renderscript.Allocation} to be used as the lookup table.
+     *
+     * The lookup table must use the same {@link android.renderscript.Element} as the intrinsic.
+     *
+     */
 
     public void setLUT(Allocation lut) {
         final Type t = lut.getType();
