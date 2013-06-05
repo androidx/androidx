@@ -61,9 +61,11 @@ public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
     }
 
     /**
-     * Sets the {@link android.renderscript.Allocation} to be used as the lookup table.
+     * Sets the {@link android.support.v8.renderscript.Allocation} to be used as
+     * the lookup table.
      *
-     * The lookup table must use the same {@link android.renderscript.Element} as the intrinsic.
+     * The lookup table must use the same
+     * {@link android.support.v8.renderscript.Element} as the intrinsic.
      *
      */
 

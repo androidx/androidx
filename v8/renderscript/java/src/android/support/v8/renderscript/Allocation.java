@@ -30,13 +30,14 @@ import android.util.TypedValue;
 /**
  * <p> This class provides the primary method through which data is passed to
  * and from RenderScript kernels.  An Allocation provides the backing store for
- * a given {@link android.renderscript.Type}.  </p>
+ * a given {@link android.support.v8.renderscript.Type}.  </p>
  *
  * <p>An Allocation also contains a set of usage flags that denote how the
  * Allocation could be used. For example, an Allocation may have usage flags
  * specifying that it can be used from a script as well as input to a {@link
- * android.renderscript.Sampler}. A developer must synchronize across these
- * different usages using {@link android.renderscript.Allocation#syncAll} in
+ * android.support.v8.renderscript.Sampler}. A developer must synchronize
+ * across these different usages using
+ * {@link android.support.v8.renderscript.Allocation#syncAll} in
  * order to ensure that different users of the Allocation have a consistent view
  * of memory. For example, in the case where an Allocation is used as the output
  * of one kernel and as Sampler input in a later kernel, a developer must call
@@ -49,8 +50,10 @@ import android.util.TypedValue;
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
- * <p>For more information about creating an application that uses RenderScript, read the
- * <a href="{@docRoot}guide/topics/renderscript/index.html">RenderScript</a> developer guide.</p>
+ * <p>For more information about creating an application that uses
+ * RenderScript, read the
+ * <a href="{@docRoot}guide/topics/renderscript/index.html">RenderScript</a>
+ * developer guide.</p>
  * </div>
  **/
 public class Allocation extends BaseObj {
@@ -164,8 +167,8 @@ public class Allocation extends BaseObj {
 
 
    /**
-     * Get the {@link android.renderscript.Element} of the {@link
-     * android.renderscript.Type} of the Allocation.
+     * Get the {@link android.support.v8.renderscript.Element} of the {@link
+     * android.support.v8.renderscript.Type} of the Allocation.
      *
      * @return Element
      *
@@ -287,7 +290,7 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * Get the {@link android.renderscript.Type} of the Allocation.
+     * Get the {@link android.support.v8.renderscript.Type} of the Allocation.
      *
      * @return Type
      *
@@ -497,7 +500,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy into this Allocation from an array.  This variant is type checked
      * and will generate exceptions if the Allocation's {@link
-     * android.renderscript.Element} is not a 32 bit integer type.
+     * android.support.v8.renderscript.Element} is not a 32 bit integer type.
      *
      * @param d the source data array
      */
@@ -515,7 +518,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy into this Allocation from an array.  This variant is type checked
      * and will generate exceptions if the Allocation's {@link
-     * android.renderscript.Element} is not a 16 bit integer type.
+     * android.support.v8.renderscript.Element} is not a 16 bit integer type.
      *
      * @param d the source data array
      */
@@ -533,7 +536,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy into this Allocation from an array.  This variant is type checked
      * and will generate exceptions if the Allocation's {@link
-     * android.renderscript.Element} is not an 8 bit integer type.
+     * android.support.v8.renderscript.Element} is not an 8 bit integer type.
      *
      * @param d the source data array
      */
@@ -551,7 +554,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy into this Allocation from an array.  This variant is type checked
      * and will generate exceptions if the Allocation's {@link
-     * android.renderscript.Element} is not a 32 bit float type.
+     * android.support.v8.renderscript.Element} is not a 32 bit float type.
      *
      * @param d the source data array
      */
@@ -1114,7 +1117,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy from the Allocation into a byte array.  The array must be at least
      * as large as the Allocation.  The allocation must be of an 8 bit integer
-     * {@link android.renderscript.Element} type.
+     * {@link android.support.v8.renderscript.Element} type.
      *
      * @param d The array to be set from the Allocation.
      */
@@ -1127,7 +1130,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy from the Allocation into a short array.  The array must be at least
      * as large as the Allocation.  The allocation must be of an 16 bit integer
-     * {@link android.renderscript.Element} type.
+     * {@link android.support.v8.renderscript.Element} type.
      *
      * @param d The array to be set from the Allocation.
      */
@@ -1140,7 +1143,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy from the Allocation into a int array.  The array must be at least as
      * large as the Allocation.  The allocation must be of an 32 bit integer
-     * {@link android.renderscript.Element} type.
+     * {@link android.support.v8.renderscript.Element} type.
      *
      * @param d The array to be set from the Allocation.
      */
@@ -1153,7 +1156,7 @@ public class Allocation extends BaseObj {
     /**
      * Copy from the Allocation into a float array.  The array must be at least
      * as large as the Allocation.  The allocation must be of an 32 bit float
-     * {@link android.renderscript.Element} type.
+     * {@link android.support.v8.renderscript.Element} type.
      *
      * @param d The array to be set from the Allocation.
      */
@@ -1172,7 +1175,7 @@ public class Allocation extends BaseObj {
 
     /**
      * Creates a new Allocation with the given {@link
-     * android.renderscript.Type}, mipmap flag, and usage flags.
+     * android.support.v8.renderscript.Type}, mipmap flag, and usage flags.
      *
      * @param type RenderScript type describing data layout
      * @param mips specifies desired mipmap behaviour for the
@@ -1213,7 +1216,7 @@ public class Allocation extends BaseObj {
 
     /**
      * Creates an Allocation for use by scripts with a given {@link
-     * android.renderscript.Type} and no mipmaps
+     * android.support.v8.renderscript.Type} and no mipmaps
      *
      * @param rs Context to which the Allocation will belong.
      * @param type RenderScript Type describing data layout

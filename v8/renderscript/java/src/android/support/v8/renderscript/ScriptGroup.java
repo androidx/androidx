@@ -39,7 +39,8 @@ import java.util.ArrayList;
  * <p>
  * Currently, all kernels in a ScriptGroup must be from separate
  * Script objects. Attempting to use multiple kernels from the same
- * Script object will result in an {@link android.renderscript.RSInvalidStateException}.
+ * Script object will result in an
+ * {@link android.support.v8.renderscript.RSInvalidStateException}.
  *
  **/
 public class ScriptGroup extends BaseObj {
