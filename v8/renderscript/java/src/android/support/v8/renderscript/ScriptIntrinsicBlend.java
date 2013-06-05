@@ -18,7 +18,8 @@ package android.support.v8.renderscript;
 
 
 /**
- * Intrinsic kernels for blending two {@link android.renderscript.Allocation} objects.
+ * Intrinsic kernels for blending two
+ * {@link android.support.v8.renderscript.Allocation} objects.
  **/
 public class ScriptIntrinsicBlend extends ScriptIntrinsic {
     ScriptIntrinsicBlend(int id, RenderScript rs) {

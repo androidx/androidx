@@ -22,36 +22,40 @@ import android.util.Log;
 
 /**
  * <p>An Element represents one item within an {@link
- * android.renderscript.Allocation}.  An Element is roughly equivalent to a C
- * type in a RenderScript kernel. Elements may be basic or complex. Some basic
- * elements are</p> <ul> <li>A single float value (equivalent to a float in a
- * kernel)</li> <li>A four-element float vector (equivalent to a float4 in a
- * kernel)</li> <li>An unsigned 32-bit integer (equivalent to an unsigned int in
- * a kernel)</li> <li>A single signed 8-bit integer (equivalent to a char in a
- * kernel)</li> </ul> <p>A complex element is roughly equivalent to a C struct
- * and contains a number of basic or complex Elements. From Java code, a complex
- * element contains a list of sub-elements and names that represents a
- * particular data structure. Structs used in RS scripts are available to Java
- * code by using the {@code ScriptField_structname} class that is reflected from
- * a particular script.</p>
+ * android.support.v8.renderscript.Allocation}.  An Element is roughly
+ * equivalent to a C type in a RenderScript kernel. Elements may be basic or
+ * complex. Some basic elements are</p> <ul> <li>A single float value
+ * (equivalent to a float in a kernel)</li> <li>A four-element float vector
+ * (equivalent to a float4 in a kernel)</li> <li>An unsigned 32-bit integer
+ * (equivalent to an unsigned int in a kernel)</li> <li>A single signed 8-bit
+ * integer (equivalent to a char in a kernel)</li> </ul> <p>A complex element is
+ * roughly equivalent to a C struct and contains a number of basic or complex
+ * Elements. From Java code, a complex element contains a list of sub-elements
+ * and names that represents a particular data structure. Structs used in RS
+ * scripts are available to Java code by using the
+ * {@code ScriptField_structname} class that is reflected from a particular
+ * script.</p>
  *
  * <p>Basic Elements are comprised of a {@link
- * android.renderscript.Element.DataType} and a {@link
- * android.renderscript.Element.DataKind}. The DataType encodes C type
- * information of an Element, while the DataKind encodes how that Element should
- * be interpreted by a {@link android.renderscript.Sampler}. Note that {@link
- * android.renderscript.Allocation} objects with DataKind {@link
- * android.renderscript.Element.DataKind#USER} cannot be used as input for a
- * {@link android.renderscript.Sampler}. In general, {@link
- * android.renderscript.Allocation} objects that are intended for use with a
- * {@link android.renderscript.Sampler} should use bitmap-derived Elements such
- * as {@link android.renderscript.Element#RGBA_8888} or {@link
- * android.renderscript#Element.A_8}.</p>
+ * android.support.v8.renderscript.Element.DataType} and a {@link
+ * android.support.v8.renderscript.Element.DataKind}. The DataType encodes C
+ * type information of an Element, while the DataKind encodes how that Element
+ * should be interpreted by a {@link android.support.v8.renderscript.Sampler}.
+ * Note that {@link android.support.v8.renderscript.Allocation} objects with
+ * DataKind {@link android.support.v8.renderscript.Element.DataKind#USER} cannot
+ * be used as input for a {@link android.support.v8.renderscript.Sampler}. In
+ * general, {@link android.support.v8.renderscript.Allocation} objects that are
+ * intended for use with a {@link android.support.v8.renderscript.Sampler}
+ * should use bitmap-derived Elements such as
+ * {@link android.support.v8.renderscript.Element#RGBA_8888} or {@link
+ * android.support.v8.renderscript#Element.A_8}.</p>
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
- * <p>For more information about creating an application that uses RenderScript, read the
- * <a href="{@docRoot}guide/topics/renderscript/index.html">RenderScript</a> developer guide.</p>
+ * <p>For more information about creating an application that uses RenderScript,
+ * read the
+ * <a href="{@docRoot}guide/topics/renderscript/index.html">RenderScript</a>
+ * developer guide.</p>
  * </div>
  **/
 public class Element extends BaseObj {
