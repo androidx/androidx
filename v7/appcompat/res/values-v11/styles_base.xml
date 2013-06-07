@@ -21,93 +21,7 @@
      variants are for direct use or use as parent styles by the app. -->
     <eat-comment/>
 
-    <!-- Action Bar Spinner Widgets -->
-
-    <style name="Widget.AppCompat.Base.ListView.DropDown"
-           parent="android:Widget.Holo.ListView.DropDown"/>
-
-    <style name="Widget.AppCompat.Light.Base.ListView.DropDown"
-           parent="android:Widget.Holo.ListView.DropDown"/>
-
-    <style name="Widget.AppCompat.Base.DropDownItem.Spinner"
-           parent="android:Widget.Holo.DropDownItem.Spinner"/>
-
-    <style name="Widget.AppCompat.Light.Base.DropDownItem.Spinner"
-           parent="android:Widget.Holo.Light.DropDownItem.Spinner"/>
-
-    <style name="Widget.AppCompat.Base.Spinner"
-           parent="android:Widget.Holo.Spinner"/>
-
-    <style name="Widget.AppCompat.Light.Base.Spinner"
-           parent="android:Widget.Holo.Light.Spinner"/>
-
-    <style name="Widget.AppCompat.Base.DropDownItem.Spinner"
-           parent="android:Widget.Holo.DropDownItem.Spinner"/>
-
-    <style name="Widget.AppCompat.Light.Base.DropDownItem.Spinner"
-           parent="android:Widget.Holo.Light.DropDownItem.Spinner">
-    </style>
-
-    <!-- ActionBar -->
-    <style name="Widget.AppCompat.Base.ActionBar" parent="android:Widget.Holo.ActionBar">
-    </style>
-
-    <style name="Widget.AppCompat.Light.Base.ActionBar"
-           parent="android:Widget.Holo.Light.ActionBar">
-    </style>
-
-    <!-- Patterned after style name="Widget.Holo.ActionBar.Solid" -->
-    <style name="Widget.AppCompat.Base.ActionBar.Solid" parent="android:Widget.Holo.ActionBar">
-        <item name="android:background">@drawable/abc_ab_solid_dark_holo</item>
-    </style>
-
-    <!-- Patterned after style name="Widget.Holo.Light.ActionBar.Solid" -->
-    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid"
-           parent="android:Widget.Holo.Light.ActionBar">
-        <item name="android:background">@drawable/abc_ab_solid_light_holo</item>
-    </style>
-
-    <style name="Widget.AppCompat.Base.ActionButton" parent="android:Widget.Holo.ActionButton">
-    </style>
-
-    <style name="Widget.AppCompat.Light.Base.ActionButton"
-           parent="android:Widget.Holo.Light.ActionButton">
-    </style>
-
-    <style name="Widget.AppCompat.Base.ActionButton.CloseMode"
-           parent="android:Widget.Holo.ActionButton.CloseMode">
-    </style>
-
-    <style name="Widget.AppCompat.Light.Base.ActionButton.CloseMode"
-           parent="android:Widget.Holo.Light.ActionButton.CloseMode">
-    </style>
-
-    <style name="Widget.AppCompat.Base.ActionButton.Overflow"
-           parent="android:Widget.Holo.ActionButton.Overflow">
-    </style>
-
-    <style name="Widget.AppCompat.Light.Base.ActionButton.Overflow"
-           parent="android:Widget.Holo.Light.ActionButton.Overflow">
-    </style>
-
-    <style name="Widget.AppCompat.Base.ActionMode" parent="android:Widget.Holo.ActionMode">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title"
-           parent="android:TextAppearance.Holo.Widget.ActionBar.Title">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle"
-           parent="android:TextAppearance.Holo.Widget.ActionBar.Subtitle">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title"
-           parent="android:TextAppearance.Holo.Widget.ActionMode.Title">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle"
-           parent="android:TextAppearance.Holo.Widget.ActionMode.Subtitle">
-    </style>
+    <!-- Progress Bar -->
 
     <style name="Widget.AppCompat.Base.ProgressBar.Horizontal"
            parent="android:Widget.Holo.ProgressBar.Horizontal">
@@ -117,36 +31,7 @@
            parent="android:Widget.Holo.ProgressBar">
     </style>
 
-    <style name="Widget.AppCompat.Base.ListView.Menu" parent="android:Widget.ListView.Menu">
-    </style>
-
-    <!--
-        Inverse styles. As we don't have a DarkActionBar theme on v11, these extend
-        from the respective Light styles
-    -->
-    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"
-           parent="Widget.AppCompat.Light.Base.ActionBar.Solid">
-    </style>
-
-    <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
-           parent="Widget.AppCompat.Base.ActionMode">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title.Inverse"
-           parent="TextAppearance.AppCompat.Widget.Base.ActionMode.Title">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle.Inverse"
-           parent="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse"
-           parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Title">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
-           parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle">
-    </style>
+    <!-- AutoCompleteTextView styles (for SearchView) -->
 
     <style name="Widget.AppCompat.Base.AutoCompleteTextView"
            parent="android:Widget.Holo.AutoCompleteTextView">
