@@ -527,7 +527,7 @@ class ActionBarImplBase extends ActionBar {
         }
     }
 
-    private void showForActionMode() {
+    void showForActionMode() {
         if (!mShowingForMode) {
             mShowingForMode = true;
             updateVisibility(false);
@@ -542,7 +542,7 @@ class ActionBarImplBase extends ActionBar {
         }
     }
 
-    private void hideForActionMode() {
+    void hideForActionMode() {
         if (mShowingForMode) {
             mShowingForMode = false;
             updateVisibility(false);
@@ -957,8 +957,7 @@ class ActionBarImplBase extends ActionBar {
 
     private void updateVisibility(boolean fromSystem) {
         // Based on the current state, should we be hidden or shown?
-        final boolean shown = checkShowingFlags(mHiddenByApp, mHiddenBySystem,
-                mShowingForMode);
+        final boolean shown = checkShowingFlags(mHiddenByApp, mHiddenBySystem, mShowingForMode);
 
         if (shown) {
             if (!mNowShowing) {
@@ -989,14 +988,16 @@ class ActionBarImplBase extends ActionBar {
             return;
         }
 
-        if (mShowHideAnimationEnabled) {
+        final boolean animate = isShowHideAnimationEnabled() || fromSystem;
+
+        if (animate) {
             Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.abc_slide_in_top);
             mTopVisibilityView.startAnimation(anim);
         }
         mTopVisibilityView.setVisibility(View.VISIBLE);
 
         if (mSplitView != null && mSplitView.getVisibility() != View.VISIBLE) {
-            if (mShowHideAnimationEnabled) {
+            if (animate) {
                 Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.abc_slide_in_bottom);
                 mSplitView.startAnimation(anim);
             }
@@ -1010,20 +1011,26 @@ class ActionBarImplBase extends ActionBar {
             return;
         }
 
-        if (mShowHideAnimationEnabled) {
+        final boolean animate = isShowHideAnimationEnabled() || fromSystem;
+
+        if (animate) {
             Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.abc_slide_out_top);
             mTopVisibilityView.startAnimation(anim);
         }
         mTopVisibilityView.setVisibility(View.GONE);
 
         if (mSplitView != null && mSplitView.getVisibility() != View.GONE) {
-            if (mShowHideAnimationEnabled) {
+            if (animate) {
                 Animation anim = AnimationUtils
                         .loadAnimation(mContext, R.anim.abc_slide_out_bottom);
                 mSplitView.startAnimation(anim);
             }
             mSplitView.setVisibility(View.GONE);
         }
+    }
+
+    boolean isShowHideAnimationEnabled() {
+        return mShowHideAnimationEnabled;
     }
 
 }
