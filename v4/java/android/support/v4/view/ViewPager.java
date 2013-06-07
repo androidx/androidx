@@ -578,6 +578,7 @@ public class ViewPager extends ViewGroup {
             }
             completeScroll(false);
             scrollTo(destX, 0);
+            pageScrolled(destX);
         }
     }
 
