@@ -24,8 +24,14 @@
          directly by apps. -->
     <eat-comment/>
 
+    <style name="Theme.Base" parent="android:Theme">
+    </style>
+
+    <style name="Theme.Base.Light" parent="android:Theme.Light">
+    </style>
+
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.Base.AppCompat" parent="android:Theme">
+    <style name="Theme.Base.AppCompat" parent="Theme.Base">
         <item name="windowActionBar">true</item>
         <!-- Remove system title bars; we will add the action bar ourselves. -->
         <item name="android:windowNoTitle">true</item>
@@ -55,7 +61,7 @@
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/abc_action_bar_size</item>
+        <item name="actionBarSize">@dimen/abc_action_bar_default_height</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
         <item name="actionMenuTextAppearance">
@@ -83,7 +89,7 @@
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light" parent="android:Theme.Light">
+    <style name="Theme.Base.AppCompat.Light" parent="Theme.Base.Light">
         <item name="windowActionBar">true</item>
         <!-- Remove system title bars; we will add the action bar ourselves. -->
         <item name="android:windowNoTitle">true</item>
@@ -116,7 +122,7 @@
         <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar</item>
         <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/abc_action_bar_size</item>
+        <item name="actionBarSize">@dimen/abc_action_bar_default_height</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
         <item name="actionMenuTextAppearance">

@@ -28,6 +28,8 @@ import android.widget.FrameLayout;
 /**
  * Special layout for the containing of an overlay action bar (and its content) to correctly handle
  * fitting system windows when the content has request that its layout ignore them.
+ *
+ * @hide
  */
 public class ActionBarOverlayLayout extends FrameLayout {
 

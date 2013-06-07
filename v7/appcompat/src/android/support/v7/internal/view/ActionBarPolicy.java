@@ -19,11 +19,14 @@ package android.support.v7.internal.view;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.v7.appcompat.R;
 
 /**
  * Allows components to query for various configuration policy decisions about how the action bar
  * should lay out and behave on the current device.
+ *
+ * @hide
  */
 public class ActionBarPolicy {
 
@@ -42,9 +45,8 @@ public class ActionBarPolicy {
     }
 
     public boolean showsOverflowMenuButton() {
-        // Permanent menu key is always present on pre-HC devices
-        // return !ViewConfiguration.get(mContext).hasPermanentMenuKey();
-        return false;
+        // Only show overflow on HC+ devices
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
     public int getEmbeddedMenuWidthLimit() {

@@ -22,6 +22,7 @@ import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.CompatTextView;
 import android.text.TextUtils;
 import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
@@ -35,7 +36,7 @@ import java.util.Locale;
 /**
  * @hide
  */
-public class ActionMenuItemView extends TextView
+public class ActionMenuItemView extends CompatTextView
         implements MenuView.ItemView, View.OnClickListener, View.OnLongClickListener,
         ActionMenuView.ActionMenuChildView {
 

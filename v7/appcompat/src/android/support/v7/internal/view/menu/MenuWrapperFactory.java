@@ -23,13 +23,16 @@ import android.support.v4.internal.view.SupportSubMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * @hide
+ */
 public final class MenuWrapperFactory {
     private MenuWrapperFactory() {
     }
 
     public static Menu createMenuWrapper(android.view.Menu frameworkMenu) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new MenuWrapperHC(frameworkMenu);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new MenuWrapperICS(frameworkMenu);
         }
         return frameworkMenu;
     }
@@ -39,23 +42,21 @@ public final class MenuWrapperFactory {
             return new MenuItemWrapperJB(frameworkMenuItem);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new MenuItemWrapperICS(frameworkMenuItem);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new MenuItemWrapperHC(frameworkMenuItem);
         }
         return frameworkMenuItem;
     }
 
     public static SupportMenu createSupportMenuWrapper(android.view.Menu frameworkMenu) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new MenuWrapperHC(frameworkMenu);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new MenuWrapperICS(frameworkMenu);
         }
         throw new UnsupportedOperationException();
     }
 
     public static SupportSubMenu createSupportSubMenuWrapper(
             android.view.SubMenu frameworkSubMenu) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new SubMenuWrapperHC(frameworkSubMenu);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new SubMenuWrapperICS(frameworkSubMenu);
         }
         throw new UnsupportedOperationException();
     }
@@ -66,8 +67,6 @@ public final class MenuWrapperFactory {
             return new MenuItemWrapperJB(frameworkMenuItem);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new MenuItemWrapperICS(frameworkMenuItem);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new MenuItemWrapperHC(frameworkMenuItem);
         }
         throw new UnsupportedOperationException();
     }

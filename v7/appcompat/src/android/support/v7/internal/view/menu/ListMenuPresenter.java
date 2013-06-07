@@ -34,6 +34,8 @@ import java.util.ArrayList;
 
 /**
  * MenuPresenter for list-style menus.
+ *
+ * @hide
  */
 public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClickListener {
     private static final String TAG = "ListMenuPresenter";

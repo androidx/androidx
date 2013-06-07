@@ -192,7 +192,6 @@ class ActionBarImplBase extends ActionBar {
     public void setCustomView(int resId) {
         setCustomView(LayoutInflater.from(getThemedContext())
                 .inflate(resId, mActionView, false));
-
     }
 
     @Override
