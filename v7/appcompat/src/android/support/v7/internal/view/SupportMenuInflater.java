@@ -49,6 +49,8 @@ import java.lang.reflect.Method;
  * to use SupportMenuInflater with an XmlPullParser over a plain XML file at runtime;
  * it only works with an XmlPullParser returned from a compiled resource (R.
  * <em>something</em> file.)
+ *
+ * @hide
  */
 public class SupportMenuInflater extends MenuInflater {
     private static final String LOG_TAG = "SupportMenuInflater";

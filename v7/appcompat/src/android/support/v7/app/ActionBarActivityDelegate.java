@@ -45,10 +45,6 @@ abstract class ActionBarActivityDelegate {
         final int version = Build.VERSION.SDK_INT;
         if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new ActionBarActivityDelegateICS(activity);
-        } else if (version >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-            return new ActionBarActivityDelegateHCMR1(activity);
-        } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
-            return new ActionBarActivityDelegateHC(activity);
         } else {
             return new ActionBarActivityDelegateBase(activity);
         }

@@ -25,6 +25,8 @@ import android.support.v4.view.MenuItemCompat.OnActionExpandListener;
  *
  * <p>See {@link android.support.v4.internal.view.SupportMenuItem} for more information about action views.
  * See {@link android.app.ActionBar} for more information about the action bar.
+ *
+ * @hide
  */
 public interface CollapsibleActionView {
 

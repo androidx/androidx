@@ -29,6 +29,8 @@ import android.widget.ListView;
 /**
  * The expanded menu view is a list-like menu with all of the available menu items.  It is opened
  * by the user clicking no the 'More' button on the icon menu view.
+ *
+ * @hide
  */
 public final class ExpandedMenuView extends ListView
         implements ItemInvoker, MenuView, OnItemClickListener {
