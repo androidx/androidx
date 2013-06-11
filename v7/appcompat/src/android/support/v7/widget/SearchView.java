@@ -34,11 +34,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.view.CollapsibleActionView;
+import android.support.v7.view.CollapsibleActionView;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
@@ -65,7 +66,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
 
@@ -148,7 +148,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
                     getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
             if (imm != null) {
-                imm.showSoftInput(SearchView.this, 0);
+                HIDDEN_METHOD_INVOKER.showSoftInputUnchecked(imm, SearchView.this, 0);
             }
         }
     };
@@ -1550,17 +1550,6 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
     }
 
     private void forceSuggestionQuery() {
-        try {
-            Method before = AutoCompleteTextView.class.getDeclaredMethod("doBeforeTextChanged");
-            Method after = AutoCompleteTextView.class.getDeclaredMethod("doAfterTextChanged");
-            before.setAccessible(true);
-            after.setAccessible(true);
-            before.invoke(mQueryTextView);
-            after.invoke(mQueryTextView);
-        } catch (Exception e) {
-            // Oh well...
-        }
-
         HIDDEN_METHOD_INVOKER.doBeforeTextChanged(mQueryTextView);
         HIDDEN_METHOD_INVOKER.doAfterTextChanged(mQueryTextView);
     }
@@ -1710,6 +1699,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
     private static class AutoCompleteTextViewReflector {
         private Method doBeforeTextChanged, doAfterTextChanged;
         private Method ensureImeVisible;
+        private Method showSoftInputUnchecked;
 
         AutoCompleteTextViewReflector() {
             try {
@@ -1728,8 +1718,15 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             }
             try {
                 ensureImeVisible = AutoCompleteTextView.class
-                        .getMethod("ensureImeVisible", Boolean.TYPE);
+                        .getMethod("ensureImeVisible", boolean.class);
                 ensureImeVisible.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                // Ah well.
+            }
+            try {
+                showSoftInputUnchecked = InputMethodManager.class.getMethod(
+                        "showSoftInputUnchecked", int.class, ResultReceiver.class);
+                showSoftInputUnchecked.setAccessible(true);
             } catch (NoSuchMethodException e) {
                 // Ah well.
             }
@@ -1739,8 +1736,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             if (doBeforeTextChanged != null) {
                 try {
                     doBeforeTextChanged.invoke(view);
-                } catch (IllegalAccessException e) {
-                } catch (InvocationTargetException e) {
+                } catch (Exception e) {
                 }
             }
         }
@@ -1749,8 +1745,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             if (doAfterTextChanged != null) {
                 try {
                     doAfterTextChanged.invoke(view);
-                } catch (IllegalAccessException e) {
-                } catch (InvocationTargetException e) {
+                } catch (Exception e) {
                 }
             }
         }
@@ -1759,10 +1754,22 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             if (ensureImeVisible != null) {
                 try {
                     ensureImeVisible.invoke(view, visible);
-                } catch (IllegalAccessException e) {
-                } catch (InvocationTargetException e) {
+                } catch (Exception e) {
                 }
             }
+        }
+
+        void showSoftInputUnchecked(InputMethodManager imm, View view, int flags) {
+            if (showSoftInputUnchecked != null) {
+                try {
+                    showSoftInputUnchecked.invoke(imm, flags, null);
+                    return;
+                } catch (Exception e) {
+                }
+            }
+
+            // Hidden method failed, call public version instead
+            imm.showSoftInput(view, flags);
         }
     }
 }

@@ -30,7 +30,7 @@ import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.view.CollapsibleActionView;
+import android.support.v7.view.CollapsibleActionView;
 import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.internal.view.menu.ActionMenuPresenter;
 import android.support.v7.internal.view.menu.ActionMenuView;
