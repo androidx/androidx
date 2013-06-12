@@ -269,7 +269,8 @@ public final class MediaControlIntent {
      * to which the new playback request should be appended.  If omitted, a new queue
      * is created.
      * <li>{@link #EXTRA_ITEM_CONTENT_POSITION} <i>(optional)</i>: specifies the initial
-     * content playback position.
+     * content playback position as a long integer number of milliseconds from
+     * the beginning of the content.
      * <li>{@link #EXTRA_ITEM_METADATA} <i>(optional)</i>: specifies metadata associated
      * with the content such as the title of a song.
      * <li>{@link #EXTRA_ITEM_HTTP_HEADERS} <i>(optional)</i>: specifies HTTP headers to
@@ -398,7 +399,8 @@ public final class MediaControlIntent {
      * <li>{@link #EXTRA_ITEM_ID} <i>(required)</i>: specifies the media item id of
      * the media item to seek.
      * <li>{@link #EXTRA_ITEM_CONTENT_POSITION} <i>(required)</i>: specifies the new
-     * content position for playback.
+     * content position for playback as a long integer number of milliseconds from
+     * the beginning of the content.
      * </ul>
      *
      * <h3>Result data</h3>
@@ -597,14 +599,13 @@ public final class MediaControlIntent {
             "android.media.intent.extra.ITEM_STATUS";
 
     /**
-     * Double extra: Media item content position.
+     * Long extra: Media item content position.
      * <p>
      * Used with {@link #ACTION_PLAY} to specify the starting playback position.
      * </p><p>
      * Used with {@link #ACTION_SEEK} to set a new playback position.
      * </p><p>
-     * The value is a double-precision floating point number of seconds
-     * from the beginning of the content.
+     * The value is a long integer number of milliseconds from the beginning of the content.
      * <p>
      *
      * @see #ACTION_PLAY
