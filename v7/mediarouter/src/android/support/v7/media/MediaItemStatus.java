@@ -174,23 +174,23 @@ public final class MediaItemStatus {
     }
 
     /**
-     * Gets the content playback position as a floating point number of seconds
+     * Gets the content playback position as a long integer number of milliseconds
      * from the beginning of the content.
      *
-     * @return The content playback position in seconds, or -1 if unknown.
+     * @return The content playback position in milliseconds, or -1 if unknown.
      */
-    public double getContentPosition() {
-        return mBundle.getDouble(KEY_CONTENT_POSITION, -1);
+    public long getContentPosition() {
+        return mBundle.getLong(KEY_CONTENT_POSITION, -1);
     }
 
     /**
-     * Gets the total duration of the content to be played as a floating point number
-     * of seconds.
+     * Gets the total duration of the content to be played as a long integer number of
+     * milliseconds.
      *
-     * @return The content duration in seconds, or -1 if unknown.
+     * @return The content duration in milliseconds, or -1 if unknown.
      */
-    public double getContentDuration() {
-        return mBundle.getDouble(KEY_CONTENT_DURATION, -1);
+    public long getContentDuration() {
+        return mBundle.getLong(KEY_CONTENT_DURATION, -1);
     }
 
     /**
@@ -302,20 +302,20 @@ public final class MediaItemStatus {
         }
 
         /**
-         * Sets the content playback position as a floating point number of seconds
+         * Sets the content playback position as a long integer number of milliseconds
          * from the beginning of the content.
          */
-        public Builder setContentPosition(double positionSeconds) {
-            mBundle.putDouble(KEY_CONTENT_POSITION, positionSeconds);
+        public Builder setContentPosition(long positionMilliseconds) {
+            mBundle.putLong(KEY_CONTENT_POSITION, positionMilliseconds);
             return this;
         }
 
         /**
-         * Sets the total duration of the content to be played as a floating point number
-         * of seconds.
+         * Sets the total duration of the content to be played as a long integer number
+         * of milliseconds.
          */
-        public Builder setContentDuration(double durationSeconds) {
-            mBundle.putDouble(KEY_CONTENT_DURATION, durationSeconds);
+        public Builder setContentDuration(long durationMilliseconds) {
+            mBundle.putLong(KEY_CONTENT_DURATION, durationMilliseconds);
             return this;
         }
 
