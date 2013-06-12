@@ -1388,7 +1388,7 @@ public class DrawerLayout extends ViewGroup {
                 left = xvel > 0 || xvel == 0 && offset > 0.5f ? 0 : -childWidth;
             } else {
                 final int width = getWidth();
-                left = xvel < 0 || xvel == 0 && offset < 0.5f ? width - childWidth : width;
+                left = xvel < 0 || xvel == 0 && offset > 0.5f ? width - childWidth : width;
             }
 
             mDragger.settleCapturedViewAt(left, releasedChild.getTop());
