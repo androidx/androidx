@@ -82,8 +82,15 @@ public final class MediaItemStatus {
     /**
      * Playback state: Paused.
      * <p>
-     * Indicates that the media item has been paused.  Playback can be
-     * resumed playback by sending {@link MediaControlIntent#ACTION_RESUME}.
+     * Indicates that playback of the media item has been paused because the
+     * queue was paused.  Playback can be resumed playback by sending
+     * {@link MediaControlIntent#ACTION_RESUME_QUEUE} to resume playback of the queue.
+     * </p><p>
+     * Only the media item at the head of the queue enters the paused state when the
+     * queue is paused because that is the media item that would otherwise have been
+     * {@link #PLAYBACK_STATE_PLAYING playing}; other media items in the queue remain
+     * in the {@link #PLAYBACK_STATE_QUEUED queued} state until the head item
+     * finishes playing or is removed from the queue.
      * </p>
      */
     public static final int PLAYBACK_STATE_PAUSED = 2;
@@ -115,8 +122,9 @@ public final class MediaItemStatus {
      * Playback state: Canceled.
      * <p>
      * Indicates that the media item was canceled permanently.  This may
-     * happen because a new media item was queued which caused this media item
-     * to be stopped and removed from the queue.
+     * happen because the media item was removed from the queue, the queue was
+     * cleared by the application, or the queue was invalidated by another playback
+     * request that resulted in the creation of a new queue.
      * </p><p>
      * A canceled media item cannot be resumed.  To play the content again, the application
      * must send a new {@link MediaControlIntent#ACTION_PLAY} action to enqueue
