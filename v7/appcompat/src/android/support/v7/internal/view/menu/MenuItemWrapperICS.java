@@ -21,10 +21,12 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.view.CollapsibleActionView;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.FrameLayout;
 
 class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> implements SupportMenuItem {
     private final boolean mEmulateProviderVisibilityOverride;
@@ -225,19 +227,33 @@ class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> implemen
 
     @Override
     public MenuItem setActionView(View view) {
+        if (view instanceof CollapsibleActionView) {
+            view = new CollapsibleActionViewWrapper(view);
+        }
         mWrappedObject.setActionView(view);
         return this;
     }
 
     @Override
     public MenuItem setActionView(int resId) {
+        // Make framework menu item inflate the view
         mWrappedObject.setActionView(resId);
+
+        View actionView = mWrappedObject.getActionView();
+        if (actionView instanceof CollapsibleActionView) {
+            // If the inflated Action View is support-collapsible, wrap it
+            mWrappedObject.setActionView(new CollapsibleActionViewWrapper(actionView));
+        }
         return this;
     }
 
     @Override
     public View getActionView() {
-        return mWrappedObject.getActionView();
+        View actionView = mWrappedObject.getActionView();
+        if (actionView instanceof CollapsibleActionViewWrapper) {
+            return ((CollapsibleActionViewWrapper) actionView).getWrappedView();
+        }
+        return actionView;
     }
 
     @Override
@@ -392,6 +408,31 @@ class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> implemen
         @Override
         public void onPrepareSubMenu(android.view.SubMenu subMenu) {
             mInner.onPrepareSubMenu(getSubMenuWrapper(subMenu));
+        }
+    }
+
+    static class CollapsibleActionViewWrapper extends FrameLayout
+            implements android.view.CollapsibleActionView {
+        final CollapsibleActionView mWrappedView;
+
+        CollapsibleActionViewWrapper(View actionView) {
+            super(actionView.getContext());
+            mWrappedView = (CollapsibleActionView) actionView;
+            addView(actionView);
+        }
+
+        @Override
+        public void onActionViewExpanded() {
+            mWrappedView.onActionViewExpanded();
+        }
+
+        @Override
+        public void onActionViewCollapsed() {
+            mWrappedView.onActionViewCollapsed();
+        }
+
+        View getWrappedView() {
+            return (View) mWrappedView;
         }
     }
 }

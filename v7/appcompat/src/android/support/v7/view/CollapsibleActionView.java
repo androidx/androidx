@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.view;
+package android.support.v7.view;
 
 import android.support.v4.view.MenuItemCompat.OnActionExpandListener;
 
@@ -25,8 +25,6 @@ import android.support.v4.view.MenuItemCompat.OnActionExpandListener;
  *
  * <p>See {@link android.support.v4.internal.view.SupportMenuItem} for more information about action views.
  * See {@link android.app.ActionBar} for more information about the action bar.
- *
- * @hide
  */
 public interface CollapsibleActionView {
 
