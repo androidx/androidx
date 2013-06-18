@@ -353,7 +353,7 @@ public class SlidingPaneLayout extends ViewGroup {
         final int right;
         final int top;
         final int bottom;
-        if (panel != null && hasOpaqueBackground(panel)) {
+        if (panel != null && viewIsOpaque(panel)) {
             left = panel.getLeft();
             right = panel.getRight();
             top = panel.getTop();
@@ -394,7 +394,14 @@ public class SlidingPaneLayout extends ViewGroup {
         }
     }
 
-    private static boolean hasOpaqueBackground(View v) {
+    private static boolean viewIsOpaque(View v) {
+        if (ViewCompat.isOpaque(v)) return true;
+
+        // View#isOpaque didn't take all valid opaque scrollbar modes into account
+        // before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false
+        // here. On older devices, check the view's background drawable directly as a fallback.
+        if (Build.VERSION.SDK_INT >= 18) return false;
+
         final Drawable bg = v.getBackground();
         if (bg != null) {
             return bg.getOpacity() == PixelFormat.OPAQUE;
