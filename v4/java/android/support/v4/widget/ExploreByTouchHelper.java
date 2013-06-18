@@ -209,6 +209,16 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     }
 
     /**
+     * Returns the virtual view id for the currently focused item,
+     *
+     * @return A virtual view id, or {@link #INVALID_ID} if no item is
+     *         currently focused.
+     */
+    public int getFocusedVirtualView() {
+        return mFocusedVirtualViewId;
+    }
+
+    /**
      * Sets the currently hovered item, sending hover accessibility events as
      * necessary to maintain the correct state.
      *
@@ -453,16 +463,9 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private boolean manageFocusForChild(int virtualViewId, int action, Bundle arguments) {
         switch (action) {
             case AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS:
-                if (!isAccessibilityFocused(virtualViewId)) {
-                    return requestAccessibilityFocus(virtualViewId);
-                }
-                return false;
+                return requestAccessibilityFocus(virtualViewId);
             case AccessibilityNodeInfoCompat.ACTION_CLEAR_ACCESSIBILITY_FOCUS:
-                if (isAccessibilityFocused(virtualViewId)) {
-                    clearAccessibilityFocus(virtualViewId);
-                    return true;
-                }
-                return false;
+                return clearAccessibilityFocus(virtualViewId);
             default:
                 return false;
         }
@@ -488,7 +491,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
 
         // An invisible predecessor means that this view is not visible.
-        Object viewParent = this;
+        ViewParent viewParent = mView.getParent();
         while (viewParent instanceof View) {
             final View view = (View) viewParent;
             if ((ViewCompat.getAlpha(view) <= 0) || (view.getVisibility() != View.VISIBLE)) {
@@ -544,7 +547,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             mView.invalidate();
             sendEventForVirtualView(virtualViewId,
                     AccessibilityEventCompat.TYPE_VIEW_ACCESSIBILITY_FOCUSED);
-            notifyAccessibilityStateChanged(virtualViewId);
             return true;
         }
         return false;
@@ -552,19 +554,20 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
     /**
      * Attempts to clear accessibility focus from a virtual view.
+     *
+     * @param virtualViewId The id of the virtual view from which to clear
+     *            accessibility focus.
+     * @return Whether this virtual view actually cleared accessibility focus.
      */
-    private void clearAccessibilityFocus(int virtualViewId) {
+    private boolean clearAccessibilityFocus(int virtualViewId) {
         if (isAccessibilityFocused(virtualViewId)) {
             mFocusedVirtualViewId = INVALID_ID;
             mView.invalidate();
             sendEventForVirtualView(virtualViewId,
                     AccessibilityEventCompat.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED);
-            notifyAccessibilityStateChanged(virtualViewId);
+            return true;
         }
-    }
-
-    private void notifyAccessibilityStateChanged(int virtualViewId) {
-        // TODO: This method is not visible.
+        return false;
     }
 
     /**
