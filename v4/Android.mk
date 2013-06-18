@@ -23,12 +23,22 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
+# A helper sub-library that makes direct use of Eclair MR1 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-eclair-mr1
+LOCAL_SDK_VERSION := 7
+LOCAL_SRC_FILES := $(call all-java-files-under, eclair-mr1)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-eclair
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 # A helper sub-library that makes direct use of Froyo APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-froyo
 LOCAL_SDK_VERSION := 8
 LOCAL_SRC_FILES := $(call all-java-files-under, froyo)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-eclair
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-eclair-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
