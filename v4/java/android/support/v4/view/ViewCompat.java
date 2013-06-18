@@ -17,7 +17,9 @@
 package android.support.v4.view;
 
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
@@ -162,6 +164,7 @@ public class ViewCompat {
         public int getLayoutDirection(View view);
         public void setLayoutDirection(View view, int layoutDirection);
         public ViewParent getParentForAccessibility(View view);
+        public boolean isOpaque(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -256,9 +259,25 @@ public class ViewCompat {
         public ViewParent getParentForAccessibility(View view) {
             return view.getParent();
         }
+
+        @Override
+        public boolean isOpaque(View view) {
+            final Drawable bg = view.getBackground();
+            if (bg != null) {
+                return bg.getOpacity() == PixelFormat.OPAQUE;
+            }
+            return false;
+        }
     }
 
-    static class GBViewCompatImpl extends BaseViewCompatImpl {
+    static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
+        @Override
+        public boolean isOpaque(View view) {
+            return ViewCompatEclairMr1.isOpaque(view);
+        }
+    }
+
+    static class GBViewCompatImpl extends EclairMr1ViewCompatImpl {
         @Override
         public int getOverScrollMode(View v) {
             return ViewCompatGingerbread.getOverScrollMode(v);
@@ -929,5 +948,18 @@ public class ViewCompat {
      */
     public static ViewParent getParentForAccessibility(View view) {
         return IMPL.getParentForAccessibility(view);
+    }
+
+    /**
+     * Indicates whether this View is opaque. An opaque View guarantees that it will
+     * draw all the pixels overlapping its bounds using a fully opaque color.
+     *
+     * On API 7 and above this will call View's true isOpaque method. On previous platform
+     * versions it will check the opacity of the view's background drawable if present.
+     *
+     * @return True if this View is guaranteed to be fully opaque, false otherwise.
+     */
+    public static boolean isOpaque(View view) {
+        return IMPL.isOpaque(view);
     }
 }
