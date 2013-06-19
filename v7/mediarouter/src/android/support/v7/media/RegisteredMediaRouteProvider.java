@@ -428,7 +428,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         private void failPendingCallbacks() {
             int count = 0;
             for (int i = 0; i < mPendingCallbacks.size(); i++) {
-                mPendingCallbacks.get(i).onError(null, null);
+                mPendingCallbacks.valueAt(i).onError(null, null);
             }
             mPendingCallbacks.clear();
         }
