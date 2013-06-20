@@ -20,45 +20,118 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-    <!-- Message to show to use. -->
-    <TextView android:id="@+id/text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:gravity="center_vertical|center_horizontal"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/sample_media_router_text"/>
-
-    <!-- Some information about what's going on. -->
-    <TextView android:id="@+id/info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:gravity="center_vertical|center_horizontal"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-    <!-- Some media to play. -->
-    <ListView android:id="@+id/media"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"/>
-
-    <!-- Control buttons for the currently selected route. -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0">
-        <Button android:id="@+id/play_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="@string/play_button_text" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <!-- Tabs for media library, playlist and statistics -->
+        <TabHost android:id="@+id/tabHost"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <TabWidget android:id="@android:id/tabs"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" />
 
-        <Button android:id="@+id/statistics_button"
+                <FrameLayout android:id="@android:id/tabcontent"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+                    <LinearLayout android:id="@+id/tab1"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <ListView android:id="@+id/media"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/tab2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:orientation="vertical">
+                        <ListView android:id="@+id/playlist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/tab3"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:orientation="vertical">
+                        <TextView android:id="@+id/info"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="?android:attr/textAppearanceMedium"/>
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+        </TabHost>
+
+        <!-- Control buttons for the currently selected route. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0">
+
+            <SeekBar android:id="@+id/seekbar"
+                 android:layout_width="fill_parent"
+                 android:layout_height="wrap_content"
+                 style="?android:attr/progressBarStyleHorizontal"
+                 android:max="100"
+                 android:progress="0"
+                 android:layout_gravity="center"
+                 android:layout_weight="1"/>
+
+            <ImageButton android:id="@+id/pause_resume_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:layout_gravity="right"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                android:background="@null"
+                android:src="@drawable/ic_media_pause" />
+
+            <ImageButton android:id="@+id/stop_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:layout_gravity="right"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                android:background="@null"
+                android:src="@drawable/ic_media_stop" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Some content for visual interest in the case where no presentation is showing. -->
+    <FrameLayout android:id="@+id/player"
+        android:background="#ff000000"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+            <SurfaceView android:id="@+id/surface_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+        <TextView
+            android:textColor="#ffaaaaaa"
+            android:text="@string/sample_media_route_activity_local"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="@string/statistics_button_text" />
-    </LinearLayout>
+            android:layout_gravity="top|center_horizontal" />
+    </FrameLayout>
 </LinearLayout>

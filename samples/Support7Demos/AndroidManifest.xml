@@ -21,6 +21,12 @@
      to come from a domain that you own or have control over. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.supportv7">
+    <!-- Permission for INTERNET is required for streaming video content
+         from the web, it's not required otherwise. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Permission for SYSTEM_ALERT_WINDOW is only required for emulating
+         remote display using system alert window. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="17" />
 
