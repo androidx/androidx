@@ -58,7 +58,6 @@ public final class MediaItemStatus {
     private static final String KEY_PLAYBACK_STATE = "playbackState";
     private static final String KEY_CONTENT_POSITION = "contentPosition";
     private static final String KEY_CONTENT_DURATION = "contentDuration";
-    private static final String KEY_HTTP_STATUS_CODE = "httpStatusCode";
     private static final String KEY_EXTRAS = "extras";
 
     private final Bundle mBundle;
@@ -147,6 +146,37 @@ public final class MediaItemStatus {
      */
     public static final int PLAYBACK_STATE_ERROR = 6;
 
+    /**
+     * Integer extra: HTTP status code.
+     * <p>
+     * Specifies the HTTP status code that was encountered when the content
+     * was requested after all redirects were followed.  This key only needs to
+     * specified when the content uri uses the HTTP or HTTPS scheme and an error
+     * occurred.  This key may be omitted if the content was able to be played
+     * successfully; there is no need to report a 200 (OK) status code.
+     * </p><p>
+     * The value is an integer HTTP status code, such as 401 (Unauthorized),
+     * 404 (Not Found), or 500 (Server Error), or 0 if none.
+     * </p>
+     */
+    public static final String EXTRA_HTTP_STATUS_CODE =
+            "android.media.status.extra.HTTP_STATUS_CODE";
+
+    /**
+     * Bundle extra: HTTP response headers.
+     * <p>
+     * Specifies the HTTP response headers that were returned when the content was
+     * requested from the network.  The headers may include additional information
+     * about the content or any errors conditions that were encountered while
+     * trying to fetch the content.
+     * </p><p>
+     * The value is a {@link android.os.Bundle} of string based key-value pairs
+     * that describe the HTTP response headers.
+     * </p>
+     */
+    public static final String EXTRA_HTTP_RESPONSE_HEADERS =
+            "android.media.status.extra.HTTP_RESPONSE_HEADERS";
+
     private MediaItemStatus(Bundle bundle) {
         mBundle = bundle;
     }
@@ -194,23 +224,6 @@ public final class MediaItemStatus {
     }
 
     /**
-     * Gets the associated HTTP status code.
-     * <p>
-     * Specifies the HTTP status code that was encountered when the content
-     * was requested after all redirects were followed.  This key only needs to
-     * specified when the content uri uses the HTTP or HTTPS scheme and an error
-     * occurred.  This key may be omitted if the content was able to be played
-     * successfully; there is no need to report a 200 (OK) status code.
-     * </p>
-     *
-     * @return The HTTP status code from playback such as 401 (Unauthorized), 404 (Not Found),
-     * or 500 (Server Error), or 0 if none.
-     */
-    public int getHttpStatusCode() {
-        return mBundle.getInt(KEY_HTTP_STATUS_CODE, 0);
-    }
-
-    /**
      * Gets a bundle of extras for this status object.
      * The extras will be ignored by the media router but they may be used
      * by applications.
@@ -229,7 +242,6 @@ public final class MediaItemStatus {
         result.append(", playbackState=").append(getPlaybackState());
         result.append(", contentPosition=").append(getContentPosition());
         result.append(", contentDuration=").append(getContentDuration());
-        result.append(", httpStatusCode=").append(getHttpStatusCode());
         result.append(", extras=").append(getExtras());
         result.append(" }");
         return result.toString();
@@ -316,21 +328,6 @@ public final class MediaItemStatus {
          */
         public Builder setContentDuration(long durationMilliseconds) {
             mBundle.putLong(KEY_CONTENT_DURATION, durationMilliseconds);
-            return this;
-        }
-
-        /**
-         * Sets the associated HTTP status code.
-         * <p>
-         * Specifies the HTTP status code that was encountered when the content
-         * was requested after all redirects were followed.  This key only needs to
-         * specified when the content uri uses the HTTP or HTTPS scheme and an error
-         * occurred.  This key may be omitted if the content was able to be played
-         * successfully; there is no need to report a 200 (OK) status code.
-         * </p>
-         */
-        public Builder setHttpStatusCode(int httpStatusCode) {
-            mBundle.putInt(KEY_HTTP_STATUS_CODE, httpStatusCode);
             return this;
         }
 
