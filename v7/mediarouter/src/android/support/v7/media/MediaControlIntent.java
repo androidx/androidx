@@ -242,7 +242,8 @@ public final class MediaControlIntent {
      * occurs, then the destination should send a {@link MediaItemStatus status update}
      * back to the client indicating the {@link MediaItemStatus#PLAYBACK_STATE_ERROR error}
      * {@link MediaItemStatus#getPlaybackState() playback state}
-     * and include the {@link MediaItemStatus#getHttpStatusCode() HTTP status code}.
+     * and include the {@link MediaItemStatus#EXTRA_HTTP_STATUS_CODE HTTP status code}
+     * and {@link MediaItemStatus#EXTRA_HTTP_RESPONSE_HEADERS response headers}.
      * </p>
      *
      * <h3>Queuing</h3>
@@ -630,16 +631,16 @@ public final class MediaControlIntent {
             "android.media.intent.extra.ITEM_METADATA";
 
     /**
-     * Bundle extra: HTTP headers.
+     * Bundle extra: HTTP request headers.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify HTTP headers to be included when
-     * fetching to the content indicated by the media item's data Uri.
+     * Used with {@link #ACTION_PLAY} to specify HTTP request headers to be
+     * included when fetching to the content indicated by the media item's data Uri.
      * </p><p>
      * This extra may be used to provide authentication tokens and other
      * parameters to the server separately from the media item's data Uri.
      * </p><p>
      * The value is a {@link android.os.Bundle} of string based key-value pairs
-     * that describe the HTTP headers.
+     * that describe the HTTP request headers.
      * </p>
      *
      * @see #ACTION_PLAY
