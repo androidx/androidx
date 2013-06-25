@@ -122,7 +122,7 @@ abstract class ActionBarActivityDelegate {
 
     abstract void addContentView(View v, ViewGroup.LayoutParams lp);
 
-    abstract void setTitle(CharSequence title);
+    abstract void onTitleChanged(CharSequence title);
 
     abstract void supportInvalidateOptionsMenu();
 

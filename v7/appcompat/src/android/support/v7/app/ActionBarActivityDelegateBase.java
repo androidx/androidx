@@ -245,10 +245,9 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     @Override
-    public void setTitle(CharSequence title) {
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setTitle(title);
+    public void onTitleChanged(CharSequence title) {
+        if (mActionBarView != null) {
+            mActionBarView.setWindowTitle(title);
         }
     }
 
