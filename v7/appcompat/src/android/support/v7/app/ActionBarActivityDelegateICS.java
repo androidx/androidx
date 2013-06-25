@@ -160,7 +160,7 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
     }
 
     @Override
-    public void setTitle(CharSequence title) {
+    public void onTitleChanged(CharSequence title) {
         // Handled by framework
     }
 
