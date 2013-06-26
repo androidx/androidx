@@ -129,7 +129,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     @Override
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
-        mImpl.setTitle(title);
+        mImpl.onTitleChanged(title);
     }
 
     /**
