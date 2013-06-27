@@ -656,8 +656,8 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
                 case MediaRouteProviderService.SERVICE_MSG_CONTROL_REQUEST_FAILED:
                     if (obj == null || obj instanceof Bundle) {
-                        String error =
-                                data.getString(MediaRouteProviderService.SERVICE_DATA_ERROR);
+                        String error = (data == null ? null :
+                                data.getString(MediaRouteProviderService.SERVICE_DATA_ERROR));
                         return connection.onControlRequestFailed(
                                 requestId, error, (Bundle)obj);
                     }
