@@ -695,8 +695,10 @@ public abstract class MediaRouteProviderService extends Service {
             if (mControllers.indexOfKey(controllerId) < 0) {
                 MediaRouteProvider.RouteController controller =
                         mProvider.onCreateRouteController(routeId);
-                mControllers.put(controllerId, controller);
-                return true;
+                if (controller != null) {
+                    mControllers.put(controllerId, controller);
+                    return true;
+                }
             }
             return false;
         }
