@@ -26,13 +26,35 @@ import android.util.SparseArray;
 
 /**
  * Helper for the common pattern of implementing a {@link BroadcastReceiver}
- * that will receiver a device wakeup event, and wants to pass that work
- * off to a {@link android.app.Service} while ensuring the device does not
- * go back to sleep during the transition.
+ * that receives a device wakeup event and then passes the work off
+ * to a {@link android.app.Service}, while ensuring that the
+ * device does not go back to sleep during the transition.
  *
  * <p>This class takes care of creating and managing a partial wake lock
  * for you; you must request the {@link android.Manifest.permission#WAKE_LOCK}
  * permission to use it.</p>
+ *
+ * <h3>Example</h3>
+ *
+ * <p>A {@link WakefulBroadcastReceiver} uses the method
+ * {@link WakefulBroadcastReceiver#startWakefulService startWakefulService()}
+ * to start the service that does the work. This method is comparable to
+ * {@link android.content.Context#startService startService()}, except that
+ * the {@link WakefulBroadcastReceiver} is holding a wake lock when the service
+ * starts. The intent that is passed with
+ * {@link WakefulBroadcastReceiver#startWakefulService startWakefulService()}
+ * holds an extra identifying the wake lock.</p>
+ *
+ * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulReceiver.java complete}
+ *
+ * <p>The service (in this example, an {@link android.app.IntentService}) does
+ * some work. When it is finished, it releases the wake lock by calling
+ * {@link WakefulBroadcastReceiver#completeWakefulIntent
+ * completeWakefulIntent(intent)}. The intent it passes as a parameter
+ * is the same intent that the {@link WakefulBroadcastReceiver} originally
+ * passed in.</p>
+ *
+ * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulService.java complete}
  */
 public abstract class WakefulBroadcastReceiver extends BroadcastReceiver {
     private static final String EXTRA_WAKE_LOCK_ID = "android.support.content.wakelockid";
@@ -46,7 +68,7 @@ public abstract class WakefulBroadcastReceiver extends BroadcastReceiver {
      * Context.startService}, but holding a wake lock while the service starts.
      * This will modify the Intent to hold an extra identifying the wake lock;
      * when the service receives it in {@link android.app.Service#onStartCommand
-     * Service.onStartCommand}, it should the Intent it receives there back to
+     * Service.onStartCommand}, it should pass back the Intent it receives there to
      * {@link #completeWakefulIntent(android.content.Intent)} in order to release
      * the wake lock.
      *
