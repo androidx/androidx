@@ -135,7 +135,9 @@ public class FragmentTabHost extends TabHost
         a.recycle();
 
         super.setOnTabChangedListener(this);
+    }
 
+    private void ensureHierarchy(Context context) {
         // If owner hasn't made its own view hierarchy, then as a convenience
         // we will construct a standard one here.
         if (findViewById(android.R.id.tabs) == null) {
@@ -175,6 +177,7 @@ public class FragmentTabHost extends TabHost
     }
 
     public void setup(Context context, FragmentManager manager) {
+        ensureHierarchy(context);  // Ensure views required by super.setup()
         super.setup();
         mContext = context;
         mFragmentManager = manager;
@@ -182,6 +185,7 @@ public class FragmentTabHost extends TabHost
     }
 
     public void setup(Context context, FragmentManager manager, int containerId) {
+        ensureHierarchy(context);  // Ensure views required by super.setup()
         super.setup();
         mContext = context;
         mFragmentManager = manager;
