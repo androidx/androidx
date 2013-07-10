@@ -87,6 +87,7 @@ public class MediaRouteButton extends View {
     private final MediaRouterCallback mCallback;
 
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
+    private MediaRouteDialogFactory mDialogFactory = MediaRouteDialogFactory.getDefault();
 
     private boolean mAttachedToWindow;
 
@@ -173,6 +174,30 @@ public class MediaRouteButton extends View {
     }
 
     /**
+     * Gets the media route dialog factory to use when showing the route chooser
+     * or controller dialog.
+     *
+     * @return The dialog factory, never null.
+     */
+    public MediaRouteDialogFactory getDialogFactory() {
+        return mDialogFactory;
+    }
+
+    /**
+     * Sets the media route dialog factory to use when showing the route chooser
+     * or controller dialog.
+     *
+     * @param factory The dialog factory, must not be null.
+     */
+    public void setDialogFactory(MediaRouteDialogFactory factory) {
+        if (factory == null) {
+            throw new IllegalArgumentException("factory must not be null");
+        }
+
+        mDialogFactory = factory;
+    }
+
+    /**
      * Show the route chooser or controller dialog.
      * <p>
      * If the default route is selected or if the currently selected route does
@@ -181,9 +206,8 @@ public class MediaRouteButton extends View {
      * a choice to disconnect from the route or perform other control actions
      * such as setting the route's volume.
      * </p><p>
-     * The application can customize the dialogs by overriding
-     * {@link #onCreateChooserDialogFragment()} or {@link #onCreateControllerDialogFragment()}
-     * as appropriate.
+     * The application can customize the dialogs by calling {@link #setDialogFactory}
+     * to provide a customized dialog factory.
      * </p>
      *
      * @return True if the dialog was actually shown.
@@ -207,7 +231,8 @@ public class MediaRouteButton extends View {
                 Log.w(TAG, "showDialog(): Route chooser dialog already showing!");
                 return false;
             }
-            MediaRouteChooserDialogFragment f = onCreateChooserDialogFragment();
+            MediaRouteChooserDialogFragment f =
+                    mDialogFactory.onCreateChooserDialogFragment();
             f.setRouteSelector(mSelector);
             f.show(fm, CHOOSER_FRAGMENT_TAG);
         } else {
@@ -215,34 +240,11 @@ public class MediaRouteButton extends View {
                 Log.w(TAG, "showDialog(): Route controller dialog already showing!");
                 return false;
             }
-            MediaRouteControllerDialogFragment f = onCreateControllerDialogFragment();
+            MediaRouteControllerDialogFragment f =
+                    mDialogFactory.onCreateControllerDialogFragment();
             f.show(fm, CONTROLLER_FRAGMENT_TAG);
         }
         return true;
-    }
-
-    /**
-     * Called when the chooser dialog is being opened and it is time to create the fragment.
-     * <p>
-     * Subclasses may override this method to create a customized fragment.
-     * </p>
-     *
-     * @return The media route chooser dialog fragment, must not be null.
-     */
-    public MediaRouteChooserDialogFragment onCreateChooserDialogFragment() {
-        return new MediaRouteChooserDialogFragment();
-    }
-
-    /**
-     * Called when the controller dialog is being opened and it is time to create the fragment.
-     * <p>
-     * Subclasses may override this method to create a customized fragment.
-     * </p>
-     *
-     * @return The media route controller dialog fragment, must not be null.
-     */
-    public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-        return new MediaRouteControllerDialogFragment();
     }
 
     private FragmentManager getFragmentManager() {
