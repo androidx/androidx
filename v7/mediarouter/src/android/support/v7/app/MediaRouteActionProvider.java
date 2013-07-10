@@ -130,6 +130,7 @@ public class MediaRouteActionProvider extends ActionProvider {
     private final MediaRouterCallback mCallback;
 
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
+    private MediaRouteDialogFactory mDialogFactory = MediaRouteDialogFactory.getDefault();
     private MediaRouteButton mButton;
 
     /**
@@ -189,6 +190,36 @@ public class MediaRouteActionProvider extends ActionProvider {
     }
 
     /**
+     * Gets the media route dialog factory to use when showing the route chooser
+     * or controller dialog.
+     *
+     * @return The dialog factory, never null.
+     */
+    public MediaRouteDialogFactory getDialogFactory() {
+        return mDialogFactory;
+    }
+
+    /**
+     * Sets the media route dialog factory to use when showing the route chooser
+     * or controller dialog.
+     *
+     * @param factory The dialog factory, must not be null.
+     */
+    public void setDialogFactory(MediaRouteDialogFactory factory) {
+        if (factory == null) {
+            throw new IllegalArgumentException("factory must not be null");
+        }
+
+        if (mDialogFactory != factory) {
+            mDialogFactory = factory;
+
+            if (mButton != null) {
+                mButton.setDialogFactory(factory);
+            }
+        }
+    }
+
+    /**
      * Gets the associated media route button, or null if it has not yet been created.
      */
     public MediaRouteButton getMediaRouteButton() {
@@ -197,25 +228,16 @@ public class MediaRouteActionProvider extends ActionProvider {
 
     /**
      * Called when the media route button is being created.
+     * <p>
+     * Subclasses may override this method to customize the button.
+     * </p>
      */
-    @SuppressWarnings("deprecation")
     public MediaRouteButton onCreateMediaRouteButton() {
-        if (mButton != null) {
-            Log.e(TAG, "onCreateMediaRouteButton: This ActionProvider is already associated "
-                    + "with a menu item. Don't reuse MediaRouteActionProvider instances!  "
-                    + "Abandoning the old button...");
-        }
-
-        mButton = new MediaRouteButton(getContext());
-        mButton.setCheatSheetEnabled(true);
-        mButton.setRouteSelector(mSelector);
-        mButton.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
-        return mButton;
+        return new MediaRouteButton(getContext());
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public View onCreateActionView() {
         if (mButton != null) {
             Log.e(TAG, "onCreateActionView: this ActionProvider is already associated " +
@@ -224,6 +246,12 @@ public class MediaRouteActionProvider extends ActionProvider {
         }
 
         mButton = onCreateMediaRouteButton();
+        mButton.setCheatSheetEnabled(true);
+        mButton.setRouteSelector(mSelector);
+        mButton.setDialogFactory(mDialogFactory);
+        mButton.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
         return mButton;
     }
 

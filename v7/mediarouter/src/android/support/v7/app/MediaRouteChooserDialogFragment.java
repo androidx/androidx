@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.media.MediaRouteSelector;
@@ -24,8 +25,8 @@ import android.support.v7.media.MediaRouteSelector;
 /**
  * Media route chooser dialog fragment.
  * <p>
- * Creates a {@link MediaRouteChooserDialog}.  The application may subclass this
- * dialog fragment to customize the dialog.
+ * Creates a {@link MediaRouteChooserDialog}.  The application may subclass
+ * this dialog fragment to customize the media route chooser dialog.
  * </p>
  */
 public class MediaRouteChooserDialogFragment extends DialogFragment {
@@ -33,6 +34,12 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
 
     private MediaRouteSelector mSelector;
 
+    /**
+     * Creates a media route chooser dialog fragment.
+     * <p>
+     * All subclasses of this class must also possess a default constructor.
+     * </p>
+     */
     public MediaRouteChooserDialogFragment() {
         setCancelable(true);
     }
@@ -88,9 +95,20 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Called when the chooser dialog is being created.
+     * <p>
+     * Subclasses may override this method to customize the dialog.
+     * </p>
+     */
+    public MediaRouteChooserDialog onCreateChooserDialog(
+            Context context, Bundle savedInstanceState) {
+        return new MediaRouteChooserDialog(context);
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        MediaRouteChooserDialog dialog = new MediaRouteChooserDialog(getActivity());
+        MediaRouteChooserDialog dialog = onCreateChooserDialog(getActivity(), savedInstanceState);
         dialog.setRouteSelector(getRouteSelector());
         return dialog;
     }

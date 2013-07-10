@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
@@ -48,10 +47,12 @@ public class MediaRouteControllerDialog extends Dialog {
     private final MediaRouterCallback mCallback;
     private final MediaRouter.RouteInfo mRoute;
 
+    private boolean mCreated;
     private Drawable mMediaRouteConnectingDrawable;
     private Drawable mMediaRouteOnDrawable;
     private Drawable mCurrentIconDrawable;
 
+    private boolean mVolumeControlEnabled = true;
     private LinearLayout mVolumeLayout;
     private SeekBar mVolumeSlider;
     private boolean mVolumeSliderTouched;
@@ -101,6 +102,30 @@ public class MediaRouteControllerDialog extends Dialog {
         return mControlView;
     }
 
+    /**
+     * Sets whether to enable the volume slider and volume control using the volume keys
+     * when the route supports it.
+     * <p>
+     * The default value is true.
+     * </p>
+     */
+    public void setVolumeControlEnabled(boolean enable) {
+        if (mVolumeControlEnabled != enable) {
+            mVolumeControlEnabled = enable;
+            if (mCreated) {
+                updateVolume();
+            }
+        }
+    }
+
+    /**
+     * Returns whether to enable the volume slider and volume control using the volume keys
+     * when the route supports it.
+     */
+    public boolean isVolumeControlEnabled() {
+        return mVolumeControlEnabled;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,6 +167,7 @@ public class MediaRouteControllerDialog extends Dialog {
             }
         });
 
+        mCreated = true;
         if (update()) {
             mControlView = onCreateMediaControlView(savedInstanceState);
             if (mControlView != null) {
@@ -171,7 +197,7 @@ public class MediaRouteControllerDialog extends Dialog {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (mRoute.getVolumeHandling() == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+        if (isVolumeControlAvailable()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                 mRoute.requestUpdateVolume(-1);
                 return true;
@@ -185,7 +211,7 @@ public class MediaRouteControllerDialog extends Dialog {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (mRoute.getVolumeHandling() == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+        if (isVolumeControlAvailable()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
                     || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                 return true;
@@ -235,7 +261,7 @@ public class MediaRouteControllerDialog extends Dialog {
 
     private void updateVolume() {
         if (!mVolumeSliderTouched) {
-            if (mRoute.getVolumeHandling() == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+            if (isVolumeControlAvailable()) {
                 mVolumeLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
@@ -243,6 +269,11 @@ public class MediaRouteControllerDialog extends Dialog {
                 mVolumeLayout.setVisibility(View.GONE);
             }
         }
+    }
+
+    private boolean isVolumeControlAvailable() {
+        return mVolumeControlEnabled && mRoute.getVolumeHandling() ==
+                MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
     }
 
     private final class MediaRouterCallback extends MediaRouter.Callback {
