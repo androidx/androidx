@@ -97,6 +97,21 @@ public class MediaRouteChooserDialog extends Dialog {
         }
     }
 
+    /**
+     * Returns true if the route should be included in the list.
+     * <p>
+     * The default implementation returns true for non-default routes that
+     * match the selector.  Subclasses can override this method to filter routes
+     * differently.
+     * </p>
+     *
+     * @param route The route to consider, never null.
+     * @return True if the route should be included in the chooser dialog.
+     */
+    public boolean onFilterRoute(MediaRouter.RouteInfo route) {
+        return !route.isDefault() && route.matchesSelector(mSelector);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,7 +150,10 @@ public class MediaRouteChooserDialog extends Dialog {
         super.onDetachedFromWindow();
     }
 
-    private void refreshRoutes() {
+    /**
+     * Refreshes the list of routes that are shown in the chooser dialog.
+     */
+    public void refreshRoutes() {
         if (mAttachedToWindow) {
             mAdapter.update();
         }
@@ -156,7 +174,7 @@ public class MediaRouteChooserDialog extends Dialog {
             final int count = routes.size();
             for (int i = 0; i < count; i++) {
                 MediaRouter.RouteInfo route = routes.get(i);
-                if (!route.isDefault() && route.matchesSelector(mSelector)) {
+                if (onFilterRoute(route)) {
                     add(route);
                 }
             }

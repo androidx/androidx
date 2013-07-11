@@ -17,23 +17,41 @@
 package android.support.v7.app;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
 /**
  * Media route controller dialog fragment.
  * <p>
- * Creates a {@link MediaRouteControllerDialog}.  The application may subclass this
- * dialog fragment to customize the dialog.
+ * Creates a {@link MediaRouteControllerDialog}.  The application may subclass
+ * this dialog fragment to customize the media route controller dialog.
  * </p>
  */
 public class MediaRouteControllerDialogFragment extends DialogFragment {
+    /**
+     * Creates a media route controller dialog fragment.
+     * <p>
+     * All subclasses of this class must also possess a default constructor.
+     * </p>
+     */
     public MediaRouteControllerDialogFragment() {
         setCancelable(true);
     }
 
+    /**
+     * Called when the controller dialog is being created.
+     * <p>
+     * Subclasses may override this method to customize the dialog.
+     * </p>
+     */
+    public MediaRouteControllerDialog onCreateControllerDialog(
+            Context context, Bundle savedInstanceState) {
+        return new MediaRouteControllerDialog(context);
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new MediaRouteControllerDialog(getActivity());
+        return onCreateControllerDialog(getActivity(), savedInstanceState);
     }
 }
