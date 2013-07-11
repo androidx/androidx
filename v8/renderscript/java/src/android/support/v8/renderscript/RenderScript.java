@@ -57,7 +57,6 @@ public class RenderScript {
     @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
     static boolean sInitialized;
     static Object lock = new Object();
-    native static void _nInit();
 
     // Non-threadsafe functions.
     native int  nDeviceCreate();
@@ -70,6 +69,26 @@ public class RenderScript {
     native void nContextDeinitToClient(int con);
 
     static boolean isNative = false;
+
+    private static int thunk = 0;
+    /**
+     * Determines whether or not we should be thunking into the native
+     * RenderScript layer or actually using the compatibility library.
+     */
+    static boolean shouldThunk() {
+        if (thunk == 0) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2
+                    && SystemProperties.getInt("debug.rs.forcecompat", 0) == 0) {
+                thunk = 1;
+            } else {
+                thunk = -1;
+            }
+        }
+        if (thunk == 1) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Name of the file that holds the object cache.
@@ -894,9 +913,7 @@ public class RenderScript {
     public static RenderScript create(Context ctx, int sdkVersion, ContextType ct) {
         RenderScript rs = new RenderScript(ctx);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2 ||
-                SystemProperties.getInt("debug.rs.forcenative", 0) != 0) {
-
+        if (shouldThunk()) {
             android.util.Log.v(LOG_TAG, "RS native mode");
             return RenderScriptThunker.create(ctx, sdkVersion);
         }
@@ -905,7 +922,6 @@ public class RenderScript {
                 try {
                     System.loadLibrary("RSSupport");
                     System.loadLibrary("rsjni");
-                    _nInit();
                     sInitialized = true;
                 } catch (UnsatisfiedLinkError e) {
                     Log.e(LOG_TAG, "Error loading RS jni library: " + e);

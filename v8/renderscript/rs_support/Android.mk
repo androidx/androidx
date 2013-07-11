@@ -128,12 +128,14 @@ LOCAL_SRC_FILES += \
 	cpu_ref/rsCpuIntrinsics_neon.S
 endif
 
-LOCAL_SHARED_LIBRARIES += libcutils libutils liblog libdl
+LOCAL_SHARED_LIBRARIES += libdl
+LOCAL_STATIC_LIBRARIES += libcutils liblog libstlport_static
 
 LOCAL_C_INCLUDES += system/core/include
-LOCAL_C_INCLUDES += frameworks/native/include
 LOCAL_C_INCLUDES += external/clang/lib/Headers
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
+LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
+
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
