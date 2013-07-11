@@ -17,6 +17,7 @@
 package android.support.v8.renderscript;
 
 import android.os.SystemProperties;
+import android.support.v8.renderscript.RenderScript;
 
 /**
  * Utility class for packing arguments and structures from Android system objects to
@@ -28,37 +29,19 @@ import android.os.SystemProperties;
  *
  **/
 public class FieldPacker {
-    private static int thunk = 0;
-
     private android.renderscript.FieldPacker mN;
-
-    private boolean shouldThunk() {
-        if (thunk == 0) {
-            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 ||
-                SystemProperties.getInt("debug.rs.forcenative", 0) != 0) {
-
-                thunk = 1;
-            } else {
-                thunk = -1;
-            }
-        }
-        if (thunk == 1) {
-            return true;
-        }
-        return false;
-    }
 
     public FieldPacker(int len) {
         mPos = 0;
         mLen = len;
         mData = new byte[len];
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN = new android.renderscript.FieldPacker(len);
         }
     }
 
     public void align(int v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.align(v);
             return;
         }
@@ -72,14 +55,14 @@ public class FieldPacker {
     }
 
     public void reset() {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.reset();
             return;
         }
         mPos = 0;
     }
     public void reset(int i) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.reset(i);
             return;
         }
@@ -90,7 +73,7 @@ public class FieldPacker {
     }
 
     public void skip(int i) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.skip(i);
             return;
         }
@@ -102,7 +85,7 @@ public class FieldPacker {
     }
 
     public void addI8(byte v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI8(v);
             return;
         }
@@ -110,7 +93,7 @@ public class FieldPacker {
     }
 
     public void addI16(short v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI16(v);
             return;
         }
@@ -120,7 +103,7 @@ public class FieldPacker {
     }
 
     public void addI32(int v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI32(v);
             return;
         }
@@ -132,7 +115,7 @@ public class FieldPacker {
     }
 
     public void addI64(long v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI64(v);
             return;
         }
@@ -148,7 +131,7 @@ public class FieldPacker {
     }
 
     public void addU8(short v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU8(v);
             return;
         }
@@ -159,7 +142,7 @@ public class FieldPacker {
     }
 
     public void addU16(int v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU16(v);
             return;
         }
@@ -173,7 +156,7 @@ public class FieldPacker {
     }
 
     public void addU32(long v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU32(v);
             return;
         }
@@ -189,7 +172,7 @@ public class FieldPacker {
     }
 
     public void addU64(long v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU64(v);
             return;
         }
@@ -209,7 +192,7 @@ public class FieldPacker {
     }
 
     public void addF32(float v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF32(v);
             return;
         }
@@ -217,7 +200,7 @@ public class FieldPacker {
     }
 
     public void addF64(double v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF64(v);
             return;
         }
@@ -225,7 +208,7 @@ public class FieldPacker {
     }
 
     public void addObj(BaseObj obj) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             if (obj != null) {
                 mN.addObj(obj.getNObj());
             } else {
@@ -241,7 +224,7 @@ public class FieldPacker {
     }
 
     public void addF32(Float2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF32(new android.renderscript.Float2(v.x, v.y));
             return;
         }
@@ -249,7 +232,7 @@ public class FieldPacker {
         addF32(v.y);
     }
     public void addF32(Float3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF32(new android.renderscript.Float3(v.x, v.y, v.z));
             return;
         }
@@ -258,7 +241,7 @@ public class FieldPacker {
         addF32(v.z);
     }
     public void addF32(Float4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF32(new android.renderscript.Float4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -269,7 +252,7 @@ public class FieldPacker {
     }
 
     public void addF64(Double2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF64(new android.renderscript.Double2(v.x, v.y));
             return;
         }
@@ -277,7 +260,7 @@ public class FieldPacker {
         addF64(v.y);
     }
     public void addF64(Double3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF64(new android.renderscript.Double3(v.x, v.y, v.z));
             return;
         }
@@ -286,7 +269,7 @@ public class FieldPacker {
         addF64(v.z);
     }
     public void addF64(Double4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addF64(new android.renderscript.Double4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -297,7 +280,7 @@ public class FieldPacker {
     }
 
     public void addI8(Byte2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI8(new android.renderscript.Byte2(v.x, v.y));
             return;
         }
@@ -305,7 +288,7 @@ public class FieldPacker {
         addI8(v.y);
     }
     public void addI8(Byte3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI8(new android.renderscript.Byte3(v.x, v.y, v.z));
             return;
         }
@@ -314,7 +297,7 @@ public class FieldPacker {
         addI8(v.z);
     }
     public void addI8(Byte4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI8(new android.renderscript.Byte4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -325,7 +308,7 @@ public class FieldPacker {
     }
 
     public void addU8(Short2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU8(new android.renderscript.Short2(v.x, v.y));
             return;
         }
@@ -333,7 +316,7 @@ public class FieldPacker {
         addU8(v.y);
     }
     public void addU8(Short3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU8(new android.renderscript.Short3(v.x, v.y, v.z));
             return;
         }
@@ -342,7 +325,7 @@ public class FieldPacker {
         addU8(v.z);
     }
     public void addU8(Short4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU8(new android.renderscript.Short4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -353,7 +336,7 @@ public class FieldPacker {
     }
 
     public void addI16(Short2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI16(new android.renderscript.Short2(v.x, v.y));
             return;
         }
@@ -361,7 +344,7 @@ public class FieldPacker {
         addI16(v.y);
     }
     public void addI16(Short3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI16(new android.renderscript.Short3(v.x, v.y, v.z));
             return;
         }
@@ -370,7 +353,7 @@ public class FieldPacker {
         addI16(v.z);
     }
     public void addI16(Short4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI16(new android.renderscript.Short4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -381,7 +364,7 @@ public class FieldPacker {
     }
 
     public void addU16(Int2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU16(new android.renderscript.Int2(v.x, v.y));
             return;
         }
@@ -389,7 +372,7 @@ public class FieldPacker {
         addU16(v.y);
     }
     public void addU16(Int3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU16(new android.renderscript.Int3(v.x, v.y, v.z));
             return;
         }
@@ -398,7 +381,7 @@ public class FieldPacker {
         addU16(v.z);
     }
     public void addU16(Int4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU16(new android.renderscript.Int4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -409,7 +392,7 @@ public class FieldPacker {
     }
 
     public void addI32(Int2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI32(new android.renderscript.Int2(v.x, v.y));
             return;
         }
@@ -417,7 +400,7 @@ public class FieldPacker {
         addI32(v.y);
     }
     public void addI32(Int3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI32(new android.renderscript.Int3(v.x, v.y, v.z));
             return;
         }
@@ -426,7 +409,7 @@ public class FieldPacker {
         addI32(v.z);
     }
     public void addI32(Int4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI32(new android.renderscript.Int4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -437,7 +420,7 @@ public class FieldPacker {
     }
 
     public void addU32(Long2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU32(new android.renderscript.Long2(v.x, v.y));
             return;
         }
@@ -445,7 +428,7 @@ public class FieldPacker {
         addU32(v.y);
     }
     public void addU32(Long3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU32(new android.renderscript.Long3(v.x, v.y, v.z));
             return;
         }
@@ -454,7 +437,7 @@ public class FieldPacker {
         addU32(v.z);
     }
     public void addU32(Long4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU32(new android.renderscript.Long4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -465,7 +448,7 @@ public class FieldPacker {
     }
 
     public void addI64(Long2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI64(new android.renderscript.Long2(v.x, v.y));
             return;
         }
@@ -473,7 +456,7 @@ public class FieldPacker {
         addI64(v.y);
     }
     public void addI64(Long3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI64(new android.renderscript.Long3(v.x, v.y, v.z));
             return;
         }
@@ -482,7 +465,7 @@ public class FieldPacker {
         addI64(v.z);
     }
     public void addI64(Long4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addI64(new android.renderscript.Long4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -493,7 +476,7 @@ public class FieldPacker {
     }
 
     public void addU64(Long2 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU64(new android.renderscript.Long2(v.x, v.y));
             return;
         }
@@ -501,7 +484,7 @@ public class FieldPacker {
         addU64(v.y);
     }
     public void addU64(Long3 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU64(new android.renderscript.Long3(v.x, v.y, v.z));
             return;
         }
@@ -510,7 +493,7 @@ public class FieldPacker {
         addU64(v.z);
     }
     public void addU64(Long4 v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addU64(new android.renderscript.Long4(v.x, v.y, v.z, v.w));
             return;
         }
@@ -521,7 +504,7 @@ public class FieldPacker {
     }
 
     public void addMatrix(Matrix4f v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addMatrix(new android.renderscript.Matrix4f(v.getArray()));
             return;
         }
@@ -531,7 +514,7 @@ public class FieldPacker {
     }
 
     public void addMatrix(Matrix3f v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addMatrix(new android.renderscript.Matrix3f(v.getArray()));
             return;
         }
@@ -541,7 +524,7 @@ public class FieldPacker {
     }
 
     public void addMatrix(Matrix2f v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addMatrix(new android.renderscript.Matrix2f(v.getArray()));
             return;
         }
@@ -551,7 +534,7 @@ public class FieldPacker {
     }
 
     public void addBoolean(boolean v) {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             mN.addBoolean(v);
             return;
         }
@@ -559,7 +542,7 @@ public class FieldPacker {
     }
 
     public final byte[] getData() {
-        if (shouldThunk()) {
+        if (RenderScript.shouldThunk()) {
             return mN.getData();
         }
         return mData;

@@ -21,24 +21,16 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <math.h>
-#include <utils/misc.h>
 #include <android/bitmap.h>
+#include <android/log.h>
 #include "jni.h"
-#include "JNIHelp.h"
-#include "android_runtime/AndroidRuntime.h"
 #include <rs.h>
 #include <rsEnv.h>
-
-#include <core/SkBitmap.h>
-#include <core/SkPixelRef.h>
-#include <core/SkStream.h>
-#include <core/SkTemplates.h>
-//#include <images/SkImageDecoder.h>
 
 //#define LOG_API ALOG
 #define LOG_API(...)
 
-using namespace android;
+#define NELEM(m) (sizeof(m) / sizeof((m)[0]))
 
 class AutoJavaStringToUTF8 {
 public:
@@ -94,20 +86,6 @@ private:
     size_t      *mSizeArray;
     jsize        mStringsLength;
 };
-
-// ---------------------------------------------------------------------------
-
-static jfieldID gContextId = 0;
-static jfieldID gNativeBitmapID = 0;
-static jfieldID gTypeNativeCache = 0;
-
-static void _nInit(JNIEnv *_env, jclass _this)
-{
-    gContextId             = _env->GetFieldID(_this, "mContext", "I");
-
-    jclass bitmapClass = _env->FindClass("android/graphics/Bitmap");
-    gNativeBitmapID = _env->GetFieldID(bitmapClass, "mNativeBitmap", "I");
-}
 
 // ---------------------------------------------------------------------------
 
@@ -193,7 +171,8 @@ nContextGetErrorMessage(JNIEnv *_env, jobject _this, RsContext con)
                                  &receiveLen, sizeof(receiveLen),
                                  &subID, sizeof(subID));
     if (!id && receiveLen) {
-        ALOGV("message receive buffer too small.  %i", receiveLen);
+        __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,
+            "message receive buffer too small.  %zu", receiveLen);
     }
     return _env->NewStringUTF(buf);
 }
@@ -211,7 +190,8 @@ nContextGetUserMessage(JNIEnv *_env, jobject _this, RsContext con, jintArray dat
                                  &receiveLen, sizeof(receiveLen),
                                  &subID, sizeof(subID));
     if (!id && receiveLen) {
-        ALOGV("message receive buffer too small.  %i", receiveLen);
+        __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,
+            "message receive buffer too small.  %zu", receiveLen);
     }
     _env->ReleaseIntArrayElements(data, ptr, 0);
     return id;
@@ -374,32 +354,32 @@ static size_t GetBitmapSize(JNIEnv *env, jobject jbitmap) {
 static int
 nAllocationCreateFromBitmap(JNIEnv *_env, jobject _this, RsContext con, jint type, jint mip, jobject jbitmap, jint usage)
 {
-    SkBitmap const * nativeBitmap =
-            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
-    const SkBitmap& bitmap(*nativeBitmap);
+    jint id = 0;
+    void *pixels = NULL;
+    AndroidBitmap_lockPixels(_env, jbitmap, &pixels);
 
-    bitmap.lockPixels();
-    const void* ptr = bitmap.getPixels();
-    jint id = (jint)rsAllocationCreateFromBitmap(con,
-                                                  (RsType)type, (RsAllocationMipmapControl)mip,
-                                                  ptr, bitmap.getSize(), usage);
-    bitmap.unlockPixels();
+    if (pixels != NULL) {
+        id = (jint)rsAllocationCreateFromBitmap(con,
+                                                (RsType)type, (RsAllocationMipmapControl)mip,
+                                                pixels, GetBitmapSize(_env, jbitmap), usage);
+        AndroidBitmap_unlockPixels(_env, jbitmap);
+    }
     return id;
 }
 
 static int
 nAllocationCreateBitmapBackedAllocation(JNIEnv *_env, jobject _this, RsContext con, jint type, jint mip, jobject jbitmap, jint usage)
 {
-    SkBitmap const * nativeBitmap =
-            (SkBitmap const *)_env->GetIntField(jbitmap, gNativeBitmapID);
-    const SkBitmap& bitmap(*nativeBitmap);
+    jint id = 0;
+    void *pixels = NULL;
+    AndroidBitmap_lockPixels(_env, jbitmap, &pixels);
 
-    bitmap.lockPixels();
-    const void* ptr = bitmap.getPixels();
-    jint id = (jint)rsAllocationCreateTyped(con,
-                                            (RsType)type, (RsAllocationMipmapControl)mip,
-                                            (uint32_t)usage, (size_t)ptr);
-    bitmap.unlockPixels();
+    if (pixels != NULL) {
+        id = (jint)rsAllocationCreateTyped(con,
+                                          (RsType)type, (RsAllocationMipmapControl)mip,
+                                          (uint32_t)usage, (uintptr_t)pixels);
+        AndroidBitmap_unlockPixels(_env, jbitmap);
+    }
     return id;
 }
 
@@ -1010,8 +990,6 @@ nSamplerCreate(JNIEnv *_env, jobject _this, RsContext con, jint magFilter, jint 
 static const char *classPathName = "android/support/v8/renderscript/RenderScript";
 
 static JNINativeMethod methods[] = {
-{"_nInit",                         "()V",                                     (void*)_nInit },
-
 {"nDeviceCreate",                  "()I",                                     (void*)nDeviceCreate },
 {"nDeviceDestroy",                 "(I)V",                                    (void*)nDeviceDestroy },
 {"nDeviceSetConfig",               "(III)V",                                  (void*)nDeviceSetConfig },
@@ -1099,27 +1077,32 @@ static JNINativeMethod methods[] = {
 
 };
 
-static int registerFuncs(JNIEnv *_env)
-{
-    return android::AndroidRuntime::registerNativeMethods(
-            _env, classPathName, methods, NELEM(methods));
-}
-
 // ---------------------------------------------------------------------------
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     JNIEnv* env = NULL;
+    jclass clazz = NULL;
     jint result = -1;
 
     if (vm->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
-        ALOGE("ERROR: GetEnv failed\n");
+        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,
+            "ERROR: GetEnv failed\n");
         goto bail;
     }
-    assert(env != NULL);
+    if (env == NULL) {
+        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "ERROR: env == NULL");
+        goto bail;
+    }
 
-    if (registerFuncs(env) < 0) {
-        ALOGE("ERROR: MediaPlayer native registration failed\n");
+    clazz = env->FindClass(classPathName);
+    if (clazz == NULL) {
+        goto bail;
+    }
+
+    if (env->RegisterNatives(clazz, methods, NELEM(methods)) < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,
+            "ERROR: MediaPlayer native registration failed\n");
         goto bail;
     }
 
