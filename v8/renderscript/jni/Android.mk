@@ -5,14 +5,12 @@ LOCAL_SRC_FILES:= \
     android_renderscript_RenderScript.cpp
 
 LOCAL_SHARED_LIBRARIES := \
-        libandroid_runtime \
         libRSSupport \
-        libcutils \
-        liblog \
-        libjnigraphics \
-        libskia
+        libjnigraphics
 
-LOCAL_STATIC_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := \
+        libcutils \
+        liblog
 
 rs_generated_include_dir := $(call intermediates-dir-for,SHARED_LIBRARIES,libRSSupport,,)
 
