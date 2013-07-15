@@ -61,7 +61,7 @@
          subtitle is visible or gone. -->
     <TextView android:id="@android:id/text2"
               style="?android:attr/dropDownItemStyle"
-              android:textAppearance="?android:attr/textAppearanceSearchResultSubtitle"
+              android:textAppearance="?attr/textAppearanceSearchResultSubtitle"
               android:singleLine="true"
               android:layout_width="match_parent"
               android:layout_height="29dip"
@@ -77,7 +77,7 @@
          subtitle, it fills the parent. -->
     <TextView android:id="@android:id/text1"
               style="?android:attr/dropDownItemStyle"
-              android:textAppearance="?android:attr/textAppearanceSearchResultTitle"
+              android:textAppearance="?attr/textAppearanceSearchResultTitle"
               android:singleLine="true"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
