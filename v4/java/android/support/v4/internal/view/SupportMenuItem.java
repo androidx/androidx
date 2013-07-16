@@ -24,17 +24,11 @@ import android.view.View;
 /**
  * Interface for direct access to a previously created menu item.
  *
- * <p>An Item is returned by calling one of the {@link android.view.Menu#add}
- * methods.
+ * This version extends the one available in the framework to ensures that any necessary
+ * elements added in later versions of the framework, are available for all platforms.
  *
- * <p>For a feature set of specific menu types, see {@link android.view.Menu}.
- *
- * <div class="special reference">
- * <h3>Developer Guides</h3>
- *
- * <p>For information about creating menus, read the
- * <a href="{@docRoot}guide/topics/ui/menus.html">Menus</a> developer guide.
- * </div>
+ * @see android.view.MenuItem
+ * @hide
  */
 public interface SupportMenuItem extends android.view.MenuItem {
     /*
