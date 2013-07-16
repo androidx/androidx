@@ -25,6 +25,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.DebugUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -43,7 +44,6 @@ import android.widget.AdapterView;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.HashMap;
 
 final class FragmentState implements Parcelable {
     final String mClassName;
@@ -153,8 +153,8 @@ final class FragmentState implements Parcelable {
  * documentation for a class overview.
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener {
-    private static final HashMap<String, Class<?>> sClassMap =
-            new HashMap<String, Class<?>>();
+    private static final SimpleArrayMap<String, Class<?>> sClassMap =
+            new SimpleArrayMap<String, Class<?>>();
     
     static final int INITIALIZING = 0;     // Not yet created.
     static final int CREATED = 1;          // Created.

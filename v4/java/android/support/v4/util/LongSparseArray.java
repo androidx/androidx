@@ -17,7 +17,9 @@
 package android.support.v4.util;
 
 /**
- * SparseArray mapping longs to Objects.  Unlike a normal array of Objects,
+ * SparseArray mapping longs to Objects, a version of the platform's
+ * {@link android.util.LongSparseArray} that can be used on older versions of the
+ * platform.  Unlike a normal array of Objects,
  * there can be gaps in the indices.  It is intended to be more memory efficient
  * than using a HashMap to map Longs to Objects, both because it avoids
   * auto-boxing keys and its data structure doesn't rely on an extra entry object
@@ -56,13 +58,19 @@ public class LongSparseArray<E> implements Cloneable {
     /**
      * Creates a new LongSparseArray containing no mappings that will not
      * require any additional memory allocation to store the specified
-     * number of mappings.
+     * number of mappings.  If you supply an initial capacity of 0, the
+     * sparse array will be initialized with a light-weight representation
+     * not requiring any additional array allocations.
      */
     public LongSparseArray(int initialCapacity) {
-        initialCapacity = idealLongArraySize(initialCapacity);
-
-        mKeys = new long[initialCapacity];
-        mValues = new Object[initialCapacity];
+        if (initialCapacity == 0) {
+            mKeys = ContainerHelpers.EMPTY_LONGS;
+            mValues = ContainerHelpers.EMPTY_OBJECTS;
+        } else {
+            initialCapacity = ContainerHelpers.idealLongArraySize(initialCapacity);
+            mKeys = new long[initialCapacity];
+            mValues = new Object[initialCapacity];
+        }
         mSize = 0;
     }
 
@@ -94,7 +102,7 @@ public class LongSparseArray<E> implements Cloneable {
      */
     @SuppressWarnings("unchecked")
     public E get(long key, E valueIfKeyNotFound) {
-        int i = binarySearch(mKeys, 0, mSize, key);
+        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i < 0 || mValues[i] == DELETED) {
             return valueIfKeyNotFound;
@@ -107,7 +115,7 @@ public class LongSparseArray<E> implements Cloneable {
      * Removes the mapping from the specified key, if there was any.
      */
     public void delete(long key) {
-        int i = binarySearch(mKeys, 0, mSize, key);
+        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             if (mValues[i] != DELETED) {
@@ -168,7 +176,7 @@ public class LongSparseArray<E> implements Cloneable {
      * was one.
      */
     public void put(long key, E value) {
-        int i = binarySearch(mKeys, 0, mSize, key);
+        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             mValues[i] = value;
@@ -185,11 +193,11 @@ public class LongSparseArray<E> implements Cloneable {
                 gc();
 
                 // Search again because indices may have changed.
-                i = ~binarySearch(mKeys, 0, mSize, key);
+                i = ~ContainerHelpers.binarySearch(mKeys, mSize, key);
             }
 
             if (mSize >= mKeys.length) {
-                int n = idealLongArraySize(mSize + 1);
+                int n = ContainerHelpers.idealLongArraySize(mSize + 1);
 
                 long[] nkeys = new long[n];
                 Object[] nvalues = new Object[n];
@@ -276,7 +284,7 @@ public class LongSparseArray<E> implements Cloneable {
             gc();
         }
 
-        return binarySearch(mKeys, 0, mSize, key);
+        return ContainerHelpers.binarySearch(mKeys, mSize, key);
     }
 
     /**
@@ -330,7 +338,7 @@ public class LongSparseArray<E> implements Cloneable {
 
         int pos = mSize;
         if (pos >= mKeys.length) {
-            int n = idealLongArraySize(pos + 1);
+            int n = ContainerHelpers.idealLongArraySize(pos + 1);
 
             long[] nkeys = new long[n];
             Object[] nvalues = new Object[n];
@@ -348,35 +356,36 @@ public class LongSparseArray<E> implements Cloneable {
         mSize = pos + 1;
     }
 
-    private static int binarySearch(long[] a, int start, int len, long key) {
-        int high = start + len, low = start - 1, guess;
-
-        while (high - low > 1) {
-            guess = (high + low) / 2;
-
-            if (a[guess] < key)
-                low = guess;
-            else
-                high = guess;
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation composes a string by iterating over its mappings. If
+     * this map contains itself as a value, the string "(this Map)"
+     * will appear in its place.
+     */
+    @Override
+    public String toString() {
+        if (size() <= 0) {
+            return "{}";
         }
 
-        if (high == start + len)
-            return ~(start + len);
-        else if (a[high] == key)
-            return high;
-        else
-            return ~high;
-    }
-
-    public static int idealByteArraySize(int need) {
-        for (int i = 4; i < 32; i++)
-            if (need <= (1 << i) - 12)
-                return (1 << i) - 12;
-
-        return need;
-    }
-
-    public static int idealLongArraySize(int need) {
-        return idealByteArraySize(need * 8) / 8;
+        StringBuilder buffer = new StringBuilder(mSize * 28);
+        buffer.append('{');
+        for (int i=0; i<mSize; i++) {
+            if (i > 0) {
+                buffer.append(", ");
+            }
+            long key = keyAt(i);
+            buffer.append(key);
+            buffer.append('=');
+            Object value = valueAt(i);
+            if (value != this) {
+                buffer.append(value);
+            } else {
+                buffer.append("(this Map)");
+            }
+        }
+        buffer.append('}');
+        return buffer.toString();
     }
 }

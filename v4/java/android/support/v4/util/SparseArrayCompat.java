@@ -17,12 +17,16 @@
 package android.support.v4.util;
 
 /**
- * A copy of Honeycomb's {@link android.util.SparseArray}, that
- * provides a removeAt() method.
+ * A copy of the current platform (currently {@link android.os.Build.VERSION_CODES#KEY_LIME_PIE}
+ * version of {@link android.util.SparseArray}; provides a removeAt() method and other things.
  */
-public class SparseArrayCompat<E> {
+public class SparseArrayCompat<E> implements Cloneable {
     private static final Object DELETED = new Object();
     private boolean mGarbage = false;
+
+    private int[] mKeys;
+    private Object[] mValues;
+    private int mSize;
 
     /**
      * Creates a new SparseArray containing no mappings.
@@ -34,14 +38,34 @@ public class SparseArrayCompat<E> {
     /**
      * Creates a new SparseArray containing no mappings that will not
      * require any additional memory allocation to store the specified
-     * number of mappings.
+     * number of mappings.  If you supply an initial capacity of 0, the
+     * sparse array will be initialized with a light-weight representation
+     * not requiring any additional array allocations.
      */
     public SparseArrayCompat(int initialCapacity) {
-        initialCapacity = idealIntArraySize(initialCapacity);
-
-        mKeys = new int[initialCapacity];
-        mValues = new Object[initialCapacity];
+        if (initialCapacity == 0) {
+            mKeys =  ContainerHelpers.EMPTY_INTS;
+            mValues =  ContainerHelpers.EMPTY_OBJECTS;
+        } else {
+            initialCapacity =  ContainerHelpers.idealIntArraySize(initialCapacity);
+            mKeys = new int[initialCapacity];
+            mValues = new Object[initialCapacity];
+        }
         mSize = 0;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public SparseArrayCompat<E> clone() {
+        SparseArrayCompat<E> clone = null;
+        try {
+            clone = (SparseArrayCompat<E>) super.clone();
+            clone.mKeys = mKeys.clone();
+            clone.mValues = mValues.clone();
+        } catch (CloneNotSupportedException cnse) {
+            /* ignore */
+        }
+        return clone;
     }
 
     /**
@@ -56,8 +80,9 @@ public class SparseArrayCompat<E> {
      * Gets the Object mapped from the specified key, or the specified Object
      * if no such mapping has been made.
      */
+    @SuppressWarnings("unchecked")
     public E get(int key, E valueIfKeyNotFound) {
-        int i = binarySearch(mKeys, 0, mSize, key);
+        int i =  ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i < 0 || mValues[i] == DELETED) {
             return valueIfKeyNotFound;
@@ -70,7 +95,7 @@ public class SparseArrayCompat<E> {
      * Removes the mapping from the specified key, if there was any.
      */
     public void delete(int key) {
-        int i = binarySearch(mKeys, 0, mSize, key);
+        int i =  ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             if (mValues[i] != DELETED) {
@@ -125,6 +150,7 @@ public class SparseArrayCompat<E> {
                 if (i != o) {
                     keys[o] = keys[i];
                     values[o] = val;
+                    values[i] = null;
                 }
 
                 o++;
@@ -143,7 +169,7 @@ public class SparseArrayCompat<E> {
      * was one.
      */
     public void put(int key, E value) {
-        int i = binarySearch(mKeys, 0, mSize, key);
+        int i =  ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             mValues[i] = value;
@@ -160,11 +186,11 @@ public class SparseArrayCompat<E> {
                 gc();
 
                 // Search again because indices may have changed.
-                i = ~binarySearch(mKeys, 0, mSize, key);
+                i = ~ ContainerHelpers.binarySearch(mKeys, mSize, key);
             }
 
             if (mSize >= mKeys.length) {
-                int n = idealIntArraySize(mSize + 1);
+                int n =  ContainerHelpers.idealIntArraySize(mSize + 1);
 
                 int[] nkeys = new int[n];
                 Object[] nvalues = new Object[n];
@@ -219,6 +245,7 @@ public class SparseArrayCompat<E> {
      * the value from the <code>index</code>th key-value mapping that this
      * SparseArray stores.
      */
+    @SuppressWarnings("unchecked")
     public E valueAt(int index) {
         if (mGarbage) {
             gc();
@@ -250,16 +277,18 @@ public class SparseArrayCompat<E> {
             gc();
         }
 
-        return binarySearch(mKeys, 0, mSize, key);
+        return  ContainerHelpers.binarySearch(mKeys, mSize, key);
     }
 
     /**
      * Returns an index for which {@link #valueAt} would return the
      * specified key, or a negative number if no keys map to the
      * specified value.
-     * Beware that this is a linear search, unlike lookups by key,
+     * <p>Beware that this is a linear search, unlike lookups by key,
      * and that multiple keys can map to the same value and this will
      * find only one of them.
+     * <p>Note also that unlike most collections' {@code indexOf} methods,
+     * this method compares values using {@code ==} rather than {@code equals}.
      */
     public int indexOfValue(E value) {
         if (mGarbage) {
@@ -304,7 +333,7 @@ public class SparseArrayCompat<E> {
 
         int pos = mSize;
         if (pos >= mKeys.length) {
-            int n = idealIntArraySize(pos + 1);
+            int n =  ContainerHelpers.idealIntArraySize(pos + 1);
 
             int[] nkeys = new int[n];
             Object[] nvalues = new Object[n];
@@ -322,39 +351,36 @@ public class SparseArrayCompat<E> {
         mSize = pos + 1;
     }
 
-    private static int binarySearch(int[] a, int start, int len, int key) {
-        int high = start + len, low = start - 1, guess;
-
-        while (high - low > 1) {
-            guess = (high + low) / 2;
-
-            if (a[guess] < key)
-                low = guess;
-            else
-                high = guess;
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation composes a string by iterating over its mappings. If
+     * this map contains itself as a value, the string "(this Map)"
+     * will appear in its place.
+     */
+    @Override
+    public String toString() {
+        if (size() <= 0) {
+            return "{}";
         }
 
-        if (high == start + len)
-            return ~(start + len);
-        else if (a[high] == key)
-            return high;
-        else
-            return ~high;
+        StringBuilder buffer = new StringBuilder(mSize * 28);
+        buffer.append('{');
+        for (int i=0; i<mSize; i++) {
+            if (i > 0) {
+                buffer.append(", ");
+            }
+            int key = keyAt(i);
+            buffer.append(key);
+            buffer.append('=');
+            Object value = valueAt(i);
+            if (value != this) {
+                buffer.append(value);
+            } else {
+                buffer.append("(this Map)");
+            }
+        }
+        buffer.append('}');
+        return buffer.toString();
     }
-
-    static int idealByteArraySize(int need) {
-        for (int i = 4; i < 32; i++)
-            if (need <= (1 << i) - 12)
-                return (1 << i) - 12;
-
-        return need;
-    }
-
-    static int idealIntArraySize(int need) {
-        return idealByteArraySize(need * 4) / 4;
-    }
-
-    private int[] mKeys;
-    private Object[] mValues;
-    private int mSize;
 }
