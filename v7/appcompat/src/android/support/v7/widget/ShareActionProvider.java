@@ -37,13 +37,18 @@ import android.support.v7.internal.widget.ActivityChooserModel.OnChooseActivityL
  * This is a provider for a share action. It is responsible for creating views
  * that enable data sharing and also to show a sub menu with sharing activities
  * if the hosting item is placed on the overflow menu.
+ *
+ * <p class="note"><strong>Note:</strong> This class is included in the <a
+ * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+ * with API level 7 and higher. If you're developing your app for API level 14 and higher
+ * <em>only</em>, you should instead use the framework {@link android.widget.ShareActionProvider}
+ * class.</p>
+ *
  * <p>
  * Here is how to use the action provider with custom backing file in a {@link MenuItem}:
  * </p>
- * <p>
- * <pre>
- * <code>
- *  // In Activity#onCreateOptionsMenu
+ * <pre><code>
+ *  // In {@link android.app.Activity#onCreateOptionsMenu Activity.onCreateOptionsMenu()}
  *  public boolean onCreateOptionsMenu(Menu menu) {
  *      // Get the menu item.
  *      MenuItem menuItem = menu.findItem(R.id.my_menu_item);
@@ -62,13 +67,18 @@ import android.support.v7.internal.widget.ActivityChooserModel.OnChooseActivityL
  *      // When you want to share set the share intent.
  *      mShareActionProvider.setShareIntent(shareIntent);
  *  }
- * </pre>
- * </code>
- * </p>
+ * </code></pre>
  * <p>
  * <strong>Note:</strong> While the sample snippet demonstrates how to use this provider
  * in the context of a menu item, the use of the provider is not limited to menu items.
  * </p>
+ *
+ * <div class="special reference">
+ * <h3>Developer Guides</h3>
+ *
+ * <p>For information about how to use {@link ShareActionProvider}, see the
+ * <a href="{@docRoot}guide/topics/ui/actionbar.html#ActionProvider">Action Bar</a> API guide.</p>
+ * </div>
  *
  * @see ActionProvider
  */

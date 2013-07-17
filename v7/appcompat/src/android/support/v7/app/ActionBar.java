@@ -35,14 +35,14 @@ import android.widget.SpinnerAdapter;
  * A window feature at the top of the activity that may display the activity title, navigation
  * modes, and other interactive items.
  *
- * <p>Beginning with Android 3.0 (API level 11), the action bar appears at the top of an
- * activity's window when the activity uses the system's {@link
- * android.R.style#Theme_Holo Holo} theme (or one of its descendant themes), which is the default.
- * You may otherwise add the action bar by calling {@link
- * android.view.Window#requestFeature requestFeature(FEATURE_ACTION_BAR)} or by declaring it in a
- * custom theme with the
- * {@link android.support.v7.appcompat.R.styleable#ActionBarWindow_windowActionBar windowActionBar}
- * property.
+ * <p class="note"><strong>Note:</strong> This class is included in the <a
+ * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+ * with API level 7 and higher. If you're developing your app for API level 11 and higher
+ * <em>only</em>, you should instead use the framework {@link android.app.ActionBar} class.</p>
+ *
+ * <p>When using the support library, you can add the action bar to the top of your activity
+ * window by extending the {@link ActionBarActivity} class and setting the activity theme to
+ * {@link android.support.v7.appcompat.R.style#Theme_AppCompat Theme.AppCompat} or a similar theme.
  *
  * <p>By default, the action bar shows the application icon on
  * the left, followed by the activity title. If your activity has an options menu, you can make
@@ -50,21 +50,21 @@ import android.widget.SpinnerAdapter;
  * modify various characteristics of the action bar or remove it completely.</p>
  *
  * <p>From your activity, you can retrieve an instance of {@link ActionBar} by calling {@link
- * android.app.Activity#getActionBar getActionBar()}.</p>
+ * android.support.v7.app.ActionBarActivity#getSupportActionBar}.</p>
  *
  * <p>In some cases, the action bar may be overlayed by another bar that enables contextual actions,
- * using an {@link android.view.ActionMode}. For example, when the user selects one or more items in
- * your activity, you can enable an action mode that offers actions specific to the selected
- * items, with a UI that temporarily replaces the action bar. Although the UI may occupy the
- * same space, the {@link android.view.ActionMode} APIs are distinct and independent from those for
- * {@link ActionBar}.
+ * using an {@link android.support.v7.view.ActionMode}. For example, when the user selects one or
+ * more items in your activity, you can enable an action mode that offers actions specific to the
+ * selected items, with a UI that temporarily replaces the action bar. Although the UI may occupy
+ * the same space, the {@link android.support.v7.view.ActionMode} APIs are distinct and independent
+ * from those for {@link ActionBar}.
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
  *
  * <p>For information about how to use the action bar, including how to add action items, navigation
  * modes and more, read the <a href="{@docRoot}guide/topics/ui/actionbar.html">Action
- * Bar</a> developer guide.</p>
+ * Bar</a> API guide.</p>
  * </div>
  */
 public abstract class ActionBar {
@@ -662,7 +662,13 @@ public abstract class ActionBar {
     }
 
     /**
-     * Listener interface for ActionBar navigation events.
+     * Listener for receiving {@link ActionBar} navigation events.
+     *
+     * <p class="note"><strong>Note:</strong> This interface is included in the <a
+     * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+     * with API level 7 and higher. If you're developing your app for API level 11 and higher
+     * <em>only</em>, you should instead use the framework {@link
+     * android.app.ActionBar.OnNavigationListener} interface.</p>
      */
     public interface OnNavigationListener {
 
@@ -677,7 +683,13 @@ public abstract class ActionBar {
     }
 
     /**
-     * Listener for receiving events when action bar menus are shown or hidden.
+     * Listener for receiving events when {@link ActionBar} items are shown or hidden.
+     *
+     * <p class="note"><strong>Note:</strong> This interface is included in the <a
+     * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+     * with API level 7 and higher. If you're developing your app for API level 11 and higher
+     * <em>only</em>, you should instead use the framework {@link
+     * android.app.ActionBar.OnMenuVisibilityListener} interface.</p>
      */
     public interface OnMenuVisibilityListener {
 
@@ -693,9 +705,21 @@ public abstract class ActionBar {
     }
 
     /**
-     * A tab in the action bar.
+     * A tab in the action bar that manages the hiding and showing of {@link Fragment}s.
      *
-     * <p>Tabs manage the hiding and showing of {@link Fragment}s.
+     * <p class="note"><strong>Note:</strong> This class is included in the <a
+     * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+     * with API level 7 and higher. If you're developing your app for API level 11 and higher
+     * <em>only</em>, you should instead use the framework {@link android.app.ActionBar.Tab}
+     * class.</p>
+     *
+     * <div class="special reference">
+     * <h3>Developer Guides</h3>
+     *
+     * <p>For information about how to use action bar tabs,
+     * read the <a href="{@docRoot}guide/topics/ui/actionbar.html#Tabs">Action
+     * Bar</a> API guide.</p>
+     * </div>
      */
     public static abstract class Tab {
 
@@ -847,7 +871,22 @@ public abstract class ActionBar {
     }
 
     /**
-     * Callback interface invoked when a tab is focused, unfocused, added, or removed.
+     * Callback interface invoked when an {@link ActionBar.Tab} is focused, unfocused, added, or
+     * removed.
+     *
+     * <p class="note"><strong>Note:</strong> This interface is included in the <a
+     * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+     * with API level 7 and higher. If you're developing your app for API level 11 and higher
+     * <em>only</em>, you should instead use the framework {@link android.app.ActionBar.TabListener}
+     * interface.</p>
+     *
+     * <div class="special reference">
+     * <h3>Developer Guides</h3>
+     *
+     * <p>For information about how to use action bar tabs,
+     * read the <a href="{@docRoot}guide/topics/ui/actionbar.html#Tabs">Action
+     * Bar</a> API guide.</p>
+     * </div>
      */
     public interface TabListener {
 

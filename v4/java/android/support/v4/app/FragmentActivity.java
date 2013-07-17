@@ -50,11 +50,16 @@ import java.util.HashMap;
  * and {@link #getSupportLoaderManager()} methods respectively to access
  * those features.
  *
+ * <p class="note"><strong>Note:</strong> If you want to implement an activity that includes
+ * an <a href="{@docRoot}guide/topics/ui/actionbar.html">action bar</a>, you should instead use
+ * the {@link android.support.v7.app.ActionBarActivity} class, which is a subclass of this one,
+ * so allows you to use {@link android.support.v4.app.Fragment} APIs on API level 7 and higher.</p>
+ *
  * <p>Known limitations:</p>
  * <ul>
- * <li> <p>When using the &lt;fragment> tag, this implementation can not
+ * <li> <p>When using the <code>&lt;fragment></code> tag, this implementation can not
  * use the parent view's ID as the new fragment's ID.  You must explicitly
- * specify an ID (or tag) in the &lt;fragment>.</p>
+ * specify an ID (or tag) in the <code>&lt;fragment></code>.</p>
  * <li> <p>Prior to Honeycomb (3.0), an activity's state was saved before pausing.
  * Fragments are a significant amount of new state, and dynamic enough that one
  * often wants them to change between pausing and stopping.  These classes

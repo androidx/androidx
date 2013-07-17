@@ -26,6 +26,11 @@ import android.view.View;
  * alternative interaction modes and replace parts of the normal UI until finished. Examples of good
  * action modes include text selection and contextual actions.
  *
+ * <p class="note"><strong>Note:</strong> This class is included in the <a
+ * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+ * with API level 7 and higher. If you're developing your app for API level 11 and higher
+ * <em>only</em>, you should instead use the framework {@link android.view.ActionMode} class.</p>
+ *
  * <div class="special reference">
  *
  * <h3>Developer Guides</h3>
