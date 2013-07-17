@@ -224,7 +224,7 @@
     </style>
 
     <style name="Widget.AppCompat.Light.AutoCompleteTextView"
-           parent="Widget.AppCompat.Base.AutoCompleteTextView">
+           parent="Widget.AppCompat.Light.Base.AutoCompleteTextView">
     </style>
 
     <style name="Widget.AppCompat.ActivityChooserView"
