@@ -16,18 +16,14 @@
 
 package android.support.v4.internal.view;
 
-import android.view.Menu;
-
 /**
- * Subclass of {@link Menu} for sub menus.
- * <p>
- * Sub menus do not support item icons, or nested sub menus.
+ * Subclass of {@link SupportMenu} for sub menus.
  *
- * <div class="special reference">
- * <h3>Developer Guides</h3>
- * <p>For information about creating menus, read the
- * <a href="{@docRoot}guide/topics/ui/menus.html">Menus</a> developer guide.</p>
- * </div>
+ * This version extends the one available in the framework to ensures that any necessary
+ * elements added in later versions of the framework, are available for all platforms.
+ *
+ * @see android.view.SubMenu
+ * @hide
  */
 public interface SupportSubMenu extends SupportMenu, android.view.SubMenu {
 }
