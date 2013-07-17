@@ -65,7 +65,7 @@ public class MenuItemCompat {
      * Interface for the full API.
      */
     interface MenuVersionImpl {
-        boolean setShowAsAction(MenuItem item, int actionEnum);
+        void setShowAsAction(MenuItem item, int actionEnum);
         MenuItem setActionView(MenuItem item, View view);
         MenuItem setActionView(MenuItem item, int resId);
         View getActionView(MenuItem item);
@@ -109,8 +109,7 @@ public class MenuItemCompat {
      */
     static class BaseMenuVersionImpl implements MenuVersionImpl {
         @Override
-        public boolean setShowAsAction(MenuItem item, int actionEnum) {
-            return false;
+        public void setShowAsAction(MenuItem item, int actionEnum) {
         }
 
         @Override
@@ -154,10 +153,10 @@ public class MenuItemCompat {
      */
     static class HoneycombMenuVersionImpl implements MenuVersionImpl {
         @Override
-        public boolean setShowAsAction(MenuItem item, int actionEnum) {
+        public void setShowAsAction(MenuItem item, int actionEnum) {
             MenuItemCompatHoneycomb.setShowAsAction(item, actionEnum);
-            return true;
         }
+
         @Override
         public MenuItem setActionView(MenuItem item, View view) {
             return MenuItemCompatHoneycomb.setActionView(item, view);
@@ -254,17 +253,19 @@ public class MenuItemCompat {
     // -------------------------------------------------------------------
 
     /**
-     * Call {@link MenuItem#setShowAsAction(int) MenuItem.setShowAsAction()}.
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#HONEYCOMB} device
-     * and <code>item</code> does not implement {@link android.support.v4.internal.view.SupportMenuItem},
-     * this method does nothing and returns false.  Otherwise returns true.
+     * Sets how this item should display in the presence of a compatible Action Bar. If the given
+     * item is compatible, this will call the item's supported implementation of
+     * {@link MenuItem#setShowAsAction(int)}.
+     *
+     * @param item - the item to change
+     * @param actionEnum - How the item should display.
      */
-    public static boolean setShowAsAction(MenuItem item, int actionEnum) {
+    public static void setShowAsAction(MenuItem item, int actionEnum) {
         if (item instanceof SupportMenuItem) {
             ((SupportMenuItem) item).setShowAsAction(actionEnum);
-            return true;
+        } else {
+            IMPL.setShowAsAction(item, actionEnum);
         }
-        return IMPL.setShowAsAction(item, actionEnum);
     }
 
     /**
@@ -417,7 +418,7 @@ public class MenuItemCompat {
     }
 
     /**
-     * Set an {@link android.support.v4.view.MenuItemCompat.OnActionExpandListener} on this menu
+     * Set an {@link OnActionExpandListener} on this menu
      * item to be notified when the associated action view is expanded or collapsed.
      * The menu item must be configured to expand or collapse its action view using the flag
      * {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}.

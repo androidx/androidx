@@ -23,7 +23,7 @@ import android.support.v4.view.MenuItemCompat.OnActionExpandListener;
  * collapsed as an action view alongside the optional, app-specified callbacks to {@link
  * OnActionExpandListener}.
  *
- * <p>See {@link android.support.v4.internal.view.SupportMenuItem} for more information about action views.
+ * <p>See {@link android.support.v4.view.MenuItemCompat} for more information about action views.
  * See {@link android.app.ActionBar} for more information about the action bar.
  */
 public interface CollapsibleActionView {
