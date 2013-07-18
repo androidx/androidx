@@ -270,14 +270,14 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
                     // Make sure we're not dispatching item changes to presenters
                     menu.stopDispatchingItemsChanged();
-                    // Dispatch onCreateSupportOptionsMenu
+                    // Dispatch onCreateOptionsMenu
                     show = mActivity.superOnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu);
                 }
 
                 if (show) {
                     // Make sure we're not dispatching item changes to presenters
                     menu.stopDispatchingItemsChanged();
-                    // Dispatch onPrepareSupportOptionsMenu
+                    // Dispatch onPrepareOptionsMenu
                     show = mActivity.superOnPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, menu);
                 }
             }
