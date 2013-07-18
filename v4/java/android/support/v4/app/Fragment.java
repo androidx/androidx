@@ -149,8 +149,16 @@ final class FragmentState implements Parcelable {
  * Static library support version of the framework's {@link android.app.Fragment}.
  * Used to write apps that run on platforms prior to Android 3.0.  When running
  * on Android 3.0 or above, this implementation is still used; it does not try
- * to switch to the framework's implementation. See the framework SDK
+ * to switch to the framework's implementation. See the framework {@link android.app.Fragment}
  * documentation for a class overview.
+ *
+ * <p>The main differences when using this support version instead of the framework version are:
+ * <ul>
+ *  <li>Your activity must extend {@link FragmentActivity}
+ *  <li>You must call {@link FragmentActivity#getSupportFragmentManager} to get the
+ *  {@link FragmentManager}
+ * </ul>
+ *
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener {
     private static final HashMap<String, Class<?>> sClassMap =

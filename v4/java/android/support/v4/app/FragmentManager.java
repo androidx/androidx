@@ -52,10 +52,12 @@ import java.util.List;
  * Static library support version of the framework's {@link android.app.FragmentManager}.
  * Used to write apps that run on platforms prior to Android 3.0.  When running
  * on Android 3.0 or above, this implementation is still used; it does not try
- * to switch to the framework's implementation.  See the framework SDK
+ * to switch to the framework's implementation.  See the framework {@link FragmentManager}
  * documentation for a class overview.
- * 
- * <p>Your activity must derive from {@link FragmentActivity} to use this.
+ *
+ * <p>Your activity must derive from {@link FragmentActivity} to use this. From such an activity,
+ * you can acquire the {@link FragmentManager} by calling
+ * {@link FragmentActivity#getSupportFragmentManager}.
  */
 public abstract class FragmentManager {
     /**
