@@ -27,6 +27,12 @@ import android.view.View;
  * responsible for creating a view that performs an action that accomplishes the task. This class
  * also implements other functions such a performing a default action.
  *
+ * <p class="note"><strong>Note:</strong> This class is included in the <a
+ * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
+ * with API level 4 and higher. If you're developing your app for API level 14 and higher
+ * <em>only</em>, you should instead use the framework {@link android.view.ActionProvider}
+ * class.</p>
+ *
  * <p>An ActionProvider can be
  * optionally specified for a {@link android.view.MenuItem} and in such a case it will be
  * responsible for
@@ -45,15 +51,13 @@ import android.view.View;
  *
  * <li>Declaring the action provider in the menu XML resource. For example:
  *
- * <pre>
- * <code>
+ * <pre><code>
  *   &lt;item android:id="@+id/my_menu_item"
- *     android:title="Title"
+ *     android:title="@string/my_menu_item_title"
  *     android:icon="@drawable/my_menu_item_icon"
  *     android:showAsAction="ifRoom"
  *     android:actionProviderClass="foo.bar.SomeActionProvider" /&gt;
- * </code>
- * </pre>
+ * </code></pre>
  * </li></ul></p>
  *
  * @see android.support.v4.view.MenuItemCompat#setActionProvider(android.view.MenuItem, ActionProvider)
