@@ -61,12 +61,20 @@ public class LinearLayoutICS extends LinearLayout {
         setWillNotDraw(mDivider == null);
     }
 
+    public int getSupportDividerWidth() {
+        return mDividerWidth;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
+        if (mDivider == null) {
+            return;
+        }
+
         if (getOrientation() == VERTICAL) {
-            drawDividersVertical(canvas);
+            drawSupportDividersVertical(canvas);
         } else {
-            drawDividersHorizontal(canvas);
+            drawSupportDividersHorizontal(canvas);
         }
     }
 
@@ -82,15 +90,15 @@ public class LinearLayoutICS extends LinearLayout {
             // To display the dividers in-between the child views, we modify their margins
             // to create space.
             if (getOrientation() == VERTICAL) {
-                if (hasDividerBeforeChildAt(childIndex)) {
+                if (hasSupportDividerBeforeChildAt(childIndex)) {
                     params.topMargin = mDividerHeight;
-                } else if (childIndex == count - 1 && hasDividerBeforeChildAt(count)) {
+                } else if (childIndex == count - 1 && hasSupportDividerBeforeChildAt(count)) {
                     params.bottomMargin = mDividerHeight;
                 }
             } else {
-                if (hasDividerBeforeChildAt(childIndex)) {
+                if (hasSupportDividerBeforeChildAt(childIndex)) {
                     params.leftMargin = mDividerWidth;
-                } else if (childIndex == count - 1 && hasDividerBeforeChildAt(count)) {
+                } else if (childIndex == count - 1 && hasSupportDividerBeforeChildAt(count)) {
                     params.rightMargin = mDividerWidth;
                 }
             }
@@ -100,17 +108,18 @@ public class LinearLayoutICS extends LinearLayout {
                 parentHeightMeasureSpec, heightUsed);
     }
 
-    void drawDividersVertical(Canvas canvas) {
+    void drawSupportDividersVertical(Canvas canvas) {
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
-            if (child != null && child.getVisibility() != GONE && hasDividerBeforeChildAt(i)) {
+            if (child != null && child.getVisibility() != GONE &&
+                    hasSupportDividerBeforeChildAt(i)) {
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                drawHorizontalDivider(canvas, child.getTop() - lp.topMargin);
+                drawSupportHorizontalDivider(canvas, child.getTop() - lp.topMargin);
             }
         }
 
-        if (hasDividerBeforeChildAt(count)) {
+        if (hasSupportDividerBeforeChildAt(count)) {
             final View child = getChildAt(count - 1);
             int bottom = 0;
             if (child == null) {
@@ -118,21 +127,22 @@ public class LinearLayoutICS extends LinearLayout {
             } else {
                 bottom = child.getBottom();
             }
-            drawHorizontalDivider(canvas, bottom);
+            drawSupportHorizontalDivider(canvas, bottom);
         }
     }
 
-    void drawDividersHorizontal(Canvas canvas) {
+    void drawSupportDividersHorizontal(Canvas canvas) {
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
-            if (child != null && child.getVisibility() != GONE && hasDividerBeforeChildAt(i)) {
+            if (child != null && child.getVisibility() != GONE &&
+                    hasSupportDividerBeforeChildAt(i)) {
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                drawVerticalDivider(canvas, child.getLeft() - lp.leftMargin);
+                drawSupportVerticalDivider(canvas, child.getLeft() - lp.leftMargin);
             }
         }
 
-        if (hasDividerBeforeChildAt(count)) {
+        if (hasSupportDividerBeforeChildAt(count)) {
             final View child = getChildAt(count - 1);
             int right = 0;
             if (child == null) {
@@ -140,17 +150,17 @@ public class LinearLayoutICS extends LinearLayout {
             } else {
                 right = child.getRight();
             }
-            drawVerticalDivider(canvas, right);
+            drawSupportVerticalDivider(canvas, right);
         }
     }
 
-    void drawHorizontalDivider(Canvas canvas, int top) {
+    void drawSupportHorizontalDivider(Canvas canvas, int top) {
         mDivider.setBounds(getPaddingLeft() + mDividerPadding, top,
                 getWidth() - getPaddingRight() - mDividerPadding, top + mDividerHeight);
         mDivider.draw(canvas);
     }
 
-    void drawVerticalDivider(Canvas canvas, int left) {
+    void drawSupportVerticalDivider(Canvas canvas, int left) {
         mDivider.setBounds(left, getPaddingTop() + mDividerPadding,
                 left + mDividerWidth, getHeight() - getPaddingBottom() - mDividerPadding);
         mDivider.draw(canvas);
@@ -161,9 +171,8 @@ public class LinearLayoutICS extends LinearLayout {
      *
      * @param childIndex Index of child to check for preceding divider
      * @return true if there should be a divider before the child at childIndex
-     * @hide Pending API consideration. Currently only used internally by the system.
      */
-    protected boolean hasDividerBeforeChildAt(int childIndex) {
+    protected boolean hasSupportDividerBeforeChildAt(int childIndex) {
         if (childIndex == 0) {
             return (mShowDividers & SHOW_DIVIDER_BEGINNING) != 0;
         } else if (childIndex == getChildCount()) {
