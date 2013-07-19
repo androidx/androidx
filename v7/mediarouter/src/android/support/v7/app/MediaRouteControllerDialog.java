@@ -170,11 +170,13 @@ public class MediaRouteControllerDialog extends Dialog {
         mCreated = true;
         if (update()) {
             mControlView = onCreateMediaControlView(savedInstanceState);
+            FrameLayout controlFrame =
+                    (FrameLayout)findViewById(R.id.media_route_control_frame);
             if (mControlView != null) {
-                FrameLayout controlFrame =
-                        (FrameLayout)findViewById(R.id.media_route_control_frame);
-                controlFrame.addView(controlFrame);
+                controlFrame.addView(mControlView);
                 controlFrame.setVisibility(View.VISIBLE);
+            } else {
+                controlFrame.setVisibility(View.GONE);
             }
         }
     }
