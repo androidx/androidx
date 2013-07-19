@@ -31,12 +31,22 @@
     <style name="Theme.Base" parent="android:Theme.Holo">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
+
+        <!-- Attributes populated from the framework to be read by apps -->
+        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
     <!-- Base platform-dependent theme providing a light-themed activity. -->
     <style name="Theme.Base.Light" parent="android:Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
+
+        <!-- Attributes populated from the framework to be read by apps -->
+        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
 </resources>
