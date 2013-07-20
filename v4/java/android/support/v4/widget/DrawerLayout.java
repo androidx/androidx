@@ -122,6 +122,10 @@ public class DrawerLayout extends ViewGroup {
      */
     private static final boolean ALLOW_EDGE_LOCK = false;
 
+    private static final boolean CHILDREN_DISALLOW_INTERCEPT = true;
+
+    private static final float TOUCH_SLOP_SENSITIVITY = 1.f;
+
     private static final int[] LAYOUT_ATTRS = new int[] {
             android.R.attr.layout_gravity
     };
@@ -227,12 +231,12 @@ public class DrawerLayout extends ViewGroup {
         mLeftCallback = new ViewDragCallback(Gravity.LEFT);
         mRightCallback = new ViewDragCallback(Gravity.RIGHT);
 
-        mLeftDragger = ViewDragHelper.create(this, 0.5f, mLeftCallback);
+        mLeftDragger = ViewDragHelper.create(this, TOUCH_SLOP_SENSITIVITY, mLeftCallback);
         mLeftDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
         mLeftDragger.setMinVelocity(minVel);
         mLeftCallback.setDragger(mLeftDragger);
 
-        mRightDragger = ViewDragHelper.create(this, 0.5f, mRightCallback);
+        mRightDragger = ViewDragHelper.create(this, TOUCH_SLOP_SENSITIVITY, mRightCallback);
         mRightDragger.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
         mRightDragger.setMinVelocity(minVel);
         mRightCallback.setDragger(mRightDragger);
@@ -941,8 +945,9 @@ public class DrawerLayout extends ViewGroup {
     }
 
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        if (!mLeftDragger.isEdgeTouched(ViewDragHelper.EDGE_LEFT) &&
-                !mRightDragger.isEdgeTouched(ViewDragHelper.EDGE_RIGHT)) {
+        if (CHILDREN_DISALLOW_INTERCEPT ||
+                (!mLeftDragger.isEdgeTouched(ViewDragHelper.EDGE_LEFT) &&
+                !mRightDragger.isEdgeTouched(ViewDragHelper.EDGE_RIGHT))) {
             // If we have an edge touch we want to skip this and track it for later instead.
             super.requestDisallowInterceptTouchEvent(disallowIntercept);
         }
