@@ -41,9 +41,6 @@ import java.util.Set;
  * and deleting entries in the array.  For containers holding up to hundreds of items,
  * the performance difference is not significant, less than 50%.</p>
  *
- * <p><b>Note:</b> unlike {@link java.util.HashMap}, this container does not support
- * null keys.</p>
- *
  * <p>Because this container is intended to better balance memory use, unlike most other
  * standard Java containers it will shrink its array as items are removed from it.  Currently
  * you have no control over this shrinking -- if you set a capacity and then remove an
@@ -86,7 +83,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
                 @Override
                 protected int colIndexOfKey(Object key) {
-                    return indexOf(key, key.hashCode());
+                    return key == null ? indexOfNull() : indexOf(key, key.hashCode());
                 }
 
                 @Override
