@@ -15,18 +15,19 @@
  */
 package com.example.android.supportv7.app;
 
+import com.example.android.supportv7.R;
+
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SearchViewCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of the Action Bar. The default Honeycomb theme
@@ -49,8 +50,9 @@ public class ActionBarUsage extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actions, menu);
-        View searchView = MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
-        SearchViewCompat.setOnQueryTextListener(searchView, mOnQueryTextListener);
+        SearchView searchView = (SearchView) MenuItemCompat
+                .getActionView(menu.findItem(R.id.action_search));
+        searchView.setOnQueryTextListener(mOnQueryTextListener);
         return true;
     }
 
@@ -80,11 +82,11 @@ public class ActionBarUsage extends ActionBarActivity {
 
     // The following callbacks are called for the SearchView.OnQueryChangeListener
     // For more about using SearchView, see src/.../view/SearchView1.java and SearchView2.java
-    private final SearchViewCompat.OnQueryTextListenerCompat mOnQueryTextListener =
-            new SearchViewCompat.OnQueryTextListenerCompat() {
+    private final SearchView.OnQueryTextListener mOnQueryTextListener =
+            new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextChange(String newText) {
-            newText = newText.isEmpty() ? "" : "Query so far: " + newText;
+            newText = TextUtils.isEmpty(newText) ? "" : "Query so far: " + newText;
             mSearchText.setText(newText);
             return true;
         }
