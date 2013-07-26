@@ -16,15 +16,19 @@
 
 package android.support.v7.internal.view;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.support.v4.internal.view.SupportMenu;
+import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.menu.MenuItemImpl;
-import android.support.v4.view.ActionProvider;
-import android.support.v4.internal.view.SupportMenu;
+import android.support.v7.internal.view.menu.MenuItemWrapperICS;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
@@ -34,8 +38,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -426,8 +428,12 @@ public class SupportMenuInflater extends MenuInflater {
             }
 
             final MenuItemImpl impl = item instanceof MenuItemImpl ? (MenuItemImpl) item : null;
-            if (impl != null && itemCheckable >= 2) {
-                impl.setExclusiveCheckable(true);
+            if (itemCheckable >= 2) {
+                if (item instanceof MenuItemImpl) {
+                    ((MenuItemImpl) item).setExclusiveCheckable(true);
+                } else if (item instanceof MenuItemWrapperICS) {
+                    ((MenuItemWrapperICS) item).setExclusiveCheckable(true);
+                }
             }
 
             boolean actionViewSpecified = false;
