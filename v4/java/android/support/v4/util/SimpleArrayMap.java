@@ -66,7 +66,7 @@ public class SimpleArrayMap<K, V> {
             return ~0;
         }
 
-        int index =  ContainerHelpers.binarySearch(mHashes, N, hash);
+        int index = ContainerHelpers.binarySearch(mHashes, N, hash);
 
         // If the hash code wasn't found, then we have no entry for this key.
         if (index < 0) {
@@ -74,19 +74,57 @@ public class SimpleArrayMap<K, V> {
         }
 
         // If the key at the returned index matches, that's what we want.
-        if (mArray[index<<1].equals(key)) {
+        if (key.equals(mArray[index<<1])) {
             return index;
         }
 
         // Search for a matching key after the index.
         int end;
         for (end = index + 1; end < N && mHashes[end] == hash; end++) {
-            if (mArray[end << 1].equals(key)) return end;
+            if (key.equals(mArray[end << 1])) return end;
         }
 
         // Search for a matching key before the index.
         for (int i = index - 1; i >= 0 && mHashes[i] == hash; i--) {
-            if (mArray[i << 1].equals(key)) return i;
+            if (key.equals(mArray[i << 1])) return i;
+        }
+
+        // Key not found -- return negative value indicating where a
+        // new entry for this key should go.  We use the end of the
+        // hash chain to reduce the number of array entries that will
+        // need to be copied when inserting.
+        return ~end;
+    }
+
+    int indexOfNull() {
+        final int N = mSize;
+
+        // Important fast case: if nothing is in here, nothing to look for.
+        if (N == 0) {
+            return ~0;
+        }
+
+        int index = ContainerHelpers.binarySearch(mHashes, N, 0);
+
+        // If the hash code wasn't found, then we have no entry for this key.
+        if (index < 0) {
+            return index;
+        }
+
+        // If the key at the returned index matches, that's what we want.
+        if (null == mArray[index<<1]) {
+            return index;
+        }
+
+        // Search for a matching key after the index.
+        int end;
+        for (end = index + 1; end < N && mHashes[end] == 0; end++) {
+            if (null == mArray[end << 1]) return end;
+        }
+
+        // Search for a matching key before the index.
+        for (int i = index - 1; i >= 0 && mHashes[i] == 0; i--) {
+            if (null == mArray[i << 1]) return i;
         }
 
         // Key not found -- return negative value indicating where a
@@ -232,7 +270,7 @@ public class SimpleArrayMap<K, V> {
      * @return Returns true if the key exists, else false.
      */
     public boolean containsKey(Object key) {
-        return indexOf(key, key.hashCode()) >= 0;
+        return key == null ? (indexOfNull() >= 0) : (indexOf(key, key.hashCode()) >= 0);
     }
 
     int indexOfValue(Object value) {
@@ -272,7 +310,7 @@ public class SimpleArrayMap<K, V> {
      * or null if there is no such key.
      */
     public V get(Object key) {
-        final int index = indexOf(key, key.hashCode());
+        final int index = key == null ? indexOfNull() : indexOf(key, key.hashCode());
         return index >= 0 ? (V)mArray[(index<<1)+1] : null;
     }
 
@@ -323,8 +361,15 @@ public class SimpleArrayMap<K, V> {
      * was no such key.
      */
     public V put(K key, V value) {
-        final int hash = key.hashCode();
-        int index = indexOf(key, hash);
+        final int hash;
+        int index;
+        if (key == null) {
+            hash = 0;
+            index = indexOfNull();
+        } else {
+            hash = key.hashCode();
+            index = indexOf(key, hash);
+        }
         if (index >= 0) {
             index = (index<<1) + 1;
             final V old = (V)mArray[index];
@@ -393,7 +438,7 @@ public class SimpleArrayMap<K, V> {
      * was no such key.
      */
     public V remove(Object key) {
-        int index = indexOf(key, key.hashCode());
+        int index = key == null ? indexOfNull() : indexOf(key, key.hashCode());
         if (index >= 0) {
             return removeAt(index);
         }
@@ -407,7 +452,7 @@ public class SimpleArrayMap<K, V> {
      * @return Returns the value that was stored at this index.
      */
     public V removeAt(int index) {
-        final V old = (V)mArray[(index << 1) + 1];
+        final Object old = mArray[(index << 1) + 1];
         if (mSize <= 1) {
             // Now empty.
             if (DEBUG) Log.d(TAG, "remove: shrink from " + mHashes.length + " to 0");
@@ -454,7 +499,7 @@ public class SimpleArrayMap<K, V> {
                 mArray[(mSize << 1) + 1] = null;
             }
         }
-        return old;
+        return (V)old;
     }
 
     /**
