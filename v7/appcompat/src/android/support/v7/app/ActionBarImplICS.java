@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 import android.widget.SpinnerAdapter;
 
@@ -307,6 +306,11 @@ class ActionBarImplICS extends ActionBar {
     public void removeOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         OnMenuVisibilityListenerWrapper l = findAndRemoveMenuVisWrapper(listener);
         mActionBar.removeOnMenuVisibilityListener(l);
+    }
+
+    @Override
+    public void setHomeButtonEnabled(boolean enabled) {
+        mActionBar.setHomeButtonEnabled(enabled);
     }
 
     static class OnNavigationListenerWrapper implements android.app.ActionBar.OnNavigationListener {
