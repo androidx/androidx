@@ -125,7 +125,8 @@ LOCAL_SRC_FILES:= \
 
 ifeq ($(ARCH_ARM_HAVE_NEON),true)
 LOCAL_SRC_FILES += \
-	cpu_ref/rsCpuIntrinsics_neon.S
+	cpu_ref/rsCpuIntrinsics_neon.S \
+	cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S
 endif
 
 LOCAL_SHARED_LIBRARIES += libdl
