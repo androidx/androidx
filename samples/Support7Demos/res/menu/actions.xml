@@ -19,7 +19,7 @@
           android:icon="@android:drawable/ic_menu_search"
           android:title="@string/action_bar_search"
           app:showAsAction="ifRoom"
-          app:actionProviderClass="android.support.v7.widget.SearchActionProvider" />
+          app:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/action_add"
           android:icon="@android:drawable/ic_menu_add"
           android:title="@string/action_bar_add" />
