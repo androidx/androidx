@@ -164,6 +164,14 @@
 
     <!-- Popup Menu -->
 
+    <style name="Widget.AppCompat.Base.ListPopupWindow"
+           parent="android:Widget.Holo.ListPopupWindow">
+    </style>
+
+    <style name="Widget.AppCompat.Light.Base.ListPopupWindow"
+           parent="android:Widget.Holo.Light.ListPopupWindow">
+    </style>
+
     <style name="Widget.AppCompat.Base.PopupMenu" parent="android:Widget.Holo.PopupMenu">
     </style>
 
