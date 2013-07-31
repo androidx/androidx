@@ -1637,10 +1637,20 @@ public final class MediaRouter {
                     route.updateDescriptor(null);
                     // 2. Remove the route from the list.
                     mRoutes.remove(route);
-                    provider.mRoutes.remove(i);
                     // 3. Unselect route if needed before notifying about removal.
                     unselectRouteIfNeeded(route);
-                    // 4. Notify clients about removal.
+                }
+
+                // Choose a new selected route if needed.
+                selectRouteIfNeeded();
+
+                // Now notify clients about routes that were removed.
+                // We do this after updating the selected route to ensure
+                // that the framework media router observes the new route
+                // selection before the removal since removing the currently
+                // selected route may have side-effects.
+                for (int i = provider.mRoutes.size() - 1; i >= targetIndex; i--) {
+                    RouteInfo route = provider.mRoutes.remove(i);
                     if (DEBUG) {
                         Log.d(TAG, "Route removed: " + route);
                     }
@@ -1652,9 +1662,6 @@ public final class MediaRouter {
                     Log.d(TAG, "Provider changed: " + provider);
                 }
                 mCallbackHandler.post(CallbackHandler.MSG_PROVIDER_CHANGED, provider);
-
-                // Choose a new selected route if needed.
-                selectRouteIfNeeded();
             }
         }
 
@@ -1686,15 +1693,19 @@ public final class MediaRouter {
 
         private void unselectRouteIfNeeded(RouteInfo route) {
             if (mDefaultRoute == route && !isRouteSelectable(route)) {
-                Log.i(TAG, "Choosing a new default route because the current one "
+                Log.i(TAG, "Clearing the default route because it "
                         + "is no longer selectable: " + route);
                 mDefaultRoute = null;
             }
             if (mSelectedRoute == route && !isRouteSelectable(route)) {
-                Log.i(TAG, "Choosing a new selected route because the current one "
+                Log.i(TAG, "Clearing the selected route because it "
                         + "is no longer selectable: " + route);
                 setSelectedRouteInternal(null);
             }
+            // When this function terminates, the default or selected route
+            // may be null.  The caller is responsible for invoking
+            // selectRouteIfNeeded() to choose new routes after it has
+            // finished applying any other necessary changes.
         }
 
         private void selectRouteIfNeeded() {
@@ -1707,8 +1718,29 @@ public final class MediaRouter {
                 }
             }
             if (mSelectedRoute == null) {
-                setSelectedRouteInternal(mDefaultRoute);
+                setSelectedRouteInternal(chooseFallbackRoute());
             }
+        }
+
+        private RouteInfo chooseFallbackRoute() {
+            // When the current route is removed or no longer selectable,
+            // we want to revert to a live audio route if there is
+            // one (usually Bluetooth A2DP).  Failing that, use
+            // the default route.
+            for (RouteInfo route : mRoutes) {
+                if (route != mDefaultRoute
+                        && isSystemLiveAudioOnlyRoute(route)
+                        && isRouteSelectable(route)) {
+                    return route;
+                }
+            }
+            return mDefaultRoute;
+        }
+
+        private boolean isSystemLiveAudioOnlyRoute(RouteInfo route) {
+            return route.getProviderInstance() == mSystemProvider
+                    && route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                    && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
         }
 
         private boolean isRouteSelectable(RouteInfo route) {
