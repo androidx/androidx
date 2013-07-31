@@ -45,7 +45,7 @@
             @style/TextAppearance.AppCompat.Widget.PopupMenu.Small
         </item>
 
-        <item name="listPopupWindowStyle">@style/Widget.AppCompat.PopupMenu</item>
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
         <!-- SearchView attributes -->
@@ -96,7 +96,7 @@
             @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small
         </item>
 
-        <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.ListPopupWindow</item>
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
 
         <!-- SearchView attributes -->
@@ -149,7 +149,7 @@
             @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small
         </item>
 
-        <item name="listPopupWindowStyle">@style/Widget.AppCompat.PopupMenu</item>
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
         <!-- SearchView attributes -->
