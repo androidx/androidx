@@ -24,6 +24,7 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.view.ActionMode;
@@ -62,6 +63,8 @@ abstract class ActionBarActivityDelegate {
     // true if this activity's action bar overlays other activity content.
     boolean mOverlayActionBar;
 
+    private boolean mEnableDefaultActionBarUp;
+
     ActionBarActivityDelegate(ActionBarActivity activity) {
         mActivity = activity;
     }
@@ -74,6 +77,10 @@ abstract class ActionBarActivityDelegate {
         if (mHasActionBar || mOverlayActionBar) {
             if (mActionBar == null) {
                 mActionBar = createSupportActionBar();
+
+                if (mEnableDefaultActionBarUp) {
+                    mActionBar.setDisplayHomeAsUpEnabled(true);
+                }
             }
         } else {
             // If we're not set to have a Action Bar, null it just in case it's been set
@@ -106,6 +113,14 @@ abstract class ActionBarActivityDelegate {
         mHasActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBar, false);
         mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay, false);
         a.recycle();
+
+        if (NavUtils.getParentActivityName(mActivity) != null) {
+            if (mActionBar == null) {
+                mEnableDefaultActionBarUp = true;
+            } else {
+                mActionBar.setDisplayHomeAsUpEnabled(true);
+            }
+        }
     }
 
     abstract void onConfigurationChanged(Configuration newConfig);
