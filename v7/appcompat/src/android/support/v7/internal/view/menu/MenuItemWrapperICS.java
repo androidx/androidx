@@ -22,16 +22,27 @@ import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.view.CollapsibleActionView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.FrameLayout;
 
-class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> implements SupportMenuItem {
+import java.lang.reflect.Method;
+
+/**
+ * @hide
+ */
+public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> implements SupportMenuItem {
+    static final String LOG_TAG = "MenuItemWrapper";
+
     private final boolean mEmulateProviderVisibilityOverride;
     // Tracks the last requested visibility
     private boolean mLastRequestVisible;
+
+    // Reflection Method to call setExclusiveCheckable
+    private Method mSetExclusiveCheckableMethod;
 
     MenuItemWrapperICS(android.view.MenuItem object, boolean emulateProviderVisibilityOverride) {
         super(object);
@@ -311,6 +322,18 @@ class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> implemen
         ActionProviderWrapper providerWrapper =
                 (ActionProviderWrapper) mWrappedObject.getActionProvider();
         return providerWrapper != null ? providerWrapper.mInner : null;
+    }
+
+    public void setExclusiveCheckable(boolean checkable) {
+        try {
+            if (mSetExclusiveCheckableMethod == null) {
+                mSetExclusiveCheckableMethod = mWrappedObject.getClass()
+                        .getDeclaredMethod("setExclusiveCheckable", Boolean.TYPE);
+            }
+            mSetExclusiveCheckableMethod.invoke(mWrappedObject, checkable);
+        } catch (Exception e) {
+            Log.w(LOG_TAG, "Error while calling setExclusiveCheckable", e);
+        }
     }
 
     ActionProviderWrapper createActionProviderWrapper(ActionProvider provider) {
