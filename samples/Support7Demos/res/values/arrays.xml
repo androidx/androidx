@@ -16,18 +16,16 @@
 
 <resources>
     <string-array name="media_names">
-        <item>My favorite video of cats</item>
-        <item>Cats on parade</item>
-        <item>Cats with hats</item>
-        <item>Hats on cats</item>
-        <item>Cats on mats</item>
+        <item>Big Buck Bunny</item>
+        <item>Elephants Dream</item>
+        <item>Sintel</item>
+        <item>Tears of Steel</item>
     </string-array>
 
     <string-array name="media_uris">
-        <item>http://cats.example.com/favorite-cats.mp4</item>
-        <item>http://cats.example.com/cats-on-parade.mp4</item>
-        <item>http://cats.example.com/cats-with-hats.mp4</item>
-        <item>http://cats.example.com/hats-on-cats.mp4</item>
-        <item>http://cats.example.com/cats-on-mats.mp4</item>
+        <item>http://archive.org/download/BigBuckBunny_328/BigBuckBunny_512kb.mp4</item>
+        <item>http://archive.org/download/ElephantsDream_277/elephant_dreams_640_512kb.mp4</item>
+        <item>http://archive.org/download/Sintel/sintel-2048-stereo_512kb.mp4</item>
+        <item>http://archive.org/download/Tears-of-Steel/tears_of_steel_720p.mp4</item>
     </string-array>
 </resources>
