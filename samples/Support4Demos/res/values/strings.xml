@@ -54,6 +54,7 @@
 
     <string name="fragment_dialog_support">Fragment/Dialog</string>
     <string name="show">Show</string>
+    <string name="hide">Hide</string>
 
     <string name="fragment_dialog_or_activity_support">Fragment/Dialog or Activity</string>
     <string name="fragment_dialog_or_activity_msg">Demonstrates the same fragment
@@ -171,5 +172,8 @@
     <string name="explore_by_touch_helper_support">Widget/Explore by Touch helper</string>
     <string name="sample_item_a">Sample item A</string>
     <string name="sample_item_b">Sample item B</string>
+
+    <!-- ContentLoadingProgressBar -->
+    <string name="content_loading_progress_bar">Widget/Content Loading Progress Bar</string>
 
 </resources>
