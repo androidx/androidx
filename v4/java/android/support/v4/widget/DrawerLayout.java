@@ -699,7 +699,8 @@ public class DrawerLayout extends ViewGroup {
                 switch (vgrav) {
                     default:
                     case Gravity.TOP: {
-                        child.layout(childLeft, lp.topMargin, childLeft + childWidth, childHeight);
+                        child.layout(childLeft, lp.topMargin, childLeft + childWidth,
+                                lp.topMargin + childHeight);
                         break;
                     }
 
