@@ -27,6 +27,6 @@
     <dimen name="abc_action_bar_subtitle_top_margin">-2dp</dimen>
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="abc_action_bar_subtitle_bottom_margin">4dip</dimen>
-
-
+    <!-- Size of the indeterminate Progress Bar -->
+    <dimen name="abc_action_bar_progress_bar_size">32dp</dimen>
 </resources>

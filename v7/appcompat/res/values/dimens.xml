@@ -42,6 +42,8 @@
     <dimen name="abc_action_button_min_width">56dip</dimen>
     <!-- Maximum height for a stacked tab bar as part of an action bar -->
     <dimen name="abc_action_bar_stacked_max_height">48dp</dimen>
+    <!-- Size of the indeterminate Progress Bar -->
+    <dimen name="abc_action_bar_progress_bar_size">40dp</dimen>
 
     <dimen name="abc_panel_menu_list_width">296dp</dimen>
 
