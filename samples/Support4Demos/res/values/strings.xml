@@ -54,6 +54,7 @@
 
     <string name="fragment_dialog_support">Fragment/Dialog</string>
     <string name="show">Show</string>
+    <string name="hide">Hide</string>
 
     <string name="fragment_dialog_or_activity_support">Fragment/Dialog or Activity</string>
     <string name="fragment_dialog_or_activity_msg">Demonstrates the same fragment
@@ -166,4 +167,6 @@
 
     <string name="sliding_pane_layout_summary">This activity illustrates the use of sliding panes. The content pane may be slid to one side on narrow devices to reveal the left pane used to select content. Sliding panes can be used to fit a UI intended for wider screens in a smaller space. Tapping the Action Bar\'s Up button at the left side of the bar will navigate up in the hierarchy, represented by the left pane. If you rotate the device to landscape mode, on most devices you will see that both panes fit together side by side with no sliding necessary.</string>
 
+    <!-- ContentLoadingProgressBar -->
+    <string name="content_loading_progress_bar">Widget/Content Loading Progress Bar</string>
 </resources>
