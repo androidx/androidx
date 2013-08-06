@@ -83,7 +83,7 @@ public class DrawerLayoutActivity extends Activity {
         setContentView(R.layout.drawer_layout);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawer = (ListView) findViewById(R.id.left_drawer);
+        mDrawer = (ListView) findViewById(R.id.start_drawer);
         mContent = (TextView) findViewById(R.id.content_text);
 
         mDrawerLayout.setDrawerListener(new DemoDrawerListener());

@@ -36,7 +36,8 @@
 
     <application android:label="@string/activity_sample_code"
             android:icon="@drawable/app_sample_code"
-            android:hardwareAccelerated="true">
+            android:hardwareAccelerated="true"
+            android:supportsRtl="true">
 
         <activity android:name="Support4Demos">
             <intent-filter>
