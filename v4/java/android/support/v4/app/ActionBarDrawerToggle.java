@@ -26,7 +26,9 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
@@ -378,7 +380,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
                 .setActionBarDescription(mSetIndicatorInfo, mActivity, contentDescRes);
     }
 
-    private static class SlideDrawable extends Drawable implements Drawable.Callback {
+    private class SlideDrawable extends Drawable implements Drawable.Callback {
         private Drawable mWrapped;
         private float mOffset;
         private float mOffsetBy;
@@ -407,7 +409,10 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         public void draw(Canvas canvas) {
             mWrapped.copyBounds(mTmpRect);
             canvas.save();
-            canvas.translate(mOffsetBy * mTmpRect.width() * -mOffset, 0);
+            // Layout direction must be obtained from the activity.
+            final int flipRtl = ViewCompat.getLayoutDirection(mActivity.getWindow().getDecorView())
+                    == ViewCompat.LAYOUT_DIRECTION_RTL ? -1 : 1;
+            canvas.translate(mOffsetBy * mTmpRect.width() * -mOffset * flipRtl, 0);
             mWrapped.draw(canvas);
             canvas.restore();
         }
