@@ -44,7 +44,9 @@ abstract class ActionBarActivityDelegate {
 
     static ActionBarActivityDelegate createDelegate(ActionBarActivity activity) {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+        if (version >= Build.VERSION_CODES.JELLY_BEAN) {
+            return new ActionBarActivityDelegateJB(activity);
+        } else if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new ActionBarActivityDelegateICS(activity);
         } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
             return new ActionBarActivityDelegateHC(activity);
