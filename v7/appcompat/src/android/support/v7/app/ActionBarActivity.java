@@ -204,6 +204,14 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         return mImpl.onPreparePanel(featureId, view, menu);
     }
 
+    /**
+     * @hide
+     */
+    @Override
+    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+        return mImpl.onPrepareOptionsPanel(view, menu);
+    }
+
     void superSetContentView(int resId) {
         super.setContentView(resId);
     }
@@ -226,6 +234,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     boolean superOnPreparePanel(int featureId, View view, android.view.Menu menu) {
         return super.onPreparePanel(featureId, view, menu);
+    }
+
+    boolean superOnPrepareOptionsPanel(View view, Menu menu) {
+        return super.onPrepareOptionsPanel(view, menu);
     }
 
     boolean superOnMenuItemSelected(int featureId, MenuItem menuItem) {
