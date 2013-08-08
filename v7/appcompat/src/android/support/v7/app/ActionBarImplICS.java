@@ -36,9 +36,21 @@ class ActionBarImplICS extends ActionBar {
             new ArrayList<WeakReference<OnMenuVisibilityListenerWrapper>>();
 
     public ActionBarImplICS(Activity activity, Callback callback) {
+        this(activity, callback, true);
+    }
+
+    ActionBarImplICS(Activity activity, Callback callback, boolean checkHomeAsUpOption) {
         mActivity = activity;
         mCallback = callback;
         mActionBar = activity.getActionBar();
+
+        if (checkHomeAsUpOption) {
+            // In v4.1+, if the the 'homeAsUp' display flag was set then the Home Button is enabled.
+            // We need to replicate this functionality on ICS.
+            if ((getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+                setHomeButtonEnabled(true);
+            }
+        }
     }
 
     private OnMenuVisibilityListenerWrapper findAndRemoveMenuVisWrapper(
