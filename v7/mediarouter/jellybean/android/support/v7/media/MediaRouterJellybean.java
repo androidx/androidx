@@ -226,7 +226,12 @@ final class MediaRouterJellybean {
 
         public static void setVolumeCallback(Object routeObj, Object volumeCallbackObj) {
             ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeCallback(
-                    ((android.media.MediaRouter.VolumeCallback)volumeCallbackObj));
+                    (android.media.MediaRouter.VolumeCallback)volumeCallbackObj);
+        }
+
+        public static void setRemoteControlClient(Object routeObj, Object rccObj) {
+            ((android.media.MediaRouter.UserRouteInfo)routeObj).setRemoteControlClient(
+                    (android.media.RemoteControlClient)rccObj);
         }
     }
 
