@@ -471,11 +471,18 @@ public class FragmentActivity extends Activity {
                 menu.clear();
                 onCreatePanelMenu(featureId, menu);
             }
-            boolean goforit = super.onPreparePanel(featureId, view, menu);
+            boolean goforit = onPrepareOptionsPanel(view, menu);
             goforit |= mFragments.dispatchPrepareOptionsMenu(menu);
             return goforit;
         }
         return super.onPreparePanel(featureId, view, menu);
+    }
+
+    /**
+     * @hide
+     */
+    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+        return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
     }
 
     /**

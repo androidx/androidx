@@ -148,6 +148,16 @@ abstract class ActionBarActivityDelegate {
 
     abstract boolean onPreparePanel(int featureId, View view, Menu menu);
 
+    boolean onPrepareOptionsPanel(View view, Menu menu) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            // Call straight through to onPrepareOptionsMenu, bypassing super.onPreparePanel().
+            // This is because Activity.onPreparePanel() on <v4.1 calls menu.hasVisibleItems(),
+            // which interferes with the initially invisible items.
+            return mActivity.onPrepareOptionsMenu(menu);
+        }
+        return mActivity.superOnPrepareOptionsPanel(view, menu);
+    }
+
     abstract boolean onCreatePanelMenu(int featureId, Menu menu);
 
     abstract boolean onMenuItemSelected(int featureId, MenuItem item);
