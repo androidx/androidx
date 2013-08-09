@@ -419,6 +419,28 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     + " empty constructor that is public", e);
         }
     }
+
+    /**
+     * Determine if the given fragment name is a support library fragment class.
+     *
+     * @param context Context used to determine the correct ClassLoader to use
+     * @param fname Class name of the fragment to test
+     * @return true if <code>fname</code> is <code>android.support.v4.app.Fragment</code>
+     *         or a subclass, false otherwise.
+     */
+    static boolean isSupportFragmentClass(Context context, String fname) {
+        try {
+            Class<?> clazz = sClassMap.get(fname);
+            if (clazz == null) {
+                // Class not found in the cache, see if it's real, and try to add it
+                clazz = context.getClassLoader().loadClass(fname);
+                sClassMap.put(fname, clazz);
+            }
+            return Fragment.class.isAssignableFrom(clazz);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
     
     final void restoreViewState(Bundle savedInstanceState) {
         if (mSavedViewState != null) {
