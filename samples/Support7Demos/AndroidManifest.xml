@@ -172,5 +172,15 @@
             </intent-filter>
         </activity>
 
+        <!-- RecyclerView samples -->
+        <activity android:name=".widget.RecyclerViewActivity"
+                android:label="@string/recycler_view"
+                android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
