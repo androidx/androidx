@@ -18,6 +18,7 @@ package com.example.android.supportv7.media;
 
 import com.example.android.supportv7.R;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,7 +27,13 @@ import android.content.res.Resources;
 import android.content.DialogInterface;
 import android.app.PendingIntent;
 import android.app.Presentation;
+import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.MediaMetadataRetriever;
+import android.media.RemoteControlClient;
+import android.media.RemoteControlClient.MetadataEditor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -44,6 +51,7 @@ import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaItemStatus;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -193,11 +201,17 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 }
                 playerCB = mRemotePlayer;
                 mRemotePlayer.reset();
+
+                // Create and register the remote control client
+                registerRCC();
             } else {
                 // Local Playback:
                 //   Use local player and feed media player one item at a time
                 player = mLocalPlayer;
                 playerCB = mMediaPlayer;
+
+                // Unregister the remote control client
+                unregisterRCC();
             }
 
             if (player != mPlayer || playerCB != mPlayerCB) {
@@ -297,6 +311,24 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                         updateUi();
                     }
                 }
+            }
+        }
+    };
+
+    private RemoteControlClient mRemoteControlClient;
+    private ComponentName mEventReceiver;
+    private AudioManager mAudioManager;
+    private PendingIntent mMediaPendingIntent;
+    private final OnAudioFocusChangeListener mAfChangeListener =
+            new OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                Log.d(TAG, "onAudioFocusChange: LOSS_TRANSIENT");
+            } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_GAIN");
+            } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_LOSS");
             }
         }
     };
@@ -471,6 +503,97 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(SampleMediaRouterActivity.ACTION_STATUS_CHANGE);
         registerReceiver(mReceiver, filter);
+
+        // Build the PendingIntent for the remote control client
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mEventReceiver = new ComponentName(getPackageName(),
+                SampleMediaButtonReceiver.class.getName());
+        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        mediaButtonIntent.setComponent(mEventReceiver);
+        mMediaPendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0);
+    }
+
+    private void registerRCC() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            // Create the RCC and register with AudioManager and MediaRouter
+            mAudioManager.requestAudioFocus(mAfChangeListener,
+                    AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            mAudioManager.registerMediaButtonEventReceiver(mEventReceiver);
+            mRemoteControlClient = new RemoteControlClient(mMediaPendingIntent);
+            mAudioManager.registerRemoteControlClient(mRemoteControlClient);
+            mMediaRouter.addRemoteControlClient(mRemoteControlClient);
+            SampleMediaButtonReceiver.setActivity(SampleMediaRouterActivity.this);
+            mRemoteControlClient.setTransportControlFlags(
+                    RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE);
+            mRemoteControlClient.setPlaybackState(
+                    RemoteControlClient.PLAYSTATE_PLAYING);
+        }
+    }
+
+    private void unregisterRCC() {
+        // Unregister the RCC with AudioManager and MediaRouter
+        if (mRemoteControlClient != null) {
+            mRemoteControlClient.setTransportControlFlags(0);
+            mAudioManager.abandonAudioFocus(mAfChangeListener);
+            mAudioManager.unregisterMediaButtonEventReceiver(mEventReceiver);
+            mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
+            mMediaRouter.removeRemoteControlClient(mRemoteControlClient);
+            SampleMediaButtonReceiver.setActivity(null);
+            mRemoteControlClient = null;
+        }
+    }
+
+    public boolean handleMediaKey(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                {
+                    Log.d(TAG, "Received Play/Pause event from RemoteControlClient");
+                    if (!mPaused) {
+                        mPlayer.pause();
+                    } else {
+                        mPlayer.resume();
+                    }
+                    return true;
+                }
+                case KeyEvent.KEYCODE_MEDIA_PLAY:
+                {
+                    Log.d(TAG, "Received Play event from RemoteControlClient");
+                    if (mPaused) {
+                        mPlayer.resume();
+                    }
+                    return true;
+                }
+                case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                {
+                    Log.d(TAG, "Received Pause event from RemoteControlClient");
+                    if (!mPaused) {
+                        mPlayer.pause();
+                    }
+                    return true;
+                }
+                case KeyEvent.KEYCODE_MEDIA_STOP:
+                {
+                    Log.d(TAG, "Received Stop event from RemoteControlClient");
+                    mPlayer.stop();
+                    clearContent();
+                    return true;
+                }
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return handleMediaKey(event) || super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return handleMediaKey(event) || super.onKeyUp(keyCode, event);
     }
 
     @Override
@@ -549,6 +672,10 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         // only enable seek bar when duration is known
         MediaQueueItem item = getCheckedMediaQueueItem();
         mSeekBar.setEnabled(item != null && item.getContentDuration() > 0);
+        if (mRemoteControlClient != null) {
+            mRemoteControlClient.setPlaybackState(mPaused ?
+                    RemoteControlClient.PLAYSTATE_PAUSED : RemoteControlClient.PLAYSTATE_PLAYING);
+        }
     }
 
     private void updateProgress(MediaQueueItem queueItem) {
@@ -684,6 +811,13 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
             Log.d(TAG, "LocalPlayer: enqueue, uri=" + uri + ", pos=" + pos);
             MediaQueueItem playlistItem = mSessionManager.enqueue(mSessionId, uri, null);
             mSessionId = playlistItem.getSessionId();
+            // Set remote control client title
+            if (mPlayListItems.getCount() == 0 && mRemoteControlClient != null) {
+                RemoteControlClient.MetadataEditor ed = mRemoteControlClient.editMetadata(true);
+                ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                        playlistItem.toString());
+                ed.apply();
+            }
             mPlayListItems.add(playlistItem);
             if (pos > 0) {
                 // Seek to initial position if needed

@@ -48,7 +48,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+        <receiver android:name="com.example.android.supportv7.media.SampleMediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
         <!-- MediaRouter Support Samples -->
 
         <activity android:name=".media.SampleMediaRouterActivity"

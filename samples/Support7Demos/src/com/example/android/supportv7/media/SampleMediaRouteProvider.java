@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.res.Resources;
+import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.net.Uri;
 import android.os.Bundle;
@@ -161,6 +162,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 r.getString(R.string.fixed_volume_route_name))
                 .setDescription(r.getString(R.string.sample_route_description))
                 .addControlFilters(CONTROL_FILTERS)
+                .setPlaybackStream(AudioManager.STREAM_MUSIC)
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)
                 .setVolume(VOLUME_MAX)
@@ -171,6 +173,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 r.getString(R.string.variable_volume_route_name))
                 .setDescription(r.getString(R.string.sample_route_description))
                 .addControlFilters(CONTROL_FILTERS)
+                .setPlaybackStream(AudioManager.STREAM_MUSIC)
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
@@ -287,6 +290,9 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
             if (volume >= 0 && volume <= VOLUME_MAX) {
                 mVolume = volume;
                 Log.d(TAG, mRouteId + ": New volume is " + mVolume);
+                AudioManager audioManager =
+                        (AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
                 publishRoutes();
             }
         }
