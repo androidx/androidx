@@ -123,7 +123,8 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp \
 	cpu_ref/rsCpuRuntimeMathFuncs.cpp
 
-ifeq ($(ARCH_ARM_HAVE_NEON),true)
+ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
+LOCAL_ASFLAGS := -mfpu=neon
 LOCAL_SRC_FILES += \
 	cpu_ref/rsCpuIntrinsics_neon.S \
 	cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S
