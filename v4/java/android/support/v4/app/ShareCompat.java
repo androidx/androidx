@@ -747,7 +747,7 @@ public class ShareCompat {
          */
         public String getHtmlText() {
             String result = mIntent.getStringExtra(IntentCompat.EXTRA_HTML_TEXT);
-            if (mIntent == null) {
+            if (result == null) {
                 CharSequence text = getText();
                 if (text instanceof Spanned) {
                     result = Html.toHtml((Spanned) text);
