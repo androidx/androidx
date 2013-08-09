@@ -251,6 +251,12 @@ public class FragmentActivity extends Activity {
         int id = a.getResourceId(FragmentTag.Fragment_id, View.NO_ID);
         String tag = a.getString(FragmentTag.Fragment_tag);
         a.recycle();
+
+        if (!Fragment.isSupportFragmentClass(this, fname)) {
+            // Invalid support lib fragment; let the device's framework handle it.
+            // This will allow android.app.Fragments to do the right thing.
+            return super.onCreateView(name, context, attrs);
+        }
         
         View parent = null; // NOTE: no way to get parent pre-Honeycomb.
         int containerId = parent != null ? parent.getId() : 0;
