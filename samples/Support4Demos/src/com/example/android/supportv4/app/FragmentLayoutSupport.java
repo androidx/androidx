@@ -152,14 +152,10 @@ public class FragmentLayoutSupport extends FragmentActivity {
 
                     // Execute a transaction, replacing any existing fragment
                     // with this one inside the frame.
-                    FragmentTransaction ft = getFragmentManager().beginTransaction();
-                    if (index == 0) {
-                        ft.replace(R.id.details, details);
-                    } else {
-                        ft.replace(R.id.a_item, details);
-                    }
-                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                    ft.commit();
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.details, details)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .commit();
                 }
 
             } else {
