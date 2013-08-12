@@ -32,6 +32,8 @@ class ActionBarImplICS extends ActionBar {
     final Callback mCallback;
     final android.app.ActionBar mActionBar;
 
+    FragmentTransaction mActiveTransaction;
+
     private ArrayList<WeakReference<OnMenuVisibilityListenerWrapper>> mAddedMenuVisWrappers =
             new ArrayList<WeakReference<OnMenuVisibilityListenerWrapper>>();
 
@@ -325,6 +327,21 @@ class ActionBarImplICS extends ActionBar {
         mActionBar.setHomeButtonEnabled(enabled);
     }
 
+    FragmentTransaction getActiveTransaction() {
+        if (mActiveTransaction == null) {
+            mActiveTransaction = mCallback.getSupportFragmentManager().beginTransaction()
+                    .disallowAddToBackStack();
+        }
+        return mActiveTransaction;
+    }
+
+    void commitActiveTransaction() {
+        if (mActiveTransaction != null && !mActiveTransaction.isEmpty()) {
+            mActiveTransaction.commit();
+        }
+        mActiveTransaction = null;
+    }
+
     static class OnNavigationListenerWrapper implements android.app.ActionBar.OnNavigationListener {
 
         private final OnNavigationListener mWrappedListener;
@@ -357,10 +374,8 @@ class ActionBarImplICS extends ActionBar {
     }
 
     class TabWrapper extends ActionBar.Tab implements android.app.ActionBar.TabListener {
-
         final android.app.ActionBar.Tab mWrappedTab;
         private Object mTag;
-        private FragmentTransaction mActiveTransaction;
         private CharSequence mContentDescription;
         private TabListener mTabListener;
 
@@ -482,21 +497,6 @@ class ActionBarImplICS extends ActionBar {
                 android.app.FragmentTransaction ft) {
             mTabListener.onTabReselected(this, ft != null ? getActiveTransaction() : null);
             commitActiveTransaction();
-        }
-
-        private FragmentTransaction getActiveTransaction() {
-            if (mActiveTransaction == null) {
-                mActiveTransaction = mCallback.getSupportFragmentManager().beginTransaction()
-                        .disallowAddToBackStack();
-            }
-            return mActiveTransaction;
-        }
-
-        private void commitActiveTransaction() {
-            if (mActiveTransaction != null && !mActiveTransaction.isEmpty()) {
-                mActiveTransaction.commit();
-            }
-            mActiveTransaction = null;
         }
     }
 }
