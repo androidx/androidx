@@ -527,6 +527,45 @@ public final class MediaRouter {
     }
 
     /**
+     * Adds a remote control client to enable remote control of the volume
+     * of the selected route.
+     * <p>
+     * The remote control client must have previously been registered with
+     * the audio manager using the {@link android.media.AudioManager#registerRemoteControlClient
+     * AudioManager.registerRemoteControlClient} method.
+     * </p>
+     *
+     * @param remoteControlClient The {@link android.media.RemoteControlClient} to register.
+     */
+    public void addRemoteControlClient(Object remoteControlClient) {
+        if (remoteControlClient == null) {
+            throw new IllegalArgumentException("remoteControlClient must not be null");
+        }
+        checkCallingThread();
+
+        if (DEBUG) {
+            Log.d(TAG, "addRemoteControlClient: " + remoteControlClient);
+        }
+        sGlobal.addRemoteControlClient(remoteControlClient);
+    }
+
+    /**
+     * Removes a remote control client.
+     *
+     * @param remoteControlClient The {@link android.media.RemoteControlClient} to register.
+     */
+    public void removeRemoteControlClient(Object remoteControlClient) {
+        if (remoteControlClient == null) {
+            throw new IllegalArgumentException("remoteControlClient must not be null");
+        }
+
+        if (DEBUG) {
+            Log.d(TAG, "removeRemoteControlClient: " + remoteControlClient);
+        }
+        sGlobal.removeRemoteControlClient(remoteControlClient);
+    }
+
+    /**
      * Ensures that calls into the media router are on the correct thread.
      * It pays to be a little paranoid when global state invariants are at risk.
      */
@@ -1298,6 +1337,10 @@ public final class MediaRouter {
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<RouteInfo>();
         private final ArrayList<ProviderInfo> mProviders =
                 new ArrayList<ProviderInfo>();
+        private final ArrayList<RemoteControlClientRecord> mRemoteControlClients =
+                new ArrayList<RemoteControlClientRecord>();
+        private final RemoteControlClientCompat.PlaybackInfo mPlaybackInfo =
+                new RemoteControlClientCompat.PlaybackInfo();
         private final ProviderCallback mProviderCallback = new ProviderCallback();
         private final CallbackHandler mCallbackHandler = new CallbackHandler();
         private final DisplayManagerCompat mDisplayManager;
@@ -1566,6 +1609,7 @@ public final class MediaRouter {
                 // Update all existing routes and reorder them to match
                 // the order of their descriptors.
                 int targetIndex = 0;
+                boolean selectedRouteDescriptorChanged = false;
                 if (providerDescriptor != null) {
                     if (providerDescriptor.isValid()) {
                         final List<MediaRouteDescriptor> routeDescriptors =
@@ -1598,30 +1642,33 @@ public final class MediaRouter {
                                         sourceIndex, targetIndex++);
                                 // 2. Update the route's contents.
                                 int changes = route.updateDescriptor(routeDescriptor);
-                                // 3. Unselect route if needed before notifying about changes.
-                                unselectRouteIfNeeded(route);
-                                // 4. Notify clients about changes.
-                                if ((changes & RouteInfo.CHANGE_GENERAL) != 0) {
-                                    if (DEBUG) {
-                                        Log.d(TAG, "Route changed: " + route);
+                                // 3. Notify clients about changes.
+                                if (changes != 0) {
+                                    if ((changes & RouteInfo.CHANGE_GENERAL) != 0) {
+                                        if (DEBUG) {
+                                            Log.d(TAG, "Route changed: " + route);
+                                        }
+                                        mCallbackHandler.post(
+                                                CallbackHandler.MSG_ROUTE_CHANGED, route);
                                     }
-                                    mCallbackHandler.post(
-                                            CallbackHandler.MSG_ROUTE_CHANGED, route);
-                                }
-                                if ((changes & RouteInfo.CHANGE_VOLUME) != 0) {
-                                    if (DEBUG) {
-                                        Log.d(TAG, "Route volume changed: " + route);
+                                    if ((changes & RouteInfo.CHANGE_VOLUME) != 0) {
+                                        if (DEBUG) {
+                                            Log.d(TAG, "Route volume changed: " + route);
+                                        }
+                                        mCallbackHandler.post(
+                                                CallbackHandler.MSG_ROUTE_VOLUME_CHANGED, route);
                                     }
-                                    mCallbackHandler.post(
-                                            CallbackHandler.MSG_ROUTE_VOLUME_CHANGED, route);
-                                }
-                                if ((changes & RouteInfo.CHANGE_PRESENTATION_DISPLAY) != 0) {
-                                    if (DEBUG) {
-                                        Log.d(TAG, "Route presentation display changed: "
-                                                + route);
+                                    if ((changes & RouteInfo.CHANGE_PRESENTATION_DISPLAY) != 0) {
+                                        if (DEBUG) {
+                                            Log.d(TAG, "Route presentation display changed: "
+                                                    + route);
+                                        }
+                                        mCallbackHandler.post(CallbackHandler.
+                                                MSG_ROUTE_PRESENTATION_DISPLAY_CHANGED, route);
                                     }
-                                    mCallbackHandler.post(CallbackHandler.
-                                            MSG_ROUTE_PRESENTATION_DISPLAY_CHANGED, route);
+                                    if (route == mSelectedRoute) {
+                                        selectedRouteDescriptorChanged = true;
+                                    }
                                 }
                             }
                         }
@@ -1637,12 +1684,10 @@ public final class MediaRouter {
                     route.updateDescriptor(null);
                     // 2. Remove the route from the list.
                     mRoutes.remove(route);
-                    // 3. Unselect route if needed before notifying about removal.
-                    unselectRouteIfNeeded(route);
                 }
 
-                // Choose a new selected route if needed.
-                selectRouteIfNeeded();
+                // Update the selected route if needed.
+                updateSelectedRouteIfNeeded(selectedRouteDescriptorChanged);
 
                 // Now notify clients about routes that were removed.
                 // We do this after updating the selected route to ensure
@@ -1691,34 +1736,37 @@ public final class MediaRouter {
             return -1;
         }
 
-        private void unselectRouteIfNeeded(RouteInfo route) {
-            if (mDefaultRoute == route && !isRouteSelectable(route)) {
+        private void updateSelectedRouteIfNeeded(boolean selectedRouteDescriptorChanged) {
+            // Update default route.
+            if (mDefaultRoute != null && !isRouteSelectable(mDefaultRoute)) {
                 Log.i(TAG, "Clearing the default route because it "
-                        + "is no longer selectable: " + route);
+                        + "is no longer selectable: " + mDefaultRoute);
                 mDefaultRoute = null;
             }
-            if (mSelectedRoute == route && !isRouteSelectable(route)) {
-                Log.i(TAG, "Clearing the selected route because it "
-                        + "is no longer selectable: " + route);
-                setSelectedRouteInternal(null);
-            }
-            // When this function terminates, the default or selected route
-            // may be null.  The caller is responsible for invoking
-            // selectRouteIfNeeded() to choose new routes after it has
-            // finished applying any other necessary changes.
-        }
-
-        private void selectRouteIfNeeded() {
             if (mDefaultRoute == null && !mRoutes.isEmpty()) {
                 for (RouteInfo route : mRoutes) {
                     if (isSystemDefaultRoute(route) && isRouteSelectable(route)) {
                         mDefaultRoute = route;
+                        Log.i(TAG, "Found default route: " + mDefaultRoute);
                         break;
                     }
                 }
             }
+
+            // Update selected route.
+            if (mSelectedRoute != null && !isRouteSelectable(mSelectedRoute)) {
+                Log.i(TAG, "Unselecting the current route because it "
+                        + "is no longer selectable: " + mSelectedRoute);
+                setSelectedRouteInternal(null);
+            }
             if (mSelectedRoute == null) {
+                // Choose a new route.
+                // This will have the side-effect of updating the playback info when
+                // the new route is selected.
                 setSelectedRouteInternal(chooseFallbackRoute());
+            } else if (selectedRouteDescriptorChanged) {
+                // Update the playback info because the properties of the route have changed.
+                updatePlaybackInfoFromSelectedRoute();
             }
         }
 
@@ -1782,6 +1830,8 @@ public final class MediaRouter {
                     }
                     mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute);
                 }
+
+                updatePlaybackInfoFromSelectedRoute();
             }
         }
 
@@ -1798,11 +1848,93 @@ public final class MediaRouter {
             return null;
         }
 
+        public void addRemoteControlClient(Object rcc) {
+            int index = findRemoteControlClientRecord(rcc);
+            if (index < 0) {
+                RemoteControlClientRecord record = new RemoteControlClientRecord(rcc);
+                mRemoteControlClients.add(record);
+            }
+        }
+
+        public void removeRemoteControlClient(Object rcc) {
+            int index = findRemoteControlClientRecord(rcc);
+            if (index >= 0) {
+                RemoteControlClientRecord record = mRemoteControlClients.remove(index);
+                record.disconnect();
+            }
+        }
+
+        private int findRemoteControlClientRecord(Object rcc) {
+            final int count = mRemoteControlClients.size();
+            for (int i = 0; i < count; i++) {
+                RemoteControlClientRecord record = mRemoteControlClients.get(i);
+                if (record.getRemoteControlClient() == rcc) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private void updatePlaybackInfoFromSelectedRoute() {
+            if (mSelectedRoute != null) {
+                mPlaybackInfo.volume = mSelectedRoute.getVolume();
+                mPlaybackInfo.volumeMax = mSelectedRoute.getVolumeMax();
+                mPlaybackInfo.volumeHandling = mSelectedRoute.getVolumeHandling();
+                mPlaybackInfo.playbackStream = mSelectedRoute.getPlaybackStream();
+                mPlaybackInfo.playbackType = mSelectedRoute.getPlaybackType();
+
+                final int count = mRemoteControlClients.size();
+                for (int i = 0; i < count; i++) {
+                    RemoteControlClientRecord record = mRemoteControlClients.get(i);
+                    record.updatePlaybackInfo();
+                }
+            }
+        }
+
         private final class ProviderCallback extends MediaRouteProvider.Callback {
             @Override
             public void onDescriptorChanged(MediaRouteProvider provider,
                     MediaRouteProviderDescriptor descriptor) {
                 updateProviderDescriptor(provider, descriptor);
+            }
+        }
+
+        private final class RemoteControlClientRecord
+                implements RemoteControlClientCompat.VolumeCallback {
+            private final RemoteControlClientCompat mRccCompat;
+            private boolean mDisconnected;
+
+            public RemoteControlClientRecord(Object rcc) {
+                mRccCompat = RemoteControlClientCompat.obtain(mApplicationContext, rcc);
+                mRccCompat.setVolumeCallback(this);
+                updatePlaybackInfo();
+            }
+
+            public Object getRemoteControlClient() {
+                return mRccCompat.getRemoteControlClient();
+            }
+
+            public void disconnect() {
+                mDisconnected = true;
+                mRccCompat.setVolumeCallback(null);
+            }
+
+            public void updatePlaybackInfo() {
+                mRccCompat.setPlaybackInfo(mPlaybackInfo);
+            }
+
+            @Override
+            public void onVolumeSetRequest(int volume) {
+                if (!mDisconnected && mSelectedRoute != null) {
+                    mSelectedRoute.requestSetVolume(volume);
+                }
+            }
+
+            @Override
+            public void onVolumeUpdateRequest(int direction) {
+                if (!mDisconnected && mSelectedRoute != null) {
+                    mSelectedRoute.requestUpdateVolume(direction);
+                }
             }
         }
 
