@@ -17,6 +17,7 @@
 package android.support.v4.widget;
 
 import android.content.res.Resources;
+import android.os.SystemClock;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.DisplayMetrics;
@@ -171,8 +172,17 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     /** Whether the auto-scroller is active. */
     private boolean mActive;
 
+    /** Whether the auto-scroller is scrolling. */
+    private boolean mScrolling;
+
     /** Whether the auto-scroller is enabled. */
     private boolean mEnabled;
+
+    /** Whether the auto-scroller consumes events when scrolling. */
+    private boolean mExclusiveEnabled;
+
+    /** Down time of the most recent down touch event. */
+    private long mDownTime;
 
     // Default values.
     private static final int DEFAULT_EDGE_TYPE = EDGE_TYPE_INSIDE_EXTEND;
@@ -236,6 +246,35 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      */
     public boolean isEnabled() {
         return mEnabled;
+    }
+
+    /**
+     * Enables or disables exclusive handling of touch events during scrolling.
+     * By default, exclusive handling is disabled and the target view receives
+     * all touch events.
+     * <p>
+     * When enabled, {@link #onTouch} will return true if the helper is
+     * currently scrolling and false otherwise.
+     *
+     * @param enabled True to exclusively handle touch events during scrolling,
+     *            false to allow the target view to receive all touch events.
+     * @see #isExclusiveEnabled()
+     * @see #onTouch(View, MotionEvent)
+     */
+    public void setExclusiveEnabled(boolean enabled) {
+        mExclusiveEnabled = enabled;
+    }
+
+    /**
+     * Indicates whether the scroll helper handles touch events exclusively
+     * during scrolling.
+     *
+     * @return True if exclusive handling of touch events during scrolling is
+     *         enabled, false otherwise.
+     * @see #setExclusiveEnabled(boolean)
+     */
+    public boolean isExclusiveEnabled() {
+        return mExclusiveEnabled;
     }
 
     /**
@@ -392,8 +431,11 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
 
     /**
      * Handles touch events by activating automatic scrolling, adjusting scroll
-     * velocity, or stopping. Always returns false so that the host view may
-     * handle touch events.
+     * velocity, or stopping.
+     * <p>
+     * If {@link #isExclusiveEnabled()} is false, always returns false so that
+     * the host view may handle touch events. Otherwise, returns true when
+     * automatic scrolling is active and false otherwise.
      */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -404,6 +446,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         final int action = MotionEventCompat.getActionMasked(event);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                mDownTime = event.getDownTime();
             case MotionEvent.ACTION_MOVE:
                 final float xValue = getEdgeValue(mRelativeEdges[HORIZONTAL], v.getWidth(),
                         mMaximumEdges[HORIZONTAL], event.getX());
@@ -435,7 +478,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
                 break;
         }
 
-        return false;
+        return mExclusiveEnabled && mScrolling;
     }
 
     /**
@@ -527,11 +570,24 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      */
     private void stop(boolean reset) {
         mActive = false;
+        mScrolling = false;
         mSkipDelay = !reset;
 
         if (mRunnable != null) {
             mTarget.removeCallbacks(mRunnable);
         }
+    }
+
+    /**
+     * Sends a {@link MotionEvent#ACTION_CANCEL} event to the target view,
+     * canceling any ongoing touch events.
+     */
+    private void cancelTargetTouch() {
+        final MotionEvent cancel = MotionEvent.obtain(
+                mDownTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0);
+        cancel.setAction(MotionEvent.ACTION_CANCEL);
+        mTarget.onTouchEvent(cancel);
+        cancel.recycle();
     }
 
     private class AutoScrollRunnable implements Runnable {
@@ -554,6 +610,18 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
             final int deltaY = scroller.getDeltaY();
             if ((deltaX != 0 || deltaY != 0 || !scroller.isFinished())
                     && onScrollBy(deltaX, deltaY)) {
+                // Update whether we're actively scrolling.
+                final boolean scrolling = (deltaX != 0 || deltaY != 0);
+                if (mScrolling != scrolling) {
+                    mScrolling = scrolling;
+
+                    // If we just started actively scrolling, make sure any down
+                    // or move events send to the target view are canceled.
+                    if (mExclusiveEnabled && scrolling) {
+                        cancelTargetTouch();
+                    }
+                }
+
                 // Keep going until the scroller has permanently stopped or the
                 // view can't scroll any more. If the user moves their finger
                 // again, we'll repost the animation.
