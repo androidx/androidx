@@ -57,8 +57,8 @@ public class ListViewAutoScrollHelper extends AutoScrollHelper {
                 }
             }
         } else {
-            // We're not scrolling anywhere.
-            return false;
+            // We're not scrolling anywhere, and we're good at it.
+            return true;
         }
 
         final View firstView = target.getChildAt(0);
