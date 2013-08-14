@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="appcompat-lint:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/appcompat_lint_jar</output-path>
+    <root id="root">
+      <element id="archive" name="lint.jar">
+        <element id="module-output" name="lint" />
+      </element>
+    </root>
+  </artifact>
+</component>
