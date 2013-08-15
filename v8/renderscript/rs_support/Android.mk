@@ -36,7 +36,7 @@ RSG_GENERATOR_SUPPORT:=$(LOCAL_BUILT_MODULE)
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupport
-LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
+LOCAL_SDK_VERSION := 8
 
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 intermediates:= $(local-intermediates-dir)
@@ -133,18 +133,19 @@ LOCAL_SRC_FILES += \
 endif
 
 LOCAL_SHARED_LIBRARIES += libdl
-LOCAL_STATIC_LIBRARIES += liblog libstlport_static
+LOCAL_LDFLAGS += -llog
+LOCAL_NDK_STL_VARIANT := stlport_static
 
 LOCAL_C_INCLUDES += external/clang/lib/Headers
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
-LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
+LOCAL_C_INCLUDES += system/core/include
+LOCAL_C_INCLUDES += bionic/ bionic/libstdc++/include
 
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
 LOCAL_LDLIBS := -lpthread -ldl -lm
 LOCAL_MODULE:= libRSSupport
-LOCAL_SDK_VERSION := $(rs_base_SDK_VERSION)
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)
