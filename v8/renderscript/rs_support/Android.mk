@@ -124,6 +124,7 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeMathFuncs.cpp
 
 ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
+LOCAL_CFLAGS += -DARCH_ARM_HAVE_VFP
 LOCAL_ASFLAGS := -mfpu=neon
 LOCAL_SRC_FILES += \
 	cpu_ref/rsCpuIntrinsics_neon.S \
