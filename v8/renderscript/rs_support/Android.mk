@@ -79,6 +79,7 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 LOCAL_SRC_FILES:= \
 	rsAdapter.cpp \
 	rsAllocation.cpp \
+	rsCompatibilityLib.cpp \
 	rsComponent.cpp \
 	rsContext.cpp \
 	rsDevice.cpp \
@@ -129,9 +130,8 @@ LOCAL_SRC_FILES += \
 endif
 
 LOCAL_SHARED_LIBRARIES += libdl
-LOCAL_STATIC_LIBRARIES += libcutils liblog libstlport_static
+LOCAL_STATIC_LIBRARIES += liblog libstlport_static
 
-LOCAL_C_INCLUDES += system/core/include
 LOCAL_C_INCLUDES += external/clang/lib/Headers
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
