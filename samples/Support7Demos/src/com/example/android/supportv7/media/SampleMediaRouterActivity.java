@@ -33,6 +33,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -365,15 +366,18 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                     "[streaming] "+mediaNames[i], Uri.parse(mediaUris[i])));
         }
 
-        // Scan local /sdcard/ directory for media files.
-        String sdcard = "/sdcard/";
-        File file = new File(sdcard);
-        File list[] = file.listFiles();
-        for (int i = 0; i < list.length; i++) {
-            String filename = list[i].getName();
-            if (filename.matches(".*\\.(m4v|mp4)")) {
-                mLibraryItems.add(new MediaItem(
-                        "[local] "+filename, Uri.parse("file:///sdcard/" + filename)));
+        // Scan local external storage directory for media files.
+        File externalDir = Environment.getExternalStorageDirectory();
+        if (externalDir != null) {
+            File list[] = externalDir.listFiles();
+            if (list != null) {
+                for (int i = 0; i < list.length; i++) {
+                    String filename = list[i].getName();
+                    if (filename.matches(".*\\.(m4v|mp4)")) {
+                        mLibraryItems.add(new MediaItem("[local] " + filename,
+                                Uri.fromFile(list[i])));
+                    }
+                }
             }
         }
 
