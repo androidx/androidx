@@ -18,4 +18,6 @@
     <item type="id" name="action_bar_activity_content"/>
     <item type="id" name="action_menu_divider"/>
     <item type="id" name="action_menu_presenter"/>
+    <item type="id" name="progress_circular"/>
+    <item type="id" name="progress_horizontal"/>
 </resources>
