@@ -58,6 +58,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
 
+    private CharSequence mTitleToSet;
+
     // Used to keep track of Progress Bar Window features
     private boolean mFeatureProgress, mFeatureIndeterminateProgress;
 
@@ -225,8 +227,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             View abcContent = mActivity.findViewById(R.id.action_bar_activity_content);
             abcContent.setId(android.R.id.content);
 
-            mSubDecorInstalled = true;
+            // A title was set before we've install the decor so set it now.
+            if (mTitleToSet != null) {
+                mActionBarView.setWindowTitle(mTitleToSet);
+                mTitleToSet  = null;
+            }
 
+            mSubDecorInstalled = true;
             supportInvalidateOptionsMenu();
         }
     }
@@ -255,6 +262,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     public void onTitleChanged(CharSequence title) {
         if (mActionBarView != null) {
             mActionBarView.setWindowTitle(title);
+        } else {
+            mTitleToSet = title;
         }
     }
 
