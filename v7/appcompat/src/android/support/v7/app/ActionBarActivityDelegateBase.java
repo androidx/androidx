@@ -218,6 +218,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                 cab.setSplitWhenNarrow(splitWhenNarrow);
             }
 
+            // Change our content FrameLayout to use the android.R.id.content id.
+            // Useful for fragments.
+            View content = mActivity.findViewById(android.R.id.content);
+            content.setId(View.NO_ID);
+            View abcContent = mActivity.findViewById(R.id.action_bar_activity_content);
+            abcContent.setId(android.R.id.content);
+
             mSubDecorInstalled = true;
 
             supportInvalidateOptionsMenu();
