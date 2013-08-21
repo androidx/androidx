@@ -115,7 +115,12 @@ final class MultiDexExtractor {
                 return !name.startsWith(extractedFilePrefix);
             }
         };
-        for (File oldFile : dexDir.listFiles(filter)) {
+        File[] files = dexDir.listFiles(filter);
+        if (files == null) {
+            Log.w(TAG, "Failed to list secondary dex dir content (" + dexDir.getPath() + ").");
+            return;
+        }
+        for (File oldFile : files) {
             if (!oldFile.delete()) {
                 Log.w(TAG, "Failed to delete old file " + oldFile.getPath());
             }
