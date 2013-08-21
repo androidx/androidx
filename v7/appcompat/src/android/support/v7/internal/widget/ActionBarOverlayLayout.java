@@ -92,9 +92,11 @@ public class ActionBarOverlayLayout extends FrameLayout {
     void pullChildren() {
         if (mContent == null) {
             mContent = findViewById(R.id.action_bar_activity_content);
+            if (mContent == null) {
+                mContent = findViewById(android.R.id.content);
+            }
             mActionBarTop = findViewById(R.id.top_action_bar);
-            mContainerView = (ActionBarContainer) findViewById(
-                    R.id.action_bar_container);
+            mContainerView = (ActionBarContainer) findViewById(R.id.action_bar_container);
             mActionView = (ActionBarView) findViewById(R.id.action_bar);
             mActionBarBottom = findViewById(R.id.split_action_bar);
         }
