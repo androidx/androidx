@@ -33,7 +33,6 @@ import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.internal.widget.ProgressBarICS;
 import android.support.v7.view.ActionMode;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -121,8 +120,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     public void setContentView(View v) {
         ensureSubDecor();
         if (mHasActionBar) {
-            final ViewGroup contentParent =
-                    (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
+            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
             contentParent.removeAllViews();
             contentParent.addView(v);
         } else {
@@ -134,11 +132,9 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     public void setContentView(int resId) {
         ensureSubDecor();
         if (mHasActionBar) {
-            final ViewGroup contentParent =
-                    (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
+            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
             contentParent.removeAllViews();
-            final LayoutInflater inflater = mActivity.getLayoutInflater();
-            inflater.inflate(resId, contentParent);
+            mActivity.getLayoutInflater().inflate(resId, contentParent);
         } else {
             mActivity.superSetContentView(resId);
         }
@@ -148,8 +144,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     public void setContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
         if (mHasActionBar) {
-            final ViewGroup contentParent =
-                    (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
+            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
             contentParent.removeAllViews();
             contentParent.addView(v, lp);
         } else {
@@ -161,8 +156,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     public void addContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
         if (mHasActionBar) {
-            final ViewGroup contentParent =
-                    (ViewGroup) mActivity.findViewById(R.id.action_bar_activity_content);
+            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
             contentParent.addView(v, lp);
         } else {
             mActivity.superSetContentView(v, lp);
