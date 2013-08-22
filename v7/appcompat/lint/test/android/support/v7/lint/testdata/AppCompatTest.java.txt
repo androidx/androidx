@@ -1,0 +1,24 @@
+package test.pkg;
+
+import android.support.v7.app.ActionBarActivity;
+
+public class AppCompatTest extends ActionBarActivity {
+    public void test() {
+        getActionBar();                    // ERROR
+        getSupportActionBar();             // OK
+
+        startActionMode(null);             // ERROR
+        startSupportActionMode(null);      // OK
+
+        requestWindowFeature(0);           // ERROR
+        supportRequestWindowFeature(0);    // OK
+
+        setProgressBarVisibility(true);    // ERROR
+        setProgressBarIndeterminate(true);
+        setProgressBarIndeterminateVisibility(true);
+
+        setSupportProgressBarVisibility(true); // OK
+        setSupportProgressBarIndeterminate(true);
+        setSupportProgressBarIndeterminateVisibility(true);
+    }
+}

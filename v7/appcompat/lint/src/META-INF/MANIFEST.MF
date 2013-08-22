@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Lint-Registry: android.support.v7.lint.AppCompatIssueRegistry
+
