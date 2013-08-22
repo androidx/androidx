@@ -274,6 +274,15 @@ public class ActionBarView extends AbsActionBarView {
             }
             mTabScrollView.setAllowCollapse(true);
         }
+
+        if (mProgressView != null) {
+            removeView(mProgressView);
+            initProgress();
+        }
+        if (mIndeterminateProgressView != null) {
+            removeView(mIndeterminateProgressView);
+            initIndeterminateProgress();
+        }
     }
 
     /**
