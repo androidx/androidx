@@ -16,6 +16,7 @@ limitations under the License.
 
 <view xmlns:android="http://schemas.android.com/apk/res/android"
       class="android.support.v7.internal.widget.ScrollingTabContainerView$TabView"
-      android:layout_width="fill_parent"
+      android:layout_width="0dp"
+      android:layout_weight="1"
       android:layout_height="wrap_content"
       style="?attr/actionBarTabStyle"/>
