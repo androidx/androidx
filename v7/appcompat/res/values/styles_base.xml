@@ -133,6 +133,7 @@
         <item name="android:gravity">center_horizontal</item>
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
+        <item name="android:minWidth">80dip</item>
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabView"
@@ -208,18 +209,22 @@
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title"
            parent="android:TextAppearance.Medium">
+        <item name="android:textSize">@dimen/abc_action_bar_title_text_size</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle"
            parent="android:TextAppearance.Small">
+        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse"
            parent="android:TextAppearance.Medium.Inverse">
+        <item name="android:textSize">@dimen/abc_action_bar_title_text_size</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
            parent="android:TextAppearance.Small.Inverse">
+        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size</item>
     </style>
 
     <style name="Widget.AppCompat.Base.ProgressBar.Horizontal"
@@ -227,6 +232,10 @@
     </style>
 
     <style name="Widget.AppCompat.Base.ProgressBar" parent="android:Widget.ProgressBar">
+        <item name="android:minWidth">@dimen/abc_action_bar_progress_bar_size</item>
+        <item name="android:maxWidth">@dimen/abc_action_bar_progress_bar_size</item>
+        <item name="android:minHeight">@dimen/abc_action_bar_progress_bar_size</item>
+        <item name="android:maxHeight">@dimen/abc_action_bar_progress_bar_size</item>
     </style>
 
     <!-- Action Bar Spinner Widgets -->
