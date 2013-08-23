@@ -61,6 +61,7 @@ public class Allocation extends BaseObj {
     Bitmap mBitmap;
     int mUsage;
     Allocation mAdaptedAllocation;
+    int mSize;
 
     boolean mConstrainedLOD;
     boolean mConstrainedFace;
@@ -236,11 +237,28 @@ public class Allocation extends BaseObj {
 
         mType = t;
         mUsage = usage;
+        mSize = mType.getCount() * mType.getElement().getBytesSize();
 
         if (t != null) {
             updateCacheInfo(t);
         }
+        if (RenderScript.sUseGCHooks == true) {
+            try {
+                RenderScript.registerNativeAllocation.invoke(RenderScript.sRuntime, mSize);
+            } catch (Exception e) {
+                Log.e(RenderScript.LOG_TAG, "Couldn't invoke registerNativeAllocation:" + e);
+                throw new RSRuntimeException("Couldn't invoke registerNativeAllocation:" + e);
+            }
+        }
     }
+
+    protected void finalize() throws Throwable {
+        if (RenderScript.sUseGCHooks == true) {
+            RenderScript.registerNativeFree.invoke(RenderScript.sRuntime, mSize);
+        }
+        super.finalize();
+    }
+
 
     private void validateIsInt32() {
         if ((mType.mElement.mType == Element.DataType.SIGNED_32) ||
