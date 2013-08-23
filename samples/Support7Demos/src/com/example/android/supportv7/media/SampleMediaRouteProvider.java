@@ -35,8 +35,10 @@ import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.support.v7.media.MediaRouteProviderDescriptor;
 import android.support.v7.media.MediaRouteDescriptor;
 import android.util.Log;
-import android.widget.Toast;
 import android.view.Gravity;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+
 import java.util.ArrayList;
 
 /**
@@ -188,26 +190,39 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         setDescriptor(providerDescriptor);
     }
 
-    private void showToast(String msg) {
-        Toast toast = Toast.makeText(getContext(),
-                "[provider] " + msg, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.TOP, 0, 100);
-        toast.show();
-    }
-
     private final class SampleRouteController extends MediaRouteProvider.RouteController {
         private final String mRouteId;
-        // Create an overlay display window (used for simulating the remote playback only)
-        private final OverlayDisplayWindow mOverlay = new OverlayDisplayWindow(getContext(),
-                getContext().getResources().getString(R.string.sample_media_route_provider_remote),
-                1024, 768, Gravity.CENTER);
-        private final MediaPlayerWrapper mMediaPlayer = new MediaPlayerWrapper(getContext());
-        private final MediaSessionManager mSessionManager = new MediaSessionManager();
+        private final OverlayDisplayWindow mOverlay;
+        private final MediaPlayerWrapper mMediaPlayer;
+        private final MediaSessionManager mSessionManager;
 
         public SampleRouteController(String routeId) {
             mRouteId = routeId;
+            mMediaPlayer = new MediaPlayerWrapper(getContext());
+            mSessionManager = new MediaSessionManager();
             mSessionManager.setCallback(mMediaPlayer);
-            mOverlay.setOverlayWindowListener(mMediaPlayer);
+
+            // Create an overlay display window (used for simulating the remote playback only)
+            mOverlay = OverlayDisplayWindow.create(getContext(),
+                    getContext().getResources().getString(
+                            R.string.sample_media_route_provider_remote),
+                    1024, 768, Gravity.CENTER);
+            mOverlay.setOverlayWindowListener(new OverlayDisplayWindow.OverlayWindowListener() {
+                @Override
+                public void onWindowCreated(Surface surface) {
+                    mMediaPlayer.setSurface(surface);
+                }
+
+                @Override
+                public void onWindowCreated(SurfaceHolder surfaceHolder) {
+                    mMediaPlayer.setSurface(surfaceHolder);
+                }
+
+                @Override
+                public void onWindowDestroyed() {
+                }
+            });
+
             mMediaPlayer.setCallback(new MediaPlayerCallback());
             Log.d(TAG, mRouteId + ": Controller created");
         }
