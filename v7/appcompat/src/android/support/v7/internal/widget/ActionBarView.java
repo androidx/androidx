@@ -426,6 +426,7 @@ public class ActionBarView extends AbsActionBarView {
                             R.bool.abc_action_bar_expanded_action_views_exclusive));
             configPresenters(builder);
             menuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
+            menuView.initialize(builder);
             final ViewGroup oldParent = (ViewGroup) menuView.getParent();
             if (oldParent != null && oldParent != this) {
                 oldParent.removeView(menuView);
