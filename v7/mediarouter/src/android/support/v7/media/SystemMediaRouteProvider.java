@@ -258,6 +258,16 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
+        public RouteController onCreateRouteController(String routeId) {
+            int index = findSystemRouteRecordByDescriptorId(routeId);
+            if (index >= 0) {
+                SystemRouteRecord record = mSystemRouteRecords.get(index);
+                return new SystemRouteController(record.mRouteObj);
+            }
+            return null;
+        }
+
+        @Override
         public void onDiscoveryRequestChanged(MediaRouteDiscoveryRequest request) {
             int newRouteTypes = 0;
             boolean newActiveScan = false;
@@ -670,6 +680,24 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             public UserRouteRecord(MediaRouter.RouteInfo route, Object routeObj) {
                 mRoute = route;
                 mRouteObj = routeObj;
+            }
+        }
+
+        protected final class SystemRouteController extends RouteController {
+            private final Object mRouteObj;
+
+            public SystemRouteController(Object routeObj) {
+                mRouteObj = routeObj;
+            }
+
+            @Override
+            public void onSetVolume(int volume) {
+                MediaRouterJellybean.RouteInfo.requestSetVolume(mRouteObj, volume);
+            }
+
+            @Override
+            public void onUpdateVolume(int delta) {
+                MediaRouterJellybean.RouteInfo.requestUpdateVolume(mRouteObj, delta);
             }
         }
     }
