@@ -16,16 +16,14 @@
 
 package com.example.android.supportv7.media;
 
-import com.example.android.supportv7.R;
-
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.media.MediaPlayer;
 import android.view.Surface;
-import android.view.Gravity;
-import android.graphics.SurfaceTexture;
+import android.view.SurfaceHolder;
 import java.io.IOException;
 
 /**
@@ -37,7 +35,6 @@ public class MediaPlayerWrapper implements
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener,
-        OverlayDisplayWindow.OverlayWindowListener,
         MediaSessionManager.Callback {
     private static final String TAG = "MediaPlayerWrapper";
     private static final boolean DEBUG = false;
@@ -54,6 +51,7 @@ public class MediaPlayerWrapper implements
     private int mState = STATE_IDLE;
     private Callback mCallback;
     private Surface mSurface;
+    private SurfaceHolder mSurfaceHolder;
     private int mSeekToPos;
 
     public MediaPlayerWrapper(Context context) {
@@ -140,21 +138,16 @@ public class MediaPlayerWrapper implements
         }
     }
 
-    //OverlayDisplayWindow listeners
-    @Override
-    public void onWindowCreated(Surface surface) {
-        if (DEBUG) {
-            Log.d(TAG, "onWindowCreated");
-        }
+    public void setSurface(Surface surface) {
         mSurface = surface;
-        mMediaPlayer.setSurface(surface);
+        mSurfaceHolder = null;
+        updateSurface();
     }
 
-    @Override
-    public void onWindowDestroyed() {
-        if (DEBUG) {
-            Log.d(TAG, "onWindowDestroyed");
-        }
+    public void setSurface(SurfaceHolder surfaceHolder) {
+        mSurface = null;
+        mSurfaceHolder = surfaceHolder;
+        updateSurface();
     }
 
     //MediaPlayer Listeners
@@ -244,9 +237,7 @@ public class MediaPlayerWrapper implements
         mMediaPlayer.setOnCompletionListener(this);
         mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setOnSeekCompleteListener(this);
-        if (mSurface != null) {
-            mMediaPlayer.setSurface(mSurface);
-        }
+        updateSurface();
         mState = STATE_IDLE;
         mSeekToPos = 0;
     }
@@ -265,10 +256,32 @@ public class MediaPlayerWrapper implements
         }
     }
 
+    private void updateSurface() {
+        if (mSurface != null) {
+            // The setSurface API does not exist until V14+.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);
+            } else {
+                throw new UnsupportedOperationException("MediaPlayer does not support "
+                        + "setSurface() on this version of the platform.");
+            }
+        } else if (mSurfaceHolder != null) {
+            mMediaPlayer.setDisplay(mSurfaceHolder);
+        } else {
+            mMediaPlayer.setDisplay(null);
+        }
+    }
+
     public static abstract class Callback {
         public void onError() {}
         public void onCompletion() {}
         public void onStatusChanged() {}
         public void onSizeChanged(int width, int height) {}
+    }
+
+    private static final class ICSMediaPlayer {
+        public static final void setSurface(MediaPlayer player, Surface surface) {
+            player.setSurface(surface);
+        }
     }
 }

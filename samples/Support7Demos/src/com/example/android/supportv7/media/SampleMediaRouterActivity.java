@@ -31,7 +31,6 @@ import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
-import android.media.RemoteControlClient.MetadataEditor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -58,14 +57,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Display;
-import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -78,8 +75,6 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import java.io.File;
 
 /**
@@ -898,7 +893,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         public void onFinish(boolean error) {
             MediaQueueItem item = mSessionManager.finish(error);
             updateUi();
-            if (error) {
+            if (error && item != null) {
                 showToast("Failed to play item " + item.getUri());
             }
         }
@@ -908,13 +903,13 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         public void surfaceChanged(SurfaceHolder holder, int format,
                 int width, int height) {
             Log.d(TAG, "surfaceChanged "+width+"x"+height);
-            mMediaPlayer.onWindowCreated(holder.getSurface());
+            mMediaPlayer.setSurface(holder);
         }
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             Log.d(TAG, "surfaceCreated");
-            mMediaPlayer.onWindowCreated(holder.getSurface());
+            mMediaPlayer.setSurface(holder);
             mLocalPlayer.updateSize(mVideoWidth, mVideoHeight);
         }
 
@@ -1007,7 +1002,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         };
 
         private final class DemoPresentation extends Presentation {
-            private SurfaceView mSurfaceView;
+            private SurfaceView mPresentationSurfaceView;
 
             public DemoPresentation(Context context, Display display) {
                 super(context, display);
@@ -1026,16 +1021,16 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 // Inflate the layout.
                 setContentView(R.layout.sample_media_router_presentation);
 
-                // Set up the surface view for visual interest.
-                mSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
-                SurfaceHolder holder = mSurfaceView.getHolder();
+                // Set up the surface view.
+                mPresentationSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
+                SurfaceHolder holder = mPresentationSurfaceView.getHolder();
                 holder.addCallback(mLocalPlayer);
             }
 
             public void updateSize(int width, int height) {
-                int surfaceHeight=getWindow().getDecorView().getHeight();
-                int surfaceWidth=getWindow().getDecorView().getWidth();
-                ViewGroup.LayoutParams lp = mSurfaceView.getLayoutParams();
+                int surfaceHeight = getWindow().getDecorView().getHeight();
+                int surfaceWidth = getWindow().getDecorView().getWidth();
+                ViewGroup.LayoutParams lp = mPresentationSurfaceView.getLayoutParams();
                 if (surfaceWidth * height < surfaceHeight * width) {
                     lp.width = surfaceWidth;
                     lp.height = surfaceWidth * height / width;
@@ -1043,12 +1038,8 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                     lp.width = surfaceHeight * width / height;
                     lp.height = surfaceHeight;
                 }
-                Log.d(TAG, "video rect is "+lp.width+"x"+lp.height);
-                mSurfaceView.setLayoutParams(lp);
-            }
-
-            public void clearContent() {
-                //TO-DO: clear surface view
+                Log.d(TAG, "video rect is " + lp.width + "x" + lp.height);
+                mPresentationSurfaceView.setLayoutParams(lp);
             }
         }
     }
