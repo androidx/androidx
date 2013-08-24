@@ -226,7 +226,7 @@ public class MediaPlayerWrapper implements
         });
     }
 
-    private void reset() {
+    public void reset() {
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
             mMediaPlayer.release();

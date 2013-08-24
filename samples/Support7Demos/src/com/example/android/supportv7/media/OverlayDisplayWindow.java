@@ -145,7 +145,9 @@ public abstract class OverlayDisplayWindow {
                 mWindowManager.addView(mSurfaceView, params);
                 mWindowVisible = true;
 
-                mListener.onWindowCreated(mSurfaceView.getHolder());
+                SurfaceHolder holder = mSurfaceView.getHolder();
+                holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+                mListener.onWindowCreated(holder);
             }
         }
 
