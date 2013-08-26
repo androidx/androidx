@@ -18,6 +18,7 @@ package android.support.v8.renderscript;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -56,6 +57,11 @@ public class RenderScript {
      */
     @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
     static boolean sInitialized;
+    static boolean sUseGCHooks;
+    static Object sRuntime;
+    static Method registerNativeAllocation;
+    static Method registerNativeFree;
+
     static Object lock = new Object();
 
     // Non-threadsafe functions.
@@ -919,6 +925,17 @@ public class RenderScript {
         }
         synchronized(lock) {
             if (sInitialized == false) {
+                try {
+                    Class<?> vm_runtime = Class.forName("dalvik.system.VMRuntime");
+                    Method get_runtime = vm_runtime.getDeclaredMethod("getRuntime");
+                    sRuntime = get_runtime.invoke(null);
+                    registerNativeAllocation = vm_runtime.getDeclaredMethod("registerNativeAllocation", Integer.TYPE);
+                    registerNativeFree = vm_runtime.getDeclaredMethod("registerNativeFree", Integer.TYPE);
+                    sUseGCHooks = true;
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "No GC methods");
+                    sUseGCHooks = false;
+                }
                 try {
                     System.loadLibrary("RSSupport");
                     System.loadLibrary("rsjni");
