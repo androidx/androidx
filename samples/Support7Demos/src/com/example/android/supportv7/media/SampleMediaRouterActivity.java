@@ -798,6 +798,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
             mLayout = (FrameLayout)findViewById(R.id.player);
             mSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
             SurfaceHolder holder = mSurfaceView.getHolder();
+            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
             holder.addCallback(mLocalPlayer);
         }
 
@@ -984,6 +985,8 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
 
             if (mPresentation != null || route.supportsControlCategory(
                     MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
+                mMediaPlayer.setSurface((SurfaceHolder)null);
+                mMediaPlayer.reset();
                 mSurfaceView.setVisibility(View.GONE);
                 mLayout.setVisibility(View.GONE);
             } else {
@@ -1028,6 +1031,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 // Set up the surface view.
                 mPresentationSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
                 SurfaceHolder holder = mPresentationSurfaceView.getHolder();
+                holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
                 holder.addCallback(mLocalPlayer);
             }
 
