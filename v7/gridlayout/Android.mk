@@ -22,6 +22,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-gridlayout
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_SDK_VERSION := 7
+LOCAL_JAVA_LIBRARIES := android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Include this library in the build server's output directory
