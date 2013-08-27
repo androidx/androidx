@@ -136,6 +136,33 @@ public class ViewCompat {
      */
     public static final int LAYOUT_DIRECTION_LOCALE = 3;
 
+    /**
+     * Bits of {@link #getMeasuredWidthAndState} and
+     * {@link #getMeasuredWidthAndState} that provide the actual measured size.
+     */
+    public static final int MEASURED_SIZE_MASK = 0x00ffffff;
+
+    /**
+     * Bits of {@link #getMeasuredWidthAndState} and
+     * {@link #getMeasuredWidthAndState} that provide the additional state bits.
+     */
+    public static final int MEASURED_STATE_MASK = 0xff000000;
+
+    /**
+     * Bit shift of {@link #MEASURED_STATE_MASK} to get to the height bits
+     * for functions that combine both width and height into a single int,
+     * such as {@link #getMeasuredState} and the childState argument of
+     * {@link #resolveSizeAndState(int, int, int)}.
+     */
+    public static final int MEASURED_HEIGHT_STATE_SHIFT = 16;
+
+    /**
+     * Bit of {@link #getMeasuredWidthAndState} and
+     * {@link #getMeasuredWidthAndState} that indicates the measured size
+     * is smaller that the space the view would like to have.
+     */
+    public static final int MEASURED_STATE_TOO_SMALL = 0x01000000;
+
     interface ViewCompatImpl {
         public boolean canScrollHorizontally(View v, int direction);
         public boolean canScrollVertically(View v, int direction);
@@ -165,6 +192,10 @@ public class ViewCompat {
         public void setLayoutDirection(View view, int layoutDirection);
         public ViewParent getParentForAccessibility(View view);
         public boolean isOpaque(View view);
+        public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState);
+        public int getMeasuredWidthAndState(View view);
+        public int getMeasuredHeightAndState(View view);
+        public int getMeasuredState(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -268,6 +299,25 @@ public class ViewCompat {
             }
             return false;
         }
+
+        public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
+            return View.resolveSize(size, measureSpec);
+        }
+
+        @Override
+        public int getMeasuredWidthAndState(View view) {
+            return view.getMeasuredWidth();
+        }
+
+        @Override
+        public int getMeasuredHeightAndState(View view) {
+            return view.getMeasuredHeight();
+        }
+
+        @Override
+        public int getMeasuredState(View view) {
+            return 0;
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -312,6 +362,22 @@ public class ViewCompat {
             setLayerType(view, getLayerType(view), paint);
             // This is expensive, but the only way to accomplish this before JB-MR1.
             view.invalidate();
+        }
+        @Override
+        public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
+            return ViewCompatHC.resolveSizeAndState(size, measureSpec, childMeasuredState);
+        }
+        @Override
+        public int getMeasuredWidthAndState(View view) {
+            return ViewCompatHC.getMeasuredWidthAndState(view);
+        }
+        @Override
+        public int getMeasuredHeightAndState(View view) {
+            return ViewCompatHC.getMeasuredHeightAndState(view);
+        }
+        @Override
+        public int getMeasuredState(View view) {
+            return ViewCompatHC.getMeasuredState(view);
         }
     }
 
@@ -961,5 +1027,61 @@ public class ViewCompat {
      */
     public static boolean isOpaque(View view) {
         return IMPL.isOpaque(view);
+    }
+
+    /**
+     * Utility to reconcile a desired size and state, with constraints imposed
+     * by a MeasureSpec.  Will take the desired size, unless a different size
+     * is imposed by the constraints.  The returned value is a compound integer,
+     * with the resolved size in the {@link #MEASURED_SIZE_MASK} bits and
+     * optionally the bit {@link #MEASURED_STATE_TOO_SMALL} set if the resulting
+     * size is smaller than the size the view wants to be.
+     *
+     * @param size How big the view wants to be
+     * @param measureSpec Constraints imposed by the parent
+     * @return Size information bit mask as defined by
+     * {@link #MEASURED_SIZE_MASK} and {@link #MEASURED_STATE_TOO_SMALL}.
+     */
+    public static int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
+        return IMPL.resolveSizeAndState(size, measureSpec, childMeasuredState);
+    }
+
+    /**
+     * Return the full width measurement information for this view as computed
+     * by the most recent call to {@link android.view.View#measure(int, int)}.
+     * This result is a bit mask as defined by {@link #MEASURED_SIZE_MASK} and
+     * {@link #MEASURED_STATE_TOO_SMALL}.
+     * This should be used during measurement and layout calculations only. Use
+     * {@link android.view.View#getWidth()} to see how wide a view is after layout.
+     *
+     * @return The measured width of this view as a bit mask.
+     */
+    public static int getMeasuredWidthAndState(View view) {
+        return IMPL.getMeasuredWidthAndState(view);
+    }
+
+    /**
+     * Return the full height measurement information for this view as computed
+     * by the most recent call to {@link android.view.View#measure(int, int)}.
+     * This result is a bit mask as defined by {@link #MEASURED_SIZE_MASK} and
+     * {@link #MEASURED_STATE_TOO_SMALL}.
+     * This should be used during measurement and layout calculations only. Use
+     * {@link android.view.View#getHeight()} to see how wide a view is after layout.
+     *
+     * @return The measured width of this view as a bit mask.
+     */
+    public static int getMeasuredHeightAndState(View view) {
+        return IMPL.getMeasuredHeightAndState(view);
+    }
+
+    /**
+     * Return only the state bits of {@link #getMeasuredWidthAndState}
+     * and {@link #getMeasuredHeightAndState}, combined into one integer.
+     * The width component is in the regular bits {@link #MEASURED_STATE_MASK}
+     * and the height component is at the shifted bits
+     * {@link #MEASURED_HEIGHT_STATE_SHIFT}>>{@link #MEASURED_STATE_MASK}.
+     */
+    public static int getMeasuredState(View view) {
+        return IMPL.getMeasuredState(view);
     }
 }

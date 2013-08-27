@@ -36,4 +36,20 @@ class ViewCompatHC {
     public static int getLayerType(View view) {
         return view.getLayerType();
     }
+
+    public static int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
+        return View.resolveSizeAndState(size, measureSpec, childMeasuredState);
+    }
+
+    public static int getMeasuredWidthAndState(View view) {
+        return view.getMeasuredWidthAndState();
+    }
+
+    public static int getMeasuredHeightAndState(View view) {
+        return view.getMeasuredHeightAndState();
+    }
+
+    public static int getMeasuredState(View view) {
+        return view.getMeasuredState();
+    }
 }

@@ -27,11 +27,29 @@ import android.view.accessibility.AccessibilityEvent;
  */
 public class ViewGroupCompat {
 
+    /**
+     * This constant is a {@link #setLayoutMode(ViewGroup, int) layoutMode}.
+     * Clip bounds are the raw values of {@link android.view.View#getLeft() left},
+     * {@link android.view.View#getTop() top},
+     * {@link android.view.View#getRight() right} and {@link android.view.View#getBottom() bottom}.
+     */
+    public static final int LAYOUT_MODE_CLIP_BOUNDS = 0;
+
+    /**
+     * This constant is a {@link #setLayoutMode(ViewGroup, int) layoutMode}.
+     * Optical bounds describe where a widget appears to be. They sit inside the clip
+     * bounds which need to cover a larger area to allow other effects,
+     * such as shadows and glows, to be drawn.
+     */
+    public static final int LAYOUT_MODE_OPTICAL_BOUNDS = 1;
+
     interface ViewGroupCompatImpl {
         public boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,
                 AccessibilityEvent event);
 
         public void setMotionEventSplittingEnabled(ViewGroup group, boolean split);
+        public int getLayoutMode(ViewGroup group);
+        public void setLayoutMode(ViewGroup group, int mode);
     }
 
     static class ViewGroupCompatStubImpl implements ViewGroupCompatImpl {
@@ -42,6 +60,16 @@ public class ViewGroupCompat {
 
         public void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
             // no-op, didn't exist.
+        }
+
+        @Override
+        public int getLayoutMode(ViewGroup group) {
+            return LAYOUT_MODE_CLIP_BOUNDS;
+        }
+
+        @Override
+        public void setLayoutMode(ViewGroup group, int mode) {
+            // no-op, didn't exist. Views only support clip bounds.
         }
     }
 
@@ -60,10 +88,24 @@ public class ViewGroupCompat {
         }
     }
 
+    static class ViewGroupCompatJellybeanMR2Impl extends ViewGroupCompatIcsImpl {
+        @Override
+        public int getLayoutMode(ViewGroup group) {
+            return ViewGroupCompatJellybeanMR2.getLayoutMode(group);
+        }
+
+        @Override
+        public void setLayoutMode(ViewGroup group, int mode) {
+            ViewGroupCompatJellybeanMR2.setLayoutMode(group, mode);
+        }
+    }
+
     static final ViewGroupCompatImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= 14) {
+        if (version >= 18) {
+            IMPL = new ViewGroupCompatJellybeanMR2Impl();
+        } else if (version >= 14) {
             IMPL = new ViewGroupCompatIcsImpl();
         } else if (version >= 11) {
             IMPL = new ViewGroupCompatHCImpl();
@@ -117,5 +159,34 @@ public class ViewGroupCompat {
      */
     public static void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
         IMPL.setMotionEventSplittingEnabled(group, split);
+    }
+
+    /**
+     * Returns the basis of alignment during layout operations on this ViewGroup:
+     * either {@link #LAYOUT_MODE_CLIP_BOUNDS} or {@link #LAYOUT_MODE_OPTICAL_BOUNDS}.
+     * <p>
+     * If no layoutMode was explicitly set, either programmatically or in an XML resource,
+     * the method returns the layoutMode of the view's parent ViewGroup if such a parent exists,
+     * otherwise the method returns a default value of {@link #LAYOUT_MODE_CLIP_BOUNDS}.
+     *
+     * @return the layout mode to use during layout operations
+     *
+     * @see #setLayoutMode(ViewGroup, int)
+     */
+    public static int getLayoutMode(ViewGroup group) {
+        return IMPL.getLayoutMode(group);
+    }
+
+    /**
+     * Sets the basis of alignment during the layout of this ViewGroup.
+     * Valid values are either {@link #LAYOUT_MODE_CLIP_BOUNDS} or
+     * {@link #LAYOUT_MODE_OPTICAL_BOUNDS}.
+     *
+     * @param mode the layout mode to use during layout operations
+     *
+     * @see #getLayoutMode(ViewGroup)
+     */
+    public static void setLayoutMode(ViewGroup group, int mode) {
+        IMPL.setLayoutMode(group, mode);
     }
 }
