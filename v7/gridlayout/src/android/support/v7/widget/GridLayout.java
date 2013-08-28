@@ -19,9 +19,10 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Insets;
 import android.graphics.Paint;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewGroupCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.LogPrinter;
@@ -31,7 +32,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.LinearLayout;
 
 import android.support.v7.gridlayout.R;
@@ -84,7 +84,7 @@ import static java.lang.Math.min;
  * <h4>Space</h4>
  *
  * Space between children may be specified either by using instances of the
- * dedicated {@link android.widget.Space} view or by setting the
+ * dedicated {@link android.support.v7.widget.Space} view or by setting the
  *
  * {@link ViewGroup.MarginLayoutParams#leftMargin leftMargin},
  * {@link ViewGroup.MarginLayoutParams#topMargin topMargin},
@@ -161,7 +161,7 @@ import static java.lang.Math.min;
  * @attr ref android.R.styleable#GridLayout_rowOrderPreserved
  * @attr ref android.R.styleable#GridLayout_columnOrderPreserved
  */
-public class GridLayout extends android.support.v7.widget.ViewGroup {
+public class GridLayout extends android.view.ViewGroup {
 
     // Public constants
 
@@ -251,14 +251,14 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
 
     // Instance variables
 
-    final Axis horizontalAxis = new Axis(true);
-    final Axis verticalAxis = new Axis(false);
-    int orientation = DEFAULT_ORIENTATION;
-    boolean useDefaultMargins = DEFAULT_USE_DEFAULT_MARGINS;
-    int alignmentMode = DEFAULT_ALIGNMENT_MODE;
-    int defaultGap;
-    int lastLayoutParamsHashCode = UNINITIALIZED_HASH;
-    Printer printer = LOG_PRINTER;
+    final Axis mHorizontalAxis = new Axis(true);
+    final Axis mVerticalAxis = new Axis(false);
+    int mOrientation = DEFAULT_ORIENTATION;
+    boolean mUseDefaultMargins = DEFAULT_USE_DEFAULT_MARGINS;
+    int mAlignmentMode = DEFAULT_ALIGNMENT_MODE;
+    int mDefaultGap;
+    int mLastLayoutParamsHashCode = UNINITIALIZED_HASH;
+    Printer mPrinter = LOG_PRINTER;
 
     // Constructors
 
@@ -267,7 +267,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      */
     public GridLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        defaultGap = context.getResources().getDimensionPixelOffset(R.dimen.default_gap);
+        mDefaultGap = context.getResources().getDimensionPixelOffset(R.dimen.default_gap);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.GridLayout);
         try {
             setRowCount(a.getInt(ROW_COUNT, DEFAULT_COUNT));
@@ -309,7 +309,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_orientation
      */
     public int getOrientation() {
-        return orientation;
+        return mOrientation;
     }
 
     /**
@@ -349,8 +349,8 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_orientation
      */
     public void setOrientation(int orientation) {
-        if (this.orientation != orientation) {
-            this.orientation = orientation;
+        if (this.mOrientation != orientation) {
+            this.mOrientation = orientation;
             invalidateStructure();
             requestLayout();
         }
@@ -369,7 +369,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_rowCount
      */
     public int getRowCount() {
-        return verticalAxis.getCount();
+        return mVerticalAxis.getCount();
     }
 
     /**
@@ -384,7 +384,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_rowCount
      */
     public void setRowCount(int rowCount) {
-        verticalAxis.setCount(rowCount);
+        mVerticalAxis.setCount(rowCount);
         invalidateStructure();
         requestLayout();
     }
@@ -402,7 +402,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_columnCount
      */
     public int getColumnCount() {
-        return horizontalAxis.getCount();
+        return mHorizontalAxis.getCount();
     }
 
     /**
@@ -417,7 +417,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_columnCount
      */
     public void setColumnCount(int columnCount) {
-        horizontalAxis.setCount(columnCount);
+        mHorizontalAxis.setCount(columnCount);
         invalidateStructure();
         requestLayout();
     }
@@ -433,7 +433,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_useDefaultMargins
      */
     public boolean getUseDefaultMargins() {
-        return useDefaultMargins;
+        return mUseDefaultMargins;
     }
 
     /**
@@ -463,7 +463,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_useDefaultMargins
      */
     public void setUseDefaultMargins(boolean useDefaultMargins) {
-        this.useDefaultMargins = useDefaultMargins;
+        this.mUseDefaultMargins = useDefaultMargins;
         requestLayout();
     }
 
@@ -480,7 +480,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_alignmentMode
      */
     public int getAlignmentMode() {
-        return alignmentMode;
+        return mAlignmentMode;
     }
 
     /**
@@ -499,7 +499,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_alignmentMode
      */
     public void setAlignmentMode(int alignmentMode) {
-        this.alignmentMode = alignmentMode;
+        this.mAlignmentMode = alignmentMode;
         requestLayout();
     }
 
@@ -514,7 +514,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_rowOrderPreserved
      */
     public boolean isRowOrderPreserved() {
-        return verticalAxis.isOrderPreserved();
+        return mVerticalAxis.isOrderPreserved();
     }
 
     /**
@@ -534,7 +534,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_rowOrderPreserved
      */
     public void setRowOrderPreserved(boolean rowOrderPreserved) {
-        verticalAxis.setOrderPreserved(rowOrderPreserved);
+        mVerticalAxis.setOrderPreserved(rowOrderPreserved);
         invalidateStructure();
         requestLayout();
     }
@@ -550,7 +550,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_columnOrderPreserved
      */
     public boolean isColumnOrderPreserved() {
-        return horizontalAxis.isOrderPreserved();
+        return mHorizontalAxis.isOrderPreserved();
     }
 
     /**
@@ -570,7 +570,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @attr ref android.R.styleable#GridLayout_columnOrderPreserved
      */
     public void setColumnOrderPreserved(boolean columnOrderPreserved) {
-        horizontalAxis.setOrderPreserved(columnOrderPreserved);
+        mHorizontalAxis.setOrderPreserved(columnOrderPreserved);
         invalidateStructure();
         requestLayout();
     }
@@ -583,7 +583,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @return the printer associated with this view
      */
     public Printer getPrinter() {
-        return printer;
+        return mPrinter;
     }
 
     /**
@@ -595,7 +595,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
      * @see #getPrinter()
      */
     public void setPrinter(Printer printer) {
-        this.printer = (printer == null) ? NO_PRINTER : printer;
+        this.mPrinter = (printer == null) ? NO_PRINTER : printer;
     }
 
     // Static utility methods
@@ -629,9 +629,9 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
                 return FILL;
             case AXIS_SPECIFIED:
                 return CENTER;
-            case (AXIS_SPECIFIED | AXIS_PULL_BEFORE | RELATIVE_LAYOUT_DIRECTION):
+            case (AXIS_SPECIFIED | AXIS_PULL_BEFORE | GravityCompat.RELATIVE_LAYOUT_DIRECTION):
                 return START;
-            case (AXIS_SPECIFIED | AXIS_PULL_AFTER | RELATIVE_LAYOUT_DIRECTION):
+            case (AXIS_SPECIFIED | AXIS_PULL_AFTER | GravityCompat.RELATIVE_LAYOUT_DIRECTION):
                 return END;
             default:
                 return UNDEFINED_ALIGNMENT;
@@ -640,10 +640,10 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
 
     /** @noinspection UnusedParameters*/
     private int getDefaultMargin(View c, boolean horizontal, boolean leading) {
-        if (c.getClass() == android.widget.Space.class) {
+        if (c.getClass() == android.support.v7.widget.Space.class) {
             return 0;
         }
-        return defaultGap / 2;
+        return mDefaultGap / 2;
     }
 
     private int getDefaultMargin(View c, boolean isAtEdge, boolean horizontal, boolean leading) {
@@ -651,13 +651,13 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
     }
 
     private int getDefaultMargin(View c, LayoutParams p, boolean horizontal, boolean leading) {
-        if (!useDefaultMargins) {
+        if (!mUseDefaultMargins) {
             return 0;
         }
         Spec spec = horizontal ? p.columnSpec : p.rowSpec;
-        Axis axis = horizontal ? horizontalAxis : verticalAxis;
+        Axis axis = horizontal ? mHorizontalAxis : mVerticalAxis;
         Interval span = spec.span;
-        boolean leading1 = (horizontal && isLayoutRtl()) ? !leading : leading;
+        boolean leading1 = (horizontal && isLayoutRtlCompat()) ? !leading : leading;
         boolean isAtEdge = leading1 ? (span.min == 0) : (span.max == axis.getCount());
 
         return getDefaultMargin(c, isAtEdge, horizontal, leading);
@@ -671,11 +671,15 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
         return margin == UNDEFINED ? getDefaultMargin(view, lp, horizontal, leading) : margin;
     }
 
+    private boolean isLayoutRtlCompat() {
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
+    }
+
     private int getMargin(View view, boolean horizontal, boolean leading) {
-        if (alignmentMode == ALIGN_MARGINS) {
+        if (mAlignmentMode == ALIGN_MARGINS) {
             return getMargin1(view, horizontal, leading);
         } else {
-            Axis axis = horizontal ? horizontalAxis : verticalAxis;
+            Axis axis = horizontal ? mHorizontalAxis : mVerticalAxis;
             int[] margins = leading ? axis.getLeadingMargins() : axis.getTrailingMargins();
             LayoutParams lp = getLayoutParams(view);
             Spec spec = horizontal ? lp.columnSpec : lp.rowSpec;
@@ -722,8 +726,8 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
 
     // install default indices for cells that don't define them
     private void validateLayoutParams() {
-        final boolean horizontal = (orientation == HORIZONTAL);
-        final Axis axis = horizontal ? horizontalAxis : verticalAxis;
+        final boolean horizontal = (mOrientation == HORIZONTAL);
+        final Axis axis = horizontal ? mHorizontalAxis : mVerticalAxis;
         final int count = (axis.definedCount != UNDEFINED) ? axis.definedCount : 0;
 
         int major = 0;
@@ -779,9 +783,9 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
     }
 
     private void invalidateStructure() {
-        lastLayoutParamsHashCode = UNINITIALIZED_HASH;
-        horizontalAxis.invalidateStructure();
-        verticalAxis.invalidateStructure();
+        mLastLayoutParamsHashCode = UNINITIALIZED_HASH;
+        if (mHorizontalAxis != null) mHorizontalAxis.invalidateStructure();
+        if (mVerticalAxis != null) mVerticalAxis.invalidateStructure();
         // This can end up being done twice. Better twice than not at all.
         invalidateValues();
     }
@@ -789,22 +793,10 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
     private void invalidateValues() {
         // Need null check because requestLayout() is called in View's initializer,
         // before we are set up.
-        if (horizontalAxis != null && verticalAxis != null) {
-            horizontalAxis.invalidateValues();
-            verticalAxis.invalidateValues();
+        if (mHorizontalAxis != null && mVerticalAxis != null) {
+            mHorizontalAxis.invalidateValues();
+            mVerticalAxis.invalidateValues();
         }
-    }
-
-    /** @hide */
-    @Override
-    protected void onSetLayoutParams(View child, ViewGroup.LayoutParams layoutParams) {
-        super.onSetLayoutParams(child, layoutParams);
-
-        if (!checkLayoutParams(layoutParams)) {
-            handleInvalidParams("supplied LayoutParams are of the wrong type");
-        }
-
-        invalidateStructure();
     }
 
     final LayoutParams getLayoutParams(View c) {
@@ -822,7 +814,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
         if (span.min != UNDEFINED && span.min < 0) {
             handleInvalidParams(groupName + " indices must be positive");
         }
-        Axis axis = horizontal ? horizontalAxis : verticalAxis;
+        Axis axis = horizontal ? mHorizontalAxis : mVerticalAxis;
         int count = axis.definedCount;
         if (count != UNDEFINED) {
             if (span.max > count) {
@@ -866,98 +858,11 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
     // Draw grid
 
     private void drawLine(Canvas graphics, int x1, int y1, int x2, int y2, Paint paint) {
-        if (isLayoutRtl()) {
+        if (isLayoutRtlCompat()) {
             int width = getWidth();
             graphics.drawLine(width - x1, y1, width - x2, y2, paint);
         } else {
             graphics.drawLine(x1, y1, x2, y2, paint);
-        }
-    }
-
-    /**
-     * @hide
-     */
-    @Override
-    protected void onDebugDrawMargins(Canvas canvas, Paint paint) {
-        // Apply defaults, so as to remove UNDEFINED values
-        LayoutParams lp = new LayoutParams();
-        for (int i = 0; i < getChildCount(); i++) {
-            View c = getChildAt(i);
-            lp.setMargins(
-                    getMargin1(c, true, true),
-                    getMargin1(c, false, true),
-                    getMargin1(c, true, false),
-                    getMargin1(c, false, false));
-            lp.onDebugDraw(c, canvas, paint);
-        }
-    }
-
-    /**
-     * @hide
-     */
-    @Override
-    protected void onDebugDraw(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.argb(50, 255, 255, 255));
-
-        Insets insets = getOpticalInsets();
-
-        int top    =               getPaddingTop()    + insets.top;
-        int left   =               getPaddingLeft()   + insets.left;
-        int right  = getWidth()  - getPaddingRight()  - insets.right;
-        int bottom = getHeight() - getPaddingBottom() - insets.bottom;
-
-        int[] xs = horizontalAxis.locations;
-        if (xs != null) {
-            for (int i = 0, length = xs.length; i < length; i++) {
-                int x = left + xs[i];
-                drawLine(canvas, x, top, x, bottom, paint);
-            }
-        }
-
-        int[] ys = verticalAxis.locations;
-        if (ys != null) {
-            for (int i = 0, length = ys.length; i < length; i++) {
-                int y = top + ys[i];
-                drawLine(canvas, left, y, right, y, paint);
-            }
-        }
-
-        super.onDebugDraw(canvas);
-    }
-
-    // Add/remove
-
-    /**
-     * @hide
-     */
-    @Override
-    protected void onViewAdded(View child) {
-        super.onViewAdded(child);
-        invalidateStructure();
-    }
-
-    /**
-     * @hide
-     */
-    @Override
-    protected void onViewRemoved(View child) {
-        super.onViewRemoved(child);
-        invalidateStructure();
-    }
-
-    /**
-     * We need to call invalidateStructure() when a child's GONE flag changes state.
-     * This implementation is a catch-all, invalidating on any change in the visibility flags.
-     *
-     * @hide
-     */
-    @Override
-    protected void onChildVisibilityChanged(View child, int oldVisibility, int newVisibility) {
-        super.onChildVisibilityChanged(child, oldVisibility, newVisibility);
-        if (oldVisibility == GONE || newVisibility == GONE) {
-            invalidateStructure();
         }
     }
 
@@ -973,11 +878,11 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
     }
 
     private void consistencyCheck() {
-        if (lastLayoutParamsHashCode == UNINITIALIZED_HASH) {
+        if (mLastLayoutParamsHashCode == UNINITIALIZED_HASH) {
             validateLayoutParams();
-            lastLayoutParamsHashCode = computeLayoutParamsHashCode();
-        } else if (lastLayoutParamsHashCode != computeLayoutParamsHashCode()) {
-            printer.println("The fields of some layout parameters were modified in between "
+            mLastLayoutParamsHashCode = computeLayoutParamsHashCode();
+        } else if (mLastLayoutParamsHashCode != computeLayoutParamsHashCode()) {
+            mPrinter.println("The fields of some layout parameters were modified in between "
                     + "layout operations. Check the javadoc for GridLayout.LayoutParams#rowSpec.");
             invalidateStructure();
             consistencyCheck();
@@ -1005,11 +910,11 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
             if (firstPass) {
                 measureChildWithMargins2(c, widthSpec, heightSpec, lp.width, lp.height);
             } else {
-                boolean horizontal = (orientation == HORIZONTAL);
+                boolean horizontal = (mOrientation == HORIZONTAL);
                 Spec spec = horizontal ? lp.columnSpec : lp.rowSpec;
                 if (spec.alignment == FILL) {
                     Interval span = spec.span;
-                    Axis axis = horizontal ? horizontalAxis : verticalAxis;
+                    Axis axis = horizontal ? mHorizontalAxis : mVerticalAxis;
                     int[] locations = axis.getLocations();
                     int cellSize = locations[span.max] - locations[span.min];
                     int viewSize = cellSize - getTotalMargin(c, horizontal);
@@ -1048,22 +953,22 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
         int heightSansPadding;
 
         // Use the orientation property to decide which axis should be laid out first.
-        if (orientation == HORIZONTAL) {
-            widthSansPadding = horizontalAxis.getMeasure(widthSpecSansPadding);
+        if (mOrientation == HORIZONTAL) {
+            widthSansPadding = mHorizontalAxis.getMeasure(widthSpecSansPadding);
             measureChildrenWithMargins(widthSpecSansPadding, heightSpecSansPadding, false);
-            heightSansPadding = verticalAxis.getMeasure(heightSpecSansPadding);
+            heightSansPadding = mVerticalAxis.getMeasure(heightSpecSansPadding);
         } else {
-            heightSansPadding = verticalAxis.getMeasure(heightSpecSansPadding);
+            heightSansPadding = mVerticalAxis.getMeasure(heightSpecSansPadding);
             measureChildrenWithMargins(widthSpecSansPadding, heightSpecSansPadding, false);
-            widthSansPadding = horizontalAxis.getMeasure(widthSpecSansPadding);
+            widthSansPadding = mHorizontalAxis.getMeasure(widthSpecSansPadding);
         }
 
         int measuredWidth  = Math.max(widthSansPadding  + hPadding, getSuggestedMinimumWidth());
         int measuredHeight = Math.max(heightSansPadding + vPadding, getSuggestedMinimumHeight());
 
         setMeasuredDimension(
-                resolveSizeAndState(measuredWidth,   widthSpec, 0),
-                resolveSizeAndState(measuredHeight, heightSpec, 0));
+                ViewCompat.resolveSizeAndState(measuredWidth, widthSpec, 0),
+                ViewCompat.resolveSizeAndState(measuredHeight, heightSpec, 0));
     }
 
     private int getMeasurement(View c, boolean horizontal) {
@@ -1080,7 +985,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
     @Override
     public void requestLayout() {
         super.requestLayout();
-        invalidateValues();
+        invalidateStructure();
     }
 
     final Alignment getAlignment(Alignment alignment, boolean horizontal) {
@@ -1114,11 +1019,11 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
         int paddingRight = getPaddingRight();
         int paddingBottom = getPaddingBottom();
 
-        horizontalAxis.layout(targetWidth - paddingLeft - paddingRight);
-        verticalAxis.layout(targetHeight - paddingTop - paddingBottom);
+        mHorizontalAxis.layout(targetWidth - paddingLeft - paddingRight);
+        mVerticalAxis.layout(targetHeight - paddingTop - paddingBottom);
 
-        int[] hLocations = horizontalAxis.getLocations();
-        int[] vLocations = verticalAxis.getLocations();
+        int[] hLocations = mHorizontalAxis.getLocations();
+        int[] vLocations = mVerticalAxis.getLocations();
 
         for (int i = 0, N = getChildCount(); i < N; i++) {
             View c = getChildAt(i);
@@ -1145,8 +1050,8 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
             Alignment hAlign = getAlignment(columnSpec.alignment, true);
             Alignment vAlign = getAlignment(rowSpec.alignment, false);
 
-            Bounds boundsX = horizontalAxis.getGroupBounds().getValue(i);
-            Bounds boundsY = verticalAxis.getGroupBounds().getValue(i);
+            Bounds boundsX = mHorizontalAxis.getGroupBounds().getValue(i);
+            Bounds boundsY = mVerticalAxis.getGroupBounds().getValue(i);
 
             // Gravity offsets: the location of the alignment group relative to its cell group.
             int gravityOffsetX = hAlign.getGravityOffset(c, cellWidth - boundsX.size(true));
@@ -1169,7 +1074,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
 
             int dx = x1 + gravityOffsetX + alignmentOffsetX;
 
-            int cx = !isLayoutRtl() ? paddingLeft + leftMargin + dx :
+            int cx = !isLayoutRtlCompat() ? paddingLeft + leftMargin + dx :
                     targetWidth - width - paddingRight - rightMargin - dx;
             int cy = paddingTop + y1 + gravityOffsetY + alignmentOffsetY + topMargin;
 
@@ -1178,18 +1083,6 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
             }
             c.layout(cx, cy, cx + width, cy + height);
         }
-    }
-
-    @Override
-    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        super.onInitializeAccessibilityEvent(event);
-        event.setClassName(GridLayout.class.getName());
-    }
-
-    @Override
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        super.onInitializeAccessibilityNodeInfo(info);
-        info.setClassName(GridLayout.class.getName());
     }
 
     // Inner classes
@@ -1571,7 +1464,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
                     removed.add(arc);
                 }
             }
-            printer.println(axisName + " constraints: " + arcsToString(culprits) +
+            mPrinter.println(axisName + " constraints: " + arcsToString(culprits) +
                     " are inconsistent; permanently removing: " + arcsToString(removed) + ". ");
         }
 
@@ -2250,7 +2143,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
         }
 
         protected int getOffset(GridLayout gl, View c, Alignment a, int size, boolean horizontal) {
-            return before - a.getAlignmentValue(c, size, gl.getLayoutMode());
+            return before - a.getAlignmentValue(c, size, ViewGroupCompat.getLayoutMode(gl));
         }
 
         protected final void include(GridLayout gl, View c, Spec spec, Axis axis) {
@@ -2259,7 +2152,7 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
             int size = gl.getMeasurementIncludingMargin(c, horizontal);
             Alignment alignment = gl.getAlignment(spec.alignment, horizontal);
             // todo test this works correctly when the returned value is UNDEFINED
-            int before = alignment.getAlignmentValue(c, size, gl.getLayoutMode());
+            int before = alignment.getAlignmentValue(c, size, ViewGroupCompat.getLayoutMode(gl));
             include(before, size - before);
         }
 
@@ -2654,12 +2547,16 @@ public class GridLayout extends android.support.v7.widget.ViewGroup {
         return new Alignment() {
             @Override
             int getGravityOffset(View view, int cellDelta) {
-                return (!view.isLayoutRtl() ? ltr : rtl).getGravityOffset(view, cellDelta);
+                boolean isLayoutRtl = ViewCompat.getLayoutDirection(view) ==
+                        ViewCompat.LAYOUT_DIRECTION_RTL;
+                return (!isLayoutRtl ? ltr : rtl).getGravityOffset(view, cellDelta);
             }
 
             @Override
             public int getAlignmentValue(View view, int viewSize, int mode) {
-                return (!view.isLayoutRtl() ? ltr : rtl).getAlignmentValue(view, viewSize, mode);
+                boolean isLayoutRtl = ViewCompat.getLayoutDirection(view) ==
+                        ViewCompat.LAYOUT_DIRECTION_RTL;
+                return (!isLayoutRtl ? ltr : rtl).getAlignmentValue(view, viewSize, mode);
             }
         };
     }
