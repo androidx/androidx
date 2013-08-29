@@ -126,6 +126,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         } else {
             mActivity.superSetContentView(v);
         }
+        mActivity.onSupportContentChanged();
     }
 
     @Override
@@ -138,6 +139,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         } else {
             mActivity.superSetContentView(resId);
         }
+        mActivity.onSupportContentChanged();
     }
 
     @Override
@@ -150,6 +152,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         } else {
             mActivity.superSetContentView(v, lp);
         }
+        mActivity.onSupportContentChanged();
     }
 
     @Override
@@ -161,6 +164,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         } else {
             mActivity.superSetContentView(v, lp);
         }
+        mActivity.onSupportContentChanged();
+    }
+
+    @Override
+    public void onContentChanged() {
+        // Ignore all calls to this method as we call onSupportContentChanged manually above
     }
 
     final void ensureSubDecor() {

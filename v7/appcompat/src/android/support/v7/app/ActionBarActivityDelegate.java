@@ -178,6 +178,8 @@ abstract class ActionBarActivityDelegate {
 
     abstract ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
 
+    abstract void onContentChanged();
+
     protected final String getUiOptionsFromMetadata() {
         try {
             PackageManager pm = mActivity.getPackageManager();

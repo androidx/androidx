@@ -455,4 +455,18 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     public final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
         return mImpl.getDrawerToggleDelegate();
     }
+
+    /**
+     * Use {@link #onSupportContentChanged()} instead.
+     */
+    public final void onContentChanged() {
+        mImpl.onContentChanged();
+    }
+
+    /**
+     * This hook is called whenever the content view of the screen changes.
+     * @see android.app.Activity#onContentChanged()
+     */
+    public void onSupportContentChanged() {
+    }
 }
