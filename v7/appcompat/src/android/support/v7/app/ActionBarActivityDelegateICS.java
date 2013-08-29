@@ -122,6 +122,12 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
     }
 
     @Override
+    public void onContentChanged() {
+        // Call straight through to the support version of the method
+        mActivity.onSupportContentChanged();
+    }
+
+    @Override
     public boolean supportRequestWindowFeature(int featureId) {
         return mActivity.requestWindowFeature(featureId);
     }
