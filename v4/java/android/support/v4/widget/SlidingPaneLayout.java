@@ -476,7 +476,8 @@ public class SlidingPaneLayout extends ViewGroup {
 
         float weightSum = 0;
         boolean canSlide = false;
-        int widthRemaining = widthSize - getPaddingLeft() - getPaddingRight();
+        final int widthAvailable = widthSize - getPaddingLeft() - getPaddingRight();
+        int widthRemaining = widthAvailable;
         final int childCount = getChildCount();
 
         if (childCount > 2) {
@@ -508,10 +509,10 @@ public class SlidingPaneLayout extends ViewGroup {
             int childWidthSpec;
             final int horizontalMargin = lp.leftMargin + lp.rightMargin;
             if (lp.width == LayoutParams.WRAP_CONTENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(widthSize - horizontalMargin,
+                childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
                         MeasureSpec.AT_MOST);
             } else if (lp.width == LayoutParams.FILL_PARENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(widthSize - horizontalMargin,
+                childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
                         MeasureSpec.EXACTLY);
             } else {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
@@ -543,7 +544,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
         // Resolve weight and make sure non-sliding panels are smaller than the full screen.
         if (canSlide || weightSum > 0) {
-            final int fixedPanelWidthLimit = widthSize - mOverhangSize;
+            final int fixedPanelWidthLimit = widthAvailable - mOverhangSize;
 
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
@@ -608,7 +609,7 @@ public class SlidingPaneLayout extends ViewGroup {
                     if (canSlide) {
                         // Consume available space
                         final int horizontalMargin = lp.leftMargin + lp.rightMargin;
-                        final int newWidth = widthSize - horizontalMargin;
+                        final int newWidth = widthAvailable - horizontalMargin;
                         final int childWidthSpec = MeasureSpec.makeMeasureSpec(
                                 newWidth, MeasureSpec.EXACTLY);
                         if (measuredWidth != newWidth) {
@@ -626,8 +627,12 @@ public class SlidingPaneLayout extends ViewGroup {
             }
         }
 
-        setMeasuredDimension(widthSize, layoutHeight);
+        final int measuredWidth = widthSize;
+        final int measuredHeight = layoutHeight + getPaddingTop() + getPaddingBottom();
+
+        setMeasuredDimension(measuredWidth, measuredHeight);
         mCanSlide = canSlide;
+
         if (mDragHelper.getViewDragState() != ViewDragHelper.STATE_IDLE && !canSlide) {
             // Cancel scrolling in progress, it's no longer relevant.
             mDragHelper.abort();
@@ -1237,6 +1242,13 @@ public class SlidingPaneLayout extends ViewGroup {
             final int newLeft = Math.min(Math.max(left, leftBound), rightBound);
 
             return newLeft;
+        }
+
+        @Override
+        public int clampViewPositionVertical(View child, int top, int dy) {
+            // Make sure we never move views vertically.
+            // This could happen if the child has less height than its parent.
+            return child.getTop();
         }
 
         @Override
