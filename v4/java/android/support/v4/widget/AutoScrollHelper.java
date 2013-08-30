@@ -33,7 +33,8 @@ import android.view.animation.Interpolator;
  * scrolling to Views.
  * <p>
  * <b>Note:</b> Implementing classes are responsible for overriding the
- * {@link #onScrollBy} method to scroll the target view. See
+ * {@link #scrollTargetBy}, {@link #canTargetScrollHorizontally}, and
+ * {@link #canTargetScrollVertically} methods. See
  * {@link ListViewAutoScrollHelper} for a {@link android.widget.ListView}
  * -specific implementation.
  * <p>
@@ -61,12 +62,14 @@ import android.view.animation.Interpolator;
  * {@link #setMaximumEdges}. Default value is {@link #NO_MAX}.
  * </ul>
  * <h1>Scrolling</h1> When automatic scrolling is active, the helper will
- * repeatedly call {@link #onScrollBy} to apply new scrolling offsets.
+ * repeatedly call {@link #scrollTargetBy} to apply new scrolling offsets.
  * <p>
  * The following scrolling properties may be configured:
  * <ul>
  * <li>Acceleration ramp-up duration, see {@link #setRampUpDuration}. Default
- * value is 2.5 seconds.
+ * value is 2500 milliseconds.
+ * <li>Acceleration ramp-down duration, see {@link #setRampDownDuration}.
+ * Default value is 500 milliseconds.
  * <li>Target velocity relative to view size, see {@link #setRelativeVelocity}.
  * Default value is 100% per second for both vertical and horizontal.
  * <li>Minimum velocity used to constrain relative velocity, see
@@ -164,25 +167,22 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     private float[] mMaximumVelocity = new float[] { NO_MAX, NO_MAX };
 
     /** Whether to start activation immediately. */
-    private boolean mSkipDelay;
+    private boolean mAlreadyDelayed;
 
     /** Whether to reset the scroller start time on the next animation. */
-    private boolean mResetScroller;
+    private boolean mNeedsReset;
 
-    /** Whether the auto-scroller is active. */
-    private boolean mActive;
+    /** Whether to send a cancel motion event to the target view. */
+    private boolean mNeedsCancel;
 
-    /** Whether the auto-scroller is scrolling. */
-    private boolean mScrolling;
+    /** Whether the auto-scroller is actively scrolling. */
+    private boolean mAnimating;
 
     /** Whether the auto-scroller is enabled. */
     private boolean mEnabled;
 
     /** Whether the auto-scroller consumes events when scrolling. */
-    private boolean mExclusiveEnabled;
-
-    /** Down time of the most recent down touch event. */
-    private long mDownTime;
+    private boolean mExclusive;
 
     // Default values.
     private static final int DEFAULT_EDGE_TYPE = EDGE_TYPE_INSIDE_EXTEND;
@@ -193,7 +193,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     private static final float DEFAULT_RELATIVE_VELOCITY = 1f;
     private static final int DEFAULT_ACTIVATION_DELAY = ViewConfiguration.getTapTimeout();
     private static final int DEFAULT_RAMP_UP_DURATION = 2500;
-    // TODO: RAMP_DOWN_DURATION of 500ms?
+    private static final int DEFAULT_RAMP_DOWN_DURATION = 500;
 
     /**
      * Creates a new helper for scrolling the specified target view.
@@ -221,8 +221,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         setRelativeVelocity(DEFAULT_RELATIVE_VELOCITY, DEFAULT_RELATIVE_VELOCITY);
         setActivationDelay(DEFAULT_ACTIVATION_DELAY);
         setRampUpDuration(DEFAULT_RAMP_UP_DURATION);
-
-        mEnabled = true;
+        setRampDownDuration(DEFAULT_RAMP_DOWN_DURATION);
     }
 
     /**
@@ -233,8 +232,8 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * @return The scroll helper, which may used to chain setter calls.
      */
     public AutoScrollHelper setEnabled(boolean enabled) {
-        if (!enabled) {
-            stop(true);
+        if (mEnabled && !enabled) {
+            requestStop();
         }
 
         mEnabled = enabled;
@@ -256,13 +255,13 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * When enabled, {@link #onTouch} will return true if the helper is
      * currently scrolling and false otherwise.
      *
-     * @param enabled True to exclusively handle touch events during scrolling,
+     * @param exclusive True to exclusively handle touch events during scrolling,
      *            false to allow the target view to receive all touch events.
-     * @see #isExclusiveEnabled()
-     * @see #onTouch(View, MotionEvent)
+     * @return The scroll helper, which may used to chain setter calls.
      */
-    public void setExclusiveEnabled(boolean enabled) {
-        mExclusiveEnabled = enabled;
+    public AutoScrollHelper setExclusive(boolean exclusive) {
+        mExclusive = exclusive;
+        return this;
     }
 
     /**
@@ -271,10 +270,10 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      *
      * @return True if exclusive handling of touch events during scrolling is
      *         enabled, false otherwise.
-     * @see #setExclusiveEnabled(boolean)
+     * @see #setExclusive(boolean)
      */
-    public boolean isExclusiveEnabled() {
-        return mExclusiveEnabled;
+    public boolean isExclusive() {
+        return mExclusive;
     }
 
     /**
@@ -425,7 +424,22 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * @return The scroll helper, which may used to chain setter calls.
      */
     public AutoScrollHelper setRampUpDuration(int durationMillis) {
-        mScroller.setDuration(durationMillis);
+        mScroller.setRampUpDuration(durationMillis);
+        return this;
+    }
+
+    /**
+     * Sets the amount of time after de-activation of auto-scrolling that is
+     * takes to slow to a stop.
+     * <p>
+     * Specifying a duration greater than zero prevents sudden jumps in
+     * velocity.
+     *
+     * @param durationMillis The ramp-down duration in milliseconds.
+     * @return The scroll helper, which may used to chain setter calls.
+     */
+    public AutoScrollHelper setRampDownDuration(int durationMillis) {
+        mScroller.setRampDownDuration(durationMillis);
         return this;
     }
 
@@ -433,7 +447,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * Handles touch events by activating automatic scrolling, adjusting scroll
      * velocity, or stopping.
      * <p>
-     * If {@link #isExclusiveEnabled()} is false, always returns false so that
+     * If {@link #isExclusive()} is false, always returns false so that
      * the host view may handle touch events. Otherwise, returns true when
      * automatic scrolling is active and false otherwise.
      */
@@ -446,52 +460,135 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         final int action = MotionEventCompat.getActionMasked(event);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                mDownTime = event.getDownTime();
+                mNeedsCancel = true;
+                mAlreadyDelayed = false;
+                // $FALL-THROUGH$
             case MotionEvent.ACTION_MOVE:
-                final float xValue = getEdgeValue(mRelativeEdges[HORIZONTAL], v.getWidth(),
-                        mMaximumEdges[HORIZONTAL], event.getX());
-                final float yValue = getEdgeValue(mRelativeEdges[VERTICAL], v.getHeight(),
-                        mMaximumEdges[VERTICAL], event.getY());
-                final float maxVelX = constrain(mRelativeVelocity[HORIZONTAL] * mTarget.getWidth(),
-                        mMinimumVelocity[HORIZONTAL], mMaximumVelocity[HORIZONTAL]);
-                final float maxVelY = constrain(mRelativeVelocity[VERTICAL] * mTarget.getHeight(),
-                        mMinimumVelocity[VERTICAL], mMaximumVelocity[VERTICAL]);
-                mScroller.setTargetVelocity(xValue * maxVelX, yValue * maxVelY);
+                final float xTargetVelocity = computeTargetVelocity(
+                        HORIZONTAL, event.getX(), v.getWidth(), mTarget.getWidth());
+                final float yTargetVelocity = computeTargetVelocity(
+                        VERTICAL, event.getY(), v.getHeight(), mTarget.getHeight());
+                mScroller.setTargetVelocity(xTargetVelocity, yTargetVelocity);
 
-                if ((xValue != 0 || yValue != 0) && !mActive) {
-                    mActive = true;
-                    mResetScroller = true;
-                    if (mRunnable == null) {
-                        mRunnable = new AutoScrollRunnable();
-                    }
-                    if (mSkipDelay) {
-                        ViewCompat.postOnAnimation(mTarget, mRunnable);
-                    } else {
-                        mSkipDelay = true;
-                        ViewCompat.postOnAnimationDelayed(mTarget, mRunnable, mActivationDelay);
-                    }
+                // If the auto scroller was not previously active, but it should
+                // be, then update the state and start animations.
+                if (!mAnimating && shouldAnimate()) {
+                    startAnimating();
                 }
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                stop(true);
+                requestStop();
                 break;
         }
 
-        return mExclusiveEnabled && mScrolling;
+        return mExclusive && mAnimating;
     }
 
     /**
-     * Override this method to scroll the target view by the specified number
-     * of pixels.
-     * <p>
-     * Returns whether the target view was able to scroll the requested amount.
-     *
-     * @param deltaX The amount to scroll in the X direction, in pixels.
-     * @param deltaY The amount to scroll in the Y direction, in pixels.
-     * @return true if the target view was able to scroll the requested amount.
+     * @return whether the target is able to scroll in the requested direction
      */
-    public abstract boolean onScrollBy(int deltaX, int deltaY);
+    private boolean shouldAnimate() {
+        final ClampedScroller scroller = mScroller;
+        final int verticalDirection = scroller.getVerticalDirection();
+        final int horizontalDirection = scroller.getHorizontalDirection();
+
+        return verticalDirection != 0 && canTargetScrollVertically(verticalDirection)
+                || horizontalDirection != 0 && canTargetScrollHorizontally(horizontalDirection);
+    }
+
+    /**
+     * Starts the scroll animation.
+     */
+    private void startAnimating() {
+        if (mRunnable == null) {
+            mRunnable = new ScrollAnimationRunnable();
+        }
+
+        mAnimating = true;
+        mNeedsReset = true;
+
+        if (!mAlreadyDelayed && mActivationDelay > 0) {
+            ViewCompat.postOnAnimationDelayed(mTarget, mRunnable, mActivationDelay);
+        } else {
+            mRunnable.run();
+        }
+
+        // If we start animating again before the user lifts their finger, we
+        // already know it's not a tap and don't need an activation delay.
+        mAlreadyDelayed = true;
+    }
+
+    /**
+     * Requests that the scroll animation slow to a stop. If there is an
+     * activation delay, this may occur between posting the animation and
+     * actually running it.
+     */
+    private void requestStop() {
+        if (mNeedsReset) {
+            // The animation has been posted, but hasn't run yet. Manually
+            // stopping animation will prevent it from running.
+            mAnimating = false;
+        } else {
+            mScroller.requestStop();
+        }
+    }
+
+    private float computeTargetVelocity(
+            int direction, float coordinate, float srcSize, float dstSize) {
+        final float relativeEdge = mRelativeEdges[direction];
+        final float maximumEdge = mMaximumEdges[direction];
+        final float value = getEdgeValue(relativeEdge, srcSize, maximumEdge, coordinate);
+        if (value == 0) {
+            // The edge in this direction is not activated.
+            return 0;
+        }
+
+        final float relativeVelocity = mRelativeVelocity[direction];
+        final float minimumVelocity = mMinimumVelocity[direction];
+        final float maximumVelocity = mMaximumVelocity[direction];
+        final float targetVelocity = relativeVelocity * dstSize;
+
+        // Target velocity is adjusted for interpolated edge position, then
+        // clamped to the minimum and maximum values. Later, this value will be
+        // adjusted for time-based acceleration.
+        if (value > 0) {
+            return constrain(value * targetVelocity, minimumVelocity, maximumVelocity);
+        } else {
+            return -constrain(-value * targetVelocity, minimumVelocity, maximumVelocity);
+        }
+    }
+
+    /**
+     * Override this method to scroll the target view by the specified number of
+     * pixels.
+     *
+     * @param deltaX The number of pixels to scroll by horizontally.
+     * @param deltaY The number of pixels to scroll by vertically.
+     */
+    public abstract void scrollTargetBy(int deltaX, int deltaY);
+
+    /**
+     * Override this method to return whether the target view can be scrolled
+     * horizontally in a certain direction.
+     *
+     * @param direction Negative to check scrolling left, positive to check
+     *            scrolling right.
+     * @return true if the target view is able to horizontally scroll in the
+     *         specified direction.
+     */
+    public abstract boolean canTargetScrollHorizontally(int direction);
+
+    /**
+     * Override this method to return whether the target view can be scrolled
+     * vertically in a certain direction.
+     *
+     * @param direction Negative to check scrolling up, positive to check
+     *            scrolling down.
+     * @return true if the target view is able to vertically scroll in the
+     *         specified direction.
+     */
+    public abstract boolean canTargetScrollVertically(int direction);
 
     /**
      * Returns the interpolated position of a touch point relative to an edge
@@ -535,7 +632,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
                     if (current >= 0) {
                         // Movement up to the edge is scaled.
                         return 1f - current / leading;
-                    } else if (mActive && (mEdgeType == EDGE_TYPE_INSIDE_EXTEND)) {
+                    } else if (mAnimating && (mEdgeType == EDGE_TYPE_INSIDE_EXTEND)) {
                         // Movement beyond the edge is always maximum.
                         return 1f;
                     }
@@ -552,6 +649,16 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         return 0;
     }
 
+    private static int constrain(int value, int min, int max) {
+        if (value > max) {
+            return max;
+        } else if (value < min) {
+            return min;
+        } else {
+            return value;
+        }
+    }
+
     private static float constrain(float value, float min, float max) {
         if (value > max) {
             return max;
@@ -563,72 +670,48 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     }
 
     /**
-     * Stops auto-scrolling immediately, optionally reseting the auto-scrolling
-     * delay.
-     *
-     * @param reset Whether to reset the auto-scrolling delay.
-     */
-    private void stop(boolean reset) {
-        mActive = false;
-        mScrolling = false;
-        mSkipDelay = !reset;
-
-        if (mRunnable != null) {
-            mTarget.removeCallbacks(mRunnable);
-        }
-    }
-
-    /**
      * Sends a {@link MotionEvent#ACTION_CANCEL} event to the target view,
      * canceling any ongoing touch events.
      */
     private void cancelTargetTouch() {
+        final long eventTime = SystemClock.uptimeMillis();
         final MotionEvent cancel = MotionEvent.obtain(
-                mDownTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0);
-        cancel.setAction(MotionEvent.ACTION_CANCEL);
+                eventTime, eventTime, MotionEvent.ACTION_CANCEL, 0, 0, 0);
         mTarget.onTouchEvent(cancel);
         cancel.recycle();
     }
 
-    private class AutoScrollRunnable implements Runnable {
+    private class ScrollAnimationRunnable implements Runnable {
         @Override
         public void run() {
-            if (!mActive) {
+            if (!mAnimating) {
                 return;
             }
 
-            if (mResetScroller) {
-                mResetScroller = false;
+            if (mNeedsReset) {
+                mNeedsReset = false;
                 mScroller.start();
             }
 
-            final View target = mTarget;
             final ClampedScroller scroller = mScroller;
+            if (scroller.isFinished() || !shouldAnimate()) {
+                mAnimating = false;
+                return;
+            }
+
+            if (mNeedsCancel) {
+                mNeedsCancel = false;
+                cancelTargetTouch();
+            }
+
             scroller.computeScrollDelta();
 
             final int deltaX = scroller.getDeltaX();
             final int deltaY = scroller.getDeltaY();
-            if ((deltaX != 0 || deltaY != 0 || !scroller.isFinished())
-                    && onScrollBy(deltaX, deltaY)) {
-                // Update whether we're actively scrolling.
-                final boolean scrolling = (deltaX != 0 || deltaY != 0);
-                if (mScrolling != scrolling) {
-                    mScrolling = scrolling;
+            scrollTargetBy(deltaX,  deltaY);
 
-                    // If we just started actively scrolling, make sure any down
-                    // or move events send to the target view are canceled.
-                    if (mExclusiveEnabled && scrolling) {
-                        cancelTargetTouch();
-                    }
-                }
-
-                // Keep going until the scroller has permanently stopped or the
-                // view can't scroll any more. If the user moves their finger
-                // again, we'll repost the animation.
-                ViewCompat.postOnAnimation(target, this);
-            } else {
-                stop(false);
-            }
+            // Keep going until the scroller has permanently stopped.
+            ViewCompat.postOnAnimation(mTarget, this);
         }
     }
 
@@ -638,27 +721,39 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * interpolated 1f value after a specified duration.
      */
     private static class ClampedScroller {
-        private final Interpolator mInterpolator = new AccelerateInterpolator();
-
-        private int mDuration;
+        private int mRampUpDuration;
+        private int mRampDownDuration;
         private float mTargetVelocityX;
         private float mTargetVelocityY;
 
         private long mStartTime;
+
         private long mDeltaTime;
         private int mDeltaX;
         private int mDeltaY;
+
+        private long mStopTime;
+        private float mStopValue;
+        private int mEffectiveRampDown;
 
         /**
          * Creates a new ramp-up scroller that reaches full velocity after a
          * specified duration.
          */
         public ClampedScroller() {
-            reset();
+            mStartTime = Long.MIN_VALUE;
+            mStopTime = -1;
+            mDeltaTime = 0;
+            mDeltaX = 0;
+            mDeltaY = 0;
         }
 
-        public void setDuration(int durationMillis) {
-            mDuration = durationMillis;
+        public void setRampUpDuration(int durationMillis) {
+            mRampUpDuration = durationMillis;
+        }
+
+        public void setRampDownDuration(int durationMillis) {
+            mRampDownDuration = durationMillis;
         }
 
         /**
@@ -666,32 +761,50 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
          */
         public void start() {
             mStartTime = AnimationUtils.currentAnimationTimeMillis();
+            mStopTime = -1;
             mDeltaTime = mStartTime;
-        }
-
-        /**
-         * Returns whether the scroller is finished, which means that its
-         * acceleration is zero.
-         *
-         * @return Whether the scroller is finished.
-         */
-        public boolean isFinished() {
-            if (mTargetVelocityX == 0 && mTargetVelocityY == 0) {
-                return true;
-            }
-            final long currentTime = AnimationUtils.currentAnimationTimeMillis();
-            final long elapsedSinceStart = currentTime - mStartTime;
-            return elapsedSinceStart > mDuration;
-        }
-
-        /**
-         * Stops the scroller and resets its values.
-         */
-        public void reset() {
-            mStartTime = -1;
-            mDeltaTime = -1;
+            mStopValue = 0.5f;
             mDeltaX = 0;
             mDeltaY = 0;
+        }
+
+        /**
+         * Stops the scroller at the current animation time.
+         */
+        public void requestStop() {
+            final long currentTime = AnimationUtils.currentAnimationTimeMillis();
+            mEffectiveRampDown = constrain((int) (currentTime - mStartTime), 0, mRampDownDuration);
+            mStopValue = getValueAt(currentTime);
+            mStopTime = currentTime;
+        }
+
+        public boolean isFinished() {
+            return mStopTime > 0
+                    && AnimationUtils.currentAnimationTimeMillis() > mStopTime + mEffectiveRampDown;
+        }
+
+        private float getValueAt(long currentTime) {
+            if (currentTime < mStartTime) {
+                return 0f;
+            } else if (mStopTime < 0 || currentTime < mStopTime) {
+                final long elapsedSinceStart = currentTime - mStartTime;
+                return 0.5f * constrain(elapsedSinceStart / (float) mRampUpDuration, 0, 1);
+            } else {
+                final long elapsedSinceEnd = currentTime - mStopTime;
+                return (1 - mStopValue) + mStopValue
+                        * constrain(elapsedSinceEnd / (float) mEffectiveRampDown, 0, 1);
+            }
+        }
+
+        /**
+         * Interpolates the value along a parabolic curve corresponding to the equation
+         * <code>y = -4x * (x-1)</code>.
+         *
+         * @param value The value to interpolate, between 0 and 1.
+         * @return the interpolated value, between 0 and 1.
+         */
+        private float interpolateValue(float value) {
+            return -4 * value * value + 4 * value;
         }
 
         /**
@@ -702,18 +815,13 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
          * @see #getDeltaY()
          */
         public void computeScrollDelta() {
-            final long currentTime = AnimationUtils.currentAnimationTimeMillis();
-            final long elapsedSinceStart = currentTime - mStartTime;
-            final float value;
-            if (mStartTime < 0) {
-                value = 0f;
-            } else if (elapsedSinceStart < mDuration) {
-                value = (float) elapsedSinceStart / mDuration;
-            } else {
-                value = 1f;
+            if (mDeltaTime == 0) {
+                throw new RuntimeException("Cannot compute scroll delta before calling start()");
             }
 
-            final float scale = mInterpolator.getInterpolation(value);
+            final long currentTime = AnimationUtils.currentAnimationTimeMillis();
+            final float value = getValueAt(currentTime);
+            final float scale = interpolateValue(value);
             final long elapsedSinceDelta = currentTime - mDeltaTime;
 
             mDeltaTime = currentTime;
@@ -730,6 +838,14 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         public void setTargetVelocity(float x, float y) {
             mTargetVelocityX = x;
             mTargetVelocityY = y;
+        }
+
+        public int getHorizontalDirection() {
+            return (int) (mTargetVelocityX / Math.abs(mTargetVelocityX));
+        }
+
+        public int getVerticalDirection() {
+            return (int) (mTargetVelocityY / Math.abs(mTargetVelocityY));
         }
 
         /**
