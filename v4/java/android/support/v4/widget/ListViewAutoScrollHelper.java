@@ -33,14 +33,37 @@ public class ListViewAutoScrollHelper extends AutoScrollHelper {
     }
 
     @Override
-    public boolean onScrollBy(int deltaX, int deltaY) {
+    public void scrollTargetBy(int deltaX, int deltaY) {
+        final ListView target = mTarget;
+        final int firstPosition = target.getFirstVisiblePosition();
+        if (firstPosition == ListView.INVALID_POSITION) {
+            return;
+        }
+
+        final View firstView = target.getChildAt(0);
+        if (firstView == null) {
+            return;
+        }
+
+        final int newTop = firstView.getTop() - deltaY;
+        target.setSelectionFromTop(firstPosition, newTop);
+    }
+
+    @Override
+    public boolean canTargetScrollHorizontally(int direction) {
+        // List do not scroll horizontally.
+        return false;
+    }
+
+    @Override
+    public boolean canTargetScrollVertically(int direction) {
         final ListView target = mTarget;
         final int itemCount = target.getCount();
         final int childCount = target.getChildCount();
         final int firstPosition = target.getFirstVisiblePosition();
         final int lastPosition = firstPosition + childCount;
 
-        if (deltaY > 0) {
+        if (direction > 0) {
             // Are we already showing the entire last item?
             if (lastPosition >= itemCount) {
                 final View lastView = target.getChildAt(childCount - 1);
@@ -48,7 +71,7 @@ public class ListViewAutoScrollHelper extends AutoScrollHelper {
                     return false;
                 }
             }
-        } else if (deltaY < 0) {
+        } else if (direction < 0) {
             // Are we already showing the entire first item?
             if (firstPosition <= 0) {
                 final View firstView = target.getChildAt(0);
@@ -57,12 +80,11 @@ public class ListViewAutoScrollHelper extends AutoScrollHelper {
                 }
             }
         } else {
-            // We're not scrolling anywhere, and we're good at it.
-            return true;
+            // The behavior for direction 0 is undefined and we can return
+            // whatever we want.
+            return false;
         }
 
-        final View firstView = target.getChildAt(0);
-        target.setSelectionFromTop(firstPosition, firstView.getTop() - deltaY);
         return true;
     }
 }
