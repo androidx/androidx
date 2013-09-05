@@ -75,18 +75,6 @@ public final class MultiDex {
      *         extension.
      */
     public static void install(Context context) {
-        /* The patched class loader is expected to be a descendant of
-         * dalvik.system.BaseDexClassLoader. We modify its
-         * dalvik.system.DexPathList pathList field to append additional DEX
-         * file entries.
-         */
-        ClassLoader loader = context.getClassLoader();
-        if (loader == null) {
-            // Note, the context class loader is null when running Robolectric tests.
-            Log.e(TAG,
-                    "Context class loader is null. Must be running in test mode. Skip patching.");
-            return;
-        }
 
         if (Build.VERSION.SDK_INT < MIN_SDK_VERSION) {
             throw new RuntimeException("Multi dex installation failed. SDK " + Build.VERSION.SDK_INT
@@ -95,8 +83,22 @@ public final class MultiDex {
 
 
         try {
-            ApplicationInfo applicationInfo = context.getPackageManager()
-                    .getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            PackageManager pm;
+            String packageName;
+            try {
+                pm = context.getPackageManager();
+                packageName = context.getPackageName();
+            } catch (RuntimeException e) {
+                /* Ignore those exceptions so that we don't break tests relying on Context like
+                 * a android.test.mock.MockContext or a android.content.ContextWrapper with a null
+                 * base Context.
+                 */
+                Log.w(TAG, "Failure while trying to obtain ApplicationInfo from Context. " +
+                        "Must be running in test mode. Skip patching.", e);
+                return;
+            }
+            ApplicationInfo applicationInfo =
+                    pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
 
             synchronized (installedApk) {
                 String apkPath = applicationInfo.sourceDir;
@@ -108,6 +110,31 @@ public final class MultiDex {
                 if (Build.VERSION.SDK_INT >= SUPPORTED_MULTIDEX_SDK_VERSION) {
                     Log.i(TAG, "SDK " + Build.VERSION.SDK_INT
                             + " supports multi dex files, no need to patch classpath.");
+                    return;
+                }
+
+                /* The patched class loader is expected to be a descendant of
+                 * dalvik.system.BaseDexClassLoader. We modify its
+                 * dalvik.system.DexPathList pathList field to append additional DEX
+                 * file entries.
+                 */
+                ClassLoader loader;
+                try {
+                    loader = context.getClassLoader();
+                } catch (RuntimeException e) {
+                    /* Ignore those exceptions so that we don't break tests relying on Context like
+                     * a android.test.mock.MockContext or a android.content.ContextWrapper with a
+                     * null base Context.
+                     */
+                    Log.w(TAG, "Failure while trying to obtain Context class loader. " +
+                            "Must be running in test mode. Skip patching.", e);
+                    return;
+                }
+                if (loader == null) {
+                    // Note, the context class loader is null when running Robolectric tests.
+                    Log.e(TAG,
+                            "Context class loader is null. Must be running in test mode. "
+                            + "Skip patching.");
                     return;
                 }
 
