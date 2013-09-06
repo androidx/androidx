@@ -22,16 +22,19 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import dalvik.system.DexFile;
+
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -44,9 +47,8 @@ import java.util.Set;
  *
  * <p/>
  * <strong>IMPORTANT:</strong>This library provides compatibility for platforms
- * with API level 14 through 18 (ICS and JB). This library does nothing on newer
- * versions of the platform which provide built-in support for secondary dex
- * files.
+ * with API level 4 through 18. This library does nothing on newer versions of
+ * the platform which provide built-in support for secondary dex files.
  */
 public final class MultiDex {
 
@@ -56,7 +58,7 @@ public final class MultiDex {
 
     private static final int SUPPORTED_MULTIDEX_SDK_VERSION = 19;
 
-    private static final int MIN_SDK_VERSION = 14;
+    private static final int MIN_SDK_VERSION = 4;
 
     private static final Set<String> installedApk = new HashSet<String>();
 
@@ -140,8 +142,12 @@ public final class MultiDex {
 
                 File dexDir = new File(context.getFilesDir(), SECONDARY_FOLDER_NAME);
                 List<File> files = MultiDexExtractor.load(context, applicationInfo, dexDir);
-                if (files.size() > 0) {
-                    V14.install(loader, files, dexDir);
+                if (!files.isEmpty()) {
+                    if (Build.VERSION.SDK_INT >= 14) {
+                        V14.install(loader, files, dexDir);
+                    } else {
+                        V4.install(loader, files, dexDir);
+                    }
                 }
             }
 
@@ -209,6 +215,25 @@ public final class MultiDex {
     }
 
     /**
+     * Replace the value of a field containing a non null array, by a new array containing the
+     * elements of the original array plus the elements of extraElements.
+     * @param instance the instance whose field is to be modified.
+     * @param fieldName the field to modify.
+     * @param extraElements elements to append at the end of the array.
+     */
+    private static void expandFieldArray(Object instance, String fieldName,
+            Object[] extraElements) throws NoSuchFieldException, IllegalArgumentException,
+            IllegalAccessException {
+        Field jlrField = findField(instance, fieldName);
+        Object[] original = (Object[]) jlrField.get(instance);
+        Object[] combined = (Object[]) Array.newInstance(
+                original.getClass().getComponentType(), original.length + extraElements.length);
+        System.arraycopy(original, 0, combined, 0, original.length);
+        System.arraycopy(extraElements, 0, combined, original.length, extraElements.length);
+        jlrField.set(instance, combined);
+    }
+
+    /**
      * Installer for platform versions 14, 15, 16, 17 and 18.
      */
     private static final class V14 {
@@ -217,37 +242,15 @@ public final class MultiDex {
                 File optimizedDirectory)
                         throws IllegalArgumentException, IllegalAccessException,
                         NoSuchFieldException, InvocationTargetException, NoSuchMethodException {
+            /* The patched class loader is expected to be a descendant of
+             * dalvik.system.BaseDexClassLoader. We modify its
+             * dalvik.system.DexPathList pathList field to append additional DEX
+             * file entries.
+             */
             Field pathListField = findField(loader, "pathList");
             Object dexPathList = pathListField.get(loader);
-            extendElements(dexPathList, additionalClassPathEntries, optimizedDirectory);
-        }
-
-        /**
-         * Appends extra elements created from the given dex or apk archives to the
-         * existing {@code dexElements} of the wrapped {@code DexPathList}.
-         *
-         * @param dexPathList the dalvik.system.DexPathList
-         * @param additionalClassPathEntries a list of zip files containing a classes.dex to add to
-         * dexPathList.
-         * @param optimizedDirectory a directory used by the system to optimize the
-         *        dex
-         */
-        private static void extendElements(Object dexPathList,
-                Collection<? extends File> additionalClassPathEntries, File optimizedDirectory)
-                        throws NoSuchFieldException, IllegalAccessException,
-                        InvocationTargetException, NoSuchMethodException {
-            if (additionalClassPathEntries.isEmpty()) {
-                return;
-            }
-            Field dexElementsField = findField(dexPathList, "dexElements");
-            Object[] original = (Object[]) dexElementsField.get(dexPathList);
-            Object[] extra = makeDexElements(dexPathList,
-                    new ArrayList<File>(additionalClassPathEntries), optimizedDirectory);
-            Object[] combined = (Object[]) Array.newInstance(
-                    original.getClass().getComponentType(), original.length + extra.length);
-            System.arraycopy(original, 0, combined, 0, original.length);
-            System.arraycopy(extra, 0, combined, original.length, extra.length);
-            dexElementsField.set(dexPathList, combined);
+            expandFieldArray(dexPathList, "dexElements", makeDexElements(dexPathList,
+                    new ArrayList<File>(additionalClassPathEntries), optimizedDirectory));
         }
 
         /**
@@ -264,4 +267,44 @@ public final class MultiDex {
             return (Object[]) makeDexElements.invoke(dexPathList, files, optimizedDirectory);
         }
     }
+
+    /**
+     * Installer for platform versions 4 to 13.
+     */
+    private static final class V4 {
+        private static void install(ClassLoader loader, List<File> additionalClassPathEntries,
+                File optimizedDirectory)
+                        throws IllegalArgumentException, IllegalAccessException,
+                        NoSuchFieldException, IOException {
+            /* The patched class loader is expected to be a descendant of
+             * dalvik.system.DexClassLoader. We modify its
+             * dalvik.system.DexPathList pathList field to append additional DEX
+             * file entries.
+             */
+            int extraSize = additionalClassPathEntries.size();
+
+            Field pathField = findField(loader, "path");
+
+            StringBuilder path = new StringBuilder((String) pathField.get(loader));
+            String[] extraPaths = new String[extraSize];
+            File[] extraFiles = new File[extraSize];
+            DexFile[] extraDexs = new DexFile[extraSize];
+            for (ListIterator<File> iterator = additionalClassPathEntries.listIterator();
+                    iterator.hasNext();) {
+                File additionalEntry = iterator.next();
+                String entryPath = additionalEntry.getAbsolutePath();
+                path.append(':').append(entryPath);
+                int index = iterator.previousIndex();
+                extraPaths[index] = entryPath;
+                extraFiles[index] = additionalEntry;
+                extraDexs[index] = DexFile.loadDex(entryPath, entryPath + ".dex", 0);
+            }
+
+            pathField.set(loader, path.toString());
+            expandFieldArray(loader, "mPaths", extraPaths);
+            expandFieldArray(loader, "mFiles", extraFiles);
+            expandFieldArray(loader, "mDexs", extraDexs);
+        }
+    }
+
 }
