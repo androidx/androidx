@@ -26,7 +26,6 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -190,6 +189,14 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public ActionBarDrawerToggle(Activity activity, DrawerLayout drawerLayout,
             int drawerImageRes, int openDrawerContentDescRes, int closeDrawerContentDescRes) {
         mActivity = activity;
+
+        // Allow the Activity to provide an impl
+        if (activity instanceof DelegateProvider) {
+            mActivityImpl = ((DelegateProvider) activity).getDrawerToggleDelegate();
+        } else {
+            mActivityImpl = null;
+        }
+
         mDrawerLayout = drawerLayout;
         mDrawerImageResource = drawerImageRes;
         mOpenDrawerContentDescRes = openDrawerContentDescRes;
@@ -199,13 +206,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         mDrawerImage = activity.getResources().getDrawable(drawerImageRes);
         mSlider = new SlideDrawable(mDrawerImage);
         mSlider.setOffsetBy(1.f / 3);
-
-        // Allow the Activity to provide an impl
-        if (activity instanceof DelegateProvider) {
-            mActivityImpl = ((DelegateProvider) activity).getDrawerToggleDelegate();
-        } else {
-            mActivityImpl = null;
-        }
     }
 
     /**
