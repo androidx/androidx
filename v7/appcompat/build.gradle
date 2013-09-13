@@ -1,0 +1,26 @@
+apply plugin: 'android-library'
+
+archivesBaseName = 'appcompat-v7'
+
+dependencies {
+    compile project(':v4')
+}
+
+android {
+    compileSdkVersion "current"
+    buildToolsVersion "17"
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDir 'src'
+        main.res.srcDir 'res'
+        main.assets.srcDir 'assets'
+        main.resources.srcDir 'src'
+        instrumentTest.java.srcDir 'tests/src'
+
+        // this moves src/instrumentTest to tests so all folders follow:
+        // tests/java, tests/res, tests/assets, ...
+        // This is a *reset* so it replaces the default paths
+        instrumentTest.setRoot('tests')
+    }
+}
