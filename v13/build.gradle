@@ -1,0 +1,95 @@
+apply plugin: 'java'
+
+archivesBaseName = 'support-v13'
+
+sourceSets {
+    main.java.srcDir 'java'
+    ics.java.srcDir 'ics'
+    icsmr1.java.srcDir 'ics-mr1'
+    k.java.srcDir 'k'
+}
+
+dependencies {
+    icsCompile getAndroidPrebuilt('14')
+
+    icsmr1Compile getAndroidPrebuilt('15')
+
+    kCompile getAndroidPrebuilt('current')
+
+    // order is important as we need the API 13 before the API 4 so that it uses the latest one.
+    compile getAndroidPrebuilt('13')
+    compile project(':v4')
+    compile sourceSets.ics.output
+    compile sourceSets.icsmr1.output
+    compile sourceSets.k.output
+}
+
+jar {
+    from sourceSets.ics.output
+    from sourceSets.icsmr1.output
+    from sourceSets.k.output
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            repository(url: uri(project.parent.ext.androidRepoOut)) {
+            }
+
+            pom.project {
+                name 'Android Support Library v13'
+                description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 13 or later."
+                url 'http://developer.android.com/tools/extras/support-library.html'
+                inceptionYear '2011'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                scm {
+                    url "http://source.android.com"
+                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
+                }
+                developers {
+                    developer {
+                        name 'The Android Open Source Project'
+                    }
+                }
+            }
+        }
+    }
+}
+
+// configuration for the javadoc to include all source sets.
+javadoc {
+    source    sourceSets.main.allJava
+    source    sourceSets.ics.allJava
+    source    sourceSets.icsmr1.allJava
+    source    sourceSets.k.allJava
+}
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn:classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    from sourceSets.ics.allSource
+    from sourceSets.icsmr1.allSource
+    from sourceSets.k.allSource
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+    classifier         'javadoc'
+    from               javadoc.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
