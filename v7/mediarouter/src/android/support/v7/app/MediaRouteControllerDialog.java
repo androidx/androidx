@@ -43,6 +43,11 @@ import android.widget.SeekBar;
 public class MediaRouteControllerDialog extends Dialog {
     private static final String TAG = "MediaRouteControllerDialog";
 
+    // Time to wait before updating the volume when the user lets go of the seek bar
+    // to allow the route provider time to propagate the change and publish a new
+    // route descriptor.
+    private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
+
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
     private final MediaRouter.RouteInfo mRoute;
@@ -137,15 +142,31 @@ public class MediaRouteControllerDialog extends Dialog {
         mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
         mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);
         mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            private final Runnable mStopTrackingTouch = new Runnable() {
+                @Override
+                public void run() {
+                    if (mVolumeSliderTouched) {
+                        mVolumeSliderTouched = false;
+                        updateVolume();
+                    }
+                }
+            };
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                mVolumeSliderTouched = true;
+                if (mVolumeSliderTouched) {
+                    mVolumeSlider.removeCallbacks(mStopTrackingTouch);
+                } else {
+                    mVolumeSliderTouched = true;
+                }
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mVolumeSliderTouched = false;
-                updateVolume();
+                // Defer resetting mVolumeSliderTouched to allow the media route provider
+                // a little time to settle into its new state and publish the final
+                // volume update.
+                mVolumeSlider.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MILLIS);
             }
 
             @Override
@@ -180,6 +201,7 @@ public class MediaRouteControllerDialog extends Dialog {
             }
         }
     }
+
 
     @Override
     public void onAttachedToWindow() {
