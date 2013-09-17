@@ -34,8 +34,9 @@ import android.net.Uri;
  * to as describing "types" or "kinds" of routes.
  * </p><p>
  * For example, if a route supports the {@link #CATEGORY_REMOTE_PLAYBACK remote playback category},
- * then an application can ask it to play media remotely by sending a {@link #ACTION_PLAY play}
- * intent with the Uri of the media content to play.  Such a route may then be referred to as
+ * then an application can ask it to play media remotely by sending a
+ * {@link #ACTION_PLAY play} or {@link #ACTION_ENQUEUE enqueue} intent with the Uri of the
+ * media content to play.  Such a route may then be referred to as
  * a "remote playback route" because it supports remote playback requests.  It is common
  * for a route to support multiple categories of requests at the same time, such as
  * live audio and live video.
@@ -133,11 +134,11 @@ import android.net.Uri;
  *
  * <h4>Media items</h4>
  * <p>
- * Each successful {@link #ACTION_PLAY play action} returns a unique media item id that
- * an application can use to monitor and control playback.  The media item id may be passed
- * to other actions such as {@link #ACTION_SEEK seek} or
- * {@link #ACTION_GET_STATUS get status}.  It will also appear as a parameter in
- * status update broadcasts to identify the associated playback request.
+ * Each successful {@link #ACTION_PLAY play} or {@link #ACTION_ENQUEUE enqueue} action
+ * returns a unique media item id that an application can use to monitor and control
+ * playback.  The media item id may be passed to other actions such as
+ * {@link #ACTION_SEEK seek} or {@link #ACTION_GET_STATUS get status}.  It will also appear
+ * as a parameter in status update broadcasts to identify the associated playback request.
  * </p><p>
  * Each media item is scoped to the session in which it was created.  Therefore media item
  * ids are only ever used together with session ids.  Media item ids are meaningless
@@ -158,9 +159,18 @@ import android.net.Uri;
  * Once the current item enters a terminal state, playback proceeds on to the
  * next item.
  * </p><p>
- * In the current version of the protocol, the queue may contain at most one item.
- * Each play action has the effect of clearing the queue and resetting its state
- * before the next item is played.
+ * The application should determine whether the route supports queuing by checking
+ * whether the {@link #ACTION_ENQUEUE} action is declared in the route's control filter
+ * using {@link MediaRouter.RouteInfo#supportsControlRequest RouteInfo.supportsControlRequest}.
+ * </p><p>
+ * If the {@link #ACTION_ENQUEUE} action is supported by the route, then the route promises
+ * to allow at least two items (possibly more) to be enqueued at a time.  Enqueued items play
+ * back to back one after the other as the previous item completes.  Ideally there should
+ * be no audible pause between items for standard audio content types.
+ * </p><p>
+ * If the {@link #ACTION_ENQUEUE} action is not supported by the route, then the queue
+ * effectively contains at most one item at a time.  Each play action has the effect of
+ * clearing the queue and resetting its state before the next item is played.
  * </p>
  *
  * <h4>Impact of pause, resume, stop and play actions on the playback queue</h4>
@@ -200,9 +210,11 @@ import android.net.Uri;
  * a new playback session.
  * </p>
  *
- * <h4>Actions</h4>
+ * <h4>Basic actions</h4>
  * <p>
- * The following remote playback actions are defined:
+ * The following basic actions must be supported (all or nothing) by all remote
+ * playback routes.  These actions form the basis of the remote playback protocol
+ * and are required in all implementations.
  * </p><ul>
  * <li>{@link #ACTION_PLAY Play}: Starts playing content specified by a given Uri
  * and returns a new media item id to describe the request.  Implicitly creates a new
@@ -214,6 +226,17 @@ import android.net.Uri;
  * <li>{@link #ACTION_RESUME Resume}: Resumes playback of the queue.
  * <li>{@link #ACTION_STOP Stop}: Stops playback, clears the queue, and resets the
  * pause state.
+ * </ul>
+ *
+ * <h4>Queue actions</h4>
+ * <p>
+ * The following queue actions must be supported (all or nothing) by remote
+ * playback routes that offer optional queuing capabilities.
+ * </p><ul>
+ * <li>{@link #ACTION_ENQUEUE Enqueue}: Enqueues content specified by a given Uri
+ * and returns a new media item id to describe the request.  Implicitly creates a new
+ * session if no session id was specified as a parameter.
+ * <li>{@link #ACTION_REMOVE Remove}: Removes a specified media item from the queue.
  * </ul>
  *
  * <h4>Implementation note</h4>
@@ -364,7 +387,8 @@ public final class MediaControlIntent {
      *
      * <h3>Status updates</h3>
      * <p>
-     * If the client supplies a {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER status update receiver}
+     * If the client supplies an
+     * {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER item status update receiver}
      * then the media route provider is responsible for sending status updates to the receiver
      * when significant media item state changes occur such as when playback starts or
      * stops.  The receiver will not be invoked for content playback position changes.
@@ -438,8 +462,6 @@ public final class MediaControlIntent {
      * </p>
      *
      * @see #ACTION_PLAY
-     *
-     * @hide Pending API review.
      */
     public static final String ACTION_ENQUEUE = "android.media.intent.action.ENQUEUE";
 
@@ -567,8 +589,6 @@ public final class MediaControlIntent {
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
-     *
-     * @hide Pending API review.
      */
     public static final String ACTION_REMOVE = "android.media.intent.action.REMOVE";
 
@@ -683,7 +703,7 @@ public final class MediaControlIntent {
      * Used with various actions to specify the id of the media session to be controlled.
      * </p><p>
      * Included in broadcast intents sent to
-     * {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER status update receivers} to identify
+     * {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER item status update receivers} to identify
      * the session to which the item in question belongs.
      * </p><p>
      * The value is a unique string value generated by the media route provider
@@ -703,8 +723,9 @@ public final class MediaControlIntent {
     /**
      * Bundle extra: Media item id.
      * <p>
-     * An opaque unique identifier returned as a result from {@link #ACTION_PLAY} that
-     * represents the media item that was created by the playback request.
+     * An opaque unique identifier returned as a result from {@link #ACTION_PLAY} or
+     * {@link #ACTION_ENQUEUE} that represents the media item that was created by the
+     * playback request.
      * </p><p>
      * Used with various actions to specify the id of the media item to be controlled.
      * </p><p>
@@ -717,6 +738,7 @@ public final class MediaControlIntent {
      * </p>
      *
      * @see #ACTION_PLAY
+     * @see #ACTION_ENQUEUE
      * @see #ACTION_SEEK
      * @see #ACTION_GET_STATUS
      */
@@ -727,11 +749,11 @@ public final class MediaControlIntent {
      * Bundle extra: Media item status.
      * <p>
      * Returned as a result from media item actions such as {@link #ACTION_PLAY},
-     * a{@link #ACTION_SEEK}, and {@link #ACTION_GET_STATUS}
+     * {@link #ACTION_ENQUEUE}, {@link #ACTION_SEEK}, and {@link #ACTION_GET_STATUS}
      * to describe the status of the specified media item.
      * </p><p>
      * Included in broadcast intents sent to
-     * {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER status update receivers} to provide
+     * {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER item status update receivers} to provide
      * updated status information.
      * </p><p>
      * The value is a {@link android.os.Bundle} of data that can be converted into
@@ -740,6 +762,7 @@ public final class MediaControlIntent {
      * </p>
      *
      * @see #ACTION_PLAY
+     * @see #ACTION_ENQUEUE
      * @see #ACTION_SEEK
      * @see #ACTION_GET_STATUS
      */
@@ -749,7 +772,8 @@ public final class MediaControlIntent {
     /**
      * Long extra: Media item content position.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify the starting playback position.
+     * Used with {@link #ACTION_PLAY} or {@link #ACTION_ENQUEUE} to specify the
+     * starting playback position.
      * </p><p>
      * Used with {@link #ACTION_SEEK} to set a new playback position.
      * </p><p>
@@ -757,6 +781,7 @@ public final class MediaControlIntent {
      * <p>
      *
      * @see #ACTION_PLAY
+     * @see #ACTION_ENQUEUE
      * @see #ACTION_SEEK
      */
     public static final String EXTRA_ITEM_CONTENT_POSITION =
@@ -765,14 +790,15 @@ public final class MediaControlIntent {
     /**
      * Bundle extra: Media item metadata.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify metadata associated with the content
-     * of a media item.
+     * Used with {@link #ACTION_PLAY} or {@link #ACTION_ENQUEUE} to specify metadata
+     * associated with the content of a media item.
      * </p><p>
      * The value is a {@link android.os.Bundle} of metadata key-value pairs as defined
      * in {@link MediaItemMetadata}.
      * </p>
      *
      * @see #ACTION_PLAY
+     * @see #ACTION_ENQUEUE
      */
     public static final String EXTRA_ITEM_METADATA =
             "android.media.intent.extra.ITEM_METADATA";
@@ -780,8 +806,9 @@ public final class MediaControlIntent {
     /**
      * Bundle extra: HTTP request headers.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify HTTP request headers to be
-     * included when fetching to the content indicated by the media item's data Uri.
+     * Used with {@link #ACTION_PLAY} or {@link #ACTION_ENQUEUE} to specify HTTP request
+     * headers to be included when fetching to the content indicated by the media
+     * item's data Uri.
      * </p><p>
      * This extra may be used to provide authentication tokens and other
      * parameters to the server separately from the media item's data Uri.
@@ -791,8 +818,7 @@ public final class MediaControlIntent {
      * </p>
      *
      * @see #ACTION_PLAY
-     *
-     * @hide Pending API review.
+     * @see #ACTION_ENQUEUE
      */
     public static final String EXTRA_ITEM_HTTP_HEADERS =
             "android.media.intent.extra.HTTP_HEADERS";
@@ -800,12 +826,13 @@ public final class MediaControlIntent {
     /**
      * Bundle extra: Media item status update receiver.
      * <p>
-     * Used with {@link #ACTION_PLAY} to specify a {@link PendingIntent} for a
+     * Used with {@link #ACTION_PLAY} or {@link #ACTION_ENQUEUE} to specify
+     * a {@link PendingIntent} for a
      * broadcast receiver that will receive status updates about a particular
      * media item.
      * </p><p>
      * Whenever the status of the media item changes, the media route provider will
-     * send a broadcast to the pending intent with extras that identify the queue
+     * send a broadcast to the pending intent with extras that identify the session
      * to which the item belongs, the item itself and the item's updated status.
      * </p><p>
      * The same pending intent and broadcast receiver may be shared by any number of
@@ -826,6 +853,7 @@ public final class MediaControlIntent {
      * </ul>
      *
      * @see #ACTION_PLAY
+     * @see #ACTION_ENQUEUE
      */
     public static final String EXTRA_ITEM_STATUS_UPDATE_RECEIVER =
             "android.media.intent.extra.ITEM_STATUS_UPDATE_RECEIVER";
