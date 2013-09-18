@@ -118,18 +118,25 @@ import android.net.Uri;
  * Sessions are used to prevent applications from accidentally interfering with one
  * another because at most one session can be valid at a time.
  * </p><p>
- * Some actions have the side-effect of creating new sessions.  If an application
- * performs an action that has the effect of creating a new session then
- * the previous session is invalidated and any ongoing media playback is stopped
- * before the requested action is performed.  Any attempt to use an invalidated
- * session will result in an error.  (Protocol implementations are encouraged to
- * aggressively discard any information associated with invalidated sessions.)
+ * A session can be created using the {@link #ACTION_START_SESSION start session action}
+ * and terminated using the {@link #ACTION_END_SESSION end session action} when the
+ * route provides explicit session management features.
  * </p><p>
- * A session is implicitly created when an application issues a
- * {@link #ACTION_PLAY play action} without specifying an existing session id as a parameter.
- * When this happens, any previous session is invalidated and the play action
- * returns a new session id that may be used to control the session with subsequent
- * actions such as pause, resume, or stop.
+ * Explicit session management was added in a later revision of the protocol so not
+ * all routes support it.  If the route does not support explicit session management
+ * then implicit session management may still be used.  Implicit session management
+ * relies on the use of the {@link #ACTION_PLAY play} and {@link #ACTION_ENQUEUE enqueue}
+ * actions which have the side-effect of creating a new session if none is provided
+ * as argument.
+ * </p><p>
+ * When a new session is created, the previous session is invalidated and any ongoing
+ * media playback is stopped before the requested action is performed.  Any attempt
+ * to use an invalidated session will result in an error.  (Protocol implementations
+ * are encouraged to aggressively discard information associated with invalidated sessions
+ * since it is no longer of use.)
+ * </p><p>
+ * Each session is identified by a unique session id that may be used to control
+ * the session using actions such as pause, resume, stop and end session.
  * </p>
  *
  * <h4>Media items</h4>
@@ -237,6 +244,16 @@ import android.net.Uri;
  * and returns a new media item id to describe the request.  Implicitly creates a new
  * session if no session id was specified as a parameter.
  * <li>{@link #ACTION_REMOVE Remove}: Removes a specified media item from the queue.
+ * </ul>
+ *
+ * <h4>Session actions</h4>
+ * <p>
+ * The following session actions must be supported (all or nothing) by remote
+ * playback routes that offer optional session management capabilities.
+ * </p><ul>
+ * <li>{@link #ACTION_START_SESSION Start session}: Starts a new session explicitly.
+ * <li>{@link #ACTION_GET_SESSION_STATUS Get session status}: Gets the status of a session.
+ * <li>{@link #ACTION_END_SESSION End session}: Ends a session explicitly.
  * </ul>
  *
  * <h4>Implementation note</h4>
@@ -378,6 +395,8 @@ public final class MediaControlIntent {
      * <li>{@link #EXTRA_SESSION_ID} <em>(always returned)</em>: Specifies the session id of the
      * session that was affected by the request.  This will be a new session in
      * the case where no session id was supplied as a parameter.
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * <li>{@link #EXTRA_ITEM_ID} <em>(always returned)</em>: Specifies an opaque string identifier
      * to use to refer to the media item in subsequent requests such as
      * {@link #ACTION_GET_STATUS}.
@@ -497,6 +516,8 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * <li>{@link #EXTRA_ITEM_STATUS} <em>(always returned)</em>: Specifies the new status of
      * the media item.
      * </ul>
@@ -534,6 +555,8 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * <li>{@link #EXTRA_ITEM_STATUS} <em>(always returned)</em>: Specifies the current status of
      * the media item.
      * </ul>
@@ -576,6 +599,8 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * <li>{@link #EXTRA_ITEM_STATUS} <em>(always returned)</em>: Specifies the new status of
      * the media item.
      * </ul>
@@ -611,7 +636,8 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li><em>None</em>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * </ul>
      *
      * <h3>Errors</h3>
@@ -643,7 +669,8 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li><em>None</em>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * </ul>
      *
      * <h3>Errors</h3>
@@ -680,7 +707,8 @@ public final class MediaControlIntent {
      *
      * <h3>Result data</h3>
      * <ul>
-     * <li><em>None</em>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * </ul>
      *
      * <h3>Errors</h3>
@@ -694,17 +722,149 @@ public final class MediaControlIntent {
     public static final String ACTION_STOP = "android.media.intent.action.STOP";
 
     /**
+     * Remote playback media control action: Start session.
+     * <p>
+     * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
+     * media control.
+     * </p><p>
+     * This action causes a remote playback route to invalidate the current session
+     * and start a new session.  The new session initially has an empty queue.
+     * </p><p>
+     * If successful, the status of all media items in the previous session's queue is set to
+     * {@link MediaItemStatus#PLAYBACK_STATE_INVALIDATED invalidated} and a status update
+     * is sent to the appropriate status update receivers indicating the new status
+     * of each item.  The previous session becomes no longer valid and the new session
+     * takes control of the route.
+     * </p>
+     *
+     * <h3>Request parameters</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_STATUS_UPDATE_RECEIVER} <em>(optional)</em>: Specifies a
+     * {@link PendingIntent} for a broadcast receiver that will receive status updates
+     * about the media session.
+     * </ul>
+     *
+     * <h3>Result data</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_ID} <em>(always returned)</em>: Specifies the session id of the
+     * session that was started by the request.  This will always be a brand new session
+     * distinct from any other previously created sessions.
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(always returned)</em>: Specifies the
+     * status of the media session.
+     * </ul>
+     *
+     * <h3>Status updates</h3>
+     * <p>
+     * If the client supplies a
+     * {@link #EXTRA_SESSION_STATUS_UPDATE_RECEIVER status update receiver}
+     * then the media route provider is responsible for sending status updates to the receiver
+     * when significant media session state changes occur such as when the session's
+     * queue is paused or resumed or when the session is terminated or invalidated.
+     * </p><p>
+     * Refer to {@link MediaSessionStatus} for details.
+     * </p>
+     *
+     * <h3>Errors</h3>
+     * <p>
+     * This action returns an error if the session could not be created.
+     * </p>
+     *
+     * @see MediaRouter.RouteInfo#sendControlRequest
+     * @see #CATEGORY_REMOTE_PLAYBACK
+     */
+    public static final String ACTION_START_SESSION = "android.media.intent.action.START_SESSION";
+
+    /**
+     * Remote playback media control action: Get media session status information.
+     * <p>
+     * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
+     * media control.
+     * </p><p>
+     * This action asks a remote playback route to provide updated status information
+     * about the specified media session.
+     * </p>
+     *
+     * <h3>Request parameters</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_ID} <em>(required)</em>: Specifies the session id of the
+     * session whose status is to be retrieved.
+     * </ul>
+     *
+     * <h3>Result data</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(always returned)</em>: Specifies the
+     * current status of the media session.
+     * </ul>
+     *
+     * <h3>Errors</h3>
+     * <p>
+     * This action returns an error if the session id is unknown or no longer valid.
+     * </p>
+     *
+     * @see MediaRouter.RouteInfo#sendControlRequest
+     * @see #CATEGORY_REMOTE_PLAYBACK
+     * @see #EXTRA_SESSION_STATUS_UPDATE_RECEIVER
+     */
+    public static final String ACTION_GET_SESSION_STATUS =
+            "android.media.intent.action.GET_SESSION_STATUS";
+
+    /**
+     * Remote playback media control action: End session.
+     * <p>
+     * Used with routes that support {@link #CATEGORY_REMOTE_PLAYBACK remote playback}
+     * media control.
+     * </p><p>
+     * This action causes a remote playback route to end the specified session.
+     * The session becomes no longer valid and the route ceases to be under control
+     * of the session.
+     * </p><p>
+     * If successful, the status of the session is set to
+     * {@link MediaSessionStatus#SESSION_STATE_ENDED} and a status update is sent to
+     * the session's status update receiver.
+     * </p><p>
+     * Additionally, the status of all media items in the queue is set to
+     * {@link MediaItemStatus#PLAYBACK_STATE_CANCELED canceled} and a status update is sent
+     * to the appropriate status update receivers indicating the new status of each item.
+     * </p>
+     *
+     * <h3>Request parameters</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_ID} <em>(required)</em>: Specifies the session id of
+     * the session to end.
+     * </ul>
+     *
+     * <h3>Result data</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(always returned)</em>: Specifies the
+     * status of the media session.
+     * </ul>
+     *
+     * <h3>Errors</h3>
+     * <p>
+     * This action returns an error if the session id is unknown or no longer valid.
+     * In other words, it is an error to attempt to end a session other than the
+     * current session.
+     * </p>
+     *
+     * @see MediaRouter.RouteInfo#sendControlRequest
+     * @see #CATEGORY_REMOTE_PLAYBACK
+     */
+    public static final String ACTION_END_SESSION = "android.media.intent.action.END_SESSION";
+
+    /**
      * Bundle extra: Media session id.
      * <p>
      * An opaque unique identifier that identifies the remote playback media session.
-     * The session id is returned by {@link #ACTION_PLAY} along with the media item id
-     * of the requested content.
      * </p><p>
      * Used with various actions to specify the id of the media session to be controlled.
      * </p><p>
      * Included in broadcast intents sent to
      * {@link #EXTRA_ITEM_STATUS_UPDATE_RECEIVER item status update receivers} to identify
      * the session to which the item in question belongs.
+     * </p><p>
+     * Included in broadcast intents sent to
+     * {@link #EXTRA_SESSION_STATUS_UPDATE_RECEIVER session status update receivers} to identify
+     * the session.
      * </p><p>
      * The value is a unique string value generated by the media route provider
      * to represent one particular media session.
@@ -716,9 +876,67 @@ public final class MediaControlIntent {
      * @see #ACTION_PAUSE
      * @see #ACTION_RESUME
      * @see #ACTION_STOP
+     * @see #ACTION_START_SESSION
+     * @see #ACTION_GET_SESSION_STATUS
+     * @see #ACTION_END_SESSION
      */
     public static final String EXTRA_SESSION_ID =
             "android.media.intent.extra.SESSION_ID";
+
+    /**
+     * Bundle extra: Media session status.
+     * <p>
+     * Returned as a result from media session actions such as {@link #ACTION_START_SESSION},
+     * {@link #ACTION_PAUSE}, and {@link #ACTION_GET_SESSION_STATUS}
+     * to describe the status of the specified media session.
+     * </p><p>
+     * Included in broadcast intents sent to
+     * {@link #EXTRA_SESSION_STATUS_UPDATE_RECEIVER session status update receivers} to provide
+     * updated status information.
+     * </p><p>
+     * The value is a {@link android.os.Bundle} of data that can be converted into
+     * a {@link MediaSessionStatus} object using
+     * {@link MediaSessionStatus#fromBundle MediaSessionStatus.fromBundle}.
+     * </p>
+     *
+     * @see #ACTION_PLAY
+     * @see #ACTION_SEEK
+     * @see #ACTION_GET_STATUS
+     * @see #ACTION_PAUSE
+     * @see #ACTION_RESUME
+     * @see #ACTION_STOP
+     * @see #ACTION_START_SESSION
+     * @see #ACTION_GET_SESSION_STATUS
+     * @see #ACTION_END_SESSION
+     */
+    public static final String EXTRA_SESSION_STATUS =
+            "android.media.intent.extra.SESSION_STATUS";
+
+    /**
+     * Bundle extra: Media item status update receiver.
+     * <p>
+     * Used with {@link #ACTION_START_SESSION} to specify a {@link PendingIntent} for a
+     * broadcast receiver that will receive status updates about the media session.
+     * </p><p>
+     * Whenever the status of the media session changes, the media route provider will
+     * send a broadcast to the pending intent with extras that identify the session
+     * id and its updated status.
+     * </p><p>
+     * The value is a {@link PendingIntent}.
+     * </p>
+     *
+     * <h3>Broadcast extras</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_ID} <em>(required)</em>: Specifies the session id of
+     * the session.
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(required)</em>: Specifies the status of the
+     * session as a bundle that can be decoded into a {@link MediaSessionStatus} object.
+     * </ul>
+     *
+     * @see #ACTION_START_SESSION
+     */
+    public static final String EXTRA_SESSION_STATUS_UPDATE_RECEIVER =
+            "android.media.intent.extra.SESSION_STATUS_UPDATE_RECEIVER";
 
     /**
      * Bundle extra: Media item id.
