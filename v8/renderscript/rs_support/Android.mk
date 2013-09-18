@@ -135,7 +135,6 @@ endif
 LOCAL_LDFLAGS += -llog -ldl
 LOCAL_NDK_STL_VARIANT := stlport_static
 
-LOCAL_C_INCLUDES += external/clang/lib/Headers
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 
 
