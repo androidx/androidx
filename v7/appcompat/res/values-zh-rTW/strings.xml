@@ -27,6 +27,6 @@
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"語音搜尋"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"選擇應用程式"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"查看全部"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"與 %s 分享"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"與「%s」分享"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"選擇分享對象"</string>
 </resources>
