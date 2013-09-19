@@ -24,6 +24,9 @@ import android.support.v4.util.TimeUtils;
 /**
  * Describes the playback status of a media item.
  * <p>
+ * This class is part of the remote playback protocol described by the
+ * {@link MediaControlIntent MediaControlIntent} class.
+ * </p><p>
  * As a media item is played, it transitions through a sequence of states including:
  * {@link #PLAYBACK_STATE_PENDING pending}, {@link #PLAYBACK_STATE_BUFFERING buffering},
  * {@link #PLAYBACK_STATE_PLAYING playing}, {@link #PLAYBACK_STATE_PAUSED paused},
@@ -37,8 +40,8 @@ import android.support.v4.util.TimeUtils;
  * {@link #getContentDuration content duration} although not all route destinations
  * will report it.
  * </p><p>
- * To monitor playback status, the application should supply a {@link PendingIntent} to use
- * as the {@link MediaControlIntent#EXTRA_ITEM_STATUS_UPDATE_RECEIVER status update receiver}
+ * To monitor playback status, the application should supply a {@link PendingIntent} to use as the
+ * {@link MediaControlIntent#EXTRA_ITEM_STATUS_UPDATE_RECEIVER item status update receiver}
  * for a given {@link MediaControlIntent#ACTION_PLAY playback request}.  Note that
  * the status update receiver will only be invoked for major status changes such as a
  * transition from playing to finished.
@@ -104,7 +107,8 @@ public final class MediaItemStatus {
      * Indicates that the media item played to the end of the content and finished normally.
      * </p><p>
      * A finished media item cannot be resumed.  To play the content again, the application
-     * must send a new {@link MediaControlIntent#ACTION_PLAY play} action.
+     * must send a new {@link MediaControlIntent#ACTION_PLAY play} or
+     * {@link MediaControlIntent#ACTION_ENQUEUE enqueue} action.
      * </p>
      */
     public static final int PLAYBACK_STATE_FINISHED = 4;
@@ -113,13 +117,15 @@ public final class MediaItemStatus {
      * Playback state: Canceled.
      * <p>
      * Indicates that the media item was explicitly removed from the queue by the
-     * application.  Items may be canceled and removed from the queue using the
+     * application.  Items may be canceled and removed from the queue using
+     * the {@link MediaControlIntent#ACTION_REMOVE remove} or
      * {@link MediaControlIntent#ACTION_STOP stop} action or by issuing
      * another {@link MediaControlIntent#ACTION_PLAY play} action that has the
      * side-effect of clearing the queue.
      * </p><p>
      * A canceled media item cannot be resumed.  To play the content again, the
-     * application must send a new {@link MediaControlIntent#ACTION_PLAY play} action.
+     * application must send a new {@link MediaControlIntent#ACTION_PLAY play} or
+     * {@link MediaControlIntent#ACTION_ENQUEUE enqueue} action.
      * </p>
      */
     public static final int PLAYBACK_STATE_CANCELED = 5;
@@ -138,7 +144,8 @@ public final class MediaItemStatus {
      * another application that may have just started using the route.
      * </p><p>
      * An invalidated media item cannot be resumed.  To play the content again, the application
-     * must send a new {@link MediaControlIntent#ACTION_PLAY play} action.
+     * must send a new {@link MediaControlIntent#ACTION_PLAY play} or
+     * {@link MediaControlIntent#ACTION_ENQUEUE enqueue} action.
      * </p>
      */
     public static final int PLAYBACK_STATE_INVALIDATED = 6;
@@ -151,7 +158,8 @@ public final class MediaItemStatus {
      * content.
      * </p><p>
      * A media item in the error state cannot be resumed.  To play the content again,
-     * the application must send a new {@link MediaControlIntent#ACTION_PLAY play} action.
+     * the application must send a new {@link MediaControlIntent#ACTION_PLAY play} or
+     * {@link MediaControlIntent#ACTION_ENQUEUE enqueue} action.
      * </p>
      */
     public static final int PLAYBACK_STATE_ERROR = 7;
@@ -168,8 +176,6 @@ public final class MediaItemStatus {
      * The value is an integer HTTP status code, such as 401 (Unauthorized),
      * 404 (Not Found), or 500 (Server Error), or 0 if none.
      * </p>
-     *
-     * @hide Pending API review.
      */
     public static final String EXTRA_HTTP_STATUS_CODE =
             "android.media.status.extra.HTTP_STATUS_CODE";
@@ -185,8 +191,6 @@ public final class MediaItemStatus {
      * The value is a {@link android.os.Bundle} of string based key-value pairs
      * that describe the HTTP response headers.
      * </p>
-     *
-     * @hide Pending API review.
      */
     public static final String EXTRA_HTTP_RESPONSE_HEADERS =
             "android.media.status.extra.HTTP_RESPONSE_HEADERS";
