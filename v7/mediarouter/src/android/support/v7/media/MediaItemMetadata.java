@@ -21,6 +21,9 @@ import android.os.Bundle;
 /**
  * Constants for specifying metadata about a media item as a {@link Bundle}.
  * <p>
+ * This class is part of the remote playback protocol described by the
+ * {@link MediaControlIntent MediaControlIntent} class.
+ * </p><p>
  * Media item metadata is described as a bundle of key/value pairs as defined
  * in this class.  The documentation specifies the type of value associated
  * with each key.
@@ -119,4 +122,17 @@ public final class MediaItemMetadata {
      * </p>
      */
     public static final String KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
+
+    /**
+     * Long key: Item playback duration in milliseconds.
+     * <p>
+     * The value is a <code>long</code> number of milliseconds.
+     * </p><p>
+     * The duration metadata is only a hint to enable a remote media player to
+     * guess the duration of the content before it actually opens the media stream.
+     * The remote media player should still determine the actual content duration from
+     * the media stream itself independent of the value that may be specified by this key.
+     * </p>
+     */
+    public static final String KEY_DURATION = "android.media.metadata.DURATION";
 }
