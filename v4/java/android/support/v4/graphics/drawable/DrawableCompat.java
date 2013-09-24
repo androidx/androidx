@@ -28,6 +28,8 @@ public class DrawableCompat {
      */
     interface DrawableImpl {
         void jumpToCurrentState(Drawable drawable);
+        void setAutoMirrored(Drawable drawable, boolean mirrored);
+        boolean isAutoMirrored(Drawable drawable);
     }
 
     /**
@@ -37,15 +39,39 @@ public class DrawableCompat {
         @Override
         public void jumpToCurrentState(Drawable drawable) {
         }
+
+        @Override
+        public void setAutoMirrored(Drawable drawable, boolean mirrored) {
+        }
+
+        @Override
+        public boolean isAutoMirrored(Drawable drawable) {
+            return false;
+        }
     }
 
     /**
      * Interface implementation for devices with at least v11 APIs.
      */
-    static class HoneycombDrawableImpl implements DrawableImpl {
+    static class HoneycombDrawableImpl extends BaseDrawableImpl {
         @Override
         public void jumpToCurrentState(Drawable drawable) {
             DrawableCompatHoneycomb.jumpToCurrentState(drawable);
+        }
+    }
+
+    /**
+     * Interface implementation for devices with at least v11 APIs.
+     */
+    static class KitKatDrawableImpl extends HoneycombDrawableImpl {
+        @Override
+        public void setAutoMirrored(Drawable drawable, boolean mirrored) {
+            DrawableCompatKitKat.setAutoMirrored(drawable, mirrored);
+        }
+
+        @Override
+        public boolean isAutoMirrored(Drawable drawable) {
+            return DrawableCompatKitKat.isAutoMirrored(drawable);
         }
     }
 
@@ -55,7 +81,9 @@ public class DrawableCompat {
     static final DrawableImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 11) {
+        if (version >= 19) {
+            IMPL = new KitKatDrawableImpl();
+        } else if (version >= 11) {
             IMPL = new HoneycombDrawableImpl();
         } else {
             IMPL = new BaseDrawableImpl();
@@ -64,10 +92,44 @@ public class DrawableCompat {
 
     /**
      * Call {@link Drawable#jumpToCurrentState() Drawable.jumpToCurrentState()}.
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#HONEYCOMB} device
-     * this method does nothing.
+     * <p>
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#HONEYCOMB}
+     * device this method does nothing.
+     *
+     * @param drawable The Drawable against which to invoke the method.
      */
     public static void jumpToCurrentState(Drawable drawable) {
         IMPL.jumpToCurrentState(drawable);
+    }
+
+    /**
+     * Set whether this Drawable is automatically mirrored when its layout
+     * direction is RTL (right-to left). See
+     * {@link android.util.LayoutDirection}.
+     * <p>
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#KITKAT} device
+     * this method does nothing.
+     *
+     * @param drawable The Drawable against which to invoke the method.
+     * @param mirrored Set to true if the Drawable should be mirrored, false if
+     *            not.
+     */
+    public static void setAutoMirrored(Drawable drawable, boolean mirrored) {
+        IMPL.setAutoMirrored(drawable, mirrored);
+    }
+
+    /**
+     * Tells if this Drawable will be automatically mirrored when its layout
+     * direction is RTL right-to-left. See {@link android.util.LayoutDirection}.
+     * <p>
+     * If running on a pre-{@link android.os.Build.VERSION_CODES#KITKAT} device
+     * this method returns false.
+     *
+     * @param drawable The Drawable against which to invoke the method.
+     * @return boolean Returns true if this Drawable will be automatically
+     *         mirrored.
+     */
+    public static boolean isAutoMirrored(Drawable drawable) {
+        return IMPL.isAutoMirrored(drawable);
     }
 }
