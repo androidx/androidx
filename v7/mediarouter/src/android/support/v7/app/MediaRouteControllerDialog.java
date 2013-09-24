@@ -221,25 +221,19 @@ public class MediaRouteControllerDialog extends Dialog {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (isVolumeControlAvailable()) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                mRoute.requestUpdateVolume(-1);
-                return true;
-            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                mRoute.requestUpdateVolume(1);
-                return true;
-            }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
+                || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            mRoute.requestUpdateVolume(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? -1 : 1);
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (isVolumeControlAvailable()) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
-                    || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                return true;
-            }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
+                || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            return true;
         }
         return super.onKeyUp(keyCode, event);
     }
