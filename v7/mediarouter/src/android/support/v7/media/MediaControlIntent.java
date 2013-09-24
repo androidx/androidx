@@ -1051,7 +1051,8 @@ public final class MediaControlIntent {
      * </p><p>
      * Whenever the status of the media item changes, the media route provider will
      * send a broadcast to the pending intent with extras that identify the session
-     * to which the item belongs, the item itself and the item's updated status.
+     * to which the item belongs, the session status, the item's id
+     * and the item's updated status.
      * </p><p>
      * The same pending intent and broadcast receiver may be shared by any number of
      * media items since the broadcast intent includes the media session id
@@ -1064,6 +1065,8 @@ public final class MediaControlIntent {
      * <ul>
      * <li>{@link #EXTRA_SESSION_ID} <em>(required)</em>: Specifies the session id of
      * the session to which the item in question belongs.
+     * <li>{@link #EXTRA_SESSION_STATUS} <em>(optional, old implementations may
+     * omit this key)</em>: Specifies the status of the media session.
      * <li>{@link #EXTRA_ITEM_ID} <em>(required)</em>: Specifies the media item id of the
      * media item in question.
      * <li>{@link #EXTRA_ITEM_STATUS} <em>(required)</em>: Specifies the status of the
