@@ -134,7 +134,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
 
         @Override
         public void onSizeChanged(int width, int height) {
-            mLocalPlayer.updateSize(width, height);
+            mPlayer.updateSize(width, height);
         }
 
         @Override
@@ -197,16 +197,11 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 playerCB = mRemotePlayer;
                 mRemotePlayer.reset();
 
-                // Create and register the remote control client
-                registerRCC();
             } else {
                 // Local Playback:
                 //   Use local player and feed media player one item at a time
                 player = mLocalPlayer;
                 playerCB = mMediaPlayer;
-
-                // Unregister the remote control client
-                unregisterRCC();
             }
 
             if (player != mPlayer || playerCB != mPlayerCB) {
@@ -506,6 +501,9 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         mediaButtonIntent.setComponent(mEventReceiver);
         mMediaPendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0);
+
+        // Create and register the remote control client
+        registerRCC();
     }
 
     private void registerRCC() {
@@ -620,10 +618,14 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
 
     @Override
     public void onDestroy() {
+        // Unregister the remote control client
+        unregisterRCC();
+
         // Unregister broadcast receiver
         unregisterReceiver(mReceiver);
         mPlayer.stop();
         mMediaPlayer.release();
+
         super.onDestroy();
     }
 
@@ -768,19 +770,20 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         toast.show();
     }
 
-    private abstract class Player {
-        abstract void enqueue(final Uri uri, long pos);
-        abstract void remove(final MediaQueueItem item);
-        abstract void seek(String sid, String iid, long pos);
-        abstract void getStatus(final MediaQueueItem item, final boolean update);
-        abstract void pause();
-        abstract void resume();
-        abstract void stop();
-        abstract void showStatistics();
-        abstract void onFinish(boolean error);
+    private interface Player {
+        void enqueue(final Uri uri, long pos);
+        void remove(final MediaQueueItem item);
+        void seek(String sid, String iid, long pos);
+        void getStatus(final MediaQueueItem item, final boolean update);
+        void pause();
+        void resume();
+        void stop();
+        void showStatistics();
+        void onFinish(boolean error);
+        void updateSize(int width, int height);
     }
 
-    private class LocalPlayer extends Player implements SurfaceHolder.Callback {
+    private class LocalPlayer implements Player, SurfaceHolder.Callback {
         private final MediaSessionManager mSessionManager = new MediaSessionManager();
         private String mSessionId;
         // The presentation to show on the secondary display.
@@ -795,7 +798,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
             mSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
             SurfaceHolder holder = mSurfaceView.getHolder();
             holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            holder.addCallback(mLocalPlayer);
+            holder.addCallback(this);
         }
 
         public void setCallback(MediaSessionManager.Callback cb) {
@@ -911,7 +914,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         public void surfaceCreated(SurfaceHolder holder) {
             Log.d(TAG, "surfaceCreated");
             mMediaPlayer.setSurface(holder);
-            mLocalPlayer.updateSize(mVideoWidth, mVideoHeight);
+            updateSize(mVideoWidth, mVideoHeight);
         }
 
         @Override
@@ -919,7 +922,8 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
             Log.d(TAG, "surfaceDestroyed");
         }
 
-        private void updateSize(int width, int height) {
+        @Override
+        public void updateSize(int width, int height) {
             if (width > 0 && height > 0) {
                 if (mPresentation == null) {
                     int surfaceWidth = mLayout.getWidth();
@@ -1028,7 +1032,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 mPresentationSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
                 SurfaceHolder holder = mPresentationSurfaceView.getHolder();
                 holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-                holder.addCallback(mLocalPlayer);
+                holder.addCallback(LocalPlayer.this);
             }
 
             public void updateSize(int width, int height) {
@@ -1048,7 +1052,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         }
     }
 
-    private class RemotePlayer extends Player implements MediaSessionManager.Callback {
+    private class RemotePlayer implements Player, MediaSessionManager.Callback {
         private MediaQueueItem mQueueItem;
         private MediaQueueItem mPlaylistItem;
         private String mSessionId;
@@ -1361,6 +1365,11 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         @Override
         public void onFinish(boolean error) {
             updateUi();
+        }
+
+        @Override
+        public void updateSize(int width, int height) {
+            // nothing to do
         }
 
         private void play(final Uri uri, boolean enqueue, final long pos) {
