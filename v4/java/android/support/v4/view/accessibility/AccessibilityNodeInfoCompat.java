@@ -727,8 +727,7 @@ public class AccessibilityNodeInfoCompat {
     }
 
     static {
-        // TODO: Use SDK_INT when it is finalized, tracked by bug:8133596
-        if ("JellyBeanMR2".equals(Build.VERSION.CODENAME)) { // JellyBean MR2
+        if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
             IMPL = new AccessibilityNodeInfoJellybeanMr2Impl();
         } else if (Build.VERSION.SDK_INT >= 16) { // JellyBean
             IMPL = new AccessibilityNodeInfoJellybeanImpl();
