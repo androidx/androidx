@@ -46,7 +46,7 @@ public class ScriptIntrinsicYuvToRGBThunker extends ScriptIntrinsicYuvToRGB {
 
     public void forEach(Allocation aout) {
         AllocationThunker aoutt = (AllocationThunker)aout;
-        mN.setInput(aoutt.getNObj());
+        mN.forEach(aoutt.getNObj());
     }
 
     public Script.KernelID getKernelID() {
