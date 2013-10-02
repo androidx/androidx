@@ -422,7 +422,9 @@ public final class MediaControlIntent {
      * This action returns an error if a session id was provided but is unknown or
      * no longer valid, if the item Uri or content type is not supported, or if
      * any other arguments are invalid.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * <h3>Example</h3>
      * <pre>
@@ -527,7 +529,9 @@ public final class MediaControlIntent {
      * This action returns an error if the session id or media item id are unknown
      * or no longer valid, if the content position is invalid, or if the media item
      * is in a terminal state.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -565,7 +569,9 @@ public final class MediaControlIntent {
      * <p>
      * This action returns an error if the session id or media item id are unknown
      * or no longer valid.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -610,7 +616,9 @@ public final class MediaControlIntent {
      * This action returns an error if the session id or media item id are unknown
      * or no longer valid, or if the media item is in a terminal state (and therefore
      * no longer in the queue).
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -643,7 +651,9 @@ public final class MediaControlIntent {
      * <h3>Errors</h3>
      * <p>
      * This action returns an error if the session id is unknown or no longer valid.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -676,7 +686,9 @@ public final class MediaControlIntent {
      * <h3>Errors</h3>
      * <p>
      * This action returns an error if the session id is unknown or no longer valid.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -714,7 +726,9 @@ public final class MediaControlIntent {
      * <h3>Errors</h3>
      * <p>
      * This action returns an error if the session id is unknown or no longer valid.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -767,7 +781,9 @@ public final class MediaControlIntent {
      * <h3>Errors</h3>
      * <p>
      * This action returns an error if the session could not be created.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -799,7 +815,9 @@ public final class MediaControlIntent {
      * <h3>Errors</h3>
      * <p>
      * This action returns an error if the session id is unknown or no longer valid.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -844,7 +862,9 @@ public final class MediaControlIntent {
      * This action returns an error if the session id is unknown or no longer valid.
      * In other words, it is an error to attempt to end a session other than the
      * current session.
-     * </p>
+     * </p><ul>
+     * <li>{@link #EXTRA_ERROR_CODE} <em>(optional)</em>: Specifies the cause of the error.
+     * </ul>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
      * @see #CATEGORY_REMOTE_PLAYBACK
@@ -1078,6 +1098,46 @@ public final class MediaControlIntent {
      */
     public static final String EXTRA_ITEM_STATUS_UPDATE_RECEIVER =
             "android.media.intent.extra.ITEM_STATUS_UPDATE_RECEIVER";
+
+    /**
+     * Integer extra: Error code.
+     * <p>
+     * Used with all media control requests to describe the cause of an error.
+     * This extra may be omitted when the error is unknown.
+     * </p><p>
+     * The value is one of: {@link #ERROR_UNKNOWN}, {@link #ERROR_UNSUPPORTED_OPERATION},
+     * {@link #ERROR_INVALID_SESSION_ID}, {@link #ERROR_INVALID_ITEM_ID}.
+     * </p>
+     */
+    public static final String EXTRA_ERROR_CODE = "android.media.intent.extra.ERROR_CODE";
+
+    /**
+     * Error code: An unknown error occurred.
+     *
+     * @see #EXTRA_ERROR_CODE
+     */
+    public static final int ERROR_UNKNOWN = 0;
+
+    /**
+     * Error code: The operation is not supported.
+     *
+     * @see #EXTRA_ERROR_CODE
+     */
+    public static final int ERROR_UNSUPPORTED_OPERATION = 1;
+
+    /**
+     * Error code: The session id specified in the request was invalid.
+     *
+     * @see #EXTRA_ERROR_CODE
+     */
+    public static final int ERROR_INVALID_SESSION_ID = 2;
+
+    /**
+     * Error code: The item id specified in the request was invalid.
+     *
+     * @see #EXTRA_ERROR_CODE
+     */
+    public static final int ERROR_INVALID_ITEM_ID = 3;
 
     private MediaControlIntent() {
     }
