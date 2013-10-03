@@ -67,6 +67,12 @@ public class ViewCompat {
     public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 0x00000002;
 
     /**
+     * The view is not important for accessibility, nor are any of its
+     * descendant views.
+     */
+    public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 0x00000004;
+
+    /**
      * Indicates that the view does not have a layer.
      */
     public static final int LAYER_TYPE_NONE = 0;
@@ -773,6 +779,7 @@ public class ViewCompat {
      *
      * @see #IMPORTANT_FOR_ACCESSIBILITY_YES
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
     public static int getImportantForAccessibility(View view) {
@@ -789,6 +796,7 @@ public class ViewCompat {
      *
      * @see #IMPORTANT_FOR_ACCESSIBILITY_YES
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO
+     * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
     public static void setImportantForAccessibility(View view, int mode) {
