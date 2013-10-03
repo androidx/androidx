@@ -56,7 +56,7 @@ public class ScaleGestureDetectorCompat {
 
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version > 18) { // KitKat
+        if (version >= 19) { // KitKat
             IMPL = new ScaleGestureDetectorCompatKitKatImpl();
         } else {
             IMPL = new BaseScaleGestureDetectorImpl();
