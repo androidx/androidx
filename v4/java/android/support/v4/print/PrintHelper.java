@@ -43,9 +43,8 @@ public final class PrintHelper {
      * @return True if printing is supported.
      */
     public static boolean systemSupportsPrint() {
-        if ("KeyLimePie".equals(Build.VERSION.CODENAME) // TODO recode to be KitKat and above
-                || Build.VERSION.SDK_INT > 18) {
-
+        if (Build.VERSION.SDK_INT >= 19) {
+            // Supported on Android 4.4 or later.
             return true;
         }
         return false;
