@@ -81,12 +81,64 @@ public class AccessibilityNodeProviderCompat {
         }
     }
 
+    static class AccessibilityNodeProviderKitKatImpl extends AccessibilityNodeProviderStubImpl {
+        @Override
+        public Object newAccessibilityNodeProviderBridge(
+                final AccessibilityNodeProviderCompat compat) {
+            return AccessibilityNodeProviderCompatKitKat.newAccessibilityNodeProviderBridge(
+                    new AccessibilityNodeProviderCompatKitKat.AccessibilityNodeInfoBridge() {
+                        @Override
+                        public boolean performAction(
+                                int virtualViewId, int action, Bundle arguments) {
+                            return compat.performAction(virtualViewId, action, arguments);
+                        }
+
+                        @Override
+                        public List<Object> findAccessibilityNodeInfosByText(
+                                String text, int virtualViewId) {
+                            List<AccessibilityNodeInfoCompat> compatInfos =
+                                    compat.findAccessibilityNodeInfosByText(text, virtualViewId);
+                            List<Object> infos = new ArrayList<Object>();
+                            final int infoCount = compatInfos.size();
+                            for (int i = 0; i < infoCount; i++) {
+                                AccessibilityNodeInfoCompat infoCompat = compatInfos.get(i);
+                                infos.add(infoCompat.getInfo());
+                            }
+                            return infos;
+                        }
+
+                        @Override
+                        public Object createAccessibilityNodeInfo(int virtualViewId) {
+                            final AccessibilityNodeInfoCompat compatInfo =
+                                    compat.createAccessibilityNodeInfo(virtualViewId);
+                            if (compatInfo == null) {
+                                return null;
+                            } else {
+                                return compatInfo.getInfo();
+                            }
+                        }
+
+                        @Override
+                        public Object findFocus(int focus) {
+                            final AccessibilityNodeInfoCompat compatInfo = compat.findFocus(focus);
+                            if (compatInfo == null) {
+                                return null;
+                            } else {
+                                return compatInfo.getInfo();
+                            }
+                        }
+                    });
+        }
+    }
+
     private static final AccessibilityNodeProviderImpl IMPL;
 
     private final Object mProvider;
 
     static {
-        if (Build.VERSION.SDK_INT >= 16) { // JellyBean
+        if (Build.VERSION.SDK_INT >= 19) { // KitKat
+            IMPL = new AccessibilityNodeProviderKitKatImpl();
+        } else if (Build.VERSION.SDK_INT >= 16) { // JellyBean
             IMPL = new AccessibilityNodeProviderJellyBeanImpl();
         } else {
             IMPL = new AccessibilityNodeProviderStubImpl();
@@ -176,6 +228,21 @@ public class AccessibilityNodeProviderCompat {
      */
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByText(String text,
             int virtualViewId) {
+        return null;
+    }
+
+    /**
+     * Find the virtual view, i.e. a descendant of the host View, that has the
+     * specified focus type.
+     *
+     * @param focus The focus to find. One of
+     *            {@link AccessibilityNodeInfoCompat#FOCUS_INPUT} or
+     *            {@link AccessibilityNodeInfoCompat#FOCUS_ACCESSIBILITY}.
+     * @return The node info of the focused view or null.
+     * @see AccessibilityNodeInfoCompat#FOCUS_INPUT
+     * @see AccessibilityNodeInfoCompat#FOCUS_ACCESSIBILITY
+     */
+    public AccessibilityNodeInfoCompat findFocus(int focus) {
         return null;
     }
 }
