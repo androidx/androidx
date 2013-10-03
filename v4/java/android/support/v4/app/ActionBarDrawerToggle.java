@@ -228,7 +228,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
         if (mDrawerIndicatorEnabled) {
             setActionBarUpIndicator(mSlider, mDrawerLayout.isDrawerOpen(GravityCompat.START) ?
-                    mOpenDrawerContentDescRes : mCloseDrawerContentDescRes);
+                    mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
         }
     }
 
@@ -246,7 +246,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         if (enable != mDrawerIndicatorEnabled) {
             if (enable) {
                 setActionBarUpIndicator(mSlider, mDrawerLayout.isDrawerOpen(GravityCompat.START) ?
-                                mOpenDrawerContentDescRes : mCloseDrawerContentDescRes);
+                        mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
             } else {
                 setActionBarUpIndicator(mThemeImage, 0);
             }
@@ -327,7 +327,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public void onDrawerOpened(View drawerView) {
         mSlider.setPosition(1);
         if (mDrawerIndicatorEnabled) {
-            setActionBarDescription(mOpenDrawerContentDescRes);
+            setActionBarDescription(mCloseDrawerContentDescRes);
         }
     }
 
@@ -342,7 +342,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public void onDrawerClosed(View drawerView) {
         mSlider.setPosition(0);
         if (mDrawerIndicatorEnabled) {
-            setActionBarDescription(mCloseDrawerContentDescRes);
+            setActionBarDescription(mOpenDrawerContentDescRes);
         }
     }
 
