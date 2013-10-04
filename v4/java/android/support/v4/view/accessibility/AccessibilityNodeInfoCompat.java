@@ -20,7 +20,9 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,6 +97,8 @@ public class AccessibilityNodeInfoCompat {
         public void recycle(Object info);
         public String getViewIdResourceName(Object info);
         public void setViewIdResourceName(Object info, String viewId);
+        public int getLiveRegion(Object info);
+        public void setLiveRegion(Object info, int mode);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -406,6 +410,16 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setViewIdResourceName(Object info, String viewId) {
 
+        }
+
+        @Override
+        public int getLiveRegion(Object info) {
+            return ViewCompat.ACCESSIBILITY_LIVE_REGION_NONE;
+        }
+
+        @Override
+        public void setLiveRegion(Object info, int mode) {
+            // No-op
         }
     }
 
@@ -726,8 +740,22 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    static class AccessibilityNodeInfoKitKatImpl extends AccessibilityNodeInfoJellybeanMr2Impl {
+        @Override
+        public int getLiveRegion(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.getLiveRegion(info);
+        }
+
+        @Override
+        public void setLiveRegion(Object info, int mode) {
+            AccessibilityNodeInfoCompatKitKat.setLiveRegion(info, mode);
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
+        if (Build.VERSION.SDK_INT >= 19) { // KitKat
+            IMPL = new AccessibilityNodeInfoKitKatImpl();
+        } else if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
             IMPL = new AccessibilityNodeInfoJellybeanMr2Impl();
         } else if (Build.VERSION.SDK_INT >= 16) { // JellyBean
             IMPL = new AccessibilityNodeInfoJellybeanImpl();
@@ -1875,6 +1903,44 @@ public class AccessibilityNodeInfoCompat {
      */
     public String getViewIdResourceName() {
         return IMPL.getViewIdResourceName(mInfo);
+    }
+
+    /**
+     * Gets the node's live region mode.
+     * <p>
+     * A live region is a node that contains information that is important for
+     * the user and when it changes the user should be notified. For example,
+     * in a login screen with a TextView that displays an "incorrect password"
+     * notification, that view should be marked as a live region with mode
+     * {@link ViewCompat#ACCESSIBILITY_LIVE_REGION_POLITE}.
+     * <p>
+     * It is the responsibility of the accessibility service to monitor
+     * {@link AccessibilityEventCompat#TYPE_WINDOW_CONTENT_CHANGED} events
+     * indicating changes to live region nodes and their children.
+     *
+     * @return The live region mode, or
+     *         {@link ViewCompat#ACCESSIBILITY_LIVE_REGION_NONE} if the view is
+     *         not a live region.
+     * @see ViewCompat#getAccessibilityLiveRegion(View)
+     */
+    public int getLiveRegion() {
+        return IMPL.getLiveRegion(mInfo);
+    }
+
+    /**
+     * Sets the node's live region mode.
+     * <p>
+     * <strong>Note:</strong> Cannot be called from an
+     * {@link android.accessibilityservice.AccessibilityService}. This class is
+     * made immutable before being delivered to an AccessibilityService.
+     *
+     * @param mode The live region mode, or
+     *        {@link ViewCompat#ACCESSIBILITY_LIVE_REGION_NONE} if the view is
+     *        not a live region.
+     * @see ViewCompat#setAccessibilityLiveRegion(View, int)
+     */
+    public void setLiveRegion(int mode) {
+        IMPL.setLiveRegion(mInfo, mode);
     }
 
     @Override
