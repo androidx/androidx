@@ -73,6 +73,31 @@ public class ViewCompat {
     public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 0x00000004;
 
     /**
+     * Live region mode specifying that accessibility services should not
+     * automatically announce changes to this view. This is the default live
+     * region mode for most views.
+     * <p>
+     * Use with {@link ViewCompat#setAccessibilityLiveRegion(View, int)}.
+     */
+    public static final int ACCESSIBILITY_LIVE_REGION_NONE = 0x00000000;
+
+    /**
+     * Live region mode specifying that accessibility services should announce
+     * changes to this view.
+     * <p>
+     * Use with {@link ViewCompat#setAccessibilityLiveRegion(View, int)}.
+     */
+    public static final int ACCESSIBILITY_LIVE_REGION_POLITE = 0x00000001;
+
+    /**
+     * Live region mode specifying that accessibility services should interrupt
+     * ongoing speech to immediately announce changes to this view.
+     * <p>
+     * Use with {@link ViewCompat#setAccessibilityLiveRegion(View, int)}.
+     */
+    public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 0x00000002;
+
+    /**
      * Indicates that the view does not have a layer.
      */
     public static final int LAYER_TYPE_NONE = 0;
@@ -202,6 +227,8 @@ public class ViewCompat {
         public int getMeasuredWidthAndState(View view);
         public int getMeasuredHeightAndState(View view);
         public int getMeasuredState(View view);
+        public int getAccessibilityLiveRegion(View view);
+        public void setAccessibilityLiveRegion(View view, int mode);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -323,6 +350,16 @@ public class ViewCompat {
         @Override
         public int getMeasuredState(View view) {
             return 0;
+        }
+
+        @Override
+        public int getAccessibilityLiveRegion(View view) {
+            return ACCESSIBILITY_LIVE_REGION_NONE;
+        }
+
+        @Override
+        public void setAccessibilityLiveRegion(View view, int mode) {
+            // No-op
         }
     }
 
@@ -494,10 +531,24 @@ public class ViewCompat {
         }
     }
 
+    static class KitKatViewCompatImpl extends JbMr1ViewCompatImpl {
+        @Override
+        public int getAccessibilityLiveRegion(View view) {
+            return ViewCompatKitKat.getAccessibilityLiveRegion(view);
+        }
+
+        @Override
+        public void setAccessibilityLiveRegion(View view, int mode) {
+            ViewCompatKitKat.setAccessibilityLiveRegion(view, mode);
+        }
+    }
+
     static final ViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 17) {
+        if (version >= 19) {
+            IMPL = new KitKatViewCompatImpl();
+        } else if (version >= 17) {
             IMPL = new JbMr1ViewCompatImpl();
         } else if (version >= 16) {
             IMPL = new JBViewCompatImpl();
@@ -1091,5 +1142,49 @@ public class ViewCompat {
      */
     public static int getMeasuredState(View view) {
         return IMPL.getMeasuredState(view);
+    }
+
+    /**
+     * Gets the live region mode for the specified View.
+     *
+     * @param view The view from which to obtain the live region mode
+     * @return The live region mode for the view.
+     *
+     * @see ViewCompat#setAccessibilityLiveRegion(View, int)
+     */
+    public int getAccessibilityLiveRegion(View view) {
+        return IMPL.getAccessibilityLiveRegion(view);
+    }
+
+    /**
+     * Sets the live region mode for the specified view. This indicates to
+     * accessibility services whether they should automatically notify the user
+     * about changes to the view's content description or text, or to the
+     * content descriptions or text of the view's children (where applicable).
+     * <p>
+     * For example, in a login screen with a TextView that displays an "incorrect
+     * password" notification, that view should be marked as a live region with
+     * mode {@link #ACCESSIBILITY_LIVE_REGION_POLITE}.
+     * <p>
+     * To disable change notifications for this view, use
+     * {@link #ACCESSIBILITY_LIVE_REGION_NONE}. This is the default live region
+     * mode for most views.
+     * <p>
+     * To indicate that the user should be notified of changes, use
+     * {@link #ACCESSIBILITY_LIVE_REGION_POLITE}.
+     * <p>
+     * If the view's changes should interrupt ongoing speech and notify the user
+     * immediately, use {@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}.
+     *
+     * @param view The view on which to set the live region mode
+     * @param mode The live region mode for this view, one of:
+     *        <ul>
+     *        <li>{@link #ACCESSIBILITY_LIVE_REGION_NONE}
+     *        <li>{@link #ACCESSIBILITY_LIVE_REGION_POLITE}
+     *        <li>{@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}
+     *        </ul>
+     */
+    public void setAccessibilityLiveRegion(View view, int mode) {
+        IMPL.setAccessibilityLiveRegion(view, mode);
     }
 }
