@@ -128,8 +128,7 @@ public final class PrintHelper {
      * @return the <code>PrintHelper</code> to support printing images.
      */
     public PrintHelper(Context context) {
-        if ("KeyLimePie".equals(Build.VERSION.CODENAME)  // TODO recode to be KitKat and above
-                || Build.VERSION.SDK_INT > 18) {
+        if (systemSupportsPrint()) {
             mImpl = new PrintHelperKitkatImpl(context);
         } else {
             mImpl = new PrintHelperStubImpl();
