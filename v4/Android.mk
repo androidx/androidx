@@ -126,7 +126,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of KitKat APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-kitkat
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 19
 LOCAL_SRC_FILES := $(call all-java-files-under, kitkat)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-jellybean-mr2
 include $(BUILD_STATIC_JAVA_LIBRARY)
