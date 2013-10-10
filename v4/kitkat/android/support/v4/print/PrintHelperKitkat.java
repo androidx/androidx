@@ -256,10 +256,12 @@ public class PrintHelperKitkat {
             is = mContext.getContentResolver().openInputStream(uri);
             return BitmapFactory.decodeStream(is, null, o);
         } finally {
-            try {
-                is.close();
-            } catch (IOException t) {
-                Log.w(LOG_TAG, "close fail ", t);
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException t) {
+                    Log.w(LOG_TAG, "close fail ", t);
+                }
             }
         }
     }
