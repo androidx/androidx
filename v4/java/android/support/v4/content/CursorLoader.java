@@ -16,10 +16,12 @@
 
 package android.support.v4.content;
 
+import android.content.ContentResolver;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.os.CancellationSignal;
+import android.support.v4.os.OperationCanceledException;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -42,18 +44,48 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
     String mSortOrder;
 
     Cursor mCursor;
+    CancellationSignal mCancellationSignal;
 
     /* Runs on a worker thread */
     @Override
     public Cursor loadInBackground() {
-        Cursor cursor = getContext().getContentResolver().query(mUri, mProjection, mSelection,
-                mSelectionArgs, mSortOrder);
-        if (cursor != null) {
-            // Ensure the cursor window is filled
-            cursor.getCount();
-            cursor.registerContentObserver(mObserver);
+        synchronized (this) {
+            if (isLoadInBackgroundCanceled()) {
+                throw new OperationCanceledException();
+            }
+            mCancellationSignal = new CancellationSignal();
         }
-        return cursor;
+        try {
+            Cursor cursor = ContentResolverCompat.query(getContext().getContentResolver(),
+                    mUri, mProjection, mSelection, mSelectionArgs, mSortOrder,
+                    mCancellationSignal);
+            if (cursor != null) {
+                try {
+                    // Ensure the cursor window is filled.
+                    cursor.getCount();
+                    cursor.registerContentObserver(mObserver);
+                } catch (RuntimeException ex) {
+                    cursor.close();
+                    throw ex;
+                }
+            }
+            return cursor;
+        } finally {
+            synchronized (this) {
+                mCancellationSignal = null;
+            }
+        }
+    }
+
+    @Override
+    public void cancelLoadInBackground() {
+        super.cancelLoadInBackground();
+
+        synchronized (this) {
+            if (mCancellationSignal != null) {
+                mCancellationSignal.cancel();
+            }
+        }
     }
 
     /* Runs on the UI thread */
@@ -90,7 +122,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
 
     /**
      * Creates a fully-specified CursorLoader.  See
-     * {@link android.content.ContentResolver#query(Uri, String[], String, String[], String)
+     * {@link ContentResolver#query(Uri, String[], String, String[], String)
      * ContentResolver.query()} for documentation on the meaning of the
      * parameters.  These will be passed as-is to that call.
      */
