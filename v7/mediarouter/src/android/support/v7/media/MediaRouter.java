@@ -810,6 +810,45 @@ public final class MediaRouter {
 
         /**
          * Returns true if the route supports the specified
+         * {@link MediaControlIntent media control} category and action.
+         * <p>
+         * Media control actions describe specific requests that an application
+         * can ask a route to perform.
+         * </p>
+         *
+         * @param category A {@link MediaControlIntent media control} category
+         * such as {@link MediaControlIntent#CATEGORY_LIVE_AUDIO},
+         * {@link MediaControlIntent#CATEGORY_LIVE_VIDEO},
+         * {@link MediaControlIntent#CATEGORY_REMOTE_PLAYBACK}, or a provider-defined
+         * media control category.
+         * @param action A {@link MediaControlIntent media control} action
+         * such as {@link MediaControlIntent#ACTION_PLAY}.
+         * @return True if the route supports the specified intent action.
+         *
+         * @see MediaControlIntent
+         * @see #getControlFilters
+         */
+        public boolean supportsControlAction(String category, String action) {
+            if (category == null) {
+                throw new IllegalArgumentException("category must not be null");
+            }
+            if (action == null) {
+                throw new IllegalArgumentException("action must not be null");
+            }
+            checkCallingThread();
+
+            int count = mControlFilters.size();
+            for (int i = 0; i < count; i++) {
+                IntentFilter filter = mControlFilters.get(i);
+                if (filter.hasCategory(category) && filter.hasAction(action)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Returns true if the route supports the specified
          * {@link MediaControlIntent media control} request.
          * <p>
          * Media control requests are used to request the route to perform
