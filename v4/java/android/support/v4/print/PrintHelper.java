@@ -31,10 +31,22 @@ public final class PrintHelper {
      * image will be scaled but leave white space
      */
     public static final int SCALE_MODE_FIT = 1;
+
     /**
      * image will fill the paper and be cropped (default)
      */
     public static final int SCALE_MODE_FILL = 2;
+
+    /**
+     * this is a black and white image
+     */
+    public static final int COLOR_MODE_MONOCHROME = 1;
+
+    /**
+     * this is a color image (default)
+     */
+    public static final int COLOR_MODE_COLOR = 2;
+
     PrintHelperVersionImpl mImpl;
 
     /**
@@ -59,6 +71,10 @@ public final class PrintHelper {
 
         public int getScaleMode();
 
+        public void setColorMode(int colorMode);
+
+        public int getColorMode();
+
         public void printBitmap(String jobName, Bitmap bitmap);
 
         public void printBitmap(String jobName, Uri imageFile)
@@ -69,11 +85,22 @@ public final class PrintHelper {
      * Implementation used when we do not support printing
      */
     private static final class PrintHelperStubImpl implements PrintHelperVersionImpl {
-        int mScaleMode;
+        int mScaleMode = SCALE_MODE_FILL;
+        int mColorMode = COLOR_MODE_COLOR;
 
         @Override
         public void setScaleMode(int scaleMode) {
             mScaleMode = scaleMode;
+        }
+
+        @Override
+        public int getColorMode() {
+            return mColorMode;
+        }
+
+        @Override
+        public void setColorMode(int colorMode) {
+            mColorMode = colorMode;
         }
 
         @Override
@@ -108,6 +135,16 @@ public final class PrintHelper {
         @Override
         public int getScaleMode() {
             return printHelper.getScaleMode();
+        }
+
+        @Override
+        public void setColorMode(int colorMode) {
+            printHelper.setColorMode(colorMode);
+        }
+
+        @Override
+        public int getColorMode() {
+            return printHelper.getColorMode();
         }
 
         @Override
@@ -156,6 +193,28 @@ public final class PrintHelper {
      */
     public int getScaleMode() {
         return mImpl.getScaleMode();
+    }
+
+    /**
+     * Sets whether the image will be printed in color (default)
+     * {@link #COLOR_MODE_COLOR} or in back and white
+     * {@link #COLOR_MODE_MONOCHROME}.
+     *
+     * @param colorMode The color mode which is one of
+     * {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
+     */
+    public void setColorMode(int colorMode) {
+        mImpl.setColorMode(colorMode);
+    }
+
+    /**
+     * Gets the color mode with which the image will be printed.
+     *
+     * @return The color mode which is one of {@link #COLOR_MODE_COLOR}
+     * and {@link #COLOR_MODE_MONOCHROME}.
+     */
+    public int getColorMode() {
+        return mImpl.getColorMode();
     }
 
     /**
