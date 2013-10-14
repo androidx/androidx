@@ -85,7 +85,7 @@ final class MultiDexExtractor {
                 files.add(extractedFile);
 
                 if (!extractedFile.isFile()) {
-                    extract(context, apk, dexFile, extractedFile);
+                    extract(context, apk, dexFile, extractedFile, extractedFilePrefix);
                 }
                 secondaryNumber++;
                 dexFile = apk.getEntry(DEX_PREFIX + secondaryNumber + DEX_SUFFIX);
@@ -128,14 +128,16 @@ final class MultiDexExtractor {
     }
 
     private static void extract(
-            Context context, ZipFile apk, ZipEntry dexFile, File extractTo)
-                    throws IOException, FileNotFoundException {
+            Context context, ZipFile apk, ZipEntry dexFile, File extractTo,
+            String extractedFilePrefix) throws IOException, FileNotFoundException {
 
         InputStream in = apk.getInputStream(dexFile);
         ZipOutputStream out = null;
-        Log.i(TAG, "Copying " + extractTo.getPath());
+        File tmp = File.createTempFile(extractedFilePrefix, EXTRACTED_SUFFIX,
+                extractTo.getParentFile());
+        Log.i(TAG, "Extracting " + tmp.getPath());
         try {
-            out = new ZipOutputStream(new FileOutputStream(extractTo));
+            out = new ZipOutputStream(new FileOutputStream(tmp));
             try {
                 ZipEntry classesDex = new ZipEntry("classes.dex");
                 out.putNextEntry(classesDex);
@@ -149,8 +151,14 @@ final class MultiDexExtractor {
             } finally {
                 closeQuietly(out);
             }
+            Log.i(TAG, "Renaming to " + extractTo.getPath());
+            if (!tmp.renameTo(extractTo)) {
+                throw new IOException("Failed to rename \"" + tmp.getAbsolutePath() + "\" to \"" +
+                        extractTo.getAbsolutePath() + "\"");
+            }
         } finally {
             closeQuietly(in);
+            tmp.delete(); // return status ignored
         }
     }
 
