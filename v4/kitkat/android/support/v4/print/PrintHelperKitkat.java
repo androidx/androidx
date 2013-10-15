@@ -56,7 +56,19 @@ public class PrintHelperKitkat {
      */
     public static final int SCALE_MODE_FILL = 2;
 
+    /**
+     * this is a black and white image
+     */
+    public static final int COLOR_MODE_MONOCHROME = 1;
+
+    /**
+     * this is a color image (default)
+     */
+    public static final int COLOR_MODE_COLOR = 2;
+
     int mScaleMode = SCALE_MODE_FILL;
+
+    int mColorMode = COLOR_MODE_COLOR;
 
     PrintHelperKitkat(Context context) {
         mContext = context;
@@ -86,6 +98,28 @@ public class PrintHelperKitkat {
     }
 
     /**
+     * Sets whether the image will be printed in color (default)
+     * {@link #COLOR_MODE_COLOR} or in back and white
+     * {@link #COLOR_MODE_MONOCHROME}.
+     *
+     * @param colorMode The color mode which is one of
+     * {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
+     */
+    public void setColorMode(int colorMode) {
+        mColorMode = colorMode;
+    }
+
+    /**
+     * Gets the color mode with which the image will be printed.
+     *
+     * @return The color mode which is one of {@link #COLOR_MODE_COLOR}
+     * and {@link #COLOR_MODE_MONOCHROME}.
+     */
+    public int getColorMode() {
+        return mColorMode;
+    }
+
+    /**
      * Prints a bitmap.
      *
      * @param jobName The print job name.
@@ -101,7 +135,10 @@ public class PrintHelperKitkat {
         if (bitmap.getWidth() > bitmap.getHeight()) {
             mediaSize = PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE;
         }
-        PrintAttributes attr = new PrintAttributes.Builder().setMediaSize(mediaSize).build();
+        PrintAttributes attr = new PrintAttributes.Builder()
+                .setMediaSize(mediaSize)
+                .setColorMode(mColorMode)
+                .build();
 
         printManager.print(jobName,
                 new PrintDocumentAdapter() {
