@@ -16,17 +16,27 @@
 
 package android.support.v4.content;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StatFs;
+import android.support.v4.os.EnvironmentCompat;
+
+import java.io.File;
 
 /**
  * Helper for accessing features in {@link android.content.Context}
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public class ContextCompat {
+
+    private static final String DIR_ANDROID = "Android";
+    private static final String DIR_DATA = "data";
+    private static final String DIR_OBB = "obb";
+    private static final String DIR_FILES = "files";
+    private static final String DIR_CACHE = "cache";
 
     /**
      * Start a set of activities as a synthesized task stack, if able.
@@ -95,5 +105,196 @@ public class ContextCompat {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns absolute paths to application-specific directories on all
+     * external storage devices where the application's OBB files (if there are
+     * any) can be found. Note if the application does not have any OBB files,
+     * these directories may not exist.
+     * <p>
+     * This is like {@link Context#getFilesDir()} in that these files will be
+     * deleted when the application is uninstalled, however there are some
+     * important differences:
+     * <ul>
+     * <li>External files are not always available: they will disappear if the
+     * user mounts the external storage on a computer or removes it.
+     * <li>There is no security enforced with these files.
+     * </ul>
+     * <p>
+     * External storage devices returned here are considered a permanent part of
+     * the device, including both emulated external storage and physical media
+     * slots, such as SD cards in a battery compartment. The returned paths do
+     * not include transient devices, such as USB flash drives.
+     * <p>
+     * An application may store data on any or all of the returned devices. For
+     * example, an app may choose to store large files on the device with the
+     * most available space, as measured by {@link StatFs}.
+     * <p>
+     * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
+     * are required to write to the returned paths; they're always accessible to
+     * the calling app. Before then,
+     * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} is required to
+     * write. Write access outside of these paths on secondary external storage
+     * devices is not available. To request external storage access in a
+     * backwards compatible way, consider using {@code android:maxSdkVersion}
+     * like this:
+     *
+     * <pre class="prettyprint">&lt;uses-permission
+     *     android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+     *     android:maxSdkVersion="18" /&gt;</pre>
+     * <p>
+     * The first path returned is the same as {@link Context#getObbDir()}.
+     * Returned paths may be {@code null} if a storage device is unavailable.
+     *
+     * @see Context#getObbDir()
+     * @see EnvironmentCompat#getStorageState(File)
+     */
+    public static File[] getObbDirs(Context context) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 19) {
+            return ContextCompatKitKat.getObbDirs(context);
+        } else {
+            final File single;
+            if (version >= 11) {
+                single = ContextCompatHoneycomb.getObbDir(context);
+            } else {
+                single = buildPath(Environment.getExternalStorageDirectory(), DIR_ANDROID, DIR_OBB,
+                        context.getPackageName());
+            }
+            return new File[] { single };
+        }
+    }
+
+    /**
+     * Returns absolute paths to application-specific directories on all
+     * external storage devices where the application can place persistent files
+     * it owns. These files are internal to the application, and not typically
+     * visible to the user as media.
+     * <p>
+     * This is like {@link Context#getFilesDir()} in that these files will be
+     * deleted when the application is uninstalled, however there are some
+     * important differences:
+     * <ul>
+     * <li>External files are not always available: they will disappear if the
+     * user mounts the external storage on a computer or removes it.
+     * <li>There is no security enforced with these files.
+     * </ul>
+     * <p>
+     * External storage devices returned here are considered a permanent part of
+     * the device, including both emulated external storage and physical media
+     * slots, such as SD cards in a battery compartment. The returned paths do
+     * not include transient devices, such as USB flash drives.
+     * <p>
+     * An application may store data on any or all of the returned devices. For
+     * example, an app may choose to store large files on the device with the
+     * most available space, as measured by {@link StatFs}.
+     * <p>
+     * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
+     * are required to write to the returned paths; they're always accessible to
+     * the calling app. Before then,
+     * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} is required to
+     * write. Write access outside of these paths on secondary external storage
+     * devices is not available. To request external storage access in a
+     * backwards compatible way, consider using {@code android:maxSdkVersion}
+     * like this:
+     *
+     * <pre class="prettyprint">&lt;uses-permission
+     *     android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+     *     android:maxSdkVersion="18" /&gt;</pre>
+     * <p>
+     * The first path returned is the same as
+     * {@link Context#getExternalFilesDir(String)}. Returned paths may be
+     * {@code null} if a storage device is unavailable.
+     *
+     * @see Context#getExternalFilesDir(String)
+     * @see EnvironmentCompat#getStorageState(File)
+     */
+    public static File[] getExternalFilesDirs(Context context, String type) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 19) {
+            return ContextCompatKitKat.getExternalFilesDirs(context, type);
+        } else {
+            final File single;
+            if (version >= 8) {
+                single = ContextCompatFroyo.getExternalFilesDir(context, type);
+            } else {
+                single = buildPath(Environment.getExternalStorageDirectory(), DIR_ANDROID, DIR_DATA,
+                        context.getPackageName(), DIR_FILES, type);
+            }
+            return new File[] { single };
+        }
+    }
+
+    /**
+     * Returns absolute paths to application-specific directories on all
+     * external storage devices where the application can place cache files it
+     * owns. These files are internal to the application, and not typically
+     * visible to the user as media.
+     * <p>
+     * This is like {@link Context#getCacheDir()} in that these files will be
+     * deleted when the application is uninstalled, however there are some
+     * important differences:
+     * <ul>
+     * <li>External files are not always available: they will disappear if the
+     * user mounts the external storage on a computer or removes it.
+     * <li>There is no security enforced with these files.
+     * </ul>
+     * <p>
+     * External storage devices returned here are considered a permanent part of
+     * the device, including both emulated external storage and physical media
+     * slots, such as SD cards in a battery compartment. The returned paths do
+     * not include transient devices, such as USB flash drives.
+     * <p>
+     * An application may store data on any or all of the returned devices. For
+     * example, an app may choose to store large files on the device with the
+     * most available space, as measured by {@link StatFs}.
+     * <p>
+     * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
+     * are required to write to the returned paths; they're always accessible to
+     * the calling app. Before then,
+     * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} is required to
+     * write. Write access outside of these paths on secondary external storage
+     * devices is not available. To request external storage access in a
+     * backwards compatible way, consider using {@code android:maxSdkVersion}
+     * like this:
+     *
+     * <pre class="prettyprint">&lt;uses-permission
+     *     android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+     *     android:maxSdkVersion="18" /&gt;</pre>
+     * <p>
+     * The first path returned is the same as
+     * {@link Context#getExternalCacheDir()}. Returned paths may be {@code null}
+     * if a storage device is unavailable.
+     *
+     * @see Context#getExternalCacheDir()
+     * @see EnvironmentCompat#getStorageState(File)
+     */
+    public static File[] getExternalCacheDirs(Context context) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 19) {
+            return ContextCompatKitKat.getExternalCacheDirs(context);
+        } else {
+            final File single;
+            if (version >= 8) {
+                single = ContextCompatFroyo.getExternalCacheDir(context);
+            } else {
+                single = buildPath(Environment.getExternalStorageDirectory(), DIR_ANDROID, DIR_DATA,
+                        context.getPackageName(), DIR_CACHE);
+            }
+            return new File[] { single };
+        }
+    }
+
+    private static File buildPath(File base, String... segments) {
+        File cur = base;
+        for (String segment : segments) {
+            if (cur == null) {
+                cur = new File(segment);
+            } else if (segment != null) {
+                cur = new File(cur, segment);
+            }
+        }
+        return cur;
     }
 }

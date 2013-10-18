@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,19 @@
 package android.support.v4.content;
 
 import android.content.Context;
-import android.content.Intent;
 
 import java.io.File;
 
-/**
- * Implementation of context compatibility that can call Honeycomb APIs.
- */
-class ContextCompatHoneycomb {
-
-    static void startActivities(Context context, Intent[] intents) {
-        context.startActivities(intents);
+class ContextCompatKitKat {
+    public static File[] getExternalCacheDirs(Context context) {
+        return context.getExternalCacheDirs();
     }
 
-    public static File getObbDir(Context context) {
-        return context.getObbDir();
+    public static File[] getExternalFilesDirs(Context context, String type) {
+        return context.getExternalFilesDirs(type);
+    }
+
+    public static File[] getObbDirs(Context context) {
+        return context.getObbDirs();
     }
 }
