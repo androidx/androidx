@@ -16,40 +16,54 @@
 
 package com.example.android.supportv7.media;
 
-import android.support.v7.media.MediaItemStatus;
-import android.net.Uri;
 import android.app.PendingIntent;
+import android.net.Uri;
+import android.os.SystemClock;
+import android.support.v7.media.MediaItemStatus;
 
 /**
- * MediaQueueItem helps keep track of the current status of an media item.
+ * PlaylistItem helps keep track of the current status of an media item.
  */
-final class MediaQueueItem {
+final class PlaylistItem {
     // immutables
     private final String mSessionId;
     private final String mItemId;
     private final Uri mUri;
+    private final String mMime;
     private final PendingIntent mUpdateReceiver;
     // changeable states
     private int mPlaybackState = MediaItemStatus.PLAYBACK_STATE_PENDING;
     private long mContentPosition;
     private long mContentDuration;
+    private long mTimestamp;
+    private String mRemoteItemId;
 
-    public MediaQueueItem(String qid, String iid, Uri uri, PendingIntent pi) {
+    public PlaylistItem(String qid, String iid, Uri uri, String mime, PendingIntent pi) {
         mSessionId = qid;
         mItemId = iid;
         mUri = uri;
+        mMime = mime;
         mUpdateReceiver = pi;
+        setTimestamp(SystemClock.elapsedRealtime());
+    }
+
+    public void setRemoteItemId(String riid) {
+        mRemoteItemId = riid;
     }
 
     public void setState(int state) {
         mPlaybackState = state;
     }
 
-    public void setContentPosition(long pos) {
+    public void setPosition(long pos) {
         mContentPosition = pos;
     }
 
-    public void setContentDuration(long duration) {
+    public void setTimestamp(long ts) {
+        mTimestamp = ts;
+    }
+
+    public void setDuration(long duration) {
         mContentDuration = duration;
     }
 
@@ -59,6 +73,10 @@ final class MediaQueueItem {
 
     public String getItemId() {
         return mItemId;
+    }
+
+    public String getRemoteItemId() {
+        return mRemoteItemId;
     }
 
     public Uri getUri() {
@@ -73,18 +91,23 @@ final class MediaQueueItem {
         return mPlaybackState;
     }
 
-    public long getContentPosition() {
+    public long getPosition() {
         return mContentPosition;
     }
 
-    public long getContentDuration() {
+    public long getDuration() {
         return mContentDuration;
+    }
+
+    public long getTimestamp() {
+        return mTimestamp;
     }
 
     public MediaItemStatus getStatus() {
         return new MediaItemStatus.Builder(mPlaybackState)
             .setContentPosition(mContentPosition)
             .setContentDuration(mContentDuration)
+            .setTimestamp(mTimestamp)
             .build();
     }
 
@@ -101,6 +124,7 @@ final class MediaQueueItem {
             "ERROR"
         };
         return "[" + mSessionId + "|" + mItemId + "|"
+            + (mRemoteItemId != null ? mRemoteItemId : "-") + "|"
             + state[mPlaybackState] + "] " + mUri.toString();
     }
 }
