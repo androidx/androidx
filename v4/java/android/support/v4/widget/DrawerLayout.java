@@ -1541,11 +1541,38 @@ public class DrawerLayout extends ViewGroup {
 
             superNode.recycle();
 
-            final int childCount = getChildCount();
+            addChildrenForAccessibility(info, (ViewGroup) host);
+        }
+
+        private void addChildrenForAccessibility(AccessibilityNodeInfoCompat info, ViewGroup v) {
+            final int childCount = v.getChildCount();
             for (int i = 0; i < childCount; i++) {
-                final View child = getChildAt(i);
-                if (!filter(child)) {
-                    info.addChild(child);
+                final View child = v.getChildAt(i);
+                if (filter(child)) {
+                    continue;
+                }
+
+                // Adding children that are marked as not important for
+                // accessibility will break the hierarchy, so we need to check
+                // that value and re-parent views if necessary.
+                final int importance = ViewCompat.getImportantForAccessibility(child);
+                switch (importance) {
+                    case ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS:
+                        // Always skip NO_HIDE views and their descendants.
+                        break;
+                    case ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO:
+                        // Re-parent children of NO view groups, skip NO views.
+                        if (child instanceof ViewGroup) {
+                            addChildrenForAccessibility(info, (ViewGroup) child);
+                        }
+                        break;
+                    case ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO:
+                        // Force AUTO views to YES and add them.
+                        ViewCompat.setImportantForAccessibility(
+                                child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                    case ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES:
+                        info.addChild(child);
+                        break;
                 }
             }
         }
