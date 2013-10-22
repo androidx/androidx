@@ -32,7 +32,9 @@
 
     <string name="sample_media_route_provider_service">Media Route Provider Service Support Library Sample</string>
     <string name="fixed_volume_route_name">Fixed Volume Remote Playback Route</string>
-    <string name="variable_volume_route_name">Variable Volume Remote Playback Route</string>
+    <string name="variable_volume_basic_route_name">Variable Volume (Basic) Remote Playback Route</string>
+    <string name="variable_volume_queuing_route_name">Variable Volume (Queuing) Remote Playback Route</string>
+    <string name="variable_volume_session_route_name">Variable Volume (Session) Remote Playback Route</string>
     <string name="sample_route_description">Sample route from Support7Demos</string>
 
     <!-- GridLayout -->
