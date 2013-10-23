@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.net.Uri;
@@ -66,22 +67,27 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
     /**
      * A custom media control intent action for special requests that are
      * supported by this provider's routes.
-     * <p>
-     * This particular request is designed to return a bundle of not very
-     * interesting statistics for demonstration purposes.
      * </p>
      *
-     * @see #DATA_PLAYBACK_COUNT
+     * @see #TRACK_INFO_DESC
+     * @see #TRACK_INFO_SNAPSHOT
      */
-    public static final String ACTION_GET_STATISTICS =
-            "com.example.android.supportv7.media.ACTION_GET_STATISTICS";
+    public static final String ACTION_GET_TRACK_INFO =
+            "com.example.android.supportv7.media.ACTION_GET_TRACK_INFO";
 
     /**
-     * {@link #ACTION_GET_STATISTICS} result data: Number of times the
-     * playback action was invoked.
+     * {@link #ACTION_GET_TRACK_INFO} result data: a string of information about
+     * the currently playing media item
      */
-    public static final String DATA_PLAYBACK_COUNT =
-            "com.example.android.supportv7.media.EXTRA_PLAYBACK_COUNT";
+    public static final String TRACK_INFO_DESC =
+            "com.example.android.supportv7.media.EXTRA_TRACK_INFO_DESC";
+
+    /**
+     * {@link #ACTION_GET_TRACK_INFO} result data: a bitmap containing a snapshot
+     * of the currently playing media item
+     */
+    public static final String TRACK_INFO_SNAPSHOT =
+            "com.example.android.supportv7.media.EXTRA_TRACK_INFO_SNAPSHOT";
 
     private static final ArrayList<IntentFilter> CONTROL_FILTERS_BASIC;
     private static final ArrayList<IntentFilter> CONTROL_FILTERS_QUEUING;
@@ -90,7 +96,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
     static {
         IntentFilter f1 = new IntentFilter();
         f1.addCategory(CATEGORY_SAMPLE_ROUTE);
-        f1.addAction(ACTION_GET_STATISTICS);
+        f1.addAction(ACTION_GET_TRACK_INFO);
 
         IntentFilter f2 = new IntentFilter();
         f2.addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
@@ -245,6 +251,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                     handleStatusChange(item);
                 }
             });
+            setVolumeInternal(mVolume);
             Log.d(TAG, mRouteId + ": Controller created");
         }
 
@@ -315,10 +322,14 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 return success;
             }
 
-            if (action.equals(ACTION_GET_STATISTICS)
+            if (action.equals(ACTION_GET_TRACK_INFO)
                     && intent.hasCategory(CATEGORY_SAMPLE_ROUTE)) {
                 Bundle data = new Bundle();
-                data.putInt(DATA_PLAYBACK_COUNT, mEnqueueCount);
+                PlaylistItem item = mSessionManager.getCurrentItem();
+                if (item != null) {
+                    data.putString(TRACK_INFO_DESC, item.toString());
+                    data.putParcelable(TRACK_INFO_SNAPSHOT, mPlayer.getSnapshot());
+                }
                 if (callback != null) {
                     callback.onResult(data);
                 }

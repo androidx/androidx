@@ -21,6 +21,7 @@ import android.app.Presentation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -627,6 +628,11 @@ public abstract class LocalPlayer extends Player implements
         @Override
         public void onWindowDestroyed() {
             setSurface((SurfaceHolder)null);
+        }
+
+        @Override
+        public Bitmap getSnapshot() {
+            return mOverlay.getSnapshot();
         }
     }
 }

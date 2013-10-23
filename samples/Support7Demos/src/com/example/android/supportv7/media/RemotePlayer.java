@@ -18,6 +18,7 @@ package com.example.android.supportv7.media;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.media.MediaItemStatus;
@@ -47,7 +48,8 @@ public class RemotePlayer extends Player {
     private Context mContext;
     private RouteInfo mRoute;
     private boolean mEnqueuePending;
-    private String mStatsInfo = "";
+    private String mTrackInfo = "";
+    private Bitmap mSnapshot;
     private List<PlaylistItem> mTempQueue = new ArrayList<PlaylistItem>();
 
     private RemotePlaybackClient mClient;
@@ -318,11 +320,12 @@ public class RemotePlayer extends Player {
     }
 
     @Override
-    public void updateStatistics() {
+    public void updateTrackInfo() {
         // clear stats info first
-        mStatsInfo = "";
+        mTrackInfo = "";
+        mSnapshot = null;
 
-        Intent intent = new Intent(SampleMediaRouteProvider.ACTION_GET_STATISTICS);
+        Intent intent = new Intent(SampleMediaRouteProvider.ACTION_GET_TRACK_INFO);
         intent.addCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE);
 
         if (mRoute != null && mRoute.supportsControlRequest(intent)) {
@@ -333,9 +336,9 @@ public class RemotePlayer extends Player {
                         Log.d(TAG, "getStatistics: succeeded: data=" + data);
                     }
                     if (data != null) {
-                        int playbackCount = data.getInt(
-                                SampleMediaRouteProvider.DATA_PLAYBACK_COUNT, -1);
-                        mStatsInfo = "Total playback count: " + playbackCount;
+                        mTrackInfo = data.getString(SampleMediaRouteProvider.TRACK_INFO_DESC);
+                        mSnapshot = data.getParcelable(
+                                SampleMediaRouteProvider.TRACK_INFO_SNAPSHOT);
                     }
                 }
 
@@ -350,8 +353,13 @@ public class RemotePlayer extends Player {
     }
 
     @Override
-    public String getStatistics() {
-        return mStatsInfo;
+    public String getDescription() {
+        return mTrackInfo;
+    }
+
+    @Override
+    public Bitmap getSnapshot() {
+        return mSnapshot;
     }
 
     private void enqueueInternal(final PlaylistItem item) {
