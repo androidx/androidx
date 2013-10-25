@@ -34,35 +34,63 @@ class ScriptIntrinsicLUTThunker extends ScriptIntrinsicLUT {
         ElementThunker et = (ElementThunker) e;
 
         ScriptIntrinsicLUTThunker si = new ScriptIntrinsicLUTThunker(0, rs);
-        si.mN = android.renderscript.ScriptIntrinsicLUT.create(rst.mN, et.getNObj());
+        try {
+            si.mN = android.renderscript.ScriptIntrinsicLUT.create(rst.mN, et.getNObj());
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
         return si;
     }
 
     public void setRed(int index, int value) {
-        mN.setRed(index, value);
+        try {
+            mN.setRed(index, value);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setGreen(int index, int value) {
-        mN.setGreen(index, value);
+        try {
+            mN.setGreen(index, value);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setBlue(int index, int value) {
-        mN.setBlue(index, value);
+        try {
+            mN.setBlue(index, value);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setAlpha(int index, int value) {
-        mN.setAlpha(index, value);
+        try {
+            mN.setAlpha(index, value);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void forEach(Allocation ain, Allocation aout) {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
-        mN.forEach(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEach(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelID() {
         Script.KernelID k = createKernelID(0, 3, null, null);
-        k.mN = mN.getKernelID();
+        try {
+            k.mN = mN.getKernelID();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 }

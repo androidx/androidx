@@ -34,41 +34,73 @@ class ScriptIntrinsicColorMatrixThunker extends ScriptIntrinsicColorMatrix {
         ElementThunker et = (ElementThunker)e;
 
         ScriptIntrinsicColorMatrixThunker cm =  new ScriptIntrinsicColorMatrixThunker(0, rs);
-        cm.mN = android.renderscript.ScriptIntrinsicColorMatrix.create(rst.mN, et.getNObj());
+        try {
+            cm.mN = android.renderscript.ScriptIntrinsicColorMatrix.create(rst.mN, et.getNObj());
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
         return cm;
 
     }
 
     public void setColorMatrix(Matrix4f m) {
-        mN.setColorMatrix(new android.renderscript.Matrix4f(m.getArray()));
+        try {
+            mN.setColorMatrix(new android.renderscript.Matrix4f(m.getArray()));
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setColorMatrix(Matrix3f m) {
-        mN.setColorMatrix(new android.renderscript.Matrix3f(m.getArray()));
+        try {
+            mN.setColorMatrix(new android.renderscript.Matrix3f(m.getArray()));
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setGreyscale() {
-        mN.setGreyscale();
+        try {
+            mN.setGreyscale();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setYUVtoRGB() {
-        mN.setYUVtoRGB();
+        try {
+            mN.setYUVtoRGB();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setRGBtoYUV() {
-        mN.setRGBtoYUV();
+        try {
+            mN.setRGBtoYUV();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
 
     public void forEach(Allocation ain, Allocation aout) {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
-        mN.forEach(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEach(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelID() {
         Script.KernelID k = createKernelID(0, 3, null, null);
-        k.mN = mN.getKernelID();
+        try {
+            k.mN = mN.getKernelID();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 

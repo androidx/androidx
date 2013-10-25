@@ -37,35 +37,59 @@ class ScriptIntrinsicBlurThunker extends ScriptIntrinsicBlur {
         ElementThunker et = (ElementThunker) e;
 
         ScriptIntrinsicBlurThunker blur = new ScriptIntrinsicBlurThunker(0, rs);
-        blur.mN = android.renderscript.ScriptIntrinsicBlur.create(rst.mN, et.getNObj());
+        try {
+            blur.mN = android.renderscript.ScriptIntrinsicBlur.create(rst.mN, et.getNObj());
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
         return blur;
     }
 
     public void setInput(Allocation ain) {
         AllocationThunker aint = (AllocationThunker) ain;
-        mN.setInput(aint.getNObj());
+        try {
+            mN.setInput(aint.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setRadius(float radius) {
-        mN.setRadius(radius);
+        try {
+            mN.setRadius(radius);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void forEach(Allocation aout) {
         AllocationThunker aoutt = (AllocationThunker) aout;
         if (aoutt != null) {
-            mN.forEach(aoutt.getNObj());
+            try {
+                mN.forEach(aoutt.getNObj());
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
         }
     }
 
     public Script.KernelID getKernelID() {
         Script.KernelID k = createKernelID(0, 2, null, null);
-        k.mN = mN.getKernelID();
+        try {
+            k.mN = mN.getKernelID();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
     public Script.FieldID getFieldID_Input() {
         Script.FieldID f = createFieldID(1, null);
-        f.mN = mN.getFieldID_Input();
+        try {
+            f.mN = mN.getFieldID_Input();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return f;
     }
 }
