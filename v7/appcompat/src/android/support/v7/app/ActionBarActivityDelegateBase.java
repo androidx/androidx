@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
@@ -62,21 +63,11 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     // Used to keep track of Progress Bar Window features
     private boolean mFeatureProgress, mFeatureIndeterminateProgress;
 
-    private boolean mInvalidateMenuPosted;
-    private final Runnable mInvalidateMenuRunnable = new Runnable() {
-        @Override
-        public void run() {
-            final MenuBuilder menu = createMenu();
-            if (mActivity.superOnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu) &&
-                    mActivity.superOnPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, menu)) {
-                setMenu(menu);
-            } else {
-                setMenu(null);
-            }
-
-            mInvalidateMenuPosted = false;
-        }
-    };
+    // Used for emulating PanelFeatureState
+    private boolean mClosingActionMenu;
+    private boolean mPanelIsPrepared;
+    private boolean mPanelRefreshContent;
+    private Bundle mPanelFrozenActionViewState;
 
     ActionBarActivityDelegateBase(ActionBarActivity activity) {
         super(activity);
@@ -237,7 +228,14 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             }
 
             mSubDecorInstalled = true;
-            supportInvalidateOptionsMenu();
+
+            // Post supportInvalidateOptionsMenu() so that the menu is invalidated post-onCreate()
+            content.post(new Runnable() {
+                @Override
+                public void run() {
+                    supportInvalidateOptionsMenu();
+                }
+            });
         }
     }
 
@@ -274,42 +272,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     public View onCreatePanelView(int featureId) {
         View createdPanelView = null;
 
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            boolean show = true;
-            MenuBuilder menu = mMenu;
-
-            if (mActionMode == null) {
-                // We only want to dispatch Activity/Fragment menu calls if there isn't
-                // currently an action mode
-
-                if (menu == null) {
-                    // We don't have a menu created, so create one
-                    menu = createMenu();
-                    setMenu(menu);
-
-                    // Make sure we're not dispatching item changes to presenters
-                    menu.stopDispatchingItemsChanged();
-                    // Dispatch onCreateOptionsMenu
-                    show = mActivity.superOnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu);
-                }
-
-                if (show) {
-                    // Make sure we're not dispatching item changes to presenters
-                    menu.stopDispatchingItemsChanged();
-                    // Dispatch onPrepareOptionsMenu
-                    show = mActivity.superOnPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, menu);
-                }
-            }
-
-            if (show) {
-                createdPanelView = (View) getListMenuView(mActivity, this);
-
-                // Allow menu to start dispatching changes to presenters
-                menu.startDispatchingItemsChanged();
-            } else {
-                // If the menu isn't being shown, we no longer need it
-                setMenu(null);
-            }
+        if (featureId == Window.FEATURE_OPTIONS_PANEL && preparePanel()) {
+            createdPanelView = (View) getListMenuView(mActivity, this);
         }
 
         return createdPanelView;
@@ -351,7 +315,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
     @Override
     public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        if (mClosingActionMenu) {
+            return;
+        }
+        mClosingActionMenu = true;
         mActivity.closeOptionsMenu();
+        mActionBarView.dismissPopupMenus();
+        mClosingActionMenu = false;
     }
 
     @Override
@@ -384,16 +354,23 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
     @Override
     public void supportInvalidateOptionsMenu() {
-        if (!mInvalidateMenuPosted) {
-            mInvalidateMenuPosted = true;
-            mActivity.getWindow().getDecorView().post(mInvalidateMenuRunnable);
+        if (mMenu != null) {
+            Bundle savedActionViewStates = new Bundle();
+            mMenu.saveActionViewStates(savedActionViewStates);
+            if (savedActionViewStates.size() > 0) {
+                mPanelFrozenActionViewState = savedActionViewStates;
+            }
+            // This will be started again when the panel is prepared.
+            mMenu.stopDispatchingItemsChanged();
+            mMenu.clear();
         }
-    }
+        mPanelRefreshContent = true;
 
-    private MenuBuilder createMenu() {
-        MenuBuilder menu = new MenuBuilder(getActionBarThemedContext());
-        menu.setCallback(this);
-        return menu;
+        // Prepare the options panel if we have an action bar
+        if (mActionBarView != null) {
+            mPanelIsPrepared = false;
+            preparePanel();
+        }
     }
 
     private void reopenMenu(MenuBuilder menu, boolean toggleMenuMode) {
@@ -433,25 +410,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         }
 
         return mListMenuPresenter.getMenuView(new FrameLayout(context));
-    }
-
-    private void setMenu(MenuBuilder menu) {
-        if (menu == mMenu) {
-            return;
-        }
-
-        if (mMenu != null) {
-            mMenu.removeMenuPresenter(mListMenuPresenter);
-        }
-        mMenu = menu;
-
-        if (menu != null && mListMenuPresenter != null) {
-            // Only update list menu if there isn't an action mode menu
-            menu.addMenuPresenter(mListMenuPresenter);
-        }
-        if (mActionBarView != null) {
-            mActionBarView.setMenu(menu, this);
-        }
     }
 
     @Override
@@ -576,6 +534,80 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             pb.setVisibility(View.INVISIBLE);
         }
         return pb;
+    }
+
+    private boolean initializePanelMenu() {
+        mMenu = new MenuBuilder(getActionBarThemedContext());
+        mMenu.setCallback(this);
+        return true;
+    }
+
+    private boolean preparePanel() {
+        // Already prepared (isPrepared will be reset to false later)
+        if (mPanelIsPrepared) {
+            return true;
+        }
+
+        // Init the panel state's menu--return false if init failed
+        if (mMenu == null || mPanelRefreshContent) {
+            if (mMenu == null) {
+                if (!initializePanelMenu() || (mMenu == null)) {
+                    return false;
+                }
+            }
+
+            if (mActionBarView != null) {
+                mActionBarView.setMenu(mMenu, this);
+            }
+
+            // Creating the panel menu will involve a lot of manipulation;
+            // don't dispatch change events to presenters until we're done.
+            mMenu.stopDispatchingItemsChanged();
+
+            // Call callback, and return if it doesn't want to display menu.
+            if (!mActivity.superOnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, mMenu)) {
+                // Ditch the menu created above
+                mMenu = null;
+
+                if (mActionBarView != null) {
+                    // Don't show it in the action bar either
+                    mActionBarView.setMenu(null, this);
+                }
+
+                return false;
+            }
+
+            mPanelRefreshContent = false;
+        }
+
+        // Preparing the panel menu can involve a lot of manipulation;
+        // don't dispatch change events to presenters until we're done.
+        mMenu.stopDispatchingItemsChanged();
+
+        // Restore action view state before we prepare. This gives apps
+        // an opportunity to override frozen/restored state in onPrepare.
+        if (mPanelFrozenActionViewState != null) {
+            mMenu.restoreActionViewStates(mPanelFrozenActionViewState);
+            mPanelFrozenActionViewState = null;
+        }
+
+        // Callback and return if the callback does not want to show the menu
+        if (!mActivity.superOnPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, mMenu)) {
+            if (mActionBarView != null) {
+                // The app didn't want to show the menu for now but it still exists.
+                // Clear it out of the action bar.
+                mActionBarView.setMenu(null, this);
+            }
+            mMenu.startDispatchingItemsChanged();
+            return false;
+        }
+
+        mMenu.startDispatchingItemsChanged();
+
+        // Set other state
+        mPanelIsPrepared = true;
+
+        return true;
     }
 
     /**
