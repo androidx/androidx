@@ -5,6 +5,7 @@ archivesBaseName = 'support-v4'
 sourceSets {
     main.java.srcDir 'java'
     eclair.java.srcDir 'eclair'
+    eclairmr1.java.srcDir 'eclair-mr1'
     froyo.java.srcDir 'froyo'
     gingerbread.java.srcDir 'gingerbread'
     honeycomb.java.srcDir 'honeycomb'
@@ -19,6 +20,7 @@ sourceSets {
 
 dependencies {
     eclairCompile getAndroidPrebuilt('5')
+    eclairmr1Compile getAndroidPrebuilt('7')
     froyoCompile getAndroidPrebuilt('8')
     gingerbreadCompile getAndroidPrebuilt('9')
     honeycombCompile getAndroidPrebuilt('11')
@@ -28,10 +30,11 @@ dependencies {
     jellybeanCompile getAndroidPrebuilt('16')
     jellybeanmr1Compile getAndroidPrebuilt('17')
     jellybeanmr2Compile getAndroidPrebuilt('18')
-    kitkatCompile getAndroidPrebuilt('current')
+    kitkatCompile getAndroidPrebuilt('19')
 
     compile getAndroidPrebuilt('4')
     compile sourceSets.eclair.output
+    compile sourceSets.eclairmr1.output
     compile sourceSets.froyo.output
     compile sourceSets.gingerbread.output
     compile sourceSets.honeycomb.output
@@ -47,6 +50,7 @@ dependencies {
 
 jar {
     from sourceSets.eclair.output
+    from sourceSets.eclairmr1.output
     from sourceSets.froyo.output
     from sourceSets.gingerbread.output
     from sourceSets.honeycomb.output
@@ -97,6 +101,7 @@ uploadArchives {
 javadoc {
     source    sourceSets.main.allJava
     source    sourceSets.eclair.allJava
+    source    sourceSets.eclairmr1.allJava
     source    sourceSets.froyo.allJava
     source    sourceSets.gingerbread.allJava
     source    sourceSets.honeycomb.allJava
@@ -114,6 +119,7 @@ task sourcesJar(type: Jar, dependsOn:classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
     from sourceSets.eclair.allSource
+    from sourceSets.eclairmr1.allSource
     from sourceSets.froyo.allSource
     from sourceSets.gingerbread.allSource
     from sourceSets.honeycomb.allSource
