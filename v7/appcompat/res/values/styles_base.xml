@@ -172,6 +172,9 @@
         </item>
     </style>
 
+    <style name="Widget.AppCompat.Light.Base.ActionMode" parent="Widget.AppCompat.Base.ActionMode">
+    </style>
+
     <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
            parent="Widget.AppCompat.Base.ActionMode">
         <item name="titleTextStyle">
