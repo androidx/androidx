@@ -1310,14 +1310,13 @@ public class ListPopupWindow {
                     viewType = newType;
                 }
                 child = adapter.getView(i, child, this);
-                ;
 
                 // Compute child height spec
                 int heightMeasureSpec;
-                int childHeight = child.getLayoutParams().height;
-                if (childHeight > 0) {
-                    heightMeasureSpec = MeasureSpec
-                            .makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
+                final ViewGroup.LayoutParams childLp = child.getLayoutParams();
+                if (childLp != null && childLp.height > 0) {
+                    heightMeasureSpec = MeasureSpec.makeMeasureSpec(childLp.height,
+                            MeasureSpec.EXACTLY);
                 } else {
                     heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
                 }
