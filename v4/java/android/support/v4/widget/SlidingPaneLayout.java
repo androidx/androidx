@@ -674,7 +674,9 @@ public class SlidingPaneLayout extends ViewGroup {
                 mSlideRange = range;
                 lp.dimWhenOffset = xStart + lp.leftMargin + range + childWidth / 2 >
                         width - paddingRight;
-                xStart += (int) (range * mSlideOffset) + lp.leftMargin;
+                final int pos = (int) (range * mSlideOffset);
+                xStart += pos + lp.leftMargin;
+                mSlideOffset = (float) pos / mSlideRange;
             } else if (mCanSlide && mParallaxBy != 0) {
                 offset = (int) ((1 - mSlideOffset) * mParallaxBy);
                 xStart = nextXStart;
