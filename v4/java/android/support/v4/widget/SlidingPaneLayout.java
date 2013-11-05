@@ -913,6 +913,12 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     private void onPanelDragged(int newLeft) {
+        if (mSlideableView == null) {
+            // This can happen if we're aborting motion during layout because everything now fits.
+            mSlideOffset = 0;
+            return;
+        }
+
         final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
         final int leftBound = getPaddingLeft() + lp.leftMargin;
 
