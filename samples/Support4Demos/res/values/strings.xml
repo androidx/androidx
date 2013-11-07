@@ -176,4 +176,6 @@
     <!-- ContentLoadingProgressBar -->
     <string name="content_loading_progress_bar">Widget/Content Loading Progress Bar</string>
 
+    <!--  Swipe refresh -->
+    <string name="swipe">Widget/SwipeRefreshLayout</string>
 </resources>

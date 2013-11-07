@@ -21,7 +21,14 @@
          selected when the holographic theme is available. -->
     <style name="ThemeHolo" parent="android:Theme">
     </style>
-    
+
+    <!-- This is a theme that will adjust itself depending on the API version.
+         The default definition is the safe one, using a theme that has always
+         been defined.  Look at values-11/styles.xml for a variation that is
+         selected when the holographic theme is available. -->
+    <style name="ThemeHoloLight" parent="android:Theme.Light">
+    </style>
+
     <!-- Older platforms don't have Theme.Holo.DialogWhenLarge; we will define
          our own wrapper theme that uses it only when running on the appropriate
          platform version.  On older platforms, we always use the generic
