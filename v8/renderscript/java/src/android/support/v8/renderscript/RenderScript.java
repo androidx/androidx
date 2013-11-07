@@ -703,16 +703,7 @@ public class RenderScript {
         mMessageCallback = msg;
         if (isNative) {
             RenderScriptThunker rst = (RenderScriptThunker) this;
-            android.renderscript.RenderScript.RSMessageHandler newmsg =
-                new android.renderscript.RenderScript.RSMessageHandler() {
-                    public void run()  {
-                        mMessageCallback.mData = mData;
-                        mMessageCallback.mID = mID;
-                        mMessageCallback.mLength = mLength;
-                        mMessageCallback.run();
-                    }
-                };
-            rst.mN.setMessageHandler(newmsg);
+            rst.setMessageHandler(msg);
         }
     }
     public RSMessageHandler getMessageHandler() {
@@ -758,15 +749,7 @@ public class RenderScript {
         mErrorCallback = msg;
         if (isNative) {
             RenderScriptThunker rst = (RenderScriptThunker) this;
-            android.renderscript.RenderScript.RSErrorHandler newmsg =
-                new android.renderscript.RenderScript.RSErrorHandler() {
-                    public void run()  {
-                        mErrorCallback.mErrorMessage = mErrorMessage;
-                        mErrorCallback.mErrorNum = mErrorNum;
-                        mErrorCallback.run();
-                    }
-                };
-            rst.mN.setErrorHandler(newmsg);
+            rst.setErrorHandler(msg);
         }
     }
     public RSErrorHandler getErrorHandler() {

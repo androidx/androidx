@@ -63,4 +63,11 @@ class RenderScriptThunker extends RenderScript {
         mN.destroy();
         mN = null;
     }
+
+    boolean equals(Object obj1, Object obj2) {
+        if (obj2 instanceof android.support.v8.renderscript.BaseObj) {
+            return ((android.renderscript.BaseObj)obj1).equals(((android.support.v8.renderscript.BaseObj)obj2).getNObj());
+        }
+        return false;
+    }
 }
