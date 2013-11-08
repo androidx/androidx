@@ -56,7 +56,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     private boolean mConnectionReady;
 
     public RegisteredMediaRouteProvider(Context context, ComponentName componentName) {
-        super(context, new ProviderMetadata(componentName.getPackageName()));
+        super(context, new ProviderMetadata(componentName));
 
         mComponentName = componentName;
         mPrivateHandler = new PrivateHandler();

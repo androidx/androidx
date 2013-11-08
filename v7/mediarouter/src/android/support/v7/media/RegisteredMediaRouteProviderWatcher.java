@@ -60,8 +60,10 @@ final class RegisteredMediaRouteProviderWatcher {
             filter.addAction(Intent.ACTION_PACKAGE_ADDED);
             filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
             filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-            mContext.registerReceiver(mScanPackagesReceiver,
-                    filter, null, mHandler);
+            filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+            filter.addAction(Intent.ACTION_PACKAGE_RESTARTED);
+            filter.addDataScheme("package");
+            mContext.registerReceiver(mScanPackagesReceiver, filter, null, mHandler);
 
             // Scan packages.
             // Also has the side-effect of restarting providers if needed.
