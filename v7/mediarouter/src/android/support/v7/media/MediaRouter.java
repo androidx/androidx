@@ -16,6 +16,7 @@
 
 package android.support.v7.media;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -1152,10 +1153,17 @@ public final class MediaRouter {
         }
 
         /**
-         * Gets the package name of the media route provider service.
+         * Gets the package name of the media route provider.
          */
         public String getPackageName() {
             return mMetadata.getPackageName();
+        }
+
+        /**
+         * Gets the component name of the media route provider.
+         */
+        public ComponentName getComponentName() {
+            return mMetadata.getComponentName();
         }
 
         /**
@@ -1755,7 +1763,8 @@ public final class MediaRouter {
             // Although route descriptor ids are unique within a provider, it's
             // possible for there to be two providers with the same package name.
             // Therefore we must dedupe the composite id.
-            String uniqueId = provider.getPackageName() + ":" + routeDescriptorId;
+            String uniqueId = provider.getComponentName().flattenToShortString()
+                    + ":" + routeDescriptorId;
             if (findRouteByUniqueId(uniqueId) < 0) {
                 return uniqueId;
             }

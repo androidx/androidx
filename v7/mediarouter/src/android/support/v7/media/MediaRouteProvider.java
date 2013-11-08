@@ -16,12 +16,12 @@
 
 package android.support.v7.media;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.media.MediaRouter.ControlRequestCallback;
-import android.text.TextUtils;
 
 /**
  * Media route providers are used to publish additional media routes for
@@ -84,7 +84,7 @@ public abstract class MediaRouteProvider {
 
         mContext = context;
         if (metadata == null) {
-            mMetadata = new ProviderMetadata(context.getPackageName());
+            mMetadata = new ProviderMetadata(new ComponentName(context, getClass()));
         } else {
             mMetadata = metadata;
         }
@@ -256,30 +256,33 @@ public abstract class MediaRouteProvider {
      * </p>
      */
     public static final class ProviderMetadata {
-        private final String mPackageName;
+        private final ComponentName mComponentName;
 
-        /**
-         * Creates a provider metadata object.
-         *
-         * @param packageName The provider application's package name.
-         */
-        public ProviderMetadata(String packageName) {
-            if (TextUtils.isEmpty(packageName)) {
-                throw new IllegalArgumentException("packageName must not be null or empty");
+        ProviderMetadata(ComponentName componentName) {
+            if (componentName == null) {
+                throw new IllegalArgumentException("componentName must not be null");
             }
-            mPackageName = packageName;
+            mComponentName = componentName;
         }
 
         /**
-         * Gets the provider application's package name.
+         * Gets the provider's package name.
          */
         public String getPackageName() {
-            return mPackageName;
+            return mComponentName.getPackageName();
+        }
+
+        /**
+         * Gets the provider's component name.
+         */
+        public ComponentName getComponentName() {
+            return mComponentName;
         }
 
         @Override
         public String toString() {
-            return "ProviderMetadata{ packageName=" + mPackageName + " }";
+            return "ProviderMetadata{ componentName="
+                    + mComponentName.flattenToShortString() + " }";
         }
     }
 
