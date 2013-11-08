@@ -18,6 +18,7 @@ package com.example.android.supportv7.media;
 import com.example.android.supportv7.R;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.display.DisplayManager;
@@ -89,6 +90,8 @@ public abstract class OverlayDisplayWindow {
     public abstract void dismiss();
 
     public abstract void updateAspectRatio(int width, int height);
+
+    public abstract Bitmap getSnapshot();
 
     // Watches for significant changes in the overlay display window lifecycle.
     public interface OverlayWindowListener {
@@ -163,6 +166,11 @@ public abstract class OverlayDisplayWindow {
 
         @Override
         public void updateAspectRatio(int width, int height) {
+        }
+
+        @Override
+        public Bitmap getSnapshot() {
+            return null;
         }
     }
 
@@ -248,6 +256,11 @@ public abstract class OverlayDisplayWindow {
                 mTextureView.getLayoutParams().height = mHeight;
             }
             relayout();
+        }
+
+        @Override
+        public Bitmap getSnapshot() {
+            return mTextureView.getBitmap();
         }
 
         private void relayout() {

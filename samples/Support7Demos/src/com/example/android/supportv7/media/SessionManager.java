@@ -50,6 +50,10 @@ public class SessionManager implements Player.Callback {
         mName = name;
     }
 
+    public boolean isPaused() {
+        return hasSession() && mPaused;
+    }
+
     public boolean hasSession() {
         return mSessionValid;
     }
@@ -60,12 +64,6 @@ public class SessionManager implements Player.Callback {
 
     public PlaylistItem getCurrentItem() {
         return mPlaylist.isEmpty() ? null : mPlaylist.get(0);
-    }
-
-    // Get the cached statistic info from the player (will not update it)
-    public String getStatistics() {
-        checkPlayer();
-        return mPlayer.getStatistics();
     }
 
     // Returns the cached playlist (note this is not responsible for updating it)
@@ -81,7 +79,7 @@ public class SessionManager implements Player.Callback {
         checkPlayer();
         // update the statistics first, so that the stats string is valid when
         // onPlaylistReady() gets called in the end
-        mPlayer.updateStatistics();
+        mPlayer.updateTrackInfo();
 
         if (mPlaylist.isEmpty()) {
             // If queue is empty, don't forget to call onPlaylistReady()!
@@ -179,7 +177,10 @@ public class SessionManager implements Player.Callback {
         if (DEBUG) {
             log("pause");
         }
-        checkPlayerAndSession();
+        if (!mSessionValid) {
+            return;
+        }
+        checkPlayer();
         mPaused = true;
         updatePlaybackState();
     }
@@ -188,7 +189,10 @@ public class SessionManager implements Player.Callback {
         if (DEBUG) {
             log("resume");
         }
-        checkPlayerAndSession();
+        if (!mSessionValid) {
+            return;
+        }
+        checkPlayer();
         mPaused = false;
         updatePlaybackState();
     }
@@ -197,7 +201,10 @@ public class SessionManager implements Player.Callback {
         if (DEBUG) {
             log("stop");
         }
-        checkPlayerAndSession();
+        if (!mSessionValid) {
+            return;
+        }
+        checkPlayer();
         mPlayer.stop();
         mPlaylist.clear();
         mPaused = false;

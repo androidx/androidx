@@ -28,7 +28,7 @@
 
     <string name="library_tab_text">Library</string>
     <string name="playlist_tab_text">Playlist</string>
-    <string name="statistics_tab_text">Statistics</string>
+    <string name="info_tab_text">Route Info</string>
 
     <string name="sample_media_route_provider_service">Media Route Provider Service Support Library Sample</string>
     <string name="fixed_volume_route_name">Fixed Volume Remote Playback Route</string>
