@@ -105,7 +105,8 @@ import android.net.Uri;
  *
  * <h3>Remote playback routes</h3>
  * <p>
- * Remote playback routes present media remotely by playing content from a Uri.
+ * {@link #CATEGORY_REMOTE_PLAYBACK Remote playback} routes present media remotely
+ * by playing content from a Uri.
  * These routes destinations take responsibility for fetching and rendering content
  * on their own.  Applications do not render the content themselves; instead, applications
  * send control requests to initiate play, pause, resume, or stop media items and receive
@@ -267,6 +268,8 @@ import android.net.Uri;
  * </p>
  */
 public final class MediaControlIntent {
+    /* Route categories. */
+
     /**
      * Media control category: Live audio.
      * <p>
@@ -276,6 +279,8 @@ public final class MediaControlIntent {
      * </p><p>
      * When a live audio route is selected, audio routing is transparent to the application.
      * All audio played on the media stream will be routed to the selected destination.
+     * </p><p>
+     * Refer to the class documentation for details about live audio routes.
      * </p>
      */
     public static final String CATEGORY_LIVE_AUDIO = "android.media.intent.category.LIVE_AUDIO";
@@ -293,6 +298,8 @@ public final class MediaControlIntent {
      * destination.  For certain live video routes, the application may also use a
      * {@link android.app.Presentation Presentation} to replace the mirrored view
      * on the external display with different content.
+     * </p><p>
+     * Refer to the class documentation for details about live video routes.
      * </p>
      *
      * @see MediaRouter.RouteInfo#getPresentationDisplay()
@@ -311,6 +318,8 @@ public final class MediaControlIntent {
      * playing on the destination by sending media control actions to the route.
      * The application may also receive status updates from the route regarding
      * remote playback.
+     * </p><p>
+     * Refer to the class documentation for details about remote playback routes.
      * </p>
      *
      * @see MediaRouter.RouteInfo#sendControlRequest
@@ -870,6 +879,8 @@ public final class MediaControlIntent {
      * @see #CATEGORY_REMOTE_PLAYBACK
      */
     public static final String ACTION_END_SESSION = "android.media.intent.action.END_SESSION";
+
+    /* Extras and related constants. */
 
     /**
      * Bundle extra: Media session id.
