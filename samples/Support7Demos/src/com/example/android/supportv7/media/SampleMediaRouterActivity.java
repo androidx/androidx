@@ -37,7 +37,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.app.MediaRouteControllerDialog;
+import android.support.v7.app.MediaRouteControllerDialogFragment;
 import android.support.v7.app.MediaRouteDiscoveryFragment;
+import android.support.v7.app.MediaRouteDialogFactory;
 import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouter.Callback;
@@ -88,9 +91,9 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
     private ImageButton mPauseResumeButton;
     private ImageButton mStopButton;
     private SeekBar mSeekBar;
-    private boolean mPaused;
     private boolean mNeedResume;
     private boolean mSeeking;
+    private SampleMediaRouteControllerDialog mControllerDialog;
 
     private final Handler mHandler = new Handler();
     private final Runnable mUpdateSeekRunnable = new Runnable() {
@@ -143,12 +146,13 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
 
             PlaylistItem item = getCheckedPlaylistItem();
             if (item != null) {
-                long pos = item.getPosition() + (mPaused ?
+                long pos = item.getPosition() + (mSessionManager.isPaused() ?
                         0 : (SystemClock.elapsedRealtime() - item.getTimestamp()));
                 mSessionManager.suspend(pos);
             }
             mPlayer.updatePresentation();
             mPlayer.release();
+            mControllerDialog = null;
         }
 
         @Override
@@ -271,7 +275,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         spec2.setIndicator(tabName);
         spec2.setContent(R.id.tab2);
 
-        tabName = getResources().getString(R.string.statistics_tab_text);
+        tabName = getResources().getString(R.string.info_tab_text);
         TabSpec spec3=tabHost.newTabSpec(tabName);
         spec3.setIndicator(tabName);
         spec3.setContent(R.id.tab3);
@@ -312,11 +316,10 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         mPauseResumeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPaused = !mPaused;
-                if (mPaused) {
-                    mSessionManager.pause();
-                } else {
+                if (mSessionManager.isPaused()) {
                     mSessionManager.resume();
+                } else {
+                    mSessionManager.pause();
                 }
             }
         });
@@ -325,7 +328,6 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         mStopButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPaused = false;
                 mSessionManager.stop();
             }
         });
@@ -421,19 +423,17 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                 {
                     Log.d(TAG, "Received Play/Pause event from RemoteControlClient");
-                    mPaused = !mPaused;
-                    if (mPaused) {
-                        mSessionManager.pause();
-                    } else {
+                    if (mSessionManager.isPaused()) {
                         mSessionManager.resume();
+                    } else {
+                        mSessionManager.pause();
                     }
                     return true;
                 }
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
                 {
                     Log.d(TAG, "Received Play event from RemoteControlClient");
-                    if (mPaused) {
-                        mPaused = false;
+                    if (mSessionManager.isPaused()) {
                         mSessionManager.resume();
                     }
                     return true;
@@ -441,8 +441,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 case KeyEvent.KEYCODE_MEDIA_PAUSE:
                 {
                     Log.d(TAG, "Received Pause event from RemoteControlClient");
-                    if (!mPaused) {
-                        mPaused = true;
+                    if (!mSessionManager.isPaused()) {
                         mSessionManager.pause();
                     }
                     return true;
@@ -450,7 +449,6 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 case KeyEvent.KEYCODE_MEDIA_STOP:
                 {
                     Log.d(TAG, "Received Stop event from RemoteControlClient");
-                    mPaused = false;
                     mSessionManager.stop();
                     return true;
                 }
@@ -480,7 +478,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
     @Override
     public void onPause() {
         // pause media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && !mPaused) {
+        if (!mPlayer.isRemotePlayback() && !mSessionManager.isPaused()) {
             mNeedResume = true;
             mSessionManager.pause();
         }
@@ -502,7 +500,6 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         // Unregister the remote control client
         unregisterRCC();
 
-        mPaused = false;
         mSessionManager.stop();
         mPlayer.release();
         super.onDestroy();
@@ -520,6 +517,20 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         MediaRouteActionProvider mediaRouteActionProvider =
                 (MediaRouteActionProvider)MenuItemCompat.getActionProvider(mediaRouteMenuItem);
         mediaRouteActionProvider.setRouteSelector(mSelector);
+        mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
+            @Override
+            public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
+                return new MediaRouteControllerDialogFragment() {
+                    @Override
+                    public MediaRouteControllerDialog onCreateControllerDialog(
+                            Context context, Bundle savedInstanceState) {
+                        mControllerDialog = new SampleMediaRouteControllerDialog(
+                                context, mSessionManager, mPlayer);
+                        return mControllerDialog;
+                    }
+                };
+            }
+        });
 
         // Return true to show the menu.
         return true;
@@ -541,7 +552,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 }
             } else {
                 long position = item.getPosition();
-                long timeDelta = mPaused ? 0 :
+                long timeDelta = mSessionManager.isPaused() ? 0 :
                         (SystemClock.elapsedRealtime() - item.getTimestamp());
                 progress = (int)(100.0 * (position + timeDelta) / duration);
             }
@@ -553,6 +564,9 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         updatePlaylist();
         updateRouteDescription();
         updateButtons();
+        if (mControllerDialog != null) {
+            mControllerDialog.updateUi();
+        }
     }
 
     private void updatePlaylist() {
@@ -563,29 +577,24 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         mPlayListView.invalidate();
     }
 
-
     private void updateRouteDescription() {
         RouteInfo route = mMediaRouter.getSelectedRoute();
         mInfoTextView.setText("Currently selected route:"
                 + "\nName: " + route.getName()
                 + "\nProvider: " + route.getProvider().getPackageName()
-                + "\nDescription: " + route.getDescription()
-                + "\nStatistics: " + mSessionManager.getStatistics());
+                + "\nDescription: " + route.getDescription());
     }
 
     private void updateButtons() {
         MediaRouter.RouteInfo route = mMediaRouter.getSelectedRoute();
         // show pause or resume icon depending on current state
-        mPauseResumeButton.setImageResource(mPaused ?
+        mPauseResumeButton.setImageResource(mSessionManager.isPaused() ?
                 R.drawable.ic_media_play : R.drawable.ic_media_pause);
-        // disable pause/resume/stop if no session
-        mPauseResumeButton.setEnabled(mSessionManager.hasSession());
-        mStopButton.setEnabled(mSessionManager.hasSession());
         // only enable seek bar when duration is known
         PlaylistItem item = getCheckedPlaylistItem();
         mSeekBar.setEnabled(item != null && item.getDuration() > 0);
         if (mRemoteControlClient != null) {
-            mRemoteControlClient.setPlaybackState(mPaused ?
+            mRemoteControlClient.setPlaybackState(mSessionManager.isPaused() ?
                     RemoteControlClient.PLAYSTATE_PAUSED :
                         RemoteControlClient.PLAYSTATE_PLAYING);
         }

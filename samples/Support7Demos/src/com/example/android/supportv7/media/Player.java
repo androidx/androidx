@@ -18,6 +18,7 @@ package com.example.android.supportv7.media;
 
 import android.net.Uri;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouter.RouteInfo;
 
@@ -48,9 +49,10 @@ public abstract class Player {
     public abstract void enqueue(final PlaylistItem item);
     public abstract PlaylistItem remove(String iid);
 
-    // route statistics
-    public void updateStatistics() {}
-    public String getStatistics() { return ""; }
+    // track info for current media item
+    public void updateTrackInfo() {}
+    public String getDescription() { return ""; }
+    public Bitmap getSnapshot() { return null; }
 
     // presentation display
     public void updatePresentation() {}
