@@ -251,8 +251,8 @@ public class MediaRouteControllerDialog extends Dialog {
         if (icon != mCurrentIconDrawable) {
             mCurrentIconDrawable = icon;
 
-            // There seems to be a bug in the framework where feature drawables
-            // will not start animating unless they experience a transition from
+            // Prior to KLP MR1 there was a bug in ImageView that caused feature drawables
+            // to not start animating unless they experienced a transition from
             // invisible to visible.  So we force the drawable to be invisible here.
             // The window will make the drawable visible when attached.
             icon.setVisible(false, true);
