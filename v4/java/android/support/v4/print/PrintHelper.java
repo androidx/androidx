@@ -47,6 +47,16 @@ public final class PrintHelper {
      */
     public static final int COLOR_MODE_COLOR = 2;
 
+    /**
+     * Print the image in landscape orientation (default).
+     */
+    public static final int ORIENTATION_LANDSCAPE = 1;
+
+    /**
+     * Print the image in  portrait orientation.
+     */
+    public static final int ORIENTATION_PORTRAIT = 2;
+
     PrintHelperVersionImpl mImpl;
 
     /**
@@ -75,6 +85,10 @@ public final class PrintHelper {
 
         public int getColorMode();
 
+        public void setOrientation(int orientation);
+
+        public int getOrientation();
+
         public void printBitmap(String jobName, Bitmap bitmap);
 
         public void printBitmap(String jobName, Uri imageFile)
@@ -87,7 +101,7 @@ public final class PrintHelper {
     private static final class PrintHelperStubImpl implements PrintHelperVersionImpl {
         int mScaleMode = SCALE_MODE_FILL;
         int mColorMode = COLOR_MODE_COLOR;
-
+        int mOrientation = ORIENTATION_LANDSCAPE;
         @Override
         public void setScaleMode(int scaleMode) {
             mScaleMode = scaleMode;
@@ -102,6 +116,12 @@ public final class PrintHelper {
         public void setColorMode(int colorMode) {
             mColorMode = colorMode;
         }
+
+        @Override
+        public void setOrientation(int orientation) { mOrientation = orientation; }
+
+        @Override
+        public int getOrientation() { return mOrientation; }
 
         @Override
         public int getScaleMode() {
@@ -121,40 +141,50 @@ public final class PrintHelper {
      * Implementation used on KitKat (and above)
      */
     private static final class PrintHelperKitkatImpl implements PrintHelperVersionImpl {
-        private final PrintHelperKitkat printHelper;
+        private final PrintHelperKitkat mPrintHelper;
 
         PrintHelperKitkatImpl(Context context) {
-            printHelper = new PrintHelperKitkat(context);
+            mPrintHelper = new PrintHelperKitkat(context);
         }
 
         @Override
         public void setScaleMode(int scaleMode) {
-            printHelper.setScaleMode(scaleMode);
+            mPrintHelper.setScaleMode(scaleMode);
         }
 
         @Override
         public int getScaleMode() {
-            return printHelper.getScaleMode();
+            return mPrintHelper.getScaleMode();
         }
 
         @Override
         public void setColorMode(int colorMode) {
-            printHelper.setColorMode(colorMode);
+            mPrintHelper.setColorMode(colorMode);
         }
 
         @Override
         public int getColorMode() {
-            return printHelper.getColorMode();
+            return mPrintHelper.getColorMode();
+        }
+
+        @Override
+        public void setOrientation(int orientation) {
+            mPrintHelper.setOrientation(orientation);
+        }
+
+        @Override
+        public int getOrientation() {
+            return mPrintHelper.getOrientation();
         }
 
         @Override
         public void printBitmap(String jobName, Bitmap bitmap) {
-            printHelper.printBitmap(jobName, bitmap);
+            mPrintHelper.printBitmap(jobName, bitmap);
         }
 
         @Override
         public void printBitmap(String jobName, Uri imageFile) throws FileNotFoundException {
-            printHelper.printBitmap(jobName, imageFile);
+            mPrintHelper.printBitmap(jobName, imageFile);
         }
     }
 
@@ -215,6 +245,27 @@ public final class PrintHelper {
      */
     public int getColorMode() {
         return mImpl.getColorMode();
+    }
+
+    /**
+     * Sets whether the image will be printed in landscape {@link #ORIENTATION_LANDSCAPE} (default)
+     * or portrait {@link #ORIENTATION_PORTRAIT}.
+     *
+     * @param orientation The page orientation which is one of
+     *                    {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
+     */
+    public void setOrientation(int orientation) {
+        mImpl.setOrientation(orientation);
+    }
+
+    /**
+     * Gets whether the image will be printed in landscape or portrait.
+     *
+     * @return The page orientation which is one of
+     * {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
+     */
+    public int getOrientation() {
+        return mImpl.getOrientation();
     }
 
     /**
