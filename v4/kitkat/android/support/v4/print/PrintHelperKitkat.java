@@ -23,6 +23,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument.Page;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
@@ -42,11 +43,13 @@ import java.io.InputStream;
 /**
  * Kitkat specific PrintManager API implementation.
  */
-public class PrintHelperKitkat {
+class PrintHelperKitkat {
     private static final String LOG_TAG = "PrintHelperKitkat";
     // will be <= 300 dpi on A4 (8.3×11.7) paper (worst case of 150 dpi)
     private final static int MAX_PRINT_SIZE = 3500;
     final Context mContext;
+    BitmapFactory.Options mDecodeOptions = null;
+    private final Object mLock = new Object();
     /**
      * image will be scaled but leave white space
      */
@@ -57,10 +60,19 @@ public class PrintHelperKitkat {
     public static final int SCALE_MODE_FILL = 2;
 
     /**
+     * select landscape (default)
+     */
+    public static final int ORIENTATION_LANDSCAPE = 1;
+
+    /**
+     * select portrait
+     */
+    public static final int ORIENTATION_PORTRAIT = 2;
+
+    /**
      * this is a black and white image
      */
     public static final int COLOR_MODE_MONOCHROME = 1;
-
     /**
      * this is a color image (default)
      */
@@ -70,12 +82,15 @@ public class PrintHelperKitkat {
 
     int mColorMode = COLOR_MODE_COLOR;
 
+    int mOrientation = ORIENTATION_LANDSCAPE;
+
     PrintHelperKitkat(Context context) {
         mContext = context;
     }
 
     /**
      * Selects whether the image will fill the paper and be cropped
+     * <p/>
      * {@link #SCALE_MODE_FIT}
      * or whether the image will be scaled but leave white space
      * {@link #SCALE_MODE_FILL}.
@@ -103,10 +118,30 @@ public class PrintHelperKitkat {
      * {@link #COLOR_MODE_MONOCHROME}.
      *
      * @param colorMode The color mode which is one of
-     * {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
+     *                  {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
      */
     public void setColorMode(int colorMode) {
         mColorMode = colorMode;
+    }
+
+    /**
+     * Sets whether to select landscape (default), {@link #ORIENTATION_LANDSCAPE}
+     * or portrait {@link #ORIENTATION_PORTRAIT}
+     * @param orientation The page orientation which is one of
+     *                    {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
+     */
+    public void setOrientation(int orientation) {
+        mOrientation = orientation;
+    }
+
+    /**
+     * Gets the page orientation with which the image will be printed.
+     *
+     * @return The preferred orientation which is one of
+     * {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}
+     */
+    public int getOrientation() {
+        return mOrientation;
     }
 
     /**
@@ -171,23 +206,9 @@ public class PrintHelperKitkat {
                             Page page = pdfDocument.startPage(1);
 
                             RectF content = new RectF(page.getInfo().getContentRect());
-                            Matrix matrix = new Matrix();
 
-                            // Compute and apply scale to fill the page.
-                            float scale = content.width() / bitmap.getWidth();
-                            if (fittingMode == SCALE_MODE_FILL) {
-                                scale = Math.max(scale, content.height() / bitmap.getHeight());
-                            } else {
-                                scale = Math.min(scale, content.height() / bitmap.getHeight());
-                            }
-                            matrix.postScale(scale, scale);
-
-                            // Center the content.
-                            final float translateX = (content.width()
-                                    - bitmap.getWidth() * scale) / 2;
-                            final float translateY = (content.height()
-                                    - bitmap.getHeight() * scale) / 2;
-                            matrix.postTranslate(translateX, translateY);
+                            Matrix matrix = getMatrix(bitmap.getWidth(), bitmap.getHeight(),
+                                    content, fittingMode);
 
                             // Draw the bitmap.
                             page.getCanvas().drawBitmap(bitmap, matrix, null);
@@ -224,6 +245,36 @@ public class PrintHelperKitkat {
     }
 
     /**
+     * Calculates the transform the print an Image to fill the page
+     *
+     * @param imageWidth  with of bitmap
+     * @param imageHeight height of bitmap
+     * @param content     The output page dimensions
+     * @param fittingMode The mode of fitting {@link #SCALE_MODE_FILL} vs {@link #SCALE_MODE_FIT}
+     * @return Matrix to be used in canvas.drawBitmap(bitmap, matrix, null) call
+     */
+    private Matrix getMatrix(int imageWidth, int imageHeight, RectF content, int fittingMode) {
+        Matrix matrix = new Matrix();
+
+        // Compute and apply scale to fill the page.
+        float scale = content.width() / imageWidth;
+        if (fittingMode == SCALE_MODE_FILL) {
+            scale = Math.max(scale, content.height() / imageHeight);
+        } else {
+            scale = Math.min(scale, content.height() / imageHeight);
+        }
+        matrix.postScale(scale, scale);
+
+        // Center the content.
+        final float translateX = (content.width()
+                - imageWidth * scale) / 2;
+        final float translateY = (content.height()
+                - imageHeight * scale) / 2;
+        matrix.postTranslate(translateX, translateY);
+        return matrix;
+    }
+
+    /**
      * Prints an image located at the Uri. Image types supported are those of
      * <code>BitmapFactory.decodeStream</code> (JPEG, GIF, PNG, BMP, WEBP)
      *
@@ -231,9 +282,167 @@ public class PrintHelperKitkat {
      * @param imageFile The <code>Uri</code> pointing to an image to print.
      * @throws FileNotFoundException if <code>Uri</code> is not pointing to a valid image.
      */
-    public void printBitmap(String jobName, Uri imageFile) throws FileNotFoundException {
-        Bitmap bitmap = loadConstrainedBitmap(imageFile, MAX_PRINT_SIZE);
-        printBitmap(jobName, bitmap);
+    public void printBitmap(final String jobName, final Uri imageFile)
+            throws FileNotFoundException {
+        final int fittingMode = mScaleMode;
+
+        PrintDocumentAdapter printDocumentAdapter = new PrintDocumentAdapter() {
+            private PrintAttributes mAttributes;
+            AsyncTask<Uri, Boolean, Bitmap> loadBitmap;
+            Bitmap mBitmap = null;
+
+            @Override
+            public void onLayout(final PrintAttributes oldPrintAttributes,
+                                 final PrintAttributes newPrintAttributes,
+                                 final CancellationSignal cancellationSignal,
+                                 final LayoutResultCallback layoutResultCallback,
+                                 Bundle bundle) {
+                if (cancellationSignal.isCanceled()) {
+                    layoutResultCallback.onLayoutCancelled();
+                    mAttributes = newPrintAttributes;
+                    return;
+                }
+                // we finished the load
+                if (mBitmap != null) {
+                    PrintDocumentInfo info = new PrintDocumentInfo.Builder(jobName)
+                            .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
+                            .setPageCount(1)
+                            .build();
+                    boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
+                    layoutResultCallback.onLayoutFinished(info, changed);
+                    return;
+                }
+
+                loadBitmap = new AsyncTask<Uri, Boolean, Bitmap>() {
+
+                    @Override
+                    protected void onPreExecute() {
+                        // First register for cancellation requests.
+                        cancellationSignal.setOnCancelListener(
+                                new CancellationSignal.OnCancelListener() {
+                                    @Override
+                                    public void onCancel() { // on different thread
+                                        cancelLoad();
+                                        cancel(false);
+                                    }
+                                });
+                    }
+
+                    @Override
+                    protected Bitmap doInBackground(Uri... uris) {
+                        try {
+                            return loadConstrainedBitmap(imageFile, MAX_PRINT_SIZE);
+                        } catch (FileNotFoundException e) {
+                          /* ignore */
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Bitmap bitmap) {
+                        super.onPostExecute(bitmap);
+                        mBitmap = bitmap;
+                        if (bitmap != null) {
+                            PrintDocumentInfo info = new PrintDocumentInfo.Builder(jobName)
+                                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
+                                    .setPageCount(1)
+                                    .build();
+                            boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
+
+                            layoutResultCallback.onLayoutFinished(info, changed);
+
+                        } else {
+                            layoutResultCallback.onLayoutFailed(null);
+                        }
+                    }
+
+                    @Override
+                    protected void onCancelled(Bitmap result) {
+                        // Task was cancelled, report that.
+                        layoutResultCallback.onLayoutCancelled();
+                    }
+                };
+                loadBitmap.execute();
+
+                mAttributes = newPrintAttributes;
+            }
+
+            private void cancelLoad() {
+                synchronized (mLock) { // prevent race with set null below
+                    if (mDecodeOptions != null) {
+                        mDecodeOptions.requestCancelDecode();
+                        mDecodeOptions = null;
+                    }
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                super.onFinish();
+                cancelLoad();
+                loadBitmap.cancel(true);
+            }
+
+            @Override
+            public void onWrite(PageRange[] pageRanges, ParcelFileDescriptor fileDescriptor,
+                                CancellationSignal cancellationSignal,
+                                WriteResultCallback writeResultCallback) {
+                PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
+                        mAttributes);
+                try {
+
+                    Page page = pdfDocument.startPage(1);
+                    RectF content = new RectF(page.getInfo().getContentRect());
+
+                    // Compute and apply scale to fill the page.
+                    Matrix matrix = getMatrix(mBitmap.getWidth(), mBitmap.getHeight(),
+                            content, fittingMode);
+
+                    // Draw the bitmap.
+                    page.getCanvas().drawBitmap(mBitmap, matrix, null);
+
+                    // Finish the page.
+                    pdfDocument.finishPage(page);
+
+                    try {
+                        // Write the document.
+                        pdfDocument.writeTo(new FileOutputStream(
+                                fileDescriptor.getFileDescriptor()));
+                        // Done.
+                        writeResultCallback.onWriteFinished(
+                                new PageRange[]{PageRange.ALL_PAGES});
+                    } catch (IOException ioe) {
+                        // Failed.
+                        Log.e(LOG_TAG, "Error writing printed content", ioe);
+                        writeResultCallback.onWriteFailed(null);
+                    }
+                } finally {
+                    if (pdfDocument != null) {
+                        pdfDocument.close();
+                    }
+                    if (fileDescriptor != null) {
+                        try {
+                            fileDescriptor.close();
+                        } catch (IOException ioe) {
+                            /* ignore */
+                        }
+                    }
+                }
+            }
+        };
+
+        PrintManager printManager = (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
+        PrintAttributes.Builder builder = new PrintAttributes.Builder();
+        builder.setColorMode(mColorMode);
+
+        if (mOrientation == ORIENTATION_LANDSCAPE) {
+            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);
+        } else if (mOrientation == ORIENTATION_PORTRAIT) {
+            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
+        }
+        PrintAttributes attr = builder.build();
+
+        printManager.print(jobName, printDocumentAdapter, attr);
     }
 
     /**
@@ -274,10 +483,20 @@ public class PrintHelperKitkat {
         if (sampleSize <= 0 || 0 >= (int) (Math.min(w, h) / sampleSize)) {
             return null;
         }
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inMutable = true;
-        options.inSampleSize = sampleSize;
-        return loadBitmap(uri, options);
+        BitmapFactory.Options decodeOptions = null;
+        synchronized (mLock) { // prevent race with set null below
+            mDecodeOptions = new BitmapFactory.Options();
+            mDecodeOptions.inMutable = true;
+            mDecodeOptions.inSampleSize = sampleSize;
+            decodeOptions = mDecodeOptions;
+        }
+        try {
+            return loadBitmap(uri, decodeOptions);
+        } finally {
+            synchronized (mLock) {
+                mDecodeOptions = null;
+            }
+        }
     }
 
     /**
