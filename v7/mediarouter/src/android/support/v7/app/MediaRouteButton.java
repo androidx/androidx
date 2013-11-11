@@ -506,11 +506,6 @@ public class MediaRouteButton extends View {
         }
     }
 
-    static interface AttachCallback {
-        void onAttachedToWindow();
-        void onDetachedFromWindow();
-    }
-
     private final class MediaRouterCallback extends MediaRouter.Callback {
         @Override
         public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
