@@ -28,11 +28,19 @@ class ElementThunker extends Element {
     }
 
     public int getBytesSize() {
-        return mN.getBytesSize();
+        try {
+            return mN.getBytesSize();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public int getVectorSize() {
-        return mN.getVectorSize();
+        try {
+            return mN.getVectorSize();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     static android.renderscript.Element.DataKind convertKind(DataKind cdk) {
@@ -104,27 +112,51 @@ class ElementThunker extends Element {
     }
 
     public boolean isComplex() {
-        return mN.isComplex();
+        try {
+            return mN.isComplex();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public int getSubElementCount() {
-        return mN.getSubElementCount();
+        try {
+            return mN.getSubElementCount();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Element getSubElement(int index) {
-        return new ElementThunker(mRS, mN.getSubElement(index));
+        try {
+            return new ElementThunker(mRS, mN.getSubElement(index));
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public String getSubElementName(int index) {
-        return mN.getSubElementName(index);
+        try {
+            return mN.getSubElementName(index);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public int getSubElementArraySize(int index) {
-        return mN.getSubElementArraySize(index);
+        try {
+            return mN.getSubElementArraySize(index);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public int getSubElementOffsetBytes(int index) {
-        return mN.getSubElementOffsetBytes(index);
+        try {
+            return mN.getSubElementOffsetBytes(index);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public DataType getDataType() {
@@ -144,90 +176,106 @@ class ElementThunker extends Element {
 
     static Element create(RenderScript rs, DataType dt) {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
-        android.renderscript.Element e = null;
-        switch(dt) {
-        case FLOAT_32:
-            e = android.renderscript.Element.F32(rst.mN);
-            break;
-        case FLOAT_64:
-            e = android.renderscript.Element.F64(rst.mN);
-            break;
-        case SIGNED_8:
-            e = android.renderscript.Element.I8(rst.mN);
-            break;
-        case SIGNED_16:
-            e = android.renderscript.Element.I16(rst.mN);
-            break;
-        case SIGNED_32:
-            e = android.renderscript.Element.I32(rst.mN);
-            break;
-        case SIGNED_64:
-            e = android.renderscript.Element.I64(rst.mN);
-            break;
-        case UNSIGNED_8:
-            e = android.renderscript.Element.U8(rst.mN);
-            break;
-        case UNSIGNED_16:
-            e = android.renderscript.Element.U16(rst.mN);
-            break;
-        case UNSIGNED_32:
-            e = android.renderscript.Element.U32(rst.mN);
-            break;
-        case UNSIGNED_64:
-            e = android.renderscript.Element.U64(rst.mN);
-            break;
-
-        case BOOLEAN:
-            e = android.renderscript.Element.BOOLEAN(rst.mN);
-            break;
-
-        case MATRIX_4X4:
-            e = android.renderscript.Element.MATRIX_4X4(rst.mN);
+        try {
+            android.renderscript.Element e = null;
+            switch(dt) {
+            case FLOAT_32:
+                e = android.renderscript.Element.F32(rst.mN);
                 break;
-        case MATRIX_3X3:
-            e = android.renderscript.Element.MATRIX_3X3(rst.mN);
-            break;
-        case MATRIX_2X2:
-            e = android.renderscript.Element.MATRIX_2X2(rst.mN);
-            break;
+            case FLOAT_64:
+                e = android.renderscript.Element.F64(rst.mN);
+                break;
+            case SIGNED_8:
+                e = android.renderscript.Element.I8(rst.mN);
+                break;
+            case SIGNED_16:
+                e = android.renderscript.Element.I16(rst.mN);
+                break;
+            case SIGNED_32:
+                e = android.renderscript.Element.I32(rst.mN);
+                break;
+            case SIGNED_64:
+                e = android.renderscript.Element.I64(rst.mN);
+                break;
+            case UNSIGNED_8:
+                e = android.renderscript.Element.U8(rst.mN);
+                break;
+            case UNSIGNED_16:
+                e = android.renderscript.Element.U16(rst.mN);
+                break;
+            case UNSIGNED_32:
+                e = android.renderscript.Element.U32(rst.mN);
+                break;
+            case UNSIGNED_64:
+                e = android.renderscript.Element.U64(rst.mN);
+                break;
 
-        case RS_ELEMENT:
-            e = android.renderscript.Element.ELEMENT(rst.mN);
-            break;
-        case RS_TYPE:
-            e = android.renderscript.Element.TYPE(rst.mN);
-            break;
-        case RS_ALLOCATION:
-            e = android.renderscript.Element.ALLOCATION(rst.mN);
-            break;
-        case RS_SAMPLER:
-            e = android.renderscript.Element.SAMPLER(rst.mN);
-            break;
-        case RS_SCRIPT:
-            e = android.renderscript.Element.SCRIPT(rst.mN);
-            break;
+            case BOOLEAN:
+                e = android.renderscript.Element.BOOLEAN(rst.mN);
+                break;
+
+            case MATRIX_4X4:
+                e = android.renderscript.Element.MATRIX_4X4(rst.mN);
+                break;
+            case MATRIX_3X3:
+                e = android.renderscript.Element.MATRIX_3X3(rst.mN);
+                break;
+            case MATRIX_2X2:
+                e = android.renderscript.Element.MATRIX_2X2(rst.mN);
+                break;
+
+            case RS_ELEMENT:
+                e = android.renderscript.Element.ELEMENT(rst.mN);
+                break;
+            case RS_TYPE:
+                e = android.renderscript.Element.TYPE(rst.mN);
+                break;
+            case RS_ALLOCATION:
+                e = android.renderscript.Element.ALLOCATION(rst.mN);
+                break;
+            case RS_SAMPLER:
+                e = android.renderscript.Element.SAMPLER(rst.mN);
+                break;
+            case RS_SCRIPT:
+                e = android.renderscript.Element.SCRIPT(rst.mN);
+                break;
+            }
+
+            return new ElementThunker(rs, e);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
         }
-
-        return new ElementThunker(rs, e);
     }
 
     public static Element createVector(RenderScript rs, DataType dt, int size) {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
         android.renderscript.Element e;
-        e = android.renderscript.Element.createVector(rst.mN, convertType(dt), size);
-        return new ElementThunker(rs, e);
+        try {
+            e = android.renderscript.Element.createVector(rst.mN, convertType(dt), size);
+            return new ElementThunker(rs, e);
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
     }
 
     public static Element createPixel(RenderScript rs, DataType dt, DataKind dk) {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
         android.renderscript.Element e;
-        e = android.renderscript.Element.createPixel(rst.mN, convertType(dt), convertKind(dk));
+        try {
+            e = android.renderscript.Element.createPixel(rst.mN, convertType(dt), convertKind(dk));
         return new ElementThunker(rs, e);
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
     }
 
     public boolean isCompatible(Element e) {
         ElementThunker et = (ElementThunker)e;
-        return et.mN.isCompatible(mN);
+        try {
+            return et.mN.isCompatible(mN);
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
     }
 
     static class BuilderThunker {
@@ -235,18 +283,31 @@ class ElementThunker extends Element {
 
         public BuilderThunker(RenderScript rs) {
             RenderScriptThunker rst = (RenderScriptThunker)rs;
-            mN = new android.renderscript.Element.Builder(rst.mN);
+            try {
+                mN = new android.renderscript.Element.Builder(rst.mN);
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
         }
 
         public void add(Element e, String name, int arraySize) {
             ElementThunker et = (ElementThunker)e;
-            mN.add(et.mN, name, arraySize);
+            try {
+                mN.add(et.mN, name, arraySize);
+            } catch (android.renderscript.RSRuntimeException exc) {
+                throw ExceptionThunker.convertException(exc);
+            }
         }
 
         public Element create(RenderScript rs) {
-            android.renderscript.Element e = mN.create();
-            return new ElementThunker(rs, e);
+            try {
+                android.renderscript.Element e = mN.create();
+                return new ElementThunker(rs, e);
+            } catch (android.renderscript.RSRuntimeException exc) {
+                throw ExceptionThunker.convertException(exc);
+            }
         }
     }
 }
+
 
