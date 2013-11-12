@@ -32,7 +32,11 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         ElementThunker et = (ElementThunker)e;
 
         ScriptIntrinsicBlendThunker blend = new ScriptIntrinsicBlendThunker(0, rs);
-        blend.mN = android.renderscript.ScriptIntrinsicBlend.create(rst.mN, et.getNObj());
+        try {
+            blend.mN = android.renderscript.ScriptIntrinsicBlend.create(rst.mN, et.getNObj());
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
         return blend;
     }
 
@@ -40,12 +44,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachClear(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachClear(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDClear() {
         Script.KernelID k = createKernelID(0, 3, null, null);
-        k.mN = mN.getKernelIDClear();
+        try {
+            k.mN = mN.getKernelIDClear();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -53,12 +65,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachSrc(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachSrc(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDSrc() {
         Script.KernelID k = createKernelID(1, 3, null, null);
-        k.mN = mN.getKernelIDSrc();
+        try {
+            k.mN = mN.getKernelIDSrc();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -66,12 +86,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachDst(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachDst(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDDst() {
         Script.KernelID k = createKernelID(2, 3, null, null);
-        k.mN = mN.getKernelIDDst();
+        try {
+            k.mN = mN.getKernelIDDst();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -79,12 +107,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachSrcOver(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachSrcOver(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDSrcOver() {
         Script.KernelID k = createKernelID(3, 3, null, null);
-        k.mN = mN.getKernelIDSrcOver();
+        try {
+            k.mN = mN.getKernelIDSrcOver();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -92,12 +128,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachDstOver(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachDstOver(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDDstOver() {
         Script.KernelID k = createKernelID(4, 3, null, null);
-        k.mN = mN.getKernelIDDstOver();
+        try {
+            k.mN = mN.getKernelIDDstOver();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -105,12 +149,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachSrcIn(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachSrcIn(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDSrcIn() {
         Script.KernelID k = createKernelID(5, 3, null, null);
-        k.mN = mN.getKernelIDSrcIn();
+        try {
+            k.mN = mN.getKernelIDSrcIn();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -118,12 +170,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachDstIn(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachDstIn(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDDstIn() {
         Script.KernelID k = createKernelID(6, 3, null, null);
-        k.mN = mN.getKernelIDDstIn();
+        try {
+            k.mN = mN.getKernelIDDstIn();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -131,12 +191,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachSrcOut(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachSrcOut(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDSrcOut() {
         Script.KernelID k = createKernelID(7, 3, null, null);
-        k.mN = mN.getKernelIDSrcOut();
+        try {
+            k.mN = mN.getKernelIDSrcOut();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -144,12 +212,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachDstOut(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachDstOut(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDDstOut() {
         Script.KernelID k = createKernelID(8, 3, null, null);
-        k.mN = mN.getKernelIDDstOut();
+        try {
+            k.mN = mN.getKernelIDDstOut();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -157,12 +233,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachSrcAtop(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachSrcAtop(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDSrcAtop() {
         Script.KernelID k = createKernelID(9, 3, null, null);
-        k.mN = mN.getKernelIDSrcAtop();
+        try {
+            k.mN = mN.getKernelIDSrcAtop();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -170,12 +254,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachDstAtop(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachDstAtop(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDDstAtop() {
         Script.KernelID k = createKernelID(10, 3, null, null);
-        k.mN = mN.getKernelIDDstAtop();
+        try {
+            k.mN = mN.getKernelIDDstAtop();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -183,12 +275,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachXor(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachXor(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDXor() {
         Script.KernelID k = createKernelID(11, 3, null, null);
-        k.mN = mN.getKernelIDXor();
+        try {
+            k.mN = mN.getKernelIDXor();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -196,12 +296,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachMultiply(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachMultiply(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDMultiply() {
         Script.KernelID k = createKernelID(14, 3, null, null);
-        k.mN = mN.getKernelIDMultiply();
+        try {
+            k.mN = mN.getKernelIDMultiply();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -209,12 +317,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachAdd(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachAdd(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDAdd() {
         Script.KernelID k = createKernelID(34, 3, null, null);
-        k.mN = mN.getKernelIDAdd();
+        try {
+            k.mN = mN.getKernelIDAdd();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 
@@ -222,12 +338,20 @@ class ScriptIntrinsicBlendThunker extends ScriptIntrinsicBlend {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
 
-        mN.forEachSubtract(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEachSubtract(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public Script.KernelID getKernelIDSubtract() {
         Script.KernelID k = createKernelID(35, 3, null, null);
-        k.mN = mN.getKernelIDSubtract();
+        try {
+            k.mN = mN.getKernelIDSubtract();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 

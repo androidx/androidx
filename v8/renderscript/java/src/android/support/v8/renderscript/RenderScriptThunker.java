@@ -36,8 +36,12 @@ class RenderScriptThunker extends RenderScript {
     }
 
     public void setPriority(Priority p) {
-        if (p == Priority.LOW) mN.setPriority(android.renderscript.RenderScript.Priority.LOW);
-        if (p == Priority.NORMAL) mN.setPriority(android.renderscript.RenderScript.Priority.NORMAL);
+        try {
+            if (p == Priority.LOW) mN.setPriority(android.renderscript.RenderScript.Priority.LOW);
+            if (p == Priority.NORMAL) mN.setPriority(android.renderscript.RenderScript.Priority.NORMAL);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     RenderScriptThunker(Context ctx) {
@@ -46,21 +50,39 @@ class RenderScriptThunker extends RenderScript {
     }
 
     public static RenderScript create(Context ctx, int sdkVersion) {
-        RenderScriptThunker rs = new RenderScriptThunker(ctx);
-        rs.mN = android.renderscript.RenderScript.create(ctx, sdkVersion);
-        return rs;
+        try {
+            RenderScriptThunker rs = new RenderScriptThunker(ctx);
+            rs.mN = android.renderscript.RenderScript.create(ctx, sdkVersion);
+            return rs;
+        }
+        catch(android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void contextDump() {
-        mN.contextDump();
+        try {
+            mN.contextDump();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void finish() {
-        mN.finish();
+        try {
+            mN.finish();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void destroy() {
-        mN.destroy();
-        mN = null;
+        try {
+            mN.destroy();
+            mN = null;
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
+
     }
 }
