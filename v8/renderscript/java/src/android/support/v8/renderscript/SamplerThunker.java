@@ -129,24 +129,28 @@ class SamplerThunker extends Sampler {
 
         public Sampler create() {
             mRS.validate();
-            android.renderscript.Sampler.Builder b = new android.renderscript.Sampler.Builder(mRS.mN);
-            b.setMinification(convertValue(mMin));
-            b.setMagnification(convertValue(mMag));
-            b.setWrapS(convertValue(mWrapS));
-            b.setWrapT(convertValue(mWrapT));
-            b.setAnisotropy(mAniso);
-            android.renderscript.Sampler s = b.create();
+            try {
+                android.renderscript.Sampler.Builder b = new android.renderscript.Sampler.Builder(mRS.mN);
+                b.setMinification(convertValue(mMin));
+                b.setMagnification(convertValue(mMag));
+                b.setWrapS(convertValue(mWrapS));
+                b.setWrapT(convertValue(mWrapT));
+                b.setAnisotropy(mAniso);
+                android.renderscript.Sampler s = b.create();
 
-            SamplerThunker sampler = new SamplerThunker(0, mRS);
-            sampler.mMin = mMin;
-            sampler.mMag = mMag;
-            sampler.mWrapS = mWrapS;
-            sampler.mWrapT = mWrapT;
-            sampler.mWrapR = mWrapR;
-            sampler.mAniso = mAniso;
-            sampler.mN = s;
+                SamplerThunker sampler = new SamplerThunker(0, mRS);
+                sampler.mMin = mMin;
+                sampler.mMag = mMag;
+                sampler.mWrapS = mWrapS;
+                sampler.mWrapT = mWrapT;
+                sampler.mWrapR = mWrapR;
+                sampler.mAniso = mAniso;
+                sampler.mN = s;
 
-            return sampler;
+                return sampler;
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
         }
     }
 
