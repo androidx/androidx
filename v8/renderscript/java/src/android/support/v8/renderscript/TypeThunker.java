@@ -42,8 +42,12 @@ class TypeThunker extends Type {
     TypeThunker(RenderScript rs, android.renderscript.Type t) {
         super(0, rs);
         mN = t;
-        internalCalc();
-        mElement = new ElementThunker(rs, t.getElement());
+        try {
+            internalCalc();
+            mElement = new ElementThunker(rs, t.getElement());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
 
         synchronized(mMap) {
             mMap.put(mN, this);
@@ -58,18 +62,22 @@ class TypeThunker extends Type {
                        int dx, int dy, int dz, boolean dmip, boolean dfaces, int yuv) {
         ElementThunker et = (ElementThunker)e;
         RenderScriptThunker rst = (RenderScriptThunker)rs;
-        android.renderscript.Type.Builder tb =
-            new android.renderscript.Type.Builder(rst.mN, et.mN);
-        if (dx > 0) tb.setX(dx);
-        if (dy > 0) tb.setY(dy);
-        if (dz > 0) tb.setZ(dz);
-        if (dmip) tb.setMipmaps(dmip);
-        if (dfaces) tb.setFaces(dfaces);
-        if (yuv > 0) tb.setYuvFormat(yuv);
-        android.renderscript.Type nt = tb.create();
-        TypeThunker tt = new TypeThunker(rs, nt);
-        tt.internalCalc();
+        try {
+            android.renderscript.Type.Builder tb =
+                new android.renderscript.Type.Builder(rst.mN, et.mN);
+            if (dx > 0) tb.setX(dx);
+            if (dy > 0) tb.setY(dy);
+            if (dz > 0) tb.setZ(dz);
+            if (dmip) tb.setMipmaps(dmip);
+            if (dfaces) tb.setFaces(dfaces);
+            if (yuv > 0) tb.setYuvFormat(yuv);
+            android.renderscript.Type nt = tb.create();
+            TypeThunker tt = new TypeThunker(rs, nt);
+            tt.internalCalc();
 
-        return tt;
+            return tt;
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
     }
 }

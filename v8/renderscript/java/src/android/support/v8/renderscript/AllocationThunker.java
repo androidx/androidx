@@ -57,11 +57,19 @@ class AllocationThunker extends Allocation {
     }
 
     public int getUsage() {
-        return mN.getUsage();
+        try {
+            return mN.getUsage();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public int getBytesSize() {
-        return mN.getBytesSize();
+        try {
+            return mN.getBytesSize();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     AllocationThunker(RenderScript rs, Type t, int usage, android.renderscript.Allocation na) {
@@ -73,15 +81,27 @@ class AllocationThunker extends Allocation {
     }
 
     public void syncAll(int srcLocation) {
-        mN.syncAll(srcLocation);
+        try {
+            mN.syncAll(srcLocation);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void ioSend() {
-        mN.ioSend();
+        try {
+            mN.ioSend();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void ioReceive() {
-        mN.ioReceive();
+        try {
+            mN.ioReceive();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copyFrom(BaseObj[] d) {
@@ -92,126 +112,262 @@ class AllocationThunker extends Allocation {
         for (int i = 0; i < d.length; i++) {
             dN[i] = d[i].getNObj();
         }
-        mN.copyFrom(dN);
+        try {
+            mN.copyFrom(dN);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copyFromUnchecked(int[] d) {
-        mN.copyFromUnchecked(d);
+        try {
+            mN.copyFromUnchecked(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFromUnchecked(short[] d) {
-        mN.copyFromUnchecked(d);
+        try {
+            mN.copyFromUnchecked(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFromUnchecked(byte[] d) {
-        mN.copyFromUnchecked(d);
+        try {
+            mN.copyFromUnchecked(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFromUnchecked(float[] d) {
-        mN.copyFromUnchecked(d);
+        try {
+            mN.copyFromUnchecked(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copyFrom(int[] d) {
-        mN.copyFrom(d);
+        try {
+            mN.copyFrom(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFrom(short[] d) {
-        mN.copyFrom(d);
+        try {
+            mN.copyFrom(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFrom(byte[] d) {
-        mN.copyFrom(d);
+        try {
+            mN.copyFrom(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFrom(float[] d) {
-        mN.copyFrom(d);
+        try {
+            mN.copyFrom(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFrom(Bitmap b) {
-        mN.copyFrom(b);
+        try {
+            mN.copyFrom(b);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyFrom(Allocation a) {
         AllocationThunker at = (AllocationThunker)a;
-        mN.copyFrom(at.mN);
+        try {
+            mN.copyFrom(at.mN);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
 
     public void setFromFieldPacker(int xoff, FieldPacker fp) {
-        android.renderscript.FieldPacker nfp =
-            new android.renderscript.FieldPacker(fp.getData());
-        mN.setFromFieldPacker(xoff, nfp);
+        try {
+            android.renderscript.FieldPacker nfp =
+                new android.renderscript.FieldPacker(fp.getData());
+            mN.setFromFieldPacker(xoff, nfp);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void setFromFieldPacker(int xoff, int component_number, FieldPacker fp) {
-        android.renderscript.FieldPacker nfp =
-            new android.renderscript.FieldPacker(fp.getData());
-        mN.setFromFieldPacker(xoff, component_number, nfp);
+        try {
+            android.renderscript.FieldPacker nfp =
+                new android.renderscript.FieldPacker(fp.getData());
+            mN.setFromFieldPacker(xoff, component_number, nfp);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void generateMipmaps() {
-        mN.generateMipmaps();
+        try {
+            mN.generateMipmaps();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copy1DRangeFromUnchecked(int off, int count, int[] d) {
-        mN.copy1DRangeFromUnchecked(off, count, d);
+        try {
+            mN.copy1DRangeFromUnchecked(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy1DRangeFromUnchecked(int off, int count, short[] d) {
-        mN.copy1DRangeFromUnchecked(off, count, d);
+        try {
+            mN.copy1DRangeFromUnchecked(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy1DRangeFromUnchecked(int off, int count, byte[] d) {
-        mN.copy1DRangeFromUnchecked(off, count, d);
+        try {
+            mN.copy1DRangeFromUnchecked(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy1DRangeFromUnchecked(int off, int count, float[] d) {
-        mN.copy1DRangeFromUnchecked(off, count, d);
+        try {
+            mN.copy1DRangeFromUnchecked(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copy1DRangeFrom(int off, int count, int[] d) {
-        mN.copy1DRangeFrom(off, count, d);
+        try {
+            mN.copy1DRangeFrom(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy1DRangeFrom(int off, int count, short[] d) {
-        mN.copy1DRangeFrom(off, count, d);
+        try {
+            mN.copy1DRangeFrom(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy1DRangeFrom(int off, int count, byte[] d) {
-        mN.copy1DRangeFrom(off, count, d);
+        try {
+            mN.copy1DRangeFrom(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy1DRangeFrom(int off, int count, float[] d) {
-        mN.copy1DRangeFrom(off, count, d);
+        try {
+            mN.copy1DRangeFrom(off, count, d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copy1DRangeFrom(int off, int count, Allocation data, int dataOff) {
-        AllocationThunker at = (AllocationThunker)data;
-        mN.copy1DRangeFrom(off, count, at.mN, dataOff);
+        try {
+            AllocationThunker at = (AllocationThunker)data;
+            mN.copy1DRangeFrom(off, count, at.mN, dataOff);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, byte[] data) {
-        mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        try {
+            mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, short[] data) {
-        mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        try {
+            mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, int[] data) {
-        mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        try {
+            mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h, float[] data) {
-        mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        try {
+            mN.copy2DRangeFrom(xoff, yoff, w, h, data);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void copy2DRangeFrom(int xoff, int yoff, int w, int h,
                                 Allocation data, int dataXoff, int dataYoff) {
-        AllocationThunker at = (AllocationThunker)data;
-        mN.copy2DRangeFrom(xoff, yoff, w, h, at.mN, dataXoff, dataYoff);
+        try {
+            AllocationThunker at = (AllocationThunker)data;
+            mN.copy2DRangeFrom(xoff, yoff, w, h, at.mN, dataXoff, dataYoff);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copy2DRangeFrom(int xoff, int yoff, Bitmap data) {
-        mN.copy2DRangeFrom(xoff, yoff, data);
+        try {
+            mN.copy2DRangeFrom(xoff, yoff, data);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
 
     public void copyTo(Bitmap b) {
-        mN.copyTo(b);
+        try {
+            mN.copyTo(b);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyTo(byte[] d) {
-        mN.copyTo(d);
+        try {
+            mN.copyTo(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyTo(short[] d) {
-        mN.copyTo(d);
+        try {
+            mN.copyTo(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyTo(int[] d) {
-        mN.copyTo(d);
+        try {
+            mN.copyTo(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
     public void copyTo(float[] d) {
-        mN.copyTo(d);
+        try {
+            mN.copyTo(d);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     // creation
@@ -225,11 +381,15 @@ class AllocationThunker extends Allocation {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
         TypeThunker tt = (TypeThunker)type;
 
-        android.renderscript.Allocation a =
-            android.renderscript.Allocation.createTyped(rst.mN, tt.mN,
-                                                        convertMipmapControl(mips), usage);
-
-        return new AllocationThunker(rs, type, usage, a);
+        try {
+            android.renderscript.Allocation a =
+                android.renderscript.Allocation.createTyped(rst.mN, tt.mN,
+                                                            convertMipmapControl(mips),
+                                                            usage);
+            return new AllocationThunker(rs, type, usage, a);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     static public Allocation createFromBitmap(RenderScript rs, Bitmap b,
@@ -237,23 +397,32 @@ class AllocationThunker extends Allocation {
                                               int usage) {
 
         RenderScriptThunker rst = (RenderScriptThunker)rs;
-        android.renderscript.Allocation a =
-                android.renderscript.Allocation.createFromBitmap(
-                rst.mN, b, convertMipmapControl(mips), usage);
-        TypeThunker tt = new TypeThunker(rs, a.getType());
+        try {
+            android.renderscript.Allocation a =
+                android.renderscript.Allocation.createFromBitmap(rst.mN, b,
+                                                                 convertMipmapControl(mips),
+                                                                 usage);
+            TypeThunker tt = new TypeThunker(rs, a.getType());
+            return new AllocationThunker(rs, tt, usage, a);
 
-        return new AllocationThunker(rs, tt, usage, a);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     static public Allocation createCubemapFromBitmap(RenderScript rs, Bitmap b,
                                                      MipmapControl mips,
                                                      int usage) {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
-        android.renderscript.Allocation a =
-                android.renderscript.Allocation.createCubemapFromBitmap(
-                rst.mN, b, convertMipmapControl(mips), usage);
-        TypeThunker tt = new TypeThunker(rs, a.getType());
-        return new AllocationThunker(rs, tt, usage, a);
+        try {
+            android.renderscript.Allocation a =
+                    android.renderscript.Allocation.createCubemapFromBitmap(
+                    rst.mN, b, convertMipmapControl(mips), usage);
+            TypeThunker tt = new TypeThunker(rs, a.getType());
+            return new AllocationThunker(rs, tt, usage, a);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     static public Allocation createCubemapFromCubeFaces(RenderScript rs,
@@ -266,12 +435,16 @@ class AllocationThunker extends Allocation {
                                                         MipmapControl mips,
                                                         int usage) {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
-        android.renderscript.Allocation a =
-                android.renderscript.Allocation.createCubemapFromCubeFaces(
-                rst.mN, xpos, xneg, ypos, yneg, zpos, zneg,
-                convertMipmapControl(mips), usage);
-        TypeThunker tt = new TypeThunker(rs, a.getType());
-        return new AllocationThunker(rs, tt, usage, a);
+        try {
+            android.renderscript.Allocation a =
+                    android.renderscript.Allocation.createCubemapFromCubeFaces(
+                    rst.mN, xpos, xneg, ypos, yneg, zpos, zneg,
+                    convertMipmapControl(mips), usage);
+            TypeThunker tt = new TypeThunker(rs, a.getType());
+            return new AllocationThunker(rs, tt, usage, a);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     static public Allocation createFromBitmapResource(RenderScript rs,
@@ -281,32 +454,45 @@ class AllocationThunker extends Allocation {
                                                       int usage) {
 
         RenderScriptThunker rst = (RenderScriptThunker)rs;
-        android.renderscript.Allocation a =
-                android.renderscript.Allocation.createFromBitmapResource(
-                rst.mN, res, id, convertMipmapControl(mips), usage);
-        TypeThunker tt = new TypeThunker(rs, a.getType());
-        return new AllocationThunker(rs, tt, usage, a);
+        try {
+            android.renderscript.Allocation a =
+                    android.renderscript.Allocation.createFromBitmapResource(
+                    rst.mN, res, id, convertMipmapControl(mips), usage);
+            TypeThunker tt = new TypeThunker(rs, a.getType());
+            return new AllocationThunker(rs, tt, usage, a);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     static public Allocation createFromString(RenderScript rs,
                                               String str,
                                               int usage) {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
-        android.renderscript.Allocation a =
-                android.renderscript.Allocation.createFromString(
-                rst.mN, str, usage);
-        TypeThunker tt = new TypeThunker(rs, a.getType());
-        return new AllocationThunker(rs, tt, usage, a);
+        try {
+            android.renderscript.Allocation a =
+                    android.renderscript.Allocation.createFromString(
+                    rst.mN, str, usage);
+            TypeThunker tt = new TypeThunker(rs, a.getType());
+            return new AllocationThunker(rs, tt, usage, a);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     static public Allocation createSized(RenderScript rs, Element e,
                                          int count, int usage) {
         RenderScriptThunker rst = (RenderScriptThunker)rs;
         ElementThunker et = (ElementThunker) e;
-        android.renderscript.Allocation a =
-            android.renderscript.Allocation.createSized(rst.mN, (android.renderscript.Element)e.getNObj(), count, usage);
-        TypeThunker tt = new TypeThunker(rs, a.getType());
-        return new AllocationThunker(rs, tt, usage, a);
+        try {
+            android.renderscript.Allocation a =
+                android.renderscript.Allocation.createSized
+                (rst.mN, (android.renderscript.Element)e.getNObj(), count, usage);
+            TypeThunker tt = new TypeThunker(rs, a.getType());
+            return new AllocationThunker(rs, tt, usage, a);
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
     }
 
 }
