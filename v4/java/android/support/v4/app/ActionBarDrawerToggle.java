@@ -22,9 +22,8 @@ import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LevelListDrawable;
+import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -382,7 +381,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
                 .setActionBarDescription(mSetIndicatorInfo, mActivity, contentDescRes);
     }
 
-    private class SlideDrawable extends LevelListDrawable implements Drawable.Callback {
+    private class SlideDrawable extends InsetDrawable implements Drawable.Callback {
         private final boolean mHasMirroring = Build.VERSION.SDK_INT > 18;
         private final Rect mTmpRect = new Rect();
 
@@ -390,13 +389,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         private float mOffset;
 
         private SlideDrawable(Drawable wrapped) {
-            super();
-
-            if (DrawableCompat.isAutoMirrored(wrapped)) {
-                DrawableCompat.setAutoMirrored(this, true);
-            }
-
-            addLevel(0, 0, wrapped);
+            super(wrapped, 0);
         }
 
         /**
