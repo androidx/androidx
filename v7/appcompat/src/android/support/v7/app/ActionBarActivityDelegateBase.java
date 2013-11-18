@@ -34,11 +34,15 @@ import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarView;
 import android.support.v7.internal.widget.ProgressBarICS;
 import android.support.v7.view.ActionMode;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
@@ -110,51 +114,35 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     @Override
     public void setContentView(View v) {
         ensureSubDecor();
-        if (mHasActionBar) {
-            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
-            contentParent.removeAllViews();
-            contentParent.addView(v);
-        } else {
-            mActivity.superSetContentView(v);
-        }
+        ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
+        contentParent.removeAllViews();
+        contentParent.addView(v);
         mActivity.onSupportContentChanged();
     }
 
     @Override
     public void setContentView(int resId) {
         ensureSubDecor();
-        if (mHasActionBar) {
-            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
-            contentParent.removeAllViews();
-            mActivity.getLayoutInflater().inflate(resId, contentParent);
-        } else {
-            mActivity.superSetContentView(resId);
-        }
+        ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
+        contentParent.removeAllViews();
+        mActivity.getLayoutInflater().inflate(resId, contentParent);
         mActivity.onSupportContentChanged();
     }
 
     @Override
     public void setContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
-        if (mHasActionBar) {
-            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
-            contentParent.removeAllViews();
-            contentParent.addView(v, lp);
-        } else {
-            mActivity.superSetContentView(v, lp);
-        }
+        ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
+        contentParent.removeAllViews();
+        contentParent.addView(v, lp);
         mActivity.onSupportContentChanged();
     }
 
     @Override
     public void addContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
-        if (mHasActionBar) {
-            ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
-            contentParent.addView(v, lp);
-        } else {
-            mActivity.superSetContentView(v, lp);
-        }
+        ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
+        contentParent.addView(v, lp);
         mActivity.onSupportContentChanged();
     }
 
@@ -164,54 +152,58 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     final void ensureSubDecor() {
-        if (mHasActionBar && !mSubDecorInstalled) {
-            if (mOverlayActionBar) {
-                mActivity.superSetContentView(R.layout.abc_action_bar_decor_overlay);
+        if (!mSubDecorInstalled) {
+            if (mHasActionBar) {
+                if (mOverlayActionBar) {
+                    mActivity.superSetContentView(R.layout.abc_action_bar_decor_overlay);
+                } else {
+                    mActivity.superSetContentView(R.layout.abc_action_bar_decor);
+                }
+                mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
+                mActionBarView.setWindowCallback(mActivity);
+
+                /**
+                 * Progress Bars
+                 */
+                if (mFeatureProgress) {
+                    mActionBarView.initProgress();
+                }
+                if (mFeatureIndeterminateProgress) {
+                    mActionBarView.initIndeterminateProgress();
+                }
+
+                /**
+                 * Split Action Bar
+                 */
+                boolean splitWhenNarrow = UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW
+                        .equals(getUiOptionsFromMetadata());
+                boolean splitActionBar;
+
+                if (splitWhenNarrow) {
+                    splitActionBar = mActivity.getResources()
+                            .getBoolean(R.bool.abc_split_action_bar_is_narrow);
+                } else {
+                    TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
+                    splitActionBar = a
+                            .getBoolean(R.styleable.ActionBarWindow_windowSplitActionBar, false);
+                    a.recycle();
+                }
+
+                final ActionBarContainer splitView = (ActionBarContainer) mActivity.findViewById(
+                        R.id.split_action_bar);
+                if (splitView != null) {
+                    mActionBarView.setSplitView(splitView);
+                    mActionBarView.setSplitActionBar(splitActionBar);
+                    mActionBarView.setSplitWhenNarrow(splitWhenNarrow);
+
+                    final ActionBarContextView cab = (ActionBarContextView) mActivity.findViewById(
+                            R.id.action_context_bar);
+                    cab.setSplitView(splitView);
+                    cab.setSplitActionBar(splitActionBar);
+                    cab.setSplitWhenNarrow(splitWhenNarrow);
+                }
             } else {
-                mActivity.superSetContentView(R.layout.abc_action_bar_decor);
-            }
-            mActionBarView = (ActionBarView) mActivity.findViewById(R.id.action_bar);
-            mActionBarView.setWindowCallback(mActivity);
-
-            /**
-             * Progress Bars
-             */
-            if (mFeatureProgress) {
-                mActionBarView.initProgress();
-            }
-            if (mFeatureIndeterminateProgress) {
-                mActionBarView.initIndeterminateProgress();
-            }
-
-            /**
-             * Split Action Bar
-             */
-            boolean splitWhenNarrow = UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW
-                    .equals(getUiOptionsFromMetadata());
-            boolean splitActionBar;
-
-            if (splitWhenNarrow) {
-                splitActionBar = mActivity.getResources()
-                        .getBoolean(R.bool.abc_split_action_bar_is_narrow);
-            } else {
-                TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
-                splitActionBar = a
-                        .getBoolean(R.styleable.ActionBarWindow_windowSplitActionBar, false);
-                a.recycle();
-            }
-
-            final ActionBarContainer splitView = (ActionBarContainer) mActivity.findViewById(
-                    R.id.split_action_bar);
-            if (splitView != null) {
-                mActionBarView.setSplitView(splitView);
-                mActionBarView.setSplitActionBar(splitActionBar);
-                mActionBarView.setSplitWhenNarrow(splitWhenNarrow);
-
-                final ActionBarContextView cab = (ActionBarContextView) mActivity.findViewById(
-                        R.id.action_context_bar);
-                cab.setSplitView(splitView);
-                cab.setSplitActionBar(splitActionBar);
-                cab.setSplitWhenNarrow(splitWhenNarrow);
+                mActivity.superSetContentView(R.layout.abc_simple_decor);
             }
 
             // Change our content FrameLayout to use the android.R.id.content id.
@@ -224,19 +216,76 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             // A title was set before we've install the decor so set it now.
             if (mTitleToSet != null) {
                 mActionBarView.setWindowTitle(mTitleToSet);
-                mTitleToSet  = null;
+                mTitleToSet = null;
             }
+
+            applyFixedSizeWindow();
 
             mSubDecorInstalled = true;
 
             // Post supportInvalidateOptionsMenu() so that the menu is invalidated post-onCreate()
-            content.post(new Runnable() {
+            mActivity.getWindow().getDecorView().post(new Runnable() {
                 @Override
                 public void run() {
                     supportInvalidateOptionsMenu();
                 }
             });
         }
+    }
+
+    private void applyFixedSizeWindow() {
+        TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
+
+        TypedValue mFixedWidthMajor = null;
+        TypedValue mFixedWidthMinor = null;
+        TypedValue mFixedHeightMajor = null;
+        TypedValue mFixedHeightMinor = null;
+
+        if (a.hasValue(R.styleable.ActionBarWindow_windowFixedWidthMajor)) {
+            if (mFixedWidthMajor == null) mFixedWidthMajor = new TypedValue();
+            a.getValue(R.styleable.ActionBarWindow_windowFixedWidthMajor, mFixedWidthMajor);
+        }
+        if (a.hasValue(R.styleable.ActionBarWindow_windowFixedWidthMinor)) {
+            if (mFixedWidthMinor == null) mFixedWidthMinor = new TypedValue();
+            a.getValue(R.styleable.ActionBarWindow_windowFixedWidthMinor, mFixedWidthMinor);
+        }
+        if (a.hasValue(R.styleable.ActionBarWindow_windowFixedHeightMajor)) {
+            if (mFixedHeightMajor == null) mFixedHeightMajor = new TypedValue();
+            a.getValue(R.styleable.ActionBarWindow_windowFixedHeightMajor, mFixedHeightMajor);
+        }
+        if (a.hasValue(R.styleable.ActionBarWindow_windowFixedHeightMinor)) {
+            if (mFixedHeightMinor == null) mFixedHeightMinor = new TypedValue();
+            a.getValue(R.styleable.ActionBarWindow_windowFixedHeightMinor, mFixedHeightMinor);
+        }
+
+        final DisplayMetrics metrics = mActivity.getResources().getDisplayMetrics();
+        final boolean isPortrait = metrics.widthPixels < metrics.heightPixels;
+        int w = ViewGroup.LayoutParams.MATCH_PARENT;
+        int h = ViewGroup.LayoutParams.MATCH_PARENT;
+
+        final TypedValue tvw = isPortrait ? mFixedWidthMinor : mFixedWidthMajor;
+        if (tvw != null && tvw.type != TypedValue.TYPE_NULL) {
+            if (tvw.type == TypedValue.TYPE_DIMENSION) {
+                w = (int) tvw.getDimension(metrics);
+            } else if (tvw.type == TypedValue.TYPE_FRACTION) {
+                w = (int) tvw.getFraction(metrics.widthPixels, metrics.widthPixels);
+            }
+        }
+
+        final TypedValue tvh = isPortrait ? mFixedHeightMajor : mFixedHeightMinor;
+        if (tvh != null && tvh.type != TypedValue.TYPE_NULL) {
+            if (tvh.type == TypedValue.TYPE_DIMENSION) {
+                h = (int) tvh.getDimension(metrics);
+            } else if (tvh.type == TypedValue.TYPE_FRACTION) {
+                h = (int) tvh.getFraction(metrics.heightPixels, metrics.heightPixels);
+            }
+        }
+
+        if (w != ViewGroup.LayoutParams.MATCH_PARENT || h != ViewGroup.LayoutParams.MATCH_PARENT) {
+            mActivity.getWindow().setLayout(w, h);
+        }
+
+        a.recycle();
     }
 
     @Override
