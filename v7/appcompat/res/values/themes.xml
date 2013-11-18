@@ -181,6 +181,13 @@
 
     </style>
 
+    <style name="Theme.AppCompat.DialogWhenLarge"
+           parent="Theme.Base.AppCompat.DialogWhenLarge">
+    </style>
+
+    <style name="Theme.AppCompat.Light.DialogWhenLarge"
+           parent="Theme.Base.AppCompat.Light.DialogWhenLarge">
+    </style>
 
     <!-- Menu/item attributes -->
     <style name="Theme.AppCompat.CompactMenu" parent="Theme.AppCompat.Base.CompactMenu">
