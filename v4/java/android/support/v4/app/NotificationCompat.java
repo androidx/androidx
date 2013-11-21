@@ -95,6 +95,21 @@ public class NotificationCompat {
         }
     }
 
+    static class NotificationCompatImplGingerbread extends NotificationCompatImplBase {
+        public Notification build(Builder b) {
+            Notification result = (Notification) b.mNotification;
+            result.setLatestEventInfo(b.mContext, b.mContentTitle,
+                    b.mContentText, b.mContentIntent);
+            result = NotificationCompatGingerbread.add(result, b.mContext,
+                    b.mContentTitle, b.mContentText, b.mContentIntent, b.mFullScreenIntent);
+            // translate high priority requests into legacy flag
+            if (b.mPriority > PRIORITY_DEFAULT) {
+                result.flags |= FLAG_HIGH_PRIORITY;
+            }
+            return result;
+        }
+    }
+
     static class NotificationCompatImplHoneycomb implements NotificationCompatImpl {
         public Notification build(Builder b) {
             return NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
@@ -156,6 +171,8 @@ public class NotificationCompat {
             IMPL = new NotificationCompatImplIceCreamSandwich();
         } else if (Build.VERSION.SDK_INT >= 11) {
             IMPL = new NotificationCompatImplHoneycomb();
+        } else if (Build.VERSION.SDK_INT >= 9) {
+            IMPL = new NotificationCompatImplGingerbread();
         } else {
             IMPL = new NotificationCompatImplBase();
         }
