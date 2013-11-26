@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-ext.version = '18.0.1'
+ext.version = '19.0.0'
 
 // ext.androidHostOut is shared by all tools/{base,build,swt} gradle projects/
 ext.androidHostOut = file("$rootDir/../../out")
