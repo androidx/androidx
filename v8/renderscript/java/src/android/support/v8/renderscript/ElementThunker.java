@@ -57,6 +57,10 @@ class ElementThunker extends Element {
             return android.renderscript.Element.DataKind.PIXEL_RGB;
         case PIXEL_RGBA:
             return android.renderscript.Element.DataKind.PIXEL_RGBA;
+        case PIXEL_DEPTH:
+            return android.renderscript.Element.DataKind.PIXEL_DEPTH;
+        case PIXEL_YUV:
+            return android.renderscript.Element.DataKind.PIXEL_YUV;
         }
         return null;
     }
