@@ -674,7 +674,9 @@ public class SlidingPaneLayout extends ViewGroup {
                 mSlideRange = range;
                 lp.dimWhenOffset = xStart + lp.leftMargin + range + childWidth / 2 >
                         width - paddingRight;
-                xStart += (int) (range * mSlideOffset) + lp.leftMargin;
+                final int pos = (int) (range * mSlideOffset);
+                xStart += pos + lp.leftMargin;
+                mSlideOffset = (float) pos / mSlideRange;
             } else if (mCanSlide && mParallaxBy != 0) {
                 offset = (int) ((1 - mSlideOffset) * mParallaxBy);
                 xStart = nextXStart;
@@ -911,6 +913,12 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     private void onPanelDragged(int newLeft) {
+        if (mSlideableView == null) {
+            // This can happen if we're aborting motion during layout because everything now fits.
+            mSlideOffset = 0;
+            return;
+        }
+
         final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
         final int leftBound = getPaddingLeft() + lp.leftMargin;
 

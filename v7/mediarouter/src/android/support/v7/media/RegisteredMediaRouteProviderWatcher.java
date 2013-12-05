@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Handler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,33 +37,59 @@ import java.util.Collections;
  */
 final class RegisteredMediaRouteProviderWatcher {
     private final Context mContext;
-    private final MediaRouter mRouter;
-    private final ArrayList<RegisteredMediaRouteProvider> mProviders =
-            new ArrayList<RegisteredMediaRouteProvider>();
+    private final Callback mCallback;
+    private final Handler mHandler;
     private final PackageManager mPackageManager;
 
-    public RegisteredMediaRouteProviderWatcher(Context context, MediaRouter router) {
+    private final ArrayList<RegisteredMediaRouteProvider> mProviders =
+            new ArrayList<RegisteredMediaRouteProvider>();
+    private boolean mRunning;
+
+    public RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
         mContext = context;
-        mRouter = router;
+        mCallback = callback;
+        mHandler = new Handler();
         mPackageManager = context.getPackageManager();
     }
 
     public void start() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        mContext.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                scanPackages();
-            }
-        }, filter);
+        if (!mRunning) {
+            mRunning = true;
 
-        scanPackages();
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+            filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+            filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+            filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+            filter.addAction(Intent.ACTION_PACKAGE_RESTARTED);
+            filter.addDataScheme("package");
+            mContext.registerReceiver(mScanPackagesReceiver, filter, null, mHandler);
+
+            // Scan packages.
+            // Also has the side-effect of restarting providers if needed.
+            mHandler.post(mScanPackagesRunnable);
+        }
+    }
+
+    public void stop() {
+        if (mRunning) {
+            mRunning = false;
+
+            mContext.unregisterReceiver(mScanPackagesReceiver);
+            mHandler.removeCallbacks(mScanPackagesRunnable);
+
+            // Stop all providers.
+            for (int i = mProviders.size() - 1; i >= 0; i--) {
+                mProviders.get(i).stop();
+            }
+        }
     }
 
     private void scanPackages() {
+        if (!mRunning) {
+            return;
+        }
+
         // Add providers for all new services.
         // Reorder the list so that providers left at the end will be the ones to remove.
         int targetIndex = 0;
@@ -77,9 +104,10 @@ final class RegisteredMediaRouteProviderWatcher {
                             new ComponentName(serviceInfo.packageName, serviceInfo.name));
                     provider.start();
                     mProviders.add(targetIndex++, provider);
-                    mRouter.addProvider(provider);
+                    mCallback.addProvider(provider);
                 } else if (sourceIndex >= targetIndex) {
                     RegisteredMediaRouteProvider provider = mProviders.get(sourceIndex);
+                    provider.start(); // restart the provider if needed
                     provider.rebindIfDisconnected();
                     Collections.swap(mProviders, sourceIndex, targetIndex++);
                 }
@@ -90,7 +118,7 @@ final class RegisteredMediaRouteProviderWatcher {
         if (targetIndex < mProviders.size()) {
             for (int i = mProviders.size() - 1; i >= targetIndex; i--) {
                 RegisteredMediaRouteProvider provider = mProviders.get(i);
-                mRouter.removeProvider(provider);
+                mCallback.removeProvider(provider);
                 mProviders.remove(provider);
                 provider.stop();
             }
@@ -106,5 +134,24 @@ final class RegisteredMediaRouteProviderWatcher {
             }
         }
         return -1;
+    }
+
+    private final BroadcastReceiver mScanPackagesReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            scanPackages();
+        }
+    };
+
+    private final Runnable mScanPackagesRunnable = new Runnable() {
+        @Override
+        public void run() {
+            scanPackages();
+        }
+    };
+
+    public interface Callback {
+        void addProvider(MediaRouteProvider provider);
+        void removeProvider(MediaRouteProvider provider);
     }
 }

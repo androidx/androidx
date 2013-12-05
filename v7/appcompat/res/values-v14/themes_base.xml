@@ -106,4 +106,69 @@
         <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
     </style>
 
+    <style name="Theme.Base.AppCompat.DialogWhenLarge"
+           parent="Theme.Base.AppCompat.DialogWhenLarge.Base" />
+
+    <style name="Theme.Base.AppCompat.Light.DialogWhenLarge"
+           parent="Theme.Base.AppCompat.Light.DialogWhenLarge.Base" />
+
+    <!--
+        As we have defined the theme in values-large (for compat) and values-large takes precedence
+        over values-v14, we need to reset back to the Holo parent in values-large-v14. As the themes
+        in values-v14 & values-large-v14 are exactly the same, these "double base" themes can be
+        inherited from in both values-v14 and values-large-v14.
+    -->
+
+    <style name="Theme.Base.AppCompat.DialogWhenLarge.Base"
+           parent="android:Theme.Holo.DialogWhenLarge">
+        <!-- Copy system flag values for our use -->
+        <item name="windowActionBar">?android:attr/windowActionBar</item>
+        <item name="actionBarSize">?android:attr/actionBarSize</item>
+        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
+        <item name="dividerVertical">?android:attr/dividerVertical</item>
+        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
+        <item name="actionBarWidgetTheme">@null</item>
+        <item name="android:actionBarWidgetTheme">?attr/actionBarWidgetTheme</item>
+
+        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
+        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="listPreferredItemHeightLarge">?android:attr/listPreferredItemHeightLarge</item>
+        <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
+        <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
+        </item>
+
+        <!-- Attributes populated from the framework to be read by apps -->
+        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+
+    <style name="Theme.Base.AppCompat.Light.DialogWhenLarge.Base"
+           parent="android:Theme.Holo.Light.DialogWhenLarge">
+        <!-- Copy system flag values for our use -->
+        <item name="windowActionBar">?android:attr/windowActionBar</item>
+        <item name="actionBarSize">?android:attr/actionBarSize</item>
+        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
+        <item name="dividerVertical">?android:attr/dividerVertical</item>
+        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
+        <item name="actionBarWidgetTheme">@null</item>
+        <item name="android:actionBarWidgetTheme">?attr/actionBarWidgetTheme</item>
+
+        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
+        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="listPreferredItemHeightLarge">?android:attr/listPreferredItemHeightLarge</item>
+        <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
+        <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
+        </item>
+
+        <!-- Attributes populated from the framework to be read by apps -->
+        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+
 </resources>

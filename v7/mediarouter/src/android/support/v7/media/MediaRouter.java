@@ -16,6 +16,7 @@
 
 package android.support.v7.media;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -96,7 +97,7 @@ public final class MediaRouter {
      * Flag for {@link #addCallback}: Do not filter route events.
      * <p>
      * When this flag is specified, the callback will be invoked for events that affect any
-     * route event if they do not match the callback's associated media route selector.
+     * route even if they do not match the callback's filter.
      * </p>
      */
     public static final int CALLBACK_FLAG_UNFILTERED_EVENTS = 1 << 1;
@@ -1152,10 +1153,17 @@ public final class MediaRouter {
         }
 
         /**
-         * Gets the package name of the media route provider service.
+         * Gets the package name of the media route provider.
          */
         public String getPackageName() {
             return mMetadata.getPackageName();
+        }
+
+        /**
+         * Gets the component name of the media route provider.
+         */
+        public ComponentName getComponentName() {
+            return mMetadata.getComponentName();
         }
 
         /**
@@ -1368,9 +1376,10 @@ public final class MediaRouter {
      * state and the bulk of the media router implementation lives here.
      * </p>
      */
-    private static final class GlobalMediaRouter implements SystemMediaRouteProvider.SyncCallback {
+    private static final class GlobalMediaRouter
+            implements SystemMediaRouteProvider.SyncCallback,
+            RegisteredMediaRouteProviderWatcher.Callback {
         private final Context mApplicationContext;
-        private final MediaRouter mApplicationRouter;
         private final ArrayList<WeakReference<MediaRouter>> mRouters =
                 new ArrayList<WeakReference<MediaRouter>>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<RouteInfo>();
@@ -1394,7 +1403,6 @@ public final class MediaRouter {
         GlobalMediaRouter(Context applicationContext) {
             mApplicationContext = applicationContext;
             mDisplayManager = DisplayManagerCompat.getInstance(applicationContext);
-            mApplicationRouter = getRouter(applicationContext);
 
             // Add the system media route provider for interoperating with
             // the framework media router.  This one is special and receives
@@ -1407,7 +1415,7 @@ public final class MediaRouter {
             // Start watching for routes published by registered media route
             // provider services.
             mRegisteredProviderWatcher = new RegisteredMediaRouteProviderWatcher(
-                    mApplicationContext, mApplicationRouter);
+                    mApplicationContext, this);
             mRegisteredProviderWatcher.start();
         }
 
@@ -1584,6 +1592,7 @@ public final class MediaRouter {
             }
         }
 
+        @Override
         public void addProvider(MediaRouteProvider providerInstance) {
             int index = findProviderInfo(providerInstance);
             if (index < 0) {
@@ -1603,6 +1612,7 @@ public final class MediaRouter {
             }
         }
 
+        @Override
         public void removeProvider(MediaRouteProvider providerInstance) {
             int index = findProviderInfo(providerInstance);
             if (index >= 0) {
@@ -1753,7 +1763,8 @@ public final class MediaRouter {
             // Although route descriptor ids are unique within a provider, it's
             // possible for there to be two providers with the same package name.
             // Therefore we must dedupe the composite id.
-            String uniqueId = provider.getPackageName() + ":" + routeDescriptorId;
+            String uniqueId = provider.getComponentName().flattenToShortString()
+                    + ":" + routeDescriptorId;
             if (findRouteByUniqueId(uniqueId) < 0) {
                 return uniqueId;
             }

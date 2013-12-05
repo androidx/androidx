@@ -38,13 +38,21 @@ class ScriptIntrinsic3DLUTThunker extends ScriptIntrinsic3DLUT {
         ElementThunker et = (ElementThunker) e;
 
         ScriptIntrinsic3DLUTThunker lut = new ScriptIntrinsic3DLUTThunker(0, rs, e);
-        lut.mN = android.renderscript.ScriptIntrinsic3DLUT.create(rst.mN, et.getNObj());
+        try {
+            lut.mN = android.renderscript.ScriptIntrinsic3DLUT.create(rst.mN, et.getNObj());
+        } catch (android.renderscript.RSRuntimeException exc) {
+            throw ExceptionThunker.convertException(exc);
+        }
         return lut;
     }
 
     public void setLUT(Allocation lut) {
         AllocationThunker lutt = (AllocationThunker) lut;
-        mN.setLUT(lutt.getNObj());
+        try {
+            mN.setLUT(lutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
 
@@ -58,7 +66,11 @@ class ScriptIntrinsic3DLUTThunker extends ScriptIntrinsic3DLUT {
     public void forEach(Allocation ain, Allocation aout) {
         AllocationThunker aint = (AllocationThunker)ain;
         AllocationThunker aoutt = (AllocationThunker)aout;
-        mN.forEach(aint.getNObj(), aoutt.getNObj());
+        try {
+            mN.forEach(aint.getNObj(), aoutt.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     /**
@@ -68,7 +80,11 @@ class ScriptIntrinsic3DLUTThunker extends ScriptIntrinsic3DLUT {
      */
     public Script.KernelID getKernelID() {
         Script.KernelID k = createKernelID(0, 3, null, null);
-        k.mN = mN.getKernelID();
+        try {
+            k.mN = mN.getKernelID();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
         return k;
     }
 }

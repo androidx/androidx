@@ -126,6 +126,9 @@
     <style name="Widget.AppCompat.ActionMode" parent="Widget.AppCompat.Base.ActionMode">
     </style>
 
+    <style name="Widget.AppCompat.Light.ActionMode" parent="Widget.AppCompat.Light.Base.ActionMode">
+    </style>
+
     <style name="Widget.AppCompat.Light.ActionMode.Inverse"
            parent="Widget.AppCompat.Light.Base.ActionMode.Inverse">
     </style>

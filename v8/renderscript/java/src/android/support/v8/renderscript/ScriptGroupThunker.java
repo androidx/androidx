@@ -32,16 +32,28 @@ class ScriptGroupThunker extends ScriptGroup {
 
     public void setInput(Script.KernelID s, Allocation a) {
         AllocationThunker at = (AllocationThunker) a;
-        mN.setInput(s.mN, at.getNObj());
+        try {
+            mN.setInput(s.mN, at.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void setOutput(Script.KernelID s, Allocation a) {
         AllocationThunker at = (AllocationThunker) a;
-        mN.setOutput(s.mN, at.getNObj());
+        try {
+            mN.setOutput(s.mN, at.getNObj());
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
     public void execute() {
-        mN.execute();
+        try {
+            mN.execute();
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
     }
 
 
@@ -53,23 +65,39 @@ class ScriptGroupThunker extends ScriptGroup {
         Builder(RenderScript rs) {
             RenderScriptThunker rst = (RenderScriptThunker) rs;
             mRS = rs;
-            bN = new android.renderscript.ScriptGroup.Builder(rst.mN);
+            try {
+                bN = new android.renderscript.ScriptGroup.Builder(rst.mN);
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
         }
 
         public Builder addKernel(Script.KernelID k) {
-            bN.addKernel(k.mN);
+            try {
+                bN.addKernel(k.mN);
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
             return this;
         }
 
         public Builder addConnection(Type t, Script.KernelID from, Script.FieldID to) {
             TypeThunker tt = (TypeThunker) t;
-            bN.addConnection(tt.getNObj(), from.mN, to.mN);
+            try {
+                bN.addConnection(tt.getNObj(), from.mN, to.mN);
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
             return this;
         }
 
         public Builder addConnection(Type t, Script.KernelID from, Script.KernelID to) {
             TypeThunker tt = (TypeThunker) t;
-            bN.addConnection(tt.getNObj(), from.mN, to.mN);
+            try {
+                bN.addConnection(tt.getNObj(), from.mN, to.mN);
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
             return this;
         }
 
@@ -77,7 +105,11 @@ class ScriptGroupThunker extends ScriptGroup {
 
         public ScriptGroupThunker create() {
             ScriptGroupThunker sg = new ScriptGroupThunker(0, mRS);
-            sg.mN = bN.create();
+            try {
+                sg.mN = bN.create();
+            } catch (android.renderscript.RSRuntimeException e) {
+                throw ExceptionThunker.convertException(e);
+            }
             return sg;
         }
     }

@@ -100,7 +100,7 @@ public class MediaRouteChooserDialog extends Dialog {
     /**
      * Returns true if the route should be included in the list.
      * <p>
-     * The default implementation returns true for non-default routes that
+     * The default implementation returns true for enabled non-default routes that
      * match the selector.  Subclasses can override this method to filter routes
      * differently.
      * </p>
@@ -109,7 +109,7 @@ public class MediaRouteChooserDialog extends Dialog {
      * @return True if the route should be included in the chooser dialog.
      */
     public boolean onFilterRoute(MediaRouter.RouteInfo route) {
-        return !route.isDefault() && route.matchesSelector(mSelector);
+        return !route.isDefault() && route.isEnabled() && route.matchesSelector(mSelector);
     }
 
     @Override
