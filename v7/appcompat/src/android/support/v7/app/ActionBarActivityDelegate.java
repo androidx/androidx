@@ -21,6 +21,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -43,12 +44,13 @@ abstract class ActionBarActivityDelegate {
     private static final String TAG = "ActionBarActivityDelegate";
 
     static ActionBarActivityDelegate createDelegate(ActionBarActivity activity) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            return new ActionBarActivityDelegateJBMR2(activity);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             return new ActionBarActivityDelegateJB(activity);
-        } else if (version >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new ActionBarActivityDelegateICS(activity);
-        } else if (version >= Build.VERSION_CODES.HONEYCOMB) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             return new ActionBarActivityDelegateHC(activity);
         } else {
             return new ActionBarActivityDelegateBase(activity);
@@ -176,7 +178,11 @@ abstract class ActionBarActivityDelegate {
 
     abstract void setSupportProgress(int progress);
 
-    abstract ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+    final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
+        return new ActionBarDrawableToggleImpl();
+    }
+
+    abstract int getHomeAsUpIndicatorAttrId();
 
     abstract void onContentChanged();
 
@@ -207,5 +213,33 @@ abstract class ActionBarActivityDelegate {
             context = ab.getThemedContext();
         }
         return context;
+    }
+
+    private class ActionBarDrawableToggleImpl implements ActionBarDrawerToggle.Delegate {
+        @Override
+        public Drawable getThemeUpIndicator() {
+            final TypedArray a = mActivity
+                    .obtainStyledAttributes(new int[]{ getHomeAsUpIndicatorAttrId() });
+            final Drawable result = a.getDrawable(0);
+            a.recycle();
+            return result;
+        }
+
+        @Override
+        public void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes) {
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setHomeAsUpIndicator(upDrawable);
+                ab.setHomeActionContentDescription(contentDescRes);
+            }
+        }
+
+        @Override
+        public void setActionBarDescription(int contentDescRes) {
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setHomeActionContentDescription(contentDescRes);
+            }
+        }
     }
 }

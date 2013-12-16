@@ -502,8 +502,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     @Override
-    ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
-        return new ActionBarDrawableToggleImpl();
+    int getHomeAsUpIndicatorAttrId() {
+        return R.attr.homeAsUpIndicator;
     }
 
     /**
@@ -685,30 +685,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             mWrapped.onDestroyActionMode(mode);
             mActivity.onSupportActionModeFinished(mode);
             mActionMode = null;
-        }
-    }
-
-    private class ActionBarDrawableToggleImpl
-            implements ActionBarDrawerToggle.Delegate {
-
-        @Override
-        public Drawable getThemeUpIndicator() {
-            final TypedArray a = mActivity.obtainStyledAttributes(ACTION_BAR_DRAWABLE_TOGGLE_ATTRS);
-            final Drawable result = a.getDrawable(0);
-            a.recycle();
-            return result;
-        }
-
-        @Override
-        public void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes) {
-            if (mActionBarView != null) {
-                mActionBarView.setHomeAsUpIndicator(upDrawable);
-            }
-        }
-
-        @Override
-        public void setActionBarDescription(int contentDescRes) {
-            // No support for setting Action Bar content description
         }
     }
 

@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.internal.view.ActionModeWrapper;
 import android.support.v7.internal.view.menu.MenuWrapperFactory;
@@ -233,9 +232,8 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
     }
 
     @Override
-    public ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
-        // Return null so that ActionBarDrawableToggle uses it's standard impl
-        return null;
+    int getHomeAsUpIndicatorAttrId() {
+        return android.R.attr.homeAsUpIndicator;
     }
 
     class WindowCallbackWrapper implements Window.Callback {
