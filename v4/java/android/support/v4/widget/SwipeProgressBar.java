@@ -138,6 +138,7 @@ final class SwipeProgressBar {
         final int height = mBounds.height();
         final int cx = width / 2;
         final int cy = height / 2;
+        boolean drawTriggerWhileFinishing = false;
         int restoreCount = canvas.save();
         canvas.clipRect(mBounds);
 
@@ -167,6 +168,11 @@ final class SwipeProgressBar {
                 float clearRadius = width / 2 * INTERPOLATOR.getInterpolation(pct);
                 mClipRect.set(cx - clearRadius, 0, cx + clearRadius, height);
                 canvas.saveLayerAlpha(mClipRect, 0, 0);
+                // Only draw the trigger if there is a space in the center of
+                // this refreshing view that needs to be filled in by the
+                // trigger. If the progress view is just still animating, let it
+                // continue animating.
+                drawTriggerWhileFinishing = true;
             }
 
             // First fill in with the last color that would have finished drawing.
@@ -210,7 +216,7 @@ final class SwipeProgressBar {
                 float pct = (((rawProgress - 75) * 2) / 100f);
                 drawCircle(canvas, cx, cy, mColor1, pct);
             }
-            if (mTriggerPercentage > 0) {
+            if (mTriggerPercentage > 0 && drawTriggerWhileFinishing) {
                 // There is some portion of trigger to draw. Restore the canvas,
                 // then draw the trigger. Otherwise, the trigger does not appear
                 // until after the bar has finished animating and appears to
