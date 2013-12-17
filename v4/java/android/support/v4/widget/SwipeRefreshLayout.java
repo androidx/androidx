@@ -18,6 +18,7 @@ package android.support.v4.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -82,6 +83,9 @@ public class SwipeRefreshLayout extends ViewGroup {
     private boolean mReturningToStart;
     private final DecelerateInterpolator mDecelerateInterpolator;
     private final AccelerateInterpolator mAccelerateInterpolator;
+    private static final int[] LAYOUT_ATTRS = new int[] {
+        android.R.attr.enabled
+    };
 
     private final Animation mAnimateToStartPosition = new Animation() {
         @Override
@@ -167,10 +171,10 @@ public class SwipeRefreshLayout extends ViewGroup {
     /**
      * Constructor that is called when inflating SwipeRefreshLayout from XML.
      * @param context
-     * @param attr
+     * @param attrs
      */
-    public SwipeRefreshLayout(Context context, AttributeSet attr) {
-        super(context, attr);
+    public SwipeRefreshLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
@@ -183,6 +187,10 @@ public class SwipeRefreshLayout extends ViewGroup {
         mProgressBarHeight = (int) (metrics.density * PROGRESS_BAR_HEIGHT);
         mDecelerateInterpolator = new DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR);
         mAccelerateInterpolator = new AccelerateInterpolator(ACCELERATE_INTERPOLATION_FACTOR);
+
+        final TypedArray a = context.obtainStyledAttributes(attrs, LAYOUT_ATTRS);
+        setEnabled(a.getBoolean(0, true));
+        a.recycle();
     }
 
     @Override
