@@ -19,7 +19,10 @@ package android.support.v7.internal.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
@@ -87,7 +90,12 @@ public class ActionBarContainer extends FrameLayout {
         mBackground = bg;
         if (bg != null) {
             bg.setCallback(this);
+            if (mActionBarView != null) {
+                mBackground.setBounds(mActionBarView.getLeft(), mActionBarView.getTop(),
+                        mActionBarView.getRight(), mActionBarView.getBottom());
+            }
         }
+
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
         invalidate();
@@ -101,6 +109,10 @@ public class ActionBarContainer extends FrameLayout {
         mStackedBackground = bg;
         if (bg != null) {
             bg.setCallback(this);
+            if ((mIsStacked && mStackedBackground != null)) {
+                mStackedBackground.setBounds(mTabContainer.getLeft(), mTabContainer.getTop(),
+                        mTabContainer.getRight(), mTabContainer.getBottom());
+            }
         }
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
@@ -115,6 +127,9 @@ public class ActionBarContainer extends FrameLayout {
         mSplitBackground = bg;
         if (bg != null) {
             bg.setCallback(this);
+            if (mIsSplit && mSplitBackground != null) {
+                mSplitBackground.setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
+            }
         }
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
@@ -210,14 +225,14 @@ public class ActionBarContainer extends FrameLayout {
 
         if (mIsSplit) {
             if (mSplitBackground != null) {
-                mSplitBackground.draw(canvas);
+                drawBackgroundDrawable(mSplitBackground, canvas);
             }
         } else {
             if (mBackground != null) {
-                mBackground.draw(canvas);
+                drawBackgroundDrawable(mBackground, canvas);
             }
             if (mStackedBackground != null && mIsStacked) {
-                mStackedBackground.draw(canvas);
+                drawBackgroundDrawable(mStackedBackground, canvas);
             }
         }
     }
@@ -302,6 +317,19 @@ public class ActionBarContainer extends FrameLayout {
 
         if (needsInvalidate) {
             invalidate();
+        }
+    }
+
+    private void drawBackgroundDrawable(Drawable d, Canvas canvas) {
+        final Rect bounds = d.getBounds();
+        if (d instanceof ColorDrawable && !bounds.isEmpty() && Build.VERSION.SDK_INT < 11) {
+            // Pre-Honeycomb ColorDrawable does not respect it's bounds so we need to force it to
+            canvas.save();
+            canvas.clipRect(bounds);
+            d.draw(canvas);
+            canvas.restore();
+        } else {
+            d.draw(canvas);
         }
     }
 }
