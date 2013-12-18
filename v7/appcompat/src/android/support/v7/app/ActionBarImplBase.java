@@ -333,6 +333,16 @@ class ActionBarImplBase extends ActionBar {
     }
 
     @Override
+    public void setStackedBackgroundDrawable(Drawable d) {
+        mContainerView.setStackedBackground(d);
+    }
+
+    @Override
+    public void setSplitBackgroundDrawable(Drawable d) {
+        mContainerView.setSplitBackground(d);
+    }
+
+    @Override
     public View getCustomView() {
         return mActionView.getCustomNavigationView();
     }
