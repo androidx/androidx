@@ -515,6 +515,16 @@ class ActionBarImplBase extends ActionBar {
     }
 
     @Override
+    public void setHomeAsUpIndicator(Drawable indicator) {
+        mActionView.setHomeAsUpIndicator(indicator);
+    }
+
+    @Override
+    public void setHomeAsUpIndicator(int resId) {
+        mActionView.setHomeAsUpIndicator(resId);
+    }
+
+    @Override
     public int getHeight() {
         return mContainerView.getHeight();
     }

@@ -1273,7 +1273,8 @@ public class ActionBarView extends AbsActionBarView {
 
         public void setUpIndicator(int resId) {
             mUpIndicatorRes = resId;
-            mUpView.setImageDrawable(resId != 0 ? getResources().getDrawable(resId) : null);
+            mUpView.setImageDrawable(resId != 0 ? getResources().getDrawable(resId)
+                    : mDefaultUpIndicator);
         }
 
         @Override
