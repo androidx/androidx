@@ -195,6 +195,16 @@ class ActionBarImplICS extends ActionBar {
     }
 
     @Override
+    public void setStackedBackgroundDrawable(Drawable d) {
+        mActionBar.setStackedBackgroundDrawable(d);
+    }
+
+    @Override
+    public void setSplitBackgroundDrawable(Drawable d) {
+        mActionBar.setSplitBackgroundDrawable(d);
+    }
+
+    @Override
     public View getCustomView() {
         return mActionBar.getCustomView();
     }
