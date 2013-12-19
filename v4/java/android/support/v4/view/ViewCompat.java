@@ -264,10 +264,10 @@ public class ViewCompat {
             // Do nothing; API doesn't exist
         }
         public void postInvalidateOnAnimation(View view) {
-            view.postInvalidateDelayed(getFrameTime());
+            view.invalidate();
         }
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.postInvalidateDelayed(getFrameTime(), left, top, right, bottom);
+            view.invalidate(left, top, right, bottom);
         }
         public void postOnAnimation(View view, Runnable action) {
             view.postDelayed(action, getFrameTime());
