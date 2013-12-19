@@ -47,21 +47,6 @@ public class ActionModeWrapper extends ActionMode {
     }
 
     @Override
-    public boolean getTitleOptionalHint() {
-        return mWrappedObject.getTitleOptionalHint();
-    }
-
-    @Override
-    public void setTitleOptionalHint(boolean titleOptional) {
-        mWrappedObject.setTitleOptionalHint(titleOptional);
-    }
-
-    @Override
-    public boolean isTitleOptional() {
-        return mWrappedObject.isTitleOptional();
-    }
-
-    @Override
     public void setTitle(CharSequence title) {
         mWrappedObject.setTitle(title);
     }
@@ -168,8 +153,13 @@ public class ActionModeWrapper extends ActionMode {
                 // If the given mode equals our wrapped mode, just return it
                 return mLastStartedActionMode;
             } else {
-                return new ActionModeWrapper(mContext, mode);
+                return createActionModeWrapper(mContext, mode);
             }
+        }
+
+        protected ActionModeWrapper createActionModeWrapper(Context context,
+                android.view.ActionMode mode) {
+            return new ActionModeWrapper(context, mode);
         }
     }
 }
