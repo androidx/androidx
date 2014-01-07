@@ -14,7 +14,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
 
-            repository(url: uri(project.parent.ext.androidRepoOut)) {
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
             }
 
             pom.project {

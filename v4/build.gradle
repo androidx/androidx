@@ -2,6 +2,11 @@ apply plugin: 'java'
 
 archivesBaseName = 'support-v4'
 
+FileCollection getAndroidPrebuilt(String apiLevel) {
+    files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
+}
+
+
 sourceSets {
     main.java.srcDir 'java'
     eclair.java.srcDir 'eclair'
@@ -66,7 +71,7 @@ jar {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: uri(project.parent.ext.androidRepoOut)) {
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
             }
 
             pom.project {
