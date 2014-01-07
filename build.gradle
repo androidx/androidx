@@ -1,15 +1,16 @@
 buildscript {
     repositories {
         maven { url '../../prebuilts/gradle-plugin' }
+        mavenCentral()
         maven { url '../../prebuilts/tools/common/m2/repository' }
         maven { url '../../prebuilts/tools/common/m2/internal' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.7'
+        classpath 'com.android.tools.build:gradle:0.7.0'
     }
 }
 
-ext.version = '19.0.1'
+ext.supportVersion = '19.0.1'
 
 // ext.androidHostOut is shared by all tools/{base,build,swt} gradle projects/
 ext.androidHostOut = file("$rootDir/../../out")
@@ -17,11 +18,11 @@ ext.androidHostOut = file("$rootDir/../../out")
 // rootProject.buildDir is specific to this gradle build.
 buildDir = new File(ext.androidHostOut, "host/gradle/frameworks/support/build")
 
-ext.androidRepoOut = new File(ext.androidHostOut, "host/support_repo/")
+ext.supportRepoOut = new File(ext.androidHostOut, "host/support_repo/")
 
 task release(type: Copy) {
     from "$rootDir/../../prebuilts/maven_repo/android"
-    into project.ext.androidRepoOut
+    into project.ext.supportRepoOut
 }
 
 subprojects {
@@ -30,14 +31,14 @@ subprojects {
 
     apply plugin: 'maven'
 
-    version = rootProject.ext.version
+    version = rootProject.ext.supportVersion
     group = 'com.android.support'
 
     task release(type: Upload) {
         configuration = configurations.archives
         repositories {
             mavenDeployer {
-                repository(url: uri("$rootProject.ext.androidRepoOut"))
+                repository(url: uri("$rootProject.ext.supportRepoOut"))
             }
         }
     }
@@ -47,3 +48,4 @@ subprojects {
 FileCollection getAndroidPrebuilt(String apiLevel) {
     files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
 }
+
