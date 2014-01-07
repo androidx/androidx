@@ -476,7 +476,7 @@ public class DrawerLayout extends ViewGroup {
             if (mListener != null) {
                 mListener.onDrawerClosed(drawerView);
             }
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            getRootView().sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
     }
 
