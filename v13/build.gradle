@@ -2,11 +2,6 @@ apply plugin: 'java'
 
 archivesBaseName = 'support-v13'
 
-FileCollection getAndroidPrebuilt(String apiLevel) {
-    files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
-}
-
-
 sourceSets {
     main.java.srcDir 'java'
     ics.java.srcDir 'ics'
