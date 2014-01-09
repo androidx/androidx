@@ -2,10 +2,6 @@ apply plugin: 'android-library'
 
 archivesBaseName = 'mediarouter-v7'
 
-FileCollection getAndroidPrebuilt(String apiLevel) {
-    files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
-}
-
 
 dependencies {
     compile project(':support-appcompat-v7')
