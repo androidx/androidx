@@ -601,8 +601,71 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent e) {
-        // TODO
-        return false;
+        final boolean canScrollHorizontally = mLayout.canScrollHorizontally();
+        final boolean canScrollVertically = mLayout.canScrollVertically();
+
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        }
+        mVelocityTracker.addMovement(e);
+
+        final int action = MotionEventCompat.getActionMasked(e);
+        final int actionIndex = MotionEventCompat.getActionIndex(e);
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mScrollPointerId = MotionEventCompat.getPointerId(e, 0);
+                mInitialTouchX = mLastTouchX = (int) (e.getX() + 0.5f);
+                mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
+
+                if (mScrollState == SCROLL_STATE_SETTLING) {
+                    setScrollState(SCROLL_STATE_DRAGGING);
+                }
+                break;
+
+            case MotionEventCompat.ACTION_POINTER_DOWN:
+                mScrollPointerId = MotionEventCompat.getPointerId(e, actionIndex);
+                mInitialTouchX = mLastTouchX = (int) (MotionEventCompat.getX(e, actionIndex) + 0.5f);
+                mInitialTouchY = mLastTouchY = (int) (MotionEventCompat.getY(e, actionIndex) + 0.5f);
+                break;
+
+            case MotionEvent.ACTION_MOVE: {
+                final int index = MotionEventCompat.findPointerIndex(e, mScrollPointerId);
+                if (index < 0) {
+                    Log.e(TAG, "Error processing scroll; pointer index for id " +
+                            mScrollPointerId + " not found. Did any MotionEvents get skipped?");
+                    return false;
+                }
+
+                final int x = (int) (MotionEventCompat.getX(e, index) + 0.5f);
+                final int y = (int) (MotionEventCompat.getY(e, index) + 0.5f);
+                if (mScrollState != SCROLL_STATE_DRAGGING) {
+                    final int dx = x - mInitialTouchX;
+                    final int dy = y - mInitialTouchY;
+                    boolean startScroll = false;
+                    if (canScrollHorizontally && Math.abs(dx) > mTouchSlop) {
+                        mLastTouchX = mInitialTouchX + mTouchSlop * (dx < 0 ? -1 : 1);
+                        startScroll = true;
+                    }
+                    if (canScrollVertically && Math.abs(dy) > mTouchSlop) {
+                        mLastTouchY = mInitialTouchY + mTouchSlop * (dy < 0 ? -1 : 1);
+                        startScroll = true;
+                    }
+                    if (startScroll) {
+                        setScrollState(SCROLL_STATE_DRAGGING);
+                    }
+                }
+            } break;
+
+            case MotionEventCompat.ACTION_POINTER_UP: {
+                onPointerUp(e);
+            } break;
+
+            case MotionEvent.ACTION_UP: {
+                mVelocityTracker.clear();
+            } break;
+        }
+        return mScrollState == SCROLL_STATE_DRAGGING;
     }
 
     @Override
