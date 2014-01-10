@@ -77,6 +77,7 @@ public class RecyclerView extends ViewGroup {
 
     private Adapter mAdapter;
     private LayoutManager mLayout;
+    private RecyclerListener mRecyclerListener;
     private final ArrayList<ItemDecoration> mItemDecorations = new ArrayList<ItemDecoration>();
     private final ArrayList<ItemTouchListener> mItemTouchListeners =
             new ArrayList<ItemTouchListener>();
@@ -206,6 +207,20 @@ public class RecyclerView extends ViewGroup {
      */
     public Adapter getAdapter() {
         return mAdapter;
+    }
+
+    /**
+     * Register a listener that will be notified whenever a child view is recycled.
+     *
+     * <p>This listener will be called when a LayoutManager or the RecyclerView decides
+     * that a child view is no longer needed. If an application associates expensive
+     * or heavyweight data with item views, this may be a good place to release
+     * or free those resources.</p>
+     *
+     * @param listener Listener to register, or null to clear
+     */
+    public void setRecyclerListener(RecyclerListener listener) {
+        mRecyclerListener = listener;
     }
 
     /**
@@ -1202,6 +1217,7 @@ public class RecyclerView extends ViewGroup {
         public void addDetachedScrapView(View scrap) {
             final ViewHolder holder = getChildViewHolder(scrap);
             getRecycledViewPool().putScrapView(holder);
+            dispatchViewRecycled(holder);
         }
 
         public void detachAndScrapView(View scrap) {
@@ -1212,7 +1228,8 @@ public class RecyclerView extends ViewGroup {
             final ViewHolder holder = getChildViewHolder(scrap);
             holder.mIsDirty = true;
             removeView(scrap);
-            mRecyclerPool.putScrapView(holder);
+            getRecycledViewPool().putScrapView(holder);
+            dispatchViewRecycled(holder);
         }
 
         public void scrapAllViewsAttached() {
@@ -1233,6 +1250,7 @@ public class RecyclerView extends ViewGroup {
                 if (holder.itemView.getParent() == RecyclerView.this && holder.mIsDirty) {
                     removeView(holder.itemView);
                     pool.putScrapView(holder);
+                    dispatchViewRecycled(holder);
                 }
             }
             mAttachedScrap.clear();
@@ -1272,6 +1290,15 @@ public class RecyclerView extends ViewGroup {
             // The holder's position won't match so the calling code will need to have
             // the adapter rebind it.
             return getRecycledViewPool().getScrapView(type);
+        }
+
+        void dispatchViewRecycled(ViewHolder holder) {
+            if (mRecyclerListener != null) {
+                mRecyclerListener.onViewRecycled(holder);
+            }
+            if (mAdapter != null) {
+                mAdapter.onViewRecycled(holder);
+            }
         }
 
         void onGenericDataChanged() {
@@ -1377,8 +1404,30 @@ public class RecyclerView extends ViewGroup {
 
         public abstract int getItemCount();
 
+        /**
+         * Returns true if this adapter publishes a unique <code>long</code> value that can
+         * act as a key for the item at a given position in the data set. If that item is relocated
+         * in the data set, the ID returned for that item should be the same.
+         *
+         * @return true if this adapter's items have stable IDs
+         */
         public final boolean hasStableIds() {
             return mHasStableIds;
+        }
+
+        /**
+         * Called when a view created by this adapter has been recycled.
+         *
+         * <p>A view is recycled when a {@link LayoutManager} decides that it no longer
+         * needs to be attached to its parent {@link RecyclerView}. This can be because it has
+         * fallen out of visibility or a set of cached views represented by views still
+         * attached to the parent RecyclerView. If an item view has large or expensive data
+         * bound to it such as large bitmaps, this may be a good place to release those
+         * resources.</p>
+         *
+         * @param holder The ViewHolder for the view being recycled
+         */
+        public void onViewRecycled(ViewHolder holder) {
         }
 
         public final boolean hasObservers() {
