@@ -89,6 +89,11 @@ public class DrawerLayoutActivity extends Activity {
         mDrawerLayout.setDrawerListener(new DemoDrawerListener());
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
+        // The drawer title must be set in order to announce state changes when
+        // accessibility is turned on. This is typically a simple description,
+        // e.g. "Navigation".
+        mDrawerLayout.setDrawerTitle(GravityCompat.START, getString(R.string.drawer_title));
+
         mDrawer.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
                 Shakespeare.TITLES));
         mDrawer.setOnItemClickListener(new DrawerItemClickListener());
