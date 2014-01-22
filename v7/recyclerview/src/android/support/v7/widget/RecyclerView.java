@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.Pools;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
@@ -31,7 +32,6 @@ import android.support.v4.widget.EdgeEffectCompat;
 import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.FocusFinder;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -81,8 +81,8 @@ public class RecyclerView extends ViewGroup {
     private final ArrayList<ItemDecoration> mItemDecorations = new ArrayList<ItemDecoration>();
     private final ArrayList<ItemTouchListener> mItemTouchListeners =
             new ArrayList<ItemTouchListener>();
-    private final SparseArray<ViewHolder> mAttachedViewsByPosition =
-            new SparseArray<ViewHolder>();
+    private final SparseArrayCompat<ViewHolder> mAttachedViewsByPosition =
+            new SparseArrayCompat<ViewHolder>();
     private final LongSparseArray<ViewHolder> mAttachedViewsById =
             new LongSparseArray<ViewHolder>();
     private boolean mIsAttached;
@@ -742,6 +742,8 @@ public class RecyclerView extends ViewGroup {
                         -VelocityTrackerCompat.getYVelocity(mVelocityTracker, mScrollPointerId) : 0;
                 if (xvel != 0 && canScrollHorizontally || yvel != 0 && canScrollVertically) {
                     fling((int) xvel, (int) yvel);
+                } else {
+                    setScrollState(SCROLL_STATE_IDLE);
                 }
 
                 mVelocityTracker.clear();
@@ -935,6 +937,18 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * Mark all known views as dirty and in need of rebinding data.
+     */
+    void markKnownViewsDirty() {
+        final int count = getViewHolderCount();
+
+        for (int i = 0; i < count; i++) {
+            final ViewHolder holder = mAttachedViewsByPosition.valueAt(i);
+            holder.mIsDirty = true;
+        }
+    }
+
+    /**
      * Schedule an update of data from the adapter to occur on the next frame.
      * On newer platform versions this happens via the postOnAnimation mechanism and RecyclerView
      * attempts to avoid relayouts if possible.
@@ -982,7 +996,35 @@ public class RecyclerView extends ViewGroup {
     @Override
     public void addView(View child, int index, ViewGroup.LayoutParams lp) {
         super.addView(child, index, lp);
-        // TODO: Do something clever to synthesize/wrap an adapter.
+
+        // Support lib version can't use onViewAdded/onViewRemoved.
+        final ViewHolder holder = getChildViewHolder(child);
+        if (holder == null) {
+            throw new IllegalArgumentException("No ViewHolder specified for child view " + child);
+        }
+        mAttachedViewsByPosition.put(holder.getPosition(), holder);
+    }
+
+    @Override
+    public void removeView(View view) {
+        final ViewHolder holder = getChildViewHolder(view);
+        super.removeView(view);
+
+        final int index = mAttachedViewsByPosition.indexOfValue(holder);
+        if (index >= 0) {
+            mAttachedViewsByPosition.removeAt(index);
+        }
+    }
+
+    @Override
+    public void removeViewAt(int index) {
+        final ViewHolder holder = getChildViewHolder(getChildAt(index));
+        super.removeViewAt(index);
+
+        final int posIndex = mAttachedViewsByPosition.indexOfValue(holder);
+        if (posIndex >= 0) {
+            mAttachedViewsByPosition.removeAt(posIndex);
+        }
     }
 
     /**
@@ -1160,6 +1202,8 @@ public class RecyclerView extends ViewGroup {
                 // TODO Determine what actually changed
             } else {
                 mRecycler.onGenericDataChanged();
+                markKnownViewsDirty();
+                requestLayout();
             }
         }
 
@@ -1365,7 +1409,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         void onGenericDataChanged() {
-            // TODO
+            clear();
         }
 
         void onAdapterChanged() {
