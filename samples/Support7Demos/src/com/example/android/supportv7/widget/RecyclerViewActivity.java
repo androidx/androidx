@@ -32,6 +32,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
 import android.widget.TextView;
+import com.example.android.supportv7.Cheeses;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class RecyclerViewActivity extends Activity {
     private RecyclerView mRecyclerView;
@@ -45,7 +49,7 @@ public class RecyclerViewActivity extends Activity {
         rv.setHasFixedSize(true);
         rv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        rv.setAdapter(new MyAdapter());
+        rv.setAdapter(new MyAdapter(Cheeses.sCheeseStrings));
         setContentView(rv);
 
         mRecyclerView = rv;
@@ -84,9 +88,15 @@ public class RecyclerViewActivity extends Activity {
             final RecyclerView parent = getRecyclerView();
             final int parentBottom = parent.getHeight() - parent.getPaddingBottom();
 
+            final View oldTopView = parent.getChildCount() > 0 ? parent.getChildAt(0) : null;
+            int oldTop = parent.getPaddingTop();
+            if (oldTopView != null) {
+                oldTop = oldTopView.getTop();
+            }
+
             recycler.scrapAllViewsAttached();
 
-            int top = parent.getPaddingTop();
+            int top = oldTop;
             int bottom;
             final int left = parent.getPaddingLeft();
             final int right = parent.getWidth() - parent.getPaddingRight();
@@ -259,31 +269,46 @@ public class RecyclerViewActivity extends Activity {
 
     class MyAdapter extends RecyclerView.Adapter {
         private int mBackground;
+        private ArrayList<String> mValues;
 
-        public MyAdapter() {
+        public MyAdapter(String[] strings) {
             TypedValue val = new TypedValue();
             RecyclerViewActivity.this.getTheme().resolveAttribute(
                     R.attr.selectableItemBackground, val, true);
             mBackground = val.resourceId;
+            mValues = new ArrayList();
+            Collections.addAll(mValues, strings);
         }
 
         @Override
         public RecyclerView.ViewHolder createViewHolder(ViewGroup parent, int viewType) {
-            ViewHolder h = new ViewHolder(new TextView(RecyclerViewActivity.this));
+            final ViewHolder h = new ViewHolder(new TextView(RecyclerViewActivity.this));
             h.textView.setMinimumHeight(128);
             h.textView.setFocusable(true);
             h.textView.setBackgroundResource(mBackground);
+            h.textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final int pos = h.getPosition();
+                    if (mValues.size() > pos + 1) {
+                        final String t = mValues.get(pos);
+                        mValues.set(pos, mValues.get(pos + 1));
+                        mValues.set(pos + 1, t);
+                        notifyDataSetChanged();
+                    }
+                }
+            });
             return h;
         }
 
         @Override
         public void bindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            ((ViewHolder) holder).textView.setText("Item " + position);
+            ((ViewHolder) holder).textView.setText(mValues.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return 100;
+            return mValues.size();
         }
     }
 
