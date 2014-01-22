@@ -619,6 +619,7 @@ public class RecyclerView extends ViewGroup {
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
 
                 if (mScrollState == SCROLL_STATE_SETTLING) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
                     setScrollState(SCROLL_STATE_DRAGGING);
                 }
                 break;
@@ -652,6 +653,7 @@ public class RecyclerView extends ViewGroup {
                         startScroll = true;
                     }
                     if (startScroll) {
+                        getParent().requestDisallowInterceptTouchEvent(true);
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
@@ -717,6 +719,7 @@ public class RecyclerView extends ViewGroup {
                         startScroll = true;
                     }
                     if (startScroll) {
+                        getParent().requestDisallowInterceptTouchEvent(true);
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
