@@ -1371,8 +1371,8 @@ public class RecyclerView extends ViewGroup {
             final int count = mAttachedScrap.size();
             for (int i = 0; i < count; i++) {
                 final ViewHolder holder = mAttachedScrap.get(i);
-                if (holder.getPosition() == position) {
-                    // Assumption: if the position record still matches, the type is also correct.
+                if ((holder.getPosition() == position || holder.mIsDirty) &&
+                        holder.getItemViewType() == type) {
                     mAttachedScrap.remove(i);
                     return holder;
                 }
