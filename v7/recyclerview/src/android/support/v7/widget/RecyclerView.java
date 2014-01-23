@@ -92,8 +92,6 @@ public class RecyclerView extends ViewGroup {
     private boolean mAdapterUpdateDuringMeasure;
     private final boolean mPostUpdatesOnAnimation;
 
-    private RecycledViewPool mRecyclerPool;
-
     private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
 
     private static final int INVALID_POINTER = -1;
@@ -246,7 +244,7 @@ public class RecyclerView extends ViewGroup {
         removeAllViews();
         if (mLayout != null) {
             if (mIsAttached) {
-                mLayout.onDetachedFromWindow();
+                mLayout.onDetachedFromWindow(this);
             }
             mLayout.mRecyclerView = null;
         }
@@ -258,7 +256,7 @@ public class RecyclerView extends ViewGroup {
             }
             layout.mRecyclerView = this;
             if (mIsAttached) {
-                mLayout.onAttachedToWindow();
+                mLayout.onAttachedToWindow(this);
             }
         }
         requestLayout();
@@ -274,10 +272,7 @@ public class RecyclerView extends ViewGroup {
      * @see #setRecycledViewPool(android.support.v7.widget.RecyclerView.RecycledViewPool)
      */
     public RecycledViewPool getRecycledViewPool() {
-        if (mRecyclerPool == null) {
-            mRecyclerPool = new RecycledViewPool();
-        }
-        return mRecyclerPool;
+        return mRecycler.getRecycledViewPool();
     }
 
     /**
@@ -289,7 +284,7 @@ public class RecyclerView extends ViewGroup {
      * @param pool Pool to set. If this parameter is null a new pool will be created and used.
      */
     public void setRecycledViewPool(RecycledViewPool pool) {
-        mRecyclerPool = pool;
+        mRecycler.setRecycledViewPool(pool);
     }
 
     /**
@@ -385,8 +380,8 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public void scrollTo(int x, int y) {
-        Log.e(TAG, "RecyclerView does not support scrolling to an absolute position.");
-        // TODO: Implement this in some sort of fallback way. Or throw.
+        throw new UnsupportedOperationException(
+                "RecyclerView does not support scrolling to an absolute position.");
     }
 
     @Override
@@ -409,13 +404,13 @@ public class RecyclerView extends ViewGroup {
         int overscrollX = 0, overscrollY = 0;
         if (x != 0) {
             mEatRequestLayout = true;
-            final int hresult = mLayout.scrollHorizontallyBy(x, mRecycler);
+            final int hresult = mLayout.scrollHorizontallyBy(x, getAdapter(), mRecycler);
             mEatRequestLayout = false;
             overscrollX = x - hresult;
         }
         if (y != 0) {
             mEatRequestLayout = true;
-            final int vresult = mLayout.scrollVerticallyBy(y, mRecycler);
+            final int vresult = mLayout.scrollVerticallyBy(y, getAdapter(), mRecycler);
             mEatRequestLayout = false;
             overscrollY = y - vresult;
         }
@@ -497,7 +492,7 @@ public class RecyclerView extends ViewGroup {
 
     private void releaseGlows() {
         boolean needsInvalidate = false;
-        if (mLeftGlow != null) needsInvalidate |= mLeftGlow.onRelease();
+        if (mLeftGlow != null) needsInvalidate = mLeftGlow.onRelease();
         if (mTopGlow != null) needsInvalidate |= mTopGlow.onRelease();
         if (mRightGlow != null) needsInvalidate |= mRightGlow.onRelease();
         if (mBottomGlow != null) needsInvalidate |= mBottomGlow.onRelease();
@@ -552,7 +547,7 @@ public class RecyclerView extends ViewGroup {
         View result = ff.findNextFocus(this, focused, direction);
         if (result == null) {
             mEatRequestLayout = true;
-            result = mLayout.onFocusSearchFailed(focused, direction, mRecycler);
+            result = mLayout.onFocusSearchFailed(focused, direction, getAdapter(), mRecycler);
             mEatRequestLayout = false;
         }
         return result != null ? result : super.focusSearch(focused, direction);
@@ -580,7 +575,7 @@ public class RecyclerView extends ViewGroup {
         mIsAttached = true;
         mFirstLayoutComplete = false;
         if (mLayout != null) {
-            mLayout.onAttachedToWindow();
+            mLayout.onAttachedToWindow(this);
         }
     }
 
@@ -595,7 +590,7 @@ public class RecyclerView extends ViewGroup {
 
         mIsAttached = false;
         if (mLayout != null) {
-            mLayout.onDetachedFromWindow();
+            mLayout.onDetachedFromWindow(this);
         }
     }
 
@@ -743,7 +738,7 @@ public class RecyclerView extends ViewGroup {
                         -VelocityTrackerCompat.getXVelocity(mVelocityTracker, mScrollPointerId) : 0;
                 final float yvel = canScrollVertically ?
                         -VelocityTrackerCompat.getYVelocity(mVelocityTracker, mScrollPointerId) : 0;
-                if (xvel != 0 && canScrollHorizontally || yvel != 0 && canScrollVertically) {
+                if (xvel != 0 || yvel != 0) {
                     fling((int) xvel, (int) yvel);
                 } else {
                     setScrollState(SCROLL_STATE_IDLE);
@@ -827,7 +822,7 @@ public class RecyclerView extends ViewGroup {
             final int restore = c.save();
             c.rotate(270);
             c.translate(-getHeight() + getPaddingTop(), 0);
-            needsInvalidate |= mLeftGlow != null && mLeftGlow.draw(c);
+            needsInvalidate = mLeftGlow != null && mLeftGlow.draw(c);
             c.restoreToCount(restore);
         }
         if (mTopGlow != null && !mTopGlow.isFinished()) {
@@ -1079,13 +1074,13 @@ public class RecyclerView extends ViewGroup {
                 int overscrollX = 0, overscrollY = 0;
                 if (dx != 0) {
                     mEatRequestLayout = true;
-                    final int hresult = mLayout.scrollHorizontallyBy(dx, mRecycler);
+                    final int hresult = mLayout.scrollHorizontallyBy(dx, getAdapter(), mRecycler);
                     mEatRequestLayout = false;
                     overscrollX = dx - hresult;
                 }
                 if (dy != 0) {
                     mEatRequestLayout = true;
-                    final int vresult = mLayout.scrollVerticallyBy(dy, mRecycler);
+                    final int vresult = mLayout.scrollVerticallyBy(dy, getAdapter(), mRecycler);
                     mEatRequestLayout = false;
                     overscrollY = dy - vresult;
                 }
@@ -1279,34 +1274,58 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * A Recycler is responsible for managing scrapped or detached item views for reuse.
+     *
+     * <p>A "scrapped" view is a view that is still attached to its parent RecyclerView but
+     * that has been marked for removal or reuse.</p>
+     *
+     * <p>Typical use of a Recycler by a {@link LayoutManager} will be to obtain views for
+     * an adapter's data set representing the data at a given position or item ID.
+     * If the view to be reused is considered "dirty" the adapter will be asked to rebind it.
+     * If not, the view can be quickly reused by the LayoutManager with no further work.
+     * Clean views that have not {@link android.view.View#isLayoutRequested() requested layout}
+     * may be repositioned by a LayoutManager without remeasurement.</p>
+     */
     public final class Recycler {
         private final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
 
+        private RecycledViewPool mRecyclerPool;
+
+        /**
+         * Clear scrap views out of this recycler. Scrap views contained within a
+         * recycled view pool will remain.
+         */
         public void clear() {
-            final int attachedCount = mAttachedScrap.size();
-            for (int i = 0; i < attachedCount; i++) {
-                removeView(mAttachedScrap.get(i).itemView);
-            }
             mAttachedScrap.clear();
         }
 
+        /**
+         * @deprecated Use {@link
+         * #getViewForPosition(android.support.v7.widget.RecyclerView.Adapter, int)}
+         *             instead. This method will be removed.
+         */
         public View getViewForPosition(int position) {
+            return getViewForPosition(mAdapter, position);
+        }
+
+        public View getViewForPosition(Adapter adapter, int position) {
             ViewHolder holder;
-            final int type = mAdapter.getItemViewType(position);
+            final int type = adapter.getItemViewType(position);
             if (mAdapter.hasStableIds()) {
-                final long id = mAdapter.getItemId(position);
+                final long id = adapter.getItemId(position);
                 holder = getScrapViewForId(id, type);
             } else {
                 holder = getScrapViewForPosition(position, type);
             }
 
             if (holder == null) {
-                holder = mAdapter.createViewHolder(RecyclerView.this, type);
+                holder = adapter.createViewHolder(RecyclerView.this, type);
                 holder.mItemViewType = type;
             }
 
             if (holder.mIsDirty) {
-                mAdapter.bindViewHolder(holder, position);
+                adapter.bindViewHolder(holder, position);
                 holder.mIsDirty = false;
                 holder.mPosition = position;
             }
@@ -1325,7 +1344,11 @@ public class RecyclerView extends ViewGroup {
         }
 
         public void addDetachedScrapView(View scrap) {
+            if (scrap.getParent() != null) {
+                throw new IllegalStateException("Cannot add a scrap view that is still attached");
+            }
             final ViewHolder holder = getChildViewHolder(scrap);
+            holder.mIsDirty = true;
             getRecycledViewPool().putScrapView(holder);
             dispatchViewRecycled(holder);
         }
@@ -1335,11 +1358,8 @@ public class RecyclerView extends ViewGroup {
                 throw new IllegalArgumentException("View " + scrap + " is not attached to " +
                         RecyclerView.this);
             }
-            final ViewHolder holder = getChildViewHolder(scrap);
-            holder.mIsDirty = true;
             removeView(scrap);
-            getRecycledViewPool().putScrapView(holder);
-            dispatchViewRecycled(holder);
+            addDetachedScrapView(scrap);
         }
 
         public void scrapAllViewsAttached() {
@@ -1428,6 +1448,17 @@ public class RecyclerView extends ViewGroup {
         void offsetPositionRecordsForRemove(int insertedAt, int count) {
             // TODO
         }
+
+        void setRecycledViewPool(RecycledViewPool pool) {
+            mRecyclerPool = pool;
+        }
+
+        RecycledViewPool getRecycledViewPool() {
+            if (mRecyclerPool == null) {
+                mRecyclerPool = new RecycledViewPool();
+            }
+            return mRecyclerPool;
+        }
     }
 
     /**
@@ -1497,7 +1528,7 @@ public class RecyclerView extends ViewGroup {
                 throw new IllegalStateException("Cannot change whether this adapter has " +
                         "stable IDs while the adapter has registered observers.");
             }
-            mHasStableIds = true;
+            mHasStableIds = hasStableIds;
         }
 
         /**
@@ -1540,43 +1571,180 @@ public class RecyclerView extends ViewGroup {
         public void onViewRecycled(ViewHolder holder) {
         }
 
+        /**
+         * Returns true if one or more observers are attached to this adapter.
+         * @return true if this adapter has observers
+         */
         public final boolean hasObservers() {
             return mObservable.hasObservers();
         }
 
+        /**
+         * Register a new observer to listen for data changes.
+         *
+         * <p>The adapter may publish a variety of events describing specific changes.
+         * Not all adapters may support all change types and some may fall back to a generic
+         * {@link android.support.v7.widget.RecyclerView.AdapterDataObserver#onChanged()
+         * "something changed"} event if more specific data is not available.</p>
+         *
+         * <p>Components registering observers with an adapter are responsible for
+         * {@link #unregisterAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver)
+         * unregistering} those observers when finished.</p>
+         *
+         * @param observer Observer to register
+         *
+         * @see #unregisterAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver)
+         */
         public void registerAdapterDataObserver(AdapterDataObserver observer) {
             mObservable.registerObserver(observer);
         }
 
+        /**
+         * Unregister an observer currently listening for data changes.
+         *
+         * <p>The unregistered observer will no longer receive events about changes
+         * to the adapter.</p>
+         *
+         * @param observer Observer to unregister
+         *
+         * @see #registerAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver)
+         */
         public void unregisterAdapterDataObserver(AdapterDataObserver observer) {
             mObservable.unregisterObserver(observer);
         }
 
-        public void notifyDataSetChanged() {
+        /**
+         * Notify any registered observers that the data set has changed.
+         *
+         * <p>There are two different classes of data change events, item changes and structural
+         * changes. Item changes are when a single item has its data updated but no positional
+         * changes have occurred. Structural changes are when items are inserted, deleted or moved
+         * within the data set.</p>
+         *
+         * <p>This event does not specify what about the data set has changed, forcing
+         * any observers to assume that all existing items and structure may no longer be valid.
+         * LayoutManagers will be forced to fully rebind and relayout all visible views.</p>
+         *
+         * <p><code>RecyclerView</code> will attempt to synthesize visible structural change events
+         * for adapters that report that they have {@link #hasStableIds() stable IDs} when
+         * this method is used. This can help for the purposes of animation and visual
+         * object persistence but individual item views will still need to be rebound
+         * and relaid out.</p>
+         *
+         * <p>If you are writing an adapter it will always be more efficient to use the more
+         * specific change events if you can. Rely on <code>notifyDataSetChanged()</code>
+         * as a last resort.</p>
+         *
+         * @see #notifyItemChanged(int)
+         * @see #notifyItemInserted(int)
+         * @see #notifyItemRemoved(int)
+         * @see #notifyItemRangeChanged(int, int)
+         * @see #notifyItemRangeInserted(int, int)
+         * @see #notifyItemRangeRemoved(int, int)
+         */
+        public final void notifyDataSetChanged() {
             mObservable.notifyChanged();
         }
 
-        public void notifyItemChanged(int position) {
+        /**
+         * Notify any registered observers that the item at <code>position</code> has changed.
+         *
+         * <p>This is an item change event, not a structural change event. It indicates that any
+         * reflection of the data at <code>position</code> is out of date and should be updated.
+         * The item at <code>position</code> retains the same identity.</p>
+         *
+         * @param position Position of the item that has changed
+         *
+         * @see #notifyItemRangeChanged(int, int)
+         */
+        public final void notifyItemChanged(int position) {
             mObservable.notifyItemRangeChanged(position, 1);
         }
 
-        public void notifyItemRangeChanged(int positionStart, int itemCount) {
+        /**
+         * Notify any registered observers that the <code>itemCount</code> items starting at
+         * position <code>positionStart</code> have changed.
+         *
+         * <p>This is an item change event, not a structural change event. It indicates that
+         * any reflection of the data in the given position range is out of date and should
+         * be updated. The items in the given range retain the same identity.</p>
+         *
+         * @param positionStart Position of the first item that has changed
+         * @param itemCount Number of items that have changed
+         *
+         * @see #notifyItemChanged(int)
+         */
+        public final void notifyItemRangeChanged(int positionStart, int itemCount) {
             mObservable.notifyItemRangeChanged(positionStart, itemCount);
         }
 
-        public void notifyDataItemInserted(int position) {
+        /**
+         * Notify any registered observers that the item reflected at <code>position</code>
+         * has been newly inserted. The item previously at <code>position</code> is now at
+         * position <code>position + 1</code>.
+         *
+         * <p>This is a structural change event. Representations of other existing items in the
+         * data set are still considered up to date and will not be rebound, though their
+         * positions may be altered.</p>
+         *
+         * @param position Position of the newly inserted item in the data set
+         *
+         * @see #notifyItemRangeInserted(int, int)
+         */
+        public final void notifyItemInserted(int position) {
             mObservable.notifyItemRangeInserted(position, 1);
         }
 
-        public void notifyDataItemRangeInserted(int positionStart, int itemCount) {
+        /**
+         * Notify any registered observers that the currently reflected <code>itemCount</code>
+         * items starting at <code>positionStart</code> have been newly inserted. The items
+         * previously located at <code>positionStart</code> and beyond can now be found starting
+         * at position <code>positionStart + itemCount</code>.
+         *
+         * <p>This is a structural change event. Representations of other existing items in the
+         * data set are still considered up to date and will not be rebound, though their positions
+         * may be altered.</p>
+         *
+         * @param positionStart Position of the first item that was inserted
+         * @param itemCount Number of items inserted
+         *
+         * @see #notifyItemInserted(int)
+         */
+        public final void notifyItemRangeInserted(int positionStart, int itemCount) {
             mObservable.notifyItemRangeInserted(positionStart, itemCount);
         }
 
-        public void notifyDataItemRemoved(int position) {
+        /**
+         * Notify any registered observers that the item previously located at <code>position</code>
+         * has been removed from the data set. The items previously located at and after
+         * <code>position</code> may now be found at <code>oldPosition - 1</code>.
+         *
+         * <p>This is a structural change event. Representations of other existing items in the
+         * data set are still considered up to date and will not be rebound, though their positions
+         * may be altered.</p>
+         *
+         * @param position Position of the item that has now been removed
+         *
+         * @see #notifyItemRangeRemoved(int, int)
+         */
+        public final void notifyItemRemoved(int position) {
             mObservable.notifyItemRangeRemoved(position, 1);
         }
 
-        public void notifyDataItemRangeRemoved(int positionStart, int itemCount) {
+        /**
+         * Notify any registered observers that the <code>itemCount</code> items previously
+         * located at <code>positionStart</code> have been removed from the data set. The items
+         * previously located at and after <code>positionStart + itemCount</code> may now be found
+         * at <code>oldPosition - itemCount</code>.
+         *
+         * <p>This is a structural change event. Representations of other existing items in the data
+         * set are still considered up to date and will not be rebound, though their positions
+         * may be altered.</p>
+         *
+         * @param positionStart Previous position of the first item that was removed
+         * @param itemCount Number of items removed from the data set
+         */
+        public final void notifyItemRangeRemoved(int positionStart, int itemCount) {
             mObservable.notifyItemRangeRemoved(positionStart, itemCount);
         }
     }
@@ -1592,14 +1760,19 @@ public class RecyclerView extends ViewGroup {
     public static abstract class LayoutManager {
         RecyclerView mRecyclerView;
 
+        /**
+         * @deprecated LayoutManagers should not access the RecyclerView they are bound to directly.
+         *             See the other methods on LayoutManager for accessing child views and
+         *             container properties instead. <em>This method will be removed.</em>
+         */
         public final RecyclerView getRecyclerView() {
             return mRecyclerView;
         }
 
-        public void onAttachedToWindow() {
+        public void onAttachedToWindow(RecyclerView view) {
         }
 
-        public void onDetachedFromWindow() {
+        public void onDetachedFromWindow(RecyclerView view) {
         }
 
         public abstract void layoutChildren(Adapter adapter, Recycler recycler);
@@ -1631,7 +1804,7 @@ public class RecyclerView extends ViewGroup {
          * @return true if this LayoutParams object is valid, false otherwise
          */
         public boolean checkLayoutParams(LayoutParams lp) {
-            return lp instanceof LayoutParams;
+            return lp != null;
         }
 
         /**
@@ -1685,6 +1858,15 @@ public class RecyclerView extends ViewGroup {
          *         negative and scrolling proceeeded in that direction.
          *         <code>Math.abs(result)</code> may be less than dx if a boundary was reached.
          */
+        public int scrollHorizontallyBy(int dx, Adapter adapter, Recycler recycler) {
+            return scrollHorizontallyBy(dx, recycler);
+        }
+
+        /**
+         * @deprecated API changed to include the Adapter to use. Override
+         * {@link #scrollHorizontallyBy(int, android.support.v7.widget.RecyclerView.Adapter,
+         * android.support.v7.widget.RecyclerView.Recycler)} instead.
+         */
         public int scrollHorizontallyBy(int dx, Recycler recycler) {
             return 0;
         }
@@ -1698,6 +1880,15 @@ public class RecyclerView extends ViewGroup {
          * @return The actual distance scrolled. The return value will be negative if dy was
          *         negative and scrolling proceeeded in that direction.
          *         <code>Math.abs(result)</code> may be less than dy if a boundary was reached.
+         */
+        public int scrollVerticallyBy(int dy, Adapter adapter, Recycler recycler) {
+            return scrollVerticallyBy(dy, recycler);
+        }
+
+        /**
+         * @deprecated API changed to include the Adapter to use. Override
+         * {@link #scrollVerticallyBy(int, android.support.v7.widget.RecyclerView.Adapter,
+         * android.support.v7.widget.RecyclerView.Recycler)} instead.
          */
         public int scrollVerticallyBy(int dy, Recycler recycler) {
             return 0;
@@ -1728,8 +1919,8 @@ public class RecyclerView extends ViewGroup {
          * been added this method does nothing. LayoutManagers should use this method to add
          * views pulled from a {@link Recycler}, as recycled views may already be attached.
          *
-         * @param child
-         * @param index
+         * @param child View to add
+         * @param index Index to add child at
          */
         public void addView(View child, int index) {
             final ViewParent oldParent = child.getParent();
@@ -1747,6 +1938,71 @@ public class RecyclerView extends ViewGroup {
             addView(child, -1);
         }
 
+        public void removeView(View child) {
+            // TODO
+        }
+
+        public void removeViewAt(int index) {
+            // TODO
+        }
+
+        public int getChildCount() {
+            return mRecyclerView != null ? mRecyclerView.getChildCount() : 0;
+        }
+
+        public View getChildAt(int index) {
+            return mRecyclerView != null ? mRecyclerView.getChildAt(index) : null;
+        }
+
+        public int getWidth() {
+            return mRecyclerView != null ? mRecyclerView.getWidth() : 0;
+        }
+
+        public int getHeight() {
+            return mRecyclerView != null ? mRecyclerView.getHeight() : 0;
+        }
+
+        public int getPaddingLeft() {
+            return mRecyclerView != null ? mRecyclerView.getPaddingLeft() : 0;
+        }
+
+        public int getPaddingTop() {
+            return mRecyclerView != null ? mRecyclerView.getPaddingTop() : 0;
+        }
+
+        public int getPaddingRight() {
+            return mRecyclerView != null ? mRecyclerView.getPaddingRight() : 0;
+        }
+
+        public int getPaddingBottom() {
+            return mRecyclerView != null ? mRecyclerView.getPaddingBottom() : 0;
+        }
+
+        public int getPaddingStart() {
+            return mRecyclerView != null ? ViewCompat.getPaddingStart(mRecyclerView) : 0;
+        }
+
+        public int getPaddingEnd() {
+            return mRecyclerView != null ? ViewCompat.getPaddingEnd(mRecyclerView) : 0;
+        }
+
+        public int getItemCount() {
+            final Adapter a = mRecyclerView != null ? mRecyclerView.getAdapter() : null;
+            return a != null ? a.getItemCount() : 0;
+        }
+
+        public void offsetChildrenHorizontal(int byPixels) {
+            if (mRecyclerView != null) {
+                mRecyclerView.offsetChildrenHorizontal(byPixels);
+            }
+        }
+
+        public void offsetChildrenVertical(int byPixels) {
+            if (mRecyclerView != null) {
+                mRecyclerView.offsetChildrenVertical(byPixels);
+            }
+        }
+
         /**
          * Called when searching for a focusable view in the given direction has failed
          * for the current content of the RecyclerView.
@@ -1762,6 +2018,17 @@ public class RecyclerView extends ViewGroup {
          *                  or 0 for not applicable
          * @param recycler The recycler to use for obtaining views for currently offscreen items
          * @return The chosen view to be focused
+         */
+        public View onFocusSearchFailed(View focused, int direction, Adapter adapter,
+                Recycler recycler) {
+            return onFocusSearchFailed(focused, direction, recycler);
+        }
+
+        /**
+         * @deprecated API changed to supply the Adapter. Override
+         * {@link #onFocusSearchFailed(android.view.View, int,
+         * android.support.v7.widget.RecyclerView.Adapter,
+         * android.support.v7.widget.RecyclerView.Recycler)} instead.
          */
         public View onFocusSearchFailed(View focused, int direction, Recycler recycler) {
             return null;

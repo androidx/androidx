@@ -229,6 +229,9 @@ public class ViewCompat {
         public int getMeasuredState(View view);
         public int getAccessibilityLiveRegion(View view);
         public void setAccessibilityLiveRegion(View view, int mode);
+        public int getPaddingStart(View view);
+        public int getPaddingEnd(View view);
+        public void setPaddingRelative(View view, int start, int top, int end, int bottom);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -360,6 +363,21 @@ public class ViewCompat {
         @Override
         public void setAccessibilityLiveRegion(View view, int mode) {
             // No-op
+        }
+
+        @Override
+        public int getPaddingStart(View view) {
+            return view.getPaddingLeft();
+        }
+
+        @Override
+        public int getPaddingEnd(View view) {
+            return view.getPaddingRight();
+        }
+
+        @Override
+        public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
+            view.setPadding(start, top, end, bottom);
         }
     }
 
@@ -528,6 +546,21 @@ public class ViewCompat {
         @Override
         public void setLayoutDirection(View view, int layoutDirection) {
             ViewCompatJellybeanMr1.setLayoutDirection(view, layoutDirection);
+        }
+
+        @Override
+        public int getPaddingStart(View view) {
+            return ViewCompatJellybeanMr1.getPaddingStart(view);
+        }
+
+        @Override
+        public int getPaddingEnd(View view) {
+            return ViewCompatJellybeanMr1.getPaddingEnd(view);
+        }
+
+        @Override
+        public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
+            ViewCompatJellybeanMr1.setPaddingRelative(view, start, top, end, bottom);
         }
     }
 
@@ -1152,7 +1185,7 @@ public class ViewCompat {
      *
      * @see ViewCompat#setAccessibilityLiveRegion(View, int)
      */
-    public int getAccessibilityLiveRegion(View view) {
+    public static int getAccessibilityLiveRegion(View view) {
         return IMPL.getAccessibilityLiveRegion(view);
     }
 
@@ -1184,7 +1217,48 @@ public class ViewCompat {
      *        <li>{@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}
      *        </ul>
      */
-    public void setAccessibilityLiveRegion(View view, int mode) {
+    public static void setAccessibilityLiveRegion(View view, int mode) {
         IMPL.setAccessibilityLiveRegion(view, mode);
+    }
+
+    /**
+     * Returns the start padding of the specified view depending on its resolved layout direction.
+     * If there are inset and enabled scrollbars, this value may include the space
+     * required to display the scrollbars as well.
+     *
+     * @param view The view to get padding for
+     * @return the start padding in pixels
+     */
+    public static int getPaddingStart(View view) {
+        return IMPL.getPaddingStart(view);
+    }
+
+    /**
+     * Returns the end padding of the specified view depending on its resolved layout direction.
+     * If there are inset and enabled scrollbars, this value may include the space
+     * required to display the scrollbars as well.
+     *
+     * @param view The view to get padding for
+     * @return the end padding in pixels
+     */
+    public static int getPaddingEnd(View view) {
+        return IMPL.getPaddingEnd(view);
+    }
+
+    /**
+     * Sets the relative padding. The view may add on the space required to display
+     * the scrollbars, depending on the style and visibility of the scrollbars.
+     * So the values returned from {@link #getPaddingStart}, {@link View#getPaddingTop},
+     * {@link #getPaddingEnd} and {@link View#getPaddingBottom} may be different
+     * from the values set in this call.
+     *
+     * @param view The view on which to set relative padding
+     * @param start the start padding in pixels
+     * @param top the top padding in pixels
+     * @param end the end padding in pixels
+     * @param bottom the bottom padding in pixels
+     */
+    public static void setPaddingRelative(View view, int start, int top, int end, int bottom) {
+        IMPL.setPaddingRelative(view, start, top, end, bottom);
     }
 }
