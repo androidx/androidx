@@ -8,7 +8,7 @@ dependencies {
 
 android {
     compileSdkVersion 7
-    buildToolsVersion "17"
+    buildToolsVersion "19.0.1"
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
