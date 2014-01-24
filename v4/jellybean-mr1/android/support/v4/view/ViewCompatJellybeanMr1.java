@@ -43,4 +43,16 @@ class ViewCompatJellybeanMr1 {
     public static void setLayoutDirection(View view, int layoutDirection) {
         view.setLayoutDirection(layoutDirection);
     }
+
+    public static int getPaddingStart(View view) {
+        return view.getPaddingStart();
+    }
+
+    public static int getPaddingEnd(View view) {
+        return view.getPaddingEnd();
+    }
+
+    public static void setPaddingRelative(View view, int start, int top, int end, int bottom) {
+        view.setPaddingRelative(start, top, end, bottom);
+    }
 }
