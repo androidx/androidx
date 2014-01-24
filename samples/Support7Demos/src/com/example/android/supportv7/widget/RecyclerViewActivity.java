@@ -85,11 +85,10 @@ public class RecyclerViewActivity extends Activity {
 
         @Override
         public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler) {
-            final RecyclerView parent = getRecyclerView();
-            final int parentBottom = parent.getHeight() - parent.getPaddingBottom();
+            final int parentBottom = getHeight() - getPaddingBottom();
 
-            final View oldTopView = parent.getChildCount() > 0 ? parent.getChildAt(0) : null;
-            int oldTop = parent.getPaddingTop();
+            final View oldTopView = getChildCount() > 0 ? getChildAt(0) : null;
+            int oldTop = getPaddingTop();
             if (oldTopView != null) {
                 oldTop = oldTopView.getTop();
             }
@@ -98,12 +97,12 @@ public class RecyclerViewActivity extends Activity {
 
             int top = oldTop;
             int bottom;
-            final int left = parent.getPaddingLeft();
-            final int right = parent.getWidth() - parent.getPaddingRight();
+            final int left = getPaddingLeft();
+            final int right = getWidth() - getPaddingRight();
 
             final int count = adapter.getItemCount();
             for (int i = 0; mFirstPosition + i < count && top < parentBottom; i++, top = bottom) {
-                View v = recycler.getViewForPosition(mFirstPosition + i);
+                View v = recycler.getViewForPosition(adapter, mFirstPosition + i);
                 addView(v, i);
                 v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
@@ -126,25 +125,25 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler) {
-            final RecyclerView parent = getRecyclerView();
-            if (parent.getChildCount() == 0) {
+        public int scrollVerticallyBy(int dy, RecyclerView.Adapter adapter,
+                RecyclerView.Recycler recycler) {
+            if (getChildCount() == 0) {
                 return 0;
             }
 
             int scrolled = 0;
-            final int left = parent.getPaddingLeft();
-            final int right = parent.getWidth() - parent.getPaddingRight();
+            final int left = getPaddingLeft();
+            final int right = getWidth() - getPaddingRight();
             if (dy < 0) {
                 while (scrolled > dy) {
-                    final View topView = parent.getChildAt(0);
+                    final View topView = getChildAt(0);
                     final int hangingTop = Math.max(-topView.getTop(), 0);
                     final int scrollBy = Math.min(scrolled - dy, hangingTop);
                     scrolled -= scrollBy;
-                    parent.offsetChildrenVertical(scrollBy);
+                    offsetChildrenVertical(scrollBy);
                     if (mFirstPosition > 0 && scrolled > dy) {
                         mFirstPosition--;
-                        View v = recycler.getViewForPosition(mFirstPosition);
+                        View v = recycler.getViewForPosition(adapter, mFirstPosition);
                         addView(v, 0);
                         v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
                                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
@@ -156,18 +155,17 @@ public class RecyclerViewActivity extends Activity {
                     }
                 }
             } else if (dy > 0) {
-                final int parentHeight = parent.getHeight();
+                final int parentHeight = getHeight();
                 while (scrolled < dy) {
-                    final View bottomView = parent.getChildAt(parent.getChildCount() - 1);
+                    final View bottomView = getChildAt(getChildCount() - 1);
                     final int hangingBottom = Math.max(bottomView.getBottom() - parentHeight, 0);
                     final int scrollBy = -Math.min(dy - scrolled, hangingBottom);
                     scrolled -= scrollBy;
-                    parent.offsetChildrenVertical(scrollBy);
-                    if (scrolled < dy &&
-                            parent.getAdapter().getItemCount() > mFirstPosition + parent.getChildCount()) {
-                        View v = recycler.getViewForPosition(
-                                mFirstPosition + parent.getChildCount());
-                        final int top = parent.getChildAt(parent.getChildCount() - 1).getBottom();
+                    offsetChildrenVertical(scrollBy);
+                    if (scrolled < dy && getItemCount() > mFirstPosition + getChildCount()) {
+                        View v = recycler.getViewForPosition(adapter,
+                                mFirstPosition + getChildCount());
+                        final int top = getChildAt(getChildCount() - 1).getBottom();
                         addView(v);
                         v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
                                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
@@ -184,25 +182,23 @@ public class RecyclerViewActivity extends Activity {
 
         @Override
         public View onFocusSearchFailed(View focused, int direction,
-                RecyclerView.Recycler recycler) {
-            final RecyclerView rv = getRecyclerView();
-            final int oldFirstPosition = mFirstPosition;
-            final int oldCount = rv.getChildCount();
+                RecyclerView.Adapter adapter, RecyclerView.Recycler recycler) {
+            final int oldCount = getChildCount();
 
             if (oldCount == 0) {
                 return null;
             }
 
-            final int left = rv.getPaddingLeft();
-            final int right = rv.getWidth() - rv.getPaddingRight();
+            final int left = getPaddingLeft();
+            final int right = getWidth() - getPaddingRight();
 
             View toFocus = null;
             int newViewsHeight = 0;
             if (direction == View.FOCUS_UP || direction == View.FOCUS_BACKWARD) {
                 while (mFirstPosition > 0 && newViewsHeight < mScrollDistance) {
                     mFirstPosition--;
-                    View v = recycler.getViewForPosition(mFirstPosition);
-                    final int bottom = rv.getChildAt(0).getTop(); // TODO decorated top?
+                    View v = recycler.getViewForPosition(adapter, mFirstPosition);
+                    final int bottom = getChildAt(0).getTop(); // TODO decorated top?
                     addView(v, 0);
                     v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
                             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
@@ -215,10 +211,10 @@ public class RecyclerViewActivity extends Activity {
                 }
             }
             if (direction == View.FOCUS_DOWN || direction == View.FOCUS_FORWARD) {
-                while (mFirstPosition + rv.getChildCount() < rv.getAdapter().getItemCount() &&
+                while (mFirstPosition + getChildCount() < getItemCount() &&
                         newViewsHeight < mScrollDistance) {
-                    View v = recycler.getViewForPosition(mFirstPosition + rv.getChildCount());
-                    final int top = rv.getChildAt(rv.getChildCount() - 1).getBottom();
+                    View v = recycler.getViewForPosition(adapter, mFirstPosition + getChildCount());
+                    final int top = getChildAt(getChildCount() - 1).getBottom();
                     addView(v);
                     v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
                             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
@@ -235,15 +231,14 @@ public class RecyclerViewActivity extends Activity {
         }
 
         public void detachAndScrapViewsOutOfBounds(RecyclerView.Recycler recycler) {
-            final RecyclerView parent = getRecyclerView();
-            final int childCount = parent.getChildCount();
-            final int parentWidth = parent.getWidth();
-            final int parentHeight = parent.getHeight();
+            final int childCount = getChildCount();
+            final int parentWidth = getWidth();
+            final int parentHeight = getHeight();
             boolean foundFirst = false;
             int first = 0;
             int last = 0;
             for (int i = 0; i < childCount; i++) {
-                final View v = parent.getChildAt(i);
+                final View v = getChildAt(i);
                 if (v.hasFocus() || (v.getRight() >= 0 && v.getLeft() <= parentWidth &&
                         v.getBottom() >= 0 && v.getTop() <= parentHeight)) {
                     if (!foundFirst) {
@@ -254,12 +249,12 @@ public class RecyclerViewActivity extends Activity {
                 }
             }
             for (int i = childCount - 1; i > last; i--) {
-                recycler.detachAndScrapView(parent.getChildAt(i));
+                recycler.detachAndScrapView(getChildAt(i));
             }
-            for (int i = 0; i < first; i++) {
-                recycler.detachAndScrapView(parent.getChildAt(i));
+            for (int i = first - 1; i >= 0; i--) {
+                recycler.detachAndScrapView(getChildAt(i));
             }
-            if (parent.getChildCount() == 0) {
+            if (getChildCount() == 0) {
                 mFirstPosition = 0;
             } else {
                 mFirstPosition += first;
@@ -276,7 +271,7 @@ public class RecyclerViewActivity extends Activity {
             RecyclerViewActivity.this.getTheme().resolveAttribute(
                     R.attr.selectableItemBackground, val, true);
             mBackground = val.resourceId;
-            mValues = new ArrayList();
+            mValues = new ArrayList<String>();
             Collections.addAll(mValues, strings);
         }
 
