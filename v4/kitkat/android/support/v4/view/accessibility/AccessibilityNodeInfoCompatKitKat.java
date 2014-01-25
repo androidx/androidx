@@ -22,11 +22,77 @@ import android.view.accessibility.AccessibilityNodeInfo;
  * KitKat-specific AccessibilityNodeInfo API implementation.
  */
 class AccessibilityNodeInfoCompatKitKat {
-    public static int getLiveRegion(Object info) {
+    static int getLiveRegion(Object info) {
         return ((AccessibilityNodeInfo) info).getLiveRegion();
     }
 
-    public static void setLiveRegion(Object info, int mode) {
+    static void setLiveRegion(Object info, int mode) {
         ((AccessibilityNodeInfo) info).setLiveRegion(mode);
+    }
+
+    static Object getCollectionInfo(Object info) {
+        return ((AccessibilityNodeInfo) info).getCollectionInfo();
+    }
+
+    static Object getCollectionItemInfo(Object info) {
+        return ((AccessibilityNodeInfo) info).getCollectionItemInfo();
+    }
+
+    static Object getRangeInfo(Object info) {
+        return ((AccessibilityNodeInfo) info).getRangeInfo();
+    }
+
+    static class CollectionInfo {
+        static int getColumnCount(Object info) {
+            return ((AccessibilityNodeInfo.CollectionInfo) info).getColumnCount();
+        }
+
+        static int getRowCount(Object info) {
+            return ((AccessibilityNodeInfo.CollectionInfo) info).getRowCount();
+        }
+
+        static boolean isHierarchical(Object info) {
+            return ((AccessibilityNodeInfo.CollectionInfo) info).isHierarchical();
+        }
+    }
+
+    static class CollectionItemInfo {
+        static int getColumnIndex(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getColumnIndex();
+        }
+
+        static int getColumnSpan(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getColumnSpan();
+        }
+
+        static int getRowIndex(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getRowIndex();
+        }
+
+        static int getRowSpan(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getRowSpan();
+        }
+
+        static boolean isHeading(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).isHeading();
+        }
+    }
+
+    static class RangeInfo {
+        static float getCurrent(Object info) {
+            return ((AccessibilityNodeInfo.RangeInfo) info).getCurrent();
+        }
+
+        static float getMax(Object info) {
+            return ((AccessibilityNodeInfo.RangeInfo) info).getMax();
+        }
+
+        static float getMin(Object info) {
+            return ((AccessibilityNodeInfo.RangeInfo) info).getMin();
+        }
+
+        static int getType(Object info) {
+            return ((AccessibilityNodeInfo.RangeInfo) info).getType();
+        }
     }
 }

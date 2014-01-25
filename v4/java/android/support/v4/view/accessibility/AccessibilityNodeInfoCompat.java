@@ -22,8 +22,6 @@ import android.os.Bundle;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
-import android.view.accessibility.AccessibilityEvent;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +31,85 @@ import java.util.List;
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public class AccessibilityNodeInfoCompat {
+
+    public static class CollectionInfoCompat {
+        private final Object mInfo;
+
+        private CollectionInfoCompat(Object info) {
+            mInfo = info;
+        }
+
+        public int getColumnCount() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.getColumnCount(mInfo);
+        }
+
+        public int getRowCount() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.getRowCount(mInfo);
+        }
+
+        public boolean isHierarchical() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.isHierarchical(mInfo);
+        }
+    }
+
+    public static class CollectionItemInfoCompat {
+        private final Object mInfo;
+
+        private CollectionItemInfoCompat(Object info) {
+            mInfo = info;
+        }
+
+        public int getColumnIndex() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getColumnIndex(mInfo);
+        }
+
+        public int getColumnSpan() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getColumnSpan(mInfo);
+        }
+
+        public int getRowIndex() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getRowIndex(mInfo);
+        }
+
+        public int getRowSpan() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getRowSpan(mInfo);
+        }
+
+        public boolean isHeading() {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.isHeading(mInfo);
+        }
+    }
+
+    public static class RangeInfoCompat {
+        /** Range type: integer. */
+        public static final int RANGE_TYPE_INT = 0;
+        /** Range type: float. */
+        public static final int RANGE_TYPE_FLOAT = 1;
+        /** Range type: percent with values from zero to one.*/
+        public static final int RANGE_TYPE_PERCENT = 2;
+
+        private final Object mInfo;
+
+        private RangeInfoCompat(Object info) {
+            mInfo = info;
+        }
+
+        public float getCurrent() {
+            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getCurrent(mInfo);
+        }
+
+        public float getMax() {
+            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getMax(mInfo);
+        }
+
+        public float getMin() {
+            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getMin(mInfo);
+        }
+
+        public int getType() {
+            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getType(mInfo);
+        }
+    }
 
     static interface AccessibilityNodeInfoImpl {
         public Object obtain();
@@ -99,6 +176,9 @@ public class AccessibilityNodeInfoCompat {
         public void setViewIdResourceName(Object info, String viewId);
         public int getLiveRegion(Object info);
         public void setLiveRegion(Object info, int mode);
+        public Object getCollectionInfo(Object info);
+        public Object getCollectionItemInfo(Object info);
+        public Object getRangeInfo(Object info);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -420,6 +500,21 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setLiveRegion(Object info, int mode) {
             // No-op
+        }
+
+        @Override
+        public Object getCollectionInfo(Object info) {
+            return null;
+        }
+
+        @Override
+        public Object getCollectionItemInfo(Object info) {
+            return null;
+        }
+
+        @Override
+        public Object getRangeInfo(Object info) {
+            return null;
         }
     }
 
@@ -749,6 +844,21 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setLiveRegion(Object info, int mode) {
             AccessibilityNodeInfoCompatKitKat.setLiveRegion(info, mode);
+        }
+
+        @Override
+        public Object getCollectionInfo(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.getCollectionInfo(info);
+        }
+
+        @Override
+        public Object getCollectionItemInfo(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.getCollectionItemInfo(info);
+        }
+
+        @Override
+        public Object getRangeInfo(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.getRangeInfo(info);
         }
     }
 
@@ -1941,6 +2051,41 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setLiveRegion(int mode) {
         IMPL.setLiveRegion(mInfo, mode);
+    }
+
+    /**
+     * Gets the collection info if the node is a collection. A collection
+     * child is always a collection item.
+     *
+     * @return The collection info.
+     */
+    public CollectionInfoCompat getCollectionInfo() {
+        Object info = IMPL.getCollectionInfo(mInfo);
+        if (info == null) return null;
+        return new CollectionInfoCompat(info);
+    }
+
+    /**
+     * Gets the collection item info if the node is a collection item. A collection
+     * item is always a child of a collection.
+     *
+     * @return The collection item info.
+     */
+    public CollectionItemInfoCompat getCollectionItemInfo() {
+        Object info = IMPL.getCollectionItemInfo(mInfo);
+        if (info == null) return null;
+        return new CollectionItemInfoCompat(info);
+    }
+
+    /**
+     * Gets the range info if this node is a range.
+     *
+     * @return The range.
+     */
+    public RangeInfoCompat getRangeInfo() {
+        Object info = IMPL.getRangeInfo(mInfo);
+        if (info == null) return null;
+        return new RangeInfoCompat(info);
     }
 
     @Override
