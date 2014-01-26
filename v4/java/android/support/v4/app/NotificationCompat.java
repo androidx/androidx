@@ -84,7 +84,7 @@ public class NotificationCompat {
 
     static class NotificationCompatImplBase implements NotificationCompatImpl {
         public Notification build(Builder b) {
-            Notification result = (Notification) b.mNotification;
+            Notification result = b.mNotification;
             result.setLatestEventInfo(b.mContext, b.mContentTitle,
                     b.mContentText, b.mContentIntent);
             // translate high priority requests into legacy flag
@@ -97,7 +97,7 @@ public class NotificationCompat {
 
     static class NotificationCompatImplGingerbread extends NotificationCompatImplBase {
         public Notification build(Builder b) {
-            Notification result = (Notification) b.mNotification;
+            Notification result = b.mNotification;
             result.setLatestEventInfo(b.mContext, b.mContentTitle,
                     b.mContentText, b.mContentIntent);
             result = NotificationCompatGingerbread.add(result, b.mContext,
@@ -160,7 +160,7 @@ public class NotificationCompat {
                             style.mBigLargeIconSet);
                 }
             }
-            return(jbBuilder.build());
+            return jbBuilder.build();
         }
     }
 
@@ -444,7 +444,7 @@ public class NotificationCompat {
         /**
          * Set the sound to play.  It will play on the stream you supply.
          *
-         * @see #STREAM_DEFAULT
+         * @see Notification#STREAM_DEFAULT
          * @see AudioManager for the <code>STREAM_</code> constants.
          */
         public Builder setSound(Uri sound, int streamType) {
@@ -601,7 +601,7 @@ public class NotificationCompat {
          */
         @Deprecated
         public Notification getNotification() {
-            return (Notification) IMPL.build(this);
+            return IMPL.build(this);
         }
 
         /**
@@ -609,7 +609,7 @@ public class NotificationCompat {
          * object.
          */
         public Notification build() {
-            return (Notification) IMPL.build(this);
+            return IMPL.build(this);
         }
     }
 
@@ -620,8 +620,7 @@ public class NotificationCompat {
      * If the platform does not provide rich notification styles, methods in this class have no
      * effect.
      */
-    public static abstract class Style
-    {
+    public static abstract class Style {
         Builder mBuilder;
         CharSequence mBigContentTitle;
         CharSequence mSummaryText;
