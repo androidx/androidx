@@ -69,21 +69,21 @@ class NotificationCompatJellybean {
             .bigText(bigText);
         if (useSummary) {
             style.setSummaryText(summaryText);
-         }
+        }
     }
 
     public void addBigPictureStyle(CharSequence bigContentTitle, boolean useSummary,
             CharSequence summaryText, Bitmap bigPicture, Bitmap bigLargeIcon,
             boolean bigLargeIconSet) {
-       Notification.BigPictureStyle style = new Notification.BigPictureStyle(b)
-           .setBigContentTitle(bigContentTitle)
-           .bigPicture(bigPicture);
-       if (bigLargeIconSet) {
-           style.bigLargeIcon(bigLargeIcon);
-       }
+        Notification.BigPictureStyle style = new Notification.BigPictureStyle(b)
+            .setBigContentTitle(bigContentTitle)
+            .bigPicture(bigPicture);
+        if (bigLargeIconSet) {
+            style.bigLargeIcon(bigLargeIcon);
+        }
         if (useSummary) {
             style.setSummaryText(summaryText);
-         }
+        }
     }
 
     public void addInboxStyle(CharSequence bigContentTitle, boolean useSummary,
