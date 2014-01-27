@@ -45,6 +45,28 @@ import java.util.ArrayList;
 
 /**
  * A flexible view for providing a limited window into a large data set.
+ *
+ * <h3>Glossary of terms:</h3>
+ *
+ * <ul>
+ *     <li><em>Adapter:</em> A subclass of {@link Adapter} responsible for providing views
+ *     that represent items in a data set.</li>
+ *     <li><em>Position:</em> The position of a data item within an <em>Adapter</em>.</li>
+ *     <li><em>Index:</em> The index of an attached child view as used in a call to
+ *     {@link ViewGroup#getChildAt}. Contrast with <em>Position.</em></li>
+ *     <li><em>Binding:</em> The process of preparing a child view to display data corresponding
+ *     to a <em>position</em> within the adapter.</li>
+ *     <li><em>Recycle (view):</em> A view previously used to display data for a specific adapter
+ *     position may be placed in a cache for later reuse to display the same type of data again
+ *     later. This can drastically improve performance by skipping initial layout inflation
+ *     or construction.</li>
+ *     <li><em>Scrap (view):</em> A child view that has entered into a temporarily detached
+ *     state during layout. Scrap views may be reused without becoming fully detached
+ *     from the parent RecyclerView, either unmodified if no rebinding is required or modified
+ *     by the adapter if the view was considered <em>dirty</em>.</li>
+ *     <li><em>Dirty (view):</em> A child view that must be rebound by the adapter before
+ *     being displayed.</li>
+ * </ul>
  */
 public class RecyclerView extends ViewGroup {
     private static final String TAG = "RecyclerView";
@@ -555,7 +577,7 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public void requestChildFocus(View child, View focused) {
-        if (!mLayout.onRequestChildFocus(child, focused)) {
+        if (!mLayout.onRequestChildFocus(this, child, focused)) {
             mTempRect.set(0, 0, focused.getWidth(), focused.getHeight());
             offsetDescendantRectToMyCoords(focused, mTempRect);
             offsetRectIntoDescendantCoords(child, mTempRect);
@@ -869,7 +891,7 @@ public class RecyclerView extends ViewGroup {
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
         if (mLayout == null) {
-            throw new IllegalStateException("RecyclerView has no layout strategy");
+            throw new IllegalStateException("RecyclerView has no LayoutManager");
         }
         return mLayout.generateDefaultLayoutParams();
     }
@@ -877,7 +899,7 @@ public class RecyclerView extends ViewGroup {
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
         if (mLayout == null) {
-            throw new IllegalStateException("RecyclerView has no layout strategy");
+            throw new IllegalStateException("RecyclerView has no layout LayoutManager");
         }
         return mLayout.generateLayoutParams(getContext(), attrs);
     }
@@ -885,7 +907,7 @@ public class RecyclerView extends ViewGroup {
     @Override
     protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         if (mLayout == null) {
-            throw new IllegalStateException("RecyclerView has no layout strategy");
+            throw new IllegalStateException("RecyclerView has no layout LayoutManager");
         }
         return mLayout.generateLayoutParams(p);
     }
@@ -1018,6 +1040,17 @@ public class RecyclerView extends ViewGroup {
     public void removeViewAt(int index) {
         final ViewHolder holder = getChildViewHolder(getChildAt(index));
         super.removeViewAt(index);
+
+        final int posIndex = mAttachedViewsByPosition.indexOfValue(holder);
+        if (posIndex >= 0) {
+            mAttachedViewsByPosition.removeAt(posIndex);
+        }
+    }
+
+    @Override
+    protected void removeDetachedView(View child, boolean animate) {
+        final ViewHolder holder = getChildViewHolder(child);
+        super.removeDetachedView(child, animate);
 
         final int posIndex = mAttachedViewsByPosition.indexOfValue(holder);
         if (posIndex >= 0) {
@@ -1243,14 +1276,14 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
-        public void setMaxScrap(int viewType, int max) {
+        public void setMaxRecycledViews(int viewType, int max) {
             mMaxScrap[viewType] = max;
             while (mScrap[viewType].size() > max) {
                 mScrap[viewType].remove(mScrap[viewType].size() - 1);
             }
         }
 
-        public ViewHolder getScrapView(int viewType) {
+        public ViewHolder getRecycledView(int viewType) {
             final ArrayList<ViewHolder> scrapHeap = mScrap[viewType];
             if (!scrapHeap.isEmpty()) {
                 final int index = scrapHeap.size() - 1;
@@ -1261,7 +1294,7 @@ public class RecyclerView extends ViewGroup {
             return null;
         }
 
-        public void putScrapView(ViewHolder scrap) {
+        public void putRecycledView(ViewHolder scrap) {
             final int type = scrap.getItemViewType();
             if (mMaxScrap[type] <= mScrap[type].size()) {
                 return;
@@ -1293,7 +1326,7 @@ public class RecyclerView extends ViewGroup {
         private RecycledViewPool mRecyclerPool;
 
         /**
-         * Clear scrap views out of this recycler. Scrap views contained within a
+         * Clear scrap views out of this recycler. Detached views contained within a
          * recycled view pool will remain.
          */
         public void clear() {
@@ -1309,10 +1342,25 @@ public class RecyclerView extends ViewGroup {
             return getViewForPosition(mAdapter, position);
         }
 
+        /**
+         * Obtain a view initialized for the given position.
+         *
+         * <p>This method should be used by {@link LayoutManager} implementations to obtain
+         * views to represent data from an {@link Adapter}.</p>
+         *
+         * <p>The Recycler may reuse a scrap or detached view from a shared pool if one is
+         * available for the correct view type. If the adapter has not indicated that the
+         * data at the given position has changed, the Recycler will attempt to hand back
+         * a scrap view that was previously initialized for that data without rebinding.</p>
+         *
+         * @param adapter Adapter to use for binding and creating views
+         * @param position Position to obtain a view for
+         * @return A view representing the data at <code>position</code> from <code>adapter</code>
+         */
         public View getViewForPosition(Adapter adapter, int position) {
             ViewHolder holder;
             final int type = adapter.getItemViewType(position);
-            if (mAdapter.hasStableIds()) {
+            if (adapter.hasStableIds()) {
                 final long id = adapter.getItemId(position);
                 holder = getScrapViewForId(id, type);
             } else {
@@ -1343,62 +1391,136 @@ public class RecyclerView extends ViewGroup {
             return holder.itemView;
         }
 
+        /**
+         * @deprecated Renamed to {@link #recycleView(android.view.View)} to cause
+         * less confusion between temporarily detached scrap views and fully detached
+         * recycled views. This method will be removed.
+         */
         public void addDetachedScrapView(View scrap) {
-            if (scrap.getParent() != null) {
-                throw new IllegalStateException("Cannot add a scrap view that is still attached");
+            recycleView(scrap);
+        }
+
+        /**
+         * Recycle a detached view. The specified view will be added to a pool of views
+         * for later rebinding and reuse.
+         *
+         * <p>A view must be fully detached before it may be recycled.</p>
+         * 
+         * @param view Removed view for recycling
+         */
+        public void recycleView(View view) {
+            final ViewHolder holder = getChildViewHolder(view);
+            if (holder.isScrap() || view.getParent() != null) {
+                throw new IllegalArgumentException(
+                        "Scrapped or attached views may not be recycled.");
             }
-            final ViewHolder holder = getChildViewHolder(scrap);
+            // TODO: Save a first-level cache of recently recycled views before dumping it
+            // in the pool.
             holder.mIsDirty = true;
-            getRecycledViewPool().putScrapView(holder);
+            getRecycledViewPool().putRecycledView(holder);
             dispatchViewRecycled(holder);
         }
 
+        /**
+         * @deprecated This method will be removed. Adding and removing views is the responsibility
+         * of the LayoutManager; the Recycler will only be responsible for marking and tracking
+         * views for reuse. This method no longer matches the definition of 'scrap'.
+         */
         public void detachAndScrapView(View scrap) {
             if (scrap.getParent() != RecyclerView.this) {
                 throw new IllegalArgumentException("View " + scrap + " is not attached to " +
                         RecyclerView.this);
             }
-            removeView(scrap);
-            addDetachedScrapView(scrap);
+            mLayout.removeView(scrap);
+            recycleView(scrap);
         }
 
+        /**
+         * @deprecated This method will be removed. Moved to
+         * {@link LayoutManager#detachAndScrapAttachedViews(android.support.v7.widget.RecyclerView.Recycler)}
+         * to keep LayoutManager as the owner of attach/detach operations.
+         */
         public void scrapAllViewsAttached() {
-            final int count = getChildCount();
-            for (int i = 0; i < count; i++) {
-                final View v = getChildAt(i);
-                final ViewHolder holder = getChildViewHolder(v);
-                holder.mIsDirty = true;
-                mAttachedScrap.add(holder);
-            }
+            mLayout.detachAndScrapAttachedViews(this);
         }
 
+        /**
+         * Mark an attached view as scrap.
+         *
+         * <p>"Scrap" views are still attached to their parent RecyclerView but are eligible
+         * for rebinding and reuse. Requests for a view for a given position may return a
+         * reused or rebound scrap view instance.</p>
+         *
+         * @param view View to scrap
+         */
+        void scrapView(View view) {
+            final ViewHolder holder = getChildViewHolder(view);
+            holder.setScrapContainer(this);
+            mAttachedScrap.add(holder);
+        }
+
+        /**
+         * Remove a previously scrapped view from the pool of eligible scrap.
+         *
+         * <p>This view will no longer be eligible for reuse until re-scrapped or
+         * until it is explicitly removed and recycled.</p>
+         */
+        void unscrapView(ViewHolder holder) {
+            mAttachedScrap.remove(holder);
+        }
+
+        /**
+         * @deprecated This method will be removed. Adding and removing views should be done
+         * through the LayoutManager. Use
+         * {@link LayoutManager#removeAndRecycleScrap(android.support.v7.widget.RecyclerView.Recycler)}
+         * instead.
+         */
         public void detachDirtyScrapViews() {
-            final RecycledViewPool pool = getRecycledViewPool();
-            final int count = mAttachedScrap.size();
-            for (int i = 0; i < count; i++) {
-                final ViewHolder holder = mAttachedScrap.get(i);
-                if (holder.itemView.getParent() == RecyclerView.this && holder.mIsDirty) {
-                    removeView(holder.itemView);
-                    pool.putScrapView(holder);
-                    dispatchViewRecycled(holder);
-                }
-            }
+            mLayout.removeAndRecycleScrap(this);
+        }
+
+        int getScrapCount() {
+            return mAttachedScrap.size();
+        }
+
+        View getScrapViewAt(int index) {
+            return mAttachedScrap.get(index).itemView;
+        }
+
+        void clearScrap() {
             mAttachedScrap.clear();
         }
 
         ViewHolder getScrapViewForPosition(int position, int type) {
-            // Look in our attached views first
-            final int count = mAttachedScrap.size();
-            for (int i = 0; i < count; i++) {
+            final int scrapCount = mAttachedScrap.size();
+
+            // Try first for an exact, non-dirty match from scrap. We won't even have to rebind it!
+            for (int i = 0; i < scrapCount; i++) {
                 final ViewHolder holder = mAttachedScrap.get(i);
-                if ((holder.getPosition() == position || holder.mIsDirty) &&
-                        holder.getItemViewType() == type) {
+                if (holder.getPosition() == position && !holder.mIsDirty) {
+                    if (holder.getItemViewType() != type) {
+                        Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
+                                " wrong view type! (found " + holder.getItemViewType() +
+                                " but expected " + type + ")");
+                        break;
+                    }
                     mAttachedScrap.remove(i);
+                    holder.setScrapContainer(null);
                     return holder;
                 }
             }
 
-            return getRecycledViewPool().getScrapView(type);
+            // Oh well. Get anything from scrap with a matching type instead.
+            for (int i = 0; i < scrapCount; i++) {
+                final ViewHolder holder = mAttachedScrap.get(i);
+                if (holder.getItemViewType() == type) {
+                    mAttachedScrap.remove(i);
+                    holder.setScrapContainer(null);
+                    return holder;
+                }
+            }
+
+            return getRecycledViewPool().getRecycledView(type);
         }
 
         ViewHolder getScrapViewForId(long id, int type) {
@@ -1409,6 +1531,7 @@ public class RecyclerView extends ViewGroup {
                 if (holder.getItemId() == id) {
                     if (type == holder.getItemViewType()) {
                         mAttachedScrap.remove(i);
+                        holder.setScrapContainer(null);
                         return holder;
                     } else {
                         break;
@@ -1419,7 +1542,7 @@ public class RecyclerView extends ViewGroup {
             // That didn't work, look for an unordered view of the right type instead.
             // The holder's position won't match so the calling code will need to have
             // the adapter rebind it.
-            return getRecycledViewPool().getScrapView(type);
+            return getRecycledViewPool().getRecycledView(type);
         }
 
         void dispatchViewRecycled(ViewHolder holder) {
@@ -1769,9 +1892,27 @@ public class RecyclerView extends ViewGroup {
             return mRecyclerView;
         }
 
+        /**
+         * Called when this LayoutManager is both attached to a RecyclerView and that RecyclerView
+         * is attached to a window.
+         *
+         * <p>Subclass implementations should always call through to the superclass implementation.
+         * </p>
+         *
+         * @param view The RecyclerView this LayoutManager is bound to
+         */
         public void onAttachedToWindow(RecyclerView view) {
         }
 
+        /**
+         * Called when this LayoutManager is detached from its parent RecyclerView or when
+         * its parent RecyclerView is detached from its window.
+         *
+         * <p>Subclass implementations should always call through to the superclass implementation.
+         * </p>
+         *
+         * @param view The RecyclerView this LayoutManager is bound to
+         */
         public void onDetachedFromWindow(RecyclerView view) {
         }
 
@@ -1780,7 +1921,7 @@ public class RecyclerView extends ViewGroup {
         /**
          * Create a default <code>LayoutParams</code> object for a child of the RecyclerView.
          *
-         * <p>LayoutStrategies will often want to use a custom <code>LayoutParams</code> type
+         * <p>LayoutManagers will often want to use a custom <code>LayoutParams</code> type
          * to store extra information specific to the layout. Client code should subclass
          * {@link RecyclerView.LayoutParams} for this purpose.</p>
          *
@@ -1808,7 +1949,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Create a LayoutParams object suitable for this layout strategy, copying relevant
+         * Create a LayoutParams object suitable for this LayoutManager, copying relevant
          * values from the supplied LayoutParams object if possible.
          *
          * <p><em>Important:</em> if you use your own custom <code>LayoutParams</code> type
@@ -1831,7 +1972,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Create a LayoutParams object suitable for this layout strategy from
+         * Create a LayoutParams object suitable for this LayoutManager from
          * an inflated layout resource.
          *
          * <p><em>Important:</em> if you use your own custom <code>LayoutParams</code> type
@@ -1915,92 +2056,419 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Add a view to the currently attached RecyclerView if needed. If the view has already
-         * been added this method does nothing. LayoutManagers should use this method to add
-         * views pulled from a {@link Recycler}, as recycled views may already be attached.
+         * Add a view to the currently attached RecyclerView if needed. LayoutManagers should
+         * use this method to add views obtained from a {@link Recycler} using
+         * {@link Recycler#getViewForPosition(android.support.v7.widget.RecyclerView.Adapter, int)}.
          *
          * @param child View to add
          * @param index Index to add child at
          */
         public void addView(View child, int index) {
-            final ViewParent oldParent = child.getParent();
-            if (oldParent == mRecyclerView) {
-                return;
+            final ViewHolder holder = mRecyclerView.getChildViewHolder(child);
+            if (holder.isScrap()) {
+                holder.unScrap();
+                mRecyclerView.attachViewToParent(child, index, child.getLayoutParams());
+                ViewCompat.dispatchFinishTemporaryDetach(child);
+            } else {
+                mRecyclerView.addView(child, index);
             }
-            if (oldParent != null) {
-                ((ViewGroup) oldParent).removeView(child);
-            }
-
-            mRecyclerView.addView(child, index);
         }
 
+        /**
+         * Add a view to the currently attached RecyclerView if needed. LayoutManagers should
+         * use this method to add views obtained from a {@link Recycler} using
+         * {@link Recycler#getViewForPosition(android.support.v7.widget.RecyclerView.Adapter, int)}.
+         *
+         * @param child View to add
+         */
         public void addView(View child) {
             addView(child, -1);
         }
 
+        /**
+         * Remove a view from the currently attached RecyclerView if needed. LayoutManagers should
+         * use this method to completely remove a child view that is no longer needed.
+         * LayoutManagers should strongly consider recycling removed views using
+         * {@link Recycler#recycleView(android.view.View)}.
+         *
+         * @param child View to remove
+         */
         public void removeView(View child) {
-            // TODO
+            mRecyclerView.removeView(child);
         }
 
+        /**
+         * Remove a view from the currently attached RecyclerView if needed. LayoutManagers should
+         * use this method to completely remove a child view that is no longer needed.
+         * LayoutManagers should strongly consider recycling removed views using
+         * {@link Recycler#recycleView(android.view.View)}.
+         *
+         * @param index Index of the child view to remove
+         */
         public void removeViewAt(int index) {
-            // TODO
+            mRecyclerView.removeViewAt(index);
         }
 
+        /**
+         * Temporarily detach a child view.
+         *
+         * <p>LayoutManagers may want to perform a lightweight detach operation to rearrange
+         * views currently attached to the RecyclerView. Generally LayoutManager implementations
+         * will want to use {@link #detachAndScrapView(android.view.View, RecyclerView.Recycler)}
+         * so that the detached view may be rebound and reused.</p>
+         *
+         * <p>If a LayoutManager uses this method to detach a view, it <em>must</em>
+         * {@link #attachView(android.view.View, int, RecyclerView.LayoutParams) reattach}
+         * or {@link #removeDetachedView(android.view.View) fully remove} the detached view
+         * before the LayoutManager entry point method called by RecyclerView returns.</p>
+         *
+         * @param child Child to detach
+         */
+        public void detachView(View child) {
+            ViewCompat.dispatchStartTemporaryDetach(child);
+            mRecyclerView.detachViewFromParent(child);
+        }
+
+        /**
+         * Temporarily detach a child view.
+         *
+         * <p>LayoutManagers may want to perform a lightweight detach operation to rearrange
+         * views currently attached to the RecyclerView. Generally LayoutManager implementations
+         * will want to use {@link #detachAndScrapView(android.view.View, RecyclerView.Recycler)}
+         * so that the detached view may be rebound and reused.</p>
+         *
+         * <p>If a LayoutManager uses this method to detach a view, it <em>must</em>
+         * {@link #attachView(android.view.View, int, RecyclerView.LayoutParams) reattach}
+         * or {@link #removeDetachedView(android.view.View) fully remove} the detached view
+         * before the LayoutManager entry point method called by RecyclerView returns.</p>
+         *
+         * @param index Index of the child to detach
+         */
+        public void detachViewAt(int index) {
+            ViewCompat.dispatchStartTemporaryDetach(mRecyclerView.getChildAt(index));
+            mRecyclerView.detachViewFromParent(index);
+        }
+
+        /**
+         * Reattach a previously {@link #detachView(android.view.View) detached} view.
+         * This method should not be used to reattach views that were previously
+         * {@link #detachAndScrapView(android.view.View, RecyclerView.Recycler)}  scrapped}.
+         *
+         * @param child Child to reattach
+         * @param index Intended child index for child
+         * @param lp LayoutParams for child
+         */
+        public void attachView(View child, int index, LayoutParams lp) {
+            mRecyclerView.attachViewToParent(child, index, lp);
+            ViewCompat.dispatchFinishTemporaryDetach(child);
+        }
+
+        /**
+         * Reattach a previously {@link #detachView(android.view.View) detached} view.
+         * This method should not be used to reattach views that were previously
+         * {@link #detachAndScrapView(android.view.View, RecyclerView.Recycler)}  scrapped}.
+         *
+         * @param child Child to reattach
+         * @param index Intended child index for child
+         */
+        public void attachView(View child, int index) {
+            attachView(child, index, (LayoutParams) child.getLayoutParams());
+        }
+
+        /**
+         * Reattach a previously {@link #detachView(android.view.View) detached} view.
+         * This method should not be used to reattach views that were previously
+         * {@link #detachAndScrapView(android.view.View, RecyclerView.Recycler)}  scrapped}.
+         *
+         * @param child Child to reattach
+         */
+        public void attachView(View child) {
+            attachView(child, -1);
+        }
+
+        /**
+         * Finish removing a view that was previously temporarily
+         * {@link #detachView(android.view.View) detached}.
+         *
+         * @param child Detached child to remove
+         */
+        public void removeDetachedView(View child) {
+            mRecyclerView.removeDetachedView(child, false);
+        }
+
+        /**
+         * Detach a child view and add it to a {@link Recycler Recycler's} scrap heap.
+         *
+         * <p>Scrapping a view allows it to be rebound and reused to show updated or
+         * different data.</p>
+         *
+         * @param child Child to detach and scrap
+         * @param recycler Recycler to deposit the new scrap view into
+         */
+        public void detachAndScrapView(View child, Recycler recycler) {
+            detachView(child);
+            recycler.scrapView(child);
+        }
+
+        /**
+         * Detach a child view and add it to a {@link Recycler Recycler's} scrap heap.
+         *
+         * <p>Scrapping a view allows it to be rebound and reused to show updated or
+         * different data.</p>
+         *
+         * @param index Index of child to detach and scrap
+         * @param recycler Recycler to deposit the new scrap view into
+         */
+        public void detachAndScrapViewAt(int index, Recycler recycler) {
+            final View child = getChildAt(index);
+            detachViewAt(index);
+            recycler.scrapView(child);
+        }
+
+        /**
+         * Remove a child view and recycle it using the given Recycler.
+         *
+         * @param child Child to remove and recycle
+         * @param recycler Recycler to use to recycle child
+         */
+        public void removeAndRecycleView(View child, Recycler recycler) {
+            removeView(child);
+            recycler.recycleView(child);
+        }
+
+        /**
+         * Remove a child view and recycle it using the given Recycler.
+         *
+         * @param index Index of child to remove and recycle
+         * @param recycler Recycler to use to recycle child
+         */
+        public void removeAndRecycleViewAt(int index, Recycler recycler) {
+            final View view = getChildAt(index);
+            removeViewAt(index);
+            recycler.recycleView(view);
+        }
+
+        /**
+         * Return the current number of child views attached to the parent RecyclerView.
+         * This does not include child views that were temporarily detached and/or scrapped.
+         *
+         * @return Number of attached children
+         */
         public int getChildCount() {
             return mRecyclerView != null ? mRecyclerView.getChildCount() : 0;
         }
 
+        /**
+         * Return the child view at the given index
+         * @param index Index of child to return
+         * @return Child view at index
+         */
         public View getChildAt(int index) {
             return mRecyclerView != null ? mRecyclerView.getChildAt(index) : null;
         }
 
+        /**
+         * Return the width of the parent RecyclerView
+         *
+         * @return Width in pixels
+         */
         public int getWidth() {
             return mRecyclerView != null ? mRecyclerView.getWidth() : 0;
         }
 
+        /**
+         * Return the height of the parent RecyclerView
+         *
+         * @return Height in pixels
+         */
         public int getHeight() {
             return mRecyclerView != null ? mRecyclerView.getHeight() : 0;
         }
 
+        /**
+         * Return the left padding of the parent RecyclerView
+         *
+         * @return Padding in pixels
+         */
         public int getPaddingLeft() {
             return mRecyclerView != null ? mRecyclerView.getPaddingLeft() : 0;
         }
 
+        /**
+         * Return the top padding of the parent RecyclerView
+         *
+         * @return Padding in pixels
+         */
         public int getPaddingTop() {
             return mRecyclerView != null ? mRecyclerView.getPaddingTop() : 0;
         }
 
+        /**
+         * Return the right padding of the parent RecyclerView
+         *
+         * @return Padding in pixels
+         */
         public int getPaddingRight() {
             return mRecyclerView != null ? mRecyclerView.getPaddingRight() : 0;
         }
 
+        /**
+         * Return the bottom padding of the parent RecyclerView
+         *
+         * @return Padding in pixels
+         */
         public int getPaddingBottom() {
             return mRecyclerView != null ? mRecyclerView.getPaddingBottom() : 0;
         }
 
+        /**
+         * Return the start padding of the parent RecyclerView
+         *
+         * @return Padding in pixels
+         */
         public int getPaddingStart() {
             return mRecyclerView != null ? ViewCompat.getPaddingStart(mRecyclerView) : 0;
         }
 
+        /**
+         * Return the end padding of the parent RecyclerView
+         *
+         * @return Padding in pixels
+         */
         public int getPaddingEnd() {
             return mRecyclerView != null ? ViewCompat.getPaddingEnd(mRecyclerView) : 0;
         }
 
+        /**
+         * Return the number of items in the adapter bound to the parent RecyclerView
+         *
+         * @return Items in the bound adapter
+         */
         public int getItemCount() {
             final Adapter a = mRecyclerView != null ? mRecyclerView.getAdapter() : null;
             return a != null ? a.getItemCount() : 0;
         }
 
-        public void offsetChildrenHorizontal(int byPixels) {
+        /**
+         * Offset all child views attached to the parent RecyclerView by dx pixels along
+         * the horizontal axis.
+         *
+         * @param dx Pixels to offset by
+         */
+        public void offsetChildrenHorizontal(int dx) {
             if (mRecyclerView != null) {
-                mRecyclerView.offsetChildrenHorizontal(byPixels);
+                mRecyclerView.offsetChildrenHorizontal(dx);
             }
         }
 
-        public void offsetChildrenVertical(int byPixels) {
+        /**
+         * Offset all child views attached to the parent RecyclerView by dy pixels along
+         * the vertical axis.
+         *
+         * @param dy Pixels to offset by
+         */
+        public void offsetChildrenVertical(int dy) {
             if (mRecyclerView != null) {
-                mRecyclerView.offsetChildrenVertical(byPixels);
+                mRecyclerView.offsetChildrenVertical(dy);
             }
+        }
+
+        /**
+         * Temporarily detach and scrap all currently attached child views. Views will be scrapped
+         * into the given Recycler. The Recycler may prefer to reuse scrap views before
+         * other views that were previously recycled.
+         *
+         * @param recycler Recycler to scrap views into
+         */
+        public void detachAndScrapAttachedViews(Recycler recycler) {
+            final int childCount = getChildCount();
+            for (int i = childCount - 1; i >= 0; i--) {
+                final View v = getChildAt(i);
+                detachViewAt(i);
+                recycler.scrapView(v);
+            }
+        }
+
+        /**
+         * Remove and recycle all scrap views currently tracked by Recycler. Recycled views
+         * will be made available for later reuse.
+         *
+         * @param recycler Recycler tracking scrap views to remove
+         */
+        public void removeAndRecycleScrap(Recycler recycler) {
+            final int scrapCount = recycler.getScrapCount();
+            for (int i = 0; i < scrapCount; i++) {
+                final View scrap = recycler.getScrapViewAt(i);
+                mRecyclerView.removeDetachedView(scrap, false);
+                recycler.recycleView(scrap);
+            }
+            recycler.clearScrap();
+        }
+
+        /**
+         * Measure a child view using standard measurement policy, taking the padding
+         * of the parent RecyclerView into account.
+         *
+         * <p>If the RecyclerView can be scrolled in either dimension the caller may
+         * pass 0 as the widthUsed or heightUsed parameters as they will be irrelevant.</p>
+         *
+         * @param child Child view to measure
+         * @param widthUsed Width in pixels currently consumed by other views, if relevant
+         * @param heightUsed Height in pixels currently consumed by other views, if relevant
+         */
+        public void measureChild(View child, int widthUsed, int heightUsed) {
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            final int widthSpec = getChildMeasureSpec(getWidth(),
+                    getPaddingLeft() + getPaddingRight() + widthUsed, lp.width,
+                    canScrollHorizontally());
+            final int heightSpec = getChildMeasureSpec(getHeight(),
+                    getPaddingTop() + getPaddingBottom() + heightUsed, lp.height,
+                    canScrollVertically());
+            child.measure(widthSpec, heightSpec);
+        }
+
+        /**
+         * Calculate a {@link android.view.ViewGroup.MeasureSpec MeasureSpec} value
+         * for measuring a child view in one dimension.
+         *
+         * @param parentSize Size of the parent view where the child will be placed
+         * @param padding Total space currently consumed by other elements of parent
+         * @param childDimension Desired size of the child view, or MATCH_PARENT/WRAP_CONTENT.
+         *                       Generally obtained from the child view's LayoutParams
+         * @param canScroll true if the parent RecyclerView can scroll in this dimension
+         *
+         * @return a MeasureSpec value for the child view
+         */
+        public static int getChildMeasureSpec(int parentSize, int padding, int childDimension,
+                boolean canScroll) {
+            int size = Math.max(0, parentSize - padding);
+            int resultSize = 0;
+            int resultMode = 0;
+
+            if (canScroll) {
+                if (childDimension >= 0) {
+                    resultSize = childDimension;
+                    resultMode = MeasureSpec.EXACTLY;
+                } else {
+                    // MATCH_PARENT can't be applied since we can scroll in this dimension, wrap
+                    // instead using UNSPECIFIED.
+                    resultSize = 0;
+                    resultMode = MeasureSpec.UNSPECIFIED;
+                }
+            } else {
+                if (childDimension >= 0) {
+                    resultSize = childDimension;
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension == LayoutParams.FILL_PARENT) {
+                    resultSize = size;
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    resultSize = size;
+                    resultMode = MeasureSpec.AT_MOST;
+                }
+            }
+            return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
         }
 
         /**
@@ -2035,6 +2503,14 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * @deprecated This method will be removed. Override {@link #requestChildRectangleOnScreen(
+         * RecyclerView, android.view.View, android.graphics.Rect, boolean)} instead.
+         */
+        public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
+            return requestChildRectangleOnScreen(mRecyclerView, child, rect, immediate);
+        }
+
+        /**
          * Called when a child of the RecyclerView wants a particular rectangle to be positioned
          * onto the screen. See {@link ViewParent#requestChildRectangleOnScreen(android.view.View,
          * android.graphics.Rect, boolean)} for more details.
@@ -2049,11 +2525,12 @@ public class RecyclerView extends ViewGroup {
          *                  false otherwise
          * @return Whether the group scrolled to handle the operation
          */
-        public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
-            final int parentLeft = mRecyclerView.getPaddingLeft();
-            final int parentTop = mRecyclerView.getPaddingTop();
-            final int parentRight = mRecyclerView.getWidth() - mRecyclerView.getPaddingRight();
-            final int parentBottom = mRecyclerView.getHeight() - mRecyclerView.getPaddingBottom();
+        public boolean requestChildRectangleOnScreen(RecyclerView parent, View child, Rect rect,
+                boolean immediate) {
+            final int parentLeft = getPaddingLeft();
+            final int parentTop = getPaddingTop();
+            final int parentRight = getWidth() - getPaddingRight();
+            final int parentBottom = getHeight() - getPaddingBottom();
             final int childLeft = child.getLeft() + rect.left;
             final int childTop = child.getTop() + rect.top;
             final int childRight = childLeft + rect.right;
@@ -2067,7 +2544,7 @@ public class RecyclerView extends ViewGroup {
             // Favor the "start" layout direction over the end when bringing one side or the other
             // of a large rect into view.
             final int dx;
-            if (ViewCompat.getLayoutDirection(mRecyclerView) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+            if (ViewCompat.getLayoutDirection(parent) == ViewCompat.LAYOUT_DIRECTION_RTL) {
                 dx = offScreenRight != 0 ? offScreenRight : offScreenLeft;
             } else {
                 dx = offScreenLeft != 0 ? offScreenLeft : offScreenRight;
@@ -2078,9 +2555,9 @@ public class RecyclerView extends ViewGroup {
 
             if (dx != 0 || dy != 0) {
                 if (immediate) {
-                    mRecyclerView.scrollBy(dx, dy);
+                    parent.scrollBy(dx, dy);
                 } else {
-                    mRecyclerView.smoothScrollBy(dx, dy);
+                    parent.smoothScrollBy(dx, dy);
                 }
                 return true;
             }
@@ -2102,6 +2579,15 @@ public class RecyclerView extends ViewGroup {
          * @param child Direct child of the RecyclerView containing the newly focused view
          * @param focused The newly focused view. This may be the same view as child
          * @return true if the default scroll behavior should be suppressed
+         */
+        public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
+            return onRequestChildFocus(child, focused);
+        }
+
+        /**
+         * @deprecated This method will be removed. Override
+         * {@link #onRequestChildFocus(RecyclerView, android.view.View, android.view.View)}
+         * instead.
          */
         public boolean onRequestChildFocus(View child, View focused) {
             return false;
@@ -2213,7 +2699,13 @@ public class RecyclerView extends ViewGroup {
         int mPosition = NO_POSITION;
         long mItemId = NO_ID;
         int mItemViewType = INVALID_TYPE;
+
+        // View needs to be rebound as its data is stale.
         boolean mIsDirty = true;
+
+        // If non-null, view is currently considered scrap and may be reused for other data by the
+        // scrap container.
+        private Recycler mScrapContainer = null;
 
         public ViewHolder(View itemView) {
             if (itemView == null) {
@@ -2232,6 +2724,19 @@ public class RecyclerView extends ViewGroup {
 
         public final int getItemViewType() {
             return mItemViewType;
+        }
+
+        boolean isScrap() {
+            return mScrapContainer != null;
+        }
+
+        void unScrap() {
+            mScrapContainer.unscrapView(this);
+            mScrapContainer = null;
+        }
+
+        void setScrapContainer(Recycler recycler) {
+            mScrapContainer = recycler;
         }
     }
 
