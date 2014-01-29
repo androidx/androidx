@@ -209,7 +209,7 @@ public class RecyclerView extends ViewGroup {
      */
     public void setAdapter(Adapter adapter) {
         if (mAdapter != null) {
-            adapter.unregisterAdapterDataObserver(mObserver);
+            mAdapter.unregisterAdapterDataObserver(mObserver);
         }
         mAdapter = adapter;
         if (adapter != null) {
