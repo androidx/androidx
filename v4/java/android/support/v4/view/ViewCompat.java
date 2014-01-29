@@ -23,15 +23,21 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Helper for accessing features in {@link View} introduced after API
  * level 4 in a backwards compatible fashion.
  */
 public class ViewCompat {
+    private static final String TAG = "ViewCompat";
+
     /**
      * Always allow a user to over-scroll this view, provided it is a
      * view that can scroll.
@@ -232,9 +238,15 @@ public class ViewCompat {
         public int getPaddingStart(View view);
         public int getPaddingEnd(View view);
         public void setPaddingRelative(View view, int start, int top, int end, int bottom);
+        public void dispatchStartTemporaryDetach(View view);
+        public void dispatchFinishTemporaryDetach(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
+        private Method mDispatchStartTemporaryDetach;
+        private Method mDispatchFinishTemporaryDetach;
+        private boolean mTempDetachBound;
+
         public boolean canScrollHorizontally(View v, int direction) {
             return false;
         }
@@ -378,6 +390,52 @@ public class ViewCompat {
         @Override
         public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
             view.setPadding(start, top, end, bottom);
+        }
+
+        @Override
+        public void dispatchStartTemporaryDetach(View view) {
+            if (!mTempDetachBound) {
+                bindTempDetach();
+            }
+            if (mDispatchStartTemporaryDetach != null) {
+                try {
+                    mDispatchStartTemporaryDetach.invoke(view);
+                } catch (Exception e) {
+                    Log.d(TAG, "Error calling dispatchStartTemporaryDetach", e);
+                }
+            } else {
+                // Try this instead
+                view.onStartTemporaryDetach();
+            }
+        }
+
+        @Override
+        public void dispatchFinishTemporaryDetach(View view) {
+            if (!mTempDetachBound) {
+                bindTempDetach();
+            }
+            if (mDispatchFinishTemporaryDetach != null) {
+                try {
+                    mDispatchFinishTemporaryDetach.invoke(view);
+                } catch (Exception e) {
+                    Log.d(TAG, "Error calling dispatchFinishTemporaryDetach", e);
+                }
+            } else {
+                // Try this instead
+                view.onFinishTemporaryDetach();
+            }
+        }
+
+        private void bindTempDetach() {
+            try {
+                mDispatchStartTemporaryDetach = View.class.getDeclaredMethod(
+                        "dispatchStartTemporaryDetach");
+                mDispatchFinishTemporaryDetach = View.class.getDeclaredMethod(
+                        "dispatchFinishTemporaryDetach");
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Couldn't find method", e);
+            }
+            mTempDetachBound = true;
         }
     }
 
@@ -1260,5 +1318,19 @@ public class ViewCompat {
      */
     public static void setPaddingRelative(View view, int start, int top, int end, int bottom) {
         IMPL.setPaddingRelative(view, start, top, end, bottom);
+    }
+
+    /**
+     * Notify a view that it is being temporarily detached.
+     */
+    public static void dispatchStartTemporaryDetach(View view) {
+        IMPL.dispatchStartTemporaryDetach(view);
+    }
+
+    /**
+     * Notify a view that its temporary detach has ended; the view is now reattached.
+     */
+    public static void dispatchFinishTemporaryDetach(View view) {
+        IMPL.dispatchFinishTemporaryDetach(view);
     }
 }
