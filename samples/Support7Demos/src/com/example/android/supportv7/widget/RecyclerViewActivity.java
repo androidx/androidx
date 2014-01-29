@@ -20,7 +20,6 @@ package com.example.android.supportv7.widget;
 import android.R;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
@@ -93,7 +92,7 @@ public class RecyclerViewActivity extends Activity {
                 oldTop = oldTopView.getTop();
             }
 
-            recycler.scrapAllViewsAttached();
+            detachAndScrapAttachedViews(recycler);
 
             int top = oldTop;
             int bottom;
@@ -104,13 +103,12 @@ public class RecyclerViewActivity extends Activity {
             for (int i = 0; mFirstPosition + i < count && top < parentBottom; i++, top = bottom) {
                 View v = recycler.getViewForPosition(adapter, mFirstPosition + i);
                 addView(v, i);
-                v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                measureChild(v, 0, 0);
                 bottom = top + v.getMeasuredHeight();
                 v.layout(left, top, right, bottom);
             }
 
-            recycler.detachDirtyScrapViews();
+            removeAndRecycleScrap(recycler);
         }
 
         @Override
@@ -145,8 +143,7 @@ public class RecyclerViewActivity extends Activity {
                         mFirstPosition--;
                         View v = recycler.getViewForPosition(adapter, mFirstPosition);
                         addView(v, 0);
-                        v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
-                                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                        measureChild(v, 0, 0);
                         final int bottom = topView.getTop(); // TODO decorated top?
                         final int top = bottom - v.getMeasuredHeight();
                         v.layout(left, top, right, bottom);
@@ -167,8 +164,7 @@ public class RecyclerViewActivity extends Activity {
                                 mFirstPosition + getChildCount());
                         final int top = getChildAt(getChildCount() - 1).getBottom();
                         addView(v);
-                        v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
-                                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                        measureChild(v, 0, 0);
                         final int bottom = top + v.getMeasuredHeight();
                         v.layout(left, top, right, bottom);
                     } else {
@@ -176,7 +172,7 @@ public class RecyclerViewActivity extends Activity {
                     }
                 }
             }
-            detachAndScrapViewsOutOfBounds(recycler);
+            recycleViewsOutOfBounds(recycler);
             return scrolled;
         }
 
@@ -200,8 +196,7 @@ public class RecyclerViewActivity extends Activity {
                     View v = recycler.getViewForPosition(adapter, mFirstPosition);
                     final int bottom = getChildAt(0).getTop(); // TODO decorated top?
                     addView(v, 0);
-                    v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
-                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                    measureChild(v, 0, 0);
                     final int top = bottom - v.getMeasuredHeight();
                     v.layout(left, top, right, bottom);
                     if (v.isFocusable()) {
@@ -216,8 +211,7 @@ public class RecyclerViewActivity extends Activity {
                     View v = recycler.getViewForPosition(adapter, mFirstPosition + getChildCount());
                     final int top = getChildAt(getChildCount() - 1).getBottom();
                     addView(v);
-                    v.measure(MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY),
-                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                    measureChild(v, 0, 0);
                     final int bottom = top + v.getMeasuredHeight();
                     v.layout(left, top, right, bottom);
                     if (v.isFocusable()) {
@@ -230,7 +224,7 @@ public class RecyclerViewActivity extends Activity {
             return toFocus;
         }
 
-        public void detachAndScrapViewsOutOfBounds(RecyclerView.Recycler recycler) {
+        public void recycleViewsOutOfBounds(RecyclerView.Recycler recycler) {
             final int childCount = getChildCount();
             final int parentWidth = getWidth();
             final int parentHeight = getHeight();
@@ -249,10 +243,10 @@ public class RecyclerViewActivity extends Activity {
                 }
             }
             for (int i = childCount - 1; i > last; i--) {
-                recycler.detachAndScrapView(getChildAt(i));
+                removeAndRecycleViewAt(i, recycler);
             }
             for (int i = first - 1; i >= 0; i--) {
-                recycler.detachAndScrapView(getChildAt(i));
+                removeAndRecycleViewAt(i, recycler);
             }
             if (getChildCount() == 0) {
                 mFirstPosition = 0;
