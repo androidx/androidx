@@ -1277,11 +1277,13 @@ public class RecyclerView extends ViewGroup {
     }
 
     static void bindViewHolder(ViewHolder holder, int position, Adapter adapter) {
+        holder.mPosition = position;
+        if (adapter.hasStableIds()) {
+            holder.mItemId = adapter.getItemId(position);
+        }
         adapter.bindViewHolder(holder, position);
         holder.setFlags(ViewHolder.FLAG_BOUND,
                 ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
-        holder.mPosition = position;
-        // TODO update stable ID once supported
     }
 
     private class ViewFlinger implements Runnable {
@@ -1434,6 +1436,9 @@ public class RecyclerView extends ViewGroup {
         public void onChanged() {
             if (mAdapter.hasStableIds()) {
                 // TODO Determine what actually changed
+                mRecycler.onGenericDataChanged();
+                markKnownViewsInvalid();
+                requestLayout();
             } else {
                 mRecycler.onGenericDataChanged();
                 markKnownViewsInvalid();
@@ -1649,14 +1654,14 @@ public class RecyclerView extends ViewGroup {
          * for later rebinding and reuse.
          *
          * <p>A view must be fully detached before it may be recycled.</p>
-         * 
+         *
          * @param view Removed view for recycling
          */
         public void recycleView(View view) {
-            recycleViewInt(getChildViewHolder(view));
+            recycleViewHolder(getChildViewHolder(view));
         }
 
-        void recycleViewInt(ViewHolder holder) {
+        void recycleViewHolder(ViewHolder holder) {
             if (holder.isScrap() || holder.itemView.getParent() != null) {
                 throw new IllegalArgumentException(
                         "Scrapped or attached views may not be recycled.");
@@ -1664,12 +1669,17 @@ public class RecyclerView extends ViewGroup {
 
             // Retire oldest cached views first
             if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
-                final ViewHolder recycledView = mCachedViews.get(0);
-                getRecycledViewPool().putRecycledView(recycledView);
-                mCachedViews.remove(0);
-                dispatchViewRecycled(recycledView);
+                for (int i = 0; i < mCachedViews.size(); i++) {
+                    final ViewHolder cachedView = mCachedViews.get(i);
+                    if (cachedView.isRecyclable()) {
+                        mCachedViews.remove(i);
+                        getRecycledViewPool().putRecycledView(cachedView);
+                        dispatchViewRecycled(cachedView);
+                        break;
+                    }
+                }
             }
-            if (mCachedViews.size() < mViewCacheMax) {
+            if (mCachedViews.size() < mViewCacheMax || holder.isRecyclable()) {
                 mCachedViews.add(holder);
             } else {
                 getRecycledViewPool().putRecycledView(holder);
@@ -1685,7 +1695,7 @@ public class RecyclerView extends ViewGroup {
         void quickRecycleScrapView(View view) {
             final ViewHolder holder = getChildViewHolder(view);
             holder.mScrapContainer = null;
-            recycleViewInt(holder);
+            recycleViewHolder(holder);
         }
 
         /**
@@ -3191,6 +3201,12 @@ public class RecyclerView extends ViewGroup {
          */
         static final int FLAG_REMOVED = 1 << 3;
 
+        /**
+         * This ViewHolder should not be recycled. This flag is set via setIsRecyclable()
+         * and is intended to keep views around during animations.
+         */
+        static final int FLAG_NOT_RECYCLABLE = 1 << 4;
+
         private int mFlags;
 
         // If non-null, view is currently considered scrap and may be reused for other data by the
@@ -3268,6 +3284,20 @@ public class RecyclerView extends ViewGroup {
             if (isRemoved()) sb.append(" removed");
             sb.append("}");
             return sb.toString();
+        }
+
+        public final void setIsRecyclable(boolean recyclable) {
+            // TODO: might want this to be a refcount instead
+            if (recyclable) {
+                mFlags &= ~FLAG_NOT_RECYCLABLE;
+            } else {
+                mFlags |= FLAG_NOT_RECYCLABLE;
+            }
+        }
+
+        public final boolean isRecyclable() {
+            return (mFlags & FLAG_NOT_RECYCLABLE) == 0 ||
+                    !ViewCompat.hasTransientState(itemView);
         }
     }
 
