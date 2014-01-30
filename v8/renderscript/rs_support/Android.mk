@@ -145,4 +145,7 @@ LOCAL_LDLIBS := -lpthread -ldl -lm
 LOCAL_MODULE:= libRSSupport
 LOCAL_MODULE_TAGS := optional
 
+# TODO: why isn't this picked up from the host GLOBAL_CFLAGS?
+LOCAL_CFLAGS += -D__STDC_FORMAT_MACROS
+
 include $(BUILD_SHARED_LIBRARY)
