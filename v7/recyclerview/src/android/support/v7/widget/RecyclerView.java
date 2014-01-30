@@ -2429,8 +2429,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Calculate a {@link android.view.ViewGroup.MeasureSpec MeasureSpec} value
-         * for measuring a child view in one dimension.
+         * Calculate a MeasureSpec value for measuring a child view in one dimension.
          *
          * @param parentSize Size of the parent view where the child will be placed
          * @param padding Total space currently consumed by other elements of parent
