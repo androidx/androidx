@@ -520,7 +520,16 @@ public class DrawerLayout extends ViewGroup {
             if (mListener != null) {
                 mListener.onDrawerClosed(drawerView);
             }
-            getRootView().sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+
+            // Only send WINDOW_STATE_CHANGE if the host has window focus. This
+            // may change if support for multiple foreground windows (e.g. IME)
+            // improves.
+            if (hasWindowFocus()) {
+                final View rootView = getRootView();
+                if (rootView != null) {
+                    rootView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+                }
+            }
         }
     }
 
@@ -1594,15 +1603,17 @@ public class DrawerLayout extends ViewGroup {
             super.onInitializeAccessibilityEvent(host, event);
 
             event.setClassName(DrawerLayout.class.getName());
+        }
 
+        @Override
+        public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
             // Special case to handle window state change events. As far as
-            // accessibility services are concerned, state changes from DrawerLayout
-            // invalidate the entire contents of the screen (like an Activity or
-            // Dialog) and they should announce the title of the new content.
+            // accessibility services are concerned, state changes from
+            // DrawerLayout invalidate the entire contents of the screen (like
+            // an Activity or Dialog) and they should announce the title of the
+            // new content.
             if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
                 final List<CharSequence> eventText = event.getText();
-                eventText.clear();
-
                 final View visibleDrawer = findVisibleDrawer();
                 if (visibleDrawer != null) {
                     final int edgeGravity = getDrawerViewAbsoluteGravity(visibleDrawer);
@@ -1611,7 +1622,11 @@ public class DrawerLayout extends ViewGroup {
                         eventText.add(title);
                     }
                 }
+
+                return true;
             }
+
+            return super.dispatchPopulateAccessibilityEvent(host, event);
         }
 
         private void addChildrenForAccessibility(AccessibilityNodeInfoCompat info, ViewGroup v) {
