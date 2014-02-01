@@ -1409,8 +1409,11 @@ public class RecyclerView extends ViewGroup {
          * @param view Removed view for recycling
          */
         public void recycleView(View view) {
-            final ViewHolder holder = getChildViewHolder(view);
-            if (holder.isScrap() || view.getParent() != null) {
+            recycleViewInt(getChildViewHolder(view));
+        }
+
+        void recycleViewInt(ViewHolder holder) {
+            if (holder.isScrap() || holder.itemView.getParent() != null) {
                 throw new IllegalArgumentException(
                         "Scrapped or attached views may not be recycled.");
             }
@@ -1419,6 +1422,17 @@ public class RecyclerView extends ViewGroup {
             holder.mIsDirty = true;
             getRecycledViewPool().putRecycledView(holder);
             dispatchViewRecycled(holder);
+        }
+
+        /**
+         * Used as a fast path for unscrapping and recycling a view during a bulk operation.
+         * The caller must call {@link #clearScrap()} when it's done to update the recycler's
+         * internal bookkeeping.
+         */
+        void quickRecycleScrapView(View view) {
+            final ViewHolder holder = getChildViewHolder(view);
+            holder.mScrapContainer = null;
+            recycleViewInt(holder);
         }
 
         /**
@@ -2400,7 +2414,7 @@ public class RecyclerView extends ViewGroup {
             for (int i = 0; i < scrapCount; i++) {
                 final View scrap = recycler.getScrapViewAt(i);
                 mRecyclerView.removeDetachedView(scrap, false);
-                recycler.recycleView(scrap);
+                recycler.quickRecycleScrapView(scrap);
             }
             recycler.clearScrap();
         }
