@@ -226,7 +226,7 @@ public class RecyclerView extends ViewGroup {
      * Retrieves the previously set adapter or null if no adapter is set.
      *
      * @return The previously set adapter
-     * @see #setAdapter(android.support.v7.widget.RecyclerView.Adapter)
+     * @see #setAdapter(Adapter)
      */
     public Adapter getAdapter() {
         return mAdapter;
@@ -247,14 +247,12 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * Set the {@link android.support.v7.widget.RecyclerView.LayoutManager}
-     * that this RecyclerView will use.
+     * Set the {@link LayoutManager} that this RecyclerView will use.
      *
      * <p>In contrast to other adapter-backed views such as {@link android.widget.ListView}
      * or {@link android.widget.GridView}, RecyclerView allows client code to provide custom
      * layout arrangements for child views. These arrangements are controlled by the
-     * {@link android.support.v7.widget.RecyclerView.LayoutManager}.
-     * A LayoutManager must be provided for RecyclerView to function.</p>
+     * {@link LayoutManager}. A LayoutManager must be provided for RecyclerView to function.</p>
      *
      * <p>Several default strategies are provided for common uses such as lists and grids.</p>
      *
@@ -290,11 +288,10 @@ public class RecyclerView extends ViewGroup {
     /**
      * Retrieve this RecyclerView's {@link RecycledViewPool}. This method will never return null;
      * if no pool is set for this view a new one will be created. See
-     * {@link #setRecycledViewPool(android.support.v7.widget.RecyclerView.RecycledViewPool)
-     * setRecycledViewPool} for more information.
+     * {@link #setRecycledViewPool(RecycledViewPool) setRecycledViewPool} for more information.
      *
      * @return The pool used to store recycled item views for reuse.
-     * @see #setRecycledViewPool(android.support.v7.widget.RecyclerView.RecycledViewPool)
+     * @see #setRecycledViewPool(RecycledViewPool)
      */
     public RecycledViewPool getRecycledViewPool() {
         return mRecycler.getRecycledViewPool();
@@ -381,9 +378,11 @@ public class RecyclerView extends ViewGroup {
     /**
      * Remove an {@link ItemDecoration} from this RecyclerView.
      *
-     * <p>The given decoration will no longer impact </p>
+     * <p>The given decoration will no longer impact the measurement and drawing of
+     * item views.</p>
      *
      * @param decor Decoration to remove
+     * @see #addItemDecoration(ItemDecoration)
      */
     public void removeItemDecoration(ItemDecoration decor) {
         mItemDecorations.remove(decor);
@@ -902,7 +901,7 @@ public class RecyclerView extends ViewGroup {
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
         if (mLayout == null) {
-            throw new IllegalStateException("RecyclerView has no layout LayoutManager");
+            throw new IllegalStateException("RecyclerView has no LayoutManager");
         }
         return mLayout.generateLayoutParams(getContext(), attrs);
     }
@@ -910,7 +909,7 @@ public class RecyclerView extends ViewGroup {
     @Override
     protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         if (mLayout == null) {
-            throw new IllegalStateException("RecyclerView has no layout LayoutManager");
+            throw new IllegalStateException("RecyclerView has no LayoutManager");
         }
         return mLayout.generateLayoutParams(p);
     }
@@ -997,18 +996,45 @@ public class RecyclerView extends ViewGroup {
         return ((LayoutParams) child.getLayoutParams()).mViewHolder;
     }
 
+    /**
+     * Return the ViewHolder for the item in the given position of the data set.
+     *
+     * @param position The position of the item in the data set of the adapter
+     * @return The ViewHolder at <code>position</code>
+     */
     public ViewHolder findViewHolderForPosition(int position) {
         return mAttachedViewsByPosition.get(position);
     }
 
+    /**
+     * Return the ViewHolder for the item with the given id. The RecyclerView must
+     * use an Adapter with {@link Adapter#setHasStableIds(boolean) stableIds} to
+     * return a non-null value.
+     *
+     * @param id The id for the requested item
+     * @return The ViewHolder with the given <code>id</code>, of null if there
+     * is no such item.
+     */
     public ViewHolder findViewHolderForId(long id) {
         return mAttachedViewsById.get(id);
     }
 
+    /**
+     * Return the ViewHolder for the child view of the RecyclerView that is at the
+     * given index.
+     *
+     * @param childIndex The index of the child in the RecyclerView's child list.
+     * @return The ViewHolder for the given <code>childIndex</code>
+     */
     public ViewHolder getViewHolderForChildAt(int childIndex) {
         return getChildViewHolder(getChildAt(childIndex));
     }
 
+    /**
+     * Returns the number of ViewHolders currently in the RecyclerView.
+     *
+     * @return The number of ViewHolder items
+     */
     public int getViewHolderCount() {
         return mAttachedViewsByPosition.size();
     }
@@ -1083,7 +1109,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * Offset the bounds of all child views by <code>dy</code> pixels.
+     * Offset the bounds of all child views by <code>dx</code> pixels.
      * Useful for implementing simple scrolling in {@link LayoutManager LayoutManagers}.
      *
      * @param dx Horizontal pixel offset to apply to the bounds of all child views
@@ -1955,7 +1981,7 @@ public class RecyclerView extends ViewGroup {
          *
          * <p><em>Important:</em> if you use your own custom <code>LayoutParams</code> type
          * you must also override
-         * {@link #checkLayoutParams(android.support.v7.widget.RecyclerView.LayoutParams)},
+         * {@link #checkLayoutParams(LayoutParams)},
          * {@link #generateLayoutParams(android.view.ViewGroup.LayoutParams)} and
          * {@link #generateLayoutParams(android.content.Context, android.util.AttributeSet)}.</p>
          *
@@ -1967,7 +1993,8 @@ public class RecyclerView extends ViewGroup {
          * Determines the validity of the supplied LayoutParams object.
          *
          * <p>This should check to make sure that the object is of the correct type
-         * and all values are within acceptable ranges.</p>
+         * and all values are within acceptable ranges. The default implementation
+         * returns <code>true</code> for non-null params.</p>
          *
          * @param lp LayoutParams object to check
          * @return true if this LayoutParams object is valid, false otherwise
@@ -1982,7 +2009,7 @@ public class RecyclerView extends ViewGroup {
          *
          * <p><em>Important:</em> if you use your own custom <code>LayoutParams</code> type
          * you must also override
-         * {@link #checkLayoutParams(android.support.v7.widget.RecyclerView.LayoutParams)},
+         * {@link #checkLayoutParams(LayoutParams)},
          * {@link #generateLayoutParams(android.view.ViewGroup.LayoutParams)} and
          * {@link #generateLayoutParams(android.content.Context, android.util.AttributeSet)}.</p>
          *
@@ -2005,7 +2032,7 @@ public class RecyclerView extends ViewGroup {
          *
          * <p><em>Important:</em> if you use your own custom <code>LayoutParams</code> type
          * you must also override
-         * {@link #checkLayoutParams(android.support.v7.widget.RecyclerView.LayoutParams)},
+         * {@link #checkLayoutParams(LayoutParams)},
          * {@link #generateLayoutParams(android.view.ViewGroup.LayoutParams)} and
          * {@link #generateLayoutParams(android.content.Context, android.util.AttributeSet)}.</p>
          *
@@ -2512,7 +2539,7 @@ public class RecyclerView extends ViewGroup {
          *
          * <p>This is the LayoutManager's opportunity to populate views in the given direction
          * to fulfill the request if it can. The LayoutManager should attach and return
-         * the view to be focused.</p>
+         * the view to be focused. The default implementation returns null.</p>
          *
          * @param focused The currently focused view
          * @param direction One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
@@ -2602,10 +2629,8 @@ public class RecyclerView extends ViewGroup {
         /**
          * Called when a descendant view of the RecyclerView requests focus.
          *
-         * <p>If a LayoutManager wishes to override the default behavior of simply requesting
-         * the descendant's visible area on screen it may override this method and do so.
-         * A LayoutManager wishing to keep focused views aligned in a specific portion of the
-         * view may implement that behavior here.</p>
+         * <p>A LayoutManager wishing to keep focused views aligned in a specific
+         * portion of the view may implement that behavior in an override of this method.</p>
          *
          * <p>If the LayoutManager executes different behavior that should override the default
          * behavior of scrolling the focused child on screen instead of running alongside it,
@@ -2645,29 +2670,35 @@ public class RecyclerView extends ViewGroup {
      * to specific item views from the adapter's data set. This can be useful for drawing dividers
      * between items, highlights, visual grouping boundaries and more.
      *
-     * <p>All ItemDecorations are drawn in the order they were added,
-     * below the item views themselves.</p>
+     * <p>All ItemDecorations are drawn in the order they were added, before the item
+     * views (in {@link ItemDecoration#onDraw(Canvas) onDraw()} and after the items
+     * (in {@link ItemDecoration#onDrawOver(Canvas)}.</p>
      */
-    public interface ItemDecoration {
+    public static abstract class ItemDecoration {
         /**
          * Draw any appropriate decorations into the Canvas supplied to the RecyclerView.
-         * Any content drawn by this method will appear below item views.
+         * Any content drawn by this method will be drawn before the item views are drawn,
+         * and will thus appear underneath the views.
          *
          * @param c Canvas to draw into
          */
-        public void onDraw(Canvas c);
+        public void onDraw(Canvas c) {
+        }
 
         /**
          * Draw any appropriate decorations into the Canvas supplied to the RecyclerView.
-         * Any content drawn by this method will appear above item views.
+         * Any content drawn by this method will be drawn after the item views are drawn
+         * and will thus appear over the views.
          *
          * @param c Canvas to draw into
          */
-        public void onDrawOver(Canvas c);
+        public void onDrawOver(Canvas c) {
+        }
 
         /**
          * Retrieve any offsets for the given item. Each field of <code>outRect</code> specifies
          * the number of pixels that the item view should be inset by, similar to padding or margin.
+         * The default implementation sets the bounds of outRect to 0 and returns.
          *
          * <p>If this ItemDecoration does not affect the positioning of item views it should set
          * all four fields of <code>outRect</code> (left, top, right, bottom) to zero
@@ -2676,7 +2707,9 @@ public class RecyclerView extends ViewGroup {
          * @param outRect Rect to receive the output.
          * @param itemPosition Adapter position of the item to offset
          */
-        public void getItemOffsets(Rect outRect, int itemPosition);
+        public void getItemOffsets(Rect outRect, int itemPosition) {
+            outRect.set(0, 0, 0, 0);
+        }
     }
 
     /**
@@ -2716,12 +2749,30 @@ public class RecyclerView extends ViewGroup {
         public void onTouchEvent(MotionEvent e);
     }
 
+    /**
+     * An OnScrollListener can be set on a RecyclerView to receive messages
+     * when a scrolling event has occurred on that RecyclerView.
+     *
+     * @see RecyclerView#setOnScrollListener(OnScrollListener)
+     */
     public interface OnScrollListener {
         public void onScrollStateChanged(int newState);
         public void onScrolled(int dx, int dy);
     }
 
+    /**
+     * A RecyclerListener can be set on a RecyclerView to receive messages whenever
+     * a view is recycled.
+     *
+     * @see RecyclerView#setRecyclerListener(RecyclerListener)
+     */
     public interface RecyclerListener {
+
+        /**
+         * This method is called whenever the view in the ViewHolder is recycled.
+         *
+         * @param holder The ViewHolder containing the view that was recycled
+         */
         public void onViewRecycled(ViewHolder holder);
     }
 
@@ -2731,8 +2782,7 @@ public class RecyclerView extends ViewGroup {
      * <p>{@link Adapter} implementations should subclass ViewHolder and add fields for caching
      * potentially expensive {@link View#findViewById(int)} results.</p>
      *
-     * <p>While {@link LayoutParams} belong to the
-     * {@link android.support.v7.widget.RecyclerView.LayoutManager},
+     * <p>While {@link LayoutParams} belong to the {@link LayoutManager},
      * {@link ViewHolder ViewHolders} belong to the adapter. Adapters should feel free to use
      * their own custom ViewHolder implementations to store data that makes binding view contents
      * easier. Implementations should assume that individual item views will hold strong references
@@ -2825,7 +2875,7 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * Queued operation to happen when child views are update.
+     * Queued operation to happen when child views are updated.
      */
     private static class UpdateOp {
         public static final int ADD = 0;
@@ -2862,9 +2912,9 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * {@link android.view.ViewGroup.LayoutParams LayoutParams} subclass for children of
-     * {@link RecyclerView}. Custom {@link android.support.v7.widget.RecyclerView.LayoutManager
-     * layout managers} are encouraged to create their own <code>LayoutParams</code> subclass
+     * {@link android.view.ViewGroup.MarginLayoutParams LayoutParams} subclass for children of
+     * {@link RecyclerView}. Custom {@link LayoutManager layout managers} are encouraged
+     * to create their own subclass of this <code>LayoutParams</code> class
      * to store any additional required per-child view metadata about the layout.
      */
     public static class LayoutParams extends MarginLayoutParams {
