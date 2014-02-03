@@ -215,6 +215,9 @@ public class RecyclerView extends ViewGroup {
         if (adapter != null) {
             adapter.registerAdapterDataObserver(mObserver);
         }
+        if (mLayout != null) {
+            mLayout.onAdapterChanged();
+        }
         mRecycler.onAdapterChanged();
         requestLayout();
     }
@@ -928,7 +931,7 @@ public class RecyclerView extends ViewGroup {
                     // TODO Animate it away
                     break;
                 case UpdateOp.UPDATE:
-                    markViewRangeDirty(op.positionStart, op.itemCount);
+                    markViewRangeUpdate(op.positionStart, op.itemCount);
                     break;
             }
             recycleUpdateOp(op);
@@ -943,7 +946,7 @@ public class RecyclerView extends ViewGroup {
      * @param positionStart Adapter position to start at
      * @param itemCount Number of views that must explicitly be rebound
      */
-    void markViewRangeDirty(int positionStart, int itemCount) {
+    void markViewRangeUpdate(int positionStart, int itemCount) {
         final int count = getViewHolderCount();
         final int positionEnd = positionStart + itemCount;
 
@@ -951,20 +954,21 @@ public class RecyclerView extends ViewGroup {
             final ViewHolder holder = mAttachedViewsByPosition.valueAt(i);
             final int position = holder.getPosition();
             if (position >= positionStart && position < positionEnd) {
-                holder.mIsDirty = true;
+                holder.addFlags(ViewHolder.FLAG_UPDATE);
             }
         }
     }
 
     /**
-     * Mark all known views as dirty and in need of rebinding data.
+     * Mark all known views as invalid. Used in response to a, "the whole world might have changed"
+     * data change event.
      */
-    void markKnownViewsDirty() {
+    void markKnownViewsInvalid() {
         final int count = getViewHolderCount();
 
         for (int i = 0; i < count; i++) {
             final ViewHolder holder = mAttachedViewsByPosition.valueAt(i);
-            holder.mIsDirty = true;
+            holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
         }
     }
 
@@ -1045,6 +1049,13 @@ public class RecyclerView extends ViewGroup {
         if (posIndex >= 0) {
             mAttachedViewsByPosition.removeAt(posIndex);
         }
+    }
+
+    @Override
+    public void removeAllViews() {
+        super.removeAllViews();
+        mAttachedViewsByPosition.clear();
+        mAttachedViewsById.clear();
     }
 
     @Override
@@ -1233,7 +1244,7 @@ public class RecyclerView extends ViewGroup {
                 // TODO Determine what actually changed
             } else {
                 mRecycler.onGenericDataChanged();
-                markKnownViewsDirty();
+                markKnownViewsInvalid();
                 requestLayout();
             }
         }
@@ -1302,7 +1313,8 @@ public class RecyclerView extends ViewGroup {
 
             scrap.mPosition = NO_POSITION;
             scrap.mItemId = NO_ID;
-            scrap.mIsDirty = true;
+            scrap.setFlags(0, ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE |
+                    ViewHolder.FLAG_INVALID);
             mScrap[type].add(scrap);
         }
     }
@@ -1372,10 +1384,12 @@ public class RecyclerView extends ViewGroup {
                 holder.mItemViewType = type;
             }
 
-            if (holder.mIsDirty) {
+            if (!holder.isBound() || holder.needsUpdate()) {
                 adapter.bindViewHolder(holder, position);
-                holder.mIsDirty = false;
+                holder.setFlags(ViewHolder.FLAG_BOUND,
+                        ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
                 holder.mPosition = position;
+                // TODO update stable ID once supported
             }
 
             ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -1419,7 +1433,6 @@ public class RecyclerView extends ViewGroup {
             }
             // TODO: Save a first-level cache of recently recycled views before dumping it
             // in the pool.
-            holder.mIsDirty = true;
             getRecycledViewPool().putRecycledView(holder);
             dispatchViewRecycled(holder);
         }
@@ -1508,10 +1521,10 @@ public class RecyclerView extends ViewGroup {
         ViewHolder getScrapViewForPosition(int position, int type) {
             final int scrapCount = mAttachedScrap.size();
 
-            // Try first for an exact, non-dirty match from scrap. We won't even have to rebind it!
+            // Try first for an exact, non-invalid match from scrap.
             for (int i = 0; i < scrapCount; i++) {
                 final ViewHolder holder = mAttachedScrap.get(i);
-                if (holder.getPosition() == position && !holder.mIsDirty) {
+                if (holder.getPosition() == position && !holder.isInvalid()) {
                     if (holder.getItemViewType() != type) {
                         Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
                                 " wrong view type! (found " + holder.getItemViewType() +
@@ -1529,6 +1542,7 @@ public class RecyclerView extends ViewGroup {
                 final ViewHolder holder = mAttachedScrap.get(i);
                 if (holder.getItemViewType() == type) {
                     mAttachedScrap.remove(i);
+                    holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
                     holder.setScrapContainer(null);
                     return holder;
                 }
@@ -2124,6 +2138,14 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Remove all views from the currently attached RecyclerView. This will not recycle
+         * any of the affected views; the LayoutManager is responsible for doing so if desired.
+         */
+        public void removeAllViews() {
+            mRecyclerView.removeAllViews();
+        }
+
+        /**
          * Temporarily detach a child view.
          *
          * <p>LayoutManagers may want to perform a lightweight detach operation to rearrange
@@ -2605,6 +2627,17 @@ public class RecyclerView extends ViewGroup {
         public boolean onRequestChildFocus(View child, View focused) {
             return false;
         }
+
+        /**
+         * Called if the RecyclerView this LayoutManager is bound to has a different adapter set.
+         * The LayoutManager may use this opportunity to clear caches and configure state such
+         * that it can relayout appropriately with the new data and potentially new view types.
+         *
+         * <p>The default implementation removes all currently attached views.</p>
+         */
+        public void onAdapterChanged() {
+            removeAllViews();
+        }
     }
 
     /**
@@ -2713,8 +2746,26 @@ public class RecyclerView extends ViewGroup {
         long mItemId = NO_ID;
         int mItemViewType = INVALID_TYPE;
 
-        // View needs to be rebound as its data is stale.
-        boolean mIsDirty = true;
+        /**
+         * This ViewHolder has been bound to a position; mPosition, mItemId and mItemViewType
+         * are all valid.
+         */
+        static final int FLAG_BOUND = 1 << 0;
+
+        /**
+         * The data this ViewHolder's view reflects is stale and needs to be rebound
+         * by the adapter. mPosition and mItemId are consistent.
+         */
+        static final int FLAG_UPDATE = 1 << 1;
+
+        /**
+         * This ViewHolder's data is invalid. The identity implied by mPosition and mItemId
+         * are not to be trusted and may no longer match the item view type.
+         * This ViewHolder must be fully rebound to different data.
+         */
+        static final int FLAG_INVALID = 1 << 2;
+
+        private int mFlags;
 
         // If non-null, view is currently considered scrap and may be reused for other data by the
         // scrap container.
@@ -2750,6 +2801,26 @@ public class RecyclerView extends ViewGroup {
 
         void setScrapContainer(Recycler recycler) {
             mScrapContainer = recycler;
+        }
+
+        boolean isInvalid() {
+            return (mFlags & FLAG_INVALID) != 0;
+        }
+
+        boolean needsUpdate() {
+            return (mFlags & FLAG_UPDATE) != 0;
+        }
+
+        boolean isBound() {
+            return (mFlags & FLAG_BOUND) != 0;
+        }
+
+        void setFlags(int flags, int mask) {
+            mFlags = (mFlags & ~mask) | (flags & mask);
+        }
+
+        void addFlags(int flags) {
+            mFlags |= flags;
         }
     }
 
