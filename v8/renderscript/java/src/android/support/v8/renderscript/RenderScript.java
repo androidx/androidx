@@ -19,6 +19,7 @@ package android.support.v8.renderscript;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -76,15 +77,22 @@ public class RenderScript {
 
     static boolean isNative = false;
 
-    private static int thunk = 0;
+
+    static private int thunk = 0;
+    static private int sSdkVersion = -1;
+
     /**
      * Determines whether or not we should be thunking into the native
      * RenderScript layer or actually using the compatibility library.
      */
-    static boolean shouldThunk() {
+    static private boolean setupThunk(int sdkVersion) {
         if (thunk == 0) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2
-                    && SystemProperties.getInt("debug.rs.forcecompat", 0) == 0) {
+            // use compat on Jelly Bean MR2 if we're requesting SDK 19+
+            if (android.os.Build.VERSION.SDK_INT == 18 && sdkVersion >= 19) {
+                thunk = -1;
+            }
+            else if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
+                && (SystemProperties.getInt("debug.rs.forcecompat", 0) == 0)) {
                 thunk = 1;
             } else {
                 thunk = -1;
@@ -94,6 +102,10 @@ public class RenderScript {
             return true;
         }
         return false;
+    }
+
+    static boolean shouldThunk() {
+        return setupThunk(sSdkVersion);
     }
 
     /**
@@ -155,7 +167,18 @@ public class RenderScript {
     native void rsnContextDestroy(int con);
     synchronized void nContextDestroy() {
         validate();
-        rsnContextDestroy(mContext);
+
+        // take teardown lock
+        // teardown lock can only be taken when no objects are being destroyed
+        ReentrantReadWriteLock.WriteLock wlock = mRWLock.writeLock();
+        wlock.lock();
+
+        int curCon = mContext;
+        // context is considered dead as of this point
+        mContext = 0;
+
+        wlock.unlock();
+        rsnContextDestroy(curCon);
     }
     native void rsnContextSetPriority(int con, int p);
     synchronized void nContextSetPriority(int p) {
@@ -179,8 +202,9 @@ public class RenderScript {
         rsnContextSendMessage(mContext, id, data);
     }
 
+    // nObjDestroy is explicitly _not_ synchronous to prevent crashes in finalizers
     native void rsnObjDestroy(int con, int id);
-    synchronized void nObjDestroy(int id) {
+    void nObjDestroy(int id) {
         // There is a race condition here.  The calling code may be run
         // by the gc while teardown is occuring.  This protects againts
         // deleting dead objects.
@@ -584,8 +608,10 @@ public class RenderScript {
 
 
 
+
     int     mDev;
     int     mContext;
+    ReentrantReadWriteLock mRWLock;
     @SuppressWarnings({"FieldCanBeLocal"})
     MessageThread mMessageThread;
 
@@ -891,6 +917,7 @@ public class RenderScript {
         if (ctx != null) {
             mApplicationContext = ctx.getApplicationContext();
         }
+        mRWLock = new ReentrantReadWriteLock();
     }
 
     /**
@@ -919,9 +946,15 @@ public class RenderScript {
     public static RenderScript create(Context ctx, int sdkVersion, ContextType ct) {
         RenderScript rs = new RenderScript(ctx);
 
-        if (shouldThunk()) {
+        if (sSdkVersion == -1) {
+            sSdkVersion = sdkVersion;
+        } else if (sSdkVersion != sdkVersion) {
+            throw new RSRuntimeException("Can't have two contexts with different SDK versions in support lib");
+        }
+
+        if (setupThunk(sSdkVersion)) {
             android.util.Log.v(LOG_TAG, "RS native mode");
-            return RenderScriptThunker.create(ctx, sdkVersion);
+            return RenderScriptThunker.create(ctx, sSdkVersion);
         }
         synchronized(lock) {
             if (sInitialized == false) {
@@ -1009,6 +1042,7 @@ public class RenderScript {
      */
     public void destroy() {
         validate();
+        nContextFinish();
         nContextDeinitToClient(mContext);
         mMessageThread.mRun = false;
         try {
@@ -1017,8 +1051,6 @@ public class RenderScript {
         }
 
         nContextDestroy();
-        mContext = 0;
-
         nDeviceDestroy(mDev);
         mDev = 0;
     }
