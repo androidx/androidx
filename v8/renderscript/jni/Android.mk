@@ -1,6 +1,8 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
+LOCAL_CLANG := true
+
 LOCAL_SRC_FILES:= \
     android_renderscript_RenderScript.cpp
 
@@ -19,7 +21,7 @@ LOCAL_C_INCLUDES += \
 	frameworks/rs \
 	$(rs_generated_include_dir)
 
-LOCAL_CFLAGS +=
+LOCAL_CFLAGS += -Wno-unused-parameter
 
 LOCAL_LDLIBS := -lpthread
 LOCAL_ADDITIONAL_DEPENDENCIES := $(addprefix $(rs_generated_include_dir)/,rsgApiFuncDecl.h)
