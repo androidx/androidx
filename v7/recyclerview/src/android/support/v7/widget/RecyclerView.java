@@ -84,11 +84,17 @@ public class RecyclerView extends ViewGroup {
 
     private final Recycler mRecycler = new Recycler();
 
+    /**
+     * Note: this Runnable is only ever posted if:
+     * 1) We've been through first layout
+     * 2) We know we have a fixed size (mHasFixedSize)
+     * 3) We're attached
+     */
     private final Runnable mUpdateChildViewsRunnable = new Runnable() {
         public void run() {
-            mEatRequestLayout = true;
+            eatRequestLayout();
             updateChildViews();
-            mEatRequestLayout = false;
+            resumeRequestLayout(true);
         }
     };
 
@@ -101,8 +107,9 @@ public class RecyclerView extends ViewGroup {
     private LayoutManager mLayout;
     private RecyclerListener mRecyclerListener;
     private final ArrayList<ItemDecoration> mItemDecorations = new ArrayList<ItemDecoration>();
-    private final ArrayList<ItemTouchListener> mItemTouchListeners =
-            new ArrayList<ItemTouchListener>();
+    private final ArrayList<OnItemTouchListener> mOnItemTouchListeners =
+            new ArrayList<OnItemTouchListener>();
+    private OnItemTouchListener mActiveOnItemTouchListener;
     private final SparseArrayCompat<ViewHolder> mAttachedViewsByPosition =
             new SparseArrayCompat<ViewHolder>();
     private final LongSparseArray<ViewHolder> mAttachedViewsById =
@@ -111,6 +118,7 @@ public class RecyclerView extends ViewGroup {
     private boolean mHasFixedSize;
     private boolean mFirstLayoutComplete;
     private boolean mEatRequestLayout;
+    private boolean mLayoutRequestEaten;
     private boolean mAdapterUpdateDuringMeasure;
     private final boolean mPostUpdatesOnAnimation;
 
@@ -426,19 +434,37 @@ public class RecyclerView extends ViewGroup {
      */
     void scrollByInternal(int x, int y) {
         int overscrollX = 0, overscrollY = 0;
+        eatRequestLayout();
         if (x != 0) {
-            mEatRequestLayout = true;
             final int hresult = mLayout.scrollHorizontallyBy(x, getAdapter(), mRecycler);
-            mEatRequestLayout = false;
             overscrollX = x - hresult;
         }
         if (y != 0) {
-            mEatRequestLayout = true;
             final int vresult = mLayout.scrollVerticallyBy(y, getAdapter(), mRecycler);
-            mEatRequestLayout = false;
             overscrollY = y - vresult;
         }
+        resumeRequestLayout(false);
         pullGlows(overscrollX, overscrollY);
+        if (mScrollListener != null && (x != 0 || y != 0)) {
+            mScrollListener.onScrolled(x, y);
+        }
+    }
+
+    void eatRequestLayout() {
+        if (!mEatRequestLayout) {
+            mEatRequestLayout = true;
+            mLayoutRequestEaten = false;
+        }
+    }
+
+    void resumeRequestLayout(boolean performLayoutChildren) {
+        if (mEatRequestLayout) {
+            if (mLayoutRequestEaten && mLayout != null && mAdapter != null) {
+                mLayout.layoutChildren(mAdapter, mRecycler);
+            }
+            mEatRequestLayout = false;
+            mLayoutRequestEaten = false;
+        }
     }
 
     /**
@@ -570,9 +596,9 @@ public class RecyclerView extends ViewGroup {
         final FocusFinder ff = FocusFinder.getInstance();
         View result = ff.findNextFocus(this, focused, direction);
         if (result == null) {
-            mEatRequestLayout = true;
+            eatRequestLayout();
             result = mLayout.onFocusSearchFailed(focused, direction, getAdapter(), mRecycler);
-            mEatRequestLayout = false;
+            resumeRequestLayout(false);
         }
         return result != null ? result : super.focusSearch(focused, direction);
     }
@@ -618,8 +644,85 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * Add an {@link OnItemTouchListener} to intercept touch events before they are dispatched
+     * to child views or this view's standard scrolling behavior.
+     *
+     * <p>Client code may use listeners to implement item manipulation behavior. Once a listener
+     * returns true from
+     * {@link OnItemTouchListener#onInterceptTouchEvent(RecyclerView, MotionEvent)} its
+     * {@link OnItemTouchListener#onTouchEvent(RecyclerView, MotionEvent)} method will be called
+     * for each incoming MotionEvent until the end of the gesture.</p>
+     *
+     * @param listener Listener to add
+     */
+    public void addOnItemTouchListener(OnItemTouchListener listener) {
+        mOnItemTouchListeners.add(listener);
+    }
+
+    /**
+     * Remove an {@link OnItemTouchListener}. It will no longer be able to intercept touch events.
+     *
+     * @param listener Listener to remove
+     */
+    public void removeOnItemTouchListener(OnItemTouchListener listener) {
+        mOnItemTouchListeners.remove(listener);
+        if (mActiveOnItemTouchListener == listener) {
+            mActiveOnItemTouchListener = null;
+        }
+    }
+
+    private boolean dispatchOnItemTouchIntercept(MotionEvent e) {
+        final int action = e.getAction();
+        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_DOWN) {
+            mActiveOnItemTouchListener = null;
+        }
+
+        final int listenerCount = mOnItemTouchListeners.size();
+        for (int i = 0; i < listenerCount; i++) {
+            final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
+            if (listener.onInterceptTouchEvent(this, e) && action != MotionEvent.ACTION_CANCEL) {
+                mActiveOnItemTouchListener = listener;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean dispatchOnItemTouch(MotionEvent e) {
+        if (mActiveOnItemTouchListener != null) {
+            final int action = e.getAction();
+            if (action == MotionEvent.ACTION_DOWN) {
+                // Stale state from a previous gesture, we're starting a new one. Clear it.
+                mActiveOnItemTouchListener = null;
+            } else {
+                mActiveOnItemTouchListener.onTouchEvent(this, e);
+                if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+                    // Clean up for the next gesture.
+                    mActiveOnItemTouchListener = null;
+                }
+                return true;
+            }
+        }
+
+        final int listenerCount = mOnItemTouchListeners.size();
+        for (int i = 0; i < listenerCount; i++) {
+            final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
+            if (listener.onInterceptTouchEvent(this, e)) {
+                mActiveOnItemTouchListener = listener;
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent e) {
+        if (dispatchOnItemTouchIntercept(e)) {
+            cancelTouch();
+            return true;
+        }
+
         final boolean canScrollHorizontally = mLayout.canScrollHorizontally();
         final boolean canScrollVertically = mLayout.canScrollVertically();
 
@@ -685,12 +788,21 @@ public class RecyclerView extends ViewGroup {
             case MotionEvent.ACTION_UP: {
                 mVelocityTracker.clear();
             } break;
+
+            case MotionEvent.ACTION_CANCEL: {
+                cancelTouch();
+            }
         }
         return mScrollState == SCROLL_STATE_DRAGGING;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        if (dispatchOnItemTouch(e)) {
+            cancelTouch();
+            return true;
+        }
+
         final boolean canScrollHorizontally = mLayout.canScrollHorizontally();
         final boolean canScrollVertically = mLayout.canScrollVertically();
 
@@ -771,9 +883,19 @@ public class RecyclerView extends ViewGroup {
                 mVelocityTracker.clear();
                 releaseGlows();
             } break;
+
+            case MotionEvent.ACTION_CANCEL: {
+                cancelTouch();
+            } break;
         }
 
         return true;
+    }
+
+    private void cancelTouch() {
+        mVelocityTracker.clear();
+        releaseGlows();
+        setScrollState(SCROLL_STATE_IDLE);
     }
 
     private void onPointerUp(MotionEvent e) {
@@ -790,9 +912,9 @@ public class RecyclerView extends ViewGroup {
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         if (mAdapterUpdateDuringMeasure) {
-            mEatRequestLayout = true;
+            eatRequestLayout();
             updateChildViews();
-            mEatRequestLayout = false;
+            resumeRequestLayout(false);
         }
 
         final int widthMode = MeasureSpec.getMode(widthSpec);
@@ -819,9 +941,9 @@ public class RecyclerView extends ViewGroup {
             Log.e(TAG, "No adapter attached; skipping layout");
             return;
         }
-        mEatRequestLayout = true;
+        eatRequestLayout();
         mLayout.layoutChildren(mAdapter, mRecycler);
-        mEatRequestLayout = false;
+        resumeRequestLayout(false);
         mFirstLayoutComplete = true;
     }
 
@@ -829,6 +951,8 @@ public class RecyclerView extends ViewGroup {
     public void requestLayout() {
         if (!mEatRequestLayout) {
             super.requestLayout();
+        } else {
+            mLayoutRequestEaten = true;
         }
     }
 
@@ -930,7 +1054,7 @@ public class RecyclerView extends ViewGroup {
                     // TODO Animate it away
                     break;
                 case UpdateOp.UPDATE:
-                    markViewRangeUpdate(op.positionStart, op.itemCount);
+                    viewRangeUpdate(op.positionStart, op.itemCount);
                     break;
             }
             recycleUpdateOp(op);
@@ -939,13 +1063,12 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * Rebind existing views for the given range, or create as needed. Reposition/rearrange any
-     * child views as appropriate and recycle/regenerate views around the range as necessary.
+     * Rebind existing views for the given range, or create as needed.
      *
      * @param positionStart Adapter position to start at
      * @param itemCount Number of views that must explicitly be rebound
      */
-    void markViewRangeUpdate(int positionStart, int itemCount) {
+    void viewRangeUpdate(int positionStart, int itemCount) {
         final int count = getViewHolderCount();
         final int positionEnd = positionStart + itemCount;
 
@@ -954,6 +1077,7 @@ public class RecyclerView extends ViewGroup {
             final int position = holder.getPosition();
             if (position >= positionStart && position < positionEnd) {
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
+                mAdapter.bindViewHolder(holder, holder.getPosition());
             }
         }
     }
@@ -1017,6 +1141,25 @@ public class RecyclerView extends ViewGroup {
      */
     public ViewHolder findViewHolderForId(long id) {
         return mAttachedViewsById.get(id);
+    }
+
+    /**
+     * Return the ViewHolder for the child view positioned underneath the coordinates (x, y).
+     *
+     * @param x Horizontal position in pixels to search
+     * @param y Vertical position in pixels to search
+     * @return The ViewHolder for the child under (x, y) or null if no child is found
+     */
+    public ViewHolder findViewHolderForChildUnder(int x, int y) {
+        final int count = getChildCount();
+        for (int i = count; i >= 0; i--) {
+            final View child = getChildAt(i);
+            if (x >= child.getLeft() && x <= child.getRight() && y >= child.getTop() &&
+                    y <= child.getBottom()) {
+                return getChildViewHolder(child);
+            }
+        }
+        return null;
     }
 
     /**
@@ -1121,6 +1264,14 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    static void bindViewHolder(ViewHolder holder, int position, Adapter adapter) {
+        adapter.bindViewHolder(holder, position);
+        holder.setFlags(ViewHolder.FLAG_BOUND,
+                ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+        holder.mPosition = position;
+        // TODO update stable ID once supported
+    }
+
     private class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -1142,18 +1293,16 @@ public class RecyclerView extends ViewGroup {
                 mLastFlingY = y;
 
                 int overscrollX = 0, overscrollY = 0;
+                eatRequestLayout();
                 if (dx != 0) {
-                    mEatRequestLayout = true;
                     final int hresult = mLayout.scrollHorizontallyBy(dx, getAdapter(), mRecycler);
-                    mEatRequestLayout = false;
                     overscrollX = dx - hresult;
                 }
                 if (dy != 0) {
-                    mEatRequestLayout = true;
                     final int vresult = mLayout.scrollVerticallyBy(dy, getAdapter(), mRecycler);
-                    mEatRequestLayout = false;
                     overscrollY = dy - vresult;
                 }
+                resumeRequestLayout(false);
 
                 if (overscrollX != 0 || overscrollY != 0) {
                     final int vel = (int) mScroller.getCurrVelocity();
@@ -1173,6 +1322,10 @@ public class RecyclerView extends ViewGroup {
                             (velY != 0 || overscrollY == y || mScroller.getFinalY() == 0)) {
                         mScroller.abortAnimation();
                     }
+                }
+
+                if (mScrollListener != null && (x != 0 || y != 0)) {
+                    mScrollListener.onScrolled(dx, dy);
                 }
 
                 if (mScroller.isFinished()) {
@@ -1411,11 +1564,7 @@ public class RecyclerView extends ViewGroup {
             }
 
             if (!holder.isBound() || holder.needsUpdate()) {
-                adapter.bindViewHolder(holder, position);
-                holder.setFlags(ViewHolder.FLAG_BOUND,
-                        ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
-                holder.mPosition = position;
-                // TODO update stable ID once supported
+                bindViewHolder(holder, position, adapter);
             }
 
             ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -2713,31 +2862,31 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * An ItemTouchListener allows the application to intercept touch events in progress at the
-     * view hierarchy level of the RecyclerView, before those touch events are considered for
+     * An OnItemTouchListener allows the application to intercept touch events in progress at the
+     * view hierarchy level of the RecyclerView before those touch events are considered for
      * RecyclerView's own scrolling behavior.
      *
      * <p>This can be useful for applications that wish to implement various forms of gestural
-     * manipulation of item views within the RecyclerView. ItemTouchListeners may intercept
+     * manipulation of item views within the RecyclerView. OnItemTouchListeners may intercept
      * a touch interaction already in progress even if the RecyclerView is already handling that
      * gesture stream itself for the purposes of scrolling.</p>
      */
-    public interface ItemTouchListener {
+    public interface OnItemTouchListener {
         /**
          * Silently observe and/or take over touch events sent to the RecyclerView
          * before they are handled by either the RecyclerView itself or its child views.
          *
-         * <p>The onInterceptTouchEvent methods of each attached ItemTouchListener will be run
+         * <p>The onInterceptTouchEvent methods of each attached OnItemTouchListener will be run
          * in the order in which each listener was added, before any other touch processing
          * by the RecyclerView itself or child views occurs.</p>
          *
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
-         * @return true if this ItemTouchListener wishes to begin intercepting touch events, false
+         * @return true if this OnItemTouchListener wishes to begin intercepting touch events, false
          *         to continue with the current behavior and continue observing future events in
          *         the gesture.
          */
-        public boolean onInterceptTouchEvent(MotionEvent e);
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e);
 
         /**
          * Process a touch event as part of a gesture that was claimed by returning true from
@@ -2746,7 +2895,7 @@ public class RecyclerView extends ViewGroup {
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          */
-        public void onTouchEvent(MotionEvent e);
+        public void onTouchEvent(RecyclerView rv, MotionEvent e);
     }
 
     /**
@@ -2938,6 +3087,26 @@ public class RecyclerView extends ViewGroup {
 
         public LayoutParams(LayoutParams source) {
             super((ViewGroup.LayoutParams) source);
+        }
+
+        /**
+         * Returns true if the view this LayoutParams is attached to needs to have its content
+         * updated from the corresponding adapter.
+         *
+         * @return true if the view should have its content updated
+         */
+        public boolean viewNeedsUpdate() {
+            return mViewHolder.needsUpdate();
+        }
+
+        /**
+         * Returns true if the view this LayoutParams is attached to is now representing
+         * potentially invalid data. A LayoutManager should scrap/recycle it.
+         *
+         * @return true if the view is invalid
+         */
+        public boolean isViewInvalid() {
+            return mViewHolder.isInvalid();
         }
     }
 
