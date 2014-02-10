@@ -541,6 +541,7 @@ public class DrawerLayout extends ViewGroup {
                 mListener.onDrawerOpened(drawerView);
             }
             sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            drawerView.requestFocus();
         }
     }
 
