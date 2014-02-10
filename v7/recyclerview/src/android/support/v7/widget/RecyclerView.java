@@ -481,11 +481,14 @@ public class RecyclerView extends ViewGroup {
 
     /**
      * Begin a standard fling with an initial velocity along each axis in pixels per second.
+     * If the velocity given is below the system-defined minimum this method will return false
+     * and no fling will occur.
      *
      * @param velocityX Initial horizontal velocity in pixels per second
      * @param velocityY Initial vertical velocity in pixels per second
+     * @return true if the fling was started, false if the velocity was too low to fling
      */
-    public void fling(int velocityX, int velocityY) {
+    public boolean fling(int velocityX, int velocityY) {
         if (Math.abs(velocityX) < mMinFlingVelocity) {
             velocityX = 0;
         }
@@ -496,7 +499,9 @@ public class RecyclerView extends ViewGroup {
         velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY, mMaxFlingVelocity));
         if (velocityX != 0 || velocityY != 0) {
             mViewFlinger.fling(velocityX, velocityY);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -874,9 +879,7 @@ public class RecyclerView extends ViewGroup {
                         -VelocityTrackerCompat.getXVelocity(mVelocityTracker, mScrollPointerId) : 0;
                 final float yvel = canScrollVertically ?
                         -VelocityTrackerCompat.getYVelocity(mVelocityTracker, mScrollPointerId) : 0;
-                if (xvel != 0 || yvel != 0) {
-                    fling((int) xvel, (int) yvel);
-                } else {
+                if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
                     setScrollState(SCROLL_STATE_IDLE);
                 }
 
