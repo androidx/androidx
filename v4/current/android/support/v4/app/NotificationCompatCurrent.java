@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-
-class NotificationCompatJellybean {
-    private static volatile Field sExtrasField;
-
+class NotificationCompatCurrent {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
@@ -81,66 +76,7 @@ class NotificationCompatJellybean {
         }
     }
 
-    public static void addBigTextStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence bigContentTitle, boolean useSummary,
-            CharSequence summaryText, CharSequence bigText) {
-        Notification.BigTextStyle style = new Notification.BigTextStyle(b.getBuilder())
-            .setBigContentTitle(bigContentTitle)
-            .bigText(bigText);
-        if (useSummary) {
-            style.setSummaryText(summaryText);
-        }
-    }
-
-    public static void addBigPictureStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence bigContentTitle, boolean useSummary,
-            CharSequence summaryText, Bitmap bigPicture, Bitmap bigLargeIcon,
-            boolean bigLargeIconSet) {
-        Notification.BigPictureStyle style = new Notification.BigPictureStyle(b.getBuilder())
-            .setBigContentTitle(bigContentTitle)
-            .bigPicture(bigPicture);
-        if (bigLargeIconSet) {
-            style.bigLargeIcon(bigLargeIcon);
-        }
-        if (useSummary) {
-            style.setSummaryText(summaryText);
-        }
-    }
-
-    public static void addInboxStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence bigContentTitle, boolean useSummary,
-            CharSequence summaryText, ArrayList<CharSequence> texts) {
-        Notification.InboxStyle style = new Notification.InboxStyle(b.getBuilder())
-            .setBigContentTitle(bigContentTitle);
-        if (useSummary) {
-            style.setSummaryText(summaryText);
-        }
-        for (CharSequence text: texts) {
-            style.addLine(text);
-        }
-    }
-
-    /**
-     * Get the extras Bundle from a notification using reflection. Extras were present in
-     * Jellybean notifications, but the field was private until KitKat.
-     */
     public static Bundle getExtras(Notification notif) {
-        try {
-            if (sExtrasField == null) {
-                Field extrasField = Notification.class.getDeclaredField("extras");
-                extrasField.setAccessible(true);
-                sExtrasField = extrasField;
-            }
-            Bundle extras = (Bundle) sExtrasField.get(notif);
-            if (extras == null) {
-                extras = new Bundle();
-                sExtrasField.set(notif, extras);
-            }
-            return extras;
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to access notification extras", e);
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException("Unable to access notification extras", e);
-        }
+        return notif.extras;
     }
 }
