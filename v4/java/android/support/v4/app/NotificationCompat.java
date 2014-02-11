@@ -24,7 +24,6 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.widget.RemoteViews;
 import java.util.ArrayList;
 
@@ -81,12 +80,9 @@ public class NotificationCompat {
 
     interface NotificationCompatImpl {
         public Notification build(Builder b);
-        public Bundle getExtras(Notification n);
-        public boolean getLocalOnly(Notification n);
     }
 
     static class NotificationCompatImplBase implements NotificationCompatImpl {
-        @Override
         public Notification build(Builder b) {
             Notification result = b.mNotification;
             result.setLatestEventInfo(b.mContext, b.mContentTitle,
@@ -97,20 +93,9 @@ public class NotificationCompat {
             }
             return result;
         }
-
-        @Override
-        public Bundle getExtras(Notification n) {
-            return null;
-        }
-
-        @Override
-        public boolean getLocalOnly(Notification n) {
-            return false;
-        }
     }
 
     static class NotificationCompatImplGingerbread extends NotificationCompatImplBase {
-        @Override
         public Notification build(Builder b) {
             Notification result = b.mNotification;
             result.setLatestEventInfo(b.mContext, b.mContentTitle,
@@ -125,8 +110,7 @@ public class NotificationCompat {
         }
     }
 
-    static class NotificationCompatImplHoneycomb extends NotificationCompatImplBase {
-        @Override
+    static class NotificationCompatImplHoneycomb implements NotificationCompatImpl {
         public Notification build(Builder b) {
             return NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
                     b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
@@ -134,8 +118,7 @@ public class NotificationCompat {
         }
     }
 
-    static class NotificationCompatImplIceCreamSandwich extends NotificationCompatImplBase {
-        @Override
+    static class NotificationCompatImplIceCreamSandwich implements NotificationCompatImpl {
         public Notification build(Builder b) {
             return NotificationCompatIceCreamSandwich.add(b.mContext, b.mNotification,
                     b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
@@ -144,93 +127,44 @@ public class NotificationCompat {
         }
     }
 
-    static class NotificationCompatImplJellybean extends NotificationCompatImplBase {
-        @Override
+    static class NotificationCompatImplJellybean implements NotificationCompatImpl {
         public Notification build(Builder b) {
-            NotificationCompatJellybean.Builder builder = new NotificationCompatJellybean.Builder(
+            NotificationCompatJellybean jbBuilder = new NotificationCompatJellybean(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly);
-            addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderJellybean(builder, b.mStyle);
-            return builder.build();
-        }
-
-        @Override
-        public Bundle getExtras(Notification n) {
-            return NotificationCompatJellybean.getExtras(n);
-        }
-
-        @Override
-        public boolean getLocalOnly(Notification notif) {
-            return NotificationCompatJellybean.getLocalOnly(notif);
-        }
-    }
-
-    static class NotificationCompatImplCurrent extends NotificationCompatImplBase {
-        @Override
-        public Notification build(Builder b) {
-            NotificationCompatCurrent.Builder builder = new NotificationCompatCurrent.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
-                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly);
-            addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderJellybean(builder, b.mStyle);
-            return builder.build();
-        }
-
-        @Override
-        public Bundle getExtras(Notification n) {
-            return NotificationCompatCurrent.getExtras(n);
-        }
-
-        @Override
-        public boolean getLocalOnly(Notification notif) {
-            return NotificationCompatCurrent.getLocalOnly(notif);
-        }
-    }
-
-    private static void addActionsToBuilder(NotificationBuilderWithActions builder,
-            ArrayList<Action> actions) {
-        for (Action action : actions) {
-            builder.addAction(action.icon, action.title, action.actionIntent);
-        }
-    }
-
-    private static void addStyleToBuilderJellybean(NotificationBuilderWithBuilderAccessor builder,
-            Style style) {
-        if (style != null) {
-            if (style instanceof BigTextStyle) {
-                BigTextStyle bigTextStyle = (BigTextStyle) style;
-                NotificationCompatJellybean.addBigTextStyle(builder,
-                        bigTextStyle.mBigContentTitle,
-                        bigTextStyle.mSummaryTextSet,
-                        bigTextStyle.mSummaryText,
-                        bigTextStyle.mBigText);
-            } else if (style instanceof InboxStyle) {
-                InboxStyle inboxStyle = (InboxStyle) style;
-                NotificationCompatJellybean.addInboxStyle(builder,
-                        inboxStyle.mBigContentTitle,
-                        inboxStyle.mSummaryTextSet,
-                        inboxStyle.mSummaryText,
-                        inboxStyle.mTexts);
-            } else if (style instanceof BigPictureStyle) {
-                BigPictureStyle bigPictureStyle = (BigPictureStyle) style;
-                NotificationCompatJellybean.addBigPictureStyle(builder,
-                        bigPictureStyle.mBigContentTitle,
-                        bigPictureStyle.mSummaryTextSet,
-                        bigPictureStyle.mSummaryText,
-                        bigPictureStyle.mPicture,
-                        bigPictureStyle.mBigLargeIcon,
-                        bigPictureStyle.mBigLargeIconSet);
+                    b.mUseChronometer, b.mPriority, b.mSubText);
+            for (Action action: b.mActions) {
+                jbBuilder.addAction(action.icon, action.title, action.actionIntent);
             }
+            if (b.mStyle != null) {
+                if (b.mStyle instanceof BigTextStyle) {
+                    BigTextStyle style = (BigTextStyle) b.mStyle;
+                    jbBuilder.addBigTextStyle(style.mBigContentTitle,
+                            style.mSummaryTextSet,
+                            style.mSummaryText,
+                            style.mBigText);
+                } else if (b.mStyle instanceof InboxStyle) {
+                    InboxStyle style = (InboxStyle) b.mStyle;
+                    jbBuilder.addInboxStyle(style.mBigContentTitle,
+                            style.mSummaryTextSet,
+                            style.mSummaryText,
+                            style.mTexts);
+                } else if (b.mStyle instanceof BigPictureStyle) {
+                    BigPictureStyle style = (BigPictureStyle) b.mStyle;
+                    jbBuilder.addBigPictureStyle(style.mBigContentTitle,
+                            style.mSummaryTextSet,
+                            style.mSummaryText,
+                            style.mPicture,
+                            style.mBigLargeIcon,
+                            style.mBigLargeIconSet);
+                }
+            }
+            return jbBuilder.build();
         }
     }
 
     static {
-        // TODO: Add NotificationCompatCurrent when SDK_INT is next incremented.
         if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new NotificationCompatImplJellybean();
         } else if (Build.VERSION.SDK_INT >= 14) {
@@ -283,7 +217,6 @@ public class NotificationCompat {
         int mProgress;
         boolean mProgressIndeterminate;
         ArrayList<Action> mActions = new ArrayList<Action>();
-        boolean mLocalOnly = false;
 
         Notification mNotification = new Notification();
 
@@ -579,17 +512,6 @@ public class NotificationCompat {
          */
         public Builder setAutoCancel(boolean autoCancel) {
             setFlag(Notification.FLAG_AUTO_CANCEL, autoCancel);
-            return this;
-        }
-
-        /**
-         * Set whether or not this notification is only relevant to the current device.
-         *
-         * <p>Some notifications can be bridged to other devices for remote display.
-         * This hint can be set to recommend this notification not be bridged.
-         */
-        public Builder setLocalOnly(boolean b) {
-            mLocalOnly = b;
             return this;
         }
 
@@ -920,24 +842,5 @@ public class NotificationCompat {
             this.title = title_;
             this.actionIntent = intent_;
         }
-    }
-
-    /**
-     * Gets the {@link Notification#extras} field from a notification in a backwards
-     * compatible manner. Extras field was supported from JellyBean (Api level 16)
-     * forwards. This function will return null on older api levels.
-     */
-    public static Bundle getExtras(Notification notif) {
-        return IMPL.getExtras(notif);
-    }
-
-    /**
-     * Get whether or not this notification is only relevant to the current device.
-     *
-     * <p>Some notifications can be bridged to other devices for remote display.
-     * If this hint is set, it is recommend that this notification not be bridged.
-     */
-    public static boolean getLocalOnly(Notification notif) {
-        return IMPL.getLocalOnly(notif);
     }
 }
