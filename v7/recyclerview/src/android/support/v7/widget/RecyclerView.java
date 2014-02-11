@@ -1380,7 +1380,8 @@ public class RecyclerView extends ViewGroup {
             if (velocity > 0) {
                 duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
             } else {
-                duration = (int) ((((float) absDx / containerSize) + 1) * 300);
+                float absDelta = (float) (horizontal ? absDx : absDy);
+                duration = (int) (((absDelta / containerSize) + 1) * 300);
             }
             return Math.min(duration, MAX_SCROLL_DURATION);
         }
