@@ -137,7 +137,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # TODO: Apply a real name and SDK version when available
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-current
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION :=
 LOCAL_SRC_FILES := $(call all-java-files-under, current)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-kitkat
 include $(BUILD_STATIC_JAVA_LIBRARY)
