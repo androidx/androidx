@@ -33,7 +33,7 @@ class NotificationCompatCurrent {
                 RemoteViews tickerView, int number,
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
-                boolean useChronometer, int priority, CharSequence subText) {
+                boolean useChronometer, int priority, CharSequence subText, boolean localOnly) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -58,7 +58,8 @@ class NotificationCompatCurrent {
                 .setNumber(number)
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority)
-                .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
+                .setProgress(mProgressMax, mProgress, mProgressIndeterminate)
+                .setLocalOnly(localOnly);
         }
 
         @Override
@@ -78,5 +79,9 @@ class NotificationCompatCurrent {
 
     public static Bundle getExtras(Notification notif) {
         return notif.extras;
+    }
+
+    public static boolean getLocalOnly(Notification notif) {
+        return (notif.flags & Notification.FLAG_LOCAL_ONLY) != 0;
     }
 }
