@@ -82,6 +82,7 @@ public class NotificationCompat {
     interface NotificationCompatImpl {
         public Notification build(Builder b);
         public Bundle getExtras(Notification n);
+        public boolean getLocalOnly(Notification n);
     }
 
     static class NotificationCompatImplBase implements NotificationCompatImpl {
@@ -100,6 +101,11 @@ public class NotificationCompat {
         @Override
         public Bundle getExtras(Notification n) {
             return null;
+        }
+
+        @Override
+        public boolean getLocalOnly(Notification n) {
+            return false;
         }
     }
 
@@ -145,7 +151,7 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -154,6 +160,11 @@ public class NotificationCompat {
         @Override
         public Bundle getExtras(Notification n) {
             return NotificationCompatJellybean.getExtras(n);
+        }
+
+        @Override
+        public boolean getLocalOnly(Notification notif) {
+            return NotificationCompatJellybean.getLocalOnly(notif);
         }
     }
 
@@ -164,7 +175,7 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -173,6 +184,11 @@ public class NotificationCompat {
         @Override
         public Bundle getExtras(Notification n) {
             return NotificationCompatCurrent.getExtras(n);
+        }
+
+        @Override
+        public boolean getLocalOnly(Notification notif) {
+            return NotificationCompatCurrent.getLocalOnly(notif);
         }
     }
 
@@ -267,6 +283,7 @@ public class NotificationCompat {
         int mProgress;
         boolean mProgressIndeterminate;
         ArrayList<Action> mActions = new ArrayList<Action>();
+        boolean mLocalOnly = false;
 
         Notification mNotification = new Notification();
 
@@ -562,6 +579,17 @@ public class NotificationCompat {
          */
         public Builder setAutoCancel(boolean autoCancel) {
             setFlag(Notification.FLAG_AUTO_CANCEL, autoCancel);
+            return this;
+        }
+
+        /**
+         * Set whether or not this notification is only relevant to the current device.
+         *
+         * <p>Some notifications can be bridged to other devices for remote display.
+         * This hint can be set to recommend this notification not be bridged.
+         */
+        public Builder setLocalOnly(boolean b) {
+            mLocalOnly = b;
             return this;
         }
 
@@ -901,5 +929,15 @@ public class NotificationCompat {
      */
     public static Bundle getExtras(Notification notif) {
         return IMPL.getExtras(notif);
+    }
+
+    /**
+     * Get whether or not this notification is only relevant to the current device.
+     *
+     * <p>Some notifications can be bridged to other devices for remote display.
+     * If this hint is set, it is recommend that this notification not be bridged.
+     */
+    public static boolean getLocalOnly(Notification notif) {
+        return IMPL.getLocalOnly(notif);
     }
 }

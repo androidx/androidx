@@ -27,18 +27,22 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 class NotificationCompatJellybean {
+    /** Extras key used for Jellybean SDK and below. */
+    static final String EXTRA_LOCAL_ONLY = "android.support.localOnly";
+
     private static volatile Field sExtrasField;
 
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
+        private final boolean mLocalOnly;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
                 RemoteViews tickerView, int number,
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
-                boolean useChronometer, int priority, CharSequence subText) {
+            boolean useChronometer, int priority, CharSequence subText, boolean localOnly) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -64,6 +68,7 @@ class NotificationCompatJellybean {
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority)
                 .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
+            mLocalOnly = localOnly;
         }
 
         @Override
@@ -77,7 +82,11 @@ class NotificationCompatJellybean {
         }
 
         public Notification build() {
-            return b.build();
+            Notification notif = b.build();
+            if (mLocalOnly) {
+                getExtras(notif).putBoolean(EXTRA_LOCAL_ONLY, mLocalOnly);
+            }
+            return notif;
         }
     }
 
@@ -142,5 +151,9 @@ class NotificationCompatJellybean {
         } catch (NoSuchFieldException e) {
             throw new IllegalStateException("Unable to access notification extras", e);
         }
+    }
+
+    public static boolean getLocalOnly(Notification notif) {
+        return getExtras(notif).getBoolean(EXTRA_LOCAL_ONLY);
     }
 }
