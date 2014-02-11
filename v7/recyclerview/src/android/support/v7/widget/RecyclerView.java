@@ -363,6 +363,7 @@ public class RecyclerView extends ViewGroup {
         } else {
             mItemDecorations.add(index, decor);
         }
+        invalidate();
 
         // TODO Refresh layout for affected views
     }
@@ -397,6 +398,7 @@ public class RecyclerView extends ViewGroup {
         if (mItemDecorations.isEmpty()) {
             setWillNotDraw(ViewCompat.getOverScrollMode(this) == ViewCompat.OVER_SCROLL_NEVER);
         }
+        invalidate();
 
         // TODO: Refresh layout for affected views
     }
@@ -459,7 +461,8 @@ public class RecyclerView extends ViewGroup {
 
     void resumeRequestLayout(boolean performLayoutChildren) {
         if (mEatRequestLayout) {
-            if (mLayoutRequestEaten && mLayout != null && mAdapter != null) {
+            if (performLayoutChildren && mLayoutRequestEaten &&
+                    mLayout != null && mAdapter != null) {
                 mLayout.layoutChildren(mAdapter, mRecycler);
             }
             mEatRequestLayout = false;
@@ -1796,13 +1799,13 @@ public class RecyclerView extends ViewGroup {
      * <p>Adapters provide a binding from an app-specific data set to views that are displayed
      * within a {@link RecyclerView}.</p>
      */
-    public static abstract class Adapter {
+    public static abstract class Adapter<VH extends ViewHolder> {
         private final AdapterDataObservable mObservable = new AdapterDataObservable();
         private boolean mHasStableIds = false;
         private int mViewTypeCount = 1;
 
-        public abstract ViewHolder createViewHolder(ViewGroup parent, int viewType);
-        public abstract void bindViewHolder(ViewHolder holder, int position);
+        public abstract VH createViewHolder(ViewGroup parent, int viewType);
+        public abstract void bindViewHolder(VH holder, int position);
 
         /**
          * Return the view type of the item at <code>position</code> for the purposes
@@ -1897,7 +1900,7 @@ public class RecyclerView extends ViewGroup {
          *
          * @param holder The ViewHolder for the view being recycled
          */
-        public void onViewRecycled(ViewHolder holder) {
+        public void onViewRecycled(VH holder) {
         }
 
         /**
