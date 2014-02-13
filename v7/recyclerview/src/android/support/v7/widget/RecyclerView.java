@@ -22,9 +22,7 @@ import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.Pools;
-import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
@@ -70,6 +68,8 @@ import java.util.ArrayList;
  */
 public class RecyclerView extends ViewGroup {
     private static final String TAG = "RecyclerView";
+    private static final boolean DEBUG = false;
+    private static final boolean DISPATCH_TEMP_DETACH = false;
 
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -110,10 +110,6 @@ public class RecyclerView extends ViewGroup {
     private final ArrayList<OnItemTouchListener> mOnItemTouchListeners =
             new ArrayList<OnItemTouchListener>();
     private OnItemTouchListener mActiveOnItemTouchListener;
-    private final SparseArrayCompat<ViewHolder> mAttachedViewsByPosition =
-            new SparseArrayCompat<ViewHolder>();
-    private final LongSparseArray<ViewHolder> mAttachedViewsById =
-            new LongSparseArray<ViewHolder>();
     private boolean mIsAttached;
     private boolean mHasFixedSize;
     private boolean mFirstLayoutComplete;
@@ -219,6 +215,7 @@ public class RecyclerView extends ViewGroup {
         if (mAdapter != null) {
             mAdapter.unregisterAdapterDataObserver(mObserver);
         }
+        final Adapter oldAdapter = adapter;
         mAdapter = adapter;
         if (adapter != null) {
             adapter.registerAdapterDataObserver(mObserver);
@@ -226,7 +223,7 @@ public class RecyclerView extends ViewGroup {
         if (mLayout != null) {
             mLayout.onAdapterChanged();
         }
-        mRecycler.onAdapterChanged();
+        mRecycler.onAdapterChanged(oldAdapter, mAdapter);
         requestLayout();
     }
 
@@ -1050,12 +1047,12 @@ public class RecyclerView extends ViewGroup {
             final UpdateOp op = mPendingUpdates.get(i);
             switch (op.cmd) {
                 case UpdateOp.ADD:
-                    mRecycler.offsetPositionRecordsForInsert(op.positionStart, op.itemCount);
+                    offsetPositionRecordsForInsert(op.positionStart, op.itemCount);
 
                     // TODO Animate it in
                     break;
                 case UpdateOp.REMOVE:
-                    mRecycler.offsetPositionRecordsForRemove(op.positionStart, op.itemCount);
+                    offsetPositionRecordsForRemove(op.positionStart, op.itemCount);
 
                     // TODO Animate it away
                     break;
@@ -1068,6 +1065,33 @@ public class RecyclerView extends ViewGroup {
         mPendingUpdates.clear();
     }
 
+    void offsetPositionRecordsForInsert(int positionStart, int itemCount) {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            if (holder != null && holder.mPosition >= positionStart) {
+                holder.mPosition += itemCount;
+            }
+        }
+        mRecycler.offsetPositionRecordsForInsert(positionStart, itemCount);
+    }
+
+    void offsetPositionRecordsForRemove(int positionStart, int itemCount) {
+        final int positionEnd = positionStart + itemCount;
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            if (holder != null) {
+                if (holder.mPosition >= positionEnd) {
+                    holder.mPosition -= itemCount;
+                } else if (holder.mPosition >= positionStart) {
+                    holder.addFlags(ViewHolder.FLAG_REMOVED);
+                }
+            }
+        }
+        mRecycler.offsetPositionRecordsForRemove(positionStart, itemCount);
+    }
+
     /**
      * Rebind existing views for the given range, or create as needed.
      *
@@ -1075,17 +1099,22 @@ public class RecyclerView extends ViewGroup {
      * @param itemCount Number of views that must explicitly be rebound
      */
     void viewRangeUpdate(int positionStart, int itemCount) {
-        final int count = getViewHolderCount();
+        final int childCount = getChildCount();
         final int positionEnd = positionStart + itemCount;
 
-        for (int i = 0; i < count; i++) {
-            final ViewHolder holder = mAttachedViewsByPosition.valueAt(i);
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            if (holder == null) {
+                continue;
+            }
+
             final int position = holder.getPosition();
             if (position >= positionStart && position < positionEnd) {
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
                 mAdapter.bindViewHolder(holder, holder.getPosition());
             }
         }
+        mRecycler.viewRangeUpdate(positionStart, itemCount);
     }
 
     /**
@@ -1093,12 +1122,15 @@ public class RecyclerView extends ViewGroup {
      * data change event.
      */
     void markKnownViewsInvalid() {
-        final int count = getViewHolderCount();
+        final int childCount = getChildCount();
 
-        for (int i = 0; i < count; i++) {
-            final ViewHolder holder = mAttachedViewsByPosition.valueAt(i);
-            holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            if (holder != null) {
+                holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+            }
         }
+        mRecycler.markKnownViewsInvalid();
     }
 
     /**
@@ -1127,13 +1159,45 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * Return the adapter position that the given child view corresponds to.
+     *
+     * @param child Child View to query
+     * @return Adapter position corresponding to the given view or {@link #NO_POSITION}
+     */
+    public int getChildPosition(View child) {
+        final ViewHolder holder = getChildViewHolder(child);
+        return holder != null ? holder.getPosition() : NO_POSITION;
+    }
+
+    /**
+     * Return the stable item id that the given child view corresponds to.
+     *
+     * @param child Child View to query
+     * @return Item id corresponding to the given view or {@link #NO_ID}
+     */
+    public long getChildItemId(View child) {
+        if (mAdapter == null || !mAdapter.hasStableIds()) {
+            return NO_ID;
+        }
+        final ViewHolder holder = getChildViewHolder(child);
+        return holder != null ? holder.getItemId() : NO_ID;
+    }
+
+    /**
      * Return the ViewHolder for the item in the given position of the data set.
      *
      * @param position The position of the item in the data set of the adapter
      * @return The ViewHolder at <code>position</code>
      */
     public ViewHolder findViewHolderForPosition(int position) {
-        return mAttachedViewsByPosition.get(position);
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            if (holder != null && holder.getPosition() == position) {
+                return holder;
+            }
+        }
+        return mRecycler.findViewHolderForPosition(position);
     }
 
     /**
@@ -1145,8 +1209,15 @@ public class RecyclerView extends ViewGroup {
      * @return The ViewHolder with the given <code>id</code>, of null if there
      * is no such item.
      */
-    public ViewHolder findViewHolderForId(long id) {
-        return mAttachedViewsById.get(id);
+    public ViewHolder findViewHolderForItemId(long id) {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            if (holder != null && holder.getItemId() == id) {
+                return holder;
+            }
+        }
+        return mRecycler.findViewHolderForItemId(id);
     }
 
     /**
@@ -1177,71 +1248,6 @@ public class RecyclerView extends ViewGroup {
      */
     public ViewHolder getViewHolderForChildAt(int childIndex) {
         return getChildViewHolder(getChildAt(childIndex));
-    }
-
-    /**
-     * Returns the number of ViewHolders currently in the RecyclerView.
-     *
-     * @return The number of ViewHolder items
-     */
-    public int getViewHolderCount() {
-        return mAttachedViewsByPosition.size();
-    }
-
-    public ViewHolder getViewHolderAt(int holderIndex) {
-        return mAttachedViewsByPosition.valueAt(holderIndex);
-    }
-
-    @Override
-    public void addView(View child, int index, ViewGroup.LayoutParams lp) {
-        super.addView(child, index, lp);
-
-        // Support lib version can't use onViewAdded/onViewRemoved.
-        final ViewHolder holder = getChildViewHolder(child);
-        if (holder == null) {
-            throw new IllegalArgumentException("No ViewHolder specified for child view " + child);
-        }
-        mAttachedViewsByPosition.put(holder.getPosition(), holder);
-    }
-
-    @Override
-    public void removeView(View view) {
-        final ViewHolder holder = getChildViewHolder(view);
-        super.removeView(view);
-
-        final int index = mAttachedViewsByPosition.indexOfValue(holder);
-        if (index >= 0) {
-            mAttachedViewsByPosition.removeAt(index);
-        }
-    }
-
-    @Override
-    public void removeViewAt(int index) {
-        final ViewHolder holder = getChildViewHolder(getChildAt(index));
-        super.removeViewAt(index);
-
-        final int posIndex = mAttachedViewsByPosition.indexOfValue(holder);
-        if (posIndex >= 0) {
-            mAttachedViewsByPosition.removeAt(posIndex);
-        }
-    }
-
-    @Override
-    public void removeAllViews() {
-        super.removeAllViews();
-        mAttachedViewsByPosition.clear();
-        mAttachedViewsById.clear();
-    }
-
-    @Override
-    protected void removeDetachedView(View child, boolean animate) {
-        final ViewHolder holder = getChildViewHolder(child);
-        super.removeDetachedView(child, animate);
-
-        final int posIndex = mAttachedViewsByPosition.indexOfValue(holder);
-        if (posIndex >= 0) {
-            mAttachedViewsByPosition.removeAt(posIndex);
-        }
     }
 
     /**
@@ -1454,6 +1460,7 @@ public class RecyclerView extends ViewGroup {
     public static class RecycledViewPool {
         private ArrayList<ViewHolder>[] mScrap;
         private int[] mMaxScrap;
+        private int mAttachCount;
 
         private static final int DEFAULT_MAX_SCRAP = 5;
 
@@ -1499,9 +1506,28 @@ public class RecyclerView extends ViewGroup {
 
             scrap.mPosition = NO_POSITION;
             scrap.mItemId = NO_ID;
-            scrap.setFlags(0, ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE |
-                    ViewHolder.FLAG_INVALID);
+            scrap.clearFlagsForSharedPool();
             mScrap[type].add(scrap);
+        }
+
+        void attach(Adapter adapter) {
+            mAttachCount++;
+            if (mAttachCount == 1 && adapter != null) {
+                reset(adapter.getItemViewTypeCount());
+            }
+        }
+
+        void detach() {
+            mAttachCount--;
+        }
+
+        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
+            if (mAttachCount != 1 &&
+                    oldAdapter.getItemViewTypeCount() != newAdapter.getItemViewTypeCount()) {
+                throw new IllegalStateException("Cannot set a new adapter with a different " +
+                        "view type count when using a shared RecycledViewPool!");
+            }
+            reset(newAdapter.getItemViewTypeCount());
         }
     }
 
@@ -1521,7 +1547,12 @@ public class RecyclerView extends ViewGroup {
     public final class Recycler {
         private final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
 
+        private final ArrayList<ViewHolder> mCachedViews = new ArrayList<ViewHolder>();
+        private int mViewCacheMax = DEFAULT_CACHE_SIZE;
+
         private RecycledViewPool mRecyclerPool;
+
+        private static final int DEFAULT_CACHE_SIZE = 5;
 
         /**
          * Clear scrap views out of this recycler. Detached views contained within a
@@ -1529,6 +1560,19 @@ public class RecyclerView extends ViewGroup {
          */
         public void clear() {
             mAttachedScrap.clear();
+            mCachedViews.clear();
+        }
+
+        /**
+         * Set the maximum number of detached, valid views we should retain for later use.
+         *
+         * @param viewCount Number of views to keep before sending views to the shared pool
+         */
+        public void setViewCacheSize(int viewCount) {
+            mViewCacheMax = viewCount;
+            while (mCachedViews.size() > viewCount) {
+                mCachedViews.remove(mCachedViews.size() - 1);
+            }
         }
 
         /**
@@ -1568,9 +1612,13 @@ public class RecyclerView extends ViewGroup {
             if (holder == null) {
                 holder = adapter.createViewHolder(RecyclerView.this, type);
                 holder.mItemViewType = type;
+                if (DEBUG) Log.d(TAG, "getViewForPosition created new ViewHolder");
             }
 
             if (!holder.isBound() || holder.needsUpdate()) {
+                if (DEBUG) {
+                    Log.d(TAG, "getViewForPosition unbound holder or needs update; updating...");
+                }
                 bindViewHolder(holder, position, adapter);
             }
 
@@ -1613,10 +1661,20 @@ public class RecyclerView extends ViewGroup {
                 throw new IllegalArgumentException(
                         "Scrapped or attached views may not be recycled.");
             }
-            // TODO: Save a first-level cache of recently recycled views before dumping it
-            // in the pool.
-            getRecycledViewPool().putRecycledView(holder);
-            dispatchViewRecycled(holder);
+
+            // Retire oldest cached views first
+            if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
+                final ViewHolder recycledView = mCachedViews.get(0);
+                getRecycledViewPool().putRecycledView(recycledView);
+                mCachedViews.remove(0);
+                dispatchViewRecycled(recycledView);
+            }
+            if (mCachedViews.size() < mViewCacheMax) {
+                mCachedViews.add(holder);
+            } else {
+                getRecycledViewPool().putRecycledView(holder);
+                dispatchViewRecycled(holder);
+            }
         }
 
         /**
@@ -1715,21 +1773,33 @@ public class RecyclerView extends ViewGroup {
                     }
                     mAttachedScrap.remove(i);
                     holder.setScrapContainer(null);
+                    if (DEBUG) {
+                        Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
+                            ") found exact match in scrap: " + holder);
+                    }
                     return holder;
                 }
             }
 
-            // Oh well. Get anything from scrap with a matching type instead.
-            for (int i = 0; i < scrapCount; i++) {
-                final ViewHolder holder = mAttachedScrap.get(i);
-                if (holder.getItemViewType() == type) {
-                    mAttachedScrap.remove(i);
-                    holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
-                    holder.setScrapContainer(null);
+            // Search in our first-level recycled view cache.
+            final int cacheSize = mCachedViews.size();
+            for (int i = 0; i < cacheSize; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder.getPosition() == position) {
+                    mCachedViews.remove(i);
+                    if (DEBUG) {
+                        Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
+                            ") found match in cache: " + holder);
+                    }
                     return holder;
                 }
             }
 
+            // Give up. Head to the shared pool.
+            if (DEBUG) {
+                Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
+                    ") fetching from shared pool");
+            }
             return getRecycledViewPool().getRecycledView(type);
         }
 
@@ -1749,6 +1819,16 @@ public class RecyclerView extends ViewGroup {
                 }
             }
 
+            // Search the first-level cache
+            final int cacheSize = mCachedViews.size();
+            for (int i = 0; i < cacheSize; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder.getItemId() == id) {
+                    mCachedViews.remove(i);
+                    return holder;
+                }
+            }
+
             // That didn't work, look for an unordered view of the right type instead.
             // The holder's position won't match so the calling code will need to have
             // the adapter rebind it.
@@ -1762,28 +1842,54 @@ public class RecyclerView extends ViewGroup {
             if (mAdapter != null) {
                 mAdapter.onViewRecycled(holder);
             }
+            if (DEBUG) Log.d(TAG, "dispatchViewRecycled: " + holder);
         }
 
         void onGenericDataChanged() {
-            clear();
+            markKnownViewsInvalid();
         }
 
-        void onAdapterChanged() {
+        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
             clear();
-            final int typeCount = mAdapter != null ? mAdapter.getItemViewTypeCount() : 0;
-            getRecycledViewPool().reset(typeCount);
+            getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter);
         }
 
         void offsetPositionRecordsForInsert(int insertedAt, int count) {
-            // TODO
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder != null && holder.getPosition() >= insertedAt) {
+                    holder.mPosition += count;
+                }
+            }
         }
 
-        void offsetPositionRecordsForRemove(int insertedAt, int count) {
-            // TODO
+        void offsetPositionRecordsForRemove(int removedFrom, int count) {
+            final int removedEnd = removedFrom + count;
+            final int cachedCount = mCachedViews.size();
+            for (int i = cachedCount - 1; i >= 0; i--) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder != null) {
+                    if (holder.getPosition() >= removedEnd) {
+                        holder.mPosition += count;
+                    } else if (holder.getPosition() >= removedFrom) {
+                        // Item for this view was removed. Dump it from the cache.
+                        mCachedViews.remove(i);
+                        getRecycledViewPool().putRecycledView(holder);
+                        dispatchViewRecycled(holder);
+                    }
+                }
+            }
         }
 
         void setRecycledViewPool(RecycledViewPool pool) {
+            if (mRecyclerPool != null) {
+                mRecyclerPool.detach();
+            }
             mRecyclerPool = pool;
+            if (pool != null) {
+                mRecyclerPool.attach(getAdapter());
+            }
         }
 
         RecycledViewPool getRecycledViewPool() {
@@ -1791,6 +1897,60 @@ public class RecyclerView extends ViewGroup {
                 mRecyclerPool = new RecycledViewPool();
             }
             return mRecyclerPool;
+        }
+
+        ViewHolder findViewHolderForPosition(int position) {
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder != null && holder.getPosition() == position) {
+                    mCachedViews.remove(i);
+                    return holder;
+                }
+            }
+            return null;
+        }
+
+        ViewHolder findViewHolderForItemId(long id) {
+            if (!mAdapter.hasStableIds()) {
+                return null;
+            }
+
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder != null && holder.getItemId() == id) {
+                    mCachedViews.remove(i);
+                    return holder;
+                }
+            }
+            return null;
+        }
+
+        void viewRangeUpdate(int positionStart, int itemCount) {
+            final int positionEnd = positionStart + itemCount;
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder == null) {
+                    continue;
+                }
+
+                final int pos = holder.getPosition();
+                if (pos >= positionStart && pos < positionEnd) {
+                    holder.addFlags(ViewHolder.FLAG_UPDATE);
+                }
+            }
+        }
+
+        void markKnownViewsInvalid() {
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder != null) {
+                    holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+                }
+            }
         }
     }
 
@@ -2279,7 +2439,9 @@ public class RecyclerView extends ViewGroup {
             if (holder.isScrap()) {
                 holder.unScrap();
                 mRecyclerView.attachViewToParent(child, index, child.getLayoutParams());
-                ViewCompat.dispatchFinishTemporaryDetach(child);
+                if (DISPATCH_TEMP_DETACH) {
+                    ViewCompat.dispatchFinishTemporaryDetach(child);
+                }
             } else {
                 mRecyclerView.addView(child, index);
             }
@@ -2344,7 +2506,9 @@ public class RecyclerView extends ViewGroup {
          * @param child Child to detach
          */
         public void detachView(View child) {
-            ViewCompat.dispatchStartTemporaryDetach(child);
+            if (DISPATCH_TEMP_DETACH) {
+                ViewCompat.dispatchStartTemporaryDetach(child);
+            }
             mRecyclerView.detachViewFromParent(child);
         }
 
@@ -2364,7 +2528,9 @@ public class RecyclerView extends ViewGroup {
          * @param index Index of the child to detach
          */
         public void detachViewAt(int index) {
-            ViewCompat.dispatchStartTemporaryDetach(mRecyclerView.getChildAt(index));
+            if (DISPATCH_TEMP_DETACH) {
+                ViewCompat.dispatchStartTemporaryDetach(mRecyclerView.getChildAt(index));
+            }
             mRecyclerView.detachViewFromParent(index);
         }
 
@@ -2379,7 +2545,9 @@ public class RecyclerView extends ViewGroup {
          */
         public void attachView(View child, int index, LayoutParams lp) {
             mRecyclerView.attachViewToParent(child, index, lp);
-            ViewCompat.dispatchFinishTemporaryDetach(child);
+            if (DISPATCH_TEMP_DETACH)  {
+                ViewCompat.dispatchFinishTemporaryDetach(child);
+            }
         }
 
         /**
@@ -2559,6 +2727,26 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Returns true if the RecyclerView this LayoutManager is bound to has focus.
+         *
+         * @return True if the RecyclerView has focus, false otherwise.
+         * @see View#isFocused()
+         */
+        public boolean isFocused() {
+            return mRecyclerView != null && mRecyclerView.isFocused();
+        }
+
+        /**
+         * Returns true if the RecyclerView this LayoutManager is bound to has or contains focus.
+         *
+         * @return true if the RecyclerView has or contains focus
+         * @see View#hasFocus()
+         */
+        public boolean hasFocus() {
+            return mRecyclerView != null && mRecyclerView.hasFocus();
+        }
+
+        /**
          * Return the number of items in the adapter bound to the parent RecyclerView
          *
          * @return Items in the bound adapter
@@ -2643,6 +2831,31 @@ public class RecyclerView extends ViewGroup {
                     canScrollHorizontally());
             final int heightSpec = getChildMeasureSpec(getHeight(),
                     getPaddingTop() + getPaddingBottom() + heightUsed, lp.height,
+                    canScrollVertically());
+            child.measure(widthSpec, heightSpec);
+        }
+
+        /**
+         * Measure a child view using standard measurement policy, taking the padding
+         * of the parent RecyclerView and the child margins into account.
+         *
+         * <p>If the RecyclerView can be scrolled in either dimension the caller may
+         * pass 0 as the widthUsed or heightUsed parameters as they will be irrelevant.</p>
+         *
+         * @param child Child view to measure
+         * @param widthUsed Width in pixels currently consumed by other views, if relevant
+         * @param heightUsed Height in pixels currently consumed by other views, if relevant
+         */
+        public void measureChildWithMargins(View child, int widthUsed, int heightUsed) {
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            final int widthSpec = getChildMeasureSpec(getWidth(),
+                    getPaddingLeft() + getPaddingRight() +
+                            lp.leftMargin + lp.rightMargin + widthUsed, lp.width,
+                    canScrollHorizontally());
+            final int heightSpec = getChildMeasureSpec(getHeight(),
+                    getPaddingTop() + getPaddingBottom() +
+                            lp.topMargin + lp.bottomMargin + heightUsed, lp.height,
                     canScrollVertically());
             child.measure(widthSpec, heightSpec);
         }
@@ -2792,6 +3005,7 @@ public class RecyclerView extends ViewGroup {
          * behavior of scrolling the focused child on screen instead of running alongside it,
          * this method should return true.</p>
          *
+         * @param parent The RecyclerView hosting this LayoutManager
          * @param child Direct child of the RecyclerView containing the newly focused view
          * @param focused The newly focused view. This may be the same view as child
          * @return true if the default scroll behavior should be suppressed
@@ -2971,6 +3185,12 @@ public class RecyclerView extends ViewGroup {
          */
         static final int FLAG_INVALID = 1 << 2;
 
+        /**
+         * This ViewHolder points at data that represents an item previously removed from the
+         * data set. Its view may still be used for things like outgoing animations.
+         */
+        static final int FLAG_REMOVED = 1 << 3;
+
         private int mFlags;
 
         // If non-null, view is currently considered scrap and may be reused for other data by the
@@ -3021,12 +3241,33 @@ public class RecyclerView extends ViewGroup {
             return (mFlags & FLAG_BOUND) != 0;
         }
 
+        boolean isRemoved() {
+            return (mFlags & FLAG_REMOVED) != 0;
+        }
+
         void setFlags(int flags, int mask) {
             mFlags = (mFlags & ~mask) | (flags & mask);
         }
 
         void addFlags(int flags) {
             mFlags |= flags;
+        }
+
+        void clearFlagsForSharedPool() {
+            mFlags = 0;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("ViewHolder{" +
+                    Integer.toHexString(hashCode()) + " position=" + mPosition + " id=" + mItemId);
+            if (isScrap()) sb.append(" scrap");
+            if (isInvalid()) sb.append(" invalid");
+            if (!isBound()) sb.append(" unbound");
+            if (needsUpdate()) sb.append(" update");
+            if (isRemoved()) sb.append(" removed");
+            sb.append("}");
+            return sb.toString();
         }
     }
 
@@ -3114,6 +3355,26 @@ public class RecyclerView extends ViewGroup {
          */
         public boolean isViewInvalid() {
             return mViewHolder.isInvalid();
+        }
+
+        /**
+         * Returns true if the adapter data item corresponding to the view this LayoutParams
+         * is attached to has been removed from the data set. A LayoutManager may choose to
+         * treat it differently in order to animate its outgoing or disappearing state.
+         *
+         * @return true if the item the view corresponds to was removed from the data set
+         */
+        public boolean isItemRemoved() {
+            return mViewHolder.isRemoved();
+        }
+
+        /**
+         * Returns the position that the view this LayoutParams is attached to corresponds to.
+         *
+         * @return the adapter position this view was bound from
+         */
+        public int getViewPosition() {
+            return mViewHolder.getPosition();
         }
     }
 
