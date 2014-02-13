@@ -103,7 +103,7 @@ public class RecyclerViewActivity extends Activity {
             for (int i = 0; mFirstPosition + i < count && top < parentBottom; i++, top = bottom) {
                 View v = recycler.getViewForPosition(adapter, mFirstPosition + i);
                 addView(v, i);
-                measureChild(v, 0, 0);
+                measureChildWithMargins(v, 0, 0);
                 bottom = top + v.getMeasuredHeight();
                 v.layout(left, top, right, bottom);
             }
@@ -143,7 +143,7 @@ public class RecyclerViewActivity extends Activity {
                         mFirstPosition--;
                         View v = recycler.getViewForPosition(adapter, mFirstPosition);
                         addView(v, 0);
-                        measureChild(v, 0, 0);
+                        measureChildWithMargins(v, 0, 0);
                         final int bottom = topView.getTop(); // TODO decorated top?
                         final int top = bottom - v.getMeasuredHeight();
                         v.layout(left, top, right, bottom);
@@ -164,7 +164,7 @@ public class RecyclerViewActivity extends Activity {
                                 mFirstPosition + getChildCount());
                         final int top = getChildAt(getChildCount() - 1).getBottom();
                         addView(v);
-                        measureChild(v, 0, 0);
+                        measureChildWithMargins(v, 0, 0);
                         final int bottom = top + v.getMeasuredHeight();
                         v.layout(left, top, right, bottom);
                     } else {
@@ -196,7 +196,7 @@ public class RecyclerViewActivity extends Activity {
                     View v = recycler.getViewForPosition(adapter, mFirstPosition);
                     final int bottom = getChildAt(0).getTop(); // TODO decorated top?
                     addView(v, 0);
-                    measureChild(v, 0, 0);
+                    measureChildWithMargins(v, 0, 0);
                     final int top = bottom - v.getMeasuredHeight();
                     v.layout(left, top, right, bottom);
                     if (v.isFocusable()) {
@@ -211,7 +211,7 @@ public class RecyclerViewActivity extends Activity {
                     View v = recycler.getViewForPosition(adapter, mFirstPosition + getChildCount());
                     final int top = getChildAt(getChildCount() - 1).getBottom();
                     addView(v);
-                    measureChild(v, 0, 0);
+                    measureChildWithMargins(v, 0, 0);
                     final int bottom = top + v.getMeasuredHeight();
                     v.layout(left, top, right, bottom);
                     if (v.isFocusable()) {
@@ -256,7 +256,7 @@ public class RecyclerViewActivity extends Activity {
         }
     }
 
-    class MyAdapter extends RecyclerView.Adapter {
+    class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         private int mBackground;
         private ArrayList<String> mValues;
 
@@ -270,7 +270,7 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public RecyclerView.ViewHolder createViewHolder(ViewGroup parent, int viewType) {
+        public ViewHolder createViewHolder(ViewGroup parent, int viewType) {
             final ViewHolder h = new ViewHolder(new TextView(RecyclerViewActivity.this));
             h.textView.setMinimumHeight(128);
             h.textView.setFocusable(true);
@@ -283,7 +283,7 @@ public class RecyclerViewActivity extends Activity {
                         final String t = mValues.get(pos);
                         mValues.set(pos, mValues.get(pos + 1));
                         mValues.set(pos + 1, t);
-                        notifyDataSetChanged();
+                        notifyItemRangeChanged(pos, 2);
                     }
                 }
             });
@@ -291,8 +291,8 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public void bindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            ((ViewHolder) holder).textView.setText(mValues.get(position));
+        public void bindViewHolder(ViewHolder holder, int position) {
+            holder.textView.setText(mValues.get(position));
         }
 
         @Override
