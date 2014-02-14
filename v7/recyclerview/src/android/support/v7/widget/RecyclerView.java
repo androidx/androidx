@@ -1527,10 +1527,25 @@ public class RecyclerView extends ViewGroup {
         }
 
         void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
-            if (mAttachCount != 1 &&
-                    oldAdapter.getItemViewTypeCount() != newAdapter.getItemViewTypeCount()) {
-                throw new IllegalStateException("Cannot set a new adapter with a different " +
-                        "view type count when using a shared RecycledViewPool!");
+            if (mAttachCount != 1) {
+                if (newAdapter == null) {
+                    // A RecyclerView changing to a null adapter is fine when it has a shared pool.
+                    // We only care about matching counts once we need to set a new real adapter.
+                    return;
+                }
+                final int oldCount;
+                if (oldAdapter != null) {
+                    oldCount = oldAdapter.getItemViewTypeCount();
+                } else if (mScrap != null) {
+                    oldCount = mScrap.length;
+                } else {
+                    oldCount = 0;
+                }
+
+                if (oldCount != newAdapter.getItemViewTypeCount()) {
+                    throw new IllegalStateException("Cannot set a new adapter with a different " +
+                            "view type count when using a shared RecycledViewPool!");
+                }
             }
             reset(newAdapter.getItemViewTypeCount());
         }
