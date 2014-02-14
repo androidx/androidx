@@ -1047,11 +1047,19 @@ public class RecyclerView extends ViewGroup {
             final UpdateOp op = mPendingUpdates.get(i);
             switch (op.cmd) {
                 case UpdateOp.ADD:
+                    if (DEBUG) {
+                        Log.d(TAG, "UpdateOp.ADD start=" + op.positionStart + " count=" +
+                                op.itemCount);
+                    }
                     offsetPositionRecordsForInsert(op.positionStart, op.itemCount);
 
                     // TODO Animate it in
                     break;
                 case UpdateOp.REMOVE:
+                    if (DEBUG) {
+                        Log.d(TAG, "UpdateOp.REMOVE start=" + op.positionStart + " count=" +
+                                op.itemCount);
+                    }
                     offsetPositionRecordsForRemove(op.positionStart, op.itemCount);
 
                     // TODO Animate it away
@@ -1066,30 +1074,54 @@ public class RecyclerView extends ViewGroup {
     }
 
     void offsetPositionRecordsForInsert(int positionStart, int itemCount) {
+        boolean needsLayout = false;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolder(getChildAt(i));
             if (holder != null && holder.mPosition >= positionStart) {
+                if (DEBUG) {
+                    Log.d(TAG, "offsetPositionRecordsForInsert attached child " + i + " holder " +
+                            holder + " now at position " + (holder.mPosition + itemCount));
+                }
                 holder.mPosition += itemCount;
+                needsLayout = true;
             }
         }
         mRecycler.offsetPositionRecordsForInsert(positionStart, itemCount);
+        if (needsLayout) {
+            requestLayout();
+        }
     }
 
     void offsetPositionRecordsForRemove(int positionStart, int itemCount) {
+        boolean needsLayout = false;
         final int positionEnd = positionStart + itemCount;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolder(getChildAt(i));
             if (holder != null) {
                 if (holder.mPosition >= positionEnd) {
+                    if (DEBUG) {
+                        Log.d(TAG, "offsetPositionRecordsForRemove attached child " + i +
+                                " holder " + holder + " now at position " +
+                                (holder.mPosition - itemCount));
+                    }
                     holder.mPosition -= itemCount;
+                    needsLayout = true;
                 } else if (holder.mPosition >= positionStart) {
+                    if (DEBUG) {
+                        Log.d(TAG, "offsetPositionRecordsForRemove attached child " + i +
+                                " holder " + holder + " now REMOVED");
+                    }
                     holder.addFlags(ViewHolder.FLAG_REMOVED);
+                    needsLayout = true;
                 }
             }
         }
         mRecycler.offsetPositionRecordsForRemove(positionStart, itemCount);
+        if (needsLayout) {
+            requestLayout();
+        }
     }
 
     /**
@@ -1111,7 +1143,8 @@ public class RecyclerView extends ViewGroup {
             final int position = holder.getPosition();
             if (position >= positionStart && position < positionEnd) {
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
-                mAdapter.bindViewHolder(holder, holder.getPosition());
+                // Binding an attached view will request a layout if needed.
+                bindViewHolder(holder, holder.getPosition(), mAdapter);
             }
         }
         mRecycler.viewRangeUpdate(positionStart, itemCount);
@@ -1869,6 +1902,10 @@ public class RecyclerView extends ViewGroup {
             for (int i = 0; i < cachedCount; i++) {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder != null && holder.getPosition() >= insertedAt) {
+                    if (DEBUG) {
+                        Log.d(TAG, "offsetPositionRecordsForInsert cached " + i + " holder " +
+                                holder + " now at position " + (holder.mPosition + count));
+                    }
                     holder.mPosition += count;
                 }
             }
@@ -1881,9 +1918,18 @@ public class RecyclerView extends ViewGroup {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder != null) {
                     if (holder.getPosition() >= removedEnd) {
-                        holder.mPosition += count;
+                        if (DEBUG) {
+                            Log.d(TAG, "offsetPositionRecordsForRemove cached " + i +
+                                    " holder " + holder + " now at position " +
+                                    (holder.mPosition - count));
+                        }
+                        holder.mPosition -= count;
                     } else if (holder.getPosition() >= removedFrom) {
                         // Item for this view was removed. Dump it from the cache.
+                        if (DEBUG) {
+                            Log.d(TAG, "offsetPositionRecordsForRemove cached " + i +
+                                    " holder " + holder + " now placed in pool");
+                        }
                         mCachedViews.remove(i);
                         getRecycledViewPool().putRecycledView(holder);
                         dispatchViewRecycled(holder);
