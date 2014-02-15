@@ -1469,11 +1469,9 @@ public class RecyclerView extends ViewGroup {
         public void onChanged() {
             if (mAdapter.hasStableIds()) {
                 // TODO Determine what actually changed
-                mRecycler.onGenericDataChanged();
                 markKnownViewsInvalid();
                 requestLayout();
             } else {
-                mRecycler.onGenericDataChanged();
                 markKnownViewsInvalid();
                 requestLayout();
             }
@@ -1727,7 +1725,7 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
             }
-            if (mCachedViews.size() < mViewCacheMax || holder.isRecyclable()) {
+            if (mCachedViews.size() < mViewCacheMax || !holder.isRecyclable()) {
                 mCachedViews.add(holder);
             } else {
                 getRecycledViewPool().putRecycledView(holder);
@@ -1845,9 +1843,28 @@ public class RecyclerView extends ViewGroup {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder.getPosition() == position) {
                     mCachedViews.remove(i);
+                    if (holder.isInvalid() && holder.getItemViewType() != type) {
+                        // Can't use it. We don't know where it's been.
+                        if (DEBUG) {
+                            Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
+                                    ") found position match, but holder is invalid with type " +
+                                    holder.getItemViewType());
+                        }
+
+                        if (holder.isRecyclable()) {
+                            getRecycledViewPool().putRecycledView(holder);
+                        }
+                        // Even if the holder wasn't officially recycleable, dispatch that it
+                        // was recycled anyway in case there are resources to unbind.
+                        dispatchViewRecycled(holder);
+
+                        // Drop out of the cache search and try something else instead,
+                        // we won't find another match here.
+                        break;
+                    }
                     if (DEBUG) {
                         Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
-                            ") found match in cache: " + holder);
+                                ") found match in cache: " + holder);
                     }
                     return holder;
                 }
@@ -1901,10 +1918,6 @@ public class RecyclerView extends ViewGroup {
                 mAdapter.onViewRecycled(holder);
             }
             if (DEBUG) Log.d(TAG, "dispatchViewRecycled: " + holder);
-        }
-
-        void onGenericDataChanged() {
-            markKnownViewsInvalid();
         }
 
         void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
