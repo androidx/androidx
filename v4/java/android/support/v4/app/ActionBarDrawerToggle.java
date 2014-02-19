@@ -137,11 +137,34 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
     }
 
+    private static class ActionBarDrawerToggleImplJellybeanMR2
+            implements ActionBarDrawerToggleImpl {
+        @Override
+        public Drawable getThemeUpIndicator(Activity activity) {
+            return ActionBarDrawerToggleJellybeanMR2.getThemeUpIndicator(activity);
+        }
+
+        @Override
+        public Object setActionBarUpIndicator(Object info, Activity activity,
+                Drawable themeImage, int contentDescRes) {
+            return ActionBarDrawerToggleJellybeanMR2.setActionBarUpIndicator(info, activity,
+                    themeImage, contentDescRes);
+        }
+
+        @Override
+        public Object setActionBarDescription(Object info, Activity activity, int contentDescRes) {
+            return ActionBarDrawerToggleJellybeanMR2.setActionBarDescription(info, activity,
+                    contentDescRes);
+        }
+    }
+
     private static final ActionBarDrawerToggleImpl IMPL;
 
     static {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= 11) {
+        if (version >= 18) {
+            IMPL = new ActionBarDrawerToggleImplJellybeanMR2();
+        } else if (version >= 11) {
             IMPL = new ActionBarDrawerToggleImplHC();
         } else {
             IMPL = new ActionBarDrawerToggleImplBase();
