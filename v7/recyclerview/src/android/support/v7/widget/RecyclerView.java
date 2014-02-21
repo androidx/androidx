@@ -30,6 +30,8 @@ import android.support.v4.widget.EdgeEffectCompat;
 import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.FocusFinder;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -1449,22 +1451,6 @@ public class RecyclerView extends ViewGroup {
     }
 
     private class RecyclerViewDataObserver extends AdapterDataObserver {
-        // These two fields act like a SparseLongArray for tracking nearby position-id mappings.
-        // Values with the same index correspond to one another. mPositions is in ascending order.
-        private int[] mPositions;
-        private long[] mIds;
-        private int mMappingSize;
-
-        void initIdMapping() {
-
-        }
-
-        void clearIdMapping() {
-            mPositions = null;
-            mIds = null;
-            mMappingSize = 0;
-        }
-
         @Override
         public void onChanged() {
             if (mAdapter.hasStableIds()) {
@@ -1494,38 +1480,34 @@ public class RecyclerView extends ViewGroup {
     }
 
     public static class RecycledViewPool {
-        private ArrayList<ViewHolder>[] mScrap;
-        private int[] mMaxScrap;
-        private int mAttachCount;
+        private SparseArray<ArrayList<ViewHolder>> mScrap =
+                new SparseArray<ArrayList<ViewHolder>>();
+        private SparseIntArray mMaxScrap = new SparseIntArray();
+        private int mAttachCount = 0;
 
         private static final int DEFAULT_MAX_SCRAP = 5;
 
         public void clear() {
-            final int count = mScrap.length;
-            for (int i = 0; i < count; i++) {
-                mScrap[i].clear();
-            }
+            mScrap.clear();
         }
 
+        /** @deprecated No longer needed */
         public void reset(int typeCount) {
-            mScrap = new ArrayList[typeCount];
-            mMaxScrap = new int[typeCount];
-            for (int i = 0; i < typeCount; i++) {
-                mScrap[i] = new ArrayList<ViewHolder>(DEFAULT_MAX_SCRAP);
-                mMaxScrap[i] = DEFAULT_MAX_SCRAP;
-            }
         }
 
         public void setMaxRecycledViews(int viewType, int max) {
-            mMaxScrap[viewType] = max;
-            while (mScrap[viewType].size() > max) {
-                mScrap[viewType].remove(mScrap[viewType].size() - 1);
+            mMaxScrap.put(viewType, max);
+            final ArrayList<ViewHolder> scrapHeap = mScrap.get(viewType);
+            if (scrapHeap != null) {
+                while (scrapHeap.size() > max) {
+                    scrapHeap.remove(scrapHeap.size() - 1);
+                }
             }
         }
 
         public ViewHolder getRecycledView(int viewType) {
-            final ArrayList<ViewHolder> scrapHeap = mScrap[viewType];
-            if (!scrapHeap.isEmpty()) {
+            final ArrayList<ViewHolder> scrapHeap = mScrap.get(viewType);
+            if (scrapHeap != null && !scrapHeap.isEmpty()) {
                 final int index = scrapHeap.size() - 1;
                 final ViewHolder scrap = scrapHeap.get(index);
                 scrapHeap.remove(index);
@@ -1535,50 +1517,43 @@ public class RecyclerView extends ViewGroup {
         }
 
         public void putRecycledView(ViewHolder scrap) {
-            final int type = scrap.getItemViewType();
-            if (mMaxScrap[type] <= mScrap[type].size()) {
+            final int viewType = scrap.getItemViewType();
+            final ArrayList scrapHeap = getScrapHeapForType(viewType);
+            if (mMaxScrap.get(viewType) <= scrapHeap.size()) {
                 return;
             }
 
             scrap.mPosition = NO_POSITION;
             scrap.mItemId = NO_ID;
             scrap.clearFlagsForSharedPool();
-            mScrap[type].add(scrap);
+            scrapHeap.add(scrap);
         }
 
         void attach(Adapter adapter) {
             mAttachCount++;
-            if (mAttachCount == 1 && adapter != null) {
-                reset(adapter.getItemViewTypeCount());
-            }
         }
 
         void detach() {
             mAttachCount--;
         }
 
-        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
-            if (mAttachCount != 1) {
-                if (newAdapter == null) {
-                    // A RecyclerView changing to a null adapter is fine when it has a shared pool.
-                    // We only care about matching counts once we need to set a new real adapter.
-                    return;
-                }
-                final int oldCount;
-                if (oldAdapter != null) {
-                    oldCount = oldAdapter.getItemViewTypeCount();
-                } else if (mScrap != null) {
-                    oldCount = mScrap.length;
-                } else {
-                    oldCount = 0;
-                }
 
-                if (oldCount != newAdapter.getItemViewTypeCount()) {
-                    throw new IllegalStateException("Cannot set a new adapter with a different " +
-                            "view type count when using a shared RecycledViewPool!");
+        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
+            if (mAttachCount == 1) {
+                clear();
+            }
+        }
+
+        private ArrayList<ViewHolder> getScrapHeapForType(int viewType) {
+            ArrayList<ViewHolder> scrap = mScrap.get(viewType);
+            if (scrap == null) {
+                scrap = new ArrayList<ViewHolder>();
+                mScrap.put(viewType, scrap);
+                if (mMaxScrap.indexOfKey(viewType) < 0) {
+                    mMaxScrap.put(viewType, DEFAULT_MAX_SCRAP);
                 }
             }
-            reset(newAdapter.getItemViewTypeCount());
+            return scrap;
         }
     }
 
@@ -2047,6 +2022,8 @@ public class RecyclerView extends ViewGroup {
     public static abstract class Adapter<VH extends ViewHolder> {
         private final AdapterDataObservable mObservable = new AdapterDataObservable();
         private boolean mHasStableIds = false;
+
+        /** @deprecated */
         private int mViewTypeCount = 1;
 
         public abstract VH createViewHolder(ViewGroup parent, int viewType);
@@ -2057,13 +2034,12 @@ public class RecyclerView extends ViewGroup {
          * of view recycling.
          *
          * <p>The default implementation of this method returns 0, making the assumption of
-         * the default item view type count of 1. If you change the item view type using
-         * {@link #setItemViewTypeCount(int)} you should also override this method to return
-         * the correct view type for each item in your data set.</p>
+         * a single view type for the adapter. Unlike ListView adapters, types need not
+         * be contiguous. Consider using id resources to uniquely identify item view types.
          *
          * @param position position to query
-         * @return integer in the range [0-{@link #getItemViewTypeCount()}) identifying the type
-         *         of the view needed to represent the item at <code>position</code>
+         * @return integer value identifying the type of the view needed to represent the item at
+         *                 <code>position</code>. Type codes need not be contiguous.
          */
         public int getItemViewType(int position) {
             return 0;
@@ -2077,15 +2053,11 @@ public class RecyclerView extends ViewGroup {
          * @param count Number of item view types required
          * @see #getItemViewTypeCount()
          * @see #getItemViewType(int)
+         *
+         * @deprecated This method is no longer necessary. View types are now unbounded.
          */
         public void setItemViewTypeCount(int count) {
-            if (hasObservers()) {
-                throw new IllegalStateException("Cannot change the item view type count while " +
-                        "the adapter has registered observers.");
-            }
-            if (count < 1) {
-                throw new IllegalArgumentException("Adapter must support at least 1 view type");
-            }
+            Log.w(TAG, "setItemViewTypeCount is deprecated and no longer needed.");
             mViewTypeCount = count;
         }
 
@@ -2095,8 +2067,12 @@ public class RecyclerView extends ViewGroup {
          * @return Number of item view types supported
          * @see #setItemViewTypeCount(int)
          * @see #getItemViewType(int)
+         *
+         * @deprecated This method is no longer necessary. View types are now unbounded.
          */
         public final int getItemViewTypeCount() {
+            Log.w(TAG, "getItemViewTypeCount is no longer needed. " +
+                    "View type count is now unbounded.");
             return mViewTypeCount;
         }
 
