@@ -118,6 +118,7 @@ public class RecyclerView extends ViewGroup {
     private boolean mEatRequestLayout;
     private boolean mLayoutRequestEaten;
     private boolean mAdapterUpdateDuringMeasure;
+    private boolean mStructureChanged;
     private final boolean mPostUpdatesOnAnimation;
 
     private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
@@ -462,7 +463,7 @@ public class RecyclerView extends ViewGroup {
         if (mEatRequestLayout) {
             if (performLayoutChildren && mLayoutRequestEaten &&
                     mLayout != null && mAdapter != null) {
-                mLayout.layoutChildren(mAdapter, mRecycler);
+                layoutChildren();
             }
             mEatRequestLayout = false;
             mLayoutRequestEaten = false;
@@ -947,7 +948,7 @@ public class RecyclerView extends ViewGroup {
             return;
         }
         eatRequestLayout();
-        mLayout.layoutChildren(mAdapter, mRecycler);
+        layoutChildren();
         resumeRequestLayout(false);
         mFirstLayoutComplete = true;
     }
@@ -959,6 +960,11 @@ public class RecyclerView extends ViewGroup {
         } else {
             mLayoutRequestEaten = true;
         }
+    }
+
+    void layoutChildren() {
+        mLayout.layoutChildren(mAdapter, mRecycler, mStructureChanged);
+        mStructureChanged = false;
     }
 
     @Override
@@ -1087,6 +1093,7 @@ public class RecyclerView extends ViewGroup {
                 }
                 holder.mPosition += itemCount;
                 needsLayout = true;
+                mStructureChanged = true;
             }
         }
         mRecycler.offsetPositionRecordsForInsert(positionStart, itemCount);
@@ -1110,6 +1117,7 @@ public class RecyclerView extends ViewGroup {
                     }
                     holder.mPosition -= itemCount;
                     needsLayout = true;
+                    mStructureChanged = true;
                 } else if (holder.mPosition >= positionStart) {
                     if (DEBUG) {
                         Log.d(TAG, "offsetPositionRecordsForRemove attached child " + i +
@@ -1117,6 +1125,7 @@ public class RecyclerView extends ViewGroup {
                     }
                     holder.addFlags(ViewHolder.FLAG_REMOVED);
                     needsLayout = true;
+                    mStructureChanged = true;
                 }
             }
         }
@@ -1146,7 +1155,7 @@ public class RecyclerView extends ViewGroup {
             if (position >= positionStart && position < positionEnd) {
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
                 // Binding an attached view will request a layout if needed.
-                bindViewHolder(holder, holder.getPosition(), mAdapter);
+                mAdapter.bindViewHolder(holder, holder.getPosition());
             }
         }
         mRecycler.viewRangeUpdate(positionStart, itemCount);
@@ -1311,16 +1320,6 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
-    static void bindViewHolder(ViewHolder holder, int position, Adapter adapter) {
-        holder.mPosition = position;
-        if (adapter.hasStableIds()) {
-            holder.mItemId = adapter.getItemId(position);
-        }
-        adapter.bindViewHolder(holder, position);
-        holder.setFlags(ViewHolder.FLAG_BOUND,
-                ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
-    }
-
     private class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -1456,9 +1455,11 @@ public class RecyclerView extends ViewGroup {
             if (mAdapter.hasStableIds()) {
                 // TODO Determine what actually changed
                 markKnownViewsInvalid();
+                mStructureChanged = true;
                 requestLayout();
             } else {
                 markKnownViewsInvalid();
+                mStructureChanged = true;
                 requestLayout();
             }
         }
@@ -1637,7 +1638,6 @@ public class RecyclerView extends ViewGroup {
 
             if (holder == null) {
                 holder = adapter.createViewHolder(RecyclerView.this, type);
-                holder.mItemViewType = type;
                 if (DEBUG) Log.d(TAG, "getViewForPosition created new ViewHolder");
             }
 
@@ -1645,7 +1645,7 @@ public class RecyclerView extends ViewGroup {
                 if (DEBUG) {
                     Log.d(TAG, "getViewForPosition unbound holder or needs update; updating...");
                 }
-                bindViewHolder(holder, position, adapter);
+                adapter.bindViewHolder(holder, position);
             }
 
             ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -2026,8 +2026,24 @@ public class RecyclerView extends ViewGroup {
         /** @deprecated */
         private int mViewTypeCount = 1;
 
-        public abstract VH createViewHolder(ViewGroup parent, int viewType);
-        public abstract void bindViewHolder(VH holder, int position);
+        public abstract VH onCreateViewHolder(ViewGroup parent, int viewType);
+        public abstract void onBindViewHolder(VH holder, int position);
+
+        public final VH createViewHolder(ViewGroup parent, int viewType) {
+            final VH holder = onCreateViewHolder(parent, viewType);
+            holder.mItemViewType = viewType;
+            return holder;
+        }
+
+        public final void bindViewHolder(VH holder, int position) {
+            holder.mPosition = position;
+            if (hasStableIds()) {
+                holder.mItemId = getItemId(position);
+            }
+            onBindViewHolder(holder, position);
+            holder.setFlags(ViewHolder.FLAG_BOUND,
+                    ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+        }
 
         /**
          * Return the view type of the item at <code>position</code> for the purposes
@@ -2346,7 +2362,24 @@ public class RecyclerView extends ViewGroup {
         public void onDetachedFromWindow(RecyclerView view) {
         }
 
-        public abstract void layoutChildren(Adapter adapter, Recycler recycler);
+        /**
+         * @deprecated Use
+         * {@link #layoutChildren(RecyclerView.Adapter, RecyclerView.Recycler, boolean)}
+         */
+        public void layoutChildren(Adapter adapter, Recycler recycler) {
+        }
+
+        /**
+         * Lay out all relevant child views from the given adapter.
+         *
+         * @param adapter Adapter that will supply and bind views from a data set
+         * @param recycler Recycler to use for fetching potentially cached views for a position
+         * @param structureChanged true if the structure of the data set has changed since
+         *                         the last call to layoutChildren, false otherwise
+         */
+        public void layoutChildren(Adapter adapter, Recycler recycler, boolean structureChanged) {
+            layoutChildren(adapter, recycler);
+        }
 
         /**
          * Create a default <code>LayoutParams</code> object for a child of the RecyclerView.
