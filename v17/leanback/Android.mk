@@ -44,30 +44,30 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 
-# Documentation
+# Documentation -- disabled for now
 # ===========================================================
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := android-support-v17-leanback
-LOCAL_MODULE_CLASS := JAVA_LIBRARIES
-
-intermediates.COMMON := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),$(LOCAL_MODULE),,COMMON)
-
-LOCAL_SRC_FILES := \
-    $(call all-java-files-under, src) \
-    $(call all-html-files-under, src)
-LOCAL_ADDITONAL_JAVA_DIR := $(intermediates.COMMON)/src
-
-LOCAL_SDK_VERSION := 17
-LOCAL_IS_HOST_MODULE := false
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
-
-LOCAL_JAVA_LIBRARIES := android-support-v17-leanback
-
-LOCAL_DROIDDOC_OPTIONS := \
-    -offlinemode \
-    -federate Android http://developer.android.com \
-    -federationapi Android prebuilts/sdk/api/17.txt \
-    -hide 113
-
-include $(BUILD_DROIDDOC)
+# include $(CLEAR_VARS)
+#
+# LOCAL_MODULE := android-support-v17-leanback
+# LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+#
+# intermediates.COMMON := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),$(LOCAL_MODULE),,COMMON)
+#
+# LOCAL_SRC_FILES := \
+#     $(call all-java-files-under, src) \
+#     $(call all-html-files-under, src)
+# LOCAL_ADDITONAL_JAVA_DIR := $(intermediates.COMMON)/src
+#
+# LOCAL_SDK_VERSION := 17
+# LOCAL_IS_HOST_MODULE := false
+# LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+#
+# LOCAL_JAVA_LIBRARIES := android-support-v17-leanback
+#
+# LOCAL_DROIDDOC_OPTIONS := \
+#     -offlinemode \
+#     -federate Android http://developer.android.com \
+#     -federationapi Android prebuilts/sdk/api/17.txt \
+#     -hide 113
+#
+# include $(BUILD_DROIDDOC)
