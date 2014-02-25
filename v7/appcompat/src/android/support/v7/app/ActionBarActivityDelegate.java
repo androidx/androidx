@@ -44,7 +44,9 @@ abstract class ActionBarActivityDelegate {
     private static final String TAG = "ActionBarActivityDelegate";
 
     static ActionBarActivityDelegate createDelegate(ActionBarActivity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (Build.VERSION.SDK_INT >= 20) {
+            return new ActionBarActivityDelegateApi20(activity);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             return new ActionBarActivityDelegateJBMR2(activity);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             return new ActionBarActivityDelegateJB(activity);
