@@ -83,7 +83,8 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler) {
+        public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
+                boolean structureChanged) {
             final int parentBottom = getHeight() - getPaddingBottom();
 
             final View oldTopView = getChildCount() > 0 ? getChildAt(0) : null;
@@ -270,7 +271,7 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public ViewHolder createViewHolder(ViewGroup parent, int viewType) {
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             final ViewHolder h = new ViewHolder(new TextView(RecyclerViewActivity.this));
             h.textView.setMinimumHeight(128);
             h.textView.setFocusable(true);
@@ -283,7 +284,8 @@ public class RecyclerViewActivity extends Activity {
                         final String t = mValues.get(pos);
                         mValues.set(pos, mValues.get(pos + 1));
                         mValues.set(pos + 1, t);
-                        notifyItemRangeChanged(pos, 2);
+                        notifyItemRemoved(pos);
+                        notifyItemInserted(pos + 1);
                     }
                 }
             });
@@ -291,7 +293,7 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public void bindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(ViewHolder holder, int position) {
             holder.textView.setText(mValues.get(position));
         }
 
@@ -307,6 +309,11 @@ public class RecyclerViewActivity extends Activity {
         public ViewHolder(TextView v) {
             super(v);
             textView = v;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString() + " '" + textView.getText();
         }
     }
 }
