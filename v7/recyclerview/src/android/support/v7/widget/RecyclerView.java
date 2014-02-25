@@ -1273,7 +1273,7 @@ public class RecyclerView extends ViewGroup {
      */
     public ViewHolder findViewHolderForChildUnder(int x, int y) {
         final int count = getChildCount();
-        for (int i = count; i >= 0; i--) {
+        for (int i = count - 1; i >= 0; i--) {
             final View child = getChildAt(i);
             if (x >= child.getLeft() && x <= child.getRight() && y >= child.getTop() &&
                     y <= child.getBottom()) {
