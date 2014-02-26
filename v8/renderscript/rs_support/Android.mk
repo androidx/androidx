@@ -39,11 +39,11 @@ LOCAL_MODULE := libRSSupport
 LOCAL_SDK_VERSION := 8
 
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-intermediates:= $(local-intermediates-dir)
+generated_sources_dir := $(call local-generated-sources-dir)
 
 # Generate custom headers
 
-GEN := $(addprefix $(intermediates)/, \
+GEN := $(addprefix $(generated_sources_dir)/, \
             rsgApiStructs.h \
             rsgApiFuncDecl.h \
         )
@@ -51,7 +51,7 @@ GEN := $(addprefix $(intermediates)/, \
 $(GEN) : PRIVATE_PATH := $(LOCAL_PATH)
 $(GEN) : PRIVATE_CUSTOM_TOOL = $(RSG_GENERATOR_SUPPORT) $< $@ <$(PRIVATE_PATH)/rs.spec
 $(GEN) : $(RSG_GENERATOR_SUPPORT) $(LOCAL_PATH)/rs.spec
-$(GEN): $(intermediates)/%.h : $(LOCAL_PATH)/%.h.rsg
+$(GEN): $(generated_sources_dir)/%.h : $(LOCAL_PATH)/%.h.rsg
 	$(transform-generated-source)
 
 # used in jni/Android.mk
@@ -60,7 +60,7 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 
 # Generate custom source files
 
-GEN := $(addprefix $(intermediates)/, \
+GEN := $(addprefix $(generated_sources_dir)/, \
             rsgApi.cpp \
             rsgApiReplay.cpp \
         )
@@ -68,7 +68,7 @@ GEN := $(addprefix $(intermediates)/, \
 $(GEN) : PRIVATE_PATH := $(LOCAL_PATH)
 $(GEN) : PRIVATE_CUSTOM_TOOL = $(RSG_GENERATOR_SUPPORT) $< $@ <$(PRIVATE_PATH)/rs.spec
 $(GEN) : $(RSG_GENERATOR_SUPPORT) $(LOCAL_PATH)/rs.spec
-$(GEN): $(intermediates)/%.cpp : $(LOCAL_PATH)/%.cpp.rsg
+$(GEN): $(generated_sources_dir)/%.cpp : $(LOCAL_PATH)/%.cpp.rsg
 	$(transform-generated-source)
 
 # used in jni/Android.mk
