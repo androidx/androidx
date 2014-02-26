@@ -27,7 +27,7 @@ task release(type: Copy) {
 
 subprojects {
     // Change buildDir first so that all plugins pick up the new value.
-    project.buildDir = project.file("$project.parent.buildDir/../$project.name")
+    project.buildDir = project.file("$project.parent.buildDir/../$project.name/build")
 
     apply plugin: 'maven'
 
