@@ -294,6 +294,16 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * Return the {@link LayoutManager} currently responsible for
+     * layout policy for this RecyclerView.
+     *
+     * @return The currently bound LayoutManager
+     */
+    public LayoutManager getLayoutManager() {
+        return mLayout;
+    }
+
+    /**
      * Retrieve this RecyclerView's {@link RecycledViewPool}. This method will never return null;
      * if no pool is set for this view a new one will be created. See
      * {@link #setRecycledViewPool(RecycledViewPool) setRecycledViewPool} for more information.
@@ -315,6 +325,21 @@ public class RecyclerView extends ViewGroup {
      */
     public void setRecycledViewPool(RecycledViewPool pool) {
         mRecycler.setRecycledViewPool(pool);
+    }
+
+    /**
+     * Set the number of offscreen views to retain before adding them to the potentially shared
+     * {@link #getRecycledViewPool() recycled view pool}.
+     *
+     * <p>The offscreen view cache stays aware of changes in the attached adapter, allowing
+     * a LayoutManager to reuse those views unmodified without needing to return to the adapter
+     * to rebind them.</p>
+     *
+     * @param size Number of views to cache offscreen before returning them to the general
+     *             recycled view pool
+     */
+    public void setItemViewCacheSize(int size) {
+        mRecycler.setViewCacheSize(size);
     }
 
     /**
@@ -1195,7 +1220,7 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
-    ViewHolder getChildViewHolder(View child) {
+    static ViewHolder getChildViewHolder(View child) {
         if (child == null) {
             return null;
         }
@@ -1579,7 +1604,7 @@ public class RecyclerView extends ViewGroup {
 
         private RecycledViewPool mRecyclerPool;
 
-        private static final int DEFAULT_CACHE_SIZE = 5;
+        private static final int DEFAULT_CACHE_SIZE = 2;
 
         /**
          * Clear scrap views out of this recycler. Detached views contained within a
@@ -2141,6 +2166,31 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Called when a view created by this adapter has been attached to a window.
+         *
+         * <p>This can be used as a reasonable signal that the view is about to be seen
+         * by the user. If the adapter previously freed any resources in
+         * {@link #onViewDetachedFromWindow(RecyclerView.ViewHolder) onViewDetachedFromWindow}
+         * those resources should be restored here.</p>
+         *
+         * @param holder Holder of the view being attached
+         */
+        public void onViewAttachedToWindow(VH holder) {
+        }
+
+        /**
+         * Called when a view created by this adapter has been detached from its window.
+         *
+         * <p>Becoming detached from the window is not necessarily a permanent condition;
+         * the consumer of an Adapter's views may choose to cache views offscreen while they
+         * are not visible, attaching an detaching them as appropriate.</p>
+         *
+         * @param holder Holder of the view being detached
+         */
+        public void onViewDetachedFromWindow(VH holder) {
+        }
+
+        /**
          * Returns true if one or more observers are attached to this adapter.
          * @return true if this adapter has observers
          */
@@ -2528,7 +2578,7 @@ public class RecyclerView extends ViewGroup {
          * @param index Index to add child at
          */
         public void addView(View child, int index) {
-            final ViewHolder holder = mRecyclerView.getChildViewHolder(child);
+            final ViewHolder holder = getChildViewHolder(child);
             if (holder.isScrap()) {
                 holder.unScrap();
                 mRecyclerView.attachViewToParent(child, index, child.getLayoutParams());
@@ -2536,6 +2586,10 @@ public class RecyclerView extends ViewGroup {
                     ViewCompat.dispatchFinishTemporaryDetach(child);
                 }
             } else {
+                final Adapter adapter = mRecyclerView.getAdapter();
+                if (adapter != null) {
+                    adapter.onViewAttachedToWindow(getChildViewHolder(child));
+                }
                 mRecyclerView.addView(child, index);
             }
         }
@@ -2560,6 +2614,10 @@ public class RecyclerView extends ViewGroup {
          * @param child View to remove
          */
         public void removeView(View child) {
+            final Adapter adapter = mRecyclerView.getAdapter();
+            if (adapter != null) {
+                adapter.onViewDetachedFromWindow(getChildViewHolder(child));
+            }
             mRecyclerView.removeView(child);
         }
 
@@ -2572,7 +2630,14 @@ public class RecyclerView extends ViewGroup {
          * @param index Index of the child view to remove
          */
         public void removeViewAt(int index) {
-            mRecyclerView.removeViewAt(index);
+            final View child = mRecyclerView.getChildAt(index);
+            if (child != null) {
+                final Adapter adapter = mRecyclerView.getAdapter();
+                if (adapter != null) {
+                    adapter.onViewDetachedFromWindow(getChildViewHolder(child));
+                }
+                mRecyclerView.removeViewAt(index);
+            }
         }
 
         /**
@@ -2580,6 +2645,14 @@ public class RecyclerView extends ViewGroup {
          * any of the affected views; the LayoutManager is responsible for doing so if desired.
          */
         public void removeAllViews() {
+            final Adapter adapter = mRecyclerView.getAdapter();
+            if (adapter != null) {
+                final int childCount = mRecyclerView.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    adapter.onViewDetachedFromWindow(
+                            getChildViewHolder(mRecyclerView.getChildAt(i)));
+                }
+            }
             mRecyclerView.removeAllViews();
         }
 
