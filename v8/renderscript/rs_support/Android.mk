@@ -38,6 +38,9 @@ LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupport
 LOCAL_SDK_VERSION := 8
 
+# TODO: remove this once we have 64-bit NDK libraries.
+LOCAL_32_BIT_ONLY := true
+
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 generated_sources_dir := $(call local-generated-sources-dir)
 
@@ -125,9 +128,9 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeMathFuncs.cpp
 
 ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
-LOCAL_CFLAGS += -DARCH_ARM_HAVE_VFP
-LOCAL_ASFLAGS := -mfpu=neon
-LOCAL_SRC_FILES += \
+LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP
+LOCAL_ASFLAGS_arm := -mfpu=neon
+LOCAL_SRC_FILES_arm := \
 	cpu_ref/rsCpuIntrinsics_neon.S \
 	cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S
 endif
