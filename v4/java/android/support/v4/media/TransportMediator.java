@@ -84,28 +84,28 @@ public class TransportMediator extends TransportController {
     public static final int KEYCODE_MEDIA_RECORD = 130;
 
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PREVIOUS
-     * RemoveControlClient.FLAG_KEY_MEDIA_PREVIOUS */
+     * RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS */
     public final static int FLAG_KEY_MEDIA_PREVIOUS = 1 << 0;
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_REWIND
-     * RemoveControlClient.FLAG_KEY_MEDIA_REWIND */
+     * RemoteControlClient.FLAG_KEY_MEDIA_REWIND */
     public final static int FLAG_KEY_MEDIA_REWIND = 1 << 1;
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PLAY
-     * RemoveControlClient.FLAG_KEY_MEDIA_PLAY */
+     * RemoteControlClient.FLAG_KEY_MEDIA_PLAY */
     public final static int FLAG_KEY_MEDIA_PLAY = 1 << 2;
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PLAY_PAUSE
-     * RemoveControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE */
+     * RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE */
     public final static int FLAG_KEY_MEDIA_PLAY_PAUSE = 1 << 3;
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PAUSE
-     * RemoveControlClient.FLAG_KEY_MEDIA_PAUSE */
+     * RemoteControlClient.FLAG_KEY_MEDIA_PAUSE */
     public final static int FLAG_KEY_MEDIA_PAUSE = 1 << 4;
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_STOP
-     * RemoveControlClient.FLAG_KEY_MEDIA_STOP */
+     * RemoteControlClient.FLAG_KEY_MEDIA_STOP */
     public final static int FLAG_KEY_MEDIA_STOP = 1 << 5;
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_FAST_FORWARD
-     * RemoveControlClient.FLAG_KEY_MEDIA_FAST_FORWARD */
+     * RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD */
     public final static int FLAG_KEY_MEDIA_FAST_FORWARD = 1 << 6;
     /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_NEXT
-     * RemoveControlClient.FLAG_KEY_MEDIA_NEXT */
+     * RemoteControlClient.FLAG_KEY_MEDIA_NEXT */
     public final static int FLAG_KEY_MEDIA_NEXT = 1 << 7;
 
     static boolean isMediaKey(int keyCode) {
