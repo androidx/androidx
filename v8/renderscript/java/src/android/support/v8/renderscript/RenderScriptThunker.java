@@ -86,6 +86,42 @@ class RenderScriptThunker extends RenderScript {
 
     }
 
+    public void setMessageHandler(RSMessageHandler msg) {
+        mMessageCallback = msg;
+        try {
+            android.renderscript.RenderScript.RSMessageHandler handler =
+                new android.renderscript.RenderScript.RSMessageHandler() {
+                    public void run() {
+                        mMessageCallback.mData = mData;
+                        mMessageCallback.mID = mID;
+                        mMessageCallback.mLength = mLength;
+                        mMessageCallback.run();
+                    }
+                };
+            mN.setMessageHandler(handler);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
+    }
+
+    public void setErrorHandler(RSErrorHandler msg) {
+        mErrorCallback = msg;
+        try {
+            android.renderscript.RenderScript.RSErrorHandler handler =
+                new android.renderscript.RenderScript.RSErrorHandler() {
+                    public void run() {
+                        mErrorCallback.mErrorMessage = mErrorMessage;
+                        mErrorCallback.mErrorNum = mErrorNum;
+                        mErrorCallback.run();
+                    }
+                };
+            mN.setErrorHandler(handler);
+        } catch (android.renderscript.RSRuntimeException e) {
+            throw ExceptionThunker.convertException(e);
+        }
+    }
+
+
     boolean equals(Object obj1, Object obj2) {
         if (obj2 instanceof android.support.v8.renderscript.BaseObj) {
             return ((android.renderscript.BaseObj)obj1).equals(((android.support.v8.renderscript.BaseObj)obj2).getNObj());
