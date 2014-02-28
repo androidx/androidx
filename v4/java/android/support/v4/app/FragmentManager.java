@@ -1078,7 +1078,9 @@ final class FragmentManagerImpl extends FragmentManager {
                                     makeInactive(f);
                                 } else {
                                     f.mActivity = null;
+                                    f.mParentFragment = null;
                                     f.mFragmentManager = null;
+                                    f.mChildFragmentManager = null;
                                 }
                             }
                         }
