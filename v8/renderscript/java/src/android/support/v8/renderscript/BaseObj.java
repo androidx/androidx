@@ -51,12 +51,6 @@ public class BaseObj {
      */
     int getID(RenderScript rs) {
         mRS.validate();
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker)rs;
-            if (getNObj() != null) {
-                return getNObj().hashCode();
-            }
-        }
         if (mDestroyed) {
             throw new RSInvalidStateException("using a destroyed object.");
         }
@@ -148,6 +142,10 @@ public class BaseObj {
 
         if (getClass() != obj.getClass()) {
             return false;
+        }
+
+        if (mRS.isNative) {
+            return ((RenderScriptThunker)mRS).equals((Object)this, obj);
         }
 
         BaseObj b = (BaseObj) obj;
