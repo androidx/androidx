@@ -349,6 +349,10 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
             return mWrapped.onWindowStartingActionMode(callback);
         }
 
+        public void onWindowDismissed() {
+            // no-op here, the callback wrapper for Api20 will handle this on later platforms.
+        }
+
         /*
          * And here are the money methods, the reason why this wrapper exists:
          */
