@@ -533,6 +533,14 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * Stop any current scroll in progress, such as one started by
+     * {@link #smoothScrollBy(int, int)}, {@link #fling(int, int)} or a touch-initiated fling.
+     */
+    public void stopScroll() {
+        mViewFlinger.stop();
+    }
+
+    /**
      * Apply a pull to relevant overscroll glow effects
      */
     private void pullGlows(int overscrollX, int overscrollY) {
@@ -1330,6 +1338,31 @@ public class RecyclerView extends ViewGroup {
         for (int i = 0; i < childCount; i++) {
             getChildAt(i).offsetTopAndBottom(dy);
         }
+    }
+
+    /**
+     * Called when an item view is attached to this RecyclerView.
+     *
+     * <p>Subclasses of RecyclerView may want to perform extra bookkeeping or modifications
+     * of child views as they become attached. This will be called before a
+     * {@link LayoutManager} measures or lays out the view and is a good time to perform these
+     * changes.</p>
+     *
+     * @param child Child view that is now attached to this RecyclerView and its associated window
+     */
+    public void onChildAttachedToWindow(View child) {
+    }
+
+    /**
+     * Called when an item view is detached from this RecyclerView.
+     *
+     * <p>Subclasses of RecyclerView may want to perform extra bookkeeping or modifications
+     * of child views as they become detached. This will be called as a
+     * {@link LayoutManager} fully detaches the child view from the parent and its window.</p>
+     *
+     * @param child Child view that is now detached from this RecyclerView and its associated window
+     */
+    public void onChildDetachedFromWindow(View child) {
     }
 
     /**
@@ -2586,11 +2619,12 @@ public class RecyclerView extends ViewGroup {
                     ViewCompat.dispatchFinishTemporaryDetach(child);
                 }
             } else {
+                mRecyclerView.addView(child, index);
                 final Adapter adapter = mRecyclerView.getAdapter();
                 if (adapter != null) {
                     adapter.onViewAttachedToWindow(getChildViewHolder(child));
                 }
-                mRecyclerView.addView(child, index);
+                mRecyclerView.onChildAttachedToWindow(child);
             }
         }
 
@@ -2618,6 +2652,7 @@ public class RecyclerView extends ViewGroup {
             if (adapter != null) {
                 adapter.onViewDetachedFromWindow(getChildViewHolder(child));
             }
+            mRecyclerView.onChildDetachedFromWindow(child);
             mRecyclerView.removeView(child);
         }
 
@@ -2636,6 +2671,7 @@ public class RecyclerView extends ViewGroup {
                 if (adapter != null) {
                     adapter.onViewDetachedFromWindow(getChildViewHolder(child));
                 }
+                mRecyclerView.onChildDetachedFromWindow(child);
                 mRecyclerView.removeViewAt(index);
             }
         }
@@ -2649,8 +2685,9 @@ public class RecyclerView extends ViewGroup {
             if (adapter != null) {
                 final int childCount = mRecyclerView.getChildCount();
                 for (int i = 0; i < childCount; i++) {
-                    adapter.onViewDetachedFromWindow(
-                            getChildViewHolder(mRecyclerView.getChildAt(i)));
+                    final View child = mRecyclerView.getChildAt(i);
+                    adapter.onViewDetachedFromWindow(getChildViewHolder(child));
+                    mRecyclerView.onChildDetachedFromWindow(child);
                 }
             }
             mRecyclerView.removeAllViews();
