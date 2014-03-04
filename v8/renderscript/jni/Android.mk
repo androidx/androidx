@@ -1,6 +1,9 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
+LOCAL_CLANG := true
+LOCAL_SDK_VERSION := 8
+
 LOCAL_SRC_FILES:= \
     android_renderscript_RenderScript.cpp
 
@@ -9,8 +12,7 @@ LOCAL_SHARED_LIBRARIES := \
         libjnigraphics
 
 LOCAL_STATIC_LIBRARIES := \
-        libcutils \
-        liblog
+        libcutils
 
 rs_generated_include_dir := $(call intermediates-dir-for,SHARED_LIBRARIES,libRSSupport,,)
 
@@ -19,7 +21,7 @@ LOCAL_C_INCLUDES += \
 	frameworks/rs \
 	$(rs_generated_include_dir)
 
-LOCAL_CFLAGS +=
+LOCAL_CFLAGS += -Wno-unused-parameter -U_FORTIFY_SOURCE
 
 LOCAL_LDLIBS := -lpthread
 LOCAL_ADDITIONAL_DEPENDENCIES := $(addprefix $(rs_generated_include_dir)/,rsgApiFuncDecl.h)
