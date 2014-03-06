@@ -333,6 +333,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void dispatchChildSelected() {
+        if (mChildSelectedListener == null) {
+            return;
+        }
+
         View view = getViewByPosition(mFocusPosition);
 
         if (mFocusPosition != NO_POSITION) {
