@@ -36,13 +36,15 @@ class NotificationCompatJellybean {
             NotificationBuilderWithActions {
         private Notification.Builder b;
         private final boolean mLocalOnly;
+        private final Bundle mExtras;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
                 RemoteViews tickerView, int number,
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
-            boolean useChronometer, int priority, CharSequence subText, boolean localOnly) {
+                boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
+                Bundle extras) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -69,6 +71,7 @@ class NotificationCompatJellybean {
                 .setPriority(priority)
                 .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
             mLocalOnly = localOnly;
+            mExtras = extras;
         }
 
         @Override
@@ -83,6 +86,18 @@ class NotificationCompatJellybean {
 
         public Notification build() {
             Notification notif = b.build();
+            if (mExtras != null) {
+                // Merge in developer provided extras, but let the values already set
+                // for keys take precedence.
+                Bundle extras = getExtras(notif);
+                Bundle mergeBundle = new Bundle(mExtras);
+                for (String key : mExtras.keySet()) {
+                    if (extras.containsKey(key)) {
+                        mergeBundle.remove(key);
+                    }
+                }
+                extras.putAll(mergeBundle);
+            }
             if (mLocalOnly) {
                 getExtras(notif).putBoolean(EXTRA_LOCAL_ONLY, mLocalOnly);
             }
