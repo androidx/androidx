@@ -77,35 +77,74 @@ public class RenderScript {
 
     static boolean isNative = false;
 
-
-    static private int thunk = 0;
+    static private int sThunk = -1;
     static private int sSdkVersion = -1;
 
-    /**
-     * Determines whether or not we should be thunking into the native
-     * RenderScript layer or actually using the compatibility library.
-     */
-    static private boolean setupThunk(int sdkVersion) {
-        if (thunk == 0) {
-            // use compat on Jelly Bean MR2 if we're requesting SDK 19+
-            if (android.os.Build.VERSION.SDK_INT == 18 && sdkVersion >= 19) {
-                thunk = -1;
-            }
-            else if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
-                && (SystemProperties.getInt("debug.rs.forcecompat", 0) == 0)) {
-                thunk = 1;
-            } else {
-                thunk = -1;
-            }
-        }
-        if (thunk == 1) {
+    static boolean shouldThunk() {
+        if (sThunk == -1) {
+            throw new RSRuntimeException("Can't use RS classes before setting up a RenderScript context");
+        } else if (sThunk == 1) {
             return true;
         }
         return false;
     }
 
-    static boolean shouldThunk() {
-        return setupThunk(sSdkVersion);
+    /**
+     * Determines whether or not we should be thunking into the native
+     * RenderScript layer or actually using the compatibility library.
+     */
+    static private boolean setupThunk(int sdkVersion, Context ctx) {
+        if (sThunk == -1) {
+            // use compat on Jelly Bean MR2 if we're requesting SDK 19+
+            if (android.os.Build.VERSION.SDK_INT == 18 && sdkVersion >= 19) {
+                sThunk = 0;
+            }
+            else if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
+                && (SystemProperties.getInt("debug.rs.forcecompat", 0) == 0)) {
+                sThunk = 1;
+            } else {
+                sThunk = 0;
+            }
+
+
+            if (sThunk == 1) {
+                // Workarounds that may disable thunking go here
+                ApplicationInfo info;
+                try {
+                    info = ctx.getPackageManager().getApplicationInfo(ctx.getPackageName(),
+                                                                      PackageManager.GET_META_DATA);
+                } catch (PackageManager.NameNotFoundException e) {
+                    // assume no workarounds needed
+                    return true;
+                }
+                long minorVersion = 0;
+
+                // load minorID from reflection
+                try {
+                    Class<?> javaRS = Class.forName("android.renderscript.RenderScript");
+                    Method getMinorID = javaRS.getDeclaredMethod("getMinorID");
+                    minorVersion = ((java.lang.Long)getMinorID.invoke(null)).longValue();
+                } catch (Exception e) {
+                    // minor version remains 0 on devices with no possible WARs
+                }
+
+                if (info.metaData != null) {
+                    // asynchronous teardown: minor version 1+
+                    if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableAsyncTeardown") == true) {
+                        if (minorVersion == 0) {
+                            sThunk = 0;
+                        }
+                    }
+
+                }
+                // end of workarounds
+            }
+        }
+
+        if (sThunk == 1) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -952,7 +991,7 @@ public class RenderScript {
             throw new RSRuntimeException("Can't have two contexts with different SDK versions in support lib");
         }
 
-        if (setupThunk(sSdkVersion)) {
+        if (setupThunk(sSdkVersion, ctx)) {
             android.util.Log.v(LOG_TAG, "RS native mode");
             return RenderScriptThunker.create(ctx, sSdkVersion);
         }
