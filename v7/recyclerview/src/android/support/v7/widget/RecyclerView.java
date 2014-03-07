@@ -42,6 +42,7 @@ import android.view.ViewParent;
 import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A flexible view for providing a limited window into a large data set.
@@ -634,8 +635,12 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public View focusSearch(View focused, int direction) {
+        View result = mLayout.onInterceptFocusSearch(focused, direction);
+        if (result != null) {
+            return result;
+        }
         final FocusFinder ff = FocusFinder.getInstance();
-        View result = ff.findNextFocus(this, focused, direction);
+        result = ff.findNextFocus(this, focused, direction);
         if (result == null) {
             eatRequestLayout();
             result = mLayout.onFocusSearchFailed(focused, direction, getAdapter(), mRecycler);
@@ -658,6 +663,13 @@ public class RecyclerView extends ViewGroup {
     @Override
     public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
         return mLayout.requestChildRectangleOnScreen(child, rect, immediate);
+    }
+
+    @Override
+    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        if (!mLayout.onAddFocusables(views, direction, focusableMode)) {
+            super.addFocusables(views, direction, focusableMode);
+        }
     }
 
     @Override
@@ -1118,7 +1130,7 @@ public class RecyclerView extends ViewGroup {
         boolean needsLayout = false;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
             if (holder != null && holder.mPosition >= positionStart) {
                 if (DEBUG) {
                     Log.d(TAG, "offsetPositionRecordsForInsert attached child " + i + " holder " +
@@ -1140,7 +1152,7 @@ public class RecyclerView extends ViewGroup {
         final int positionEnd = positionStart + itemCount;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
             if (holder != null) {
                 if (holder.mPosition >= positionEnd) {
                     if (DEBUG) {
@@ -1179,7 +1191,7 @@ public class RecyclerView extends ViewGroup {
         final int positionEnd = positionStart + itemCount;
 
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
             if (holder == null) {
                 continue;
             }
@@ -1202,7 +1214,7 @@ public class RecyclerView extends ViewGroup {
         final int childCount = getChildCount();
 
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
             if (holder != null) {
                 holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
             }
@@ -1228,7 +1240,21 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
-    static ViewHolder getChildViewHolder(View child) {
+    /**
+     * Retrieve the {@link ViewHolder} for the given child view.
+     *
+     * @param child Child of this RecyclerView to query for its ViewHolder
+     * @return The child view's ViewHolder
+     */
+    public ViewHolder getChildViewHolder(View child) {
+        if (child.getParent() != this) {
+            throw new IllegalArgumentException("View " + child + " is not a direct child of " +
+                    this);
+        }
+        return getChildViewHolderInt(child);
+    }
+
+    static ViewHolder getChildViewHolderInt(View child) {
         if (child == null) {
             return null;
         }
@@ -1242,7 +1268,7 @@ public class RecyclerView extends ViewGroup {
      * @return Adapter position corresponding to the given view or {@link #NO_POSITION}
      */
     public int getChildPosition(View child) {
-        final ViewHolder holder = getChildViewHolder(child);
+        final ViewHolder holder = getChildViewHolderInt(child);
         return holder != null ? holder.getPosition() : NO_POSITION;
     }
 
@@ -1256,7 +1282,7 @@ public class RecyclerView extends ViewGroup {
         if (mAdapter == null || !mAdapter.hasStableIds()) {
             return NO_ID;
         }
-        final ViewHolder holder = getChildViewHolder(child);
+        final ViewHolder holder = getChildViewHolderInt(child);
         return holder != null ? holder.getItemId() : NO_ID;
     }
 
@@ -1269,7 +1295,7 @@ public class RecyclerView extends ViewGroup {
     public ViewHolder findViewHolderForPosition(int position) {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
             if (holder != null && holder.getPosition() == position) {
                 return holder;
             }
@@ -1289,7 +1315,7 @@ public class RecyclerView extends ViewGroup {
     public ViewHolder findViewHolderForItemId(long id) {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolder(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
             if (holder != null && holder.getItemId() == id) {
                 return holder;
             }
@@ -1303,14 +1329,36 @@ public class RecyclerView extends ViewGroup {
      * @param x Horizontal position in pixels to search
      * @param y Vertical position in pixels to search
      * @return The ViewHolder for the child under (x, y) or null if no child is found
+     *
+     * @deprecated This method will be removed. Use {@link #findChildViewUnder(float, float)}
+     *             along with {@link #getChildViewHolder(View)}
      */
     public ViewHolder findViewHolderForChildUnder(int x, int y) {
+        final View child = findChildViewUnder(x, y);
+        if (child != null) {
+            return getChildViewHolderInt(child);
+        }
+        return null;
+    }
+
+    /**
+     * Find the topmost view under the given point.
+     *
+     * @param x Horizontal position in pixels to search
+     * @param y Vertical position in pixels to search
+     * @return The child view under (x, y) or null if no matching child is found
+     */
+    public View findChildViewUnder(float x, float y) {
         final int count = getChildCount();
         for (int i = count - 1; i >= 0; i--) {
             final View child = getChildAt(i);
-            if (x >= child.getLeft() && x <= child.getRight() && y >= child.getTop() &&
-                    y <= child.getBottom()) {
-                return getChildViewHolder(child);
+            final float translationX = ViewCompat.getTranslationX(child);
+            final float translationY = ViewCompat.getTranslationY(child);
+            if (x >= child.getLeft() + translationX &&
+                    x <= child.getRight() + translationX &&
+                    y >= child.getTop() + translationY &&
+                    y <= child.getBottom() + translationY) {
+                return child;
             }
         }
         return null;
@@ -1322,9 +1370,11 @@ public class RecyclerView extends ViewGroup {
      *
      * @param childIndex The index of the child in the RecyclerView's child list.
      * @return The ViewHolder for the given <code>childIndex</code>
+     *
+     * @deprecated Use {@link #getChildViewHolder(View)} and {@link #getChildAt(int)}
      */
     public ViewHolder getViewHolderForChildAt(int childIndex) {
-        return getChildViewHolder(getChildAt(childIndex));
+        return getChildViewHolderInt(getChildAt(childIndex));
     }
 
     /**
@@ -1737,7 +1787,7 @@ public class RecyclerView extends ViewGroup {
          * @param view Removed view for recycling
          */
         public void recycleView(View view) {
-            recycleViewHolder(getChildViewHolder(view));
+            recycleViewHolder(getChildViewHolderInt(view));
         }
 
         void recycleViewHolder(ViewHolder holder) {
@@ -1772,7 +1822,7 @@ public class RecyclerView extends ViewGroup {
          * internal bookkeeping.
          */
         void quickRecycleScrapView(View view) {
-            final ViewHolder holder = getChildViewHolder(view);
+            final ViewHolder holder = getChildViewHolderInt(view);
             holder.mScrapContainer = null;
             recycleViewHolder(holder);
         }
@@ -1810,7 +1860,7 @@ public class RecyclerView extends ViewGroup {
          * @param view View to scrap
          */
         void scrapView(View view) {
-            final ViewHolder holder = getChildViewHolder(view);
+            final ViewHolder holder = getChildViewHolderInt(view);
             holder.setScrapContainer(this);
             mAttachedScrap.add(holder);
         }
@@ -2611,7 +2661,7 @@ public class RecyclerView extends ViewGroup {
          * @param index Index to add child at
          */
         public void addView(View child, int index) {
-            final ViewHolder holder = getChildViewHolder(child);
+            final ViewHolder holder = getChildViewHolderInt(child);
             if (holder.isScrap()) {
                 holder.unScrap();
                 mRecyclerView.attachViewToParent(child, index, child.getLayoutParams());
@@ -2622,7 +2672,7 @@ public class RecyclerView extends ViewGroup {
                 mRecyclerView.addView(child, index);
                 final Adapter adapter = mRecyclerView.getAdapter();
                 if (adapter != null) {
-                    adapter.onViewAttachedToWindow(getChildViewHolder(child));
+                    adapter.onViewAttachedToWindow(getChildViewHolderInt(child));
                 }
                 mRecyclerView.onChildAttachedToWindow(child);
             }
@@ -2650,7 +2700,7 @@ public class RecyclerView extends ViewGroup {
         public void removeView(View child) {
             final Adapter adapter = mRecyclerView.getAdapter();
             if (adapter != null) {
-                adapter.onViewDetachedFromWindow(getChildViewHolder(child));
+                adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
             }
             mRecyclerView.onChildDetachedFromWindow(child);
             mRecyclerView.removeView(child);
@@ -2669,7 +2719,7 @@ public class RecyclerView extends ViewGroup {
             if (child != null) {
                 final Adapter adapter = mRecyclerView.getAdapter();
                 if (adapter != null) {
-                    adapter.onViewDetachedFromWindow(getChildViewHolder(child));
+                    adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
                 }
                 mRecyclerView.onChildDetachedFromWindow(child);
                 mRecyclerView.removeViewAt(index);
@@ -2686,7 +2736,7 @@ public class RecyclerView extends ViewGroup {
                 final int childCount = mRecyclerView.getChildCount();
                 for (int i = 0; i < childCount; i++) {
                     final View child = mRecyclerView.getChildAt(i);
-                    adapter.onViewDetachedFromWindow(getChildViewHolder(child));
+                    adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
                     mRecyclerView.onChildDetachedFromWindow(child);
                 }
             }
@@ -3118,6 +3168,7 @@ public class RecyclerView extends ViewGroup {
          *                  {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT},
          *                  {@link View#FOCUS_BACKWARD}, {@link View#FOCUS_FORWARD}
          *                  or 0 for not applicable
+         * @param adapter Adapter to use for obtaining new views
          * @param recycler The recycler to use for obtaining views for currently offscreen items
          * @return The chosen view to be focused
          */
@@ -3133,6 +3184,26 @@ public class RecyclerView extends ViewGroup {
          * android.support.v7.widget.RecyclerView.Recycler)} instead.
          */
         public View onFocusSearchFailed(View focused, int direction, Recycler recycler) {
+            return null;
+        }
+
+        /**
+         * This method gives a LayoutManager an opportunity to intercept the initial focus search
+         * before the default behavior of {@link FocusFinder} is used. If this method returns
+         * null FocusFinder will attempt to find a focusable child view. If it fails
+         * then {@link #onFocusSearchFailed(View, int, RecyclerView.Adapter, RecyclerView.Recycler)}
+         * will be called to give the LayoutManager an opportunity to add new views for items
+         * that did not have attached views representing them. The LayoutManager should not add
+         * or remove views from this method.
+         *
+         * @param focused The currently focused view
+         * @param direction One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
+         *                  {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT},
+         *                  {@link View#FOCUS_BACKWARD}, {@link View#FOCUS_FORWARD}
+         * @return A descendant view to focus or null to fall back to default behavior.
+         *         The default implementation returns null.
+         */
+        public View onInterceptFocusSearch(View focused, int direction) {
             return null;
         }
 
@@ -3235,6 +3306,33 @@ public class RecyclerView extends ViewGroup {
          */
         public void onAdapterChanged() {
             removeAllViews();
+        }
+
+        /**
+         * Called to populate focusable views within the RecyclerView.
+         *
+         * <p>The LayoutManager implementation should return <code>true</code> if the default
+         * behavior of {@link ViewGroup#addFocusables(java.util.ArrayList, int)} should be
+         * suppressed.</p>
+         *
+         * <p>The default implementation returns <code>false</code> to trigger RecyclerView
+         * to fall back to the default ViewGroup behavior.</p>
+         *
+         * @param views List of output views. This method should add valid focusable views
+         *              to this list.
+         * @param direction One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
+         *                  {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT},
+         *                  {@link View#FOCUS_BACKWARD}, {@link View#FOCUS_FORWARD}
+         * @param focusableMode The type of focusables to be added.
+         *
+         * @return true to suppress the default behavior, false to add default focusables after
+         *         this method returns.
+         *
+         * @see #FOCUSABLES_ALL
+         * @see #FOCUSABLES_TOUCH_MODE
+         */
+        public boolean onAddFocusables(List<View> views, int direction, int focusableMode) {
+            return false;
         }
     }
 
