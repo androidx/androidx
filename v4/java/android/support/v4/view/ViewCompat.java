@@ -240,6 +240,8 @@ public class ViewCompat {
         public void setPaddingRelative(View view, int start, int top, int end, int bottom);
         public void dispatchStartTemporaryDetach(View view);
         public void dispatchFinishTemporaryDetach(View view);
+        public float getTranslationX(View view);
+        public float getTranslationY(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -437,6 +439,16 @@ public class ViewCompat {
             }
             mTempDetachBound = true;
         }
+
+        @Override
+        public float getTranslationX(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getTranslationY(View view) {
+            return 0;
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -497,6 +509,14 @@ public class ViewCompat {
         @Override
         public int getMeasuredState(View view) {
             return ViewCompatHC.getMeasuredState(view);
+        }
+        @Override
+        public float getTranslationX(View view) {
+            return ViewCompatHC.getTranslationX(view);
+        }
+        @Override
+        public float getTranslationY(View view) {
+            return ViewCompatHC.getTranslationY(view);
         }
     }
 
@@ -1332,5 +1352,27 @@ public class ViewCompat {
      */
     public static void dispatchFinishTemporaryDetach(View view) {
         IMPL.dispatchFinishTemporaryDetach(view);
+    }
+
+    /**
+     * The horizontal location of this view relative to its {@link View#getLeft() left} position.
+     * This position is post-layout, in addition to wherever the object's
+     * layout placed it.
+     *
+     * @return The horizontal position of this view relative to its left position, in pixels.
+     */
+    public static float getTranslationX(View child) {
+        return IMPL.getTranslationX(child);
+    }
+
+    /**
+     * The vertical location of this view relative to its {@link View#getTop() left} position.
+     * This position is post-layout, in addition to wherever the object's
+     * layout placed it.
+     *
+     * @return The vertical position of this view relative to its top position, in pixels.
+     */
+    public static float getTranslationY(View child) {
+        return IMPL.getTranslationY(child);
     }
 }

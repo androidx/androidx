@@ -52,4 +52,12 @@ class ViewCompatHC {
     public static int getMeasuredState(View view) {
         return view.getMeasuredState();
     }
+
+    public static float getTranslationX(View view) {
+        return view.getTranslationX();
+    }
+
+    public static float getTranslationY(View view) {
+        return view.getTranslationY();
+    }
 }
