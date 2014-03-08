@@ -151,7 +151,7 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -175,7 +175,7 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -284,6 +284,7 @@ public class NotificationCompat {
         boolean mProgressIndeterminate;
         ArrayList<Action> mActions = new ArrayList<Action>();
         boolean mLocalOnly = false;
+        Bundle mExtras;
 
         Notification mNotification = new Notification();
 
@@ -633,6 +634,56 @@ public class NotificationCompat {
         public Builder setPriority(int pri) {
             mPriority = pri;
             return this;
+        }
+
+        /**
+         * Merge additional metadata into this notification.
+         *
+         * <p>Values within the Bundle will replace existing extras values in this Builder.
+         *
+         * @see Notification#extras
+         */
+        public Builder addExtras(Bundle bag) {
+            if (mExtras == null) {
+                mExtras = new Bundle(bag);
+            } else {
+                mExtras.putAll(bag);
+            }
+            return this;
+        }
+
+        /**
+         * Set metadata for this notification.
+         *
+         * <p>A reference to the Bundle is held for the lifetime of this Builder, and the Bundle's
+         * current contents are copied into the Notification each time {@link #build()} is
+         * called.
+         *
+         * <p>Replaces any existing extras values with those from the provided Bundle.
+         * Use {@link #addExtras} to merge in metadata instead.
+         *
+         * @see Notification#extras
+         */
+        public Builder setExtras(Bundle bag) {
+            mExtras = bag;
+            return this;
+        }
+
+        /**
+         * Get the current metadata Bundle used by this notification Builder.
+         *
+         * <p>The returned Bundle is shared with this Builder.
+         *
+         * <p>The current contents of this Bundle are copied into the Notification each time
+         * {@link #build()} is called.
+         *
+         * @see Notification#extras
+         */
+        public Bundle getExtras() {
+            if (mExtras == null) {
+                mExtras = new Bundle();
+            }
+            return mExtras;
         }
 
         /**
