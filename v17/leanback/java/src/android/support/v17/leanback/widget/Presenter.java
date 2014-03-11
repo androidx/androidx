@@ -81,4 +81,30 @@ public abstract class Presenter {
      * cleared here.
      */
     public abstract void onUnbindViewHolder(ViewHolder viewHolder);
+
+    /**
+     * Called when a view created by this presenter has been attached to a window.
+     *
+     * <p>This can be used as a reasonable signal that the view is about to be seen
+     * by the user. If the adapter previously freed any resources in
+     * {@link #onViewDetachedFromWindow(ViewHolder)}
+     * those resources should be restored here.</p>
+     *
+     * @param holder Holder of the view being attached
+     */
+    public void onViewAttachedToWindow(ViewHolder holder) {
+    }
+
+    /**
+     * Called when a view created by this presenter has been detached from its window.
+     *
+     * <p>Becoming detached from the window is not necessarily a permanent condition;
+     * the consumer of an presenter's views may choose to cache views offscreen while they
+     * are not visible, attaching an detaching them as appropriate.</p>
+     *
+     * @param holder Holder of the view being detached
+     */
+    public void onViewDetachedFromWindow(ViewHolder holder) {
+    }
+
 }
