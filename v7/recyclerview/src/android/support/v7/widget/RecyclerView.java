@@ -743,8 +743,8 @@ public class RecyclerView extends ViewGroup {
     }
 
     private boolean dispatchOnItemTouch(MotionEvent e) {
+        final int action = e.getAction();
         if (mActiveOnItemTouchListener != null) {
-            final int action = e.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
                 // Stale state from a previous gesture, we're starting a new one. Clear it.
                 mActiveOnItemTouchListener = null;
@@ -758,12 +758,16 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
-        final int listenerCount = mOnItemTouchListeners.size();
-        for (int i = 0; i < listenerCount; i++) {
-            final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
-            if (listener.onInterceptTouchEvent(this, e)) {
-                mActiveOnItemTouchListener = listener;
-                return true;
+        // Listeners will have already received the ACTION_DOWN via dispatchOnItemTouchIntercept
+        // as called from onInterceptTouchEvent; skip it.
+        if (action != MotionEvent.ACTION_DOWN) {
+            final int listenerCount = mOnItemTouchListeners.size();
+            for (int i = 0; i < listenerCount; i++) {
+                final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
+                if (listener.onInterceptTouchEvent(this, e)) {
+                    mActiveOnItemTouchListener = listener;
+                    return true;
+                }
             }
         }
         return false;
