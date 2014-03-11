@@ -14,7 +14,7 @@ LOCAL_STATIC_LIBRARIES := \
         libcutils \
         liblog
 
-rs_generated_include_dir := $(call intermediates-dir-for,SHARED_LIBRARIES,libRSSupport,,)
+rs_generated_include_dir := $(call generated-sources-dir-for,SHARED_LIBRARIES,libRSSupport,,)
 
 LOCAL_C_INCLUDES += \
 	$(JNI_H_INCLUDE) \
