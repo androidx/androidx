@@ -171,8 +171,8 @@ nContextGetErrorMessage(JNIEnv *_env, jobject _this, RsContext con)
                                  &receiveLen, sizeof(receiveLen),
                                  &subID, sizeof(subID));
     if (!id && receiveLen) {
-        __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,
-            "message receive buffer too small.  %zu", receiveLen);
+        //        __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,
+        //            "message receive buffer too small.  %zu", receiveLen);
     }
     return _env->NewStringUTF(buf);
 }
@@ -190,8 +190,8 @@ nContextGetUserMessage(JNIEnv *_env, jobject _this, RsContext con, jintArray dat
                                  &receiveLen, sizeof(receiveLen),
                                  &subID, sizeof(subID));
     if (!id && receiveLen) {
-        __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,
-            "message receive buffer too small.  %zu", receiveLen);
+        //        __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,
+        //            "message receive buffer too small.  %zu", receiveLen);
     }
     _env->ReleaseIntArrayElements(data, ptr, 0);
     return id;
@@ -1086,12 +1086,12 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     jint result = -1;
 
     if (vm->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,
-            "ERROR: GetEnv failed\n");
+        //        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,
+        //            "ERROR: GetEnv failed\n");
         goto bail;
     }
     if (env == NULL) {
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "ERROR: env == NULL");
+        //        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "ERROR: env == NULL");
         goto bail;
     }
 
@@ -1101,8 +1101,8 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     }
 
     if (env->RegisterNatives(clazz, methods, NELEM(methods)) < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,
-            "ERROR: MediaPlayer native registration failed\n");
+        //        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG,
+        //            "ERROR: MediaPlayer native registration failed\n");
         goto bail;
     }
 
