@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <dimen name="lb_card_width">140dip</dimen>
+    <dimen name="lb_card_height">200dip</dimen>
+    <dimen name="lb_card_title_text_size">14sp</dimen>
+    <dimen name="lb_card_content_text_size">12sp</dimen>
+    <dimen name="lb_list_item_min_height">64dp</dimen>
+    <dimen name="lb_list_item_left_padding">20dp</dimen>
+    <dimen name="lb_list_item_right_padding">28dp</dimen>
+    <dimen name="lb_list_item_vertical_padding">12dp</dimen>
+    <dimen name="lb_list_item_delimiter_padding">4dp</dimen>
+    <dimen name="lb_list_item_checkmark_diameter">8dp</dimen>
+    <dimen name="lb_list_item_icon_width">32dp</dimen>
+    <dimen name="lb_list_item_icon_height">32dp</dimen>
+    <dimen name="lb_list_item_next_chevron_width">24dp</dimen>
+    <dimen name="lb_list_item_next_chevron_height">24dp</dimen>
+    <dimen name="lb_list_item_title_font_size">18sp</dimen>
+    <dimen name="lb_list_item_description_font_size">14sp</dimen>
+    <dimen name="lb_content_fragment_left_padding">48dp</dimen>
+    <dimen name="lb_content_fragment_title_text_bottom_padding">4dp</dimen>
+    <dimen name="lb_content_fragment_title_text_top_padding">2dp</dimen>
+    <dimen name="lb_content_fragment_delimiter_padding">16dp</dimen>
+    <dimen name="lb_content_fragment_title_text_size">36sp</dimen>
+    <dimen name="lb_content_fragment_breadcrumb_text_size">18sp</dimen>
+    <dimen name="lb_content_fragment_description_text_size">14sp</dimen>
+    <dimen name="lb_content_fragment_max_icon_height">280dp</dimen>
+    <dimen name="lb_content_fragment_icon_width">140dp</dimen>
+    <dimen name="lb_action_fragment_selector_min_height">8dp</dimen>
+
+    <!-- Width of the text in an action when an icon is present -->
+    <dimen name="lb_action_text_width">248dp</dimen>
+    <!-- Width of the text in an action when no icon is present -->
+    <dimen name="lb_action_text_width_no_icon">284dp</dimen>
+    <dimen name="lb_action_section_width">384dp</dimen>
+    <dimen name="lb_content_section_width">576dp</dimen>
+
+    <dimen name="lb_browse_title_height">144dp</dimen>
+    <dimen name="lb_browse_title_icon_height">60dp</dimen>
+    <dimen name="lb_browse_title_icon_width">60dp</dimen>
+    <dimen name="lb_browse_title_padding_top">36dp</dimen>
+    <dimen name="lb_browse_title_margin_left">48dp</dimen>
+
+    <dimen name="lb_browse_padding_left">48dp</dimen>
+    <dimen name="lb_browse_headers_margin_top">108dp</dimen>
+    <dimen name="lb_browse_headers_width">216dp</dimen>
+
+    <dimen name="lb_browse_header_height">48dp</dimen>
+    <dimen name="lb_browse_header_text_size">22sp</dimen>
+    <dimen name="lb_browse_rows_margin_left">168dp</dimen>
+
+    <dimen name="lb_browse_row_list_height">224dp</dimen>
+    <dimen name="lb_browse_row_title_height">24dp</dimen>
+    <dimen name="lb_browse_row_title_margin_left">48dp</dimen>
+    <dimen name="lb_browse_row_footer_margin_left">48dp</dimen>
+    <dimen name="lb_browse_row_hovercard_height">50dp</dimen>
+    <dimen name="lb_browse_row_title_text_size">22sp</dimen>
+    <dimen name="lb_browse_item_margin">12dp</dimen>
+    <dimen name="lb_browse_item_margin_vertical">12dp</dimen>
+    <dimen name="lb_browse_item_margin_horizontal">12dp</dimen>
+    <dimen name="lb_container_fragment_padding_bottom">48dp</dimen>
+
+    <!-- One-sided increase in browse item size if height > width -->
+    <dimen name="lb_browse_item_zoom_height">8dp</dimen>
+
+    <!-- One-sided increase in browse item size if height > width -->
+    <dimen name="lb_browse_item_zoom_width">12dp</dimen>
+
+</resources>
