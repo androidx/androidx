@@ -385,11 +385,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getViewMin(View view) {
-        return (mOrientation == HORIZONTAL) ? view.getLeft() : view.getTop();
+        GridLayoutManagerChildTag tag = getViewTag(view);
+        return (mOrientation == HORIZONTAL) ? tag.getOpticalLeft() : tag.getOpticalTop();
     }
 
     private int getViewMax(View view) {
-        return (mOrientation == HORIZONTAL) ? view.getRight() : view.getBottom();
+        GridLayoutManagerChildTag tag = getViewTag(view);
+        return (mOrientation == HORIZONTAL) ? tag.getOpticalRight() : tag.getOpticalBottom();
     }
 
     private int getViewCenter(View view) {
@@ -401,11 +403,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getViewCenterX(View view) {
-        return view.getLeft() + getViewTag(view).getAlignX();
+        GridLayoutManagerChildTag tag = getViewTag(view);
+        return tag.getOpticalLeft() + tag.getAlignX();
     }
 
     private int getViewCenterY(View view) {
-        return view.getTop() + getViewTag(view).getAlignY();
+        GridLayoutManagerChildTag tag = getViewTag(view);
+        return tag.getOpticalTop() + tag.getAlignY();
     }
 
     /**
@@ -704,8 +708,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private void updateChildAlignments(View v) {
         GridLayoutManagerChildTag tag = getViewTag(v);
-        tag.setAlignX(mItemAlignment.horizontal.getAlignmentPosition(v));
-        tag.setAlignY(mItemAlignment.vertical.getAlignmentPosition(v));
+        tag.setAlignX(mItemAlignment.horizontal.getAlignmentPosition(v, tag));
+        tag.setAlignY(mItemAlignment.vertical.getAlignmentPosition(v, tag));
     }
 
     private void updateChildAlignments() {
@@ -870,26 +874,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             start = getViewMin(view);
         }
         int end;
-        if (view.isLayoutRequested()) {
-            measureChild(view);
-            if (mOrientation == HORIZONTAL) {
-                end = start + view.getMeasuredWidth();
-            } else {
-                end = start + view.getMeasuredHeight();
+        if (mOrientation == HORIZONTAL) {
+            if (view.isLayoutRequested() || view.getMeasuredHeight() != mItemLengthSecondary) {
+                measureChild(view);
             }
+            end = start + view.getMeasuredWidth();
         } else {
-            if (mOrientation == HORIZONTAL) {
-                if (view.getHeight() != mItemLengthSecondary) {
-                    measureChild(view);
-                }
-                end = start + view.getWidth();
-            } else {
-                if (view.getWidth() != mItemLengthSecondary) {
-                    measureChild(view);
-                }
-                end = start + view.getHeight();
+            if (view.isLayoutRequested() || view.getMeasuredWidth() != mItemLengthSecondary) {
+                measureChild(view);
             }
+            end = start + view.getMeasuredHeight();
         }
+
         layoutChild(view, start, end, startSecondary);
         return end + mMarginPrimary;
     }
