@@ -17,12 +17,16 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <color name="lb_bg_default">#333333</color>
     <color name="lb_grey">#888888</color>
     <color name="lb_bluegreen">#00ffff</color>
+    <color name="lb_browse_title_color">#EFEFEF</color>
     <color name="lb_card_background_color">#FFDDDDDD</color>
     <color name="lb_card_info_background_color">#FFFFFFFF</color>
     <color name="lb_card_title_text_color">#FF000000</color>
     <color name="lb_card_content_text_color">#FF404040</color>
+    <color name="lb_hovercard_title_text_color">#80ffffff</color>
+    <color name="lb_hovercard_description_text_color">#80ffffff</color>
     <color name="lb_action_fragment_background">#FF111111</color>
     <color name="lb_dialog_activity_background">#77000000</color>
     <color name="lb_selector_color">#0DFFFFFF</color>
