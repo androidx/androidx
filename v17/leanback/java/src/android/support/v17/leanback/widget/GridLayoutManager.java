@@ -1222,6 +1222,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
+    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
+        boolean needsLayout = false;
+        if (itemCount != 0) {
+            if (mFirstVisiblePos < 0) {
+                needsLayout = true;
+            } else if (!(positionStart > mLastVisiblePos + 1 ||
+                    positionStart + itemCount < mFirstVisiblePos - 1)) {
+                needsLayout = true;
+            }
+        }
+        if (needsLayout) {
+            recyclerView.requestLayout();
+        }
+    }
+
+    @Override
     public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
         if (!mInLayout) {
             scrollToView(child, true, false);
