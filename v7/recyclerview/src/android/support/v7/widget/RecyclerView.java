@@ -389,9 +389,8 @@ public class RecyclerView extends ViewGroup {
         } else {
             mItemDecorations.add(index, decor);
         }
-        invalidate();
-
-        // TODO Refresh layout for affected views
+        markItemDecorInsetsDirty();
+        requestLayout();
     }
 
     /**
@@ -424,9 +423,8 @@ public class RecyclerView extends ViewGroup {
         if (mItemDecorations.isEmpty()) {
             setWillNotDraw(ViewCompat.getOverScrollMode(this) == ViewCompat.OVER_SCROLL_NEVER);
         }
-        invalidate();
-
-        // TODO: Refresh layout for affected views
+        markItemDecorInsetsDirty();
+        requestLayout();
     }
 
     /**
@@ -472,6 +470,9 @@ public class RecyclerView extends ViewGroup {
             overscrollY = y - vresult;
         }
         resumeRequestLayout(false);
+        if (!mItemDecorations.isEmpty()) {
+            invalidate();
+        }
         pullGlows(overscrollX, overscrollY);
         if (mScrollListener != null && (x != 0 || y != 0)) {
             mScrollListener.onScrolled(x, y);
@@ -1016,13 +1017,21 @@ public class RecyclerView extends ViewGroup {
         mStructureChanged = false;
     }
 
+    void markItemDecorInsetsDirty() {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            ((LayoutParams) child.getLayoutParams()).mInsetsDirty = true;
+        }
+    }
+
     @Override
     public void draw(Canvas c) {
         super.draw(c);
 
         final int count = mItemDecorations.size();
         for (int i = 0; i < count; i++) {
-            mItemDecorations.get(i).onDrawOver(c);
+            mItemDecorations.get(i).onDrawOver(c, this);
         }
 
         boolean needsInvalidate = false;
@@ -1065,7 +1074,7 @@ public class RecyclerView extends ViewGroup {
 
         final int count = mItemDecorations.size();
         for (int i = 0; i < count; i++) {
-            mItemDecorations.get(i).onDraw(c);
+            mItemDecorations.get(i).onDraw(c, this);
         }
     }
 
@@ -1432,6 +1441,27 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    Rect getItemDecorInsetsForChild(View child) {
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        if (!lp.mInsetsDirty) {
+            return lp.mDecorInsets;
+        }
+
+        final Rect insets = lp.mDecorInsets;
+        insets.set(0, 0, 0, 0);
+        final int decorCount = mItemDecorations.size();
+        for (int i = 0; i < decorCount; i++) {
+            mTempRect.set(0, 0, 0, 0);
+            mItemDecorations.get(i).getItemOffsets(mTempRect, lp.getViewPosition(), this);
+            insets.left += mTempRect.left;
+            insets.top += mTempRect.top;
+            insets.right += mTempRect.right;
+            insets.bottom += mTempRect.bottom;
+        }
+        lp.mInsetsDirty = false;
+        return insets;
+    }
+
     private class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -1463,6 +1493,10 @@ public class RecyclerView extends ViewGroup {
                     overscrollY = dy - vresult;
                 }
                 resumeRequestLayout(false);
+
+                if (!mItemDecorations.isEmpty()) {
+                    invalidate();
+                }
 
                 if (overscrollX != 0 || overscrollY != 0) {
                     final int vel = (int) mScroller.getCurrVelocity();
@@ -2674,6 +2708,8 @@ public class RecyclerView extends ViewGroup {
                 }
             } else {
                 mRecyclerView.addView(child, index);
+                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                lp.mInsetsDirty = true;
                 final Adapter adapter = mRecyclerView.getAdapter();
                 if (adapter != null) {
                     adapter.onViewAttachedToWindow(getChildViewHolderInt(child));
@@ -3071,7 +3107,7 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * Measure a child view using standard measurement policy, taking the padding
-         * of the parent RecyclerView into account.
+         * of the parent RecyclerView and any added item decorations into account.
          *
          * <p>If the RecyclerView can be scrolled in either dimension the caller may
          * pass 0 as the widthUsed or heightUsed parameters as they will be irrelevant.</p>
@@ -3082,6 +3118,10 @@ public class RecyclerView extends ViewGroup {
          */
         public void measureChild(View child, int widthUsed, int heightUsed) {
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            final Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);
+            widthUsed += insets.left + insets.right;
+            heightUsed += insets.top + insets.bottom;
 
             final int widthSpec = getChildMeasureSpec(getWidth(),
                     getPaddingLeft() + getPaddingRight() + widthUsed, lp.width,
@@ -3094,7 +3134,8 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * Measure a child view using standard measurement policy, taking the padding
-         * of the parent RecyclerView and the child margins into account.
+         * of the parent RecyclerView, any added item decorations and the child margins
+         * into account.
          *
          * <p>If the RecyclerView can be scrolled in either dimension the caller may
          * pass 0 as the widthUsed or heightUsed parameters as they will be irrelevant.</p>
@@ -3105,6 +3146,10 @@ public class RecyclerView extends ViewGroup {
          */
         public void measureChildWithMargins(View child, int widthUsed, int heightUsed) {
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            final Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);
+            widthUsed += insets.left + insets.right;
+            heightUsed += insets.top + insets.bottom;
 
             final int widthSpec = getChildMeasureSpec(getWidth(),
                     getPaddingLeft() + getPaddingRight() +
@@ -3157,6 +3202,115 @@ public class RecyclerView extends ViewGroup {
                 }
             }
             return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
+        }
+
+        /**
+         * Returns the measured width of the given child, plus the additional size of
+         * any insets applied by {@link ItemDecoration ItemDecorations}.
+         *
+         * @param child Child view to query
+         * @return child's measured width plus <code>ItemDecoration</code> insets
+         *
+         * @see View#getMeasuredWidth()
+         */
+        public int getDecoratedMeasuredWidth(View child) {
+            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+            return child.getMeasuredWidth() + insets.left + insets.right;
+        }
+
+        /**
+         * Returns the measured height of the given child, plus the additional size of
+         * any insets applied by {@link ItemDecoration ItemDecorations}.
+         *
+         * @param child Child view to query
+         * @return child's measured height plus <code>ItemDecoration</code> insets
+         *
+         * @see View#getMeasuredHeight()
+         */
+        public int getDecoratedMeasuredHeight(View child) {
+            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+            return child.getMeasuredHeight() + insets.top + insets.bottom;
+        }
+
+        /**
+         * Lay out the given child view within the RecyclerView using coordinates that
+         * include any current {@link ItemDecoration ItemDecorations}.
+         *
+         * <p>LayoutManagers should prefer working in sizes and coordinates that include
+         * item decoration insets whenever possible. This allows the LayoutManager to effectively
+         * ignore decoration insets within measurement and layout code. See the following
+         * methods:</p>
+         * <ul>
+         *     <li>{@link #measureChild(View, int, int)}</li>
+         *     <li>{@link #measureChildWithMargins(View, int, int)}</li>
+         *     <li>{@link #getDecoratedLeft(View)}</li>
+         *     <li>{@link #getDecoratedTop(View)}</li>
+         *     <li>{@link #getDecoratedRight(View)}</li>
+         *     <li>{@link #getDecoratedBottom(View)}</li>
+         *     <li>{@link #getDecoratedMeasuredWidth(View)}</li>
+         *     <li>{@link #getDecoratedMeasuredHeight(View)}</li>
+         * </ul>
+         *
+         * @param child Child to lay out
+         * @param left Left edge, with item decoration insets included
+         * @param top Top edge, with item decoration insets included
+         * @param right Right edge, with item decoration insets included
+         * @param bottom Bottom edge, with item decoration insets included
+         *
+         * @see View#layout(int, int, int, int)
+         */
+        public void layoutDecorated(View child, int left, int top, int right, int bottom) {
+            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+            child.layout(left + insets.left, top + insets.top, right - insets.right,
+                    bottom - insets.bottom);
+        }
+
+        /**
+         * Returns the left edge of the given child view within its parent, offset by any applied
+         * {@link ItemDecoration ItemDecorations}.
+         *
+         * @param child Child to query
+         * @return Child left edge with offsets applied
+         */
+        public int getDecoratedLeft(View child) {
+            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+            return child.getLeft() - insets.left;
+        }
+
+        /**
+         * Returns the top edge of the given child view within its parent, offset by any applied
+         * {@link ItemDecoration ItemDecorations}.
+         *
+         * @param child Child to query
+         * @return Child top edge with offsets applied
+         */
+        public int getDecoratedTop(View child) {
+            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+            return child.getTop() - insets.top;
+        }
+
+        /**
+         * Returns the right edge of the given child view within its parent, offset by any applied
+         * {@link ItemDecoration ItemDecorations}.
+         *
+         * @param child Child to query
+         * @return Child right edge with offsets applied
+         */
+        public int getDecoratedRight(View child) {
+            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+            return child.getRight() + insets.right;
+        }
+
+        /**
+         * Returns the bottom edge of the given child view within its parent, offset by any applied
+         * {@link ItemDecoration ItemDecorations}.
+         *
+         * @param child Child to query
+         * @return Child bottom edge with offsets applied
+         */
+        public int getDecoratedBottom(View child) {
+            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+            return child.getBottom() + insets.bottom;
         }
 
         /**
@@ -3346,8 +3500,8 @@ public class RecyclerView extends ViewGroup {
      * between items, highlights, visual grouping boundaries and more.
      *
      * <p>All ItemDecorations are drawn in the order they were added, before the item
-     * views (in {@link ItemDecoration#onDraw(Canvas) onDraw()} and after the items
-     * (in {@link ItemDecoration#onDrawOver(Canvas)}.</p>
+     * views (in {@link ItemDecoration#onDraw(Canvas, RecyclerView) onDraw()} and after the items
+     * (in {@link ItemDecoration#onDrawOver(Canvas, RecyclerView)}.</p>
      */
     public static abstract class ItemDecoration {
         /**
@@ -3356,8 +3510,9 @@ public class RecyclerView extends ViewGroup {
          * and will thus appear underneath the views.
          *
          * @param c Canvas to draw into
+         * @param parent RecyclerView this ItemDecoration is drawing into
          */
-        public void onDraw(Canvas c) {
+        public void onDraw(Canvas c, RecyclerView parent) {
         }
 
         /**
@@ -3366,8 +3521,9 @@ public class RecyclerView extends ViewGroup {
          * and will thus appear over the views.
          *
          * @param c Canvas to draw into
+         * @param parent RecyclerView this ItemDecoration is drawing into
          */
-        public void onDrawOver(Canvas c) {
+        public void onDrawOver(Canvas c, RecyclerView parent) {
         }
 
         /**
@@ -3381,8 +3537,9 @@ public class RecyclerView extends ViewGroup {
          *
          * @param outRect Rect to receive the output.
          * @param itemPosition Adapter position of the item to offset
+         * @param parent RecyclerView this ItemDecoration is decorating
          */
-        public void getItemOffsets(Rect outRect, int itemPosition) {
+        public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
             outRect.set(0, 0, 0, 0);
         }
     }
@@ -3641,6 +3798,8 @@ public class RecyclerView extends ViewGroup {
      */
     public static class LayoutParams extends MarginLayoutParams {
         ViewHolder mViewHolder;
+        final Rect mDecorInsets = new Rect();
+        boolean mInsetsDirty = true;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
