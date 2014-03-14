@@ -934,7 +934,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         updateScrollMin();
         updateScrollMax();
 
-        View focusView = getViewByPosition(mFocusPosition);
+        View focusView = getViewByPosition(mFocusPosition == NO_POSITION ? 0 : mFocusPosition);
         if (focusView != null) {
             scrollToView(focusView, false, true);
         }
