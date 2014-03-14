@@ -27,11 +27,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * BrowseRowView contains a list with a header and footer.
+ * BrowseRowView contains a horizontal grid view.
  */
 public class BrowseRowView extends LinearLayout {
 
-    private TextView mHeaderTextView;
     private HorizontalGridView mGridView;
 
     public BrowseRowView(Context context) {
@@ -48,8 +47,6 @@ public class BrowseRowView extends LinearLayout {
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.lb_browse_row, this);
 
-        mHeaderTextView = (TextView) findViewById(R.id.row_header);
-
         mGridView = (HorizontalGridView) findViewById(R.id.row_list);
         mGridView.setHasFixedSize(true);
 
@@ -62,13 +59,6 @@ public class BrowseRowView extends LinearLayout {
             int attr = array.getIndex(i);
 
             switch (attr) {
-                case R.styleable.BrowseRowView_headerTextAppearance:
-                    int headerTextStyle = array.getResourceId(attr, 0);
-                    if (headerTextStyle != 0) {
-                        mHeaderTextView.setTextAppearance(context, headerTextStyle);
-                    }
-                    break;
-
                 case R.styleable.BrowseRowView_browseItemMargin:
                     int margin = array.getDimensionPixelSize(attr, 0);
                     mGridView.setMargin(margin);
@@ -85,7 +75,4 @@ public class BrowseRowView extends LinearLayout {
         return mGridView;
     }
 
-    public TextView getHeaderTextView() {
-        return mHeaderTextView;
-    }
 }

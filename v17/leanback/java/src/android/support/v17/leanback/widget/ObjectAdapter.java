@@ -20,6 +20,9 @@ import android.database.Observable;
  * decoupled from the presentation of the items via {@link PresenterSelector}.
  */
 public abstract class ObjectAdapter {
+
+    public static final int NO_ID = -1;
+
     /**
      * A DataObserver can be notified when an ObjectAdapter's underlying data
      * changes. Separate methods provide notifications about different types of
@@ -190,7 +193,8 @@ public abstract class ObjectAdapter {
 
     /**
      * Indicates whether the item ids are stable across changes to the
-     * underlying data.
+     * underlying data.  When this is true, client of Adapter can use
+     * {@link #getId(int)} to correlate objects across changes.
      */
     public boolean hasStableIds() {
         return mHasStableIds;
@@ -220,7 +224,14 @@ public abstract class ObjectAdapter {
     public abstract int size();
 
     /**
-     * Returns the item for the given index.
+     * Returns the item for the given position.
      */
-    public abstract Object get(int index);
+    public abstract Object get(int position);
+
+    /**
+     * Returns id for the given position.
+     */
+    public long getId(int position) {
+        return NO_ID;
+    }
 }

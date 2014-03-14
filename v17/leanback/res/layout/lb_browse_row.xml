@@ -15,17 +15,9 @@
      limitations under the License.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView
-        android:id="@+id/row_header"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lb_browse_row_title_height"
-        style="?attr/browseRowHeaderStyle" />
-
-    <android.support.v17.leanback.widget.HorizontalGridView
-        android:id="@+id/row_list"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lb_browse_row_list_height"
-        style="?attr/browseHorizontalGridStyle" />
-
-</merge>
+<android.support.v17.leanback.widget.HorizontalGridView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/row_list"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/lb_browse_row_list_height"
+    style="?attr/browseHorizontalGridStyle" />
