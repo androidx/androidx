@@ -1119,6 +1119,8 @@ public class RecyclerView extends ViewGroup {
                     }
                     offsetPositionRecordsForInsert(op.positionStart, op.itemCount);
 
+                    mLayout.onItemsAdded(this, op.positionStart, op.itemCount);
+
                     // TODO Animate it in
                     break;
                 case UpdateOp.REMOVE:
@@ -1127,6 +1129,8 @@ public class RecyclerView extends ViewGroup {
                                 op.itemCount);
                     }
                     offsetPositionRecordsForRemove(op.positionStart, op.itemCount);
+
+                    mLayout.onItemsRemoved(this, op.positionStart, op.itemCount);
 
                     // TODO Animate it away
                     break;
@@ -3491,6 +3495,28 @@ public class RecyclerView extends ViewGroup {
          */
         public boolean onAddFocusables(List<View> views, int direction, int focusableMode) {
             return false;
+        }
+
+        /**
+         * Called when items have been added to the adapter. The LayoutManager may choose to
+         * requestLayout if the inserted items would require refreshing the currently visible set
+         * of child views. (e.g. currently empty space would be filled by appended items, etc.)
+         *
+         * @param recyclerView
+         * @param positionStart
+         * @param itemCount
+         */
+        public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
+        }
+
+        /**
+         * Called when items have been removed from the adapter.
+         *
+         * @param recyclerView
+         * @param positionStart
+         * @param itemCount
+         */
+        public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
         }
     }
 
