@@ -20,16 +20,20 @@ package com.example.android.supportv7.widget;
 import android.R;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.widget.TextView;
 import com.example.android.supportv7.Cheeses;
 
@@ -37,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class RecyclerViewActivity extends Activity {
+    private static final String TAG = "RecyclerViewActivity";
+
     private RecyclerView mRecyclerView;
 
     @Override
@@ -49,6 +55,9 @@ public class RecyclerViewActivity extends Activity {
         rv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         rv.setAdapter(new MyAdapter(Cheeses.sCheeseStrings));
+
+        rv.addItemDecoration(new DividerItemDecoration(this));
+
         setContentView(rv);
 
         mRecyclerView = rv;
@@ -105,8 +114,8 @@ public class RecyclerViewActivity extends Activity {
                 View v = recycler.getViewForPosition(adapter, mFirstPosition + i);
                 addView(v, i);
                 measureChildWithMargins(v, 0, 0);
-                bottom = top + v.getMeasuredHeight();
-                v.layout(left, top, right, bottom);
+                bottom = top + getDecoratedMeasuredHeight(v);
+                layoutDecorated(v, left, top, right, bottom);
             }
 
             removeAndRecycleScrap(recycler);
@@ -136,7 +145,7 @@ public class RecyclerViewActivity extends Activity {
             if (dy < 0) {
                 while (scrolled > dy) {
                     final View topView = getChildAt(0);
-                    final int hangingTop = Math.max(-topView.getTop(), 0);
+                    final int hangingTop = Math.max(-getDecoratedTop(topView), 0);
                     final int scrollBy = Math.min(scrolled - dy, hangingTop);
                     scrolled -= scrollBy;
                     offsetChildrenVertical(scrollBy);
@@ -145,9 +154,9 @@ public class RecyclerViewActivity extends Activity {
                         View v = recycler.getViewForPosition(adapter, mFirstPosition);
                         addView(v, 0);
                         measureChildWithMargins(v, 0, 0);
-                        final int bottom = topView.getTop(); // TODO decorated top?
-                        final int top = bottom - v.getMeasuredHeight();
-                        v.layout(left, top, right, bottom);
+                        final int bottom = getDecoratedTop(topView);
+                        final int top = bottom - getDecoratedMeasuredHeight(v);
+                        layoutDecorated(v, left, top, right, bottom);
                     } else {
                         break;
                     }
@@ -156,18 +165,19 @@ public class RecyclerViewActivity extends Activity {
                 final int parentHeight = getHeight();
                 while (scrolled < dy) {
                     final View bottomView = getChildAt(getChildCount() - 1);
-                    final int hangingBottom = Math.max(bottomView.getBottom() - parentHeight, 0);
+                    final int hangingBottom =
+                            Math.max(getDecoratedBottom(bottomView) - parentHeight, 0);
                     final int scrollBy = -Math.min(dy - scrolled, hangingBottom);
                     scrolled -= scrollBy;
                     offsetChildrenVertical(scrollBy);
                     if (scrolled < dy && getItemCount() > mFirstPosition + getChildCount()) {
                         View v = recycler.getViewForPosition(adapter,
                                 mFirstPosition + getChildCount());
-                        final int top = getChildAt(getChildCount() - 1).getBottom();
+                        final int top = getDecoratedBottom(getChildAt(getChildCount() - 1));
                         addView(v);
                         measureChildWithMargins(v, 0, 0);
-                        final int bottom = top + v.getMeasuredHeight();
-                        v.layout(left, top, right, bottom);
+                        final int bottom = top + getDecoratedMeasuredHeight(v);
+                        layoutDecorated(v, left, top, right, bottom);
                     } else {
                         break;
                     }
@@ -195,11 +205,11 @@ public class RecyclerViewActivity extends Activity {
                 while (mFirstPosition > 0 && newViewsHeight < mScrollDistance) {
                     mFirstPosition--;
                     View v = recycler.getViewForPosition(adapter, mFirstPosition);
-                    final int bottom = getChildAt(0).getTop(); // TODO decorated top?
+                    final int bottom = getDecoratedTop(getChildAt(0));
                     addView(v, 0);
                     measureChildWithMargins(v, 0, 0);
-                    final int top = bottom - v.getMeasuredHeight();
-                    v.layout(left, top, right, bottom);
+                    final int top = bottom - getDecoratedMeasuredHeight(v);
+                    layoutDecorated(v, left, top, right, bottom);
                     if (v.isFocusable()) {
                         toFocus = v;
                         break;
@@ -210,11 +220,11 @@ public class RecyclerViewActivity extends Activity {
                 while (mFirstPosition + getChildCount() < getItemCount() &&
                         newViewsHeight < mScrollDistance) {
                     View v = recycler.getViewForPosition(adapter, mFirstPosition + getChildCount());
-                    final int top = getChildAt(getChildCount() - 1).getBottom();
+                    final int top = getDecoratedBottom(getChildAt(getChildCount() - 1));
                     addView(v);
                     measureChildWithMargins(v, 0, 0);
-                    final int bottom = top + v.getMeasuredHeight();
-                    v.layout(left, top, right, bottom);
+                    final int bottom = top + getDecoratedMeasuredHeight(v);
+                    layoutDecorated(v, left, top, right, bottom);
                     if (v.isFocusable()) {
                         toFocus = v;
                         break;
@@ -234,8 +244,10 @@ public class RecyclerViewActivity extends Activity {
             int last = 0;
             for (int i = 0; i < childCount; i++) {
                 final View v = getChildAt(i);
-                if (v.hasFocus() || (v.getRight() >= 0 && v.getLeft() <= parentWidth &&
-                        v.getBottom() >= 0 && v.getTop() <= parentHeight)) {
+                if (v.hasFocus() || (getDecoratedRight(v) >= 0 &&
+                        getDecoratedLeft(v) <= parentWidth &&
+                        getDecoratedBottom(v) >= 0 &&
+                        getDecoratedTop(v) <= parentHeight)) {
                     if (!foundFirst) {
                         first = i;
                         foundFirst = true;
@@ -314,6 +326,44 @@ public class RecyclerViewActivity extends Activity {
         @Override
         public String toString() {
             return super.toString() + " '" + textView.getText();
+        }
+    }
+
+    static class DividerItemDecoration extends RecyclerView.ItemDecoration {
+        private static final int[] ATTRS = new int[] {
+                R.attr.listDivider
+        };
+
+        private Drawable mDivider;
+
+        public DividerItemDecoration(Context context) {
+            final TypedArray a = context.obtainStyledAttributes(ATTRS);
+            mDivider = a.getDrawable(0);
+            a.recycle();
+        }
+
+        public DividerItemDecoration(Drawable divider) {
+            mDivider = divider;
+        }
+
+        @Override
+        public void onDraw(Canvas c, RecyclerView parent) {
+            final int left = parent.getPaddingLeft();
+            final int right = parent.getWidth() - parent.getPaddingRight();
+
+            final int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View child = parent.getChildAt(i);
+                final int top = child.getBottom();
+                final int bottom = top + mDivider.getIntrinsicHeight();
+                mDivider.setBounds(left, top, right, bottom);
+                mDivider.draw(c);
+            }
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
+            outRect.set(0, 0, 0, mDivider.getIntrinsicHeight());
         }
     }
 }
