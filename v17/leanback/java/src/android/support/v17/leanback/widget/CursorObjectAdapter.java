@@ -144,4 +144,21 @@ public class CursorObjectAdapter extends ObjectAdapter {
     public boolean isClosed() {
         return mCursor == null || mCursor.isClosed();
     }
+
+    /**
+     * Remove an item from the cache. This will force the item to be re-read
+     * from the data source the next time (@link #get(int)} is called.
+     */
+    protected final void invalidateCache(int index) {
+        mItemCache.remove(index);
+    }
+
+    /**
+     * Remove {@code count} items starting at {@code index}.
+     */
+    protected final void invalidateCache(int index, int count) {
+        for (int limit = count + index; index < limit; index++) {
+            invalidateCache(index);
+        }
+    }
 }
