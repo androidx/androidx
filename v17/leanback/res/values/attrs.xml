@@ -38,11 +38,14 @@
     <!-- Attributes that can be used with {@link
          android.support.v17.leanback.widget.BrowseRowView}. -->
     <declare-styleable name="BrowseRowView">
+        <attr name="browseItemMargin" format="dimension" />
+        <!-- TODO: define more attributes -->
+    </declare-styleable>
+
+    <declare-styleable name="BrowseRowHeaderView">
         <!-- Default appearance of header text: color, typeface, size, and
              style. -->
         <attr name="headerTextAppearance" format="reference" />
-        <attr name="browseItemMargin" format="dimension" />
-        <!-- TODO: define more attributes -->
     </declare-styleable>
 
     <declare-styleable name="LeanbackTheme">
