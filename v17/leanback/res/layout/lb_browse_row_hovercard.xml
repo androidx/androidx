@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/hovercard_panel"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layerType="hardware"
+    android:orientation="vertical" >
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-condensed"
+        android:maxWidth="@dimen/lb_browse_row_hovercard_max_width"
+        android:textColor="@color/lb_hovercard_title_text_color"
+        android:singleLine="true"
+        android:textSize="@dimen/lb_browse_row_hovercard_title_font_size" />
+    <TextView
+        android:id="@+id/detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/lb_browse_row_hovercard_description_margin_top"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif"
+        android:maxLines="2"
+        android:maxWidth="@dimen/lb_browse_row_hovercard_max_width"
+        android:textColor="@color/lb_hovercard_description_text_color"
+        android:textSize="@dimen/lb_browse_row_hovercard_description_font_size" />
+</LinearLayout>

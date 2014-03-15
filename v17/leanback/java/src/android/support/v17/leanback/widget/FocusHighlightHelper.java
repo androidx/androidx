@@ -15,6 +15,7 @@ package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.R;
 import android.view.View;
+import android.content.res.Resources;
 
 /**
  * Setup the behavior how to highlight when a item gains focus.
@@ -65,11 +66,59 @@ public class FocusHighlightHelper {
     private static BrowseItemFocusHighlight sBrowseItemFocusHighlight =
             new BrowseItemFocusHighlight();
 
+    private static HeaderItemFocusHighlight sHeaderItemFocusHighlight =
+            new HeaderItemFocusHighlight();
+
     /**
      * Setup the focus highlight behavior of a focused item in browse list row.
      * @param adapter  adapter of the list row.
      */
     public static void setupBrowseItemFocusHighlight(ItemBridgeAdapter adapter) {
         adapter.setFocusHighlight(sBrowseItemFocusHighlight);
+    }
+
+    /**
+     * Setup the focus highlight behavior of a focused item in header list.
+     * @param adapter  adapter of the header list.
+     */
+    public static void setupHeaderItemFocusHighlight(ItemBridgeAdapter adapter) {
+        adapter.setFocusHighlight(sHeaderItemFocusHighlight);
+    }
+
+    static class HeaderItemFocusHighlight implements FocusHighlight {
+        private boolean mInitialized;
+        private float mSelectScale;
+        private float mUnselectAlpha;
+        private int mDuration;
+
+        private void initializeDimensions(Resources res) {
+            if (!mInitialized) {
+                mSelectScale =
+                        Float.parseFloat(res.getString(R.dimen.lb_browse_header_select_scale));
+                mUnselectAlpha =
+                        Float.parseFloat(res.getString(R.dimen.lb_browse_header_unselect_alpha));
+                mDuration =
+                        Integer.parseInt(res.getString(R.dimen.lb_browse_header_select_duration));
+                mInitialized = true;
+            }
+        }
+
+        private void viewFocused(View view, boolean hasFocus) {
+            initializeDimensions(view.getResources());
+            if (hasFocus) {
+                view.animate().scaleX(mSelectScale).scaleY(mSelectScale)
+                        .alpha(1f)
+                        .setDuration(mDuration);
+            } else {
+                view.animate().scaleX(1f).scaleY(1f)
+                        .alpha(mUnselectAlpha)
+                        .setDuration(mDuration);
+            }
+        }
+
+        @Override
+        public void onItemFocused(View view, Object item, boolean hasFocus) {
+            viewFocused(view, hasFocus);
+        }
     }
 }

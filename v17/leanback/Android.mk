@@ -14,19 +14,31 @@
 
 LOCAL_PATH:= $(call my-dir)
 
-# # Build the resources using the current SDK version.
-# # We do this here because the final static library must be compiled with an older
-# # SDK version than the resources.  The resources library and the R class that it
-# # contains will not be linked into the final static library.
-# include $(CLEAR_VARS)
-# LOCAL_MODULE := android-support-v17-leanback-res
-# LOCAL_SDK_VERSION := current
-# LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
-# LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-# LOCAL_AAPT_FLAGS := \
-# 	--auto-add-overlay
-# LOCAL_JAR_EXCLUDE_FILES := none
-# include $(BUILD_STATIC_JAVA_LIBRARY)
+# Build the resources using the current SDK version.
+# We do this here because the final static library must be compiled with an older
+# SDK version than the resources.  The resources library and the R class that it
+# contains will not be linked into the final static library.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v17-leanback-res
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_AAPT_FLAGS := \
+	--auto-add-overlay
+LOCAL_JAR_EXCLUDE_FILES := none
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
+#  A helper sub-library that makes direct use of KitKat APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v17-leanback-kitkat
+LOCAL_SDK_VERSION := 19
+LOCAL_SRC_FILES := $(call all-java-files-under, kitkat)
+LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
 
 # Here is the final static library that apps can link against.
 # The R class is automatically excluded from the generated library.
@@ -36,15 +48,14 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_JAVA_LIBRARIES := android-support-v4 #android-support-v17-leanback-res
-LOCAL_STATIC_JAVA_LIBRARIES := \
-	android-support-v4 \
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat
+LOCAL_JAVA_LIBRARIES := \
+	android-support-v17-leanback-res \
 	android-support-v7-recyclerview
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 
-# Documentation -- disabled for now
+# Documentation
 # ===========================================================
 # include $(CLEAR_VARS)
 #
