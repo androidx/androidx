@@ -46,6 +46,7 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     }
 
     private ObjectAdapter mAdapter;
+    private PresenterSelector mPresenterSelector;
     private FocusHighlight mFocusHighlight;
     private AdapterListener mAdapterListener;
     private ArrayList<Presenter> mPresenters = new ArrayList<Presenter>();
@@ -55,26 +56,34 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onFocusChange(View view, boolean hasFocus) {
+            if (DEBUG) Log.v(TAG, "onFocusChange " + hasFocus + " " + view + " mFocusHighlight" + mFocusHighlight);
             ViewHolder viewHolder = getChildViewHolder(view);
-            mFocusHighlight.onItemFocused(view, viewHolder.mItem, hasFocus);
-
+            if (mFocusHighlight != null) {
+                mFocusHighlight.onItemFocused(view, viewHolder.mItem, hasFocus);
+            }
             if (mChainedListener != null) {
                 mChainedListener.onFocusChange(view, hasFocus);
             }
         }
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         Presenter mPresenter;
         Presenter.ViewHolder mHolder;
         Object mItem;
-        OnFocusChangeListener mFocusChangeListener;
+        OnFocusChangeListener mFocusChangeListener = new OnFocusChangeListener();
+
+        public final Presenter getPresenter() {
+            return mPresenter;
+        }
+        public final Presenter.ViewHolder getViewHolder() {
+            return mHolder;
+        }
 
         ViewHolder(Presenter presenter, Presenter.ViewHolder holder) {
             super(holder.view);
             mPresenter = presenter;
             mHolder = holder;
-            mFocusChangeListener = new OnFocusChangeListener();
         }
     }
 
@@ -97,8 +106,9 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         }
     };
 
-    public ItemBridgeAdapter(ObjectAdapter adapter) {
+    public ItemBridgeAdapter(ObjectAdapter adapter, PresenterSelector presenterSelector) {
         setAdapter(adapter);
+        mPresenterSelector = presenterSelector;
     }
 
     public ItemBridgeAdapter() {
@@ -124,11 +134,11 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
 
     void setFocusHighlight(FocusHighlight listener) {
         mFocusHighlight = listener;
+        if (DEBUG) Log.v(TAG, "setFocusHighlight " + mFocusHighlight);
     }
 
     public void clear() {
         setAdapter(null);
-        setFocusHighlight(null);
     }
 
     @Override
@@ -138,7 +148,10 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        Presenter presenter = mAdapter.getPresenter(position);
+        PresenterSelector presenterSelector = mPresenterSelector != null ?
+                mPresenterSelector : mAdapter.getPresenterSelector();
+        Object item = mAdapter.get(position);
+        Presenter presenter = presenterSelector.getPresenter(item);
         int type = mPresenters.indexOf(presenter);
         if (type < 0) {
             mPresenters.add(presenter);
@@ -162,10 +175,8 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         }
         View view = viewHolder.mHolder.view;
         if (view != null) {
-            if (mFocusHighlight != null) {
-                viewHolder.mFocusChangeListener.mChainedListener = view.getOnFocusChangeListener();
-                view.setOnFocusChangeListener(viewHolder.mFocusChangeListener);
-            }
+            viewHolder.mFocusChangeListener.mChainedListener = view.getOnFocusChangeListener();
+            view.setOnFocusChangeListener(viewHolder.mFocusChangeListener);
         }
         return viewHolder;
     }
