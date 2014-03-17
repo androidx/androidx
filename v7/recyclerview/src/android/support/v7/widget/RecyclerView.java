@@ -219,13 +219,13 @@ public class RecyclerView extends ViewGroup {
         if (mAdapter != null) {
             mAdapter.unregisterAdapterDataObserver(mObserver);
         }
-        final Adapter oldAdapter = adapter;
+        final Adapter oldAdapter = mAdapter;
         mAdapter = adapter;
         if (adapter != null) {
             adapter.registerAdapterDataObserver(mObserver);
         }
         if (mLayout != null) {
-            mLayout.onAdapterChanged();
+            mLayout.onAdapterChanged(oldAdapter, mAdapter);
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter);
         requestLayout();
@@ -3460,14 +3460,28 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * @deprecated This method will be removed. Override
+         * {@link #onAdapterChanged(RecyclerView.Adapter, RecyclerView.Adapter)}
+         * instead.
+         */
+        public void onAdapterChanged() {
+            removeAllViews();
+        }
+
+        /**
          * Called if the RecyclerView this LayoutManager is bound to has a different adapter set.
          * The LayoutManager may use this opportunity to clear caches and configure state such
          * that it can relayout appropriately with the new data and potentially new view types.
          *
          * <p>The default implementation removes all currently attached views.</p>
+         *
+         * @param oldAdapter The previous adapter instance. Will be null if there was previously no
+         *                   adapter.
+         * @param newAdapter The new adapter instance. Might be null if
+         *                   {@link #setAdapter(RecyclerView.Adapter)} is called with {@code null}.
          */
-        public void onAdapterChanged() {
-            removeAllViews();
+        public void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
+            onAdapterChanged();
         }
 
         /**
