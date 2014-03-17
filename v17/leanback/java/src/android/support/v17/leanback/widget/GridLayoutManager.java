@@ -936,7 +936,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         View focusView = getViewByPosition(mFocusPosition == NO_POSITION ? 0 : mFocusPosition);
         if (focusView != null) {
-            scrollToView(focusView, false, true);
+            scrollToView(focusView, false);
         }
     }
 
@@ -952,6 +952,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             Log.v(getTag(), "width " + getWidth() + " height " + getHeight());
         }
 
+        if (mNumRows == 0) {
+            // haven't done measure yet
+            return;
+        }
         final int itemCount = adapter.getItemCount();
         if (itemCount < 0) {
             return;
@@ -1020,7 +1024,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 oldLastVisible = mLastVisiblePos;
                 View focusView = getViewByPosition(newFocusPosition);
                 // we need force to initialize the child view's position
-                scrollToView(focusView, false, true);
+                scrollToView(focusView, false);
                 if (focusView != null && hadFocus) {
                     focusView.requestFocus();
                 }
@@ -1195,7 +1199,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         View view = getViewByPosition(position);
         if (view != null) {
-            scrollToView(view, smooth, false);
+            scrollToView(view, smooth);
         } else {
             boolean right = position > mFocusPosition;
             mFocusPosition = position;
@@ -1212,7 +1216,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
                 view = getViewByPosition(position);
                 if (view != null) {
-                    scrollToView(view, smooth, false);
+                    scrollToView(view, smooth);
                 }
             } else {
                 mForceFullLayout = true;
@@ -1240,7 +1244,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
         if (!mInLayout) {
-            scrollToView(child, true, false);
+            scrollToView(child, true);
         }
         return true;
     }
@@ -1272,9 +1276,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Scroll to a given child view and change mFocusPosition.
      */
-    private void scrollToView(View view, boolean smooth, boolean force) {
+    private void scrollToView(View view, boolean smooth) {
         int newFocusPosition = getPositionByView(view);
-        if (force || newFocusPosition != mFocusPosition) {
+        if (mInLayout || newFocusPosition != mFocusPosition) {
             mFocusPosition = newFocusPosition;
             dispatchChildSelected();
         }
@@ -1289,11 +1293,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int viewCenterY = getScrollOffsetY() + getViewCenterY(view);
         int viewCenterX = getScrollOffsetX() + getViewCenterX(view);
         if (DEBUG) {
-            Log.v(TAG, "scrollToView pos=" + mFocusPosition + " "
+            Log.v(getTag(), "scrollToView smooth=" + smooth + " pos=" + mFocusPosition + " "
                     + viewCenterX+","+viewCenterY + " " + mWindowAlignment);
         }
 
-        if (force || viewCenterX != mWindowAlignment.horizontal.getScrollCenter()
+        if (mInLayout || viewCenterX != mWindowAlignment.horizontal.getScrollCenter()
                 || viewCenterY != mWindowAlignment.vertical.getScrollCenter()) {
             mWindowAlignment.horizontal.updateScrollCenter(viewCenterX);
             mWindowAlignment.vertical.updateScrollCenter(viewCenterY);
@@ -1307,9 +1311,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             scrollX -= getScrollOffsetX();
             scrollY -= getScrollOffsetY();
 
-            if (DEBUG) Log.v(getTag(), "calling scroller with " + scrollX + " " + scrollY);
+            if (DEBUG) Log.v(getTag(), "scrollX " + scrollX + " scrollY " + scrollY);
 
-            if (smooth) {
+            if (mInLayout) {
+                if (mOrientation == HORIZONTAL) {
+                    scrollDirectionPrimary(scrollX);
+                    scrollDirectionSecondary(scrollY);
+                } else {
+                    scrollDirectionPrimary(scrollY);
+                    scrollDirectionSecondary(scrollX);
+                }
+            } else if (smooth) {
                 mBaseListView.smoothScrollBy(scrollX, scrollY);
             } else {
                 mBaseListView.scrollBy(scrollX, scrollY);
