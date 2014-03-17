@@ -42,12 +42,6 @@
         <!-- TODO: define more attributes -->
     </declare-styleable>
 
-    <declare-styleable name="BrowseRowHeaderView">
-        <!-- Default appearance of header text: color, typeface, size, and
-             style. -->
-        <attr name="headerTextAppearance" format="reference" />
-    </declare-styleable>
-
     <declare-styleable name="LeanbackTheme">
         <attr name="browseHorizontalGridStyle" format="reference" />
         <attr name="browseRowViewStyle" format="reference" />

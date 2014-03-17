@@ -19,7 +19,7 @@
     <style name="Theme.Leanback" parent="android:Theme.Holo.NoActionBar">
         <item name="browseHorizontalGridStyle">@style/Widget.Leanback.Browse.HorizontalGridView</item>
         <item name="browseRowViewStyle">@style/Widget.Leanback.BrowseRowView</item>
-        <item name="browseRowHeaderStyle">@style/Widget.Leanback.Browse.BrowseHeader</item>
+        <item name="browseRowHeaderStyle">@style/Widget.Leanback.BrowseRowHeaderView</item>
     </style>
 
     <style name="Theme.Leanback.Light" parent="android:Theme.Holo.Light.NoActionBar">

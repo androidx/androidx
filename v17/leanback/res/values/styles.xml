@@ -42,7 +42,7 @@
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingBottom">@dimen/lb_browse_item_margin_vertical</item>
-        <item name="android:paddingLeft">@dimen/lb_browse_item_margin_horizontal</item>
+        <item name="android:paddingLeft">@dimen/lb_browse_padding_left</item>
         <item name="android:paddingRight">@dimen/lb_browse_item_margin_horizontal</item>
         <item name="android:paddingTop">@dimen/lb_browse_item_margin_vertical</item>
         <item name="focusOutFront">true</item>
@@ -50,7 +50,8 @@
 
     <style name="Widget.Leanback.BrowseRowHeaderView">
         <item name="android:minHeight">@dimen/lb_browse_row_title_height</item>
-        <item name="headerTextAppearance">@style/TextAppearance.Leanback.BrowseHeader</item>
+        <item name="android:paddingLeft">@dimen/lb_browse_padding_left</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.BrowseHeader</item>
     </style>
 
     <style name="Widget.Leanback.BrowseRowView">
