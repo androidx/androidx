@@ -156,7 +156,7 @@ abstract class BaseListView extends RecyclerView {
 
     /**
      * Set offset percent for window alignment in addition to {@link
-     * #getWindowAlignOffset()}.
+     * #getWindowAlignmentOffset()}.
      *
      * @param offsetPercent Percentage to offset. E.g., 40 means 40% of the
      *        width from low edge. Use
@@ -169,7 +169,7 @@ abstract class BaseListView extends RecyclerView {
 
     /**
      * Get offset percent for window alignment in addition to
-     * {@link #getWindowAlignOffset()}.
+     * {@link #getWindowAlignmentOffset()}.
      *
      * @return Percentage to offset. E.g., 40 means 40% of the width from the 
      *         low edge, or {@link #WINDOW_ALIGN_OFFSET_PERCENT_DISABLED} if
@@ -204,7 +204,7 @@ abstract class BaseListView extends RecyclerView {
 
     /**
      * Set offset percent for item alignment in addition to {@link
-     * #getItemAlignOffset()}.
+     * #getItemAlignmentOffset()}.
      *
      * @param offsetPercent Percentage to offset. E.g., 40 means 40% of the
      *        width from the low edge. Use
@@ -217,7 +217,7 @@ abstract class BaseListView extends RecyclerView {
 
     /**
      * Get offset percent for item alignment in addition to {@link
-     * #getItemAlignOffset()}.
+     * #getItemAlignmentOffset()}.
      *
      * @return Percentage to offset. E.g., 40 means 40% of the width from the
      *         low edge, or {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED} if
