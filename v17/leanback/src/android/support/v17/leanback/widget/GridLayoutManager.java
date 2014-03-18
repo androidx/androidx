@@ -35,7 +35,6 @@ import android.view.animation.Interpolator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 final class GridLayoutManager extends RecyclerView.LayoutManager {
 
@@ -181,8 +180,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Duration used to animate layout of children.
      */
     private long mAnimateLayoutChildDuration = DEFAULT_CHILD_ANIMATION_DURATION_MS;
-
-    private final ArrayList<View> mTmpViews = new ArrayList<View>(24);
 
     public GridLayoutManager(BaseListView baseListView) {
         mBaseListView = baseListView;
@@ -1398,27 +1395,29 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public boolean onAddFocusables(List<View> views, int direction, int focusableMode) {
+    public boolean onAddFocusables(RecyclerView recyclerView,
+            ArrayList<View> views, int direction, int focusableMode) {
         // If this viewgroup or one of its children currently has focus then we
         // consider our children for focus searching.
         // Otherwise, we only want the system to ignore our children and pass
         // focus to the viewgroup, which will pass focus on to its children
         // appropriately.
-        if (hasFocus()) {
+        if (recyclerView.hasFocus()) {
             final int movement = getMovement(direction);
             if (movement != PREV_ITEM && movement != NEXT_ITEM) {
                 // Move on secondary direction uses default addFocusables().
                 return false;
             }
             // Get current focus row.
-            final View focused = mBaseListView.findFocus();
+            final View focused = recyclerView.findFocus();
             final int focusedImmediateChildIndex = findImmediateChildIndex(focused);
             final int focusedPos = getPositionByIndex(focusedImmediateChildIndex);
             final int focusedRow = mGrid != null ? mGrid.getLocation(focusedPos).row : -1;
             // Add focusables within the same row.
             final int focusableCount = views.size();
-            final int descendantFocusability = mBaseListView.getDescendantFocusability();
-            if (mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
+            final int descendantFocusability = recyclerView.getDescendantFocusability();
+            if (focusedRow != -1 &&
+                    mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
                 for (int i = 0, count = getChildCount(); i < count; i++) {
                     final View child = getChildAt(i);
                     if (child.getVisibility() != View.VISIBLE) {
@@ -1426,9 +1425,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     }
                     StaggeredGrid.Location loc = mGrid.getLocation(getPositionByIndex(i));
                     if (loc != null && loc.row == focusedRow) {
-                        child.addFocusables(mTmpViews,  direction, focusableMode);
-                        views.addAll(mTmpViews);
-                        mTmpViews.clear();
+                        child.addFocusables(views,  direction, focusableMode);
                     }
                 }
             }
@@ -1440,13 +1437,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (descendantFocusability != ViewGroup.FOCUS_AFTER_DESCENDANTS
                     // No focusable descendants
                     || (focusableCount == views.size())) {
-                if (mBaseListView.isFocusable()) {
-                    views.add(mBaseListView);
+                if (recyclerView.isFocusable()) {
+                    views.add(recyclerView);
                 }
             }
         } else {
-            if (mBaseListView.isFocusable()) {
-                views.add(mBaseListView);
+            if (recyclerView.isFocusable()) {
+                views.add(recyclerView);
             }
         }
         return true;
