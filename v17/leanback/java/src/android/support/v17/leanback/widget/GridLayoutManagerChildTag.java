@@ -28,6 +28,12 @@ final class GridLayoutManagerChildTag implements TimeListener {
 
     private View mView;
 
+    // For placement
+    private int mLeftInset;
+    private int mTopInset;
+    private int mRighInset;
+    private int mBottomInset;
+
     // For alignment
     private int mAlignX;
     private int mAlignY;
@@ -64,12 +70,43 @@ final class GridLayoutManagerChildTag implements TimeListener {
         return mAlignY;
     }
 
+    int getOpticalLeft() {
+        return mView.getLeft() + mLeftInset;
+    }
+
+    int getOpticalTop() {
+        return mView.getTop() + mTopInset;
+    }
+
+    int getOpticalRight() {
+        return mView.getRight() - mRighInset;
+    }
+
+    int getOpticalBottom() {
+        return mView.getBottom() - mBottomInset;
+    }
+
+    int getOpticalWidth() {
+        return mView.getWidth() - mLeftInset - mRighInset;
+    }
+
+    int getOpticalHeight() {
+        return mView.getHeight() - mTopInset - mBottomInset;
+    }
+
     void setAlignX(int alignX) {
         mAlignX = alignX;
     }
 
     void setAlignY(int alignY) {
         mAlignY = alignY;
+    }
+
+    void setOpticalInsets(int leftInset, int topInset, int rightInset, int bottomInset) {
+        mLeftInset = leftInset;
+        mTopInset = topInset;
+        mRighInset = rightInset;
+        mBottomInset = bottomInset;
     }
 
     void startAnimate(GridLayoutManager layout, long startDelay) {
@@ -80,16 +117,16 @@ final class GridLayoutManagerChildTag implements TimeListener {
         if (mFirstAttached) {
             // first time record the initial location and return without animation
             // TODO do we need initial animation?
-            mViewX = layout.getScrollOffsetX() + mView.getLeft();
-            mViewY = layout.getScrollOffsetY() + mView.getTop();
+            mViewX = layout.getScrollOffsetX() + getOpticalLeft();
+            mViewY = layout.getScrollOffsetY() + getOpticalTop();
             mFirstAttached = false;
             return;
         }
         if (!layout.isChildLayoutAnimated()) {
             return;
         }
-        int newViewX = layout.getScrollOffsetX() + mView.getLeft();
-        int newViewY = layout.getScrollOffsetY() + mView.getTop();
+        int newViewX = layout.getScrollOffsetX() + getOpticalLeft();
+        int newViewY = layout.getScrollOffsetY() + getOpticalTop();
         if (newViewX != mViewX || newViewY != mViewY) {
             mAnimator.cancel();
             mAnimationStartTranslationX = mView.getTranslationX();
