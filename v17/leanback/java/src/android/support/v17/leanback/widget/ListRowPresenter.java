@@ -163,7 +163,7 @@ public class ListRowPresenter extends RowPresenter {
         if (vh.mExpanded && vh.mSelected) {
             ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
                     vh.mGridView.findViewHolderForPosition(
-                            vh.mGridView.getSelection());
+                            vh.mGridView.getSelectedPosition());
             selectChildView(vh, ibh == null ? null : ibh.mHolder.view);
         } else {
             selectChildView(vh, null);
