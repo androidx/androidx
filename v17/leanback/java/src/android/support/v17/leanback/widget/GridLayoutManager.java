@@ -17,12 +17,15 @@ import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.Recycler;
+
 import static android.support.v7.widget.RecyclerView.NO_ID;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 import static android.support.v7.widget.RecyclerView.VERTICAL;
+
 import android.support.v17.leanback.R;
 import android.util.Log;
+import android.view.FocusFinder;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
@@ -32,6 +35,7 @@ import android.view.animation.Interpolator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 final class GridLayoutManager extends RecyclerView.LayoutManager {
 
@@ -178,6 +182,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private long mAnimateLayoutChildDuration = DEFAULT_CHILD_ANIMATION_DURATION_MS;
 
+    private final ArrayList<View> mTmpViews = new ArrayList<View>(24);
+
     public GridLayoutManager(BaseListView baseListView) {
         mBaseListView = baseListView;
     }
@@ -309,7 +315,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getPositionByView(View view) {
-        int index = mBaseListView.indexOfChild(view);
+        return getPositionByIndex(mBaseListView.indexOfChild(view));
+    }
+
+    private int getPositionByIndex(int index) {
         if (index < 0) {
             return NO_POSITION;
         }
@@ -767,27 +776,43 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return false;
     }
 
+    // Append one column if possible and return true if reach end.
+    private boolean appendOneVisibleItem() {
+        if (mLastVisiblePos >= 0 && mLastVisiblePos < mGrid.getLastIndex()) {
+            appendViewWithSavedLocation();
+        } else if (mLastVisiblePos < mAdapter.getItemCount() - 1) {
+            mGrid.appendItems(mScrollOffsetPrimary + mSizePrimary);
+        } else {
+            return true;
+        }
+        return false;
+    }
+
     private void appendVisibleItems() {
         while (needsAppendVisibleItem()) {
-            if (mLastVisiblePos >= 0 && mLastVisiblePos < mGrid.getLastIndex()) {
-                appendViewWithSavedLocation();
-            } else if (mLastVisiblePos < mAdapter.getItemCount() - 1) {
-                mGrid.appendItems(mScrollOffsetPrimary + mSizePrimary);
-            } else {
+            if (appendOneVisibleItem()) {
                 break;
             }
         }
     }
 
+    // Prepend one column if possible and return true if reach end.
+    private boolean prependOneVisibleItem() {
+        if (mFirstVisiblePos > 0) {
+            if (mFirstVisiblePos > mGrid.getFirstIndex()) {
+                prependViewWithSavedLocation();
+            } else {
+                mGrid.prependItems(mScrollOffsetPrimary);
+            }
+        } else {
+            return true;
+        }
+        return false;
+    }
+
     private void prependVisibleItems() {
         while (needsPrependVisibleItem()) {
-            if (mFirstVisiblePos > 0) {
-                if (mFirstVisiblePos > mGrid.getFirstIndex()) {
-                    prependViewWithSavedLocation();
-                } else {
-                    mGrid.prependItems(mScrollOffsetPrimary);
-                }
-            } else {
+            if (prependOneVisibleItem()) {
                 break;
             }
         }
@@ -1361,28 +1386,97 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mAnimateLayoutChildDuration;
     }
 
+    private int findImmediateChildIndex(View view) {
+        while (view != null && view != mBaseListView) {
+            int index = mBaseListView.indexOfChild(view);
+            if (index >= 0) {
+                return index;
+            }
+            view = (View) view.getParent();
+        }
+        return -1;
+    }
+
+    @Override
+    public boolean onAddFocusables(List<View> views, int direction, int focusableMode) {
+        // If this viewgroup or one of its children currently has focus then we
+        // consider our children for focus searching.
+        // Otherwise, we only want the system to ignore our children and pass
+        // focus to the viewgroup, which will pass focus on to its children
+        // appropriately.
+        if (hasFocus()) {
+            final int movement = getMovement(direction);
+            if (movement != PREV_ITEM && movement != NEXT_ITEM) {
+                // Move on secondary direction uses default addFocusables().
+                return false;
+            }
+            // Get current focus row.
+            final View focused = mBaseListView.findFocus();
+            final int focusedImmediateChildIndex = findImmediateChildIndex(focused);
+            final int focusedPos = getPositionByIndex(focusedImmediateChildIndex);
+            final int focusedRow = mGrid != null ? mGrid.getLocation(focusedPos).row : -1;
+            // Add focusables within the same row.
+            final int focusableCount = views.size();
+            final int descendantFocusability = mBaseListView.getDescendantFocusability();
+            if (mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
+                for (int i = 0, count = getChildCount(); i < count; i++) {
+                    final View child = getChildAt(i);
+                    if (child.getVisibility() != View.VISIBLE) {
+                        continue;
+                    }
+                    StaggeredGrid.Location loc = mGrid.getLocation(getPositionByIndex(i));
+                    if (loc != null && loc.row == focusedRow) {
+                        child.addFocusables(mTmpViews,  direction, focusableMode);
+                        views.addAll(mTmpViews);
+                        mTmpViews.clear();
+                    }
+                }
+            }
+            // From ViewGroup.addFocusables():
+            // we add ourselves (if focusable) in all cases except for when we are
+            // FOCUS_AFTER_DESCENDANTS and there are some descendants focusable.  this is
+            // to avoid the focus search finding layouts when a more precise search
+            // among the focusable children would be more interesting.
+            if (descendantFocusability != ViewGroup.FOCUS_AFTER_DESCENDANTS
+                    // No focusable descendants
+                    || (focusableCount == views.size())) {
+                if (mBaseListView.isFocusable()) {
+                    views.add(mBaseListView);
+                }
+            }
+        } else {
+            if (mBaseListView.isFocusable()) {
+                views.add(mBaseListView);
+            }
+        }
+        return true;
+    }
+
     @Override
     public View onFocusSearchFailed(View focused, int direction, Adapter adapter,
             Recycler recycler) {
         if (DEBUG) Log.v(getTag(), "onFocusSearchFailed direction " + direction);
 
-        // XXX Move this into a focusSearch method when RecyclerView.focusSearch changes to give
-        // LayoutManager first dibs on focus handling.  We may still want to leave a
-        // onFocusSearchFailed method for lazy loading of content?
-
         View view = null;
         int movement = getMovement(direction);
-        // returning the same view to prevent focus lost when scrolling past the end of the list
-        if (movement == PREV_ITEM) {
-            view = mFocusOutFront ? null : focused;
-        } else if (movement == NEXT_ITEM){
-            view = mFocusOutEnd ? null : focused;
+        final FocusFinder ff = FocusFinder.getInstance();
+        if (movement == NEXT_ITEM) {
+            while (view == null && !appendOneVisibleItem()) {
+                view = ff.findNextFocus(mBaseListView, focused, direction);
+            }
+        } else if (movement == PREV_ITEM){
+            while (view == null && !prependOneVisibleItem()) {
+                view = ff.findNextFocus(mBaseListView, focused, direction);
+            }
         }
-
-        // Add the necessary view
-        // findNextFocusPosition(recycler, direction);
-        // FocusFinder ff = FocusFinder.getInstance();
-        // view = ff.findNextFocus(getRecyclerView(), focused, direction);
+        if (view == null) {
+            // returning the same view to prevent focus lost when scrolling past the end of the list
+            if (movement == PREV_ITEM) {
+                view = mFocusOutFront ? null : focused;
+            } else if (movement == NEXT_ITEM){
+                view = mFocusOutEnd ? null : focused;
+            }
+        }
         if (DEBUG) Log.v(getTag(), "returning view " + view);
         return view;
     }
@@ -1392,14 +1486,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private final static int PREV_ROW = 2;
     private final static int NEXT_ROW = 3;
 
-    // TODO: Remove this is support for restoring focus to previous child is
-    // added to RecyclerView.
-    public boolean focusSelectedChild() {
+    boolean focusSelectedChild(int direction, Rect previouslyFocusedRect) {
         View view = getViewByPosition(mFocusPosition);
         if (view != null) {
-            if (!view.requestFocus()) {
+            if (!view.requestFocus(direction, previouslyFocusedRect)) {
                 if (DEBUG) {
-                    Log.v(getTag(), "failed to request focus on " + view);
+                    Log.w(getTag(), "failed to request focus on " + view);
                 }
             } else {
                 return true;

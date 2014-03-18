@@ -362,27 +362,11 @@ abstract class BaseListView extends RecyclerView {
 
     @Override
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
-        if (mLayoutManager.focusSelectedChild()) {
+        if (mLayoutManager.focusSelectedChild(direction, previouslyFocusedRect)) {
             return true;
         }
         return super.requestFocus(direction, previouslyFocusedRect);
     }
-
-    @Override
-    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
-        // Called during focus search.
-        // If this viewgroup or one of its children currently has focus then we
-        // consider our children for focus searching.
-        // Otherwise, we only want the system to ignore our children and pass
-        // focus only to the viewgroup, which will pass focus on to its children
-        // appropriately.
-        if (hasFocus()) {
-            super.addFocusables(views, direction, focusableMode);
-        } else {
-            views.add(this);
-        }
-    }
-
 
     /**
      * Get the x/y offsets to final position from current position if the view
