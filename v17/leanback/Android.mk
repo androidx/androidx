@@ -24,7 +24,7 @@ LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_AAPT_FLAGS := \
-	--auto-add-overlay
+        --auto-add-overlay
 LOCAL_JAR_EXCLUDE_FILES := none
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -50,8 +50,9 @@ LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat
 LOCAL_JAVA_LIBRARIES := \
-	android-support-v17-leanback-res \
-	android-support-v7-recyclerview
+        android-support-v4 \
+        android-support-v7-recyclerview \
+        android-support-v17-leanback-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 
