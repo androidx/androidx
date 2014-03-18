@@ -42,6 +42,7 @@ class RowContainerFragment extends BaseRowFragment {
     private BackgroundParams mBackgroundParams;
     private ItemBridgeAdapter.ViewHolder mSelectedViewHolder;
     private boolean mExpand = true;
+    private boolean mViewsCreated;
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
@@ -65,13 +66,9 @@ class RowContainerFragment extends BaseRowFragment {
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
-        notifyDataSetChanged();
-    }
-
-    private void notifyDataSetChanged() {
-        ItemBridgeAdapter adapter = getBridgeAdapter();
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
+        if (mViewsCreated) {
+            throw new IllegalStateException(
+                    "Item clicked listener must be set before views are created");
         }
     }
 
@@ -158,31 +155,20 @@ class RowContainerFragment extends BaseRowFragment {
         ((RowPresenter) vh.getPresenter()).setOnItemSelectedListener(listener);
     }
 
-    private static void setOnItemClickedListener(ItemBridgeAdapter.ViewHolder vh,
-            OnItemClickedListener listener) {
-        ((RowPresenter) vh.getPresenter()).setOnItemClickedListener(listener);
-    }
-
     private final ItemBridgeAdapter.AdapterListener mBridgeAdapterListener = new ItemBridgeAdapter.AdapterListener() {
         @Override
-        public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
+        public void onAddPresenter(Presenter presenter) {
+            ((RowPresenter) presenter).setOnItemClickedListener(mOnItemClickedListener);
         }
-
+        @Override
+        public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
+            mViewsCreated = true;
+        }
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
             if (DEBUG) Log.v(TAG, "onAttachToWindow");
             setRowViewExpanded(vh, mExpand);
             setOnItemSelectedListener(vh, mOnItemSelectedListener);
-            setOnItemClickedListener(vh, mOnItemClickedListener);
-        }
-        @Override
-        public void onBind(ItemBridgeAdapter.ViewHolder vh) {
-        }
-        @Override
-        public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
-        }
-        @Override
-        public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder vh) {
         }
     };
 
@@ -190,6 +176,8 @@ class RowContainerFragment extends BaseRowFragment {
     protected void updateAdapter() {
         super.updateAdapter();
         mSelectedViewHolder = null;
+        mViewsCreated = false;
+
         ItemBridgeAdapter adapter = getBridgeAdapter();
         if (adapter != null) {
             adapter.setAdapterListener(mBridgeAdapterListener);
