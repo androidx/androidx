@@ -33,6 +33,8 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
      * Interface for listening to view holder operations.
      */
     public static class AdapterListener {
+        public void onAddPresenter(Presenter presenter) {
+        }
         public void onCreate(ViewHolder viewHolder) {
         }
         public void onBind(ViewHolder viewHolder) {
@@ -156,6 +158,9 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         if (type < 0) {
             mPresenters.add(presenter);
             type = mPresenters.indexOf(presenter);
+            if (mAdapterListener != null) {
+                mAdapterListener.onAddPresenter(presenter);
+            }
         }
         return type;
     }
