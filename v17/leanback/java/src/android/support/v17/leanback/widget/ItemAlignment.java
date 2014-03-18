@@ -69,7 +69,8 @@ class ItemAlignment {
             return mViewId;
         }
 
-        public int getAlignmentPosition(View itemView) {
+        public int getAlignmentPosition(View itemView, GridLayoutManagerChildTag tag) {
+
             View view = itemView;
             if (mViewId != 0) {
                 view = itemView.findViewById(mViewId);
@@ -82,10 +83,10 @@ class ItemAlignment {
                 if (mOffset >= 0) {
                     alignPos = mOffset;
                 } else {
-                    alignPos = view.getWidth() + mOffset;
+                    alignPos = tag.getOpticalWidth() + mOffset;
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (view.getWidth() * mOffsetPercent) / 100;
+                    alignPos += (tag.getOpticalWidth() * mOffsetPercent) / 100;
                 }
                 if (itemView != view) {
                     mRect.left = alignPos;
@@ -96,10 +97,10 @@ class ItemAlignment {
                 if (mOffset >= 0) {
                     alignPos = mOffset;
                 } else {
-                    alignPos = view.getHeight() + mOffset;
+                    alignPos = tag.getOpticalHeight() + mOffset;
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (view.getHeight() * mOffsetPercent) / 100;
+                    alignPos += (tag.getOpticalHeight() * mOffsetPercent) / 100;
                 }
                 if (itemView != view) {
                     mRect.top = alignPos;
