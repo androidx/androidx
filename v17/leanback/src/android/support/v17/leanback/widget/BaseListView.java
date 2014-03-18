@@ -23,8 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 
-import java.util.ArrayList;
-
 /**
  * Base class for vertically and horizontally scrolling lists. The items come
  * from the {@link RecyclerView.Adapter} associated with this view.

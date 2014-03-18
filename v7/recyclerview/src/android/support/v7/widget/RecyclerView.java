@@ -668,7 +668,7 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
-        if (!mLayout.onAddFocusables(views, direction, focusableMode)) {
+        if (!mLayout.onAddFocusables(this, views, direction, focusableMode)) {
             super.addFocusables(views, direction, focusableMode);
         }
     }
@@ -3506,6 +3506,16 @@ public class RecyclerView extends ViewGroup {
          *
          * @see #FOCUSABLES_ALL
          * @see #FOCUSABLES_TOUCH_MODE
+         */
+        public boolean onAddFocusables(RecyclerView recyclerView, ArrayList<View> views,
+                int direction, int focusableMode) {
+            return onAddFocusables(views, direction, focusableMode);
+        }
+
+        /**
+         * @deprecated This method will be removed. Override
+         * {@link #onAddFocusables(RecyclerView, ArrayList<View>, int, int)}
+         * instead.
          */
         public boolean onAddFocusables(List<View> views, int direction, int focusableMode) {
             return false;
