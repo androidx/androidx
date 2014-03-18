@@ -18,12 +18,13 @@ import android.view.ViewGroup;
 
 /**
  * A Presenter is used to generate {@link View}s and bind Objects to them on
- * demand. It is closely related to concept of an {@link Adapter}, but is not
- * position-based.
+ * demand. It is closely related to concept of an {@link
+ * android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}, but is
+ * not position-based.
  *
  * <p>
  * A trivial Presenter that takes a string and renders it into a {@link
- * TextView}:
+ * android.widget.TextView TextView}:
  *
  * <pre class="prettyprint">
  * public class StringTextViewPresenter extends Presenter {
@@ -31,12 +32,12 @@ import android.view.ViewGroup;
  *     // a complex layout.
  *
  *     {@literal @}Override
- *     public ViewHolder createViewHolder(ViewGroup parent) {
+ *     public ViewHolder onCreateViewHolder(ViewGroup parent) {
  *         return new ViewHolder(new TextView(parent.getContext()));
  *     }
  *
  *     {@literal @}Override
- *     public void bindViewHolder(ViewHolder viewHolder, Object item) {
+ *     public void onBindViewHolder(ViewHolder viewHolder, Object item) {
  *         String str = (String) item;
  *         TextView textView = (TextView) viewHolder.mView;
  *
@@ -44,9 +45,9 @@ import android.view.ViewGroup;
  *     }
  *
  *     {@literal @}Override
- *     public void unbindViewHolder(ViewHolder viewHolder) {
- *         TextView textView = (TextView) viewHolder.mView;
- *         textView.setText(null);
+ *     public void onUnbindViewHolder(ViewHolder viewHolder) {
+ *         // Nothing to unbind for TextView, but if this viewHolder had
+ *         // allocated bitmaps, they can be released here.
  *     }
  * }
  * </pre>
