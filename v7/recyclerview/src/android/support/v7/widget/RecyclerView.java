@@ -2514,6 +2514,15 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Calls {@code RecyclerView#requestLayout} on the underlying RecyclerView
+         */
+        public void requestLayout() {
+            if(mRecyclerView != null) {
+                mRecyclerView.requestLayout();
+            }
+        }
+
+        /**
          * Called when this LayoutManager is both attached to a RecyclerView and that RecyclerView
          * is attached to a window.
          *
@@ -2692,6 +2701,18 @@ public class RecyclerView extends ViewGroup {
          */
         public boolean canScrollVertically() {
             return false;
+        }
+
+        /**
+         * Returns the resolved layout direction for this RecyclerView.
+         *
+         * @return {@link android.support.v4.view.ViewCompat#LAYOUT_DIRECTION_RTL} if the layout
+         * direction is RTL or returns
+         * {@link android.support.v4.view.ViewCompat#LAYOUT_DIRECTION_LTR} if the layout direction
+         * is not RTL.
+         */
+        public int getLayoutDirection() {
+            return ViewCompat.getLayoutDirection(mRecyclerView);
         }
 
         /**
