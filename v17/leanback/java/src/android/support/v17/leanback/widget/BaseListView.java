@@ -281,7 +281,7 @@ abstract class BaseListView extends RecyclerView {
     /**
      * Change the selected item immediately without animation.
      */
-    public void setSelection(int position) {
+    public void setSelectedPosition(int position) {
         mLayoutManager.setSelection(this, position);
     }
 
@@ -289,14 +289,14 @@ abstract class BaseListView extends RecyclerView {
      * Change the selected item and run an animation to scroll to the target
      * position.
      */
-    public void setSelectionSmooth(int position) {
+    public void setSelectedPositionSmooth(int position) {
         mLayoutManager.setSelectionSmooth(this, position);
     }
 
     /**
-     * Get the selected item index.
+     * Get the selected item position.
      */
-    public int getSelection() {
+    public int getSelectedPosition() {
         return mLayoutManager.getSelection();
     }
 

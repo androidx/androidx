@@ -59,7 +59,7 @@ abstract class BaseRowFragment extends Fragment {
         if (mBridgeAdapter != null) {
             mListView.setAdapter(mBridgeAdapter);
             if (mSelectedPosition != -1) {
-                mListView.setSelection(mSelectedPosition);
+                mListView.setSelectedPosition(mSelectedPosition);
             }
         }
         mListView.setOnChildSelectedListener(mRowSelectedListener);
@@ -102,12 +102,12 @@ abstract class BaseRowFragment extends Fragment {
     }
 
     /**
-     * Set the selected item index.
+     * Set the selected item position.
      */
-    public void setSelection(int position) {
+    public void setSelectedPosition(int position) {
         mSelectedPosition = position;
         if(mListView != null && mListView.getAdapter() != null) {
-            mListView.setSelectionSmooth(position);
+            mListView.setSelectedPositionSmooth(position);
         }
     }
 
@@ -125,7 +125,7 @@ abstract class BaseRowFragment extends Fragment {
         if (mListView != null) {
             mListView.setAdapter(mBridgeAdapter);
             if (mBridgeAdapter != null && mSelectedPosition != -1) {
-                mListView.setSelection(mSelectedPosition);
+                mListView.setSelectedPosition(mSelectedPosition);
             }
         }
     }
