@@ -334,7 +334,7 @@ public class BrowseFragment extends Fragment {
     private OnItemSelectedListener mRowSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(Object item, Row row) {
-            int position = mRowContainerFragment.getListView().getSelection();
+            int position = mRowContainerFragment.getListView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
             if (mExternalOnItemSelectedListener != null) {
@@ -346,7 +346,7 @@ public class BrowseFragment extends Fragment {
     private OnItemSelectedListener mHeaderSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(Object item, Row row) {
-            int position = mRowHeaderFragment.getListView().getSelection();
+            int position = mRowHeaderFragment.getListView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "header selected position " + position);
             onRowSelected(position);
         }
@@ -381,8 +381,8 @@ public class BrowseFragment extends Fragment {
 
     private void setSelection(int position) {
         if (position != NO_POSITION) {
-            mRowContainerFragment.setSelection(position);
-            mRowHeaderFragment.setSelection(position);
+            mRowContainerFragment.setSelectedPosition(position);
+            mRowHeaderFragment.setSelectedPosition(position);
         }
         mSelectedPosition = position;
     }
