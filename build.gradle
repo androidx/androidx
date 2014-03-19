@@ -1,28 +1,55 @@
 buildscript {
     repositories {
         maven { url '../../prebuilts/gradle-plugin' }
-        mavenCentral()
         maven { url '../../prebuilts/tools/common/m2/repository' }
         maven { url '../../prebuilts/tools/common/m2/internal' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.0'
+        classpath 'com.android.tools.build:gradle:0.9.+'
     }
 }
 
-ext.supportVersion = '19.0.1'
+ext.supportVersion = '19.1.0'
+ext.supportRepoOut = ''
 
-// ext.androidHostOut is shared by all tools/{base,build,swt} gradle projects/
-ext.androidHostOut = file("$rootDir/../../out")
+/*
+ * With the build server you are given two env variables.
+ * The OUT_DIR is a temporary directory you can use to put things during the build.
+ * The DIST_DIR is where you want to save things from the build.
+ *
+ * The build server will copy the contents of DIST_DIR to somewhere and make it available.
+ */
+if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
+    buildDir = file(System.env.OUT_DIR + '/gradle/frameworks/support/build')
+    project.ext.distDir = file(System.env.DIST_DIR)
+} else {
+    buildDir = file('../../out/host/gradle/frameworks/support/build')
+    project.ext.distDir = file('../../out/dist')
+}
 
-// rootProject.buildDir is specific to this gradle build.
-buildDir = new File(ext.androidHostOut, "host/gradle/frameworks/support/build")
+ext.supportRepoOut = new File(buildDir, 'support_repo')
 
-ext.supportRepoOut = new File(ext.androidHostOut, "host/support_repo/")
+// upload anchor for subprojects.
+task mainUpload() {
 
-task release(type: Copy) {
+}
+
+// main task for release
+task createArchive(type: Zip, dependsOn: mainUpload) {
+    from project.ext.supportRepoOut
+    destinationDir project.ext.distDir
+    baseName = "support-${project.ext.supportVersion}"
+}
+
+// prepare repo.
+task prepareRepo(type: Copy) {
     from "$rootDir/../../prebuilts/maven_repo/android"
     into project.ext.supportRepoOut
+}
+
+prepareRepo.doFirst {
+    project.ext.supportRepoOut.deleteDir()
+    project.ext.supportRepoOut.mkdirs()
 }
 
 subprojects {
@@ -42,7 +69,9 @@ subprojects {
             }
         }
     }
-    release.dependsOn rootProject.tasks.release
+
+    release.dependsOn rootProject.tasks.prepareRepo
+    mainUpload.dependsOn release
 }
 
 FileCollection getAndroidPrebuilt(String apiLevel) {
