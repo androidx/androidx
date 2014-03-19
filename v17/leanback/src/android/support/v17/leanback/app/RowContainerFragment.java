@@ -13,10 +13,14 @@
  */
 package android.support.v17.leanback.app;
 
+import android.animation.TimeAnimator;
+import android.animation.TimeAnimator.TimeListener;
 import android.app.Activity;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListView;
@@ -26,16 +30,92 @@ import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 
 /**
  * An ordered set of rows of leanback widgets.
  */
 class RowContainerFragment extends BaseRowFragment {
+
+    /**
+     * Internal helper class that manages row select animation and apply a default
+     * dim to each row.
+     */
+    final class RowViewHolderExtra implements TimeListener {
+        final RowPresenter mRowPresenter;
+        final RowPresenter.ViewHolder mRowViewHolder;
+
+        final TimeAnimator mSelectAnimator = new TimeAnimator();
+        final ColorOverlayDimmer mColorDimmer;
+        int mSelectAnimatorDurationInUse;
+        Interpolator mSelectAnimatorInterpolatorInUse;
+        float mSelectLevelAnimStart;
+        float mSelectLevelAnimDelta;
+
+        RowViewHolderExtra(ItemBridgeAdapter.ViewHolder ibvh) {
+            mRowPresenter = (RowPresenter) ibvh.getPresenter();
+            mRowViewHolder = (ViewHolder) ibvh.getViewHolder();
+            mSelectAnimator.setTimeListener(this);
+            if (mRowPresenter.getSelectEffectEnabled()
+                    && mRowPresenter.isUsingDefaultSelectEffect()) {
+                mColorDimmer = ColorOverlayDimmer.createDefault(ibvh.itemView.getContext());
+            } else {
+                mColorDimmer = null;
+            }
+        }
+
+        @Override
+        public void onTimeUpdate(TimeAnimator animation, long totalTime, long deltaTime) {
+            float fraction;
+            if (totalTime >= mSelectAnimatorDurationInUse) {
+                fraction = 1;
+                mSelectAnimator.end();
+            } else {
+                fraction = (float) (totalTime / (double) mSelectAnimatorDurationInUse);
+            }
+            if (mSelectAnimatorInterpolatorInUse != null) {
+                fraction = mSelectAnimatorInterpolatorInUse.getInterpolation(fraction);
+            }
+            float level =  mSelectLevelAnimStart + fraction * mSelectLevelAnimDelta;
+            if (mColorDimmer != null) {
+                mColorDimmer.setActiveLevel(level);
+            }
+            mRowPresenter.setSelectLevel(mRowViewHolder, level);
+        }
+
+        void animateSelect(boolean select, boolean immediate) {
+            endAnimation();
+            final float end = select ? 1 : 0;
+            if (immediate) {
+                mRowPresenter.setSelectLevel(mRowViewHolder, end);
+            } else if (mRowPresenter.getSelectLevel(mRowViewHolder) != end) {
+                mSelectAnimatorDurationInUse = mSelectAnimatorDuration;
+                mSelectAnimatorInterpolatorInUse = mSelectAnimatorInterpolator;
+                mSelectLevelAnimStart = mRowPresenter.getSelectLevel(mRowViewHolder);
+                mSelectLevelAnimDelta = end - mSelectLevelAnimStart;
+                mSelectAnimator.start();
+            }
+        }
+
+        void endAnimation() {
+            mSelectAnimator.end();
+        }
+
+        void drawDimForSelection(Canvas c) {
+            if (mColorDimmer != null) {
+                mColorDimmer.drawColorOverlay(c, mRowViewHolder.view, false);
+            }
+        }
+    }
+
     private static final String TAG = "RowContainerFragment";
     private static final boolean DEBUG = false;
 
@@ -46,6 +126,11 @@ class RowContainerFragment extends BaseRowFragment {
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
+
+    // Select animation and interpolator are not intended to exposed at this moment.
+    // They might be synced with vertical scroll animation later.
+    int mSelectAnimatorDuration;
+    Interpolator mSelectAnimatorInterpolator = new DecelerateInterpolator(2);
 
     /**
      * Set background parameters.
@@ -119,11 +204,11 @@ class RowContainerFragment extends BaseRowFragment {
             if (DEBUG) Log.v(TAG, "new row selected position " + position + " view " + view);
 
             if (mSelectedViewHolder != null) {
-                setRowViewSelected(mSelectedViewHolder, false);
+                setRowViewSelected(mSelectedViewHolder, false, false);
             }
             mSelectedViewHolder = vh;
             if (mSelectedViewHolder != null) {
-                setRowViewSelected(mSelectedViewHolder, true);
+                setRowViewSelected(mSelectedViewHolder, true, false);
             }
         }
     }
@@ -134,18 +219,40 @@ class RowContainerFragment extends BaseRowFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mSelectAnimatorDuration = getResources().getInteger(R.integer.lb_browse_rows_anim_duration);
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
         getListView().setItemAlignmentViewId(R.id.row_list);
+        getListView().addItemDecoration(mItemDecoration);
     }
+
+    private RecyclerView.ItemDecoration mItemDecoration = new RecyclerView.ItemDecoration() {
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent) {
+            final int count = parent.getChildCount();
+            for (int i = 0; i < count; i++) {
+                ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
+                        parent.getViewHolderForChildAt(i);
+                RowViewHolderExtra extra = (RowViewHolderExtra) ibvh.getExtraObject();
+                extra.drawDimForSelection(c);
+            }
+        }
+    };
 
     private static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
         ((RowPresenter) vh.getPresenter()).setRowViewExpanded(
                 (RowPresenter.ViewHolder) vh.getViewHolder(), expanded);
     }
 
-    private static void setRowViewSelected(ItemBridgeAdapter.ViewHolder vh, boolean selected) {
+    private static void setRowViewSelected(ItemBridgeAdapter.ViewHolder vh, boolean selected, boolean immediate) {
+        RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
+        extra.animateSelect(selected, immediate);
         ((RowPresenter) vh.getPresenter()).setRowViewSelected(
                 (RowPresenter.ViewHolder) vh.getViewHolder(), selected);
     }
@@ -163,12 +270,22 @@ class RowContainerFragment extends BaseRowFragment {
         @Override
         public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
             mViewsCreated = true;
+            vh.setExtraObject(new RowViewHolderExtra(vh));
         }
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
             if (DEBUG) Log.v(TAG, "onAttachToWindow");
             setRowViewExpanded(vh, mExpand);
             setOnItemSelectedListener(vh, mOnItemSelectedListener);
+        }
+        @Override
+        public void onBind(ItemBridgeAdapter.ViewHolder vh) {
+            setRowViewSelected(vh, false, true);
+        }
+        @Override
+        public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
+            RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
+            extra.endAnimation();
         }
     };
 

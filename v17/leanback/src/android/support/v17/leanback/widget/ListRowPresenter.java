@@ -15,7 +15,10 @@ package android.support.v17.leanback.widget;
 
 import java.util.ArrayList;
 
+import android.graphics.Canvas;
+import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.Presenter.ViewHolder;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -41,11 +44,13 @@ public class ListRowPresenter extends RowPresenter {
         final HorizontalGridView mGridView;
         final ItemBridgeAdapter mItemBridgeAdapter = new ItemBridgeAdapter();
         final HorizontalHoverCardSwitcher mHoverCardViewSwitcher = new HorizontalHoverCardSwitcher();
+        final ColorOverlayDimmer mColorDimmer;
 
         public ViewHolder(View rootView, HorizontalGridView gridView, ListRowPresenter p) {
             super(rootView);
             mGridView = gridView;
             mListRowPresenter = p;
+            mColorDimmer = ColorOverlayDimmer.createDefault(rootView.getContext());
         }
 
         public final ListRowPresenter getListRowPresenter() {
@@ -63,6 +68,9 @@ public class ListRowPresenter extends RowPresenter {
     protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
         super.initializeRowViewHolder(holder);
         final ViewHolder rowViewHolder = (ViewHolder) holder;
+        if (needsDefaultListItemDecoration()) {
+            rowViewHolder.mGridView.addItemDecoration(new ItemDecoration(rowViewHolder));
+        }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter);
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {
@@ -91,6 +99,10 @@ public class ListRowPresenter extends RowPresenter {
                 }
             });
         }
+    }
+
+    private boolean needsDefaultListItemDecoration() {
+        return isUsingDefaultListSelectEffect() && getSelectEffectEnabled();
     }
 
     /**
@@ -199,6 +211,74 @@ public class ListRowPresenter extends RowPresenter {
         ViewHolder vh = (ViewHolder)holder;
         vh.mGridView.setAdapter(null);
         super.onUnbindViewHolder(holder);
+    }
+
+    /**
+     * ListRowPresenter overrides the default select effect of {@link RowPresenter}
+     * and return false.
+     */
+    @Override
+    public final boolean isUsingDefaultSelectEffect() {
+        return false;
+    }
+
+    /**
+     * Returns true so that default select effect is applied to each individual
+     * child of {@link HorizontalGridView}.  Subclass may return false to disable
+     * the default implementation.
+     * @see #onSelectLevelChanged(RowPresenter.ViewHolder)
+     */
+    public boolean isUsingDefaultListSelectEffect() {
+        return true;
+    }
+
+    /**
+     * Applies select level to header and draw a default color dim over each child
+     * of {@link HorizontalGridView}.
+     * <p>
+     * Subclass may override this method.  A subclass
+     * needs to call super.onSelectLevelChanged() for applying header select level
+     * and optionally applying a default select level to each child view of
+     * {@link HorizontalGridView} if {@link #isUsingDefaultListSelectEffect()}
+     * is true.  Subclass may override {@link #isUsingDefaultListSelectEffect()} to return
+     * false and deal with the individual item select level by itself.
+     * </p>
+     */
+    @Override
+    protected void onSelectLevelChanged(RowPresenter.ViewHolder holder) {
+        super.onSelectLevelChanged(holder);
+        if (needsDefaultListItemDecoration()) {
+            ViewHolder vh = (ViewHolder) holder;
+            vh.mColorDimmer.setActiveLevel(holder.mSelectLevel);
+            vh.mGridView.invalidate();
+        }
+    }
+
+    private void drawDimSelectionForChildren(ViewHolder vh, Canvas c) {
+        final ColorOverlayDimmer dimmer = vh.mColorDimmer;
+        if (dimmer.needsDraw()) {
+            final HorizontalGridView gridView = vh.mGridView;
+            // Clip to padding when not expanded
+            if (!vh.mExpanded) {
+                c.clipRect(gridView.getPaddingLeft(), gridView.getPaddingTop(),
+                        gridView.getWidth() - gridView.getPaddingRight(),
+                        gridView.getHeight() - gridView.getPaddingBottom());
+            }
+            for (int i = 0, count = gridView.getChildCount(); i < count; i++) {
+                dimmer.drawColorOverlay(c, gridView.getChildAt(i), true);
+            }
+        }
+    }
+
+    final class ItemDecoration extends RecyclerView.ItemDecoration {
+        ViewHolder mViewHolder;
+        ItemDecoration(ViewHolder viewHolder) {
+            mViewHolder = viewHolder;
+        }
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent) {
+            drawDimSelectionForChildren(mViewHolder, c);
+        }
     }
 
 }
