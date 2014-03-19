@@ -3494,6 +3494,7 @@ public class RecyclerView extends ViewGroup {
          * <p>The default implementation returns <code>false</code> to trigger RecyclerView
          * to fall back to the default ViewGroup behavior.</p>
          *
+         * @param recyclerView The RecyclerView hosting this LayoutManager
          * @param views List of output views. This method should add valid focusable views
          *              to this list.
          * @param direction One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
@@ -3509,15 +3510,6 @@ public class RecyclerView extends ViewGroup {
          */
         public boolean onAddFocusables(RecyclerView recyclerView, ArrayList<View> views,
                 int direction, int focusableMode) {
-            return onAddFocusables(views, direction, focusableMode);
-        }
-
-        /**
-         * @deprecated This method will be removed. Override
-         * {@link #onAddFocusables(RecyclerView, ArrayList<View>, int, int)}
-         * instead.
-         */
-        public boolean onAddFocusables(List<View> views, int direction, int focusableMode) {
             return false;
         }
 
