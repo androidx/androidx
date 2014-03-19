@@ -3,7 +3,7 @@ apply plugin: 'java'
 archivesBaseName = 'support-annotations'
 
 sourceSets {
-    main.java.srcDir 'java'
+    main.java.srcDir 'src'
 }
 
 jar {
