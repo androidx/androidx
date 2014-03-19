@@ -43,8 +43,15 @@
     </declare-styleable>
 
     <declare-styleable name="LeanbackTheme">
+
+        <!-- for Row -->
         <attr name="browseHorizontalGridStyle" format="reference" />
         <attr name="browseRowViewStyle" format="reference" />
         <attr name="browseRowHeaderStyle" format="reference" />
+
+        <!-- for hover card -->
+        <attr name="browseRowHoverCardTitleStyle" format="reference" />
+        <attr name="browseRowHoverCardDescriptionStyle" format="reference" />
+
     </declare-styleable>
 </resources>
