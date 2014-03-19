@@ -13,34 +13,23 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.util.HashMap;
-
 /**
- * A ClassPresenterSelector selects a {@link Presenter} based on the item's
- * Java class.
+ * A {@link PresenterSelector} that always returns the same {@Presenter}. Useful
+ * for rows of items of the same type that are all rendered the same way.
  */
-public class ClassPresenterSelector extends PresenterSelector {
+public class SinglePresenterSelector extends PresenterSelector {
 
-    private final HashMap<Class<?>, Presenter> mClassMap = new HashMap<Class<?>, Presenter>();
+    private final Presenter mPresenter;
 
-    public void addClassPresenter(Class<?> cls, Presenter presenter) {
-        mClassMap.put(cls, presenter);
+    /**
+     * @param presenter The Presenter to return for every item.
+     */
+    public SinglePresenterSelector(Presenter presenter) {
+        mPresenter = presenter;
     }
 
     @Override
     public Presenter getPresenter(Object item) {
-        Class<?> cls = item.getClass();
-        Presenter presenter = null;
-
-        do {
-            presenter = mClassMap.get(cls);
-            cls = cls.getSuperclass();
-        } while (presenter == null && cls != null);
-
-        return presenter;
+        return mPresenter;
     }
 }

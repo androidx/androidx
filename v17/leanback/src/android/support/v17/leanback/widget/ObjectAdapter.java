@@ -99,16 +99,6 @@ public abstract class ObjectAdapter {
         }
     }
 
-    private static class SinglePresenterSelector extends PresenterSelector {
-        private final Presenter mPresenter;
-        public SinglePresenterSelector(Presenter presenter) {
-            mPresenter = presenter;
-        }
-        public Presenter getPresenter(Object item) {
-            return mPresenter;
-        }
-    }
-
     private final DataObservable mObservable = new DataObservable();
     private boolean mHasStableIds;
     private PresenterSelector mPresenterSelector;
