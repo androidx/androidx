@@ -135,14 +135,6 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Set background parameters
-     * @param params the background parameters
-     */
-    public void setBackgroundParams(BackgroundParams params) {
-        mRowsFragment.setBackgroundParams(params);
-    }
-
-    /**
      * Sets an item selection listener.
      * @param listener the item selection listener
      */
