@@ -17,16 +17,14 @@ import android.database.Cursor;
 import android.support.v17.leanback.database.CursorMapper;
 import android.util.LruCache;
 
-import java.util.Map;
-
 /**
  * Adapter implemented with a {@link Cursor}.
  */
 public class CursorObjectAdapter extends ObjectAdapter {
     private static final int CACHE_SIZE = 100;
-    protected Cursor mCursor;
-    protected CursorMapper mMapper;
-    private final LruCache<Integer, Object> mItemCache = new LruCache(CACHE_SIZE);
+    private Cursor mCursor;
+    private CursorMapper mMapper;
+    private final LruCache<Integer, Object> mItemCache = new LruCache<Integer, Object>(CACHE_SIZE);
 
     public CursorObjectAdapter(PresenterSelector presenterSelector) {
         super(presenterSelector);
@@ -83,7 +81,7 @@ public class CursorObjectAdapter extends ObjectAdapter {
     /**
      * Gets the {@link Cursor} backing the adapter.
      */
-     public Cursor getCursor() {
+     public final Cursor getCursor() {
         return mCursor;
     }
 
@@ -91,7 +89,7 @@ public class CursorObjectAdapter extends ObjectAdapter {
      * Sets the {@link CursorMapper} used to convert {@link Cursor} rows into
      * Objects.
      */
-    public void setMapper(CursorMapper mapper) {
+    public final void setMapper(CursorMapper mapper) {
         mMapper = mapper;
     }
 
@@ -99,7 +97,7 @@ public class CursorObjectAdapter extends ObjectAdapter {
      * Gets the {@link CursorMapper} used to convert {@link Cursor} rows into
      * Objects.
      */
-    public CursorMapper getMapper() {
+    public final CursorMapper getMapper() {
         return mMapper;
     }
 

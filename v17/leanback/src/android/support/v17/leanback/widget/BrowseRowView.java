@@ -29,7 +29,7 @@ import android.widget.TextView;
 /**
  * BrowseRowView contains a horizontal grid view.
  */
-public class BrowseRowView extends LinearLayout {
+public final class BrowseRowView extends LinearLayout {
 
     private HorizontalGridView mGridView;
 
@@ -48,7 +48,6 @@ public class BrowseRowView extends LinearLayout {
         inflater.inflate(R.layout.lb_browse_row, this);
 
         mGridView = (HorizontalGridView) findViewById(R.id.row_list);
-        mGridView.setHasFixedSize(true);
 
         final Resources.Theme theme = context.getTheme();
         final TypedArray array = theme.obtainStyledAttributes(attrs, R.styleable.BrowseRowView,

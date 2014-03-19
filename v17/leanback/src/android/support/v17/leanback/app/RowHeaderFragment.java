@@ -14,7 +14,6 @@
 
 package android.support.v17.leanback.app;
 
-import android.content.res.Resources;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.FocusHighlightHelper;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
