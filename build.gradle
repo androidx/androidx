@@ -38,7 +38,8 @@ task mainUpload() {
 task createArchive(type: Zip, dependsOn: mainUpload) {
     from project.ext.supportRepoOut
     destinationDir project.ext.distDir
-    baseName = "support-${project.ext.supportVersion}"
+    into 'm2repository'
+    baseName = "android-m2repository-${project.ext.supportVersion}"
 }
 
 // prepare repo.
