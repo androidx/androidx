@@ -56,30 +56,79 @@ LOCAL_JAVA_LIBRARIES := \
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 
+# ===========================================================
+# Common Droiddoc vars
+leanback.docs.src_files := \
+    $(call all-java-files-under, src) \
+    $(call all-html-files-under, src)
+leanback.docs.java_libraries := \
+    android-support-v4 \
+    android-support-v7-recyclerview \
+    android-support-v17-leanback-res \
+    android-support-v17-leanback
+
 # Documentation
 # ===========================================================
-# include $(CLEAR_VARS)
-#
-# LOCAL_MODULE := android-support-v17-leanback
-# LOCAL_MODULE_CLASS := JAVA_LIBRARIES
-#
-# intermediates.COMMON := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),$(LOCAL_MODULE),,COMMON)
-#
-# LOCAL_SRC_FILES := \
-#     $(call all-java-files-under, src) \
-#     $(call all-html-files-under, src)
-# LOCAL_ADDITONAL_JAVA_DIR := $(intermediates.COMMON)/src
-#
-# LOCAL_SDK_VERSION := 17
-# LOCAL_IS_HOST_MODULE := false
-# LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
-#
-# LOCAL_JAVA_LIBRARIES := android-support-v17-leanback
-#
-# LOCAL_DROIDDOC_OPTIONS := \
-#     -offlinemode \
-#     -federate Android http://developer.android.com \
-#     -federationapi Android prebuilts/sdk/api/17.txt \
-#     -hide 113
-#
-# include $(BUILD_DROIDDOC)
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := android-support-v17-leanback
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+LOCAL_MODULE_TAGS := optional
+
+intermediates.COMMON := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),android-support-v17-leanback,,COMMON)
+
+LOCAL_SRC_FILES := $(leanback.docs.src_files)
+LOCAL_ADDITONAL_JAVA_DIR := $(intermediates.COMMON)/src
+
+LOCAL_SDK_VERSION := 19
+LOCAL_IS_HOST_MODULE := false
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+
+LOCAL_JAVA_LIBRARIES := $(leanback.docs.java_libraries)
+
+LOCAL_DROIDDOC_OPTIONS := \
+    -offlinemode \
+    -hdf android.whichdoc offline \
+    -federate Android http://developer.android.com \
+    -federationapi Android prebuilts/sdk/api/17.txt \
+    -hide 113
+
+include $(BUILD_DROIDDOC)
+
+# Stub source files
+# ===========================================================
+
+leanback_internal_api_file := $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/android-support-v17-leanback_api.txt
+leanback.docs.stubpackages := android.support.v17.leanback:android.support.v17.leanback.app:android.support.v17.leanback.database:android.support.v17.leanback.widget
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := android-support-v17-leanback-stubs
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+LOCAL_MODULE_TAGS := optional
+
+LOCAL_SRC_FILES := $(leanback.docs.src_files)
+LOCAL_JAVA_LIBRARIES := $(leanback.docs.java_libraries)
+
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+LOCAL_UNINSTALLABLE_MODULE := true
+
+LOCAL_DROIDDOC_OPTIONS := \
+    -stubs $(TARGET_OUT_COMMON_INTERMEDIATES)/JAVA_LIBRARIES/android-support-v17-leanback-stubs_intermediates/src \
+    -stubpackages $(leanback.docs.stubpackages) \
+    -api $(leanback_internal_api_file) \
+    -hide 113 \
+    -nodocs
+
+include $(BUILD_DROIDDOC)
+leanback_stubs_stamp := $(full_target)
+$(leanback_internal_api_file) : $(full_target)
+
+# Cleanup temp vars
+# ===========================================================
+leanback.docs.src_files :=
+leanback.docs.java_libraries :=
+intermediates.COMMON :=
+leanback_internal_api_file :=
+leanback_stubs_stamp :=
+leanback.docs.stubpackages :=

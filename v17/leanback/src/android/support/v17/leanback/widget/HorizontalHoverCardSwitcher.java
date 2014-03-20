@@ -58,7 +58,7 @@ public final class HorizontalHoverCardSwitcher extends PresenterSwitcher {
      * Select a childView inside a grid view and create/bind a corresponding hover card view
      * for the object.
      */
-    public void select(BaseListView gridView, View childView, Object object) {
+    public void select(HorizontalGridView gridView, View childView, Object object) {
         ViewGroup parent = getParentViewGroup();
         gridView.getViewSelectedOffsets(childView, mTmpOffsets);
         mTmpRect.set(0, 0, childView.getWidth(), childView.getHeight());
