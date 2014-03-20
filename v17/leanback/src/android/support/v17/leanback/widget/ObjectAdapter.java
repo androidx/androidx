@@ -69,10 +69,7 @@ public abstract class ObjectAdapter {
         }
     }
 
-    private static class DataObservable extends Observable<DataObserver> {
-        public boolean hasObservers() {
-            return !mObservers.isEmpty();
-        }
+    private static final class DataObservable extends Observable<DataObserver> {
 
         public void notifyChanged() {
             for (int i = mObservers.size() - 1; i >= 0; i--) {
@@ -126,7 +123,7 @@ public abstract class ObjectAdapter {
     /**
      * Set the presenter selector.  May not be null.
      */
-    public void setPresenterSelector(PresenterSelector presenterSelector) {
+    public final void setPresenterSelector(PresenterSelector presenterSelector) {
         if (presenterSelector == null) {
             throw new IllegalArgumentException("Presenter selector must not be null");
         }
@@ -140,28 +137,28 @@ public abstract class ObjectAdapter {
     /**
      * Returns the presenter selector;
      */
-    public PresenterSelector getPresenterSelector() {
+    public final PresenterSelector getPresenterSelector() {
         return mPresenterSelector;
     }
 
     /**
      * Register a DataObserver for data change notifications.
      */
-    public void registerObserver(DataObserver observer) {
+    public final void registerObserver(DataObserver observer) {
         mObservable.registerObserver(observer);
     }
 
     /**
      * Unregister a DataObserver for data change notifications.
      */
-    public void unregisterObserver(DataObserver observer) {
+    public final void unregisterObserver(DataObserver observer) {
         mObservable.unregisterObserver(observer);
     }
 
     /**
      * Unregister all DataObservers for this ObservableList.
      */
-    public void unregisterAllObservers() {
+    public final void unregisterAllObservers() {
         mObservable.unregisterAll();
     }
 
@@ -186,7 +183,7 @@ public abstract class ObjectAdapter {
      * underlying data.  When this is true, client of Adapter can use
      * {@link #getId(int)} to correlate objects across changes.
      */
-    public boolean hasStableIds() {
+    public final boolean hasStableIds() {
         return mHasStableIds;
     }
 
@@ -194,14 +191,14 @@ public abstract class ObjectAdapter {
      * Sets whether the item ids are stable across changes to the underlying
      * data.
      */
-    public void setHasStableIds(boolean hasStableIds) {
+    public final void setHasStableIds(boolean hasStableIds) {
         mHasStableIds = hasStableIds;
     }
 
     /**
      * Returns the {@link Presenter} for the given item from the adapter.
      */
-    public Presenter getPresenter(Object item) {
+    public final Presenter getPresenter(Object item) {
         if (mPresenterSelector == null) {
             throw new IllegalStateException("Presenter selector must not be null");
         }

@@ -17,7 +17,7 @@ package android.support.v17.leanback.widget;
  * A {@link PresenterSelector} that always returns the same {@link Presenter}.
  * Useful for rows of items of the same type that are all rendered the same way.
  */
-public class SinglePresenterSelector extends PresenterSelector {
+public final class SinglePresenterSelector extends PresenterSelector {
 
     private final Presenter mPresenter;
 

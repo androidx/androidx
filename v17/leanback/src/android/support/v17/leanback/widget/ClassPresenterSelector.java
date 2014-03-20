@@ -13,17 +13,13 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-
 import java.util.HashMap;
 
 /**
  * A ClassPresenterSelector selects a {@link Presenter} based on the item's
  * Java class.
  */
-public class ClassPresenterSelector extends PresenterSelector {
+public final class ClassPresenterSelector extends PresenterSelector {
 
     private final HashMap<Class<?>, Presenter> mClassMap = new HashMap<Class<?>, Presenter>();
 
