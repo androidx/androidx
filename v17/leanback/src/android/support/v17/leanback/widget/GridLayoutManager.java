@@ -333,7 +333,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private int getIndexByPosition(int position) {
         if (mFirstVisiblePos < 0 ||
                 position < mFirstVisiblePos || position > mLastVisiblePos) {
-            return -1;
+            return NO_POSITION;
         }
         return position - mFirstVisiblePos;
     }
@@ -531,7 +531,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mGrid.setProvider(mGridProvider);
         // mGrid share the same Row array information
         mGrid.setRows(mRows);
-        mFirstVisiblePos = mLastVisiblePos = -1;
+        mFirstVisiblePos = mLastVisiblePos = NO_POSITION;
 
         initScrollController();
 
@@ -1391,7 +1391,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             view = (View) view.getParent();
         }
-        return -1;
+        return NO_POSITION;
     }
 
     @Override
@@ -1410,21 +1410,20 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             // Get current focus row.
             final View focused = recyclerView.findFocus();
-            final int focusedImmediateChildIndex = findImmediateChildIndex(focused);
-            final int focusedPos = getPositionByIndex(focusedImmediateChildIndex);
-            final int focusedRow = mGrid != null ? mGrid.getLocation(focusedPos).row : -1;
+            final int focusedPos = getPositionByIndex(findImmediateChildIndex(focused));
+            final int focusedRow = mGrid != null && focusedPos != NO_POSITION ?
+                    mGrid.getLocation(focusedPos).row : NO_POSITION;
             // Add focusables within the same row.
             final int focusableCount = views.size();
             final int descendantFocusability = recyclerView.getDescendantFocusability();
-            if (focusedRow != -1 &&
-                    mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
+            if (mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
                 for (int i = 0, count = getChildCount(); i < count; i++) {
                     final View child = getChildAt(i);
                     if (child.getVisibility() != View.VISIBLE) {
                         continue;
                     }
                     StaggeredGrid.Location loc = mGrid.getLocation(getPositionByIndex(i));
-                    if (loc != null && loc.row == focusedRow) {
+                    if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
                         child.addFocusables(views,  direction, focusableMode);
                     }
                 }
