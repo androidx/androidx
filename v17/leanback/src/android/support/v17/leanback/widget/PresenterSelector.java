@@ -13,9 +13,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.view.View;
-import android.view.ViewGroup;
-
 /**
  * A PresenterSelector is used to obtain a {@link Presenter} for a given Object.
  */

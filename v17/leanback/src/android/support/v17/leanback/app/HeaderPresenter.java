@@ -16,7 +16,6 @@ package android.support.v17.leanback.app;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.ListRow;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
