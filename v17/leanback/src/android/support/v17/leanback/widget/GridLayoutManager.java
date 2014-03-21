@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.animation.TimeAnimator;
+import android.content.Context;
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
@@ -23,11 +25,13 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 import static android.support.v7.widget.RecyclerView.VERTICAL;
 
-import android.support.v17.leanback.R;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.FocusFinder;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.View.MeasureSpec;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -37,6 +41,191 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 
 final class GridLayoutManager extends RecyclerView.LayoutManager {
+
+     /*
+      * LayoutParams for {@link HorizontalGridView} and {@link VerticalGridView}.
+      * The class currently does three internal jobs:
+      * - Saves optical bounds insets.
+      * - Caches focus align view center.
+      * - Manages child view layout animation.
+      */
+    static class LayoutParams extends RecyclerView.LayoutParams {
+
+        // The view is saved only during animation.
+        private View mView;
+
+        // For placement
+        private int mLeftInset;
+        private int mTopInset;
+        private int mRighInset;
+        private int mBottomInset;
+
+        // For alignment
+        private int mAlignX;
+        private int mAlignY;
+
+        // For animations
+        private TimeAnimator mAnimator;
+        private long mDuration;
+        private boolean mFirstAttached;
+        // current virtual view position (scrollOffset + left/top) in the GridLayoutManager
+        private int mViewX, mViewY;
+        // animation start value of translation x and y
+        private float mAnimationStartTranslationX, mAnimationStartTranslationY;
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        public LayoutParams(MarginLayoutParams source) {
+            super(source);
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
+
+        public LayoutParams(RecyclerView.LayoutParams source) {
+            super(source);
+        }
+
+        public LayoutParams(LayoutParams source) {
+            super(source);
+        }
+
+        void onViewAttached() {
+            endAnimate();
+            mFirstAttached = true;
+        }
+
+        void onViewDetached() {
+            endAnimate();
+        }
+
+        int getAlignX() {
+            return mAlignX;
+        }
+
+        int getAlignY() {
+            return mAlignY;
+        }
+
+        int getOpticalLeft(View view) {
+            return view.getLeft() + mLeftInset;
+        }
+
+        int getOpticalTop(View view) {
+            return view.getTop() + mTopInset;
+        }
+
+        int getOpticalRight(View view) {
+            return view.getRight() - mRighInset;
+        }
+
+        int getOpticalBottom(View view) {
+            return view.getBottom() - mBottomInset;
+        }
+
+        int getOpticalWidth(View view) {
+            return view.getWidth() - mLeftInset - mRighInset;
+        }
+
+        int getOpticalHeight(View view) {
+            return view.getHeight() - mTopInset - mBottomInset;
+        }
+
+        void setAlignX(int alignX) {
+            mAlignX = alignX;
+        }
+
+        void setAlignY(int alignY) {
+            mAlignY = alignY;
+        }
+
+        void setOpticalInsets(int leftInset, int topInset, int rightInset, int bottomInset) {
+            mLeftInset = leftInset;
+            mTopInset = topInset;
+            mRighInset = rightInset;
+            mBottomInset = bottomInset;
+        }
+
+        private TimeAnimator.TimeListener mTimeListener = new TimeAnimator.TimeListener() {
+            @Override
+            public void onTimeUpdate(TimeAnimator animation, long totalTime, long deltaTime) {
+                if (mView == null) {
+                    return;
+                }
+                if (totalTime >= mDuration) {
+                    endAnimate();
+                } else {
+                    float fraction = (float) (totalTime / (double)mDuration);
+                    float fractionToEnd = 1 - mAnimator
+                        .getInterpolator().getInterpolation(fraction);
+                    mView.setTranslationX(fractionToEnd * mAnimationStartTranslationX);
+                    mView.setTranslationY(fractionToEnd * mAnimationStartTranslationY);
+                    invalidateItemDecoration();
+                }
+            }
+        };
+
+        void startAnimate(GridLayoutManager layout, View view, long startDelay) {
+            if (mAnimator == null) {
+                mAnimator = new TimeAnimator();
+                mAnimator.setTimeListener(mTimeListener);
+            }
+            if (mFirstAttached) {
+                // first time record the initial location and return without animation
+                // TODO do we need initial animation?
+                mViewX = layout.getScrollOffsetX() + getOpticalLeft(view);
+                mViewY = layout.getScrollOffsetY() + getOpticalTop(view);
+                mFirstAttached = false;
+                return;
+            }
+            if (!layout.isChildLayoutAnimated()) {
+                return;
+            }
+            mView = view;
+            int newViewX = layout.getScrollOffsetX() + getOpticalLeft(mView);
+            int newViewY = layout.getScrollOffsetY() + getOpticalTop(mView);
+            if (newViewX != mViewX || newViewY != mViewY) {
+                mAnimator.cancel();
+                mAnimationStartTranslationX = mView.getTranslationX();
+                mAnimationStartTranslationY = mView.getTranslationY();
+                mAnimationStartTranslationX += mViewX - newViewX;
+                mAnimationStartTranslationY += mViewY - newViewY;
+                mDuration = layout.getChildLayoutAnimationDuration();
+                mAnimator.setDuration(mDuration);
+                mAnimator.setInterpolator(layout.getChildLayoutAnimationInterpolator());
+                mAnimator.setStartDelay(startDelay);
+                mAnimator.start();
+                mViewX = newViewX;
+                mViewY = newViewY;
+            }
+        }
+
+        void endAnimate() {
+            if (mAnimator != null) {
+                mAnimator.end();
+            }
+            if (mView != null) {
+                mView.setTranslationX(0);
+                mView.setTranslationY(0);
+                mView = null;
+            }
+        }
+
+        private void invalidateItemDecoration() {
+            ViewParent parent = mView.getParent();
+            if (parent instanceof RecyclerView) {
+                // TODO: we only need invalidate parent if it has ItemDecoration
+                ((RecyclerView) parent).invalidate();
+            }
+        }
+    }
 
     private static final String TAG = "GridLayoutManager";
     private static final boolean DEBUG = false;
@@ -369,35 +558,44 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-        return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+        return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
-    private static GridLayoutManagerChildTag getViewTag(View v) {
-        return (GridLayoutManagerChildTag) v.getTag(R.id.lb_gridlayoutmanager_tag);
+    @Override
+    public RecyclerView.LayoutParams generateLayoutParams(Context context, AttributeSet attrs) {
+        return new LayoutParams(context, attrs);
+    }
+
+    @Override
+    public RecyclerView.LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {
+        if (lp instanceof LayoutParams) {
+            return new LayoutParams((LayoutParams) lp);
+        } else if (lp instanceof RecyclerView.LayoutParams) {
+            return new LayoutParams((RecyclerView.LayoutParams) lp);
+        } else if (lp instanceof MarginLayoutParams) {
+            return new LayoutParams((MarginLayoutParams) lp);
+        } else {
+            return new LayoutParams(lp);
+        }
     }
 
     protected View getViewForPosition(int position) {
         View v = mRecycler.getViewForPosition(mAdapter, position);
         if (v != null) {
-            GridLayoutManagerChildTag tag = getViewTag(v);
-            if (tag == null) {
-                tag = new GridLayoutManagerChildTag();
-                v.setTag(R.id.lb_gridlayoutmanager_tag, tag);
-            }
-            tag.attach(this, v);
+            ((LayoutParams) v.getLayoutParams()).onViewAttached();
         }
         return v;
     }
 
-    private int getViewMin(View view) {
-        GridLayoutManagerChildTag tag = getViewTag(view);
-        return (mOrientation == HORIZONTAL) ? tag.getOpticalLeft() : tag.getOpticalTop();
+    private int getViewMin(View v) {
+        LayoutParams p = (LayoutParams) v.getLayoutParams();
+        return (mOrientation == HORIZONTAL) ? p.getOpticalLeft(v) : p.getOpticalTop(v);
     }
 
-    private int getViewMax(View view) {
-        GridLayoutManagerChildTag tag = getViewTag(view);
-        return (mOrientation == HORIZONTAL) ? tag.getOpticalRight() : tag.getOpticalBottom();
+    private int getViewMax(View v) {
+        LayoutParams p = (LayoutParams) v.getLayoutParams();
+        return (mOrientation == HORIZONTAL) ? p.getOpticalRight(v) : p.getOpticalBottom(v);
     }
 
     private int getViewCenter(View view) {
@@ -408,14 +606,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return (mOrientation == HORIZONTAL) ? getViewCenterY(view) : getViewCenterX(view);
     }
 
-    private int getViewCenterX(View view) {
-        GridLayoutManagerChildTag tag = getViewTag(view);
-        return tag.getOpticalLeft() + tag.getAlignX();
+    private int getViewCenterX(View v) {
+        LayoutParams p = (LayoutParams) v.getLayoutParams();
+        return p.getOpticalLeft(v) + p.getAlignX();
     }
 
-    private int getViewCenterY(View view) {
-        GridLayoutManagerChildTag tag = getViewTag(view);
-        return tag.getOpticalTop() + tag.getAlignY();
+    private int getViewCenterY(View v) {
+        LayoutParams p = (LayoutParams) v.getLayoutParams();
+        return p.getOpticalTop(v) + p.getAlignY();
     }
 
     /**
@@ -724,9 +922,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void updateChildAlignments(View v) {
-        GridLayoutManagerChildTag tag = getViewTag(v);
-        tag.setAlignX(mItemAlignment.horizontal.getAlignmentPosition(v, tag));
-        tag.setAlignY(mItemAlignment.vertical.getAlignmentPosition(v, tag));
+        LayoutParams p = (LayoutParams) v.getLayoutParams();
+        p.setAlignX(mItemAlignment.horizontal.getAlignmentPosition(v));
+        p.setAlignY(mItemAlignment.vertical.getAlignmentPosition(v));
     }
 
     private void updateChildAlignments() {
@@ -826,14 +1024,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    // TODO: use removeAndRecycleViewAt() once we stop using tags.
     private void removeChildAt(int position) {
         View v = getViewByPosition(position);
         if (v != null) {
             if (DEBUG) {
-                Log.d(getTag(), "detachAndScrape " + position);
+                Log.d(getTag(), "removeAndRecycleViewAt " + position);
             }
-            getViewTag(v).detach();
+            ((LayoutParams) v.getLayoutParams()).onViewDetached();
             removeAndRecycleViewAt(getIndexByPosition(position), mRecycler);
         }
     }
@@ -1362,7 +1559,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mAnimateChildLayout = animateChildLayout;
         if (!mAnimateChildLayout) {
             for (int i = 0, c = getChildCount(); i < c; i++) {
-                getViewTag(getChildAt(i)).endAnimate();
+                ((LayoutParams) getChildAt(i).getLayoutParams()).endAnimate();
             }
         }
     }
@@ -1370,7 +1567,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private void attemptAnimateLayoutChild() {
         for (int i = 0, c = getChildCount(); i < c; i++) {
             // TODO: start delay can be staggered
-            getViewTag(getChildAt(i)).startAnimate(this, 0);
+            View v = getChildAt(i);
+            ((LayoutParams) v.getLayoutParams()).startAnimate(this, v, 0);
         }
     }
 
@@ -1546,9 +1744,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public void onAdapterChanged() {
+    public void onAdapterChanged(RecyclerView.Adapter oldAdapter,
+            RecyclerView.Adapter newAdapter) {
         mGrid = null;
         mRows = null;
-        super.onAdapterChanged();
+        super.onAdapterChanged(oldAdapter, newAdapter);
     }
+
 }

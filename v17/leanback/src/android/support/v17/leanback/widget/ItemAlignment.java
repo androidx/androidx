@@ -19,6 +19,7 @@ import static android.support.v7.widget.RecyclerView.VERTICAL;
 import static android.support.v17.leanback.widget.BaseGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED;
 
 import android.graphics.Rect;
+import android.support.v17.leanback.widget.GridLayoutManager.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -69,8 +70,9 @@ class ItemAlignment {
             return mViewId;
         }
 
-        public int getAlignmentPosition(View itemView, GridLayoutManagerChildTag tag) {
+        public int getAlignmentPosition(View itemView) {
 
+            LayoutParams p = (LayoutParams) itemView.getLayoutParams();
             View view = itemView;
             if (mViewId != 0) {
                 view = itemView.findViewById(mViewId);
@@ -83,10 +85,10 @@ class ItemAlignment {
                 if (mOffset >= 0) {
                     alignPos = mOffset;
                 } else {
-                    alignPos = tag.getOpticalWidth() + mOffset;
+                    alignPos = p.getOpticalWidth(itemView) + mOffset;
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (tag.getOpticalWidth() * mOffsetPercent) / 100;
+                    alignPos += (p.getOpticalWidth(itemView) * mOffsetPercent) / 100;
                 }
                 if (itemView != view) {
                     mRect.left = alignPos;
@@ -97,10 +99,10 @@ class ItemAlignment {
                 if (mOffset >= 0) {
                     alignPos = mOffset;
                 } else {
-                    alignPos = tag.getOpticalHeight() + mOffset;
+                    alignPos = p.getOpticalHeight(itemView) + mOffset;
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (tag.getOpticalHeight() * mOffsetPercent) / 100;
+                    alignPos += (p.getOpticalHeight(itemView) * mOffsetPercent) / 100;
                 }
                 if (itemView != view) {
                     mRect.top = alignPos;
