@@ -21,17 +21,27 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.IntDef;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Helper for accessing features in {@link View} introduced after API
  * level 4 in a backwards compatible fashion.
  */
 public class ViewCompat {
+    /** @hide */
+    @IntDef({OVER_SCROLL_ALWAYS, OVER_SCROLL_IF_CONTENT_SCROLLS, OVER_SCROLL_IF_CONTENT_SCROLLS})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface OverScroll {}
+
     /**
      * Always allow a user to over-scroll this view, provided it is a
      * view that can scroll.
@@ -50,6 +60,16 @@ public class ViewCompat {
     public static final int OVER_SCROLL_NEVER = 2;
 
     private static final long FAKE_FRAME_TIME = 10;
+
+    /** @hide */
+    @IntDef({
+            IMPORTANT_FOR_ACCESSIBILITY_AUTO,
+            IMPORTANT_FOR_ACCESSIBILITY_YES,
+            IMPORTANT_FOR_ACCESSIBILITY_NO,
+            IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ImportantForAccessibility {}
 
     /**
      * Automatically determine whether a view is important for accessibility.
@@ -71,6 +91,15 @@ public class ViewCompat {
      * descendant views.
      */
     public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 0x00000004;
+
+    /** @hide */
+    @IntDef({
+            ACCESSIBILITY_LIVE_REGION_NONE,
+            ACCESSIBILITY_LIVE_REGION_POLITE,
+            ACCESSIBILITY_LIVE_REGION_ASSERTIVE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface AccessibilityLiveRegion {}
 
     /**
      * Live region mode specifying that accessibility services should not
@@ -96,6 +125,11 @@ public class ViewCompat {
      * Use with {@link ViewCompat#setAccessibilityLiveRegion(View, int)}.
      */
     public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 0x00000002;
+
+    /** @hide */
+    @IntDef({LAYER_TYPE_NONE, LAYER_TYPE_SOFTWARE, LAYER_TYPE_HARDWARE})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface LayerType {}
 
     /**
      * Indicates that the view does not have a layer.
@@ -144,6 +178,23 @@ public class ViewCompat {
      * prevent potential clipping issues when applying 3D transforms on a view.</p>
      */
     public static final int LAYER_TYPE_HARDWARE = 2;
+
+    /** @hide */
+    @IntDef({
+            LAYOUT_DIRECTION_LTR,
+            LAYOUT_DIRECTION_RTL,
+            LAYOUT_DIRECTION_INHERIT,
+            LAYOUT_DIRECTION_LOCALE})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface LayoutDirectionMode {}
+
+    /** @hide */
+    @IntDef({
+            LAYOUT_DIRECTION_LTR,
+            LAYOUT_DIRECTION_RTL
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ResolvedLayoutDirectionMode {}
 
     /**
      * Horizontal layout direction of this view is from Left to Right.
@@ -605,6 +656,7 @@ public class ViewCompat {
      * @param v The View against which to invoke the method.
      * @return This view's over-scroll mode.
      */
+    @OverScroll
     public static int getOverScrollMode(View v) {
         return IMPL.getOverScrollMode(v);
     }
@@ -621,7 +673,7 @@ public class ViewCompat {
      * @param v The View against which to invoke the method.
      * @param overScrollMode The new over-scroll mode for this view.
      */
-    public static void setOverScrollMode(View v, int overScrollMode) {
+    public static void setOverScrollMode(View v, @OverScroll int overScrollMode) {
         IMPL.setOverScrollMode(v, overScrollMode);
     }
 
@@ -844,6 +896,7 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
+    @ImportantForAccessibility
     public static int getImportantForAccessibility(View view) {
         return IMPL.getImportantForAccessibility(view);
     }
@@ -867,7 +920,8 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
-    public static void setImportantForAccessibility(View view, int mode) {
+    public static void setImportantForAccessibility(View view,
+            @ImportantForAccessibility int mode) {
         IMPL.setImportantForAccessibility(view, mode);
     }
 
@@ -966,7 +1020,7 @@ public class ViewCompat {
      *        and can be null. It is ignored when the layer type is
      *        {@link #LAYER_TYPE_NONE}
      */
-    public static void setLayerType(View view, int layerType, Paint paint) {
+    public static void setLayerType(View view, @LayerType int layerType, Paint paint) {
         IMPL.setLayerType(view, layerType, paint);
     }
 
@@ -986,6 +1040,7 @@ public class ViewCompat {
      * @see #LAYER_TYPE_SOFTWARE
      * @see #LAYER_TYPE_HARDWARE
      */
+    @LayerType
     public static int getLayerType(View view) {
         return IMPL.getLayerType(view);
     }
@@ -1008,7 +1063,7 @@ public class ViewCompat {
      * @param view The view on which to invoke the corresponding method.
      * @param labeledId The labeled view id.
      */
-    public static void setLabelFor(View view, int labeledId) {
+    public static void setLabelFor(View view, @IdRes int labeledId) {
         IMPL.setLabelFor(view, labeledId);
     }
 
@@ -1056,6 +1111,7 @@ public class ViewCompat {
      * For compatibility, this will return {@link #LAYOUT_DIRECTION_LTR} if API version
      * is lower than Jellybean MR1 (API 17)
      */
+    @ResolvedLayoutDirectionMode
     public static int getLayoutDirection(View view) {
         return IMPL.getLayoutDirection(view);
     }
@@ -1076,7 +1132,7 @@ public class ViewCompat {
      * proceeds up the parent chain of the view to get the value. If there is no parent, then it
      * will return the default {@link #LAYOUT_DIRECTION_LTR}.
      */
-    public static void setLayoutDirection(View view, int layoutDirection) {
+    public static void setLayoutDirection(View view, @LayoutDirectionMode int layoutDirection) {
         IMPL.setLayoutDirection(view, layoutDirection);
     }
 
@@ -1169,6 +1225,7 @@ public class ViewCompat {
      *
      * @see ViewCompat#setAccessibilityLiveRegion(View, int)
      */
+    @AccessibilityLiveRegion
     public int getAccessibilityLiveRegion(View view) {
         return IMPL.getAccessibilityLiveRegion(view);
     }
@@ -1201,7 +1258,7 @@ public class ViewCompat {
      *        <li>{@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}
      *        </ul>
      */
-    public void setAccessibilityLiveRegion(View view, int mode) {
+    public void setAccessibilityLiveRegion(View view, @AccessibilityLiveRegion int mode) {
         IMPL.setAccessibilityLiveRegion(view, mode);
     }
 }

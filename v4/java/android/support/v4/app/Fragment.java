@@ -25,6 +25,8 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.DebugUtils;
 import android.util.AttributeSet;
@@ -609,7 +611,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param resId Resource id for the CharSequence text
      */
-    public final CharSequence getText(int resId) {
+    public final CharSequence getText(@StringRes int resId) {
         return getResources().getText(resId);
     }
 
@@ -619,7 +621,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param resId Resource id for the string
      */
-    public final String getString(int resId) {
+    public final String getString(@StringRes int resId) {
         return getResources().getString(resId);
     }
 
@@ -632,7 +634,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param formatArgs The format arguments that will be used for substitution.
      */
 
-    public final String getString(int resId, Object... formatArgs) {
+    public final String getString(@StringRes int resId, Object... formatArgs) {
         return getResources().getString(resId, formatArgs);
     }
 
@@ -1013,8 +1015,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * 
      * @return Return the View for the fragment's UI, or null.
      */
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return null;
     }
 
@@ -1028,7 +1030,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      * from a previous saved state as given here.
      */
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     }
 
     /**
@@ -1037,6 +1039,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * 
      * @return The fragment's root view, or null if it has no layout.
      */
+    @Nullable
     public View getView() {
         return mView;
     }
@@ -1054,7 +1057,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         mCalled = true;
     }
 
@@ -1069,7 +1072,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
-    public void onViewStateRestored(Bundle savedInstanceState) {
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         mCalled = true;
     }
 

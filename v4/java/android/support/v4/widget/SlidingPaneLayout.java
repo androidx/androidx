@@ -29,6 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.DrawableRes;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -1116,7 +1117,7 @@ public class SlidingPaneLayout extends ViewGroup {
      * @param resId Resource ID of a drawable to use
      */
     @Deprecated
-    public void setShadowResource(int resId) {
+    public void setShadowResource(@DrawableRes int resId) {
         setShadowDrawable(getResources().getDrawable(resId));
     }
 
