@@ -72,17 +72,24 @@ abstract class BaseRowFragment extends Fragment {
     }
 
     /**
-     * Set the presenter used to create and bind views.
+     * Set the presenter selector used to create and bind views.
      */
-    public void setPresenterSelector(PresenterSelector presenterSelector) {
+    public final void setPresenterSelector(PresenterSelector presenterSelector) {
         mPresenterSelector = presenterSelector;
         updateAdapter();
     }
 
     /**
+     * Get the presenter selector used to create and bind views.
+     */
+    public final PresenterSelector getPresenterSelector() {
+        return mPresenterSelector;
+    }
+
+    /**
      * Sets the adapter for the fragment.
      */
-    public void setAdapter(ObjectAdapter rowsAdapter) {
+    public final void setAdapter(ObjectAdapter rowsAdapter) {
         mAdapter = rowsAdapter;
         updateAdapter();
     }
