@@ -139,4 +139,5 @@ LOCAL_MODULE := android-support-v4
 LOCAL_SDK_VERSION := 4
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-kitkat
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)
