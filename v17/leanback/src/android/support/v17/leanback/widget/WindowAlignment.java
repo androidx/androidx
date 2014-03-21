@@ -14,10 +14,10 @@
 
 package android.support.v17.leanback.widget;
 
-import static android.support.v17.leanback.widget.BaseListView.WINDOW_ALIGN_LOW_EDGE;
-import static android.support.v17.leanback.widget.BaseListView.WINDOW_ALIGN_HIGH_EDGE;
-import static android.support.v17.leanback.widget.BaseListView.WINDOW_ALIGN_BOTH_EDGE;
-import static android.support.v17.leanback.widget.BaseListView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED;
+import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_LOW_EDGE;
+import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_HIGH_EDGE;
+import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_BOTH_EDGE;
+import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED;
 
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 

@@ -23,7 +23,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
-import android.support.v17.leanback.widget.ListView;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
@@ -43,7 +43,7 @@ import android.view.animation.Interpolator;
 /**
  * An ordered set of rows of leanback widgets.
  */
-class RowContainerFragment extends BaseRowFragment {
+public class RowsFragment extends BaseRowFragment {
 
     /**
      * Internal helper class that manages row select animation and apply a default
@@ -116,7 +116,7 @@ class RowContainerFragment extends BaseRowFragment {
         }
     }
 
-    private static final String TAG = "RowContainerFragment";
+    private static final String TAG = "RowsFragment";
     private static final boolean DEBUG = false;
 
     private BackgroundParams mBackgroundParams;
@@ -168,12 +168,12 @@ class RowContainerFragment extends BaseRowFragment {
      * Set the visibility of titles/hovercard of browse rows.
      */
     public void setExpand(boolean expand) {
-        final int count = getListView().getChildCount();
+        final int count = getVerticalGridView().getChildCount();
         if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
         mExpand = expand;
         for (int i = 0; i < count; i++) {
-            View view = getListView().getChildAt(i);
-            ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) getListView().getChildViewHolder(view);
+            View view = getVerticalGridView().getChildAt(i);
+            ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView().getChildViewHolder(view);
             setRowViewExpanded(vh, mExpand);
         }
     }
@@ -183,7 +183,7 @@ class RowContainerFragment extends BaseRowFragment {
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
-        ListView listView = getListView();
+        VerticalGridView listView = getVerticalGridView();
         if (listView != null) {
             final int count = listView.getChildCount();
             for (int i = 0; i < count; i++) {
@@ -198,7 +198,7 @@ class RowContainerFragment extends BaseRowFragment {
     @Override
     protected void onRowSelected(ViewGroup parent, View view, int position, long id) {
         ItemBridgeAdapter.ViewHolder vh = (view == null) ? null :
-            (ItemBridgeAdapter.ViewHolder) getListView().getChildViewHolder(view);
+            (ItemBridgeAdapter.ViewHolder) getVerticalGridView().getChildViewHolder(view);
 
         if (mSelectedViewHolder != vh) {
             if (DEBUG) Log.v(TAG, "new row selected position " + position + " view " + view);
@@ -215,7 +215,7 @@ class RowContainerFragment extends BaseRowFragment {
 
     @Override
     protected int getLayoutResourceId() {
-        return R.layout.lb_container_fragment;
+        return R.layout.lb_rows_fragment;
     }
 
     @Override
@@ -228,8 +228,8 @@ class RowContainerFragment extends BaseRowFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
-        getListView().setItemAlignmentViewId(R.id.row_list);
-        getListView().addItemDecoration(mItemDecoration);
+        getVerticalGridView().setItemAlignmentViewId(R.id.row_list);
+        getVerticalGridView().addItemDecoration(mItemDecoration);
     }
 
     private RecyclerView.ItemDecoration mItemDecoration = new RecyclerView.ItemDecoration() {

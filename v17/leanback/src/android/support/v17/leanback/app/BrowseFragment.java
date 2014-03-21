@@ -14,7 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.widget.ListView;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnChildSelectedListener;
@@ -37,7 +37,7 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * Wrapper fragment for leanback browse screens. Composed of a
- * RowContainerFragment and a RowHeaderFragment.
+ * RowsFragment and a HeadersFragment.
  *
  */
 public class BrowseFragment extends Fragment {
@@ -53,8 +53,8 @@ public class BrowseFragment extends Fragment {
     /** The fastlane navigation panel is disabled and will never be shown. */
     public static final int HEADERS_DISABLED = 3;
 
-    private final RowContainerFragment mRowContainerFragment = new RowContainerFragment();
-    private final RowHeaderFragment mRowHeaderFragment = new RowHeaderFragment();
+    private final RowsFragment mRowsFragment = new RowsFragment();
+    private final HeadersFragment mHeadersFragment = new HeadersFragment();
 
     private Params mParams;
     private BrowseFrameLayout mBrowseFrame;
@@ -161,7 +161,7 @@ public class BrowseFragment extends Fragment {
      * Set background parameters.
      */
     public void setBackgroundParams(BackgroundParams params) {
-        mRowContainerFragment.setBackgroundParams(params);
+        mRowsFragment.setBackgroundParams(params);
     }
 
     /**
@@ -175,22 +175,22 @@ public class BrowseFragment extends Fragment {
      * Returns the background parameters.
      */
     public BackgroundParams getBackgroundParams() {
-        return mRowContainerFragment.getBackgroundParams();
+        return mRowsFragment.getBackgroundParams();
     }
 
     /**
      * Sets the list of rows for the fragment.
      */
     public void setAdapter(ObjectAdapter adapter) {
-        mRowContainerFragment.setAdapter(adapter);
-        mRowHeaderFragment.setAdapter(adapter);
+        mRowsFragment.setAdapter(adapter);
+        mHeadersFragment.setAdapter(adapter);
     }
 
     /**
      * Returns the list of rows.
      */
     public ObjectAdapter getAdapter() {
-        return mRowContainerFragment.getAdapter();
+        return mRowsFragment.getAdapter();
     }
 
     /**
@@ -204,14 +204,14 @@ public class BrowseFragment extends Fragment {
      * Sets an item Clicked listener.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
-        mRowContainerFragment.setOnItemClickedListener(listener);
+        mRowsFragment.setOnItemClickedListener(listener);
     }
 
     /**
      * Returns the item Clicked listener.
      */
     public OnItemClickedListener getOnItemClickedListener() {
-        return mRowContainerFragment.getOnItemClickedListener();
+        return mRowsFragment.getOnItemClickedListener();
     }
 
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
@@ -225,12 +225,12 @@ public class BrowseFragment extends Fragment {
             if (!mShowingHeaders && direction == View.FOCUS_LEFT) {
                 mTransitionHelper.runTransition(TransitionHelper.SCENE_WITH_HEADERS);
                 mShowingHeaders = true;
-                return mRowHeaderFragment.getListView();
+                return mHeadersFragment.getVerticalGridView();
 
             } else if (mShowingHeaders && direction == View.FOCUS_RIGHT) {
                 mTransitionHelper.runTransition(TransitionHelper.SCENE_WITHOUT_HEADERS);
                 mShowingHeaders = false;
-                return mRowContainerFragment.getListView();
+                return mRowsFragment.getVerticalGridView();
             }
             return null;
         }
@@ -240,7 +240,7 @@ public class BrowseFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mRowHeaderFragment.setOnHeaderClickListener(mHeaderClickListener);
+        mHeadersFragment.setOnHeaderClickListener(mHeaderClickListener);
 
         mContainerListMarginLeft = (int) getResources().getDimension(
                 R.dimen.lb_browse_rows_margin_left);
@@ -307,8 +307,8 @@ public class BrowseFragment extends Fragment {
 
     private void showHeaders(boolean show) {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
-        View headerList = mRowHeaderFragment.getView();
-        View containerList = mRowContainerFragment.getView();
+        View headerList = mHeadersFragment.getView();
+        View containerList = mRowsFragment.getView();
         MarginLayoutParams lp;
 
         headerList.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -316,7 +316,7 @@ public class BrowseFragment extends Fragment {
         lp.leftMargin = show ? mContainerListMarginLeft : 0;
         containerList.setLayoutParams(lp);
 
-        mRowContainerFragment.setExpand(!show);
+        mRowsFragment.setExpand(!show);
     }
 
     private HeaderPresenter.OnHeaderClickListener mHeaderClickListener =
@@ -327,14 +327,14 @@ public class BrowseFragment extends Fragment {
 
                 mTransitionHelper.runTransition(TransitionHelper.SCENE_WITHOUT_HEADERS);
                 mShowingHeaders = false;
-                mRowContainerFragment.getListView().requestFocus();
+                mRowsFragment.getVerticalGridView().requestFocus();
             }
         };
 
     private OnItemSelectedListener mRowSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(Object item, Row row) {
-            int position = mRowContainerFragment.getListView().getSelectedPosition();
+            int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
             if (mExternalOnItemSelectedListener != null) {
@@ -346,7 +346,7 @@ public class BrowseFragment extends Fragment {
     private OnItemSelectedListener mHeaderSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(Object item, Row row) {
-            int position = mRowHeaderFragment.getListView().getSelectedPosition();
+            int position = mHeadersFragment.getVerticalGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "header selected position " + position);
             onRowSelected(position);
         }
@@ -381,8 +381,8 @@ public class BrowseFragment extends Fragment {
 
     private void setSelection(int position) {
         if (position != NO_POSITION) {
-            mRowContainerFragment.setSelectedPosition(position);
-            mRowHeaderFragment.setSelectedPosition(position);
+            mRowsFragment.setSelectedPosition(position);
+            mHeadersFragment.setSelectedPosition(position);
         }
         mSelectedPosition = position;
     }
@@ -393,20 +393,20 @@ public class BrowseFragment extends Fragment {
 
         if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
             getChildFragmentManager().beginTransaction()
-                    .replace(R.id.browse_headers_dock, mRowHeaderFragment)
-                    .replace(R.id.browse_container_dock, mRowContainerFragment).commit();
-            mRowContainerFragment.setOnItemSelectedListener(mRowSelectedListener);
-            mRowHeaderFragment.setOnItemSelectedListener(mHeaderSelectedListener);
+                    .replace(R.id.browse_headers_dock, mHeadersFragment)
+                    .replace(R.id.browse_container_dock, mRowsFragment).commit();
+            mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
+            mHeadersFragment.setOnItemSelectedListener(mHeaderSelectedListener);
         }
     }
 
-    private void setVerticalListViewLayout(ListView listview) {
+    private void setVerticalVerticalGridViewLayout(VerticalGridView listview) {
         // align the top edge of item to a fixed position
         listview.setItemAlignmentOffset(0);
-        listview.setItemAlignmentOffsetPercent(ListView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
+        listview.setItemAlignmentOffsetPercent(VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
         listview.setWindowAlignmentOffset(mContainerListAlignTop);
-        listview.setWindowAlignmentOffsetPercent(ListView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
-        listview.setWindowAlignment(ListView.WINDOW_ALIGN_NO_EDGE);
+        listview.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
     }
 
     /**
@@ -414,26 +414,26 @@ public class BrowseFragment extends Fragment {
      * BrowseFragment.
      */
     private void setupChildFragmentsLayout() {
-        ListView headerList = mRowHeaderFragment.getListView();
-        ListView containerList = mRowContainerFragment.getListView();
+        VerticalGridView headerList = mHeadersFragment.getVerticalGridView();
+        VerticalGridView containerList = mRowsFragment.getVerticalGridView();
 
         // Both fragments list view has the same alignment
-        setVerticalListViewLayout(headerList);
-        setVerticalListViewLayout(containerList);
+        setVerticalVerticalGridViewLayout(headerList);
+        setVerticalVerticalGridViewLayout(containerList);
 
-        mRowContainerFragment.getListView().getLayoutParams().width = mContainerListWidth;
-        mRowContainerFragment.getListView().requestLayout();
+        mRowsFragment.getVerticalGridView().getLayoutParams().width = mContainerListWidth;
+        mRowsFragment.getVerticalGridView().requestLayout();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         setupChildFragmentsLayout();
-        if (mCanShowHeaders && mShowingHeaders && mRowHeaderFragment.getView() != null) {
-            mRowHeaderFragment.getView().requestFocus();
+        if (mCanShowHeaders && mShowingHeaders && mHeadersFragment.getView() != null) {
+            mHeadersFragment.getView().requestFocus();
         } else if ((!mCanShowHeaders || !mShowingHeaders)
-                && mRowContainerFragment.getView() != null) {
-            mRowContainerFragment.getView().requestFocus();
+                && mRowsFragment.getView() != null) {
+            mRowsFragment.getView().requestFocus();
         }
         showHeaders(mCanShowHeaders && mShowingHeaders);
     }
