@@ -51,6 +51,7 @@ LOCAL_PATH := $(call my-dir)
 # LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-recyclerview-jellybean-mr1
 # include $(BUILD_STATIC_JAVA_LIBRARY)
 
+
 # Here is the final static library that apps can link against.
 # The R class is automatically excluded from the generated library.
 # Applications that use this library must specify LOCAL_RESOURCE_DIR
@@ -59,7 +60,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-recyclerview
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
-# LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-recyclerview-jellybean-mr2
+#LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-recyclerview-kitkat
 # LOCAL_JAVA_LIBRARIES := android-support-v4 android-support-v7-recyclerview-res
 LOCAL_JAVA_LIBRARIES := \
         android-support-v4
