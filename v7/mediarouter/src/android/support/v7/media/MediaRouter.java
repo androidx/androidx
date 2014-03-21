@@ -27,11 +27,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.hardware.display.DisplayManagerCompat;
 import android.support.v7.media.MediaRouteProvider.ProviderMetadata;
 import android.util.Log;
 import android.view.Display;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +74,17 @@ public final class MediaRouter {
     // Context-bound state of the media router.
     final Context mContext;
     final ArrayList<CallbackRecord> mCallbackRecords = new ArrayList<CallbackRecord>();
+
+    /** @hide */
+    @IntDef(flag = true,
+            value = {
+                    CALLBACK_FLAG_PERFORM_ACTIVE_SCAN,
+                    CALLBACK_FLAG_REQUEST_DISCOVERY,
+                    CALLBACK_FLAG_UNFILTERED_EVENTS
+            }
+    )
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface CallbackFlags {}
 
     /**
      * Flag for {@link #addCallback}: Actively scan for routes while this callback
@@ -156,7 +172,7 @@ public final class MediaRouter {
      * @return The media router instance for the context.  The application must hold
      * a strong reference to this object as long as it is in use.
      */
-    public static MediaRouter getInstance(Context context) {
+    public static MediaRouter getInstance(@NonNull Context context) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -195,6 +211,7 @@ public final class MediaRouter {
      *
      * @return The default route, which is guaranteed to never be null.
      */
+    @NonNull
     public RouteInfo getDefaultRoute() {
         checkCallingThread();
         return sGlobal.getDefaultRoute();
@@ -245,6 +262,7 @@ public final class MediaRouter {
      * @see RouteInfo#supportsControlCategory
      * @see RouteInfo#supportsControlRequest
      */
+    @NonNull
     public RouteInfo getSelectedRoute() {
         checkCallingThread();
         return sGlobal.getSelectedRoute();
@@ -262,7 +280,8 @@ public final class MediaRouter {
      * @see RouteInfo#matchesSelector
      * @see RouteInfo#isDefault
      */
-    public RouteInfo updateSelectedRoute(MediaRouteSelector selector) {
+    @NonNull
+    public RouteInfo updateSelectedRoute(@NonNull MediaRouteSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -284,7 +303,7 @@ public final class MediaRouter {
      *
      * @param route The route to select.
      */
-    public void selectRoute(RouteInfo route) {
+    public void selectRoute(@NonNull RouteInfo route) {
         if (route == null) {
             throw new IllegalArgumentException("route must not be null");
         }
@@ -310,7 +329,7 @@ public final class MediaRouter {
      * May be zero or {@link #AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE}.
      * @return True if a matching route may be available.
      */
-    public boolean isRouteAvailable(MediaRouteSelector selector, int flags) {
+    public boolean isRouteAvailable(@NonNull MediaRouteSelector selector, int flags) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -407,7 +426,8 @@ public final class MediaRouter {
      * {@link #CALLBACK_FLAG_UNFILTERED_EVENTS}.
      * @see #removeCallback
      */
-    public void addCallback(MediaRouteSelector selector, Callback callback, int flags) {
+    public void addCallback(@NonNull MediaRouteSelector selector, @NonNull Callback callback,
+            @CallbackFlags int flags) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -452,7 +472,7 @@ public final class MediaRouter {
      * @param callback The callback to remove.
      * @see #addCallback
      */
-    public void removeCallback(Callback callback) {
+    public void removeCallback(@NonNull Callback callback) {
         if (callback == null) {
             throw new IllegalArgumentException("callback must not be null");
         }
@@ -491,7 +511,7 @@ public final class MediaRouter {
      * @see MediaRouteProvider
      * @see #removeCallback
      */
-    public void addProvider(MediaRouteProvider providerInstance) {
+    public void addProvider(@NonNull MediaRouteProvider providerInstance) {
         if (providerInstance == null) {
             throw new IllegalArgumentException("providerInstance must not be null");
         }
@@ -515,7 +535,7 @@ public final class MediaRouter {
      * @see MediaRouteProvider
      * @see #addCallback
      */
-    public void removeProvider(MediaRouteProvider providerInstance) {
+    public void removeProvider(@NonNull MediaRouteProvider providerInstance) {
         if (providerInstance == null) {
             throw new IllegalArgumentException("providerInstance must not be null");
         }
@@ -538,7 +558,7 @@ public final class MediaRouter {
      *
      * @param remoteControlClient The {@link android.media.RemoteControlClient} to register.
      */
-    public void addRemoteControlClient(Object remoteControlClient) {
+    public void addRemoteControlClient(@NonNull Object remoteControlClient) {
         if (remoteControlClient == null) {
             throw new IllegalArgumentException("remoteControlClient must not be null");
         }
@@ -555,7 +575,7 @@ public final class MediaRouter {
      *
      * @param remoteControlClient The {@link android.media.RemoteControlClient} to register.
      */
-    public void removeRemoteControlClient(Object remoteControlClient) {
+    public void removeRemoteControlClient(@NonNull Object remoteControlClient) {
         if (remoteControlClient == null) {
             throw new IllegalArgumentException("remoteControlClient must not be null");
         }
@@ -608,6 +628,11 @@ public final class MediaRouter {
         private Bundle mExtras;
         private MediaRouteDescriptor mDescriptor;
 
+        /** @hide */
+        @IntDef({PLAYBACK_TYPE_LOCAL,PLAYBACK_TYPE_REMOTE})
+        @Retention(RetentionPolicy.SOURCE)
+        private @interface PlaybackType {}
+
         /**
          * The default playback type, "local", indicating the presentation of the media
          * is happening on the same device (e.g. a phone, a tablet) as where it is
@@ -624,6 +649,11 @@ public final class MediaRouter {
          * @see #getPlaybackType
          */
         public static final int PLAYBACK_TYPE_REMOTE = 1;
+
+        /** @hide */
+        @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
+        @Retention(RetentionPolicy.SOURCE)
+        private @interface PlaybackVolume {}
 
         /**
          * Playback information indicating the playback volume is fixed, i.e. it cannot be
@@ -670,6 +700,7 @@ public final class MediaRouter {
          *
          * @return The unique id of the route, never null.
          */
+        @NonNull
         public String getId() {
             return mUniqueId;
         }
@@ -697,6 +728,7 @@ public final class MediaRouter {
          *
          * @return The description of the route, or null if none.
          */
+        @Nullable
         public String getDescription() {
             return mDescription;
         }
@@ -768,7 +800,7 @@ public final class MediaRouter {
          * @return True if the route supports at least one of the capabilities
          * described in the media route selector.
          */
-        public boolean matchesSelector(MediaRouteSelector selector) {
+        public boolean matchesSelector(@NonNull MediaRouteSelector selector) {
             if (selector == null) {
                 throw new IllegalArgumentException("selector must not be null");
             }
@@ -794,7 +826,7 @@ public final class MediaRouter {
          * @see MediaControlIntent
          * @see #getControlFilters
          */
-        public boolean supportsControlCategory(String category) {
+        public boolean supportsControlCategory(@NonNull String category) {
             if (category == null) {
                 throw new IllegalArgumentException("category must not be null");
             }
@@ -829,7 +861,7 @@ public final class MediaRouter {
          * @see MediaControlIntent
          * @see #getControlFilters
          */
-        public boolean supportsControlAction(String category, String action) {
+        public boolean supportsControlAction(@NonNull String category, @NonNull String action) {
             if (category == null) {
                 throw new IllegalArgumentException("category must not be null");
             }
@@ -862,7 +894,7 @@ public final class MediaRouter {
          * @see MediaControlIntent
          * @see #getControlFilters
          */
-        public boolean supportsControlRequest(Intent intent) {
+        public boolean supportsControlRequest(@NonNull Intent intent) {
             if (intent == null) {
                 throw new IllegalArgumentException("intent must not be null");
             }
@@ -895,7 +927,8 @@ public final class MediaRouter {
          *
          * @see MediaControlIntent
          */
-        public void sendControlRequest(Intent intent, ControlRequestCallback callback) {
+        public void sendControlRequest(@NonNull Intent intent,
+                @Nullable ControlRequestCallback callback) {
             if (intent == null) {
                 throw new IllegalArgumentException("intent must not be null");
             }
@@ -910,6 +943,7 @@ public final class MediaRouter {
          * @return The type of playback associated with this route: {@link #PLAYBACK_TYPE_LOCAL}
          * or {@link #PLAYBACK_TYPE_REMOTE}.
          */
+        @PlaybackType
         public int getPlaybackType() {
             return mPlaybackType;
         }
@@ -929,6 +963,7 @@ public final class MediaRouter {
          * @return How volume is handled on the route: {@link #PLAYBACK_VOLUME_FIXED}
          * or {@link #PLAYBACK_VOLUME_VARIABLE}.
          */
+        @PlaybackVolume
         public int getVolumeHandling() {
             return mVolumeHandling;
         }
@@ -1012,6 +1047,7 @@ public final class MediaRouter {
          * @see MediaControlIntent#CATEGORY_LIVE_VIDEO
          * @see android.app.Presentation
          */
+        @Nullable
         public Display getPresentationDisplay() {
             checkCallingThread();
             if (mPresentationDisplayId >= 0 && mPresentationDisplay == null) {
@@ -1024,6 +1060,7 @@ public final class MediaRouter {
          * Gets a collection of extra properties about this route that were supplied
          * by its media route provider, or null if none.
          */
+        @Nullable
         public Bundle getExtras() {
             return mExtras;
         }
