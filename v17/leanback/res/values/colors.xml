@@ -48,4 +48,8 @@
     <color name="lb_view_dim_mask_color">#000000</color>
     <item name="lb_view_dimmed_level" type="dimen">60%</item>
 
+    <color name="lb_search_background">#D0000000</color>
+    <color name="lb_search_bar_background">#992D2D2D</color>
+    <color name="lb_search_result_background">#FF2D2D2D</color>
+    <color name="lb_search_text_primary_color">#FFFCFCFC</color>
 </resources>

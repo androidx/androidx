@@ -14,9 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-
+<resources>
     <dimen name="lb_card_width">140dip</dimen>
     <dimen name="lb_card_height">200dip</dimen>
     <dimen name="lb_card_title_text_size">14sp</dimen>
@@ -92,4 +90,12 @@
     <!-- One-sided increase in browse item size if height > width -->
     <dimen name="lb_browse_item_zoom_width">12dp</dimen>
 
+    <!-- Search bar -->
+    <dimen name="lb_search_bar_height">120dip</dimen>
+    <dimen name="lb_search_bar_items_layout_margin_top">42dip</dimen>
+    <dimen name="lb_search_bar_items_width">660dip</dimen>
+
+    <!-- Search Fragment -->
+    <dimen name="lb_search_browse_row_padding_left">48dip</dimen>
+    <dimen name="lb_search_fragment_results_container_height">425dip</dimen>
 </resources>
