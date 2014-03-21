@@ -13,28 +13,42 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
 /**
  * RowHeaderPresenter provides a default implementation for header using TextView.
+ * RowHeaderPresenter receives calls {@link #setHidden(ViewHolder, boolean)} from
+ * {@link RowPresenter} when the row takes full screen.
+ * If subclass override and creates its own view, subclass must also override
+ * {@link #updateViewVisibility(ViewHolder)} and {@link #onSelectLevelChanged(ViewHolder)}.
  */
 public class RowHeaderPresenter extends Presenter {
 
     public static class ViewHolder extends Presenter.ViewHolder {
-        private boolean mHidden;
+        boolean mHidden;
+        float mSelectLevel;
+        int mOriginalTextColor;
+        ColorOverlayDimmer mColorDimmer;
         public ViewHolder(View view) {
             super(view);
         }
-        public boolean isHidden() {
+        public final boolean getHidden() {
             return mHidden;
+        }
+        public final float getSelectLevel() {
+            return mSelectLevel;
         }
     }
 
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
-        return new ViewHolder(new BrowseRowHeaderView(parent.getContext()));
+        BrowseRowHeaderView headerView = new BrowseRowHeaderView(parent.getContext());
+        ViewHolder viewHolder = new ViewHolder(headerView);
+        viewHolder.mOriginalTextColor = headerView.getCurrentTextColor();
+        return viewHolder;
     }
 
     @Override
@@ -55,7 +69,7 @@ public class RowHeaderPresenter extends Presenter {
         ((BrowseRowHeaderView) viewHolder.view).setText(null);
     }
 
-    public final void setHidden(RowHeaderPresenter.ViewHolder holder, boolean hidden) {
+    public final void setHidden(ViewHolder holder, boolean hidden) {
         holder.mHidden = hidden;
         updateViewVisibility(holder);
     }
@@ -67,5 +81,19 @@ public class RowHeaderPresenter extends Presenter {
         } else {
             holder.view.setVisibility(View.GONE);
         }
+    }
+
+    public final void setSelectLevel(ViewHolder holder, float selectLevel) {
+        holder.mSelectLevel = selectLevel;
+        onSelectLevelChanged(holder);
+    }
+
+    protected void onSelectLevelChanged(ViewHolder holder) {
+        if (holder.mColorDimmer == null) {
+            holder.mColorDimmer = ColorOverlayDimmer.createDefault(holder.view.getContext());
+        }
+        holder.mColorDimmer.setActiveLevel(holder.mSelectLevel);
+        final BrowseRowHeaderView headerView = (BrowseRowHeaderView) holder.view;
+        headerView.setTextColor(holder.mColorDimmer.applyToColor(holder.mOriginalTextColor));
     }
 }

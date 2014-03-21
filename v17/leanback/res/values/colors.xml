@@ -45,4 +45,7 @@
     <item name="lb_list_item_disabled_description_text_alpha" format="float" type="alpha">0.25</item>
     <item name="lb_list_item_disabled_chevron_background_alpha" format="float" type="alpha">0.05</item>
 
+    <color name="lb_view_dim_mask_color">#000000</color>
+    <item name="lb_view_dimmed_level" type="dimen">60%</item>
+
 </resources>
