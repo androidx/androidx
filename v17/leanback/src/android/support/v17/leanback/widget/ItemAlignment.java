@@ -16,7 +16,7 @@ package android.support.v17.leanback.widget;
 
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 import static android.support.v7.widget.RecyclerView.VERTICAL;
-import static android.support.v17.leanback.widget.BaseListView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED;
+import static android.support.v17.leanback.widget.BaseGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED;
 
 import android.graphics.Rect;
 import android.view.View;

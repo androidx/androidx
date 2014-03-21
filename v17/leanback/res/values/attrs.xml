@@ -16,7 +16,7 @@
 -->
 
 <resources>
-    <declare-styleable name="lbBaseListView">
+    <declare-styleable name="lbBaseGridView">
         <!-- Allow DPAD key to navigate out at the front of the View (where position = 0),
              default is false  -->
         <attr name="focusOutFront" format="boolean" />

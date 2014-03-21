@@ -28,7 +28,7 @@ import android.view.animation.Interpolator;
  * from the {@link RecyclerView.Adapter} associated with this view.
  * @hide
  */
-abstract class BaseListView extends RecyclerView {
+abstract class BaseGridView extends RecyclerView {
 
     /**
      * The first item is aligned with the low edge of the viewport. When
@@ -87,7 +87,7 @@ abstract class BaseListView extends RecyclerView {
 
     private int[] mMeasuredSize = new int[2];
 
-    public BaseListView(Context context, AttributeSet attrs, int defStyle) {
+    public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager = new GridLayoutManager(this);
         setLayoutManager(mLayoutManager);
@@ -95,15 +95,15 @@ abstract class BaseListView extends RecyclerView {
         setHasFixedSize(true);
     }
 
-    protected void initBaseListViewAttributes(Context context, AttributeSet attrs) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseListView);
-        boolean throughFront = a.getBoolean(R.styleable.lbBaseListView_focusOutFront, false);
-        boolean throughEnd = a.getBoolean(R.styleable.lbBaseListView_focusOutEnd, false);
+    protected void initBaseGridViewAttributes(Context context, AttributeSet attrs) {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseGridView);
+        boolean throughFront = a.getBoolean(R.styleable.lbBaseGridView_focusOutFront, false);
+        boolean throughEnd = a.getBoolean(R.styleable.lbBaseGridView_focusOutEnd, false);
         mLayoutManager.setFocusOutAllowed(throughFront, throughEnd);
         mLayoutManager.setVerticalMargin(
-                a.getDimensionPixelSize(R.styleable.lbBaseListView_verticalMargin, 0));
+                a.getDimensionPixelSize(R.styleable.lbBaseGridView_verticalMargin, 0));
         mLayoutManager.setHorizontalMargin(
-                a.getDimensionPixelSize(R.styleable.lbBaseListView_horizontalMargin, 0));
+                a.getDimensionPixelSize(R.styleable.lbBaseGridView_horizontalMargin, 0));
         a.recycle();
     }
 
@@ -269,7 +269,7 @@ abstract class BaseListView extends RecyclerView {
     }
 
     /**
-     * Register a callback to be invoked when an item in BaseListView has
+     * Register a callback to be invoked when an item in BaseGridView has
      * been selected.
      */
     public void setOnChildSelectedListener(OnChildSelectedListener listener) {

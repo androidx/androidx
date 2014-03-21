@@ -23,7 +23,7 @@ import android.util.AttributeSet;
  * A view that shows items in a horizontal scrolling list. The items come from
  * the {@link RecyclerView.Adapter} associated with this view.
  */
-public class HorizontalGridView extends BaseListView {
+public class HorizontalGridView extends BaseGridView {
 
     public HorizontalGridView(Context context) {
         this(context, null);
@@ -40,7 +40,7 @@ public class HorizontalGridView extends BaseListView {
     }
 
     protected void initAttributes(Context context, AttributeSet attrs) {
-        initBaseListViewAttributes(context, attrs);
+        initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbHorizontalGridView);
         setRowHeight(a.getDimensionPixelSize(R.styleable.lbHorizontalGridView_rowHeight, 0));
         setNumRows(a.getInt(R.styleable.lbHorizontalGridView_numberOfRows, 1));
