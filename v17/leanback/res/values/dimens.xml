@@ -65,6 +65,7 @@
     <dimen name="lb_browse_rows_margin_left">238dp</dimen>
     <dimen name="lb_browse_rows_width">960dp</dimen>
     <dimen name="lb_browse_rows_align_top">120dp</dimen>
+    <integer name="lb_browse_rows_anim_duration">250</integer>
 
     <dimen name="lb_browse_header_height">48dp</dimen>
     <dimen name="lb_browse_header_half_height">24dp</dimen>

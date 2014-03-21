@@ -15,7 +15,9 @@ package android.support.v17.leanback.widget;
 
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewParent;
 
 /**
  * The Tag is associated with a child view and layout manager when child view is
@@ -164,6 +166,15 @@ final class GridLayoutManagerChildTag implements TimeListener {
             float fractionToEnd = 1 - mAnimator.getInterpolator().getInterpolation(fraction);
             mView.setTranslationX(fractionToEnd * mAnimationStartTranslationX);
             mView.setTranslationY(fractionToEnd * mAnimationStartTranslationY);
+        }
+        invalidateItemDecoration();
+    }
+
+    private void invalidateItemDecoration() {
+        ViewParent parent = mView.getParent();
+        if (parent instanceof RecyclerView) {
+            // TODO: we only need invalidate parent if it has ItemDecoration
+            ((RecyclerView) parent).invalidate();
         }
     }
 }

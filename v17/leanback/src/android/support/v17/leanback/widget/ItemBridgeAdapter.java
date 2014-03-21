@@ -53,12 +53,13 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     private AdapterListener mAdapterListener;
     private ArrayList<Presenter> mPresenters = new ArrayList<Presenter>();
 
-    class OnFocusChangeListener implements View.OnFocusChangeListener {
+    final class OnFocusChangeListener implements View.OnFocusChangeListener {
         View.OnFocusChangeListener mChainedListener;
 
         @Override
         public void onFocusChange(View view, boolean hasFocus) {
-            if (DEBUG) Log.v(TAG, "onFocusChange " + hasFocus + " " + view + " mFocusHighlight" + mFocusHighlight);
+            if (DEBUG) Log.v(TAG, "onFocusChange " + hasFocus + " " + view
+                    + " mFocusHighlight" + mFocusHighlight);
             ViewHolder viewHolder = getChildViewHolder(view);
             if (mFocusHighlight != null) {
                 mFocusHighlight.onItemFocused(view, viewHolder.mItem, hasFocus);
@@ -70,16 +71,49 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        Presenter mPresenter;
-        Presenter.ViewHolder mHolder;
+        final Presenter mPresenter;
+        final Presenter.ViewHolder mHolder;
+        final OnFocusChangeListener mFocusChangeListener = new OnFocusChangeListener();
         Object mItem;
-        OnFocusChangeListener mFocusChangeListener = new OnFocusChangeListener();
+        Object mExtraObject;
 
+        /**
+         * Get {@link Presenter}.
+         */
         public final Presenter getPresenter() {
             return mPresenter;
         }
+
+        /**
+         * Get {@link Presenter.ViewHolder}.
+         */
         public final Presenter.ViewHolder getViewHolder() {
             return mHolder;
+        }
+
+        /**
+         * Get currently bound object.
+         */
+        public final Object getItem() {
+            return mItem;
+        }
+
+        /**
+         * Get extra object associated with the view.  Developer can attach
+         * any customized UI object in addition to {@link Presenter.ViewHolder}.
+         * A typical use case is attaching an animator object.
+         */
+        public final Object getExtraObject() {
+            return mExtraObject;
+        }
+
+        /**
+         * Set extra object associated with the view.  Developer can attach
+         * any customized UI object in addition to {@link Presenter.ViewHolder}.
+         * A typical use case is attaching an animator object.
+         */
+        public void setExtraObject(Object object) {
+            mExtraObject = object;
         }
 
         ViewHolder(Presenter presenter, Presenter.ViewHolder holder) {

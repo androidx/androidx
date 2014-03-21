@@ -55,6 +55,7 @@ public abstract class RowPresenter extends Presenter {
         boolean mSelected;
         boolean mExpanded;
         boolean mInitialzed;
+        float mSelectLevel = 0f; // initially unselected
         public ViewHolder(View view) {
             super(view);
         }
@@ -67,6 +68,9 @@ public abstract class RowPresenter extends Presenter {
         public final boolean isSelected() {
             return mSelected;
         }
+        public final float getSelectLevel() {
+            return mSelectLevel;
+        }
         public final RowHeaderPresenter.ViewHolder getHeaderViewHolder() {
             return mHeaderViewHolder;
         }
@@ -75,6 +79,8 @@ public abstract class RowPresenter extends Presenter {
     private RowHeaderPresenter mHeaderPresenter = new RowHeaderPresenter();
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
+
+    boolean mSelectEffectEnabled = true;
 
     @Override
     public final Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
@@ -159,6 +165,62 @@ public abstract class RowPresenter extends Presenter {
         if (selected && mOnItemSelectedListener != null) {
             mOnItemSelectedListener.onItemSelected(null, vh.getRow());
         }
+    }
+
+    /**
+     * Set current select level from 0(unselected) to 1(selected).
+     * Subclass should override {@link #onSelectLevelChanged(ViewHolder)}.
+     */
+    public final void setSelectLevel(ViewHolder vh, float level) {
+        vh.mSelectLevel = level;
+        onSelectLevelChanged(vh);
+    }
+
+    /**
+     * Get current select level from 0(unselected) to 1(selected).
+     */
+    public final float getSelectLevel(ViewHolder vh) {
+        return vh.mSelectLevel;
+    }
+
+    /**
+     * Callback when select level is changed.  Default implementation applies select level
+     * to {@link RowHeaderPresenter#setSelectLevel(RowHeaderPresenter.ViewHolder, float)}
+     * when {@link #getSelectEffectEnabled()} is true.
+     * Subclass may override this function and implements its own select effect.  When it
+     * overrides,  it should also override {@link #isUsingDefaultSelectEffect()} to disable
+     * the default dimming effect applied by framework.
+     */
+    protected void onSelectLevelChanged(ViewHolder vh) {
+        if (getSelectEffectEnabled() && vh.mHeaderViewHolder != null) {
+            mHeaderPresenter.setSelectLevel(vh.mHeaderViewHolder, vh.mSelectLevel);
+        }
+    }
+
+    /**
+     * Enables or disables the row selection effect.
+     * This is not only for enable/disable default dim implementation but also subclass must
+     * respect this flag.
+     */
+    public final void setSelectEffectEnabled(boolean applyDimOnSelect) {
+        mSelectEffectEnabled = applyDimOnSelect;
+    }
+
+    /**
+     * Returns true if row selection effect is enabled.
+     * This is not only for enable/disable default dim implementation but also subclass must
+     * respect this flag.
+     */
+    public final boolean getSelectEffectEnabled() {
+        return mSelectEffectEnabled;
+    }
+
+    /**
+     * Return if using default dimming effect provided by framework (fragment).  Subclass
+     * may(most likely) return false and override {@link #onSelectLevelChanged(ViewHolder)}.
+     */
+    public boolean isUsingDefaultSelectEffect() {
+        return true;
     }
 
     @Override
