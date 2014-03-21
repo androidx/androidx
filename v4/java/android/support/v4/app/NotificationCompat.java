@@ -163,8 +163,32 @@ public class NotificationCompat {
         }
 
         @Override
-        public boolean getLocalOnly(Notification notif) {
-            return NotificationCompatJellybean.getLocalOnly(notif);
+        public boolean getLocalOnly(Notification n) {
+            return NotificationCompatJellybean.getLocalOnly(n);
+        }
+    }
+
+    static class NotificationCompatImplKitKat extends NotificationCompatImplBase {
+        @Override
+        public Notification build(Builder b) {
+            NotificationCompatKitKat.Builder builder = new NotificationCompatKitKat.Builder(
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
+            addActionsToBuilder(builder, b.mActions);
+            addStyleToBuilderJellybean(builder, b.mStyle);
+            return builder.build();
+        }
+
+        @Override
+        public Bundle getExtras(Notification n) {
+            return NotificationCompatKitKat.getExtras(n);
+        }
+
+        @Override
+        public boolean getLocalOnly(Notification n) {
+            return NotificationCompatKitKat.getLocalOnly(n);
         }
     }
 
@@ -183,12 +207,12 @@ public class NotificationCompat {
 
         @Override
         public Bundle getExtras(Notification n) {
-            return NotificationCompatApi20.getExtras(n);
+            return NotificationCompatKitKat.getExtras(n);
         }
 
         @Override
-        public boolean getLocalOnly(Notification notif) {
-            return NotificationCompatApi20.getLocalOnly(notif);
+        public boolean getLocalOnly(Notification n) {
+            return NotificationCompatApi20.getLocalOnly(n);
         }
     }
 
@@ -231,7 +255,9 @@ public class NotificationCompat {
 
     static {
         // TODO: Add NotificationCompatApi20 when SDK_INT is incremented.
-        if (Build.VERSION.SDK_INT >= 16) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            IMPL = new NotificationCompatImplKitKat();
+        } else if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new NotificationCompatImplJellybean();
         } else if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new NotificationCompatImplIceCreamSandwich();
