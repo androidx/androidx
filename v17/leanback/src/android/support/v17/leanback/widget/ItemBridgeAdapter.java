@@ -165,7 +165,9 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         }
 
         mAdapter.registerObserver(mDataObserver);
-        setHasStableIds(mAdapter.hasStableIds());
+        if (hasStableIds() != mAdapter.hasStableIds()) {
+            setHasStableIds(mAdapter.hasStableIds());
+        }
     }
 
     void setFocusHighlight(FocusHighlight listener) {
