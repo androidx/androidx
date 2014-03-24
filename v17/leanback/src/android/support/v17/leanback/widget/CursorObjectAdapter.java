@@ -48,7 +48,9 @@ public class CursorObjectAdapter extends ObjectAdapter {
         if (cursor == mCursor) {
             return;
         }
-        mCursor.close();
+        if (mCursor != null) {
+            mCursor.close();
+        }
         mCursor = cursor;
         mItemCache.trimToSize(0);
         onCursorChanged();
