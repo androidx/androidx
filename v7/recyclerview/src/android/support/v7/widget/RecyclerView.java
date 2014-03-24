@@ -228,6 +228,8 @@ public class RecyclerView extends ViewGroup {
             mLayout.onAdapterChanged(oldAdapter, mAdapter);
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter);
+        mStructureChanged = true;
+        markKnownViewsInvalid();
         requestLayout();
     }
 
