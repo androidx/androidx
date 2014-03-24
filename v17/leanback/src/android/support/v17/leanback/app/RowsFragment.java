@@ -15,28 +15,21 @@ package android.support.v17.leanback.app;
 
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
-import android.app.Activity;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
-import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.VerticalGridView;
-import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
@@ -96,6 +89,9 @@ public class RowsFragment extends BaseRowFragment {
             final float end = select ? 1 : 0;
             if (immediate) {
                 mRowPresenter.setSelectLevel(mRowViewHolder, end);
+                if (mColorDimmer != null) {
+                    mColorDimmer.setActiveLevel(end);
+                }
             } else if (mRowPresenter.getSelectLevel(mRowViewHolder) != end) {
                 mSelectAnimatorDurationInUse = mSelectAnimatorDuration;
                 mSelectAnimatorInterpolatorInUse = mSelectAnimatorInterpolator;

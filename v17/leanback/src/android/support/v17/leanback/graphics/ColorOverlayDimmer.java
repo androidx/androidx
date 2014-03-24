@@ -70,6 +70,7 @@ public final class ColorOverlayDimmer {
         mPaint.setColor(dimColor);
         mActiveLevel = activeLevel;
         mDimmedLevel = dimmedLevel;
+        setActiveLevel(1);
     }
 
     /**
