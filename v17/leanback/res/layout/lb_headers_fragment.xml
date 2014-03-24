@@ -14,15 +14,12 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<android.support.v17.leanback.widget.ListView
+<android.support.v17.leanback.widget.VerticalGridView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:lb="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/container_list"
+    android:id="@+id/browse_headers"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingLeft="@dimen/lb_browse_padding_left"
     android:clipToPadding="false"
     android:focusable="true"
-    android:focusableInTouchMode="true"
-    lb:focusOutFront="true"
-    lb:focusOutEnd="true"
-    android:paddingBottom="@dimen/lb_container_fragment_padding_bottom" />
+    android:focusableInTouchMode="true" />

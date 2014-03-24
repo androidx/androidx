@@ -21,19 +21,19 @@ import android.util.AttributeSet;
  * A view that shows items in a vertically scrolling list. The items come from
  * the {@link RecyclerView.Adapter} associated with this view.
  */
-public class ListView extends BaseListView {
+public class VerticalGridView extends BaseGridView {
 
-    public ListView(Context context) {
+    public VerticalGridView(Context context) {
         this(context, null);
     }
 
-    public ListView(Context context, AttributeSet attrs) {
+    public VerticalGridView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ListView(Context context, AttributeSet attrs, int defStyle) {
+    public VerticalGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager.setOrientation(RecyclerView.VERTICAL);
-        initBaseListViewAttributes(context, attrs);
+        initBaseGridViewAttributes(context, attrs);
     }
 }

@@ -18,7 +18,7 @@ import android.os.Bundle;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
-import android.support.v17.leanback.widget.ListView;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnChildSelectedListener;
@@ -27,11 +27,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * An internal base class for a fragment containing a list of row headers.
+ * An internal base class for a fragment containing a list of rows.
  */
 abstract class BaseRowFragment extends Fragment {
     private ObjectAdapter mAdapter;
-    private ListView mListView;
+    private VerticalGridView mVerticalGridView;
     private PresenterSelector mPresenterSelector;
     private ItemBridgeAdapter mBridgeAdapter;
     private int mSelectedPosition = -1;
@@ -50,25 +50,25 @@ abstract class BaseRowFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mListView = (ListView) inflater.inflate(getLayoutResourceId(), container, false);
-        return mListView;
+        mVerticalGridView = (VerticalGridView) inflater.inflate(getLayoutResourceId(), container, false);
+        return mVerticalGridView;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (mBridgeAdapter != null) {
-            mListView.setAdapter(mBridgeAdapter);
+            mVerticalGridView.setAdapter(mBridgeAdapter);
             if (mSelectedPosition != -1) {
-                mListView.setSelectedPosition(mSelectedPosition);
+                mVerticalGridView.setSelectedPosition(mSelectedPosition);
             }
         }
-        mListView.setOnChildSelectedListener(mRowSelectedListener);
+        mVerticalGridView.setOnChildSelectedListener(mRowSelectedListener);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mListView = null;
+        mVerticalGridView = null;
     }
 
     /**
@@ -113,13 +113,13 @@ abstract class BaseRowFragment extends Fragment {
      */
     public void setSelectedPosition(int position) {
         mSelectedPosition = position;
-        if(mListView != null && mListView.getAdapter() != null) {
-            mListView.setSelectedPositionSmooth(position);
+        if(mVerticalGridView != null && mVerticalGridView.getAdapter() != null) {
+            mVerticalGridView.setSelectedPositionSmooth(position);
         }
     }
 
-    final ListView getListView() {
-        return mListView;
+    final VerticalGridView getVerticalGridView() {
+        return mVerticalGridView;
     }
 
     protected void updateAdapter() {
@@ -129,10 +129,10 @@ abstract class BaseRowFragment extends Fragment {
             // If presenter selector is null, adapter ps will be used
             mBridgeAdapter = new ItemBridgeAdapter(mAdapter, mPresenterSelector);
         }
-        if (mListView != null) {
-            mListView.setAdapter(mBridgeAdapter);
+        if (mVerticalGridView != null) {
+            mVerticalGridView.setAdapter(mBridgeAdapter);
             if (mBridgeAdapter != null && mSelectedPosition != -1) {
-                mListView.setSelectedPosition(mSelectedPosition);
+                mVerticalGridView.setSelectedPosition(mSelectedPosition);
             }
         }
     }

@@ -47,10 +47,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private static final long DEFAULT_CHILD_ANIMATION_DURATION_MS = 250;
 
     private String getTag() {
-        return TAG + ":" + mBaseListView.getId();
+        return TAG + ":" + mBaseGridView.getId();
     }
 
-    private final BaseListView mBaseListView;
+    private final BaseGridView mBaseGridView;
 
     /**
      * The orientation of a "row".
@@ -181,8 +181,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private long mAnimateLayoutChildDuration = DEFAULT_CHILD_ANIMATION_DURATION_MS;
 
-    public GridLayoutManager(BaseListView baseListView) {
-        mBaseListView = baseListView;
+    public GridLayoutManager(BaseGridView baseGridView) {
+        mBaseGridView = baseGridView;
     }
 
     public void setOrientation(int orientation) {
@@ -312,7 +312,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getPositionByView(View view) {
-        return getPositionByIndex(mBaseListView.indexOfChild(view));
+        return getPositionByIndex(mBaseGridView.indexOfChild(view));
     }
 
     private int getPositionByIndex(int index) {
@@ -346,10 +346,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         View view = getViewByPosition(mFocusPosition);
 
         if (mFocusPosition != NO_POSITION) {
-            mChildSelectedListener.onChildSelected(mBaseListView, view, mFocusPosition,
+            mChildSelectedListener.onChildSelected(mBaseGridView, view, mFocusPosition,
                     mAdapter.getItemId(mFocusPosition));
         } else {
-            mChildSelectedListener.onChildSelected(mBaseListView, null, NO_POSITION, NO_ID);
+            mChildSelectedListener.onChildSelected(mBaseGridView, null, NO_POSITION, NO_ID);
         }
     }
 
@@ -1000,7 +1000,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (!structureChanged && !mForceFullLayout && hasDoneFirstLayout) {
             fastRelayout();
         } else {
-            boolean hadFocus = mBaseListView.hasFocus();
+            boolean hadFocus = mBaseGridView.hasFocus();
 
             int newFocusPosition = init(adapter, recycler, mFocusPosition);
             if (DEBUG) {
@@ -1141,14 +1141,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             removeInvisibleViewsAtEnd();
         }
         attemptAnimateLayoutChild();
-        mBaseListView.invalidate();
+        mBaseGridView.invalidate();
         return da;
     }
 
     // scroll in second direction will not add/prune views
     private int scrollDirectionSecondary(int dy) {
         offsetChildrenSecondary(-dy);
-        mBaseListView.invalidate();
+        mBaseGridView.invalidate();
         return dy;
     }
 
@@ -1303,7 +1303,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (view == null) {
             return;
         }
-        if (!view.hasFocus() && mBaseListView.hasFocus()) {
+        if (!view.hasFocus() && mBaseGridView.hasFocus()) {
             // transfer focus to the child if it does not have focus yet (e.g. triggered
             // by setSelection())
             view.requestFocus();
@@ -1340,9 +1340,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     scrollDirectionSecondary(scrollX);
                 }
             } else if (smooth) {
-                mBaseListView.smoothScrollBy(scrollX, scrollY);
+                mBaseGridView.smoothScrollBy(scrollX, scrollY);
             } else {
-                mBaseListView.scrollBy(scrollX, scrollY);
+                mBaseGridView.scrollBy(scrollX, scrollY);
             }
         }
     }
@@ -1384,8 +1384,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int findImmediateChildIndex(View view) {
-        while (view != null && view != mBaseListView) {
-            int index = mBaseListView.indexOfChild(view);
+        while (view != null && view != mBaseGridView) {
+            int index = mBaseGridView.indexOfChild(view);
             if (index >= 0) {
                 return index;
             }
@@ -1458,11 +1458,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         final FocusFinder ff = FocusFinder.getInstance();
         if (movement == NEXT_ITEM) {
             while (view == null && !appendOneVisibleItem()) {
-                view = ff.findNextFocus(mBaseListView, focused, direction);
+                view = ff.findNextFocus(mBaseGridView, focused, direction);
             }
         } else if (movement == PREV_ITEM){
             while (view == null && !prependOneVisibleItem()) {
-                view = ff.findNextFocus(mBaseListView, focused, direction);
+                view = ff.findNextFocus(mBaseGridView, focused, direction);
             }
         }
         if (view == null) {

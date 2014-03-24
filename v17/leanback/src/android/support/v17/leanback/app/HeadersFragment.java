@@ -27,11 +27,11 @@ import android.view.ViewGroup;
 /**
  * An internal fragment containing a list of row headers.
  */
-class RowHeaderFragment extends BaseRowFragment {
+public class HeadersFragment extends BaseRowFragment {
     private HeaderPresenter mHeaderPresenter;
     private OnItemSelectedListener mOnItemSelectedListener;
 
-    public RowHeaderFragment() {
+    public HeadersFragment() {
         mHeaderPresenter = new HeaderPresenter();
         setPresenterSelector(new PresenterSelector() {
             @Override
@@ -59,7 +59,7 @@ class RowHeaderFragment extends BaseRowFragment {
 
     @Override
     protected int getLayoutResourceId() {
-        return R.layout.lb_browse_header_fragment;
+        return R.layout.lb_headers_fragment;
     }
 
     @Override
