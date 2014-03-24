@@ -672,6 +672,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 if (start != mRows[rowIndex].low) {
                     // if there are existing item in the row,  add margin between
                     start += mMarginPrimary;
+                } else {
+                    final int lastRow = mRows.length - 1;
+                    if (lastRow != rowIndex && mRows[lastRow].high != mRows[lastRow].low) {
+                        // if there are existing item in the last row, insert
+                        // the new item after the last item of last row.
+                        start = mRows[lastRow].high + mMarginPrimary;
+                    }
                 }
                 end = start + length;
                 mRows[rowIndex].high = end;
@@ -679,6 +686,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 end = mRows[rowIndex].low;
                 if (end != mRows[rowIndex].high) {
                     end -= mMarginPrimary;
+                } else if (0 != rowIndex && mRows[0].high != mRows[0].low) {
+                    // if there are existing item in the first row, insert
+                    // the new item before the first item of first row.
+                    end = mRows[0].low - mMarginPrimary;
                 }
                 start = end - length;
                 mRows[rowIndex].low = start;
