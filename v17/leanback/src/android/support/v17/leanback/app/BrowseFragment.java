@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -200,7 +201,10 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Sets an item Clicked listener.
+     * Sets an item clicked listener on the fragment.
+     * OnItemClickedListener will override {@link View.OnClickListener} that
+     * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
+     * So in general,  developer should choose one of the listeners but not both.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mRowsFragment.setOnItemClickedListener(listener);
