@@ -15,7 +15,7 @@ package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.Row;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,15 +42,15 @@ class HeaderPresenter extends Presenter {
     }
 
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        ListRow listRow = (ListRow) item;
+        Row row = (Row) item;
         String headerText;
         // TODO: handle null headers more elegantly. Right now the
         // BrowseFragment maps header positions to row positions, so failing to
         // render a null item will mess up the selection.
-        if (listRow.getHeaderItem() == null) {
+        if (row.getHeaderItem() == null) {
             headerText = "(null)";
         } else {
-            headerText = listRow.getHeaderItem().getName();
+            headerText = row.getHeaderItem().getName();
         }
 
         ((TextView) viewHolder.view).setText(headerText);
