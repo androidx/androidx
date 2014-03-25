@@ -60,7 +60,7 @@ public final class BrowseRowView extends LinearLayout {
             switch (attr) {
                 case R.styleable.BrowseRowView_browseItemMargin:
                     int margin = array.getDimensionPixelSize(attr, 0);
-                    mGridView.setMargin(margin);
+                    mGridView.setItemMargin(margin);
                     break;
             }
         }

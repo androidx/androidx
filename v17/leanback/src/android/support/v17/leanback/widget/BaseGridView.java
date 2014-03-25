@@ -269,6 +269,21 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Set the margin in pixels between two child items horizontally.
+     */
+    public void setHorizontalMargin(int margin) {
+        mLayoutManager.setHorizontalMargin(margin);
+        requestLayout();
+    }
+
+    /**
+     * Get the margin in pixels between two child items horizontally.
+     */
+    public int getHorizontalMargin() {
+        return mLayoutManager.getHorizontalMargin();
+    }
+
+    /**
      * Register a callback to be invoked when an item in BaseGridView has
      * been selected.
      */
