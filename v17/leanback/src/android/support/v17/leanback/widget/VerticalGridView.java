@@ -14,6 +14,8 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
@@ -34,6 +36,30 @@ public class VerticalGridView extends BaseGridView {
     public VerticalGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        initAttributes(context, attrs);
+    }
+
+    protected void initAttributes(Context context, AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbVerticalGridView);
+        setColumnWidth(a.getDimensionPixelSize(R.styleable.lbVerticalGridView_columnWidth, 0));
+        setNumColumns(a.getInt(R.styleable.lbVerticalGridView_numberOfColumns, 1));
+        a.recycle();
+    }
+
+    /**
+     * Set the number of columns.
+     */
+    public void setNumColumns(int numColumns) {
+        mLayoutManager.setNumRows(numColumns);
+        requestLayout();
+    }
+
+    /**
+     * Set the column width.
+     */
+    public void setColumnWidth(int width) {
+        mLayoutManager.setRowHeight(width);
+        requestLayout();
     }
 }
