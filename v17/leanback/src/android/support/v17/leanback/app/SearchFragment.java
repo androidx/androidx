@@ -17,6 +17,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.ObjectAdapter;
+import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.SearchBar;
 import android.view.LayoutInflater;
@@ -147,6 +148,20 @@ public class SearchFragment extends Fragment {
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mRowsFragment.setOnItemSelectedListener(listener);
+    }
+
+    /**
+     * Sets an item clicked listener.
+     */
+    public void setOnItemClickedListener(OnItemClickedListener listener) {
+        mRowsFragment.setOnItemClickedListener(listener);
+    }
+
+    /**
+     * Set the visibility of titles/hovercard of browse rows.
+     */
+    public void setExpand(boolean expand) {
+        mRowsFragment.setExpand(expand);
     }
 
     private void retrieveResults(String searchQuery) {
