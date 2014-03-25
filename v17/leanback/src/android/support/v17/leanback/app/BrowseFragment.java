@@ -484,8 +484,12 @@ public class BrowseFragment extends Fragment {
         if (mBadgeView == null) {
             return;
         }
-        mBadgeView.setVisibility(View.VISIBLE);
         mBadgeView.setImageDrawable(drawable);
+        if (drawable != null) {
+            mBadgeView.setVisibility(View.VISIBLE);
+        } else {
+            mBadgeView.setVisibility(View.GONE);
+        }
     }
 
     private void setTitle(String title) {

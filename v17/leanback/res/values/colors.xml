@@ -20,7 +20,7 @@
     <color name="lb_bg_default">#333333</color>
     <color name="lb_grey">#888888</color>
     <color name="lb_bluegreen">#00ffff</color>
-    <color name="lb_browse_title_color">#EFEFEF</color>
+    <color name="lb_browse_title_color">#EEEEEE</color>
     <color name="lb_card_background_color">#FFDDDDDD</color>
     <color name="lb_card_info_background_color">#FFFFFFFF</color>
     <color name="lb_card_title_text_color">#FF000000</color>
