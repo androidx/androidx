@@ -546,10 +546,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             if (mOrientation == VERTICAL) {
                 if (isLayoutRTL()) {
                     right = getWidth() - getPaddingRight();
-                    left = right - getDecoratedMeasuredWidth(view);
+                    left = right - mOrientationHelper.getDecoratedMeasurementInOther(view);
                 } else {
                     left = getPaddingLeft();
-                    right = left + getDecoratedMeasuredWidth(view);
+                    right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
                 }
                 if (renderState.mLayoutDirection == RenderState.LAYOUT_START) {
                     bottom = renderState.mOffset;
@@ -560,7 +560,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 }
             } else {
                 top = getPaddingTop();
-                bottom = top + getDecoratedMeasuredHeight(view);
+                bottom = top + mOrientationHelper.getDecoratedMeasurementInOther(view);
 
                 if (renderState.mLayoutDirection == RenderState.LAYOUT_START) {
                     right = renderState.mOffset;
@@ -570,7 +570,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                     right = renderState.mOffset + consumed;
                 }
             }
-            layoutDecorated(view, left, top, right, bottom);
+            // We calculate everything with View's bounding box (which includes decor and margins)
+            // To calculate correct layout position, we subtract margins.
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
+            layoutDecorated(view, left + params.leftMargin, top + params.topMargin
+                    , right - params.rightMargin, bottom - params.bottomMargin);
             renderState.mOffset += consumed * renderState.mLayoutDirection;
             renderState.mAvailable -= consumed;
 
@@ -751,17 +755,30 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
             @Override
             public int getDecoratedMeasurement(View view) {
-                return getDecoratedMeasuredHeight(view);
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedMeasuredHeight(view) + params.topMargin + params.bottomMargin;
+            }
+
+            @Override
+            public int getDecoratedMeasurementInOther(View view) {
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedMeasuredWidth(view) + params.leftMargin + params.rightMargin;
             }
 
             @Override
             public int getDecoratedEnd(View view) {
-                return getDecoratedBottom(view);
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedBottom(view) + params.bottomMargin;
             }
 
             @Override
             public int getDecoratedStart(View view) {
-                return getDecoratedTop(view);
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedTop(view) - params.topMargin;
             }
         };
     }
@@ -785,17 +802,30 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
             @Override
             public int getDecoratedMeasurement(View view) {
-                return getDecoratedMeasuredWidth(view);
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedMeasuredWidth(view) + params.leftMargin + params.rightMargin;
+            }
+
+            @Override
+            public int getDecoratedMeasurementInOther(View view) {
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedMeasuredHeight(view) + params.topMargin + params.bottomMargin;
             }
 
             @Override
             public int getDecoratedEnd(View view) {
-                return getDecoratedRight(view);
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedRight(view) + params.rightMargin;
             }
 
             @Override
             public int getDecoratedStart(View view) {
-                return getDecoratedLeft(view);
+                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
+                        view.getLayoutParams();
+                return getDecoratedLeft(view) - params.leftMargin;
             }
         };
     }
@@ -825,6 +855,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
          * @return Total space occupied by this view
          */
         int getDecoratedMeasurement(View view);
+
+        /**
+         * @param view The view element to check
+         * @return Total space occupied by this view in the perpendicular orientation to current one
+         */
+        int getDecoratedMeasurementInOther(View view);
 
         /**
          * @return The very first pixel we can draw.
