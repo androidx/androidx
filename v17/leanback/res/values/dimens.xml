@@ -51,13 +51,13 @@
     <dimen name="lb_content_section_width">576dp</dimen>
 
     <dimen name="lb_browse_padding_left">56dp</dimen>
-    <!-- FIXME: lb_browse_padding_top unspecified by UX -->
-    <dimen name="lb_browse_padding_top">37dp</dimen>
+    <dimen name="lb_browse_padding_top">27dp</dimen>
 
-    <dimen name="lb_browse_title_height">56dp</dimen>
-    <dimen name="lb_browse_title_icon_width">68dp</dimen>
-    <dimen name="lb_browse_title_icon_margin_right">8dp</dimen>
-    <dimen name="lb_browse_title_text_size">36dp</dimen>
+    <dimen name="lb_browse_title_height">60dp</dimen>
+    <dimen name="lb_browse_title_icon_height">52dp</dimen>
+    <dimen name="lb_browse_title_icon_width">52dp</dimen>
+    <dimen name="lb_browse_title_icon_margin_right">24dp</dimen>
+    <dimen name="lb_browse_title_text_size">28sp</dimen>
 
     <!-- 294 - 56 -->
     <dimen name="lb_browse_rows_margin_left">238dp</dimen>
@@ -67,7 +67,7 @@
 
     <dimen name="lb_browse_header_height">48dp</dimen>
     <dimen name="lb_browse_header_half_height">24dp</dimen>
-    <dimen name="lb_browse_header_text_size">22dp</dimen>
+    <dimen name="lb_browse_header_text_size">22sp</dimen>
     <item name="lb_browse_header_select_duration" format="integer" type="dimen">150</item>
     <item name="lb_browse_header_unselect_alpha" format="float" type="dimen">0.5</item>
     <item name="lb_browse_header_select_scale" format="float" type="dimen">1.1</item>
@@ -78,7 +78,7 @@
     <dimen name="lb_browse_row_hovercard_title_font_size">18sp</dimen>
     <dimen name="lb_browse_row_hovercard_description_margin_top">2dp</dimen>
     <dimen name="lb_browse_row_hovercard_description_font_size">12sp</dimen>
-    <dimen name="lb_browse_row_title_text_size">22sp</dimen>
+    <dimen name="lb_browse_row_title_text_size">18sp</dimen>
     <dimen name="lb_browse_item_margin">12dp</dimen>
     <dimen name="lb_browse_item_margin_vertical">12dp</dimen>
     <dimen name="lb_browse_item_margin_horizontal">12dp</dimen>
