@@ -248,11 +248,6 @@ abstract class BaseGridView extends RecyclerView {
         requestLayout();
     }
 
-    @Deprecated
-    public void setMargin(int margin) {
-        setItemMargin(margin);
-    }
-
     /**
      * Set the margin in pixels between two child items vertically.
      */
