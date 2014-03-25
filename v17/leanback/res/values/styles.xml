@@ -80,4 +80,8 @@
         <item name="android:maxLines">2</item>
     </style>
 
+    <style name="TextAppearance.Leanback.SearchLabel" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_browse_header_text_size</item>
+        <item name="android:textColor">@color/lb_list_item_unselected_text_color</item>
+    </style>
 </resources>

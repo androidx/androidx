@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:orientation="horizontal"
+    android:focusable="true">
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/title"
+        android:text="@string/orb_search_label"
+        android:layout_gravity="center_vertical"
+        android:textAppearance="@style/TextAppearance.Leanback.SearchLabel" />
+
+    <FrameLayout
+        android:id="@+id/search_orb"
+        android:layout_width="@dimen/lb_search_orb_size"
+        android:layout_height="@dimen/lb_search_orb_size"
+        android:layout_gravity="top|start"
+        android:clipChildren="false"
+        android:layout_marginBottom="@dimen/lb_search_orb_margin_bottom"
+        android:layout_marginLeft="@dimen/lb_search_orb_margin_left"
+        android:layout_marginRight="@dimen/lb_search_orb_margin_right"
+        android:layout_marginTop="@dimen/lb_search_orb_margin_top" >
+
+        <ImageView
+            android:id="@+id/orb"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_circle_g_bg"
+            android:background="@drawable/ic_circle_shadow"
+            android:contentDescription="@null" />
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_action_search"
+            android:contentDescription="@string/orb_search_action" />
+    </FrameLayout>
+</LinearLayout>
