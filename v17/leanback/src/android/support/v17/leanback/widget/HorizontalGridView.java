@@ -48,21 +48,6 @@ public class HorizontalGridView extends BaseGridView {
     }
 
     /**
-     * Set the margin in pixels between two child items horizontally.
-     */
-    public void setHorizontalMargin(int margin) {
-        mLayoutManager.setHorizontalMargin(margin);
-        requestLayout();
-    }
-
-    /**
-     * Get the margin in pixels between two child items horizontally.
-     */
-    public int getHorizontalMargin() {
-        return mLayoutManager.getHorizontalMargin();
-    }
-
-    /**
      * Set the number of rows.
      */
     public void setNumRows(int numRows) {

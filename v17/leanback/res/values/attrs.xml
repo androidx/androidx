@@ -35,6 +35,13 @@
         <attr name="numberOfRows" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="lbVerticalGridView">
+        <!-- Defining width of each column of VerticalGridView -->
+        <attr name="columnWidth" format="dimension" />
+        <!-- Defining number of columns -->
+        <attr name="numberOfColumns" format="integer" />
+    </declare-styleable>
+
     <!-- Attributes that can be used with {@link
          android.support.v17.leanback.widget.BrowseRowView}. -->
     <declare-styleable name="BrowseRowView">
