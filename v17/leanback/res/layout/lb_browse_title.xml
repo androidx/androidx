@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipChildren="false"
@@ -28,6 +28,8 @@
         android:layout_width="@dimen/lb_browse_title_icon_width"
         android:layout_height="@dimen/lb_browse_title_height"
         android:layout_marginRight="@dimen/lb_browse_title_icon_margin_right"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_vertical"
         android:scaleType="fitStart"
         android:src="@android:drawable/ic_menu_add" />
 
@@ -40,6 +42,16 @@
         android:textColor="@color/lb_browse_title_color"
         android:fontFamily="sans-serif-condensed"
         android:textSize="@dimen/lb_browse_title_text_size"
-        />
+        android:layout_toRightOf="@id/browse_badge"/>
 
-</LinearLayout>
+    <android.support.v17.leanback.widget.SearchOrbView
+            android:id="@+id/browse_orb"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="48dip"
+            android:layout_marginBottom="4dip"
+            />
+
+</RelativeLayout>

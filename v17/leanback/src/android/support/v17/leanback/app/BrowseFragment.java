@@ -17,13 +17,11 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
-import android.text.TextUtils;
+import android.support.v17.leanback.widget.SearchOrbView;
 import android.util.Log;
 import android.app.Fragment;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,6 +59,7 @@ public class BrowseFragment extends Fragment {
     private ImageView mBadgeView;
     private TextView mTitleView;
     private ViewGroup mBrowseTitle;
+    private SearchOrbView mSearchOrbView;
     private boolean mShowingTitle = true;
     private boolean mShowingHeaders = true;
     private boolean mCanShowHeaders = true;
@@ -214,6 +213,20 @@ public class BrowseFragment extends Fragment {
         return mRowsFragment.getOnItemClickedListener();
     }
 
+    /**
+     * Sets a click listener for the search "affordance".
+     *
+     * The presence of a listener will change the visibility of the search "affordance" in the
+     * title area. When set to non null the title area will contain a call to search action.
+     *
+     * The listener onClick method will be invoked when the user click on the search action.
+     *
+     * @param listener The listener.
+     */
+    public void setOnSearchClickedListener(View.OnClickListener listener) {
+        mSearchOrbView.setOnOrbClickedListener(listener);
+    }
+
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
             new BrowseFrameLayout.OnFocusSearchListener() {
         @Override
@@ -231,8 +244,15 @@ public class BrowseFragment extends Fragment {
                 mTransitionHelper.runTransition(TransitionHelper.SCENE_WITHOUT_HEADERS);
                 mShowingHeaders = false;
                 return mRowsFragment.getVerticalGridView();
+            } else if (mSearchOrbView.getVisibility() == View.VISIBLE
+                    && direction == View.FOCUS_DOWN) {
+                return mRowsFragment.getVerticalGridView();
+            } else if (mSearchOrbView.getVisibility() == View.VISIBLE
+                    && direction == View.FOCUS_UP) {
+                return mSearchOrbView;
+            } else {
+                return null;
             }
-            return null;
         }
     };
 
@@ -260,6 +280,7 @@ public class BrowseFragment extends Fragment {
         mBrowseTitle = (ViewGroup) root.findViewById(R.id.browse_title_group);
         mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
         mTitleView = (TextView) mBrowseTitle.findViewById(R.id.browse_title);
+        mSearchOrbView = (SearchOrbView) mBrowseTitle.findViewById(R.id.browse_orb);
 
         readArguments(getArguments());
         if (mParams != null) {
