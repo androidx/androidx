@@ -52,8 +52,10 @@ public class HeadersFragment extends BaseRowFragment {
     @Override
     protected void onRowSelected(ViewGroup parent, View view, int position, long id) {
         if (mOnItemSelectedListener != null) {
-            Row row = (Row) getAdapter().get(position);
-            mOnItemSelectedListener.onItemSelected(null, row);
+            if (position >= 0) {
+                Row row = (Row) getAdapter().get(position);
+                mOnItemSelectedListener.onItemSelected(null, row);
+            }
         }
     }
 
