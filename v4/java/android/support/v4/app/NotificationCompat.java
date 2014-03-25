@@ -175,7 +175,8 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
+                    b.mExtras);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -284,6 +285,7 @@ public class NotificationCompat {
         boolean mProgressIndeterminate;
         ArrayList<Action> mActions = new ArrayList<Action>();
         boolean mLocalOnly = false;
+        String mCategory;
         Bundle mExtras;
 
         Notification mNotification = new Notification();
@@ -591,6 +593,18 @@ public class NotificationCompat {
          */
         public Builder setLocalOnly(boolean b) {
             mLocalOnly = b;
+            return this;
+        }
+
+        /**
+         * Set the notification category.
+         *
+         * <p>Must be one of the predefined notification categories (see the <code>CATEGORY_*</code>
+         * constants in {@link Notification}) that best describes this notification.
+         * May be used by the system for ranking and filtering.
+         */
+        public Builder setCategory(String category) {
+            mCategory = category;
             return this;
         }
 
