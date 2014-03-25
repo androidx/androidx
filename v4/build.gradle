@@ -18,9 +18,10 @@ def jbSS           = createApiSourceset('jellybean',    'jellybean',     '16',  
 def jbMr1SS        = createApiSourceset('jellybeanmr1', 'jellybean-mr1', '17',      jbSS)
 def jbMr2SS        = createApiSourceset('jellybeanmr2', 'jellybean-mr2', '18',      jbMr1SS)
 def kitkatSS       = createApiSourceset('kitkat',       'kitkat',        '19',      jbMr2SS)
+def api20SS        = createApiSourceset('api20',        'api20',         'current', kitkatSS)
 
 // setup the main code to depend on the above through the highest platform-specific sourceset.
-setupDependencies('compile', kitkatSS)
+setupDependencies('compile', api20SS)
 // --------------------------
 
 def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
@@ -54,7 +55,6 @@ sourceSets {
 dependencies {
     compile getAndroidPrebuilt('4')
 }
-
 
 uploadArchives {
     repositories {
