@@ -29,7 +29,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * Denotes that the annotated element of integer type, represents
  * a logical type and that its value should be one of the explicitly
- * named constants. If the {@link #flag()} attribute is set to true,
+ * named constants. If the IntDef#flag() attribute is set to true,
  * multiple constants can be combined.
  * <p>
  * Example:
