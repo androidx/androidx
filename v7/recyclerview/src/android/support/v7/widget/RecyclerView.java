@@ -18,6 +18,7 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -42,7 +43,6 @@ import android.view.ViewParent;
 import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A flexible view for providing a limited window into a large data set.
@@ -73,7 +73,6 @@ public class RecyclerView extends ViewGroup {
     private static final String TAG = "RecyclerView";
     private static final boolean DEBUG = false;
     private static final boolean DISPATCH_TEMP_DETACH = false;
-
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
@@ -438,6 +437,19 @@ public class RecyclerView extends ViewGroup {
         mScrollListener = listener;
     }
 
+    /**
+     * Convenience method to scroll to a certain position.
+     *
+     * RecyclerView does not implement scrolling logic, rather forwards the call to
+     * {@link android.support.v7.widget.RecyclerView.LayoutManager#scrollToPosition(int)}
+     * @param position Scroll to this adapter position
+     * @see android.support.v7.widget.RecyclerView.LayoutManager#scrollToPosition(int)
+     */
+    public void scrollToPosition(int position) {
+        mLayout.scrollToPosition(position);
+        awakenScrollBars();
+    }
+
     @Override
     public void scrollTo(int x, int y) {
         throw new UnsupportedOperationException(
@@ -479,7 +491,145 @@ public class RecyclerView extends ViewGroup {
         if (mScrollListener != null && (x != 0 || y != 0)) {
             mScrollListener.onScrolled(x, y);
         }
+        if (!awakenScrollBars()) {
+            invalidate();
+        }
     }
+
+    /**
+     * <p>Compute the horizontal offset of the horizontal scrollbar's thumb within the horizontal
+     * range. This value is used to compute the length of the thumb within the scrollbar's track.
+     * </p>
+     *
+     * <p>The range is expressed in arbitrary units that must be the same as the units used by
+     * {@link #computeHorizontalScrollRange()} and {@link #computeHorizontalScrollExtent()}.</p>
+     *
+     * <p>Default implementation returns 0.</p>
+     *
+     * <p>If you want to support scroll bars, override
+     * {@link android.support.v7.widget.RecyclerView.LayoutManager#computeHorizontalScrollOffset(
+     * RecyclerView.Adapter)} in your LayoutManager. </p>
+     *
+     * @return The horizontal offset of the scrollbar's thumb
+     * @see android.support.v7.widget.RecyclerView.LayoutManager#computeHorizontalScrollOffset
+     * (RecyclerView.Adapter)
+     */
+    @Override
+    protected int computeHorizontalScrollOffset() {
+        return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollOffset(mAdapter)
+                : 0;
+    }
+
+    /**
+     * <p>Compute the horizontal extent of the horizontal scrollbar's thumb within the
+     * horizontal range. This value is used to compute the length of the thumb within the
+     * scrollbar's track.</p>
+     *
+     * <p>The range is expressed in arbitrary units that must be the same as the units used by
+     * {@link #computeHorizontalScrollRange()} and {@link #computeHorizontalScrollOffset()}.</p>
+     *
+     * <p>Default implementation returns 0.</p>
+     *
+     * <p>If you want to support scroll bars, override
+     * {@link android.support.v7.widget.RecyclerView.LayoutManager#computeHorizontalScrollExtent(
+     * RecyclerView.Adapter)} in your LayoutManager.</p>
+     *
+     * @return The horizontal extent of the scrollbar's thumb
+     * @see android.support.v7.widget.RecyclerView.LayoutManager#computeHorizontalScrollExtent(
+     * RecyclerView.Adapter)
+     */
+    @Override
+    protected int computeHorizontalScrollExtent() {
+        return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollExtent(mAdapter)
+                : 0;
+    }
+
+    /**
+     * <p>Compute the horizontal range that the horizontal scrollbar represents.</p>
+     *
+     * <p>The range is expressed in arbitrary units that must be the same as the units used by
+     * {@link #computeHorizontalScrollExtent()} and {@link #computeHorizontalScrollOffset()}.</p>
+     *
+     * <p>Default implementation returns 0.</p>
+     *
+     * <p>If you want to support scroll bars, override
+     * {@link android.support.v7.widget.RecyclerView.LayoutManager#computeHorizontalScrollRange(
+     * RecyclerView.Adapter)} in your LayoutManager.</p>
+     *
+     * @return The total horizontal range represented by the vertical scrollbar
+     * @see android.support.v7.widget.RecyclerView.LayoutManager#computeHorizontalScrollRange(
+     * RecyclerView.Adapter)
+     */
+    @Override
+    protected int computeHorizontalScrollRange() {
+        return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollRange(mAdapter) : 0;
+    }
+
+    /**
+     * <p>Compute the vertical offset of the vertical scrollbar's thumb within the vertical range.
+     * This value is used to compute the length of the thumb within the scrollbar's track. </p>
+     *
+     * <p>The range is expressed in arbitrary units that must be the same as the units used by
+     * {@link #computeVerticalScrollRange()} and {@link #computeVerticalScrollExtent()}.</p>
+     *
+     * <p>Default implementation returns 0.</p>
+     *
+     * <p>If you want to support scroll bars, override
+     * {@link android.support.v7.widget.RecyclerView.LayoutManager#computeVerticalScrollOffset(
+     * RecyclerView.Adapter)} in your LayoutManager.</p>
+     *
+     * @return The vertical offset of the scrollbar's thumb
+     * @see android.support.v7.widget.RecyclerView.LayoutManager#computeVerticalScrollOffset
+     * (RecyclerView.Adapter)
+     */
+    @Override
+    protected int computeVerticalScrollOffset() {
+        return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollOffset(mAdapter) : 0;
+    }
+
+    /**
+     * <p>Compute the vertical extent of the vertical scrollbar's thumb within the vertical range.
+     * This value is used to compute the length of the thumb within the scrollbar's track.</p>
+     *
+     * <p>The range is expressed in arbitrary units that must be the same as the units used by
+     * {@link #computeVerticalScrollRange()} and {@link #computeVerticalScrollOffset()}.</p>
+     *
+     * <p>Default implementation returns 0.</p>
+     *
+     * <p>If you want to support scroll bars, override
+     * {@link android.support.v7.widget.RecyclerView.LayoutManager#computeVerticalScrollExtent(
+     * RecyclerView.Adapter)} in your LayoutManager.</p>
+     *
+     * @return The vertical extent of the scrollbar's thumb
+     * @see android.support.v7.widget.RecyclerView.LayoutManager#computeVerticalScrollExtent(
+     * RecyclerView.Adapter)
+     */
+    @Override
+    protected int computeVerticalScrollExtent() {
+        return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollExtent(mAdapter) : 0;
+    }
+
+    /**
+     * <p>Compute the vertical range that the vertical scrollbar represents.</p>
+     *
+     * <p>The range is expressed in arbitrary units that must be the same as the units used by
+     * {@link #computeVerticalScrollExtent()} and {@link #computeVerticalScrollOffset()}.</p>
+     *
+     * <p>Default implementation returns 0.</p>
+     *
+     * <p>If you want to support scroll bars, override
+     * {@link android.support.v7.widget.RecyclerView.LayoutManager#computeVerticalScrollRange(
+     * RecyclerView.Adapter)} in your LayoutManager.</p>
+     *
+     * @return The total vertical range represented by the vertical scrollbar
+     * @see android.support.v7.widget.RecyclerView.LayoutManager#computeVerticalScrollRange(
+     * RecyclerView.Adapter)
+     */
+    @Override
+    protected int computeVerticalScrollRange() {
+        return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollRange(mAdapter) : 0;
+    }
+
 
     void eatRequestLayout() {
         if (!mEatRequestLayout) {
@@ -1526,6 +1676,10 @@ public class RecyclerView extends ViewGroup {
 
                 if (mScrollListener != null && (x != 0 || y != 0)) {
                     mScrollListener.onScrolled(dx, dy);
+                }
+
+                if (!awakenScrollBars()) {
+                    invalidate();
                 }
 
                 if (mScroller.isFinished()) {
@@ -2706,6 +2860,18 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Scroll to the specified adapter position.
+         *
+         * Actual position of the item on the screen depends on the LayoutManager implementation.
+         * @param position Scroll to this adapter position.
+         */
+        public void scrollToPosition(int position) {
+            if (DEBUG) {
+                Log.e(TAG, "You MUST implement scrollToPosition. It will soon become abstract");
+            }
+        }
+
+        /**
          * Returns the resolved layout direction for this RecyclerView.
          *
          * @return {@link android.support.v4.view.ViewCompat#LAYOUT_DIRECTION_RTL} if the layout
@@ -3557,6 +3723,100 @@ public class RecyclerView extends ViewGroup {
          */
         public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
         }
+
+
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeHorizontalScrollExtent()} for details.</p>
+         *
+         * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The horizontal extent of the scrollbar's thumb
+         * @see RecyclerView#computeHorizontalScrollExtent()
+         */
+        public int computeHorizontalScrollExtent(Adapter adapter) {
+            return 0;
+        }
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeHorizontalScrollOffset()} for details.</p>
+         *
+         * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The horizontal offset of the scrollbar's thumb
+         * @see RecyclerView#computeHorizontalScrollOffset()
+         */
+        public int computeHorizontalScrollOffset(Adapter adapter) {
+            return 0;
+        }
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeHorizontalScrollRange()} for details.</p>
+         *
+         * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The total horizontal range represented by the vertical scrollbar
+         * @see RecyclerView#computeHorizontalScrollRange()
+         */
+        public int computeHorizontalScrollRange(Adapter adapter) {
+            return 0;
+        }
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeVerticalScrollRange()} for details.</p>
+         *
+         * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The total vertical range represented by the vertical scrollbar
+         * @see RecyclerView#computeVerticalScrollRange()
+         */
+        public int computeVerticalScrollRange(Adapter adapter) {
+            return 0;
+        }
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeVerticalScrollOffset()} for details.</p>
+         *
+         * * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The vertical offset of the scrollbar's thumb
+         * @see RecyclerView#computeVerticalScrollOffset()
+         */
+        public int computeVerticalScrollOffset(Adapter adapter) {
+            return 0;
+        }
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeVerticalScrollExtent()} for details.</p>
+         *
+         * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The vertical extent of the scrollbar's thumb
+         * @see RecyclerView#computeVerticalScrollExtent()
+         */
+        public int computeVerticalScrollExtent(Adapter adapter) {
+            return 0;
+        }
+
+
     }
 
     /**
