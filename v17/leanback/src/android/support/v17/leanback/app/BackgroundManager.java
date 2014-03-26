@@ -38,7 +38,7 @@ import android.view.animation.LinearInterpolator;
 /**
  * Supports background continuity between multiple activities.
  *
- * An activity should instantiate a BackgroundManager and {@link attach}
+ * An activity should instantiate a BackgroundManager and {@link #attach}
  * to the activity's window.  When the activity is started, the background is
  * initialized to the current background values stored in a continuity service.
  * The background continuity service is updated as the background is updated.
@@ -55,7 +55,7 @@ import android.view.animation.LinearInterpolator;
  *   which may be in transition
  *
  * BackgroundManager holds references to potentially large bitmap drawables.
- * Call {@link release} to release these references when the activity is not
+ * Call {@link #release} to release these references when the activity is not
  * visible.
  *
  * TODO: support for multiple app processes requires a proper android service
