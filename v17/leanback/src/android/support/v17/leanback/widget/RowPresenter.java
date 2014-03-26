@@ -13,10 +13,23 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.v17.leanback.app.HeadersFragment;
 import android.view.View;
 import android.view.ViewGroup;
 
 /**
+ * A presenter that renders {@link Row}.
+ *
+ * <h3>Customize UI widgets</h3>
+ * When subclass of RowPresenter adds UI widgets,  it should subclass
+ * {@link RowPresenter.ViewHolder} and override {@link #createRowViewHolder(ViewGroup)}
+ * and {@link #initializeRowViewHolder(ViewHolder)}.  Subclass must use layout id
+ * "row_content" for the widget that will be aligned to title of {@link HeadersFragment}.
+ * RowPresenter contains an optional and replaceable {@link RowHeaderPresenter} that
+ * renders header.  User can disable default rendering or replace with a new header presenter
+ * by calling {@link #setHeaderPresenter(RowHeaderPresenter)}.
+ *
+ * <h3>UI events from fragments</h3>
  * In addition to {@link Presenter} which defines how to render and bind data to row view,
  * RowPresenter receives calls from upper level(typically a fragment) when:
  * <ul>
@@ -34,17 +47,26 @@ import android.view.ViewGroup;
  * {@link #onRowViewExpanded(ViewHolder, boolean)}.
  * </li>
  * </ul>
- * </p>
- * Subclass of RowPresenter may add more fields in ViewHolder by overriding
- * {@link #createRowViewHolder(ViewGroup)} and {@link #initializeRowViewHolder(ViewHolder)}.
+ *
+ * <h3>User events:</h3>
+ * RowPresenter provides {@link OnItemSelectedListener} and {@link OnItemClickedListener}.
+ * If subclass wants to add its own {@link View.OnFocusChangeListener} or
+ * {@link View.OnClickListener}, it must do that in {@link #createRowViewHolder(ViewGroup)}
+ * to be properly chained by framework.  Adding view listeners after
+ * {@link #createRowViewHolder(ViewGroup)} will interfere framework's listeners.
+ *
+ * <h3>Selection animation</h3>
+ * <p>
+ * When user scrolls through rows,  fragment will initiate animation and call
+ * {@link #setSelectLevel(ViewHolder, float)} with float value 0~1.  By default, fragment
+ * draws a dim overlay on top of row view for views not selected.  Subclass may override
+ * this default effect by having {@link #isUsingDefaultSelectEffect()} return false
+ * and override {@link #onSelectLevelChanged(ViewHolder)} to apply its own selection effect.
  * </p>
  * <p>
- * RowPresenter contains an optional and replaceable {@link RowHeaderPresenter} that
- * renders header.  User can disable default rendering or replace with a new header presenter
- * by calling {@link #setHeaderPresenter(RowHeaderPresenter)}.
- * </p>
- * <p>
- * Provides {@link OnItemSelectedListener} and {@link OnItemClickedListener}.
+ * Call {@link #setSelectEffectEnabled(boolean)} to enable/disable select effect,
+ * This is not only for enable/disable default dim implementation but also subclass must
+ * respect this flag.
  * </p>
  */
 public abstract class RowPresenter extends Presenter {
@@ -280,9 +302,9 @@ public abstract class RowPresenter extends Presenter {
     /**
      * Set listener for item click event.  RowPresenter does nothing but subclass of
      * RowPresenter may fire item click event if it does have a concept of item.
-     * OnItemClickedListener will override the listener that item presenter sets during
-     * {@link Presenter#onCreateViewHolder(ViewGroup)}.  So in general,  developer should
-     * choose one of the listeners but not both.
+     * OnItemClickedListener will override {@link View.OnClickListener} that
+     * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
+     * So in general,  developer should choose one of the listeners but not both.
      */
     public final void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
