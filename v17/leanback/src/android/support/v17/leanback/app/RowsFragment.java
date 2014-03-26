@@ -130,14 +130,18 @@ public class RowsFragment extends BaseRowFragment {
 
     /**
      * Set background parameters.
+     * @deprecated
      */
+    @Deprecated
     public void setBackgroundParams(BackgroundParams params) {
         mBackgroundParams = params;
     }
 
     /**
      * Returns the background parameters.
+     * @deprecated
      */
+    @Deprecated
     public BackgroundParams getBackgroundParams() {
         return mBackgroundParams;
     }

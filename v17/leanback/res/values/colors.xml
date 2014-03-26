@@ -35,6 +35,7 @@
     <color name="lb_content_title_text_color">#FFF1F1F1</color>
     <color name="lb_content_description_text_color">#99F1F1F1</color>
     <color name="lb_tv_white">#FFCCCCCC</color>
+    <color name="lb_background_protection">#A0333333</color>
 
     <item name="lb_list_item_selected_title_text_alpha" format="float" type="alpha">1.00</item>
     <item name="lb_list_item_selected_description_text_alpha" format="float" type="alpha">0.50</item>

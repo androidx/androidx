@@ -158,9 +158,10 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Set background parameters.
+     * @deprecated
      */
+    @Deprecated
     public void setBackgroundParams(BackgroundParams params) {
-        mRowsFragment.setBackgroundParams(params);
     }
 
     /**
@@ -172,9 +173,11 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Returns the background parameters.
+     * @deprecated
      */
+    @Deprecated
     public BackgroundParams getBackgroundParams() {
-        return mRowsFragment.getBackgroundParams();
+        return new BackgroundParams();
     }
 
     /**
