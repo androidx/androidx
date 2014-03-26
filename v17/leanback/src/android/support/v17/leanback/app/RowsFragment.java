@@ -147,7 +147,10 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     /**
-     * Sets an item clicked listener.
+     * Sets an item clicked listener on the fragment.
+     * OnItemClickedListener will override {@link View.OnClickListener} that
+     * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
+     * So in general,  developer should choose one of the listeners but not both.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
@@ -228,7 +231,7 @@ public class RowsFragment extends BaseRowFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
-        getVerticalGridView().setItemAlignmentViewId(R.id.row_list);
+        getVerticalGridView().setItemAlignmentViewId(R.id.row_content);
         getVerticalGridView().addItemDecoration(mItemDecoration);
     }
 
