@@ -247,12 +247,15 @@ public class BrowseFragment extends Fragment {
                 mTransitionHelper.runTransition(TransitionHelper.SCENE_WITHOUT_HEADERS);
                 mShowingHeaders = false;
                 return mRowsFragment.getVerticalGridView();
-            } else if (mSearchOrbView.getVisibility() == View.VISIBLE
-                    && direction == View.FOCUS_DOWN) {
-                return mRowsFragment.getVerticalGridView();
-            } else if (mSearchOrbView.getVisibility() == View.VISIBLE
+
+            } else if (focused == mSearchOrbView && direction == View.FOCUS_DOWN) {
+                return mShowingHeaders ? mHeadersFragment.getVerticalGridView() :
+                    mRowsFragment.getVerticalGridView();
+
+            } else if (focused != mSearchOrbView && mSearchOrbView.getVisibility() == View.VISIBLE
                     && direction == View.FOCUS_UP) {
                 return mSearchOrbView;
+
             } else {
                 return null;
             }
