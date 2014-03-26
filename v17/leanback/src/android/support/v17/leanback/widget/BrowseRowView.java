@@ -47,7 +47,7 @@ public final class BrowseRowView extends LinearLayout {
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.lb_browse_row, this);
 
-        mGridView = (HorizontalGridView) findViewById(R.id.row_list);
+        mGridView = (HorizontalGridView) findViewById(R.id.row_content);
 
         final Resources.Theme theme = context.getTheme();
         final TypedArray array = theme.obtainStyledAttributes(attrs, R.styleable.BrowseRowView,

@@ -23,16 +23,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Presents a ListRow using a {@link HorizontalGridView} hosted in a {@link BrowseRowView}.
- * <p>
+ * ListRowPresenter renders {@link ListRow} using a
+ * {@link HorizontalGridView} hosted in a {@link BrowseRowView}.
+ *
+ * <h3>Hover card</h3>
  * Optionally, {@link #setHoverCardPresenterSelector(PresenterSelector)} can be used to
  * display a view for the currently focused list item below the rendered
  * list. This view is known as a hover card.
- * </p>
- * <p>
- * ListRowPresenter has the same capability of {@link #setHeaderPresenter(RowHeaderPresenter)}
- * as parent class {@link RowPresenter}.
- * </p>
+ *
+ * <h3>Selection animation</h3>
+ * ListRowPresenter disables {@link RowPresenter}'s default dimming effect and draw
+ * a dim overlay on top of each individual child items.  Subclass may override and disable
+ * {@link #isUsingDefaultListSelectEffect()} and write its own dim effect in
+ * {@link #onSelectLevelChanged(RowPresenter.ViewHolder)}.
  */
 public class ListRowPresenter extends RowPresenter {
 
