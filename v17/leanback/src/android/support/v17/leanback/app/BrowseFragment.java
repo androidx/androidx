@@ -26,6 +26,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
@@ -69,6 +70,7 @@ public class BrowseFragment extends Fragment {
     private int mContainerListAlignTop;
     private TransitionHelper mTransitionHelper;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
+    private OnClickListener mExternalOnSearchClickedListener;
     private int mSelectedPosition = -1;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
@@ -231,7 +233,10 @@ public class BrowseFragment extends Fragment {
      * @param listener The listener.
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
-        mSearchOrbView.setOnOrbClickedListener(listener);
+        mExternalOnSearchClickedListener = listener;
+        if (mSearchOrbView != null) {
+            mSearchOrbView.setOnOrbClickedListener(listener);
+        }
     }
 
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
@@ -291,6 +296,9 @@ public class BrowseFragment extends Fragment {
         mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
         mTitleView = (TextView) mBrowseTitle.findViewById(R.id.browse_title);
         mSearchOrbView = (SearchOrbView) mBrowseTitle.findViewById(R.id.browse_orb);
+        if (mExternalOnSearchClickedListener != null) {
+            mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
+        }
 
         readArguments(getArguments());
         if (mParams != null) {
