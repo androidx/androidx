@@ -13,14 +13,19 @@
  */
 package com.example.android.leanback;
 
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
+import android.support.v17.leanback.widget.DetailsOverviewRow;
+import android.support.v17.leanback.widget.DetailsOverviewRowPresenter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.util.Log;
 
-public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
+public class DetailsFragment extends android.support.v17.leanback.app.DetailsFragment {
     private static final String TAG = "leanback.BrowseFragment";
 
     private static final int NUM_ROWS = 3;
@@ -31,18 +36,23 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        Params p = new Params();
-        p.setBadgeImage(getActivity().getResources().getDrawable(R.drawable.ic_title));
-        p.setTitle("Leanback Sample App");
-        p.setHeadersState(HEADERS_ENABLED);
-        setBrowseParams(p);
-
         setupRows();
     }
 
     private void setupRows() {
-        mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        ClassPresenterSelector ps = new ClassPresenterSelector();
+        ps.addClassPresenter(DetailsOverviewRow.class,
+                new DetailsOverviewRowPresenter(new DetailsDescriptionPresenter()));
+        ps.addClassPresenter(ListRow.class,
+                new ListRowPresenter());
+        mRowsAdapter = new ArrayObjectAdapter(ps);
 
+        Resources res = getActivity().getResources();
+        DetailsOverviewRow dor = new DetailsOverviewRow("Details Overview");
+        dor.setImageDrawable(res.getDrawable(R.drawable.details_img));
+        dor.addAction(new Action(1, "Buy $9.99"));
+        dor.addAction(new Action(2, "Rent", "$3.99", res.getDrawable(R.drawable.ic_action_a)));
+        mRowsAdapter.add(dor);
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new StringPresenter());
@@ -54,4 +64,5 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         setAdapter(mRowsAdapter);
     }
+
 }
