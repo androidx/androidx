@@ -128,10 +128,23 @@ public abstract class ObjectAdapter {
             throw new IllegalArgumentException("Presenter selector must not be null");
         }
         final boolean update = (mPresenterSelector != null);
+        final boolean selectorChanged = update && mPresenterSelector != presenterSelector;
+
         mPresenterSelector = presenterSelector;
+
+        if (selectorChanged) {
+            onPresenterSelectorChanged();
+        }
         if (update) {
             notifyChanged();
         }
+    }
+
+    /**
+     * Called when {@link #setPresenterSelector(PresenterSelector)} is called
+     * and the PresenterSelector differs from the previous one.
+     */
+    protected void onPresenterSelectorChanged() {
     }
 
     /**
@@ -192,7 +205,19 @@ public abstract class ObjectAdapter {
      * data.
      */
     public final void setHasStableIds(boolean hasStableIds) {
+        boolean changed = mHasStableIds != hasStableIds;
         mHasStableIds = hasStableIds;
+
+        if (changed) {
+            onHasStableIdsChanged();
+        }
+    }
+
+    /**
+     * Called when {@link #setHasStableIds(boolean)} is called and the status
+     * of stable ids has changed.
+     */
+    protected void onHasStableIdsChanged() {
     }
 
     /**

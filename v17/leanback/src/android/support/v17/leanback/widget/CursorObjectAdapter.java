@@ -92,7 +92,19 @@ public class CursorObjectAdapter extends ObjectAdapter {
      * Objects.
      */
     public final void setMapper(CursorMapper mapper) {
+        boolean changed = mMapper != mapper;
         mMapper = mapper;
+
+        if (changed) {
+            onMapperChanged();
+        }
+    }
+
+    /**
+     * Called when {@link #setMapper(CursorMapper)} is called and a different
+     * mapper is provided.
+     */
+    protected void onMapperChanged() {
     }
 
     /**
