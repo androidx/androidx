@@ -23,6 +23,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 
+import java.util.ArrayList;
+
 class NotificationCompatKitKat {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
@@ -35,7 +37,7 @@ class NotificationCompatKitKat {
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                Bundle extras) {
+                ArrayList<String> people, Bundle extras) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -62,6 +64,8 @@ class NotificationCompatKitKat {
                 .setPriority(priority)
                 .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
             mExtras = extras;
+            mExtras.putStringArray(Notification.EXTRA_PEOPLE,
+                    people.toArray(new String[people.size()]));
             if (localOnly) {
                 getExtras().putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, localOnly);
             }

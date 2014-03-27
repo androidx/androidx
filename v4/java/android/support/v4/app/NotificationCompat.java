@@ -175,7 +175,7 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -200,7 +200,7 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
-                    b.mExtras);
+                    b.mPeople, b.mExtras);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -255,8 +255,10 @@ public class NotificationCompat {
     }
 
     static {
-        // TODO: Add NotificationCompatApi20 when SDK_INT is incremented.
-        if (Build.VERSION.SDK_INT >= 19) {
+        // TODO: Replace this if clause when SDK_INT is incremented to 20.
+        if (Build.VERSION.RELEASE.equals("L")) {
+            IMPL = new NotificationCompatImplApi20();
+        } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new NotificationCompatImplKitKat();
         } else if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new NotificationCompatImplJellybean();
@@ -315,6 +317,7 @@ public class NotificationCompat {
         Bundle mExtras;
 
         Notification mNotification = new Notification();
+        public ArrayList<String> mPeople;
 
         /**
          * Constructor.
@@ -334,6 +337,7 @@ public class NotificationCompat {
             mNotification.when = System.currentTimeMillis();
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
             mPriority = PRIORITY_DEFAULT;
+            mPeople = new ArrayList<String>();
         }
 
         /**
@@ -673,6 +677,16 @@ public class NotificationCompat {
          */
         public Builder setPriority(int pri) {
             mPriority = pri;
+            return this;
+        }
+
+        /**
+         * Add a person that is relevant to this notification.
+         *
+         * @see Notification#EXTRA_PEOPLE
+         */
+        public Builder addPerson(String handle) {
+            mPeople.add(handle);
             return this;
         }
 
