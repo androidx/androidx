@@ -196,6 +196,7 @@ public class ListRowPresenter extends RowPresenter {
         super.onRowViewExpanded(holder, expanded);
         ViewHolder vh = (ViewHolder) holder;
         vh.mGridView.setClipToPadding(!expanded);
+        vh.mGridView.invalidate();
         updateFooterViewSwitcher(vh);
     }
 
