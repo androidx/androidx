@@ -132,6 +132,7 @@ LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP
 LOCAL_ASFLAGS_arm := -mfpu=neon
 LOCAL_SRC_FILES_arm := \
 	cpu_ref/rsCpuIntrinsics_neon.S \
+        cpu_ref/rsCpuIntrinsics_neon_3DLUT.S \
 	cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S \
         cpu_ref/rsCpuIntrinsics_neon_Blend.S \
         cpu_ref/rsCpuIntrinsics_neon_Blur.S \
