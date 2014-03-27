@@ -38,6 +38,15 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     public static final int VERTICAL = LinearLayout.VERTICAL;
 
     /**
+     * While trying to find next view to focus, LinearLayoutManager will not try to scroll more
+     * than
+     * this factor times the total space of the list. If layout is vertical, total space is the
+     * height minus padding, if layout is horizontal, total space is the width minus padding.
+     */
+    private static final float MAX_SCROLL_FACTOR = 0.33f;
+
+
+    /**
      * Current orientation. Either {@link #HORIZONTAL} or {@link #VERTICAL}
      */
     private int mOrientation;
@@ -241,7 +250,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         final boolean legacyStackFromEndChanged = mLastLegacyStackFromEnd != mStackFromEnd;
         final boolean layoutFromEnd = mStackFromEnd ^ mShouldReverseLayout;
         ensureRenderState();
-
         //find current scroll position
         if (legacyStackFromEndChanged == false && getChildCount() > 0) {
             View referenceChild = mStackFromEnd ? getChildAt(getChildCount() - 1)
@@ -291,7 +299,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 : RenderState.LAYOUT_END;
         mRenderState.mScrollingOffset = RenderState.SCOLLING_OFFSET_NaN;
 
-        fill(recycler, adapter, mRenderState);
+        fill(recycler, adapter, mRenderState, false);
         removeAndRecycleScrap(recycler);
         mLastLayoutOrientation = mOrientation;
         mLastLayoutStackOrder = mShouldReverseLayout;
@@ -323,6 +331,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Adapter adapter,
             RecyclerView.Recycler recycler) {
+        if (mOrientation == VERTICAL) {
+            return 0;
+        }
         return scrollBy(dx, adapter, recycler);
     }
 
@@ -332,55 +343,66 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Adapter adapter,
             RecyclerView.Recycler recycler) {
+        if (mOrientation == HORIZONTAL) {
+            return 0;
+        }
         return scrollBy(dy, adapter, recycler);
     }
 
-    private int scrollBy(int dy, RecyclerView.Adapter adapter, RecyclerView.Recycler recycler) {
-        if (getChildCount() == 0) {
-            return 0;
-        }
-        ensureRenderState();
-        if (dy > 0) {
+    private void updateRenderState(int layoutDirection, int requiredSpace,
+            boolean canUseExistingSpace) {
+        mRenderState.mLayoutDirection = layoutDirection;
+        int fastScrollSpace;
+        if (layoutDirection == RenderState.LAYOUT_END) {
             // get the first child in the direction we are going
-            View child = mShouldReverseLayout ? getChildAt(0) : getChildAt(getChildCount() - 1);
-            // calculate how much we can scroll without adding new children (independent of layout)
-            final int fastScrollSpace = mOrientationHelper.getDecoratedEnd(child)
-                    - mOrientationHelper.getEndAfterPadding();
+            final View child = getChildClosestToEnd();
             // the direction in which we are traversing children
             mRenderState.mItemDirection = mShouldReverseLayout ? RenderState.ITEM_DIRECTION_HEAD
                     : RenderState.ITEM_DIRECTION_TAIL;
-            // the direction we are going to draw (ignores stacking logic)
-            mRenderState.mLayoutDirection = RenderState.LAYOUT_END;
             mRenderState.mCurrentPosition = getPosition(child) + mRenderState.mItemDirection;
-            mRenderState.mAvailable = dy - fastScrollSpace;
             mRenderState.mOffset = mOrientationHelper.getDecoratedEnd(child);
-            mRenderState.mScrollingOffset = fastScrollSpace;
-            final int consumed = fill(recycler, adapter, mRenderState) + fastScrollSpace;
-            final int scrolled = Math.min(dy, consumed);
-            mOrientationHelper.offsetChildren(-scrolled);
-            if (DEBUG) {
-                Log.d(TAG, "scroll req: " + dy + " scrolled: " + scrolled);
-            }
-            return scrolled;
+            // calculate how much we can scroll without adding new children (independent of layout)
+            fastScrollSpace = mOrientationHelper.getDecoratedEnd(child)
+                    - mOrientationHelper.getEndAfterPadding();
+
         } else {
-            View child = mShouldReverseLayout ? getChildAt(getChildCount() - 1) : getChildAt(0);
-            final int fastScrollSpace = -mOrientationHelper.getDecoratedStart(child)
-                    + mOrientationHelper.getStartAfterPadding();
+            final View child = getChildClosestToStart();
             mRenderState.mItemDirection = mShouldReverseLayout ? RenderState.ITEM_DIRECTION_TAIL
                     : RenderState.ITEM_DIRECTION_HEAD;
-            mRenderState.mLayoutDirection = RenderState.LAYOUT_START;
             mRenderState.mCurrentPosition = getPosition(child) + mRenderState.mItemDirection;
-            mRenderState.mAvailable = -dy - fastScrollSpace;
             mRenderState.mOffset = mOrientationHelper.getDecoratedStart(child);
-            mRenderState.mScrollingOffset = fastScrollSpace;
-            final int consumed = fastScrollSpace + fill(recycler, adapter, mRenderState);
-            final int scrolled = Math.max(dy, -consumed);
-            mOrientationHelper.offsetChildren(-scrolled);
-            if (DEBUG) {
-                Log.d(TAG, "scroll req: " + dy + " scrolled: " + scrolled);
-            }
-            return scrolled;
+            fastScrollSpace = -mOrientationHelper.getDecoratedStart(child)
+                    + mOrientationHelper.getStartAfterPadding();
         }
+        mRenderState.mAvailable = requiredSpace;
+        if (canUseExistingSpace) {
+            mRenderState.mAvailable -= fastScrollSpace;
+        }
+        mRenderState.mScrollingOffset = fastScrollSpace;
+    }
+
+    private int scrollBy(int dy, RecyclerView.Adapter adapter, RecyclerView.Recycler recycler) {
+        if (getChildCount() == 0 || dy == 0) {
+            return 0;
+        }
+        ensureRenderState();
+        final int layoutDirection = dy > 0 ? RenderState.LAYOUT_END : RenderState.LAYOUT_START;
+        final int absDy = Math.abs(dy);
+        updateRenderState(layoutDirection, absDy, true);
+        final int freeScroll = mRenderState.mScrollingOffset;
+        final int consumed = freeScroll + fill(recycler, adapter, mRenderState, false);
+        if (consumed < 0) {
+            if (DEBUG) {
+                Log.d(TAG, "Don't have any more elements to scroll");
+            }
+            return 0;
+        }
+        final int scrolled = absDy > consumed ? layoutDirection * consumed : dy;
+        mOrientationHelper.offsetChildren(-scrolled);
+        if (DEBUG) {
+            Log.d(TAG, "scroll req: " + dy + " scrolled: " + scrolled);
+        }
+        return scrolled;
     }
 
     /**
@@ -509,13 +531,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * independent from the rest of the {@link android.support.v7.widget.LinearLayoutManager}
      * and with little change, can be made publicly available as a helper class.
      *
-     * @param recycler    Current recycler that is attached to RecyclerView
-     * @param adapter     Current adapter that is attached to RecyclerView
-     * @param renderState Configuration on how we should fill out the available space.
+     * @param recycler             Current recycler that is attached to RecyclerView
+     * @param adapter              Current adapter that is attached to RecyclerView
+     * @param renderState          Configuration on how we should fill out the available space.
+     * @param stopInFocusableChild Stops adding new views when it adds a focusable view.
      * @return Number of pixels that it added. Useful for scoll functions.
      */
     private int fill(RecyclerView.Recycler recycler, RecyclerView.Adapter adapter,
-            RenderState renderState) {
+            RenderState renderState, boolean stopInFocusableChild) {
         // max offset we should set is mFastScroll + available
         final int start = renderState.mAvailable;
         if (renderState.mScrollingOffset != RenderState.SCOLLING_OFFSET_NaN) {
@@ -585,6 +608,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 }
                 recycleByRenderState(recycler, renderState);
             }
+
+            if (stopInFocusableChild && view.isFocusable()) {
+                break;
+            }
         }
         if (DEBUG) {
             validateChildOrder();
@@ -592,6 +619,101 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         return start - renderState.mAvailable;
     }
 
+    /**
+     * Converts a focusDirection to orientation.
+     *
+     * @param focusDirection One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
+     *                       {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT},
+     *                       {@link View#FOCUS_BACKWARD}, {@link View#FOCUS_FORWARD}
+     *                       or 0 for not applicable
+     * @return {@link RenderState#LAYOUT_START} or {@link RenderState#LAYOUT_END} if focus direction
+     * is applicable to current state, {@link RenderState#INVALID_LAYOUT} otherwise.
+     */
+    private int convertFocusDirectionToLayoutDirection(int focusDirection) {
+        switch (focusDirection) {
+            case View.FOCUS_BACKWARD:
+                return RenderState.LAYOUT_START;
+            case View.FOCUS_FORWARD:
+                return RenderState.LAYOUT_END;
+            case View.FOCUS_UP:
+                return mOrientation == VERTICAL ? RenderState.LAYOUT_START
+                        : RenderState.INVALID_LAYOUT;
+            case View.FOCUS_DOWN:
+                return mOrientation == VERTICAL ? RenderState.LAYOUT_END
+                        : RenderState.INVALID_LAYOUT;
+            case View.FOCUS_LEFT:
+                return mOrientation == HORIZONTAL ? RenderState.LAYOUT_START
+                        : RenderState.INVALID_LAYOUT;
+            case View.FOCUS_RIGHT:
+                return mOrientation == HORIZONTAL ? RenderState.LAYOUT_END
+                        : RenderState.INVALID_LAYOUT;
+            default:
+                if (DEBUG) {
+                    Log.d(TAG, "Unknown focus request:" + focusDirection);
+                }
+                return RenderState.INVALID_LAYOUT;
+        }
+
+    }
+
+    /**
+     * Convenience method to find the child closes to start. Caller should check it has enough
+     * children.
+     *
+     * @return The child closes to start of the layout from user's perspective.
+     */
+    private View getChildClosestToStart() {
+        return getChildAt(mShouldReverseLayout ? getChildCount() - 1 : 0);
+    }
+
+    /**
+     * Convenience method to find the child closes to end. Caller should check it has enough
+     * children.
+     *
+     * @return The child closes to end of the layout from user's perspective.
+     */
+    private View getChildClosestToEnd() {
+        return getChildAt(mShouldReverseLayout ? 0 : getChildCount() - 1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public View onFocusSearchFailed(View focused, int focusDirection, RecyclerView.Adapter adapter,
+            RecyclerView.Recycler recycler) {
+        resolveShouldLayoutReverse();
+        if (getChildCount() == 0) {
+            return null;
+        }
+
+        final int layoutDir = convertFocusDirectionToLayoutDirection(focusDirection);
+        if (layoutDir == RenderState.INVALID_LAYOUT) {
+            return null;
+        }
+        final View referenceChild;
+        if (layoutDir == RenderState.LAYOUT_START) {
+            referenceChild = getChildClosestToStart();
+        } else {
+            referenceChild = getChildClosestToEnd();
+        }
+        ensureRenderState();
+        final int maxScroll = (int) (MAX_SCROLL_FACTOR * (mOrientationHelper.getEndAfterPadding() -
+                mOrientationHelper.getStartAfterPadding()));
+        updateRenderState(layoutDir, maxScroll, false);
+        mRenderState.mScrollingOffset = RenderState.SCOLLING_OFFSET_NaN;
+        fill(recycler, adapter, mRenderState, true);
+        final View nextFocus;
+        if (layoutDir == RenderState.LAYOUT_START) {
+            nextFocus = getChildClosestToStart();
+        } else {
+            nextFocus = getChildClosestToEnd();
+        }
+        if (nextFocus == referenceChild || nextFocus.isFocusable() == false) {
+            return null;
+        }
+        return nextFocus;
+    }
 
     /**
      * Used for debugging.
@@ -618,6 +740,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * be closest to position WIDTH  or HEIGHT
      */
     private void validateChildOrder() {
+        Log.d(TAG, "child count " + getChildCount());
         if (getChildCount() < 1) {
             return;
         }
@@ -656,7 +779,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-
     /**
      * Helper class that keeps temporary state while {LayoutManager} is filling out the empty
      * space.
@@ -668,6 +790,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         final static int LAYOUT_START = -1;
 
         final static int LAYOUT_END = 1;
+
+        final static int INVALID_LAYOUT = Integer.MIN_VALUE;
 
         final static int ITEM_DIRECTION_HEAD = -1;
 
@@ -682,7 +806,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         /**
          * Number of pixels that we should fill, in the layout direction.
-         * {@link #fill(RecyclerView.Recycler, RecyclerView.Adapter, RenderState)} tries to fill
+         * {@link #fill(RecyclerView.Recycler, RecyclerView.Adapter, RenderState, boolean)} tries to
+         * fill
          * at least this many pixels.
          */
         int mAvailable;
