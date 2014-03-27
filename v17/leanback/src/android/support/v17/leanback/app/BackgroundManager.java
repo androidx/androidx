@@ -44,7 +44,11 @@ import android.view.animation.LinearInterpolator;
  * The background continuity service is updated as the background is updated.
  *
  * At some point, for example when stopped, the activity may release its background
- * state.  The background may then be resumed, again from the continuity service.
+ * state.
+ *
+ * When an activity is resumed, if the BM has not been released, the continuity service
+ * is updated from the BM state.  If the BM was released, the BM inherits the current
+ * state from the continuity service.
  *
  * When the last activity is destroyed, the background state is reset.
  *
@@ -246,8 +250,6 @@ public final class BackgroundManager {
         ta.recycle();
 
         createFragment(activity);
-
-        syncWithService();
     }
 
     private void createFragment(Activity activity) {
@@ -262,12 +264,21 @@ public final class BackgroundManager {
     }
 
     /**
-     * Updates state from continuity service.
-     * Typically called when an activity resumes after having done a release.
+     * Synchronizes state when the owning activity is resumed.
      */
-    public void resume() {
-        syncWithService();
-        updateImmediate();
+    void onActivityResume() {
+        if (mService == null) {
+            return;
+        }
+        if (mLayerDrawable == null) {
+            if (DEBUG) Log.v(TAG, "onActivityResume: released state, syncing with service");
+            syncWithService();
+        } else {
+            if (DEBUG) Log.v(TAG, "onActivityResume: updating service color "
+                    + mBackgroundColor + " drawable " + mBackgroundDrawable);
+            mService.setColor(mBackgroundColor);
+            mService.setDrawable(mBackgroundDrawable);
+        }
     }
 
     private void syncWithService() {
@@ -283,6 +294,8 @@ public final class BackgroundManager {
 
         mBackgroundColor = color;
         mBackgroundDrawable = drawable;
+
+        updateImmediate();
     }
 
     private void lazyInit() {
@@ -341,7 +354,7 @@ public final class BackgroundManager {
     private void attachToView(View sceneRoot) {
         mBgView = sceneRoot;
         mAttached = true;
-        updateImmediate();
+        syncWithService();
     }
 
     /**
@@ -371,11 +384,20 @@ public final class BackgroundManager {
 
     /**
      * Releases references to drawables.
-     * May be called to reduce memory overhead when not visible.
+     * Typically called to reduce memory overhead when not visible.
+     * <p>
+     * When an activity is resumed, if the BM has not been released, the continuity service
+     * is updated from the BM state.  If the BM was released, the BM inherits the current
+     * state from the continuity service.
+     * </p>
      */
     public void release() {
         if (DEBUG) Log.v(TAG, "release");
-        mLayerDrawable = null;
+        if (mLayerDrawable != null) {
+            mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
+            mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
+            mLayerDrawable = null;
+        }
         mLayerWrapper = null;
         mImageInWrapper = null;
         mImageOutWrapper = null;
@@ -474,13 +496,18 @@ public final class BackgroundManager {
         if (SCALE_BITMAPS_TO_FIT && bitmap.getWidth() != mWidthPx) {
             // Scale proportionately to fit width.
             final float scale = (float) mWidthPx / (float) bitmap.getWidth();
-            final int height = (int) (mHeightPx / scale);
+            int height = (int) (mHeightPx / scale);
+            if (height > bitmap.getHeight()) {
+                height = bitmap.getHeight();
+            }
 
             Matrix matrix = new Matrix();
             matrix.postScale(scale, scale);
 
+            if (DEBUG) Log.v(TAG, "original image size " + bitmap.getWidth() + "x" + bitmap.getHeight() +
+                    " extracting height " + height);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), height, matrix, true);
-            if (DEBUG) Log.v(TAG, "resized image to " + bitmap.getWidth() + "x" + bitmap.getHeight() + " from height " + height);
+            if (DEBUG) Log.v(TAG, "new image size " + bitmap.getWidth() + "x" + bitmap.getHeight());
         }
 
         BitmapDrawable bitmapDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
@@ -509,15 +536,11 @@ public final class BackgroundManager {
             if (DEBUG) Log.v(TAG, "creating new imagein drawable");
             mImageInWrapper = new DrawableWrapper(mBackgroundDrawable);
             mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, mBackgroundDrawable);
-            if (mLayerWrapper.isAnimationStarted()) {
-                mImageInWrapper.setAlpha(mLayerWrapper.getAlpha());
-            } else {
-                if (DEBUG) Log.v(TAG, "mImageInWrapper animation starting");
-                mImageInWrapper.setAlpha(0);
-                mImageInWrapper.fadeIn(FADE_DURATION_SLOW, 0);
-                mImageInWrapper.startAnimation();
-                dimAlpha = FULL_ALPHA;
-            }
+            if (DEBUG) Log.v(TAG, "mImageInWrapper animation starting");
+            mImageInWrapper.setAlpha(0);
+            mImageInWrapper.fadeIn(FADE_DURATION_SLOW, 0);
+            mImageInWrapper.startAnimation();
+            dimAlpha = FULL_ALPHA;
         }
 
         if (mDimWrapper != null && dimAlpha != 0) {
@@ -569,29 +592,40 @@ public final class BackgroundManager {
 
             if (mDrawable != mBackgroundDrawable) {
                 newBackground = true;
-                releaseBackgroundBitmap();
-
-                if (mImageInWrapper != null) {
-                    mImageOutWrapper = new DrawableWrapper(mImageInWrapper.getDrawable());
-                    mImageOutWrapper.setAlpha(mImageInWrapper.getAlpha());
-                    mImageOutWrapper.fadeOut(FADE_DURATION_QUICK);
-
-                    // Order is important! Setting a drawable "removes" the
-                    // previous one from the view
-                    mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
-                    mLayerDrawable.setDrawableByLayerId(R.id.background_imageout,
-                            mImageOutWrapper.getDrawable());
-                    mImageInWrapper.setAlpha(0);
-                    mImageInWrapper = null;
+                if (mDrawable instanceof BitmapDrawable &&
+                        mBackgroundDrawable instanceof BitmapDrawable) {
+                    if (((BitmapDrawable) mDrawable).getBitmap() ==
+                            ((BitmapDrawable) mBackgroundDrawable).getBitmap()) {
+                        if (DEBUG) Log.v(TAG, "same underlying bitmap detected");
+                        newBackground = false;
+                    }
                 }
-
-                mBackgroundDrawable = mDrawable;
-                mService.setDrawable(mBackgroundDrawable);
             }
 
-            if (newBackground) {
-                applyBackgroundChanges();
+            if (!newBackground) {
+                return;
             }
+
+            releaseBackgroundBitmap();
+
+            if (mImageInWrapper != null) {
+                mImageOutWrapper = new DrawableWrapper(mImageInWrapper.getDrawable());
+                mImageOutWrapper.setAlpha(mImageInWrapper.getAlpha());
+                mImageOutWrapper.fadeOut(FADE_DURATION_QUICK);
+
+                // Order is important! Setting a drawable "removes" the
+                // previous one from the view
+                mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
+                mLayerDrawable.setDrawableByLayerId(R.id.background_imageout,
+                        mImageOutWrapper.getDrawable());
+                mImageInWrapper.setAlpha(0);
+                mImageInWrapper = null;
+            }
+
+            mBackgroundDrawable = mDrawable;
+            mService.setDrawable(mBackgroundDrawable);
+
+            applyBackgroundChanges();
         }
     }
 
