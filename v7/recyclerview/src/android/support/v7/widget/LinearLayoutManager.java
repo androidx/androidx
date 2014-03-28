@@ -104,6 +104,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     private boolean mStackFromEnd = false;
 
     /**
+     * When layout manager needs to scroll to a position, it sets this variable and requests a
+     * layout which will check this variable and re-layout accordingly.
+     */
+    private int mPendingScrollPosition = RecyclerView.NO_POSITION;
+
+    /**
      * Creates a vertical LinearLayoutManager
      *
      * @param context Current context, will be used to access resources.
@@ -245,13 +251,26 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // update stacking direction.
         resolveShouldLayoutReverse();
 
+        if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+            // validate it
+            if (mPendingScrollPosition < 0 || mPendingScrollPosition >= adapter.getItemCount()) {
+                mPendingScrollPosition = RecyclerView.NO_POSITION;
+                if (DEBUG) {
+                    Log.e(TAG, "ignoring invalid scroll position " + mPendingScrollPosition);
+                }
+            }
+        }
+
         final boolean stackOrderChanged = mLastLayoutStackOrder != mShouldReverseLayout;
         final boolean orientationChanged = mLastLayoutOrientation != mOrientation;
         final boolean legacyStackFromEndChanged = mLastLegacyStackFromEnd != mStackFromEnd;
-        final boolean layoutFromEnd = mStackFromEnd ^ mShouldReverseLayout;
+        // Ignore stackFromEnd if there is a predefined scroll position.
+        final boolean layoutFromEnd = mShouldReverseLayout
+                ^ (mPendingScrollPosition == RecyclerView.NO_POSITION && mStackFromEnd);
         ensureRenderState();
         //find current scroll position
-        if (legacyStackFromEndChanged == false && getChildCount() > 0) {
+        if (!legacyStackFromEndChanged && getChildCount() > 0
+                && mPendingScrollPosition == RecyclerView.NO_POSITION) {
             View referenceChild = mStackFromEnd ? getChildAt(getChildCount() - 1)
                     : getChildAt(0);
             mRenderState.mCurrentPosition = getPosition(referenceChild);
@@ -259,15 +278,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             if (ignoreOffsetOfChild) {
                 // on orientation change, snap item to beginning because its current relative
                 // positioning is meaningless
-                if (layoutFromEnd) {
-                    mRenderState.mOffset = mOrientationHelper.getEndAfterPadding();
-                    mRenderState.mAvailable = mRenderState.mOffset
-                            - mOrientationHelper.getStartAfterPadding();
-                } else {
-                    mRenderState.mOffset = mOrientationHelper.getStartAfterPadding();
-                    mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding()
-                            - mRenderState.mOffset;
-                }
+                mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding()
+                        - mOrientationHelper.getStartAfterPadding();
+                mRenderState.mOffset = layoutFromEnd ? mOrientationHelper.getEndAfterPadding()
+                        : mOrientationHelper.getStartAfterPadding();
             } else {
                 if (layoutFromEnd) {
                     mRenderState.mOffset = mOrientationHelper.getDecoratedEnd(referenceChild);
@@ -281,25 +295,50 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
 
         } else {
-            if (layoutFromEnd) {
-                mRenderState.mOffset = mOrientationHelper.getEndAfterPadding();
-                mRenderState.mAvailable = mRenderState.mOffset
-                        - mOrientationHelper.getStartAfterPadding();
+            mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding()
+                    - mOrientationHelper.getStartAfterPadding();
+            mRenderState.mOffset = layoutFromEnd ? mOrientationHelper.getEndAfterPadding()
+                    : mOrientationHelper.getStartAfterPadding();
+
+            if (mPendingScrollPosition == RecyclerView.NO_POSITION) {
+                mRenderState.mCurrentPosition = mStackFromEnd ? adapter.getItemCount() - 1 : 0;
             } else {
-                mRenderState.mOffset = mOrientationHelper.getStartAfterPadding();
-                mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding()
-                        - mRenderState.mOffset;
+                mRenderState.mCurrentPosition = mPendingScrollPosition;
             }
-            mRenderState.mCurrentPosition = mStackFromEnd ? adapter.getItemCount() - 1 : 0;
         }
         detachAndScrapAttachedViews(recycler);
-        mRenderState.mItemDirection = mStackFromEnd ? RenderState.ITEM_DIRECTION_HEAD
-                : RenderState.ITEM_DIRECTION_TAIL;
+        mRenderState.mItemDirection =
+                (mPendingScrollPosition == RecyclerView.NO_POSITION && mStackFromEnd)
+                        ? RenderState.ITEM_DIRECTION_HEAD : RenderState.ITEM_DIRECTION_TAIL;
         mRenderState.mLayoutDirection = layoutFromEnd ? RenderState.LAYOUT_START
                 : RenderState.LAYOUT_END;
         mRenderState.mScrollingOffset = RenderState.SCOLLING_OFFSET_NaN;
 
         fill(recycler, adapter, mRenderState, false);
+
+        // set position or orientation changes may cause empty space in our view.
+        // If that is the case, try to scroll back to fix it.
+        if (getChildCount() > 0) {
+            if (mRenderState.mLayoutDirection == RenderState.LAYOUT_START) {
+                final View lastChild = getChildClosestToStart();
+                final int emptySpace = mOrientationHelper.getDecoratedStart(lastChild) -
+                        mOrientationHelper.getStartAfterPadding();
+                if (emptySpace > 0) {
+                    // try to scroll back to fix the empty space
+                    scrollBy(emptySpace, adapter, recycler);
+                }
+            } else {
+                final View lastChild = getChildClosestToEnd();
+                final int emptySpace = mOrientationHelper.getEndAfterPadding() -
+                        mOrientationHelper.getDecoratedEnd(lastChild);
+                if (emptySpace > 0) {
+                    scrollBy(-emptySpace, adapter, recycler);
+                }
+            }
+        }
+        // clear
+        mPendingScrollPosition = RecyclerView.NO_POSITION;
+
         removeAndRecycleScrap(recycler);
         mLastLayoutOrientation = mOrientation;
         mLastLayoutStackOrder = mShouldReverseLayout;
@@ -326,6 +365,20 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * <p>Scroll to the specified adapter position. The view will scroll such that the indicated
+     * position is displayed at the start position of the layout.</p>
+     *
+     * <p>Note that scroll position change will not be reflected until the next layout call.</p>
+     *
+     * @param position Scroll to this adapter position
+     */
+    @Override
+    public void scrollToPosition(int position) {
+        mPendingScrollPosition = position;
+        requestLayout();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -347,6 +400,38 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             return 0;
         }
         return scrollBy(dy, adapter, recycler);
+    }
+
+    @Override
+    public int computeHorizontalScrollOffset(RecyclerView.Adapter adapter) {
+        final int topPosition = getPosition(getChildClosestToStart());
+        return mShouldReverseLayout ? adapter.getItemCount() - 1 - topPosition : topPosition;
+    }
+
+    @Override
+    public int computeVerticalScrollOffset(RecyclerView.Adapter adapter) {
+        final int topPosition = getPosition(getChildClosestToStart());
+        return mShouldReverseLayout ? adapter.getItemCount() - 1 - topPosition : topPosition;
+    }
+
+    @Override
+    public int computeHorizontalScrollExtent(RecyclerView.Adapter adapter) {
+        return getChildCount();
+    }
+
+    @Override
+    public int computeVerticalScrollExtent(RecyclerView.Adapter adapter) {
+        return getChildCount();
+    }
+
+    @Override
+    public int computeHorizontalScrollRange(RecyclerView.Adapter adapter) {
+        return adapter.getItemCount();
+    }
+
+    @Override
+    public int computeVerticalScrollRange(RecyclerView.Adapter adapter) {
+        return adapter.getItemCount();
     }
 
     private void updateRenderState(int layoutDirection, int requiredSpace,
@@ -806,9 +891,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         /**
          * Number of pixels that we should fill, in the layout direction.
-         * {@link #fill(RecyclerView.Recycler, RecyclerView.Adapter, RenderState, boolean)} tries to
-         * fill
-         * at least this many pixels.
+         * {@link #fill(RecyclerView.Recycler, RecyclerView.Adapter, RenderState, boolean)} tries
+         * to fill at least this many pixels.
          */
         int mAvailable;
 
