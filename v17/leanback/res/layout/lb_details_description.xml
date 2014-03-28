@@ -26,17 +26,20 @@
         android:id="@+id/lb_details_description_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="?attr/detailsDescriptionTitleStyle"
         />
 
     <TextView
         android:id="@+id/lb_details_description_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="?attr/detailsDescriptionSubtitleStyle"
         />
 
     <TextView
         android:id="@+id/lb_details_description_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="?attr/detailsDescriptionBodyStyle"
         />
 </LinearLayout>

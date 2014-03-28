@@ -63,11 +63,22 @@
     <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
     <dimen name="lb_details_rows_align_top">120dp</dimen>
 
-    <dimen name="lb_action_padding_left">32dp</dimen>
-    <dimen name="lb_action_padding_top">9dp</dimen>
+    <dimen name="lb_details_description_title_text_size">34sp</dimen>
+    <dimen name="lb_details_description_title_leading_space">42sp</dimen>
+    <dimen name="lb_details_description_subtitle_text_size">14sp</dimen>
+    <dimen name="lb_details_description_body_text_size">14sp</dimen>
+    <integer name="lb_details_description_title_max_lines">2</integer>
+    <integer name="lb_details_description_subtitle_max_lines">1</integer>
+    <integer name="lb_details_description_body_max_lines">5</integer>
+
+    <dimen name="lb_action_1_line_height">36dp</dimen>
+    <dimen name="lb_action_1_line_padding_left">32dp</dimen>
+    <dimen name="lb_action_2_lines_height">54dp</dimen>
     <dimen name="lb_action_padding_right">32dp</dimen>
-    <dimen name="lb_action_padding_bottom">9dp</dimen>
+    <dimen name="lb_action_icon_margin">12dp</dimen>
+    <dimen name="lb_action_icon_width">30dp</dimen>
     <dimen name="lb_action_text_size">16sp</dimen>
+    <dimen name="lb_action_text_spacing">2sp</dimen>
 
     <!-- Search bar -->
     <dimen name="lb_search_bar_height">60dp</dimen>

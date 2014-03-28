@@ -17,15 +17,16 @@
 
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
+    android:id="@+id/lb_action_text"
+    android:layout_height="@dimen/lb_action_1_line_height"
     android:layout_width="wrap_content"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:gravity="center_vertical"
-    android:paddingLeft="@dimen/lb_action_padding_left"
-    android:paddingTop="@dimen/lb_action_padding_top"
+    android:paddingLeft="@dimen/lb_action_1_line_padding_left"
     android:paddingRight="@dimen/lb_action_padding_right"
-    android:paddingBottom="@dimen/lb_action_padding_bottom"
+    android:gravity="center_vertical"
+    android:lines="1"
     android:textColor="@color/lb_action_text_color"
     android:textSize="@dimen/lb_action_text_size"
-    android:background="@drawable/lb_transition_action_bg" />
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:background="@drawable/lb_transition_action_bg"/>
+

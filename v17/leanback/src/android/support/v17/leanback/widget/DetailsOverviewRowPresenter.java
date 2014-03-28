@@ -52,7 +52,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     private final Presenter mDetailsPresenter;
-    private final Presenter mActionPresenter;
+    private final PresenterSelector mActionPresenterSelector;
     private final ItemBridgeAdapter mActionBridgeAdapter;
 
     /**
@@ -62,7 +62,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     public DetailsOverviewRowPresenter(Presenter detailsPresenter) {
         setSelectEffectEnabled(false);
         mDetailsPresenter = detailsPresenter;
-        mActionPresenter = new ActionPresenter();
+        mActionPresenterSelector = new ActionPresenterSelector();
         mActionBridgeAdapter = new ItemBridgeAdapter();
         FocusHighlightHelper.setupActionItemFocusHighlight(mActionBridgeAdapter);
     }
@@ -93,7 +93,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         mDetailsPresenter.onBindViewHolder(vh.mDetailsDescriptionViewHolder, row);
 
         mActionBridgeAdapter.clear();
-        ArrayObjectAdapter aoa = new ArrayObjectAdapter(mActionPresenter);
+        ArrayObjectAdapter aoa = new ArrayObjectAdapter(mActionPresenterSelector);
         aoa.addAll(0, (Collection)row.getActions());
         mActionBridgeAdapter.setAdapter(aoa);
         vh.mActionsRow.setAdapter(mActionBridgeAdapter);
