@@ -90,6 +90,10 @@
     <!-- One-sided increase in browse item size if height > width -->
     <dimen name="lb_browse_item_zoom_width">12dp</dimen>
 
+    <dimen name="lb_details_rows_margin_left">238dp</dimen>
+    <dimen name="lb_details_rows_width">960dp</dimen>
+    <dimen name="lb_details_rows_align_top">120dp</dimen>
+
     <!-- Search bar -->
     <dimen name="lb_search_bar_height">120dip</dimen>
     <dimen name="lb_search_bar_items_layout_margin_top">42dip</dimen>
