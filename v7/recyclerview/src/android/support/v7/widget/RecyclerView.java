@@ -487,7 +487,9 @@ public class RecyclerView extends ViewGroup {
         if (!mItemDecorations.isEmpty()) {
             invalidate();
         }
-        pullGlows(overscrollX, overscrollY);
+        if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
+            pullGlows(overscrollX, overscrollY);
+        }
         if (mScrollListener != null && (x != 0 || y != 0)) {
             mScrollListener.onScrolled(x, y);
         }
@@ -1667,7 +1669,10 @@ public class RecyclerView extends ViewGroup {
                         velY = overscrollY < 0 ? -vel : overscrollY > 0 ? vel : 0;
                     }
 
-                    absorbGlows(velX, velY);
+                    if (ViewCompat.getOverScrollMode(RecyclerView.this) !=
+                            ViewCompat.OVER_SCROLL_NEVER) {
+                        absorbGlows(velX, velY);
+                    }
                     if ((velX != 0 || overscrollX == x || mScroller.getFinalX() == 0) &&
                             (velY != 0 || overscrollY == y || mScroller.getFinalY() == 0)) {
                         mScroller.abortAnimation();
