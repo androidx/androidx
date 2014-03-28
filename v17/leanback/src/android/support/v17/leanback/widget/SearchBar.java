@@ -21,7 +21,6 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.support.v17.leanback.R;
 
@@ -37,14 +36,29 @@ public class SearchBar extends RelativeLayout {
     public interface SearchBarListener {
 
         /**
-         * Method invoked when the search bar detects a change in the query
-         * @param searchQuery the current full query
+         * Method invoked when the search bar detects a change in the query.
+         *
+         * @param query The current full query.
          */
-        public void onSearchQueryChanged(String searchQuery);
+        public void onSearchQueryChange(String query);
+
+        /**
+         * Method invoked when the search query is submitted.
+         *
+         * @param query The query being submitted.
+         */
+        public void onSearchQuerySubmit(String query);
+
+        /**
+         * Method invoked when the IME is being dismissed.
+         *
+         * @param query The query set in the search bar at the time the IME is being dismissed.
+         */
+        public void onKeyboardDismiss(String query);
     }
 
     private SearchBarListener mSearchBarListener;
-    private EditText mSearchTextEditor;
+    private SearchEditText mSearchTextEditor;
     private String mSearchQuery;
     private final Handler mHandler = new Handler();
 
@@ -65,7 +79,7 @@ public class SearchBar extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        mSearchTextEditor = (EditText)findViewById(R.id.lb_search_text_editor);
+        mSearchTextEditor = (SearchEditText)findViewById(R.id.lb_search_text_editor);
         mSearchTextEditor.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
@@ -90,6 +104,15 @@ public class SearchBar extends RelativeLayout {
 
             }
         });
+        mSearchTextEditor.setOnKeyboardDismissListener(
+            new SearchEditText.OnKeyboardDismissListener() {
+                @Override
+                public void onKeyboardDismiss() {
+                    if (null != mSearchBarListener) {
+                        mSearchBarListener.onKeyboardDismiss(mSearchQuery);
+                    }
+                }
+        });
         mSearchTextEditor.setFocusable(true);
         mSearchTextEditor.setVisibility(VISIBLE);
         mSearchTextEditor.requestFocus();
@@ -113,8 +136,16 @@ public class SearchBar extends RelativeLayout {
         }
         mSearchQuery = query;
         if (null != mSearchBarListener) {
-            mSearchBarListener.onSearchQueryChanged(mSearchQuery);
+            mSearchBarListener.onSearchQueryChange(mSearchQuery);
         }
+    }
+
+    /**
+     * Set the hint text shown in the search bar.
+     * @param hint The hint to use.
+     */
+    public void setHint(String hint) {
+        mSearchTextEditor.setHint(hint);
     }
 
     protected void showNativeKeyboard() {

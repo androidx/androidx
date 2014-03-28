@@ -84,4 +84,9 @@
         <item name="android:textSize">@dimen/lb_browse_header_text_size</item>
         <item name="android:textColor">@color/lb_list_item_unselected_text_color</item>
     </style>
+
+    <style name="TextAppearance.Leanback.SearchTextEdit" parent="TextAppearance.Leanback">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">@dimen/lb_search_bar_text_size</item>
+    </style>
 </resources>
