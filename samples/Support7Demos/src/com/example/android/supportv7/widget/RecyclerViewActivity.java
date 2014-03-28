@@ -17,30 +17,23 @@
 
 package com.example.android.supportv7.widget;
 
-import android.R;
+import com.example.android.supportv7.Cheeses;
+import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;
+import com.example.android.supportv7.widget.decorator.DividerItemDecoration;
+
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import com.example.android.supportv7.Cheeses;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class RecyclerViewActivity extends Activity {
+
     private static final String TAG = "RecyclerViewActivity";
 
     private RecyclerView mRecyclerView;
@@ -54,12 +47,26 @@ public class RecyclerViewActivity extends Activity {
         rv.setHasFixedSize(true);
         rv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        rv.setAdapter(new MyAdapter(Cheeses.sCheeseStrings));
-
-        rv.addItemDecoration(new DividerItemDecoration(this));
-
+        rv.setAdapter(new SimpleStringAdapter(this, Cheeses.sCheeseStrings) {
+            @Override
+            public SimpleStringAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                final SimpleStringAdapter.ViewHolder vh = super
+                        .onCreateViewHolder(parent, viewType);
+                vh.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final int pos = vh.getPosition();
+                        if (pos + 1 < getItemCount()) {
+                            swap(pos, pos + 1);
+                        }
+                    }
+                });
+                return vh;
+            }
+        });
+        rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         setContentView(rv);
-
         mRecyclerView = rv;
     }
 
@@ -82,8 +89,11 @@ public class RecyclerViewActivity extends Activity {
      * A basic ListView-style LayoutManager.
      */
     class MyLayoutManager extends RecyclerView.LayoutManager {
+
         private static final String TAG = "MyLayoutManager";
+
         private int mFirstPosition;
+
         private final int mScrollDistance;
 
         public MyLayoutManager(Context c) {
@@ -266,104 +276,6 @@ public class RecyclerViewActivity extends Activity {
             } else {
                 mFirstPosition += first;
             }
-        }
-    }
-
-    class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
-        private int mBackground;
-        private ArrayList<String> mValues;
-
-        public MyAdapter(String[] strings) {
-            TypedValue val = new TypedValue();
-            RecyclerViewActivity.this.getTheme().resolveAttribute(
-                    R.attr.selectableItemBackground, val, true);
-            mBackground = val.resourceId;
-            mValues = new ArrayList<String>();
-            Collections.addAll(mValues, strings);
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            final ViewHolder h = new ViewHolder(new TextView(RecyclerViewActivity.this));
-            h.textView.setMinimumHeight(128);
-            h.textView.setFocusable(true);
-            h.textView.setBackgroundResource(mBackground);
-            h.textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final int pos = h.getPosition();
-                    if (mValues.size() > pos + 1) {
-                        final String t = mValues.get(pos);
-                        mValues.set(pos, mValues.get(pos + 1));
-                        mValues.set(pos + 1, t);
-                        notifyItemRemoved(pos);
-                        notifyItemInserted(pos + 1);
-                    }
-                }
-            });
-            return h;
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.textView.setText(mValues.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return mValues.size();
-        }
-    }
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView textView;
-
-        public ViewHolder(TextView v) {
-            super(v);
-            textView = v;
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + " '" + textView.getText();
-        }
-    }
-
-    static class DividerItemDecoration extends RecyclerView.ItemDecoration {
-        private static final int[] ATTRS = new int[] {
-                R.attr.listDivider
-        };
-
-        private Drawable mDivider;
-
-        public DividerItemDecoration(Context context) {
-            final TypedArray a = context.obtainStyledAttributes(ATTRS);
-            mDivider = a.getDrawable(0);
-            a.recycle();
-        }
-
-        public DividerItemDecoration(Drawable divider) {
-            mDivider = divider;
-        }
-
-        @Override
-        public void onDraw(Canvas c, RecyclerView parent) {
-            final int left = parent.getPaddingLeft();
-            final int right = parent.getWidth() - parent.getPaddingRight();
-
-            final int childCount = parent.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                final View child = parent.getChildAt(i);
-                final int top = child.getBottom();
-                final int bottom = top + mDivider.getIntrinsicHeight();
-                mDivider.setBounds(left, top, right, bottom);
-                mDivider.draw(c);
-            }
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
-            outRect.set(0, 0, 0, mDivider.getIntrinsicHeight());
         }
     }
 }

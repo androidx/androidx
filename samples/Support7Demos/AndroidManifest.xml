@@ -38,6 +38,7 @@
             android:compatibleWidthLimitDp="480" />
 
     <application android:label="@string/activity_sample_code"
+            android:supportsRtl="true"
             android:icon="@drawable/app_sample_code"
             android:hardwareAccelerated="true">
 
@@ -176,6 +177,15 @@
         <activity android:name=".widget.RecyclerViewActivity"
                 android:label="@string/recycler_view"
                 android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.LinearLayoutManagerActivity"
+                  android:label="@string/linear_layout_manager"
+                  android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
