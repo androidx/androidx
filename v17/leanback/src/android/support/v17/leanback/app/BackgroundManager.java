@@ -252,9 +252,13 @@ public final class BackgroundManager {
 
     private void createFragment(Activity activity) {
         // Use a fragment to ensure the background manager gets detached properly.
-        BackgroundFragment fragment = new BackgroundFragment();
+        BackgroundFragment fragment = (BackgroundFragment) activity.getFragmentManager()
+                .findFragmentByTag(TAG);
+        if (fragment == null) {
+            fragment = new BackgroundFragment();
+            activity.getFragmentManager().beginTransaction().add(fragment, TAG).commit();
+        }
         fragment.setBackgroundManager(this);
-        activity.getFragmentManager().beginTransaction().add(fragment, TAG).commit();
     }
 
     /**
