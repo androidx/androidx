@@ -53,7 +53,7 @@ public class SearchFragment extends Fragment {
         public ObjectAdapter results(String searchQuery);
     }
 
-    private final RowsFragment mRowsFragment = new RowsFragment();
+    private RowsFragment mRowsFragment;
     private final Handler mHandler = new Handler();
 
     private RelativeLayout mSearchFrame;
@@ -61,6 +61,10 @@ public class SearchFragment extends Fragment {
     private FrameLayout mResultsFrame;
     private SearchResultProvider mProvider;
     private String mPendingQuery = null;
+
+    private OnItemSelectedListener mOnItemSelectedListener;
+    private OnItemClickedListener mOnItemClickedListener;
+    private boolean mExpand;
 
     /**
      * @param args Bundle to use for the arguments, if null a new Bundle will be created.
@@ -118,8 +122,17 @@ public class SearchFragment extends Fragment {
         }
 
         // Inject the RowsFragment in the results container
-        getChildFragmentManager().beginTransaction()
-                .replace(R.id.lb_results_container, mRowsFragment).commit();
+        if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
+            mRowsFragment = new RowsFragment();
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.lb_results_container, mRowsFragment).commit();
+        } else {
+            mRowsFragment = (RowsFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.browse_container_dock);
+        }
+        mRowsFragment.setOnItemSelectedListener(mOnItemSelectedListener);
+        mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
+        mRowsFragment.setExpand(mExpand);
         return root;
     }
 
@@ -139,21 +152,30 @@ public class SearchFragment extends Fragment {
      * @param listener the item selection listener
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
-        mRowsFragment.setOnItemSelectedListener(listener);
+        mOnItemSelectedListener = listener;
+        if (mRowsFragment != null) {
+            mRowsFragment.setOnItemSelectedListener(listener);
+        }
     }
 
     /**
      * Sets an item clicked listener.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
-        mRowsFragment.setOnItemClickedListener(listener);
+        mOnItemClickedListener = listener;
+        if (mRowsFragment != null) {
+            mRowsFragment.setOnItemClickedListener(listener);
+        }
     }
 
     /**
      * Set the visibility of titles/hovercard of browse rows.
      */
     public void setExpand(boolean expand) {
-        mRowsFragment.setExpand(expand);
+        mExpand = expand;
+        if (mRowsFragment != null) {
+            mRowsFragment.setExpand(expand);
+        }
     }
 
     private void retrieveResults(String searchQuery) {
