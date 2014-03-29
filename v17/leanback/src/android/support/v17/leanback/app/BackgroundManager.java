@@ -93,6 +93,7 @@ public final class BackgroundManager {
     private static final boolean SCALE_BITMAPS_TO_FIT = true;
 
     private static final String WINDOW_NAME = "BackgroundManager";
+    private static final String FRAGMENT_TAG = BackgroundManager.class.getCanonicalName();
 
     private Context mContext;
     private Handler mHandler;
@@ -231,8 +232,31 @@ public final class BackgroundManager {
     }
 
     /**
+     * Get background manager associated with the activity.
+     * <p>
+     * The background manager will be created on-demand for each individual
+     * activity.  Consequent calls will return the same background manager created
+     * for this activity.
+     * </p>
+     */
+    public static BackgroundManager getInstance(Activity activity) {
+        BackgroundFragment fragment = (BackgroundFragment) activity.getFragmentManager()
+                .findFragmentByTag(FRAGMENT_TAG);
+        if (fragment != null) {
+            BackgroundManager manager = fragment.getBackgroundManager();
+            if (manager != null) {
+                return manager;
+            }
+            // manager is null: this is a fragment restored by FragmentManager,
+            // fall through to create a BackgroundManager attach to it.
+        }
+        return new BackgroundManager(activity);
+    }
+
+    /**
      * Construct a background manager instance.
      * Initial background set from continuity service.
+     * @deprecated Use getInstance(Activity)
      */
     public BackgroundManager(Activity activity) {
         mContext = activity;
@@ -255,10 +279,15 @@ public final class BackgroundManager {
     private void createFragment(Activity activity) {
         // Use a fragment to ensure the background manager gets detached properly.
         BackgroundFragment fragment = (BackgroundFragment) activity.getFragmentManager()
-                .findFragmentByTag(TAG);
+                .findFragmentByTag(FRAGMENT_TAG);
         if (fragment == null) {
             fragment = new BackgroundFragment();
-            activity.getFragmentManager().beginTransaction().add(fragment, TAG).commit();
+            activity.getFragmentManager().beginTransaction().add(fragment, FRAGMENT_TAG).commit();
+        } else {
+            if (fragment.getBackgroundManager() != null) {
+                throw new IllegalStateException("Created duplicated BackgroundManager for same " +
+                        "activity, please use getInstance() instead");
+            }
         }
         fragment.setBackgroundManager(this);
     }
