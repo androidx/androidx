@@ -53,8 +53,10 @@ public class BrowseFragment extends Fragment {
     /** The fastlane navigation panel is disabled and will never be shown. */
     public static final int HEADERS_DISABLED = 3;
 
-    private final RowsFragment mRowsFragment = new RowsFragment();
-    private final HeadersFragment mHeadersFragment = new HeadersFragment();
+    private RowsFragment mRowsFragment;
+    private HeadersFragment mHeadersFragment;
+
+    private ObjectAdapter mAdapter;
 
     private Params mParams;
     private BrowseFrameLayout mBrowseFrame;
@@ -71,6 +73,7 @@ public class BrowseFragment extends Fragment {
     private TransitionHelper mTransitionHelper;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
     private OnClickListener mExternalOnSearchClickedListener;
+    private OnItemClickedListener mOnItemClickedListener;
     private int mSelectedPosition = -1;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
@@ -187,15 +190,18 @@ public class BrowseFragment extends Fragment {
      * Sets the list of rows for the fragment.
      */
     public void setAdapter(ObjectAdapter adapter) {
-        mRowsFragment.setAdapter(adapter);
-        mHeadersFragment.setAdapter(adapter);
+        mAdapter = adapter;
+        if (mRowsFragment != null) {
+            mRowsFragment.setAdapter(adapter);
+            mHeadersFragment.setAdapter(adapter);
+        }
     }
 
     /**
      * Returns the list of rows.
      */
     public ObjectAdapter getAdapter() {
-        return mRowsFragment.getAdapter();
+        return mAdapter;
     }
 
     /**
@@ -212,14 +218,17 @@ public class BrowseFragment extends Fragment {
      * So in general,  developer should choose one of the listeners but not both.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
-        mRowsFragment.setOnItemClickedListener(listener);
+        mOnItemClickedListener = listener;
+        if (mRowsFragment != null) {
+            mRowsFragment.setOnItemClickedListener(listener);
+        }
     }
 
     /**
      * Returns the item Clicked listener.
      */
     public OnItemClickedListener getOnItemClickedListener() {
-        return mRowsFragment.getOnItemClickedListener();
+        return mOnItemClickedListener;
     }
 
     /**
@@ -274,9 +283,6 @@ public class BrowseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mHeadersFragment.setOnHeaderClickListener(mHeaderClickListener);
-
         mContainerListMarginLeft = (int) getResources().getDimension(
                 R.dimen.lb_browse_rows_margin_left);
         mContainerListWidth =  getResources().getDimensionPixelSize(R.dimen.lb_browse_rows_width);
@@ -287,6 +293,25 @@ public class BrowseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
+            mRowsFragment = new RowsFragment();
+            mHeadersFragment = new HeadersFragment();
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.browse_headers_dock, mHeadersFragment)
+                    .replace(R.id.browse_container_dock, mRowsFragment).commit();
+        } else {
+            mHeadersFragment = (HeadersFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.browse_headers_dock);
+            mRowsFragment = (RowsFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.browse_container_dock);
+        }
+        mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
+        mHeadersFragment.setOnItemSelectedListener(mHeaderSelectedListener);
+        mHeadersFragment.setOnHeaderClickListener(mHeaderClickListener);
+        mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
+        mRowsFragment.setAdapter(mAdapter);
+        mHeadersFragment.setAdapter(mAdapter);
+
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
 
         mBrowseFrame = (BrowseFrameLayout) root.findViewById(R.id.browse_frame);
@@ -424,19 +449,6 @@ public class BrowseFragment extends Fragment {
             mHeadersFragment.setSelectedPosition(position);
         }
         mSelectedPosition = position;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
-            getChildFragmentManager().beginTransaction()
-                    .replace(R.id.browse_headers_dock, mHeadersFragment)
-                    .replace(R.id.browse_container_dock, mRowsFragment).commit();
-            mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
-            mHeadersFragment.setOnItemSelectedListener(mHeaderSelectedListener);
-        }
     }
 
     private void setVerticalVerticalGridViewLayout(VerticalGridView listview) {

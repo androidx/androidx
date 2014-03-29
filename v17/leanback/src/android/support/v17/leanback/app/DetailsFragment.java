@@ -34,26 +34,31 @@ public class DetailsFragment extends Fragment {
     private static final String TAG = "DetailsFragment";
     private static boolean DEBUG = false;
 
-    private final RowsFragment mRowsFragment = new RowsFragment();
+    private RowsFragment mRowsFragment;
 
+    private ObjectAdapter mAdapter;
     private int mContainerListMarginLeft;
     private int mContainerListWidth;
     private int mContainerListAlignTop;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
+    private OnItemClickedListener mOnItemClickedListener;
     private int mSelectedPosition = -1;
 
     /**
      * Sets the list of rows for the fragment.
      */
     public void setAdapter(ObjectAdapter adapter) {
-        mRowsFragment.setAdapter(adapter);
+        mAdapter = adapter;
+        if (mRowsFragment != null) {
+            mRowsFragment.setAdapter(adapter);
+        }
     }
 
     /**
      * Returns the list of rows.
      */
     public ObjectAdapter getAdapter() {
-        return mRowsFragment.getAdapter();
+        return mAdapter;
     }
 
     /**
@@ -67,14 +72,17 @@ public class DetailsFragment extends Fragment {
      * Sets an item Clicked listener.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
-        mRowsFragment.setOnItemClickedListener(listener);
+        mOnItemClickedListener = listener;
+        if (mRowsFragment != null) {
+            mRowsFragment.setOnItemClickedListener(listener);
+        }
     }
 
     /**
      * Returns the item Clicked listener.
      */
     public OnItemClickedListener getOnItemClickedListener() {
-        return mRowsFragment.getOnItemClickedListener();
+        return mOnItemClickedListener;
     }
 
     @Override
@@ -91,7 +99,19 @@ public class DetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lb_details_fragment, container, false);
+        View view = inflater.inflate(R.layout.lb_details_fragment, container, false);
+        if (getChildFragmentManager().findFragmentById(R.id.details_container_dock) == null) {
+            mRowsFragment = new RowsFragment();
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.details_container_dock, mRowsFragment).commit();
+        } else {
+            mRowsFragment = (RowsFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.browse_container_dock);
+        }
+        mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
+        mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
+        mRowsFragment.setAdapter(mAdapter);
+        return view;
     }
 
     private OnItemSelectedListener mRowSelectedListener = new OnItemSelectedListener() {
@@ -102,17 +122,6 @@ public class DetailsFragment extends Fragment {
             }
         }
     };
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (getChildFragmentManager().findFragmentById(R.id.details_container_dock) == null) {
-            getChildFragmentManager().beginTransaction()
-                    .replace(R.id.details_container_dock, mRowsFragment).commit();
-            mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
-        }
-    }
 
     private void setVerticalGridViewLayout(VerticalGridView listview) {
         // align the top edge of item to a fixed position
