@@ -28,6 +28,7 @@ import static android.support.v7.widget.RecyclerView.VERTICAL;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.FocusFinder;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.View.MeasureSpec;
@@ -300,7 +301,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Margin in second direction.
      */
     private int mMarginSecondary;
-
+    /**
+     * How to position child in secondary direction.
+     */
+    private int mGravity = Gravity.LEFT | Gravity.TOP;
     /**
      * The number of rows in the grid.
      */
@@ -482,14 +486,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mHorizontalMargin;
     }
 
-    protected int getMeasuredLengthPrimary(View v) {
-        if (mOrientation == HORIZONTAL) {
-            float aspectRatio = (float) v.getMeasuredWidth() / (float) v.getMeasuredHeight();
-            return (int) (aspectRatio * mItemLengthSecondary);
-        } else {
-            float aspectRatio = (float) v.getMeasuredHeight() / (float) v.getMeasuredWidth();
-            return (int) (aspectRatio * mItemLengthSecondary);
-        }
+    public void setGravity(int gravity) {
+        mGravity = gravity;
     }
 
     protected boolean hasDoneFirstLayout() {
@@ -789,7 +787,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             measuredSizeSecondary = sizeSecondary;
             if (modeSecondary == MeasureSpec.AT_MOST) {
-                int childrenSize = mItemLengthSecondary * mNumRows + mMarginSecondary 
+                int childrenSize = mItemLengthSecondary * mNumRows + mMarginSecondary
                     * (mNumRows - 1) + paddingSecondary;
                 if (childrenSize < measuredSizeSecondary) {
                     measuredSizeSecondary = childrenSize;
@@ -807,7 +805,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             result[1] = sizePrimary;
         }
         if (DEBUG) {
-            Log.v(getTag(), "onMeasure result " + result[0] + ", " + result[1] 
+            Log.v(getTag(), "onMeasure result " + result[0] + ", " + result[1]
                     + " mItemLengthSecondary " + mItemLengthSecondary + " mNumRows " + mNumRows);
         }
     }
@@ -817,19 +815,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         int widthSpec, heightSpec;
         if (mOrientation == HORIZONTAL) {
-            if (lp.width >= 0) {
-                widthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
-            } else {
-                widthSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-            }
-            heightSpec = MeasureSpec.makeMeasureSpec(mItemLengthSecondary, MeasureSpec.EXACTLY);
+            widthSpec = ViewGroup.getChildMeasureSpec(
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), 0, lp.width);
+            heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(
+                    mItemLengthSecondary, MeasureSpec.EXACTLY), 0, lp.height);
         } else {
-            if (lp.height >= 0) {
-                heightSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
-            } else {
-                heightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-            }
-            widthSpec = MeasureSpec.makeMeasureSpec(mItemLengthSecondary, MeasureSpec.EXACTLY);
+            heightSpec = ViewGroup.getChildMeasureSpec(
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), 0, lp.height);
+            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(
+                    mItemLengthSecondary, MeasureSpec.EXACTLY), 0, lp.width);
         }
 
         child.measure(widthSpec, heightSpec);
@@ -863,7 +857,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
             measureChild(v);
 
-            int length = getMeasuredLengthPrimary(v);
+            int length = mOrientation == HORIZONTAL ? v.getMeasuredWidth() : v.getMeasuredHeight();
             int start, end;
             if (append) {
                 start = mRows[rowIndex].high;
@@ -913,10 +907,27 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     };
 
     private void layoutChild(View v, int start, int end, int startSecondary) {
+         int measuredSecondary = mOrientation == HORIZONTAL ? v.getMeasuredHeight()
+                 : v.getMeasuredWidth();
+        if (measuredSecondary > mItemLengthSecondary) {
+           measuredSecondary = mItemLengthSecondary;
+        }
+        final int verticalGravity = mGravity & Gravity.VERTICAL_GRAVITY_MASK;
+        final int horizontalGravity = mGravity & Gravity.HORIZONTAL_GRAVITY_MASK;
+        if (mOrientation == HORIZONTAL && verticalGravity == Gravity.TOP
+                || mOrientation == VERTICAL && horizontalGravity == Gravity.LEFT) {
+            // do nothing
+        } else if (mOrientation == HORIZONTAL && verticalGravity == Gravity.BOTTOM
+                || mOrientation == VERTICAL && horizontalGravity == Gravity.RIGHT) {
+            startSecondary += mItemLengthSecondary - measuredSecondary;
+        } else if (mOrientation == HORIZONTAL && verticalGravity == Gravity.CENTER_VERTICAL
+                || mOrientation == VERTICAL && horizontalGravity == Gravity.CENTER_HORIZONTAL) {
+            startSecondary += (mItemLengthSecondary - measuredSecondary) / 2;
+        }
         if (mOrientation == HORIZONTAL) {
-            v.layout(start, startSecondary, end, startSecondary + mItemLengthSecondary);
+            v.layout(start, startSecondary, end, startSecondary + measuredSecondary);
         } else {
-            v.layout(startSecondary, start, startSecondary + mItemLengthSecondary, end);
+            v.layout(startSecondary, start, startSecondary + measuredSecondary, end);
         }
         updateChildAlignments(v);
     }
@@ -1402,7 +1413,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 * (mNumRows - 1));
 
         if (DEBUG) {
-            Log.v(getTag(), "initScrollController mSizePrimary " + mSizePrimary + " " 
+            Log.v(getTag(), "initScrollController mSizePrimary " + mSizePrimary + " "
                 + " mItemLengthSecondary " + mItemLengthSecondary + " " + mWindowAlignment);
         }
     }

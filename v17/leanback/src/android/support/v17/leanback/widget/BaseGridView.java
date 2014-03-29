@@ -362,6 +362,17 @@ abstract class BaseGridView extends RecyclerView {
         return mLayoutManager.getChildLayoutAnimationDuration();
     }
 
+    /**
+     * Describes how the child views are positioned. Defaults to
+     * GRAVITY_TOP|GRAVITY_LEFT.
+     *
+     * @param gravity See {@link android.view.Gravity}
+     */
+    public void setGravity(int gravity) {
+        mLayoutManager.setGravity(gravity);
+        requestLayout();
+    }
+
     @Override
     protected final void onMeasure(int widthSpec, int heightSpec) {
         mLayoutManager.onMeasure(widthSpec, heightSpec, mMeasuredSize);
