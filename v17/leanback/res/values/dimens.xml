@@ -84,11 +84,9 @@
     <dimen name="lb_browse_item_margin_horizontal">12dp</dimen>
     <dimen name="lb_rows_fragment_padding_bottom">48dp</dimen>
 
-    <!-- One-sided increase in browse item size if height > width -->
-    <dimen name="lb_browse_item_zoom_height">8dp</dimen>
-
-    <!-- One-sided increase in browse item size if height > width -->
-    <dimen name="lb_browse_item_zoom_width">12dp</dimen>
+    <item name="lb_focus_zoom_factor_small" type="fraction">106%</item>
+    <item name="lb_focus_zoom_factor_medium" type="fraction">110%</item>
+    <item name="lb_focus_zoom_factor_large" type="fraction">114%</item>
 
     <dimen name="lb_details_rows_margin_left">238dp</dimen>
     <dimen name="lb_details_rows_width">960dp</dimen>
