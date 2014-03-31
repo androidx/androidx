@@ -171,13 +171,16 @@ public class RowsFragment extends BaseRowFragment {
      * Set the visibility of titles/hovercard of browse rows.
      */
     public void setExpand(boolean expand) {
-        final int count = getVerticalGridView().getChildCount();
-        if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
         mExpand = expand;
-        for (int i = 0; i < count; i++) {
-            View view = getVerticalGridView().getChildAt(i);
-            ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView().getChildViewHolder(view);
-            setRowViewExpanded(vh, mExpand);
+        VerticalGridView listView = getVerticalGridView();
+        if (listView != null) {
+            final int count = listView.getChildCount();
+            if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
+            for (int i = 0; i < count; i++) {
+                View view = listView.getChildAt(i);
+                ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
+                setRowViewExpanded(vh, mExpand);
+            }
         }
     }
 
