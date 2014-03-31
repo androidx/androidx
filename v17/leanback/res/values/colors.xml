@@ -16,7 +16,6 @@
 -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-
     <color name="lb_bg_default">#333333</color>
     <color name="lb_grey">#888888</color>
     <color name="lb_bluegreen">#00ffff</color>
@@ -48,6 +47,9 @@
 
     <color name="lb_view_dim_mask_color">#000000</color>
     <item name="lb_view_dimmed_level" type="dimen">60%</item>
+
+    <color name="lb_action_text_color">#EEEEEE</color>
+    <color name="lb_action_bg_color">#3D3D3D</color>
 
     <color name="lb_search_background">#D0000000</color>
     <color name="lb_search_bar_background">#992D2D2D</color>
