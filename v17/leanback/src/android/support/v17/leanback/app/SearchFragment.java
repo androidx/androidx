@@ -19,12 +19,14 @@ import android.os.Handler;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
+import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.SearchBar;
+import android.support.v17.leanback.widget.VerticalGridView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.support.v17.leanback.R;
 
 /**
@@ -32,6 +34,7 @@ import android.support.v17.leanback.R;
  */
 public class SearchFragment extends Fragment {
     private static final String TAG = SearchFragment.class.getSimpleName();
+    private static final boolean DEBUG = false;
     private static final String ARG_QUERY = SearchFragment.class.getCanonicalName() + ".query";
 
     /**
@@ -39,6 +42,8 @@ public class SearchFragment extends Fragment {
      */
     public static interface SearchResultProvider {
         /**
+         * @deprecated Replaced by {@link #getResultsAdapter()} and {@link #onQueryTextChange(String)}
+         *
          * When using the SearchFragment, this is the entry point for the application
          * to receive the search query and provide the corresponding results.
          *
@@ -50,21 +55,52 @@ public class SearchFragment extends Fragment {
          * @param searchQuery The search query entered by the user.
          * @return An ObjectAdapter containing the structured results for the provided search query.
          */
+        @Deprecated
         public ObjectAdapter results(String searchQuery);
+
+        /**
+         * <p>Method invoked some time prior to the first call to onQueryTextChange to retrieve
+         * an ObjectAdapter that will contain the results to future updates of the search query.</p>
+         *
+         * <p>As results are retrieved, the application should use the data set notification methods
+         * on the ObjectAdapter to instruct the SearchFragment to update the results.</p>
+         *
+         * @return ObjectAdapter The result object adapter.
+         */
+        public ObjectAdapter getResultsAdapter();
+
+        /**
+         * <p>Method invoked when the search query is updated.</p>
+         *
+         * <p>This is called as soon as the query changes; it is up to the application to add a
+         * delay before actually executing the queries if needed.</p>
+         *
+         * @param newQuery The current search query.
+         * @return whether the results changed or not.
+         */
+        public boolean onQueryTextChange(String newQuery);
+
+        /**
+         * Method invoked when the search query is submitted, either by dismissing the keyboard,
+         * pressing search or next on the keyboard or when voice has detected the end of the query.
+         *
+         * @param query The query.
+         * @return whether the results changed or not
+         */
+        public boolean onQueryTextSubmit(String query);
     }
 
     private RowsFragment mRowsFragment;
     private final Handler mHandler = new Handler();
 
-    private RelativeLayout mSearchFrame;
     private SearchBar mSearchBar;
-    private FrameLayout mResultsFrame;
     private SearchResultProvider mProvider;
     private String mPendingQuery = null;
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
     private boolean mExpand;
+    private ObjectAdapter mResultAdapter;
 
     /**
      * @param args Bundle to use for the arguments, if null a new Bundle will be created.
@@ -102,19 +138,36 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.lb_search_fragment, container, false);
 
-        mSearchFrame = (RelativeLayout) root.findViewById(R.id.lb_search_frame);
-        mResultsFrame = (FrameLayout) root.findViewById(R.id.lb_results_frame);
-        mSearchBar = (SearchBar) mSearchFrame.findViewById(R.id.lb_search_bar);
+        FrameLayout searchFrame = (FrameLayout) root.findViewById(R.id.lb_search_frame);
+        mSearchBar = (SearchBar) searchFrame.findViewById(R.id.lb_search_bar);
         mSearchBar.setSearchBarListener(new SearchBar.SearchBarListener() {
             @Override
-            public void onSearchQueryChanged(String searchQuery) {
+            public void onSearchQueryChange(String query) {
+                if (DEBUG) Log.v(TAG, String.format("onSearchQueryChange %s", query));
                 if (null != mProvider) {
-                    retrieveResults(searchQuery);
+                    retrieveResults(query);
                 } else {
-                    mPendingQuery = searchQuery;
+                    mPendingQuery = query;
                 }
             }
+
+            @Override
+            public void onSearchQuerySubmit(String query) {
+                if (DEBUG) Log.v(TAG, String.format("onSearchQuerySubmit %s", query));
+                mRowsFragment.setSelectedPosition(0);
+                mRowsFragment.getVerticalGridView().requestFocus();
+                if (null != mProvider) {
+                    mProvider.onQueryTextSubmit(query);
+                }
+            }
+
+            @Override
+            public void onKeyboardDismiss(String query) {
+                mRowsFragment.setSelectedPosition(0);
+                mRowsFragment.getVerticalGridView().requestFocus();
+            }
         });
+
         Bundle args = getArguments();
         if (null != args) {
             String query = args.getString(ARG_QUERY, "");
@@ -125,15 +178,46 @@ public class SearchFragment extends Fragment {
         if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
             mRowsFragment = new RowsFragment();
             getChildFragmentManager().beginTransaction()
-                    .replace(R.id.lb_results_container, mRowsFragment).commit();
+                    .replace(R.id.lb_results_frame, mRowsFragment).commit();
         } else {
             mRowsFragment = (RowsFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
-        mRowsFragment.setOnItemSelectedListener(mOnItemSelectedListener);
-        mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
+        mRowsFragment.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(Object item, Row row) {
+                int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
+                if (DEBUG) Log.v(TAG, String.format("onItemSelected %d", position));
+                mSearchBar.setVisibility(0 >= position ? View.VISIBLE : View.GONE);
+                if (null != mOnItemSelectedListener) {
+                    mOnItemSelectedListener.onItemSelected(item, row);
+                }
+            }
+        });
+        mRowsFragment.setOnItemClickedListener(new OnItemClickedListener() {
+            @Override
+            public void onItemClicked(Object item, Row row) {
+                if (null != mOnItemClickedListener) {
+                    mOnItemClickedListener.onItemClicked(item, row);
+                }
+            }
+        });
         mRowsFragment.setExpand(mExpand);
         return root;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        VerticalGridView list = mRowsFragment.getVerticalGridView();
+        int mContainerListAlignTop =
+                getResources().getDimensionPixelSize(R.dimen.lb_search_browse_rows_align_top);
+        list.setItemAlignmentOffset(0);
+        list.setItemAlignmentOffsetPercent(VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
+        list.setWindowAlignmentOffset(mContainerListAlignTop);
+        list.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+        list.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
     }
 
     /**
@@ -179,24 +263,27 @@ public class SearchFragment extends Fragment {
     }
 
     private void retrieveResults(String searchQuery) {
-        ObjectAdapter adapter = mProvider.results(searchQuery);
-        mRowsFragment.setAdapter(adapter);
-        mResultsFrame.setVisibility(View.VISIBLE);
+        if (DEBUG) Log.v(TAG, String.format("retrieveResults %s", searchQuery));
+        mProvider.onQueryTextChange(searchQuery);
     }
 
     private void onSetSearchResultProvider() {
-        executePendingQuery();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                // Retrieve the result adapter
+                mResultAdapter = mProvider.getResultsAdapter();
+                mRowsFragment.setAdapter(mResultAdapter);
+                executePendingQuery();
+            }
+        });
     }
 
     private void executePendingQuery() {
-        if (null != mPendingQuery) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    retrieveResults(mPendingQuery);
-                    mPendingQuery = null;
-                }
-            });
+        if (null != mPendingQuery && null != mResultAdapter) {
+            String query = mPendingQuery;
+            mPendingQuery = null;
+            retrieveResults(query);
         }
     }
 

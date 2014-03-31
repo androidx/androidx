@@ -95,18 +95,23 @@
     <dimen name="lb_details_rows_align_top">120dp</dimen>
 
     <!-- Search bar -->
-    <dimen name="lb_search_bar_height">120dip</dimen>
-    <dimen name="lb_search_bar_items_layout_margin_top">42dip</dimen>
-    <dimen name="lb_search_bar_items_width">660dip</dimen>
+    <dimen name="lb_search_bar_height">60dp</dimen>
+    <dimen name="lb_search_bar_padding_left">56dp</dimen>
+    <dimen name="lb_search_bar_padding_top">27dp</dimen>
+
+    <dimen name="lb_search_bar_text_size">28sp</dimen>
+    <dimen name="lb_search_bar_items_layout_margin_top">27dp</dimen>
+    <dimen name="lb_search_bar_items_width">660dp</dimen>
 
     <!-- Search Fragment -->
-    <dimen name="lb_search_browse_row_padding_left">48dip</dimen>
-    <dimen name="lb_search_fragment_results_container_height">425dip</dimen>
+    <dimen name="lb_search_browse_rows_align_top">120dp</dimen>
+    <dimen name="lb_search_browse_row_padding_left">56dp</dimen>
+    <dimen name="lb_search_fragment_results_container_height">425dp</dimen>
 
-    <dimen name="lb_search_orb_size">52dip</dimen>
+    <dimen name="lb_search_orb_size">52dp</dimen>
 
-    <dimen name="lb_search_orb_margin_top">4dip</dimen>
-    <dimen name="lb_search_orb_margin_bottom">4dip</dimen>
-    <dimen name="lb_search_orb_margin_left">4dip</dimen>
-    <dimen name="lb_search_orb_margin_right">4dip</dimen>
+    <dimen name="lb_search_orb_margin_top">4dp</dimen>
+    <dimen name="lb_search_orb_margin_bottom">4dp</dimen>
+    <dimen name="lb_search_orb_margin_left">4dp</dimen>
+    <dimen name="lb_search_orb_margin_right">4dp</dimen>
 </resources>

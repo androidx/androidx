@@ -15,49 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/lb_search_dummy"
+             android:id="@+id/lb_search_frame"
              android:layout_width="match_parent"
-             android:layout_height="match_parent">
-
-    <!-- The outer frame (search_dummy) exists to workaround the
-            problem where clients who embed us using a fragment tag in their
-            xml layout will override the view id.  This causes problems managing
-            child fragments.  Everything within the BrowseFrameLayout below
-            should not be affected by usage. -->
-    <RelativeLayout
-            android:id="@+id/lb_search_frame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
+             android:layout_height="match_parent"
+             android:paddingTop="@dimen/lb_search_bar_padding_top">
         <FrameLayout
                 android:id="@+id/lb_results_frame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentBottom="true"
-                android:layout_below="@id/lb_search_bar_layout"
-                android:layout_marginTop="@dimen/lb_search_bar_height"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:visibility="gone" >
-
-            <!-- Will be replaced by RowContainerFragment -->
-            <FrameLayout
-                    android:id="@+id/lb_results_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/lb_search_fragment_results_container_height"
-                    android:background="@android:color/transparent"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:focusable="false"
-                    android:visibility="visible" />
-
-        </FrameLayout>
-
-        <include
-                android:id="@+id/lb_search_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                layout="@layout/lb_search_bar" />
-    </RelativeLayout>
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        <include layout="@layout/lb_search_bar" />
 </FrameLayout>

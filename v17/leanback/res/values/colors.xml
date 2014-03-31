@@ -52,5 +52,6 @@
     <color name="lb_search_background">#D0000000</color>
     <color name="lb_search_bar_background">#992D2D2D</color>
     <color name="lb_search_result_background">#FF2D2D2D</color>
-    <color name="lb_search_text_primary_color">#FFFCFCFC</color>
+    <color name="lb_search_bar_text_color">#FFEEEEEE</color>
+    <color name="lb_search_bar_hint_color">#33EEEEEE</color>
 </resources>
