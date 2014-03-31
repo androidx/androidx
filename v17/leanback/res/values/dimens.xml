@@ -88,9 +88,23 @@
     <item name="lb_focus_zoom_factor_medium" type="fraction">110%</item>
     <item name="lb_focus_zoom_factor_large" type="fraction">114%</item>
 
+    <dimen name="lb_details_overview_image_width">132dp</dimen>
+    <dimen name="lb_details_overview_image_margin_left">132dp</dimen>
+    <dimen name="lb_details_overview_description_margin_left">30dp</dimen>
+    <dimen name="lb_details_overview_description_margin_right">132dp</dimen>
+    <dimen name="lb_details_overiew_actions_margin_top">19dp</dimen>
+    <dimen name="lb_details_overview_actions_margin_left">294dp</dimen>
+    <dimen name="lb_details_overview_action_items_margin">32dp</dimen>
+    <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
     <dimen name="lb_details_rows_margin_left">238dp</dimen>
     <dimen name="lb_details_rows_width">960dp</dimen>
     <dimen name="lb_details_rows_align_top">120dp</dimen>
+
+    <dimen name="lb_action_padding_left">32dp</dimen>
+    <dimen name="lb_action_padding_top">9dp</dimen>
+    <dimen name="lb_action_padding_right">32dp</dimen>
+    <dimen name="lb_action_padding_bottom">9dp</dimen>
+    <dimen name="lb_action_text_size">16sp</dimen>
 
     <!-- Search bar -->
     <dimen name="lb_search_bar_height">60dp</dimen>
