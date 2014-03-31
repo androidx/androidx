@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.graphics.drawable.TransitionDrawable;
 import android.support.v17.leanback.R;
 import android.view.View;
 import android.content.res.Resources;
@@ -74,6 +75,9 @@ public class FocusHighlightHelper {
     private static HeaderItemFocusHighlight sHeaderItemFocusHighlight =
             new HeaderItemFocusHighlight();
 
+    private static ActionItemFocusHighlight sActionItemFocusHighlight =
+            new ActionItemFocusHighlight();
+
     /**
      * Setup the focus highlight behavior of a focused item in browse list row.
      * @param adapter  adapter of the list row.
@@ -90,7 +94,15 @@ public class FocusHighlightHelper {
         adapter.setFocusHighlight(sHeaderItemFocusHighlight);
     }
 
-    static class HeaderItemFocusHighlight implements FocusHighlight {
+    /**
+     * Setup the focus highlight behavior of a focused item in an action list.
+     * @param adapter  adapter of the action list.
+     */
+    public static void setupActionItemFocusHighlight(ItemBridgeAdapter adapter) {
+        adapter.setFocusHighlight(sActionItemFocusHighlight);
+    }
+
+    private static class HeaderItemFocusHighlight implements FocusHighlight {
         private boolean mInitialized;
         private float mSelectScale;
         private float mUnselectAlpha;
@@ -124,6 +136,28 @@ public class FocusHighlightHelper {
         @Override
         public void onItemFocused(View view, Object item, boolean hasFocus) {
             viewFocused(view, hasFocus);
+        }
+    }
+
+    private static class ActionItemFocusHighlight implements FocusHighlight {
+        private boolean mInitialized;
+        private int mDuration;
+
+        private void initializeDimensions(Resources res) {
+            if (!mInitialized) {
+                mDuration = Integer.parseInt(res.getString(R.dimen.lb_details_overview_action_select_duration));
+            }
+        }
+
+        @Override
+        public void onItemFocused(View view, Object item, boolean hasFocus) {
+            initializeDimensions(view.getResources());
+            TransitionDrawable td = (TransitionDrawable) view.getBackground();
+            if (hasFocus) {
+                td.startTransition(mDuration);
+            } else {
+                td.reverseTransition(mDuration);
+            }
         }
     }
 }

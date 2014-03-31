@@ -72,7 +72,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @param index The index at which the items should be inserted.
      * @param items A {@link Collection} of items to insert.
      */
-    public void addAll(int index, Collection<Object> items) {
+    public void addAll(int index, Collection items) {
         int itemsCount = items.size();
         mItems.addAll(index, items);
         notifyItemRangeInserted(index, itemsCount);
