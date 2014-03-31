@@ -27,6 +27,12 @@ public final class BackgroundFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mBackgroundManager.onActivityResume();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mBackgroundManager.detach();
