@@ -22,30 +22,38 @@ import android.content.res.Resources;
  */
 public class FocusHighlightHelper {
 
-    private static class BrowseItemFocusHighlight implements FocusHighlight {
+    static class BrowseItemFocusHighlight implements FocusHighlight {
         private static final int DURATION_MS = 150;
 
-        private int[] mZoomSizeResourceId = new int[] { R.dimen.lb_browse_item_zoom_height,
-                R.dimen.lb_browse_item_zoom_width };
-        private float[] mZoomSizeCache;
+        public static int ZOOM_FACTOR_NONE = 0;
+        public static int ZOOM_FACTOR_SMALL = 1;
+        public static int ZOOM_FACTOR_MEDIUM = 2;
+        public static int ZOOM_FACTOR_LARGE = 3;
 
-        public BrowseItemFocusHighlight() {
-            mZoomSizeCache = new float[mZoomSizeResourceId.length];
+        private static float[] sScaleFactor = new float[4];
+
+        private int mScaleIndex;
+
+        BrowseItemFocusHighlight(int zoomIndex) {
+            mScaleIndex = (zoomIndex >= 0 && zoomIndex < sScaleFactor.length) ?
+                    zoomIndex : ZOOM_FACTOR_MEDIUM;
+        }
+
+        private void lazyInit(Resources resources) {
+            if (sScaleFactor[ZOOM_FACTOR_NONE] == 0f) {
+                sScaleFactor[ZOOM_FACTOR_NONE] = 1f;
+                sScaleFactor[ZOOM_FACTOR_SMALL] =
+                        resources.getFraction(R.fraction.lb_focus_zoom_factor_small, 1, 1);
+                sScaleFactor[ZOOM_FACTOR_MEDIUM] =
+                        resources.getFraction(R.fraction.lb_focus_zoom_factor_medium, 1, 1);
+                sScaleFactor[ZOOM_FACTOR_LARGE] =
+                        resources.getFraction(R.fraction.lb_focus_zoom_factor_large, 1, 1);
+            }
         }
 
         private float getScale(View view) {
-            final int index = (view.getHeight() > view.getWidth() ? 0 : 1);
-            if (mZoomSizeCache[index] == 0f) {
-                mZoomSizeCache[index] = view.getResources()
-                        .getDimension(mZoomSizeResourceId[index]);
-            }
-            if (index == 0) {
-                final float height = view.getHeight();
-                return (height + mZoomSizeCache[index]) / height;
-            } else {
-                final float width = view.getWidth();
-                return (width + mZoomSizeCache[index]) / width;
-            }
+            lazyInit(view.getResources());
+            return sScaleFactor[mScaleIndex];
         }
 
         private void viewFocused(View view, boolean hasFocus) {
@@ -63,9 +71,6 @@ public class FocusHighlightHelper {
         }
     }
 
-    private static BrowseItemFocusHighlight sBrowseItemFocusHighlight =
-            new BrowseItemFocusHighlight();
-
     private static HeaderItemFocusHighlight sHeaderItemFocusHighlight =
             new HeaderItemFocusHighlight();
 
@@ -73,8 +78,8 @@ public class FocusHighlightHelper {
      * Setup the focus highlight behavior of a focused item in browse list row.
      * @param adapter  adapter of the list row.
      */
-    public static void setupBrowseItemFocusHighlight(ItemBridgeAdapter adapter) {
-        adapter.setFocusHighlight(sBrowseItemFocusHighlight);
+    public static void setupBrowseItemFocusHighlight(ItemBridgeAdapter adapter, int zoomIndex) {
+        adapter.setFocusHighlight(new BrowseItemFocusHighlight(zoomIndex));
     }
 
     /**
