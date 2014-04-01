@@ -15,41 +15,6 @@
      limitations under the License.
 -->
 <resources>
-    <dimen name="lb_card_width">140dip</dimen>
-    <dimen name="lb_card_height">200dip</dimen>
-    <dimen name="lb_card_title_text_size">14sp</dimen>
-    <dimen name="lb_card_content_text_size">12sp</dimen>
-    <dimen name="lb_card_info_padding">3dip</dimen>
-    <dimen name="lb_list_item_min_height">64dp</dimen>
-    <dimen name="lb_list_item_left_padding">20dp</dimen>
-    <dimen name="lb_list_item_right_padding">28dp</dimen>
-    <dimen name="lb_list_item_vertical_padding">12dp</dimen>
-    <dimen name="lb_list_item_delimiter_padding">4dp</dimen>
-    <dimen name="lb_list_item_checkmark_diameter">8dp</dimen>
-    <dimen name="lb_list_item_icon_width">32dp</dimen>
-    <dimen name="lb_list_item_icon_height">32dp</dimen>
-    <dimen name="lb_list_item_next_chevron_width">24dp</dimen>
-    <dimen name="lb_list_item_next_chevron_height">24dp</dimen>
-    <dimen name="lb_list_item_title_font_size">18sp</dimen>
-    <dimen name="lb_list_item_description_font_size">14sp</dimen>
-    <dimen name="lb_content_fragment_left_padding">48dp</dimen>
-    <dimen name="lb_content_fragment_title_text_bottom_padding">4dp</dimen>
-    <dimen name="lb_content_fragment_title_text_top_padding">2dp</dimen>
-    <dimen name="lb_content_fragment_delimiter_padding">16dp</dimen>
-    <dimen name="lb_content_fragment_title_text_size">36sp</dimen>
-    <dimen name="lb_content_fragment_breadcrumb_text_size">18sp</dimen>
-    <dimen name="lb_content_fragment_description_text_size">14sp</dimen>
-    <dimen name="lb_content_fragment_max_icon_height">280dp</dimen>
-    <dimen name="lb_content_fragment_icon_width">140dp</dimen>
-    <dimen name="lb_action_fragment_selector_min_height">8dp</dimen>
-
-    <!-- Width of the text in an action when an icon is present -->
-    <dimen name="lb_action_text_width">248dp</dimen>
-    <!-- Width of the text in an action when no icon is present -->
-    <dimen name="lb_action_text_width_no_icon">284dp</dimen>
-    <dimen name="lb_action_section_width">384dp</dimen>
-    <dimen name="lb_content_section_width">576dp</dimen>
-
     <dimen name="lb_browse_padding_left">56dp</dimen>
     <dimen name="lb_browse_padding_top">27dp</dimen>
 
@@ -76,7 +41,6 @@
     <dimen name="lb_browse_row_title_height">24dp</dimen>
     <dimen name="lb_browse_row_hovercard_max_width">420dp</dimen>
     <dimen name="lb_browse_row_hovercard_title_font_size">18sp</dimen>
-    <dimen name="lb_browse_row_hovercard_description_margin_top">2dp</dimen>
     <dimen name="lb_browse_row_hovercard_description_font_size">12sp</dimen>
     <dimen name="lb_browse_row_title_text_size">18sp</dimen>
     <dimen name="lb_browse_item_margin">12dp</dimen>
@@ -118,7 +82,6 @@
     <!-- Search Fragment -->
     <dimen name="lb_search_browse_rows_align_top">120dp</dimen>
     <dimen name="lb_search_browse_row_padding_left">56dp</dimen>
-    <dimen name="lb_search_fragment_results_container_height">425dp</dimen>
 
     <dimen name="lb_search_orb_size">52dp</dimen>
 
