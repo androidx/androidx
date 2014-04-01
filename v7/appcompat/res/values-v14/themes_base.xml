@@ -16,6 +16,23 @@
 
 <resources>
 
+    <!--
+        Theme in the "Theme.Platform.AppCompat" family are designed to be aliases for the default
+        theme on a given platform version. They should not set any styleable attributes. Instead
+        you should create a "Theme.Base" theme which inherits from a "Theme.Platform" theme.
+    -->
+    <eat-comment/>
+
+    <style name="Theme.Platform.AppCompat.Light.DarkActionBar"
+           parent="android:Theme.Holo.Light.DarkActionBar" />
+
+    <style name="Theme.Platform.AppCompat.DialogWhenLarge"
+           parent="android:Theme.Holo.DialogWhenLarge" />
+
+    <style name="Theme.Platform.AppCompat.Light.DialogWhenLarge"
+           parent="android:Theme.Holo.Light.DialogWhenLarge" />
+
+
     <!-- Themes in the "Theme.Base" family vary based on the current platform
           version to provide the correct basis on each device. You probably don't
           want to use them directly in your apps.
@@ -28,7 +45,7 @@
     <eat-comment/>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.Base.AppCompat" parent="android:Theme.Holo">
+    <style name="Theme.Base.AppCompat" parent="Theme.Platform.AppCompat">
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
@@ -54,7 +71,7 @@
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light" parent="android:Theme.Holo.Light">
+    <style name="Theme.Base.AppCompat.Light" parent="Theme.Platform.AppCompat.Light">
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
@@ -81,7 +98,7 @@
 
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
     <style name="Theme.Base.AppCompat.Light.DarkActionBar"
-           parent="android:Theme.Holo.Light.DarkActionBar">
+           parent="Theme.Platform.AppCompat.Light.DarkActionBar">
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
@@ -120,7 +137,7 @@
     -->
 
     <style name="Theme.Base.AppCompat.DialogWhenLarge.Base"
-           parent="android:Theme.Holo.DialogWhenLarge">
+           parent="Theme.Platform.AppCompat.DialogWhenLarge">
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
@@ -146,7 +163,7 @@
     </style>
 
     <style name="Theme.Base.AppCompat.Light.DialogWhenLarge.Base"
-           parent="android:Theme.Holo.Light.DialogWhenLarge">
+           parent="Theme.Platform.AppCompat.Light.DialogWhenLarge">
         <!-- Copy system flag values for our use -->
         <item name="windowActionBar">?android:attr/windowActionBar</item>
         <item name="actionBarSize">?android:attr/actionBarSize</item>
