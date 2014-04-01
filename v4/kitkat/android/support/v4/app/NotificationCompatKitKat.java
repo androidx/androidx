@@ -23,10 +23,11 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 
-class NotificationCompatApi20 {
+class NotificationCompatKitKat {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
+        private Bundle mExtras;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -34,7 +35,7 @@ class NotificationCompatApi20 {
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                String category, Bundle extras) {
+                Bundle extras) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -59,10 +60,11 @@ class NotificationCompatApi20 {
                 .setNumber(number)
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority)
-                .setProgress(mProgressMax, mProgress, mProgressIndeterminate)
-                .setLocalOnly(localOnly)
-                .setCategory(category)
-                .setExtras(extras);
+                .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
+            mExtras = extras;
+            if (localOnly) {
+                getExtras().putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, localOnly);
+            }
         }
 
         @Override
@@ -76,11 +78,25 @@ class NotificationCompatApi20 {
         }
 
         public Notification build() {
+            if (mExtras != null) {
+                b.setExtras(mExtras);
+            }
             return b.build();
+        }
+
+        private Bundle getExtras() {
+            if (mExtras == null) {
+                mExtras = new Bundle();
+            }
+            return mExtras;
         }
     }
 
+    public static Bundle getExtras(Notification notif) {
+        return notif.extras;
+    }
+
     public static boolean getLocalOnly(Notification notif) {
-        return (notif.flags & Notification.FLAG_LOCAL_ONLY) != 0;
+        return getExtras(notif).getBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY);
     }
 }
