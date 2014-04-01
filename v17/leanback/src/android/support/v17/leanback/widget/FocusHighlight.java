@@ -25,8 +25,7 @@ interface FocusHighlight {
      * Called when an item gains or loses focus.
      *
      * @param view The view whose focus is changing.
-     * @param item The item bound to this view.
      * @param hasFocus True if focus is gained; false otherwise.
      */
-    public void onItemFocused(View view, Object item, boolean hasFocus);
+    public void onItemFocused(View view, boolean hasFocus);
 }

@@ -67,7 +67,7 @@ public class FocusHighlightHelper {
         }
 
         @Override
-        public void onItemFocused(View view, Object item, boolean hasFocus) {
+        public void onItemFocused(View view, boolean hasFocus) {
             viewFocused(view, hasFocus);
         }
     }
@@ -134,7 +134,7 @@ public class FocusHighlightHelper {
         }
 
         @Override
-        public void onItemFocused(View view, Object item, boolean hasFocus) {
+        public void onItemFocused(View view, boolean hasFocus) {
             viewFocused(view, hasFocus);
         }
     }
@@ -150,7 +150,7 @@ public class FocusHighlightHelper {
         }
 
         @Override
-        public void onItemFocused(View view, Object item, boolean hasFocus) {
+        public void onItemFocused(View view, boolean hasFocus) {
             initializeDimensions(view.getResources());
             TransitionDrawable td = (TransitionDrawable) view.getBackground();
             if (hasFocus) {
