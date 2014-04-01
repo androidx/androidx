@@ -16,34 +16,10 @@
 -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="lb_bg_default">#333333</color>
     <color name="lb_grey">#888888</color>
-    <color name="lb_bluegreen">#00ffff</color>
     <color name="lb_browse_title_color">#EEEEEE</color>
-    <color name="lb_card_background_color">#FFDDDDDD</color>
-    <color name="lb_card_info_background_color">#FFFFFFFF</color>
-    <color name="lb_card_title_text_color">#FF000000</color>
-    <color name="lb_card_content_text_color">#FF404040</color>
-    <color name="lb_hovercard_title_text_color">#80ffffff</color>
-    <color name="lb_hovercard_description_text_color">#80ffffff</color>
-    <color name="lb_action_fragment_background">#FF111111</color>
-    <color name="lb_dialog_activity_background">#77000000</color>
-    <color name="lb_selector_color">#0DFFFFFF</color>
     <color name="lb_list_item_unselected_text_color">#FFF1F1F1</color>
-    <color name="lb_content_breadcrumb_text_color">#33F1F1F1</color>
-    <color name="lb_content_title_text_color">#FFF1F1F1</color>
-    <color name="lb_content_description_text_color">#99F1F1F1</color>
-    <color name="lb_tv_white">#FFCCCCCC</color>
     <color name="lb_background_protection">#A0333333</color>
-
-    <item name="lb_list_item_selected_title_text_alpha" format="float" type="alpha">1.00</item>
-    <item name="lb_list_item_selected_description_text_alpha" format="float" type="alpha">0.50</item>
-    <item name="lb_list_item_selected_chevron_background_alpha" format="float" type="alpha">0.10</item>
-    <item name="lb_list_item_unselected_text_alpha" format="float" type="alpha">0.25</item>
-    <item name="lb_list_item_unselected_description_text_alpha" format="float" type="alpha">0.10</item>
-    <item name="lb_list_item_disabled_title_text_alpha" format="float" type="alpha">0.10</item>
-    <item name="lb_list_item_disabled_description_text_alpha" format="float" type="alpha">0.25</item>
-    <item name="lb_list_item_disabled_chevron_background_alpha" format="float" type="alpha">0.05</item>
 
     <color name="lb_view_dim_mask_color">#000000</color>
     <item name="lb_view_dimmed_level" type="dimen">60%</item>
@@ -51,9 +27,6 @@
     <color name="lb_action_text_color">#EEEEEE</color>
     <color name="lb_action_bg_color">#3D3D3D</color>
 
-    <color name="lb_search_background">#D0000000</color>
-    <color name="lb_search_bar_background">#992D2D2D</color>
-    <color name="lb_search_result_background">#FF2D2D2D</color>
     <color name="lb_search_bar_text_color">#FFEEEEEE</color>
     <color name="lb_search_bar_hint_color">#33EEEEEE</color>
 </resources>
