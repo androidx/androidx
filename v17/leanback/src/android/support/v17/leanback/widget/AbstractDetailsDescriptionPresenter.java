@@ -70,7 +70,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
      * ViewHolder.
      *
      * @param vh The ViewHolder for this details description view.
-     * @param row The item from the DetailsOverviewRow being presented.
+     * @param item The item from the DetailsOverviewRow being presented.
      */
     protected abstract void onBindDescription(ViewHolder vh, Object item);
 
