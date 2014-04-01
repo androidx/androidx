@@ -60,9 +60,8 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         public void onFocusChange(View view, boolean hasFocus) {
             if (DEBUG) Log.v(TAG, "onFocusChange " + hasFocus + " " + view
                     + " mFocusHighlight" + mFocusHighlight);
-            ViewHolder viewHolder = getChildViewHolder(view);
             if (mFocusHighlight != null) {
-                mFocusHighlight.onItemFocused(view, viewHolder.mItem, hasFocus);
+                mFocusHighlight.onItemFocused(view, hasFocus);
             }
             if (mChainedListener != null) {
                 mChainedListener.onFocusChange(view, hasFocus);
@@ -148,11 +147,6 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     }
 
     public ItemBridgeAdapter() {
-    }
-
-    private ViewHolder getChildViewHolder(View view) {
-        RecyclerView recyclerView = (RecyclerView) view.getParent();
-        return (ViewHolder) recyclerView.getChildViewHolder(view);
     }
 
     public void setAdapter(ObjectAdapter adapter) {
