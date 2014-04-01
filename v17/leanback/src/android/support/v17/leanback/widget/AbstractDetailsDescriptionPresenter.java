@@ -62,18 +62,17 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
     public final void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         ViewHolder vh = (ViewHolder) viewHolder;
         DetailsOverviewRow row = (DetailsOverviewRow) item;
-        onBindDescription(vh, row);
+        onBindDescription(vh, row.getItem());
     }
 
     /**
-     * Binds the data from the DetailsOverviewRow to the ViewHolder. The item
-     * being described in this row is accessible via the row's {@link
-     * DetailsOverviewRow#getItem getItem} method.
+     * Binds the data from the item referenced in the DetailsOverviewRow to the
+     * ViewHolder.
      *
      * @param vh The ViewHolder for this details description view.
-     * @param row The DetailsOverviewRow being presented.
+     * @param row The item from the DetailsOverviewRow being presented.
      */
-    protected abstract void onBindDescription(ViewHolder vh, DetailsOverviewRow row);
+    protected abstract void onBindDescription(ViewHolder vh, Object item);
 
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {}
 }
