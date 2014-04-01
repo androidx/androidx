@@ -93,6 +93,7 @@ abstract class BaseGridView extends RecyclerView {
         setLayoutManager(mLayoutManager);
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         setHasFixedSize(true);
+        setChildrenDrawingOrderEnabled(true);
     }
 
     protected void initBaseGridViewAttributes(Context context, AttributeSet attrs) {
@@ -386,5 +387,14 @@ abstract class BaseGridView extends RecyclerView {
      */
     public void getViewSelectedOffsets(View view, int[] offsets) {
         mLayoutManager.getViewSelectedOffsets(view, offsets);
+    }
+
+    @Override
+    public int getChildDrawingOrder(int childCount, int i) {
+        return mLayoutManager.getChildDrawingOrder(this, childCount, i);
+    }
+
+    final boolean isChildrenDrawingOrderEnabledInternal() {
+        return isChildrenDrawingOrderEnabled();
     }
 }
