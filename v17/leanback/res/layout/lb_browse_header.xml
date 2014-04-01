@@ -16,16 +16,10 @@
 -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/browse_header"
-    android:layout_width="540dp"
+    android:layout_width="wrap_content"
     android:layout_height="@dimen/lb_browse_header_height"
     android:transformPivotX="0dip"
     android:transformPivotY="@dimen/lb_browse_header_half_height"
     android:alpha="@dimen/lb_browse_header_unselect_alpha"
-    android:gravity="center_vertical"
-    android:textAllCaps="true"
-    android:textColor="@color/lb_browse_title_color"
-    android:fontFamily="sans-serif-condensed"
-    android:singleLine="true"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:textSize="@dimen/lb_browse_header_text_size" />
+    style="?attr/headerStyle"
+/>

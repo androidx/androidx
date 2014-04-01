@@ -21,63 +21,20 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
 
-    <style name="TextAppearance.Leanback.BrowseHeader" parent="TextAppearance.Leanback">
+    <style name="TextAppearance.Leanback.Title" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_browse_title_text_size</item>
+        <item name="android:textColor">@color/lb_browse_title_color</item>
+    </style>
+
+    <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback">
         <item name="android:textAllCaps">true</item>
-        <item name="android:textSize">@dimen/lb_browse_row_title_text_size</item>
-    </style>
+        <item name="android:textSize">@dimen/lb_browse_row_header_text_size</item>
+        <item name="android:textColor">@color/lb_browse_header_color</item>
+        </style>
 
-    <style name="Widget.Leanback" parent="android:Widget.Holo">
-    </style>
-
-    <style name="Widget.Leanback.Browse">
-    </style>
-
-    <style name="Widget.Leanback.Browse.BrowseHeader" parent="android:Widget.Holo.TextView">
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="Widget.Leanback.Browse.HorizontalGridView">
-        <item name="android:clipToPadding">false</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
-        <item name="android:paddingBottom">@dimen/lb_browse_item_margin_vertical</item>
-        <item name="android:paddingLeft">@dimen/lb_browse_padding_left</item>
-        <item name="android:paddingRight">@dimen/lb_browse_item_margin_horizontal</item>
-        <item name="android:paddingTop">@dimen/lb_browse_item_margin_vertical</item>
-        <item name="focusOutFront">true</item>
-    </style>
-
-    <style name="Widget.Leanback.BrowseRowHeaderView">
-        <item name="android:minHeight">@dimen/lb_browse_row_title_height</item>
-        <item name="android:paddingLeft">@dimen/lb_browse_padding_left</item>
-        <item name="android:textAppearance">@style/TextAppearance.Leanback.BrowseHeader</item>
-    </style>
-
-    <style name="Widget.Leanback.BrowseRowView">
-        <item name="browseItemMargin">@dimen/lb_browse_item_margin</item>
-    </style>
-
-    <style name="TextAppearance.Leanback.BrowseRowHoverCardViewTitle" parent="TextAppearance.Leanback">
-        <item name="android:textSize">@dimen/lb_browse_row_hovercard_title_font_size</item>
-    </style>
-
-    <style name="TextAppearance.Leanback.BrowseRowHoverCardViewDescription" parent="TextAppearance.Leanback">
-        <item name="android:textSize">@dimen/lb_browse_row_hovercard_description_font_size</item>
-    </style>
-
-    <style name="Widget.Leanback.BrowseRowHoverCardViewTitle" >
-        <item name="android:textAppearance">@style/TextAppearance.Leanback.BrowseRowHoverCardViewTitle</item>
-        <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
-    </style>
-
-    <style name="Widget.Leanback.BrowseRowHoverCardViewDescription" >
-        <item name="android:textAppearance">@style/TextAppearance.Leanback.BrowseRowHoverCardViewDescription</item>
-        <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">2</item>
+    <style name="TextAppearance.Leanback.Header" parent="TextAppearance.Leanback">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/lb_browse_header_text_size</item>
     </style>
 
     <style name="TextAppearance.Leanback.SearchLabel" parent="TextAppearance.Leanback">
@@ -86,7 +43,104 @@
     </style>
 
     <style name="TextAppearance.Leanback.SearchTextEdit" parent="TextAppearance.Leanback">
-        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/lb_search_bar_text_size</item>
     </style>
+
+    <style name="Widget.Leanback" parent="android:Widget.Holo" />
+
+    <style name="Widget.Leanback.Title" />
+
+    <style name="Widget.Leanback.Title.Text">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Title</item>
+    </style>
+
+    <style name="Widget.Leanback.Title.Icon">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:scaleType">fitStart</item>
+    </style>
+
+    <!-- HeadersFragment (fast lane) -->
+    <style name="Widget.Leanback.Headers" />
+
+    <!-- header view in fast lane -->
+    <style name="Widget.Leanback.Header" />
+
+    <!-- RowsFragment -->
+    <style name="Widget.Leanback.Rows" >
+    </style>
+
+    <!-- row view -->
+    <style name="Widget.Leanback.Row" >
+    </style>
+
+    <style name="Widget.Leanback.Headers.VerticalGridView" >
+        <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="focusOutFront">true</item>
+        <item name="focusOutEnd">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="Widget.Leanback.Header" >
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Header</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="Widget.Leanback.Rows.VerticalGridView" >
+        <item name="android:paddingBottom">?attr/browsePaddingBottom</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="focusOutFront">true</item>
+        <item name="focusOutEnd">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="Widget.Leanback.Row.HorizontalGridView">
+        <item name="android:clipToPadding">false</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
+        <item name="android:paddingRight">?attr/browsePaddingRight</item>
+        <item name="android:paddingBottom">@dimen/lb_browse_item_margin_vertical</item>
+        <item name="android:paddingTop">@dimen/lb_browse_item_margin_vertical</item>
+        <item name="horizontalMargin">@dimen/lb_browse_item_margin</item>
+        <item name="verticalMargin">@dimen/lb_browse_item_margin</item>
+        <item name="focusOutFront">true</item>
+    </style>
+
+    <style name="Widget.Leanback.Row.Header">
+        <item name="android:minHeight">@dimen/lb_browse_row_title_height</item>
+        <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header</item>
+    </style>
+
+    <style name="TextAppearance.Leanback.Row.HoverCardTitle" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_browse_row_hovercard_title_font_size</item>
+    </style>
+
+    <style name="TextAppearance.Leanback.Row.HoverCardDescription" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_browse_row_hovercard_description_font_size</item>
+    </style>
+
+    <style name="Widget.Leanback.Row.HoverCardTitle" >
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.HoverCardTitle</item>
+        <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.Leanback.Row.HoverCardDescription" >
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.HoverCardDescription</item>
+        <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">2</item>
+    </style>
+
 </resources>

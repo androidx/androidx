@@ -23,6 +23,7 @@ import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.util.Log;
 import android.app.Fragment;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,6 @@ public class BrowseFragment extends Fragment {
     private boolean mShowingHeaders = true;
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginLeft;
-    private int mContainerListWidth;
     private int mContainerListAlignTop;
     private TransitionHelper mTransitionHelper;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
@@ -283,11 +283,12 @@ public class BrowseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContainerListMarginLeft = (int) getResources().getDimension(
-                R.dimen.lb_browse_rows_margin_left);
-        mContainerListWidth =  getResources().getDimensionPixelSize(R.dimen.lb_browse_rows_width);
-        mContainerListAlignTop =
-            getResources().getDimensionPixelSize(R.dimen.lb_browse_rows_align_top);
+        TypedArray ta = getActivity().obtainStyledAttributes(R.styleable.LeanbackTheme);
+        mContainerListMarginLeft = (int) ta.getDimension(
+                R.styleable.LeanbackTheme_browseRowsMarginStart, 0);
+        mContainerListAlignTop = (int) ta.getDimension(
+                R.styleable.LeanbackTheme_browseRowsMarginTop, 0);
+        ta.recycle();
     }
 
     @Override
@@ -471,9 +472,6 @@ public class BrowseFragment extends Fragment {
         // Both fragments list view has the same alignment
         setVerticalVerticalGridViewLayout(headerList);
         setVerticalVerticalGridViewLayout(containerList);
-
-        mRowsFragment.getVerticalGridView().getLayoutParams().width = mContainerListWidth;
-        mRowsFragment.getVerticalGridView().requestLayout();
     }
 
     @Override

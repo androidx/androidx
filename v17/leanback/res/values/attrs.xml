@@ -42,23 +42,47 @@
         <attr name="numberOfColumns" format="integer" />
     </declare-styleable>
 
-    <!-- Attributes that can be used with {@link
-         android.support.v17.leanback.widget.BrowseRowView}. -->
-    <declare-styleable name="BrowseRowView">
-        <attr name="browseItemMargin" format="dimension" />
-        <!-- TODO: define more attributes -->
-    </declare-styleable>
-
     <declare-styleable name="LeanbackTheme">
 
-        <!-- for Row -->
-        <attr name="browseHorizontalGridStyle" format="reference" />
-        <attr name="browseRowViewStyle" format="reference" />
-        <attr name="browseRowHeaderStyle" format="reference" />
+        <!-- left padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr name="browsePaddingLeft" format="dimension" />
+        <!-- right padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr name="browsePaddingRight" format="dimension" />
+        <!-- top padding of BrowseFragment -->
+        <attr name="browsePaddingTop" format="dimension" />
+        <!-- bottom padding of BrowseFragment -->
+        <attr name="browsePaddingBottom" format="dimension" />
+        <!-- width of BrowseFragment or RowsFragment -->
+        <attr name="rowsWidth" format="dimension" />
+        <!-- start margin of RowsFragment inside BrowseFragment when HeadersFragment is visible -->
+        <attr name="browseRowsMarginStart" format="dimension" />
+        <!-- top margin of RowsFragment inside BrowseFragment when BrowseFragment title is visible -->
+        <attr name="browseRowsMarginTop" format="dimension" />
 
-        <!-- for hover card -->
-        <attr name="browseRowHoverCardTitleStyle" format="reference" />
-        <attr name="browseRowHoverCardDescriptionStyle" format="reference" />
+        <!-- BrowseFragment Title text style -->
+        <attr name="browseTitleTextStyle" format="reference" />
+
+        <!-- BrowseFragment Title icon style -->
+        <attr name="browseTitleIconStyle" format="reference" />
+
+        <!-- vertical grid style inside HeadersFragment -->
+        <attr name="headersVerticalGridStyle" format="reference" />
+
+        <!-- header view style inside HeadersFragment -->
+        <attr name="headerStyle" format="reference" />
+
+        <!-- vertical grid style inside RowsFragment -->
+        <attr name="rowsVerticalGridStyle" format="reference" />
+
+        <!-- horizontal grid style inside a row -->
+        <attr name="rowHorizontalGridStyle" format="reference" />
+        <!-- header style inside a row -->
+        <attr name="rowHeaderStyle" format="reference" />
+
+        <!-- hover card title style -->
+        <attr name="rowHoverCardTitleStyle" format="reference" />
+        <!-- hover card description style -->
+        <attr name="rowHoverCardDescriptionStyle" format="reference" />
 
     </declare-styleable>
 </resources>
