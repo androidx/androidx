@@ -25,7 +25,8 @@ import java.util.Collection;
 /**
  * DetailsOverviewRowPresenter renders {@link DetailsOverviewRow} to display an
  * overview of an item. Typically this row will be the first row in a fragment
- * such as {@link DetailsFragment}.
+ * such as {@link android.support.v17.leanback.app.DetailsFragment
+ * DetailsFragment}.
  *
  * <p>The detailed description is rendered using a {@link Presenter}.
  */
