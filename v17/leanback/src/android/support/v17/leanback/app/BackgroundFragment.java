@@ -22,19 +22,33 @@ import android.app.Fragment;
 public final class BackgroundFragment extends Fragment {
     private BackgroundManager mBackgroundManager;
 
-    public void setBackgroundManager(BackgroundManager backgroundManager) {
+    void setBackgroundManager(BackgroundManager backgroundManager) {
         mBackgroundManager = backgroundManager;
+    }
+
+    BackgroundManager getBackgroundManager() {
+        return mBackgroundManager;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mBackgroundManager.onActivityResume();
+        // mBackgroundManager might be null:
+        // if BackgroundFragment is just restored by FragmentManager,
+        // and user does not call BackgroundManager.getInstance() yet.
+        if (mBackgroundManager != null) {
+            mBackgroundManager.onActivityResume();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mBackgroundManager.detach();
+        // mBackgroundManager might be null:
+        // if BackgroundFragment is just restored by FragmentManager,
+        // and user does not call BackgroundManager.getInstance() yet.
+        if (mBackgroundManager != null) {
+            mBackgroundManager.detach();
+        }
     }
 }
