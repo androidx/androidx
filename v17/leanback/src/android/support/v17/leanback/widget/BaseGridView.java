@@ -31,6 +31,25 @@ import android.view.animation.Interpolator;
 abstract class BaseGridView extends RecyclerView {
 
     /**
+     * Always keep focused item at a aligned position.  Developer can use
+     * WINDOW_ALIGN_XXX and ITEM_ALIGN_XXX to define how focused item is aligned.
+     * In this mode, the last focused position will be remembered and restored when focus
+     * is back to the view.
+     */
+    public final static int FOCUS_SCROLL_ALIGNED = 0;
+
+    /**
+     * Scroll to make the focused item inside client area.
+     */
+    public final static int FOCUS_SCROLL_ITEM = 1;
+
+    /**
+     * Scroll a page of items when focusing to item outside the client area.
+     * The page size matches the client area size of RecyclerView.
+     */
+    public final static int FOCUS_SCROLL_PAGE = 2;
+
+    /**
      * The first item is aligned with the low edge of the viewport. When
      * navigating away from the first item, the focus maintains a middle
      * location.
@@ -106,6 +125,35 @@ abstract class BaseGridView extends RecyclerView {
         mLayoutManager.setHorizontalMargin(
                 a.getDimensionPixelSize(R.styleable.lbBaseGridView_horizontalMargin, 0));
         a.recycle();
+    }
+
+    /**
+     * Set the strategy used to scroll in response to item focus changing:
+     * <ul>
+     * <li>{@link #FOCUS_SCROLL_ALIGNED} (default) </li>
+     * <li>{@link #FOCUS_SCROLL_ITEM}</li>
+     * <li>{@link #FOCUS_SCROLL_PAGE}</li>
+     * </ul>
+     */
+    public void setFocusScrollStrategy(int scrollStrategy) {
+        if (scrollStrategy != FOCUS_SCROLL_ALIGNED && scrollStrategy != FOCUS_SCROLL_ITEM
+            && scrollStrategy != FOCUS_SCROLL_PAGE) {
+            throw new IllegalArgumentException("Invalid scrollStrategy");
+        }
+        mLayoutManager.setFocusScrollStrategy(scrollStrategy);
+        requestLayout();
+    }
+
+    /**
+     * Returns the strategy used to scroll in response to item focus changing.
+     * <ul>
+     * <li>{@link #FOCUS_SCROLL_ALIGNED} (default) </li>
+     * <li>{@link #FOCUS_SCROLL_ITEM}</li>
+     * <li>{@link #FOCUS_SCROLL_PAGE}</li>
+     * </ul>
+     */
+    public int getFocusScrollStrategy() {
+        return mLayoutManager.getFocusScrollStrategy();
     }
 
     /**
@@ -382,7 +430,7 @@ abstract class BaseGridView extends RecyclerView {
 
     @Override
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
-        if (mLayoutManager.focusSelectedChild(direction, previouslyFocusedRect)) {
+        if (mLayoutManager.onRequestFocus(direction, previouslyFocusedRect)) {
             return true;
         }
         return super.requestFocus(direction, previouslyFocusedRect);

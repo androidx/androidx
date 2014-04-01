@@ -40,6 +40,7 @@ import android.view.animation.Interpolator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 final class GridLayoutManager extends RecyclerView.LayoutManager {
 
@@ -334,6 +335,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private int mLastVisiblePos;
 
     /**
+     * Focus Scroll strategy.
+     */
+    private int mFocusScrollStrategy = BaseGridView.FOCUS_SCROLL_ALIGNED;
+    /**
      * Defines how item view is aligned in the window.
      */
     private final WindowAlignment mWindowAlignment = new WindowAlignment();
@@ -388,6 +393,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mWindowAlignment.setOrientation(orientation);
         mItemAlignment.setOrientation(orientation);
         mForceFullLayout = true;
+    }
+
+    public int getFocusScrollStrategy() {
+        return mFocusScrollStrategy;
+    }
+
+    public void setFocusScrollStrategy(int focusScrollStrategy) {
+        mFocusScrollStrategy = focusScrollStrategy;
     }
 
     public void setWindowAlignment(int windowAlignment) {
@@ -944,22 +957,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    /**
-     * append invisible view of saved location
-     */
-    private void appendViewWithSavedLocation() {
-        int index = mLastVisiblePos + 1;
-        mGridProvider.createItem(index, mGrid.getLocation(index).row, true);
-    }
-
-    /**
-     * prepend invisible view of saved location
-     */
-    private void prependViewWithSavedLocation() {
-        int index = mFirstVisiblePos - 1;
-        mGridProvider.createItem(index, mGrid.getLocation(index).row, false);
-    }
-
     private boolean needsAppendVisibleItem() {
         if (mLastVisiblePos < mFocusPosition) {
             return true;
@@ -995,14 +992,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // Append one column if possible and return true if reach end.
     private boolean appendOneVisibleItem() {
-        if (mLastVisiblePos >= 0 && mLastVisiblePos < mGrid.getLastIndex()) {
-            appendViewWithSavedLocation();
-        } else if (mLastVisiblePos < mAdapter.getItemCount() - 1) {
-            mGrid.appendItems(mScrollOffsetPrimary + mSizePrimary);
-        } else {
-            return true;
+        while (true) {
+            if (mLastVisiblePos >= 0 && mLastVisiblePos < mGrid.getLastIndex()) {
+                // append invisible view of saved location till last row
+                final int index = mLastVisiblePos + 1;
+                final int row = mGrid.getLocation(index).row;
+                mGridProvider.createItem(index, row, true);
+                if (row == mNumRows - 1) {
+                    return false;
+                }
+            } else if (mLastVisiblePos < mAdapter.getItemCount() - 1) {
+                mGrid.appendItems(mScrollOffsetPrimary + mSizePrimary);
+                return false;
+            } else {
+                return true;
+            }
         }
-        return false;
     }
 
     private void appendVisibleItems() {
@@ -1015,16 +1020,24 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // Prepend one column if possible and return true if reach end.
     private boolean prependOneVisibleItem() {
-        if (mFirstVisiblePos > 0) {
-            if (mFirstVisiblePos > mGrid.getFirstIndex()) {
-                prependViewWithSavedLocation();
+        while (true) {
+            if (mFirstVisiblePos > 0) {
+                if (mFirstVisiblePos > mGrid.getFirstIndex()) {
+                    // prepend invisible view of saved location till first row
+                    final int index = mFirstVisiblePos - 1;
+                    final int row = mGrid.getLocation(index).row;
+                    mGridProvider.createItem(index, row, false);
+                    if (row == 0) {
+                        return false;
+                    }
+                } else {
+                    mGrid.prependItems(mScrollOffsetPrimary);
+                    return false;
+                }
             } else {
-                mGrid.prependItems(mScrollOffsetPrimary);
+                return true;
             }
-        } else {
-            return true;
         }
-        return false;
     }
 
     private void prependVisibleItems() {
@@ -1131,30 +1144,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return end + mMarginPrimary;
     }
 
-    // create a temporary structure that remembers visible items from left to
-    // right on each row
-    private ArrayList<Integer>[] buildRows() {
-        ArrayList<Integer>[] rows = new ArrayList[mNumRows];
-        for (int i = 0; i < mNumRows; i++) {
-            rows[i] = new ArrayList();
-        }
-        if (mFirstVisiblePos >= 0) {
-            for (int i = mFirstVisiblePos; i <= mLastVisiblePos; i++) {
-                rows[mGrid.getLocation(i).row].add(i);
-            }
-        }
-        return rows;
-    }
-
     // Fast layout when there is no structure change, adapter change, etc.
     protected void fastRelayout() {
         initScrollController();
 
-        ArrayList<Integer>[] rows = buildRows();
+        List<Integer>[] rows = mGrid.getItemPositionsInRows(mFirstVisiblePos, mLastVisiblePos);
 
         // relayout and repositioning views on each row
         for (int i = 0; i < mNumRows; i++) {
-            ArrayList<Integer> row = rows[i];
+            List<Integer> row = rows[i];
             int start = Integer.MIN_VALUE;
             int startSecondary =
                 i * (mItemLengthSecondary + mMarginSecondary) - mScrollOffsetSecondary;
@@ -1171,8 +1169,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         updateScrollMin();
         updateScrollMax();
 
-        View focusView = getViewByPosition(mFocusPosition == NO_POSITION ? 0 : mFocusPosition);
-        if (focusView != null) {
+        if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            View focusView = getViewByPosition(mFocusPosition == NO_POSITION ? 0 : mFocusPosition);
             scrollToView(focusView, false);
         }
     }
@@ -1203,7 +1201,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // Track the old focus view so we can adjust our system scroll position
         // so that any scroll animations happening now will remain valid.
         int delta = 0, deltaSecondary = 0;
-        if (mFocusPosition != NO_POSITION) {
+        if (mFocusPosition != NO_POSITION
+                && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
             View focusView = getViewByPosition(mFocusPosition);
             if (focusView != null) {
                 delta = mWindowAlignment.mainAxis().getSystemScrollPos(
@@ -1273,8 +1272,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mForceFullLayout = false;
 
-        scrollDirectionPrimary(-delta);
-        scrollDirectionSecondary(-deltaSecondary);
+        if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            scrollDirectionPrimary(-delta);
+            scrollDirectionSecondary(-deltaSecondary);
+        }
         appendVisibleItems();
         prependVisibleItems();
         removeInvisibleViewsAtFront();
@@ -1451,10 +1452,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 } else {
                     prependVisibleItems();
                 }
-                view = getViewByPosition(position);
-                if (view != null) {
-                    scrollToView(view, smooth);
-                }
+                scrollToView(getViewByPosition(position), smooth);
             } else {
                 mForceFullLayout = true;
                 parent.requestLayout();
@@ -1530,38 +1528,133 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // by setSelection())
             view.requestFocus();
         }
-        int viewCenterY = getScrollOffsetY() + getViewCenterY(view);
-        int viewCenterX = getScrollOffsetX() + getViewCenterX(view);
+        switch (mFocusScrollStrategy) {
+        case BaseGridView.FOCUS_SCROLL_ALIGNED:
+        default:
+            scrollToAlignedPosition(view, smooth);
+            break;
+        case BaseGridView.FOCUS_SCROLL_ITEM:
+        case BaseGridView.FOCUS_SCROLL_PAGE:
+            scrollItemOrPage(view, smooth);
+            break;
+        }
+    }
+
+    private void scrollItemOrPage(View view, boolean smooth) {
+        int pos = getPositionByView(view);
+        int viewMin = getViewMin(view);
+        int viewMax = getViewMax(view);
+        // we either align "firstView" to left/top padding edge
+        // or align "lastView" to right/bottom padding edge
+        View firstView = null;
+        View lastView = null;
+        int paddingLow = mWindowAlignment.mainAxis().getPaddingLow();
+        int clientSize = mWindowAlignment.mainAxis().getClientSize();
+        final int row = mGrid.getLocation(pos).row;
+        if (viewMin < paddingLow) {
+            // view enters low padding area:
+            firstView = view;
+            if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_PAGE) {
+                // scroll one "page" left/top,
+                // align first visible item of the "page" at the low padding edge.
+                while (!prependOneVisibleItem()) {
+                    List<Integer> positions =
+                            mGrid.getItemPositionsInRows(mFirstVisiblePos, pos)[row];
+                    firstView = getViewByPosition(positions.get(0));
+                    if (viewMax - getViewMin(firstView) > clientSize) {
+                        if (positions.size() > 1) {
+                            firstView = getViewByPosition(positions.get(1));
+                        }
+                        break;
+                    }
+                }
+            }
+        } else if (viewMax > clientSize + paddingLow) {
+            // view enters high padding area:
+            if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_PAGE) {
+                // scroll whole one page right/bottom, align view at the low padding edge.
+                firstView = view;
+                do {
+                    List<Integer> positions =
+                            mGrid.getItemPositionsInRows(pos, mLastVisiblePos)[row];
+                    lastView = getViewByPosition(positions.get(positions.size() - 1));
+                    if (getViewMax(lastView) - viewMin > clientSize) {
+                        lastView = null;
+                        break;
+                    }
+                } while (!appendOneVisibleItem());
+                if (lastView != null) {
+                    // however if we reached end,  we should align last view.
+                    firstView = null;
+                }
+            } else {
+                lastView = view;
+            }
+        }
+        int scrollPrimary = 0;
+        int scrollSecondary = 0;
+        if (firstView != null) {
+            scrollPrimary = getViewMin(firstView) - paddingLow;
+        } else if (lastView != null) {
+            scrollPrimary = getViewMax(lastView) - (paddingLow + clientSize);
+        }
+        View secondaryAlignedView;
+        if (firstView != null) {
+            secondaryAlignedView = firstView;
+        } else if (lastView != null) {
+            secondaryAlignedView = lastView;
+        } else {
+            secondaryAlignedView = view;
+        }
+        int viewCenterSecondary = mScrollOffsetSecondary +
+                getViewCenterSecondary(secondaryAlignedView);
+        mWindowAlignment.secondAxis().updateScrollCenter(viewCenterSecondary);
+        scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos();
+        scrollSecondary -= mScrollOffsetSecondary;
+        scrollGrid(scrollPrimary, scrollSecondary, smooth);
+    }
+
+    private void scrollToAlignedPosition(View view, boolean smooth) {
+        int viewCenterPrimary = mScrollOffsetPrimary + getViewCenter(view);
+        int viewCenterSecondary = mScrollOffsetSecondary + getViewCenterSecondary(view);
         if (DEBUG) {
-            Log.v(getTag(), "scrollToView smooth=" + smooth + " pos=" + mFocusPosition + " "
-                    + viewCenterX+","+viewCenterY + " " + mWindowAlignment);
+            Log.v(getTag(), "scrollAligned smooth=" + smooth + " pos=" + mFocusPosition + " "
+                    + viewCenterPrimary +","+viewCenterSecondary + " " + mWindowAlignment);
         }
 
-        if (mInLayout || viewCenterX != mWindowAlignment.horizontal.getScrollCenter()
-                || viewCenterY != mWindowAlignment.vertical.getScrollCenter()) {
-            mWindowAlignment.horizontal.updateScrollCenter(viewCenterX);
-            mWindowAlignment.vertical.updateScrollCenter(viewCenterY);
-            int scrollX = mWindowAlignment.horizontal.getSystemScrollPos();
-            int scrollY = mWindowAlignment.vertical.getSystemScrollPos();
+        if (mInLayout || viewCenterPrimary != mWindowAlignment.mainAxis().getScrollCenter()
+                || viewCenterSecondary != mWindowAlignment.secondAxis().getScrollCenter()) {
+            mWindowAlignment.mainAxis().updateScrollCenter(viewCenterPrimary);
+            mWindowAlignment.secondAxis().updateScrollCenter(viewCenterSecondary);
+            int scrollPrimary = mWindowAlignment.mainAxis().getSystemScrollPos();
+            int scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos();
             if (DEBUG) {
-                Log.v(getTag(), "adjustSystemScrollPos " + scrollX + " " + scrollY + " "
-                    + mWindowAlignment);
+                Log.v(getTag(), "scrollAligned " + scrollPrimary + " " + scrollSecondary
+                        +" " + mWindowAlignment);
             }
 
-            scrollX -= getScrollOffsetX();
-            scrollY -= getScrollOffsetY();
+            scrollPrimary -= mScrollOffsetPrimary;
+            scrollSecondary -= mScrollOffsetSecondary;
 
-            if (DEBUG) Log.v(getTag(), "scrollX " + scrollX + " scrollY " + scrollY);
+            scrollGrid(scrollPrimary, scrollSecondary, smooth);
+        }
+    }
 
-            if (mInLayout) {
-                if (mOrientation == HORIZONTAL) {
-                    scrollDirectionPrimary(scrollX);
-                    scrollDirectionSecondary(scrollY);
-                } else {
-                    scrollDirectionPrimary(scrollY);
-                    scrollDirectionSecondary(scrollX);
-                }
-            } else if (smooth) {
+    private void scrollGrid(int scrollPrimary, int scrollSecondary, boolean smooth) {
+        if (mInLayout) {
+            scrollDirectionPrimary(scrollPrimary);
+            scrollDirectionSecondary(scrollSecondary);
+        } else {
+            int scrollX;
+            int scrollY;
+            if (mOrientation == HORIZONTAL) {
+                scrollX = scrollPrimary;
+                scrollY = scrollSecondary;
+            } else {
+                scrollX = scrollSecondary;
+                scrollY = scrollPrimary;
+            }
+            if (smooth) {
                 mBaseGridView.smoothScrollBy(scrollX, scrollY);
             } else {
                 mBaseGridView.scrollBy(scrollX, scrollY);
@@ -1640,14 +1733,25 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             final int focusableCount = views.size();
             final int descendantFocusability = recyclerView.getDescendantFocusability();
             if (mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
+                // focusables will be the current focused view and next neighbor view of same row
+                // on the focus search direction.
                 for (int i = 0, count = getChildCount(); i < count; i++) {
-                    final View child = getChildAt(i);
+                    int index = movement == NEXT_ITEM ? i : count - 1 - i;
+                    final View child = getChildAt(index);
                     if (child.getVisibility() != View.VISIBLE) {
                         continue;
                     }
-                    StaggeredGrid.Location loc = mGrid.getLocation(getPositionByIndex(i));
+                    int position = getPositionByIndex(index);
+                    StaggeredGrid.Location loc = mGrid.getLocation(position);
                     if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
-                        child.addFocusables(views,  direction, focusableMode);
+                        if (focusedPos == NO_POSITION || 
+                                (movement == NEXT_ITEM && position >= focusedPos)
+                                || (movement == PREV_ITEM && position <= focusedPos)) {
+                            child.addFocusables(views,  direction, focusableMode);
+                            if (focusedPos != NO_POSITION && focusedPos != position) {
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -1664,6 +1768,32 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         } else {
+            if (mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED) {
+                // adding views not overlapping padding area to avoid scrolling in gaining focus
+                int left = mWindowAlignment.mainAxis().getPaddingLow();
+                int right = mWindowAlignment.mainAxis().getClientSize() + left;
+                int size = views.size();
+                for (int i = 0, count = getChildCount(); i < count; i++) {
+                    View child = getChildAt(i);
+                    if (child.getVisibility() == View.VISIBLE) {
+                        int viewMin = getViewMin(child);
+                        int viewMax = getViewMax(child);
+                        if (viewMin >= left && viewMax <= right) {
+                            child.addFocusables(views, direction, focusableMode);
+                        }
+                    }
+                }
+                // if we cannot find any, then just add all children.
+                if (views.size() == size) {
+                    for (int i = 0, count = getChildCount(); i < count; i++) {
+                        View child = getChildAt(i);
+                        if (child.getVisibility() == View.VISIBLE) {
+                            child.addFocusables(views, direction, focusableMode);
+                        }
+                    }
+                }
+                return true;
+            }
             if (recyclerView.isFocusable()) {
                 views.add(recyclerView);
             }
@@ -1700,24 +1830,25 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return view;
     }
 
+    boolean onRequestFocus(int direction, Rect previouslyFocusedRect) {
+        if (mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            return false;
+        }
+        View view = getViewByPosition(mFocusPosition);
+        if (view != null) {
+            boolean result = view.requestFocus(direction, previouslyFocusedRect);
+            if (!result && DEBUG) {
+                Log.w(getTag(), "failed to request focus on " + view);
+            }
+            return result;
+        }
+        return false;
+    }
+
     private final static int PREV_ITEM = 0;
     private final static int NEXT_ITEM = 1;
     private final static int PREV_ROW = 2;
     private final static int NEXT_ROW = 3;
-
-    boolean focusSelectedChild(int direction, Rect previouslyFocusedRect) {
-        View view = getViewByPosition(mFocusPosition);
-        if (view != null) {
-            if (!view.requestFocus(direction, previouslyFocusedRect)) {
-                if (DEBUG) {
-                    Log.w(getTag(), "failed to request focus on " + view);
-                }
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private int getMovement(int direction) {
         int movement = View.FOCUS_LEFT;
