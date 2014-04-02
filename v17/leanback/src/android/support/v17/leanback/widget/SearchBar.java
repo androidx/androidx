@@ -19,10 +19,13 @@ import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.support.v17.leanback.R;
+import android.widget.TextView;
 
 /**
  * SearchBar is a search widget.
@@ -105,13 +108,23 @@ public class SearchBar extends RelativeLayout {
             }
         });
         mSearchTextEditor.setOnKeyboardDismissListener(
-            new SearchEditText.OnKeyboardDismissListener() {
-                @Override
-                public void onKeyboardDismiss() {
-                    if (null != mSearchBarListener) {
-                        mSearchBarListener.onKeyboardDismiss(mSearchQuery);
+                new SearchEditText.OnKeyboardDismissListener() {
+                    @Override
+                    public void onKeyboardDismiss() {
+                        if (null != mSearchBarListener) {
+                            mSearchBarListener.onKeyboardDismiss(mSearchQuery);
+                        }
                     }
+                });
+        mSearchTextEditor.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int action, KeyEvent keyEvent) {
+                if (EditorInfo.IME_ACTION_SEARCH == action && null != mSearchBarListener) {
+                    mSearchBarListener.onSearchQuerySubmit(mSearchQuery);
+                    return true;
                 }
+                return false;
+            }
         });
         mSearchTextEditor.setFocusable(true);
         mSearchTextEditor.setVisibility(VISIBLE);
