@@ -749,7 +749,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // TODO: use recyclerview support for measuring the whole container, once
     // it's available.
-    void gridOnMeasure(int widthSpec, int heightSpec, int[] result) {
+    void onMeasure(int widthSpec, int heightSpec, int[] result) {
         int sizePrimary, sizeSecondary, modeSecondary, paddingSecondary;
         int measuredSizeSecondary;
         if (mOrientation == HORIZONTAL) {
@@ -1714,12 +1714,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public boolean onAddFocusables(RecyclerView recyclerView,
             ArrayList<View> views, int direction, int focusableMode) {
         // If this viewgroup or one of its children currently has focus then we
-        // consider our children for focus searching in main direction on the same row.
-        // If this viewgroup has no focus and using focus align, we want the system
-        // to ignore our children and pass focus to the viewgroup, which will pass
-        // focus on to its children appropriately.
-        // If this viewgroup has no focus and not using focus align, we want to
-        // consider the child that does not overlap with padding area.
+        // consider our children for focus searching.
+        // Otherwise, we only want the system to ignore our children and pass
+        // focus to the viewgroup, which will pass focus on to its children
+        // appropriately.
         if (recyclerView.hasFocus()) {
             final int movement = getMovement(direction);
             if (movement != PREV_ITEM && movement != NEXT_ITEM) {
@@ -1733,7 +1731,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     mGrid.getLocation(focusedPos).row : NO_POSITION;
             // Add focusables within the same row.
             final int focusableCount = views.size();
-            if (mGrid != null) {
+            final int descendantFocusability = recyclerView.getDescendantFocusability();
+            if (mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
                 // focusables will be the current focused view and next neighbor view of same row
                 // on the focus search direction.
                 for (int i = 0, count = getChildCount(); i < count; i++) {
@@ -1756,6 +1755,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     }
                 }
             }
+            // From ViewGroup.addFocusables():
+            // we add ourselves (if focusable) in all cases except for when we are
+            // FOCUS_AFTER_DESCENDANTS and there are some descendants focusable.  this is
+            // to avoid the focus search finding layouts when a more precise search
+            // among the focusable children would be more interesting.
+            if (descendantFocusability != ViewGroup.FOCUS_AFTER_DESCENDANTS
+                    // No focusable descendants
+                    || (focusableCount == views.size())) {
+                if (recyclerView.isFocusable()) {
+                    views.add(recyclerView);
+                }
+            }
         } else {
             if (mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED) {
                 // adding views not overlapping padding area to avoid scrolling in gaining focus
@@ -1765,7 +1776,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 for (int i = 0, count = getChildCount(); i < count; i++) {
                     View child = getChildAt(i);
                     if (child.getVisibility() == View.VISIBLE) {
-                        if (getViewMin(child) >= left && getViewMax(child) <= right) {
+                        int viewMin = getViewMin(child);
+                        int viewMax = getViewMax(child);
+                        if (viewMin >= left && viewMax <= right) {
                             child.addFocusables(views, direction, focusableMode);
                         }
                     }
@@ -1817,20 +1830,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return view;
     }
 
-    boolean gridOnRequestFocus(RecyclerView recyclerView, int direction,
-            Rect previouslyFocusedRect) {
-        switch (mFocusScrollStrategy) {
-        case BaseGridView.FOCUS_SCROLL_ALIGNED:
-        default:
-            return gridOnRequestFocusAligned(recyclerView, direction, previouslyFocusedRect);
-        case BaseGridView.FOCUS_SCROLL_PAGE:
-        case BaseGridView.FOCUS_SCROLL_ITEM:
-            return gridOnRequestFocusUnaligned(recyclerView, direction, previouslyFocusedRect);
+    boolean onRequestFocus(int direction, Rect previouslyFocusedRect) {
+        if (mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            return false;
         }
-    }
-
-    private boolean gridOnRequestFocusAligned(RecyclerView recyclerView, int direction,
-            Rect previouslyFocusedRect) {
         View view = getViewByPosition(mFocusPosition);
         if (view != null) {
             boolean result = view.requestFocus(direction, previouslyFocusedRect);
@@ -1838,37 +1841,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 Log.w(getTag(), "failed to request focus on " + view);
             }
             return result;
-        }
-        return false;
-    }
-
-    private boolean gridOnRequestFocusUnaligned(RecyclerView recyclerView, int direction,
-            Rect previouslyFocusedRect) {
-        // focus to view not overlapping padding area to avoid scrolling in gaining focus
-        int index;
-        int increment;
-        int end;
-        int count = getChildCount();
-        if ((direction & View.FOCUS_FORWARD) != 0) {
-            index = 0;
-            increment = 1;
-            end = count;
-        } else {
-            index = count - 1;
-            increment = -1;
-            end = -1;
-        }
-        int left = mWindowAlignment.mainAxis().getPaddingLow();
-        int right = mWindowAlignment.mainAxis().getClientSize() + left;
-        for (int i = index; i != end; i += increment) {
-            View child = getChildAt(i);
-            if (child.getVisibility() == View.VISIBLE) {
-                if (getViewMin(child) >= left && getViewMax(child) <= right) {
-                    if (child.requestFocus(direction, previouslyFocusedRect)) {
-                        return true;
-                    }
-                }
-            }
         }
         return false;
     }
