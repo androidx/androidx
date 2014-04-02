@@ -110,7 +110,6 @@ abstract class BaseGridView extends RecyclerView {
         super(context, attrs, defStyle);
         mLayoutManager = new GridLayoutManager(this);
         setLayoutManager(mLayoutManager);
-        setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         setHasFixedSize(true);
         setChildrenDrawingOrderEnabled(true);
     }
@@ -424,16 +423,13 @@ abstract class BaseGridView extends RecyclerView {
 
     @Override
     protected final void onMeasure(int widthSpec, int heightSpec) {
-        mLayoutManager.onMeasure(widthSpec, heightSpec, mMeasuredSize);
+        mLayoutManager.gridOnMeasure(widthSpec, heightSpec, mMeasuredSize);
         setMeasuredDimension(mMeasuredSize[0], mMeasuredSize[1]);
     }
 
     @Override
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
-        if (mLayoutManager.onRequestFocus(direction, previouslyFocusedRect)) {
-            return true;
-        }
-        return super.requestFocus(direction, previouslyFocusedRect);
+        return mLayoutManager.gridOnRequestFocus(this, direction, previouslyFocusedRect);
     }
 
     /**
