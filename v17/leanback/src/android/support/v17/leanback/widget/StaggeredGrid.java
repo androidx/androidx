@@ -16,6 +16,8 @@ package android.support.v17.leanback.widget;
 import android.support.v4.util.CircularArray;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A dynamic data structure that maintains staggered grid position information
@@ -94,6 +96,7 @@ abstract class StaggeredGrid {
     protected int mNumRows = 1; // mRows.length
     protected Row[] mRows;
     protected CircularArray<Location> mLocations = new CircularArray<Location>(64);
+    private ArrayList<Integer>[] mTmpItemPositionsInRows;
 
     /**
      * A constant representing a default starting index, indicating that the
@@ -130,6 +133,10 @@ abstract class StaggeredGrid {
         }
         mNumRows = row.length;
         mRows = row;
+        mTmpItemPositionsInRows = new ArrayList[mNumRows];
+        for (int i = 0; i < mNumRows; i++) {
+            mTmpItemPositionsInRows[i] = new ArrayList(32);
+        }
     }
 
     /**
@@ -267,6 +274,23 @@ abstract class StaggeredGrid {
         mFirstIndex = itemIndex;
         mLocations.addFirst(loc);
         return loc;
+    }
+
+    /**
+     * Return array of Lists for all rows, each List contains item positions
+     * on that row between startPos(included) and endPositions(included).
+     * Returned value is read only, do not change it.
+     */
+    public final List<Integer>[] getItemPositionsInRows(int startPos, int endPos) {
+        for (int i = 0; i < mNumRows; i++) {
+            mTmpItemPositionsInRows[i].clear();
+        }
+        if (startPos >= 0) {
+            for (int i = startPos; i <= endPos; i++) {
+                mTmpItemPositionsInRows[getLocation(i).row].add(i);
+            }
+        }
+        return mTmpItemPositionsInRows;
     }
 
     /**
