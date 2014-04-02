@@ -749,7 +749,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // TODO: use recyclerview support for measuring the whole container, once
     // it's available.
-    void onMeasure(int widthSpec, int heightSpec, int[] result) {
+    void gridOnMeasure(int widthSpec, int heightSpec, int[] result) {
         int sizePrimary, sizeSecondary, modeSecondary, paddingSecondary;
         int measuredSizeSecondary;
         if (mOrientation == HORIZONTAL) {
@@ -1730,27 +1730,29 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public boolean onAddFocusables(RecyclerView recyclerView,
             ArrayList<View> views, int direction, int focusableMode) {
         // If this viewgroup or one of its children currently has focus then we
-        // consider our children for focus searching.
-        // Otherwise, we only want the system to ignore our children and pass
-        // focus to the viewgroup, which will pass focus on to its children
-        // appropriately.
+        // consider our children for focus searching in main direction on the same row.
+        // If this viewgroup has no focus and using focus align, we want the system
+        // to ignore our children and pass focus to the viewgroup, which will pass
+        // focus on to its children appropriately.
+        // If this viewgroup has no focus and not using focus align, we want to
+        // consider the child that does not overlap with padding area.
         if (recyclerView.hasFocus()) {
             final int movement = getMovement(direction);
             if (movement != PREV_ITEM && movement != NEXT_ITEM) {
                 // Move on secondary direction uses default addFocusables().
                 return false;
             }
-            // Get current focus row.
             final View focused = recyclerView.findFocus();
             final int focusedPos = getPositionByIndex(findImmediateChildIndex(focused));
+            // Add focusables of focused item.
+            if (focusedPos != NO_POSITION) {
+                getViewByPosition(focusedPos).addFocusables(views,  direction, focusableMode);
+            }
             final int focusedRow = mGrid != null && focusedPos != NO_POSITION ?
                     mGrid.getLocation(focusedPos).row : NO_POSITION;
-            // Add focusables within the same row.
-            final int focusableCount = views.size();
-            final int descendantFocusability = recyclerView.getDescendantFocusability();
-            if (mGrid != null && descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
-                // focusables will be the current focused view and next neighbor view of same row
-                // on the focus search direction.
+            // Add focusables of next neighbor of same row on the focus search direction.
+            if (mGrid != null) {
+                final int focusableCount = views.size();
                 for (int i = 0, count = getChildCount(); i < count; i++) {
                     int index = movement == NEXT_ITEM ? i : count - 1 - i;
                     final View child = getChildAt(index);
@@ -1761,26 +1763,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     StaggeredGrid.Location loc = mGrid.getLocation(position);
                     if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
                         if (focusedPos == NO_POSITION || 
-                                (movement == NEXT_ITEM && position >= focusedPos)
-                                || (movement == PREV_ITEM && position <= focusedPos)) {
+                                (movement == NEXT_ITEM && position > focusedPos)
+                                || (movement == PREV_ITEM && position < focusedPos)) {
                             child.addFocusables(views,  direction, focusableMode);
-                            if (focusedPos != NO_POSITION && focusedPos != position) {
+                            if (views.size() > focusableCount) {
                                 break;
                             }
                         }
                     }
-                }
-            }
-            // From ViewGroup.addFocusables():
-            // we add ourselves (if focusable) in all cases except for when we are
-            // FOCUS_AFTER_DESCENDANTS and there are some descendants focusable.  this is
-            // to avoid the focus search finding layouts when a more precise search
-            // among the focusable children would be more interesting.
-            if (descendantFocusability != ViewGroup.FOCUS_AFTER_DESCENDANTS
-                    // No focusable descendants
-                    || (focusableCount == views.size())) {
-                if (recyclerView.isFocusable()) {
-                    views.add(recyclerView);
                 }
             }
         } else {
@@ -1788,27 +1778,30 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 // adding views not overlapping padding area to avoid scrolling in gaining focus
                 int left = mWindowAlignment.mainAxis().getPaddingLow();
                 int right = mWindowAlignment.mainAxis().getClientSize() + left;
-                int size = views.size();
+                int focusableCount = views.size();
                 for (int i = 0, count = getChildCount(); i < count; i++) {
                     View child = getChildAt(i);
                     if (child.getVisibility() == View.VISIBLE) {
-                        int viewMin = getViewMin(child);
-                        int viewMax = getViewMax(child);
-                        if (viewMin >= left && viewMax <= right) {
+                        if (getViewMin(child) >= left && getViewMax(child) <= right) {
                             child.addFocusables(views, direction, focusableMode);
                         }
                     }
                 }
                 // if we cannot find any, then just add all children.
-                if (views.size() == size) {
+                if (views.size() == focusableCount) {
                     for (int i = 0, count = getChildCount(); i < count; i++) {
                         View child = getChildAt(i);
                         if (child.getVisibility() == View.VISIBLE) {
                             child.addFocusables(views, direction, focusableMode);
                         }
                     }
+                    if (views.size() != focusableCount) {
+                        return true;
+                    }
+                } else {
+                    return true;
                 }
-                return true;
+                // if still cannot find any, fall through and add itself
             }
             if (recyclerView.isFocusable()) {
                 views.add(recyclerView);
@@ -1846,10 +1839,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return view;
     }
 
-    boolean onRequestFocus(int direction, Rect previouslyFocusedRect) {
-        if (mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED) {
-            return false;
+    boolean gridOnRequestFocusInDescendants(RecyclerView recyclerView, int direction,
+            Rect previouslyFocusedRect) {
+        switch (mFocusScrollStrategy) {
+        case BaseGridView.FOCUS_SCROLL_ALIGNED:
+        default:
+            return gridOnRequestFocusInDescendantsAligned(recyclerView,
+                    direction, previouslyFocusedRect);
+        case BaseGridView.FOCUS_SCROLL_PAGE:
+        case BaseGridView.FOCUS_SCROLL_ITEM:
+            return gridOnRequestFocusInDescendantsUnaligned(recyclerView,
+                    direction, previouslyFocusedRect);
         }
+    }
+
+    private boolean gridOnRequestFocusInDescendantsAligned(RecyclerView recyclerView,
+            int direction, Rect previouslyFocusedRect) {
         View view = getViewByPosition(mFocusPosition);
         if (view != null) {
             boolean result = view.requestFocus(direction, previouslyFocusedRect);
@@ -1857,6 +1862,37 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 Log.w(getTag(), "failed to request focus on " + view);
             }
             return result;
+        }
+        return false;
+    }
+
+    private boolean gridOnRequestFocusInDescendantsUnaligned(RecyclerView recyclerView,
+            int direction, Rect previouslyFocusedRect) {
+        // focus to view not overlapping padding area to avoid scrolling in gaining focus
+        int index;
+        int increment;
+        int end;
+        int count = getChildCount();
+        if ((direction & View.FOCUS_FORWARD) != 0) {
+            index = 0;
+            increment = 1;
+            end = count;
+        } else {
+            index = count - 1;
+            increment = -1;
+            end = -1;
+        }
+        int left = mWindowAlignment.mainAxis().getPaddingLow();
+        int right = mWindowAlignment.mainAxis().getClientSize() + left;
+        for (int i = index; i != end; i += increment) {
+            View child = getChildAt(i);
+            if (child.getVisibility() == View.VISIBLE) {
+                if (getViewMin(child) >= left && getViewMax(child) <= right) {
+                    if (child.requestFocus(direction, previouslyFocusedRect)) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
