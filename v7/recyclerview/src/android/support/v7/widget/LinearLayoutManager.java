@@ -37,6 +37,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     public static final int VERTICAL = LinearLayout.VERTICAL;
 
+    public static final int INVALID_OFFSET = Integer.MIN_VALUE;
+
     /**
      * While trying to find next view to focus, LinearLayoutManager will not try to scroll more
      * than
@@ -67,16 +69,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     private OrientationHelper mOrientationHelper;
 
     /**
-     * To be able to detect stacking order changes, we keep the last <em>rendered</em> value.
-     */
-    private boolean mLastLayoutStackOrder;
-
-    /**
-     * To be able to detect layout direction changes, we keep the last <em>rendered</em> value.
-     */
-    private int mLastLayoutOrientation;
-
-    /**
      * We need to track this so that we can ignore current position when it changes.
      */
     private boolean mLastLegacyStackFromEnd;
@@ -104,10 +96,16 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     private boolean mStackFromEnd = false;
 
     /**
-     * When layout manager needs to scroll to a position, it sets this variable and requests a
+     * When LayoutManager needs to scroll to a position, it sets this variable and requests a
      * layout which will check this variable and re-layout accordingly.
      */
     private int mPendingScrollPosition = RecyclerView.NO_POSITION;
+
+    /**
+     * Used to keep the offset value when {@link #scrollToPositionWithOffset(int, int)} is
+     * called.
+     */
+    private int mPendingScrollPositionOffset = INVALID_OFFSET;
 
     /**
      * Creates a vertical LinearLayoutManager
@@ -202,7 +200,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     private void resolveShouldLayoutReverse() {
         // A == B is the same result, but we rather keep it readable
-        if (mOrientation == VERTICAL || isLayoutRTL() == false) {
+        if (mOrientation == VERTICAL || !isLayoutRTL()) {
             mShouldReverseLayout = mReverseLayout;
         } else {
             mShouldReverseLayout = !mReverseLayout;
@@ -241,6 +239,18 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         requestLayout();
     }
 
+    private View findViewByPosition(int position) {
+        final int childCount = getChildCount();
+        if (childCount == 0) {
+            return null;
+        }
+        final int firstChild = getPosition(getChildAt(0));
+        final int viewPosition = position - firstChild;
+        if (viewPosition >= 0 && viewPosition < childCount) {
+            return getChildAt(viewPosition);
+        }
+        return null;
+    }
 
     /**
      * {@inheritDoc}
@@ -248,102 +258,206 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
             boolean structureChanged) {
-        // update stacking direction.
-        resolveShouldLayoutReverse();
+        // layout algorithm:
+        // 1) by checking children and other variables, find an anchor coordinate and an anchor
+        //  item position.
+        // 2) fill towards start, stacking from bottom
+        // 3) fill towards end, stacking from top
+        // 4) scroll to fulfill requirements like stack from bottom.
 
+        // resolve layout direction
+        resolveShouldLayoutReverse();
+        // create render state
+        ensureRenderState();
+
+        // validate scroll position if exists
         if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
             // validate it
             if (mPendingScrollPosition < 0 || mPendingScrollPosition >= adapter.getItemCount()) {
                 mPendingScrollPosition = RecyclerView.NO_POSITION;
+                mPendingScrollPositionOffset = INVALID_OFFSET;
                 if (DEBUG) {
                     Log.e(TAG, "ignoring invalid scroll position " + mPendingScrollPosition);
                 }
             }
         }
+        // this value might be updated if there is a target scroll position without an offset
+        boolean layoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
 
-        final boolean stackOrderChanged = mLastLayoutStackOrder != mShouldReverseLayout;
-        final boolean orientationChanged = mLastLayoutOrientation != mOrientation;
         final boolean legacyStackFromEndChanged = mLastLegacyStackFromEnd != mStackFromEnd;
-        // Ignore stackFromEnd if there is a predefined scroll position.
-        final boolean layoutFromEnd = mShouldReverseLayout
-                ^ (mPendingScrollPosition == RecyclerView.NO_POSITION && mStackFromEnd);
-        ensureRenderState();
-        //find current scroll position
-        if (!legacyStackFromEndChanged && getChildCount() > 0
-                && mPendingScrollPosition == RecyclerView.NO_POSITION) {
-            View referenceChild = mStackFromEnd ? getChildAt(getChildCount() - 1)
-                    : getChildAt(0);
-            mRenderState.mCurrentPosition = getPosition(referenceChild);
-            final boolean ignoreOffsetOfChild = orientationChanged || stackOrderChanged;
-            if (ignoreOffsetOfChild) {
-                // on orientation change, snap item to beginning because its current relative
-                // positioning is meaningless
-                mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding()
-                        - mOrientationHelper.getStartAfterPadding();
-                mRenderState.mOffset = layoutFromEnd ? mOrientationHelper.getEndAfterPadding()
-                        : mOrientationHelper.getStartAfterPadding();
-            } else {
-                if (layoutFromEnd) {
-                    mRenderState.mOffset = mOrientationHelper.getDecoratedEnd(referenceChild);
-                    mRenderState.mAvailable = mRenderState.mOffset
+
+        int anchorCoordinate, anchorItemPosition;
+        if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+            // if child is visible, try to make it a reference child and ensure it is fully visible.
+            // if child is not visible, align it depending on its virtual position.
+            anchorItemPosition = mPendingScrollPosition;
+            if (mPendingScrollPositionOffset == INVALID_OFFSET) {
+                View child = findViewByPosition(mPendingScrollPosition);
+                if (child != null) {
+                    final int startGap = mOrientationHelper.getDecoratedStart(child)
                             - mOrientationHelper.getStartAfterPadding();
+                    final int endGap = mOrientationHelper.getEndAfterPadding() -
+                            mOrientationHelper.getDecoratedEnd(child);
+                    if (startGap < 0 && endGap < 0) {
+                        // item does not fit. fix depending on layout direction
+                        anchorCoordinate = layoutFromEnd ? mOrientationHelper.getEndAfterPadding()
+                                : mOrientationHelper.getStartAfterPadding();
+                    } else if (startGap < 0) {
+                        anchorCoordinate = mOrientationHelper.getStartAfterPadding();
+                        layoutFromEnd = false;
+                    } else if (endGap < 0) {
+                        anchorCoordinate = mOrientationHelper.getEndAfterPadding();
+                        layoutFromEnd = true;
+                    } else {
+                        anchorCoordinate = layoutFromEnd
+                                ? mOrientationHelper.getDecoratedEnd(child)
+                                : mOrientationHelper.getDecoratedStart(child);
+                    }
+                } else { // item is not visible.
+                    if (getChildCount() > 0) {
+                        // get position of any child, does not matter
+                        int pos = getPosition(getChildAt(0));
+                        if (mPendingScrollPosition < pos == mShouldReverseLayout) {
+                            anchorCoordinate = mOrientationHelper.getEndAfterPadding();
+                            layoutFromEnd = true;
+                        } else {
+                            anchorCoordinate = mOrientationHelper.getStartAfterPadding();
+                            layoutFromEnd = false;
+                        }
+                    } else {
+                        anchorCoordinate = layoutFromEnd ? mOrientationHelper.getEndAfterPadding()
+                                : mOrientationHelper.getStartAfterPadding();
+                    }
+                }
+            } else {
+                // override layout from end values for consistency
+                if (mShouldReverseLayout) {
+                    anchorCoordinate = mOrientationHelper.getEndAfterPadding()
+                            - mPendingScrollPositionOffset;
+                    layoutFromEnd = true;
                 } else {
-                    mRenderState.mOffset = mOrientationHelper.getDecoratedStart(referenceChild);
-                    mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding()
-                            - mRenderState.mOffset;
+                    anchorCoordinate = mOrientationHelper.getStartAfterPadding()
+                            + mPendingScrollPositionOffset;
+                    layoutFromEnd = false;
                 }
             }
-
-        } else {
-            mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding()
-                    - mOrientationHelper.getStartAfterPadding();
-            mRenderState.mOffset = layoutFromEnd ? mOrientationHelper.getEndAfterPadding()
-                    : mOrientationHelper.getStartAfterPadding();
-
-            if (mPendingScrollPosition == RecyclerView.NO_POSITION) {
-                mRenderState.mCurrentPosition = mStackFromEnd ? adapter.getItemCount() - 1 : 0;
+        } else if (getChildCount() > 0 && !legacyStackFromEndChanged) {
+            if (layoutFromEnd) {
+                View referenceChild = getChildClosestToEnd();
+                anchorCoordinate = mOrientationHelper.getDecoratedEnd(referenceChild);
+                anchorItemPosition = getPosition(referenceChild);
             } else {
-                mRenderState.mCurrentPosition = mPendingScrollPosition;
+                View referenceChild = getChildClosestToStart();
+                anchorCoordinate = mOrientationHelper.getDecoratedStart(referenceChild);
+                anchorItemPosition = getPosition(referenceChild);
             }
+        } else {
+            anchorCoordinate = layoutFromEnd ? mOrientationHelper.getEndAfterPadding() :
+                    mOrientationHelper.getStartAfterPadding();
+            anchorItemPosition = mStackFromEnd ? adapter.getItemCount() - 1 : 0;
         }
-        detachAndScrapAttachedViews(recycler);
-        mRenderState.mItemDirection =
-                (mPendingScrollPosition == RecyclerView.NO_POSITION && mStackFromEnd)
-                        ? RenderState.ITEM_DIRECTION_HEAD : RenderState.ITEM_DIRECTION_TAIL;
-        mRenderState.mLayoutDirection = layoutFromEnd ? RenderState.LAYOUT_START
-                : RenderState.LAYOUT_END;
-        mRenderState.mScrollingOffset = RenderState.SCOLLING_OFFSET_NaN;
 
+        detachAndScrapAttachedViews(recycler);
+        // first fill towards start
+        updateRenderStateToFillStart(anchorItemPosition, anchorCoordinate);
+        if (!layoutFromEnd) {
+            mRenderState.mCurrentPosition += mRenderState.mItemDirection;
+        }
         fill(recycler, adapter, mRenderState, false);
 
-        // set position or orientation changes may cause empty space in our view.
-        // If that is the case, try to scroll back to fix it.
+        // fill towards end
+        updateRenderStateToFillEnd(anchorItemPosition, anchorCoordinate);
+        if (layoutFromEnd) {
+            mRenderState.mCurrentPosition += mRenderState.mItemDirection;
+        }
+        fill(recycler, adapter, mRenderState, false);
+
+        // changes may cause gaps on the UI, try to fix them.
         if (getChildCount() > 0) {
-            if (mRenderState.mLayoutDirection == RenderState.LAYOUT_START) {
-                final View lastChild = getChildClosestToStart();
-                final int emptySpace = mOrientationHelper.getDecoratedStart(lastChild) -
-                        mOrientationHelper.getStartAfterPadding();
-                if (emptySpace > 0) {
-                    // try to scroll back to fix the empty space
-                    scrollBy(emptySpace, adapter, recycler);
-                }
+            // because layout from end may be changed by scroll to position
+            // we re-calculate it.
+            // find which side we should check for gaps.
+            if (mShouldReverseLayout ^ mStackFromEnd) {
+                fixLayoutEndGap(adapter, recycler, true);
+                fixLayoutStartGap(adapter, recycler, false);
             } else {
-                final View lastChild = getChildClosestToEnd();
-                final int emptySpace = mOrientationHelper.getEndAfterPadding() -
-                        mOrientationHelper.getDecoratedEnd(lastChild);
-                if (emptySpace > 0) {
-                    scrollBy(-emptySpace, adapter, recycler);
-                }
+                fixLayoutStartGap(adapter, recycler, true);
+                fixLayoutEndGap(adapter, recycler, false);
             }
         }
-        // clear
-        mPendingScrollPosition = RecyclerView.NO_POSITION;
 
         removeAndRecycleScrap(recycler);
-        mLastLayoutOrientation = mOrientation;
-        mLastLayoutStackOrder = mShouldReverseLayout;
+        mPendingScrollPosition = RecyclerView.NO_POSITION;
+        mPendingScrollPositionOffset = INVALID_OFFSET;
         mLastLegacyStackFromEnd = mStackFromEnd;
+
+        if (DEBUG) {
+            validateChildOrder();
+        }
     }
+
+    private void fixLayoutEndGap(RecyclerView.Adapter adapter,
+            RecyclerView.Recycler recycler, boolean canOffsetChildren) {
+        View endChild = getChildClosestToEnd();
+        int gap = mOrientationHelper.getEndAfterPadding()
+                - mOrientationHelper.getDecoratedEnd(endChild);
+        if (gap > 0) {
+            scrollBy(-gap, adapter, recycler);
+        } else {
+            return; // nothing to fix
+        }
+        if (canOffsetChildren) {
+            // re-calculate gap, see if we could fix it
+            gap = mOrientationHelper.getEndAfterPadding()
+                    - mOrientationHelper.getDecoratedEnd(endChild);
+            if (gap > 0) {
+                mOrientationHelper.offsetChildren(gap);
+            }
+        }
+    }
+
+    private void fixLayoutStartGap(RecyclerView.Adapter adapter,
+            RecyclerView.Recycler recycler, boolean canOffsetChildren) {
+        View startChild = getChildClosestToStart();
+        int gap = mOrientationHelper.getDecoratedStart(startChild) -
+                mOrientationHelper.getStartAfterPadding();
+        if (gap > 0) {
+            // check if we should fix this gap.
+            scrollBy(gap, adapter, recycler);
+        } else {
+            return; // nothing to fix
+        }
+        if (canOffsetChildren) {
+            // re-calculate gap, see if we could fix it
+            gap = mOrientationHelper.getDecoratedStart(startChild) -
+                    mOrientationHelper.getStartAfterPadding();
+            if (gap > 0) {
+                mOrientationHelper.offsetChildren(-gap);
+            }
+        }
+    }
+
+    private void updateRenderStateToFillEnd(int itemPosition, int offset) {
+        mRenderState.mAvailable = mOrientationHelper.getEndAfterPadding() - offset;
+        mRenderState.mItemDirection = mShouldReverseLayout ? RenderState.ITEM_DIRECTION_HEAD :
+                RenderState.ITEM_DIRECTION_TAIL;
+        mRenderState.mCurrentPosition = itemPosition;
+        mRenderState.mLayoutDirection = RenderState.LAYOUT_END;
+        mRenderState.mOffset = offset;
+        mRenderState.mScrollingOffset = RenderState.SCOLLING_OFFSET_NaN;
+    }
+
+    private void updateRenderStateToFillStart(int itemPosition, int offset) {
+        mRenderState.mAvailable = offset - mOrientationHelper.getStartAfterPadding();
+        mRenderState.mCurrentPosition = itemPosition;
+        mRenderState.mItemDirection = mShouldReverseLayout ? RenderState.ITEM_DIRECTION_TAIL :
+                RenderState.ITEM_DIRECTION_HEAD;
+        mRenderState.mLayoutDirection = RenderState.LAYOUT_START;
+        mRenderState.mOffset = offset;
+        mRenderState.mScrollingOffset = RenderState.SCOLLING_OFFSET_NaN;
+
+    }
+
 
     private boolean isLayoutRTL() {
         return getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
@@ -365,18 +479,46 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * <p>Scroll to the specified adapter position. The view will scroll such that the indicated
-     * position is displayed at the start position of the layout.</p>
+     * <p>Scroll the RecyclerView to make the position visible.</p>
+     *
+     * <p>RecyclerView will scroll the minimum amount that is necessary to make the
+     * target position visible. If you are looking for a similar behavior to
+     * {@link android.widget.ListView#setSelection(int)} or
+     * {@link android.widget.ListView#setSelectionFromTop(int, int)}, use
+     * {@link #scrollToPositionWithOffset(int, int)}.</p>
      *
      * <p>Note that scroll position change will not be reflected until the next layout call.</p>
      *
      * @param position Scroll to this adapter position
+     * @see #scrollToPositionWithOffset(int, int)
      */
     @Override
     public void scrollToPosition(int position) {
         mPendingScrollPosition = position;
+        mPendingScrollPositionOffset = INVALID_OFFSET;
         requestLayout();
     }
+
+    /**
+     * <p>Scroll to the specified adapter position with the given offset from layout start.</p>
+     *
+     * <p>Note that scroll position change will not be reflected until the next layout call.</p>
+     *
+     * <p>If you are just trying to make a position visible, use {@link #scrollToPosition(int)}.</p>
+     *
+     * @param position Index (starting at 0) of the reference item.
+     * @param offset   The distance (in pixels) between the start edge of the item view and
+     *                 start edge of the RecyclerView.
+     *
+     * @see #setReverseLayout(boolean)
+     * @see #scrollToPosition(int)
+     */
+    public void scrollToPositionWithOffset(int position, int offset) {
+        mPendingScrollPosition = position;
+        mPendingScrollPositionOffset = offset;
+        requestLayout();
+    }
+
 
     /**
      * {@inheritDoc}
@@ -404,12 +546,18 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int computeHorizontalScrollOffset(RecyclerView.Adapter adapter) {
+        if (getChildCount() == 0) {
+            return 0;
+        }
         final int topPosition = getPosition(getChildClosestToStart());
         return mShouldReverseLayout ? adapter.getItemCount() - 1 - topPosition : topPosition;
     }
 
     @Override
     public int computeVerticalScrollOffset(RecyclerView.Adapter adapter) {
+        if (getChildCount() == 0) {
+            return 0;
+        }
         final int topPosition = getPosition(getChildClosestToStart());
         return mShouldReverseLayout ? adapter.getItemCount() - 1 - topPosition : topPosition;
     }
@@ -794,7 +942,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         } else {
             nextFocus = getChildClosestToEnd();
         }
-        if (nextFocus == referenceChild || nextFocus.isFocusable() == false) {
+        if (nextFocus == referenceChild || !nextFocus.isFocusable()) {
             return null;
         }
         return nextFocus;
