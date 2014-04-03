@@ -937,15 +937,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 || mOrientation == VERTICAL && horizontalGravity == Gravity.CENTER_HORIZONTAL) {
             startSecondary += (mItemLengthSecondary - measuredSecondary) / 2;
         }
-        int left = start;
-        int top = startSecondary;
-        int right = end;
-        int bottom = startSecondary + measuredSecondary;
-        if (mOrientation != HORIZONTAL) {
-            left = startSecondary;
+        int left, top, right, bottom;
+        if (mOrientation == HORIZONTAL) {
+            left = start;
+            top = startSecondary;
+            right = end;
+            bottom = startSecondary + measuredSecondary;
+        } else {
             top = start;
-            right = startSecondary + measuredSecondary;
+            left = startSecondary;
             bottom = end;
+            right = startSecondary + measuredSecondary;
         }
         v.layout(left, top, right, bottom);
         updateChildOpticalInsets(v, left, top, right, bottom);
@@ -954,11 +956,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private void updateChildOpticalInsets(View v, int left, int top, int right, int bottom) {
         LayoutParams p = (LayoutParams) v.getLayoutParams();
-        // TODO: is abs correct and necessary here?
-        p.setOpticalInsets(Math.abs(v.getLeft() - left),
-                Math.abs(v.getTop() - top),
-                Math.abs(v.getRight() - right),
-                Math.abs(v.getBottom() - bottom));
+        p.setOpticalInsets(left - v.getLeft(), top - v.getTop(),
+                v.getRight() - right, v.getBottom() - bottom);
     }
 
     private void updateChildAlignments(View v) {
