@@ -40,6 +40,16 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
+#  A helper sub-library that makes direct use of JBMR2 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v17-leanback-jbmr2
+LOCAL_SDK_VERSION := 19
+LOCAL_SRC_FILES := $(call all-java-files-under, jbmr2)
+LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 # Here is the final static library that apps can link against.
 # The R class is automatically excluded from the generated library.
 # Applications that use this library must specify LOCAL_RESOURCE_DIR
@@ -48,7 +58,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat android-support-v17-leanback-jbmr2
 LOCAL_JAVA_LIBRARIES := \
         android-support-v4 \
         android-support-v7-recyclerview \

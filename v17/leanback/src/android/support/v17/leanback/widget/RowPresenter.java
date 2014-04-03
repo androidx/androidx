@@ -245,6 +245,13 @@ public abstract class RowPresenter extends Presenter {
         return true;
     }
 
+    /**
+     * Return true if the Row view can draw outside bounds.
+     */
+    public boolean canDrawOutOfBounds() {
+        return false;
+    }
+
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         ViewHolder vh = (ViewHolder) viewHolder;
