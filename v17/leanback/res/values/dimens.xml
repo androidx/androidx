@@ -17,6 +17,11 @@
 <resources>
     <dimen name="lb_browse_padding_left">56dp</dimen>
     <dimen name="lb_browse_padding_top">27dp</dimen>
+    <dimen name="lb_browse_padding_right">56dp</dimen>
+    <dimen name="lb_browse_padding_bottom">48dp</dimen>
+    <dimen name="lb_rows_width">960dp</dimen>
+    <dimen name="lb_browse_rows_margin_start">238dp</dimen>
+    <dimen name="lb_browse_rows_margin_top">120dp</dimen>
 
     <dimen name="lb_browse_title_height">60dp</dimen>
     <dimen name="lb_browse_title_icon_height">52dp</dimen>
@@ -25,9 +30,6 @@
     <dimen name="lb_browse_title_text_size">28sp</dimen>
 
     <!-- 294 - 56 -->
-    <dimen name="lb_browse_rows_margin_left">238dp</dimen>
-    <dimen name="lb_browse_rows_width">960dp</dimen>
-    <dimen name="lb_browse_rows_align_top">120dp</dimen>
     <integer name="lb_browse_rows_anim_duration">250</integer>
 
     <dimen name="lb_browse_header_height">48dp</dimen>
@@ -42,11 +44,10 @@
     <dimen name="lb_browse_row_hovercard_max_width">420dp</dimen>
     <dimen name="lb_browse_row_hovercard_title_font_size">18sp</dimen>
     <dimen name="lb_browse_row_hovercard_description_font_size">12sp</dimen>
-    <dimen name="lb_browse_row_title_text_size">18sp</dimen>
+    <dimen name="lb_browse_row_header_text_size">18sp</dimen>
     <dimen name="lb_browse_item_margin">12dp</dimen>
     <dimen name="lb_browse_item_margin_vertical">12dp</dimen>
     <dimen name="lb_browse_item_margin_horizontal">12dp</dimen>
-    <dimen name="lb_rows_fragment_padding_bottom">48dp</dimen>
 
     <item name="lb_focus_zoom_factor_small" type="fraction">106%</item>
     <item name="lb_focus_zoom_factor_medium" type="fraction">110%</item>
@@ -60,8 +61,6 @@
     <dimen name="lb_details_overview_actions_margin_left">294dp</dimen>
     <dimen name="lb_details_overview_action_items_margin">32dp</dimen>
     <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
-    <dimen name="lb_details_rows_margin_left">238dp</dimen>
-    <dimen name="lb_details_rows_width">960dp</dimen>
     <dimen name="lb_details_rows_align_top">120dp</dimen>
 
     <dimen name="lb_action_padding_left">32dp</dimen>
