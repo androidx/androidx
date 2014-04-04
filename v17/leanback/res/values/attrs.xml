@@ -84,5 +84,10 @@
         <!-- hover card description style -->
         <attr name="rowHoverCardDescriptionStyle" format="reference" />
 
+        <!-- for details overviews -->
+        <attr name="detailsDescriptionTitleStyle" format="reference" />
+        <attr name="detailsDescriptionSubtitleStyle" format="reference" />
+        <attr name="detailsDescriptionBodyStyle" format="reference" />
+
     </declare-styleable>
 </resources>

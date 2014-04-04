@@ -27,6 +27,8 @@
     <color name="lb_view_dim_mask_color">#000000</color>
     <item name="lb_view_dimmed_level" type="dimen">60%</item>
 
+    <color name="lb_details_description_color">#EEEEEE</color>
+
     <color name="lb_action_text_color">#EEEEEE</color>
     <color name="lb_action_bg_color">#3D3D3D</color>
 

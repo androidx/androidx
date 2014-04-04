@@ -13,23 +13,38 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.graphics.drawable.Drawable;
+
 import static android.support.v17.leanback.widget.ObjectAdapter.NO_ID;
 
 /**
- * An action that can be shown on a details page.
+ * An action that can be shown on a details page. It contains one or two lines
+ * of text and an optional image.
  */
 public class Action {
 
     private long mId = NO_ID;
-    private CharSequence mLabel;
+    private Drawable mIcon;
+    private CharSequence mLabel1;
+    private CharSequence mLabel2;
 
     public Action(long id) {
         this(id, "");
     }
 
     public Action(long id, CharSequence label) {
+        this(id, label, null);
+    }
+
+    public Action(long id, CharSequence label1, CharSequence label2) {
+        this(id, label1, label2, null);
+    }
+
+    public Action(long id, CharSequence label1, CharSequence label2, Drawable icon) {
         setId(id);
-        setLabel(label);
+        setLabel1(label1);
+        setLabel2(label2);
+        setIcon(icon);
     }
 
     /**
@@ -47,16 +62,44 @@ public class Action {
     }
 
     /**
-     * Set the label for this action.
+     * Set the first line label for this action.
      */
-    public final void setLabel(CharSequence label) {
-        mLabel = label;
+    public final void setLabel1(CharSequence label) {
+        mLabel1 = label;
     }
 
     /**
-     * Returns the label for this action.
+     * Returns the first line label for this action.
      */
-    public final CharSequence getLabel() {
-        return mLabel;
+    public final CharSequence getLabel1() {
+        return mLabel1;
+    }
+
+    /**
+     * Set the second line label for this action.
+     */
+    public final void setLabel2(CharSequence label) {
+        mLabel2 = label;
+    }
+
+    /**
+     * Returns the second line label for this action.
+     */
+    public final CharSequence getLabel2() {
+        return mLabel2;
+    }
+
+    /**
+     * Set the icon drawable for this action.
+     */
+    public final void setIcon(Drawable icon) {
+        mIcon = icon;
+    }
+
+    /**
+     * Returns the icon drawable for this action.
+     */
+    public final Drawable getIcon() {
+        return mIcon;
     }
 }

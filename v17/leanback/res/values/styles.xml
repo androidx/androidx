@@ -46,6 +46,24 @@
         <item name="android:textSize">@dimen/lb_search_bar_text_size</item>
     </style>
 
+    <style name="TextAppearance.Leanback.DetailsDescriptionTitle">
+        <item name="android:textSize">@dimen/lb_details_description_title_text_size</item>
+        <item name="android:textColor">@color/lb_details_description_color</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+    <style name="TextAppearance.Leanback.DetailsDescriptionSubtitle">
+        <item name="android:textSize">@dimen/lb_details_description_subtitle_text_size</item>
+        <item name="android:textColor">@color/lb_details_description_color</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+    <style name="TextAppearance.Leanback.DetailsDescriptionBody">
+        <item name="android:textSize">@dimen/lb_details_description_body_text_size</item>
+        <item name="android:textColor">@color/lb_details_description_color</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="Widget.Leanback" parent="android:Widget.Holo" />
 
     <style name="Widget.Leanback.Title" />
@@ -143,4 +161,18 @@
         <item name="android:maxLines">2</item>
     </style>
 
+    <style name="Widget.Leanback.DetailsDescriptionTitleStyle">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionTitle</item>
+        <item name="android:maxLines">@integer/lb_details_description_title_max_lines</item>
+    </style>
+
+    <style name="Widget.Leanback.DetailsDescriptionSubtitleStyle">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionSubtitle</item>
+        <item name="android:maxLines">@integer/lb_details_description_subtitle_max_lines</item>
+    </style>
+
+    <style name="Widget.Leanback.DetailsDescriptionBodyStyle">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionBody</item>
+        <item name="android:maxLines">@integer/lb_details_description_body_max_lines</item>
+    </style>
 </resources>
