@@ -1008,7 +1008,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     // Append one column if possible and return true if reach end.
     private boolean appendOneVisibleItem() {
         while (true) {
-            if (mLastVisiblePos >= 0 && mLastVisiblePos < mGrid.getLastIndex()) {
+            if (mLastVisiblePos != NO_POSITION && mLastVisiblePos < mAdapter.getItemCount() -1 &&
+                    mLastVisiblePos < mGrid.getLastIndex()) {
                 // append invisible view of saved location till last row
                 final int index = mLastVisiblePos + 1;
                 final int row = mGrid.getLocation(index).row;
@@ -1016,7 +1017,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 if (row == mNumRows - 1) {
                     return false;
                 }
-            } else if (mLastVisiblePos < mAdapter.getItemCount() - 1) {
+            } else if ((mLastVisiblePos == NO_POSITION && mAdapter.getItemCount() > 0) ||
+                    (mLastVisiblePos != NO_POSITION &&
+                            mLastVisiblePos < mAdapter.getItemCount() - 1)) {
                 mGrid.appendItems(mScrollOffsetPrimary + mSizePrimary);
                 return false;
             } else {
