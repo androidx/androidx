@@ -47,7 +47,17 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * Interface for wrapping a view created by presenter into another view.
+     * The wrapper must be immediate parent of the wrapped view.
+     */
+    public static abstract class Wrapper {
+        public abstract View createWrapper(View root);
+        public abstract void wrap(View wrapper, View wrapped);
+    }
+
     private ObjectAdapter mAdapter;
+    private Wrapper mWrapper;
     private PresenterSelector mPresenterSelector;
     private FocusHighlight mFocusHighlight;
     private AdapterListener mAdapterListener;
@@ -60,6 +70,9 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         public void onFocusChange(View view, boolean hasFocus) {
             if (DEBUG) Log.v(TAG, "onFocusChange " + hasFocus + " " + view
                     + " mFocusHighlight" + mFocusHighlight);
+            if (mWrapper != null) {
+                view = (View) view.getParent();
+            }
             if (mFocusHighlight != null) {
                 mFocusHighlight.onItemFocused(view, hasFocus);
             }
@@ -115,8 +128,8 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
             mExtraObject = object;
         }
 
-        ViewHolder(Presenter presenter, Presenter.ViewHolder holder) {
-            super(holder.view);
+        ViewHolder(Presenter presenter, View view, Presenter.ViewHolder holder) {
+            super(view);
             mPresenter = presenter;
             mHolder = holder;
         }
@@ -164,6 +177,14 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         }
     }
 
+    public void setWrapper(Wrapper wrapper) {
+        mWrapper = wrapper;
+    }
+
+    public Wrapper getWrapper() {
+        return mWrapper;
+    }
+
     void setFocusHighlight(FocusHighlight listener) {
         mFocusHighlight = listener;
         if (DEBUG) Log.v(TAG, "setFocusHighlight " + mFocusHighlight);
@@ -204,14 +225,24 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (DEBUG) Log.v(TAG, "onCreateViewHolder viewType " + viewType);
         Presenter presenter = mPresenters.get(viewType);
-        ViewHolder viewHolder = new ViewHolder(presenter, presenter.onCreateViewHolder(parent));
+        Presenter.ViewHolder presenterVh;
+        View view;
+        if (mWrapper != null) {
+            view = mWrapper.createWrapper(parent);
+            presenterVh = presenter.onCreateViewHolder(parent);
+            mWrapper.wrap(view, presenterVh.view);
+        } else {
+            presenterVh = presenter.onCreateViewHolder(parent);
+            view = presenterVh.view;
+        }
+        ViewHolder viewHolder = new ViewHolder(presenter, view, presenterVh);
         if (mAdapterListener != null) {
             mAdapterListener.onCreate(viewHolder);
         }
-        View view = viewHolder.mHolder.view;
-        if (view != null) {
-            viewHolder.mFocusChangeListener.mChainedListener = view.getOnFocusChangeListener();
-            view.setOnFocusChangeListener(viewHolder.mFocusChangeListener);
+        View presenterView = viewHolder.mHolder.view;
+        if (presenterView != null) {
+            viewHolder.mFocusChangeListener.mChainedListener = presenterView.getOnFocusChangeListener();
+            presenterView.setOnFocusChangeListener(viewHolder.mFocusChangeListener);
         }
         return viewHolder;
     }

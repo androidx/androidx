@@ -15,12 +15,17 @@ package android.support.v17.leanback.widget;
 
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.graphics.Canvas;
+import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.Presenter.ViewHolder;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 
 /**
  * ListRowPresenter renders {@link ListRow} using a
@@ -87,6 +92,7 @@ public class ListRowPresenter extends RowPresenter {
 
     private PresenterSelector mHoverCardPresenterSelector;
     private int mZoomFactor;
+    private boolean mShadowEnabled = true;
 
     /**
      * Constructs a ListRowPresenter with defaults.
@@ -114,12 +120,31 @@ public class ListRowPresenter extends RowPresenter {
         return mZoomFactor;
     }
 
+    private ItemBridgeAdapter.Wrapper mCardWrapper = new ItemBridgeAdapter.Wrapper() {
+        @Override
+        public View createWrapper(View root) {
+            ListRowCardWrapper wrapper = new ListRowCardWrapper(root.getContext());
+            wrapper.setLayoutParams(
+                    new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            wrapper.initialize(needsDefaultShadow(), needsDefaultSelectEffect());
+            return wrapper;
+        }
+        @Override
+        public void wrap(View wrapper, View wrapped) {
+            ((ListRowCardWrapper) wrapper).wrap(wrapped);
+        }
+    };
+
     @Override
     protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
         super.initializeRowViewHolder(holder);
         final ViewHolder rowViewHolder = (ViewHolder) holder;
-        if (needsDefaultListItemDecoration()) {
-            rowViewHolder.mGridView.addItemDecoration(new ItemDecoration(rowViewHolder));
+        if (needsDefaultSelectEffect() || needsDefaultShadow()) {
+            rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
+        }
+        if (needsDefaultShadow()) {
+            OpticalBoundsHelper.getInstance().setOpticalBounds(rowViewHolder.mGridView);
+            ((ViewGroup) rowViewHolder.view).setClipChildren(false);
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter, mZoomFactor);
         rowViewHolder.mGridView.setOnChildSelectedListener(
@@ -129,17 +154,17 @@ public class ListRowPresenter extends RowPresenter {
                 selectChildView(rowViewHolder, view);
             }
         });
-        if (getOnItemClickedListener() != null) {
-            // Only when having an OnItemClickListner, we will attach the OnClickListener.
-            rowViewHolder.mItemBridgeAdapter.setAdapterListener(
-                    new ItemBridgeAdapter.AdapterListener() {
-                @Override
-                public void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
+        rowViewHolder.mItemBridgeAdapter.setAdapterListener(
+                new ItemBridgeAdapter.AdapterListener() {
+            @Override
+            public void onCreate(final ItemBridgeAdapter.ViewHolder viewHolder) {
+                // Only when having an OnItemClickListner, we will attach the OnClickListener.
+                if (getOnItemClickedListener() != null) {
                     viewHolder.mHolder.view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
-                                    rowViewHolder.mGridView.getChildViewHolder(v);
+                                    rowViewHolder.mGridView.getChildViewHolder(viewHolder.itemView);
                             if (getOnItemClickedListener() != null) {
                                 getOnItemClickedListener().onItemClicked(ibh.mItem,
                                         (ListRow) rowViewHolder.mRow);
@@ -147,11 +172,21 @@ public class ListRowPresenter extends RowPresenter {
                         }
                     });
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onBind(ItemBridgeAdapter.ViewHolder viewHolder) {
+                super.onBind(viewHolder);
+                if (viewHolder.itemView instanceof ListRowCardWrapper) {
+                    int dimmedColor = rowViewHolder.mColorDimmer.getPaint().getColor();
+                    ((ListRowCardWrapper) viewHolder.itemView)
+                            .mColorDimOverlay.setBackgroundColor(dimmedColor);
+                }
+            }
+        });
     }
 
-    private boolean needsDefaultListItemDecoration() {
+    final boolean needsDefaultSelectEffect() {
         return isUsingDefaultListSelectEffect() && getSelectEffectEnabled();
     }
 
@@ -232,7 +267,7 @@ public class ListRowPresenter extends RowPresenter {
             ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
                     vh.mGridView.findViewHolderForPosition(
                             vh.mGridView.getSelectedPosition());
-            selectChildView(vh, ibh == null ? null : ibh.mHolder.view);
+            selectChildView(vh, ibh == null ? null : ibh.itemView);
         } else {
             selectChildView(vh, null);
         }
@@ -284,6 +319,42 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
+     * Returns true if opticalBounds is supported (SDK >= 18) so that default shadow
+     * is applied to each individual child of {@link HorizontalGridView}.
+     * Subclass may return false to disable.
+     */
+    public boolean isUsingDefaultShadow() {
+        return OpticalBoundsHelper.systemSupportsOpticalBounds();
+    }
+
+    /**
+     * Enable or disable child shadow.
+     * This is not only for enable/disable default shadow implementation but also subclass must
+     * respect this flag.
+     */
+    public final void setShadowEnabled(boolean enabled) {
+        mShadowEnabled = enabled;
+    }
+
+    /**
+     * Returns true if child shadow is enabled.
+     * This is not only for enable/disable default shadow implementation but also subclass must
+     * respect this flag.
+     */
+    public final boolean getShadowEnabled() {
+        return mShadowEnabled;
+    }
+
+    final boolean needsDefaultShadow() {
+        return isUsingDefaultShadow() && getShadowEnabled();
+    }
+
+    @Override
+    public boolean canDrawOutOfBounds() {
+        return needsDefaultShadow();
+    }
+
+    /**
      * Applies select level to header and draw a default color dim over each child
      * of {@link HorizontalGridView}.
      * <p>
@@ -298,37 +369,14 @@ public class ListRowPresenter extends RowPresenter {
     @Override
     protected void onSelectLevelChanged(RowPresenter.ViewHolder holder) {
         super.onSelectLevelChanged(holder);
-        if (needsDefaultListItemDecoration()) {
+        if (needsDefaultSelectEffect()) {
             ViewHolder vh = (ViewHolder) holder;
             vh.mColorDimmer.setActiveLevel(holder.mSelectLevel);
-            vh.mGridView.invalidate();
-        }
-    }
-
-    private void drawDimSelectionForChildren(ViewHolder vh, Canvas c) {
-        final ColorOverlayDimmer dimmer = vh.mColorDimmer;
-        if (dimmer.needsDraw()) {
-            final HorizontalGridView gridView = vh.mGridView;
-            // Clip to padding when not expanded
-            if (!vh.mExpanded) {
-                c.clipRect(gridView.getPaddingLeft(), gridView.getPaddingTop(),
-                        gridView.getWidth() - gridView.getPaddingRight(),
-                        gridView.getHeight() - gridView.getPaddingBottom());
+            int dimmedColor = vh.mColorDimmer.getPaint().getColor();
+            for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
+                ListRowCardWrapper wrapper = (ListRowCardWrapper) vh.mGridView.getChildAt(i);
+                wrapper.mColorDimOverlay.setBackgroundColor(dimmedColor);
             }
-            for (int i = 0, count = gridView.getChildCount(); i < count; i++) {
-                dimmer.drawColorOverlay(c, gridView.getChildAt(i), true);
-            }
-        }
-    }
-
-    final class ItemDecoration extends RecyclerView.ItemDecoration {
-        ViewHolder mViewHolder;
-        ItemDecoration(ViewHolder viewHolder) {
-            mViewHolder = viewHolder;
-        }
-        @Override
-        public void onDrawOver(Canvas c, RecyclerView parent) {
-            drawDimSelectionForChildren(mViewHolder, c);
         }
     }
 
