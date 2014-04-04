@@ -477,12 +477,8 @@ public class SwipeRefreshLayout extends ViewGroup {
                         setTriggerPercentage(
                                 mAccelerateInterpolator.getInterpolation(
                                         yDiff / mDistanceToTriggerSync));
-                        float offsetTop = yDiff;
-                        if (mLastMotionY > y) {
-                            offsetTop = yDiff - mTouchSlop;
-                        }
-                        updateContentOffsetTop((int) (offsetTop));
-                        if (mLastMotionY > y && (mTarget.getTop() < mTouchSlop)) {
+                        updateContentOffsetTop((int) (yDiff));
+                        if (mLastMotionY > y && mTarget.getTop() == getPaddingTop()) {
                             // If the user puts the view back at the top, we
                             // don't need to. This shouldn't be considered
                             // cancelling the gesture as the user can restart from the top.
