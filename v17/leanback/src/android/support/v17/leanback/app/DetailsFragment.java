@@ -37,8 +37,6 @@ public class DetailsFragment extends Fragment {
     private RowsFragment mRowsFragment;
 
     private ObjectAdapter mAdapter;
-    private int mContainerListMarginLeft;
-    private int mContainerListWidth;
     private int mContainerListAlignTop;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
@@ -89,9 +87,6 @@ public class DetailsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mContainerListMarginLeft = (int) getResources().getDimension(
-                R.dimen.lb_details_rows_margin_left);
-        mContainerListWidth =  getResources().getDimensionPixelSize(R.dimen.lb_details_rows_width);
         mContainerListAlignTop =
             getResources().getDimensionPixelSize(R.dimen.lb_details_rows_align_top);
     }
@@ -139,9 +134,6 @@ public class DetailsFragment extends Fragment {
     private void setupChildFragmentLayout() {
         VerticalGridView containerList = mRowsFragment.getVerticalGridView();
         setVerticalGridViewLayout(containerList);
-
-        mRowsFragment.getVerticalGridView().getLayoutParams().width = mContainerListWidth;
-        mRowsFragment.getVerticalGridView().requestLayout();
     }
 
     @Override

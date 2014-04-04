@@ -20,8 +20,4 @@
     android:id="@+id/browse_headers"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/lb_browse_padding_left"
-    android:clipToPadding="false"
-    lb:focusOutFront="true"
-    android:focusable="true"
-    android:focusableInTouchMode="true" />
+    style="?attr/headersVerticalGridStyle"/>

@@ -20,4 +20,4 @@
     android:id="@+id/row_content"
     android:layout_width="match_parent"
     android:layout_height="@dimen/lb_browse_row_list_height"
-    style="?attr/browseHorizontalGridStyle" />
+    style="?attr/rowHorizontalGridStyle" />

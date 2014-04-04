@@ -18,11 +18,26 @@
 <resources>
 
     <style name="Theme.Leanback" parent="android:Theme.Holo.NoActionBar">
-        <item name="browseHorizontalGridStyle">@style/Widget.Leanback.Browse.HorizontalGridView</item>
-        <item name="browseRowViewStyle">@style/Widget.Leanback.BrowseRowView</item>
-        <item name="browseRowHeaderStyle">@style/Widget.Leanback.BrowseRowHeaderView</item>
-        <item name="browseRowHoverCardTitleStyle">@style/Widget.Leanback.BrowseRowHoverCardViewTitle</item>
-        <item name="browseRowHoverCardDescriptionStyle">@style/Widget.Leanback.BrowseRowHoverCardViewDescription</item>
+
+        <item name="browsePaddingLeft">@dimen/lb_browse_padding_left</item>
+        <item name="browsePaddingRight">@dimen/lb_browse_padding_right</item>
+        <item name="browsePaddingTop">@dimen/lb_browse_padding_top</item>
+        <item name="browsePaddingBottom">@dimen/lb_browse_padding_bottom</item>
+        <item name="rowsWidth">@dimen/lb_rows_width</item>
+        <item name="browseRowsMarginStart">@dimen/lb_browse_rows_margin_start</item>
+        <item name="browseRowsMarginTop">@dimen/lb_browse_rows_margin_top</item>
+
+        <item name="headersVerticalGridStyle">@style/Widget.Leanback.Headers.VerticalGridView</item>
+        <item name="rowsVerticalGridStyle">@style/Widget.Leanback.Rows.VerticalGridView</item>
+        <item name="rowHorizontalGridStyle">@style/Widget.Leanback.Row.HorizontalGridView</item>
+
+        <item name="browseTitleTextStyle">@style/Widget.Leanback.Title.Text</item>
+        <item name="browseTitleIconStyle">@style/Widget.Leanback.Title.Icon</item>
+        <item name="headerStyle">@style/Widget.Leanback.Header</item>
+        <item name="rowHeaderStyle">@style/Widget.Leanback.Row.Header</item>
+        <item name="rowHoverCardTitleStyle">@style/Widget.Leanback.Row.HoverCardTitle</item>
+        <item name="rowHoverCardDescriptionStyle">@style/Widget.Leanback.Row.HoverCardDescription</item>
+
     </style>
 
 </resources>

@@ -38,7 +38,7 @@ public final class BrowseRowView extends LinearLayout {
     }
 
     public BrowseRowView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.browseRowViewStyle);
+        this(context, attrs, 0);
     }
 
     public BrowseRowView(Context context, AttributeSet attrs, int defStyle) {
@@ -50,23 +50,6 @@ public final class BrowseRowView extends LinearLayout {
         mGridView = (HorizontalGridView) findViewById(R.id.row_content);
         // Uncomment this to experiment with page-based scrolling.
         // mGridView.setFocusScrollStrategy(HorizontalGridView.FOCUS_SCROLL_PAGE);
-
-        final Resources.Theme theme = context.getTheme();
-        final TypedArray array = theme.obtainStyledAttributes(attrs, R.styleable.BrowseRowView,
-                defStyle, R.style.Widget_Leanback_BrowseRowView);
-
-        int n = array.getIndexCount();
-        for (int i = 0; i < n; i++) {
-            int attr = array.getIndex(i);
-
-            switch (attr) {
-                case R.styleable.BrowseRowView_browseItemMargin:
-                    int margin = array.getDimensionPixelSize(attr, 0);
-                    mGridView.setItemMargin(margin);
-                    break;
-            }
-        }
-        array.recycle();
 
         setOrientation(LinearLayout.VERTICAL);
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);

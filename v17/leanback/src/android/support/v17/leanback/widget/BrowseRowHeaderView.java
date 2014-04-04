@@ -28,7 +28,7 @@ public class BrowseRowHeaderView extends TextView {
     }
 
     public BrowseRowHeaderView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.browseRowHeaderStyle);
+        this(context, attrs, R.attr.rowHeaderStyle);
     }
 
     public BrowseRowHeaderView(Context context, AttributeSet attrs, int defStyle) {
