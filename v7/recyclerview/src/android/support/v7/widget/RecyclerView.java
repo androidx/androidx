@@ -18,11 +18,12 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.util.Pools;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
@@ -85,6 +86,8 @@ public class RecyclerView extends ViewGroup {
     private final RecyclerViewDataObserver mObserver = new RecyclerViewDataObserver();
 
     private final Recycler mRecycler = new Recycler();
+
+    private SavedState mPendingSavedState;
 
     /**
      * Note: this Runnable is only ever posted if:
@@ -293,6 +296,29 @@ public class RecyclerView extends ViewGroup {
             }
         }
         requestLayout();
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        SavedState state = new SavedState(super.onSaveInstanceState());
+        if (mPendingSavedState != null) {
+            state.copyFrom(mPendingSavedState);
+        } else if (mLayout != null) {
+            state.mLayoutState = mLayout.onSaveInstanceState();
+        } else {
+            state.mLayoutState = null;
+        }
+
+        return state;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        mPendingSavedState = (SavedState) state;
+        super.onRestoreInstanceState(mPendingSavedState.getSuperState());
+        if (mLayout != null && mPendingSavedState.mLayoutState != null) {
+            mLayout.onRestoreInstanceState(mPendingSavedState.mLayoutState);
+        }
     }
 
     /**
@@ -1165,6 +1191,8 @@ public class RecyclerView extends ViewGroup {
 
     void layoutChildren() {
         mLayout.layoutChildren(mAdapter, mRecycler, mStructureChanged);
+        // We don't need pending state anymore.
+        mPendingSavedState = null;
         mStructureChanged = false;
     }
 
@@ -3890,6 +3918,23 @@ public class RecyclerView extends ViewGroup {
         public int getMinimumHeight() {
             return ViewCompat.getMinimumHeight(mRecyclerView);
         }
+        /**
+         * <p>Called when the LayoutManager should save its state. This is a good time to save your
+         * scroll position, configuration and anything else that may be required to restore the same
+         * layout state if the LayoutManager is recreated.</p>
+         * <p>RecyclerView does NOT verify if the LayoutManager has changed between state save and
+         * restore. This will let you share information between your LayoutManagers but it is also
+         * your responsibility to make sure they use the same parcelable class.</p>
+         *
+         * @return Necessary information for LayoutManager to be able to restore its state
+         */
+        public Parcelable onSaveInstanceState() {
+            return null;
+        }
+
+
+        public void onRestoreInstanceState(Parcelable state) {
+        }
     }
 
     /**
@@ -4326,5 +4371,50 @@ public class RecyclerView extends ViewGroup {
                 mObservers.get(i).onItemRangeRemoved(positionStart, itemCount);
             }
         }
+    }
+
+    static class SavedState extends BaseSavedState {
+
+        Parcelable mLayoutState;
+
+        /**
+         * called by CREATOR
+         */
+        SavedState(Parcel in) {
+            super(in);
+            mLayoutState = in.readParcelable(LayoutManager.class.getClassLoader());
+        }
+
+        /**
+         * Called by onSaveInstanceState
+         */
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            if (mLayoutState != null) {
+                dest.writeParcelable(mLayoutState, 0);
+            }
+        }
+
+        private void copyFrom(SavedState other) {
+            mLayoutState = other.mLayoutState;
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }
