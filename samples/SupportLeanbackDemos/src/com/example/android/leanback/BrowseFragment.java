@@ -13,11 +13,14 @@
  */
 package com.example.android.leanback;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemClickedListener;
+import android.support.v17.leanback.widget.Row;
 import android.util.Log;
 
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
@@ -38,11 +41,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setBrowseParams(p);
 
         setupRows();
+        setOnItemClickedListener(new ItemClickedListener());
     }
 
     private void setupRows() {
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new StringPresenter());
@@ -53,5 +56,14 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
 
         setAdapter(mRowsAdapter);
+    }
+
+    private final class ItemClickedListener implements OnItemClickedListener {
+        public void onItemClicked(Object item, Row row) {
+            // TODO: use a fragment transaction instead of launching a new
+            // activity
+            Intent intent = new Intent(getActivity(), DetailsActivity.class);
+            startActivity(intent);
+        }
     }
 }

@@ -23,7 +23,9 @@ import android.support.v17.leanback.widget.DetailsOverviewRowPresenter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.util.Log;
+import android.widget.Toast;
 
 public class DetailsFragment extends android.support.v17.leanback.app.DetailsFragment {
     private static final String TAG = "leanback.BrowseFragment";
@@ -41,8 +43,15 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
 
     private void setupRows() {
         ClassPresenterSelector ps = new ClassPresenterSelector();
-        ps.addClassPresenter(DetailsOverviewRow.class,
-                new DetailsOverviewRowPresenter(new DetailsDescriptionPresenter()));
+        DetailsOverviewRowPresenter dorPresenter =
+            new DetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
+        dorPresenter.setOnActionClickedListener(new OnActionClickedListener() {
+            public void onActionClicked(Action action) {
+                Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        ps.addClassPresenter(DetailsOverviewRow.class, dorPresenter);
         ps.addClassPresenter(ListRow.class,
                 new ListRowPresenter());
         mRowsAdapter = new ArrayObjectAdapter(ps);
