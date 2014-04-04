@@ -203,6 +203,9 @@ public class SearchFragment extends Fragment {
             }
         });
         mRowsFragment.setExpand(mExpand);
+        if (null != mProvider) {
+            onSetSearchResultProvider();
+        }
         return root;
     }
 
@@ -237,9 +240,6 @@ public class SearchFragment extends Fragment {
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
-        if (mRowsFragment != null) {
-            mRowsFragment.setOnItemSelectedListener(listener);
-        }
     }
 
     /**
@@ -247,9 +247,6 @@ public class SearchFragment extends Fragment {
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
-        if (mRowsFragment != null) {
-            mRowsFragment.setOnItemClickedListener(listener);
-        }
     }
 
     /**
@@ -273,8 +270,10 @@ public class SearchFragment extends Fragment {
             public void run() {
                 // Retrieve the result adapter
                 mResultAdapter = mProvider.getResultsAdapter();
-                mRowsFragment.setAdapter(mResultAdapter);
-                executePendingQuery();
+                if (null != mRowsFragment) {
+                    mRowsFragment.setAdapter(mResultAdapter);
+                    executePendingQuery();
+                }
             }
         });
     }
