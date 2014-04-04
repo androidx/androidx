@@ -64,6 +64,22 @@ public class FocusHighlightHelper {
             } else {
                 view.animate().scaleX(1f).scaleY(1f).setDuration(DURATION_MS);
             }
+            if (view instanceof ListRowCardWrapper) {
+                ListRowCardWrapper wrapper = (ListRowCardWrapper) view;
+                if (wrapper.mShadowNormal != null) {
+                    if (hasFocus) {
+                        wrapper.mShadowFocused.animate().alpha(1f)
+                                .setDuration(DURATION_MS).start();
+                        wrapper.mShadowNormal.animate().alpha(0f)
+                                .setDuration(DURATION_MS).start();
+                    } else {
+                        wrapper.mShadowFocused.animate().alpha(0f)
+                                .setDuration(DURATION_MS).start();
+                        wrapper.mShadowNormal.animate().alpha(1f)
+                                .setDuration(DURATION_MS).start();
+                    }
+                }
+            }
         }
 
         @Override

@@ -275,6 +275,10 @@ public class RowsFragment extends BaseRowFragment {
         }
         @Override
         public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
+            Presenter rowPresenter = vh.getPresenter();
+            if (((RowPresenter) vh.getPresenter()).canDrawOutOfBounds()) {
+                getVerticalGridView().setClipChildren(false);
+            }
             mViewsCreated = true;
             vh.setExtraObject(new RowViewHolderExtra(vh));
         }
