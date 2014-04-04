@@ -175,8 +175,7 @@ public class ListRowPresenter extends RowPresenter {
             }
 
             @Override
-            public void onBind(ItemBridgeAdapter.ViewHolder viewHolder) {
-                super.onBind(viewHolder);
+            public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
                 if (viewHolder.itemView instanceof ListRowCardWrapper) {
                     int dimmedColor = rowViewHolder.mColorDimmer.getPaint().getColor();
                     ((ListRowCardWrapper) viewHolder.itemView)
