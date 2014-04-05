@@ -16,6 +16,10 @@ package android.support.v17.leanback.widget;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.v17.leanback.R;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.animation.TimeAnimator;
 import android.content.res.Resources;
 
 import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
@@ -41,7 +45,7 @@ public class FocusHighlightHelper {
                     zoomIndex : ZOOM_FACTOR_MEDIUM;
         }
 
-        private void lazyInit(Resources resources) {
+        private static void lazyInit(Resources resources) {
             if (sScaleFactor[ZOOM_FACTOR_NONE] == 0f) {
                 sScaleFactor[ZOOM_FACTOR_NONE] = 1f;
                 sScaleFactor[ZOOM_FACTOR_SMALL] =
@@ -58,30 +62,81 @@ public class FocusHighlightHelper {
             return sScaleFactor[mScaleIndex];
         }
 
-        private void viewFocused(View view, boolean hasFocus) {
-            view.setSelected(hasFocus);
-            if (hasFocus) {
-                final float scale = getScale(view);
-                view.animate().scaleX(scale).scaleY(scale).setDuration(DURATION_MS);
-            } else {
-                view.animate().scaleX(1f).scaleY(1f).setDuration(DURATION_MS);
-            }
-            if (view instanceof ListRowCardWrapper) {
-                ListRowCardWrapper wrapper = (ListRowCardWrapper) view;
-                if (wrapper.mShadowNormal != null) {
-                    if (hasFocus) {
-                        wrapper.mShadowFocused.animate().alpha(1f)
-                                .setDuration(DURATION_MS).start();
-                        wrapper.mShadowNormal.animate().alpha(0f)
-                                .setDuration(DURATION_MS).start();
-                    } else {
-                        wrapper.mShadowFocused.animate().alpha(0f)
-                                .setDuration(DURATION_MS).start();
-                        wrapper.mShadowNormal.animate().alpha(1f)
-                                .setDuration(DURATION_MS).start();
-                    }
+        class FocusAnimator implements TimeAnimator.TimeListener {
+            private final View mView;
+            private final ShadowOverlayContainer mWrapper;
+            private final float mScaleDiff;
+            private float mFocusLevel = 0f;
+            private float mFocusLevelStart;
+            private float mFocusLevelDelta;
+            private final TimeAnimator mAnimator = new TimeAnimator();
+            private final Interpolator mInterpolator = new AccelerateDecelerateInterpolator();
+
+            void animateFocus(boolean select, boolean immediate) {
+                endAnimation();
+                final float end = select ? 1 : 0;
+                if (immediate) {
+                    setFocusLevel(end);
+                } else if (mFocusLevel != end) {
+                    mFocusLevelStart = mFocusLevel;
+                    mFocusLevelDelta = end - mFocusLevelStart;
+                    mAnimator.start();
                 }
             }
+
+            FocusAnimator(View view) {
+                mView = view;
+                mScaleDiff = getScale(view) - 1f;
+                if (view instanceof ShadowOverlayContainer) {
+                    mWrapper = (ShadowOverlayContainer) view;
+                } else {
+                    mWrapper = null;
+                }
+                mAnimator.setTimeListener(this);
+            }
+
+            void setFocusLevel(float level) {
+                mFocusLevel = level;
+                float scale = 1f + mScaleDiff * level;
+                mView.setScaleX(scale);
+                mView.setScaleY(scale);
+                if (mWrapper != null) {
+                    mWrapper.setShadowFocusLevel(level);
+                }
+            }
+
+            float getFocusLevel() {
+                return mFocusLevel;
+            }
+
+            void endAnimation() {
+                mAnimator.end();
+            }
+
+            @Override
+            public void onTimeUpdate(TimeAnimator animation, long totalTime, long deltaTime) {
+                float fraction;
+                if (totalTime >= DURATION_MS) {
+                    fraction = 1;
+                    mAnimator.end();
+                } else {
+                    fraction = (float) (totalTime / (double) DURATION_MS);
+                }
+                if (mInterpolator != null) {
+                    fraction = mInterpolator.getInterpolation(fraction);
+                }
+                setFocusLevel(mFocusLevelStart + fraction * mFocusLevelDelta);
+            }
+        };
+
+        private void viewFocused(View view, boolean hasFocus) {
+            view.setSelected(hasFocus);
+            FocusAnimator animator = (FocusAnimator) view.getTag(R.id.lb_focus_animator);
+            if (animator == null) {
+                animator = new FocusAnimator(view);
+                view.setTag(R.id.lb_focus_animator, animator);
+            }
+            animator.animateFocus(hasFocus, false);
         }
 
         @Override
