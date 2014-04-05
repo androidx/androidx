@@ -99,7 +99,6 @@ public class SearchFragment extends Fragment {
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
-    private boolean mExpand;
     private ObjectAdapter mResultAdapter;
 
     /**
@@ -202,7 +201,7 @@ public class SearchFragment extends Fragment {
                 }
             }
         });
-        mRowsFragment.setExpand(mExpand);
+        mRowsFragment.setExpand(true);
         if (null != mProvider) {
             onSetSearchResultProvider();
         }
@@ -247,16 +246,6 @@ public class SearchFragment extends Fragment {
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
-    }
-
-    /**
-     * Set the visibility of titles/hovercard of browse rows.
-     */
-    public void setExpand(boolean expand) {
-        mExpand = expand;
-        if (mRowsFragment != null) {
-            mRowsFragment.setExpand(expand);
-        }
     }
 
     private void retrieveResults(String searchQuery) {
