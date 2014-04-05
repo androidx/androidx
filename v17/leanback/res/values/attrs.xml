@@ -42,6 +42,74 @@
         <attr name="numberOfColumns" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="lbBaseCardView">
+        <!-- Defines the type of the card layout -->
+        <attr name="cardType" format="enum">
+            <!-- A simple card layout with a single layout region. -->
+            <enum name="mainOnly" value="0" />
+            <!-- A card layout with two layout regions: a main area which is
+                 always visible, and an info region that appears over the lower
+                 area of the main region. -->
+            <enum name="infoOver" value="1" />
+            <!-- A card layout with two layout regions: a main area which is
+                 always visible, and an info region that appears below the main
+                 region. -->
+            <enum name="infoUnder" value="2" />
+            <!-- A card layout with three layout regions: a main area which is
+                 always visible, an info region that appears below the main
+                 region, and an extra region that appears below the info region
+                 after a small delay. -->
+            <enum name="infoUnderWithExtra" value="3" />
+        </attr>
+        <!-- Defines when the info region of a card layout is displayed. -->
+        <attr name="infoVisibility" format="enum">
+            <!-- Always display the info region. -->
+            <enum name="always" value="0"/>
+            <!-- Display the info region only when activated. -->
+            <enum name="activated" value="1"/>
+            <!-- Display the info region only when selected. -->
+            <enum name="selected" value="2"/>
+        </attr>
+        <!-- Defines when the extra region of a card layout is displayed.
+             Depends on {@link android.support.v17.leanback.lbBaseCardView.attr#infoVisibility
+             infoVisibility}, meaning the extra region never displays if the info
+             region is not displayed as well. -->
+        <attr name="extraVisibility" format="enum">
+            <!-- Always display the extra region. -->
+            <enum name="always" value="0"/>
+            <!-- Display the extra region only when activated. -->
+            <enum name="activated" value="1"/>
+            <!-- Display the extra region only when selected. -->
+            <enum name="selected" value="2"/>
+        </attr>
+        <!-- Defines the delay in milliseconds before the selection animation
+             runs for a card layout. -->
+        <attr name="selectedAnimationDelay" format="integer" />
+        <!-- Defines the duration in milliseconds of the selection animation for
+             a card layout. -->
+        <attr name="selectedAnimationDuration" format="integer" />
+        <!-- Defines the duration in milliseconds of the activated animation for
+             a card layout. -->
+        <attr name="activatedAnimationDuration" format="integer" />
+    </declare-styleable>
+
+    <!-- This is the basic set of layout attributes for elements within a card
+         layout. These attributes are specified with the rest of an elements's
+         normal attributes. -->
+    <declare-styleable name="lbBaseCardView_Layout">
+        <!-- The card layout region defined by this element. At most one of
+             element of each type should be specified as an immediate child of
+             the card layout. -->
+        <attr name="layout_viewType" format="enum">
+            <!-- The main region of the card. -->
+            <enum name="main" value="0"/>
+            <!-- The info region of the card. -->
+            <enum name="info" value="1"/>
+            <!-- The extra region of the card. -->
+            <enum name="extra" value="2"/>
+        </attr>
+    </declare-styleable>
+
     <declare-styleable name="LeanbackTheme">
 
         <!-- left padding of BrowseFragment, RowsFragment, DetailsFragment -->
@@ -83,6 +151,10 @@
         <attr name="rowHoverCardTitleStyle" format="reference" />
         <!-- hover card description style -->
         <attr name="rowHoverCardDescriptionStyle" format="reference" />
+
+        <!-- CardView styles -->
+        <attr name="baseCardViewStyle" format="reference" />
+        <attr name="imageCardViewStyle" format="reference" />
 
         <!-- for details overviews -->
         <attr name="detailsDescriptionTitleStyle" format="reference" />

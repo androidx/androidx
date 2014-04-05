@@ -99,4 +99,14 @@
     <dimen name="lb_search_orb_margin_bottom">4dp</dimen>
     <dimen name="lb_search_orb_margin_left">4dp</dimen>
     <dimen name="lb_search_orb_margin_right">4dp</dimen>
+
+    <!-- BasicCardView -->
+    <dimen name="lb_basic_card_main_width">140dp</dimen>
+    <dimen name="lb_basic_card_main_height">188dp</dimen>
+    <dimen name="lb_basic_card_info_height">52dp</dimen>
+    <dimen name="lb_basic_card_info_padding">6dp</dimen>
+    <dimen name="lb_basic_card_info_text_margin">2dp</dimen>
+    <dimen name="lb_basic_card_title_text_size">14sp</dimen>
+    <dimen name="lb_basic_card_content_text_size">10sp</dimen>
+    <dimen name="lb_basic_card_info_badge_size">16dp</dimen>
 </resources>

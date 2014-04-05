@@ -59,6 +59,7 @@ public class FocusHighlightHelper {
         }
 
         private void viewFocused(View view, boolean hasFocus) {
+            view.setSelected(hasFocus);
             if (hasFocus) {
                 final float scale = getScale(view);
                 view.animate().scaleX(scale).scaleY(scale).setDuration(DURATION_MS);

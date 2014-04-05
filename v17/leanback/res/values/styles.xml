@@ -66,6 +66,14 @@
 
     <style name="Widget.Leanback" parent="android:Widget.Holo" />
 
+    <style name="Widget.Leanback.BaseCardViewStyle" />
+
+    <style name="Widget.Leanback.ImageCardViewStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardType">infoUnder</item>
+        <item name="infoVisibility">activated</item>
+        <item name="android:background">@color/lb_basic_card_bg_color</item>
+    </style>
+
     <style name="Widget.Leanback.Title" />
 
     <style name="Widget.Leanback.Title.Text">

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:lb="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/main_image"
+        lb:layout_viewType="main"
+        android:layout_width="@dimen/lb_basic_card_main_width"
+        android:layout_height="@dimen/lb_basic_card_main_height"
+        android:scaleType="centerCrop"
+        android:contentDescription="@null" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        lb:layout_viewType="info" >
+        <RelativeLayout
+            android:id="@+id/info_field"
+            android:background="@color/lb_basic_card_info_bg_color"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/lb_basic_card_info_height"
+            android:padding="@dimen/lb_basic_card_info_padding"
+            android:layout_centerHorizontal="true" >
+            <TextView
+                android:id="@+id/title_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="@dimen/lb_basic_card_info_text_margin"
+                android:layout_marginLeft="@dimen/lb_basic_card_info_text_margin"
+                android:maxLines="1"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="@color/lb_basic_card_title_text_color"
+                android:textSize="@dimen/lb_basic_card_title_text_size"
+                android:ellipsize="end" />
+            <TextView
+                android:id="@+id/content_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="@dimen/lb_basic_card_info_text_margin"
+                android:layout_marginBottom="@dimen/lb_basic_card_info_text_margin"
+                android:maxLines="1"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="@color/lb_basic_card_content_text_color"
+                android:textSize="@dimen/lb_basic_card_content_text_size"
+                android:ellipsize="none" />
+            <ImageView
+                android:id="@+id/extra_badge"
+                android:layout_width="@dimen/lb_basic_card_info_badge_size"
+                android:layout_height="@dimen/lb_basic_card_info_badge_size"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:scaleType="fitCenter"
+                android:background="@color/lb_basic_card_info_bg_color"
+                android:contentDescription="@null" />
+            <ImageView
+                android:id="@+id/fade_mask"
+                android:src="@drawable/lb_ic_card_info_text_fade"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/lb_basic_card_info_badge_size"
+                android:layout_alignParentBottom="true"
+                android:layout_toStartOf="@id/extra_badge"
+                android:scaleType="fitCenter"
+                android:contentDescription="@null" />
+        </RelativeLayout>
+    </FrameLayout>
+</merge>
