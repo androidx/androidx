@@ -758,9 +758,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return focusPosition;
     }
 
-    // TODO: use recyclerview support for measuring the whole container, once
-    // it's available.
-    void gridOnMeasure(int widthSpec, int heightSpec, int[] result) {
+    @Override
+    public void onMeasure(int widthSpec, int heightSpec) {
         int sizePrimary, sizeSecondary, modeSecondary, paddingSecondary;
         int measuredSizeSecondary;
         if (mOrientation == HORIZONTAL) {
@@ -822,15 +821,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             throw new IllegalStateException("wrong spec");
         }
         if (mOrientation == HORIZONTAL) {
-            result[0] = sizePrimary;
-            result[1] = measuredSizeSecondary;
+            setMeasuredDimension(sizePrimary, measuredSizeSecondary);
         } else {
-            result[0] = measuredSizeSecondary;
-            result[1] = sizePrimary;
+            setMeasuredDimension(measuredSizeSecondary, sizePrimary);
         }
         if (DEBUG) {
-            Log.v(getTag(), "onMeasure result " + result[0] + ", " + result[1]
-                    + " mItemLengthSecondary " + mItemLengthSecondary + " mNumRows " + mNumRows);
+            Log.v(getTag(), "onMeasure sizePrimary " + sizePrimary +
+                    " measuredSizeSecondary " + measuredSizeSecondary +
+                    " mItemLengthSecondary " + mItemLengthSecondary +
+                    " mNumRows " + mNumRows);
         }
     }
 
@@ -1985,5 +1984,4 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mRows = null;
         super.onAdapterChanged(oldAdapter, newAdapter);
     }
-
 }

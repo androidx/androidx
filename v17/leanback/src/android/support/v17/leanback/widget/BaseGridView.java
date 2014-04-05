@@ -104,8 +104,6 @@ abstract class BaseGridView extends RecyclerView {
 
     protected final GridLayoutManager mLayoutManager;
 
-    private int[] mMeasuredSize = new int[2];
-
     private boolean mFocusSearchDisabled;
 
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
@@ -422,12 +420,6 @@ abstract class BaseGridView extends RecyclerView {
     public void setGravity(int gravity) {
         mLayoutManager.setGravity(gravity);
         requestLayout();
-    }
-
-    @Override
-    protected final void onMeasure(int widthSpec, int heightSpec) {
-        mLayoutManager.gridOnMeasure(widthSpec, heightSpec, mMeasuredSize);
-        setMeasuredDimension(mMeasuredSize[0], mMeasuredSize[1]);
     }
 
     @Override
