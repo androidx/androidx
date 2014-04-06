@@ -19,6 +19,8 @@
 
     <style name="Theme.Leanback" parent="android:Theme.Holo.NoActionBar">
 
+        <item name="android:windowOverscan">true</item>
+
         <item name="browsePaddingLeft">@dimen/lb_browse_padding_left</item>
         <item name="browsePaddingRight">@dimen/lb_browse_padding_right</item>
         <item name="browsePaddingTop">@dimen/lb_browse_padding_top</item>
