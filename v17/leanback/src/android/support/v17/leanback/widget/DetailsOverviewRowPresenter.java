@@ -46,13 +46,13 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             mImageView = (ImageView) rootView.findViewById(R.id.details_overview_image);
             mDetailsDescriptionFrame =
                     (FrameLayout) rootView.findViewById(R.id.details_overview_description);
-            mActionsRow = 
+            mActionsRow =
                     (HorizontalGridView) rootView.findViewById(R.id.details_overview_actions);
         }
     }
 
     private final Presenter mDetailsPresenter;
-    private final PresenterSelector mActionPresenterSelector;
+    private final ActionPresenterSelector mActionPresenterSelector;
     private final ItemBridgeAdapter mActionBridgeAdapter;
 
     /**
@@ -65,6 +65,20 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         mActionPresenterSelector = new ActionPresenterSelector();
         mActionBridgeAdapter = new ItemBridgeAdapter();
         FocusHighlightHelper.setupActionItemFocusHighlight(mActionBridgeAdapter);
+    }
+
+    /**
+     * Set the listener for action click events.
+     */
+    public void setOnActionClickedListener(OnActionClickedListener listener) {
+        mActionPresenterSelector.setOnActionClickedListener(listener);
+    }
+
+    /**
+     * Get the listener for action click events.
+     */
+    public OnActionClickedListener getOnActionClickedListener() {
+        return mActionPresenterSelector.getOnActionClickedListener();
     }
 
     @Override
