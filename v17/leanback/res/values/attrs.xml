@@ -52,8 +52,6 @@
         <attr name="browsePaddingTop" format="dimension" />
         <!-- bottom padding of BrowseFragment -->
         <attr name="browsePaddingBottom" format="dimension" />
-        <!-- width of BrowseFragment or RowsFragment -->
-        <attr name="rowsWidth" format="dimension" />
         <!-- start margin of RowsFragment inside BrowseFragment when HeadersFragment is visible -->
         <attr name="browseRowsMarginStart" format="dimension" />
         <!-- top margin of RowsFragment inside BrowseFragment when BrowseFragment title is visible -->

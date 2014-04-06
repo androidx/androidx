@@ -25,7 +25,6 @@
         <item name="browsePaddingRight">@dimen/lb_browse_padding_right</item>
         <item name="browsePaddingTop">@dimen/lb_browse_padding_top</item>
         <item name="browsePaddingBottom">@dimen/lb_browse_padding_bottom</item>
-        <item name="rowsWidth">@dimen/lb_rows_width</item>
         <item name="browseRowsMarginStart">@dimen/lb_browse_rows_margin_start</item>
         <item name="browseRowsMarginTop">@dimen/lb_browse_rows_margin_top</item>
 
