@@ -48,7 +48,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
 
         for (int i = 0; i < NUM_ROWS; ++i) {
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new StringPresenter());
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
             listRowAdapter.add("Hello world");
             listRowAdapter.add("This is a test");
             HeaderItem header = new HeaderItem(i, "Row " + i, null);
