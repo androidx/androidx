@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 
 import static android.support.v17.leanback.widget.ObjectAdapter.NO_ID;
 
@@ -101,5 +102,23 @@ public class Action {
      */
     public final Drawable getIcon() {
         return mIcon;
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        if (!TextUtils.isEmpty(mLabel1)) {
+            sb.append(mLabel1);
+        }
+        if (!TextUtils.isEmpty(mLabel2)) {
+            if (!TextUtils.isEmpty(mLabel1)) {
+                sb.append(" ");
+            }
+            sb.append(mLabel2);
+        }
+        if (mIcon != null && sb.length() == 0) {
+            sb.append("(action icon)");
+        }
+        return sb.toString();
     }
 }

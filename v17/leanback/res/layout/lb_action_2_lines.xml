@@ -33,7 +33,7 @@
         android:layout_marginRight="@dimen/lb_action_icon_margin" />
 
     <TextView
-        android:id="@+id/lb_action_text_line"
+        android:id="@+id/lb_action_text"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_centerVertical="true"

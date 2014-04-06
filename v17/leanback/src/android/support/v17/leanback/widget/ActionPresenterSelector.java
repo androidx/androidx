@@ -23,8 +23,9 @@ import android.widget.TextView;
 
 class ActionPresenterSelector extends PresenterSelector {
 
-    private Presenter mOneLineActionPresenter = new OneLineActionPresenter();
-    private Presenter mTwoLineActionPresenter = new TwoLineActionPresenter();
+    private final Presenter mOneLineActionPresenter = new OneLineActionPresenter();
+    private final Presenter mTwoLineActionPresenter = new TwoLineActionPresenter();
+    private OnActionClickedListener mOnActionClickedListener;
 
     @Override
     public Presenter getPresenter(Object item) {
@@ -36,58 +37,81 @@ class ActionPresenterSelector extends PresenterSelector {
         }
     }
 
-    static class OneLineActionPresenter extends Presenter {
-        public static class ViewHolder extends Presenter.ViewHolder {
-            TextView mLabel;
+    public final void setOnActionClickedListener(OnActionClickedListener listener) {
+        mOnActionClickedListener = listener;
+    }
 
-            public ViewHolder(View view) {
-                super(view);
-                mLabel = (TextView) view.findViewById(R.id.lb_action_text);
-            }
+    public final OnActionClickedListener getOnActionClickedListener() {
+        return mOnActionClickedListener;
+    }
+
+    static class ActionViewHolder extends Presenter.ViewHolder {
+        Action mAction;
+        ImageView mIconView;
+        TextView mLabel;
+
+        public ActionViewHolder(View view) {
+            super(view);
+            mIconView = (ImageView) view.findViewById(R.id.lb_action_icon);
+            mLabel = (TextView) view.findViewById(R.id.lb_action_text);
         }
+    }
 
+    class OneLineActionPresenter extends Presenter {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.lb_action_1_line, parent, false);
-            return new ViewHolder(v);
+            final ActionViewHolder vh = new ActionViewHolder(v);
+            v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (ActionPresenterSelector.this.mOnActionClickedListener != null &&
+                            vh.mAction != null) {
+                            ActionPresenterSelector.this.mOnActionClickedListener.onActionClicked(vh.mAction);
+                        }
+                    }
+            });
+            return vh;
         }
 
         @Override
         public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
             Action action = (Action) item;
-            ViewHolder vh = (ViewHolder) viewHolder;
-
+            ActionViewHolder vh = (ActionViewHolder) viewHolder;
+            vh.mAction = action;
             vh.mLabel.setText(action.getLabel1());
         }
 
         @Override
-        public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {}
+        public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+            ((ActionViewHolder) viewHolder).mAction = null;
+        }
     }
 
-    static class TwoLineActionPresenter extends Presenter {
-        public static class ViewHolder extends Presenter.ViewHolder {
-            ImageView mIconView;
-            TextView mLabel;
-
-            public ViewHolder(View view) {
-                super(view);
-                mIconView = (ImageView) view.findViewById(R.id.lb_action_icon);
-                mLabel = (TextView) view.findViewById(R.id.lb_action_text_line);
-            }
-        }
-
+    class TwoLineActionPresenter extends Presenter {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.lb_action_2_lines, parent, false);
-            return new ViewHolder(v);
+            final ActionViewHolder vh = new ActionViewHolder(v);
+            v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (ActionPresenterSelector.this.mOnActionClickedListener != null &&
+                            vh.mAction != null) {
+                            ActionPresenterSelector.this.mOnActionClickedListener.onActionClicked(vh.mAction);
+                        }
+                    }
+            });
+            return vh;
         }
 
         @Override
         public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
             Action action = (Action) item;
-            ViewHolder vh = (ViewHolder) viewHolder;
+            ActionViewHolder vh = (ActionViewHolder) viewHolder;
+            vh.mAction = action;
 
             int horizontalPadding = vh.view.getContext().getResources()
                     .getDimensionPixelSize(R.dimen.lb_action_1_line_padding_left);
@@ -113,9 +137,10 @@ class ActionPresenterSelector extends PresenterSelector {
 
         @Override
         public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-            ViewHolder vh = (ViewHolder) viewHolder;
+            ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mIconView.setVisibility(View.GONE);
             vh.view.setPadding(0, 0, 0, 0);
+            vh.mAction = null;
         }
     }
 }
