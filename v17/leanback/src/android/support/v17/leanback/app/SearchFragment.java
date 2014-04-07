@@ -42,23 +42,6 @@ public class SearchFragment extends Fragment {
      */
     public static interface SearchResultProvider {
         /**
-         * @deprecated Replaced by {@link #getResultsAdapter()} and {@link #onQueryTextChange(String)}
-         *
-         * When using the SearchFragment, this is the entry point for the application
-         * to receive the search query and provide the corresponding results.
-         *
-         * The returned ObjectAdapter can be populated asynchronously.
-         *
-         * As results are retrieved, the application should use the data set notification methods
-         * on the ObjectAdapter to instruct the SearchFragment to update the results.
-         *
-         * @param searchQuery The search query entered by the user.
-         * @return An ObjectAdapter containing the structured results for the provided search query.
-         */
-        @Deprecated
-        public ObjectAdapter results(String searchQuery);
-
-        /**
          * <p>Method invoked some time prior to the first call to onQueryTextChange to retrieve
          * an ObjectAdapter that will contain the results to future updates of the search query.</p>
          *
