@@ -22,6 +22,7 @@ import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.Row;
 import android.util.Log;
+import android.view.View;
 
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
     private static final String TAG = "leanback.BrowseFragment";
@@ -39,6 +40,14 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         p.setTitle("Leanback Sample App");
         p.setHeadersState(HEADERS_ENABLED);
         setBrowseParams(p);
+
+        setOnSearchClickedListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                startActivity(intent);
+            }
+        });
 
         setupRows();
         setOnItemClickedListener(new ItemClickedListener());

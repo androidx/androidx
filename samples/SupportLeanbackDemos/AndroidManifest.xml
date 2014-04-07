@@ -26,5 +26,8 @@
         <activity android:name="VerticalGridActivity"
             android:exported="true" />
 
+        <activity android:name="SearchActivity"
+            android:exported="true" />
+
     </application>
 </manifest>
