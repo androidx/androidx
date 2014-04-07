@@ -29,8 +29,11 @@ public interface OnItemSelectedListener {
      * <p>
      * For a {@link ListRow} case, parameter item can be null if the list row is empty.
      * </p>
+     * <p>
+     * In the case of a grid, the row parameter is always null.
+     * </p>
      * <li>
-     * Row is has focus: event is fired when focus changes between child of the row.
+     * Row has focus: event is fired when focus changes between child of the row.
      * </li>
      * <li>
      * None of the row has focus: the event is fired with the current selected row and last

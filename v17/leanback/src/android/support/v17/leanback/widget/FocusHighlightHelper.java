@@ -18,6 +18,12 @@ import android.support.v17.leanback.R;
 import android.view.View;
 import android.content.res.Resources;
 
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_SMALL;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_MEDIUM;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LARGE;
+
+
 /**
  * Setup the behavior how to highlight when a item gains focus.
  */
@@ -25,11 +31,6 @@ public class FocusHighlightHelper {
 
     static class BrowseItemFocusHighlight implements FocusHighlight {
         private static final int DURATION_MS = 150;
-
-        public static int ZOOM_FACTOR_NONE = 0;
-        public static int ZOOM_FACTOR_SMALL = 1;
-        public static int ZOOM_FACTOR_MEDIUM = 2;
-        public static int ZOOM_FACTOR_LARGE = 3;
 
         private static float[] sScaleFactor = new float[4];
 

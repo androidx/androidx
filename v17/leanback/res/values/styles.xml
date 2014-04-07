@@ -94,6 +94,8 @@
     <style name="Widget.Leanback.Row" >
     </style>
 
+    <style name="Widget.Leanback.GridItems" />
+
     <style name="Widget.Leanback.Headers.VerticalGridView" >
         <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
         <item name="android:clipToPadding">false</item>
@@ -121,6 +123,19 @@
     </style>
 
     <style name="Widget.Leanback.Row.HorizontalGridView">
+        <item name="android:clipToPadding">false</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
+        <item name="android:paddingRight">?attr/browsePaddingRight</item>
+        <item name="android:paddingBottom">@dimen/lb_browse_item_margin_vertical</item>
+        <item name="android:paddingTop">@dimen/lb_browse_item_margin_vertical</item>
+        <item name="horizontalMargin">@dimen/lb_browse_item_margin</item>
+        <item name="verticalMargin">@dimen/lb_browse_item_margin</item>
+        <item name="focusOutFront">true</item>
+    </style>
+
+    <style name="Widget.Leanback.GridItems.VerticalGridView">
         <item name="android:clipToPadding">false</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
