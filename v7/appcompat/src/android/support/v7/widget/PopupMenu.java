@@ -17,6 +17,7 @@ package android.support.v7.widget;
 
 
 import android.content.Context;
+import android.support.annotation.MenuRes;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
@@ -96,7 +97,7 @@ public class PopupMenu implements MenuBuilder.Callback, MenuPresenter.Callback {
      * popupMenu.getMenuInflater().inflate(menuRes, popupMenu.getMenu()).
      * @param menuRes Menu resource to inflate
      */
-    public void inflate(int menuRes) {
+    public void inflate(@MenuRes int menuRes) {
         getMenuInflater().inflate(menuRes, mMenu);
     }
 
