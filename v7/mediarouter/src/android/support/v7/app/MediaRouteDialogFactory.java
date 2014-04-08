@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import android.support.annotation.NonNull;
+
 /**
  * The media route dialog factory is responsible for creating the media route
  * chooser and controller dialogs as needed.
@@ -39,6 +41,7 @@ public class MediaRouteDialogFactory {
      *
      * @return The default media route dialog factory, never null.
      */
+    @NonNull
     public static MediaRouteDialogFactory getDefault() {
         return sDefault;
     }
@@ -51,6 +54,7 @@ public class MediaRouteDialogFactory {
      *
      * @return The media route chooser dialog fragment, must not be null.
      */
+    @NonNull
     public MediaRouteChooserDialogFragment onCreateChooserDialogFragment() {
         return new MediaRouteChooserDialogFragment();
     }
@@ -63,6 +67,7 @@ public class MediaRouteDialogFactory {
      *
      * @return The media route controller dialog fragment, must not be null.
      */
+    @NonNull
     public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
         return new MediaRouteControllerDialogFragment();
     }
