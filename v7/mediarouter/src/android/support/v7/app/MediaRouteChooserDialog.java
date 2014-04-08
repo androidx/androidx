@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.mediarouter.R;
@@ -70,6 +71,7 @@ public class MediaRouteChooserDialog extends Dialog {
      *
      * @return The selector, never null.
      */
+    @NonNull
     public MediaRouteSelector getRouteSelector() {
         return mSelector;
     }
@@ -79,7 +81,7 @@ public class MediaRouteChooserDialog extends Dialog {
      *
      * @param selector The selector, must not be null.
      */
-    public void setRouteSelector(MediaRouteSelector selector) {
+    public void setRouteSelector(@NonNull MediaRouteSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -108,7 +110,7 @@ public class MediaRouteChooserDialog extends Dialog {
      * @param route The route to consider, never null.
      * @return True if the route should be included in the chooser dialog.
      */
-    public boolean onFilterRoute(MediaRouter.RouteInfo route) {
+    public boolean onFilterRoute(@NonNull MediaRouter.RouteInfo route) {
         return !route.isDefault() && route.isEnabled() && route.matchesSelector(mSelector);
     }
 
