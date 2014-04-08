@@ -16,9 +16,17 @@
 
 package android.support.v7.app;
 
+import android.support.annotation.DrawableRes;
+import android.support.annotation.IntDef;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -69,6 +77,11 @@ import android.widget.SpinnerAdapter;
  */
 public abstract class ActionBar {
 
+    /** @hide */
+    @IntDef({NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface NavigationMode {}
+
     /**
      * Standard navigation mode. Consists of either a logo or icon and title text with an optional
      * subtitle. Clicking any of these elements will dispatch onOptionsItemSelected to the host
@@ -87,6 +100,17 @@ public abstract class ActionBar {
      * navigation within the activity.
      */
     public static final int NAVIGATION_MODE_TABS = 2;
+
+    /** @hide */
+    @IntDef(flag=true, value={
+            DISPLAY_USE_LOGO,
+            DISPLAY_SHOW_HOME,
+            DISPLAY_HOME_AS_UP,
+            DISPLAY_SHOW_TITLE,
+            DISPLAY_SHOW_CUSTOM
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface DisplayOptions {}
 
     /**
      * Use logo instead of icon if available. This flag will cause appropriate navigation modes to
@@ -185,7 +209,7 @@ public abstract class ActionBar {
      * @param resId Resource ID of a layout to inflate into the ActionBar.
      * @see #setDisplayOptions(int, int)
      */
-    public abstract void setCustomView(int resId);
+    public abstract void setCustomView(@LayoutRes int resId);
 
     /**
      * Set the icon to display in the 'home' section of the action bar. The action bar will use an
@@ -198,7 +222,7 @@ public abstract class ActionBar {
      * @see #setDisplayUseLogoEnabled(boolean)
      * @see #setDisplayShowHomeEnabled(boolean)
      */
-    public abstract void setIcon(int resId);
+    public abstract void setIcon(@DrawableRes int resId);
 
     /**
      * Set the icon to display in the 'home' section of the action bar. The action bar will use an
@@ -224,7 +248,7 @@ public abstract class ActionBar {
      * @see #setDisplayUseLogoEnabled(boolean)
      * @see #setDisplayShowHomeEnabled(boolean)
      */
-    public abstract void setLogo(int resId);
+    public abstract void setLogo(@DrawableRes int resId);
 
     /**
      * Set the logo to display in the 'home' section of the action bar. The action bar will use a
@@ -295,7 +319,7 @@ public abstract class ActionBar {
      * @see #setTitle(CharSequence)
      * @see #setDisplayOptions(int, int)
      */
-    public abstract void setTitle(int resId);
+    public abstract void setTitle(@StringRes int resId);
 
     /**
      * Set the action bar's subtitle. This will only be displayed if {@link #DISPLAY_SHOW_TITLE} is
@@ -305,7 +329,7 @@ public abstract class ActionBar {
      * @see #setSubtitle(int)
      * @see #setDisplayOptions(int, int)
      */
-    public abstract void setSubtitle(CharSequence subtitle);
+    public abstract void setSubtitle(@Nullable CharSequence subtitle);
 
     /**
      * Set the action bar's subtitle. This will only be displayed if {@link #DISPLAY_SHOW_TITLE} is
@@ -315,7 +339,7 @@ public abstract class ActionBar {
      * @see #setSubtitle(CharSequence)
      * @see #setDisplayOptions(int, int)
      */
-    public abstract void setSubtitle(int resId);
+    public abstract void setSubtitle(@StringRes int resId);
 
     /**
      * Set display options. This changes all display option bits at once. To change a limited subset
@@ -324,7 +348,7 @@ public abstract class ActionBar {
      * @param options A combination of the bits defined by the DISPLAY_ constants defined in
      *                ActionBar.
      */
-    public abstract void setDisplayOptions(int options);
+    public abstract void setDisplayOptions(@DisplayOptions int options);
 
     /**
      * Set selected display options. Only the options specified by mask will be changed. To change
@@ -339,7 +363,7 @@ public abstract class ActionBar {
      *                ActionBar.
      * @param mask    A bit mask declaring which display options should be changed.
      */
-    public abstract void setDisplayOptions(int options, int mask);
+    public abstract void setDisplayOptions(@DisplayOptions int options, int mask);
 
     /**
      * Set whether to display the activity logo rather than the activity icon. A logo is often a
@@ -442,6 +466,7 @@ public abstract class ActionBar {
      *
      * @return The current ActionBar title or null.
      */
+    @Nullable
     public abstract CharSequence getTitle();
 
     /**
@@ -450,6 +475,7 @@ public abstract class ActionBar {
      *
      * @return The current ActionBar subtitle or null.
      */
+    @Nullable
     public abstract CharSequence getSubtitle();
 
     /**
@@ -464,6 +490,7 @@ public abstract class ActionBar {
      *
      * @return The current navigation mode.
      */
+    @NavigationMode
     public abstract int getNavigationMode();
 
     /**
@@ -474,11 +501,12 @@ public abstract class ActionBar {
      * @see #NAVIGATION_MODE_LIST
      * @see #NAVIGATION_MODE_TABS
      */
-    public abstract void setNavigationMode(int mode);
+    public abstract void setNavigationMode(@NavigationMode int mode);
 
     /**
      * @return The current set of display options.
      */
+    @DisplayOptions
     public abstract int getDisplayOptions();
 
     /**
@@ -567,6 +595,7 @@ public abstract class ActionBar {
      *
      * @return The currently selected tab or null
      */
+    @Nullable
     public abstract Tab getSelectedTab();
 
     /**
@@ -679,7 +708,7 @@ public abstract class ActionBar {
      * @see #setDisplayHomeAsUpEnabled(boolean)
      * @see #setHomeActionContentDescription(int)
      */
-    public void setHomeAsUpIndicator(Drawable indicator) {}
+    public void setHomeAsUpIndicator(@Nullable Drawable indicator) {}
 
     /**
      * Set an alternate drawable to display next to the icon/logo/title
@@ -693,14 +722,14 @@ public abstract class ActionBar {
      * call {@link #setHomeActionContentDescription(int) setHomeActionContentDescription()}
      * to provide a correct description of the action for accessibility support.</p>
      *
-     * @param resId Resource ID of a drawable to use for the up indicator, or null
+     * @param resId Resource ID of a drawable to use for the up indicator, or 0
      *              to use the theme's default
      *
      * @see #setDisplayOptions(int, int)
      * @see #setDisplayHomeAsUpEnabled(boolean)
      * @see #setHomeActionContentDescription(int)
      */
-    public void setHomeAsUpIndicator(int resId) {}
+    public void setHomeAsUpIndicator(@DrawableRes int resId) {}
 
     /**
      * Set an alternate description for the Home/Up action, when enabled.
@@ -719,7 +748,7 @@ public abstract class ActionBar {
      * @see #setHomeAsUpIndicator(int)
      * @see #setHomeAsUpIndicator(android.graphics.drawable.Drawable)
      */
-    public void setHomeActionContentDescription(CharSequence description) {}
+    public void setHomeActionContentDescription(@Nullable CharSequence description) {}
 
     /**
      * Set an alternate description for the Home/Up action, when enabled.
@@ -739,7 +768,7 @@ public abstract class ActionBar {
      * @see #setHomeAsUpIndicator(int)
      * @see #setHomeAsUpIndicator(android.graphics.drawable.Drawable)
      */
-    public void setHomeActionContentDescription(int resId) {}
+    public void setHomeActionContentDescription(@StringRes int resId) {}
 
     /**
      * Listener for receiving {@link ActionBar} navigation events.
@@ -846,7 +875,7 @@ public abstract class ActionBar {
          * @param resId Resource ID referring to the drawable to use as an icon
          * @return The current instance for call chaining
          */
-        public abstract Tab setIcon(int resId);
+        public abstract Tab setIcon(@DrawableRes int resId);
 
         /**
          * Set the text displayed on this tab. Text may be truncated if there is not room to display
@@ -864,7 +893,7 @@ public abstract class ActionBar {
          * @param resId A resource ID referring to the text that should be displayed
          * @return The current instance for call chaining
          */
-        public abstract Tab setText(int resId);
+        public abstract Tab setText(@StringRes int resId);
 
         /**
          * Set a custom view to be used for this tab. This overrides values set by {@link
@@ -882,7 +911,7 @@ public abstract class ActionBar {
          * @param layoutResId A layout resource to inflate and use as a custom tab view
          * @return The current instance for call chaining
          */
-        public abstract Tab setCustomView(int layoutResId);
+        public abstract Tab setCustomView(@LayoutRes int layoutResId);
 
         /**
          * Retrieve a previously set custom view for this tab.
@@ -927,7 +956,7 @@ public abstract class ActionBar {
          * @see #setContentDescription(CharSequence)
          * @see #getContentDescription()
          */
-        public abstract Tab setContentDescription(int resId);
+        public abstract Tab setContentDescription(@StringRes int resId);
 
         /**
          * Set a description of this tab's content for use in accessibility support. If no content
