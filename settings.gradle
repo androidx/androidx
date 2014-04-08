@@ -1,3 +1,6 @@
+include ':support-annotations'
+project(':support-annotations').projectDir = new File(rootDir, 'annotations')
+
 include ':support-v4'
 project(':support-v4').projectDir = new File(rootDir, 'v4')
 
@@ -12,6 +15,3 @@ project(':support-mediarouter-v7').projectDir = new File(rootDir, 'v7/mediaroute
 
 include ':support-v13'
 project(':support-v13').projectDir = new File(rootDir, 'v13')
-
-include ':support-annotations'
-project(':support-annotations').projectDir = new File(rootDir, 'annotations')
