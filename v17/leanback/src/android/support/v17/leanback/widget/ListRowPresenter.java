@@ -41,6 +41,11 @@ import android.widget.FrameLayout;
  * a dim overlay on top of each individual child items.  Subclass may override and disable
  * {@link #isUsingDefaultListSelectEffect()} and write its own dim effect in
  * {@link #onSelectLevelChanged(RowPresenter.ViewHolder)}.
+ *
+ * <h3>Shadow</h3>
+ * ListRowPresenter applies a default shadow to child of each view.  Call
+ * {@link #setShadowEnabled(boolean)} to disable shadow.  Subclass may override and return
+ * false in {@link #isUsingDefaultShadow()} and replace with its own shadow implementation.
  */
 public class ListRowPresenter extends RowPresenter {
 
@@ -133,7 +138,7 @@ public class ListRowPresenter extends RowPresenter {
     private ItemBridgeAdapter.Wrapper mCardWrapper = new ItemBridgeAdapter.Wrapper() {
         @Override
         public View createWrapper(View root) {
-            ListRowCardWrapper wrapper = new ListRowCardWrapper(root.getContext());
+            ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
             wrapper.setLayoutParams(
                     new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             wrapper.initialize(needsDefaultShadow(), needsDefaultSelectEffect());
@@ -141,7 +146,7 @@ public class ListRowPresenter extends RowPresenter {
         }
         @Override
         public void wrap(View wrapper, View wrapped) {
-            ((ListRowCardWrapper) wrapper).wrap(wrapped);
+            ((ShadowOverlayContainer) wrapper).wrap(wrapped);
         }
     };
 
@@ -153,7 +158,7 @@ public class ListRowPresenter extends RowPresenter {
             rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
         }
         if (needsDefaultShadow()) {
-            OpticalBoundsHelper.getInstance().setOpticalBounds(rowViewHolder.mGridView);
+            ShadowOverlayContainer.prepareParentForShadow(rowViewHolder.mGridView);
             ((ViewGroup) rowViewHolder.view).setClipChildren(false);
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter, mZoomFactor);
@@ -186,10 +191,9 @@ public class ListRowPresenter extends RowPresenter {
 
             @Override
             public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-                if (viewHolder.itemView instanceof ListRowCardWrapper) {
+                if (viewHolder.itemView instanceof ShadowOverlayContainer) {
                     int dimmedColor = rowViewHolder.mColorDimmer.getPaint().getColor();
-                    ((ListRowCardWrapper) viewHolder.itemView)
-                            .mColorDimOverlay.setBackgroundColor(dimmedColor);
+                    ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
                 }
             }
         });
@@ -328,12 +332,12 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
-     * Returns true if opticalBounds is supported (SDK >= 18) so that default shadow
+     * Returns true if SDK >= 18, where default shadow
      * is applied to each individual child of {@link HorizontalGridView}.
      * Subclass may return false to disable.
      */
     public boolean isUsingDefaultShadow() {
-        return OpticalBoundsHelper.systemSupportsOpticalBounds();
+        return ShadowOverlayContainer.supportsShadow();
     }
 
     /**
@@ -383,8 +387,8 @@ public class ListRowPresenter extends RowPresenter {
             vh.mColorDimmer.setActiveLevel(holder.mSelectLevel);
             int dimmedColor = vh.mColorDimmer.getPaint().getColor();
             for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
-                ListRowCardWrapper wrapper = (ListRowCardWrapper) vh.mGridView.getChildAt(i);
-                wrapper.mColorDimOverlay.setBackgroundColor(dimmedColor);
+                ShadowOverlayContainer wrapper = (ShadowOverlayContainer) vh.mGridView.getChildAt(i);
+                wrapper.setOverlayColor(dimmedColor);
             }
         }
     }
