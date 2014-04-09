@@ -47,6 +47,34 @@ public class ListRowPresenter extends RowPresenter {
     private static final String TAG = "ListRowPresenter";
     private static final boolean DEBUG = false;
 
+    /**
+     * No zoom factor.
+     * @deprecated Use {@link FocusHighlight#ZOOM_FACTOR_NONE} instead.
+     */
+    @Deprecated
+    public static final int ZOOM_FACTOR_NONE = FocusHighlight.ZOOM_FACTOR_NONE;
+
+    /**
+     * A small zoom factor, recommended for large item views.
+     * @deprecated Use {@link FocusHighlight#ZOOM_FACTOR_SMALL} instead.
+     */
+    @Deprecated
+    public static final int ZOOM_FACTOR_SMALL = FocusHighlight.ZOOM_FACTOR_SMALL;
+
+    /**
+     * A medium zoom factor, recommended for medium sized item views.
+     * @deprecated Use {@link FocusHighlight#ZOOM_FACTOR_MEDIUM} instead.
+     */
+    @Deprecated
+    public static final int ZOOM_FACTOR_MEDIUM = FocusHighlight.ZOOM_FACTOR_MEDIUM;
+
+    /**
+     * A large zoom factor, recommended for small item views.
+     * @deprecated Use {@link FocusHighlight#ZOOM_FACTOR_LARGE} instead.
+     */
+    @Deprecated
+    public static final int ZOOM_FACTOR_LARGE = FocusHighlight.ZOOM_FACTOR_LARGE;
+
     public static class ViewHolder extends RowPresenter.ViewHolder {
         final ListRowPresenter mListRowPresenter;
         final HorizontalGridView mGridView;
