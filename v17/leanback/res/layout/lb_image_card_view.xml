@@ -22,8 +22,8 @@
     <ImageView
         android:id="@+id/main_image"
         lb:layout_viewType="main"
-        android:layout_width="@dimen/lb_basic_card_main_width"
-        android:layout_height="@dimen/lb_basic_card_main_height"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:scaleType="centerCrop"
         android:contentDescription="@null" />
     <FrameLayout
