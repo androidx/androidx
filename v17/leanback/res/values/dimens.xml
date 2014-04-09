@@ -19,7 +19,6 @@
     <dimen name="lb_browse_padding_top">27dp</dimen>
     <dimen name="lb_browse_padding_right">56dp</dimen>
     <dimen name="lb_browse_padding_bottom">48dp</dimen>
-    <dimen name="lb_rows_width">960dp</dimen>
     <dimen name="lb_browse_rows_margin_start">238dp</dimen>
     <dimen name="lb_browse_rows_margin_top">120dp</dimen>
 
