@@ -256,7 +256,8 @@ public class RowsFragment extends BaseRowFragment {
                 (RowPresenter.ViewHolder) vh.getViewHolder(), expanded);
     }
 
-    private static void setRowViewSelected(ItemBridgeAdapter.ViewHolder vh, boolean selected, boolean immediate) {
+    private static void setRowViewSelected(ItemBridgeAdapter.ViewHolder vh, boolean selected,
+            boolean immediate) {
         RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
         extra.animateSelect(selected, immediate);
         ((RowPresenter) vh.getPresenter()).setRowViewSelected(
@@ -268,7 +269,8 @@ public class RowsFragment extends BaseRowFragment {
         ((RowPresenter) vh.getPresenter()).setOnItemSelectedListener(listener);
     }
 
-    private final ItemBridgeAdapter.AdapterListener mBridgeAdapterListener = new ItemBridgeAdapter.AdapterListener() {
+    private final ItemBridgeAdapter.AdapterListener mBridgeAdapterListener =
+            new ItemBridgeAdapter.AdapterListener() {
         @Override
         public void onAddPresenter(Presenter presenter) {
             ((RowPresenter) presenter).setOnItemClickedListener(mOnItemClickedListener);
@@ -281,16 +283,21 @@ public class RowsFragment extends BaseRowFragment {
             }
             mViewsCreated = true;
             vh.setExtraObject(new RowViewHolderExtra(vh));
+            // selected state is initialized to false, then driven by grid view onChildSelected
+            // events.  When there is rebind, grid view fires onChildSelected event properly.
+            // So we don't need do anything special later in onBind or onAttachedToWindow.
+            setRowViewSelected(vh, false, true);
         }
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
             if (DEBUG) Log.v(TAG, "onAttachToWindow");
+            // All views share the same mExpand value.  When we attach a view to grid view,
+            // we should make sure it pick up the latest mExpand value we set early on other
+            // attached views.  For no-structure-change update,  the view is rebound to new data,
+            // but again it should use the unchanged mExpand value,  so we don't need do any
+            // thing in onBind.
             setRowViewExpanded(vh, mExpand);
             setOnItemSelectedListener(vh, mOnItemSelectedListener);
-        }
-        @Override
-        public void onBind(ItemBridgeAdapter.ViewHolder vh) {
-            setRowViewSelected(vh, false, true);
         }
         @Override
         public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
