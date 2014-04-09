@@ -41,7 +41,7 @@ import android.widget.FrameLayout;
  * Call {@link #setShadowFocusLevel(float)} to control shadow alpha.
  * </p>
  * <p>
- * Call {@link #setColorOverlayColor(int)} to control overlay color.
+ * Call {@link #setOverlayColor(int)} to control overlay color.
  * </p>
  */
 public class ShadowOverlayContainer extends FrameLayout {
