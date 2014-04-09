@@ -17,6 +17,7 @@ import android.support.v17.leanback.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.util.Log;
 
 /**
@@ -44,6 +45,7 @@ public class VerticalGridPresenter extends Presenter {
 
     private int mNumColumns = -1;
     private int mZoomFactor;
+    private boolean mShadowEnabled = true;
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
 
@@ -74,6 +76,37 @@ public class VerticalGridPresenter extends Presenter {
         return mNumColumns;
     }
 
+    /**
+     * Enable or disable child shadow.
+     * This is not only for enable/disable default shadow implementation but also subclass must
+     * respect this flag.
+     */
+    public final void setShadowEnabled(boolean enabled) {
+        mShadowEnabled = enabled;
+    }
+
+    /**
+     * Returns true if child shadow is enabled.
+     * This is not only for enable/disable default shadow implementation but also subclass must
+     * respect this flag.
+     */
+    public final boolean getShadowEnabled() {
+        return mShadowEnabled;
+    }
+
+    /**
+     * Returns true if opticalBounds is supported (SDK >= 18) so that default shadow
+     * is applied to each individual child of {@link VerticalGridView}.
+     * Subclass may return false to disable.
+     */
+    public boolean isUsingDefaultShadow() {
+        return ShadowOverlayContainer.supportsShadow();
+    }
+
+    final boolean needsDefaultShadow() {
+        return isUsingDefaultShadow() && getShadowEnabled();
+    }
+
     @Override
     public final ViewHolder onCreateViewHolder(ViewGroup parent) {
         ViewHolder vh = createGridViewHolder(parent);
@@ -94,6 +127,21 @@ public class VerticalGridPresenter extends Presenter {
         return new ViewHolder((VerticalGridView) root.findViewById(R.id.browse_grid));
     }
 
+    private ItemBridgeAdapter.Wrapper mWrapper = new ItemBridgeAdapter.Wrapper() {
+        @Override
+        public View createWrapper(View root) {
+            ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
+            wrapper.setLayoutParams(
+                    new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            wrapper.initialize(needsDefaultShadow(), false);
+            return wrapper;
+        }
+        @Override
+        public void wrap(View wrapper, View wrapped) {
+            ((ShadowOverlayContainer) wrapper).wrap(wrapped);
+        }
+    };
+
     protected void initializeGridViewHolder(ViewHolder vh) {
         if (mNumColumns == -1) {
             throw new IllegalStateException("Number of columns must be set");
@@ -102,6 +150,11 @@ public class VerticalGridPresenter extends Presenter {
         vh.getGridView().setNumColumns(mNumColumns);
         vh.mInitialized = true;
 
+        if (needsDefaultShadow()) {
+            vh.mItemBridgeAdapter.setWrapper(mWrapper);
+            ShadowOverlayContainer.prepareParentForShadow(vh.getGridView());
+            ((ViewGroup) vh.view).setClipChildren(false);
+        }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(vh.mItemBridgeAdapter, mZoomFactor);
 
         final ViewHolder gridViewHolder = vh;
