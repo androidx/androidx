@@ -259,10 +259,6 @@ public abstract class RowPresenter extends Presenter {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onBindViewHolder(vh.mHeaderViewHolder, item);
         }
-        vh.mSelected = false;
-        vh.mExpanded = false;
-        onRowViewExpanded(vh, false);
-        onRowViewSelected(vh, false);
     }
 
     @Override
