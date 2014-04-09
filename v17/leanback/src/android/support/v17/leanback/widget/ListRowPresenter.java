@@ -47,26 +47,6 @@ public class ListRowPresenter extends RowPresenter {
     private static final String TAG = "ListRowPresenter";
     private static final boolean DEBUG = false;
 
-    /**
-     * No zoom factor.
-     */
-    public static final int ZOOM_FACTOR_NONE = FocusHighlightHelper.BrowseItemFocusHighlight.ZOOM_FACTOR_NONE;
-
-    /**
-     * A small zoom factor, recommended for large item views.
-     */
-    public static final int ZOOM_FACTOR_SMALL = FocusHighlightHelper.BrowseItemFocusHighlight.ZOOM_FACTOR_SMALL;
-
-    /**
-     * A medium zoom factor, recommended for medium sized item views.
-     */
-    public static final int ZOOM_FACTOR_MEDIUM = FocusHighlightHelper.BrowseItemFocusHighlight.ZOOM_FACTOR_MEDIUM;
-
-    /**
-     * A large zoom factor, recommended for small item views.
-     */
-    public static final int ZOOM_FACTOR_LARGE = FocusHighlightHelper.BrowseItemFocusHighlight.ZOOM_FACTOR_LARGE;
-
     public static class ViewHolder extends RowPresenter.ViewHolder {
         final ListRowPresenter mListRowPresenter;
         final HorizontalGridView mGridView;
@@ -96,18 +76,20 @@ public class ListRowPresenter extends RowPresenter {
 
     /**
      * Constructs a ListRowPresenter with defaults.
-     * Uses {@link #ZOOM_FACTOR_MEDIUM} for focus zooming.
+     * Uses {@link FocusHighlight#ZOOM_FACTOR_MEDIUM} for focus zooming.
      */
     public ListRowPresenter() {
-        this(ZOOM_FACTOR_MEDIUM);
+        this(FocusHighlight.ZOOM_FACTOR_MEDIUM);
     }
 
     /**
      * Constructs a ListRowPresenter with the given parameters.
      *
      * @param zoomFactor Controls the zoom factor used when an item view is focused. One of
-     *         {@link #ZOOM_FACTOR_NONE}, {@link #ZOOM_FACTOR_SMALL}, {@link #ZOOM_FACTOR_MEDIUM},
-     *         {@link #ZOOM_FACTOR_LARGE}
+     *         {@link FocusHighlight#ZOOM_FACTOR_NONE},
+     *         {@link FocusHighlight#ZOOM_FACTOR_SMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_MEDIUM},
+     *         {@link FocusHighlight#ZOOM_FACTOR_LARGE}
      */
     public ListRowPresenter(int zoomFactor) {
         mZoomFactor = zoomFactor;
