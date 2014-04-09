@@ -18,14 +18,34 @@ import android.view.View;
 /**
  * Interface for highlighting the item that has focus.
  *
- * Not exposed to developers.
  */
-interface FocusHighlight {
+public interface FocusHighlight {
+    /**
+     * No zoom factor.
+     */
+    public static final int ZOOM_FACTOR_NONE = 0;
+
+    /**
+     * A small zoom factor, recommended for large item views.
+     */
+    public static final int ZOOM_FACTOR_SMALL = 1;
+
+    /**
+     * A medium zoom factor, recommended for medium sized item views.
+     */
+    public static final int ZOOM_FACTOR_MEDIUM = 2;
+
+    /**
+     * A large zoom factor, recommended for small item views.
+     */
+    public static final int ZOOM_FACTOR_LARGE = 3;
+
     /**
      * Called when an item gains or loses focus.
+     * @hide
      *
      * @param view The view whose focus is changing.
      * @param hasFocus True if focus is gained; false otherwise.
      */
-    public void onItemFocused(View view, boolean hasFocus);
+    void onItemFocused(View view, boolean hasFocus);
 }

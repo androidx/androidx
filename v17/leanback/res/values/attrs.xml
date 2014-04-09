@@ -89,5 +89,8 @@
         <attr name="detailsDescriptionSubtitleStyle" format="reference" />
         <attr name="detailsDescriptionBodyStyle" format="reference" />
 
+        <!-- style for a vertical grid of items -->
+        <attr name="itemsVerticalGridStyle" format="reference" />
+
     </declare-styleable>
 </resources>

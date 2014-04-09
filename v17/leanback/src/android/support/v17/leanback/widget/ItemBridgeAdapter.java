@@ -159,6 +159,10 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         mPresenterSelector = presenterSelector;
     }
 
+    public ItemBridgeAdapter(ObjectAdapter adapter) {
+        this(adapter, null);
+    }
+
     public ItemBridgeAdapter() {
     }
 

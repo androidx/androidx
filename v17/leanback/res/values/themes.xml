@@ -32,6 +32,7 @@
         <item name="headersVerticalGridStyle">@style/Widget.Leanback.Headers.VerticalGridView</item>
         <item name="rowsVerticalGridStyle">@style/Widget.Leanback.Rows.VerticalGridView</item>
         <item name="rowHorizontalGridStyle">@style/Widget.Leanback.Row.HorizontalGridView</item>
+        <item name="itemsVerticalGridStyle">@style/Widget.Leanback.GridItems.VerticalGridView</item>
 
         <item name="browseTitleTextStyle">@style/Widget.Leanback.Title.Text</item>
         <item name="browseTitleIconStyle">@style/Widget.Leanback.Title.Icon</item>
