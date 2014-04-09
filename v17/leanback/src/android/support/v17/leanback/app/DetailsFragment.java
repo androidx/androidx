@@ -95,13 +95,12 @@ public class DetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.lb_details_fragment, container, false);
-        if (getChildFragmentManager().findFragmentById(R.id.details_container_dock) == null) {
+        mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(
+                R.id.fragment_dock); 
+        if (mRowsFragment == null) {
             mRowsFragment = new RowsFragment();
             getChildFragmentManager().beginTransaction()
-                    .replace(R.id.details_container_dock, mRowsFragment).commit();
-        } else {
-            mRowsFragment = (RowsFragment) getChildFragmentManager()
-                    .findFragmentById(R.id.browse_container_dock);
+                    .replace(R.id.fragment_dock, mRowsFragment).commit();
         }
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
