@@ -15,12 +15,12 @@
      limitations under the License.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/details_dummy"
+    android:id="@+id/dummy"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
     <FrameLayout
-        android:id="@+id/details_container_dock"
+        android:id="@+id/fragment_dock"
         android:layout_width="wrap_content"
         android:layout_height="match_parent" />
 </FrameLayout>
