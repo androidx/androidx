@@ -49,8 +49,6 @@ import java.util.ArrayList;
  * See {@link BaseCardView.LayoutParams BaseCardView.LayoutParams} for
  * layout attributes.
  * </p>
- *
- * @attr ref com.google.android.recline.R.styleable#BaseCardView_cardType
  */
 public class BaseCardView extends ViewGroup {
     private static final String TAG = "BaseCardView";
