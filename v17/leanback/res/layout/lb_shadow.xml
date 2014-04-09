@@ -14,7 +14,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<View xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/lb_card_shadow_normal" />
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <View
+        android:id="@+id/lb_shadow_normal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/lb_card_shadow_normal" />
+    <View
+        android:id="@+id/lb_shadow_focused"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/lb_card_shadow_focused"
+        android:alpha="0" />
+
+</merge>
