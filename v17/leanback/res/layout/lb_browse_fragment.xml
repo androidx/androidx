@@ -16,7 +16,7 @@
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/browse_dummy"
-    android:layout_width="?attr/rowsWidth"
+    android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
     <!-- BrowseFrameLayout serves as root of transition and manages switch between
@@ -27,7 +27,7 @@
         android:layout_height="match_parent"
         >
         <include layout="@layout/lb_browse_title" />
-        <FrameLayout
+        <android.support.v17.leanback.app.BrowseRowsFrameLayout
             android:id="@+id/browse_container_dock"
             android:layout_width="wrap_content"
             android:layout_height="match_parent" />
