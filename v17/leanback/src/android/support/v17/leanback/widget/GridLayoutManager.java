@@ -1804,6 +1804,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     return true;
                 }
                 // if still cannot find any, fall through and add itself
+            } else {
+                // for aligned case, add last focused child
+                if (mFocusPosition != NO_POSITION) {
+                    View child = getViewByPosition(mFocusPosition);
+                    if (child != null) {
+                        child.addFocusables(views, direction, focusableMode);
+                    }
+                }
+                // still needs to add recyclerView itself, in case that last focused
+                // view gets a very low score if it's far away from the direction of
+                // current focus rectangle.
             }
             if (recyclerView.isFocusable()) {
                 views.add(recyclerView);
