@@ -119,6 +119,7 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(leanback.docs.src_files)
 LOCAL_JAVA_LIBRARIES := $(leanback.docs.java_libraries)
+LOCAL_SDK_VERSION := current
 
 LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
 LOCAL_UNINSTALLABLE_MODULE := true
