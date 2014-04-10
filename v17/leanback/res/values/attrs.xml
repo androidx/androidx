@@ -71,9 +71,8 @@
             <enum name="selected" value="2"/>
         </attr>
         <!-- Defines when the extra region of a card layout is displayed.
-             Depends on {@link android.support.v17.leanback.lbBaseCardView.attr#infoVisibility
-             infoVisibility}, meaning the extra region never displays if the info
-             region is not displayed as well. -->
+             Depends on infoVisibility, meaning the extra region never displays
+             if the info region is not displayed as well. -->
         <attr name="extraVisibility" format="enum">
             <!-- Always display the extra region. -->
             <enum name="always" value="0"/>
