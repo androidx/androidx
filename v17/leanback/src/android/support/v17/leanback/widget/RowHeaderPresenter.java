@@ -14,29 +14,22 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
 /**
  * RowHeaderPresenter provides a default implementation for header using TextView.
- * RowHeaderPresenter receives calls {@link #setHidden(ViewHolder, boolean)} from
- * {@link RowPresenter} when the row takes full screen.
  * If subclass override and creates its own view, subclass must also override
- * {@link #updateViewVisibility(ViewHolder)} and {@link #onSelectLevelChanged(ViewHolder)}.
+ * {@link #onSelectLevelChanged(ViewHolder)}.
  */
 public class RowHeaderPresenter extends Presenter {
 
     public static class ViewHolder extends Presenter.ViewHolder {
-        boolean mHidden;
         float mSelectLevel;
         int mOriginalTextColor;
         ColorOverlayDimmer mColorDimmer;
         public ViewHolder(View view) {
             super(view);
-        }
-        public final boolean getHidden() {
-            return mHidden;
         }
         public final float getSelectLevel() {
             return mSelectLevel;
@@ -45,7 +38,7 @@ public class RowHeaderPresenter extends Presenter {
 
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
-        BrowseRowHeaderView headerView = new BrowseRowHeaderView(parent.getContext());
+        RowHeaderView headerView = new RowHeaderView(parent.getContext());
         ViewHolder viewHolder = new ViewHolder(headerView);
         viewHolder.mOriginalTextColor = headerView.getCurrentTextColor();
         return viewHolder;
@@ -58,29 +51,14 @@ public class RowHeaderPresenter extends Presenter {
             HeaderItem headerItem = rowItem.getHeaderItem();
             if (headerItem != null) {
                 String text = headerItem.getName();
-                ((BrowseRowHeaderView) viewHolder.view).setText(text);
+                ((RowHeaderView) viewHolder.view).setText(text);
             }
         }
-        updateViewVisibility((ViewHolder) viewHolder);
     }
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        ((BrowseRowHeaderView) viewHolder.view).setText(null);
-    }
-
-    public final void setHidden(ViewHolder holder, boolean hidden) {
-        holder.mHidden = hidden;
-        updateViewVisibility(holder);
-    }
-
-    protected void updateViewVisibility(RowHeaderPresenter.ViewHolder holder) {
-        if (!holder.mHidden && !TextUtils.isEmpty(((BrowseRowHeaderView) holder.view)
-                        .getText())) {
-            holder.view.setVisibility(View.VISIBLE);
-        } else {
-            holder.view.setVisibility(View.GONE);
-        }
+        ((RowHeaderView) viewHolder.view).setText(null);
     }
 
     public final void setSelectLevel(ViewHolder holder, float selectLevel) {
@@ -93,7 +71,7 @@ public class RowHeaderPresenter extends Presenter {
             holder.mColorDimmer = ColorOverlayDimmer.createDefault(holder.view.getContext());
         }
         holder.mColorDimmer.setActiveLevel(holder.mSelectLevel);
-        final BrowseRowHeaderView headerView = (BrowseRowHeaderView) holder.view;
+        final RowHeaderView headerView = (RowHeaderView) holder.view;
         headerView.setTextColor(holder.mColorDimmer.applyToColor(holder.mOriginalTextColor));
     }
 }

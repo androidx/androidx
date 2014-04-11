@@ -25,7 +25,6 @@ import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -44,7 +43,7 @@ public class RowsFragment extends BaseRowFragment {
      */
     final class RowViewHolderExtra implements TimeListener {
         final RowPresenter mRowPresenter;
-        final RowPresenter.ViewHolder mRowViewHolder;
+        final Presenter.ViewHolder mRowViewHolder;
 
         final TimeAnimator mSelectAnimator = new TimeAnimator();
         final ColorOverlayDimmer mColorDimmer;
@@ -55,7 +54,7 @@ public class RowsFragment extends BaseRowFragment {
 
         RowViewHolderExtra(ItemBridgeAdapter.ViewHolder ibvh) {
             mRowPresenter = (RowPresenter) ibvh.getPresenter();
-            mRowViewHolder = (ViewHolder) ibvh.getViewHolder();
+            mRowViewHolder = ibvh.getViewHolder();
             mSelectAnimator.setTimeListener(this);
             if (mRowPresenter.getSelectEffectEnabled()
                     && mRowPresenter.isUsingDefaultSelectEffect()) {
@@ -253,16 +252,14 @@ public class RowsFragment extends BaseRowFragment {
     };
 
     private static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
-        ((RowPresenter) vh.getPresenter()).setRowViewExpanded(
-                (RowPresenter.ViewHolder) vh.getViewHolder(), expanded);
+        ((RowPresenter) vh.getPresenter()).setRowViewExpanded(vh.getViewHolder(), expanded);
     }
 
     private static void setRowViewSelected(ItemBridgeAdapter.ViewHolder vh, boolean selected,
             boolean immediate) {
         RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
         extra.animateSelect(selected, immediate);
-        ((RowPresenter) vh.getPresenter()).setRowViewSelected(
-                (RowPresenter.ViewHolder) vh.getViewHolder(), selected);
+        ((RowPresenter) vh.getPresenter()).setRowViewSelected(vh.getViewHolder(), selected);
     }
 
     private static void setOnItemSelectedListener(ItemBridgeAdapter.ViewHolder vh,

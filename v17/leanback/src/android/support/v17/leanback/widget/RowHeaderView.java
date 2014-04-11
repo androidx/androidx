@@ -19,19 +19,19 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 /**
- * BrowseRowHeaderView is a header text view.
+ * RowHeaderView is a header text view.
  */
-public class BrowseRowHeaderView extends TextView {
+public final class RowHeaderView extends TextView {
 
-    public BrowseRowHeaderView(Context context) {
+    public RowHeaderView(Context context) {
         this(context, null);
     }
 
-    public BrowseRowHeaderView(Context context, AttributeSet attrs) {
+    public RowHeaderView(Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.rowHeaderStyle);
     }
 
-    public BrowseRowHeaderView(Context context, AttributeSet attrs, int defStyle) {
+    public RowHeaderView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 

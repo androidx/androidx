@@ -34,14 +34,14 @@ import android.view.ViewGroup;
  * RowPresenter receives calls from upper level(typically a fragment) when:
  * <ul>
  * <li>
- * Row is selected via {@link #setRowViewSelected(ViewHolder, boolean)}.  The event
+ * Row is selected via {@link #setRowViewSelected(Presenter.ViewHolder, boolean)}.  The event
  * is triggered immediately when there is a row selection change before the selection
  * animation is started.
  * Subclass of RowPresenter may override and add more works in
  * {@link #onRowViewSelected(ViewHolder, boolean)}.
  * </li>
  * <li>
- * Row is expanded to full width via {@link #setRowViewExpanded(ViewHolder, boolean)}.
+ * Row is expanded to full width via {@link #setRowViewExpanded(Presenter.ViewHolder, boolean)}.
  * The event is triggered immediately before the expand animation is started.
  * Subclass of RowPresenter may override and add more works in
  * {@link #onRowViewExpanded(ViewHolder, boolean)}.
@@ -58,7 +58,7 @@ import android.view.ViewGroup;
  * <h3>Selection animation</h3>
  * <p>
  * When user scrolls through rows,  fragment will initiate animation and call
- * {@link #setSelectLevel(ViewHolder, float)} with float value 0~1.  By default, fragment
+ * {@link #setSelectLevel(Presenter.ViewHolder, float)} with float value 0~1.  By default, fragment
  * draws a dim overlay on top of row view for views not selected.  Subclass may override
  * this default effect by having {@link #isUsingDefaultSelectEffect()} return false
  * and override {@link #onSelectLevelChanged(ViewHolder)} to apply its own selection effect.
@@ -71,7 +71,25 @@ import android.view.ViewGroup;
  */
 public abstract class RowPresenter extends Presenter {
 
+    static class ContainerViewHolder extends Presenter.ViewHolder {
+        /**
+         * wrapped row view holder
+         */
+        final ViewHolder mRowViewHolder;
+
+        public ContainerViewHolder(RowContainerView containerView, ViewHolder rowViewHolder) {
+            super(containerView);
+            containerView.addRowView(rowViewHolder.view);
+            if (rowViewHolder.mHeaderViewHolder != null) {
+                containerView.addHeaderView(rowViewHolder.mHeaderViewHolder.view);
+            }
+            mRowViewHolder = rowViewHolder;
+            mRowViewHolder.mContainerViewHolder = this;
+        }
+    }
+
     public static class ViewHolder extends Presenter.ViewHolder {
+        ContainerViewHolder mContainerViewHolder;
         RowHeaderPresenter.ViewHolder mHeaderViewHolder;
         Row mRow;
         boolean mSelected;
@@ -108,11 +126,22 @@ public abstract class RowPresenter extends Presenter {
     public final Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
         ViewHolder vh = createRowViewHolder(parent);
         vh.mInitialzed = false;
+        Presenter.ViewHolder result;
+        if (needsRowContainerView()) {
+            RowContainerView containerView = new RowContainerView(parent.getContext());
+            if (mHeaderPresenter != null) {
+                vh.mHeaderViewHolder = (RowHeaderPresenter.ViewHolder)
+                        mHeaderPresenter.onCreateViewHolder((ViewGroup) vh.view);
+            }
+            result = new ContainerViewHolder(containerView, vh);
+        } else {
+            result = vh;
+        }
         initializeRowViewHolder(vh);
         if (!vh.mInitialzed) {
             throw new RuntimeException("super.initializeRowViewHolder() must be called");
         }
-        return vh;
+        return result;
     }
 
     /**
@@ -127,11 +156,6 @@ public abstract class RowPresenter extends Presenter {
      * super.initializeRowViewHolder(ViewHolder).
      */
     protected void initializeRowViewHolder(ViewHolder vh) {
-        if (mHeaderPresenter != null) {
-            vh.mHeaderViewHolder = (RowHeaderPresenter.ViewHolder)
-                    mHeaderPresenter.onCreateViewHolder((ViewGroup) vh.view);
-            ((ViewGroup) vh.view).addView(vh.mHeaderViewHolder.view, 0);
-        }
         vh.mInitialzed = true;
     }
 
@@ -151,19 +175,32 @@ public abstract class RowPresenter extends Presenter {
     }
 
     /**
+     * Get wrapped {@link RowPresenter.ViewHolder}
+     */
+    protected final ViewHolder getRowViewHolder(Presenter.ViewHolder holder) {
+        if (holder instanceof ContainerViewHolder) {
+            return ((ContainerViewHolder) holder).mRowViewHolder;
+        } else {
+            return (ViewHolder) holder;
+        }
+    }
+
+    /**
      * Change expanded state of row view.
      */
-    public final void setRowViewExpanded(ViewHolder holder, boolean expanded) {
-        holder.mExpanded = expanded;
-        onRowViewExpanded(holder, expanded);
+    public final void setRowViewExpanded(Presenter.ViewHolder holder, boolean expanded) {
+        ViewHolder rowViewHolder = getRowViewHolder(holder);
+        rowViewHolder.mExpanded = expanded;
+        onRowViewExpanded(rowViewHolder, expanded);
     }
 
     /**
      * Change select state of row view.
      */
-    public final void setRowViewSelected(ViewHolder holder, boolean selected) {
-        holder.mSelected = selected;
-        onRowViewSelected(holder, selected);
+    public final void setRowViewSelected(Presenter.ViewHolder holder, boolean selected) {
+        ViewHolder rowViewHolder = getRowViewHolder(holder);
+        rowViewHolder.mSelected = selected;
+        onRowViewSelected(rowViewHolder, selected);
     }
 
     /**
@@ -174,7 +211,13 @@ public abstract class RowPresenter extends Presenter {
      */
     protected void onRowViewExpanded(ViewHolder vh, boolean expanded) {
         if (mHeaderPresenter != null && vh.mHeaderViewHolder != null) {
-            mHeaderPresenter.setHidden(vh.mHeaderViewHolder, !expanded);
+            RowContainerView containerView = ((RowContainerView) vh.mContainerViewHolder.view);
+            View headerView = vh.mHeaderViewHolder.view;
+            if (expanded) {
+                containerView.addHeaderView(headerView);
+            } else {
+                containerView.removeHeaderView(headerView);
+            }
         }
     }
 
@@ -193,16 +236,17 @@ public abstract class RowPresenter extends Presenter {
      * Set current select level from 0(unselected) to 1(selected).
      * Subclass should override {@link #onSelectLevelChanged(ViewHolder)}.
      */
-    public final void setSelectLevel(ViewHolder vh, float level) {
-        vh.mSelectLevel = level;
-        onSelectLevelChanged(vh);
+    public final void setSelectLevel(Presenter.ViewHolder vh, float level) {
+        ViewHolder rowViewHolder = getRowViewHolder(vh);
+        rowViewHolder.mSelectLevel = level;
+        onSelectLevelChanged(rowViewHolder);
     }
 
     /**
      * Get current select level from 0(unselected) to 1(selected).
      */
-    public final float getSelectLevel(ViewHolder vh) {
-        return vh.mSelectLevel;
+    public final float getSelectLevel(Presenter.ViewHolder vh) {
+        return getRowViewHolder(vh).mSelectLevel;
     }
 
     /**
@@ -245,6 +289,14 @@ public abstract class RowPresenter extends Presenter {
         return true;
     }
 
+    final boolean needsDefaultSelectEffect() {
+        return isUsingDefaultSelectEffect() && getSelectEffectEnabled();
+    }
+
+    final boolean needsRowContainerView() {
+        return mHeaderPresenter != null;
+    }
+
     /**
      * Return true if the Row view can draw outside bounds.
      */
@@ -253,8 +305,11 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        ViewHolder vh = (ViewHolder) viewHolder;
+    public final void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+        onBindRowViewHolder(getRowViewHolder(viewHolder), item);
+    }
+
+    protected void onBindRowViewHolder(ViewHolder vh, Object item) {
         vh.mRow = (Row) item;
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onBindViewHolder(vh.mHeaderViewHolder, item);
@@ -262,8 +317,11 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        ViewHolder vh = (ViewHolder) viewHolder;
+    public final void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+        onUnbindRowViewHolder(getRowViewHolder(viewHolder));
+    }
+
+    protected void onUnbindRowViewHolder(ViewHolder vh) {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onUnbindViewHolder(vh.mHeaderViewHolder);
         }
@@ -271,16 +329,22 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public void onViewAttachedToWindow(Presenter.ViewHolder holder) {
-        ViewHolder vh = (ViewHolder) holder;
+    public final void onViewAttachedToWindow(Presenter.ViewHolder holder) {
+        onRowViewAttachedToWindow(getRowViewHolder(holder));
+    }
+
+    protected void onRowViewAttachedToWindow(ViewHolder vh) {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onViewAttachedToWindow(vh.mHeaderViewHolder);
         }
     }
 
     @Override
-    public void onViewDetachedFromWindow(Presenter.ViewHolder holder) {
-        ViewHolder vh = (ViewHolder) holder;
+    public final void onViewDetachedFromWindow(Presenter.ViewHolder holder) {
+        onRowViewDetachedFromWindow(getRowViewHolder(holder));
+    }
+
+    protected void onRowViewDetachedFromWindow(ViewHolder vh) {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onViewDetachedFromWindow(vh.mHeaderViewHolder);
         }

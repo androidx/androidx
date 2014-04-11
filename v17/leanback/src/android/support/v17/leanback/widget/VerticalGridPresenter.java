@@ -123,7 +123,7 @@ public class VerticalGridPresenter extends Presenter {
      */
     protected ViewHolder createGridViewHolder(ViewGroup parent) {
         View root = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.lb_browse_grid, parent, false);
+                R.layout.lb_vertical_grid, parent, false);
         return new ViewHolder((VerticalGridView) root.findViewById(R.id.browse_grid));
     }
 

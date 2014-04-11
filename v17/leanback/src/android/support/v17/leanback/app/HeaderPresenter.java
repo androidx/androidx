@@ -37,7 +37,7 @@ class HeaderPresenter extends Presenter {
 
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        TextView view = (TextView) inflater.inflate(R.layout.lb_browse_header, parent, false);
+        TextView view = (TextView) inflater.inflate(R.layout.lb_row_header, parent, false);
         return new Presenter.ViewHolder(view);
     }
 
