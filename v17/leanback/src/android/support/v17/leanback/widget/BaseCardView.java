@@ -123,8 +123,6 @@ public class BaseCardView extends ViewGroup {
     private ArrayList<View> mInfoViewList;
     private ArrayList<View> mExtraViewList;
 
-    private boolean mCardSelected;
-
     private int mMeasuredWidth;
     private int mMeasuredHeight;
     private boolean mDelaySelectedAnim;
@@ -155,7 +153,7 @@ public class BaseCardView extends ViewGroup {
     public BaseCardView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView, 0, 0);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView, defStyle, 0);
 
         try {
             mCardType = a.getInteger(R.styleable.lbBaseCardView_cardType, CARD_TYPE_MAIN_ONLY);
@@ -183,7 +181,6 @@ public class BaseCardView extends ViewGroup {
             a.recycle();
         }
 
-        mCardSelected = false;
         mDelaySelectedAnim = true;
 
         mMainViewList = new ArrayList<View>();
@@ -256,7 +253,15 @@ public class BaseCardView extends ViewGroup {
     }
 
     public void setInfoVisibility(int visibility) {
-        mInfoVisibility = visibility;
+        if (mInfoVisibility != visibility) {
+            mInfoVisibility = visibility;
+            if (mInfoVisibility == CARD_REGION_VISIBLE_SELECTED && isSelected()) {
+                mInfoVisFraction = 1.0f;
+            } else {
+                mInfoVisFraction = 0.0f;
+            }
+            requestLayout();
+        }
     }
 
     public int getInfoVisibility() {
@@ -264,7 +269,10 @@ public class BaseCardView extends ViewGroup {
     }
 
     public void setExtraVisibility(int visibility) {
-        mExtraVisibility = visibility;
+        if (mExtraVisibility != visibility) {
+            mExtraVisibility = visibility;
+            requestLayout();
+        }
     }
 
     public int getExtraVisibility() {
@@ -298,21 +306,10 @@ public class BaseCardView extends ViewGroup {
      */
     @Override
     public void setSelected(boolean selected) {
-        if (mCardSelected != selected) {
-            mCardSelected = selected;
-            applySelectedState(mCardSelected);
+        if (selected != isSelected()) {
+            super.setSelected(selected);
+            applySelectedState(isSelected());
         }
-    }
-
-    /**
-     * returns the Selected state of this Card.
-     *
-     * @return True if the card is Selected, or false otherwise.
-     * @see #setSelected(boolean)
-     */
-    @Override
-    public boolean isSelected() {
-        return mCardSelected;
     }
 
     @Override
@@ -371,7 +368,7 @@ public class BaseCardView extends ViewGroup {
             }
         }
 
-        boolean infoAnimating = mInfoVisibility == CARD_REGION_VISIBLE_SELECTED;
+        boolean infoAnimating = hasInfoRegion() && mInfoVisibility == CARD_REGION_VISIBLE_SELECTED;
         mMeasuredHeight = (int) (mainHeight +
                 (infoAnimating ? (infoHeight * mInfoVisFraction) : infoHeight)
                 + extraHeight - (infoAnimating ? 0 : mInfoOffset));
@@ -495,7 +492,7 @@ public class BaseCardView extends ViewGroup {
         boolean extraVisible = hasExtraRegion() && mInfoOffset > 0f;
 
         if (mCardType == CARD_TYPE_INFO_UNDER && mInfoVisibility == CARD_REGION_VISIBLE_SELECTED) {
-            infoVisible = mInfoVisFraction > 0f;
+            infoVisible = infoVisible && mInfoVisFraction > 0f;
         }
 
         for (int i = 0; i < count; i++) {
@@ -523,8 +520,11 @@ public class BaseCardView extends ViewGroup {
     }
 
     private void applyActiveState(boolean active) {
-        if (mInfoVisibility == CARD_REGION_VISIBLE_ACTIVATED) {
+        if (hasInfoRegion() && mInfoVisibility <= CARD_REGION_VISIBLE_ACTIVATED) {
             setInfoViewVisibility(active);
+        }
+        if (hasExtraRegion() && mExtraVisibility <= CARD_REGION_VISIBLE_ACTIVATED) {
+            //setExtraVisibility(active);
         }
     }
 
@@ -848,6 +848,44 @@ public class BaseCardView extends ViewGroup {
             for (int i = 0; i < mInfoViewList.size(); i++) {
                 mInfoViewList.get(i).setAlpha(mInfoAlpha);
             }
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (DEBUG) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getClass().getSimpleName()).append(" : ");
+            sb.append("cardType=");
+            switch(mCardType) {
+                case CARD_TYPE_MAIN_ONLY:
+                    sb.append("MAIN_ONLY");
+                    break;
+                case CARD_TYPE_INFO_OVER:
+                    sb.append("INFO_OVER");
+                    break;
+                case CARD_TYPE_INFO_UNDER:
+                    sb.append("INFO_UNDER");
+                    break;
+                case CARD_TYPE_INFO_UNDER_WITH_EXTRA:
+                    sb.append("INFO_UNDER_WITH_EXTRA");
+                    break;
+                default:
+                    sb.append("INVALID");
+                    break;
+            }
+            sb.append(" : ");
+            sb.append(mMainViewList.size()).append(" main views, ");
+            sb.append(mInfoViewList.size()).append(" info views, ");
+            sb.append(mExtraViewList.size()).append(" extra views : ");
+            sb.append("infoVisibility=").append(mInfoVisibility).append(" ");
+            sb.append("extraVisibility=").append(mExtraVisibility).append(" ");
+            sb.append("isActivated=").append(isActivated());
+            sb.append(" : ");
+            sb.append("isSelected=").append(isSelected());
+            return sb.toString();
+        } else {
+            return super.toString();
         }
     }
 }
