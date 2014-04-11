@@ -36,36 +36,38 @@ import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 
 /**
- * Supports background continuity between multiple activities.
+ * Supports background image continuity between multiple Activities.
  *
- * An activity should instantiate a BackgroundManager and {@link #attach}
- * to the activity's window.  When the activity is started, the background is
+ * <p>An Activity should instantiate a BackgroundManager and {@link #attach}
+ * to the Activity's window.  When the Activity is started, the background is
  * initialized to the current background values stored in a continuity service.
  * The background continuity service is updated as the background is updated.
  *
- * At some point, for example when stopped, the activity may release its background
- * state.
+ * <p>At some point, for example when it is stopped, the Activity may release
+ * its background state.
  *
- * When an activity is resumed, if the BM has not been released, the continuity service
- * is updated from the BM state.  If the BM was released, the BM inherits the current
- * state from the continuity service.
+ * <p>When an Activity is resumed, if the BackgroundManager has not been
+ * released, the continuity service is updated from the BackgroundManager state.
+ * If the BackgroundManager was released, the BackgroundManager inherits the
+ * current state from the continuity service.
  *
- * When the last activity is destroyed, the background state is reset.
+ * <p>When the last Activity is destroyed, the background state is reset.
  *
- * Backgrounds consist of several layers, from back to front:
- * - the background drawable of the theme
- * - a solid color (set via setColor)
- * - two drawables, previous and current (set via setBitmap or setDrawable),
- *   which may be in transition
+ * <p>Backgrounds consist of several layers, from back to front:
+ * <ul>
+ *   <li>the background Drawable of the theme</li>
+ *   <li>a solid color (set via {@link #setColor})</li>
+ *   <li>two Drawables, previous and current (set via {@link #setBitmap} or
+ *   {@link #setDrawable}), which may be in transition</li>
+ * </ul>
  *
- * BackgroundManager holds references to potentially large bitmap drawables.
- * Call {@link #release} to release these references when the activity is not
+ * <p>BackgroundManager holds references to potentially large bitmap Drawables.
+ * Call {@link #release} to release these references when the Activity is not
  * visible.
- *
- * TODO: support for multiple app processes requires a proper android service
- * instead of the shared memory "service" implemented here. Such a service could
- * support continuity between fragments of different applications if desired.
  */
+// TODO: support for multiple app processes requires a proper android service
+// instead of the shared memory "service" implemented here. Such a service could
+// support continuity between fragments of different applications if desired.
 public final class BackgroundManager {
     private static final String TAG = "BackgroundManager";
     private static final boolean DEBUG = false;
@@ -232,12 +234,11 @@ public final class BackgroundManager {
     }
 
     /**
-     * Get background manager associated with the activity.
+     * Get the BackgroundManager associated with the Activity.
      * <p>
-     * The background manager will be created on-demand for each individual
-     * activity.  Consequent calls will return the same background manager created
-     * for this activity.
-     * </p>
+     * The BackgroundManager will be created on-demand for each individual
+     * Activity. Subsequent calls will return the same BackgroundManager created
+     * for this Activity.
      */
     public static BackgroundManager getInstance(Activity activity) {
         BackgroundFragment fragment = (BackgroundFragment) activity.getFragmentManager()
@@ -254,10 +255,11 @@ public final class BackgroundManager {
     }
 
     /**
-     * Construct a background manager instance.
-     * Initial background set from continuity service.
-     * @deprecated Use getInstance(Activity)
+     * Construct a BackgroundManager instance. The Initial background is set
+     * from the continuity service.
+     * @deprecated Use getInstance(Activity).
      */
+    @Deprecated
     public BackgroundManager(Activity activity) {
         mContext = activity;
         mService = BackgroundContinuityService.getInstance();
@@ -293,7 +295,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Synchronizes state when the owning activity is resumed.
+     * Synchronizes state when the owning Activity is resumed.
      */
     void onActivityResume() {
         if (mService == null) {
@@ -348,7 +350,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Make the background visible on the given window.
+     * Make the background visible on the given Window.
      */
     public void attach(Window window) {
         if (USE_SEPARATE_WINDOW) {
@@ -387,9 +389,8 @@ public final class BackgroundManager {
     }
 
     /**
-     * Releases references to drawables and puts the background manager into
-     * detached state.
-     * Called when the associated activity is destroyed.
+     * Release references to Drawables and put the BackgroundManager into the
+     * detached state. Called when the associated Activity is destroyed.
      * @hide
      */
     void detach() {
@@ -412,13 +413,13 @@ public final class BackgroundManager {
     }
 
     /**
-     * Releases references to drawables.
-     * Typically called to reduce memory overhead when not visible.
+     * Release references to Drawables. Typically called to reduce memory
+     * overhead when not visible.
      * <p>
-     * When an activity is resumed, if the BM has not been released, the continuity service
-     * is updated from the BM state.  If the BM was released, the BM inherits the current
-     * state from the continuity service.
-     * </p>
+     * When an Activity is resumed, if the BackgroundManager has not been
+     * released, the continuity service is updated from the BackgroundManager
+     * state. If the BackgroundManager was released, the BackgroundManager
+     * inherits the current state from the continuity service.
      */
     public void release() {
         if (DEBUG) Log.v(TAG, "release");
@@ -469,8 +470,8 @@ public final class BackgroundManager {
     }
 
     /**
-     * Sets the given color into the background.
-     * Timing is undefined.
+     * Set the background to the given color. The timing for when this becomes
+     * visible in the app is undefined and may take place after a small delay.
      */
     public void setColor(int color) {
         if (DEBUG) Log.v(TAG, "setColor " + Integer.toHexString(color));
@@ -484,8 +485,9 @@ public final class BackgroundManager {
     }
 
     /**
-     * Set the given drawable into the background.
-     * Timing is undefined.
+     * Set the background to the given Drawable. The timing for when this
+     * becomes visible in the app is undefined and may take place after a small
+     * delay.
      */
     public void setDrawable(Drawable drawable) {
         if (DEBUG) Log.v(TAG, "setBackgroundDrawable " + drawable);
@@ -504,8 +506,8 @@ public final class BackgroundManager {
     }
 
     /**
-     * Set the given bitmap into the background.
-     * Timing is undefined.
+     * Set the background to the given Bitmap. The timing for when this becomes
+     * visible in the app is undefined and may take place after a small delay.
      */
     public void setBitmap(Bitmap bitmap) {
         if (DEBUG) Log.v(TAG, "setBitmap " + bitmap);
@@ -580,14 +582,14 @@ public final class BackgroundManager {
     }
 
     /**
-     * Returns the color currently in use by the background.
+     * Returns the current background color.
      */
     public final int getColor() {
         return mBackgroundColor;
     }
 
     /**
-     * Returns the {@link Drawable} currently in use by the background.
+     * Returns the current background {@link Drawable}.
      */
     public Drawable getDrawable() {
         return mBackgroundDrawable;
