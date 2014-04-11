@@ -21,8 +21,8 @@ import android.support.v17.leanback.R;
 import android.view.View;
 
 /**
- * Helper class for assigning dim color to Paint.
- * The class holds alpha value according to current active level.
+ * Helper class for assigning a dim color to Paint. It holds the alpha value for
+ * the current active level.
  */
 public final class ColorOverlayDimmer {
 
@@ -35,22 +35,7 @@ public final class ColorOverlayDimmer {
     private float mAlphaFloat;
 
     /**
-     * Constructor for this ColorOverlayDimmer class.
-     *
-     * @param dimColor    The color for fully dimmed.  Only r/g/b are used, alpha channel is
-     *                    ignored.
-     * @param activeLevel The Level of dimming for when the view is in its Active state. Must be a
-     *                    float value between 0.0 and 1.0.
-     * @param dimmedLevel The Level of dimming for when the view is in its Dimmed state. Must be a
-     *                    float value between 0.0 and 1.0.
-     */
-    public static ColorOverlayDimmer createOverlayColorDimmer(int dimColor, float activeLevel,
-            float dimmedLevel) {
-        return new ColorOverlayDimmer(dimColor, activeLevel, dimmedLevel);
-    }
-
-    /**
-     * Constructor to create a default ColorOverlayDimmer.
+     * Creates a default ColorOverlayDimmer.
      */
     public static ColorOverlayDimmer createDefault(Context context) {
         return new ColorOverlayDimmer(
@@ -58,13 +43,26 @@ public final class ColorOverlayDimmer {
                 context.getResources().getFraction(R.dimen.lb_view_dimmed_level, 1, 1));
     }
 
+    /**
+     * Creates a ColorOverlayDimmer for the given color and levels.
+     *
+     * @param dimColor    The color for fully dimmed. Only the RGB values are
+     *                    used; the alpha channel is ignored.
+     * @param activeLevel The level of dimming when the View is in its active
+     *                    state. Must be a float value between 0.0 and 1.0.
+     * @param dimmedLevel The level of dimming when the View is in its dimmed
+     *                    state. Must be a float value between 0.0 and 1.0.
+     */
+    public static ColorOverlayDimmer createColorOverlayDimmer(int dimColor, float activeLevel,
+            float dimmedLevel) {
+        return new ColorOverlayDimmer(dimColor, activeLevel, dimmedLevel);
+    }
+
     private ColorOverlayDimmer(int dimColor, float activeLevel, float dimmedLevel) {
-        if (activeLevel < 0 || activeLevel > 1) {
-            throw new IllegalArgumentException("activeLevel must be between 0 and 1");
-        }
-        if (dimmedLevel < 0 || dimmedLevel > 1) {
-            throw new IllegalArgumentException("dimmedLevel must be between 0 and 1");
-        }
+        if (activeLevel > 1.0f) activeLevel = 1.0f;
+        if (activeLevel < 0.0f) activeLevel = 0.0f;
+        if (dimmedLevel > 1.0f) dimmedLevel = 1.0f;
+        if (dimmedLevel < 0.0f) dimmedLevel = 0.0f;
         mPaint = new Paint();
         dimColor = Color.rgb(Color.red(dimColor), Color.green(dimColor), Color.blue(dimColor));
         mPaint.setColor(dimColor);
@@ -74,8 +72,10 @@ public final class ColorOverlayDimmer {
     }
 
     /**
-     * Set level of active and change alpha value and paint object.
-     * @param level Between 0 for dim and 1 for fully active.
+     * Sets the active level of the dimmer. Updates the alpha value based on the
+     * level.
+     *
+     * @param level A float between 0 (fully dim) and 1 (fully active).
      */
     public void setActiveLevel(float level) {
         mAlphaFloat = (mDimmedLevel + level * (mActiveLevel - mDimmedLevel));
@@ -84,35 +84,41 @@ public final class ColorOverlayDimmer {
     }
 
     /**
-     * Returns true if dimmer needs to draw.
+     * Returns whether the dimmer needs to draw.
      */
     public boolean needsDraw() {
         return mAlpha != 0;
     }
 
     /**
-     * Returns the alpha value for dimmer.
+     * Returns the alpha value for the dimmer.
      */
     public int getAlpha() {
         return mAlpha;
     }
 
     /**
-     * Returns the float value between 0~1,  corresponding to alpha between 0~255.
+     * Returns the float value between 0 and 1 corresponding to alpha between
+     * 0 and 255.
      */
     public float getAlphaFloat() {
         return mAlphaFloat;
     }
 
     /**
-     * Returns the paint object set to current alpha value.
+     * Returns the Paint object set to the current alpha value.
      */
     public Paint getPaint() {
         return mPaint;
     }
 
     /**
-     * Change r,g,b of color according to current dim level.  Keeps alpha of color.
+     * Change the RGB of the color according to current dim level. Maintains the
+     * alpha value of the color.
+     *
+     * @param color The color to apply the dim level to.
+     * @return A color with the RGB values adjusted by the alpha of the current
+     *         dim level.
      */
     public int applyToColor(int color) {
         float f = 1 - mAlphaFloat;
@@ -123,10 +129,13 @@ public final class ColorOverlayDimmer {
     }
 
     /**
-     * Draw a dim color overlay on top of a child view inside canvas of parent view.
-     * @param c   Canvas of parent view.
-     * @param v   Child of parent view.
-     * @param includePadding  Set to true to draw overlay on padding area of the view.
+     * Draw a dim color overlay on top of a child View inside the canvas of
+     * the parent View.
+     *
+     * @param c Canvas of the parent View.
+     * @param v A child of the parent View.
+     * @param includePadding Set to true to draw overlay on padding area of the
+     *        View.
      */
     public void drawColorOverlay(Canvas c, View v, boolean includePadding) {
         c.save();

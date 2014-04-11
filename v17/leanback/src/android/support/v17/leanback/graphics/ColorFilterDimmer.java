@@ -20,8 +20,9 @@ import android.view.View;
 import android.support.v17.leanback.R;
 
 /**
- * Helper class for applying dim level to view(s).  The ColorFilterDimmer
- * holds a Paint object and ColorFilter corresponding to current "active" level.
+ * Helper class for applying a dim level to a View.  The ColorFilterDimmer
+ * uses a ColorFilter in a Paint object to dim the view according to the
+ * currently active level.
  */
 public final class ColorFilterDimmer {
 
@@ -34,7 +35,11 @@ public final class ColorFilterDimmer {
     private ColorFilter mFilter;
 
     /**
-     * Create a default ColorFilterDimmer.
+     * Creates a default ColorFilterDimmer. Uses the default color and level for
+     * the dimmer.
+     *
+     * @param context A Context used to retrieve Resources.
+     * @return A ColorFilterDimmer with the default dim color and levels.
      */
     public static ColorFilterDimmer createDefault(Context context) {
         return new ColorFilterDimmer(ColorFilterCache.getColorFilterCache(
@@ -43,13 +48,13 @@ public final class ColorFilterDimmer {
     }
 
     /**
-     * Create a ColorFilterDimmer.
+     * Creates a ColorFilterDimmer for the given color and levels..
      *
      * @param dimmer      The ColorFilterCache for dim color.
-     * @param activeLevel The level of dimming for when the view is in its active state. Must be a
-     *                    float value between 0.0 and 1.0.
-     * @param dimmedLevel The level of dimming for when the view is in its dimmed state. Must be a
-     *                    float value between 0.0 and 1.0.
+     * @param activeLevel The level of dimming when the View is in its active
+     *                    state. Must be a float value between 0.0 and 1.0.
+     * @param dimmedLevel The level of dimming when the View is in its dimmed
+     *                    state. Must be a float value between 0.0 and 1.0.
      */
     public static ColorFilterDimmer create(ColorFilterCache dimmer,
             float activeLevel, float dimmedLevel) {
@@ -58,13 +63,21 @@ public final class ColorFilterDimmer {
 
     private ColorFilterDimmer(ColorFilterCache dimmer, float activeLevel, float dimmedLevel) {
         mColorDimmer = dimmer;
+        if (activeLevel > 1.0f) activeLevel = 1.0f;
+        if (activeLevel < 0.0f) activeLevel = 0.0f;
+        if (dimmedLevel > 1.0f) dimmedLevel = 1.0f;
+        if (dimmedLevel < 0.0f) dimmedLevel = 0.0f;
         mActiveLevel = activeLevel;
         mDimmedLevel = dimmedLevel;
         mPaint = new Paint();
     }
 
     /**
-     * Apply current ColorFilter to a view, will assign and remove hardware layer of the view.
+     * Apply current the ColorFilter to a View. This method will set the
+     * hardware layer of the view when applying a filter, and remove it when not
+     * applying a filter.
+     *
+     * @param view The View to apply the ColorFilter to.
      */
     public void applyFilterToView(View view) {
         if (mFilter != null) {
@@ -79,27 +92,34 @@ public final class ColorFilterDimmer {
     }
 
     /**
-     * Sets the active level and change internal filter and paint.
-     * @param level Between 0 for dim and 1 for fully active.
+     * Sets the active level of the dimmer. Updates the ColorFilter based on the
+     * level.
+     *
+     * @param level A float between 0 (fully dim) and 1 (fully active).
      */
     public void setActiveLevel(float level) {
+        if (level < 0.0f) level = 0.0f;
+        if (level > 1.0f) level = 1.0f;
         mFilter = mColorDimmer.getFilterForLevel(
                 mDimmedLevel + level * (mActiveLevel - mDimmedLevel));
         mPaint.setColorFilter(mFilter);
     }
 
     /**
-     * Gets the color filter set to current dim level.
+     * Gets the ColorFilter set to the current dim level.
+     *
+     * @return The current ColorFilter.
      */
     public ColorFilter getColorFilter() {
         return mFilter;
     }
 
     /**
-     * Gets the paint object set to current dim level.
+     * Gets the Paint object set to the current dim level.
+     *
+     * @return The current Paint object.
      */
     public Paint getPaint() {
         return mPaint;
     }
-
 }
