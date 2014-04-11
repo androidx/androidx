@@ -5,12 +5,12 @@ buildscript {
         maven { url '../../prebuilts/tools/common/m2/internal' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath 'com.android.tools.build:gradle:0.10.0'
     }
 }
 
 ext.supportVersion = '20.0.0'
-ext.extraVersion = 5
+ext.extraVersion = 7
 ext.supportRepoOut = ''
 
 /*
