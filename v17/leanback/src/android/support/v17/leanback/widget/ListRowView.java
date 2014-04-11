@@ -27,25 +27,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * BrowseRowView contains a horizontal grid view.
+ * ListRowView contains a horizontal grid view.
  */
-public final class BrowseRowView extends LinearLayout {
+public final class ListRowView extends LinearLayout {
 
     private HorizontalGridView mGridView;
 
-    public BrowseRowView(Context context) {
+    public ListRowView(Context context) {
         this(context, null);
     }
 
-    public BrowseRowView(Context context, AttributeSet attrs) {
+    public ListRowView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BrowseRowView(Context context, AttributeSet attrs, int defStyle) {
+    public ListRowView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         LayoutInflater inflater = LayoutInflater.from(context);
-        inflater.inflate(R.layout.lb_browse_row, this);
+        inflater.inflate(R.layout.lb_list_row, this);
 
         mGridView = (HorizontalGridView) findViewById(R.id.row_content);
         // Uncomment this to experiment with page-based scrolling.

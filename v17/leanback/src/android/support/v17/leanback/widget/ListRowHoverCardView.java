@@ -23,25 +23,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * BrowseRowHoverCardView contains a title and description.
+ * ListRowHoverCardView contains a title and description.
  */
-public final class BrowseRowHoverCardView extends LinearLayout {
+public final class ListRowHoverCardView extends LinearLayout {
 
     private final TextView mTitleView;
     private final TextView mDescriptionView;
 
-    public BrowseRowHoverCardView(Context context) {
+    public ListRowHoverCardView(Context context) {
        this(context, null);
     }
 
-    public BrowseRowHoverCardView(Context context, AttributeSet attrs) {
+    public ListRowHoverCardView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BrowseRowHoverCardView(Context context, AttributeSet attrs, int defStyle) {
+    public ListRowHoverCardView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         LayoutInflater inflater = LayoutInflater.from(context);
-        inflater.inflate(R.layout.lb_browse_row_hovercard, this);
+        inflater.inflate(R.layout.lb_list_row_hovercard, this);
         mTitleView = (TextView) findViewById(R.id.title);
         mDescriptionView = (TextView) findViewById(R.id.description);
     }
