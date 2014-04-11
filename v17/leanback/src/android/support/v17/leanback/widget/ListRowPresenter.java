@@ -29,7 +29,7 @@ import android.widget.FrameLayout;
 
 /**
  * ListRowPresenter renders {@link ListRow} using a
- * {@link HorizontalGridView} hosted in a {@link BrowseRowView}.
+ * {@link HorizontalGridView} hosted in a {@link ListRowView}.
  *
  * <h3>Hover card</h3>
  * Optionally, {@link #setHoverCardPresenterSelector(PresenterSelector)} can be used to
@@ -113,7 +113,7 @@ public class ListRowPresenter extends RowPresenter {
             ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
             wrapper.setLayoutParams(
                     new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            wrapper.initialize(needsDefaultShadow(), needsDefaultSelectEffect());
+            wrapper.initialize(needsDefaultShadow(), needsDefaultListSelectEffect());
             return wrapper;
         }
         @Override
@@ -129,9 +129,12 @@ public class ListRowPresenter extends RowPresenter {
         if (needsDefaultSelectEffect() || needsDefaultShadow()) {
             rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
         }
-        if (needsDefaultShadow()) {
+        if (needsDefaultListSelectEffect()) {
             ShadowOverlayContainer.prepareParentForShadow(rowViewHolder.mGridView);
             ((ViewGroup) rowViewHolder.view).setClipChildren(false);
+            if (rowViewHolder.mContainerViewHolder != null) {
+                ((ViewGroup) rowViewHolder.mContainerViewHolder.view).setClipChildren(false);
+            }
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter, mZoomFactor);
         rowViewHolder.mGridView.setOnChildSelectedListener(
@@ -171,7 +174,7 @@ public class ListRowPresenter extends RowPresenter {
         });
     }
 
-    final boolean needsDefaultSelectEffect() {
+    final boolean needsDefaultListSelectEffect() {
         return isUsingDefaultListSelectEffect() && getSelectEffectEnabled();
     }
 
@@ -218,7 +221,7 @@ public class ListRowPresenter extends RowPresenter {
 
     @Override
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
-        BrowseRowView rowView = new BrowseRowView(parent.getContext());
+        ListRowView rowView = new ListRowView(parent.getContext());
         return new ViewHolder(rowView, rowView.getGridView(), this);
     }
 
@@ -268,9 +271,9 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder holder, Object item) {
-        super.onBindViewHolder(holder, item);
-        ViewHolder vh = (ViewHolder)holder;
+    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+        super.onBindRowViewHolder(holder, item);
+        ViewHolder vh = (ViewHolder) holder;
         ListRow rowItem = (ListRow) item;
         vh.mItemBridgeAdapter.clear();
         vh.mItemBridgeAdapter.setAdapter(rowItem.getAdapter());
@@ -278,10 +281,9 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder holder) {
-        ViewHolder vh = (ViewHolder)holder;
-        vh.mGridView.setAdapter(null);
-        super.onUnbindViewHolder(holder);
+    protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
+        ((ViewHolder) holder).mGridView.setAdapter(null);
+        super.onUnbindRowViewHolder(holder);
     }
 
     /**
@@ -354,7 +356,7 @@ public class ListRowPresenter extends RowPresenter {
     @Override
     protected void onSelectLevelChanged(RowPresenter.ViewHolder holder) {
         super.onSelectLevelChanged(holder);
-        if (needsDefaultSelectEffect()) {
+        if (needsDefaultListSelectEffect()) {
             ViewHolder vh = (ViewHolder) holder;
             vh.mColorDimmer.setActiveLevel(holder.mSelectLevel);
             int dimmedColor = vh.mColorDimmer.getPaint().getColor();

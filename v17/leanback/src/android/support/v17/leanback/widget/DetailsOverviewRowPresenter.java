@@ -94,8 +94,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder holder, Object item) {
-        super.onBindViewHolder(holder, item);
+    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+        super.onBindRowViewHolder(holder, item);
 
         DetailsOverviewRow row = (DetailsOverviewRow) item;
         ViewHolder vh = (ViewHolder) holder;
@@ -114,8 +114,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder holder) {
-        super.onUnbindViewHolder(holder);
+    protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
+        super.onUnbindRowViewHolder(holder);
 
         ViewHolder vh = (ViewHolder) holder;
         if (vh.mDetailsDescriptionViewHolder != null) {
