@@ -578,6 +578,12 @@ public class ViewCompat {
         }
         @Override
         public void setImportantForAccessibility(View view, int mode) {
+            // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS is not available
+            // on this platform so replace with IMPORTANT_FOR_ACCESSIBILITY_NO
+            // which is closer semantically.
+            if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
+                mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
+            }
             ViewCompatJB.setImportantForAccessibility(view, mode);
         }
         @Override
@@ -651,6 +657,11 @@ public class ViewCompat {
         @Override
         public void setAccessibilityLiveRegion(View view, int mode) {
             ViewCompatKitKat.setAccessibilityLiveRegion(view, mode);
+        }
+
+        @Override
+        public void setImportantForAccessibility(View view, int mode) {
+            ViewCompatJB.setImportantForAccessibility(view, mode);
         }
     }
 
@@ -952,6 +963,12 @@ public class ViewCompat {
      * Sets how to determine whether this view is important for accessibility
      * which is if it fires accessibility events and if it is reported to
      * accessibility services that query the screen.
+     * <p>
+     * <em>Note:</em> If the current paltform version does not support the
+     *  {@link #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS} mode, then
+     *  {@link #IMPORTANT_FOR_ACCESSIBILITY_NO} will be used as it is the
+     *  closest terms of semantics.
+     * </p>
      *
      * @param view The view whose property to set.
      * @param mode How to determine whether this view is important for accessibility.
