@@ -20,7 +20,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.util.SparseArray;
 
 /**
- * Helper class of mapping ColorFilter from a color with different alpha levels.
+ * Cache of {@link ColorFilter}s for a given color at different alpha levels.
  */
 public final class ColorFilterCache {
 
@@ -30,24 +30,28 @@ public final class ColorFilterCache {
     private final PorterDuffColorFilter[] mFilters = new PorterDuffColorFilter[0x100];
 
     /**
-     * Get ColorDimmer for a given color.  Only r/g/b are used, alpha channel is ignored
-     * from parameter dimColor.
+     * Get a ColorDimmer for a given color.  Only the RGB values are used; the 
+     * alpha channel is ignored in color. Subsequent calls to this method
+     * with the same color value will return the same cache.
+     *
+     * @param color The color to use for the color filters.
+     * @return A cache of ColorFilters at different alpha levels for the color.
      */
-    public static ColorFilterCache getColorFilterCache(int dimColor) {
-        final int r = Color.red(dimColor);
-        final int g = Color.green(dimColor);
-        final int b = Color.blue(dimColor);
-        dimColor = Color.rgb(r, g, b);
-        ColorFilterCache colorDimmer = sColorToFiltersMap.get(dimColor);
-        if (colorDimmer == null) {
-            colorDimmer = new ColorFilterCache(r, g, b);
-            sColorToFiltersMap.put(dimColor, colorDimmer);
+    public static ColorFilterCache getColorFilterCache(int color) {
+        final int r = Color.red(color);
+        final int g = Color.green(color);
+        final int b = Color.blue(color);
+        color = Color.rgb(r, g, b);
+        ColorFilterCache filters = sColorToFiltersMap.get(color);
+        if (filters == null) {
+            filters = new ColorFilterCache(r, g, b);
+            sColorToFiltersMap.put(color, filters);
         }
-        return colorDimmer;
+        return filters;
     }
 
     private ColorFilterCache(int r, int g, int b) {
-        // Pre cache all Dim filter levels
+        // Pre cache all 256 filter levels
         for (int i = 0x00; i <= 0xFF; i++) {
             int color = Color.argb(i, r, g, b);
             mFilters[i] = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP);
@@ -55,7 +59,11 @@ public final class ColorFilterCache {
     }
 
     /**
-     * Returns ColorFilter for a given level between 0 and 1.
+     * Returns a ColorFilter for a given alpha level between 0 and 1.0.
+     *
+     * @param level The alpha level the filter should apply.
+     * @return A ColorFilter at the alpha level for the color represented by the
+     *         cache.
      */
     public ColorFilter getFilterForLevel(float level) {
         if (level >= 0 && level <= 1.0) {
