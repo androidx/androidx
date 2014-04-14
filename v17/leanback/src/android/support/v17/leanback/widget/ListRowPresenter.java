@@ -76,6 +76,8 @@ public class ListRowPresenter extends RowPresenter {
         }
     }
 
+    private int mRowHeight;
+    private int mExpandedRowHeight;
     private PresenterSelector mHoverCardPresenterSelector;
     private int mZoomFactor;
     private boolean mShadowEnabled = true;
@@ -100,6 +102,44 @@ public class ListRowPresenter extends RowPresenter {
      */
     public ListRowPresenter(int zoomFactor) {
         mZoomFactor = zoomFactor;
+    }
+
+    /**
+     * Sets the row height in pixels for rows created by this Presenter. Rows
+     * created before calling this method will not be updated.
+     *
+     * @param rowHeight The row height in pixels to use for rows created by this
+     *        Presenter, or 0 to use the default height.
+     */
+    public void setRowHeight(int rowHeight) {
+        mRowHeight = rowHeight;
+    }
+
+    /**
+     * Returns the row height in pixels for rows created by this Presenter.
+     */
+    public int getRowHeight() {
+        return mRowHeight;
+    }
+
+    /**
+     * Sets the expanded row height in pixels for rows created by this
+     * Presenter. If not set, expanded rows have the same height as unexpanded
+     * rows.
+     *
+     * @param rowHeight The row height in pixels to use for expanded rows
+     *        created by this Presenter, or 0 to use the default height.
+     */
+    public void setExpandedRowHeight(int rowHeight) {
+        mExpandedRowHeight = rowHeight;
+    }
+
+    /**
+     * Returns the expanded row height in pixels for rows created by this
+     * Presenter.
+     */
+    public int getExpandedRowHeight() {
+        return mExpandedRowHeight > 0 ? mExpandedRowHeight : mRowHeight;
     }
 
     /**
@@ -226,6 +266,9 @@ public class ListRowPresenter extends RowPresenter {
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
         ListRowView rowView = new ListRowView(parent.getContext());
         setupFadingEffect(rowView);
+        if (mRowHeight > 0) {
+            rowView.getGridView().setRowHeight(mRowHeight);
+        }
         return new ViewHolder(rowView, rowView.getGridView(), this);
     }
 
@@ -271,6 +314,10 @@ public class ListRowPresenter extends RowPresenter {
     protected void onRowViewExpanded(RowPresenter.ViewHolder holder, boolean expanded) {
         super.onRowViewExpanded(holder, expanded);
         ViewHolder vh = (ViewHolder) holder;
+        if (getRowHeight() != getExpandedRowHeight()) {
+            int newHeight = expanded ? getExpandedRowHeight() : getRowHeight();
+            vh.getGridView().setRowHeight(newHeight);
+        }
         vh.getGridView().setFadingLeftEdge(!expanded);
         updateFooterViewSwitcher(vh);
     }

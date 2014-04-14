@@ -50,6 +50,7 @@ public class RowsFragment extends BaseRowFragment {
 
         final TimeAnimator mSelectAnimator = new TimeAnimator();
         final ColorOverlayDimmer mColorDimmer;
+
         int mSelectAnimatorDurationInUse;
         Interpolator mSelectAnimatorInterpolatorInUse;
         float mSelectLevelAnimStart;
@@ -69,6 +70,12 @@ public class RowsFragment extends BaseRowFragment {
 
         @Override
         public void onTimeUpdate(TimeAnimator animation, long totalTime, long deltaTime) {
+            if (mSelectAnimator.isRunning()) {
+                updateSelect(totalTime, deltaTime);
+            }
+        }
+
+        void updateSelect(long totalTime, long deltaTime) {
             float fraction;
             if (totalTime >= mSelectAnimatorDurationInUse) {
                 fraction = 1;
@@ -87,7 +94,7 @@ public class RowsFragment extends BaseRowFragment {
         }
 
         void animateSelect(boolean select, boolean immediate) {
-            endAnimation();
+            endSelectAnimation();
             final float end = select ? 1 : 0;
             if (immediate) {
                 mRowPresenter.setSelectLevel(mRowViewHolder, end);
@@ -103,7 +110,11 @@ public class RowsFragment extends BaseRowFragment {
             }
         }
 
-        void endAnimation() {
+        void endAnimations() {
+            endSelectAnimation();
+        }
+
+        void endSelectAnimation() {
             mSelectAnimator.end();
         }
 
@@ -124,8 +135,9 @@ public class RowsFragment extends BaseRowFragment {
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
 
-    // Select animation and interpolator are not intended to exposed at this moment.
-    // They might be synced with vertical scroll animation later.
+    // Select animation and interpolator are not intended to be
+    // exposed at this moment. They might be synced with vertical scroll
+    // animation later.
     int mSelectAnimatorDuration;
     Interpolator mSelectAnimatorInterpolator = new DecelerateInterpolator(2);
 
@@ -288,7 +300,7 @@ public class RowsFragment extends BaseRowFragment {
         @Override
         public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
             RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
-            extra.endAnimation();
+            extra.endAnimations();
         }
     };
 
