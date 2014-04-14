@@ -1,0 +1,22 @@
+apply plugin: 'android-library'
+
+archivesBaseName = 'recyclerview-v7'
+
+dependencies {
+    compile project(':support-v4')
+}
+
+android {
+    compileSdkVersion 7
+    buildToolsVersion "19.0.1"
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDir 'src'
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+}
