@@ -187,9 +187,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mFirstAttached = false;
                 return;
             }
-            if (!layout.isChildLayoutAnimated()) {
-                return;
-            }
             mView = view;
             int newViewX = layout.getScrollOffsetX() + getOpticalLeft(mView);
             int newViewY = layout.getScrollOffsetY() + getOpticalTop(mView);
@@ -599,14 +596,28 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return v;
     }
 
+    final int getOpticalLeft(View v) {
+        return ((LayoutParams) v.getLayoutParams()).getOpticalLeft(v);
+    }
+
+    final int getOpticalRight(View v) {
+        return ((LayoutParams) v.getLayoutParams()).getOpticalRight(v);
+    }
+
+    final int getOpticalTop(View v) {
+        return ((LayoutParams) v.getLayoutParams()).getOpticalTop(v);
+    }
+
+    final int getOpticalBottom(View v) {
+        return ((LayoutParams) v.getLayoutParams()).getOpticalBottom(v);
+    }
+
     private int getViewMin(View v) {
-        LayoutParams p = (LayoutParams) v.getLayoutParams();
-        return (mOrientation == HORIZONTAL) ? p.getOpticalLeft(v) : p.getOpticalTop(v);
+        return (mOrientation == HORIZONTAL) ? getOpticalLeft(v) : getOpticalTop(v);
     }
 
     private int getViewMax(View v) {
-        LayoutParams p = (LayoutParams) v.getLayoutParams();
-        return (mOrientation == HORIZONTAL) ? p.getOpticalRight(v) : p.getOpticalBottom(v);
+        return (mOrientation == HORIZONTAL) ? getOpticalRight(v) : getOpticalBottom(v);
     }
 
     private int getViewCenter(View view) {
@@ -1682,14 +1693,23 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public void setAnimateChildLayout(boolean animateChildLayout) {
         mAnimateChildLayout = animateChildLayout;
-        if (!mAnimateChildLayout) {
-            for (int i = 0, c = getChildCount(); i < c; i++) {
-                ((LayoutParams) getChildAt(i).getLayoutParams()).endAnimate();
+        for (int i = 0, c = getChildCount(); i < c; i++) {
+            View v = getChildAt(i);
+            LayoutParams p = (LayoutParams) v.getLayoutParams();
+            if (!mAnimateChildLayout) {
+                p.endAnimate();
+            } else {
+                // record initial location values
+                p.mFirstAttached = true;
+                p.startAnimate(this, v, 0);
             }
         }
     }
 
     private void attemptAnimateLayoutChild() {
+        if (!mAnimateChildLayout) {
+            return;
+        }
         for (int i = 0, c = getChildCount(); i < c; i++) {
             // TODO: start delay can be staggered
             View v = getChildAt(i);

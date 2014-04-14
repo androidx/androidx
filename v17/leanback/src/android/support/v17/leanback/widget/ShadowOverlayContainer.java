@@ -114,7 +114,9 @@ public class ShadowOverlayContainer extends FrameLayout {
      * Set color (with alpha) of the overlay.
      */
     public void setOverlayColor(int overlayColor) {
-        mColorDimOverlay.setBackgroundColor(overlayColor);
+        if (mColorDimOverlay != null) {
+            mColorDimOverlay.setBackgroundColor(overlayColor);
+        }
     }
 
     /**

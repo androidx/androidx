@@ -30,6 +30,7 @@
         <item name="browsePaddingBottom">@dimen/lb_browse_padding_bottom</item>
         <item name="browseRowsMarginStart">@dimen/lb_browse_rows_margin_start</item>
         <item name="browseRowsMarginTop">@dimen/lb_browse_rows_margin_top</item>
+        <item name="browseRowsFadingEdgeLength">@dimen/lb_browse_rows_fading_edge</item>
 
         <item name="headersVerticalGridStyle">@style/Widget.Leanback.Headers.VerticalGridView</item>
         <item name="rowsVerticalGridStyle">@style/Widget.Leanback.Rows.VerticalGridView</item>
