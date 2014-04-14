@@ -126,7 +126,7 @@ public class ListRowPresenter extends RowPresenter {
     protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
         super.initializeRowViewHolder(holder);
         final ViewHolder rowViewHolder = (ViewHolder) holder;
-        if (needsDefaultSelectEffect() || needsDefaultShadow()) {
+        if (needsDefaultListSelectEffect() || needsDefaultShadow()) {
             rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
         }
         if (needsDefaultListSelectEffect()) {
