@@ -23,8 +23,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 
-import java.util.ArrayList;
-
 class NotificationCompatApi20 {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
@@ -36,7 +34,7 @@ class NotificationCompatApi20 {
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                String category, ArrayList<String> people, Bundle extras) {
+                String category, Bundle extras) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -65,9 +63,6 @@ class NotificationCompatApi20 {
                 .setLocalOnly(localOnly)
                 .setCategory(category)
                 .setExtras(extras);
-            for (String person: people) {
-                b.addPerson(person);
-            }
         }
 
         @Override
