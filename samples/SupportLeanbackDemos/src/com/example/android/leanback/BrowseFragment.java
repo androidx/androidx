@@ -54,7 +54,14 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     }
 
     private void setupRows() {
-        mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        ListRowPresenter lrp = new ListRowPresenter();
+        float density = getActivity().getResources().getDisplayMetrics().density;
+        float height = 160 * density + 0.5f;
+        float expandedHeight = height + 52 * density + 0.5f;
+        lrp.setRowHeight((int)height);
+        lrp.setExpandedRowHeight((int)expandedHeight);
+
+        mRowsAdapter = new ArrayObjectAdapter(lrp);
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
