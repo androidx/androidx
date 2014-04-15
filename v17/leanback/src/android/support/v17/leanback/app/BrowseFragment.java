@@ -163,27 +163,10 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Set background parameters.
-     * @deprecated Use BackgroundManager instead
-     */
-    @Deprecated
-    public void setBackgroundParams(BackgroundParams params) {
-    }
-
-    /**
      * Returns browse parameters.
      */
     public Params getBrowseParams() {
         return mParams;
-    }
-
-    /**
-     * Returns the background parameters.
-     * @deprecated Use BackgroundManager instead
-     */
-    @Deprecated
-    public BackgroundParams getBackgroundParams() {
-        return new BackgroundParams();
     }
 
     /**
