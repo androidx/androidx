@@ -49,6 +49,7 @@ public class VerticalGridFragment extends Fragment {
     private VerticalGridPresenter.ViewHolder mGridViewHolder;
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
+    private View.OnClickListener mExternalOnSearchClickedListener;
     private int mSelectedPosition = -1;
 
     private ImageView mBadgeView;
@@ -172,6 +173,23 @@ public class VerticalGridFragment extends Fragment {
         return mOnItemClickedListener;
     }
 
+    /**
+     * Sets a click listener for the search affordance.
+     *
+     * The presence of a listener will change the visibility of the search affordance in the
+     * title area. When set to non-null the title area will contain a call to search action.
+     *
+     * The listener onClick method will be invoked when the user click on the search action.
+     *
+     * @param listener The listener.
+     */
+    public void setOnSearchClickedListener(View.OnClickListener listener) {
+        mExternalOnSearchClickedListener = listener;
+        if (mSearchOrbView != null) {
+            mSearchOrbView.setOnOrbClickedListener(listener);
+        }
+    }
+
     private void setBadgeDrawable(Drawable drawable) {
         if (mBadgeView == null) {
             return;
@@ -199,6 +217,9 @@ public class VerticalGridFragment extends Fragment {
         mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
         mTitleView = (TextView) mBrowseTitle.findViewById(R.id.browse_title);
         mSearchOrbView = (SearchOrbView) mBrowseTitle.findViewById(R.id.browse_orb);
+        if (mExternalOnSearchClickedListener != null) {
+            mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
+        }
 
         if (mParams != null) {
             setBadgeDrawable(mParams.mBadgeDrawable);
