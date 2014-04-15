@@ -78,14 +78,12 @@
 
     <style name="Widget.Leanback.Title.Text">
         <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_centerVertical">true</item>
         <item name="android:singleLine">true</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Title</item>
     </style>
 
     <style name="Widget.Leanback.Title.Icon">
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:scaleType">fitStart</item>
+        <item name="android:scaleType">centerInside</item>
     </style>
 
     <!-- HeadersFragment (fast lane) -->
