@@ -485,9 +485,10 @@ public final class BackgroundManager {
     }
 
     /**
-     * Set the background to the given Drawable. The timing for when this
-     * becomes visible in the app is undefined and may take place after a small
-     * delay.
+     * Set the given drawable into the background. The provided Drawable will be
+     * used unmodified as the background, without any scaling or cropping
+     * applied to it. The timing for when this becomes visible in the app is
+     * undefined and may take place after a small delay.
      */
     public void setDrawable(Drawable drawable) {
         if (DEBUG) Log.v(TAG, "setBackgroundDrawable " + drawable);
@@ -495,7 +496,9 @@ public final class BackgroundManager {
     }
 
     private void setDrawableInternal(Drawable drawable) {
-        if (!mAttached) throw new IllegalStateException("Must attach before setting background drawable");
+        if (!mAttached) {
+            throw new IllegalStateException("Must attach before setting background drawable");
+        }
 
         if (mChangeRunnable != null) {
             mChangeRunnable.cancel();
@@ -506,43 +509,74 @@ public final class BackgroundManager {
     }
 
     /**
-     * Set the background to the given Bitmap. The timing for when this becomes
+     * Set the given bitmap into the background. When using setBitmap to set the
+     * background, the provided bitmap will be scaled and cropped to correctly
+     * fit within the dimensions of the view. The timing for when this becomes
      * visible in the app is undefined and may take place after a small delay.
      */
     public void setBitmap(Bitmap bitmap) {
-        if (DEBUG) Log.v(TAG, "setBitmap " + bitmap);
+        if (DEBUG) {
+            Log.v(TAG, "setBitmap " + bitmap);
+        }
+
+        if (bitmap == null) {
+            setDrawableInternal(null);
+            return;
+        }
 
         if (bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0) {
-            if (DEBUG) Log.v(TAG, "invalid bitmap width or height");
+            if (DEBUG) {
+                Log.v(TAG, "invalid bitmap width or height");
+            }
             return;
         }
 
         if (mBackgroundDrawable instanceof BitmapDrawable &&
                 ((BitmapDrawable) mBackgroundDrawable).getBitmap() == bitmap) {
-            if (DEBUG) Log.v(TAG, "same bitmap detected");
+            if (DEBUG) {
+                Log.v(TAG, "same bitmap detected");
+            }
             mService.setDrawable(mBackgroundDrawable);
             return;
         }
 
-        if (SCALE_BITMAPS_TO_FIT && bitmap.getWidth() != mWidthPx) {
-            // Scale proportionately to fit width.
-            final float scale = (float) mWidthPx / (float) bitmap.getWidth();
-            int height = (int) (mHeightPx / scale);
-            if (height > bitmap.getHeight()) {
-                height = bitmap.getHeight();
-            }
+        if (SCALE_BITMAPS_TO_FIT &&
+                (bitmap.getWidth() != mWidthPx || bitmap.getHeight() != mHeightPx)) {
+            // Scale proportionately to fit width and height.
 
             Matrix matrix = new Matrix();
-            matrix.postScale(scale, scale);
 
-            if (DEBUG) Log.v(TAG, "original image size " + bitmap.getWidth() + "x" + bitmap.getHeight() +
-                    " extracting height " + height);
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), height, matrix, true);
-            if (DEBUG) Log.v(TAG, "new image size " + bitmap.getWidth() + "x" + bitmap.getHeight());
+            int dwidth = bitmap.getWidth();
+            int dheight = bitmap.getHeight();
+            float scale;
+            int dx;
+
+            if (DEBUG) {
+                Log.v(TAG, "original image size " + dwidth + "x" + dheight);
+            }
+
+            if (dwidth * mHeightPx > mWidthPx * dheight) {
+                scale = (float) mHeightPx / (float) dheight;
+            } else {
+                scale = (float) mWidthPx / (float) dwidth;
+            }
+
+            matrix.setScale(scale, scale);
+
+            if (DEBUG) {
+                Log.v(TAG, "original image size " + bitmap.getWidth() + "x" + bitmap.getHeight());
+            }
+            int subX = Math.min((int) (mWidthPx / scale), dwidth);
+            int subY = Math.min((int) (mHeightPx / scale), dheight);
+            dx = Math.max(0, (dwidth - subX) / 2);
+
+            bitmap = Bitmap.createBitmap(bitmap, dx, 0, subX, subY, matrix, true);
+            if (DEBUG) {
+                Log.v(TAG, "new image size " + bitmap.getWidth() + "x" + bitmap.getHeight());
+            }
         }
 
         BitmapDrawable bitmapDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
-        bitmapDrawable.setGravity(Gravity.CLIP_HORIZONTAL);
 
         setDrawableInternal(bitmapDrawable);
     }
