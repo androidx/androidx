@@ -114,7 +114,6 @@ public class RowsFragment extends BaseRowFragment {
     private static final String TAG = "RowsFragment";
     private static final boolean DEBUG = false;
 
-    private BackgroundParams mBackgroundParams;
     private ItemBridgeAdapter.ViewHolder mSelectedViewHolder;
     private boolean mExpand = true;
     private boolean mViewsCreated;
@@ -126,24 +125,6 @@ public class RowsFragment extends BaseRowFragment {
     // They might be synced with vertical scroll animation later.
     int mSelectAnimatorDuration;
     Interpolator mSelectAnimatorInterpolator = new DecelerateInterpolator(2);
-
-    /**
-     * Set background parameters.
-     * @deprecated Use BackgroundManager instead
-     */
-    @Deprecated
-    public void setBackgroundParams(BackgroundParams params) {
-        mBackgroundParams = params;
-    }
-
-    /**
-     * Returns the background parameters.
-     * @deprecated Use BackgroundManager instead
-     */
-    @Deprecated
-    public BackgroundParams getBackgroundParams() {
-        return mBackgroundParams;
-    }
 
     /**
      * Sets an item clicked listener on the fragment.
