@@ -232,10 +232,10 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Sets a click listener for the search "affordance".
+     * Sets a click listener for the search affordance.
      *
-     * The presence of a listener will change the visibility of the search "affordance" in the
-     * title area. When set to non null the title area will contain a call to search action.
+     * The presence of a listener will change the visibility of the search affordance in the
+     * title area. When set to non-null the title area will contain a call to search action.
      *
      * The listener onClick method will be invoked when the user click on the search action.
      *
