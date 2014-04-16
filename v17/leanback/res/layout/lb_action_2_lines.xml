@@ -15,18 +15,17 @@
      limitations under the License.
 -->
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="@dimen/lb_action_2_lines_height"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
+    android:layout_height="@dimen/lb_action_2_lines_height"
+    android:background="@drawable/lb_transition_action_bg"
     android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:background="@drawable/lb_transition_action_bg" >
+    android:focusableInTouchMode="true" >
 
     <ImageView
         android:id="@+id/lb_action_icon"
-        android:layout_height="wrap_content"
         android:layout_width="@dimen/lb_action_icon_width"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="@dimen/lb_action_icon_margin"
@@ -34,8 +33,8 @@
 
     <TextView
         android:id="@+id/lb_action_text"
-        android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@id/lb_action_icon"
         android:gravity="left|center_vertical"
@@ -43,4 +42,5 @@
         android:textAllCaps="true"
         android:textColor="@color/lb_action_text_color"
         android:textSize="@dimen/lb_action_text_size" />
+
 </RelativeLayout>
