@@ -102,9 +102,9 @@ public class DetailsFragment extends Fragment {
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.fragment_dock, mRowsFragment).commit();
         }
+        mRowsFragment.setAdapter(mAdapter);
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
-        mRowsFragment.setAdapter(mAdapter);
         return view;
     }
 
