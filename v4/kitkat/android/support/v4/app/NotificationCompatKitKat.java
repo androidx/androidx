@@ -64,8 +64,10 @@ class NotificationCompatKitKat {
                 .setPriority(priority)
                 .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
             mExtras = extras;
-            mExtras.putStringArray(Notification.EXTRA_PEOPLE,
-                    people.toArray(new String[people.size()]));
+            if (people != null && !people.isEmpty()) {
+                getExtras().putStringArray(Notification.EXTRA_PEOPLE,
+                        people.toArray(new String[people.size()]));
+            }
             if (localOnly) {
                 getExtras().putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, localOnly);
             }
