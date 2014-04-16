@@ -289,12 +289,13 @@ public class BrowseFragment extends Fragment {
             mRowsFragment = (RowsFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
+        mRowsFragment.setAdapter(mAdapter);
+        mHeadersFragment.setAdapter(mAdapter);
+
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
         mHeadersFragment.setOnItemSelectedListener(mHeaderSelectedListener);
         mHeadersFragment.setOnHeaderClickListener(mHeaderClickListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
-        mRowsFragment.setAdapter(mAdapter);
-        mHeadersFragment.setAdapter(mAdapter);
 
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
 
