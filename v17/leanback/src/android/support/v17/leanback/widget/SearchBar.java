@@ -19,6 +19,7 @@ import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -32,6 +33,7 @@ import android.widget.TextView;
  */
 public class SearchBar extends RelativeLayout {
     private static final String TAG = SearchBar.class.getSimpleName();
+    private static final boolean DEBUG = false;
 
     /**
      * Listener for search query changes
@@ -86,6 +88,7 @@ public class SearchBar extends RelativeLayout {
         mSearchTextEditor.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
+                if (DEBUG) Log.v(TAG, "onFocusChange " + hasFocus);
                 if (hasFocus) {
                     showNativeKeyboard();
                 }
@@ -126,9 +129,18 @@ public class SearchBar extends RelativeLayout {
                 return false;
             }
         });
-        mSearchTextEditor.setFocusable(true);
-        mSearchTextEditor.setVisibility(VISIBLE);
-        mSearchTextEditor.requestFocus();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mSearchTextEditor.requestFocus();
+                mSearchTextEditor.requestFocusFromTouch();
+            }
+        });
     }
 
     /**

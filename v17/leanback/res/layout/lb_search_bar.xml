@@ -51,6 +51,7 @@
                         android:editable="true"
                         android:background="@null"
                         android:fontFamily="sans-serif"
+                        android:focusable="true"
                         android:imeOptions="normal|flagNoExtractUi|actionSearch"
                         android:inputType="text|textAutoComplete"
                         android:singleLine="true"
