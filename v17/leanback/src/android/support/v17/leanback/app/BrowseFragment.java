@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
@@ -242,11 +243,23 @@ public class BrowseFragment extends Fragment {
     private void onHeadersTransitionStart() {
         mHeadersTransitionRunning = true;
         mRowsFragment.getVerticalGridView().setAnimateChildLayout(false);
+        mRowsFragment.getVerticalGridView().setFocusSearchDisabled(true);
+        mHeadersFragment.getVerticalGridView().setFocusSearchDisabled(true);
     }
 
     private void onHeadersTransitionComplete() {
         mHeadersTransitionRunning = false;
         mRowsFragment.getVerticalGridView().setAnimateChildLayout(true);
+        mRowsFragment.getVerticalGridView().setFocusSearchDisabled(false);
+        mHeadersFragment.getVerticalGridView().setFocusSearchDisabled(false);
+    }
+
+    private boolean isVerticalScrolling() {
+        // don't run transition
+        return mHeadersFragment.getVerticalGridView().getScrollState()
+                != HorizontalGridView.SCROLL_STATE_IDLE
+                || mRowsFragment.getVerticalGridView().getScrollState()
+                != HorizontalGridView.SCROLL_STATE_IDLE;
     }
 
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
@@ -257,9 +270,12 @@ public class BrowseFragment extends Fragment {
             if (!mCanShowHeaders) return null;
 
             // if fast lane is running transition,  focus stays
-            if (mHeadersTransitionRunning) return mBrowseFrame.findFocus();
+            if (mHeadersTransitionRunning) return focused;
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
             if (!mShowingHeaders && direction == View.FOCUS_LEFT) {
+                if (isVerticalScrolling()) {
+                    return focused;
+                }
                 onHeadersTransitionStart();
                 mHeadersFragment.attachGridView();
                 mBrowseFrame.postOnAnimationDelayed(new Runnable() {
@@ -272,6 +288,9 @@ public class BrowseFragment extends Fragment {
                 mShowingHeaders = true;
                 return mHeadersFragment.getVerticalGridView();
             } else if (mShowingHeaders && direction == View.FOCUS_RIGHT) {
+                if (isVerticalScrolling()) {
+                    return focused;
+                }
                 onHeadersTransitionStart();
                 mHeadersFragment.attachGridView();
                 mBrowseFrame.postOnAnimationDelayed(new Runnable() {
