@@ -121,6 +121,7 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuIntrinsicConvolve5x5.cpp \
 	cpu_ref/rsCpuIntrinsicHistogram.cpp \
 	cpu_ref/rsCpuIntrinsicLUT.cpp \
+	cpu_ref/rsCpuIntrinsicResize.cpp \
 	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp \
 	cpu_ref/rsCpuRuntimeMathFuncs.cpp
 
