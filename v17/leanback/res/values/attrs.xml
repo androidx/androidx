@@ -123,6 +123,8 @@
         <attr name="browseRowsMarginStart" format="dimension" />
         <!-- top margin of RowsFragment inside BrowseFragment when BrowseFragment title is visible -->
         <attr name="browseRowsMarginTop" format="dimension" />
+        <!-- fading edge length of start of browse row when HeadersFragment is visible -->
+        <attr name="browseRowsFadingEdgeLength" format="dimension" />
 
         <!-- BrowseFragment Title text style -->
         <attr name="browseTitleTextStyle" format="reference" />

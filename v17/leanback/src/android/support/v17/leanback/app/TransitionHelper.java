@@ -16,17 +16,13 @@ package android.support.v17.leanback.app;
 import android.content.Context;
 import android.os.Build;
 import android.util.SparseArray;
+import android.view.View;
 import android.view.ViewGroup;
 
 /**
  * Helper for view transitions.
  */
 final class TransitionHelper {
-
-    static final int SCENE_WITH_TITLE = 1;
-    static final int SCENE_WITHOUT_TITLE = 2;
-    static final int SCENE_WITH_HEADERS = 3;
-    static final int SCENE_WITHOUT_HEADERS = 4;
 
     TransitionHelperVersionImpl mImpl;
 
@@ -48,27 +44,60 @@ final class TransitionHelper {
      */
     static interface TransitionHelperVersionImpl {
 
-        public void addSceneRunnable(int scene, ViewGroup sceneRoot, Runnable r);
+        public Object createScene(ViewGroup sceneRoot, Runnable r);
 
-        public void runTransition(int scene);
+        public Object createAutoTransition();
+
+        public void setTransitionCompleteListener(Object transition, Runnable listener);
+
+        public void runTransition(Object scene, Object transition);
+
+        public void excludeChildren(Object transition, int targetId, boolean exclude);
+
+        public void excludeChildren(Object transition, View target, boolean exclude);
     }
 
     /**
      * Interface used when we do not support Transition animations.
      */
     private static final class TransitionHelperStubImpl implements TransitionHelperVersionImpl {
-        SparseArray<Runnable> mSceneRunnables = new SparseArray<Runnable>();
 
-        @Override
-        public void addSceneRunnable(int scene, ViewGroup sceneRoot, Runnable r) {
-            mSceneRunnables.put(scene, r);
+        private static class TransitionStub {
+            Runnable mCompleteListener;
         }
 
         @Override
-        public void runTransition(int scene) {
-            Runnable r = mSceneRunnables.get(scene);
+        public Object createScene(ViewGroup sceneRoot, Runnable r) {
+            return r;
+        }
+
+        @Override
+        public Object createAutoTransition() {
+            return new TransitionStub();
+        }
+
+        @Override
+        public void excludeChildren(Object transition, int targetId, boolean exclude) {
+        }
+
+        @Override
+        public void excludeChildren(Object transition, View targetView, boolean exclude) {
+        }
+
+        @Override
+        public void setTransitionCompleteListener(Object transition, Runnable listener) {
+            ((TransitionStub) transition).mCompleteListener = listener;
+        }
+
+        @Override
+        public void runTransition(Object scene, Object transition) {
+            Runnable r = ((Runnable) scene);
             if (r != null) {
                 r.run();
+            }
+            TransitionStub transitionStub = (TransitionStub) transition;
+            if (transitionStub != null && transitionStub.mCompleteListener != null) {
+                transitionStub.mCompleteListener.run();
             }
         }
     }
@@ -84,13 +113,33 @@ final class TransitionHelper {
         }
 
         @Override
-        public void addSceneRunnable(int scene, ViewGroup sceneRoot, Runnable r) {
-            mTransitionHelper.addSceneRunnable(scene, sceneRoot, r);
+        public Object createScene(ViewGroup sceneRoot, Runnable r) {
+            return mTransitionHelper.createScene(sceneRoot, r);
         }
 
         @Override
-        public void runTransition(int scene) {
-            mTransitionHelper.runTransition(scene);
+        public Object createAutoTransition() {
+            return mTransitionHelper.createAutoTransition();
+        }
+
+        @Override
+        public void excludeChildren(Object transition, int targetId, boolean exclude) {
+            mTransitionHelper.excludeChildren(transition, targetId, exclude);
+        }
+
+        @Override
+        public void excludeChildren(Object transition, View targetView, boolean exclude) {
+            mTransitionHelper.excludeChildren(transition, targetView, exclude);
+        }
+
+        @Override
+        public void setTransitionCompleteListener(Object transition, Runnable listener) {
+            mTransitionHelper.setTransitionCompleteListener(transition, listener);
+        }
+
+        @Override
+        public void runTransition(Object scene, Object transition) {
+            mTransitionHelper.runTransition(scene, transition);
         }
     }
 
@@ -99,7 +148,6 @@ final class TransitionHelper {
      * animations.
      *
      * @param context A context for accessing system resources.
-     * @return the TransitionHelper to perform Transition animations
      */
     public TransitionHelper(Context context) {
         if (systemSupportsTransitions()) {
@@ -109,11 +157,27 @@ final class TransitionHelper {
         }
     }
 
-    public void addSceneRunnable(int scene, ViewGroup sceneRoot, Runnable r) {
-        mImpl.addSceneRunnable(scene, sceneRoot, r);
+    public Object createScene(ViewGroup sceneRoot, Runnable r) {
+        return mImpl.createScene(sceneRoot, r);
     }
 
-    public void runTransition(int scene) {
-        mImpl.runTransition(scene);
+    public void excludeChildren(Object transition, int targetId, boolean exclude) {
+        mImpl.excludeChildren(transition, targetId, exclude);
+    }
+
+    public void excludeChildren(Object transition, View targetView, boolean exclude) {
+        mImpl.excludeChildren(transition, targetView, exclude);
+    }
+
+    public Object createAutoTransition() {
+        return mImpl.createAutoTransition();
+    }
+
+    public void setTransitionCompleteListener(Object transition, Runnable listener) {
+        mImpl.setTransitionCompleteListener(transition, listener);
+    }
+
+    public void runTransition(Object scene, Object transition) {
+        mImpl.runTransition(scene, transition);
     }
 }

@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
@@ -78,6 +79,7 @@ public class ListRowPresenter extends RowPresenter {
     private PresenterSelector mHoverCardPresenterSelector;
     private int mZoomFactor;
     private boolean mShadowEnabled = true;
+    private int mBrowseRowsFadingEdgeLength = -1;
 
     /**
      * Constructs a ListRowPresenter with defaults.
@@ -222,13 +224,13 @@ public class ListRowPresenter extends RowPresenter {
     @Override
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
         ListRowView rowView = new ListRowView(parent.getContext());
+        setupFadingEffect(rowView);
         return new ViewHolder(rowView, rowView.getGridView(), this);
     }
 
     @Override
     protected void onRowViewSelected(RowPresenter.ViewHolder holder, boolean selected) {
         updateFooterViewSwitcher((ViewHolder) holder);
-        updateInitialChildSelection((ViewHolder) holder);
     }
 
     /*
@@ -239,6 +241,10 @@ public class ListRowPresenter extends RowPresenter {
             if (mHoverCardPresenterSelector != null) {
                 vh.mHoverCardViewSwitcher.init((ViewGroup) vh.view,
                         mHoverCardPresenterSelector);
+                ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
+                        vh.mGridView.findViewHolderForPosition(
+                                vh.mGridView.getSelectedPosition());
+                selectChildView(vh, ibh == null ? null : ibh.itemView);
             }
         } else {
             if (mHoverCardPresenterSelector != null) {
@@ -247,26 +253,24 @@ public class ListRowPresenter extends RowPresenter {
         }
     }
 
-    /*
-     * Make initial child selection when row selection state is changed.
-     */
-    private void updateInitialChildSelection(ViewHolder vh) {
-        if (vh.mExpanded && vh.mSelected) {
-            ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
-                    vh.mGridView.findViewHolderForPosition(
-                            vh.mGridView.getSelectedPosition());
-            selectChildView(vh, ibh == null ? null : ibh.itemView);
-        } else {
-            selectChildView(vh, null);
+    private void setupFadingEffect(ListRowView rowView) {
+        // content is completely faded at 1/2 padding of left, fading length is 1/2 of padding.
+        HorizontalGridView gridView = rowView.getGridView();
+        if (mBrowseRowsFadingEdgeLength < 0) {
+            TypedArray ta = gridView.getContext()
+                    .obtainStyledAttributes(R.styleable.LeanbackTheme);
+            mBrowseRowsFadingEdgeLength = (int) ta.getDimension(
+                    R.styleable.LeanbackTheme_browseRowsFadingEdgeLength, 0);
+            ta.recycle();
         }
+        gridView.setFadingLeftEdgeLength(mBrowseRowsFadingEdgeLength);
     }
 
     @Override
     protected void onRowViewExpanded(RowPresenter.ViewHolder holder, boolean expanded) {
         super.onRowViewExpanded(holder, expanded);
         ViewHolder vh = (ViewHolder) holder;
-        vh.mGridView.setClipToPadding(!expanded);
-        vh.mGridView.invalidate();
+        vh.getGridView().setFadingLeftEdge(!expanded);
         updateFooterViewSwitcher(vh);
     }
 
@@ -363,6 +367,9 @@ public class ListRowPresenter extends RowPresenter {
             for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
                 ShadowOverlayContainer wrapper = (ShadowOverlayContainer) vh.mGridView.getChildAt(i);
                 wrapper.setOverlayColor(dimmedColor);
+            }
+            if (vh.mGridView.getFadingLeftEdge()) {
+                vh.mGridView.invalidate();
             }
         }
     }

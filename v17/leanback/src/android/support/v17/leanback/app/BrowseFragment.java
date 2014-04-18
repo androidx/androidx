@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
@@ -75,6 +76,14 @@ public class BrowseFragment extends Fragment {
     private OnClickListener mExternalOnSearchClickedListener;
     private OnItemClickedListener mOnItemClickedListener;
     private int mSelectedPosition = -1;
+
+    private Object mSceneWithTitle;
+    private Object mSceneWithoutTitle;
+    private Object mSceneWithHeaders;
+    private Object mSceneWithoutHeaders;
+    private Object mTitleTransition;
+    private Object mHeadersTransition;
+    private boolean mHeadersTransitionRunning;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
     private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
@@ -231,6 +240,28 @@ public class BrowseFragment extends Fragment {
         }
     }
 
+    private void onHeadersTransitionStart() {
+        mHeadersTransitionRunning = true;
+        mRowsFragment.getVerticalGridView().setAnimateChildLayout(false);
+        mRowsFragment.getVerticalGridView().setFocusSearchDisabled(true);
+        mHeadersFragment.getVerticalGridView().setFocusSearchDisabled(true);
+    }
+
+    private void onHeadersTransitionComplete() {
+        mHeadersTransitionRunning = false;
+        mRowsFragment.getVerticalGridView().setAnimateChildLayout(true);
+        mRowsFragment.getVerticalGridView().setFocusSearchDisabled(false);
+        mHeadersFragment.getVerticalGridView().setFocusSearchDisabled(false);
+    }
+
+    private boolean isVerticalScrolling() {
+        // don't run transition
+        return mHeadersFragment.getVerticalGridView().getScrollState()
+                != HorizontalGridView.SCROLL_STATE_IDLE
+                || mRowsFragment.getVerticalGridView().getScrollState()
+                != HorizontalGridView.SCROLL_STATE_IDLE;
+    }
+
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
             new BrowseFrameLayout.OnFocusSearchListener() {
         @Override
@@ -238,17 +269,38 @@ public class BrowseFragment extends Fragment {
             // If fastlane is disabled, just return null.
             if (!mCanShowHeaders) return null;
 
+            // if fast lane is running transition,  focus stays
+            if (mHeadersTransitionRunning) return focused;
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
             if (!mShowingHeaders && direction == View.FOCUS_LEFT) {
-                mTransitionHelper.runTransition(TransitionHelper.SCENE_WITH_HEADERS);
+                if (isVerticalScrolling()) {
+                    return focused;
+                }
+                onHeadersTransitionStart();
+                mHeadersFragment.attachGridView();
+                mBrowseFrame.postOnAnimationDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mHeadersFragment.detachGridView();
+                        mTransitionHelper.runTransition(mSceneWithHeaders, mHeadersTransition);
+                    }
+                }, 0);
                 mShowingHeaders = true;
                 return mHeadersFragment.getVerticalGridView();
-
             } else if (mShowingHeaders && direction == View.FOCUS_RIGHT) {
-                mTransitionHelper.runTransition(TransitionHelper.SCENE_WITHOUT_HEADERS);
+                if (isVerticalScrolling()) {
+                    return focused;
+                }
+                onHeadersTransitionStart();
+                mHeadersFragment.attachGridView();
+                mBrowseFrame.postOnAnimationDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
+                    }
+                }, 0);
                 mShowingHeaders = false;
                 return mRowsFragment.getVerticalGridView();
-
             } else if (focused == mSearchOrbView && direction == View.FOCUS_DOWN) {
                 return mShowingHeaders ? mHeadersFragment.getVerticalGridView() :
                     mRowsFragment.getVerticalGridView();
@@ -318,35 +370,41 @@ public class BrowseFragment extends Fragment {
         }
 
         mTransitionHelper = new TransitionHelper(getActivity());
-        mTransitionHelper.addSceneRunnable(TransitionHelper.SCENE_WITH_TITLE, mBrowseFrame,
-                new Runnable() {
+        mSceneWithTitle = mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showTitle(true);
             }
         });
-        mTransitionHelper.addSceneRunnable(TransitionHelper.SCENE_WITHOUT_TITLE, mBrowseFrame,
-                new Runnable() {
+        mSceneWithoutTitle = mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showTitle(false);
             }
         });
-        mTransitionHelper.addSceneRunnable(TransitionHelper.SCENE_WITH_HEADERS, mBrowseFrame,
-                new Runnable() {
+        mSceneWithHeaders = mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(true);
             }
         });
-        mTransitionHelper.addSceneRunnable(TransitionHelper.SCENE_WITHOUT_HEADERS, mBrowseFrame,
-                new Runnable() {
+        mSceneWithoutHeaders =  mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(false);
             }
         });
-
+        mTitleTransition = mTransitionHelper.createAutoTransition();
+        mHeadersTransition = mTransitionHelper.createAutoTransition();
+        mTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
+        mTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_headers, true);
+        mTransitionHelper.excludeChildren(mTitleTransition, R.id.container_list, true);
+        mTransitionHelper.setTransitionCompleteListener(mHeadersTransition, new Runnable() {
+            @Override
+            public void run() {
+                onHeadersTransitionComplete();
+            }
+        });
         return root;
     }
 
@@ -360,7 +418,12 @@ public class BrowseFragment extends Fragment {
         View containerList = mRowsFragment.getView();
         MarginLayoutParams lp;
 
-        headerList.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show) {
+            mHeadersFragment.attachGridView();
+            mHeadersFragment.getView().requestFocus();
+        } else {
+            mHeadersFragment.detachGridView();
+        }
         lp = (MarginLayoutParams) containerList.getLayoutParams();
         lp.leftMargin = show ? mContainerListMarginLeft : 0;
         containerList.setLayoutParams(lp);
@@ -374,7 +437,11 @@ public class BrowseFragment extends Fragment {
             public void onHeaderClicked() {
                 if (!mCanShowHeaders || !mShowingHeaders) return;
 
-                mTransitionHelper.runTransition(TransitionHelper.SCENE_WITHOUT_HEADERS);
+                if (mHeadersTransitionRunning) {
+                    return;
+                }
+                onHeadersTransitionStart();
+                mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
                 mShowingHeaders = false;
                 mRowsFragment.getVerticalGridView().requestFocus();
             }
@@ -408,11 +475,11 @@ public class BrowseFragment extends Fragment {
 
             if (position == 0) {
                 if (!mShowingTitle) {
-                    mTransitionHelper.runTransition(TransitionHelper.SCENE_WITH_TITLE);
+                    mTransitionHelper.runTransition(mSceneWithTitle, mTitleTransition);
                     mShowingTitle = true;
                 }
             } else if (mShowingTitle) {
-                mTransitionHelper.runTransition(TransitionHelper.SCENE_WITHOUT_TITLE);
+                mTransitionHelper.runTransition(mSceneWithoutTitle, mTitleTransition);
                 mShowingTitle = false;
             }
         }
