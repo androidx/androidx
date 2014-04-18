@@ -249,9 +249,16 @@ public class BrowseFragment extends Fragment {
 
     private void onHeadersTransitionComplete() {
         mHeadersTransitionRunning = false;
-        mRowsFragment.getVerticalGridView().setAnimateChildLayout(true);
-        mRowsFragment.getVerticalGridView().setFocusSearchDisabled(false);
-        mHeadersFragment.getVerticalGridView().setFocusSearchDisabled(false);
+        // TODO: deal fragment destroy view properly
+        VerticalGridView rowsGridView = mRowsFragment.getVerticalGridView();
+        if (rowsGridView != null) {
+            rowsGridView.setAnimateChildLayout(true);
+            rowsGridView.setFocusSearchDisabled(false);
+        }
+        VerticalGridView headerGridView = mHeadersFragment.getVerticalGridView();
+        if (headerGridView != null) {
+            headerGridView.setFocusSearchDisabled(false);
+        }
     }
 
     private boolean isVerticalScrolling() {

@@ -241,11 +241,11 @@ public class ListRowPresenter extends RowPresenter {
             if (mHoverCardPresenterSelector != null) {
                 vh.mHoverCardViewSwitcher.init((ViewGroup) vh.view,
                         mHoverCardPresenterSelector);
-                ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
-                        vh.mGridView.findViewHolderForPosition(
-                                vh.mGridView.getSelectedPosition());
-                selectChildView(vh, ibh == null ? null : ibh.itemView);
             }
+            ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
+                    vh.mGridView.findViewHolderForPosition(
+                            vh.mGridView.getSelectedPosition());
+            selectChildView(vh, ibh == null ? null : ibh.itemView);
         } else {
             if (mHoverCardPresenterSelector != null) {
                 vh.mHoverCardViewSwitcher.clear();
