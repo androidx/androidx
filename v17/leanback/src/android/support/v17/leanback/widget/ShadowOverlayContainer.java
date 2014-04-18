@@ -19,7 +19,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 /**
  * ShadowOverlayContainer Provides a SDK version independent wrapper container
@@ -44,11 +43,12 @@ import android.widget.FrameLayout;
  * Call {@link #setOverlayColor(int)} to control overlay color.
  * </p>
  */
-public class ShadowOverlayContainer extends FrameLayout {
+public class ShadowOverlayContainer extends ViewGroup {
 
     private boolean mInitialized;
     private View mColorDimOverlay;
     private Object mShadowImpl;
+    private View mWrappedView;
 
     public ShadowOverlayContainer(Context context) {
         this(context, null, 0);
@@ -123,13 +123,77 @@ public class ShadowOverlayContainer extends FrameLayout {
      * Inserts view into the wrapper.
      */
     public void wrap(View view) {
-        if (!mInitialized) {
+        if (!mInitialized || mWrappedView != null) {
             throw new IllegalStateException();
         }
         if (mColorDimOverlay != null) {
             addView(view, indexOfChild(mColorDimOverlay));
         } else {
             addView(view);
+        }
+        mWrappedView = view;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (mWrappedView == null) {
+            throw new IllegalStateException();
+        }
+        // padding and child margin are not supported.
+        // first measure the wrapped view, then measure the shadow view and/or overlay view.
+        int childWidthMeasureSpec, childHeightMeasureSpec;
+        LayoutParams lp = mWrappedView.getLayoutParams();
+        if (lp.width == LayoutParams.MATCH_PARENT) {
+            childWidthMeasureSpec = MeasureSpec.makeMeasureSpec
+                    (MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY);
+        } else {
+            childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, 0, lp.width);
+        }
+        if (lp.height == LayoutParams.MATCH_PARENT) {
+            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec
+                    (MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY);
+        } else {
+            childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, lp.height);
+        }
+        mWrappedView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+
+        int measuredWidth = mWrappedView.getMeasuredWidth();
+        int measuredHeight = mWrappedView.getMeasuredHeight();
+
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child == mWrappedView) {
+                continue;
+            }
+            lp = child.getLayoutParams();
+            if (lp.width == LayoutParams.MATCH_PARENT) {
+                childWidthMeasureSpec = MeasureSpec.makeMeasureSpec
+                        (measuredWidth, MeasureSpec.EXACTLY);
+            } else {
+                childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, 0, lp.width);
+            }
+
+            if (lp.height == LayoutParams.MATCH_PARENT) {
+                childHeightMeasureSpec = MeasureSpec.makeMeasureSpec
+                        (measuredHeight, MeasureSpec.EXACTLY);
+            } else {
+                childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, lp.height);
+            }
+            child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+        }
+        setMeasuredDimension(measuredWidth, measuredHeight);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() != GONE) {
+                final int width = child.getMeasuredWidth();
+                final int height = child.getMeasuredHeight();
+                child.layout(0, 0, width, height);
+            }
         }
     }
 
