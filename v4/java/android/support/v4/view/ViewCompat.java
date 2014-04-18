@@ -242,6 +242,8 @@ public class ViewCompat {
         public void dispatchFinishTemporaryDetach(View view);
         public float getTranslationX(View view);
         public float getTranslationY(View view);
+        public int getMinimumWidth(View view);
+        public int getMinimumHeight(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -449,6 +451,16 @@ public class ViewCompat {
         public float getTranslationY(View view) {
             return 0;
         }
+
+        @Override
+        public int getMinimumWidth(View view) {
+            return 0;
+        }
+
+        @Override
+        public int getMinimumHeight(View view) {
+            return 0;
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -602,6 +614,16 @@ public class ViewCompat {
         @Override
         public ViewParent getParentForAccessibility(View view) {
             return ViewCompatJB.getParentForAccessibility(view);
+        }
+
+        @Override
+        public int getMinimumWidth(View view) {
+            return ViewCompatJB.getMinimumWidth(view);
+        }
+
+        @Override
+        public int getMinimumHeight(View view) {
+            return ViewCompatJB.getMinimumHeight(view);
         }
     }
 
@@ -1378,8 +1400,8 @@ public class ViewCompat {
      *
      * @return The horizontal position of this view relative to its left position, in pixels.
      */
-    public static float getTranslationX(View child) {
-        return IMPL.getTranslationX(child);
+    public static float getTranslationX(View view) {
+        return IMPL.getTranslationX(view);
     }
 
     /**
@@ -1389,7 +1411,29 @@ public class ViewCompat {
      *
      * @return The vertical position of this view relative to its top position, in pixels.
      */
-    public static float getTranslationY(View child) {
-        return IMPL.getTranslationY(child);
+    public static float getTranslationY(View view) {
+        return IMPL.getTranslationY(view);
+    }
+
+    /**
+     * Returns the minimum width of the view.
+     *
+     * <p>Prior to API 16 this will return 0.</p>
+     *
+     * @return the minimum width the view will try to be.
+     */
+    public static int getMinimumWidth(View view) {
+        return IMPL.getMinimumWidth(view);
+    }
+
+    /**
+     * Returns the minimum height of the view.
+     *
+     * <p>Prior to API 16 this will return 0.</p>
+     *
+     * @return the minimum height the view will try to be.
+     */
+    public static int getMinimumHeight(View view) {
+        return IMPL.getMinimumHeight(view);
     }
 }
