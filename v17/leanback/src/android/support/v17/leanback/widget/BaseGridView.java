@@ -104,8 +104,6 @@ abstract class BaseGridView extends RecyclerView {
 
     protected final GridLayoutManager mLayoutManager;
 
-    private boolean mFocusSearchDisabled;
-
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager = new GridLayoutManager(this);
@@ -455,26 +453,18 @@ abstract class BaseGridView extends RecyclerView {
         return isChildrenDrawingOrderEnabled();
     }
 
-    @Override
-    public View focusSearch(View focused, int direction) {
-        if (mFocusSearchDisabled) {
-            return focused;
-        }
-        return super.focusSearch(focused, direction);
-    }
-
     /**
      * Disable or enable focus search.
      */
-    public final void setFocusSearchDisabled(boolean disable) {
-        mFocusSearchDisabled = disable;
+    public final void setFocusSearchDisabled(boolean disabled) {
+        mLayoutManager.setFocusSearchDisabled(disabled);
     }
 
     /**
      * Return true if focus search is disabled.
      */
     public final boolean isFocusSearchDisabled() {
-        return mFocusSearchDisabled;
+        return mLayoutManager.isFocusSearchDisabled();
     }
 
 }

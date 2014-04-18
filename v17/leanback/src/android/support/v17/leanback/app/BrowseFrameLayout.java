@@ -25,6 +25,14 @@ import android.widget.FrameLayout;
  */
 class BrowseFrameLayout extends FrameLayout {
 
+    public interface OnFocusSearchListener {
+        public View onFocusSearch(View focused, int direction);
+    }
+
+    public interface OnChildFocusListener {
+        public void onRequestChildFocus(View child, View focused);
+    }
+
     public BrowseFrameLayout(Context context) {
         this(context, null, 0);
     }
@@ -37,14 +45,15 @@ class BrowseFrameLayout extends FrameLayout {
         super(context, attrs, defStyle);
     }
 
-    public interface OnFocusSearchListener {
-        public View onFocusSearch(View focused, int direction);
-    }
-
     private OnFocusSearchListener mListener;
+    private OnChildFocusListener mOnChildFocusListener;
 
     public void setOnFocusSearchListener(OnFocusSearchListener listener) {
         mListener = listener;
+    }
+
+    public void setOnChildFocusListener(OnChildFocusListener listener) {
+        mOnChildFocusListener = listener;
     }
 
     @Override
@@ -56,5 +65,13 @@ class BrowseFrameLayout extends FrameLayout {
             }
         }
         return super.focusSearch(focused, direction);
+    }
+
+    @Override
+    public void requestChildFocus(View child, View focused) {
+        super.requestChildFocus(child, focused);
+        if (mOnChildFocusListener != null) {
+            mOnChildFocusListener.onRequestChildFocus(child, focused);
+        }
     }
 }

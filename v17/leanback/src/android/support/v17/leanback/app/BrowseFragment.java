@@ -23,6 +23,7 @@ import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.app.Fragment;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -34,6 +35,8 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.graphics.drawable.Drawable;
+
+import java.util.ArrayList;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
@@ -77,13 +80,15 @@ public class BrowseFragment extends Fragment {
     private OnItemClickedListener mOnItemClickedListener;
     private int mSelectedPosition = -1;
 
+    // transition related:
+    private static int sReparentHeaderId = View.generateViewId();
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
     private Object mSceneWithHeaders;
     private Object mSceneWithoutHeaders;
     private Object mTitleTransition;
     private Object mHeadersTransition;
-    private boolean mHeadersTransitionRunning;
+    private int mHeadersTransitionStartDelay;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
     private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
@@ -240,25 +245,11 @@ public class BrowseFragment extends Fragment {
         }
     }
 
-    private void onHeadersTransitionStart() {
-        mHeadersTransitionRunning = true;
+    private void onHeadersTransitionStart(boolean withHeaders) {
         mRowsFragment.getVerticalGridView().setAnimateChildLayout(false);
         mRowsFragment.getVerticalGridView().setFocusSearchDisabled(true);
         mHeadersFragment.getVerticalGridView().setFocusSearchDisabled(true);
-    }
-
-    private void onHeadersTransitionComplete() {
-        mHeadersTransitionRunning = false;
-        // TODO: deal fragment destroy view properly
-        VerticalGridView rowsGridView = mRowsFragment.getVerticalGridView();
-        if (rowsGridView != null) {
-            rowsGridView.setAnimateChildLayout(true);
-            rowsGridView.setFocusSearchDisabled(false);
-        }
-        VerticalGridView headerGridView = mHeadersFragment.getVerticalGridView();
-        if (headerGridView != null) {
-            headerGridView.setFocusSearchDisabled(false);
-        }
+        createHeadersTransition(withHeaders);
     }
 
     private boolean isVerticalScrolling() {
@@ -277,36 +268,17 @@ public class BrowseFragment extends Fragment {
             if (!mCanShowHeaders) return null;
 
             // if fast lane is running transition,  focus stays
-            if (mHeadersTransitionRunning) return focused;
+            if (mHeadersTransition != null) return focused;
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
-            if (!mShowingHeaders && direction == View.FOCUS_LEFT) {
-                if (isVerticalScrolling()) {
+            if (direction == View.FOCUS_LEFT) {
+                if (isVerticalScrolling() || mShowingHeaders) {
                     return focused;
                 }
-                onHeadersTransitionStart();
-                mHeadersFragment.attachGridView();
-                mBrowseFrame.postOnAnimationDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mHeadersFragment.detachGridView();
-                        mTransitionHelper.runTransition(mSceneWithHeaders, mHeadersTransition);
-                    }
-                }, 0);
-                mShowingHeaders = true;
                 return mHeadersFragment.getVerticalGridView();
-            } else if (mShowingHeaders && direction == View.FOCUS_RIGHT) {
-                if (isVerticalScrolling()) {
+            } else if (direction == View.FOCUS_RIGHT) {
+                if (isVerticalScrolling() || !mShowingHeaders) {
                     return focused;
                 }
-                onHeadersTransitionStart();
-                mHeadersFragment.attachGridView();
-                mBrowseFrame.postOnAnimationDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
-                    }
-                }, 0);
-                mShowingHeaders = false;
                 return mRowsFragment.getVerticalGridView();
             } else if (focused == mSearchOrbView && direction == View.FOCUS_DOWN) {
                 return mShowingHeaders ? mHeadersFragment.getVerticalGridView() :
@@ -322,6 +294,25 @@ public class BrowseFragment extends Fragment {
         }
     };
 
+    private final BrowseFrameLayout.OnChildFocusListener mOnChildFocusListener =
+            new BrowseFrameLayout.OnChildFocusListener() {
+        @Override
+        public void onRequestChildFocus(View child, View focused) {
+            int childId = child.getId();
+            if (mHeadersTransition != null) return;
+            if (childId == R.id.browse_container_dock && mShowingHeaders) {
+                mShowingHeaders = false;
+                onHeadersTransitionStart(false);
+                mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
+            } else if (childId == R.id.browse_headers_dock && !mShowingHeaders) {
+                mShowingHeaders = true;
+                //mHeadersFragment.getView().setAlpha(1f);
+                onHeadersTransitionStart(true);
+                mTransitionHelper.runTransition(mSceneWithHeaders, mHeadersTransition);
+            }
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -331,6 +322,8 @@ public class BrowseFragment extends Fragment {
         mContainerListAlignTop = (int) ta.getDimension(
                 R.styleable.LeanbackTheme_browseRowsMarginTop, 0);
         ta.recycle();
+        mHeadersTransitionStartDelay = getResources()
+                .getInteger(R.integer.lb_browse_headers_transition_delay);
     }
 
     @Override
@@ -353,13 +346,14 @@ public class BrowseFragment extends Fragment {
 
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
         mHeadersFragment.setOnItemSelectedListener(mHeaderSelectedListener);
-        mHeadersFragment.setOnHeaderClickListener(mHeaderClickListener);
+        mHeadersFragment.setOnHeaderClickedListener(mHeaderClickedListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
 
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
 
         mBrowseFrame = (BrowseFrameLayout) root.findViewById(R.id.browse_frame);
         mBrowseFrame.setOnFocusSearchListener(mOnFocusSearchListener);
+        mBrowseFrame.setOnChildFocusListener(mOnChildFocusListener);
 
         mBrowseTitle = (ViewGroup) root.findViewById(R.id.browse_title_group);
         mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
@@ -402,17 +396,83 @@ public class BrowseFragment extends Fragment {
             }
         });
         mTitleTransition = mTransitionHelper.createAutoTransition();
-        mHeadersTransition = mTransitionHelper.createAutoTransition();
-        mTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
         mTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_headers, true);
         mTransitionHelper.excludeChildren(mTitleTransition, R.id.container_list, true);
+
+        return root;
+    }
+
+    private void createHeadersTransition(boolean withHeaders) {
+        ArrayList<View> fastHeaders = new ArrayList<View>();
+        ArrayList<Integer> fastHeaderPositions = new ArrayList<Integer>();
+        ArrayList<View> headers = new ArrayList<View>();
+        ArrayList<Integer> headerPositions = new ArrayList<Integer>();
+
+        mHeadersFragment.getHeaderViews(fastHeaders, fastHeaderPositions);
+        mRowsFragment.getHeaderViews(headers, headerPositions);
+
+        mHeadersTransition = mTransitionHelper.createTransitionSet(true);
+        mTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
+        Object changeBounds = mTransitionHelper.createChangeBounds(true);
+        Object fadeIn = mTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
+        Object fadeOut = mTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
+        if (!withHeaders) {
+            mTransitionHelper.setChangeBoundsDefaultStartDelay(changeBounds,
+                    mHeadersTransitionStartDelay);
+        }
+
+        for (int i = 0; i < headerPositions.size(); i++) {
+            Integer position = headerPositions.get(i);
+            if (position == mSelectedPosition) {
+                headers.get(i).setId(sReparentHeaderId);
+                mTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
+                        withHeaders ? mHeadersTransitionStartDelay : 0);
+                mTransitionHelper.exclude(fadeIn, headers.get(i), true);
+                mTransitionHelper.exclude(fadeOut, headers.get(i), true);
+            } else {
+                headers.get(i).setId(View.NO_ID);
+            }
+        }
+        for (int i = 0; i < fastHeaderPositions.size(); i++) {
+            Integer position = fastHeaderPositions.get(i);
+            if (position == mSelectedPosition) {
+                fastHeaders.get(i).setId(sReparentHeaderId);
+                mTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
+                        withHeaders ? mHeadersTransitionStartDelay : 0);
+                mTransitionHelper.exclude(fadeIn, fastHeaders.get(i), true);
+                mTransitionHelper.exclude(fadeOut, fastHeaders.get(i), true);
+            } else {
+                fastHeaders.get(i).setId(View.NO_ID);
+            }
+        }
+
+        mTransitionHelper.addTransition(mHeadersTransition, fadeOut);
+        mTransitionHelper.addTransition(mHeadersTransition, changeBounds);
+        mTransitionHelper.addTransition(mHeadersTransition, fadeIn);
+
         mTransitionHelper.setTransitionCompleteListener(mHeadersTransition, new Runnable() {
             @Override
             public void run() {
-                onHeadersTransitionComplete();
+                mHeadersTransition = null;
+                // TODO: deal fragment destroy view properly
+                VerticalGridView rowsGridView = mRowsFragment.getVerticalGridView();
+                if (rowsGridView != null) {
+                    rowsGridView.setAnimateChildLayout(true);
+                    rowsGridView.setFocusSearchDisabled(false);
+                    if (!mShowingHeaders && !rowsGridView.hasFocus()) {
+                        rowsGridView.requestFocus();
+                    }
+                }
+                VerticalGridView headerGridView = mHeadersFragment.getVerticalGridView();
+                if (headerGridView != null) {
+                    headerGridView.setFocusSearchDisabled(false);
+                    headerGridView.invalidate();
+                    if (mShowingHeaders && !headerGridView.hasFocus()) {
+                        headerGridView.requestFocus();
+                    }
+                }
             }
         });
-        return root;
     }
 
     private void showTitle(boolean show) {
@@ -421,35 +481,28 @@ public class BrowseFragment extends Fragment {
 
     private void showHeaders(boolean show) {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
-        View headerList = mHeadersFragment.getView();
+        mHeadersFragment.setHeadersVisiblity(show);
+
         View containerList = mRowsFragment.getView();
         MarginLayoutParams lp;
-
-        if (show) {
-            mHeadersFragment.attachGridView();
-            mHeadersFragment.getView().requestFocus();
-        } else {
-            mHeadersFragment.detachGridView();
-        }
         lp = (MarginLayoutParams) containerList.getLayoutParams();
         lp.leftMargin = show ? mContainerListMarginLeft : 0;
         containerList.setLayoutParams(lp);
-
         mRowsFragment.setExpand(!show);
     }
 
-    private HeaderPresenter.OnHeaderClickListener mHeaderClickListener =
-        new HeaderPresenter.OnHeaderClickListener() {
+    private HeadersFragment.OnHeaderClickedListener mHeaderClickedListener =
+        new HeadersFragment.OnHeaderClickedListener() {
             @Override
             public void onHeaderClicked() {
                 if (!mCanShowHeaders || !mShowingHeaders) return;
 
-                if (mHeadersTransitionRunning) {
+                if (mHeadersTransition != null) {
                     return;
                 }
-                onHeadersTransitionStart();
-                mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
                 mShowingHeaders = false;
+                onHeadersTransitionStart(false);
+                mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
                 mRowsFragment.getVerticalGridView().requestFocus();
             }
         };
@@ -510,11 +563,11 @@ public class BrowseFragment extends Fragment {
         mSelectedPosition = position;
     }
 
-    private void setVerticalVerticalGridViewLayout(VerticalGridView listview) {
+    private void setVerticalVerticalGridViewLayout(VerticalGridView listview, int extraOffset) {
         // align the top edge of item to a fixed position
         listview.setItemAlignmentOffset(0);
         listview.setItemAlignmentOffsetPercent(VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
-        listview.setWindowAlignmentOffset(mContainerListAlignTop);
+        listview.setWindowAlignmentOffset(mContainerListAlignTop + extraOffset);
         listview.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
         listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
     }
@@ -528,8 +581,8 @@ public class BrowseFragment extends Fragment {
         VerticalGridView containerList = mRowsFragment.getVerticalGridView();
 
         // Both fragments list view has the same alignment
-        setVerticalVerticalGridViewLayout(headerList);
-        setVerticalVerticalGridViewLayout(containerList);
+        setVerticalVerticalGridViewLayout(headerList, 16);
+        setVerticalVerticalGridViewLayout(containerList, 0);
     }
 
     @Override
