@@ -50,8 +50,32 @@ abstract class BaseRowFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mVerticalGridView = (VerticalGridView) inflater.inflate(getLayoutResourceId(), container, false);
-        return mVerticalGridView;
+        ViewGroup view = (ViewGroup) inflater.inflate(getLayoutResourceId(), container, false);
+        mVerticalGridView = (VerticalGridView) view.getChildAt(0);
+        return view;
+    }
+
+    void detachGridView() {
+        if (mVerticalGridView == null) {
+            return;
+        }
+        ViewGroup viewGroup = (ViewGroup) getView();
+        if (viewGroup.indexOfChild(mVerticalGridView) >= 0) {
+            viewGroup.removeView(mVerticalGridView);
+        }
+    }
+
+    void attachGridView() {
+        if (mVerticalGridView == null) {
+            return;
+        }
+        ViewGroup viewGroup = (ViewGroup) getView();
+        if (viewGroup.indexOfChild(mVerticalGridView) < 0) {
+            if (mVerticalGridView.getParent() instanceof ViewGroup) {
+                ((ViewGroup) mVerticalGridView.getParent()).removeView(mVerticalGridView);
+            }
+            viewGroup.addView(mVerticalGridView);
+        }
     }
 
     @Override

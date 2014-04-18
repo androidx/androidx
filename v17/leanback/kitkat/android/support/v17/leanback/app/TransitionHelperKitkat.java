@@ -14,34 +14,67 @@
 package android.support.v17.leanback.app;
 
 import android.content.Context;
-import android.support.v17.leanback.R;
+import android.transition.AutoTransition;
 import android.transition.Scene;
 import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
-import android.util.SparseArray;
+import android.view.View;
 import android.view.ViewGroup;
 
 class TransitionHelperKitkat {
     private final Context mContext;
-    private SparseArray<Scene> mScenes = new SparseArray<Scene>();
-    private Transition mTransition;
-    private TransitionManager mTransitionManager;
 
     TransitionHelperKitkat(Context context) {
         mContext = context;
-        TransitionInflater transitionInflater = TransitionInflater.from(context);
-        mTransition = transitionInflater.inflateTransition(R.transition.lb_browse_transition);
     }
 
-    void addSceneRunnable(int sceneId, ViewGroup sceneRoot, Runnable r) {
+    Object createScene(ViewGroup sceneRoot, Runnable enterAction) {
         Scene scene = new Scene(sceneRoot);
-        scene.setEnterAction(r);
-        mScenes.put(sceneId, scene);
+        scene.setEnterAction(enterAction);
+        return scene;
     }
 
-    void runTransition(int sceneId) {
-        Scene scene = mScenes.get(sceneId);
-        TransitionManager.go(scene, mTransition);
+    Object createAutoTransition() {
+        return new AutoTransition();
+    }
+
+    void excludeChildren(Object transition, int targetId, boolean exclude) {
+        ((Transition) transition).excludeChildren(targetId, exclude);
+    }
+
+    void excludeChildren(Object transition, View targetView, boolean exclude) {
+        ((Transition) transition).excludeChildren(targetView, exclude);
+    }
+
+    public void setTransitionCompleteListener(Object transition, Runnable listener) {
+        Transition t = (Transition) transition;
+        final Runnable completeListener = listener;
+        t.addListener(new Transition.TransitionListener() {
+
+            @Override
+            public void onTransitionStart(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                completeListener.run();
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+        });
+    }
+
+    void runTransition(Object scene, Object transition) {
+        TransitionManager.go((Scene) scene, (Transition) transition);
     }
 }
