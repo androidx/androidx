@@ -1124,25 +1124,19 @@ public class RecyclerView extends ViewGroup {
         if (mAdapterUpdateDuringMeasure) {
             eatRequestLayout();
             updateChildViews();
+            mAdapterUpdateDuringMeasure = false;
             resumeRequestLayout(false);
         }
 
-        final int widthMode = MeasureSpec.getMode(widthSpec);
-        final int heightMode = MeasureSpec.getMode(heightSpec);
-        final int widthSize = MeasureSpec.getSize(widthSpec);
-        final int heightSize = MeasureSpec.getSize(heightSpec);
+        mLayout.onMeasure(widthSpec, heightSpec);
 
-        if (!mHasFixedSize || widthMode == MeasureSpec.UNSPECIFIED ||
-                heightMode == MeasureSpec.UNSPECIFIED) {
-            throw new IllegalStateException("Non-fixed sizes not yet supported");
-        }
+        final int widthSize = getMeasuredWidth();
+        final int heightSize = getMeasuredHeight();
 
         if (mLeftGlow != null) mLeftGlow.setSize(heightSize, widthSize);
         if (mTopGlow != null) mTopGlow.setSize(widthSize, heightSize);
         if (mRightGlow != null) mRightGlow.setSize(heightSize, widthSize);
         if (mBottomGlow != null) mBottomGlow.setSize(widthSize, heightSize);
-
-        setMeasuredDimension(widthSize, heightSize);
     }
 
     @Override
@@ -3821,7 +3815,76 @@ public class RecyclerView extends ViewGroup {
             return 0;
         }
 
+        /**
+         * Measure the attached RecyclerView. Implementations must call
+         * {@link #setMeasuredDimension(int, int)} before returning.
+         *
+         * <p>The default implementation will handle EXACTLY measurements and respect
+         * the minimum width and height properties of the host RecyclerView if measured
+         * as UNSPECIFIED. AT_MOST measurements will be treated as EXACTLY and the RecyclerView
+         * will consume all available space.</p>
+         *
+         * @param widthSpec Width {@link MeasureSpec}
+         * @param heightSpec Height {@link MeasureSpec}
+         */
+        public void onMeasure(int widthSpec, int heightSpec) {
+            final int widthMode = MeasureSpec.getMode(widthSpec);
+            final int heightMode = MeasureSpec.getMode(heightSpec);
+            final int widthSize = MeasureSpec.getSize(widthSpec);
+            final int heightSize = MeasureSpec.getSize(heightSpec);
 
+            int width = 0;
+            int height = 0;
+
+            switch (widthMode) {
+                case MeasureSpec.EXACTLY:
+                case MeasureSpec.AT_MOST:
+                    width = widthSize;
+                    break;
+                case MeasureSpec.UNSPECIFIED:
+                default:
+                    width = getMinimumWidth();
+                    break;
+            }
+
+            switch (heightMode) {
+                case MeasureSpec.EXACTLY:
+                case MeasureSpec.AT_MOST:
+                    height = heightSize;
+                    break;
+                case MeasureSpec.UNSPECIFIED:
+                default:
+                    height = getMinimumHeight();
+                    break;
+            }
+
+            setMeasuredDimension(width, height);
+        }
+
+        /**
+         * {@link View#setMeasuredDimension(int, int) Set the measured dimensions} of the
+         * host RecyclerView.
+         *
+         * @param widthSize Measured width
+         * @param heightSize Measured height
+         */
+        public void setMeasuredDimension(int widthSize, int heightSize) {
+            mRecyclerView.setMeasuredDimension(widthSize, heightSize);
+        }
+
+        /**
+         * @return The host RecyclerView's {@link View#getMinimumWidth()}
+         */
+        public int getMinimumWidth() {
+            return ViewCompat.getMinimumWidth(mRecyclerView);
+        }
+
+        /**
+         * @return The host RecyclerView's {@link View#getMinimumHeight()}
+         */
+        public int getMinimumHeight() {
+            return ViewCompat.getMinimumHeight(mRecyclerView);
+        }
     }
 
     /**
