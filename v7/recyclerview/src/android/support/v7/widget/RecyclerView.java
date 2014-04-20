@@ -3824,8 +3824,8 @@ public class RecyclerView extends ViewGroup {
          * as UNSPECIFIED. AT_MOST measurements will be treated as EXACTLY and the RecyclerView
          * will consume all available space.</p>
          *
-         * @param widthSpec Width {@link MeasureSpec}
-         * @param heightSpec Height {@link MeasureSpec}
+         * @param widthSpec Width {@link android.view.View.MeasureSpec}
+         * @param heightSpec Height {@link android.view.View.MeasureSpec}
          */
         public void onMeasure(int widthSpec, int heightSpec) {
             final int widthMode = MeasureSpec.getMode(widthSpec);
