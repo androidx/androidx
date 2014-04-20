@@ -48,6 +48,10 @@
         <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
         </item>
 
+        <!-- Redirecting to the platform-dependet textAppearanceListItem -->
+        <item name="textAppearanceListItem">?android:attr/textAppearanceListItem</item>
+        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceListItemSmall</item>
+
         <!-- Attributes populated from the framework to be read by apps -->
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
@@ -73,6 +77,10 @@
         <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
         <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
         </item>
+
+        <!-- Redirecting to the platform-dependet textAppearanceListItem -->
+        <item name="textAppearanceListItem">?android:attr/textAppearanceListItem</item>
+        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceListItemSmall</item>
 
         <!-- Attributes populated from the framework to be read by apps -->
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
@@ -100,6 +108,10 @@
         <item name="listPreferredItemPaddingLeft">?android:attr/listPreferredItemPaddingLeft</item>
         <item name="listPreferredItemPaddingRight">?android:attr/listPreferredItemPaddingRight
         </item>
+
+        <!-- Redirecting to the platform-dependet textAppearanceListItem -->
+        <item name="textAppearanceListItem">?android:attr/textAppearanceListItem</item>
+        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceListItemSmall</item>
 
         <!-- Attributes populated from the framework to be read by apps -->
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
