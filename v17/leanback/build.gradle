@@ -1,0 +1,28 @@
+apply plugin: 'android-library'
+
+archivesBaseName = 'support-leanback-v17'
+
+dependencies {
+    compile project(':support-v4')
+    compile project(':support-recyclerview-v7')
+}
+
+android {
+    compileSdkVersion 'current'
+    buildToolsVersion "19.0.1"
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = [
+            'src',
+            'kitkat',
+            'jbmr2'
+        ]
+        main.res.srcDir 'res'
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+}
