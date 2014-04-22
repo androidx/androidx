@@ -109,7 +109,7 @@ public class MediaRouteChooserDialog extends Dialog {
      * removes those for which {@link #onFilterRoute} returns false.
      * </p>
      *
-     * @param The list of routes to filter in-place, never null.
+     * @param routes The list of routes to filter in-place, never null.
      */
     public void onFilterRoutes(@NonNull List<MediaRouter.RouteInfo> routes) {
         for (int i = routes.size(); i-- > 0; ) {
