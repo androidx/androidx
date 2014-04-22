@@ -89,9 +89,6 @@
     <!-- HeadersFragment (fast lane) -->
     <style name="Widget.Leanback.Headers" />
 
-    <!-- header view in fast lane -->
-    <style name="Widget.Leanback.Header" />
-
     <!-- RowsFragment -->
     <style name="Widget.Leanback.Rows" >
     </style>
