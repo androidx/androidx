@@ -474,16 +474,19 @@ public class RecyclerView extends ViewGroup {
      */
     void scrollByInternal(int x, int y) {
         int overscrollX = 0, overscrollY = 0;
-        eatRequestLayout();
-        if (x != 0) {
-            final int hresult = mLayout.scrollHorizontallyBy(x, getAdapter(), mRecycler);
-            overscrollX = x - hresult;
+        if (mAdapter != null) {
+            eatRequestLayout();
+            if (x != 0) {
+                final int hresult = mLayout.scrollHorizontallyBy(x, mAdapter, mRecycler);
+                overscrollX = x - hresult;
+            }
+            if (y != 0) {
+                final int vresult = mLayout.scrollVerticallyBy(y, mAdapter, mRecycler);
+                overscrollY = y - vresult;
+            }
+            resumeRequestLayout(false);
         }
-        if (y != 0) {
-            final int vresult = mLayout.scrollVerticallyBy(y, getAdapter(), mRecycler);
-            overscrollY = y - vresult;
-        }
-        resumeRequestLayout(false);
+
         if (!mItemDecorations.isEmpty()) {
             invalidate();
         }
@@ -796,9 +799,9 @@ public class RecyclerView extends ViewGroup {
         }
         final FocusFinder ff = FocusFinder.getInstance();
         result = ff.findNextFocus(this, focused, direction);
-        if (result == null) {
+        if (result == null && mAdapter != null) {
             eatRequestLayout();
-            result = mLayout.onFocusSearchFailed(focused, direction, getAdapter(), mRecycler);
+            result = mLayout.onFocusSearchFailed(focused, direction, mAdapter, mRecycler);
             resumeRequestLayout(false);
         }
         return result != null ? result : super.focusSearch(focused, direction);
@@ -1635,16 +1638,18 @@ public class RecyclerView extends ViewGroup {
                 mLastFlingY = y;
 
                 int overscrollX = 0, overscrollY = 0;
-                eatRequestLayout();
-                if (dx != 0) {
-                    final int hresult = mLayout.scrollHorizontallyBy(dx, getAdapter(), mRecycler);
-                    overscrollX = dx - hresult;
+                if (mAdapter != null) {
+                    eatRequestLayout();
+                    if (dx != 0) {
+                        final int hresult = mLayout.scrollHorizontallyBy(dx, mAdapter, mRecycler);
+                        overscrollX = dx - hresult;
+                    }
+                    if (dy != 0) {
+                        final int vresult = mLayout.scrollVerticallyBy(dy, mAdapter, mRecycler);
+                        overscrollY = dy - vresult;
+                    }
+                    resumeRequestLayout(false);
                 }
-                if (dy != 0) {
-                    final int vresult = mLayout.scrollVerticallyBy(dy, getAdapter(), mRecycler);
-                    overscrollY = dy - vresult;
-                }
-                resumeRequestLayout(false);
 
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
