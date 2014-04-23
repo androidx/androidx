@@ -17,6 +17,8 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
@@ -71,7 +73,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     /**
      * We need to track this so that we can ignore current position when it changes.
      */
-    private boolean mLastLegacyStackFromEnd;
+    private boolean mLastStackFromEnd;
 
 
     /**
@@ -107,6 +109,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     private int mPendingScrollPositionOffset = INVALID_OFFSET;
 
+    private SavedState mPendingSavedState = null;
+
     /**
      * Creates a vertical LinearLayoutManager
      *
@@ -134,6 +138,50 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        if (mPendingSavedState != null) {
+            return new SavedState(mPendingSavedState);
+        }
+        SavedState state = new SavedState();
+        if (getChildCount() > 0) {
+            boolean didLayoutFromEnd = mLastStackFromEnd ^ mShouldReverseLayout;
+            state.mOrientation = mOrientation;
+            state.mAnchorLayoutFromEnd = didLayoutFromEnd;
+
+            if (didLayoutFromEnd) {
+                final View refChild = getChildClosestToEnd();
+                state.mAnchorOffset = mOrientationHelper.getEndAfterPadding() -
+                        mOrientationHelper.getDecoratedEnd(refChild);
+                state.mAnchorPosition = getPosition(refChild);
+            } else {
+                final View refChild = getChildClosestToStart();
+                state.mAnchorPosition = getPosition(refChild);
+                state.mAnchorOffset = mOrientationHelper.getDecoratedStart(refChild) -
+                        mOrientationHelper.getStartAfterPadding();
+            }
+        } else {
+            state.mAnchorPosition = 0;
+            state.mAnchorOffset = 0;
+        }
+        state.mStackFromEnd = mStackFromEnd;
+        state.mReverseLayout = mReverseLayout;
+        return state;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof SavedState) {
+            mPendingSavedState = (SavedState) state;
+            requestLayout();
+            if (DEBUG) {
+                Log.d(TAG, "loaded saved state");
+            }
+        } else if (DEBUG) {
+            Log.d(TAG, "invalid saved state class");
+        }
     }
 
     /**
@@ -264,11 +312,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // 2) fill towards start, stacking from bottom
         // 3) fill towards end, stacking from top
         // 4) scroll to fulfill requirements like stack from bottom.
+        // create render state
 
+        if (mPendingSavedState != null) {
+            setOrientation(mPendingSavedState.mOrientation);
+            setReverseLayout(mPendingSavedState.mReverseLayout);
+            setStackFromEnd(mPendingSavedState.mStackFromEnd);
+            mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
+        }
+        ensureRenderState();
         // resolve layout direction
         resolveShouldLayoutReverse();
-        // create render state
-        ensureRenderState();
 
         // validate scroll position if exists
         if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
@@ -284,14 +338,25 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // this value might be updated if there is a target scroll position without an offset
         boolean layoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
 
-        final boolean legacyStackFromEndChanged = mLastLegacyStackFromEnd != mStackFromEnd;
+        final boolean stackFromEndChanged = mLastStackFromEnd != mStackFromEnd;
 
         int anchorCoordinate, anchorItemPosition;
         if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
             // if child is visible, try to make it a reference child and ensure it is fully visible.
             // if child is not visible, align it depending on its virtual position.
             anchorItemPosition = mPendingScrollPosition;
-            if (mPendingScrollPositionOffset == INVALID_OFFSET) {
+            if (mPendingSavedState != null) {
+                // Anchor offset depends on how that child was laid out. Here, we update it
+                // according to our current view bounds
+                layoutFromEnd = mPendingSavedState.mAnchorLayoutFromEnd;
+                if (layoutFromEnd) {
+                    anchorCoordinate = mOrientationHelper.getEndAfterPadding() -
+                            mPendingSavedState.mAnchorOffset;
+                } else {
+                    anchorCoordinate = mOrientationHelper.getStartAfterPadding() +
+                            mPendingSavedState.mAnchorOffset;
+                }
+            } else if (mPendingScrollPositionOffset == INVALID_OFFSET) {
                 View child = findViewByPosition(mPendingScrollPosition);
                 if (child != null) {
                     final int startGap = mOrientationHelper.getDecoratedStart(child)
@@ -341,7 +406,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                     layoutFromEnd = false;
                 }
             }
-        } else if (getChildCount() > 0 && !legacyStackFromEndChanged) {
+        } else if (getChildCount() > 0 && !stackFromEndChanged) {
             if (layoutFromEnd) {
                 View referenceChild = getChildClosestToEnd();
                 anchorCoordinate = mOrientationHelper.getDecoratedEnd(referenceChild);
@@ -389,8 +454,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         removeAndRecycleScrap(recycler);
         mPendingScrollPosition = RecyclerView.NO_POSITION;
         mPendingScrollPositionOffset = INVALID_OFFSET;
-        mLastLegacyStackFromEnd = mStackFromEnd;
-
+        mLastStackFromEnd = mStackFromEnd;
+        mPendingSavedState = null; // we don't need this anymore
         if (DEBUG) {
             validateChildOrder();
         }
@@ -504,12 +569,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      *
      * <p>Note that scroll position change will not be reflected until the next layout call.</p>
      *
-     * <p>If you are just trying to make a position visible, use {@link #scrollToPosition(int)}.</p>
+     * <p>If you are just trying to make a position visible, use {@link
+     * #scrollToPosition(int)}.</p>
      *
      * @param position Index (starting at 0) of the reference item.
      * @param offset   The distance (in pixels) between the start edge of the item view and
      *                 start edge of the RecyclerView.
-     *
      * @see #setReverseLayout(boolean)
      * @see #scrollToPosition(int)
      */
@@ -841,7 +906,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 }
                 recycleByRenderState(recycler, renderState);
             }
-
+            if (DEBUG) {
+                Log.d(TAG, "laid out position " + getPosition(view));
+            }
             if (stopInFocusableChild && view.isFocusable()) {
                 break;
             }
@@ -1235,5 +1302,71 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
          * @param amount Value to add to each child's layout parameters
          */
         void offsetChildren(int amount);
+    }
+
+    static class SavedState implements Parcelable {
+
+        int mOrientation;
+
+        int mAnchorPosition;
+
+        int mAnchorOffset;
+
+        boolean mReverseLayout;
+
+        boolean mStackFromEnd;
+
+        boolean mAnchorLayoutFromEnd;
+
+
+        public SavedState() {
+
+        }
+
+        SavedState(Parcel in) {
+            mOrientation = in.readInt();
+            mAnchorPosition = in.readInt();
+            mAnchorOffset = in.readInt();
+            mReverseLayout = in.readInt() == 1;
+            mStackFromEnd = in.readInt() == 1;
+            mAnchorLayoutFromEnd = in.readInt() == 1;
+        }
+
+        public SavedState(SavedState other) {
+            mOrientation = other.mOrientation;
+            mAnchorPosition = other.mAnchorPosition;
+            mAnchorOffset = other.mAnchorOffset;
+            mReverseLayout = other.mReverseLayout;
+            mStackFromEnd = other.mStackFromEnd;
+            mAnchorLayoutFromEnd = other.mAnchorLayoutFromEnd;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(mOrientation);
+            dest.writeInt(mAnchorPosition);
+            dest.writeInt(mAnchorOffset);
+            dest.writeInt(mReverseLayout ? 1 : 0);
+            dest.writeInt(mStackFromEnd ? 1 : 0);
+            dest.writeInt(mAnchorLayoutFromEnd ? 1 : 0);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }
