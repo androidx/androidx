@@ -13,6 +13,8 @@ android {
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDir 'src'
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/src'
     }
 
     lintOptions {
