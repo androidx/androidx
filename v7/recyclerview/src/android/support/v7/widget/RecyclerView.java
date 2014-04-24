@@ -4402,7 +4402,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         public final boolean isRecyclable() {
-            return (mFlags & FLAG_NOT_RECYCLABLE) == 0 ||
+            return (mFlags & FLAG_NOT_RECYCLABLE) == 0 &&
                     !ViewCompat.hasTransientState(itemView);
         }
     }
