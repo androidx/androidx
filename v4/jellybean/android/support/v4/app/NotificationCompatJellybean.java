@@ -21,16 +21,21 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 class NotificationCompatJellybean {
+    public static final String TAG = "NotificationCompat";
+
     /** Extras key used for Jellybean SDK and below. */
     static final String EXTRA_LOCAL_ONLY = "android.support.localOnly";
 
-    private static volatile Field sExtrasField;
+    private static final Object sExtrasLock = new Object();
+    private static Field sExtrasField;
+    private static boolean sExtrasFieldAccessFailed;
 
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
@@ -149,22 +154,34 @@ class NotificationCompatJellybean {
      * Jellybean notifications, but the field was private until KitKat.
      */
     public static Bundle getExtras(Notification notif) {
-        try {
-            if (sExtrasField == null) {
-                Field extrasField = Notification.class.getDeclaredField("extras");
-                extrasField.setAccessible(true);
-                sExtrasField = extrasField;
+        synchronized (sExtrasLock) {
+            if (sExtrasFieldAccessFailed) {
+                return null;
             }
-            Bundle extras = (Bundle) sExtrasField.get(notif);
-            if (extras == null) {
-                extras = new Bundle();
-                sExtrasField.set(notif, extras);
+            try {
+                if (sExtrasField == null) {
+                    Field extrasField = Notification.class.getDeclaredField("extras");
+                    if (!Bundle.class.isAssignableFrom(extrasField.getType())) {
+                        Log.e(TAG, "Notification.extras field is not of type Bundle");
+                        sExtrasFieldAccessFailed = true;
+                        return null;
+                    }
+                    extrasField.setAccessible(true);
+                    sExtrasField = extrasField;
+                }
+                Bundle extras = (Bundle) sExtrasField.get(notif);
+                if (extras == null) {
+                    extras = new Bundle();
+                    sExtrasField.set(notif, extras);
+                }
+                return extras;
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to access notification extras", e);
+            } catch (NoSuchFieldException e) {
+                Log.e(TAG, "Unable to access notification extras", e);
             }
-            return extras;
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to access notification extras", e);
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException("Unable to access notification extras", e);
+            sExtrasFieldAccessFailed = true;
+            return null;
         }
     }
 
