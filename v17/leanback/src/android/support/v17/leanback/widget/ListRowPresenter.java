@@ -172,6 +172,7 @@ public class ListRowPresenter extends RowPresenter {
                     int dimmedColor = rowViewHolder.mColorDimmer.getPaint().getColor();
                     ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
                 }
+                viewHolder.itemView.setActivated(rowViewHolder.mExpanded);
             }
         });
     }

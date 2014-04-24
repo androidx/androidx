@@ -219,6 +219,7 @@ public abstract class RowPresenter extends Presenter {
                 containerView.removeHeaderView(headerView);
             }
         }
+        vh.view.setActivated(expanded);
     }
 
     /**
