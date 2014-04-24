@@ -17,9 +17,9 @@
 package com.example.android.supportv7.widget.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -34,16 +34,16 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView textView;
+        public TextView mTextView;
 
         public ViewHolder(TextView v) {
             super(v);
-            textView = v;
+            mTextView = v;
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + textView.getText();
+            return super.toString() + " '" + mTextView.getText();
         }
     }
 
@@ -69,16 +69,36 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
     @Override
     public SimpleStringAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final ViewHolder h = new ViewHolder(new TextView(parent.getContext()));
-        h.textView.setMinimumHeight(128);
-        h.textView.setPadding(20, 0, 20, 0);
-        h.textView.setFocusable(true);
-        h.textView.setBackgroundResource(mBackground);
+        h.mTextView.setMinimumHeight(128);
+        h.mTextView.setPadding(20, 0, 20, 0);
+        h.mTextView.setFocusable(true);
+        h.mTextView.setBackgroundResource(mBackground);
+        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = 10;
+        lp.rightMargin = 5;
+        lp.topMargin = 20;
+        lp.bottomMargin = 15;
+        h.mTextView.setLayoutParams(lp);
         return h;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.textView.setText(position + ":" + mValues.get(position));
+        holder.mTextView.setText(position + ":" + mValues.get(position));
+        holder.mTextView.setMinHeight((200 + mValues.get(position).length() * 10));
+        holder.mTextView.setBackgroundColor(getBackgroundColor(position));
+    }
+
+    private int getBackgroundColor(int position) {
+        switch (position % 4) {
+            case 0: return Color.BLACK;
+            case 1: return Color.RED;
+            case 2: return Color.GREEN;
+            case 3: return Color.BLUE;
+        }
+        return Color.TRANSPARENT;
     }
 
     @Override
