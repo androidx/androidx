@@ -117,9 +117,14 @@ public class SlidingPaneLayout extends ViewGroup {
     private int mCoveredFadeColor;
 
     /**
-     * Drawable used to draw the shadow between panes.
+     * Drawable used to draw the shadow between panes by default.
      */
-    private Drawable mShadowDrawable;
+    private Drawable mShadowDrawableLeft;
+
+    /**
+     * Drawable used to draw the shadow between panes to support RTL (right to left language).
+     */
+    private Drawable mShadowDrawableRight;
 
     /**
      * The size of the overhang in pixels.
@@ -262,7 +267,6 @@ public class SlidingPaneLayout extends ViewGroup {
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
         mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
-        mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
     }
 
@@ -345,8 +349,11 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     void updateObscuredViewsVisibility(View panel) {
-        final int leftBound = getPaddingLeft();
-        final int rightBound = getWidth() - getPaddingRight();
+        final boolean isLayoutRtl = isLayoutRtlSupport();
+        final int startBound = isLayoutRtl ? (getWidth() - getPaddingRight()) :
+            getPaddingLeft();
+        final int endBound = isLayoutRtl ? getPaddingLeft() :
+            (getWidth() - getPaddingRight());
         final int topBound = getPaddingTop();
         final int bottomBound = getHeight() - getPaddingBottom();
         final int left;
@@ -370,9 +377,11 @@ public class SlidingPaneLayout extends ViewGroup {
                 break;
             }
 
-            final int clampedChildLeft = Math.max(leftBound, child.getLeft());
+            final int clampedChildLeft = Math.max((isLayoutRtl ? endBound :
+                startBound), child.getLeft());
             final int clampedChildTop = Math.max(topBound, child.getTop());
-            final int clampedChildRight = Math.min(rightBound, child.getRight());
+            final int clampedChildRight = Math.min((isLayoutRtl ? startBound :
+                endBound), child.getRight());
             final int clampedChildBottom = Math.min(bottomBound, child.getBottom());
             final int vis;
             if (clampedChildLeft >= left && clampedChildTop >= top &&
@@ -641,14 +650,19 @@ public class SlidingPaneLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
+        final boolean isLayoutRtl = isLayoutRtlSupport();
+        if (isLayoutRtl) {
+            mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
+        } else {
+            mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+        }
         final int width = r - l;
-        final int paddingLeft = getPaddingLeft();
-        final int paddingRight = getPaddingRight();
+        final int paddingStart = isLayoutRtl ? getPaddingRight() : getPaddingLeft();
+        final int paddingEnd = isLayoutRtl ? getPaddingLeft() : getPaddingRight();
         final int paddingTop = getPaddingTop();
 
         final int childCount = getChildCount();
-        int xStart = paddingLeft;
+        int xStart = paddingStart;
         int nextXStart = xStart;
 
         if (mFirstLayout) {
@@ -670,12 +684,13 @@ public class SlidingPaneLayout extends ViewGroup {
             if (lp.slideable) {
                 final int margin = lp.leftMargin + lp.rightMargin;
                 final int range = Math.min(nextXStart,
-                        width - paddingRight - mOverhangSize) - xStart - margin;
+                        width - paddingEnd - mOverhangSize) - xStart - margin;
                 mSlideRange = range;
-                lp.dimWhenOffset = xStart + lp.leftMargin + range + childWidth / 2 >
-                        width - paddingRight;
+                final int lpMargin = isLayoutRtl ? lp.rightMargin : lp.leftMargin;
+                lp.dimWhenOffset = xStart + lpMargin + range + childWidth / 2 >
+                        width - paddingEnd;
                 final int pos = (int) (range * mSlideOffset);
-                xStart += pos + lp.leftMargin;
+                xStart += pos + lpMargin;
                 mSlideOffset = (float) pos / mSlideRange;
             } else if (mCanSlide && mParallaxBy != 0) {
                 offset = (int) ((1 - mSlideOffset) * mParallaxBy);
@@ -684,8 +699,16 @@ public class SlidingPaneLayout extends ViewGroup {
                 xStart = nextXStart;
             }
 
-            final int childLeft = xStart - offset;
-            final int childRight = childLeft + childWidth;
+            final int childRight;
+            final int childLeft;
+            if (isLayoutRtl) {
+                childRight = width - xStart + offset;
+                childLeft = childRight - childWidth;
+            } else {
+                childLeft = xStart - offset;
+                childRight = childLeft + childWidth;
+            }
+
             final int childTop = paddingTop;
             final int childBottom = childTop + child.getMeasuredHeight();
             child.layout(childLeft, paddingTop, childRight, childBottom);
@@ -918,11 +941,17 @@ public class SlidingPaneLayout extends ViewGroup {
             mSlideOffset = 0;
             return;
         }
-
+        final boolean isLayoutRtl = isLayoutRtlSupport();
         final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
-        final int leftBound = getPaddingLeft() + lp.leftMargin;
 
-        mSlideOffset = (float) (newLeft - leftBound) / mSlideRange;
+        int childWidth = mSlideableView.getWidth();
+        final int newStart = isLayoutRtl ? getWidth() - newLeft - childWidth : newLeft;
+
+        final int paddingStart = isLayoutRtl ? getPaddingRight() : getPaddingLeft();
+        final int lpMargin = isLayoutRtl ? lp.rightMargin : lp.leftMargin;
+        final int startBound = paddingStart + lpMargin;
+
+        mSlideOffset = (float) (newStart - startBound) / mSlideRange;
 
         if (mParallaxBy != 0) {
             parallaxOtherViews(mSlideOffset);
@@ -968,7 +997,11 @@ public class SlidingPaneLayout extends ViewGroup {
         if (mCanSlide && !lp.slideable && mSlideableView != null) {
             // Clip against the slider; no sense drawing what will immediately be covered.
             canvas.getClipBounds(mTmpRect);
-            mTmpRect.right = Math.min(mTmpRect.right, mSlideableView.getLeft());
+            if (isLayoutRtlSupport()) {
+                mTmpRect.left = Math.max(mTmpRect.left, mSlideableView.getRight());
+            } else {
+                mTmpRect.right = Math.min(mTmpRect.right, mSlideableView.getLeft());
+            }
             canvas.clipRect(mTmpRect);
         }
 
@@ -1016,10 +1049,18 @@ public class SlidingPaneLayout extends ViewGroup {
             return false;
         }
 
+        final boolean isLayoutRtl = isLayoutRtlSupport();
         final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
 
-        final int leftBound = getPaddingLeft() + lp.leftMargin;
-        int x = (int) (leftBound + slideOffset * mSlideRange);
+        int x;
+        if (isLayoutRtl) {
+            int startBound = getPaddingRight() + lp.rightMargin;
+            int childWidth = mSlideableView.getWidth();
+            x = (int) (getWidth() - (startBound + slideOffset * mSlideRange + childWidth));
+        } else {
+            int startBound = getPaddingLeft() + lp.leftMargin;
+            x = (int) (startBound + slideOffset * mSlideRange);
+        }
 
         if (mDragHelper.smoothSlideViewTo(mSlideableView, x, mSlideableView.getTop())) {
             setAllChildrenVisible();
@@ -1042,13 +1083,35 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     /**
+     * @deprecated Renamed to {@link #setShadowDrawableLeft(Drawable d)} to support LTR (left to
+     * right language) and {@link #setShadowDrawableRight(Drawable d)} to support RTL (right to left
+     * language) during opening/closing.
+     *
+     * @param d drawable to use as a shadow
+     */
+    @Deprecated
+    public void setShadowDrawable(Drawable d) {
+        setShadowDrawableLeft(d);
+    }
+
+    /**
      * Set a drawable to use as a shadow cast by the right pane onto the left pane
      * during opening/closing.
      *
      * @param d drawable to use as a shadow
      */
-    public void setShadowDrawable(Drawable d) {
-        mShadowDrawable = d;
+    public void setShadowDrawableLeft(Drawable d) {
+        mShadowDrawableLeft = d;
+    }
+
+    /**
+     * Set a drawable to use as a shadow cast by the left pane onto the right pane
+     * during opening/closing to support right to left language.
+     *
+     * @param d drawable to use as a shadow
+     */
+    public void setShadowDrawableRight(Drawable d) {
+        mShadowDrawableRight = d;
     }
 
     /**
@@ -1057,32 +1120,72 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @param resId Resource ID of a drawable to use
      */
+    @Deprecated
     public void setShadowResource(int resId) {
         setShadowDrawable(getResources().getDrawable(resId));
     }
 
+    /**
+     * Set a drawable to use as a shadow cast by the right pane onto the left pane
+     * during opening/closing.
+     *
+     * @param resId Resource ID of a drawable to use
+     */
+    public void setShadowResourceLeft(int resId) {
+        setShadowDrawableLeft(getResources().getDrawable(resId));
+    }
+
+    /**
+     * Set a drawable to use as a shadow cast by the left pane onto the right pane
+     * during opening/closing to support right to left language.
+     *
+     * @param resId Resource ID of a drawable to use
+     */
+    public void setShadowResourceRight(int resId) {
+        setShadowDrawableRight(getResources().getDrawable(resId));
+    }
+
+
     @Override
     public void draw(Canvas c) {
         super.draw(c);
+        final boolean isLayoutRtl = isLayoutRtlSupport();
+        Drawable shadowDrawable;
+        if (isLayoutRtl) {
+            shadowDrawable = mShadowDrawableRight;
+        } else {
+            shadowDrawable = mShadowDrawableLeft;
+        }
 
         final View shadowView = getChildCount() > 1 ? getChildAt(1) : null;
-        if (shadowView == null || mShadowDrawable == null) {
+        if (shadowView == null || shadowDrawable == null) {
             // No need to draw a shadow if we don't have one.
             return;
         }
 
-        final int shadowWidth = mShadowDrawable.getIntrinsicWidth();
-        final int right = shadowView.getLeft();
         final int top = shadowView.getTop();
         final int bottom = shadowView.getBottom();
-        final int left = right - shadowWidth;
-        mShadowDrawable.setBounds(left, top, right, bottom);
-        mShadowDrawable.draw(c);
+
+        final int shadowWidth = shadowDrawable.getIntrinsicWidth();
+        final int left;
+        final int right;
+        if (isLayoutRtlSupport()) {
+            left = shadowView.getRight();
+            right = left + shadowWidth;
+        } else {
+            right = shadowView.getLeft();
+            left = right - shadowWidth;
+        }
+
+        shadowDrawable.setBounds(left, top, right, bottom);
+        shadowDrawable.draw(c);
     }
 
     private void parallaxOtherViews(float slideOffset) {
+        final boolean isLayoutRtl = isLayoutRtlSupport();
         final LayoutParams slideLp = (LayoutParams) mSlideableView.getLayoutParams();
-        final boolean dimViews = slideLp.dimWhenOffset && slideLp.leftMargin <= 0;
+        final boolean dimViews = slideLp.dimWhenOffset &&
+                (isLayoutRtl ? slideLp.rightMargin : slideLp.leftMargin) <= 0;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View v = getChildAt(i);
@@ -1093,10 +1196,11 @@ public class SlidingPaneLayout extends ViewGroup {
             final int newOffset = (int) ((1 - slideOffset) * mParallaxBy);
             final int dx = oldOffset - newOffset;
 
-            v.offsetLeftAndRight(dx);
+            v.offsetLeftAndRight(isLayoutRtl ? -dx : dx);
 
             if (dimViews) {
-                dimChildView(v, 1 - mParallaxOffset, mCoveredFadeColor);
+                dimChildView(v, isLayoutRtl ? mParallaxOffset - 1 :
+                    1 - mParallaxOffset, mCoveredFadeColor);
             }
         }
     }
@@ -1132,7 +1236,7 @@ public class SlidingPaneLayout extends ViewGroup {
             }
         }
 
-        return checkV && ViewCompat.canScrollHorizontally(v, -dx);
+        return checkV && ViewCompat.canScrollHorizontally(v, (isLayoutRtlSupport() ? dx : -dx));
     }
 
     boolean isDimmed(View child) {
@@ -1228,9 +1332,20 @@ public class SlidingPaneLayout extends ViewGroup {
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             final LayoutParams lp = (LayoutParams) releasedChild.getLayoutParams();
-            int left = getPaddingLeft() + lp.leftMargin;
-            if (xvel > 0 || (xvel == 0 && mSlideOffset > 0.5f)) {
-                left += mSlideRange;
+
+            int left;
+            if (isLayoutRtlSupport()) {
+                int startToRight =  getPaddingRight() + lp.rightMargin;
+                if (xvel > 0 || (xvel == 0 && mSlideOffset > 0.5f)) {
+                    startToRight += mSlideRange;
+                }
+                int childWidth = mSlideableView.getWidth();
+                left = getWidth() - startToRight - childWidth;
+            } else {
+                left = getPaddingLeft() + lp.leftMargin;
+                if (xvel > 0 || (xvel == 0 && mSlideOffset > 0.5f)) {
+                    left += mSlideRange;
+                }
             }
             mDragHelper.settleCapturedViewAt(left, releasedChild.getTop());
             invalidate();
@@ -1244,11 +1359,18 @@ public class SlidingPaneLayout extends ViewGroup {
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
             final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
-            final int leftBound = getPaddingLeft() + lp.leftMargin;
-            final int rightBound = leftBound + mSlideRange;
 
-            final int newLeft = Math.min(Math.max(left, leftBound), rightBound);
-
+            final int newLeft;
+            if (isLayoutRtlSupport()) {
+                int startBound = getWidth() -
+                        (getPaddingRight() + lp.rightMargin + mSlideableView.getWidth());
+                int endBound =  startBound - mSlideRange;
+                newLeft = Math.max(Math.min(left, startBound), endBound);
+            } else {
+                int startBound = getPaddingLeft() + lp.leftMargin;
+                int endBound = startBound + mSlideRange;
+                newLeft = Math.min(Math.max(left, startBound), endBound);
+            }
             return newLeft;
         }
 
@@ -1513,5 +1635,9 @@ public class SlidingPaneLayout extends ViewGroup {
             }
             mPostedRunnables.remove(this);
         }
+    }
+
+    private boolean isLayoutRtlSupport() {
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 }
