@@ -16,16 +16,15 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
+import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ImageCardView extends BaseCardView {
-    private static final String TAG = "ImageCardView";
-    private static final boolean DEBUG = false;
 
     private ImageView mImageView;
     private View mInfoArea;
@@ -49,6 +48,7 @@ public class ImageCardView extends BaseCardView {
         View v = inflater.inflate(R.layout.lb_image_card_view, this);
 
         mImageView = (ImageView) v.findViewById(R.id.main_image);
+        mImageView.setVisibility(View.INVISIBLE);
         mInfoArea = v.findViewById(R.id.info_field);
         mTitleView = (TextView) v.findViewById(R.id.title_text);
         mContentView = (TextView) v.findViewById(R.id.content_text);
@@ -62,6 +62,19 @@ public class ImageCardView extends BaseCardView {
         }
 
         mImageView.setImageDrawable(drawable);
+        if (drawable == null) {
+            mImageView.setVisibility(View.INVISIBLE);
+        } else {
+            mImageView.setVisibility(View.VISIBLE);
+            fadeIn(mImageView);
+        }
+    }
+
+    public void setMainImageDimensions(int width, int height) {
+        ViewGroup.LayoutParams lp = mImageView.getLayoutParams();
+        lp.width = width;
+        lp.height = height;
+        mImageView.setLayoutParams(lp);
     }
 
     public Drawable getMainImage() {
@@ -78,6 +91,7 @@ public class ImageCardView extends BaseCardView {
         }
 
         mTitleView.setText(text);
+        setTextMaxLines();
     }
 
     public CharSequence getTitleText() {
@@ -94,6 +108,7 @@ public class ImageCardView extends BaseCardView {
         }
 
         mContentView.setText(text);
+        setTextMaxLines();
     }
 
     public CharSequence getContentText() {
@@ -125,5 +140,24 @@ public class ImageCardView extends BaseCardView {
         }
 
         return mBadgeImage.getDrawable();
+    }
+
+    private void fadeIn(View v) {
+        v.setAlpha(0f);
+        v.animate().alpha(1f).setDuration(v.getContext().getResources().getInteger(
+                android.R.integer.config_shortAnimTime)).start();
+    }
+
+    private void setTextMaxLines() {
+        if (TextUtils.isEmpty(getTitleText())) {
+            mContentView.setMaxLines(2);
+        } else {
+            mContentView.setMaxLines(1);
+        }
+        if (TextUtils.isEmpty(getContentText())) {
+            mTitleView.setMaxLines(2);
+        } else {
+            mTitleView.setMaxLines(1);
+        }
     }
 }
