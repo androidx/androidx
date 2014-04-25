@@ -105,41 +105,40 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
-     * Sets the row height in pixels for rows created by this Presenter. Rows
+     * Sets the row height for rows created by this Presenter. Rows
      * created before calling this method will not be updated.
      *
-     * @param rowHeight The row height in pixels to use for rows created by this
-     *        Presenter, or 0 to use the default height.
+     * @param rowHeight Row height in pixels, or WRAP_CONTENT, or 0
+     * to use the default height.
      */
     public void setRowHeight(int rowHeight) {
         mRowHeight = rowHeight;
     }
 
     /**
-     * Returns the row height in pixels for rows created by this Presenter.
+     * Returns the row height for list rows created by this Presenter.
      */
     public int getRowHeight() {
         return mRowHeight;
     }
 
     /**
-     * Sets the expanded row height in pixels for rows created by this
-     * Presenter. If not set, expanded rows have the same height as unexpanded
+     * Sets the expanded row height for rows created by this Presenter.
+     * If not set, expanded rows have the same height as unexpanded
      * rows.
      *
-     * @param rowHeight The row height in pixels to use for expanded rows
-     *        created by this Presenter, or 0 to use the default height.
+     * @param rowHeight The row height in to use when the row is expanded,
+     *        in pixels, or WRAP_CONTENT, or 0 to use the default.
      */
     public void setExpandedRowHeight(int rowHeight) {
         mExpandedRowHeight = rowHeight;
     }
 
     /**
-     * Returns the expanded row height in pixels for rows created by this
-     * Presenter.
+     * Returns the expanded row height for rows created by this Presenter.
      */
     public int getExpandedRowHeight() {
-        return mExpandedRowHeight > 0 ? mExpandedRowHeight : mRowHeight;
+        return mExpandedRowHeight != 0 ? mExpandedRowHeight : mRowHeight;
     }
 
     /**
@@ -266,7 +265,7 @@ public class ListRowPresenter extends RowPresenter {
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
         ListRowView rowView = new ListRowView(parent.getContext());
         setupFadingEffect(rowView);
-        if (mRowHeight > 0) {
+        if (mRowHeight != 0) {
             rowView.getGridView().setRowHeight(mRowHeight);
         }
         return new ViewHolder(rowView, rowView.getGridView(), this);

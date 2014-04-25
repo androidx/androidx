@@ -30,14 +30,18 @@
 
     <declare-styleable name="lbHorizontalGridView">
         <!-- Defining height of each row of HorizontalGridView -->
-        <attr name="rowHeight" format="dimension" />
+        <attr name="rowHeight" format="dimension" >
+            <enum name="wrap_content" value="-2" />
+        </attr>
         <!-- Defining number of rows -->
         <attr name="numberOfRows" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="lbVerticalGridView">
         <!-- Defining width of each column of VerticalGridView -->
-        <attr name="columnWidth" format="dimension" />
+        <attr name="columnWidth" format="dimension" >
+            <enum name="wrap_content" value="-2" />
+        </attr>
         <!-- Defining number of columns -->
         <attr name="numberOfColumns" format="integer" />
     </declare-styleable>

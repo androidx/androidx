@@ -27,7 +27,9 @@ import android.graphics.Shader;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * A view that shows items in a horizontal scrolling list. The items come from
@@ -66,7 +68,7 @@ public class HorizontalGridView extends BaseGridView {
     protected void initAttributes(Context context, AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbHorizontalGridView);
-        setRowHeight(a.getDimensionPixelSize(R.styleable.lbHorizontalGridView_rowHeight, 0));
+        setRowHeight(a);
         setNumRows(a.getInt(R.styleable.lbHorizontalGridView_numberOfRows, 1));
         a.recycle();
         setWillNotDraw(false);
@@ -74,8 +76,19 @@ public class HorizontalGridView extends BaseGridView {
         mTempPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
     }
 
+    void setRowHeight(TypedArray array) {
+        TypedValue typedValue = array.peekValue(R.styleable.lbHorizontalGridView_rowHeight);
+        int size;
+        if (typedValue != null && typedValue.type == TypedValue.TYPE_DIMENSION) {
+            size = array.getDimensionPixelSize(R.styleable.lbHorizontalGridView_rowHeight, 0);
+        } else {
+            size = array.getInt(R.styleable.lbHorizontalGridView_rowHeight, 0);
+        }
+        setRowHeight(size);
+    }
+
     /**
-     * Set the number of rows.
+     * Set the number of rows.  Defaults to one.
      */
     public void setNumRows(int numRows) {
         mLayoutManager.setNumRows(numRows);
@@ -84,6 +97,9 @@ public class HorizontalGridView extends BaseGridView {
 
     /**
      * Set the row height.
+     *
+     * @param height May be WRAP_CONTENT, or a size in pixels. If zero,
+     * row height will be fixed based on number of rows and view height.
      */
     public void setRowHeight(int height) {
         mLayoutManager.setRowHeight(height);
