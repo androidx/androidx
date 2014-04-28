@@ -16,10 +16,14 @@
 
 package android.support.v7.widget;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.test.AndroidTestCase;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.UUID;
 
 public class RecyclerViewTest extends AndroidTestCase {
 
@@ -109,7 +113,71 @@ public class RecyclerViewTest extends AndroidTestCase {
                 adapterNew, null);
     }
 
-    private class MockLayoutManager extends RecyclerView.LayoutManager {
+    public void testSavedStateWithStatelessLayoutManager() throws InterruptedException {
+        mRecyclerView.setLayoutManager(new MockLayoutManager() {
+            @Override
+            public Parcelable onSaveInstanceState() {
+                return null;
+            }
+        });
+        mRecyclerView.setAdapter(new MockAdapter(3));
+        Parcel parcel = Parcel.obtain();
+        String parcelSuffix = UUID.randomUUID().toString();
+        Parcelable savedState = mRecyclerView.onSaveInstanceState();
+        savedState.writeToParcel(parcel, 0);
+        parcel.writeString(parcelSuffix);
+
+        // reset position for reading
+        parcel.setDataPosition(0);
+        RecyclerView restored = new RecyclerView(mContext);
+        restored.setLayoutManager(new MockLayoutManager());
+        mRecyclerView.setAdapter(new MockAdapter(3));
+        // restore
+        savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
+        restored.onRestoreInstanceState(savedState);
+
+        assertEquals("Parcel reading should not go out of bounds", parcelSuffix,
+                parcel.readString());
+        assertEquals("When unmarshalling, all of the parcel should be read", 0, parcel.dataAvail());
+
+    }
+
+    public void testSavedState() throws InterruptedException {
+        MockLayoutManager mlm = new MockLayoutManager();
+        mRecyclerView.setLayoutManager(mlm);
+        mRecyclerView.setAdapter(new MockAdapter(3));
+        layout();
+        Parcelable savedState = mRecyclerView.onSaveInstanceState();
+        // we append a suffix to the parcelable to test out of bounds
+        String parcelSuffix = UUID.randomUUID().toString();
+        Parcel parcel = Parcel.obtain();
+        savedState.writeToParcel(parcel, 0);
+        parcel.writeString(parcelSuffix);
+
+        // reset for reading
+        parcel.setDataPosition(0);
+        // re-create
+        savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
+
+        RecyclerView restored = new RecyclerView(mContext);
+        MockLayoutManager mlmRestored = new MockLayoutManager();
+        restored.setLayoutManager(mlmRestored);
+        restored.setAdapter(new MockAdapter(3));
+        restored.onRestoreInstanceState(savedState);
+
+        assertEquals("Parcel reading should not go out of bounds", parcelSuffix,
+                parcel.readString());
+        assertEquals("When unmarshalling, all of the parcel should be read", 0, parcel.dataAvail());
+        assertEquals("uuid in layout manager should be preserved properly", mlm.mUuid,
+                mlmRestored.mUuid);
+        assertNotSame("stateless parameter should not be preserved", mlm.mLayoutCount,
+                mlmRestored.mLayoutCount);
+        layout();
+
+
+    }
+
+    static class MockLayoutManager extends RecyclerView.LayoutManager {
 
         int mLayoutCount = 0;
 
@@ -118,6 +186,8 @@ public class RecyclerViewTest extends AndroidTestCase {
         RecyclerView.Adapter mPrevAdapter;
 
         RecyclerView.Adapter mNextAdapter;
+
+        String mUuid = UUID.randomUUID().toString();
 
         @Override
         public void onAdapterChanged(RecyclerView.Adapter oldAdapter,
@@ -129,9 +199,24 @@ public class RecyclerViewTest extends AndroidTestCase {
         }
 
         @Override
-        public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
-                boolean structureChanged) {
+        public void onLayoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
+                boolean structureChanged, RecyclerView.State state) {
             mLayoutCount += 1;
+        }
+
+        @Override
+        public Parcelable onSaveInstanceState() {
+            LayoutManagerSavedState lss = new LayoutManagerSavedState();
+            lss.mUuid = mUuid;
+            return lss;
+        }
+
+        @Override
+        public void onRestoreInstanceState(Parcelable state) {
+            super.onRestoreInstanceState(state);
+            if (state instanceof LayoutManagerSavedState) {
+                mUuid = ((LayoutManagerSavedState) state).mUuid;
+            }
         }
 
         @Override
@@ -153,11 +238,47 @@ public class RecyclerViewTest extends AndroidTestCase {
         }
     }
 
-    private class MockAdapter extends RecyclerView.Adapter {
+    static class LayoutManagerSavedState implements Parcelable {
+
+        String mUuid;
+
+        public LayoutManagerSavedState(Parcel in) {
+            mUuid = in.readString();
+        }
+
+        public LayoutManagerSavedState() {
+
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mUuid);
+        }
+
+        public static final Parcelable.Creator<LayoutManagerSavedState> CREATOR
+                = new Parcelable.Creator<LayoutManagerSavedState>() {
+            @Override
+            public LayoutManagerSavedState createFromParcel(Parcel in) {
+                return new LayoutManagerSavedState(in);
+            }
+
+            @Override
+            public LayoutManagerSavedState[] newArray(int size) {
+                return new LayoutManagerSavedState[size];
+            }
+        };
+    }
+
+    static class MockAdapter extends RecyclerView.Adapter {
 
         private int mCount = 0;
 
-        private MockAdapter(int count) {
+        MockAdapter(int count) {
             this.mCount = count;
         }
 
@@ -177,10 +298,12 @@ public class RecyclerViewTest extends AndroidTestCase {
         }
     }
 
-    private class MockViewHolder extends RecyclerView.ViewHolder {
+    static class MockViewHolder extends RecyclerView.ViewHolder {
 
         public MockViewHolder(View itemView) {
             super(itemView);
         }
     }
+
 }
+

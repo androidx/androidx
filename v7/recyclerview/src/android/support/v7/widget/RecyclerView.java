@@ -4972,9 +4972,7 @@ public class RecyclerView extends ViewGroup {
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
-            if (mLayoutState != null) {
-                dest.writeParcelable(mLayoutState, 0);
-            }
+            dest.writeParcelable(mLayoutState, 0);
         }
 
         private void copyFrom(SavedState other) {
