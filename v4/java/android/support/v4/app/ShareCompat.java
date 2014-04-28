@@ -24,6 +24,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.StringRes;
 import android.support.v4.content.IntentCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.text.Html;
@@ -403,7 +404,7 @@ public class ShareCompat {
          * @param resId Resource ID of the title string to use
          * @return This IntentBuilder for method chaining
          */
-        public IntentBuilder setChooserTitle(int resId) {
+        public IntentBuilder setChooserTitle(@StringRes int resId) {
             return setChooserTitle(mActivity.getText(resId));
         }
 

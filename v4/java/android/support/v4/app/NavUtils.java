@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.support.annotation.Nullable;
 import android.support.v4.content.IntentCompat;
 import android.util.Log;
 
@@ -274,6 +275,7 @@ public class NavUtils {
      * @return The fully qualified class name of sourceActivity's parent activity or null if
      *         it was not specified
      */
+    @Nullable
     public static String getParentActivityName(Activity sourceActivity) {
         try {
             return getParentActivityName(sourceActivity, sourceActivity.getComponentName());
@@ -292,6 +294,7 @@ public class NavUtils {
      * @return The fully qualified class name of sourceActivity's parent activity or null if
      *         it was not specified
      */
+    @Nullable
     public static String getParentActivityName(Context context, ComponentName componentName)
             throws NameNotFoundException {
         PackageManager pm = context.getPackageManager();

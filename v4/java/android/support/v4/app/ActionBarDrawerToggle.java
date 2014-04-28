@@ -24,6 +24,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -64,6 +67,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
          * @return Delegate to use for ActionBarDrawableToggles, or null if the Activity
          *         does not wish to override the default behavior.
          */
+        @Nullable
         Delegate getDrawerToggleDelegate();
     }
 
@@ -72,6 +76,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
          * @return Up indicator drawable as defined in the Activity's theme, or null if one is not
          *         defined.
          */
+        @Nullable
         Drawable getThemeUpIndicator();
 
         /**
@@ -80,14 +85,14 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
          * @param upDrawable     - Drawable to set as up indicator
          * @param contentDescRes - Content description to set
          */
-        void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes);
+        void setActionBarUpIndicator(Drawable upDrawable, @StringRes int contentDescRes);
 
         /**
          * Set the Action Bar's up indicator content description.
          *
          * @param contentDescRes - Content description to set
          */
-        void setActionBarDescription(int contentDescRes);
+        void setActionBarDescription(@StringRes int contentDescRes);
     }
 
     private interface ActionBarDrawerToggleImpl {
@@ -211,7 +216,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
      *                                  for accessibility
      */
     public ActionBarDrawerToggle(Activity activity, DrawerLayout drawerLayout,
-            int drawerImageRes, int openDrawerContentDescRes, int closeDrawerContentDescRes) {
+            @DrawableRes int drawerImageRes, @StringRes int openDrawerContentDescRes,
+            @StringRes int closeDrawerContentDescRes) {
         mActivity = activity;
 
         // Allow the Activity to provide an impl
