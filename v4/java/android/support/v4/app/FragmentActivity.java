@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -238,7 +239,7 @@ public class FragmentActivity extends Activity {
      * Add support for inflating the &lt;fragment> tag.
      */
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
+    public View onCreateView(String name, @NonNull Context context, @NonNull AttributeSet attrs) {
         if (!"fragment".equals(name)) {
             return super.onCreateView(name, context, attrs);
         }

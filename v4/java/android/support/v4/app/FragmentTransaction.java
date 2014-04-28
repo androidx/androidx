@@ -16,6 +16,16 @@
 
 package android.support.v4.app;
 
+import android.support.annotation.AnimRes;
+import android.support.annotation.IdRes;
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.support.annotation.StyleRes;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Static library support version of the framework's {@link android.app.FragmentTransaction}.
  * Used to write apps that run on platforms prior to Android 3.0.  When running
@@ -32,7 +42,7 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #add(int, Fragment, String)} with a null tag.
      */
-    public abstract FragmentTransaction add(int containerViewId, Fragment fragment);
+    public abstract FragmentTransaction add(@IdRes int containerViewId, Fragment fragment);
     
     /**
      * Add a fragment to the activity state.  This fragment may optionally
@@ -49,12 +59,13 @@ public abstract class FragmentTransaction {
      * 
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction add(int containerViewId, Fragment fragment, String tag);
+    public abstract FragmentTransaction add(@IdRes int containerViewId, Fragment fragment,
+            @Nullable String tag);
     
     /**
      * Calls {@link #replace(int, Fragment, String)} with a null tag.
      */
-    public abstract FragmentTransaction replace(int containerViewId, Fragment fragment);
+    public abstract FragmentTransaction replace(@IdRes int containerViewId, Fragment fragment);
     
     /**
      * Replace an existing fragment that was added to a container.  This is
@@ -72,7 +83,8 @@ public abstract class FragmentTransaction {
      * 
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction replace(int containerViewId, Fragment fragment, String tag);
+    public abstract FragmentTransaction replace(@IdRes int containerViewId, Fragment fragment,
+            @Nullable String tag);
     
     /**
      * Remove an existing fragment.  If it was added to a container, its view
@@ -146,7 +158,12 @@ public abstract class FragmentTransaction {
      * Bit mask that is set for all exit transitions.
      */
     public static final int TRANSIT_EXIT_MASK = 0x2000;
-    
+
+    /** @hide */
+    @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface Transit {}
+
     /** Not set up for a transition. */
     public static final int TRANSIT_UNSET = -1;
     /** No animation for transition. */
@@ -164,7 +181,8 @@ public abstract class FragmentTransaction {
      * entering and exiting in this transaction. These animations will not be
      * played when popping the back stack.
      */
-    public abstract FragmentTransaction setCustomAnimations(int enter, int exit);
+    public abstract FragmentTransaction setCustomAnimations(@AnimRes int enter,
+            @AnimRes int exit);
 
     /**
      * Set specific animation resources to run for the fragments that are
@@ -172,21 +190,21 @@ public abstract class FragmentTransaction {
      * and <code>popExit</code> animations will be played for enter/exit
      * operations specifically when popping the back stack.
      */
-    public abstract FragmentTransaction setCustomAnimations(int enter, int exit,
-            int popEnter, int popExit);
+    public abstract FragmentTransaction setCustomAnimations(@AnimRes int enter,
+            @AnimRes int exit, @AnimRes int popEnter, @AnimRes int popExit);
     
     /**
      * Select a standard transition animation for this transaction.  May be
      * one of {@link #TRANSIT_NONE}, {@link #TRANSIT_FRAGMENT_OPEN},
      * or {@link #TRANSIT_FRAGMENT_CLOSE}
      */
-    public abstract FragmentTransaction setTransition(int transit);
+    public abstract FragmentTransaction setTransition(@Transit int transit);
 
     /**
      * Set a custom style resource that will be used for resolving transit
      * animations.
      */
-    public abstract FragmentTransaction setTransitionStyle(int styleRes);
+    public abstract FragmentTransaction setTransitionStyle(@StyleRes int styleRes);
     
     /**
      * Add this transaction to the back stack.  This means that the transaction
@@ -195,7 +213,7 @@ public abstract class FragmentTransaction {
      *
      * @param name An optional name for this back stack state, or null.
      */
-    public abstract FragmentTransaction addToBackStack(String name);
+    public abstract FragmentTransaction addToBackStack(@Nullable String name);
 
     /**
      * Returns true if this FragmentTransaction is allowed to be added to the back
@@ -219,7 +237,7 @@ public abstract class FragmentTransaction {
      *
      * @param res A string resource containing the title.
      */
-    public abstract FragmentTransaction setBreadCrumbTitle(int res);
+    public abstract FragmentTransaction setBreadCrumbTitle(@StringRes int res);
 
     /**
      * Like {@link #setBreadCrumbTitle(int)} but taking a raw string; this
@@ -234,7 +252,7 @@ public abstract class FragmentTransaction {
      *
      * @param res A string resource containing the title.
      */
-    public abstract FragmentTransaction setBreadCrumbShortTitle(int res);
+    public abstract FragmentTransaction setBreadCrumbShortTitle(@StringRes int res);
 
     /**
      * Like {@link #setBreadCrumbShortTitle(int)} but taking a raw string; this
