@@ -27,7 +27,7 @@ import android.view.View;
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
     private static final String TAG = "leanback.BrowseFragment";
 
-    private static final int NUM_ROWS = 3;
+    private static final int NUM_ROWS = 10;
     private ArrayObjectAdapter mRowsAdapter;
 
     @Override
