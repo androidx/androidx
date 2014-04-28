@@ -23,6 +23,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.IdRes;
+import android.support.annotation.StringRes;
 import android.support.v4.util.DebugUtils;
 import android.support.v4.util.LogWriter;
 import android.util.Log;
@@ -90,12 +92,14 @@ public abstract class FragmentManager {
          * Return the full bread crumb title resource identifier for the entry,
          * or 0 if it does not have one.
          */
+        @StringRes
         public int getBreadCrumbTitleRes();
 
         /**
          * Return the short bread crumb title resource identifier for the entry,
          * or 0 if it does not have one.
          */
+        @StringRes
         public int getBreadCrumbShortTitleRes();
 
         /**
@@ -164,7 +168,7 @@ public abstract class FragmentManager {
      * on the back stack associated with this ID are searched.
      * @return The fragment if found or null otherwise.
      */
-    public abstract Fragment findFragmentById(int id);
+    public abstract Fragment findFragmentById(@IdRes int id);
 
     /**
      * Finds a fragment that was identified by the given tag either when inflated
@@ -392,7 +396,7 @@ final class FragmentManagerState implements Parcelable {
  * Callbacks from FragmentManagerImpl to its container.
  */
 interface FragmentContainer {
-    public View findViewById(int id);
+    public View findViewById(@IdRes int id);
 }
 
 /**

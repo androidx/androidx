@@ -21,11 +21,17 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.StyleRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Static library support version of the framework's {@link android.app.DialogFragment}.
@@ -36,6 +42,11 @@ import android.view.WindowManager;
  */
 public class DialogFragment extends Fragment
         implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener {
+
+    /** @hide */
+    @IntDef({STYLE_NORMAL, STYLE_NO_TITLE, STYLE_NO_FRAME, STYLE_NO_INPUT})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface DialogStyle {}
 
     /**
      * Style for {@link #setStyle(int, int)}: a basic,
@@ -98,7 +109,7 @@ public class DialogFragment extends Fragment
      * @param theme Optional custom theme.  If 0, an appropriate theme (based
      * on the style) will be selected for you.
      */
-    public void setStyle(int style, int theme) {
+    public void setStyle(@DialogStyle int style, @StyleRes int theme) {
         mStyle = style;
         if (mStyle == STYLE_NO_FRAME || mStyle == STYLE_NO_INPUT) {
             mTheme = android.R.style.Theme_Panel;
@@ -195,6 +206,7 @@ public class DialogFragment extends Fragment
         return mDialog;
     }
 
+    @StyleRes
     public int getTheme() {
         return mTheme;
     }
@@ -333,6 +345,7 @@ public class DialogFragment extends Fragment
      * 
      * @return Return a new Dialog instance to be displayed by the Fragment.
      */
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new Dialog(getActivity(), getTheme());
     }
