@@ -1205,8 +1205,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // Lays out items based on the current scroll position
     @Override
-    public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
-            boolean structureChanged) {
+    public void onLayoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
+            boolean structureChanged, RecyclerView.State state) {
         if (DEBUG) {
             Log.v(getTag(), "layoutChildren start numRows " + mNumRows + " mScrollOffsetSecondary "
                     + mScrollOffsetSecondary + " mScrollOffsetPrimary " + mScrollOffsetPrimary
@@ -1355,7 +1355,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public int scrollHorizontallyBy(int dx, Adapter adapter, Recycler recycler) {
+    public int scrollHorizontallyBy(int dx, Adapter adapter, Recycler recycler,
+            RecyclerView.State state) {
         if (DEBUG) Log.v(TAG, "scrollHorizontallyBy " + dx);
 
         if (mOrientation == HORIZONTAL) {
@@ -1366,7 +1367,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public int scrollVerticallyBy(int dy, Adapter adapter, Recycler recycler) {
+    public int scrollVerticallyBy(int dy, Adapter adapter, Recycler recycler,
+            RecyclerView.State state) {
         if (DEBUG) Log.v(TAG, "scrollVerticallyBy " + dy);
         if (mOrientation == VERTICAL) {
             return scrollDirectionPrimary(dy);
