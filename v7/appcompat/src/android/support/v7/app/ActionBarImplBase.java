@@ -333,6 +333,16 @@ class ActionBarImplBase extends ActionBar {
     }
 
     @Override
+    public void setStackedBackgroundDrawable(Drawable d) {
+        mContainerView.setStackedBackground(d);
+    }
+
+    @Override
+    public void setSplitBackgroundDrawable(Drawable d) {
+        mContainerView.setSplitBackground(d);
+    }
+
+    @Override
     public View getCustomView() {
         return mActionView.getCustomNavigationView();
     }
@@ -512,6 +522,16 @@ class ActionBarImplBase extends ActionBar {
             }
         }
         return mThemedContext;
+    }
+
+    @Override
+    public void setHomeAsUpIndicator(Drawable indicator) {
+        mActionView.setHomeAsUpIndicator(indicator);
+    }
+
+    @Override
+    public void setHomeAsUpIndicator(int resId) {
+        mActionView.setHomeAsUpIndicator(resId);
     }
 
     @Override

@@ -34,15 +34,19 @@ class ActionBarDrawerToggleJellybeanMR2 {
     public static Object setActionBarUpIndicator(Object info, Activity activity,
             Drawable drawable, int contentDescRes) {
         final ActionBar actionBar = activity.getActionBar();
-        actionBar.setHomeAsUpIndicator(drawable);
-        actionBar.setHomeActionContentDescription(contentDescRes);
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(drawable);
+            actionBar.setHomeActionContentDescription(contentDescRes);
+        }
         return info;
     }
 
     public static Object setActionBarDescription(Object info, Activity activity,
             int contentDescRes) {
         final ActionBar actionBar = activity.getActionBar();
-        actionBar.setHomeActionContentDescription(contentDescRes);
+        if (actionBar != null) {
+            actionBar.setHomeActionContentDescription(contentDescRes);
+        }
         return info;
     }
 

@@ -2,8 +2,9 @@ apply plugin: 'android-library'
 
 archivesBaseName = 'mediarouter-v7'
 
+
 dependencies {
-    compile project(':v7:appcompat')
+    compile project(':support-appcompat-v7')
 }
 
 // some of the source requires compiling against a newer API.
@@ -31,7 +32,7 @@ dependencies {
     jellybeanmr1Compile getAndroidPrebuilt('17')
     jellybeanmr1Compile sourceSets.jellybean.output
 
-    jellybeanmr2Compile getAndroidPrebuilt('current')
+    jellybeanmr2Compile getAndroidPrebuilt('18')
     jellybeanmr2Compile sourceSets.jellybean.output
     jellybeanmr2Compile sourceSets.jellybeanmr1.output
 
@@ -39,8 +40,8 @@ dependencies {
 }
 
 android {
-    compileSdkVersion "current"
-    buildToolsVersion "17"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
@@ -48,12 +49,17 @@ android {
         main.res.srcDir 'res'
         main.assets.srcDir 'assets'
         main.resources.srcDir 'src'
-        instrumentTest.java.srcDir 'tests/src'
 
         // this moves src/instrumentTest to tests so all folders follow:
         // tests/java, tests/res, tests/assets, ...
         // This is a *reset* so it replaces the default paths
-        instrumentTest.setRoot('tests')
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/src'
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
     }
 }
 

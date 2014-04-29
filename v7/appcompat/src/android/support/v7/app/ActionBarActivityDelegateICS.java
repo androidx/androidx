@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.internal.view.ActionModeWrapper;
 import android.support.v7.internal.view.menu.MenuWrapperFactory;
@@ -178,14 +177,14 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
 
         Context context = getActionBarThemedContext();
 
-        ActionModeWrapper.CallbackWrapper wrappedCallback = new ActionModeWrapper.CallbackWrapper(
+        ActionModeWrapper.CallbackWrapper wrappedCallback = createActionModeCallbackWrapper(
                 context, callback);
         ActionModeWrapper wrappedMode = null;
 
         android.view.ActionMode frameworkMode = mActivity.startActionMode(wrappedCallback);
 
         if (frameworkMode != null) {
-            wrappedMode = new ActionModeWrapper(context, frameworkMode);
+            wrappedMode = createActionModeWrapper(context, frameworkMode);
             wrappedCallback.setLastStartedActionMode(wrappedMode);
         }
 
@@ -194,7 +193,7 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
 
     public void onActionModeStarted(android.view.ActionMode mode) {
         mActivity.onSupportActionModeStarted(
-                new ActionModeWrapper(getActionBarThemedContext(), mode));
+                createActionModeWrapper(getActionBarThemedContext(), mode));
     }
 
     @Override
@@ -219,7 +218,7 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
 
     public void onActionModeFinished(android.view.ActionMode mode) {
         mActivity.onSupportActionModeFinished(
-                new ActionModeWrapper(getActionBarThemedContext(), mode));
+                createActionModeWrapper(getActionBarThemedContext(), mode));
     }
 
     @Override
@@ -233,9 +232,18 @@ class ActionBarActivityDelegateICS extends ActionBarActivityDelegate {
     }
 
     @Override
-    public ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
-        // Return null so that ActionBarDrawableToggle uses it's standard impl
-        return null;
+    int getHomeAsUpIndicatorAttrId() {
+        return android.R.attr.homeAsUpIndicator;
+    }
+
+    ActionModeWrapper.CallbackWrapper createActionModeCallbackWrapper(Context context,
+            ActionMode.Callback callback) {
+        return new ActionModeWrapper.CallbackWrapper(context, callback);
+    }
+
+    ActionModeWrapper createActionModeWrapper(Context context,
+            android.view.ActionMode frameworkMode) {
+        return new ActionModeWrapper(context, frameworkMode);
     }
 
     class WindowCallbackWrapper implements Window.Callback {

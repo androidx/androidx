@@ -1,0 +1,69 @@
+apply plugin: 'java'
+
+archivesBaseName = 'support-annotations'
+
+sourceSets {
+    main.java.srcDir 'src'
+}
+
+jar {
+    from sourceSets.main.output
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
+            }
+
+            pom.project {
+                name 'Android Support Library Annotations'
+                description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
+                url 'http://developer.android.com/tools/extras/support-library.html'
+                inceptionYear '2013'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                scm {
+                    url "http://source.android.com"
+                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
+                }
+                developers {
+                    developer {
+                        name 'The Android Open Source Project'
+                    }
+                }
+            }
+        }
+    }
+}
+
+// configuration for the javadoc to include all source sets.
+javadoc {
+    source    sourceSets.main.allJava
+}
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn:classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+    classifier         'javadoc'
+    from               javadoc.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}

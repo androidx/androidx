@@ -18,7 +18,7 @@ dependencies {
 
     // order is important as we need the API 13 before the API 4 so that it uses the latest one.
     compile getAndroidPrebuilt('13')
-    compile project(':v4')
+    compile project(':support-v4')
     compile sourceSets.ics.output
     compile sourceSets.icsmr1.output
     compile sourceSets.k.output
@@ -34,7 +34,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
 
-            repository(url: uri(project.parent.ext.androidRepoOut)) {
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
             }
 
             pom.project {

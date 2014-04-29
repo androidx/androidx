@@ -77,6 +77,10 @@
            parent="android:Widget.Holo.Light.ActionBar.TabText.Inverse">
     </style>
 
+    <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
+           parent="android:Widget.Holo.Light.ActionMode.Inverse">
+    </style>
+
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Menu"
            parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">
     </style>
@@ -95,16 +99,6 @@
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
            parent="android:TextAppearance.Holo.Widget.ActionBar.Subtitle.Inverse">
-    </style>
-
-    <style name="Widget.AppCompat.Base.ActionMode" parent="android:Widget.Holo.ActionMode">
-    </style>
-
-    <style name="Widget.AppCompat.Light.Base.ActionMode" parent="android:Widget.Holo.Light.ActionMode">
-    </style>
-
-    <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
-           parent="android:Widget.Holo.Light.ActionMode.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title"

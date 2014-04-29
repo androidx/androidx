@@ -18,9 +18,12 @@ package android.support.v7.app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.SpinnerAdapter;
 
 import java.lang.ref.WeakReference;
@@ -31,6 +34,8 @@ class ActionBarImplICS extends ActionBar {
     final Activity mActivity;
     final Callback mCallback;
     final android.app.ActionBar mActionBar;
+
+    private ImageView mHomeActionView;
 
     FragmentTransaction mActiveTransaction;
 
@@ -190,6 +195,16 @@ class ActionBarImplICS extends ActionBar {
     }
 
     @Override
+    public void setStackedBackgroundDrawable(Drawable d) {
+        mActionBar.setStackedBackgroundDrawable(d);
+    }
+
+    @Override
+    public void setSplitBackgroundDrawable(Drawable d) {
+        mActionBar.setSplitBackgroundDrawable(d);
+    }
+
+    @Override
     public View getCustomView() {
         return mActionBar.getCustomView();
     }
@@ -288,6 +303,29 @@ class ActionBarImplICS extends ActionBar {
     }
 
     @Override
+    public void setHomeAsUpIndicator(Drawable indicator) {
+        ImageView homeActionView = getHomeActionView();
+        if (homeActionView != null) {
+            if (indicator == null) {
+                indicator = getThemeDefaultUpIndicator();
+            }
+            homeActionView.setImageDrawable(indicator);
+        }
+    }
+
+    @Override
+    public void setHomeAsUpIndicator(int resId) {
+        ImageView homeActionView = getHomeActionView();
+        if (homeActionView != null) {
+            if (resId != 0) {
+                homeActionView.setImageResource(resId);
+            } else {
+                homeActionView.setImageDrawable(getThemeDefaultUpIndicator());
+            }
+        }
+    }
+
+    @Override
     public int getHeight() {
         return mActionBar.getHeight();
     }
@@ -340,6 +378,41 @@ class ActionBarImplICS extends ActionBar {
             mActiveTransaction.commit();
         }
         mActiveTransaction = null;
+    }
+
+    ImageView getHomeActionView() {
+        if (mHomeActionView == null) {
+            final View home = mActivity.findViewById(android.R.id.home);
+            if (home == null) {
+                // Action bar doesn't have a known configuration, an OEM messed with things.
+                return null;
+            }
+
+            final ViewGroup parent = (ViewGroup) home.getParent();
+            final int childCount = parent.getChildCount();
+            if (childCount != 2) {
+                // No idea which one will be the right one, an OEM messed with things.
+                return null;
+            }
+
+            final View first = parent.getChildAt(0);
+            final View second = parent.getChildAt(1);
+            final View up = first.getId() == android.R.id.home ? second : first;
+
+            if (up instanceof ImageView) {
+                // Jackpot! (Probably...)
+                mHomeActionView = (ImageView) up;
+            }
+        }
+        return mHomeActionView;
+    }
+
+    Drawable getThemeDefaultUpIndicator() {
+        final TypedArray a = mActivity.obtainStyledAttributes(
+                new int[] { android.R.attr.homeAsUpIndicator });
+        final Drawable result = a.getDrawable(0);
+        a.recycle();
+        return result;
     }
 
     static class OnNavigationListenerWrapper implements android.app.ActionBar.OnNavigationListener {

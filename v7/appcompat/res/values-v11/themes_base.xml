@@ -32,6 +32,13 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
+        <!--
+            A native Action Mode could be displayed (for text selection, etc) so we need to ensure
+            that it is positioned correctly, so we request windowActionModeOverlay so that it
+            displays over the compat Action Bar.
+        -->
+        <item name="android:windowActionModeOverlay">true</item>
+
         <!-- Attributes populated from the framework to be read by apps -->
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
@@ -42,6 +49,13 @@
     <style name="Theme.Base.Light" parent="android:Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
+
+        <!--
+            A native Action Mode could be displayed (for text selection, etc) so we need to ensure
+            that it is positioned correctly, so we request windowActionModeOverlay so that it
+            displays over the compat Action Bar.
+        -->
+        <item name="android:windowActionModeOverlay">true</item>
 
         <!-- Attributes populated from the framework to be read by apps -->
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>

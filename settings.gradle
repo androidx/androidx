@@ -1,6 +1,17 @@
-include 'v4'
-include 'v13'
-include 'v7:gridlayout'
-include 'v7:appcompat'
-include 'v7:mediarouter'
+include ':support-v4'
+project(':support-v4').projectDir = new File(rootDir, 'v4')
 
+include ':support-appcompat-v7'
+project(':support-appcompat-v7').projectDir = new File(rootDir, 'v7/appcompat')
+
+include ':support-gridlayout-v7'
+project(':support-gridlayout-v7').projectDir = new File(rootDir, 'v7/gridlayout')
+
+include ':support-mediarouter-v7'
+project(':support-mediarouter-v7').projectDir = new File(rootDir, 'v7/mediarouter')
+
+include ':support-v13'
+project(':support-v13').projectDir = new File(rootDir, 'v13')
+
+include ':support-annotations'
+project(':support-annotations').projectDir = new File(rootDir, 'annotations')

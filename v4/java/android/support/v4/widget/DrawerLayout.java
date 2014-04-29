@@ -43,6 +43,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
+import java.util.List;
+
 /**
  * DrawerLayout acts as a top-level container for window content that allows for
  * interactive "drawer" views to be pulled out from the edge of the window.
@@ -155,6 +157,9 @@ public class DrawerLayout extends ViewGroup {
 
     private Drawable mShadowLeft;
     private Drawable mShadowRight;
+
+    private CharSequence mTitleLeft;
+    private CharSequence mTitleRight;
 
     /**
      * Listener for monitoring events about drawers.
@@ -435,6 +440,45 @@ public class DrawerLayout extends ViewGroup {
     }
 
     /**
+     * Sets the title of the drawer with the given gravity.
+     * <p>
+     * When accessibility is turned on, this is the title that will be used to
+     * identify the drawer to the active accessibility service.
+     *
+     * @param edgeGravity Gravity.LEFT, RIGHT, START or END. Expresses which
+     *            drawer to set the title for.
+     * @param title The title for the drawer.
+     */
+    public void setDrawerTitle(int edgeGravity, CharSequence title) {
+        final int absGravity = GravityCompat.getAbsoluteGravity(
+                edgeGravity, ViewCompat.getLayoutDirection(this));
+        if (absGravity == Gravity.LEFT) {
+            mTitleLeft = title;
+        } else if (absGravity == Gravity.RIGHT) {
+            mTitleRight = title;
+        }
+    }
+
+    /**
+     * Returns the title of the drawer with the given gravity.
+     *
+     * @param edgeGravity Gravity.LEFT, RIGHT, START or END. Expresses which
+     *            drawer to return the title for.
+     * @return The title of the drawer, or null if none set.
+     * @see #setDrawerTitle(int, CharSequence)
+     */
+    public CharSequence getDrawerTitle(int edgeGravity) {
+        final int absGravity = GravityCompat.getAbsoluteGravity(
+                edgeGravity, ViewCompat.getLayoutDirection(this));
+        if (absGravity == Gravity.LEFT) {
+            return mTitleLeft;
+        } else if (absGravity == Gravity.RIGHT) {
+            return mTitleRight;
+        }
+        return null;
+    }
+
+    /**
      * Resolve the shared state of all drawers from the component ViewDragHelpers.
      * Should be called whenever a ViewDragHelper's state changes.
      */
@@ -476,7 +520,16 @@ public class DrawerLayout extends ViewGroup {
             if (mListener != null) {
                 mListener.onDrawerClosed(drawerView);
             }
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+
+            // Only send WINDOW_STATE_CHANGE if the host has window focus. This
+            // may change if support for multiple foreground windows (e.g. IME)
+            // improves.
+            if (hasWindowFocus()) {
+                final View rootView = getRootView();
+                if (rootView != null) {
+                    rootView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+                }
+            }
         }
     }
 
@@ -487,7 +540,7 @@ public class DrawerLayout extends ViewGroup {
             if (mListener != null) {
                 mListener.onDrawerOpened(drawerView);
             }
-            drawerView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
     }
 
@@ -1532,6 +1585,7 @@ public class DrawerLayout extends ViewGroup {
             final AccessibilityNodeInfoCompat superNode = AccessibilityNodeInfoCompat.obtain(info);
             super.onInitializeAccessibilityNodeInfo(host, superNode);
 
+            info.setClassName(DrawerLayout.class.getName());
             info.setSource(host);
             final ViewParent parent = ViewCompat.getParentForAccessibility(host);
             if (parent instanceof View) {
@@ -1542,6 +1596,37 @@ public class DrawerLayout extends ViewGroup {
             superNode.recycle();
 
             addChildrenForAccessibility(info, (ViewGroup) host);
+        }
+
+        @Override
+        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+            super.onInitializeAccessibilityEvent(host, event);
+
+            event.setClassName(DrawerLayout.class.getName());
+        }
+
+        @Override
+        public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+            // Special case to handle window state change events. As far as
+            // accessibility services are concerned, state changes from
+            // DrawerLayout invalidate the entire contents of the screen (like
+            // an Activity or Dialog) and they should announce the title of the
+            // new content.
+            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                final List<CharSequence> eventText = event.getText();
+                final View visibleDrawer = findVisibleDrawer();
+                if (visibleDrawer != null) {
+                    final int edgeGravity = getDrawerViewAbsoluteGravity(visibleDrawer);
+                    final CharSequence title = getDrawerTitle(edgeGravity);
+                    if (title != null) {
+                        eventText.add(title);
+                    }
+                }
+
+                return true;
+            }
+
+            return super.dispatchPopulateAccessibilityEvent(host, event);
         }
 
         private void addChildrenForAccessibility(AccessibilityNodeInfoCompat info, ViewGroup v) {
