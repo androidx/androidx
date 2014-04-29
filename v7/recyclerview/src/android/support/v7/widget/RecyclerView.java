@@ -1848,6 +1848,7 @@ public class RecyclerView extends ViewGroup {
 
         public void stop() {
             removeCallbacks(this);
+            mScroller.abortAnimation();
         }
 
     }
