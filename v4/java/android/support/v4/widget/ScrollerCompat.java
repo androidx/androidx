@@ -65,6 +65,7 @@ public class ScrollerCompat {
         private int mTargetY;
         private float mTranslateSmoothing = 2;
         private long mLastTime;
+        private boolean mFinished = true;
 
         @Override
         public String toString() {
@@ -91,6 +92,7 @@ public class ScrollerCompat {
         public void setCurrentPosition(int x, int y) {
             mX = x;
             mY = y;
+            mFinished = false;
         }
 
         public void setSmoothing(float smoothing) {
@@ -113,10 +115,11 @@ public class ScrollerCompat {
             mX = mTargetX;
             mY = mTargetY;
             mLastTime = AnimationUtils.currentAnimationTimeMillis();
+            mFinished = true;
         }
 
         public boolean isFinished() {
-            return mX == mTargetX && mY == mTargetY;
+            return mFinished || (mX == mTargetX && mY == mTargetY);
         }
 
         public boolean computeScrollOffset() {
@@ -147,7 +150,7 @@ public class ScrollerCompat {
 
                     mLastTime = now;
                 }
-
+                mFinished = mX == mTargetX && mY == mTargetY;
                 return true;
             }
             return false;
