@@ -33,6 +33,90 @@ import java.util.ArrayList;
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public class NotificationCompat {
+
+    /**
+     * Use all default values (where applicable).
+     */
+    public static final int DEFAULT_ALL = ~0;
+
+    /**
+     * Use the default notification sound. This will ignore any sound set using
+     * {@link Builder#setSound}
+     *
+     * @see Builder#setDefaults
+     */
+    public static final int DEFAULT_SOUND = 1;
+
+    /**
+     * Use the default notification vibrate. This will ignore any vibrate set using
+     * {@link Builder#setVibrate}. Using phone vibration requires the
+     * {@link android.Manifest.permission#VIBRATE VIBRATE} permission.
+     *
+     * @see Builder#setDefaults
+     */
+    public static final int DEFAULT_VIBRATE = 2;
+
+    /**
+     * Use the default notification lights. This will ignore the
+     * {@link #FLAG_SHOW_LIGHTS} bit, and values set with {@link Builder#setLights}.
+     *
+     * @see Builder#setDefaults
+     */
+    public static final int DEFAULT_LIGHTS = 4;
+
+    /**
+     * Use this constant as the value for audioStreamType to request that
+     * the default stream type for notifications be used.  Currently the
+     * default stream type is {@link AudioManager#STREAM_NOTIFICATION}.
+     */
+    public static final int STREAM_DEFAULT = -1;
+
+    /**
+     * Bit set in the Notification flags field when LEDs should be turned on
+     * for this notification.
+     */
+    public static final int FLAG_SHOW_LIGHTS        = 0x00000001;
+
+    /**
+     * Bit set in the Notification flags field if this notification is in
+     * reference to something that is ongoing, like a phone call.  It should
+     * not be set if this notification is in reference to something that
+     * happened at a particular point in time, like a missed phone call.
+     */
+    public static final int FLAG_ONGOING_EVENT      = 0x00000002;
+
+    /**
+     * Bit set in the Notification flags field if
+     * the audio will be repeated until the notification is
+     * cancelled or the notification window is opened.
+     */
+    public static final int FLAG_INSISTENT          = 0x00000004;
+
+    /**
+     * Bit set in the Notification flags field if the notification's sound,
+     * vibrate and ticker should only be played if the notification is not already showing.
+     */
+    public static final int FLAG_ONLY_ALERT_ONCE    = 0x00000008;
+
+    /**
+     * Bit set in the Notification flags field if the notification should be canceled when
+     * it is clicked by the user.
+     */
+    public static final int FLAG_AUTO_CANCEL        = 0x00000010;
+
+    /**
+     * Bit set in the Notification flags field if the notification should not be canceled
+     * when the user clicks the Clear all button.
+     */
+    public static final int FLAG_NO_CLEAR           = 0x00000020;
+
+    /**
+     * Bit set in the Notification flags field if this notification represents a currently
+     * running service.  This will normally be set for you by
+     * {@link android.app.Service#startForeground}.
+     */
+    public static final int FLAG_FOREGROUND_SERVICE = 0x00000040;
+
     /**
      * Obsolete flag indicating high-priority notifications; use the priority field instead.
      *
@@ -76,6 +160,107 @@ public class NotificationCompat {
      * prompt attention or input.
      */
     public static final int PRIORITY_MAX = 2;
+
+    /**
+     * Notification extras key: this is the title of the notification,
+     * as supplied to {@link Builder#setContentTitle(CharSequence)}.
+     */
+    public static final String EXTRA_TITLE = "android.title";
+
+    /**
+     * Notification extras key: this is the title of the notification when shown in expanded form,
+     * e.g. as supplied to {@link BigTextStyle#setBigContentTitle(CharSequence)}.
+     */
+    public static final String EXTRA_TITLE_BIG = EXTRA_TITLE + ".big";
+
+    /**
+     * Notification extras key: this is the main text payload, as supplied to
+     * {@link Builder#setContentText(CharSequence)}.
+     */
+    public static final String EXTRA_TEXT = "android.text";
+
+    /**
+     * Notification extras key: this is a third line of text, as supplied to
+     * {@link Builder#setSubText(CharSequence)}.
+     */
+    public static final String EXTRA_SUB_TEXT = "android.subText";
+
+    /**
+     * Notification extras key: this is a small piece of additional text as supplied to
+     * {@link Builder#setContentInfo(CharSequence)}.
+     */
+    public static final String EXTRA_INFO_TEXT = "android.infoText";
+
+    /**
+     * Notification extras key: this is a line of summary information intended to be shown
+     * alongside expanded notifications, as supplied to (e.g.)
+     * {@link BigTextStyle#setSummaryText(CharSequence)}.
+     */
+    public static final String EXTRA_SUMMARY_TEXT = "android.summaryText";
+
+    /**
+     * Notification extras key: this is the resource ID of the notification's main small icon, as
+     * supplied to {@link Builder#setSmallIcon(int)}.
+     */
+    public static final String EXTRA_SMALL_ICON = "android.icon";
+
+    /**
+     * Notification extras key: this is a bitmap to be used instead of the small icon when showing the
+     * notification payload, as
+     * supplied to {@link Builder#setLargeIcon(android.graphics.Bitmap)}.
+     */
+    public static final String EXTRA_LARGE_ICON = "android.largeIcon";
+
+    /**
+     * Notification extras key: this is a bitmap to be used instead of the one from
+     * {@link Builder#setLargeIcon(android.graphics.Bitmap)} when the notification is
+     * shown in its expanded form, as supplied to
+     * {@link BigPictureStyle#bigLargeIcon(android.graphics.Bitmap)}.
+     */
+    public static final String EXTRA_LARGE_ICON_BIG = EXTRA_LARGE_ICON + ".big";
+
+    /**
+     * Notification extras key: this is the progress value supplied to
+     * {@link Builder#setProgress(int, int, boolean)}.
+     */
+    public static final String EXTRA_PROGRESS = "android.progress";
+
+    /**
+     * Notification extras key: this is the maximum value supplied to
+     * {@link Builder#setProgress(int, int, boolean)}.
+     */
+    public static final String EXTRA_PROGRESS_MAX = "android.progressMax";
+
+    /**
+     * Notification extras key: whether the progress bar is indeterminate, supplied to
+     * {@link Builder#setProgress(int, int, boolean)}.
+     */
+    public static final String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
+
+    /**
+     * Notification extras key: whether the when field set using {@link Builder#setWhen} should
+     * be shown as a count-up timer (specifically a {@link android.widget.Chronometer}) instead
+     * of a timestamp, as supplied to {@link Builder#setUsesChronometer(boolean)}.
+     */
+    public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
+
+    /**
+     * Notification extras key: this is a bitmap to be shown in {@link BigPictureStyle} expanded
+     * notifications, supplied to {@link BigPictureStyle#bigPicture(android.graphics.Bitmap)}.
+     */
+    public static final String EXTRA_PICTURE = "android.picture";
+
+    /**
+     * Notification extras key: An array of CharSequences to show in {@link InboxStyle} expanded
+     * notifications, each of which was supplied to {@link InboxStyle#addLine(CharSequence)}.
+     */
+    public static final String EXTRA_TEXT_LINES = "android.textLines";
+
+    /**
+     * Notification extras key: An array of people that this notification relates to, specified
+     * by contacts provider contact URI.
+     */
+    public static final String EXTRA_PEOPLE = "android.people";
 
     private static final NotificationCompatImpl IMPL;
 
