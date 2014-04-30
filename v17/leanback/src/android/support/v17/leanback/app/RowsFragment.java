@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
+import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
@@ -31,6 +32,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+
+import java.util.List;
 
 /**
  * An ordered set of rows of leanback widgets.
@@ -301,4 +304,23 @@ public class RowsFragment extends BaseRowFragment {
             adapter.setAdapterListener(mBridgeAdapterListener);
         }
     }
+
+    void getHeaderViews(List<View> headers, List<Integer> positions) {
+        final VerticalGridView listView = getVerticalGridView();
+        if (listView == null) {
+            return;
+        }
+        final int count = listView.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = listView.getChildAt(i);
+            ItemBridgeAdapter.ViewHolder viewHolder = (ItemBridgeAdapter.ViewHolder)
+                    listView.getChildViewHolder(child);
+            RowPresenter presenter = (RowPresenter) viewHolder.getPresenter();
+            RowPresenter.ViewHolder rowViewHolder = presenter.getRowViewHolder(
+                    viewHolder.getViewHolder());
+            headers.add(rowViewHolder.getHeaderViewHolder().view);
+            positions.add(viewHolder.getPosition());
+        }
+    }
+
 }
