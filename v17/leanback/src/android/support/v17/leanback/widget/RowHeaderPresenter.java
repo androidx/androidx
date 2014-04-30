@@ -46,6 +46,7 @@ public class RowHeaderPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+        setSelectLevel((ViewHolder) viewHolder, 0);
         Row rowItem = (Row) item;
         if (rowItem != null) {
             HeaderItem headerItem = rowItem.getHeaderItem();

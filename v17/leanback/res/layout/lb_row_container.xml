@@ -14,12 +14,13 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/browse_header"
-    android:layout_width="wrap_content"
-    android:layout_height="@dimen/lb_browse_header_height"
-    android:transformPivotX="0dip"
-    android:transformPivotY="@dimen/lb_browse_header_half_height"
-    android:alpha="@dimen/lb_browse_header_unselect_alpha"
-    style="?attr/headerStyle"
-/>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout
+    android:id="@+id/lb_row_container_header_dock"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="?attr/browsePaddingLeft"
+    android:clipToPadding="false">
+</LinearLayout>
+</merge>

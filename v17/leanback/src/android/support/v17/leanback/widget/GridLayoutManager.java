@@ -362,6 +362,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private boolean mFocusOutEnd;
 
     /**
+     * True if focus search is disabled.
+     */
+    private boolean mFocusSearchDisabled;
+
+    /**
      * Animate layout changes from a child resizing or adding/removing a child.
      */
     private boolean mAnimateChildLayout = true;
@@ -1508,6 +1513,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
+        if (mFocusSearchDisabled) {
+            return true;
+        }
         if (!mInLayout) {
             scrollToView(child, true);
         }
@@ -1749,9 +1757,28 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return NO_POSITION;
     }
 
+    void setFocusSearchDisabled(boolean disabled) {
+        mFocusSearchDisabled = disabled;
+    }
+
+    boolean isFocusSearchDisabled() {
+        return mFocusSearchDisabled;
+    }
+
+    @Override
+    public View onInterceptFocusSearch(View focused, int direction) {
+        if (mFocusSearchDisabled) {
+            return focused;
+        }
+        return null;
+    }
+
     @Override
     public boolean onAddFocusables(RecyclerView recyclerView,
             ArrayList<View> views, int direction, int focusableMode) {
+        if (mFocusSearchDisabled) {
+            return true;
+        }
         // If this viewgroup or one of its children currently has focus then we
         // consider our children for focus searching in main direction on the same row.
         // If this viewgroup has no focus and using focus align, we want the system

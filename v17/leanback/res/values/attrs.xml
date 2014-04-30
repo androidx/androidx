@@ -135,9 +135,6 @@
         <!-- vertical grid style inside HeadersFragment -->
         <attr name="headersVerticalGridStyle" format="reference" />
 
-        <!-- header view style inside HeadersFragment -->
-        <attr name="headerStyle" format="reference" />
-
         <!-- vertical grid style inside RowsFragment -->
         <attr name="rowsVerticalGridStyle" format="reference" />
 

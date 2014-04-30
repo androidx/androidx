@@ -24,6 +24,9 @@ import android.view.ViewGroup;
  */
 final class TransitionHelper {
 
+    public static final int FADE_IN = 0x1;
+    public static final int FADE_OUT = 0x2;
+
     TransitionHelperVersionImpl mImpl;
 
     /**
@@ -48,13 +51,39 @@ final class TransitionHelper {
 
         public Object createAutoTransition();
 
+        public Object createFadeTransition(int fadingMode);
+
+        public Object createChangeBounds(boolean reparent);
+
+        public void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay);
+
+        public void setChangeBoundsStartDelay(Object changeBounds, int viewId, int startDelay);
+
+        public void setChangeBoundsStartDelay(Object changeBounds, String className,
+                int startDelay);
+
+        public void setChangeBoundsDefaultStartDelay(Object changeBounds, int startDelay);
+
+        public Object createTransitionSet(boolean sequential);
+
+        public void addTransition(Object transitionSet, Object transition);
+
         public void setTransitionCompleteListener(Object transition, Runnable listener);
 
         public void runTransition(Object scene, Object transition);
 
+        public void exclude(Object transition, int targetId, boolean exclude);
+
+        public void exclude(Object transition, View targetView, boolean exclude);
+
         public void excludeChildren(Object transition, int targetId, boolean exclude);
 
         public void excludeChildren(Object transition, View target, boolean exclude);
+
+        public void include(Object transition, int targetId);
+
+        public void include(Object transition, View targetView);
+
     }
 
     /**
@@ -77,11 +106,63 @@ final class TransitionHelper {
         }
 
         @Override
+        public Object createFadeTransition(int fadingMode) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public Object createChangeBounds(boolean reparent) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay) {
+        }
+
+        @Override
+        public void setChangeBoundsStartDelay(Object changeBounds, int viewId, int startDelay) {
+        }
+
+        @Override
+        public void setChangeBoundsStartDelay(Object changeBounds, String className,
+                int startDelay) {
+        }
+
+        @Override
+        public void setChangeBoundsDefaultStartDelay(Object changeBounds, int startDelay) {
+        }
+
+        @Override
+        public Object createTransitionSet(boolean sequential) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public void addTransition(Object transitionSet, Object transition) {
+        }
+
+        @Override
+        public void exclude(Object transition, int targetId, boolean exclude) {
+        }
+
+        @Override
+        public void exclude(Object transition, View targetView, boolean exclude) {
+        }
+
+        @Override
         public void excludeChildren(Object transition, int targetId, boolean exclude) {
         }
 
         @Override
         public void excludeChildren(Object transition, View targetView, boolean exclude) {
+        }
+
+        @Override
+        public void include(Object transition, int targetId) {
+        }
+
+        @Override
+        public void include(Object transition, View targetView) {
         }
 
         @Override
@@ -123,6 +204,57 @@ final class TransitionHelper {
         }
 
         @Override
+        public Object createFadeTransition(int fadingMode) {
+            return mTransitionHelper.createFadeTransition(fadingMode);
+        }
+
+        @Override
+        public Object createChangeBounds(boolean reparent) {
+            return mTransitionHelper.createChangeBounds(reparent);
+        }
+
+        @Override
+        public void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay) {
+            mTransitionHelper.setChangeBoundsStartDelay(changeBounds, view, startDelay);
+        }
+
+        @Override
+        public void setChangeBoundsStartDelay(Object changeBounds, int viewId, int startDelay) {
+            mTransitionHelper.setChangeBoundsStartDelay(changeBounds, viewId, startDelay);
+        }
+
+        @Override
+        public void setChangeBoundsStartDelay(Object changeBounds, String className,
+                int startDelay) {
+            mTransitionHelper.setChangeBoundsStartDelay(changeBounds, className, startDelay);
+        }
+
+        @Override
+        public void setChangeBoundsDefaultStartDelay(Object changeBounds, int startDelay) {
+            mTransitionHelper.setChangeBoundsDefaultStartDelay(changeBounds, startDelay);
+        }
+
+        @Override
+        public Object createTransitionSet(boolean sequential) {
+            return mTransitionHelper.createTransitionSet(sequential);
+        }
+
+        @Override
+        public void addTransition(Object transitionSet, Object transition) {
+            mTransitionHelper.addTransition(transitionSet, transition);
+        }
+
+        @Override
+        public void exclude(Object transition, int targetId, boolean exclude) {
+            mTransitionHelper.exclude(transition, targetId, exclude);
+        }
+
+        @Override
+        public void exclude(Object transition, View targetView, boolean exclude) {
+            mTransitionHelper.exclude(transition, targetView, exclude);
+        }
+
+        @Override
         public void excludeChildren(Object transition, int targetId, boolean exclude) {
             mTransitionHelper.excludeChildren(transition, targetId, exclude);
         }
@@ -130,6 +262,16 @@ final class TransitionHelper {
         @Override
         public void excludeChildren(Object transition, View targetView, boolean exclude) {
             mTransitionHelper.excludeChildren(transition, targetView, exclude);
+        }
+
+        @Override
+        public void include(Object transition, int targetId) {
+            mTransitionHelper.include(transition, targetId);
+        }
+
+        @Override
+        public void include(Object transition, View targetView) {
+            mTransitionHelper.include(transition, targetView);
         }
 
         @Override
@@ -161,6 +303,42 @@ final class TransitionHelper {
         return mImpl.createScene(sceneRoot, r);
     }
 
+    public Object createChangeBounds(boolean reparent) {
+        return mImpl.createChangeBounds(reparent);
+    }
+
+    public void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay) {
+        mImpl.setChangeBoundsStartDelay(changeBounds, view, startDelay);
+    }
+
+    public void setChangeBoundsStartDelay(Object changeBounds, int viewId, int startDelay) {
+        mImpl.setChangeBoundsStartDelay(changeBounds, viewId, startDelay);
+    }
+
+    public void setChangeBoundsStartDelay(Object changeBounds, String className, int startDelay) {
+        mImpl.setChangeBoundsStartDelay(changeBounds, className, startDelay);
+    }
+
+    public void setChangeBoundsDefaultStartDelay(Object changeBounds, int startDelay) {
+        mImpl.setChangeBoundsDefaultStartDelay(changeBounds, startDelay);
+    }
+
+    public Object createTransitionSet(boolean sequential) {
+        return mImpl.createTransitionSet(sequential);
+    }
+
+    public void addTransition(Object transitionSet, Object transition) {
+        mImpl.addTransition(transitionSet, transition);
+    }
+
+    public void exclude(Object transition, int targetId, boolean exclude) {
+        mImpl.exclude(transition, targetId, exclude);
+    }
+
+    public void exclude(Object transition, View targetView, boolean exclude) {
+        mImpl.exclude(transition, targetView, exclude);
+    }
+
     public void excludeChildren(Object transition, int targetId, boolean exclude) {
         mImpl.excludeChildren(transition, targetId, exclude);
     }
@@ -169,8 +347,20 @@ final class TransitionHelper {
         mImpl.excludeChildren(transition, targetView, exclude);
     }
 
+    public void include(Object transition, int targetId) {
+        mImpl.include(transition, targetId);
+    }
+
+    public void include(Object transition, View targetView) {
+        mImpl.include(transition, targetView);
+    }
+
     public Object createAutoTransition() {
         return mImpl.createAutoTransition();
+    }
+
+    public Object createFadeTransition(int fadeMode) {
+        return mImpl.createFadeTransition(fadeMode);
     }
 
     public void setTransitionCompleteListener(Object transition, Runnable listener) {
