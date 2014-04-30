@@ -184,8 +184,12 @@ public class RowsFragment extends BaseRowFragment {
 
     @Override
     protected void onRowSelected(ViewGroup parent, View view, int position, long id) {
+        VerticalGridView listView = getVerticalGridView();
+        if (listView == null) {
+            return;
+        }
         ItemBridgeAdapter.ViewHolder vh = (view == null) ? null :
-            (ItemBridgeAdapter.ViewHolder) getVerticalGridView().getChildViewHolder(view);
+            (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
 
         if (mSelectedViewHolder != vh) {
             if (DEBUG) Log.v(TAG, "new row selected position " + position + " view " + view);
@@ -257,8 +261,9 @@ public class RowsFragment extends BaseRowFragment {
         @Override
         public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
             Presenter rowPresenter = vh.getPresenter();
-            if (((RowPresenter) vh.getPresenter()).canDrawOutOfBounds()) {
-                getVerticalGridView().setClipChildren(false);
+            VerticalGridView listView = getVerticalGridView();
+            if (listView != null && ((RowPresenter) vh.getPresenter()).canDrawOutOfBounds()) {
+                listView.setClipChildren(false);
             }
             mViewsCreated = true;
             vh.setExtraObject(new RowViewHolderExtra(vh));
