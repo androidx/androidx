@@ -16,6 +16,7 @@ package android.support.v17.leanback.app;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -74,13 +75,15 @@ public class BrowseFragment extends Fragment {
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginLeft;
     private int mContainerListAlignTop;
-    private TransitionHelper mTransitionHelper;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
     private OnClickListener mExternalOnSearchClickedListener;
     private OnItemClickedListener mOnItemClickedListener;
     private int mSelectedPosition = -1;
 
+    private PresenterSelector mHeaderPresenterSelector;
+
     // transition related:
+    private TransitionHelper mTransitionHelper;
     private static int sReparentHeaderId = View.generateViewId();
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
@@ -342,6 +345,9 @@ public class BrowseFragment extends Fragment {
                     .findFragmentById(R.id.browse_container_dock);
         }
         mRowsFragment.setAdapter(mAdapter);
+        if (mHeaderPresenterSelector != null) {
+            mHeadersFragment.setPresenterSelector(mHeaderPresenterSelector);
+        }
         mHeadersFragment.setAdapter(mAdapter);
 
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
@@ -473,6 +479,13 @@ public class BrowseFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public void setHeaderPresenterSelector(PresenterSelector headerPresenterSelector) {
+        mHeaderPresenterSelector = headerPresenterSelector;
+        if (mHeadersFragment != null) {
+            mHeadersFragment.setPresenterSelector(mHeaderPresenterSelector);
+        }
     }
 
     private void showTitle(boolean show) {
