@@ -162,7 +162,7 @@ public class FocusHighlightHelper {
      * Setup the focus highlight behavior of a focused item in header list.
      * @param gridView  the header list.
      */
-    public static void setupHeaderItemFocusHighlight(BaseGridView gridView) {
+    public static void setupHeaderItemFocusHighlight(VerticalGridView gridView) {
         if (gridView.getAdapter() instanceof ItemBridgeAdapter) {
             ((ItemBridgeAdapter) gridView.getAdapter())
                     .setFocusHighlight(new HeaderItemFocusHighlight(gridView));
