@@ -177,7 +177,7 @@ public abstract class RowPresenter extends Presenter {
     /**
      * Get wrapped {@link RowPresenter.ViewHolder}
      */
-    protected final ViewHolder getRowViewHolder(Presenter.ViewHolder holder) {
+    public final ViewHolder getRowViewHolder(Presenter.ViewHolder holder) {
         if (holder instanceof ContainerViewHolder) {
             return ((ContainerViewHolder) holder).mRowViewHolder;
         } else {

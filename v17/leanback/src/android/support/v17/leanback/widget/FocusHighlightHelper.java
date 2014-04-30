@@ -33,6 +33,75 @@ import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LAR
  */
 public class FocusHighlightHelper {
 
+    static class FocusAnimator implements TimeAnimator.TimeListener {
+        private final View mView;
+        private final int mDuration;
+        private final ShadowOverlayContainer mWrapper;
+        private final float mScaleDiff;
+        private float mFocusLevel = 0f;
+        private float mFocusLevelStart;
+        private float mFocusLevelDelta;
+        private final TimeAnimator mAnimator = new TimeAnimator();
+        private final Interpolator mInterpolator = new AccelerateDecelerateInterpolator();
+
+        void animateFocus(boolean select, boolean immediate) {
+            endAnimation();
+            final float end = select ? 1 : 0;
+            if (immediate) {
+                setFocusLevel(end);
+            } else if (mFocusLevel != end) {
+                mFocusLevelStart = mFocusLevel;
+                mFocusLevelDelta = end - mFocusLevelStart;
+                mAnimator.start();
+            }
+        }
+
+        FocusAnimator(View view, float scale, int duration) {
+            mView = view;
+            mDuration = duration;
+            mScaleDiff = scale - 1f;
+            if (view instanceof ShadowOverlayContainer) {
+                mWrapper = (ShadowOverlayContainer) view;
+            } else {
+                mWrapper = null;
+            }
+            mAnimator.setTimeListener(this);
+        }
+
+        void setFocusLevel(float level) {
+            mFocusLevel = level;
+            float scale = 1f + mScaleDiff * level;
+            mView.setScaleX(scale);
+            mView.setScaleY(scale);
+            if (mWrapper != null) {
+                mWrapper.setShadowFocusLevel(level);
+            }
+        }
+
+        float getFocusLevel() {
+            return mFocusLevel;
+        }
+
+        void endAnimation() {
+            mAnimator.end();
+        }
+
+        @Override
+        public void onTimeUpdate(TimeAnimator animation, long totalTime, long deltaTime) {
+            float fraction;
+            if (totalTime >= mDuration) {
+                fraction = 1;
+                mAnimator.end();
+            } else {
+                fraction = (float) (totalTime / (double) mDuration);
+            }
+            if (mInterpolator != null) {
+                fraction = mInterpolator.getInterpolation(fraction);
+            }
+            setFocusLevel(mFocusLevelStart + fraction * mFocusLevelDelta);
+        }
+    }
+
     static class BrowseItemFocusHighlight implements FocusHighlight {
         private static final int DURATION_MS = 150;
 
@@ -62,78 +131,11 @@ public class FocusHighlightHelper {
             return sScaleFactor[mScaleIndex];
         }
 
-        class FocusAnimator implements TimeAnimator.TimeListener {
-            private final View mView;
-            private final ShadowOverlayContainer mWrapper;
-            private final float mScaleDiff;
-            private float mFocusLevel = 0f;
-            private float mFocusLevelStart;
-            private float mFocusLevelDelta;
-            private final TimeAnimator mAnimator = new TimeAnimator();
-            private final Interpolator mInterpolator = new AccelerateDecelerateInterpolator();
-
-            void animateFocus(boolean select, boolean immediate) {
-                endAnimation();
-                final float end = select ? 1 : 0;
-                if (immediate) {
-                    setFocusLevel(end);
-                } else if (mFocusLevel != end) {
-                    mFocusLevelStart = mFocusLevel;
-                    mFocusLevelDelta = end - mFocusLevelStart;
-                    mAnimator.start();
-                }
-            }
-
-            FocusAnimator(View view) {
-                mView = view;
-                mScaleDiff = getScale(view) - 1f;
-                if (view instanceof ShadowOverlayContainer) {
-                    mWrapper = (ShadowOverlayContainer) view;
-                } else {
-                    mWrapper = null;
-                }
-                mAnimator.setTimeListener(this);
-            }
-
-            void setFocusLevel(float level) {
-                mFocusLevel = level;
-                float scale = 1f + mScaleDiff * level;
-                mView.setScaleX(scale);
-                mView.setScaleY(scale);
-                if (mWrapper != null) {
-                    mWrapper.setShadowFocusLevel(level);
-                }
-            }
-
-            float getFocusLevel() {
-                return mFocusLevel;
-            }
-
-            void endAnimation() {
-                mAnimator.end();
-            }
-
-            @Override
-            public void onTimeUpdate(TimeAnimator animation, long totalTime, long deltaTime) {
-                float fraction;
-                if (totalTime >= DURATION_MS) {
-                    fraction = 1;
-                    mAnimator.end();
-                } else {
-                    fraction = (float) (totalTime / (double) DURATION_MS);
-                }
-                if (mInterpolator != null) {
-                    fraction = mInterpolator.getInterpolation(fraction);
-                }
-                setFocusLevel(mFocusLevelStart + fraction * mFocusLevelDelta);
-            }
-        };
-
         private void viewFocused(View view, boolean hasFocus) {
             view.setSelected(hasFocus);
             FocusAnimator animator = (FocusAnimator) view.getTag(R.id.lb_focus_animator);
             if (animator == null) {
-                animator = new FocusAnimator(view);
+                animator = new FocusAnimator(view, getScale(view), DURATION_MS);
                 view.setTag(R.id.lb_focus_animator, animator);
             }
             animator.animateFocus(hasFocus, false);
@@ -144,9 +146,6 @@ public class FocusHighlightHelper {
             viewFocused(view, hasFocus);
         }
     }
-
-    private static HeaderItemFocusHighlight sHeaderItemFocusHighlight =
-            new HeaderItemFocusHighlight();
 
     private static ActionItemFocusHighlight sActionItemFocusHighlight =
             new ActionItemFocusHighlight();
@@ -163,8 +162,11 @@ public class FocusHighlightHelper {
      * Setup the focus highlight behavior of a focused item in header list.
      * @param adapter  adapter of the header list.
      */
-    public static void setupHeaderItemFocusHighlight(ItemBridgeAdapter adapter) {
-        adapter.setFocusHighlight(sHeaderItemFocusHighlight);
+    public static void setupHeaderItemFocusHighlight(BaseGridView gridView) {
+        if (gridView.getAdapter() instanceof ItemBridgeAdapter) {
+            ((ItemBridgeAdapter) gridView.getAdapter())
+                    .setFocusHighlight(new HeaderItemFocusHighlight(gridView));
+        }
     }
 
     /**
@@ -175,35 +177,55 @@ public class FocusHighlightHelper {
         adapter.setFocusHighlight(sActionItemFocusHighlight);
     }
 
-    private static class HeaderItemFocusHighlight implements FocusHighlight {
-        private boolean mInitialized;
-        private float mSelectScale;
-        private float mUnselectAlpha;
-        private int mDuration;
+    static class HeaderItemFocusHighlight implements FocusHighlight {
+        private static boolean sInitialized;
+        private static float sSelectScale;
+        private static int sDuration;
+        private BaseGridView mGridView;
 
-        private void initializeDimensions(Resources res) {
-            if (!mInitialized) {
-                mSelectScale =
+        HeaderItemFocusHighlight(BaseGridView gridView) {
+            mGridView = gridView;
+            lazyInit(gridView.getContext().getResources());
+        }
+
+        private static void lazyInit(Resources res) {
+            if (!sInitialized) {
+                sSelectScale =
                         Float.parseFloat(res.getString(R.dimen.lb_browse_header_select_scale));
-                mUnselectAlpha =
-                        Float.parseFloat(res.getString(R.dimen.lb_browse_header_unselect_alpha));
-                mDuration =
+                sDuration =
                         Integer.parseInt(res.getString(R.dimen.lb_browse_header_select_duration));
-                mInitialized = true;
+                sInitialized = true;
             }
         }
 
-        private void viewFocused(View view, boolean hasFocus) {
-            initializeDimensions(view.getResources());
-            if (hasFocus) {
-                view.animate().scaleX(mSelectScale).scaleY(mSelectScale)
-                        .alpha(1f)
-                        .setDuration(mDuration);
-            } else {
-                view.animate().scaleX(1f).scaleY(1f)
-                        .alpha(mUnselectAlpha)
-                        .setDuration(mDuration);
+        class HeaderFocusAnimator extends FocusAnimator {
+
+            ItemBridgeAdapter.ViewHolder mViewHolder;
+            HeaderFocusAnimator(View view, float scale, int duration) {
+                super(view, scale, duration);
+                mViewHolder = (ItemBridgeAdapter.ViewHolder) mGridView.getChildViewHolder(view);
             }
+
+            @Override
+            void setFocusLevel(float level) {
+                Presenter presenter = mViewHolder.getPresenter();
+                if (presenter instanceof RowHeaderPresenter) {
+                    ((RowHeaderPresenter) presenter).setSelectLevel(
+                            ((RowHeaderPresenter.ViewHolder) mViewHolder.getViewHolder()), level);
+                }
+                super.setFocusLevel(level);
+            }
+
+        }
+
+        private void viewFocused(View view, boolean hasFocus) {
+            view.setSelected(hasFocus);
+            FocusAnimator animator = (FocusAnimator) view.getTag(R.id.lb_focus_animator);
+            if (animator == null) {
+                animator = new HeaderFocusAnimator(view, sSelectScale, sDuration);
+                view.setTag(R.id.lb_focus_animator, animator);
+            }
+            animator.animateFocus(hasFocus, false);
         }
 
         @Override

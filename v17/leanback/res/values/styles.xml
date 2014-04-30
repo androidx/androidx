@@ -104,6 +104,7 @@
         <item name="android:clipToPadding">false</item>
         <item name="focusOutFront">true</item>
         <item name="focusOutEnd">true</item>
+        <item name="verticalMargin">@dimen/lb_browse_headers_vertical_margin</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
     </style>
@@ -153,7 +154,6 @@
 
     <style name="Widget.Leanback.Row.Header">
         <item name="android:minHeight">@dimen/lb_browse_row_title_height</item>
-        <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header</item>
     </style>
 
