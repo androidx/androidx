@@ -32,6 +32,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -49,6 +51,7 @@ public class MediaRouteChooserDialog extends Dialog {
     private final MediaRouterCallback mCallback;
 
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
+    private ArrayList<MediaRouter.RouteInfo> mRoutes;
     private RouteAdapter mAdapter;
     private ListView mListView;
     private boolean mAttachedToWindow;
@@ -98,6 +101,23 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     /**
+     * Called to filter the set of routes that should be included in the list.
+     * <p>
+     * The default implementation iterates over all routes in the provided list and
+     * removes those for which {@link #onFilterRoute} returns false.
+     * </p>
+     *
+     * @param routes The list of routes to filter in-place, never null.
+     */
+    public void onFilterRoutes(@NonNull List<MediaRouter.RouteInfo> routes) {
+        for (int i = routes.size(); i-- > 0; ) {
+            if (!onFilterRoute(routes.get(i))) {
+                routes.remove(i);
+            }
+        }
+    }
+
+    /**
      * Returns true if the route should be included in the list.
      * <p>
      * The default implementation returns true for enabled non-default routes that
@@ -126,7 +146,8 @@ public class MediaRouteChooserDialog extends Dialog {
                 MediaRouterThemeHelper.getThemeResource(
                         getContext(), R.attr.mediaRouteOffDrawable));
 
-        mAdapter = new RouteAdapter(getContext());
+        mRoutes = new ArrayList<MediaRouter.RouteInfo>();
+        mAdapter = new RouteAdapter(getContext(), mRoutes);
         mListView = (ListView)findViewById(R.id.media_route_list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
@@ -155,7 +176,11 @@ public class MediaRouteChooserDialog extends Dialog {
      */
     public void refreshRoutes() {
         if (mAttachedToWindow) {
-            mAdapter.update();
+            mRoutes.clear();
+            mRoutes.addAll(mRouter.getRoutes());
+            onFilterRoutes(mRoutes);
+            Collections.sort(mRoutes, RouteComparator.sInstance);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -163,23 +188,9 @@ public class MediaRouteChooserDialog extends Dialog {
             implements ListView.OnItemClickListener {
         private final LayoutInflater mInflater;
 
-        public RouteAdapter(Context context) {
-            super(context, 0);
+        public RouteAdapter(Context context, List<MediaRouter.RouteInfo> routes) {
+            super(context, 0, routes);
             mInflater = LayoutInflater.from(context);
-        }
-
-        public void update() {
-            clear();
-            final List<MediaRouter.RouteInfo> routes = mRouter.getRoutes();
-            final int count = routes.size();
-            for (int i = 0; i < count; i++) {
-                MediaRouter.RouteInfo route = routes.get(i);
-                if (onFilterRoute(route)) {
-                    add(route);
-                }
-            }
-            sort(RouteComparator.sInstance);
-            notifyDataSetChanged();
         }
 
         @Override
