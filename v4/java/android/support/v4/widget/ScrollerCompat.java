@@ -65,7 +65,7 @@ public class ScrollerCompat {
         private int mTargetY;
         private float mTranslateSmoothing = 2;
         private long mLastTime;
-        private boolean mFinished = true;
+        private boolean mAborted;
 
         @Override
         public String toString() {
@@ -92,7 +92,7 @@ public class ScrollerCompat {
         public void setCurrentPosition(int x, int y) {
             mX = x;
             mY = y;
-            mFinished = false;
+            mAborted = false;
         }
 
         public void setSmoothing(float smoothing) {
@@ -115,11 +115,11 @@ public class ScrollerCompat {
             mX = mTargetX;
             mY = mTargetY;
             mLastTime = AnimationUtils.currentAnimationTimeMillis();
-            mFinished = true;
+            mAborted = true;
         }
 
         public boolean isFinished() {
-            return mFinished || (mX == mTargetX && mY == mTargetY);
+            return mAborted || (mX == mTargetX && mY == mTargetY);
         }
 
         public boolean computeScrollOffset() {
@@ -150,7 +150,6 @@ public class ScrollerCompat {
 
                     mLastTime = now;
                 }
-                mFinished = mX == mTargetX && mY == mTargetY;
                 return true;
             }
             return false;
@@ -446,10 +445,18 @@ public class ScrollerCompat {
     }
 
     ScrollerCompat(Context context, Interpolator interpolator) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 14) { // ICS
+        this(Build.VERSION.SDK_INT, context, interpolator);
+
+    }
+
+    /**
+     * Private constructer where API version can be provided.
+     * Useful for unit testing.
+     */
+    private ScrollerCompat(int apiVersion, Context context, Interpolator interpolator) {
+        if (apiVersion >= 14) { // ICS
             mImpl = new ScrollerCompatImplIcs();
-        } else if (version >= 9) { // Gingerbread
+        } else if (apiVersion>= 9) { // Gingerbread
             mImpl = new ScrollerCompatImplGingerbread();
         } else {
             mImpl = new ScrollerCompatImplBase();
