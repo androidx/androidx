@@ -23,6 +23,7 @@ import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
+import android.support.v17.leanback.widget.SinglePresenterSelector;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -44,15 +45,11 @@ public class HeadersFragment extends BaseRowFragment {
     private OnHeaderClickedListener mOnHeaderClickedListener;
     private boolean mShow = true;
 
-    private static final Presenter sHeaderPresenter = new RowHeaderPresenter();
+    private static final PresenterSelector sHeaderPresenter = new SinglePresenterSelector(
+            new RowHeaderPresenter());
 
     public HeadersFragment() {
-        setPresenterSelector(new PresenterSelector() {
-            @Override
-            public Presenter getPresenter(Object item) {
-                return sHeaderPresenter;
-            }
-        });
+        setPresenterSelector(sHeaderPresenter);
     }
 
     public void setOnHeaderClickedListener(OnHeaderClickedListener listener) {
