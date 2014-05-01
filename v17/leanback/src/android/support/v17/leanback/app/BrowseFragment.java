@@ -83,7 +83,7 @@ public class BrowseFragment extends Fragment {
     private PresenterSelector mHeaderPresenterSelector;
 
     // transition related:
-    private TransitionHelper mTransitionHelper;
+    private static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
     private static int sReparentHeaderId = View.generateViewId();
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
@@ -306,12 +306,12 @@ public class BrowseFragment extends Fragment {
             if (childId == R.id.browse_container_dock && mShowingHeaders) {
                 mShowingHeaders = false;
                 onHeadersTransitionStart(false);
-                mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
+                sTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
             } else if (childId == R.id.browse_headers_dock && !mShowingHeaders) {
                 mShowingHeaders = true;
                 //mHeadersFragment.getView().setAlpha(1f);
                 onHeadersTransitionStart(true);
-                mTransitionHelper.runTransition(mSceneWithHeaders, mHeadersTransition);
+                sTransitionHelper.runTransition(mSceneWithHeaders, mHeadersTransition);
             }
         }
     };
@@ -376,34 +376,33 @@ public class BrowseFragment extends Fragment {
             setHeadersState(mParams.mHeadersState);
         }
 
-        mTransitionHelper = new TransitionHelper(getActivity());
-        mSceneWithTitle = mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showTitle(true);
             }
         });
-        mSceneWithoutTitle = mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithoutTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showTitle(false);
             }
         });
-        mSceneWithHeaders = mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithHeaders = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(true);
             }
         });
-        mSceneWithoutHeaders =  mTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithoutHeaders =  sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(false);
             }
         });
-        mTitleTransition = mTransitionHelper.createAutoTransition();
-        mTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_headers, true);
-        mTransitionHelper.excludeChildren(mTitleTransition, R.id.container_list, true);
+        mTitleTransition = sTransitionHelper.createAutoTransition();
+        sTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_headers, true);
+        sTransitionHelper.excludeChildren(mTitleTransition, R.id.container_list, true);
 
         return root;
     }
@@ -417,13 +416,13 @@ public class BrowseFragment extends Fragment {
         mHeadersFragment.getHeaderViews(fastHeaders, fastHeaderPositions);
         mRowsFragment.getHeaderViews(headers, headerPositions);
 
-        mHeadersTransition = mTransitionHelper.createTransitionSet(true);
-        mTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
-        Object changeBounds = mTransitionHelper.createChangeBounds(true);
-        Object fadeIn = mTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
-        Object fadeOut = mTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
+        mHeadersTransition = sTransitionHelper.createTransitionSet(true);
+        sTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
+        Object changeBounds = sTransitionHelper.createChangeBounds(true);
+        Object fadeIn = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
+        Object fadeOut = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
         if (!withHeaders) {
-            mTransitionHelper.setChangeBoundsDefaultStartDelay(changeBounds,
+            sTransitionHelper.setChangeBoundsDefaultStartDelay(changeBounds,
                     mHeadersTransitionStartDelay);
         }
 
@@ -431,10 +430,10 @@ public class BrowseFragment extends Fragment {
             Integer position = headerPositions.get(i);
             if (position == mSelectedPosition) {
                 headers.get(i).setId(sReparentHeaderId);
-                mTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
+                sTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
                         withHeaders ? mHeadersTransitionStartDelay : 0);
-                mTransitionHelper.exclude(fadeIn, headers.get(i), true);
-                mTransitionHelper.exclude(fadeOut, headers.get(i), true);
+                sTransitionHelper.exclude(fadeIn, headers.get(i), true);
+                sTransitionHelper.exclude(fadeOut, headers.get(i), true);
             } else {
                 headers.get(i).setId(View.NO_ID);
             }
@@ -443,20 +442,20 @@ public class BrowseFragment extends Fragment {
             Integer position = fastHeaderPositions.get(i);
             if (position == mSelectedPosition) {
                 fastHeaders.get(i).setId(sReparentHeaderId);
-                mTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
+                sTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
                         withHeaders ? mHeadersTransitionStartDelay : 0);
-                mTransitionHelper.exclude(fadeIn, fastHeaders.get(i), true);
-                mTransitionHelper.exclude(fadeOut, fastHeaders.get(i), true);
+                sTransitionHelper.exclude(fadeIn, fastHeaders.get(i), true);
+                sTransitionHelper.exclude(fadeOut, fastHeaders.get(i), true);
             } else {
                 fastHeaders.get(i).setId(View.NO_ID);
             }
         }
 
-        mTransitionHelper.addTransition(mHeadersTransition, fadeOut);
-        mTransitionHelper.addTransition(mHeadersTransition, changeBounds);
-        mTransitionHelper.addTransition(mHeadersTransition, fadeIn);
+        sTransitionHelper.addTransition(mHeadersTransition, fadeOut);
+        sTransitionHelper.addTransition(mHeadersTransition, changeBounds);
+        sTransitionHelper.addTransition(mHeadersTransition, fadeIn);
 
-        mTransitionHelper.setTransitionCompleteListener(mHeadersTransition, new Runnable() {
+        sTransitionHelper.setTransitionCompleteListener(mHeadersTransition, new Runnable() {
             @Override
             public void run() {
                 mHeadersTransition = null;
@@ -515,7 +514,7 @@ public class BrowseFragment extends Fragment {
                 }
                 mShowingHeaders = false;
                 onHeadersTransitionStart(false);
-                mTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
+                sTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
                 mRowsFragment.getVerticalGridView().requestFocus();
             }
         };
@@ -548,11 +547,11 @@ public class BrowseFragment extends Fragment {
 
             if (position == 0) {
                 if (!mShowingTitle) {
-                    mTransitionHelper.runTransition(mSceneWithTitle, mTitleTransition);
+                    sTransitionHelper.runTransition(mSceneWithTitle, mTitleTransition);
                     mShowingTitle = true;
                 }
             } else if (mShowingTitle) {
-                mTransitionHelper.runTransition(mSceneWithoutTitle, mTitleTransition);
+                sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleTransition);
                 mShowingTitle = false;
             }
         }

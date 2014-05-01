@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
@@ -56,6 +57,13 @@ public class VerticalGridFragment extends Fragment {
     private TextView mTitleView;
     private ViewGroup mBrowseTitle;
     private SearchOrbView mSearchOrbView;
+    private boolean mShowingTitle = true;
+
+    // transition related
+    private static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
+    private Object mTitleTransition;
+    private Object mSceneWithTitle;
+    private Object mSceneWithoutTitle;
 
     public static class Params {
         private String mTitle;
@@ -114,9 +122,7 @@ public class VerticalGridFragment extends Fragment {
             throw new IllegalArgumentException("Grid presenter may not be null");
         }
         mGridPresenter = gridPresenter;
-        if (mOnItemSelectedListener != null) {
-            mGridPresenter.setOnItemSelectedListener(mOnItemSelectedListener);
-        }
+        mGridPresenter.setOnItemSelectedListener(mRowSelectedListener);
         if (mOnItemClickedListener != null) {
             mGridPresenter.setOnItemClickedListener(mOnItemClickedListener);
         }
@@ -144,17 +150,40 @@ public class VerticalGridFragment extends Fragment {
         return mAdapter;
     }
 
+    final private OnItemSelectedListener mRowSelectedListener = new OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(Object item, Row row) {
+            int position = mGridViewHolder.getGridView().getSelectedPosition();
+            if (DEBUG) Log.v(TAG, "row selected position " + position);
+            onRowSelected(position);
+            if (mOnItemSelectedListener != null) {
+                mOnItemSelectedListener.onItemSelected(item, row);
+            }
+        }
+    };
+
     /**
      * Sets an item selection listener.
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
-        if (mGridPresenter != null) {
-            mGridPresenter.setOnItemSelectedListener(mOnItemSelectedListener);
-        }
     }
 
-    // TODO: getitemselectedlistener?
+    private void onRowSelected(int position) {
+        if (position != mSelectedPosition) {
+            if (!mGridViewHolder.getGridView().hasPreviousViewInSameRow(position)) {
+                // if has no sibling in front of it,  show title
+                if (!mShowingTitle) {
+                    sTransitionHelper.runTransition(mSceneWithTitle, mTitleTransition);
+                    mShowingTitle = true;
+                }
+            } else if (mShowingTitle) {
+                sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleTransition);
+                mShowingTitle = false;
+            }
+            mSelectedPosition = position;
+        }
+    }
 
     /**
      * Sets an item clicked listener.
@@ -211,7 +240,8 @@ public class VerticalGridFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.lb_vertical_grid_fragment, container, false);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.lb_vertical_grid_fragment,
+                container, false);
 
         mBrowseTitle = (ViewGroup) root.findViewById(R.id.browse_title_group);
         mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
@@ -226,6 +256,25 @@ public class VerticalGridFragment extends Fragment {
             setTitle(mParams.mTitle);
         }
 
+        mSceneWithTitle = sTransitionHelper.createScene(root, new Runnable() {
+            @Override
+            public void run() {
+                mBrowseTitle.setVisibility(View.VISIBLE);
+            }
+        });
+        mSceneWithoutTitle = sTransitionHelper.createScene(root, new Runnable() {
+            @Override
+            public void run() {
+                mBrowseTitle.setVisibility(View.GONE);
+            }
+        });
+        mTitleTransition = sTransitionHelper.createTransitionSet(false);
+        Object fade = sTransitionHelper.createFadeTransition(
+                TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
+        Object changeBounds = sTransitionHelper.createChangeBounds(false);
+        sTransitionHelper.addTransition(mTitleTransition, fade);
+        sTransitionHelper.addTransition(mTitleTransition, changeBounds);
+        sTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_grid_dock, true);
         return root;
     }
 

@@ -13,7 +13,6 @@
  */
 package android.support.v17.leanback.app;
 
-import android.content.Context;
 import android.os.Build;
 import android.util.SparseArray;
 import android.view.View;
@@ -27,6 +26,7 @@ final class TransitionHelper {
     public static final int FADE_IN = 0x1;
     public static final int FADE_OUT = 0x2;
 
+    private final static TransitionHelper sHelper = new TransitionHelper();
     TransitionHelperVersionImpl mImpl;
 
     /**
@@ -189,8 +189,8 @@ final class TransitionHelper {
     private static final class TransitionHelperKitkatImpl implements TransitionHelperVersionImpl {
         private final TransitionHelperKitkat mTransitionHelper;
 
-        TransitionHelperKitkatImpl(Context context) {
-            mTransitionHelper = new TransitionHelperKitkat(context);
+        TransitionHelperKitkatImpl() {
+            mTransitionHelper = new TransitionHelperKitkat();
         }
 
         @Override
@@ -288,12 +288,14 @@ final class TransitionHelper {
     /**
      * Returns the TransitionHelper that can be used to perform Transition
      * animations.
-     *
-     * @param context A context for accessing system resources.
      */
-    public TransitionHelper(Context context) {
+    public static TransitionHelper getInstance() {
+        return sHelper;
+    }
+
+    private TransitionHelper() {
         if (systemSupportsTransitions()) {
-            mImpl = new TransitionHelperKitkatImpl(context);
+            mImpl = new TransitionHelperKitkatImpl();
         } else {
             mImpl = new TransitionHelperStubImpl();
         }

@@ -33,10 +33,7 @@ import java.util.HashMap;
 
 class TransitionHelperKitkat {
 
-    private final Context mContext;
-
-    TransitionHelperKitkat(Context context) {
-        mContext = context;
+    TransitionHelperKitkat() {
     }
 
     Object createScene(ViewGroup sceneRoot, Runnable enterAction) {
