@@ -50,8 +50,8 @@
         <item name="listPreferredItemPaddingLeft">8dip</item>
         <item name="listPreferredItemPaddingRight">8dip</item>
 
-        <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
-        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
+        <item name="textAppearanceListItem">?android:attr/textAppearanceLarge</item>
+        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceLarge</item>
 
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
@@ -108,8 +108,8 @@
         <item name="listPreferredItemPaddingLeft">8dip</item>
         <item name="listPreferredItemPaddingRight">8dip</item>
 
-        <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
-        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
+        <item name="textAppearanceListItem">?android:attr/textAppearanceLarge</item>
+        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceLarge</item>
 
         <!-- Action Bar Styles -->
         <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView</item>
