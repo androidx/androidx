@@ -18,6 +18,8 @@ import android.content.res.TypedArray;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.ViewGroup;
 
 /**
  * A view that shows items in a vertically scrolling list. The items come from
@@ -42,13 +44,24 @@ public class VerticalGridView extends BaseGridView {
     protected void initAttributes(Context context, AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbVerticalGridView);
-        setColumnWidth(a.getDimensionPixelSize(R.styleable.lbVerticalGridView_columnWidth, 0));
+        setColumnWidth(a);
         setNumColumns(a.getInt(R.styleable.lbVerticalGridView_numberOfColumns, 1));
         a.recycle();
     }
 
+    void setColumnWidth(TypedArray array) {
+        TypedValue typedValue = array.peekValue(R.styleable.lbVerticalGridView_columnWidth);
+        int size;
+        if (typedValue != null && typedValue.type == TypedValue.TYPE_DIMENSION) {
+            size = array.getDimensionPixelSize(R.styleable.lbVerticalGridView_columnWidth, 0);
+        } else {
+            size = array.getInt(R.styleable.lbVerticalGridView_columnWidth, 0);
+        }
+        setColumnWidth(size);
+    }
+
     /**
-     * Set the number of columns.
+     * Set the number of columns.  Defaults to one.
      */
     public void setNumColumns(int numColumns) {
         mLayoutManager.setNumRows(numColumns);
@@ -57,6 +70,9 @@ public class VerticalGridView extends BaseGridView {
 
     /**
      * Set the column width.
+     *
+     * @param width May be WRAP_CONTENT, or a size in pixels. If zero,
+     * column width will be fixed based on number of columns and view width.
      */
     public void setColumnWidth(int width) {
         mLayoutManager.setRowHeight(width);

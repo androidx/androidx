@@ -137,7 +137,7 @@
         <item name="horizontalMargin">@dimen/lb_browse_item_margin</item>
         <item name="verticalMargin">@dimen/lb_browse_item_margin</item>
         <item name="focusOutFront">true</item>
-        <item name="rowHeight">@dimen/lb_list_row_height</item>
+        <item name="rowHeight">wrap_content</item>
     </style>
 
     <style name="Widget.Leanback.GridItems.VerticalGridView">
