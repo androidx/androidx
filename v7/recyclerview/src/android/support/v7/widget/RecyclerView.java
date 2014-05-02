@@ -2103,9 +2103,10 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
             }
-            if (mCachedViews.size() < mViewCacheMax || !holder.isRecyclable()) {
+            if (mCachedViews.size() < mViewCacheMax && !holder.isRemoved()
+                    && !holder.isInvalid()) {
                 mCachedViews.add(holder);
-            } else {
+            } else if (holder.isRecyclable()) {
                 getRecycledViewPool().putRecycledView(holder);
                 dispatchViewRecycled(holder);
             }
@@ -2198,7 +2199,8 @@ public class RecyclerView extends ViewGroup {
             // Try first for an exact, non-invalid match from scrap.
             for (int i = 0; i < scrapCount; i++) {
                 final ViewHolder holder = mAttachedScrap.get(i);
-                if (holder.getPosition() == position && !holder.isInvalid()) {
+                if (holder.getPosition() == position && !holder.isInvalid() &&
+                        !holder.isRemoved()) {
                     if (holder.getItemViewType() != type) {
                         Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
                                 " wrong view type! (found " + holder.getItemViewType() +
