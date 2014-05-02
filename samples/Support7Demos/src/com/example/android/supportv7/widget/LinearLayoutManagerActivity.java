@@ -25,16 +25,13 @@ import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -45,7 +42,9 @@ import com.example.android.supportv7.R;
  */
 public class LinearLayoutManagerActivity extends Activity {
 
-    private LinearLayoutManager mListLayoutManager;
+    private RecyclerView.LayoutManager mListLayoutManager;
+
+    private ListWrapper mListWrapper;
 
     private RecyclerView mRecyclerView;
 
@@ -67,9 +66,68 @@ public class LinearLayoutManagerActivity extends Activity {
         mRecyclerView.setHasFixedSize(true);
         mListLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mListLayoutManager);
-        mRecyclerView.setAdapter(new SimpleStringAdapter(this, Cheeses.sCheeseStrings));
-        mDividerItemDecoration = new DividerItemDecoration(this,
-                mListLayoutManager.getOrientation());
+        mRecyclerView.setAdapter(new SimpleStringAdapter(this, Cheeses.sCheeseStrings) {
+            @Override
+            public SimpleStringAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                final SimpleStringAdapter.ViewHolder vh = super
+                        .onCreateViewHolder(parent, viewType);
+                vh.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final int pos = vh.getPosition();
+                        if (pos + 1 < getItemCount()) {
+                            swap(pos, pos + 1);
+                        }
+                        notifyItemChanged(pos);
+                    }
+                });
+                return vh;
+            }
+        });
+        initListForLayoutManager();
+    }
+
+    private void initListForLayoutManager() {
+        mListWrapper = new ListWrapper() {
+            @Override
+            public int getOrientation() {
+                return lm().getOrientation();
+            }
+
+            @Override
+            public void setOrientation(int orientation) {
+                lm().setOrientation(orientation);
+            }
+
+            @Override
+            public boolean getReverseLayout() {
+                return lm().getReverseLayout();
+            }
+
+            @Override
+            public void setReverseLayout(boolean newValue) {
+                lm().setReverseLayout(newValue);
+            }
+
+            @Override
+            public boolean getStackFromEnd() {
+                return lm().getStackFromEnd();
+            }
+
+            @Override
+            public void setStackFromEnd(boolean newValue) {
+                lm().setStackFromEnd(newValue);
+            }
+
+            private LinearLayoutManager lm() {
+                return (LinearLayoutManager) mListLayoutManager;
+            }
+        };
+        if (mDividerItemDecoration != null) {
+            mRecyclerView.removeItemDecoration(mDividerItemDecoration);
+        }
+        mDividerItemDecoration = new DividerItemDecoration(this, mListWrapper.getOrientation());
         mRecyclerView.addItemDecoration(mDividerItemDecoration);
     }
 
@@ -83,7 +141,11 @@ public class LinearLayoutManagerActivity extends Activity {
     }
 
     private void initSpinner() {
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        final CheckBox checkBox = (CheckBox)
+                findViewById(R.id.enable_smooth_scroll);
+
+        final Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        final EditText scrollOffset = (EditText) findViewById(R.id.scroll_offset);
         spinner.setAdapter(new BaseAdapter() {
             @Override
             public int getCount() {
@@ -102,7 +164,7 @@ public class LinearLayoutManagerActivity extends Activity {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                if(convertView == null) {
+                if (convertView == null) {
                     convertView = new TextView(parent.getContext());
                 }
                 ((TextView) convertView).setText("" + position);
@@ -112,7 +174,25 @@ public class LinearLayoutManagerActivity extends Activity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mRecyclerView.scrollToPosition(position);
+                int offset = Integer.MIN_VALUE;
+                String offsetString = scrollOffset.getText().toString();
+                try {
+                    offset = Integer.parseInt(offsetString);
+                } catch (NumberFormatException ex) {
+
+                }
+
+                if (offset == Integer.MIN_VALUE) {
+                    if (checkBox.isChecked()) {
+                        mRecyclerView.smoothScrollToPosition(position);
+                    } else {
+                        mRecyclerView.scrollToPosition(position);
+                    }
+                } else {
+                    // ignore offset until we add recycling list view with smooth scroll to offset
+                    mRecyclerView.smoothScrollToPosition(position);
+                }
+
             }
 
             @Override
@@ -127,25 +207,28 @@ public class LinearLayoutManagerActivity extends Activity {
                 new ConfigToggle(R.string.checkbox_orientation) {
                     @Override
                     public boolean isChecked() {
-                        return mListLayoutManager.getOrientation() == LinearLayoutManager.HORIZONTAL;
+                        return mListWrapper.getOrientation() == LinearLayoutManager.HORIZONTAL;
                     }
 
                     @Override
                     public void onChange(boolean newValue) {
-                        mListLayoutManager.setOrientation(newValue ? LinearLayoutManager.HORIZONTAL
+                        mListWrapper.setOrientation(newValue ? LinearLayoutManager.HORIZONTAL
                                 : LinearLayoutManager.VERTICAL);
-                        mDividerItemDecoration.setOrientation(mListLayoutManager.getOrientation());
+                        if (mDividerItemDecoration != null) {
+                            mDividerItemDecoration.setOrientation(mListWrapper.getOrientation());
+                        }
+
                     }
                 },
                 new ConfigToggle(R.string.checkbox_reverse) {
                     @Override
                     public boolean isChecked() {
-                        return mListLayoutManager.getReverseLayout();
+                        return mListWrapper.getReverseLayout();
                     }
 
                     @Override
                     public void onChange(boolean newValue) {
-                        mListLayoutManager.setReverseLayout(newValue);
+                        mListWrapper.setReverseLayout(newValue);
                     }
                 },
                 new ConfigToggle(R.string.checkbox_layout_dir) {
@@ -164,12 +247,12 @@ public class LinearLayoutManagerActivity extends Activity {
                 new ConfigToggle(R.string.checkbox_stack_from_end) {
                     @Override
                     public boolean isChecked() {
-                        return mListLayoutManager.getStackFromEnd();
+                        return mListWrapper.getStackFromEnd();
                     }
 
                     @Override
                     public void onChange(boolean newValue) {
-                        mListLayoutManager.setStackFromEnd(newValue);
+                        mListWrapper.setStackFromEnd(newValue);
                     }
                 }
         };
@@ -221,7 +304,6 @@ public class LinearLayoutManagerActivity extends Activity {
     }
 
 
-
     private RecyclerView.Adapter mConfigAdapter = new RecyclerView.Adapter<ConfigViewHolder>() {
         @Override
         public ConfigViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -239,5 +321,26 @@ public class LinearLayoutManagerActivity extends Activity {
             return mConfigToggles.length;
         }
     };
+
+
+    /**
+     * To avoid adding interfaces to LayoutManager for the demo, we use this wrapper class to
+     * call different LayoutManagers
+     */
+    private static interface ListWrapper {
+
+        int getOrientation();
+
+        void setOrientation(int orientation);
+
+        boolean getReverseLayout();
+
+        void setReverseLayout(boolean newValue);
+
+        boolean getStackFromEnd();
+
+        void setStackFromEnd(boolean newValue);
+    }
+
 
 }
