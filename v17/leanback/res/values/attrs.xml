@@ -26,6 +26,8 @@
         <attr name="horizontalMargin" format="dimension" />
         <!-- Defining margin between two items vertically -->
         <attr name="verticalMargin" format="dimension" />
+        <!-- Defining gravity of child view -->
+        <attr name="android:gravity" />
     </declare-styleable>
 
     <declare-styleable name="lbHorizontalGridView">

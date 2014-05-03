@@ -19,8 +19,8 @@ import android.graphics.Rect;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 
 /**
@@ -122,6 +122,9 @@ abstract class BaseGridView extends RecyclerView {
                 a.getDimensionPixelSize(R.styleable.lbBaseGridView_verticalMargin, 0));
         mLayoutManager.setHorizontalMargin(
                 a.getDimensionPixelSize(R.styleable.lbBaseGridView_horizontalMargin, 0));
+        if (a.hasValue(R.styleable.lbBaseGridView_android_gravity)) {
+            setGravity(a.getInt(R.styleable.lbBaseGridView_android_gravity, Gravity.NO_GRAVITY));
+        }
         a.recycle();
     }
 
