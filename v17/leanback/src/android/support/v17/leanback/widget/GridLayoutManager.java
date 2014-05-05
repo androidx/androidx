@@ -73,8 +73,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         private boolean mFirstAttached;
         // current virtual view position (scrollOffset + left/top) in the GridLayoutManager
         private int mViewX, mViewY;
+        private int mSize;
         // animation start value of translation x and y
         private float mAnimationStartTranslationX, mAnimationStartTranslationY;
+
+        // The direction this view should be laid out along the primary dimension.
+        private boolean mLayoutForward;
+
+        // Orientation of the grid layout
+        private int mOrientation;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
@@ -168,8 +175,21 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     float fraction = (float) (totalTime / (double)mDuration);
                     float fractionToEnd = 1 - mAnimator
                         .getInterpolator().getInterpolation(fraction);
-                    mView.setTranslationX(fractionToEnd * mAnimationStartTranslationX);
-                    mView.setTranslationY(fractionToEnd * mAnimationStartTranslationY);
+                    if (mOrientation == HORIZONTAL) {
+                        if (mLayoutForward) {
+                            mView.setTranslationX(fractionToEnd * mAnimationStartTranslationX);
+                        } else {
+                            mView.setTranslationX(fractionToEnd * mAnimationStartTranslationX -
+                                    fractionToEnd * (mView.getMeasuredWidth() - mSize));
+                        }
+                    } else {
+                        if (mLayoutForward) {
+                            mView.setTranslationY(fractionToEnd * mAnimationStartTranslationY);
+                        } else {
+                            mView.setTranslationY(fractionToEnd * mAnimationStartTranslationY -
+                                    fractionToEnd * (mView.getMeasuredHeight() - mSize));
+                        }
+                    }
                     invalidateItemDecoration();
                 }
             }
@@ -185,6 +205,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 // TODO do we need initial animation?
                 mViewX = layout.getScrollOffsetX() + getOpticalLeft(view);
                 mViewY = layout.getScrollOffsetY() + getOpticalTop(view);
+                mOrientation = layout.mOrientation;
+                mSize = mOrientation == HORIZONTAL ? view.getMeasuredWidth() : view.getMeasuredHeight();
                 mFirstAttached = false;
                 return;
             }
@@ -212,6 +234,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mAnimator.end();
             }
             if (mView != null) {
+                mSize = mOrientation == HORIZONTAL ?
+                    mView.getMeasuredWidth() : mView.getMeasuredHeight();
                 mView.setTranslationX(0);
                 mView.setTranslationY(0);
                 mView = null;
@@ -665,6 +689,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return p.getOpticalTop(v) + p.getAlignY();
     }
 
+    private void setViewLayoutForward(View v, boolean layoutForward) {
+        LayoutParams p = (LayoutParams) v.getLayoutParams();
+        p.mLayoutForward = layoutForward;
+    }
+
+    private boolean getIsViewLayoutForward(View v) {
+        return ((LayoutParams) v.getLayoutParams()).mLayoutForward;
+    }
+
     /**
      * Re-initialize data structures for a data change or handling invisible
      * selection. The method tries its best to preserve position information so
@@ -1095,6 +1128,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             updateScrollMin();
             updateScrollMax();
+
+            setViewLayoutForward(v, append);
         }
     };
 
@@ -1312,36 +1347,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    /**
-     * Relayout and re-positioning child for a possible new size and/or a new
-     * start.
-     *
-     * @param view View to measure and layout.
-     * @param start New start of the view or Integer.MIN_VALUE for not change.
-     * @return New start of next view.
-     */
-    private int updateChildView(int rowIndex, View view, int start) {
-        if (start == Integer.MIN_VALUE) {
-            start = getViewMin(view);
-        }
-        int end;
-        if (mOrientation == HORIZONTAL) {
-            if (view.isLayoutRequested()) {
-                measureChild(view, rowIndex);
-            }
-            end = start + view.getMeasuredWidth();
-        } else {
-            if (view.isLayoutRequested()) {
-                measureChild(view, rowIndex);
-            }
-            end = start + view.getMeasuredHeight();
-        }
-
-        final int startSecondary = getRowStartSecondary(rowIndex) - mScrollOffsetSecondary;
-        layoutChild(rowIndex, view, start, end, startSecondary);
-        return end + mMarginPrimary;
-    }
-
     // Fast layout when there is no structure change, adapter change, etc.
     protected void fastRelayout() {
         initScrollController();
@@ -1351,10 +1356,63 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // relayout and repositioning views on each row
         for (int i = 0; i < mNumRows; i++) {
             List<Integer> row = rows[i];
-            int start = Integer.MIN_VALUE;
+            final int startSecondary = getRowStartSecondary(i) - mScrollOffsetSecondary;
             for (int j = 0, size = row.size(); j < size; j++) {
-                int position = row.get(j);
-                start = updateChildView(i, getViewByPosition(position), start);
+                final int position = row.get(j);
+                final View view = getViewByPosition(position);
+                final boolean layoutForward = getIsViewLayoutForward(view);
+                int primaryDelta, start, end;
+
+                if (mOrientation == HORIZONTAL) {
+                    final int primarySize = view.getMeasuredWidth();
+                    if (view.isLayoutRequested()) {
+                        measureChild(view, i);
+                    }
+                    if (layoutForward) {
+                        start = getViewMin(view);
+                        end = start + view.getMeasuredWidth();
+                        primaryDelta = view.getMeasuredWidth() - primarySize;
+                        if (primaryDelta != 0) {
+                            for (int k = j + 1; k < size; k++) {
+                                getViewByPosition(row.get(k)).offsetLeftAndRight(primaryDelta);
+                            }
+                        }
+                    } else {
+                        end = getViewMax(view);
+                        start = end - view.getMeasuredWidth();
+                        primaryDelta = primarySize - view.getMeasuredWidth();
+                        if (primaryDelta != 0) {
+                            for (int k = 0; k < j; k++) {
+                                getViewByPosition(row.get(k)).offsetLeftAndRight(primaryDelta);
+                            }
+                        }
+                    }
+                } else {
+                    final int primarySize = view.getMeasuredHeight();
+                    if (view.isLayoutRequested()) {
+                        measureChild(view, i);
+                    }
+                    if (layoutForward) {
+                        start = getViewMin(view);
+                        end = start + view.getMeasuredHeight();
+                        primaryDelta = view.getMeasuredHeight() - primarySize;
+                        if (primaryDelta != 0) {
+                            for (int k = j + 1; k < size; k++) {
+                                getViewByPosition(row.get(k)).offsetTopAndBottom(primaryDelta);
+                            }
+                        }
+                    } else {
+                        end = getViewMax(view);
+                        start = end - view.getMeasuredHeight();
+                        primaryDelta = primarySize - view.getMeasuredHeight();
+                        if (primaryDelta != 0) {
+                            for (int k = 0; k < j; k++) {
+                                getViewByPosition(row.get(k)).offsetTopAndBottom(primaryDelta);
+                            }
+                        }
+                    }
+                }
+                layoutChild(i, view, start, end, startSecondary);
             }
         }
 
