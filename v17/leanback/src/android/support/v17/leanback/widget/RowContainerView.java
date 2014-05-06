@@ -62,4 +62,7 @@ final class RowContainerView extends LinearLayout {
         addView(view);
     }
 
+    public void showHeader(boolean show) {
+        mHeaderDock.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
 }

@@ -471,6 +471,14 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Enable or disable layout.  All children will be removed when layout is
+     * disabled.
+     */
+    public void setLayoutEnabled(boolean layoutEnabled) {
+        mLayoutManager.setLayoutEnabled(layoutEnabled);
+    }
+
+    /**
      * Get if view has same row sibling next to it.
      *
      * @param position Position in adapter.

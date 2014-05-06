@@ -57,6 +57,12 @@ class TransitionHelperKitkat {
         return new AutoTransition();
     }
 
+    Object createSlide(SlideCallback callback) {
+        Slide slide = new Slide();
+        slide.setCallback(callback);
+        return slide;
+    }
+
     Object createFadeTransition(int fadingMode) {
         Fade fade = new Fade(fadingMode);
         return fade;
@@ -140,6 +146,14 @@ class TransitionHelperKitkat {
         ((CustomChangeBounds) changeBounds).setDefaultStartDelay(startDelay);
     }
 
+    void setStartDelay(Object transition, long startDelay) {
+        ((Transition)transition).setStartDelay(startDelay);
+    }
+
+    void setDuration(Object transition, long duration) {
+        ((Transition)transition).setDuration(duration);
+    }
+
     void exclude(Object transition, int targetId, boolean exclude) {
         ((Transition) transition).excludeTarget(targetId, exclude);
     }
@@ -164,13 +178,13 @@ class TransitionHelperKitkat {
         ((Transition) transition).addTarget(targetView);
     }
 
-    public void setTransitionCompleteListener(Object transition, Runnable listener) {
+    public void setTransitionListener(Object transition, final TransitionListener listener) {
         Transition t = (Transition) transition;
-        final Runnable completeListener = listener;
         t.addListener(new Transition.TransitionListener() {
 
             @Override
             public void onTransitionStart(Transition transition) {
+                listener.onTransitionStart(transition);
             }
 
             @Override
@@ -183,7 +197,7 @@ class TransitionHelperKitkat {
 
             @Override
             public void onTransitionEnd(Transition transition) {
-                completeListener.run();
+                listener.onTransitionEnd(transition);
             }
 
             @Override

@@ -30,12 +30,22 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
+#  Base sub-library contains classes both needed by api-level specific libraries
+#  (e.g. KitKat) and final static library.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v17-leanback-common
+LOCAL_SDK_VERSION := 17
+LOCAL_SRC_FILES := $(call all-java-files-under, common)
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 #  A helper sub-library that makes direct use of KitKat APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback-kitkat
 LOCAL_SDK_VERSION := 19
 LOCAL_SRC_FILES := $(call all-java-files-under, kitkat)
-LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res
+LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -43,9 +53,9 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 #  A helper sub-library that makes direct use of JBMR2 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback-jbmr2
-LOCAL_SDK_VERSION := 19
+LOCAL_SDK_VERSION := 18
 LOCAL_SRC_FILES := $(call all-java-files-under, jbmr2)
-LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res
+LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -58,7 +68,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat android-support-v17-leanback-jbmr2
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat android-support-v17-leanback-jbmr2 \
+        android-support-v17-leanback-common
 LOCAL_JAVA_LIBRARIES := \
         android-support-v4 \
         android-support-v7-recyclerview \

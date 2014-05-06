@@ -35,6 +35,8 @@ abstract class BaseRowFragment extends Fragment {
     private PresenterSelector mPresenterSelector;
     private ItemBridgeAdapter mBridgeAdapter;
     private int mSelectedPosition = -1;
+    protected int mReparentHeaderId;
+    protected boolean mInTransition;
 
     abstract protected int getLayoutResourceId();
 
@@ -143,5 +145,25 @@ abstract class BaseRowFragment extends Fragment {
         } else {
             return null;
         }
+    }
+
+    void setReparentHeaderId(int reparentId) {
+        mReparentHeaderId = reparentId;
+    }
+
+    void onTransitionStart() {
+        mInTransition = true;
+        if (mVerticalGridView != null) {
+            mVerticalGridView.setAnimateChildLayout(false);
+            mVerticalGridView.setFocusSearchDisabled(true);
+        }
+    }
+
+    void onTransitionEnd() {
+        if (mVerticalGridView != null) {
+            mVerticalGridView.setAnimateChildLayout(true);
+            mVerticalGridView.setFocusSearchDisabled(false);
+        }
+        mInTransition = false;
     }
 }

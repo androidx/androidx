@@ -273,6 +273,7 @@ public class ListRowPresenter extends RowPresenter {
 
     @Override
     protected void onRowViewSelected(RowPresenter.ViewHolder holder, boolean selected) {
+        super.onRowViewSelected(holder, selected);
         updateFooterViewSwitcher((ViewHolder) holder);
     }
 
@@ -291,7 +292,7 @@ public class ListRowPresenter extends RowPresenter {
             selectChildView(vh, ibh == null ? null : ibh.itemView);
         } else {
             if (mHoverCardPresenterSelector != null) {
-                vh.mHoverCardViewSwitcher.clear();
+                vh.mHoverCardViewSwitcher.unselect();
             }
         }
     }

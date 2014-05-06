@@ -33,8 +33,6 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
-import java.util.List;
-
 /**
  * An ordered set of rows of leanback widgets.
  */
@@ -316,11 +314,14 @@ public class RowsFragment extends BaseRowFragment {
         }
     }
 
-    void getHeaderViews(List<View> headers, List<Integer> positions) {
+    @Override
+    void onTransitionStart() {
+        super.onTransitionStart();
         final VerticalGridView listView = getVerticalGridView();
         if (listView == null) {
             return;
         }
+        final int selectedPosition = listView.getSelectedPosition();
         final int count = listView.getChildCount();
         for (int i = 0; i < count; i++) {
             View child = listView.getChildAt(i);
@@ -329,9 +330,12 @@ public class RowsFragment extends BaseRowFragment {
             RowPresenter presenter = (RowPresenter) viewHolder.getPresenter();
             RowPresenter.ViewHolder rowViewHolder = presenter.getRowViewHolder(
                     viewHolder.getViewHolder());
-            headers.add(rowViewHolder.getHeaderViewHolder().view);
-            positions.add(viewHolder.getPosition());
+            View headerView = rowViewHolder.getHeaderViewHolder().view;
+            if (viewHolder.getPosition() == selectedPosition) {
+                headerView.setId(mReparentHeaderId);
+            } else {
+                headerView.setId(View.NO_ID);
+            }
         }
     }
-
 }

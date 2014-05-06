@@ -14,7 +14,6 @@
 package android.support.v17.leanback.app;
 
 import android.os.Build;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -25,6 +24,11 @@ final class TransitionHelper {
 
     public static final int FADE_IN = 0x1;
     public static final int FADE_OUT = 0x2;
+
+    public static final int SLIDE_LEFT = 0;
+    public static final int SLIDE_TOP = 1;
+    public static final int SLIDE_RIGHT = 2;
+    public static final int SLIDE_BOTTOM = 3;
 
     private final static TransitionHelper sHelper = new TransitionHelper();
     TransitionHelperVersionImpl mImpl;
@@ -51,6 +55,8 @@ final class TransitionHelper {
 
         public Object createAutoTransition();
 
+        public Object createSlide(SlideCallback callback);
+
         public Object createFadeTransition(int fadingMode);
 
         public Object createChangeBounds(boolean reparent);
@@ -68,7 +74,7 @@ final class TransitionHelper {
 
         public void addTransition(Object transitionSet, Object transition);
 
-        public void setTransitionCompleteListener(Object transition, Runnable listener);
+        public void setTransitionListener(Object transition, TransitionListener listener);
 
         public void runTransition(Object scene, Object transition);
 
@@ -84,6 +90,10 @@ final class TransitionHelper {
 
         public void include(Object transition, View targetView);
 
+        public void setStartDelay(Object transition, long startDelay);
+
+        public void setDuration(Object transition, long duration);
+
     }
 
     /**
@@ -92,7 +102,7 @@ final class TransitionHelper {
     private static final class TransitionHelperStubImpl implements TransitionHelperVersionImpl {
 
         private static class TransitionStub {
-            Runnable mCompleteListener;
+            TransitionListener mTransitionListener;
         }
 
         @Override
@@ -112,6 +122,11 @@ final class TransitionHelper {
 
         @Override
         public Object createChangeBounds(boolean reparent) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public Object createSlide(SlideCallback callback) {
             return new TransitionStub();
         }
 
@@ -166,19 +181,30 @@ final class TransitionHelper {
         }
 
         @Override
-        public void setTransitionCompleteListener(Object transition, Runnable listener) {
-            ((TransitionStub) transition).mCompleteListener = listener;
+        public void setStartDelay(Object transition, long startDelay) {
+        }
+
+        @Override
+        public void setDuration(Object transition, long duration) {
+        }
+
+        @Override
+        public void setTransitionListener(Object transition, TransitionListener listener) {
+            ((TransitionStub) transition).mTransitionListener = listener;
         }
 
         @Override
         public void runTransition(Object scene, Object transition) {
+            TransitionStub transitionStub = (TransitionStub) transition;
+            if (transitionStub != null && transitionStub.mTransitionListener != null) {
+                transitionStub.mTransitionListener.onTransitionStart(transition);
+            }
             Runnable r = ((Runnable) scene);
             if (r != null) {
                 r.run();
             }
-            TransitionStub transitionStub = (TransitionStub) transition;
-            if (transitionStub != null && transitionStub.mCompleteListener != null) {
-                transitionStub.mCompleteListener.run();
+            if (transitionStub != null && transitionStub.mTransitionListener != null) {
+                transitionStub.mTransitionListener.onTransitionEnd(transition);
             }
         }
     }
@@ -211,6 +237,11 @@ final class TransitionHelper {
         @Override
         public Object createChangeBounds(boolean reparent) {
             return mTransitionHelper.createChangeBounds(reparent);
+        }
+
+        @Override
+        public Object createSlide(SlideCallback callback) {
+            return mTransitionHelper.createSlide(callback);
         }
 
         @Override
@@ -275,8 +306,18 @@ final class TransitionHelper {
         }
 
         @Override
-        public void setTransitionCompleteListener(Object transition, Runnable listener) {
-            mTransitionHelper.setTransitionCompleteListener(transition, listener);
+        public void setStartDelay(Object transition, long startDelay) {
+            mTransitionHelper.setStartDelay(transition, startDelay);
+        }
+
+        @Override
+        public void setDuration(Object transition, long duration) {
+            mTransitionHelper.setDuration(transition, duration);
+        }
+
+        @Override
+        public void setTransitionListener(Object transition, TransitionListener listener) {
+            mTransitionHelper.setTransitionListener(transition, listener);
         }
 
         @Override
@@ -329,6 +370,10 @@ final class TransitionHelper {
         return mImpl.createTransitionSet(sequential);
     }
 
+    public Object createSlide(SlideCallback callback) {
+        return mImpl.createSlide(callback);
+    }
+
     public void addTransition(Object transitionSet, Object transition) {
         mImpl.addTransition(transitionSet, transition);
     }
@@ -357,6 +402,14 @@ final class TransitionHelper {
         mImpl.include(transition, targetView);
     }
 
+    public void setStartDelay(Object transition, long startDelay) {
+        mImpl.setStartDelay(transition, startDelay);
+    }
+
+    public void setDuration(Object transition, long duration) {
+        mImpl.setDuration(transition, duration);
+    }
+
     public Object createAutoTransition() {
         return mImpl.createAutoTransition();
     }
@@ -365,8 +418,8 @@ final class TransitionHelper {
         return mImpl.createFadeTransition(fadeMode);
     }
 
-    public void setTransitionCompleteListener(Object transition, Runnable listener) {
-        mImpl.setTransitionCompleteListener(transition, listener);
+    public void setTransitionListener(Object transition, TransitionListener listener) {
+        mImpl.setTransitionListener(transition, listener);
     }
 
     public void runTransition(Object scene, Object transition) {

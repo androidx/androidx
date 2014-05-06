@@ -29,7 +29,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnLayoutChangeListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -85,12 +87,59 @@ public class HeadersFragment extends BaseRowFragment {
             });
             headerView.setFocusable(true);
             headerView.setFocusableInTouchMode(true);
+            headerView.addOnLayoutChangeListener(sLayoutChangeListener);
         }
 
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
             View headerView = viewHolder.getViewHolder().view;
-            headerView.setVisibility(mShow ? View.VISIBLE : View.INVISIBLE);
+            if (mInTransition) {
+                updateHeaderViewForTransition(headerView, viewHolder.getPosition());
+            }
+        }
+    };
+
+    /**
+     * Preparing headerView for transition.
+     */
+    private void updateHeaderViewForTransition(View headerView, Integer position) {
+        final VerticalGridView listView = getVerticalGridView();
+        if (position == listView.getSelectedPosition()) {
+            headerView.setId(mReparentHeaderId);
+        } else {
+            headerView.setId(View.NO_ID);
+        }
+        headerView.setTag(R.id.lb_header_transition_position, position);
+    }
+
+    /**
+     * Preparing all headerViews for transition.
+     */
+    private void updateHeaderViewsForTransition() {
+        final VerticalGridView listView = getVerticalGridView();
+        if (listView == null) {
+            return;
+        }
+        final int count = listView.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = listView.getChildAt(i);
+            updateHeaderViewForTransition(child,
+                    listView.getChildViewHolder(child).getPosition());
+        }
+    }
+
+    @Override
+    void onTransitionStart() {
+        super.onTransitionStart();
+        updateHeaderViewsForTransition();
+    }
+
+    private static OnLayoutChangeListener sLayoutChangeListener = new OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom,
+            int oldLeft, int oldTop, int oldRight, int oldBottom) {
+            v.setPivotX(0);
+            v.setPivotY(v.getMeasuredHeight() / 2);
         }
     };
 
@@ -107,42 +156,11 @@ public class HeadersFragment extends BaseRowFragment {
         }
     }
 
-    void getHeaderViews(List<View> headers, List<Integer> positions) {
-        final VerticalGridView listView = getVerticalGridView();
-        if (listView == null) {
-            return;
-        }
-        final int count = listView.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = listView.getChildAt(i);
-            headers.add(child);
-            positions.add(listView.getChildViewHolder(child).getPosition());
-        }
-    }
-
     void setHeadersVisiblity(boolean show) {
         mShow = show;
         final VerticalGridView listView = getVerticalGridView();
-        if (listView == null) {
-            return;
-        }
-        final int count = listView.getChildCount();
-        final int visibility = mShow ? View.VISIBLE : View.INVISIBLE;
-
-        // we should set visibility of selected view first so that it can
-        // regain the focus from parent (which is FOCUS_AFTER_DESCENDANT)
-        final int selectedPosition = listView.getSelectedPosition();
-        if (selectedPosition >= 0) {
-            RecyclerView.ViewHolder vh = listView.findViewHolderForPosition(selectedPosition);
-            if (vh != null) {
-                vh.itemView.setVisibility(visibility);
-            }
-        }
-        for (int i = 0; i < count; i++) {
-            View child = listView.getChildAt(i);
-            if (listView.getChildPosition(child) != selectedPosition) {
-                child.setVisibility(visibility);
-            }
+        if (listView != null) {
+            listView.setLayoutEnabled(show);
         }
     }
 

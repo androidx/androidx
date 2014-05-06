@@ -210,15 +210,7 @@ public abstract class RowPresenter extends Presenter {
      * animation on the row view.
      */
     protected void onRowViewExpanded(ViewHolder vh, boolean expanded) {
-        if (mHeaderPresenter != null && vh.mHeaderViewHolder != null) {
-            RowContainerView containerView = ((RowContainerView) vh.mContainerViewHolder.view);
-            View headerView = vh.mHeaderViewHolder.view;
-            if (expanded) {
-                containerView.addHeaderView(headerView);
-            } else {
-                containerView.removeHeaderView(headerView);
-            }
-        }
+        updateHeaderViewVisibility(vh);
         vh.view.setActivated(expanded);
     }
 
@@ -230,6 +222,27 @@ public abstract class RowPresenter extends Presenter {
     protected void onRowViewSelected(ViewHolder vh, boolean selected) {
         if (selected && mOnItemSelectedListener != null) {
             mOnItemSelectedListener.onItemSelected(null, vh.getRow());
+        }
+        updateHeaderViewVisibility(vh);
+    }
+
+    private void updateHeaderViewVisibility(ViewHolder vh) {
+        // Use remove/add for selected row for header reparenting transition.
+        // Use hide/show for unselected row for header fade out/in transition.
+        if (mHeaderPresenter != null && vh.mHeaderViewHolder != null) {
+            RowContainerView containerView = ((RowContainerView) vh.mContainerViewHolder.view);
+            View headerView = vh.mHeaderViewHolder.view;
+            if (vh.isSelected()) {
+                containerView.showHeader(true);
+                if (vh.isExpanded()) {
+                    containerView.addHeaderView(headerView);
+                } else {
+                    containerView.removeHeaderView(headerView);
+                }
+            } else {
+                containerView.addHeaderView(headerView);
+                containerView.showHeader(vh.isExpanded());
+            }
         }
     }
 

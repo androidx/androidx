@@ -290,6 +290,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private boolean mForceFullLayout;
 
     /**
+     * True if layout is enabled.
+     */
+    private boolean mLayoutEnabled = true;
+
+    /**
      * The scroll offsets of the viewport relative to the entire view.
      */
     private int mScrollOffsetPrimary;
@@ -1470,8 +1475,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        boolean hasDoneFirstLayout = hasDoneFirstLayout();
-        if (!structureChanged && !mForceFullLayout && hasDoneFirstLayout) {
+        final boolean hasDoneFirstLayout = hasDoneFirstLayout();
+        if (!mLayoutEnabled) {
+            discardLayoutInfo();
+            removeAllViews();
+        } else if (!structureChanged && !mForceFullLayout && hasDoneFirstLayout) {
             fastRelayout();
         } else {
             boolean hadFocus = mBaseGridView.hasFocus();
@@ -1528,14 +1536,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mForceFullLayout = false;
 
-        if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
-            scrollDirectionPrimary(-delta);
-            scrollDirectionSecondary(-deltaSecondary);
+        if (mLayoutEnabled) {
+            if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+                scrollDirectionPrimary(-delta);
+                scrollDirectionSecondary(-deltaSecondary);
+            }
+            appendVisibleItems();
+            prependVisibleItems();
+            removeInvisibleViewsAtFront();
+            removeInvisibleViewsAtEnd();
         }
-        appendVisibleItems();
-        prependVisibleItems();
-        removeInvisibleViewsAtFront();
-        removeInvisibleViewsAtEnd();
 
         if (DEBUG) {
             StringWriter sw = new StringWriter();
@@ -1720,6 +1730,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             boolean right = position > mFocusPosition;
             mFocusPosition = position;
+            if (!mLayoutEnabled) {
+                return;
+            }
             if (smooth) {
                 if (!hasDoneFirstLayout()) {
                     Log.w(getTag(), "setSelectionSmooth should " +
@@ -2287,10 +2300,21 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter,
             RecyclerView.Adapter newAdapter) {
+        discardLayoutInfo();
+        super.onAdapterChanged(oldAdapter, newAdapter);
+    }
+
+    private void discardLayoutInfo() {
         mGrid = null;
         mRows = null;
         mRowSizeSecondary = null;
         mRowSecondarySizeRefresh = false;
-        super.onAdapterChanged(oldAdapter, newAdapter);
+    }
+
+    public void setLayoutEnabled(boolean layoutEnabled) {
+        if (mLayoutEnabled != layoutEnabled) {
+            mLayoutEnabled = layoutEnabled;
+            requestLayout();
+        }
     }
 }

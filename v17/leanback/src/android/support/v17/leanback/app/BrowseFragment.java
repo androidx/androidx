@@ -23,6 +23,7 @@ import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.app.Fragment;
@@ -59,6 +60,8 @@ public class BrowseFragment extends Fragment {
     /** The fastlane navigation panel is disabled and will never be shown. */
     public static final int HEADERS_DISABLED = 3;
 
+    private static final float SLIDE_DISTANCE_FACTOR = 2;
+
     private RowsFragment mRowsFragment;
     private HeadersFragment mHeadersFragment;
 
@@ -84,7 +87,7 @@ public class BrowseFragment extends Fragment {
 
     // transition related:
     private static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
-    private static int sReparentHeaderId = View.generateViewId();
+    private int mReparentHeaderId = View.generateViewId();
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
     private Object mSceneWithHeaders;
@@ -92,6 +95,7 @@ public class BrowseFragment extends Fragment {
     private Object mTitleTransition;
     private Object mHeadersTransition;
     private int mHeadersTransitionStartDelay;
+    private int mHeadersTransitionDuration;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
     private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
@@ -249,9 +253,8 @@ public class BrowseFragment extends Fragment {
     }
 
     private void onHeadersTransitionStart(boolean withHeaders) {
-        mRowsFragment.getVerticalGridView().setAnimateChildLayout(false);
-        mRowsFragment.getVerticalGridView().setFocusSearchDisabled(true);
-        mHeadersFragment.getVerticalGridView().setFocusSearchDisabled(true);
+        mRowsFragment.onTransitionStart();
+        mHeadersFragment.onTransitionStart();
         createHeadersTransition(withHeaders);
     }
 
@@ -327,6 +330,8 @@ public class BrowseFragment extends Fragment {
         ta.recycle();
         mHeadersTransitionStartDelay = getResources()
                 .getInteger(R.integer.lb_browse_headers_transition_delay);
+        mHeadersTransitionDuration = getResources()
+                .getInteger(R.integer.lb_browse_headers_transition_duration);
     }
 
     @Override
@@ -344,10 +349,12 @@ public class BrowseFragment extends Fragment {
             mRowsFragment = (RowsFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
+        mRowsFragment.setReparentHeaderId(mReparentHeaderId);
         mRowsFragment.setAdapter(mAdapter);
         if (mHeaderPresenterSelector != null) {
             mHeadersFragment.setPresenterSelector(mHeaderPresenterSelector);
         }
+        mHeadersFragment.setReparentHeaderId(mReparentHeaderId);
         mHeadersFragment.setAdapter(mAdapter);
 
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
@@ -408,72 +415,74 @@ public class BrowseFragment extends Fragment {
     }
 
     private void createHeadersTransition(boolean withHeaders) {
-        ArrayList<View> fastHeaders = new ArrayList<View>();
-        ArrayList<Integer> fastHeaderPositions = new ArrayList<Integer>();
-        ArrayList<View> headers = new ArrayList<View>();
-        ArrayList<Integer> headerPositions = new ArrayList<Integer>();
-
-        mHeadersFragment.getHeaderViews(fastHeaders, fastHeaderPositions);
-        mRowsFragment.getHeaderViews(headers, headerPositions);
-
-        mHeadersTransition = sTransitionHelper.createTransitionSet(true);
+        mHeadersTransition = sTransitionHelper.createTransitionSet(false);
         sTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
         Object changeBounds = sTransitionHelper.createChangeBounds(true);
         Object fadeIn = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
         Object fadeOut = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
+
+        sTransitionHelper.exclude(fadeIn, mReparentHeaderId, true);
+        sTransitionHelper.exclude(fadeOut, mReparentHeaderId, true);
         if (!withHeaders) {
             sTransitionHelper.setChangeBoundsDefaultStartDelay(changeBounds,
                     mHeadersTransitionStartDelay);
         }
+        sTransitionHelper.setChangeBoundsStartDelay(changeBounds, mReparentHeaderId,
+                withHeaders ? mHeadersTransitionStartDelay : 0);
 
-        for (int i = 0; i < headerPositions.size(); i++) {
-            Integer position = headerPositions.get(i);
-            if (position == mSelectedPosition) {
-                headers.get(i).setId(sReparentHeaderId);
-                sTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
-                        withHeaders ? mHeadersTransitionStartDelay : 0);
-                sTransitionHelper.exclude(fadeIn, headers.get(i), true);
-                sTransitionHelper.exclude(fadeOut, headers.get(i), true);
-            } else {
-                headers.get(i).setId(View.NO_ID);
+        final int selectedPosition = mSelectedPosition;
+        Object slide = sTransitionHelper.createSlide(new SlideCallback() {
+            @Override
+            public boolean getSlide(View view, boolean appear, int[] edge, float[] distance) {
+                // we only care about the view with specific transition position Tag.
+                Integer position = (Integer) view.getTag(R.id.lb_header_transition_position);
+                if (position == null) {
+                    return false;
+                }
+                distance[0] = view.getHeight() * SLIDE_DISTANCE_FACTOR;
+                if (position < selectedPosition) {
+                    edge[0] = TransitionHelper.SLIDE_TOP;
+                    return true;
+                } else if (position > selectedPosition) {
+                    edge[0] = TransitionHelper.SLIDE_BOTTOM;
+                    return true;
+                }
+                return false;
             }
+        });
+        sTransitionHelper.exclude(slide, mReparentHeaderId, true);
+        sTransitionHelper.setDuration(slide, mHeadersTransitionDuration);
+        if (withHeaders) {
+            sTransitionHelper.setStartDelay(slide, mHeadersTransitionStartDelay);
         }
-        for (int i = 0; i < fastHeaderPositions.size(); i++) {
-            Integer position = fastHeaderPositions.get(i);
-            if (position == mSelectedPosition) {
-                fastHeaders.get(i).setId(sReparentHeaderId);
-                sTransitionHelper.setChangeBoundsStartDelay(changeBounds, sReparentHeaderId,
-                        withHeaders ? mHeadersTransitionStartDelay : 0);
-                sTransitionHelper.exclude(fadeIn, fastHeaders.get(i), true);
-                sTransitionHelper.exclude(fadeOut, fastHeaders.get(i), true);
-            } else {
-                fastHeaders.get(i).setId(View.NO_ID);
-            }
-        }
+        sTransitionHelper.addTransition(mHeadersTransition, slide);
 
+        sTransitionHelper.setDuration(fadeOut, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, fadeOut);
+        sTransitionHelper.setDuration(changeBounds, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, changeBounds);
+        sTransitionHelper.setDuration(fadeIn, mHeadersTransitionDuration);
+        sTransitionHelper.setStartDelay(fadeIn, mHeadersTransitionStartDelay);
         sTransitionHelper.addTransition(mHeadersTransition, fadeIn);
 
-        sTransitionHelper.setTransitionCompleteListener(mHeadersTransition, new Runnable() {
+        sTransitionHelper.setTransitionListener(mHeadersTransition, new TransitionListener() {
             @Override
-            public void run() {
+            public void onTransitionStart(Object transition) {
+            }
+            @Override
+            public void onTransitionEnd(Object transition) {
                 mHeadersTransition = null;
-                // TODO: deal fragment destroy view properly
-                VerticalGridView rowsGridView = mRowsFragment.getVerticalGridView();
-                if (rowsGridView != null) {
-                    rowsGridView.setAnimateChildLayout(true);
-                    rowsGridView.setFocusSearchDisabled(false);
-                    if (!mShowingHeaders && !rowsGridView.hasFocus()) {
-                        rowsGridView.requestFocus();
-                    }
-                }
-                VerticalGridView headerGridView = mHeadersFragment.getVerticalGridView();
-                if (headerGridView != null) {
-                    headerGridView.setFocusSearchDisabled(false);
-                    headerGridView.invalidate();
-                    if (mShowingHeaders && !headerGridView.hasFocus()) {
+                mRowsFragment.onTransitionEnd();
+                mHeadersFragment.onTransitionEnd();
+                if (mShowingHeaders) {
+                    VerticalGridView headerGridView = mHeadersFragment.getVerticalGridView();
+                    if (headerGridView != null && !headerGridView.hasFocus()) {
                         headerGridView.requestFocus();
+                    }
+                } else {
+                    VerticalGridView rowsGridView = mRowsFragment.getVerticalGridView();
+                    if (rowsGridView != null && !rowsGridView.hasFocus()) {
+                        rowsGridView.requestFocus();
                     }
                 }
             }
