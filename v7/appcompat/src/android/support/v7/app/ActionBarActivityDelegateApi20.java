@@ -35,11 +35,6 @@ class ActionBarActivityDelegateApi20 extends ActionBarActivityDelegateJBMR2 {
             super(wrapped);
         }
 
-        @Override
-        public void onWindowDismissed() {
-            mWrapped.onWindowDismissed();
-        }
-
     }
 
 }
