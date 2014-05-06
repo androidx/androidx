@@ -137,7 +137,7 @@ final class SwipeProgressBar {
         final int width = mBounds.width();
         final int height = mBounds.height();
         final int cx = width / 2;
-        final int cy = mBounds.top + height / 2;
+        final int cy = height / 2;
         boolean drawTriggerWhileFinishing = false;
         int restoreCount = canvas.save();
         canvas.clipRect(mBounds);
