@@ -841,6 +841,12 @@ public class NotificationCompat {
          * interrupted for a higher-priority notification.
          * The system sets a notification's priority based on various factors including the
          * setPriority value. The effect may differ slightly on different platforms.
+         *
+         * @param pri Relative priority for this notification. Must be one of
+         *     the priority constants defined by {@link NotificationCompat}.
+         *     Acceptable values range from {@link
+         *     NotificationCompat#PRIORITY_MIN} (-2) to {@link
+         *     NotificationCompat#PRIORITY_MAX} (2).
          */
         public Builder setPriority(int pri) {
             mPriority = pri;
