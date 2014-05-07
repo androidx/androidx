@@ -1337,7 +1337,7 @@ public class SlidingPaneLayout extends ViewGroup {
             int left;
             if (isLayoutRtlSupport()) {
                 int startToRight =  getPaddingRight() + lp.rightMargin;
-                if (xvel > 0 || (xvel == 0 && mSlideOffset > 0.5f)) {
+                if (xvel < 0 || (xvel == 0 && mSlideOffset > 0.5f)) {
                     startToRight += mSlideRange;
                 }
                 int childWidth = mSlideableView.getWidth();
