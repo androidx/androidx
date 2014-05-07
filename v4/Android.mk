@@ -14,11 +14,21 @@
 
 LOCAL_PATH := $(call my-dir)
 
+# A helper sub-library that makes direct use of Donut APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-donut
+LOCAL_SDK_VERSION := 4
+LOCAL_SRC_FILES := $(call all-java-files-under, donut)
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 # A helper sub-library that makes direct use of Eclair APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-eclair
 LOCAL_SDK_VERSION := 5
 LOCAL_SRC_FILES := $(call all-java-files-under, eclair)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-donut
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
