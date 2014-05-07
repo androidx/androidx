@@ -148,7 +148,6 @@ LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
-LOCAL_LDLIBS := -lpthread -ldl -lm
 LOCAL_MODULE:= libRSSupport
 LOCAL_MODULE_TAGS := optional
 
