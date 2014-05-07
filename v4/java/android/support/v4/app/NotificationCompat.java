@@ -21,6 +21,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -262,6 +263,14 @@ public class NotificationCompat {
      */
     public static final String EXTRA_PEOPLE = "android.people";
 
+    /**
+     * Value of {@link Notification#color} equal to 0 (also known as
+     * {@link android.graphics.Color#TRANSPARENT Color.TRANSPARENT}),
+     * telling the system not to decorate this notification with any special color but instead use
+     * default colors when presenting this notification.
+     */
+    public static final int COLOR_DEFAULT = Color.TRANSPARENT;
+
     private static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
@@ -385,7 +394,7 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
-                    b.mPeople, b.mExtras);
+                    b.mPeople, b.mExtras, b.mColor);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -500,6 +509,7 @@ public class NotificationCompat {
         boolean mLocalOnly = false;
         String mCategory;
         Bundle mExtras;
+        int mColor = COLOR_DEFAULT;
 
         Notification mNotification = new Notification();
         public ArrayList<String> mPeople;
@@ -967,6 +977,18 @@ public class NotificationCompat {
                     mStyle.setBuilder(this);
                 }
             }
+            return this;
+        }
+
+        /**
+         * Sets {@link Notification#color}.
+         *
+         * @param argb The accent color to use
+         *
+         * @return The same Builder.
+         */
+        public Builder setColor(int argb) {
+            mColor = argb;
             return this;
         }
 
