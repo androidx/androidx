@@ -118,6 +118,7 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
     protected void onSeekTargetStep(int dx, int dy, RecyclerView.State state, Action action) {
         if (getChildCount() == 0) {
             stop();
+            return;
         }
         if (DEBUG && mTargetVector != null
                 && ((mTargetVector.x * dx < 0 || mTargetVector.y * dy < 0))) {
