@@ -1416,6 +1416,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
+        updateRowsMinMax();
         appendVisibleItems();
         prependVisibleItems();
 
