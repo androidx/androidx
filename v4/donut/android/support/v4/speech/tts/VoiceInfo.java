@@ -28,7 +28,7 @@ import java.util.Locale;
  *
  * Each VoiceInfo has an unique name. This name can be obtained using the {@link #getName()} method
  * and will persist until the client is asked to re-evaluate the list of available voices in the
- * {@link TextToSpeechClient.ConnectionCallbacks#onEngineStatusChange(android.speech.tts.TextToSpeechClient.EngineStatus)}
+ * {@link TextToSpeechClient.ConnectionCallbacks#onEngineStatusChange(TextToSpeechClient.EngineStatus)}
  * callback. The name can be used to reference a VoiceInfo in an instance of {@link RequestConfig};
  * the {@link TextToSpeechClient.Params#FALLBACK_VOICE_NAME} voice parameter is an example of this.
  * It is recommended that the voice name never change during the TTS service lifetime.
@@ -272,7 +272,7 @@ public class VoiceInfo {
      * @return Unique voice name.
      *
      * Each VoiceInfo has an unique name, that persists until client is asked to re-evaluate the
-     * set of the available languages in the {@link TextToSpeechClient.ConnectionCallbacks#onEngineStatusChange(android.speech.tts.TextToSpeechClient.EngineStatus)}
+     * set of the available languages in the {@link TextToSpeechClient.ConnectionCallbacks#onEngineStatusChange(TextToSpeechClient.EngineStatus)}
      * callback (Voice may disappear from the set if voice was removed by the user).
      */
     public String getName() {

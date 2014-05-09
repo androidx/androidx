@@ -30,8 +30,9 @@ public class TextToSpeechClientCompat {
     /**
      * Create TextToSpeech service client.
      *
-     * Will connect to the default TTS service. In order to be usable, {@link #connect()} need
-     * to be called first and successful connection callback need to be received.
+     * Will connect to the default TTS service. In order to be usable,
+     * {@link TextToSpeechClient#connect()} need to be called first and successful
+     * connection callback need to be received.
      *
      * @param context
      *            The context this instance is running in.
@@ -62,7 +63,7 @@ public class TextToSpeechClientCompat {
 
     /**
      * Create TextToSpeech service client. Will connect to the default TTS
-     * service. In order to be usable, {@link #connect()} need to be called
+     * service. In order to be usable, {@link TextToSpeechClient#connect()} need to be called
      * first and successful connection callback need to be received.
      *
      * @param context Context this instance is running in.
