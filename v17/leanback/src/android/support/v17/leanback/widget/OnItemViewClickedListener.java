@@ -13,15 +13,12 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.view.View;
-
 /**
- * Interface for receiving notification when a item is clicked.
- *
- * @deprecated Uses {@link OnItemViewClickedListener}
+ * Interface for receiving notification when a item view holder is clicked.
  */
-public interface OnItemClickedListener {
+public interface OnItemViewClickedListener {
 
-    public void onItemClicked(Object item, Row row);
+    public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+            RowPresenter.ViewHolder rowViewHolder, Row row);
 
 }

@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 /**
@@ -57,6 +58,22 @@ public class ImageCardView extends BaseCardView {
         mContentView = (TextView) v.findViewById(R.id.content_text);
         mBadgeImage = (ImageView) v.findViewById(R.id.extra_badge);
         mBadgeFadeMask = (ImageView) v.findViewById(R.id.fade_mask);
+    }
+
+    public final ImageView getMainImageView() {
+        return mImageView;
+    }
+
+    public void setMainImageAdjustViewBounds(boolean adjustViewBounds) {
+        if (mImageView != null) {
+            mImageView.setAdjustViewBounds(adjustViewBounds);
+        }
+    }
+
+    public void setMainImageScaleType(ScaleType scaleType) {
+        if (mImageView != null) {
+            mImageView.setScaleType(scaleType);
+        }
     }
 
     public void setMainImage(Drawable drawable) {
