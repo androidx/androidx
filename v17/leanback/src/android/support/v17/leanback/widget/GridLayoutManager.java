@@ -1457,6 +1457,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
+        if (!mLayoutEnabled) {
+            discardLayoutInfo();
+            removeAllViews();
+            return;
+        }
         mInLayout = true;
 
         // Track the old focus view so we can adjust our system scroll position
@@ -1476,10 +1481,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         final boolean hasDoneFirstLayout = hasDoneFirstLayout();
-        if (!mLayoutEnabled) {
-            discardLayoutInfo();
-            removeAllViews();
-        } else if (!structureChanged && !mForceFullLayout && hasDoneFirstLayout) {
+        if (!structureChanged && !mForceFullLayout && hasDoneFirstLayout) {
             fastRelayout();
         } else {
             boolean hadFocus = mBaseGridView.hasFocus();
@@ -1536,16 +1538,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mForceFullLayout = false;
 
-        if (mLayoutEnabled) {
-            if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
-                scrollDirectionPrimary(-delta);
-                scrollDirectionSecondary(-deltaSecondary);
-            }
-            appendVisibleItems();
-            prependVisibleItems();
-            removeInvisibleViewsAtFront();
-            removeInvisibleViewsAtEnd();
+        if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            scrollDirectionPrimary(-delta);
+            scrollDirectionSecondary(-deltaSecondary);
         }
+        appendVisibleItems();
+        prependVisibleItems();
+        removeInvisibleViewsAtFront();
+        removeInvisibleViewsAtEnd();
 
         if (DEBUG) {
             StringWriter sw = new StringWriter();
