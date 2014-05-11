@@ -4611,9 +4611,10 @@ public class RecyclerView extends ViewGroup {
          * {@link #onSeekTargetStep(int, int, RecyclerView.State, SmoothScroller.Action)}.
          */
         final protected void stop() {
-            if (mRunning) {
-                onStop();
+            if (!mRunning) {
+                return;
             }
+            onStop();
             mRecyclerView.mState.withTarget(RecyclerView.NO_POSITION);
             mTargetView = null;
             mTargetPosition = RecyclerView.NO_POSITION;
