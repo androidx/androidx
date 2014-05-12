@@ -27,7 +27,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
+import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentManager.BackStackEntry;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -47,84 +50,14 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 /**
  * Wrapper fragment for leanback browse screens. Composed of a
  * RowsFragment and a HeadersFragment.
- *
+ * <p>
+ * The fragment comes with default back key support to show headers.
+ * For app customized {@link Activity#onBackPressed()}, app must disable
+ * BrowseFragment's default back key support by calling
+ * {@link #setHeadersTransitionOnBackEnabled(boolean)} with false and use
+ * {@link BrowseFragment.BrowseTransitionListener} and {@link #startHeadersTransition(boolean)}.
  */
 public class BrowseFragment extends Fragment {
-    private static final String TAG = "BrowseFragment";
-    private static boolean DEBUG = false;
-
-    /** The fastlane navigation panel is enabled and shown by default. */
-    public static final int HEADERS_ENABLED = 1;
-
-    /** The fastlane navigation panel is enabled and hidden by default. */
-    public static final int HEADERS_HIDDEN = 2;
-
-    /** The fastlane navigation panel is disabled and will never be shown. */
-    public static final int HEADERS_DISABLED = 3;
-
-    private static final float SLIDE_DISTANCE_FACTOR = 2;
-
-    private RowsFragment mRowsFragment;
-    private HeadersFragment mHeadersFragment;
-
-    private ObjectAdapter mAdapter;
-
-    private Params mParams;
-    private int mBrandColor = Color.TRANSPARENT;
-    private boolean mBrandColorSet;
-
-    private BrowseFrameLayout mBrowseFrame;
-    private ImageView mBadgeView;
-    private TextView mTitleView;
-    private ViewGroup mBrowseTitle;
-    private SearchOrbView mSearchOrbView;
-    private boolean mShowingTitle = true;
-    private boolean mShowingHeaders = true;
-    private boolean mCanShowHeaders = true;
-    private int mContainerListMarginLeft;
-    private int mContainerListAlignTop;
-    private int mSearchAffordanceColor;
-    private boolean mSearchAffordanceColorSet;
-    private OnItemSelectedListener mExternalOnItemSelectedListener;
-    private OnClickListener mExternalOnSearchClickedListener;
-    private OnItemClickedListener mOnItemClickedListener;
-    private int mSelectedPosition = -1;
-
-    private PresenterSelector mHeaderPresenterSelector;
-
-    // transition related:
-    private static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
-    private int mReparentHeaderId = View.generateViewId();
-    private Object mSceneWithTitle;
-    private Object mSceneWithoutTitle;
-    private Object mSceneWithHeaders;
-    private Object mSceneWithoutHeaders;
-    private Object mTitleTransition;
-    private Object mHeadersTransition;
-    private int mHeadersTransitionStartDelay;
-    private int mHeadersTransitionDuration;
-
-    private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
-    private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
-    private static final String ARG_HEADERS_STATE =
-        BrowseFragment.class.getCanonicalName() + ".headersState";
-
-    /**
-     * @param args Bundle to use for the arguments, if null a new Bundle will be created.
-     */
-    public static Bundle createArgs(Bundle args, String title, String badgeUri) {
-        return createArgs(args, title, badgeUri, HEADERS_ENABLED);
-    }
-
-    public static Bundle createArgs(Bundle args, String title, String badgeUri, int headersState) {
-        if (args == null) {
-            args = new Bundle();
-        }
-        args.putString(ARG_TITLE, title);
-        args.putString(ARG_BADGE_URI, badgeUri);
-        args.putInt(ARG_HEADERS_STATE, headersState);
-        return args;
-    }
 
     public static class Params {
         private String mTitle;
@@ -178,6 +111,140 @@ public class BrowseFragment extends Fragment {
         public int getHeadersState() {
             return mHeadersState;
         }
+    }
+
+    final class BackStackListener implements FragmentManager.OnBackStackChangedListener {
+        int mLastEntryCount;
+        int mIndexOfHeadersBackStack;
+
+        BackStackListener() {
+            reset();
+        }
+
+        void reset() {
+            mLastEntryCount = getFragmentManager().getBackStackEntryCount();
+            mIndexOfHeadersBackStack = -1;
+        }
+
+        @Override
+        public void onBackStackChanged() {
+            int count = getFragmentManager().getBackStackEntryCount();
+            // if backstack is growing and last pushed entry is "headers" backstack,
+            // remember the index of the entry.
+            if (count > mLastEntryCount) {
+                BackStackEntry entry = getFragmentManager().getBackStackEntryAt(count - 1);
+                if (mWithHeadersBackStackName.equals(entry.getName())) {
+                    mIndexOfHeadersBackStack = count - 1;
+                }
+            } else if (count < mLastEntryCount) {
+                // if popped "headers" backstack, initiate the show header transition if needed
+                if (mIndexOfHeadersBackStack >= count) {
+                    if (!mShowingHeaders) {
+                        startHeadersTransitionInternal(true);
+                    }
+                }
+            }
+            mLastEntryCount = count;
+        }
+    }
+
+    /**
+     * Listener for browse transitions.
+     */
+    public static class BrowseTransitionListener {
+        /**
+         * Callback when headers transition starts.
+         */
+        public void onHeadersTransitionStart(boolean withHeaders) {
+        }
+        /**
+         * Callback when headers transition stops.
+         */
+        public void onHeadersTransitionStop(boolean withHeaders) {
+        }
+    }
+
+    private static final String TAG = "BrowseFragment";
+
+    private static final String LB_HEADERS_BACKSTACK = "lbHeadersBackStack_";
+
+    private static boolean DEBUG = false;
+
+    /** The headers fragment is enabled and shown by default. */
+    public static final int HEADERS_ENABLED = 1;
+
+    /** The headers fragment is enabled and hidden by default. */
+    public static final int HEADERS_HIDDEN = 2;
+
+    /** The headers fragment is disabled and will never be shown. */
+    public static final int HEADERS_DISABLED = 3;
+
+    private static final float SLIDE_DISTANCE_FACTOR = 2;
+
+    private RowsFragment mRowsFragment;
+    private HeadersFragment mHeadersFragment;
+
+    private ObjectAdapter mAdapter;
+
+    private Params mParams;
+    private int mBrandColor = Color.TRANSPARENT;
+    private boolean mBrandColorSet;
+
+    private BrowseFrameLayout mBrowseFrame;
+    private ImageView mBadgeView;
+    private TextView mTitleView;
+    private ViewGroup mBrowseTitle;
+    private SearchOrbView mSearchOrbView;
+    private boolean mShowingTitle = true;
+    private boolean mHeadersBackStackEnabled = true;
+    private String mWithHeadersBackStackName;
+    private boolean mShowingHeaders = true;
+    private boolean mCanShowHeaders = true;
+    private int mContainerListMarginLeft;
+    private int mContainerListAlignTop;
+    private int mSearchAffordanceColor;
+    private boolean mSearchAffordanceColorSet;
+    private OnItemSelectedListener mExternalOnItemSelectedListener;
+    private OnClickListener mExternalOnSearchClickedListener;
+    private OnItemClickedListener mOnItemClickedListener;
+    private int mSelectedPosition = -1;
+
+    private PresenterSelector mHeaderPresenterSelector;
+
+    // transition related:
+    private static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
+    private int mReparentHeaderId = View.generateViewId();
+    private Object mSceneWithTitle;
+    private Object mSceneWithoutTitle;
+    private Object mSceneWithHeaders;
+    private Object mSceneWithoutHeaders;
+    private Object mTitleTransition;
+    private Object mHeadersTransition;
+    private int mHeadersTransitionStartDelay;
+    private int mHeadersTransitionDuration;
+    private BackStackListener mBackStackChangedListener;
+    private BrowseTransitionListener mBrowseTransitionListener;
+
+    private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
+    private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
+    private static final String ARG_HEADERS_STATE =
+        BrowseFragment.class.getCanonicalName() + ".headersState";
+
+    /**
+     * @param args Bundle to use for the arguments, if null a new Bundle will be created.
+     */
+    public static Bundle createArgs(Bundle args, String title, String badgeUri) {
+        return createArgs(args, title, badgeUri, HEADERS_ENABLED);
+    }
+
+    public static Bundle createArgs(Bundle args, String title, String badgeUri, int headersState) {
+        if (args == null) {
+            args = new Bundle();
+        }
+        args.putString(ARG_TITLE, title);
+        args.putString(ARG_BADGE_URI, badgeUri);
+        args.putInt(ARG_HEADERS_STATE, headersState);
+        return args;
     }
 
     /**
@@ -309,10 +376,64 @@ public class BrowseFragment extends Fragment {
         return getResources().getColor(outValue.resourceId);
     }
 
-    private void onHeadersTransitionStart(boolean withHeaders) {
+    /**
+     * Start headers transition.
+     */
+    public void startHeadersTransition(boolean withHeaders) {
+        if (!mCanShowHeaders) {
+            throw new IllegalStateException("Cannot start headers transition");
+        }
+        if (isInHeadersTransition() || mShowingHeaders == withHeaders) {
+            return;
+        }
+        startHeadersTransitionInternal(withHeaders);
+    }
+
+    /**
+     * Returns true if headers transition is currently running.
+     */
+    public boolean isInHeadersTransition() {
+        return mHeadersTransition != null;
+    }
+
+    /**
+     * Returns true if headers is showing.
+     */
+    public boolean isShowingHeaders() {
+        return mShowingHeaders;
+    }
+
+    /**
+     * Set listener for browse fragment transitions.
+     */
+    public void setBrowseTransitionListener(BrowseTransitionListener listener) {
+        mBrowseTransitionListener = listener;
+    }
+
+    private void startHeadersTransitionInternal(boolean withHeaders) {
+        mShowingHeaders = withHeaders;
         mRowsFragment.onTransitionStart();
         mHeadersFragment.onTransitionStart();
-        createHeadersTransition(withHeaders);
+        createHeadersTransition();
+        if (mBrowseTransitionListener != null) {
+            mBrowseTransitionListener.onHeadersTransitionStart(withHeaders);
+        }
+        sTransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
+                mHeadersTransition);
+        if (mHeadersBackStackEnabled) {
+            if (!withHeaders) {
+                getFragmentManager().beginTransaction()
+                        .addToBackStack(mWithHeadersBackStackName).commit();
+            } else {
+                int count = getFragmentManager().getBackStackEntryCount();
+                if (count > 0) {
+                    BackStackEntry entry = getFragmentManager().getBackStackEntryAt(count - 1);
+                    if (mWithHeadersBackStackName.equals(entry.getName())) {
+                        getFragmentManager().popBackStack();
+                    }
+                }
+            }
+        }
     }
 
     private boolean isVerticalScrolling() {
@@ -327,11 +448,11 @@ public class BrowseFragment extends Fragment {
             new BrowseFrameLayout.OnFocusSearchListener() {
         @Override
         public View onFocusSearch(View focused, int direction) {
-            // If fastlane is disabled, just return null.
+            // If headers fragment is disabled, just return null.
             if (!mCanShowHeaders) return null;
 
-            // if fast lane is running transition,  focus stays
-            if (mHeadersTransition != null) return focused;
+            // if headers is running transition,  focus stays
+            if (isInHeadersTransition()) return focused;
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
             if (direction == View.FOCUS_LEFT) {
                 if (isVerticalScrolling() || mShowingHeaders) {
@@ -362,16 +483,11 @@ public class BrowseFragment extends Fragment {
         @Override
         public void onRequestChildFocus(View child, View focused) {
             int childId = child.getId();
-            if (mHeadersTransition != null) return;
+            if (!mCanShowHeaders || isInHeadersTransition()) return;
             if (childId == R.id.browse_container_dock && mShowingHeaders) {
-                mShowingHeaders = false;
-                onHeadersTransitionStart(false);
-                sTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
+                startHeadersTransitionInternal(false);
             } else if (childId == R.id.browse_headers_dock && !mShowingHeaders) {
-                mShowingHeaders = true;
-                //mHeadersFragment.getView().setAlpha(1f);
-                onHeadersTransitionStart(true);
-                sTransitionHelper.runTransition(mSceneWithHeaders, mHeadersTransition);
+                startHeadersTransitionInternal(true);
             }
         }
     };
@@ -476,7 +592,7 @@ public class BrowseFragment extends Fragment {
         return root;
     }
 
-    private void createHeadersTransition(boolean withHeaders) {
+    private void createHeadersTransition() {
         mHeadersTransition = sTransitionHelper.createTransitionSet(false);
         sTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
         Object changeBounds = sTransitionHelper.createChangeBounds(true);
@@ -485,12 +601,12 @@ public class BrowseFragment extends Fragment {
 
         sTransitionHelper.exclude(fadeIn, mReparentHeaderId, true);
         sTransitionHelper.exclude(fadeOut, mReparentHeaderId, true);
-        if (!withHeaders) {
+        if (!mShowingHeaders) {
             sTransitionHelper.setChangeBoundsDefaultStartDelay(changeBounds,
                     mHeadersTransitionStartDelay);
         }
         sTransitionHelper.setChangeBoundsStartDelay(changeBounds, mReparentHeaderId,
-                withHeaders ? mHeadersTransitionStartDelay : 0);
+                mShowingHeaders ? mHeadersTransitionStartDelay : 0);
 
         final int selectedPosition = mSelectedPosition;
         Object slide = sTransitionHelper.createSlide(new SlideCallback() {
@@ -514,7 +630,7 @@ public class BrowseFragment extends Fragment {
         });
         sTransitionHelper.exclude(slide, mReparentHeaderId, true);
         sTransitionHelper.setDuration(slide, mHeadersTransitionDuration);
-        if (withHeaders) {
+        if (mShowingHeaders) {
             sTransitionHelper.setStartDelay(slide, mHeadersTransitionStartDelay);
         }
         sTransitionHelper.addTransition(mHeadersTransition, slide);
@@ -546,6 +662,9 @@ public class BrowseFragment extends Fragment {
                     if (rowsGridView != null && !rowsGridView.hasFocus()) {
                         rowsGridView.requestFocus();
                     }
+                }
+                if (mBrowseTransitionListener != null) {
+                    mBrowseTransitionListener.onHeadersTransitionStop(mShowingHeaders);
                 }
             }
         });
@@ -585,14 +704,10 @@ public class BrowseFragment extends Fragment {
         new HeadersFragment.OnHeaderClickedListener() {
             @Override
             public void onHeaderClicked() {
-                if (!mCanShowHeaders || !mShowingHeaders) return;
-
-                if (mHeadersTransition != null) {
+                if (!mCanShowHeaders || !mShowingHeaders || isInHeadersTransition()) {
                     return;
                 }
-                mShowingHeaders = false;
-                onHeadersTransitionStart(false);
-                sTransitionHelper.runTransition(mSceneWithoutHeaders, mHeadersTransition);
+                startHeadersTransitionInternal(false);
                 mRowsFragment.getVerticalGridView().requestFocus();
             }
         };
@@ -686,6 +801,48 @@ public class BrowseFragment extends Fragment {
             mRowsFragment.getView().requestFocus();
         }
         showHeaders(mCanShowHeaders && mShowingHeaders);
+        if (mCanShowHeaders && mHeadersBackStackEnabled) {
+            mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
+            if (mBackStackChangedListener == null) {
+                mBackStackChangedListener = new BackStackListener();
+            } else {
+                mBackStackChangedListener.reset();
+            }
+            getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
+            if (!mShowingHeaders) {
+                getFragmentManager().beginTransaction()
+                        .addToBackStack(mWithHeadersBackStackName).commit();
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (mBackStackChangedListener != null) {
+            getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
+        }
+        super.onStop();
+    }
+
+    /**
+     * Enable/disable headers transition on back key support.  This is enabled by default.
+     * BrowseFragment will add a back stack entry when headers are showing.
+     * Headers transition on back key only works for {@link #HEADERS_ENABLED}
+     * or {@link #HEADERS_HIDDEN}.
+     * <p>
+     * NOTE: If app has its own onBackPressed() handling,
+     * app must disable this feature, app may use {@link #startHeadersTransition(boolean)}
+     * and {@link BrowseTransitionListener} in its own back stack handling.
+     */
+    public final void setHeadersTransitionOnBackEnabled(boolean headersBackStackEnabled) {
+        mHeadersBackStackEnabled = headersBackStackEnabled;
+    }
+
+    /**
+     * Returns true if headers transition on back key support is enabled.
+     */
+    public final boolean isHeadersTransitionOnBackEnabled() {
+        return mHeadersBackStackEnabled;
     }
 
     private void readArguments(Bundle args) {

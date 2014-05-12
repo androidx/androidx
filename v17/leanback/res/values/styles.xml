@@ -82,7 +82,7 @@
         <item name="android:scaleType">centerInside</item>
     </style>
 
-    <!-- HeadersFragment (fast lane) -->
+    <!-- HeadersFragment -->
     <style name="Widget.Leanback.Headers" />
 
     <!-- RowsFragment -->

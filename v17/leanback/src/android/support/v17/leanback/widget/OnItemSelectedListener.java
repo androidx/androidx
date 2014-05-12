@@ -21,7 +21,7 @@ public interface OnItemSelectedListener {
      * Called when the a row or a new item becomes selected.  The concept of current selection
      * is different than focus.  Row or item can be selected even they don't have focus.
      * Having the concept of selection will allow developer to switch background to selected
-     * item or selected row when user selects rows outside row UI (e.g. a fast lane next to
+     * item or selected row when user selects rows outside row UI (e.g. headers left of
      * rows).
      * <p>
      * For a none {@link ListRow} case,  parameter item is always null.  Event is fired when
