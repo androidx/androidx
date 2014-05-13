@@ -14,6 +14,7 @@
 
 package android.support.v17.leanback.app;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.FocusHighlightHelper;
@@ -26,6 +27,7 @@ import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.SinglePresenterSelector;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +48,8 @@ public class HeadersFragment extends BaseRowFragment {
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnHeaderClickedListener mOnHeaderClickedListener;
     private boolean mShow = true;
+    private int mBackgroundColor;
+    private boolean mBackgroundColorSet;
 
     private static final PresenterSelector sHeaderPresenter = new SinglePresenterSelector(
             new RowHeaderPresenter());
@@ -151,9 +155,14 @@ public class HeadersFragment extends BaseRowFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (getBridgeAdapter() != null && getVerticalGridView() != null) {
-            FocusHighlightHelper.setupHeaderItemFocusHighlight(getVerticalGridView());
+        final VerticalGridView listView = getVerticalGridView();
+        if (listView == null) {
+            return;
         }
+        if (getBridgeAdapter() != null) {
+            FocusHighlightHelper.setupHeaderItemFocusHighlight(listView);
+        }
+        listView.setBackgroundColor(getBackgroundColor());
     }
 
     void setHeadersVisiblity(boolean show) {
@@ -174,5 +183,28 @@ public class HeadersFragment extends BaseRowFragment {
         if (adapter != null && getVerticalGridView() != null) {
             FocusHighlightHelper.setupHeaderItemFocusHighlight(getVerticalGridView());
         }
+    }
+
+    void setBackgroundColor(int color) {
+        mBackgroundColor = color;
+        mBackgroundColorSet = true;
+
+        if (getVerticalGridView() != null) {
+            getVerticalGridView().setBackgroundColor(mBackgroundColor);
+        }
+    }
+
+    int getBackgroundColor() {
+        if (getActivity() == null) {
+            throw new IllegalStateException("Activity must be attached");
+        }
+
+        if (mBackgroundColorSet) {
+            return mBackgroundColor;
+        }
+
+        TypedValue outValue = new TypedValue();
+        getActivity().getTheme().resolveAttribute(android.R.attr.colorBackground, outValue, true);
+        return getResources().getColor(outValue.resourceId);
     }
 }

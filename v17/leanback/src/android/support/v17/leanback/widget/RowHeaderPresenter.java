@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.content.res.Resources;
+import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +71,10 @@ public class RowHeaderPresenter extends Presenter {
 
     protected void onSelectLevelChanged(ViewHolder holder) {
         if (holder.mColorDimmer == null) {
-            holder.mColorDimmer = ColorOverlayDimmer.createDefault(holder.view.getContext());
+            final Resources res = holder.view.getContext().getResources();
+            holder.mColorDimmer = ColorOverlayDimmer.createColorOverlayDimmer(
+                    res.getColor(R.color.lb_row_header_mask_color), 0,
+                    res.getFraction(R.dimen.lb_row_header_dimmed_level, 1, 1));
         }
         holder.mColorDimmer.setActiveLevel(holder.mSelectLevel);
         final RowHeaderView headerView = (RowHeaderView) holder.view;

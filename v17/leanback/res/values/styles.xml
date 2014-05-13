@@ -22,12 +22,12 @@
     </style>
 
     <style name="TextAppearance.Leanback.Title" parent="TextAppearance.Leanback">
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
         <item name="android:textSize">@dimen/lb_browse_title_text_size</item>
         <item name="android:textColor">@color/lb_browse_title_color</item>
     </style>
 
     <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback">
-        <item name="android:textAllCaps">true</item>
         <item name="android:textSize">@dimen/lb_browse_row_header_text_size</item>
         <item name="android:textColor">@color/lb_browse_header_color</item>
         </style>
@@ -35,11 +35,6 @@
     <style name="TextAppearance.Leanback.Header" parent="TextAppearance.Leanback">
         <item name="android:textAllCaps">true</item>
         <item name="android:textSize">@dimen/lb_browse_header_text_size</item>
-    </style>
-
-    <style name="TextAppearance.Leanback.SearchLabel" parent="TextAppearance.Leanback">
-        <item name="android:textSize">@dimen/lb_browse_header_text_size</item>
-        <item name="android:textColor">@color/lb_list_item_unselected_text_color</item>
     </style>
 
     <style name="TextAppearance.Leanback.SearchTextEdit" parent="TextAppearance.Leanback">
@@ -77,8 +72,9 @@
     <style name="Widget.Leanback.Title" />
 
     <style name="Widget.Leanback.Title.Text">
-        <item name="android:gravity">center_vertical</item>
         <item name="android:singleLine">true</item>
+        <item name="android:gravity">right</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Title</item>
     </style>
 
@@ -157,6 +153,10 @@
     <style name="Widget.Leanback.Row.Header">
         <item name="android:minHeight">@dimen/lb_browse_row_title_height</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:marqueeRepeatLimit">0</item>
+        <item name="android:paddingRight">@dimen/lb_browse_row_title_padding_right</item>
     </style>
 
     <style name="TextAppearance.Leanback.Row.HoverCardTitle" parent="TextAppearance.Leanback">

@@ -19,19 +19,17 @@ package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
-public class SearchOrbView extends LinearLayout implements View.OnClickListener {
-    private final static String TAG = SearchOrbView.class.getSimpleName();
-    private final static boolean DEBUG = false;
-
+public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private OnClickListener mListener;
-    private LinearLayout mSearchOrbView;
+    private View mSearchOrbView;
+    private final float mFocusedZoom;
 
     public SearchOrbView(Context context) {
         this(context, null);
@@ -46,12 +44,16 @@ public class SearchOrbView extends LinearLayout implements View.OnClickListener 
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mSearchOrbView = (LinearLayout) inflater.inflate(R.layout.lb_search_orb, this, true);
+        View root = inflater.inflate(R.layout.lb_search_orb, this, true);
+        mSearchOrbView = root.findViewById(R.id.search_orb);
 
         // By default we are not visible
         setVisibility(INVISIBLE);
         setFocusable(true);
-        mSearchOrbView.setAlpha(0.5f);
+        setClipChildren(false);
+
+        mFocusedZoom = context.getResources().getFraction(
+                R.fraction.lb_search_orb_focused_zoom, 1, 1);
 
         setOnClickListener(this);
     }
@@ -66,12 +68,8 @@ public class SearchOrbView extends LinearLayout implements View.OnClickListener 
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-        if (DEBUG) Log.v(TAG, "onFocusChanged " + gainFocus + " " + direction);
-        if (gainFocus) {
-            mSearchOrbView.setAlpha(1.0f);
-        } else {
-            mSearchOrbView.setAlpha(0.5f);
-        }
+        final float zoom = gainFocus ? mFocusedZoom : 1f;
+        mSearchOrbView.animate().scaleX(zoom).scaleY(zoom).setDuration(200).start();
     }
 
     /**
@@ -87,4 +85,9 @@ public class SearchOrbView extends LinearLayout implements View.OnClickListener 
         }
     }
 
+    public void setOrbColor(int color) {
+        if (mSearchOrbView.getBackground() instanceof GradientDrawable) {
+            ((GradientDrawable) mSearchOrbView.getBackground()).setColor(color);
+        }
+    }
 }

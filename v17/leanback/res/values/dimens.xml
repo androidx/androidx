@@ -22,15 +22,17 @@
     <dimen name="lb_browse_padding_right">56dp</dimen>
     <dimen name="lb_browse_padding_bottom">48dp</dimen>
     <dimen name="lb_browse_rows_margin_start">238dp</dimen>
-    <dimen name="lb_browse_rows_margin_top">120dp</dimen>
+    <dimen name="lb_browse_rows_margin_top">140dp</dimen>
     <dimen name="lb_browse_rows_fading_edge">16dp</dimen>
 
     <dimen name="lb_browse_title_height">60dp</dimen>
     <dimen name="lb_browse_title_icon_height">52dp</dimen>
     <dimen name="lb_browse_title_icon_width">52dp</dimen>
-    <dimen name="lb_browse_title_icon_margin_right">24dp</dimen>
-    <dimen name="lb_browse_title_text_size">28sp</dimen>
+    <dimen name="lb_browse_title_icon_margin_right">52dp</dimen>
+    <dimen name="lb_browse_title_text_size">44sp</dimen>
+    <dimen name="lb_browse_title_text_width">584dp</dimen>
 
+    <dimen name="lb_browse_headers_width">270dp</dimen>
     <integer name="lb_browse_headers_transition_delay">150</integer>
     <integer name="lb_browse_headers_transition_duration">250</integer>
 
@@ -44,6 +46,7 @@
     <item name="lb_browse_header_unselect_alpha" format="float" type="dimen">0.5</item>
     <item name="lb_browse_header_select_scale" format="float" type="dimen">1.1</item>
 
+    <dimen name="lb_browse_row_title_padding_right">24dp</dimen>
     <dimen name="lb_browse_row_title_height">24dp</dimen>
     <dimen name="lb_browse_row_hovercard_max_width">420dp</dimen>
     <dimen name="lb_browse_row_hovercard_title_font_size">18sp</dimen>
@@ -101,6 +104,7 @@
     <dimen name="lb_search_browse_row_padding_left">56dp</dimen>
 
     <dimen name="lb_search_orb_size">52dp</dimen>
+    <item name="lb_search_orb_focused_zoom" type="fraction">120%</item>
 
     <dimen name="lb_search_orb_margin_top">4dp</dimen>
     <dimen name="lb_search_orb_margin_bottom">4dp</dimen>

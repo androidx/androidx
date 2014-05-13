@@ -15,20 +15,6 @@
      limitations under the License.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android" >
-
-    <View
-        android:id="@+id/search_orb"
-        android:layout_width="@dimen/lb_search_orb_size"
-        android:layout_height="@dimen/lb_search_orb_size"
-        android:background="@drawable/lb_search_orb" />
-
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_action_search"
-        android:contentDescription="@string/orb_search_action" />
-
-</merge>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+</shape>

@@ -19,13 +19,16 @@
     <color name="lb_grey">#888888</color>
 
     <color name="lb_browse_title_color">#EEEEEE</color>
-    <color name="lb_browse_header_color">#EEEEEE</color>
+    <color name="lb_browse_header_color">#FFFFFF</color>
 
     <color name="lb_list_item_unselected_text_color">#FFF1F1F1</color>
     <color name="lb_background_protection">#A0333333</color>
 
     <color name="lb_view_dim_mask_color">#000000</color>
     <item name="lb_view_dimmed_level" type="dimen">60%</item>
+
+    <color name="lb_row_header_mask_color">#80303030</color>
+    <item name="lb_row_header_dimmed_level" type="dimen">30%</item>
 
     <color name="lb_details_description_color">#EEEEEE</color>
 

@@ -26,6 +26,7 @@ import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.util.TypedValue;
 import android.app.Fragment;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
@@ -68,6 +70,9 @@ public class BrowseFragment extends Fragment {
     private ObjectAdapter mAdapter;
 
     private Params mParams;
+    private int mBrandColor = Color.TRANSPARENT;
+    private boolean mBrandColorSet;
+
     private BrowseFrameLayout mBrowseFrame;
     private ImageView mBadgeView;
     private TextView mTitleView;
@@ -78,6 +83,8 @@ public class BrowseFragment extends Fragment {
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginLeft;
     private int mContainerListAlignTop;
+    private int mSearchAffordanceColor;
+    private boolean mSearchAffordanceColorSet;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
     private OnClickListener mExternalOnSearchClickedListener;
     private OnItemClickedListener mOnItemClickedListener;
@@ -191,6 +198,26 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
+     * Sets the brand color for the browse fragment.
+     */
+    public void setBrandColor(int color) {
+        mBrandColor = color;
+        mBrandColorSet = true;
+
+        if (mHeadersFragment != null) {
+            mHeadersFragment.setBackgroundColor(mBrandColor);
+        }
+    }
+
+    /**
+     * Returns the brand color for the browse fragment.
+     * The default is transparent.
+     */
+    public int getBrandColor() {
+        return mBrandColor;
+    }
+
+    /**
      * Sets the list of rows for the fragment.
      */
     public void setAdapter(ObjectAdapter adapter) {
@@ -250,6 +277,36 @@ public class BrowseFragment extends Fragment {
         if (mSearchOrbView != null) {
             mSearchOrbView.setOnOrbClickedListener(listener);
         }
+    }
+
+    /**
+     * Sets the color used to draw the search affordance.
+     */
+    public void setSearchAffordanceColor(int color) {
+        mSearchAffordanceColor = color;
+        mSearchAffordanceColorSet = true;
+
+        if (mSearchOrbView != null) {
+            mSearchOrbView.setOrbColor(mSearchAffordanceColor);
+        }
+    }
+
+    /**
+     * Returns the color used to draw the search affordance.
+     * Can be called only after an activity has been attached.
+     */
+    public int getSearchAffordanceColor() {
+        if (getActivity() == null) {
+            throw new IllegalStateException("Activity must be attached");
+        }
+
+        if (mSearchAffordanceColorSet) {
+            return mSearchAffordanceColor;
+        }
+
+        TypedValue outValue = new TypedValue();
+        getActivity().getTheme().resolveAttribute(android.R.attr.colorForeground, outValue, true);
+        return getResources().getColor(outValue.resourceId);
     }
 
     private void onHeadersTransitionStart(boolean withHeaders) {
@@ -328,6 +385,7 @@ public class BrowseFragment extends Fragment {
         mContainerListAlignTop = (int) ta.getDimension(
                 R.styleable.LeanbackTheme_browseRowsMarginTop, 0);
         ta.recycle();
+
         mHeadersTransitionStartDelay = getResources()
                 .getInteger(R.integer.lb_browse_headers_transition_delay);
         mHeadersTransitionDuration = getResources()
@@ -372,6 +430,7 @@ public class BrowseFragment extends Fragment {
         mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
         mTitleView = (TextView) mBrowseTitle.findViewById(R.id.browse_title);
         mSearchOrbView = (SearchOrbView) mBrowseTitle.findViewById(R.id.browse_orb);
+        mSearchOrbView.setOrbColor(getSearchAffordanceColor());
         if (mExternalOnSearchClickedListener != null) {
             mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
         }
@@ -381,6 +440,9 @@ public class BrowseFragment extends Fragment {
             setBadgeDrawable(mParams.mBadgeDrawable);
             setTitle(mParams.mTitle);
             setHeadersState(mParams.mHeadersState);
+            if (mBrandColorSet) {
+                mHeadersFragment.setBackgroundColor(mBrandColor);
+            }
         }
 
         mSceneWithTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
@@ -503,12 +565,19 @@ public class BrowseFragment extends Fragment {
     private void showHeaders(boolean show) {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
         mHeadersFragment.setHeadersVisiblity(show);
-
-        View containerList = mRowsFragment.getView();
         MarginLayoutParams lp;
+        View containerList;
+
+        containerList = mRowsFragment.getView();
         lp = (MarginLayoutParams) containerList.getLayoutParams();
         lp.leftMargin = show ? mContainerListMarginLeft : 0;
         containerList.setLayoutParams(lp);
+
+        containerList = mHeadersFragment.getView();
+        lp = (MarginLayoutParams) containerList.getLayoutParams();
+        lp.leftMargin = show ? 0 : -mContainerListMarginLeft;
+        containerList.setLayoutParams(lp);
+
         mRowsFragment.setExpand(!show);
     }
 
@@ -584,7 +653,7 @@ public class BrowseFragment extends Fragment {
         mSelectedPosition = position;
     }
 
-    private void setVerticalVerticalGridViewLayout(VerticalGridView listview, int extraOffset) {
+    private void setVerticalGridViewLayout(VerticalGridView listview, int extraOffset) {
         // align the top edge of item to a fixed position
         listview.setItemAlignmentOffset(0);
         listview.setItemAlignmentOffsetPercent(VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
@@ -602,8 +671,8 @@ public class BrowseFragment extends Fragment {
         VerticalGridView containerList = mRowsFragment.getVerticalGridView();
 
         // Both fragments list view has the same alignment
-        setVerticalVerticalGridViewLayout(headerList, 16);
-        setVerticalVerticalGridViewLayout(containerList, 0);
+        setVerticalGridViewLayout(headerList, 16);
+        setVerticalGridViewLayout(containerList, 0);
     }
 
     @Override
@@ -647,8 +716,10 @@ public class BrowseFragment extends Fragment {
         mBadgeView.setImageDrawable(drawable);
         if (drawable != null) {
             mBadgeView.setVisibility(View.VISIBLE);
+            mTitleView.setVisibility(View.GONE);
         } else {
             mBadgeView.setVisibility(View.GONE);
+            mTitleView.setVisibility(View.VISIBLE);
         }
     }
 
