@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.animation.Animator;
+import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
@@ -208,5 +209,9 @@ class TransitionHelperKitkat {
 
     void runTransition(Object scene, Object transition) {
         TransitionManager.go((Scene) scene, (Transition) transition);
+    }
+
+    void setInterpolator(Object transition, Object timeInterpolator) {
+        ((Transition) transition).setInterpolator((TimeInterpolator) timeInterpolator);
     }
 }

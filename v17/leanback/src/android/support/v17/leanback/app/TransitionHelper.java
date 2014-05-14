@@ -94,6 +94,8 @@ final class TransitionHelper {
 
         public void setDuration(Object transition, long duration);
 
+        public void setInterpolator(Object transition, Object timeInterpolator);
+
     }
 
     /**
@@ -206,6 +208,10 @@ final class TransitionHelper {
             if (transitionStub != null && transitionStub.mTransitionListener != null) {
                 transitionStub.mTransitionListener.onTransitionEnd(transition);
             }
+        }
+
+        @Override
+        public void setInterpolator(Object transition, Object timeInterpolator) {
         }
     }
 
@@ -324,6 +330,11 @@ final class TransitionHelper {
         public void runTransition(Object scene, Object transition) {
             mTransitionHelper.runTransition(scene, transition);
         }
+
+        @Override
+        public void setInterpolator(Object transition, Object timeInterpolator) {
+            mTransitionHelper.setInterpolator(transition, timeInterpolator);
+        }
     }
 
     /**
@@ -424,5 +435,9 @@ final class TransitionHelper {
 
     public void runTransition(Object scene, Object transition) {
         mImpl.runTransition(scene, transition);
+    }
+
+    public void setInterpolator(Object transition, Object timeInterpolator) {
+        mImpl.setInterpolator(transition, timeInterpolator);
     }
 }

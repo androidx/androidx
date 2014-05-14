@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.graphics.Color;
@@ -218,7 +219,8 @@ public class BrowseFragment extends Fragment {
     private Object mSceneWithoutTitle;
     private Object mSceneWithHeaders;
     private Object mSceneWithoutHeaders;
-    private Object mTitleTransition;
+    private Object mTitleUpTransition;
+    private Object mTitleDownTransition;
     private Object mHeadersTransition;
     private int mHeadersTransitionStartDelay;
     private int mHeadersTransitionDuration;
@@ -585,9 +587,15 @@ public class BrowseFragment extends Fragment {
                 showHeaders(false);
             }
         });
-        mTitleTransition = sTransitionHelper.createAutoTransition();
-        sTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_headers, true);
-        sTransitionHelper.excludeChildren(mTitleTransition, R.id.container_list, true);
+        mTitleUpTransition = sTransitionHelper.createChangeBounds(false);
+        sTransitionHelper.setInterpolator(mTitleUpTransition, new DecelerateInterpolator(4));
+        mTitleDownTransition = sTransitionHelper.createChangeBounds(false);
+        sTransitionHelper.setInterpolator(mTitleDownTransition, new DecelerateInterpolator());
+
+        sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.browse_headers, true);
+        sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.browse_headers, true);
+        sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.container_list, true);
+        sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.container_list, true);
 
         return root;
     }
@@ -678,7 +686,9 @@ public class BrowseFragment extends Fragment {
     }
 
     private void showTitle(boolean show) {
-        mBrowseTitle.setVisibility(show ? View.VISIBLE : View.GONE);
+        MarginLayoutParams lp = (MarginLayoutParams) mBrowseTitle.getLayoutParams();
+        lp.topMargin = show ? 0 : -mBrowseTitle.getHeight();
+        mBrowseTitle.setLayoutParams(lp);
     }
 
     private void showHeaders(boolean show) {
@@ -740,11 +750,11 @@ public class BrowseFragment extends Fragment {
 
             if (position == 0) {
                 if (!mShowingTitle) {
-                    sTransitionHelper.runTransition(mSceneWithTitle, mTitleTransition);
+                    sTransitionHelper.runTransition(mSceneWithTitle, mTitleDownTransition);
                     mShowingTitle = true;
                 }
             } else if (mShowingTitle) {
-                sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleTransition);
+                sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleUpTransition);
                 mShowingTitle = false;
             }
         }
