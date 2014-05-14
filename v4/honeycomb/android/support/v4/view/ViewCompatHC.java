@@ -60,4 +60,88 @@ class ViewCompatHC {
     public static float getTranslationY(View view) {
         return view.getTranslationY();
     }
+
+    public static float getX(View view) {
+        return view.getX();
+    }
+
+    public static float getY(View view) {
+        return view.getY();
+    }
+
+    public static float getRotation(View view) {
+        return view.getRotation();
+    }
+
+    public static float getRotationX(View view) {
+        return view.getRotationX();
+    }
+
+    public static float getRotationY(View view) {
+        return view.getRotationY();
+    }
+
+    public static float getScaleX(View view) {
+        return view.getScaleX();
+    }
+
+    public static float getScaleY(View view) {
+        return view.getScaleY();
+    }
+
+    public static void setTranslationX(View view, float value) {
+        view.setTranslationX(value);
+    }
+
+    public static void setTranslationY(View view, float value) {
+        view.setTranslationY(value);
+    }
+
+    public static void setAlpha(View view, float value) {
+        view.setAlpha(value);
+    }
+
+    public static void setX(View view, float value) {
+        view.setX(value);
+    }
+
+    public static void setY(View view, float value) {
+        view.setY(value);
+    }
+
+    public static void setRotation(View view, float value) {
+        view.setRotation(value);
+    }
+
+    public static void setRotationX(View view, float value) {
+        view.setRotationX(value);
+    }
+
+    public static void setRotationY(View view, float value) {
+        view.setRotationY(value);
+    }
+
+    public static void setScaleX(View view, float value) {
+        view.setScaleX(value);
+    }
+
+    public static void setScaleY(View view, float value) {
+        view.setScaleY(value);
+    }
+
+    public static void setPivotX(View view, float value) {
+        view.setPivotX(value);
+    }
+
+    public static void setPivotY(View view, float value) {
+        view.setPivotY(value);
+    }
+
+    public static float getPivotX(View view) {
+        return view.getPivotX();
+    }
+
+    public static float getPivotY(View view) {
+        return view.getPivotY();
+    }
 }
