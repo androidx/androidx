@@ -50,7 +50,7 @@ public class SearchEditText extends EditText {
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
             if (DEBUG) Log.v(TAG, "Keyboard being dismissed");
             mKeyboardDismissListener.onKeyboardDismiss();
-            return true;
+            return false;
         }
         return super.onKeyPreIme(keyCode, event);
     }
