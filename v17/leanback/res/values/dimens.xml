@@ -118,6 +118,11 @@
     <dimen name="lb_search_orb_margin_left">4dp</dimen>
     <dimen name="lb_search_orb_margin_right">4dp</dimen>
 
+    <dimen name="lb_search_bar_speech_orb_size">52dp</dimen>
+    <item name="lb_search_bar_speech_orb_focused_zoom" type="fraction">120%</item>
+    <item name="lb_search_bar_speech_orb_max_level_zoom" type="fraction">144%</item>
+
+
     <!-- BasicCardView -->
     <dimen name="lb_basic_card_main_width">140dp</dimen>
     <dimen name="lb_basic_card_main_height">188dp</dimen>

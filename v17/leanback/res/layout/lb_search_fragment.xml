@@ -23,5 +23,9 @@ limitations under the License.
                 android:id="@+id/lb_results_frame"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
-        <include layout="@layout/lb_search_bar" />
+    <android.support.v17.leanback.widget.SearchBar
+            android:id="@+id/lb_search_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 </FrameLayout>
