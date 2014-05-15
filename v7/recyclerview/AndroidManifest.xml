@@ -16,9 +16,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v7.recyclerview">
     <uses-sdk android:minSdkVersion="7"/>
-    <!-- Until test manifest can be customized, we need this definition here. issue id: 57819 -->
-    <application>
-        <activity android:name="android.support.v7.widget.TestActivity"
-                  android:label="RecyclerViewTestActivity"/>
-    </application>
 </manifest>

@@ -129,6 +129,7 @@ public class RecyclerView extends ViewGroup {
     private boolean mEatRequestLayout;
     private boolean mLayoutRequestEaten;
     private boolean mAdapterUpdateDuringMeasure;
+    private boolean mStructureChanged;
     private final boolean mPostUpdatesOnAnimation;
 
     private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
@@ -260,7 +261,7 @@ public class RecyclerView extends ViewGroup {
             mLayout.onAdapterChanged(oldAdapter, mAdapter);
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter);
-        mState.mStructureChanged = true;
+        mStructureChanged = true;
         markKnownViewsInvalid();
         requestLayout();
     }
@@ -617,11 +618,11 @@ public class RecyclerView extends ViewGroup {
         if (mAdapter != null) {
             eatRequestLayout();
             if (x != 0) {
-                final int hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
+                final int hresult = mLayout.scrollHorizontallyBy(x, getAdapter(), mRecycler, mState);
                 overscrollX = x - hresult;
             }
             if (y != 0) {
-                final int vresult = mLayout.scrollVerticallyBy(y, mRecycler, mState);
+                final int vresult = mLayout.scrollVerticallyBy(y, getAdapter(), mRecycler, mState);
                 overscrollY = y - vresult;
             }
             resumeRequestLayout(false);
@@ -1381,12 +1382,7 @@ public class RecyclerView extends ViewGroup {
             // items back to the container). This gives the pre-layout position of APPEARING views
             // which come into existence as part of the real layout.
             mInPreLayout = true;
-            final boolean didStructureChange = mState.mStructureChanged;
-            mState.mStructureChanged = false;
-            // temporarly disable flag because we are asking for previous layout
-            mState.mItemCount = mAdapter.getItemCount();
-            mLayout.onLayoutChildren(mRecycler, mState);
-            mState.mStructureChanged = didStructureChange;
+            mLayout.onLayoutChildren(mAdapter, mRecycler, false, mState);
             mInPreLayout = false;
 
             appearingViewInitialBounds = new ArrayMap<View, Rect>();
@@ -1408,11 +1404,10 @@ public class RecyclerView extends ViewGroup {
         }
         clearOldPositions();
         dispatchLayoutUpdates();
-        mState.mItemCount = mAdapter.getItemCount();
 
         // Step 2: Run layout
-        mLayout.onLayoutChildren(mRecycler, mState);
-        mState.mStructureChanged = false;
+        mLayout.onLayoutChildren(mAdapter, mRecycler, mStructureChanged, mState);
+        mStructureChanged = false;
         mPendingSavedState = null;
 
         if (animateChanges) {
@@ -1744,7 +1739,7 @@ public class RecyclerView extends ViewGroup {
                             holder + " now at position " + (holder.mPosition + itemCount));
                 }
                 holder.offsetPosition(itemCount);
-                mState.mStructureChanged = true;
+                mStructureChanged = true;
             }
         }
         mRecycler.offsetPositionRecordsForInsert(positionStart, itemCount);
@@ -1764,14 +1759,14 @@ public class RecyclerView extends ViewGroup {
                                 (holder.mPosition - itemCount));
                     }
                     holder.offsetPosition(-itemCount);
-                    mState.mStructureChanged = true;
+                    mStructureChanged = true;
                 } else if (holder.mPosition >= positionStart) {
                     if (DEBUG) {
                         Log.d(TAG, "offsetPositionRecordsForRemove attached child " + i +
                                 " holder " + holder + " now REMOVED");
                     }
                     holder.addFlags(ViewHolder.FLAG_REMOVED);
-                    mState.mStructureChanged = true;
+                    mStructureChanged = true;
                 }
             }
         }
@@ -1933,7 +1928,6 @@ public class RecyclerView extends ViewGroup {
      * @deprecated This method will be removed. Use {@link #findChildViewUnder(float, float)}
      *             along with {@link #getChildViewHolder(View)}
      */
-    @Deprecated
     public ViewHolder findViewHolderForChildUnder(int x, int y) {
         final View child = findChildViewUnder(x, y);
         if (child != null) {
@@ -1974,7 +1968,6 @@ public class RecyclerView extends ViewGroup {
      *
      * @deprecated Use {@link #getChildViewHolder(View)} and {@link #getChildAt(int)}
      */
-    @Deprecated
     public ViewHolder getViewHolderForChildAt(int childIndex) {
         return getChildViewHolderInt(getChildAt(childIndex));
     }
@@ -2086,11 +2079,13 @@ public class RecyclerView extends ViewGroup {
                 if (mAdapter != null) {
                     eatRequestLayout();
                     if (dx != 0) {
-                        final int hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
+                        final int hresult = mLayout.scrollHorizontallyBy(dx, getAdapter(), mRecycler
+                                , mState);
                         overscrollX = dx - hresult;
                     }
                     if (dy != 0) {
-                        final int vresult = mLayout.scrollVerticallyBy(dy, mRecycler, mState);
+                        final int vresult = mLayout.scrollVerticallyBy(dy, getAdapter(), mRecycler,
+                                mState);
                         overscrollY = dy - vresult;
                     }
 
@@ -2240,11 +2235,11 @@ public class RecyclerView extends ViewGroup {
             if (mAdapter.hasStableIds()) {
                 // TODO Determine what actually changed
                 markKnownViewsInvalid();
-                mState.mStructureChanged = true;
+                mStructureChanged = true;
                 requestLayout();
             } else {
                 markKnownViewsInvalid();
-                mState.mStructureChanged = true;
+                mStructureChanged = true;
                 requestLayout();
             }
         }
@@ -2278,7 +2273,6 @@ public class RecyclerView extends ViewGroup {
         }
 
         /** @deprecated No longer needed */
-        @Deprecated
         public void reset(int typeCount) {
         }
 
@@ -2403,8 +2397,16 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * @deprecated Use {@link #getViewForPosition(Adapter, int)}
+         *             instead. This method will be removed.
+         */
+        public View getViewForPosition(int position) {
+            return getViewForPosition(mAdapter, position);
+        }
+
+        /**
          * Obtain a view initialized for the given position.
-         * 
+         *
          * <p>This method should be used by {@link LayoutManager} implementations to obtain
          * views to represent data from an {@link Adapter}.</p>
          *
@@ -2417,14 +2419,6 @@ public class RecyclerView extends ViewGroup {
          * @param position Position to obtain a view for
          * @return A view representing the data at <code>position</code> from <code>adapter</code>
          */
-        public View getViewForPosition(int position) {
-            return getViewForPosition(mAdapter, position);
-        }
-
-        /**
-         * @deprecated  use getViewForPosition(int position)
-         */
-        @Deprecated
         public View getViewForPosition(Adapter adapter, int position) {
             ViewHolder holder;
 
@@ -2474,7 +2468,6 @@ public class RecyclerView extends ViewGroup {
          * less confusion between temporarily detached scrap views and fully detached
          * recycled views. This method will be removed.
          */
-        @Deprecated
         public void addDetachedScrapView(View scrap) {
             recycleView(scrap);
         }
@@ -2538,7 +2531,6 @@ public class RecyclerView extends ViewGroup {
          * of the LayoutManager; the Recycler will only be responsible for marking and tracking
          * views for reuse. This method no longer matches the definition of 'scrap'.
          */
-        @Deprecated
         public void detachAndScrapView(View scrap) {
             if (scrap.getParent() != RecyclerView.this) {
                 throw new IllegalArgumentException("View " + scrap + " is not attached to " +
@@ -2553,7 +2545,6 @@ public class RecyclerView extends ViewGroup {
          * {@link LayoutManager#detachAndScrapAttachedViews(android.support.v7.widget.RecyclerView.Recycler)}
          * to keep LayoutManager as the owner of attach/detach operations.
          */
-        @Deprecated
         public void scrapAllViewsAttached() {
             mLayout.detachAndScrapAttachedViews(this);
         }
@@ -2590,7 +2581,6 @@ public class RecyclerView extends ViewGroup {
          * {@link LayoutManager#removeAndRecycleScrap(android.support.v7.widget.RecyclerView.Recycler)}
          * instead.
          */
-        @Deprecated
         public void detachDirtyScrapViews() {
             mLayout.removeAndRecycleScrap(this);
         }
@@ -2859,7 +2849,6 @@ public class RecyclerView extends ViewGroup {
         private boolean mHasStableIds = false;
 
         /** @deprecated */
-        @Deprecated
         private int mViewTypeCount = 1;
 
         public abstract VH onCreateViewHolder(ViewGroup parent, int viewType);
@@ -2908,7 +2897,6 @@ public class RecyclerView extends ViewGroup {
          *
          * @deprecated This method is no longer necessary. View types are now unbounded.
          */
-        @Deprecated
         public void setItemViewTypeCount(int count) {
             Log.w(TAG, "setItemViewTypeCount is deprecated and no longer needed.");
             mViewTypeCount = count;
@@ -2923,7 +2911,6 @@ public class RecyclerView extends ViewGroup {
          *
          * @deprecated This method is no longer necessary. View types are now unbounded.
          */
-        @Deprecated
         public final int getItemViewTypeCount() {
             Log.w(TAG, "getItemViewTypeCount is no longer needed. " +
                     "View type count is now unbounded.");
@@ -3200,7 +3187,6 @@ public class RecyclerView extends ViewGroup {
          *             See the other methods on LayoutManager for accessing child views and
          *             container properties instead. <em>This method will be removed.</em>
          */
-        @Deprecated
         public final RecyclerView getRecyclerView() {
             return mRecyclerView;
         }
@@ -3258,16 +3244,6 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * @deprecated
-         * use onLayoutChildren(Recycler recycler, State state)
-         */
-        @Deprecated
-        public void onLayoutChildren(Adapter adapter, Recycler recycler, boolean structureChanged,
-                State state) {
-            layoutChildren(adapter, recycler, structureChanged);
-        }
-
-        /**
          * Lay out all relevant child views from the given adapter.
          *
          * <p>Special care should be taken when automatic animations of added/removed items
@@ -3298,13 +3274,18 @@ public class RecyclerView extends ViewGroup {
          * of these layout managers directly or look at their implementations of
          * onLayoutChildren() to see how they account for the APPEARING and DISAPPEARING views.</p>
          *
+         * @param adapter          Adapter that will supply and bind views from a data set
          * @param recycler         Recycler to use for fetching potentially cached views for a
          *                         position
+         * @param structureChanged true if the structure of the data set has changed since
+         *                         the last call to onLayoutChildren, false otherwise
          * @param state            Transient state of RecyclerView
          */
-        public void onLayoutChildren(Recycler recycler, State state) {
-            Log.e(TAG, "You must override onLayoutChildren(Recycler recycler, State state) ");
-            onLayoutChildren(mRecyclerView.mAdapter, recycler, state.mStructureChanged, state);
+        public void onLayoutChildren(Adapter adapter, Recycler recycler, boolean structureChanged,
+                State state) {
+            Log.e(TAG, "You must override onLayoutChildren(Adapter adapter, Recycler recycler, "
+                    + "boolean structureChanged, State state)");
+            layoutChildren(adapter, recycler, structureChanged);
         }
 
         /**
@@ -3385,6 +3366,7 @@ public class RecyclerView extends ViewGroup {
          *
          * @param dx            distance to scroll by in pixels. X increases as scroll position
          *                      approaches the right.
+         * @param adapter       Adapter that will supply and bind views from a data set
          * @param recycler      Recycler to use for fetching potentially cached views for a
          *                      position
          * @param state         Transient state of RecyclerView
@@ -3392,19 +3374,10 @@ public class RecyclerView extends ViewGroup {
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dx if a boundary was reached.
          */
-        public int scrollHorizontallyBy(int dx, Recycler recycler, State state) {
-            Log.e(TAG, "you must override "
-                    + "scrollHorizontallyBy(dx,recycler,state)");
-            return scrollHorizontallyBy(dx, mRecyclerView.mAdapter, recycler);
-        }
-
-        /**
-         * @deprecated
-         * use scrollHorizontallyBy(int dx, Recycler recycler, State state).
-         */
-        @Deprecated
         public int scrollHorizontallyBy(int dx, Adapter adapter, Recycler recycler,
                 State state) {
+            Log.e(TAG, "you must override "
+                    + "scrollHorizontallyBy(dx,adapter,recycler,state)");
             return scrollHorizontallyBy(dx, adapter, recycler);
         }
 
@@ -3433,6 +3406,7 @@ public class RecyclerView extends ViewGroup {
          *
          * @param dy            distance to scroll in pixels. Y increases as scroll position
          *                      approaches the bottom.
+         * @param adapter       Adapter that will supply and bind views from a data set
          * @param recycler      Recycler to use for fetching potentially cached views for a
          *                      position
          * @param state         Transient state of RecyclerView
@@ -3440,26 +3414,17 @@ public class RecyclerView extends ViewGroup {
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dy if a boundary was reached.
          */
-        public int scrollVerticallyBy(int dy, Recycler recycler, State state) {
-            Log.e(TAG, "you should override "
-                    + "scrollVerticallyBy(dx,adapter,recycler,state)");
-            return scrollVerticallyBy(dy, mRecyclerView.mAdapter, recycler);
-        }
-
-        /**
-         * @deprecated
-         * Override scrollVerticallyBy(int dy, Recycler recycler, State state) instead.
-         */
-        @Deprecated
         public int scrollVerticallyBy(int dy, Adapter adapter, Recycler recycler,
                 State state) {
+            Log.e(TAG, "you should override "
+                    + "scrollVerticallyBy(dx,adapter,recycler,state)");
             return scrollVerticallyBy(dy, adapter, recycler);
         }
 
 
         /**
-         * @deprecated
-         * Override {@link #scrollVerticallyBy(int, Adapter, Recycler, RecyclerView.State)} instead.
+         * @deprecated Use
+         * {@link #scrollVerticallyBy(int, Adapter, Recycler, RecyclerView.State)}
          */
         @Deprecated
         public int scrollVerticallyBy(int dy, Adapter adapter, Recycler recycler) {
@@ -3470,7 +3435,6 @@ public class RecyclerView extends ViewGroup {
          * @deprecated API changed to include the Adapter to use. Override
          * {@link #scrollVerticallyBy(int, Adapter, Recycler, RecyclerView.State)} instead.
          */
-        @Deprecated
         public int scrollVerticallyBy(int dy, Recycler recycler) {
             return 0;
         }
@@ -3508,24 +3472,15 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * @deprecated
-         * use smoothScrollToPosition(RecyclerView recyclerView, State state, int position)
-         */
-        @Deprecated
-        public void smoothScrollToPosition(RecyclerView recyclerView, Adapter adapter,
-                int position) {
-        }
-
-        /**
          * <p>Smooth scroll to the specified adapter position.</p>
          * <p>To support smooth scrolling, override this method, create your {@link SmoothScroller}
          * instance and call {@link #startSmoothScroll(SmoothScroller)}.
          * </p>
          * @param recyclerView The RecyclerView to which this layout manager is attached
-         * @param state    Current State of RecyclerView
+         * @param adapter
          * @param position Scroll to this adapter position.
          */
-        public void smoothScrollToPosition(RecyclerView recyclerView, State state,
+        public void smoothScrollToPosition(RecyclerView recyclerView, Adapter adapter,
                 int position) {
             Log.e(TAG, "You must override smoothScrollToPosition to support smooth scrolling");
         }
@@ -4030,7 +3985,6 @@ public class RecyclerView extends ViewGroup {
          * to {@link #onLayoutChildren(Adapter, Recycler, boolean, State)}. This method now
          * does nothing and should no longer be called by LayoutManager implementations.
          */
-        @Deprecated
         public void removeAndRecycleScrap(Recycler recycler) {
             // noop
         }
@@ -4267,24 +4221,15 @@ public class RecyclerView extends ViewGroup {
          *                  {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT},
          *                  {@link View#FOCUS_BACKWARD}, {@link View#FOCUS_FORWARD}
          *                  or 0 for not applicable
+         * @param adapter   Adapter to use for obtaining new views
          * @param recycler  The recycler to use for obtaining views for currently offscreen items
          * @param state     Transient state of RecyclerView
          * @return The chosen view to be focused
          */
-        public View onFocusSearchFailed(View focused, int direction, Recycler recycler,
-                State state) {
-            Log.e(TAG, "you must override onFocusSearchFailed(View focused, int direction, "
-                    + "Recycler recycler, State state)");
-            return onFocusSearchFailed(focused, direction, mRecyclerView.mAdapter, recycler, state);
-        }
-
-        /**
-         * @deprecated use onFocusSearchFailed(View focused, int direction, Recycler recycler,
-         * State state)
-         */
-        @Deprecated
         public View onFocusSearchFailed(View focused, int direction, Adapter adapter,
                 Recycler recycler, State state) {
+            Log.e(TAG, "You must override onFocusSearchFailed(View focused, int direction, "
+                    + "Adapter adapter, Recycler recycler, State state)");
             return this.onFocusSearchFailed(focused, direction, adapter, recycler);
         }
 
@@ -4302,7 +4247,6 @@ public class RecyclerView extends ViewGroup {
          * @deprecated API changed to supply the Adapter. Override
          * {@link #onFocusSearchFailed(android.view.View, int, Adapter, Recycler)} instead.
          */
-        @Deprecated
         public View onFocusSearchFailed(View focused, int direction, Recycler recycler) {
             return null;
         }
@@ -4331,7 +4275,6 @@ public class RecyclerView extends ViewGroup {
          * @deprecated This method will be removed. Override {@link #requestChildRectangleOnScreen(
          * RecyclerView, android.view.View, android.graphics.Rect, boolean)} instead.
          */
-        @Deprecated
         public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
             return requestChildRectangleOnScreen(mRecyclerView, child, rect, immediate);
         }
@@ -4414,7 +4357,6 @@ public class RecyclerView extends ViewGroup {
          * {@link #onRequestChildFocus(RecyclerView, android.view.View, android.view.View)}
          * instead.
          */
-        @Deprecated
         public boolean onRequestChildFocus(View child, View focused) {
             return false;
         }
@@ -4424,7 +4366,6 @@ public class RecyclerView extends ViewGroup {
          * {@link #onAdapterChanged(RecyclerView.Adapter, RecyclerView.Adapter)}
          * instead.
          */
-        @Deprecated
         public void onAdapterChanged() {
             removeAllViews();
         }
@@ -4497,14 +4438,6 @@ public class RecyclerView extends ViewGroup {
         }
 
 
-        /**
-         * @deprecated
-         * Override computeHorizontalScrollExtent(State state) instead.
-         */
-        @Deprecated
-        public int computeHorizontalScrollExtent(Adapter adapter) {
-            return 0;
-        }
 
         /**
          * <p>Override this method if you want to support scroll bars.</p>
@@ -4513,20 +4446,11 @@ public class RecyclerView extends ViewGroup {
          *
          * <p>Default implementation returns 0.</p>
          *
-         * @param state Current state of RecyclerView
+         * @param adapter Current adapter which is attached to RecyclerView
          * @return The horizontal extent of the scrollbar's thumb
          * @see RecyclerView#computeHorizontalScrollExtent()
          */
-        public int computeHorizontalScrollExtent(State state) {
-            return 0;
-        }
-
-        /**
-         * @deprecated
-         * Override computeHorizontalScrollOffset(State state) instead.
-         */
-        @Deprecated
-        public int computeHorizontalScrollOffset(Adapter adapter) {
+        public int computeHorizontalScrollExtent(Adapter adapter) {
             return 0;
         }
 
@@ -4537,20 +4461,11 @@ public class RecyclerView extends ViewGroup {
          *
          * <p>Default implementation returns 0.</p>
          *
-         * @param state Current State of RecyclerView where you can find total item count
+         * @param adapter Current adapter which is attached to RecyclerView
          * @return The horizontal offset of the scrollbar's thumb
          * @see RecyclerView#computeHorizontalScrollOffset()
          */
-        public int computeHorizontalScrollOffset(State state) {
-            return 0;
-        }
-
-        /**
-         * @deprecated
-         * Override computeHorizontalScrollRange(State state) instead.
-         */
-        @Deprecated
-        public int computeHorizontalScrollRange(Adapter adapter) {
+        public int computeHorizontalScrollOffset(Adapter adapter) {
             return 0;
         }
 
@@ -4561,68 +4476,11 @@ public class RecyclerView extends ViewGroup {
          *
          * <p>Default implementation returns 0.</p>
          *
-         * @param state Current State of RecyclerView where you can find total item count
+         * @param adapter Current adapter which is attached to RecyclerView
          * @return The total horizontal range represented by the vertical scrollbar
          * @see RecyclerView#computeHorizontalScrollRange()
          */
-        public int computeHorizontalScrollRange(State state) {
-            return 0;
-        }
-
-        /**
-         * @deprecated
-         * Override computeVerticalScrollExtent(State state) instead.
-         */
-        @Deprecated
-        public int computeVerticalScrollExtent(Adapter adapter) {
-            return 0;
-        }
-
-        /**
-         * <p>Override this method if you want to support scroll bars.</p>
-         *
-         * <p>Read {@link RecyclerView#computeVerticalScrollExtent()} for details.</p>
-         *
-         * <p>Default implementation returns 0.</p>
-         *
-         * @param state Current state of RecyclerView
-         * @return The vertical extent of the scrollbar's thumb
-         * @see RecyclerView#computeVerticalScrollExtent()
-         */
-        public int computeVerticalScrollExtent(State state) {
-            return 0;
-        }
-
-        /**
-         * @deprecated
-         * Override computeVerticalScrollOffset(State state) instead.
-         */
-        @Deprecated
-        public int computeVerticalScrollOffset(Adapter adapter) {
-            return 0;
-        }
-
-        /**
-         * <p>Override this method if you want to support scroll bars.</p>
-         *
-         * <p>Read {@link RecyclerView#computeVerticalScrollOffset()} for details.</p>
-         *
-         * <p>Default implementation returns 0.</p>
-         *
-         * @param state Current State of RecyclerView where you can find total item count
-         * @return The vertical offset of the scrollbar's thumb
-         * @see RecyclerView#computeVerticalScrollOffset()
-         */
-        public int computeVerticalScrollOffset(State state) {
-            return 0;
-        }
-
-        /**
-         * @deprecated
-         * Override computeVerticalScrollRange(State state) instead.
-         */
-        @Deprecated
-        public int computeVerticalScrollRange(Adapter adapter) {
+        public int computeHorizontalScrollRange(Adapter adapter) {
             return 0;
         }
 
@@ -4633,11 +4491,41 @@ public class RecyclerView extends ViewGroup {
          *
          * <p>Default implementation returns 0.</p>
          *
-         * @param state Current State of RecyclerView where you can find total item count
+         * @param adapter Current adapter which is attached to RecyclerView
          * @return The total vertical range represented by the vertical scrollbar
          * @see RecyclerView#computeVerticalScrollRange()
          */
-        public int computeVerticalScrollRange(State state) {
+        public int computeVerticalScrollRange(Adapter adapter) {
+            return 0;
+        }
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeVerticalScrollOffset()} for details.</p>
+         *
+         * * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The vertical offset of the scrollbar's thumb
+         * @see RecyclerView#computeVerticalScrollOffset()
+         */
+        public int computeVerticalScrollOffset(Adapter adapter) {
+            return 0;
+        }
+
+        /**
+         * <p>Override this method if you want to support scroll bars.</p>
+         *
+         * <p>Read {@link RecyclerView#computeVerticalScrollExtent()} for details.</p>
+         *
+         * <p>Default implementation returns 0.</p>
+         *
+         * @param adapter Current adapter which is attached to RecyclerView
+         * @return The vertical extent of the scrollbar's thumb
+         * @see RecyclerView#computeVerticalScrollExtent()
+         */
+        public int computeVerticalScrollExtent(Adapter adapter) {
             return 0;
         }
 
@@ -5189,7 +5077,7 @@ public class RecyclerView extends ViewGroup {
             if (mTargetPosition == RecyclerView.NO_POSITION) {
                 throw new IllegalArgumentException("Invalid target position");
             }
-            mRecyclerView.mState.mTargetPosition = mTargetPosition;
+            mRecyclerView.mState.withTarget(mTargetPosition);
             mRunning = true;
             mPendingInitialRun = true;
             mTargetView = findViewByPosition(getTargetPosition());
@@ -5219,7 +5107,7 @@ public class RecyclerView extends ViewGroup {
                 return;
             }
             onStop();
-            mRecyclerView.mState.mTargetPosition = RecyclerView.NO_POSITION;
+            mRecyclerView.mState.withTarget(RecyclerView.NO_POSITION);
             mTargetView = null;
             mTargetPosition = RecyclerView.NO_POSITION;
             mPendingInitialRun = false;
@@ -5610,7 +5498,7 @@ public class RecyclerView extends ViewGroup {
      * <p>If you implement custom components, you can use State's put/get/remove methods to pass
      * data between your components without needing to manage their lifecycles.</p>
      */
-    public static class State {
+    public class State {
 
         private int mTargetPosition = RecyclerView.NO_POSITION;
         private ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
@@ -5620,17 +5508,11 @@ public class RecyclerView extends ViewGroup {
 
         private SparseArray<Object> mData;
 
-        private int mItemCount = 0;
-
-        private boolean mStructureChanged = false;
-
         State reset() {
             mTargetPosition = RecyclerView.NO_POSITION;
             if (mData != null) {
                 mData.clear();
             }
-            mItemCount = 0;
-            mStructureChanged = false;
             return this;
         }
 
@@ -5696,21 +5578,9 @@ public class RecyclerView extends ViewGroup {
             return mTargetPosition != RecyclerView.NO_POSITION;
         }
 
-        /**
-         * @return true if the structure of the data set has changed since the last call to
-         *         onLayoutChildren, false otherwise
-         */
-        public boolean didStructureChange() {
-            return mStructureChanged;
-        }
-
-        /**
-         * @return Total number of items to be laid out. Note that, this number is not necessarily
-         * equal to the number of items in the adapter, so you should always use this number for
-         * your position calculations and never call adapter directly.
-         */
-        public int getItemCount() {
-            return mItemCount;
+        State withTarget(int targetPosition) {
+            mTargetPosition = targetPosition;
+            return this;
         }
     }
 

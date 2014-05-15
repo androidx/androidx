@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import java.util.UUID;
 
-public class RecyclerViewBasicTest extends AndroidTestCase {
+public class RecyclerViewTest extends AndroidTestCase {
 
     RecyclerView mRecyclerView;
 
@@ -278,7 +278,6 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
 
         private int mCount = 0;
 
-
         MockAdapter(int count) {
             this.mCount = count;
         }
@@ -296,16 +295,6 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         @Override
         public int getItemCount() {
             return mCount;
-        }
-
-        void removeItems(int start, int count) {
-            mCount -= count;
-            notifyItemRangeRemoved(start, count);
-        }
-
-        void addItems(int start, int count) {
-            mCount += count;
-            notifyItemRangeInserted(start, count);
         }
     }
 
