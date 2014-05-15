@@ -95,17 +95,10 @@
     <string name="sample_media_route_activity_local">Local Playback</string>
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
-    <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
-    <string name="animated_recycler_view">RecyclerView/AnimatedRecyclerView</string>
+    <string name="recycler_view">RecyclerView</string>
     <string name="linear_layout_manager">Linear Layout Manager</string>
     <string name="checkbox_orientation">Horz.</string>
     <string name="checkbox_reverse">Rev.</string>
     <string name="checkbox_layout_dir">Layout Dir</string>
     <string name="checkbox_stack_from_end">Stack From End</string>
-    <string name="add_item">Add</string>
-    <string name="delete_item">Delete</string>
-    <string name="add_delete_item">A+D</string>
-    <string name="delete_add_item">D+A</string>
-    <string name="d1a2d3">d1a2d3</string>
-
 </resources>

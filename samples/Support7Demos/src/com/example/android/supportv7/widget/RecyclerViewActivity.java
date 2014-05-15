@@ -102,12 +102,6 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public void onLayoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
-                boolean structureChanged, RecyclerView.State state) {
-            layoutChildren(adapter, recycler, structureChanged);
-        }
-
-        @Override
         public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
                 boolean structureChanged) {
             final int parentBottom = getHeight() - getPaddingBottom();
