@@ -2413,6 +2413,7 @@ public class RecyclerView extends ViewGroup {
          * data at the given position has changed, the Recycler will attempt to hand back
          * a scrap view that was previously initialized for that data without rebinding.</p>
          *
+         * @param adapter Adapter to use for binding and creating views
          * @param position Position to obtain a view for
          * @return A view representing the data at <code>position</code> from <code>adapter</code>
          */
