@@ -525,12 +525,10 @@ public class BrowseFragment extends Fragment {
             mRowsFragment = (RowsFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
-        mRowsFragment.setReparentHeaderId(mReparentHeaderId);
         mRowsFragment.setAdapter(mAdapter);
         if (mHeaderPresenterSelector != null) {
             mHeadersFragment.setPresenterSelector(mHeaderPresenterSelector);
         }
-        mHeadersFragment.setReparentHeaderId(mReparentHeaderId);
         mHeadersFragment.setAdapter(mAdapter);
 
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
@@ -603,48 +601,15 @@ public class BrowseFragment extends Fragment {
     private void createHeadersTransition() {
         mHeadersTransition = sTransitionHelper.createTransitionSet(false);
         sTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
-        Object changeBounds = sTransitionHelper.createChangeBounds(true);
+        Object changeBounds = sTransitionHelper.createChangeBounds(false);
         Object fadeIn = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
         Object fadeOut = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
 
-        sTransitionHelper.exclude(fadeIn, mReparentHeaderId, true);
-        sTransitionHelper.exclude(fadeOut, mReparentHeaderId, true);
-        if (!mShowingHeaders) {
-            sTransitionHelper.setChangeBoundsDefaultStartDelay(changeBounds,
-                    mHeadersTransitionStartDelay);
-        }
-        sTransitionHelper.setChangeBoundsStartDelay(changeBounds, mReparentHeaderId,
-                mShowingHeaders ? mHeadersTransitionStartDelay : 0);
-
-        final int selectedPosition = mSelectedPosition;
-        Object slide = sTransitionHelper.createSlide(new SlideCallback() {
-            @Override
-            public boolean getSlide(View view, boolean appear, int[] edge, float[] distance) {
-                // we only care about the view with specific transition position Tag.
-                Integer position = (Integer) view.getTag(R.id.lb_header_transition_position);
-                if (position == null) {
-                    return false;
-                }
-                distance[0] = view.getHeight() * SLIDE_DISTANCE_FACTOR;
-                if (position < selectedPosition) {
-                    edge[0] = TransitionHelper.SLIDE_TOP;
-                    return true;
-                } else if (position > selectedPosition) {
-                    edge[0] = TransitionHelper.SLIDE_BOTTOM;
-                    return true;
-                }
-                return false;
-            }
-        });
-        sTransitionHelper.exclude(slide, mReparentHeaderId, true);
-        sTransitionHelper.setDuration(slide, mHeadersTransitionDuration);
-        if (mShowingHeaders) {
-            sTransitionHelper.setStartDelay(slide, mHeadersTransitionStartDelay);
-        }
-        sTransitionHelper.addTransition(mHeadersTransition, slide);
-
         sTransitionHelper.setDuration(fadeOut, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, fadeOut);
+        if (mShowingHeaders) {
+            sTransitionHelper.setStartDelay(changeBounds, mHeadersTransitionStartDelay);
+        }
         sTransitionHelper.setDuration(changeBounds, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, changeBounds);
         sTransitionHelper.setDuration(fadeIn, mHeadersTransitionDuration);

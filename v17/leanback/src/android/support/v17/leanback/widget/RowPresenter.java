@@ -227,22 +227,9 @@ public abstract class RowPresenter extends Presenter {
     }
 
     private void updateHeaderViewVisibility(ViewHolder vh) {
-        // Use remove/add for selected row for header reparenting transition.
-        // Use hide/show for unselected row for header fade out/in transition.
         if (mHeaderPresenter != null && vh.mHeaderViewHolder != null) {
             RowContainerView containerView = ((RowContainerView) vh.mContainerViewHolder.view);
-            View headerView = vh.mHeaderViewHolder.view;
-            if (vh.isSelected()) {
-                containerView.showHeader(true);
-                if (vh.isExpanded()) {
-                    containerView.addHeaderView(headerView);
-                } else {
-                    containerView.removeHeaderView(headerView);
-                }
-            } else {
-                containerView.addHeaderView(headerView);
-                containerView.showHeader(vh.isExpanded());
-            }
+            containerView.showHeader(vh.isExpanded());
         }
     }
 

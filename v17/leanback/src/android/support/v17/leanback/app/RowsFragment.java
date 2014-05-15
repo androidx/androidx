@@ -314,28 +314,4 @@ public class RowsFragment extends BaseRowFragment {
         }
     }
 
-    @Override
-    void onTransitionStart() {
-        super.onTransitionStart();
-        final VerticalGridView listView = getVerticalGridView();
-        if (listView == null) {
-            return;
-        }
-        final int selectedPosition = listView.getSelectedPosition();
-        final int count = listView.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = listView.getChildAt(i);
-            ItemBridgeAdapter.ViewHolder viewHolder = (ItemBridgeAdapter.ViewHolder)
-                    listView.getChildViewHolder(child);
-            RowPresenter presenter = (RowPresenter) viewHolder.getPresenter();
-            RowPresenter.ViewHolder rowViewHolder = presenter.getRowViewHolder(
-                    viewHolder.getViewHolder());
-            View headerView = rowViewHolder.getHeaderViewHolder().view;
-            if (viewHolder.getPosition() == selectedPosition) {
-                headerView.setId(mReparentHeaderId);
-            } else {
-                headerView.setId(View.NO_ID);
-            }
-        }
-    }
 }

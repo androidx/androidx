@@ -94,49 +94,7 @@ public class HeadersFragment extends BaseRowFragment {
             headerView.addOnLayoutChangeListener(sLayoutChangeListener);
         }
 
-        @Override
-        public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-            View headerView = viewHolder.getViewHolder().view;
-            if (mInTransition) {
-                updateHeaderViewForTransition(headerView, viewHolder.getPosition());
-            }
-        }
     };
-
-    /**
-     * Preparing headerView for transition.
-     */
-    private void updateHeaderViewForTransition(View headerView, Integer position) {
-        final VerticalGridView listView = getVerticalGridView();
-        if (position == listView.getSelectedPosition()) {
-            headerView.setId(mReparentHeaderId);
-        } else {
-            headerView.setId(View.NO_ID);
-        }
-        headerView.setTag(R.id.lb_header_transition_position, position);
-    }
-
-    /**
-     * Preparing all headerViews for transition.
-     */
-    private void updateHeaderViewsForTransition() {
-        final VerticalGridView listView = getVerticalGridView();
-        if (listView == null) {
-            return;
-        }
-        final int count = listView.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = listView.getChildAt(i);
-            updateHeaderViewForTransition(child,
-                    listView.getChildViewHolder(child).getPosition());
-        }
-    }
-
-    @Override
-    void onTransitionStart() {
-        super.onTransitionStart();
-        updateHeaderViewsForTransition();
-    }
 
     private static OnLayoutChangeListener sLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
