@@ -27,13 +27,15 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
         android-support-v7-appcompat \
         android-support-v7-gridlayout \
         android-support-v7-mediarouter \
-        android-support-v7-recyclerview
+        android-support-v7-recyclerview \
+        android-support-v7-cardview
 LOCAL_RESOURCE_DIR = \
         $(LOCAL_PATH)/res \
         frameworks/support/v7/appcompat/res \
         frameworks/support/v7/gridlayout/res \
-        frameworks/support/v7/mediarouter/res
+        frameworks/support/v7/mediarouter/res \
+        frameworks/support/v7/cardview/res
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay \
-        --extra-packages android.support.v7.appcompat:android.support.v7.gridlayout:android.support.v7.mediarouter
+        --extra-packages android.support.v7.cardview:android.support.v7.appcompat:android.support.v7.gridlayout:android.support.v7.mediarouter
 include $(BUILD_PACKAGE)

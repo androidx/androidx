@@ -109,4 +109,8 @@
     <string name="delete_add_item">D+A</string>
     <string name="d1a2d3">d1a2d3</string>
 
+    <string name="card_view">Card View</string>
+    <string name="card_view_radius">Radius</string>
+    <string name="card_view_width">Width</string>
+    <string name="card_view_height">Height</string>
 </resources>
