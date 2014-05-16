@@ -70,7 +70,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // For animations
         private TimeAnimator mAnimator;
         private long mDuration;
-        private boolean mFirstAttached;
+        private boolean mFirstAttachedInLayout;
         // current virtual view position (scrollOffset + left/top) in the GridLayoutManager
         private int mViewX, mViewY;
         private int mSize;
@@ -107,9 +107,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             super(source);
         }
 
-        void onViewAttached() {
-            endAnimate();
-            mFirstAttached = true;
+        void onViewAttached(boolean inLayout) {
+            mFirstAttachedInLayout = inLayout;
         }
 
         void onViewDetached() {
@@ -195,37 +194,40 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         };
 
-        void startAnimate(GridLayoutManager layout, View view, long startDelay) {
-            if (mAnimator == null) {
-                mAnimator = new TimeAnimator();
-                mAnimator.setTimeListener(mTimeListener);
-            }
-            if (mFirstAttached) {
-                // first time record the initial location and return without animation
-                // TODO do we need initial animation?
-                mViewX = layout.getScrollOffsetX() + getOpticalLeft(view);
-                mViewY = layout.getScrollOffsetY() + getOpticalTop(view);
-                mOrientation = layout.mOrientation;
-                mSize = mOrientation == HORIZONTAL ? view.getMeasuredWidth() : view.getMeasuredHeight();
-                mFirstAttached = false;
+        void recordStart(int orientation, View view) {
+            mViewX = getOpticalLeft(view);
+            mViewY = getOpticalTop(view);
+            mOrientation = orientation;
+            mSize = mOrientation == HORIZONTAL ? view.getMeasuredWidth() : view.getMeasuredHeight();
+        }
+
+        void startAnimate(View view,
+                long duration, long startDelay, Interpolator interpolator) {
+            if (mFirstAttachedInLayout) {
+                // if the view is just attached in layout pass, do not run animation
+                mFirstAttachedInLayout = false;
                 return;
             }
-            mView = view;
-            int newViewX = layout.getScrollOffsetX() + getOpticalLeft(mView);
-            int newViewY = layout.getScrollOffsetY() + getOpticalTop(mView);
+            int newViewX = getOpticalLeft(view);
+            int newViewY = getOpticalTop(view);
             if (newViewX != mViewX || newViewY != mViewY) {
-                mAnimator.cancel();
+                if (mAnimator == null) {
+                    mAnimator = new TimeAnimator();
+                    mAnimator.setTimeListener(mTimeListener);
+                }
+                mView = view;
                 mAnimationStartTranslationX = mView.getTranslationX();
                 mAnimationStartTranslationY = mView.getTranslationY();
+                mAnimator.cancel();
                 mAnimationStartTranslationX += mViewX - newViewX;
                 mAnimationStartTranslationY += mViewY - newViewY;
-                mDuration = layout.getChildLayoutAnimationDuration();
+                mDuration = duration;
                 mAnimator.setDuration(mDuration);
-                mAnimator.setInterpolator(layout.getChildLayoutAnimationInterpolator());
+                mAnimator.setInterpolator(interpolator);
                 mAnimator.setStartDelay(startDelay);
                 mAnimator.start();
-                mViewX = newViewX;
-                mViewY = newViewY;
+                // put it at initial location
+                mTimeListener.onTimeUpdate(mAnimator, 0, 0);
             }
         }
 
@@ -647,7 +649,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     protected View getViewForPosition(int position) {
         View v = mRecycler.getViewForPosition(mAdapter, position);
         if (v != null) {
-            ((LayoutParams) v.getLayoutParams()).onViewAttached();
+            ((LayoutParams) v.getLayoutParams()).onViewAttached(mInLayout);
         }
         return v;
     }
@@ -1464,6 +1466,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mInLayout = true;
 
+        attemptRecordChildLayout();
         // Track the old focus view so we can adjust our system scroll position
         // so that any scroll animations happening now will remain valid.
         int delta = 0, deltaSecondary = 0;
@@ -1646,7 +1649,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         updated |= getChildCount() < childCount;
 
-        attemptAnimateLayoutChild();
         if (updated) {
             updateRowSecondarySizeRefresh();
         }
@@ -1964,11 +1966,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             LayoutParams p = (LayoutParams) v.getLayoutParams();
             if (!mAnimateChildLayout) {
                 p.endAnimate();
-            } else {
-                // record initial location values
-                p.mFirstAttached = true;
-                p.startAnimate(this, v, 0);
             }
+        }
+    }
+
+    private void attemptRecordChildLayout() {
+        if (!mAnimateChildLayout) {
+            return;
+        }
+        for (int i = 0, c = getChildCount(); i < c; i++) {
+            View v = getChildAt(i);
+            ((LayoutParams) v.getLayoutParams()).recordStart(mOrientation, v);
         }
     }
 
@@ -1979,7 +1987,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         for (int i = 0, c = getChildCount(); i < c; i++) {
             // TODO: start delay can be staggered
             View v = getChildAt(i);
-            ((LayoutParams) v.getLayoutParams()).startAnimate(this, v, 0);
+            ((LayoutParams) v.getLayoutParams()).startAnimate(v,
+                    getChildLayoutAnimationDuration(), 0, getChildLayoutAnimationInterpolator());
         }
     }
 
