@@ -36,6 +36,7 @@ class ItemAlignment {
         private int mOffset = 0;
         private float mOffsetPercent = 50;
         private int mViewId = 0;
+        private boolean mOffsetWithPadding = false;
         private Rect mRect = new Rect();
 
         Axis(int orientation) {
@@ -48,6 +49,14 @@ class ItemAlignment {
 
         public int getItemAlignmentOffset() {
             return mOffset;
+        }
+
+        public void setItemAlignmentOffsetWithPadding(boolean withPadding) {
+            mOffsetWithPadding = withPadding;
+        }
+
+        public boolean isItemAlignmentOffsetWithPadding() {
+            return mOffsetWithPadding;
         }
 
         public void setItemAlignmentOffsetPercent(float percent) {
@@ -70,8 +79,10 @@ class ItemAlignment {
             return mViewId;
         }
 
+        /**
+         * get alignment position relative to optical left/top of itemView.
+         */
         public int getAlignmentPosition(View itemView) {
-
             LayoutParams p = (LayoutParams) itemView.getLayoutParams();
             View view = itemView;
             if (mViewId != 0) {
@@ -84,30 +95,46 @@ class ItemAlignment {
             if (mOrientation == HORIZONTAL) {
                 if (mOffset >= 0) {
                     alignPos = mOffset;
+                    if (mOffsetWithPadding) {
+                        alignPos += view.getPaddingLeft();
+                    }
                 } else {
-                    alignPos = p.getOpticalWidth(itemView) + mOffset;
+                    alignPos = view == itemView ? p.getOpticalWidth(view) : view.getWidth()
+                            + mOffset;
+                    if (mOffsetWithPadding) {
+                        alignPos -= view.getPaddingRight();
+                    }
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (p.getOpticalWidth(itemView) * mOffsetPercent) / 100;
+                    alignPos += (view == itemView ? p.getOpticalWidth(view) : view.getWidth()
+                            * mOffsetPercent) / 100;
                 }
                 if (itemView != view) {
                     mRect.left = alignPos;
                     ((ViewGroup) itemView).offsetDescendantRectToMyCoords(view, mRect);
-                    alignPos = mRect.left;
+                    alignPos = mRect.left - p.getOpticalLeftInset();
                 }
             } else {
                 if (mOffset >= 0) {
                     alignPos = mOffset;
+                    if (mOffsetWithPadding) {
+                        alignPos += view.getPaddingTop();
+                    }
                 } else {
-                    alignPos = p.getOpticalHeight(itemView) + mOffset;
+                    alignPos = view == itemView ? p.getOpticalHeight(view) : view.getHeight()
+                            + mOffset;
+                    if (mOffsetWithPadding) {
+                        alignPos += view.getPaddingBottom();
+                    }
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (p.getOpticalHeight(itemView) * mOffsetPercent) / 100;
+                    alignPos += (view == itemView ? p.getOpticalHeight(view) : view.getHeight()
+                            * mOffsetPercent) / 100;
                 }
                 if (itemView != view) {
                     mRect.top = alignPos;
                     ((ViewGroup) itemView).offsetDescendantRectToMyCoords(view, mRect);
-                    alignPos = mRect.top;
+                    alignPos = mRect.top - p.getOpticalTopInset();
                 }
             }
             return alignPos;

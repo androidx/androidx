@@ -53,8 +53,6 @@
     <dimen name="lb_browse_row_hovercard_description_font_size">12sp</dimen>
     <dimen name="lb_browse_row_header_text_size">18sp</dimen>
     <dimen name="lb_browse_item_margin">12dp</dimen>
-    <dimen name="lb_browse_item_margin_vertical">12dp</dimen>
-    <dimen name="lb_browse_item_margin_horizontal">12dp</dimen>
 
     <item name="lb_focus_zoom_factor_small" type="fraction">106%</item>
     <item name="lb_focus_zoom_factor_medium" type="fraction">110%</item>

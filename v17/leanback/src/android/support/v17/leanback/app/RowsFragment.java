@@ -231,8 +231,18 @@ public class RowsFragment extends BaseRowFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
+        // Align the top edge of child with id row_content.
+        // Need set this for directly using RowsFragment.
         getVerticalGridView().setItemAlignmentViewId(R.id.row_content);
         getVerticalGridView().addItemDecoration(mItemDecoration);
+    }
+
+    @Override
+    void setItemAlignment() {
+        super.setItemAlignment();
+        if (getVerticalGridView() != null) {
+            getVerticalGridView().setItemAlignmentOffsetWithPadding(true);
+        }
     }
 
     private RecyclerView.ItemDecoration mItemDecoration = new RecyclerView.ItemDecoration() {

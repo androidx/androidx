@@ -743,32 +743,14 @@ public class BrowseFragment extends Fragment {
         mSelectedPosition = position;
     }
 
-    private void setVerticalGridViewLayout(VerticalGridView listview, int extraOffset) {
-        // align the top edge of item to a fixed position
-        listview.setItemAlignmentOffset(0);
-        listview.setItemAlignmentOffsetPercent(VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
-        listview.setWindowAlignmentOffset(mContainerListAlignTop + extraOffset);
-        listview.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
-        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
-    }
-
-    /**
-     * Setup dimensions that are only meaningful when the child Fragments are inside
-     * BrowseFragment.
-     */
-    private void setupChildFragmentsLayout() {
-        VerticalGridView headerList = mHeadersFragment.getVerticalGridView();
-        VerticalGridView containerList = mRowsFragment.getVerticalGridView();
-
-        // Both fragments list view has the same alignment
-        setVerticalGridViewLayout(headerList, 16);
-        setVerticalGridViewLayout(containerList, 0);
-    }
-
     @Override
     public void onStart() {
         super.onStart();
-        setupChildFragmentsLayout();
+        mHeadersFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
+        mHeadersFragment.setItemAlignment();
+        mRowsFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
+        mRowsFragment.setItemAlignment();
+
         if (mCanShowHeaders && mShowingHeaders && mHeadersFragment.getView() != null) {
             mHeadersFragment.getView().requestFocus();
         } else if ((!mCanShowHeaders || !mShowingHeaders)

@@ -147,6 +147,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return view.getHeight() - mTopInset - mBottomInset;
         }
 
+        int getOpticalLeftInset() {
+            return mLeftInset;
+        }
+
+        int getOpticalRightInset() {
+            return mRighInset;
+        }
+
+        int getOpticalTopInset() {
+            return mTopInset;
+        }
+
+        int getOpticalBottomInset() {
+            return mBottomInset;
+        }
+
         void setAlignX(int alignX) {
             mAlignX = alignX;
         }
@@ -488,6 +504,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public int getItemAlignmentOffset() {
         return mItemAlignment.mainAxis().getItemAlignmentOffset();
+    }
+
+    public void setItemAlignmentOffsetWithPadding(boolean withPadding) {
+        mItemAlignment.mainAxis().setItemAlignmentOffsetWithPadding(withPadding);
+        updateChildAlignments();
+    }
+
+    public boolean isItemAlignmentOffsetWithPadding() {
+        return mItemAlignment.mainAxis().isItemAlignmentOffsetWithPadding();
     }
 
     public void setItemAlignmentOffsetPercent(float offsetPercent) {

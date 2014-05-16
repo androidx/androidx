@@ -59,12 +59,20 @@ public class ListRowPresenter extends RowPresenter {
         final ItemBridgeAdapter mItemBridgeAdapter = new ItemBridgeAdapter();
         final HorizontalHoverCardSwitcher mHoverCardViewSwitcher = new HorizontalHoverCardSwitcher();
         final ColorOverlayDimmer mColorDimmer;
+        final int mPaddingTop;
+        final int mPaddingBottom;
+        final int mPaddingLeft;
+        final int mPaddingRight;
 
         public ViewHolder(View rootView, HorizontalGridView gridView, ListRowPresenter p) {
             super(rootView);
             mGridView = gridView;
             mListRowPresenter = p;
             mColorDimmer = ColorOverlayDimmer.createDefault(rootView.getContext());
+            mPaddingTop = mGridView.getPaddingTop();
+            mPaddingBottom = mGridView.getPaddingBottom();
+            mPaddingLeft = mGridView.getPaddingLeft();
+            mPaddingRight = mGridView.getPaddingRight();
         }
 
         public final ListRowPresenter getListRowPresenter() {
@@ -317,6 +325,13 @@ public class ListRowPresenter extends RowPresenter {
         if (getRowHeight() != getExpandedRowHeight()) {
             int newHeight = expanded ? getExpandedRowHeight() : getRowHeight();
             vh.getGridView().setRowHeight(newHeight);
+        }
+        if (expanded) {
+            vh.getGridView().setPadding(vh.mPaddingLeft, vh.mPaddingTop,
+                    vh.mPaddingRight, vh.mPaddingBottom);
+        } else {
+            vh.getGridView().setPadding(vh.mPaddingLeft, vh.mPaddingTop,
+                    vh.mPaddingRight, 0);
         }
         vh.getGridView().setFadingLeftEdge(!expanded);
         updateFooterViewSwitcher(vh);

@@ -251,6 +251,24 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Set to true if include padding in calculating item align offset.
+     *
+     * @param withPadding When it is true: we include left/top padding for positive
+     *          item offset, include right/bottom padding for negative item offset.
+     */
+    public void setItemAlignmentOffsetWithPadding(boolean withPadding) {
+        mLayoutManager.setItemAlignmentOffsetWithPadding(withPadding);
+        requestLayout();
+    }
+
+    /**
+     * Returns true if include padding in calculating item align offset.
+     */
+    public boolean isItemAlignmentOffsetWithPadding() {
+        return mLayoutManager.isItemAlignmentOffsetWithPadding();
+    }
+
+    /**
      * Set offset percent for item alignment in addition to {@link
      * #getItemAlignmentOffset()}.
      *

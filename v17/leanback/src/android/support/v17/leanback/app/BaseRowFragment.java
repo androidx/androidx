@@ -168,4 +168,23 @@ abstract class BaseRowFragment extends Fragment {
         }
         mInTransition = false;
     }
+
+    void setItemAlignment() {
+        if (mVerticalGridView != null) {
+            // align the top edge of item
+            mVerticalGridView.setItemAlignmentOffset(0);
+            mVerticalGridView.setItemAlignmentOffsetPercent(
+                    VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
+        }
+    }
+
+    void setWindowAlignmentFromTop(int alignedTop) {
+        if (mVerticalGridView != null) {
+            // align to a fixed position from top
+            mVerticalGridView.setWindowAlignmentOffset(alignedTop);
+            mVerticalGridView.setWindowAlignmentOffsetPercent(
+                    VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+            mVerticalGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+        }
+    }
 }
