@@ -14,9 +14,11 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -24,6 +26,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.support.v17.leanback.R;
 import android.widget.TextView;
@@ -64,7 +67,10 @@ public class SearchBar extends RelativeLayout {
 
     private SearchBarListener mSearchBarListener;
     private SearchEditText mSearchTextEditor;
+    private ImageView mBadgeView;
     private String mSearchQuery;
+    private String mTitle;
+    private Drawable mBadgeDrawable;
     private final Handler mHandler = new Handler();
 
     public SearchBar(Context context) {
@@ -85,6 +91,11 @@ public class SearchBar extends RelativeLayout {
         super.onFinishInflate();
 
         mSearchTextEditor = (SearchEditText)findViewById(R.id.lb_search_text_editor);
+        mBadgeView = (ImageView)findViewById(R.id.lb_search_bar_badge);
+        if (null != mBadgeDrawable) {
+            mBadgeView.setImageDrawable(mBadgeDrawable);
+        }
+
         mSearchTextEditor.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
@@ -129,6 +140,8 @@ public class SearchBar extends RelativeLayout {
                 return false;
             }
         });
+
+        updateHint();
     }
 
     @Override
@@ -166,11 +179,42 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Set the hint text shown in the search bar.
-     * @param hint The hint to use.
+     * Set the title text used in the hint shown in the search bar.
+     * @param title The hint to use.
      */
-    public void setHint(String hint) {
-        mSearchTextEditor.setHint(hint);
+    public void setTitle(String title) {
+        mTitle = title;
+        updateHint();
+    }
+
+    /**
+     * Returns the current title
+     */
+    public String getTitle() {
+        return mTitle;
+    }
+
+    /**
+     * Set the badge drawable showing inside the search bar.
+     * @param drawable The drawable to be used in the search bar.
+     */
+    public void setBadgeDrawable(Drawable drawable) {
+        mBadgeDrawable = drawable;
+        if (null != mBadgeView) {
+            mBadgeView.setImageDrawable(drawable);
+            if (null != drawable) {
+                mBadgeView.setVisibility(View.VISIBLE);
+            } else {
+                mBadgeView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
+     * Returns the badge drawable
+     */
+    public Drawable getBadgeDrawable() {
+        return mBadgeDrawable;
     }
 
     protected void showNativeKeyboard() {
@@ -186,6 +230,19 @@ public class SearchBar extends RelativeLayout {
                         mSearchTextEditor.getWidth(), mSearchTextEditor.getHeight(), 0));
             }
         });
+    }
+
+    /**
+     * This will update the hint for the search bar properly depending on state and provided title
+     */
+    protected void updateHint() {
+        if (null == mSearchTextEditor) return;
+
+        String title = getResources().getString(R.string.lb_search_bar_hint);
+        if (!TextUtils.isEmpty(mTitle)) {
+            title = getResources().getString(R.string.lb_search_bar_hint_with_title, mTitle);
+        }
+        mSearchTextEditor.setHint(title);
     }
 
 }

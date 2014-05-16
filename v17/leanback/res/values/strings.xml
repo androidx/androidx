@@ -18,4 +18,5 @@ limitations under the License.
     <string name="orb_search_label">Search</string>
     <string name="orb_search_action">Search Action</string>
     <string name="lb_search_bar_hint">Search</string>
+    <string name="lb_search_bar_hint_with_title">Search %1$s</string>
 </resources>
