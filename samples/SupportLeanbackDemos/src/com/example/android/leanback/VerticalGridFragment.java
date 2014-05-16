@@ -13,6 +13,7 @@
  */
 package com.example.android.leanback;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -77,6 +78,13 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
             @Override
             public void onItemClicked(Object item, Row row) {
                 Log.i(TAG, "item clicked: " + ((MyItem) item).id);
+            }
+        });
+        setOnSearchClickedListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                startActivity(intent);
             }
         });
     }

@@ -27,6 +27,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         super.onCreate(savedInstanceState);
 
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+
+        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        setTitle("Leanback Sample App");
         setSearchResultProvider(this);
         setOnItemClickedListener(new ItemClickedListener());
     }
