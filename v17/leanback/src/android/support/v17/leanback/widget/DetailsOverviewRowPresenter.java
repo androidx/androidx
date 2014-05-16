@@ -13,7 +13,10 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.support.v17.leanback.R;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,12 +57,16 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     private final Presenter mDetailsPresenter;
     private final ActionPresenterSelector mActionPresenterSelector;
     private final ItemBridgeAdapter mActionBridgeAdapter;
+    private int mBackgroundColor = Color.TRANSPARENT;
+    private boolean mBackgroundColorSet;
+    private boolean mIsStyleLarge = true;
 
     /**
      * Constructor that uses the given {@link Presenter} to render the detailed
      * description for the row.
      */
     public DetailsOverviewRowPresenter(Presenter detailsPresenter) {
+        setHeaderPresenter(null);
         setSelectEffectEnabled(false);
         mDetailsPresenter = detailsPresenter;
         mActionPresenterSelector = new ActionPresenterSelector();
@@ -68,17 +75,53 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Set the listener for action click events.
+     * Sets the listener for action click events.
      */
     public void setOnActionClickedListener(OnActionClickedListener listener) {
         mActionPresenterSelector.setOnActionClickedListener(listener);
     }
 
     /**
-     * Get the listener for action click events.
+     * Gets the listener for action click events.
      */
     public OnActionClickedListener getOnActionClickedListener() {
         return mActionPresenterSelector.getOnActionClickedListener();
+    }
+
+    /**
+     * Sets the background color.  If not set a default from the theme will be used.
+     */
+    public void setBackgroundColor(int color) {
+        mBackgroundColor = color;
+        mBackgroundColorSet = true;
+    }
+
+    /**
+     * Returns the background color.  If no background color was set, returns transparent.
+     */
+    public int getBackgroundColor() {
+        return mBackgroundColor;
+    }
+
+    /**
+     * Sets the layout style to be large or small.
+     * The default is large.
+     */
+    public void setStyleLarge(boolean large) {
+        mIsStyleLarge = large;
+    }
+
+    /**
+     * Returns true if the layout style is large.
+     */
+    public boolean isStyleLarge() {
+        return mIsStyleLarge;
+    }
+
+    private int getDefaultBackgroundColor(Context context) {
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.colorBackground, outValue, true);
+        return context.getResources().getColor(outValue.resourceId);
     }
 
     @Override
@@ -86,11 +129,27 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         View v = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.lb_details_overview, parent, false);
         ViewHolder vh = new ViewHolder(v);
+
         vh.mDetailsDescriptionViewHolder =
             mDetailsPresenter.onCreateViewHolder(vh.mDetailsDescriptionFrame);
         vh.mDetailsDescriptionFrame.addView(vh.mDetailsDescriptionViewHolder.view);
 
+        initDetailsOverview(v.findViewById(R.id.details_overview));
+
         return vh;
+    }
+
+    private void initDetailsOverview(View view) {
+        int resId = mIsStyleLarge ? R.dimen.lb_details_overview_height_large :
+            R.dimen.lb_details_overview_height_small;
+
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        lp.height = view.getResources().getDimensionPixelSize(resId);
+        view.setLayoutParams(lp);
+
+        view.setBackgroundColor(mBackgroundColorSet ?
+                mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
+
     }
 
     @Override

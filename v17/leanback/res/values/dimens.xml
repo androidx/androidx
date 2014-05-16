@@ -60,21 +60,26 @@
     <item name="lb_focus_zoom_factor_medium" type="fraction">110%</item>
     <item name="lb_focus_zoom_factor_large" type="fraction">114%</item>
 
-    <dimen name="lb_details_overview_image_width">132dp</dimen>
-    <dimen name="lb_details_overview_image_margin_left">132dp</dimen>
+    <dimen name="lb_details_overview_height_large">274dp</dimen>
+    <dimen name="lb_details_overview_height_small">159dp</dimen>
+    <dimen name="lb_details_overview_margin_left">132dp</dimen>
+    <dimen name="lb_details_overview_margin_right">132dp</dimen>
+    <dimen name="lb_details_overview_margin_bottom">40dp</dimen>
+    
     <dimen name="lb_details_overview_description_intertext_spacing">16dp</dimen>
-    <dimen name="lb_details_overview_description_margin_left">30dp</dimen>
-    <dimen name="lb_details_overview_description_margin_right">132dp</dimen>
-    <dimen name="lb_details_overiew_actions_margin_top">19dp</dimen>
+    <dimen name="lb_details_overview_description_margin_top">24dp</dimen>
+    <dimen name="lb_details_overview_description_margin_left">24dp</dimen>
+    <dimen name="lb_details_overview_description_margin_bottom">24dp</dimen>
+    <dimen name="lb_details_overview_actions_margin_top">20dp</dimen>
     <dimen name="lb_details_overview_action_items_margin">32dp</dimen>
     <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
     <dimen name="lb_details_overview_actions_padding_left">294dp</dimen>
     <dimen name="lb_details_overview_actions_padding_right">132dp</dimen>
-    <dimen name="lb_details_overview_actions_height">56dp</dimen>
-    <dimen name="lb_details_rows_align_top">120dp</dimen>
+    <dimen name="lb_details_overview_actions_height">36dp</dimen>
+    <dimen name="lb_details_rows_align_top">167dp</dimen>
 
     <dimen name="lb_details_description_title_text_size">34sp</dimen>
-    <dimen name="lb_details_description_title_leading_space">42sp</dimen>
+    <dimen name="lb_details_description_title_ascent">26dp</dimen>
     <dimen name="lb_details_description_subtitle_text_size">14sp</dimen>
     <dimen name="lb_details_description_body_text_size">14sp</dimen>
     <integer name="lb_details_description_title_max_lines">2</integer>
