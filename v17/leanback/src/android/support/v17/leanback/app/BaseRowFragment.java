@@ -155,6 +155,7 @@ abstract class BaseRowFragment extends Fragment {
         mInTransition = true;
         if (mVerticalGridView != null) {
             mVerticalGridView.setAnimateChildLayout(false);
+            mVerticalGridView.setPruneChild(false);
             mVerticalGridView.setFocusSearchDisabled(true);
         }
     }
@@ -162,6 +163,7 @@ abstract class BaseRowFragment extends Fragment {
     void onTransitionEnd() {
         if (mVerticalGridView != null) {
             mVerticalGridView.setAnimateChildLayout(true);
+            mVerticalGridView.setPruneChild(true);
             mVerticalGridView.setFocusSearchDisabled(false);
         }
         mInTransition = false;

@@ -479,6 +479,13 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Enable or disable pruning child.  Disable is useful during transition.
+     */
+    public void setPruneChild(boolean pruneChild) {
+        mLayoutManager.setPruneChild(pruneChild);
+    }
+
+    /**
      * Get if view has same row sibling next to it.
      *
      * @param position Position in adapter.

@@ -419,6 +419,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private boolean mAnimateChildLayout = true;
 
     /**
+     * True if prune child,  might be disabled during transition.
+     */
+    private boolean mPruneChild = true;
+
+    /**
      * Interpolator used to animate layout of children.
      */
     private Interpolator mAnimateLayoutChildInterpolator = sDefaultAnimationChildLayoutInterpolator;
@@ -1299,6 +1304,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void removeInvisibleViewsAtEnd() {
+        if (!mPruneChild) {
+            return;
+        }
         boolean update = false;
         while(mLastVisiblePos > mFirstVisiblePos && mLastVisiblePos > mFocusPosition) {
             View view = getViewByPosition(mLastVisiblePos);
@@ -1316,6 +1324,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void removeInvisibleViewsAtFront() {
+        if (!mPruneChild) {
+            return;
+        }
         boolean update = false;
         while(mLastVisiblePos > mFirstVisiblePos && mFirstVisiblePos < mFocusPosition) {
             View view = getViewByPosition(mFirstVisiblePos);
@@ -1996,6 +2007,20 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mAnimateChildLayout;
     }
 
+    public void setPruneChild(boolean pruneChild) {
+        if (mPruneChild != pruneChild) {
+            mPruneChild = pruneChild;
+            if (mPruneChild) {
+                removeInvisibleViewsAtEnd();
+                removeInvisibleViewsAtFront();
+            }
+        }
+    }
+
+    public boolean getPruneChild() {
+        return mPruneChild;
+    }
+
     public void setChildLayoutAnimationInterpolator(Interpolator interpolator) {
         mAnimateLayoutChildInterpolator = interpolator;
     }
@@ -2317,6 +2342,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mGrid = null;
         mRows = null;
         mRowSizeSecondary = null;
+        mFirstVisiblePos = -1;
+        mLastVisiblePos = -1;
         mRowSecondarySizeRefresh = false;
     }
 
