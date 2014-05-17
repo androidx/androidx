@@ -44,13 +44,13 @@
     <style name="TextAppearance.Leanback.DetailsDescriptionTitle">
         <item name="android:textSize">@dimen/lb_details_description_title_text_size</item>
         <item name="android:textColor">@color/lb_details_description_color</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="TextAppearance.Leanback.DetailsDescriptionSubtitle">
         <item name="android:textSize">@dimen/lb_details_description_subtitle_text_size</item>
         <item name="android:textColor">@color/lb_details_description_color</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="TextAppearance.Leanback.DetailsDescriptionBody">
@@ -184,11 +184,13 @@
     <style name="Widget.Leanback.DetailsDescriptionTitleStyle">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionTitle</item>
         <item name="android:maxLines">@integer/lb_details_description_title_max_lines</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionSubtitleStyle">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionSubtitle</item>
         <item name="android:maxLines">@integer/lb_details_description_subtitle_max_lines</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionBodyStyle">

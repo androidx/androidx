@@ -35,6 +35,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         private final TextView mTitle;
         private final TextView mSubtitle;
         private final TextView mBody;
+        private final int mTitleMargin;
         private final int mUnderTitleSpacing;
         private final int mUnderSubtitleSpacing;
 
@@ -43,12 +44,20 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             mTitle = (TextView) view.findViewById(R.id.lb_details_description_title);
             mSubtitle = (TextView) view.findViewById(R.id.lb_details_description_subtitle);
             mBody = (TextView) view.findViewById(R.id.lb_details_description_body);
-            int interTextSpacing = view.getContext().getResources().getDimensionPixelSize(
-                    R.dimen.lb_details_overview_description_intertext_spacing);
+
             FontMetricsInt titleFontMetricsInt = getFontMetricsInt(mTitle);
+            final int titleAscent = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_description_title_ascent);
+            // Ascent is negative
+            mTitleMargin = titleAscent + titleFontMetricsInt.ascent;
+
+            final int interTextSpacing = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_overview_description_intertext_spacing);
             mUnderTitleSpacing = interTextSpacing - titleFontMetricsInt.descent;
+
             FontMetricsInt subtitleFontMetricsInt = getFontMetricsInt(mSubtitle);
             mUnderSubtitleSpacing = interTextSpacing - subtitleFontMetricsInt.descent;
+
         }
 
         public TextView getTitle() {
@@ -91,6 +100,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         } else {
             vh.mTitle.setVisibility(View.VISIBLE);
         }
+        setTopMargin(vh.mTitle, vh.mTitleMargin);
 
         boolean hasSubtitle = true;
         if (TextUtils.isEmpty(vh.mSubtitle.getText())) {
