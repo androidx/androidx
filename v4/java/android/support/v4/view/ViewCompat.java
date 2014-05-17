@@ -27,13 +27,14 @@ import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewDebug;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.WeakHashMap;
 
 /**
  * Helper for accessing features in {@link View} introduced after API
@@ -290,16 +291,40 @@ public class ViewCompat {
         public void setPaddingRelative(View view, int start, int top, int end, int bottom);
         public void dispatchStartTemporaryDetach(View view);
         public void dispatchFinishTemporaryDetach(View view);
+        public float getX(View view);
+        public float getY(View view);
+        public float getRotation(View view);
+        public float getRotationX(View view);
+        public float getRotationY(View view);
+        public float getScaleX(View view);
+        public float getScaleY(View view);
         public float getTranslationX(View view);
         public float getTranslationY(View view);
         public int getMinimumWidth(View view);
         public int getMinimumHeight(View view);
+        public ViewPropertyAnimatorCompat animate(View view);
+        public void setRotation(View view, float value);
+        public void setRotationX(View view, float value);
+        public void setRotationY(View view, float value);
+        public void setScaleX(View view, float value);
+        public void setScaleY(View view, float value);
+        public void setTranslationX(View view, float value);
+        public void setTranslationY(View view, float value);
+        public void setX(View view, float value);
+        public void setY(View view, float value);
+        public void setAlpha(View view, float value);
+        public void setPivotX(View view, float value);
+        public void setPivotY(View view, float value);
+        public float getPivotX(View view);
+        public float getPivotY(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
         private Method mDispatchStartTemporaryDetach;
         private Method mDispatchFinishTemporaryDetach;
         private boolean mTempDetachBound;
+        WeakHashMap<View, ViewPropertyAnimatorCompat> mViewPropertyAnimatorCompatMap = null;
+
 
         public boolean canScrollHorizontally(View v, int direction) {
             return false;
@@ -503,12 +528,122 @@ public class ViewCompat {
         }
 
         @Override
+        public float getX(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getY(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getRotation(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getRotationX(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getRotationY(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getScaleX(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getScaleY(View view) {
+            return 0;
+        }
+
+        @Override
         public int getMinimumWidth(View view) {
             return 0;
         }
 
         @Override
         public int getMinimumHeight(View view) {
+            return 0;
+        }
+
+        @Override
+        public ViewPropertyAnimatorCompat animate(View view) {
+            return new ViewPropertyAnimatorCompat(view);
+        }
+
+        @Override
+        public void setRotation(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setTranslationX(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setTranslationY(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setAlpha(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setRotationX(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setRotationY(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setScaleX(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setScaleY(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setX(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setY(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setPivotX(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public void setPivotY(View view, float value) {
+            // noop
+        }
+
+        @Override
+        public float getPivotX(View view) {
+            return 0;
+        }
+
+        @Override
+        public float getPivotY(View view) {
             return 0;
         }
     }
@@ -580,6 +715,97 @@ public class ViewCompat {
         public float getTranslationY(View view) {
             return ViewCompatHC.getTranslationY(view);
         }
+        @Override
+        public void setTranslationX(View view, float value) {
+            ViewCompatHC.setTranslationX(view, value);
+        }
+        @Override
+        public void setTranslationY(View view, float value) {
+            ViewCompatHC.setTranslationY(view, value);
+        }
+        @Override
+        public void setAlpha(View view, float value) {
+            ViewCompatHC.setAlpha(view, value);
+        }
+        @Override
+        public void setX(View view, float value) {
+            ViewCompatHC.setX(view, value);
+        }
+        @Override
+        public void setY(View view, float value) {
+            ViewCompatHC.setY(view, value);
+        }
+        @Override
+        public void setRotation(View view, float value) {
+            ViewCompatHC.setRotation(view, value);
+        }
+        @Override
+        public void setRotationX(View view, float value) {
+            ViewCompatHC.setRotationX(view, value);
+        }
+        @Override
+        public void setRotationY(View view, float value) {
+            ViewCompatHC.setRotationY(view, value);
+        }
+        @Override
+        public void setScaleX(View view, float value) {
+            ViewCompatHC.setScaleX(view, value);
+        }
+        @Override
+        public void setScaleY(View view, float value) {
+            ViewCompatHC.setScaleY(view, value);
+        }
+        @Override
+        public void setPivotX(View view, float value) {
+            ViewCompatHC.setPivotX(view, value);
+        }
+        @Override
+        public void setPivotY(View view, float value) {
+            ViewCompatHC.setPivotY(view, value);
+        }
+        @Override
+        public float getX(View view) {
+            return ViewCompatHC.getX(view);
+        }
+
+        @Override
+        public float getY(View view) {
+            return ViewCompatHC.getY(view);
+        }
+
+        @Override
+        public float getRotation(View view) {
+            return ViewCompatHC.getRotation(view);
+        }
+
+        @Override
+        public float getRotationX(View view) {
+            return ViewCompatHC.getRotationX(view);
+        }
+
+        @Override
+        public float getRotationY(View view) {
+            return ViewCompatHC.getRotationY(view);
+        }
+
+        @Override
+        public float getScaleX(View view) {
+            return ViewCompatHC.getScaleX(view);
+        }
+
+        @Override
+        public float getScaleY(View view) {
+            return ViewCompatHC.getScaleY(view);
+        }
+
+        @Override
+        public float getPivotX(View view) {
+            return ViewCompatHC.getPivotX(view);
+        }
+        @Override
+        public float getPivotY(View view) {
+            return ViewCompatHC.getPivotY(view);
+        }
     }
 
     static class ICSViewCompatImpl extends HCViewCompatImpl {
@@ -606,6 +832,19 @@ public class ViewCompat {
         @Override
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
             ViewCompatICS.setAccessibilityDelegate(v, delegate.getBridge());
+        }
+        @Override
+        public ViewPropertyAnimatorCompat animate(View view) {
+            if (mViewPropertyAnimatorCompatMap == null) {
+                mViewPropertyAnimatorCompatMap =
+                        new WeakHashMap<View, ViewPropertyAnimatorCompat>();
+            }
+            ViewPropertyAnimatorCompat vpa = mViewPropertyAnimatorCompatMap.get(view);
+            if (vpa == null) {
+                vpa = new ViewPropertyAnimatorCompat(view);
+                mViewPropertyAnimatorCompatMap.put(view, vpa);
+            }
+            return vpa;
         }
     }
 
@@ -1454,6 +1693,8 @@ public class ViewCompat {
      * This position is post-layout, in addition to wherever the object's
      * layout placed it.
      *
+     * <p>Prior to API 11 this will return 0.</p>
+     *
      * @return The horizontal position of this view relative to its left position, in pixels.
      */
     public static float getTranslationX(View view) {
@@ -1464,6 +1705,8 @@ public class ViewCompat {
      * The vertical location of this view relative to its {@link View#getTop() left} position.
      * This position is post-layout, in addition to wherever the object's
      * layout placed it.
+     *
+     * <p>Prior to API 11 this will return 0.</p>
      *
      * @return The vertical position of this view relative to its top position, in pixels.
      */
@@ -1492,4 +1735,235 @@ public class ViewCompat {
     public static int getMinimumHeight(View view) {
         return IMPL.getMinimumHeight(view);
     }
+
+    /**
+     * This method returns a ViewPropertyAnimator object, which can be used to animate
+     * specific properties on this View.
+     *
+     * <p>Prior to API 14, this method will do nothing.</p>
+     *
+     * @return ViewPropertyAnimator The ViewPropertyAnimator associated with this View.
+     */
+    public static ViewPropertyAnimatorCompat animate(View view) {
+        return IMPL.animate(view);
+    }
+
+    /**
+     * Sets the horizontal location of this view relative to its left position.
+     * This effectively positions the object post-layout, in addition to wherever the object's
+     * layout placed it.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The horizontal position of this view relative to its left position,
+     * in pixels.
+     */
+    public static void setTranslationX(View view, float value) {
+        IMPL.setTranslationX(view, value);
+    }
+
+    /**
+     * Sets the vertical location of this view relative to its top position.
+     * This effectively positions the object post-layout, in addition to wherever the object's
+     * layout placed it.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The vertical position of this view relative to its top position,
+     * in pixels.
+     *
+     * @attr ref android.R.styleable#View_translationY
+     */
+    public static void setTranslationY(View view, float value) {
+        IMPL.setTranslationY(view, value);
+    }
+
+    /**
+     * <p>Sets the opacity of the view. This is a value from 0 to 1, where 0 means the view is
+     * completely transparent and 1 means the view is completely opaque.</p>
+     *
+     * <p> Note that setting alpha to a translucent value (0 < alpha < 1) can have significant
+     * performance implications, especially for large views. It is best to use the alpha property
+     * sparingly and transiently, as in the case of fading animations.</p>
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The opacity of the view.
+     */
+    public static void setAlpha(View view, float value) {
+        IMPL.setAlpha(view, value);
+    }
+
+    /**
+     * Sets the visual x position of this view, in pixels. This is equivalent to setting the
+     * {@link #setTranslationX(View, float) translationX} property to be the difference between
+     * the x value passed in and the current left property of the view as determined
+     * by the layout bounds.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The visual x position of this view, in pixels.
+     */
+    public static void setX(View view, float value) {
+        IMPL.setX(view, value);
+    }
+
+    /**
+     * Sets the visual y position of this view, in pixels. This is equivalent to setting the
+     * {@link #setTranslationY(View, float) translationY} property to be the difference between
+     * the y value passed in and the current top property of the view as determined by the
+     * layout bounds.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The visual y position of this view, in pixels.
+     */
+    public static void setY(View view, float value) {
+        IMPL.setY(view, value);
+    }
+
+    /**
+     * Sets the degrees that the view is rotated around the pivot point. Increasing values
+     * result in clockwise rotation.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The degrees of rotation.
+     */
+    public static void setRotation(View view, float value) {
+        IMPL.setRotation(view, value);
+    }
+
+    /**
+     * Sets the degrees that the view is rotated around the horizontal axis through the pivot point.
+     * Increasing values result in clockwise rotation from the viewpoint of looking down the
+     * x axis.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The degrees of X rotation.
+     */
+    public static void setRotationX(View view, float value) {
+        IMPL.setRotationX(view, value);
+    }
+
+    /**
+     * Sets the degrees that the view is rotated around the vertical axis through the pivot point.
+     * Increasing values result in counter-clockwise rotation from the viewpoint of looking
+     * down the y axis.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The degrees of Y rotation.
+     */
+    public static void setRotationY(View view, float value) {
+        IMPL.setRotationY(view, value);
+    }
+
+    /**
+     * Sets the amount that the view is scaled in x around the pivot point, as a proportion of
+     * the view's unscaled width. A value of 1 means that no scaling is applied.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The scaling factor.
+     */
+    public static void setScaleX(View view, float value) {
+        IMPL.setScaleX(view, value);
+    }
+
+    /**
+     * Sets the amount that the view is scaled in Y around the pivot point, as a proportion of
+     * the view's unscaled width. A value of 1 means that no scaling is applied.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The scaling factor.
+     */
+    public static void setScaleY(View view, float value) {
+        IMPL.setScaleY(view, value);
+    }
+
+    /**
+     * The x location of the point around which the view is
+     * {@link #setRotation(View, float) rotated} and {@link #setScaleX(View, float) scaled}.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     */
+    public float getPivotX(View view) {
+        return IMPL.getPivotX(view);
+    }
+
+    /**
+     * Sets the x location of the point around which the view is
+     * {@link #setRotation(View, float) rotated} and {@link #setScaleX(View, float) scaled}.
+     * By default, the pivot point is centered on the object.
+     * Setting this property disables this behavior and causes the view to use only the
+     * explicitly set pivotX and pivotY values.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The x location of the pivot point.
+     */
+    public void setPivotX(View view, float value) {
+        IMPL.setPivotX(view, value);
+    }
+
+    /**
+     * The y location of the point around which the view is {@link #setRotation(View,
+     * float) rotated} and {@link #setScaleY(View, float) scaled}.
+     *
+     * <p>Prior to API 11 this will return 0.</p>
+     *
+     * @return The y location of the pivot point.
+     */
+    public float getPivotY(View view) {
+        return IMPL.getPivotY(view);
+    }
+
+    /**
+     * Sets the y location of the point around which the view is
+     * {@link #setRotation(View, float) rotated} and {@link #setScaleY(View, float) scaled}.
+     * By default, the pivot point is centered on the object.
+     * Setting this property disables this behavior and causes the view to use only the
+     * explicitly set pivotX and pivotY values.
+     *
+     * <p>Prior to API 11 this will have no effect.</p>
+     *
+     * @param value The y location of the pivot point.
+     */
+    public void setPivotY(View view, float value) {
+        IMPL.setPivotX(view, value);
+    }
+
+    public float getRotation(View view) {
+        return IMPL.getRotation(view);
+    }
+
+    public float getRotationX(View view) {
+        return IMPL.getRotationX(view);
+    }
+
+    public float getRotationY(View view) {
+        return IMPL.getRotationY(view);
+    }
+
+    public float getScaleX(View view) {
+        return IMPL.getScaleX(view);
+    }
+
+    public float getScaleY(View view) {
+        return IMPL.getScaleY(view);
+    }
+
+    public float getX(View view) {
+        return IMPL.getX(view);
+    }
+
+    public float getY(View view) {
+        return IMPL.getY(view);
+    }
+
+    // TODO: getters for various view properties (rotation, etc)
 }
