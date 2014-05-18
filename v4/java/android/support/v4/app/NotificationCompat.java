@@ -271,6 +271,28 @@ public class NotificationCompat {
      */
     public static final int COLOR_DEFAULT = Color.TRANSPARENT;
 
+    /**
+     * Notification visibility: Show this notification in its entirety on all lockscreens.
+     *
+     * {@see android.app.Notification#visibility}
+     */
+    public static final int VISIBILITY_PUBLIC = 1;
+
+    /**
+     * Notification visibility: Show this notification on all lockscreens, but conceal sensitive or
+     * private information on secure lockscreens.
+     *
+     * {@see android.app.Notification#visibility}
+     */
+    public static final int VISIBILITY_PRIVATE = 0;
+
+    /**
+     * Notification visibility: Do not reveal any part of this notification on a secure lockscreen.
+     *
+     * {@see android.app.Notification#visibility}
+     */
+    public static final int VISIBILITY_SECRET = -1;
+
     private static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
@@ -394,7 +416,7 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
-                    b.mPeople, b.mExtras, b.mColor);
+                    b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -510,6 +532,8 @@ public class NotificationCompat {
         String mCategory;
         Bundle mExtras;
         int mColor = COLOR_DEFAULT;
+        int mVisibility = VISIBILITY_PRIVATE;
+        Notification mPublicVersion;
 
         Notification mNotification = new Notification();
         public ArrayList<String> mPeople;
@@ -989,6 +1013,31 @@ public class NotificationCompat {
          */
         public Builder setColor(int argb) {
             mColor = argb;
+            return this;
+        }
+
+        /**
+         * Sets {@link Notification#visibility}.
+         *
+         * @param visibility One of {@link Notification#VISIBILITY_PRIVATE} (the default),
+         *                   {@link Notification#VISIBILITY_PUBLIC}, or
+         *                   {@link Notification#VISIBILITY_SECRET}.
+         */
+        public Builder setVisibility(int visibility) {
+            mVisibility = visibility;
+            return this;
+        }
+
+        /**
+         * Supply a replacement Notification whose contents should be shown in insecure contexts
+         * (i.e. atop the secure lockscreen). See {@link Notification#visibility} and
+         * {@link #VISIBILITY_PUBLIC}.
+         *
+         * @param n A replacement notification, presumably with some or all info redacted.
+         * @return The same Builder.
+         */
+        public Builder setPublicVersion(Notification n) {
+            mPublicVersion = n;
             return this;
         }
 

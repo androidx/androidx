@@ -37,7 +37,7 @@ class NotificationCompatApi20 {
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 String category, ArrayList<String> people, Bundle extras,
-                int color) {
+                int color, int visibility, Notification publicVersion) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -66,7 +66,9 @@ class NotificationCompatApi20 {
                 .setLocalOnly(localOnly)
                 .setCategory(category)
                 .setExtras(extras)
-                .setColor(color);
+                .setColor(color)
+                .setVisibility(visibility)
+                .setPublicVersion(publicVersion);
             for (String person: people) {
                 b.addPerson(person);
             }
