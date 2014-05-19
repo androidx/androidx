@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_num_colors"
+        android:title="Num Colors"
+        app:showAsAction="always">
+
+        <menu>
+
+            <group android:checkableBehavior="single">
+
+                <item
+                    android:id="@+id/menu_num_colors_8"
+                    android:title="8" />
+
+                <item
+                      android:id="@+id/menu_num_colors_12"
+                      android:title="12" />
+
+                <item
+                    android:id="@+id/menu_num_colors_16"
+                    android:title="16"
+                    android:checked="true" />
+
+                <item
+                    android:id="@+id/menu_num_colors_24"
+                    android:title="24" />
+
+                <item
+                    android:id="@+id/menu_num_colors_32"
+                    android:title="32" />
+
+            </group>
+
+        </menu>
+
+    </item>
+
+</menu>

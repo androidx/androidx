@@ -114,4 +114,8 @@
     <string name="card_view_radius">Radius</string>
     <string name="card_view_width">Width</string>
     <string name="card_view_height">Height</string>
+
+    <string name="palette">Palette</string>
+    <string name="palette_all_colors">Full color palette</string>
+
 </resources>

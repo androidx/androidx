@@ -27,6 +27,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
         android-support-v7-appcompat \
         android-support-v7-gridlayout \
         android-support-v7-mediarouter \
+        android-support-v7-palette \
         android-support-v7-recyclerview \
         android-support-v7-cardview
 LOCAL_RESOURCE_DIR = \
