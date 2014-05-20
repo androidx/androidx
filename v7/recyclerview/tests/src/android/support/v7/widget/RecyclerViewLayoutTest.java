@@ -66,7 +66,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals("in second layout,structure changed should be false", false,
                 structureChanged.get());
         testLayoutManager.expectLayouts(recyclerView.getItemAnimator() == null ? 1 : 2); //
-        adapter.deleteRangeAndNotify(3, 5);
+        adapter.deleteAndNotify(3, 2);
         testLayoutManager.waitForLayout(3, TimeUnit.SECONDS);
         assertEquals("when items are removed, item count in state should be updated",
                 adapter.getItemCount(),
@@ -74,7 +74,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals("structure changed should be true when items are removed", true,
                 structureChanged.get());
         testLayoutManager.expectLayouts(recyclerView.getItemAnimator() == null ? 1 : 2);
-        adapter.addRangeAndNotify(2, 7);
+        adapter.addAndNotify(2, 5);
         testLayoutManager.waitForLayout(3, TimeUnit.SECONDS);
 
         assertEquals("when items are added, item count in state should be updated",

@@ -315,6 +315,4 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
             super(itemView);
         }
     }
-
 }
-
