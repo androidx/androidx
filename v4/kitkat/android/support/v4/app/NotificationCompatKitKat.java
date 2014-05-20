@@ -21,13 +21,18 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.widget.RemoteViews;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class NotificationCompatKitKat {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
         private Bundle mExtras;
+        private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -63,13 +68,14 @@ class NotificationCompatKitKat {
                 .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
             mExtras = extras;
             if (localOnly) {
-                getExtras().putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, localOnly);
+                getExtras().putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, true);
             }
         }
 
         @Override
-        public void addAction(int icon, CharSequence title, PendingIntent intent) {
+        public void addAction(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
             b.addAction(icon, title, intent);
+            mActionExtrasList.add(extras);
         }
 
         @Override
@@ -78,6 +84,13 @@ class NotificationCompatKitKat {
         }
 
         public Notification build() {
+            SparseArray<Bundle> actionExtrasMap = NotificationCompatJellybean.buildActionExtrasMap(
+                    mActionExtrasList);
+            if (actionExtrasMap != null) {
+                // Add the action extras sparse array if any action was added with extras.
+                getExtras().putSparseParcelableArray(
+                        NotificationCompatJellybean.EXTRA_ACTION_EXTRAS, actionExtrasMap);
+            }
             if (mExtras != null) {
                 b.setExtras(mExtras);
             }
@@ -94,6 +107,22 @@ class NotificationCompatKitKat {
 
     public static Bundle getExtras(Notification notif) {
         return notif.extras;
+    }
+
+    public static int getActionCount(Notification notif) {
+        return notif.actions != null ? notif.actions.length : 0;
+    }
+
+    public static void getAction(Notification notif, int actionIndex,
+            NotificationActionHolder holder) {
+        Notification.Action action = notif.actions[actionIndex];
+        Bundle actionExtras = null;
+        SparseArray<Bundle> actionExtrasMap = notif.extras.getSparseParcelableArray(
+                NotificationCompatJellybean.EXTRA_ACTION_EXTRAS);
+        if (actionExtrasMap != null) {
+            actionExtras = actionExtrasMap.get(actionIndex);
+        }
+        holder.set(action.icon, action.title, action.actionIntent, actionExtras);
     }
 
     public static boolean getLocalOnly(Notification notif) {
