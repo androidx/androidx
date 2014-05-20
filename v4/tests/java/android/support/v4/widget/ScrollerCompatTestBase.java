@@ -17,11 +17,20 @@ package android.support.v4.widget;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.util.Log;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 abstract public class ScrollerCompatTestBase extends AndroidTestCase {
+
+    private static final boolean DEBUG = false;
+
+    private final String TAG;
 
     private final int mApiLevel;
 
@@ -29,18 +38,23 @@ abstract public class ScrollerCompatTestBase extends AndroidTestCase {
 
     public ScrollerCompatTestBase(int apiLevel) {
         mApiLevel = apiLevel;
+        TAG = "ScrollerCompatTest api:" + apiLevel;
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void createScroller(Interpolator interpolator)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            InstantiationException {
         Constructor<ScrollerCompat> constructor = ScrollerCompat.class
                 .getDeclaredConstructor(int.class, Context.class, Interpolator.class);
         constructor.setAccessible(true);
-        mScroller = constructor.newInstance(mApiLevel, getContext(), null);
+        mScroller = constructor.newInstance(mApiLevel, getContext(), interpolator);
     }
 
-    public void testTargetReached() throws InterruptedException {
+    public void testTargetReached() throws Throwable {
+        if (DEBUG) {
+            Log.d(TAG, "testing if target is reached");
+        }
+        createScroller(null);
         mScroller.fling(0, 0, 0, 1000,
                 Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
         int target = mScroller.getFinalY();
@@ -51,7 +65,11 @@ abstract public class ScrollerCompatTestBase extends AndroidTestCase {
                 mScroller.getCurrY());
     }
 
-    public void testAbort() throws InterruptedException {
+    public void testAbort() throws Throwable {
+        if (DEBUG) {
+            Log.d(TAG, "testing abort");
+        }
+        createScroller(null);
         mScroller.fling(0, 0, 0, 10000,
                 Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
         assertTrue("Scroller should have some offset", mScroller.computeScrollOffset());
