@@ -16,23 +16,6 @@
 
 <resources>
 
-    <!--
-        Theme in the "Theme.Platform.AppCompat" family are designed to be aliases for the default
-        theme on a given platform version. They should not set any styleable attributes. Instead
-        you should create a "Theme.Base" theme which inherits from a "Theme.Platform" theme.
-    -->
-    <eat-comment/>
-    <style name="Theme.Platform.AppCompat" parent="android:Theme" />
-
-    <style name="Theme.Platform.AppCompat.Light" parent="android:Theme.Light" />
-
-    <style name="Theme.Platform.AppCompat.Dialog"
-           parent="android:Theme.Dialog" />
-
-    <style name="Theme.Platform.AppCompat.Light.Dialog"
-           parent="Theme.Platform.AppCompat.Dialog" />
-
-
     <!-- Themes in the "Theme.Base" family vary based on the current platform
          version to provide the correct basis on each device. You probably don't
          want to use them directly in your apps.
@@ -41,10 +24,10 @@
          directly by apps. -->
     <eat-comment/>
 
-    <style name="Theme.Base" parent="Theme.Platform.AppCompat">
+    <style name="Theme.Base" parent="android:Theme">
     </style>
 
-    <style name="Theme.Base.Light" parent="Theme.Platform.AppCompat.Light">
+    <style name="Theme.Base.Light" parent="android:Theme.Light">
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
@@ -223,7 +206,7 @@
            parent="Theme.Base.AppCompat.Light">
     </style>
 
-    <style name="Theme.Base.AppCompat.Dialog.FixedSize" parent="Theme.Platform.AppCompat.Dialog">
+    <style name="Theme.Base.AppCompat.Dialog.FixedSize" parent="android:Theme.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
         <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>
