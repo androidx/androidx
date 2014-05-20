@@ -58,116 +58,7 @@ public class ScrollerCompat {
 
     static final int CHASE_FRAME_TIME = 16; // ms per target frame
 
-    static class Chaser {
-        private int mX;
-        private int mY;
-        private int mTargetX;
-        private int mTargetY;
-        private float mTranslateSmoothing = 2;
-        private long mLastTime;
-        private boolean mAborted;
-
-        @Override
-        public String toString() {
-            return "{x=" + mX + " y=" + mY + " targetX=" + mTargetX + " targetY=" + mTargetY +
-                    " smoothing=" + mTranslateSmoothing + " lastTime=" + mLastTime + "}";
-        }
-
-        public int getCurrX() {
-            return mX;
-        }
-
-        public int getCurrY() {
-            return mY;
-        }
-
-        public int getFinalX() {
-            return mTargetX;
-        }
-
-        public int getFinalY() {
-            return mTargetY;
-        }
-
-        public void setCurrentPosition(int x, int y) {
-            mX = x;
-            mY = y;
-            mAborted = false;
-        }
-
-        public void setSmoothing(float smoothing) {
-            if (smoothing < 0) {
-                throw new IllegalArgumentException("smoothing value must be positive");
-            }
-            mTranslateSmoothing = smoothing;
-        }
-
-        public boolean isSmoothingEnabled() {
-            return mTranslateSmoothing > 0;
-        }
-
-        public void setTarget(int targetX, int targetY) {
-            mTargetX = targetX;
-            mTargetY = targetY;
-        }
-
-        public void abort() {
-            mX = mTargetX;
-            mY = mTargetY;
-            mLastTime = AnimationUtils.currentAnimationTimeMillis();
-            mAborted = true;
-        }
-
-        public boolean isFinished() {
-            return mAborted || (mX == mTargetX && mY == mTargetY);
-        }
-
-        public boolean computeScrollOffset() {
-            if (isSmoothingEnabled() && !isFinished()) {
-                final long now = AnimationUtils.currentAnimationTimeMillis();
-                final long dt = now - mLastTime;
-                final float framesElapsed = (float) dt / CHASE_FRAME_TIME;
-
-                if (framesElapsed > 0) {
-                    for (int i = 0; i < framesElapsed; i++) {
-                        final int totalDx = mTargetX - mX;
-                        final int totalDy = mTargetY - mY;
-
-                        final int dx = (int) (totalDx / mTranslateSmoothing);
-                        final int dy = (int) (totalDy / mTranslateSmoothing);
-
-                        mX += dx;
-                        mY += dy;
-
-                        // Handle cropping at the end
-                        if (mX != mTargetX && dx == 0) {
-                            mX = mTargetX;
-                        }
-                        if (mY != mTargetY && dy == 0) {
-                            mY = mTargetY;
-                        }
-                    }
-
-                    mLastTime = now;
-                }
-                return true;
-            }
-            return false;
-        }
-    }
-
     static class ScrollerCompatImplBase implements ScrollerCompatImpl {
-        private Chaser mChaser;
-
-        public ScrollerCompatImplBase() {
-            mChaser = createChaser();
-        }
-
-        protected Chaser createChaser() {
-            // Override if running on a platform version where this isn't needed
-            return new Chaser();
-        }
-
         @Override
         public Object createScroller(Context context, Interpolator interpolator) {
             return interpolator != null ?
@@ -176,23 +67,16 @@ public class ScrollerCompat {
 
         @Override
         public boolean isFinished(Object scroller) {
-            return (!isSmoothingEnabled() || mChaser.isFinished()) &&
-                    ((Scroller) scroller).isFinished();
+            return ((Scroller) scroller).isFinished();
         }
 
         @Override
         public int getCurrX(Object scroller) {
-            if (isSmoothingEnabled()) {
-                return mChaser.getCurrX();
-            }
             return ((Scroller) scroller).getCurrX();
         }
 
         @Override
         public int getCurrY(Object scroller) {
-            if (isSmoothingEnabled()) {
-                return mChaser.getCurrY();
-            }
             return ((Scroller) scroller).getCurrY();
         }
 
@@ -204,64 +88,34 @@ public class ScrollerCompat {
         @Override
         public boolean computeScrollOffset(Object scroller) {
             final Scroller s = (Scroller) scroller;
-            final boolean result = s.computeScrollOffset();
-            if (isSmoothingEnabled()) {
-                mChaser.setTarget(s.getCurrX(), s.getCurrY());
-                if (isSmoothingEnabled() && !mChaser.isFinished()) {
-                    return mChaser.computeScrollOffset() || result;
-                }
-            }
-            return result;
-        }
-
-        private boolean isSmoothingEnabled() {
-            return mChaser != null && mChaser.isSmoothingEnabled();
+            return s.computeScrollOffset();
         }
 
         @Override
         public void startScroll(Object scroller, int startX, int startY, int dx, int dy) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ((Scroller) scroller).startScroll(startX, startY, dx, dy);
         }
 
         @Override
         public void startScroll(Object scroller, int startX, int startY, int dx, int dy,
                 int duration) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ((Scroller) scroller).startScroll(startX, startY, dx, dy, duration);
         }
 
         @Override
         public void fling(Object scroller, int startX, int startY, int velX, int velY,
                 int minX, int maxX, int minY, int maxY) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ((Scroller) scroller).fling(startX, startY, velX, velY, minX, maxX, minY, maxY);
         }
 
         @Override
         public void fling(Object scroller, int startX, int startY, int velX, int velY,
                 int minX, int maxX, int minY, int maxY, int overX, int overY) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ((Scroller) scroller).fling(startX, startY, velX, velY, minX, maxX, minY, maxY);
         }
 
         @Override
         public void abortAnimation(Object scroller) {
-            if (mChaser != null) {
-                mChaser.abort();
-            }
             ((Scroller) scroller).abortAnimation();
         }
 
@@ -294,40 +148,23 @@ public class ScrollerCompat {
     }
 
     static class ScrollerCompatImplGingerbread implements ScrollerCompatImpl {
-        private Chaser mChaser;
-
-        public ScrollerCompatImplGingerbread() {
-            mChaser = createChaser();
-        }
-
         @Override
         public Object createScroller(Context context, Interpolator interpolator) {
             return ScrollerCompatGingerbread.createScroller(context, interpolator);
         }
 
-        protected Chaser createChaser() {
-            return new Chaser();
-        }
-
         @Override
         public boolean isFinished(Object scroller) {
-            return (!isSmoothingEnabled() || mChaser.isFinished()) &&
-                    ScrollerCompatGingerbread.isFinished(scroller);
+            return ScrollerCompatGingerbread.isFinished(scroller);
         }
 
         @Override
         public int getCurrX(Object scroller) {
-            if (isSmoothingEnabled()) {
-                return mChaser.getCurrX();
-            }
             return ScrollerCompatGingerbread.getCurrX(scroller);
         }
 
         @Override
         public int getCurrY(Object scroller) {
-            if (isSmoothingEnabled()) {
-                return mChaser.getCurrY();
-            }
             return ScrollerCompatGingerbread.getCurrY(scroller);
         }
 
@@ -338,47 +175,23 @@ public class ScrollerCompat {
 
         @Override
         public boolean computeScrollOffset(Object scroller) {
-            final boolean result = ScrollerCompatGingerbread.computeScrollOffset(scroller);
-            if (isSmoothingEnabled()) {
-                mChaser.setTarget(ScrollerCompatGingerbread.getCurrX(scroller),
-                        ScrollerCompatGingerbread.getCurrY(scroller));
-                if (!mChaser.isFinished()) {
-                    return mChaser.computeScrollOffset() || result;
-                }
-            }
-            return result;
-        }
-
-        private boolean isSmoothingEnabled() {
-            return mChaser != null && mChaser.isSmoothingEnabled();
+            return ScrollerCompatGingerbread.computeScrollOffset(scroller);
         }
 
         @Override
         public void startScroll(Object scroller, int startX, int startY, int dx, int dy) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ScrollerCompatGingerbread.startScroll(scroller, startX, startY, dx, dy);
         }
 
         @Override
         public void startScroll(Object scroller, int startX, int startY, int dx, int dy,
                 int duration) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ScrollerCompatGingerbread.startScroll(scroller, startX, startY, dx, dy, duration);
         }
 
         @Override
         public void fling(Object scroller, int startX, int startY, int velX, int velY,
                 int minX, int maxX, int minY, int maxY) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ScrollerCompatGingerbread.fling(scroller, startX, startY, velX, velY,
                     minX, maxX, minY, maxY);
         }
@@ -386,19 +199,12 @@ public class ScrollerCompat {
         @Override
         public void fling(Object scroller, int startX, int startY, int velX, int velY,
                 int minX, int maxX, int minY, int maxY, int overX, int overY) {
-            if (isSmoothingEnabled()) {
-                mChaser.abort();
-                mChaser.setCurrentPosition(startX, startY);
-            }
             ScrollerCompatGingerbread.fling(scroller, startX, startY, velX, velY,
                     minX, maxX, minY, maxY, overX, overY);
         }
 
         @Override
         public void abortAnimation(Object scroller) {
-            if (mChaser != null) {
-                mChaser.abort();
-            }
             ScrollerCompatGingerbread.abortAnimation(scroller);
         }
 
