@@ -32,10 +32,60 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     private static final String TAG = "RecyclerViewTest";
 
-    private static final boolean DEBUG = true;
+    private boolean mDebug;
+
+    protected RecyclerView mRecyclerView;
 
     public BaseRecyclerViewInstrumentationTest() {
+        this(false);
+    }
+
+    public BaseRecyclerViewInstrumentationTest(boolean debug) {
         super("android.support.v7.widget", TestActivity.class);
+        mDebug = debug;
+    }
+
+    public void removeRecyclerView() throws Throwable {
+        mRecyclerView = null;
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().mContainer.removeAllViews();
+            }
+        });
+    }
+
+    public void setRecyclerView(final RecyclerView recyclerView) throws Throwable {
+        mRecyclerView = recyclerView;
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().mContainer.addView(recyclerView);
+            }
+        });
+    }
+
+    public void requestLayoutOnUIThread(final View view) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.requestLayout();
+            }
+        });
+    }
+
+    public void scrollBy(final int dt) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
+                    mRecyclerView.scrollBy(dt, 0);
+                } else {
+                    mRecyclerView.scrollBy(0, dt);
+                }
+
+            }
+        });
     }
 
     class TestViewHolder extends RecyclerView.ViewHolder {
@@ -55,10 +105,24 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             layoutLatch = new CountDownLatch(count);
         }
 
-        public void waitForLayout(long timeout, TimeUnit timeUnit) throws InterruptedException {
-            layoutLatch.await(timeout, timeUnit);
+        public void waitForLayout(long timeout, TimeUnit timeUnit) throws Throwable {
+            layoutLatch.await(timeout * (mDebug ? 100 : 1), timeUnit);
             assertEquals("all expected layouts should be executed at the expected time",
                     0, layoutLatch.getCount());
+        }
+
+        public void assertLayoutCount(int count, String msg, long timeout) throws Throwable {
+            layoutLatch.await(timeout, TimeUnit.SECONDS);
+            assertEquals(msg, count, layoutLatch.getCount());
+        }
+
+        public void assertNoLayout(String msg, long timeout) throws Throwable {
+            layoutLatch.await(timeout, TimeUnit.SECONDS);
+            assertFalse(msg, layoutLatch.getCount() == 0);
+        }
+
+        public void waitForLayout(long timeout) throws Throwable {
+            waitForLayout(timeout, TimeUnit.SECONDS);
         }
 
         @Override
@@ -74,7 +138,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 View view = getChildAt(i);
                 RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
                 Item item = ((TestViewHolder) lp.mViewHolder).mBindedItem;
-                if (DEBUG) {
+                if (mDebug) {
                     Log.d(TAG, "testing item " + i);
                 }
                 assertSame("item position in LP should match adapter value",
@@ -82,18 +146,26 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
         }
 
+        RecyclerView.LayoutParams getLp(View v) {
+            return (RecyclerView.LayoutParams) v.getLayoutParams();
+        }
+
         void layoutRange(RecyclerView.Recycler recycler, int start,
                 int end) {
-            if (DEBUG) {
+            if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
             }
             for (int i = start; i < end; i++) {
-                if (DEBUG) {
+                if (mDebug) {
                     Log.d(TAG, "laying out item " + i);
                 }
                 View view = recycler.getViewForPosition(i);
-                assertNotNull("view should not be null for valid position", view);
-                addView(view);
+                assertNotNull("view should not be null for valid position. "
+                        + "got null view at position " + i, view);
+                if (!getLp(view).isItemRemoved()) {
+                    addView(view);
+                }
+
                 measureChildWithMargins(view, 0, 0);
                 layoutDecorated(view, 0, (i - start) * 10, getDecoratedMeasuredWidth(view)
                         , getDecoratedMeasuredHeight(view));
@@ -137,34 +209,57 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             holder.mBindedItem = item;
         }
 
-        public void deleteRangeAndNotify(final int start, final int end) throws Throwable {
+        public void deleteAndNotify(final int start, final int count) throws Throwable {
+            deleteAndNotify(new int[]{start, count});
+        }
+
+        /**
+         * Deletes items in the given ranges.
+         * <p>
+         * Note that each operation affects the one after so you should offset them properly.
+         * <p>
+         * For example, if adapter has 5 items (A,B,C,D,E), and then you call this method with
+         * <code>[1, 2],[2, 1]</code>, it will first delete items B,C and the new adapter will be
+         * A D E. Then it will delete 2,1 which means it will delete E.
+         */
+        public void deleteAndNotify(final int[]... startCountTuples) throws Throwable {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int i = start; i < end; i++) {
-                        mItems.remove(start);
+                    for (int t = 0; t < startCountTuples.length; t++) {
+                        int[] tuple = startCountTuples[t];
+                        for (int i = 0; i < tuple[1]; i++) {
+                            mItems.remove(tuple[0]);
+                        }
+                        notifyItemRangeRemoved(tuple[0], tuple[1]);
                     }
-                    notifyItemRangeRemoved(start, end - start);
+
                 }
             });
         }
 
-        public void addRangeAndNotify(final int start, final int end) throws Throwable {
+        public void addAndNotify(final int start, final int count) throws Throwable {
+            addAndNotify(new int[]{start, count});
+        }
+
+        public void addAndNotify(final int[]... startCountTuples) throws Throwable {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    final int count = end - start;
-                    for (int i = start; i < end; i++) {
-                        mItems.add(start, new Item(i, "new item " + i));
+                    for (int t = 0; t < startCountTuples.length; t++) {
+                        int[] tuple = startCountTuples[t];
+                        for (int i = 0; i < tuple[1]; i++) {
+                            mItems.add(tuple[0], new Item(i, "new item " + i));
+                        }
+                        // offset others
+                        for (int i = tuple[0] + tuple[1]; i < mItems.size(); i++) {
+                            mItems.get(i).originalIndex += tuple[1];
+                        }
+                        notifyItemRangeInserted(tuple[0], tuple[1]);
                     }
-                    // offset others
-                    for (int i = end; i < mItems.size(); i++) {
-                        mItems.get(i).originalIndex += count;
-                    }
-                    notifyItemRangeInserted(start, count);
+
                 }
             });
-
         }
 
         @Override
@@ -173,4 +268,3 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 }
-
