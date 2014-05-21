@@ -27,5 +27,13 @@ public final class NotificationCompatExtras {
      */
     public static final String EXTRA_LOCAL_ONLY = NotificationCompatJellybean.EXTRA_LOCAL_ONLY;
 
+    /**
+     * Extras key used internally by {@link NotificationCompat} to store the value of
+     * the {@code Notification.Action.extras} field before it was available.
+     * If possible, use {@link NotificationCompat#getAction} to access this instead.
+     */
+    public static final String EXTRA_ACTION_EXTRAS =
+            NotificationCompatJellybean.EXTRA_ACTION_EXTRAS;
+
     private NotificationCompatExtras() {}
 }

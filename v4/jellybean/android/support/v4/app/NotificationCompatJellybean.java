@@ -22,26 +22,40 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.RemoteViews;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 class NotificationCompatJellybean {
     public static final String TAG = "NotificationCompat";
 
-    /** Extras key used for Jellybean SDK and below. */
+    /** Extras key used for Jellybean SDK and above. */
     static final String EXTRA_LOCAL_ONLY = "android.support.localOnly";
+
+    /** Extras key used for Jellybean SDK and above. */
+    static final String EXTRA_ACTION_EXTRAS = "android.support.actionExtras";
 
     private static final Object sExtrasLock = new Object();
     private static Field sExtrasField;
     private static boolean sExtrasFieldAccessFailed;
+
+    private static final Object sActionsLock = new Object();
+    private static Class<?> sActionClass;
+    private static Field sActionsField;
+    private static Field sActionIconField;
+    private static Field sActionTitleField;
+    private static Field sActionIntentField;
+    private static boolean sActionsAccessFailed;
 
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
         private final boolean mLocalOnly;
         private final Bundle mExtras;
+        private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -80,8 +94,9 @@ class NotificationCompatJellybean {
         }
 
         @Override
-        public void addAction(int icon, CharSequence title, PendingIntent intent) {
+        public void addAction(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
             b.addAction(icon, title, intent);
+            mActionExtrasList.add(extras);
         }
 
         @Override
@@ -104,7 +119,12 @@ class NotificationCompatJellybean {
                 extras.putAll(mergeBundle);
             }
             if (mLocalOnly) {
-                getExtras(notif).putBoolean(EXTRA_LOCAL_ONLY, mLocalOnly);
+                getExtras(notif).putBoolean(EXTRA_LOCAL_ONLY, true);
+            }
+            SparseArray<Bundle> actionExtrasMap = buildActionExtrasMap(mActionExtrasList);
+            if (actionExtrasMap != null) {
+                // Add the action extras sparse array if any action was added with extras.
+                getExtras(notif).putSparseParcelableArray(EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
             return notif;
         }
@@ -149,6 +169,21 @@ class NotificationCompatJellybean {
         }
     }
 
+    /** Return an SparseArray for action extras or null if none was needed. */
+    public static SparseArray<Bundle> buildActionExtrasMap(List<Bundle> actionExtrasList) {
+        SparseArray<Bundle> actionExtrasMap = null;
+        for (int i = 0, count = actionExtrasList.size(); i < count; i++) {
+            Bundle actionExtras = actionExtrasList.get(i);
+            if (actionExtras != null) {
+                if (actionExtrasMap == null) {
+                    actionExtrasMap = new SparseArray<Bundle>();
+                }
+                actionExtrasMap.put(i, actionExtras);
+            }
+        }
+        return actionExtrasMap;
+    }
+
     /**
      * Get the extras Bundle from a notification using reflection. Extras were present in
      * Jellybean notifications, but the field was private until KitKat.
@@ -183,6 +218,76 @@ class NotificationCompatJellybean {
             sExtrasFieldAccessFailed = true;
             return null;
         }
+    }
+
+    public static int getActionCount(Notification notif) {
+        synchronized (sActionsLock) {
+            Object[] actionObjects = getActionObjectsLocked(notif);
+            return actionObjects != null ? actionObjects.length : 0;
+        }
+    }
+
+    public static void getAction(Notification notif, int actionIndex,
+            NotificationActionHolder holder) {
+        synchronized (sActionsLock) {
+            try {
+                Object actionObject = getActionObjectsLocked(notif)[actionIndex];
+                Bundle actionExtras = null;
+                Bundle extras = getExtras(notif);
+                if (extras != null) {
+                    SparseArray<Bundle> actionExtrasMap = extras.getSparseParcelableArray(
+                            EXTRA_ACTION_EXTRAS);
+                    if (actionExtrasMap != null) {
+                        actionExtras = actionExtrasMap.get(actionIndex);
+                    }
+                }
+                holder.set(sActionIconField.getInt(actionObject),
+                        (CharSequence) sActionTitleField.get(actionObject),
+                        (PendingIntent) sActionIntentField.get(actionObject),
+                        actionExtras);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to access notification actions", e);
+                sActionsAccessFailed = true;
+            }
+        }
+    }
+
+    private static Object[] getActionObjectsLocked(Notification notif) {
+        synchronized (sActionsLock) {
+            if (!ensureActionReflectionReadyLocked()) {
+                return null;
+            }
+            try {
+                return (Object[]) sActionsField.get(notif);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to access notification actions", e);
+                sActionsAccessFailed = true;
+                return null;
+            }
+        }
+    }
+
+    private static boolean ensureActionReflectionReadyLocked() {
+        if (sActionsAccessFailed) {
+            return false;
+        }
+        try {
+            if (sActionsField == null) {
+                sActionClass = Class.forName("android.app.Notification$Action");
+                sActionIconField = sActionClass.getDeclaredField("icon");
+                sActionTitleField = sActionClass.getDeclaredField("title");
+                sActionIntentField = sActionClass.getDeclaredField("actionIntent");
+                sActionsField = Notification.class.getDeclaredField("actions");
+                sActionsField.setAccessible(true);
+            }
+        } catch (ClassNotFoundException e) {
+            Log.e(TAG, "Unable to access notification actions", e);
+            sActionsAccessFailed = true;
+        } catch (NoSuchFieldException e) {
+            Log.e(TAG, "Unable to access notification actions", e);
+            sActionsAccessFailed = true;
+        }
+        return !sActionsAccessFailed;
     }
 
     public static boolean getLocalOnly(Notification notif) {
