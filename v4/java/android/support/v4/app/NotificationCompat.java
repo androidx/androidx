@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.RemoteViews;
+
 import java.util.ArrayList;
 
 /**
@@ -298,6 +299,8 @@ public class NotificationCompat {
     interface NotificationCompatImpl {
         public Notification build(Builder b);
         public Bundle getExtras(Notification n);
+        public int getActionCount(Notification n);
+        public Action getAction(Notification n, int actionIndex);
         public boolean getLocalOnly(Notification n);
     }
 
@@ -316,6 +319,16 @@ public class NotificationCompat {
 
         @Override
         public Bundle getExtras(Notification n) {
+            return null;
+        }
+
+        @Override
+        public int getActionCount(Notification n) {
+            return 0;
+        }
+
+        @Override
+        public Action getAction(Notification n, int actionIndex) {
             return null;
         }
 
@@ -379,6 +392,18 @@ public class NotificationCompat {
         }
 
         @Override
+        public int getActionCount(Notification n) {
+            return NotificationCompatJellybean.getActionCount(n);
+        }
+
+        @Override
+        public Action getAction(Notification n, int actionIndex) {
+            NotificationActionHolderImpl holder = new NotificationActionHolderImpl();
+            NotificationCompatJellybean.getAction(n, actionIndex, holder);
+            return holder.get();
+        }
+
+        @Override
         public boolean getLocalOnly(Notification n) {
             return NotificationCompatJellybean.getLocalOnly(n);
         }
@@ -400,6 +425,18 @@ public class NotificationCompat {
         @Override
         public Bundle getExtras(Notification n) {
             return NotificationCompatKitKat.getExtras(n);
+        }
+
+        @Override
+        public int getActionCount(Notification n) {
+            return NotificationCompatKitKat.getActionCount(n);
+        }
+
+        @Override
+        public Action getAction(Notification n, int actionIndex) {
+            NotificationActionHolderImpl holder = new NotificationActionHolderImpl();
+            NotificationCompatKitKat.getAction(n, actionIndex, holder);
+            return holder.get();
         }
 
         @Override
@@ -428,6 +465,18 @@ public class NotificationCompat {
         }
 
         @Override
+        public int getActionCount(Notification n) {
+            return NotificationCompatKitKat.getActionCount(n);
+        }
+
+        @Override
+        public Action getAction(Notification n, int actionIndex) {
+            NotificationActionHolderImpl holder = new NotificationActionHolderImpl();
+            NotificationCompatApi20.getAction(n, actionIndex, holder);
+            return holder.get();
+        }
+
+        @Override
         public boolean getLocalOnly(Notification n) {
             return NotificationCompatApi20.getLocalOnly(n);
         }
@@ -436,7 +485,7 @@ public class NotificationCompat {
     private static void addActionsToBuilder(NotificationBuilderWithActions builder,
             ArrayList<Action> actions) {
         for (Action action : actions) {
-            builder.addAction(action.icon, action.title, action.actionIntent);
+            builder.addAction(action.icon, action.title, action.actionIntent, action.getExtras());
         }
     }
 
@@ -922,11 +971,13 @@ public class NotificationCompat {
          *
          * @see Notification#extras
          */
-        public Builder addExtras(Bundle bag) {
-            if (mExtras == null) {
-                mExtras = new Bundle(bag);
-            } else {
-                mExtras.putAll(bag);
+        public Builder addExtras(Bundle extras) {
+            if (extras != null) {
+                if (mExtras == null) {
+                    mExtras = new Bundle(extras);
+                } else {
+                    mExtras.putAll(extras);
+                }
             }
             return this;
         }
@@ -943,8 +994,8 @@ public class NotificationCompat {
          *
          * @see Notification#extras
          */
-        public Builder setExtras(Bundle bag) {
-            mExtras = bag;
+        public Builder setExtras(Bundle extras) {
+            mExtras = extras;
             return this;
         }
 
@@ -983,6 +1034,25 @@ public class NotificationCompat {
          */
         public Builder addAction(int icon, CharSequence title, PendingIntent intent) {
             mActions.add(new Action(icon, title, intent));
+            return this;
+        }
+
+        /**
+         * Add an action to this notification. Actions are typically displayed by
+         * the system as a button adjacent to the notification content.
+         * <br>
+         * Action buttons won't appear on platforms prior to Android 4.1. Action
+         * buttons depend on expanded notifications, which are only available in Android 4.1
+         * and later. To ensure that an action button's functionality is always available, first
+         * implement the functionality in the {@link android.app.Activity} that starts when a user
+         * clicks the  notification (see {@link #setContentIntent setContentIntent()}), and then
+         * enhance the notification by implementing the same functionality with
+         * {@link #addAction addAction()}.
+         *
+         * @param action The action to add.
+         */
+        public Builder addAction(Action action) {
+            mActions.add(action);
             return this;
         }
 
@@ -1277,15 +1347,129 @@ public class NotificationCompat {
         }
     }
 
+    /**
+     * Structure to encapsulate a named action that can be shown as part of this notification.
+     * It must include an icon, a label, and a {@link PendingIntent} to be fired when the action is
+     * selected by the user. Action buttons won't appear on platforms prior to Android 4.1.
+     * <p>
+     * Apps should use {@link NotificationCompat.Builder#addAction(int, CharSequence, PendingIntent)}
+     * or {@link NotificationCompat.Builder#addAction(NotificationCompat.Action)}
+     * to attach actions.
+     */
     public static class Action {
+        private final Bundle mExtras;
+
+        /**
+         * Small icon representing the action.
+         */
         public int icon;
+        /**
+         * Title of the action.
+         */
         public CharSequence title;
+        /**
+         * Intent to send when the user invokes this action. May be null, in which case the action
+         * may be rendered in a disabled presentation.
+         */
         public PendingIntent actionIntent;
 
-        public Action(int icon_, CharSequence title_, PendingIntent intent_) {
-            this.icon = icon_;
-            this.title = title_;
-            this.actionIntent = intent_;
+        public Action(int icon, CharSequence title, PendingIntent intent) {
+            this(icon, title, intent, new Bundle());
+        }
+
+        private Action(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
+            this.icon = icon;
+            this.title = title;
+            this.actionIntent = intent;
+            this.mExtras = extras != null ? extras : new Bundle();
+        }
+
+        /**
+         * Get additional metadata carried around with this Action.
+         */
+        public Bundle getExtras() {
+            return mExtras;
+        }
+
+        /**
+         * Builder class for {@link Action} objects.
+         */
+        public static class Builder {
+            private final int mIcon;
+            private final CharSequence mTitle;
+            private final PendingIntent mIntent;
+            private final Bundle mExtras;
+
+            /**
+             * Construct a new builder for {@link Action} object.
+             * @param icon icon to show for this action
+             * @param title the title of the action
+             * @param intent the {@link PendingIntent} to fire when users trigger this action
+             */
+            public Builder(int icon, CharSequence title, PendingIntent intent) {
+                this(icon, title, intent, new Bundle());
+            }
+
+            /**
+             * Construct a new builder for {@link Action} object using the fields from an
+             * {@link Action}.
+             * @param action the action to read fields from.
+             */
+            public Builder(Action action) {
+                this(action.icon, action.title, action.actionIntent, new Bundle(action.mExtras));
+            }
+
+            private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
+                mIcon = icon;
+                mTitle = title;
+                mIntent = intent;
+                mExtras = extras;
+            }
+
+            /**
+             * Merge additional metadata into this builder.
+             *
+             * <p>Values within the Bundle will replace existing extras values in this Builder.
+             *
+             * @see NotificationCompat.Action#getExtras
+             */
+            public Builder addExtras(Bundle extras) {
+                if (extras != null) {
+                    mExtras.putAll(extras);
+                }
+                return this;
+            }
+
+            /**
+             * Get the metadata Bundle used by this Builder.
+             *
+             * <p>The returned Bundle is shared with this Builder.
+             */
+            public Bundle getExtras() {
+                return mExtras;
+            }
+
+            /**
+             * Combine all of the options that have been set and return a new {@link Action}
+             * object.
+             * @return the built action
+             */
+            public Action build() {
+                return new Action(mIcon, mTitle, mIntent, mExtras);
+            }
+        }
+    }
+
+    private static class NotificationActionHolderImpl implements NotificationActionHolder {
+        private NotificationCompat.Action mAction;
+
+        @Override
+        public void set(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
+            mAction = new Action(icon, title, intent, extras);
+        }
+
+        public NotificationCompat.Action get() {
+            return mAction;
         }
     }
 
@@ -1296,6 +1480,24 @@ public class NotificationCompat {
      */
     public static Bundle getExtras(Notification notif) {
         return IMPL.getExtras(notif);
+    }
+
+    /**
+     * Get the number of actions in this notification in a backwards compatible
+     * manner. Actions were supported from JellyBean (Api level 16) forwards.
+     */
+    public static int getActionCount(Notification notif) {
+        return IMPL.getActionCount(notif);
+    }
+
+    /**
+     * Get an action on this notification in a backwards compatible
+     * manner. Actions were supported from JellyBean (Api level 16) forwards.
+     * @param notif The notification to inspect.
+     * @param actionIndex The index of the action to retrieve.
+     */
+    public static Action getAction(Notification notif, int actionIndex) {
+        return IMPL.getAction(notif, actionIndex);
     }
 
     /**

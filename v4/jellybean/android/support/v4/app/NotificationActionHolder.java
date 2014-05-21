@@ -20,8 +20,8 @@ import android.app.PendingIntent;
 import android.os.Bundle;
 
 /**
- * Interface implemented by notification compat builders that support adding actions.
+ * Interface to hold the value of a single notification action.
  */
-interface NotificationBuilderWithActions {
-    public void addAction(int icon, CharSequence title, PendingIntent intent, Bundle extras);
+interface NotificationActionHolder {
+    public void set(int icon, CharSequence title, PendingIntent intent, Bundle extras);
 }

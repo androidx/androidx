@@ -75,8 +75,13 @@ class NotificationCompatApi20 {
         }
 
         @Override
-        public void addAction(int icon, CharSequence title, PendingIntent intent) {
-            b.addAction(icon, title, intent);
+        public void addAction(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
+            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                    icon, title, intent);
+            if (extras != null) {
+                actionBuilder.addExtras(extras);
+            }
+            b.addAction(actionBuilder.build());
         }
 
         @Override
@@ -87,6 +92,12 @@ class NotificationCompatApi20 {
         public Notification build() {
             return b.build();
         }
+    }
+
+    public static void getAction(Notification notif, int actionIndex,
+            NotificationActionHolder holder) {
+        Notification.Action action = notif.actions[actionIndex];
+        holder.set(action.icon, action.title, action.actionIntent, action.getExtras());
     }
 
     public static boolean getLocalOnly(Notification notif) {
