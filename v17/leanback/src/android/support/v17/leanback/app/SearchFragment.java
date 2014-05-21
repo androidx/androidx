@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.app.Fragment;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -35,7 +36,10 @@ import android.support.v17.leanback.R;
 public class SearchFragment extends Fragment {
     private static final String TAG = SearchFragment.class.getSimpleName();
     private static final boolean DEBUG = false;
-    private static final String ARG_QUERY = SearchFragment.class.getCanonicalName() + ".query";
+
+    private static final String ARG_PREFIX = SearchFragment.class.getCanonicalName();
+    private static final String ARG_QUERY =  ARG_PREFIX + ".query";
+    private static final String ARG_TITLE = ARG_PREFIX  + ".title";
 
     /**
      * Search API exposed to application
@@ -84,14 +88,22 @@ public class SearchFragment extends Fragment {
     private OnItemClickedListener mOnItemClickedListener;
     private ObjectAdapter mResultAdapter;
 
+    private String mTitle;
+    private Drawable mBadgeDrawable;
+
     /**
      * @param args Bundle to use for the arguments, if null a new Bundle will be created.
      */
     public static Bundle createArgs(Bundle args, String query) {
+        return createArgs(args, query, null);
+    }
+
+    public static Bundle createArgs(Bundle args, String query, String title)  {
         if (args == null) {
             args = new Bundle();
         }
         args.putString(ARG_QUERY, query);
+        args.putString(ARG_TITLE, title);
         return args;
     }
 
@@ -150,10 +162,12 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        Bundle args = getArguments();
-        if (null != args) {
-            String query = args.getString(ARG_QUERY, "");
-            mSearchBar.setSearchQuery(query);
+        readArguments(getArguments());
+        if (null != mBadgeDrawable) {
+            setBadgeDrawable(mBadgeDrawable);
+        }
+        if (null != mTitle) {
+            setTitle(mTitle);
         }
 
         // Inject the RowsFragment in the results container
@@ -231,6 +245,47 @@ public class SearchFragment extends Fragment {
         mOnItemClickedListener = listener;
     }
 
+    /**
+     * Sets the title string to be be shown in an empty search bar
+     */
+    public void setTitle(String title) {
+        mTitle = title;
+        if (null != mSearchBar) {
+            mSearchBar.setTitle(title);
+        }
+    }
+
+    /**
+     * Returns the title set
+     */
+    public String getTitle() {
+        if (null != mSearchBar) {
+            return mSearchBar.getTitle();
+        }
+        return null;
+    }
+
+    /**
+     * Sets the badge drawable that will be shown inside the search bar, next to the hint
+     */
+    public void setBadgeDrawable(Drawable drawable) {
+        mBadgeDrawable = drawable;
+        if (null != mSearchBar) {
+            mSearchBar.setBadgeDrawable(drawable);
+        }
+    }
+
+    /**
+     * Returns the badge drawable
+     */
+    public Drawable getBadgeDrawable() {
+        if (null != mSearchBar) {
+            return mSearchBar.getBadgeDrawable();
+        }
+        return null;
+    }
+
+
     private void retrieveResults(String searchQuery) {
         if (DEBUG) Log.v(TAG, String.format("retrieveResults %s", searchQuery));
         mProvider.onQueryTextChange(searchQuery);
@@ -257,5 +312,24 @@ public class SearchFragment extends Fragment {
             retrieveResults(query);
         }
     }
+
+    private void readArguments(Bundle args) {
+        if (null == args) {
+            return;
+        }
+        if (args.containsKey(ARG_QUERY)) {
+            setSearchQuery(args.getString(ARG_QUERY));
+        }
+
+        if (args.containsKey(ARG_TITLE)) {
+            setTitle(args.getString(ARG_TITLE));
+        }
+    }
+
+    private void setSearchQuery(String query) {
+        mSearchBar.setSearchQuery(query);
+    }
+
+
 
 }
