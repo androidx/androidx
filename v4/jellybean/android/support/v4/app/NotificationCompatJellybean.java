@@ -32,11 +32,14 @@ import java.util.List;
 class NotificationCompatJellybean {
     public static final String TAG = "NotificationCompat";
 
-    /** Extras key used for Jellybean SDK and above. */
+    // Extras keys used for Jellybean SDK and above.
     static final String EXTRA_LOCAL_ONLY = "android.support.localOnly";
-
-    /** Extras key used for Jellybean SDK and above. */
     static final String EXTRA_ACTION_EXTRAS = "android.support.actionExtras";
+    static final String EXTRA_REMOTE_INPUTS = "android.support.remoteInputs";
+    static final String EXTRA_GROUP_KEY = "android.support.groupKey";
+    static final String EXTRA_GROUP_SUMMARY = "android.support.isGroupSummary";
+    static final String EXTRA_SORT_KEY = "android.support.sortKey";
+    static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
 
     private static final Object sExtrasLock = new Object();
     private static Field sExtrasField;
@@ -53,7 +56,6 @@ class NotificationCompatJellybean {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
-        private final boolean mLocalOnly;
         private final Bundle mExtras;
         private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
 
@@ -63,7 +65,7 @@ class NotificationCompatJellybean {
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                Bundle extras) {
+                Bundle extras, String groupKey, boolean groupSummary, String sortKey) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -89,14 +91,29 @@ class NotificationCompatJellybean {
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority)
                 .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
-            mLocalOnly = localOnly;
-            mExtras = extras;
+            mExtras = new Bundle();
+            if (extras != null) {
+                mExtras.putAll(extras);
+            }
+            if (localOnly) {
+                mExtras.putBoolean(EXTRA_LOCAL_ONLY, true);
+            }
+            if (groupKey != null) {
+                mExtras.putString(EXTRA_GROUP_KEY, groupKey);
+                if (groupSummary) {
+                    mExtras.putBoolean(EXTRA_GROUP_SUMMARY, true);
+                } else {
+                    mExtras.putBoolean(EXTRA_USE_SIDE_CHANNEL, true);
+                }
+            }
+            if (sortKey != null) {
+                mExtras.putString(EXTRA_SORT_KEY, sortKey);
+            }
         }
 
         @Override
-        public void addAction(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
-            b.addAction(icon, title, intent);
-            mActionExtrasList.add(extras);
+        public void addAction(NotificationCompatBase.Action action) {
+            mActionExtrasList.add(writeActionAndGetExtras(b, action));
         }
 
         @Override
@@ -106,21 +123,16 @@ class NotificationCompatJellybean {
 
         public Notification build() {
             Notification notif = b.build();
-            if (mExtras != null) {
-                // Merge in developer provided extras, but let the values already set
-                // for keys take precedence.
-                Bundle extras = getExtras(notif);
-                Bundle mergeBundle = new Bundle(mExtras);
-                for (String key : mExtras.keySet()) {
-                    if (extras.containsKey(key)) {
-                        mergeBundle.remove(key);
-                    }
+            // Merge in developer provided extras, but let the values already set
+            // for keys take precedence.
+            Bundle extras = getExtras(notif);
+            Bundle mergeBundle = new Bundle(mExtras);
+            for (String key : mExtras.keySet()) {
+                if (extras.containsKey(key)) {
+                    mergeBundle.remove(key);
                 }
-                extras.putAll(mergeBundle);
             }
-            if (mLocalOnly) {
-                getExtras(notif).putBoolean(EXTRA_LOCAL_ONLY, true);
-            }
+            extras.putAll(mergeBundle);
             SparseArray<Bundle> actionExtrasMap = buildActionExtrasMap(mActionExtrasList);
             if (actionExtrasMap != null) {
                 // Add the action extras sparse array if any action was added with extras.
@@ -220,6 +232,29 @@ class NotificationCompatJellybean {
         }
     }
 
+    public static NotificationCompatBase.Action readAction(NotificationCompatBase.Action.Factory factory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory, int icon, CharSequence title,
+            PendingIntent actionIntent, Bundle extras) {
+        RemoteInputCompatBase.RemoteInput[] remoteInputs = null;
+        if (extras != null) {
+            remoteInputs = RemoteInputCompatJellybean.fromBundleArray(
+                    BundleUtil.getBundleArrayFromBundle(extras, EXTRA_REMOTE_INPUTS),
+                    remoteInputFactory);
+        }
+        return factory.build(icon, title, actionIntent, extras, remoteInputs);
+    }
+
+    public static Bundle writeActionAndGetExtras(
+            Notification.Builder builder, NotificationCompatBase.Action action) {
+        builder.addAction(action.getIcon(), action.getTitle(), action.getActionIntent());
+        Bundle actionExtras = new Bundle(action.getExtras());
+        if (action.getRemoteInputs() != null) {
+            actionExtras.putParcelableArray(EXTRA_REMOTE_INPUTS,
+                    RemoteInputCompatJellybean.toBundleArray(action.getRemoteInputs()));
+        }
+        return actionExtras;
+    }
+
     public static int getActionCount(Notification notif) {
         synchronized (sActionsLock) {
             Object[] actionObjects = getActionObjectsLocked(notif);
@@ -227,8 +262,8 @@ class NotificationCompatJellybean {
         }
     }
 
-    public static void getAction(Notification notif, int actionIndex,
-            NotificationActionHolder holder) {
+    public static NotificationCompatBase.Action getAction(Notification notif, int actionIndex,
+            NotificationCompatBase.Action.Factory factory, RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         synchronized (sActionsLock) {
             try {
                 Object actionObject = getActionObjectsLocked(notif)[actionIndex];
@@ -241,7 +276,8 @@ class NotificationCompatJellybean {
                         actionExtras = actionExtrasMap.get(actionIndex);
                     }
                 }
-                holder.set(sActionIconField.getInt(actionObject),
+                return readAction(factory, remoteInputFactory,
+                        sActionIconField.getInt(actionObject),
                         (CharSequence) sActionTitleField.get(actionObject),
                         (PendingIntent) sActionIntentField.get(actionObject),
                         actionExtras);
@@ -250,6 +286,7 @@ class NotificationCompatJellybean {
                 sActionsAccessFailed = true;
             }
         }
+        return null;
     }
 
     private static Object[] getActionObjectsLocked(Notification notif) {
@@ -292,5 +329,17 @@ class NotificationCompatJellybean {
 
     public static boolean getLocalOnly(Notification notif) {
         return getExtras(notif).getBoolean(EXTRA_LOCAL_ONLY);
+    }
+
+    public static String getGroup(Notification n) {
+        return getExtras(n).getString(EXTRA_GROUP_KEY);
+    }
+
+    public static boolean isGroupSummary(Notification n) {
+        return getExtras(n).getBoolean(EXTRA_GROUP_SUMMARY);
+    }
+
+    public static String getSortKey(Notification n) {
+        return getExtras(n).getString(EXTRA_SORT_KEY);
     }
 }

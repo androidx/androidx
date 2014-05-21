@@ -16,12 +16,21 @@
 
 package android.support.v4.app;
 
-import android.app.PendingIntent;
 import android.os.Bundle;
 
-/**
- * Interface to hold the value of a single notification action.
- */
-interface NotificationActionHolder {
-    public void set(int icon, CharSequence title, PendingIntent intent, Bundle extras);
+class RemoteInputCompatBase {
+
+    public static abstract class RemoteInput {
+        protected abstract String getResultKey();
+        protected abstract CharSequence getLabel();
+        protected abstract CharSequence[] getChoices();
+        protected abstract boolean getAllowFreeFormInput();
+        protected abstract Bundle getExtras();
+
+        public interface Factory {
+            public RemoteInput build(String resultKey, CharSequence label,
+                    CharSequence[] choices, boolean allowFreeFormInput, Bundle extras);
+            public RemoteInput[] newArray(int length);
+        }
+    }
 }
