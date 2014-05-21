@@ -17,7 +17,6 @@
 package android.support.v4.app;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -123,7 +122,21 @@ public class NotificationCompat {
      *
      * @deprecated Use {@link NotificationCompat.Builder#setPriority(int)} with a positive value.
      */
-    public static final int FLAG_HIGH_PRIORITY = 0x00000080;
+    public static final int FLAG_HIGH_PRIORITY      = 0x00000080;
+
+    /**
+     * Bit set in the Notification flags field if this notification is relevant to the current
+     * device only and it is not recommended that it bridge to other devices.
+     */
+    public static final int FLAG_LOCAL_ONLY         = 0x00000100;
+
+    /**
+     * Bit set in the Notification flags field if this notification is the group summary for a
+     * group of notifications. Grouped notifications may display in a cluster or stack on devices
+     * which support such rendering. Requires a group key also be set using
+     * {@link Builder#setGroup}.
+     */
+    public static final int FLAG_GROUP_SUMMARY      = 0x00000200;
 
     /**
      * Default notification priority for {@link NotificationCompat.Builder#setPriority(int)}.
@@ -271,6 +284,9 @@ public class NotificationCompat {
         public int getActionCount(Notification n);
         public Action getAction(Notification n, int actionIndex);
         public boolean getLocalOnly(Notification n);
+        public String getGroup(Notification n);
+        public boolean isGroupSummary(Notification n);
+        public String getSortKey(Notification n);
     }
 
     static class NotificationCompatImplBase implements NotificationCompatImpl {
@@ -304,6 +320,21 @@ public class NotificationCompat {
         @Override
         public boolean getLocalOnly(Notification n) {
             return false;
+        }
+
+        @Override
+        public String getGroup(Notification n) {
+            return null;
+        }
+
+        @Override
+        public boolean isGroupSummary(Notification n) {
+            return false;
+        }
+
+        @Override
+        public String getSortKey(Notification n) {
+            return null;
         }
     }
 
@@ -349,7 +380,8 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -367,25 +399,40 @@ public class NotificationCompat {
 
         @Override
         public Action getAction(Notification n, int actionIndex) {
-            NotificationActionHolderImpl holder = new NotificationActionHolderImpl();
-            NotificationCompatJellybean.getAction(n, actionIndex, holder);
-            return holder.get();
+            return (Action) NotificationCompatJellybean.getAction(n, actionIndex, Action.FACTORY,
+                    RemoteInput.FACTORY);
         }
 
         @Override
         public boolean getLocalOnly(Notification n) {
             return NotificationCompatJellybean.getLocalOnly(n);
         }
+
+        @Override
+        public String getGroup(Notification n) {
+            return NotificationCompatJellybean.getGroup(n);
+        }
+
+        @Override
+        public boolean isGroupSummary(Notification n) {
+            return NotificationCompatJellybean.isGroupSummary(n);
+        }
+
+        @Override
+        public String getSortKey(Notification n) {
+            return NotificationCompatJellybean.getSortKey(n);
+        }
     }
 
-    static class NotificationCompatImplKitKat extends NotificationCompatImplBase {
+    static class NotificationCompatImplKitKat extends NotificationCompatImplJellybean {
         @Override
         public Notification build(Builder b) {
             NotificationCompatKitKat.Builder builder = new NotificationCompatKitKat.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -403,57 +450,76 @@ public class NotificationCompat {
 
         @Override
         public Action getAction(Notification n, int actionIndex) {
-            NotificationActionHolderImpl holder = new NotificationActionHolderImpl();
-            NotificationCompatKitKat.getAction(n, actionIndex, holder);
-            return holder.get();
+            return (Action) NotificationCompatKitKat.getAction(n, actionIndex, Action.FACTORY,
+                    RemoteInput.FACTORY);
         }
 
         @Override
         public boolean getLocalOnly(Notification n) {
             return NotificationCompatKitKat.getLocalOnly(n);
         }
+
+        @Override
+        public String getGroup(Notification n) {
+            return NotificationCompatKitKat.getGroup(n);
+        }
+
+        @Override
+        public boolean isGroupSummary(Notification n) {
+            return NotificationCompatKitKat.isGroupSummary(n);
+        }
+
+        @Override
+        public String getSortKey(Notification n) {
+            return NotificationCompatKitKat.getSortKey(n);
+        }
     }
 
-    static class NotificationCompatImplApi20 extends NotificationCompatImplBase {
+    static class NotificationCompatImplApi20 extends NotificationCompatImplKitKat {
         @Override
         public Notification build(Builder b) {
             NotificationCompatApi20.Builder builder = new NotificationCompatApi20.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras);
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
         }
 
         @Override
-        public Bundle getExtras(Notification n) {
-            return NotificationCompatKitKat.getExtras(n);
-        }
-
-        @Override
-        public int getActionCount(Notification n) {
-            return NotificationCompatKitKat.getActionCount(n);
-        }
-
-        @Override
         public Action getAction(Notification n, int actionIndex) {
-            NotificationActionHolderImpl holder = new NotificationActionHolderImpl();
-            NotificationCompatApi20.getAction(n, actionIndex, holder);
-            return holder.get();
+            return (Action) NotificationCompatApi20.getAction(n, actionIndex, Action.FACTORY,
+                    RemoteInput.FACTORY);
         }
 
         @Override
         public boolean getLocalOnly(Notification n) {
             return NotificationCompatApi20.getLocalOnly(n);
         }
+
+        @Override
+        public String getGroup(Notification n) {
+            return NotificationCompatApi20.getGroup(n);
+        }
+
+        @Override
+        public boolean isGroupSummary(Notification n) {
+            return NotificationCompatApi20.isGroupSummary(n);
+        }
+
+        @Override
+        public String getSortKey(Notification n) {
+            return NotificationCompatApi20.getSortKey(n);
+        }
     }
 
     private static void addActionsToBuilder(NotificationBuilderWithActions builder,
             ArrayList<Action> actions) {
         for (Action action : actions) {
-            builder.addAction(action.icon, action.title, action.actionIntent, action.getExtras());
+            builder.addAction(action);
         }
     }
 
@@ -543,6 +609,9 @@ public class NotificationCompat {
         int mProgressMax;
         int mProgress;
         boolean mProgressIndeterminate;
+        String mGroupKey;
+        boolean mGroupSummary;
+        String mSortKey;
         ArrayList<Action> mActions = new ArrayList<Action>();
         boolean mLocalOnly = false;
         Bundle mExtras;
@@ -706,8 +775,8 @@ public class NotificationCompat {
          * Supply a {@link PendingIntent} to send when the notification is cleared by the user
          * directly from the notification panel.  For example, this intent is sent when the user
          * clicks the "Clear all" button, or the individual "X" buttons on notifications.  This
-         * intent is not sent when the application calls {@link NotificationManager#cancel
-         * NotificationManager.cancel(int)}.
+         * intent is not sent when the application calls
+         * {@link android.app.NotificationManager#cancel NotificationManager.cancel(int)}.
          */
         public Builder setDeleteIntent(PendingIntent intent) {
             mNotification.deleteIntent = intent;
@@ -904,6 +973,51 @@ public class NotificationCompat {
         }
 
         /**
+         * Set this notification to be part of a group of notifications sharing the same key.
+         * Grouped notifications may display in a cluster or stack on devices which
+         * support such rendering.
+         *
+         * <p>To make this notification the summary for its group, also call
+         * {@link #setGroupSummary}. A sort order can be specified for group members by using
+         * {@link #setSortKey}.
+         * @param groupKey The group key of the group.
+         * @return this object for method chaining
+         */
+        public Builder setGroup(String groupKey) {
+            mGroupKey = groupKey;
+            return this;
+        }
+
+        /**
+         * Set this notification to be the group summary for a group of notifications.
+         * Grouped notifications may display in a cluster or stack on devices which
+         * support such rendering. Requires a group key also be set using {@link #setGroup}.
+         * @param isGroupSummary Whether this notification should be a group summary.
+         * @return this object for method chaining
+         */
+        public Builder setGroupSummary(boolean isGroupSummary) {
+            mGroupSummary = isGroupSummary;
+            return this;
+        }
+
+        /**
+         * Set a sort key that orders this notification among other notifications from the
+         * same package. This can be useful if an external sort was already applied and an app
+         * would like to preserve this. Notifications will be sorted lexicographically using this
+         * value, although providing different priorities in addition to providing sort key may
+         * cause this value to be ignored.
+         *
+         * <p>This sort key can also be used to order members of a notification group. See
+         * {@link Builder#setGroup}.
+         *
+         * @see String#compareTo(String)
+         */
+        public Builder setSortKey(String sortKey) {
+            mSortKey = sortKey;
+            return this;
+        }
+
+        /**
          * Merge additional metadata into this notification.
          *
          * <p>Values within the Bundle will replace existing extras values in this Builder.
@@ -1011,6 +1125,28 @@ public class NotificationCompat {
                 }
             }
             return this;
+        }
+
+        /**
+         * Apply an extender to this notification builder. Extenders may be used to add
+         * metadata or change options on this builder.
+         */
+        public Builder apply(Extender extender) {
+            extender.applyTo(this);
+            return this;
+        }
+
+        /**
+         * Extender interface for use with {@link #apply}. Extenders may be used to add
+         * metadata or change options on this builder.
+         */
+        public interface Extender {
+            /**
+             * Apply this extender to a notification builder.
+             * @param builder the builder to be modified.
+             * @return the build object for chaining.
+             */
+            public Builder applyTo(Builder builder);
         }
 
         /**
@@ -1258,8 +1394,9 @@ public class NotificationCompat {
      * or {@link NotificationCompat.Builder#addAction(NotificationCompat.Action)}
      * to attach actions.
      */
-    public static class Action {
+    public static class Action extends NotificationCompatBase.Action {
         private final Bundle mExtras;
+        private RemoteInput[] mRemoteInputs;
 
         /**
          * Small icon representing the action.
@@ -1276,14 +1413,31 @@ public class NotificationCompat {
         public PendingIntent actionIntent;
 
         public Action(int icon, CharSequence title, PendingIntent intent) {
-            this(icon, title, intent, new Bundle());
+            this(icon, title, intent, new Bundle(), null);
         }
 
-        private Action(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
+        private Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
+                RemoteInput[] remoteInputs) {
             this.icon = icon;
             this.title = title;
             this.actionIntent = intent;
             this.mExtras = extras != null ? extras : new Bundle();
+            this.mRemoteInputs = remoteInputs;
+        }
+
+        @Override
+        protected int getIcon() {
+            return icon;
+        }
+
+        @Override
+        protected CharSequence getTitle() {
+            return title;
+        }
+
+        @Override
+        protected PendingIntent getActionIntent() {
+            return actionIntent;
         }
 
         /**
@@ -1294,13 +1448,22 @@ public class NotificationCompat {
         }
 
         /**
+         * Get the list of inputs to be collected from the user when this action is sent.
+         * May return null if no remote inputs were added.
+         */
+        public RemoteInput[] getRemoteInputs() {
+            return mRemoteInputs;
+        }
+
+        /**
          * Builder class for {@link Action} objects.
          */
-        public static class Builder {
+        public static final class Builder {
             private final int mIcon;
             private final CharSequence mTitle;
             private final PendingIntent mIntent;
             private final Bundle mExtras;
+            private ArrayList<RemoteInput> mRemoteInputs;
 
             /**
              * Construct a new builder for {@link Action} object.
@@ -1352,27 +1515,69 @@ public class NotificationCompat {
             }
 
             /**
+             * Add an input to be collected from the user when this action is sent.
+             * Response values can be retrieved from the fired intent by using the
+             * {@link RemoteInput#getResultsFromIntent} function.
+             * @param remoteInput a {@link RemoteInput} to add to the action
+             * @return this object for method chaining
+             */
+            public Builder addRemoteInput(RemoteInput remoteInput) {
+                if (mRemoteInputs == null) {
+                    mRemoteInputs = new ArrayList<RemoteInput>();
+                }
+                mRemoteInputs.add(remoteInput);
+                return this;
+            }
+
+            /**
+             * Apply an extender to this action builder. Extenders may be used to add
+             * metadata or change options on this builder.
+             */
+            public Builder apply(Extender extender) {
+                extender.applyTo(this);
+                return this;
+            }
+
+            /**
+             * Extender interface for use with {@link #apply}. Extenders may be used to add
+             * metadata or change options on this builder.
+             */
+            public interface Extender {
+                /**
+                 * Apply this extender to a notification action builder.
+                 * @param builder the builder to be modified.
+                 * @return the build object for chaining.
+                 */
+                public Builder applyTo(Builder builder);
+            }
+
+            /**
              * Combine all of the options that have been set and return a new {@link Action}
              * object.
              * @return the built action
              */
             public Action build() {
-                return new Action(mIcon, mTitle, mIntent, mExtras);
+                RemoteInput[] remoteInputs = mRemoteInputs != null
+                        ? mRemoteInputs.toArray(new RemoteInput[mRemoteInputs.size()]) : null;
+                return new Action(mIcon, mTitle, mIntent, mExtras, remoteInputs);
             }
         }
-    }
 
-    private static class NotificationActionHolderImpl implements NotificationActionHolder {
-        private NotificationCompat.Action mAction;
+        /** @hide */
+        public static final Factory FACTORY = new Factory() {
+            @Override
+            public Action build(int icon, CharSequence title,
+                    PendingIntent actionIntent, Bundle extras,
+                    RemoteInputCompatBase.RemoteInput[] remoteInputs) {
+                return new Action(icon, title, actionIntent, extras,
+                        (RemoteInput[]) remoteInputs);
+            }
 
-        @Override
-        public void set(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
-            mAction = new Action(icon, title, intent, extras);
-        }
-
-        public NotificationCompat.Action get() {
-            return mAction;
-        }
+            @Override
+            public Action[] newArray(int length) {
+                return new Action[length];
+            }
+        };
     }
 
     /**
@@ -1410,5 +1615,39 @@ public class NotificationCompat {
      */
     public static boolean getLocalOnly(Notification notif) {
         return IMPL.getLocalOnly(notif);
+    }
+
+    /**
+     * Get the key used to group this notification into a cluster or stack
+     * with other notifications on devices which support such rendering.
+     */
+    public static String getGroup(Notification notif) {
+        return IMPL.getGroup(notif);
+    }
+
+    /**
+     * Get whether this notification to be the group summary for a group of notifications.
+     * Grouped notifications may display in a cluster or stack on devices which
+     * support such rendering. Requires a group key also be set using {@link Builder#setGroup}.
+     * @return Whether this notification is a group summary.
+     */
+    public static boolean isGroupSummary(Notification notif) {
+        return IMPL.isGroupSummary(notif);
+    }
+
+    /**
+     * Get a sort key that orders this notification among other notifications from the
+     * same package. This can be useful if an external sort was already applied and an app
+     * would like to preserve this. Notifications will be sorted lexicographically using this
+     * value, although providing different priorities in addition to providing sort key may
+     * cause this value to be ignored.
+     *
+     * <p>This sort key can also be used to order members of a notification group. See
+     * {@link Builder#setGroup}.
+     *
+     * @see String#compareTo(String)
+     */
+    public static String getSortKey(Notification notif) {
+        return IMPL.getSortKey(notif);
     }
 }
