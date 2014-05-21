@@ -40,7 +40,8 @@ class NotificationCompatKitKat {
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                ArrayList<String> people, Bundle extras) {
+                ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
+                String sortKey) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -66,20 +67,33 @@ class NotificationCompatKitKat {
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority)
                 .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
-            mExtras = extras;
+            mExtras = new Bundle();
+            if (extras != null) {
+                mExtras.putAll(extras);
+            }
             if (people != null && !people.isEmpty()) {
-                getExtras().putStringArray(Notification.EXTRA_PEOPLE,
+                mExtras.putStringArray(Notification.EXTRA_PEOPLE,
                         people.toArray(new String[people.size()]));
             }
             if (localOnly) {
-                getExtras().putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, true);
+                mExtras.putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, true);
+            }
+            if (groupKey != null) {
+                mExtras.putString(NotificationCompatJellybean.EXTRA_GROUP_KEY, groupKey);
+                if (groupSummary) {
+                    mExtras.putBoolean(NotificationCompatJellybean.EXTRA_GROUP_SUMMARY, true);
+                } else {
+                    mExtras.putBoolean(NotificationCompatJellybean.EXTRA_USE_SIDE_CHANNEL, true);
+                }
+            }
+            if (sortKey != null) {
+                mExtras.putString(NotificationCompatJellybean.EXTRA_SORT_KEY, sortKey);
             }
         }
 
         @Override
-        public void addAction(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
-            b.addAction(icon, title, intent);
-            mActionExtrasList.add(extras);
+        public void addAction(NotificationCompatBase.Action action) {
+            mActionExtrasList.add(NotificationCompatJellybean.writeActionAndGetExtras(b, action));
         }
 
         @Override
@@ -92,20 +106,11 @@ class NotificationCompatKitKat {
                     mActionExtrasList);
             if (actionExtrasMap != null) {
                 // Add the action extras sparse array if any action was added with extras.
-                getExtras().putSparseParcelableArray(
+                mExtras.putSparseParcelableArray(
                         NotificationCompatJellybean.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
-            if (mExtras != null) {
-                b.setExtras(mExtras);
-            }
+            b.setExtras(mExtras);
             return b.build();
-        }
-
-        private Bundle getExtras() {
-            if (mExtras == null) {
-                mExtras = new Bundle();
-            }
-            return mExtras;
         }
     }
 
@@ -117,8 +122,9 @@ class NotificationCompatKitKat {
         return notif.actions != null ? notif.actions.length : 0;
     }
 
-    public static void getAction(Notification notif, int actionIndex,
-            NotificationActionHolder holder) {
+    public static NotificationCompatBase.Action getAction(Notification notif,
+            int actionIndex, NotificationCompatBase.Action.Factory factory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         Notification.Action action = notif.actions[actionIndex];
         Bundle actionExtras = null;
         SparseArray<Bundle> actionExtrasMap = notif.extras.getSparseParcelableArray(
@@ -126,10 +132,23 @@ class NotificationCompatKitKat {
         if (actionExtrasMap != null) {
             actionExtras = actionExtrasMap.get(actionIndex);
         }
-        holder.set(action.icon, action.title, action.actionIntent, actionExtras);
+        return NotificationCompatJellybean.readAction(factory, remoteInputFactory,
+                action.icon, action.title, action.actionIntent, actionExtras);
     }
 
     public static boolean getLocalOnly(Notification notif) {
-        return getExtras(notif).getBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY);
+        return notif.extras.getBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY);
+    }
+
+    public static String getGroup(Notification notif) {
+        return notif.extras.getString(NotificationCompatJellybean.EXTRA_GROUP_KEY);
+    }
+
+    public static boolean isGroupSummary(Notification notif) {
+        return notif.extras.getBoolean(NotificationCompatJellybean.EXTRA_GROUP_SUMMARY);
+    }
+
+    public static String getSortKey(Notification notif) {
+        return notif.extras.getString(NotificationCompatJellybean.EXTRA_SORT_KEY);
     }
 }

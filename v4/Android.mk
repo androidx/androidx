@@ -14,11 +14,21 @@
 
 LOCAL_PATH := $(call my-dir)
 
+# A common helper sub-library that only uses base (API 4) APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-base
+LOCAL_SDK_VERSION := 4
+LOCAL_SRC_FILES := $(call all-java-files-under, base)
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 # A helper sub-library that makes direct use of Donut APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-donut
 LOCAL_SDK_VERSION := 4
 LOCAL_SRC_FILES := $(call all-java-files-under, donut)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-base
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -169,7 +179,10 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4
 LOCAL_SDK_VERSION := 4
-LOCAL_SRC_FILES := $(call all-java-files-under, java)
+
+LOCAL_SRC_FILES := $(call all-java-files-under, java) \
+    $(call all-Iaidl-files-under, java)
+
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api21
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)

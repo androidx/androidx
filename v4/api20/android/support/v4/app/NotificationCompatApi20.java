@@ -18,6 +18,7 @@ package android.support.v4.app;
 
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.RemoteInput;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -36,8 +37,9 @@ class NotificationCompatApi20 {
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int mProgressMax, int mProgress, boolean mProgressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                String category, ArrayList<String> people, Bundle extras,
-                int color, int visibility, Notification publicVersion) {
+                String category, ArrayList<String> people, Bundle extras, int color,
+                int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
+                String sortKey) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -68,18 +70,27 @@ class NotificationCompatApi20 {
                 .setExtras(extras)
                 .setColor(color)
                 .setVisibility(visibility)
-                .setPublicVersion(publicVersion);
+                .setPublicVersion(publicVersion)
+                .setGroup(groupKey)
+                .setGroupSummary(groupSummary)
+                .setSortKey(sortKey);
             for (String person: people) {
                 b.addPerson(person);
             }
         }
 
         @Override
-        public void addAction(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
+        public void addAction(NotificationCompatBase.Action action) {
             Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
-                    icon, title, intent);
-            if (extras != null) {
-                actionBuilder.addExtras(extras);
+                    action.getIcon(), action.getTitle(), action.getActionIntent());
+            if (action.getRemoteInputs() != null) {
+                for (RemoteInput remoteInput : RemoteInputCompatApi20.fromCompat(
+                        action.getRemoteInputs())) {
+                    actionBuilder.addRemoteInput(remoteInput);
+                }
+            }
+            if (action.getExtras() != null) {
+                actionBuilder.addExtras(action.getExtras());
             }
             b.addAction(actionBuilder.build());
         }
@@ -94,13 +105,29 @@ class NotificationCompatApi20 {
         }
     }
 
-    public static void getAction(Notification notif, int actionIndex,
-            NotificationActionHolder holder) {
+    public static NotificationCompatBase.Action getAction(Notification notif,
+            int actionIndex, NotificationCompatBase.Action.Factory factory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         Notification.Action action = notif.actions[actionIndex];
-        holder.set(action.icon, action.title, action.actionIntent, action.getExtras());
+        RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
+                action.getRemoteInputs(), remoteInputFactory);
+        return factory.build(action.icon, action.title, action.actionIntent,
+                action.getExtras(), remoteInputs);
     }
 
     public static boolean getLocalOnly(Notification notif) {
         return (notif.flags & Notification.FLAG_LOCAL_ONLY) != 0;
+    }
+
+    public static String getGroup(Notification notif) {
+        return notif.getGroup();
+    }
+
+    public static boolean isGroupSummary(Notification notif) {
+        return (notif.flags & Notification.FLAG_GROUP_SUMMARY) != 0;
+    }
+
+    public static String getSortKey(Notification notif) {
+        return notif.getSortKey();
     }
 }

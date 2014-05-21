@@ -16,9 +16,9 @@
 
 package android.support.v4.app;
 
-/**
- * Interface implemented by notification compat builders that support adding actions.
- */
-interface NotificationBuilderWithActions {
-    public void addAction(NotificationCompatBase.Action action);
+import android.app.Service;
+
+class NotificationManagerCompatIceCreamSandwich {
+    static final int SIDE_CHANNEL_BIND_FLAGS = Service.BIND_AUTO_CREATE
+            | Service.BIND_WAIVE_PRIORITY;
 }
