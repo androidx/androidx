@@ -59,6 +59,12 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <style name="TextAppearance.Leanback.DetailsActionButton">
+        <item name="android:textSize">@dimen/lb_action_text_size</item>
+        <item name="android:textColor">@color/lb_action_text_color</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
     <style name="Widget.Leanback" parent="android:Widget.Holo" />
 
     <style name="Widget.Leanback.BaseCardViewStyle" />
@@ -196,5 +202,18 @@
     <style name="Widget.Leanback.DetailsDescriptionBodyStyle">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionBody</item>
         <item name="android:maxLines">@integer/lb_details_description_body_max_lines</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
+
+    <style name="Widget.Leanback.DetailsActionButtonStyle" parent="android:Widget.Holo.Button.Borderless">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsActionButton</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:background">@drawable/lb_selector_action_bg</item>
+        <item name="android:drawablePadding">@dimen/lb_action_icon_margin</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:paddingLeft">@dimen/lb_action_padding_horizontal</item>
+        <item name="android:paddingRight">@dimen/lb_action_padding_horizontal</item>
+    </style>
+
 </resources>

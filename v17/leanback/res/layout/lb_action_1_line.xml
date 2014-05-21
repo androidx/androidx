@@ -15,17 +15,10 @@
      limitations under the License.
 -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/lb_action_text"
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lb_action_button"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/lb_action_1_line_height"
-    android:background="@drawable/lb_transition_action_bg"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:gravity="center_vertical"
+    style="?attr/detailsActionButtonStyle"
     android:lines="1"
-    android:paddingLeft="@dimen/lb_action_1_line_padding_left"
-    android:paddingRight="@dimen/lb_action_padding_right"
-    android:textAllCaps="true"
-    android:textColor="@color/lb_action_text_color"
-    android:textSize="@dimen/lb_action_text_size" />
+    />

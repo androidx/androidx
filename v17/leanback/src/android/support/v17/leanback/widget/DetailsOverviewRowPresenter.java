@@ -71,7 +71,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         mDetailsPresenter = detailsPresenter;
         mActionPresenterSelector = new ActionPresenterSelector();
         mActionBridgeAdapter = new ItemBridgeAdapter();
-        FocusHighlightHelper.setupActionItemFocusHighlight(mActionBridgeAdapter);
     }
 
     /**

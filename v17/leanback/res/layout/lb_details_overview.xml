@@ -33,10 +33,9 @@
         <ImageView
             android:id="@+id/details_overview_image"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:adjustViewBounds="true"
-            android:gravity="top|left"
             />
 
         <LinearLayout
@@ -44,6 +43,7 @@
             android:layout_height="match_parent"
             android:layout_toRightOf="@id/details_overview_image"
             android:layout_marginLeft="@dimen/lb_details_overview_description_margin_left"
+            android:layout_marginRight="@dimen/lb_details_overview_description_margin_right"
             android:layout_marginBottom="@dimen/lb_details_overview_description_margin_bottom"
             android:layout_marginTop="@dimen/lb_details_overview_description_margin_top"
             android:orientation="vertical" >
@@ -59,7 +59,7 @@
             android:id="@+id/details_overview_actions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/lb_details_overview_actions_margin_top"
+            android:gravity="center"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:focusable="true"

@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 
-<transition xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/lb_action_bg_focused" android:state_focused="true" />
     <item android:drawable="@android:color/transparent" />
-    <item android:drawable="@drawable/lb_action_bg_focused" />
-</transition>
+</selector>
