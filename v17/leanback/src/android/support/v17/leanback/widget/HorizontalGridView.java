@@ -280,17 +280,18 @@ public class HorizontalGridView extends BaseGridView {
         if (mTempBitmapHigh == null
                 || mTempBitmapHigh.getWidth() != mHighFadeShaderLength
                 || mTempBitmapHigh.getHeight() != getHeight()) {
-            if (mTempBitmapLow != null
+            // TODO: fix logic for sharing mTempBitmapLow
+            if (false && mTempBitmapLow != null
                     && mTempBitmapLow.getWidth() == mHighFadeShaderLength
                     && mTempBitmapLow.getHeight() == getHeight()) {
                 // share same bitmap for low edge fading and high edge fading.
                 mTempBitmapHigh = mTempBitmapLow;
             } else {
-                mTempBitmapLow = Bitmap.createBitmap(mHighFadeShaderLength, getHeight(),
+                mTempBitmapHigh = Bitmap.createBitmap(mHighFadeShaderLength, getHeight(),
                         Bitmap.Config.ARGB_8888);
             }
         }
-        return mTempBitmapLow;
+        return mTempBitmapHigh;
     }
 
     @Override
@@ -314,8 +315,8 @@ public class HorizontalGridView extends BaseGridView {
 
         // draw not-fade content
         int save = canvas.save();
-        canvas.clipRect(lowEdge + mLowFadeShaderLength, 0,
-                highEdge - mHighFadeShaderLength, getHeight());
+        canvas.clipRect(lowEdge + (mFadingLowEdge ? mLowFadeShaderLength : 0), 0,
+                highEdge - (mFadingHighEdge ? mHighFadeShaderLength : 0), getHeight());
         super.draw(canvas);
         canvas.restoreToCount(save);
 

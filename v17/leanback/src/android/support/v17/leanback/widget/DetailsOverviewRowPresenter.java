@@ -16,6 +16,8 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v17.leanback.R;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,11 +40,75 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     private static final String TAG = "DetailsOverviewRowPresenter";
     private static final boolean DEBUG = false;
 
+    private static final int MORE_ACTIONS_FADE_MS = 100;
+
     public static class ViewHolder extends RowPresenter.ViewHolder {
         final ImageView mImageView;
         final FrameLayout mDetailsDescriptionFrame;
         final HorizontalGridView mActionsRow;
+        final View mMoreActionsView;
         Presenter.ViewHolder mDetailsDescriptionViewHolder;
+
+        class ScrollListener implements RecyclerView.OnScrollListener {
+            ObjectAdapter mAdapter;
+            boolean mShowMoreRight;
+            boolean mShowMoreLeft;
+
+            void bind(ObjectAdapter adapter) {
+                mAdapter = adapter;
+
+                mMoreActionsView.setAlpha(0f);
+                mShowMoreRight = false;
+                showMoreRight(true);
+
+                mShowMoreLeft = true;
+                showMoreLeft(false);
+            }
+
+            @Override
+            public void onScrollStateChanged(int newState) {
+            }
+
+            @Override
+            public void onScrolled(int dx, int dy) {
+                View view;
+                int position;
+
+                view = mActionsRow.getChildAt(mActionsRow.getChildCount() - 1);
+                position = mActionsRow.getChildViewHolder(view).getPosition();
+                if (position < (mAdapter.size() - 1) || view.getRight() > mActionsRow.getWidth()) {
+                    showMoreRight(true);
+                } else {
+                    showMoreRight(false);
+                }
+
+                view = mActionsRow.getChildAt(0);
+                position = mActionsRow.getChildViewHolder(view).getPosition();
+                if (position != 0 || view.getLeft() < 0) {
+                    showMoreLeft(true);
+                } else {
+                    showMoreLeft(false);
+                }
+            }
+
+            private void showMoreLeft(boolean show) {
+                if (show != mShowMoreLeft) {
+                    mActionsRow.setFadingLeftEdge(show);
+                    mShowMoreLeft = show;
+                }
+            }
+
+            private void showMoreRight(boolean show) {
+                if (show != mShowMoreRight) {
+                    mMoreActionsView.animate().alpha(show ? 1f : 0).setDuration(
+                            MORE_ACTIONS_FADE_MS).start();
+                    mActionsRow.setFadingRightEdge(show);
+                    mShowMoreRight = show;
+                }
+            }
+        }
+
+        final ScrollListener mScrollListener = new ScrollListener();
 
         public ViewHolder(View rootView) {
             super(rootView);
@@ -51,6 +117,16 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                     (FrameLayout) rootView.findViewById(R.id.details_overview_description);
             mActionsRow =
                     (HorizontalGridView) rootView.findViewById(R.id.details_overview_actions);
+            mActionsRow.setOnScrollListener(mScrollListener);
+
+            final int fadeLength = rootView.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_overview_actions_fade_size);
+            mActionsRow.setFadingRightEdgeLength(fadeLength);
+            mActionsRow.setFadingRightEdgeOffset(-fadeLength);
+            mActionsRow.setFadingLeftEdgeLength(fadeLength);
+            mActionsRow.setFadingLeftEdgeOffset(-fadeLength);
+
+            mMoreActionsView = rootView.findViewById(R.id.details_overview_actions_more);
         }
     }
 
@@ -167,6 +243,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         mActionBridgeAdapter.clear();
         ArrayObjectAdapter aoa = new ArrayObjectAdapter(mActionPresenterSelector);
         aoa.addAll(0, (Collection)row.getActions());
+        vh.mScrollListener.bind(aoa);
+
         mActionBridgeAdapter.setAdapter(aoa);
         vh.mActionsRow.setAdapter(mActionBridgeAdapter);
     }
