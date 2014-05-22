@@ -38,6 +38,17 @@
             android:adjustViewBounds="true"
             />
 
+       <ImageView
+            android:id="@+id/details_overview_actions_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_actions_right_arrow"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="@dimen/lb_details_overview_actions_more_margin_right"
+            android:layout_marginBottom="@dimen/lb_details_overview_actions_more_margin_bottom"
+            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
