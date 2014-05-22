@@ -508,6 +508,18 @@ public class BrowseFragment extends Fragment {
                 .getInteger(R.integer.lb_browse_headers_transition_delay);
         mHeadersTransitionDuration = getResources()
                 .getInteger(R.integer.lb_browse_headers_transition_duration);
+
+        readArguments(getArguments());
+        if (mCanShowHeaders && mHeadersBackStackEnabled) {
+            mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
+            mBackStackChangedListener = new BackStackListener();
+            getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
+            if (!mShowingHeaders) {
+                getFragmentManager().beginTransaction()
+                        .addToBackStack(mWithHeadersBackStackName).commit();
+            }
+        }
+
     }
 
     @Override
@@ -551,7 +563,6 @@ public class BrowseFragment extends Fragment {
             mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
         }
 
-        readArguments(getArguments());
         if (mParams != null) {
             setBadgeDrawable(mParams.mBadgeDrawable);
             setTitle(mParams.mTitle);
@@ -758,27 +769,6 @@ public class BrowseFragment extends Fragment {
             mRowsFragment.getView().requestFocus();
         }
         showHeaders(mCanShowHeaders && mShowingHeaders);
-        if (mCanShowHeaders && mHeadersBackStackEnabled) {
-            mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
-            if (mBackStackChangedListener == null) {
-                mBackStackChangedListener = new BackStackListener();
-            } else {
-                mBackStackChangedListener.reset();
-            }
-            getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
-            if (!mShowingHeaders) {
-                getFragmentManager().beginTransaction()
-                        .addToBackStack(mWithHeadersBackStackName).commit();
-            }
-        }
-    }
-
-    @Override
-    public void onStop() {
-        if (mBackStackChangedListener != null) {
-            getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
-        }
-        super.onStop();
     }
 
     /**
