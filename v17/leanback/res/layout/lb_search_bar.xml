@@ -14,69 +14,59 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<merge
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v17.leanback.widget.SpeechOrbView
+            android:id="@+id/lb_search_bar_speech_orb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/lb_search_bar_speech_orb_margin_left"
+            >
+        <requestFocus/>
+    </android.support.v17.leanback.widget.SpeechOrbView>
 
     <RelativeLayout
-            android:id="@+id/lb_search_bar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/lb_search_bar_height"
-            android:paddingLeft="@dimen/lb_search_bar_padding_left"
-            android:clipChildren="false"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="top"
-            android:background="@android:color/transparent" >
+            android:id="@+id/lb_search_bar_items"
+            android:layout_width="@dimen/lb_search_bar_items_width"
+            android:layout_height="@dimen/lb_search_bar_items_height"
+            android:layout_toRightOf="@+id/lb_search_bar_speech_orb"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/lb_search_bar_items_margin_left"
+            android:orientation="horizontal"
+            android:background="@drawable/lb_in_app_search_bg"
+            >
 
-        <android.support.v17.leanback.widget.SpeechOrbView
-                android:id="@+id/lb_search_bar_speech_orb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-            <requestFocus/>
-        </android.support.v17.leanback.widget.SpeechOrbView>
+        <ImageView
+                android:id="@+id/lb_search_bar_badge"
+                android:layout_width="@dimen/lb_search_bar_icon_width"
+                android:layout_height="@dimen/lb_search_bar_icon_height"
+                android:layout_gravity="center_vertical|left"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/lb_search_bar_icon_margin_left"
+                android:src="@null"
+                android:visibility="gone"
+                style="?attr/browseTitleIconStyle"/>
 
-        <FrameLayout
-                android:id="@+id/lb_search_bar_items"
-                android:layout_width="@dimen/lb_search_bar_items_width"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_marginLeft="@dimen/lb_search_browse_row_padding_left"
-                android:layout_marginTop="@dimen/lb_search_bar_items_layout_margin_top"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:orientation="horizontal"
-                android:background="@android:color/transparent"
-                android:layout_weight="1">
-
-            <ImageView
-                    android:id="@+id/lb_search_bar_badge"
-                    android:layout_width="@dimen/lb_search_bar_icon_width"
-                    android:layout_height="@dimen/lb_search_bar_icon_height"
-                    android:layout_gravity="center_vertical|left"
-                    android:src="@null"
-                    android:visibility="gone"
-                    style="?attr/browseTitleIconStyle"/>
-
-            <android.support.v17.leanback.widget.SearchEditText
-                        android:id="@+id/lb_search_text_editor"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center_vertical|right"
-                        android:layout_marginLeft="@dimen/lb_search_bar_hint_margin_left"
-                        android:cursorVisible="true"
-                        android:editable="true"
-                        android:background="@null"
-                        android:fontFamily="sans-serif"
-                        android:focusable="true"
-                        android:imeOptions="normal|flagNoExtractUi|actionSearch"
-                        android:inputType="text|textAutoComplete"
-                        android:singleLine="true"
-                        android:textColor="@color/lb_search_bar_text_color"
-                        android:textColorHint="@color/lb_search_bar_hint_color"
-                        android:textCursorDrawable="@null"
-                        android:hint="@string/lb_search_bar_hint"
-                        android:textSize="@dimen/lb_search_bar_text_size"/>
-        </FrameLayout>
+        <android.support.v17.leanback.widget.SearchEditText
+                    android:id="@+id/lb_search_text_editor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|right"
+                    android:layout_marginLeft="@dimen/lb_search_bar_edit_text_margin_left"
+                    android:layout_centerVertical="true"
+                    android:cursorVisible="true"
+                    android:layout_toRightOf="@+id/lb_search_bar_badge"
+                    android:editable="true"
+                    android:background="@null"
+                    android:fontFamily="sans-serif"
+                    android:focusable="true"
+                    android:imeOptions="normal|flagNoExtractUi|actionSearch"
+                    android:inputType="text|textAutoComplete"
+                    android:singleLine="true"
+                    android:textColor="@color/lb_search_bar_text_color"
+                    android:textColorHint="@color/lb_search_bar_hint_color"
+                    android:textCursorDrawable="@null"
+                    android:hint="@string/lb_search_bar_hint"
+                    android:textSize="@dimen/lb_search_bar_text_size"/>
     </RelativeLayout>
 </merge>

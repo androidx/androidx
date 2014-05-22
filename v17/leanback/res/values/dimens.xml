@@ -100,11 +100,16 @@
     <dimen name="lb_search_bar_padding_left">56dp</dimen>
     <dimen name="lb_search_bar_padding_top">27dp</dimen>
 
-    <dimen name="lb_search_bar_text_size">28sp</dimen>
+    <dimen name="lb_search_bar_text_size">22sp</dimen>
+    <dimen name="lb_search_bar_unfocused_text_size">18sp</dimen>
     <dimen name="lb_search_bar_items_layout_margin_top">27dp</dimen>
-    <dimen name="lb_search_bar_items_width">660dp</dimen>
+    <dimen name="lb_search_bar_items_width">600dp</dimen>
+    <dimen name="lb_search_bar_items_height">56dp</dimen>
+    <dimen name="lb_search_bar_items_margin_left">56dp</dimen>
     <dimen name="lb_search_bar_icon_height">32dp</dimen>
     <dimen name="lb_search_bar_icon_width">32dp</dimen>
+    <dimen name="lb_search_bar_icon_margin_left">16dp</dimen>
+    <dimen name="lb_search_bar_edit_text_margin_left">24dp</dimen>
     <dimen name="lb_search_bar_hint_margin_left">52dp</dimen>
 
 
@@ -123,7 +128,7 @@
     <dimen name="lb_search_bar_speech_orb_size">52dp</dimen>
     <item name="lb_search_bar_speech_orb_focused_zoom" type="fraction">120%</item>
     <item name="lb_search_bar_speech_orb_max_level_zoom" type="fraction">144%</item>
-
+    <dimen name="lb_search_bar_speech_orb_margin_left">56dp</dimen>
 
     <!-- BasicCardView -->
     <dimen name="lb_basic_card_main_width">140dp</dimen>

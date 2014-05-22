@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
     private OnClickListener mListener;
@@ -17,6 +18,7 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
     private final float mSoundLevelMaxZoom;
     private final int mNotRecordingColor;
     private final int mRecordingColor;
+    private ImageView mIcon;
 
     private int mCurrentLevel = 0;
     private boolean mListening = false;
@@ -36,6 +38,7 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View root = inflater.inflate(R.layout.lb_speech_orb, this, true);
         mSpeechOrbView = root.findViewById(R.id.lb_speech_orb);
+        mIcon = (ImageView)root.findViewById(R.id.lb_speech_icon);
 
         setFocusable(true);
         setClipChildren(false);
@@ -64,6 +67,11 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         final float zoom = gainFocus ? mFocusedZoom : 1f;
         mSpeechOrbView.animate().scaleX(zoom).scaleY(zoom).setDuration(200).start();
+        if (gainFocus) {
+            mIcon.setImageResource(R.drawable.lb_search_mic);
+        } else {
+            mIcon.setImageResource(R.drawable.lb_search_mic_out);
+        }
     }
 
     /**

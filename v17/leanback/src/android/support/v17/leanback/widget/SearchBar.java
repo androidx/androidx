@@ -15,6 +15,8 @@ package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +29,9 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -88,6 +92,13 @@ public class SearchBar extends RelativeLayout {
     private final Handler mHandler = new Handler();
     private final InputMethodManager mInputMethodManager;
     private boolean mAutoStartRecognition = false;
+    private Drawable mBarBackground;
+
+    private int mTextColor;
+    private int mTextSpeechColor;
+    private int mBackgroundAlpha;
+    private int mBackgroundSpeechAlpha;
+    private int mBarHeight;
 
     public SearchBar(Context context) {
         this(context, null);
@@ -103,16 +114,34 @@ public class SearchBar extends RelativeLayout {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         inflater.inflate(R.layout.lb_search_bar, this, true);
 
+        RelativeLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                mBarHeight);
+        params.addRule(ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        setLayoutParams(params);
+        setBackgroundColor(Color.TRANSPARENT);
+        setClipChildren(false);
+
         mSearchQuery = "";
         mInputMethodManager =
                 (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
 
+        Resources r = getResources();
+        mTextSpeechColor = r.getColor(R.color.lb_search_bar_text_speech_color);
+        mBackgroundSpeechAlpha = r.getInteger(R.integer.lb_search_bar_speech_mode_background_alpha);
+
+        mTextColor = r.getColor(R.color.lb_search_bar_text_color);
+        mBackgroundAlpha = r.getInteger(R.integer.lb_search_bar_text_mode_background_alpha);
+
+        mBarHeight = getResources().getDimensionPixelSize(R.dimen.lb_search_bar_height);
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+
+        RelativeLayout items = (RelativeLayout)findViewById(R.id.lb_search_bar_items);
+        mBarBackground = items.getBackground();
 
         mSearchTextEditor = (SearchEditText)findViewById(R.id.lb_search_text_editor);
         mBadgeView = (ImageView)findViewById(R.id.lb_search_bar_badge);
@@ -127,6 +156,7 @@ public class SearchBar extends RelativeLayout {
                 if (hasFocus) {
                     showNativeKeyboard();
                 }
+                updateUi();
             }
         });
         mSearchTextEditor.addTextChangedListener(new TextWatcher() {
@@ -169,7 +199,7 @@ public class SearchBar extends RelativeLayout {
                         @Override
                         public void run() {
                             if (DEBUG) Log.v(TAG, "Delayed action handling (search)");
-                            mSearchBarListener.onSearchQuerySubmit(mSearchQuery);
+                            submitQuery();
                         }
                     }, 500);
 
@@ -224,6 +254,7 @@ public class SearchBar extends RelativeLayout {
                 } else {
                     stopRecognition();
                 }
+                updateUi();
             }
         });
 
@@ -339,7 +370,13 @@ public class SearchBar extends RelativeLayout {
 
         String title = getResources().getString(R.string.lb_search_bar_hint);
         if (!TextUtils.isEmpty(mTitle)) {
-            title = getResources().getString(R.string.lb_search_bar_hint_with_title, mTitle);
+            if (isVoiceMode()) {
+                title = getResources().getString(R.string.lb_search_bar_hint_with_title_speech, mTitle);
+            } else {
+                title = getResources().getString(R.string.lb_search_bar_hint_with_title, mTitle);
+            }
+        } else if (isVoiceMode()) {
+            title = getResources().getString(R.string.lb_search_bar_hint_speech);
         }
         mSearchTextEditor.setHint(title);
     }
@@ -355,6 +392,8 @@ public class SearchBar extends RelativeLayout {
 
     protected void startRecognition() {
         if (DEBUG) Log.v(TAG, "startRecognition " + mListening);
+
+        mSearchTextEditor.setText("");
 
         Intent recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
@@ -429,9 +468,7 @@ public class SearchBar extends RelativeLayout {
 
                     mSearchQuery = matches.get(0);
                     mSearchTextEditor.setText(mSearchQuery);
-                    if (null != mSearchBarListener) {
-                        mSearchBarListener.onSearchQuerySubmit(mSearchQuery);
-                    }
+                    submitQuery();
 
                     if (mListening) {
                         mSpeechRecognizer.stopListening();
@@ -456,5 +493,31 @@ public class SearchBar extends RelativeLayout {
         mSpeechRecognizer.startListening(recognizerIntent);
         mListening = true;
     }
+
+    protected void updateUi() {
+        if (DEBUG) Log.v(TAG, String.format("Update UI %s %s",
+                isVoiceMode() ? "Voice" : "Text",
+                hasFocus() ? "Focused" : "Unfocused"));
+        if (isVoiceMode()) {
+            mBarBackground.setAlpha(mBackgroundSpeechAlpha);
+            mSearchTextEditor.setTextColor(mTextSpeechColor);
+        } else {
+            mBarBackground.setAlpha(mBackgroundAlpha);
+            mSearchTextEditor.setTextColor(mTextColor);
+        }
+
+        updateHint();
+    }
+
+    protected boolean isVoiceMode() {
+        return mSpeechOrbView.isFocused();
+    }
+
+    protected void submitQuery() {
+        if (!TextUtils.isEmpty(mSearchQuery) && null != mSearchBarListener) {
+            mSearchBarListener.onSearchQuerySubmit(mSearchQuery);
+        }
+    }
+
 
 }
