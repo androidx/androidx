@@ -1,33 +1,119 @@
-apply plugin: 'java'
+apply plugin: 'android-library'
 
 archivesBaseName = 'support-v13'
 
-sourceSets {
-    main.java.srcDir 'java'
-    ics.java.srcDir 'ics'
-    icsmr1.java.srcDir 'ics-mr1'
-    k.java.srcDir 'k'
+// --------------------------
+// TO ADD NEW PLATFORM SPECIFIC CODE, UPDATE THIS:
+// create and configure the sourcesets/dependencies for platform-specific code.
+// values are: sourceset name, source folder name, api level, previous sourceset.
+
+ext.allSS = []
+
+def icsSS          = createApiSourceset('ics',          'ics',           '14',      null)
+def icsMr1SS       = createApiSourceset('icsmr1',       'ics-mr1',       '15',      icsSS)
+
+def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
+    def sourceSet = sourceSets.create(name)
+    sourceSet.java.srcDirs = [folder]
+
+    def configName = sourceSet.getCompileConfigurationName()
+
+    project.getDependencies().add(configName, getAndroidPrebuilt(apiLevel))
+    if (previousSource != null) {
+        setupDependencies(configName, previousSource)
+    }
+    ext.allSS.add(sourceSet)
+    return sourceSet
+}
+
+def setupDependencies(String configName, SourceSet previousSourceSet) {
+    project.getDependencies().add(configName, previousSourceSet.output)
+    project.getDependencies().add(configName, previousSourceSet.compileClasspath)
+}
+
+// create a jar task for the code above
+tasks.create(name: "internalJar", type: Jar) {
+    baseName "internal_impl"
+}
+
+ext.allSS.each { ss ->
+    internalJar.from ss.output
 }
 
 dependencies {
-    icsCompile getAndroidPrebuilt('14')
-
-    icsmr1Compile getAndroidPrebuilt('15')
-
-    kCompile getAndroidPrebuilt('current')
-
-    // order is important as we need the API 13 before the API 4 so that it uses the latest one.
-    compile getAndroidPrebuilt('13')
     compile project(':support-v4')
-    compile sourceSets.ics.output
-    compile sourceSets.icsmr1.output
-    compile sourceSets.k.output
+
+    // add the internal implementation as a dependency.
+    // this is not enough to make the regular compileJava task
+    // depend on the generation of this jar. This is done below
+    // when manipulating the libraryVariants.
+    compile files(internalJar.archivePath)
 }
 
-jar {
-    from sourceSets.ics.output
-    from sourceSets.icsmr1.output
-    from sourceSets.k.output
+android {
+    compileSdkVersion 13
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 13
+        // TODO: get target from branch
+        //targetSdkVersion 19
+    }
+
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['java']
+        main.aidl.srcDirs = ['java']
+
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/java'
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+}
+
+android.libraryVariants.all { variant ->
+    variant.javaCompile.dependsOn internalJar
+
+    def name = variant.buildType.name
+
+    if (name.equals(com.android.builder.BuilderConstants.DEBUG)) {
+        return; // Skip debug builds.
+    }
+    def suffix = name.capitalize()
+
+    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
+        dependsOn variant.javaCompile
+        from variant.javaCompile.destinationDir
+        from 'LICENSE.txt'
+    }
+    def javadocTask = project.tasks.create(name: "javadoc${suffix}", type: Javadoc) {
+        source android.sourceSets.main.allJava
+        classpath = files(variant.javaCompile.classpath.files) + files(
+                "${android.plugin.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+    }
+
+    def javadocJarTask = project.tasks.create(name: "javadocJar${suffix}", type: Jar) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.allSource
+    }
+
+    project.ext.allSS.each { ss ->
+        javadocTask.source ss.allJava
+        sourcesJarTask.from ss.allSource
+    }
+
+    artifacts.add('archives', javadocJarTask);
+    artifacts.add('archives', sourcesJarTask);
 }
 
 uploadArchives {
@@ -63,33 +149,4 @@ uploadArchives {
             }
         }
     }
-}
-
-// configuration for the javadoc to include all source sets.
-javadoc {
-    source    sourceSets.main.allJava
-    source    sourceSets.ics.allJava
-    source    sourceSets.icsmr1.allJava
-    source    sourceSets.k.allJava
-}
-
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn:classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    from sourceSets.ics.allSource
-    from sourceSets.icsmr1.allSource
-    from sourceSets.k.allSource
-}
-
-task javadocJar(type: Jar, dependsOn:javadoc) {
-    classifier         'javadoc'
-    from               javadoc.destinationDir
-}
-
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives jar
-    archives sourcesJar
-    archives javadocJar
 }
