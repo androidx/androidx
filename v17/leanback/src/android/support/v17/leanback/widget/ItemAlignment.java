@@ -106,8 +106,8 @@ class ItemAlignment {
                     }
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (view == itemView ? p.getOpticalWidth(view) : view.getWidth()
-                            * mOffsetPercent) / 100;
+                    alignPos += ((view == itemView ? p.getOpticalWidth(view) : view.getWidth())
+                            * mOffsetPercent) / 100f;
                 }
                 if (itemView != view) {
                     mRect.left = alignPos;
@@ -128,8 +128,8 @@ class ItemAlignment {
                     }
                 }
                 if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += (view == itemView ? p.getOpticalHeight(view) : view.getHeight()
-                            * mOffsetPercent) / 100;
+                    alignPos += ((view == itemView ? p.getOpticalHeight(view) : view.getHeight())
+                            * mOffsetPercent) / 100f;
                 }
                 if (itemView != view) {
                     mRect.top = alignPos;
