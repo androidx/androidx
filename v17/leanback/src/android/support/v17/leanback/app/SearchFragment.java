@@ -157,6 +157,7 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onKeyboardDismiss(String query) {
+                if (DEBUG) Log.v(TAG, String.format("onKeyboardDismiss %s", query));
                 mRowsFragment.setSelectedPosition(0);
                 mRowsFragment.getVerticalGridView().requestFocus();
             }
@@ -193,6 +194,8 @@ public class SearchFragment extends Fragment {
         mRowsFragment.setOnItemClickedListener(new OnItemClickedListener() {
             @Override
             public void onItemClicked(Object item, Row row) {
+                int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
+                if (DEBUG) Log.v(TAG, String.format("onItemClicked %d", position));
                 if (null != mOnItemClickedListener) {
                     mOnItemClickedListener.onItemClicked(item, row);
                 }
