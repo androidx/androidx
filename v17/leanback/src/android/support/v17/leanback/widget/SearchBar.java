@@ -110,10 +110,12 @@ public class SearchBar extends RelativeLayout {
 
     public SearchBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        Resources r = getResources();
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         inflater.inflate(R.layout.lb_search_bar, this, true);
 
+        mBarHeight = getResources().getDimensionPixelSize(R.dimen.lb_search_bar_height);
         RelativeLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 mBarHeight);
         params.addRule(ALIGN_PARENT_TOP, RelativeLayout.TRUE);
@@ -126,14 +128,12 @@ public class SearchBar extends RelativeLayout {
                 (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
 
-        Resources r = getResources();
+
         mTextSpeechColor = r.getColor(R.color.lb_search_bar_text_speech_color);
         mBackgroundSpeechAlpha = r.getInteger(R.integer.lb_search_bar_speech_mode_background_alpha);
 
         mTextColor = r.getColor(R.color.lb_search_bar_text_color);
         mBackgroundAlpha = r.getInteger(R.integer.lb_search_bar_text_mode_background_alpha);
-
-        mBarHeight = getResources().getDimensionPixelSize(R.dimen.lb_search_bar_height);
     }
 
     @Override
@@ -342,12 +342,12 @@ public class SearchBar extends RelativeLayout {
         return mBadgeDrawable;
     }
 
-    protected void hideNativeKeyboard() {
+    private void hideNativeKeyboard() {
         mInputMethodManager.hideSoftInputFromWindow(mSearchTextEditor.getWindowToken(),
                 InputMethodManager.RESULT_UNCHANGED_SHOWN);
     }
 
-    protected void showNativeKeyboard() {
+    private void showNativeKeyboard() {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -365,7 +365,7 @@ public class SearchBar extends RelativeLayout {
     /**
      * This will update the hint for the search bar properly depending on state and provided title
      */
-    protected void updateHint() {
+    private void updateHint() {
         if (null == mSearchTextEditor) return;
 
         String title = getResources().getString(R.string.lb_search_bar_hint);
@@ -381,7 +381,7 @@ public class SearchBar extends RelativeLayout {
         mSearchTextEditor.setHint(title);
     }
 
-    protected void stopRecognition() {
+    private void stopRecognition() {
         if (DEBUG) Log.v(TAG, "stopRecognition " + mListening);
         mSpeechOrbView.showNotListening();
 
@@ -390,7 +390,7 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
-    protected void startRecognition() {
+    private void startRecognition() {
         if (DEBUG) Log.v(TAG, "startRecognition " + mListening);
 
         mSearchTextEditor.setText("");
@@ -494,7 +494,7 @@ public class SearchBar extends RelativeLayout {
         mListening = true;
     }
 
-    protected void updateUi() {
+    private void updateUi() {
         if (DEBUG) Log.v(TAG, String.format("Update UI %s %s",
                 isVoiceMode() ? "Voice" : "Text",
                 hasFocus() ? "Focused" : "Unfocused"));
@@ -509,11 +509,11 @@ public class SearchBar extends RelativeLayout {
         updateHint();
     }
 
-    protected boolean isVoiceMode() {
+    private boolean isVoiceMode() {
         return mSpeechOrbView.isFocused();
     }
 
-    protected void submitQuery() {
+    private void submitQuery() {
         if (!TextUtils.isEmpty(mSearchQuery) && null != mSearchBarListener) {
             mSearchBarListener.onSearchQuerySubmit(mSearchQuery);
         }
