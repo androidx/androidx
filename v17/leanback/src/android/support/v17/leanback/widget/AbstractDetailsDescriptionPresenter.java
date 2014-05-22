@@ -36,8 +36,11 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         private final TextView mSubtitle;
         private final TextView mBody;
         private final int mTitleMargin;
-        private final int mUnderTitleSpacing;
-        private final int mUnderSubtitleSpacing;
+        private final int mUnderTitleBaseline;
+        private final int mUnderSubtitleBaseline;
+        private final int mBodyLineSpacing;
+        private final int mSubtitleAscent;
+        private final int mBodyAscent;
 
         public ViewHolder(View view) {
             super(view);
@@ -47,17 +50,23 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
 
             FontMetricsInt titleFontMetricsInt = getFontMetricsInt(mTitle);
             final int titleAscent = view.getResources().getDimensionPixelSize(
-                    R.dimen.lb_details_description_title_ascent);
+                    R.dimen.lb_details_description_title_baseline);
             // Ascent is negative
             mTitleMargin = titleAscent + titleFontMetricsInt.ascent;
 
-            final int interTextSpacing = view.getResources().getDimensionPixelSize(
-                    R.dimen.lb_details_overview_description_intertext_spacing);
-            mUnderTitleSpacing = interTextSpacing - titleFontMetricsInt.descent;
+            mUnderTitleBaseline = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_description_under_title_baseline);
+            mUnderSubtitleBaseline = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_description_under_subtitle_baseline);
 
             FontMetricsInt subtitleFontMetricsInt = getFontMetricsInt(mSubtitle);
-            mUnderSubtitleSpacing = interTextSpacing - subtitleFontMetricsInt.descent;
+            mSubtitleAscent = subtitleFontMetricsInt.ascent;
 
+            FontMetricsInt bodyFontMetricsInt = getFontMetricsInt(mBody);
+            mBodyAscent = bodyFontMetricsInt.ascent;
+
+            mBodyLineSpacing = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_description_body_line_spacing);
         }
 
         public TextView getTitle() {
@@ -109,7 +118,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         } else {
             vh.mSubtitle.setVisibility(View.VISIBLE);
             if (hasTitle) {
-                setTopMargin(vh.mSubtitle, vh.mUnderTitleSpacing);
+                setTopMargin(vh.mSubtitle, vh.mUnderTitleBaseline + vh.mSubtitleAscent);
             } else {
                 setTopMargin(vh.mSubtitle, 0);
             }
@@ -119,10 +128,13 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             vh.mBody.setVisibility(View.GONE);
         } else {
             vh.mBody.setVisibility(View.VISIBLE);
+            vh.mBody.setLineSpacing(vh.mBodyLineSpacing - vh.mBody.getLineHeight() -
+                    vh.mBody.getLineSpacingExtra(), vh.mBody.getLineSpacingMultiplier());
+
             if (hasSubtitle) {
-                setTopMargin(vh.mBody, vh.mUnderSubtitleSpacing);
+                setTopMargin(vh.mBody, vh.mUnderSubtitleBaseline + vh.mBodyAscent);
             } else if (hasTitle) {
-                setTopMargin(vh.mBody, vh.mUnderTitleSpacing);
+                setTopMargin(vh.mBody, vh.mUnderTitleBaseline + vh.mBodyAscent);
             } else {
                 setTopMargin(vh.mBody, 0);
             }

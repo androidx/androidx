@@ -18,6 +18,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,13 +48,11 @@ class ActionPresenterSelector extends PresenterSelector {
 
     static class ActionViewHolder extends Presenter.ViewHolder {
         Action mAction;
-        ImageView mIconView;
-        TextView mLabel;
+        Button mButton;
 
         public ActionViewHolder(View view) {
             super(view);
-            mIconView = (ImageView) view.findViewById(R.id.lb_action_icon);
-            mLabel = (TextView) view.findViewById(R.id.lb_action_text);
+            mButton = (Button) view.findViewById(R.id.lb_action_button);
         }
     }
 
@@ -80,7 +79,7 @@ class ActionPresenterSelector extends PresenterSelector {
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mAction = action;
-            vh.mLabel.setText(action.getLabel1());
+            vh.mButton.setText(action.getLabel1());
         }
 
         @Override
@@ -113,32 +112,34 @@ class ActionPresenterSelector extends PresenterSelector {
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mAction = action;
 
-            int horizontalPadding = vh.view.getContext().getResources()
-                    .getDimensionPixelSize(R.dimen.lb_action_1_line_padding_left);
             if (action.getIcon() != null) {
-                vh.view.setPadding(0, 0, horizontalPadding, 0);
-                vh.mIconView.setVisibility(View.VISIBLE);
-                // TODO: scale this?
-                vh.mIconView.setImageDrawable(action.getIcon());
+                final int leftPadding = vh.view.getResources()
+                        .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_left);
+                final int rightPadding = vh.view.getResources()
+                        .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_right);
+                vh.view.setPadding(leftPadding, 0, rightPadding, 0);
             } else {
-                vh.view.setPadding(horizontalPadding, 0, horizontalPadding, 0);
-                vh.mIconView.setVisibility(View.GONE);
+                final int padding = vh.view.getResources()
+                        .getDimensionPixelSize(R.dimen.lb_action_padding_horizontal);
+                vh.view.setPadding(padding, 0, padding, 0);
             }
+            vh.mButton.setCompoundDrawablesWithIntrinsicBounds(action.getIcon(), null, null, null);
+
             CharSequence line1 = action.getLabel1();
             CharSequence line2 = action.getLabel2();
             if (TextUtils.isEmpty(line1)) {
-                vh.mLabel.setText(line2);
+                vh.mButton.setText(line2);
             } else if (TextUtils.isEmpty(line2)) {
-                vh.mLabel.setText(line1);
+                vh.mButton.setText(line1);
             } else {
-                vh.mLabel.setText(line1 + "\n" + line2);
+                vh.mButton.setText(line1 + "\n" + line2);
             }
         }
 
         @Override
         public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
-            vh.mIconView.setVisibility(View.GONE);
+            vh.mButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
             vh.view.setPadding(0, 0, 0, 0);
             vh.mAction = null;
         }

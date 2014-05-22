@@ -147,9 +147,6 @@ public class FocusHighlightHelper {
         }
     }
 
-    private static ActionItemFocusHighlight sActionItemFocusHighlight =
-            new ActionItemFocusHighlight();
-
     /**
      * Setup the focus highlight behavior of a focused item in browse list row.
      * @param adapter  adapter of the list row.
@@ -167,14 +164,6 @@ public class FocusHighlightHelper {
             ((ItemBridgeAdapter) gridView.getAdapter())
                     .setFocusHighlight(new HeaderItemFocusHighlight(gridView));
         }
-    }
-
-    /**
-     * Setup the focus highlight behavior of a focused item in an action list.
-     * @param adapter  adapter of the action list.
-     */
-    public static void setupActionItemFocusHighlight(ItemBridgeAdapter adapter) {
-        adapter.setFocusHighlight(sActionItemFocusHighlight);
     }
 
     static class HeaderItemFocusHighlight implements FocusHighlight {
@@ -231,28 +220,6 @@ public class FocusHighlightHelper {
         @Override
         public void onItemFocused(View view, boolean hasFocus) {
             viewFocused(view, hasFocus);
-        }
-    }
-
-    private static class ActionItemFocusHighlight implements FocusHighlight {
-        private boolean mInitialized;
-        private int mDuration;
-
-        private void initializeDimensions(Resources res) {
-            if (!mInitialized) {
-                mDuration = Integer.parseInt(res.getString(R.dimen.lb_details_overview_action_select_duration));
-            }
-        }
-
-        @Override
-        public void onItemFocused(View view, boolean hasFocus) {
-            initializeDimensions(view.getResources());
-            TransitionDrawable td = (TransitionDrawable) view.getBackground();
-            if (hasFocus) {
-                td.startTransition(mDuration);
-            } else {
-                td.reverseTransition(mDuration);
-            }
         }
     }
 }

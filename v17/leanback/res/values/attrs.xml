@@ -162,6 +162,7 @@
         <attr name="detailsDescriptionTitleStyle" format="reference" />
         <attr name="detailsDescriptionSubtitleStyle" format="reference" />
         <attr name="detailsDescriptionBodyStyle" format="reference" />
+        <attr name="detailsActionButtonStyle" format="reference" />
 
         <!-- style for a vertical grid of items -->
         <attr name="itemsVerticalGridStyle" format="reference" />
