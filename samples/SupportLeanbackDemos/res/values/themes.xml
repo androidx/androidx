@@ -1,0 +1,13 @@
+<resources>
+    <style name="Theme.Example.Leanback" parent="Theme.Leanback">
+<!-- uncomment to override default transition settings:
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/fade</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowAllowExitTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">false</item>
+        <item name="android:windowContentTransitions">true</item>
+ -->
+    </style>
+</resources>

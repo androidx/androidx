@@ -13,30 +13,71 @@
  */
 package com.example.android.leanback;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 public class CardPresenter extends Presenter {
     private static final String TAG = "CardPresenter";
 
+    private static final int IMAGE_HEIGHT_DP = 120;
+
+    private static int sRowHeight = 0;
+    private static int sExpandedRowHeight = 0;
+
+    private static void setupRowHeights(Context context) {
+        if (sRowHeight == 0) {
+            float density = context.getResources().getDisplayMetrics().density;
+            int height = (int) (IMAGE_HEIGHT_DP * density + 0.5f);
+
+            ImageCardView v = new ImageCardView(context);
+            v.setMainImageDimensions(LayoutParams.WRAP_CONTENT, height);
+            v.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+            sRowHeight = v.getMeasuredHeight();
+            v.setActivated(true);
+            v.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+            sExpandedRowHeight = v.getMeasuredHeight();
+        }
+    }
+
+    public static int getRowHeight(Context context) {
+        setupRowHeights(context);
+        return sRowHeight;
+    }
+
+    public static int getExpandedRowHeight(Context context) {
+        setupRowHeights(context);
+        return sExpandedRowHeight;
+    }
+
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         Log.d(TAG, "onCreateViewHolder");
         ImageCardView v = new ImageCardView(parent.getContext());
         v.setFocusable(true);
         v.setFocusableInTouchMode(true);
-        v.setMainImage(
-                parent.getContext().getResources().getDrawable(R.drawable.text_bg));
+        v.setMainImageAdjustViewBounds(true);
+        v.setMainImageDimensions(LayoutParams.WRAP_CONTENT, getRowHeight(parent.getContext()));
         return new ViewHolder(v);
     }
 
+    @Override
     public void onBindViewHolder(ViewHolder viewHolder, Object item) {
         Log.d(TAG, "onBindViewHolder for " + item.toString());
-        ((ImageCardView) viewHolder.view).setTitleText(item.toString());
+        PhotoItem photoItem = (PhotoItem) item;
+        Drawable drawable =  viewHolder.view.getContext().getResources()
+                .getDrawable(photoItem.getImageResourceId());
+        ((ImageCardView) viewHolder.view).setMainImage(drawable);
+        ((ImageCardView) viewHolder.view).setTitleText(photoItem.getTitle());
     }
 
+    @Override
     public void onUnbindViewHolder(ViewHolder viewHolder) {
         Log.d(TAG, "onUnbindViewHolder");
     }

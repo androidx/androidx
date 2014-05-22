@@ -15,14 +15,19 @@ package com.example.android.leanback;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnItemClickedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
     private static final String TAG = "leanback.BrowseFragment";
@@ -48,16 +53,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         });
 
         setupRows();
-        setOnItemClickedListener(new ItemClickedListener());
+        setOnItemViewClickedListener(new ItemViewClickedListener());
     }
 
     private void setupRows() {
         ListRowPresenter lrp = new ListRowPresenter();
-        float density = getActivity().getResources().getDisplayMetrics().density;
-        float height = 160 * density + 0.5f;
-        float expandedHeight = height + 52 * density + 0.5f;
-        lrp.setRowHeight((int)height);
-        lrp.setExpandedRowHeight((int)expandedHeight);
+        lrp.setRowHeight(CardPresenter.getRowHeight(getActivity()));
+        lrp.setExpandedRowHeight(CardPresenter.getExpandedRowHeight(getActivity()));
 
         mRowsAdapter = new ArrayObjectAdapter(lrp);
 
@@ -67,8 +69,14 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-            listRowAdapter.add("Hello world");
-            listRowAdapter.add("This is a test");
+            listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
+            listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_3));
+            listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
+            listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_5));
+            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_6));
+            listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_7));
+            listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i, null);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
@@ -76,12 +84,18 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setAdapter(mRowsAdapter);
     }
 
-    private final class ItemClickedListener implements OnItemClickedListener {
-        public void onItemClicked(Object item, Row row) {
-            // TODO: use a fragment transaction instead of launching a new
-            // activity
+    private final class ItemViewClickedListener implements OnItemViewClickedListener {
+        @Override
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                RowPresenter.ViewHolder rowViewHolder, Row row) {
             Intent intent = new Intent(getActivity(), DetailsActivity.class);
-            startActivity(intent);
+            intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
+
+            Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    getActivity(),
+                    ((ImageCardView)itemViewHolder.view).getMainImageView(),
+                    DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+            getActivity().startActivity(intent, bundle);
         }
     }
 }

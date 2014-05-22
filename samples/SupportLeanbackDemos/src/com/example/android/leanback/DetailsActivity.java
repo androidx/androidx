@@ -18,11 +18,17 @@ import android.os.Bundle;
 
 public class DetailsActivity extends Activity
 {
+    public static final String EXTRA_ITEM = "item";
+    public static final String SHARED_ELEMENT_NAME = "hero";
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.details);
+        ((DetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
+                .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
     }
+
 }

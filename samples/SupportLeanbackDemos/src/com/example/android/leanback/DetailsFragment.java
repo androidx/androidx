@@ -15,6 +15,8 @@ package com.example.android.leanback;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
@@ -24,27 +26,31 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnActionClickedListener;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class DetailsFragment extends android.support.v17.leanback.app.DetailsFragment {
     private static final String TAG = "leanback.BrowseFragment";
+    private static final String ITEM = "item";
 
     private static final int NUM_ROWS = 3;
     private ArrayObjectAdapter mRowsAdapter;
+    private PhotoItem mPhotoItem;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        setupRows();
-    }
-
-    private void setupRows() {
         ClassPresenterSelector ps = new ClassPresenterSelector();
         DetailsOverviewRowPresenter dorPresenter =
-            new DetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
+                new DetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
         dorPresenter.setOnActionClickedListener(new OnActionClickedListener() {
             public void onActionClicked(Action action) {
                 Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
@@ -54,11 +60,30 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         ps.addClassPresenter(DetailsOverviewRow.class, dorPresenter);
         ps.addClassPresenter(ListRow.class,
                 new ListRowPresenter());
+
         mRowsAdapter = new ArrayObjectAdapter(ps);
+
+        PhotoItem item = (PhotoItem) (savedInstanceState != null ?
+                savedInstanceState.getParcelable(ITEM) : null);
+        if (item != null) {
+            setItem(item);
+        }
+        dorPresenter.setSharedElementEnterTransition(getActivity(),
+                DetailsActivity.SHARED_ELEMENT_NAME);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(ITEM, mPhotoItem);
+    }
+
+    public void setItem(PhotoItem photoItem) {
+        mPhotoItem = photoItem;
 
         Resources res = getActivity().getResources();
         DetailsOverviewRow dor = new DetailsOverviewRow("Details Overview");
-        dor.setImageDrawable(res.getDrawable(R.drawable.details_img));
+        dor.setImageDrawable(res.getDrawable(photoItem.getImageResourceId()));
         dor.addAction(new Action(1, "Buy $9.99"));
         dor.addAction(new Action(2, "Rent", "$3.99", res.getDrawable(R.drawable.ic_action_a)));
         mRowsAdapter.add(dor);
