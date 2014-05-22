@@ -16,9 +16,9 @@ LOCAL_PATH := $(call my-dir)
 
 # A common helper sub-library that only uses base (API 4) APIs.
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-base
+LOCAL_MODULE := android-support-v4-donut
 LOCAL_SDK_VERSION := 4
-LOCAL_SRC_FILES := $(call all-java-files-under, base)
+LOCAL_SRC_FILES := $(call all-java-files-under, donut)
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
