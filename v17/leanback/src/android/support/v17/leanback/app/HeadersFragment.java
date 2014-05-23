@@ -52,7 +52,7 @@ public class HeadersFragment extends BaseRowFragment {
     private boolean mBackgroundColorSet;
 
     private static final PresenterSelector sHeaderPresenter = new SinglePresenterSelector(
-            new RowHeaderPresenter());
+            new RowHeaderPresenter(R.layout.lb_header));
 
     public HeadersFragment() {
         setPresenterSelector(sHeaderPresenter);
