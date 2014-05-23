@@ -431,11 +431,11 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             Log.d(TAG, "checking rectangle equality.");
             Log.d(TAG, "before:");
             for (Map.Entry<Item, Rect> entry : before.entrySet()) {
-                Log.d(TAG, entry.getKey().originalIndex + ":" + entry.getValue());
+                Log.d(TAG, entry.getKey().mAdapterIndex + ":" + entry.getValue());
             }
             Log.d(TAG, "after:");
             for (Map.Entry<Item, Rect> entry : after.entrySet()) {
-                Log.d(TAG, entry.getKey().originalIndex + ":" + entry.getValue());
+                Log.d(TAG, entry.getKey().mAdapterIndex + ":" + entry.getValue());
             }
         }
         assertEquals(message + ":\nitem counts should be equal", before.size()

@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final String TAG = "RecyclerViewAnimationsTest";
 
@@ -281,8 +281,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         setupBasic(10, 1, 7);
         mLayoutManager.expectLayouts(2);
         mLayoutManager.mOnLayoutCallbacks.setExpectedItemCounts(10, 12);
-        mTestAdapter.addAndNotify(0, 1);// add a new item 0 // invisible
-        mTestAdapter.addAndNotify(7, 1);// add a new item after 5th (old 5, new 6)
+        mTestAdapter.addAndNotify(new int[]{0, 1}, new int[]{7, 1});// add a new item 0 // invisible
         mLayoutManager.waitForLayout(2);
     }
 
@@ -290,8 +289,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         setupBasic(10, 1, 7);
         mLayoutManager.expectLayouts(1);
         mLayoutManager.mOnLayoutCallbacks.setExpectedItemCounts(10, 12);
-        mTestAdapter.addAndNotify(0, 1);// add a new item 0
-        mTestAdapter.addAndNotify(8, 1);// add a new item after 6th (old 6, new 7)
+        mTestAdapter.addAndNotify(new int[]{0, 1}, new int[]{8, 1});// add a new item 0
         mLayoutManager.waitForLayout(2);
     }
 

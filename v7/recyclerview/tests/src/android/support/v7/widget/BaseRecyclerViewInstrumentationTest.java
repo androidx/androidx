@@ -264,21 +264,21 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         final static AtomicInteger idCounter = new AtomicInteger(0);
         final public int mId = idCounter.incrementAndGet();
 
-        int originalIndex;
+        int mAdapterIndex;
 
-        final String text;
+        final String mText;
 
-        Item(int originalIndex, String text) {
-            this.originalIndex = originalIndex;
-            this.text = text;
+        Item(int adapterIndex, String text) {
+            mAdapterIndex = adapterIndex;
+            mText = text;
         }
 
         @Override
         public String toString() {
             return "Item{" +
                     "mId=" + mId +
-                    ", originalIndex=" + originalIndex +
-                    ", text='" + text + '\'' +
+                    ", originalIndex=" + mAdapterIndex +
+                    ", text='" + mText + '\'' +
                     '}';
         }
     }
@@ -303,7 +303,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         @Override
         public void onBindViewHolder(TestViewHolder holder, int position) {
             final Item item = mItems.get(position);
-            ((TextView) (holder.itemView)).setText(item.text);
+            ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mAdapterIndex + ")");
             holder.mBindedItem = item;
         }
 
@@ -325,6 +325,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 tuple[1] = -tuple[1];
             }
             new AddRemoveRunnable(startCountTuples).runOnMainThread();
+        }
+
+        public void offsetOriginalIndices(int start, int offset) {
+            for (int i = start; i < mItems.size(); i++) {
+                mItems.get(i).mAdapterIndex += offset;
+            }
         }
 
         public void addAndNotify(final int start, final int count) throws Throwable {
@@ -396,21 +402,21 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
 
             private void add(int[] tuple) {
+                // offset others
+                offsetOriginalIndices(tuple[0], tuple[1]);
                 for (int i = 0; i < tuple[1]; i++) {
                     mItems.add(tuple[0], new Item(i, "new item " + i));
-                }
-                // offset others
-                for (int i = tuple[0] + tuple[1]; i < mItems.size(); i++) {
-                    mItems.get(i).originalIndex += tuple[1];
                 }
                 notifyItemRangeInserted(tuple[0], tuple[1]);
             }
 
             private void delete(int[] tuple) {
-                for (int i = 0; i < -tuple[1]; i++) {
+                final int count = -tuple[1];
+                offsetOriginalIndices(tuple[0] + count, tuple[1]);
+                for (int i = 0; i < count; i++) {
                     mItems.remove(tuple[0]);
                 }
-                notifyItemRangeRemoved(tuple[0], -tuple[1]);
+                notifyItemRangeRemoved(tuple[0], count);
             }
         }
     }
