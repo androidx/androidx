@@ -33,6 +33,8 @@
         <item name="browseRowsFadingEdgeLength">@dimen/lb_browse_rows_fading_edge</item>
 
         <item name="headersVerticalGridStyle">@style/Widget.Leanback.Headers.VerticalGridView</item>
+        <item name="headerStyle">@style/Widget.Leanback.Header</item>
+
         <item name="rowsVerticalGridStyle">@style/Widget.Leanback.Rows.VerticalGridView</item>
         <item name="rowHorizontalGridStyle">@style/Widget.Leanback.Row.HorizontalGridView</item>
         <item name="itemsVerticalGridStyle">@style/Widget.Leanback.GridItems.VerticalGridView</item>

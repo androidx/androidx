@@ -13,9 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.content.res.Resources;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.graphics.ColorOverlayDimmer;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -26,10 +25,24 @@ import android.view.ViewGroup;
  */
 public class RowHeaderPresenter extends Presenter {
 
+    private final int mLayoutResourceId;
+
+    public RowHeaderPresenter() {
+        this(R.layout.lb_row_header);
+    }
+
+    /**
+     * @hide
+     */
+    public RowHeaderPresenter(int layoutResourceId) {
+        mLayoutResourceId = layoutResourceId;
+    }
+
     public static class ViewHolder extends Presenter.ViewHolder {
         float mSelectLevel;
         int mOriginalTextColor;
-        ColorOverlayDimmer mColorDimmer;
+        float mUnselectAlpha;
+
         public ViewHolder(View view) {
             super(view);
         }
@@ -40,9 +53,13 @@ public class RowHeaderPresenter extends Presenter {
 
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
-        RowHeaderView headerView = new RowHeaderView(parent.getContext());
+        RowHeaderView headerView = (RowHeaderView) LayoutInflater.from(parent.getContext())
+                .inflate(mLayoutResourceId, parent, false);
+
         ViewHolder viewHolder = new ViewHolder(headerView);
         viewHolder.mOriginalTextColor = headerView.getCurrentTextColor();
+        viewHolder.mUnselectAlpha = parent.getResources().getFraction(
+                R.fraction.lb_browse_header_unselect_alpha, 1, 1);
         return viewHolder;
     }
 
@@ -70,14 +87,7 @@ public class RowHeaderPresenter extends Presenter {
     }
 
     protected void onSelectLevelChanged(ViewHolder holder) {
-        if (holder.mColorDimmer == null) {
-            final Resources res = holder.view.getContext().getResources();
-            holder.mColorDimmer = ColorOverlayDimmer.createColorOverlayDimmer(
-                    res.getColor(R.color.lb_row_header_mask_color), 0,
-                    res.getFraction(R.dimen.lb_row_header_dimmed_level, 1, 1));
-        }
-        holder.mColorDimmer.setActiveLevel(holder.mSelectLevel);
-        final RowHeaderView headerView = (RowHeaderView) holder.view;
-        headerView.setTextColor(holder.mColorDimmer.applyToColor(holder.mOriginalTextColor));
+        holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel *
+                (1f - holder.mUnselectAlpha));
     }
 }

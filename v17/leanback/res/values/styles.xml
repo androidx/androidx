@@ -22,19 +22,18 @@
     </style>
 
     <style name="TextAppearance.Leanback.Title" parent="TextAppearance.Leanback">
-        <item name="android:fontFamily">sans-serif-condensed-light</item>
+        <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:textSize">@dimen/lb_browse_title_text_size</item>
         <item name="android:textColor">@color/lb_browse_title_color</item>
     </style>
 
-    <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback">
-        <item name="android:textSize">@dimen/lb_browse_row_header_text_size</item>
-        <item name="android:textColor">@color/lb_browse_header_color</item>
-        </style>
-
     <style name="TextAppearance.Leanback.Header" parent="TextAppearance.Leanback">
-        <item name="android:textAllCaps">true</item>
         <item name="android:textSize">@dimen/lb_browse_header_text_size</item>
+        <item name="android:textColor">@color/lb_browse_header_color</item>
+    </style>
+
+    <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback.Header">
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="TextAppearance.Leanback.SearchTextEdit" parent="TextAppearance.Leanback">
@@ -112,11 +111,12 @@
     </style>
 
     <style name="Widget.Leanback.Header" >
-        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">@dimen/lb_browse_header_height</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Header</item>
         <item name="android:singleLine">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:marqueeRepeatLimit">0</item>
+        <item name="android:paddingRight">@dimen/lb_browse_header_padding_right</item>
     </style>
 
     <style name="Widget.Leanback.Rows.VerticalGridView" >
@@ -156,13 +156,8 @@
         <item name="focusOutFront">true</item>
     </style>
 
-    <style name="Widget.Leanback.Row.Header">
-        <item name="android:minHeight">@dimen/lb_browse_row_title_height</item>
+    <style name="Widget.Leanback.Row.Header" parent="Widget.Leanback.Header">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">marquee</item>
-        <item name="android:marqueeRepeatLimit">0</item>
-        <item name="android:paddingRight">@dimen/lb_browse_row_title_padding_right</item>
     </style>
 
     <style name="TextAppearance.Leanback.Row.HoverCardTitle" parent="TextAppearance.Leanback">
@@ -184,7 +179,7 @@
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.HoverCardDescription</item>
         <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">2</item>
+        <item name="android:maxLines">4</item>
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionTitleStyle">
