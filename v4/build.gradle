@@ -1,12 +1,15 @@
-apply plugin: 'java'
-
+apply plugin: 'android-library'
 archivesBaseName = 'support-v4'
 
 // --------------------------
 // TO ADD NEW PLATFORM SPECIFIC CODE, UPDATE THIS:
 // create and configure the sourcesets/dependencies for platform-specific code.
 // values are: sourceset name, source folder name, api level, previous sourceset.
-def eclairSS       = createApiSourceset('eclair',       'eclair',        '5',       null)
+
+ext.allSS = []
+
+def baseSS         = createApiSourceset('donut',         'donut',          '4',       null)
+def eclairSS       = createApiSourceset('eclair',       'eclair',        '5',       baseSS)
 def eclairMr1SS    = createApiSourceset('eclairmr1',    'eclair-mr1',    '7',       eclairSS)
 def froyoSS        = createApiSourceset('froyo',        'froyo',         '8',       eclairMr1SS)
 def gingerbreadSS  = createApiSourceset('gingerbread',  'gingerbread',   '9',       froyoSS)
@@ -20,9 +23,6 @@ def jbMr2SS        = createApiSourceset('jellybeanmr2', 'jellybean-mr2', '18',  
 def kitkatSS       = createApiSourceset('kitkat',       'kitkat',        '19',      jbMr2SS)
 def api20SS        = createApiSourceset('api20',        'api20',         'current', kitkatSS)
 
-// setup the main code to depend on the above through the highest platform-specific sourceset.
-setupDependencies('compile', api20SS)
-// --------------------------
 
 def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
     def sourceSet = sourceSets.create(name)
@@ -34,11 +34,7 @@ def createApiSourceset(String name, String folder, String apiLevel, SourceSet pr
     if (previousSource != null) {
         setupDependencies(configName, previousSource)
     }
-
-    project.jar {
-        from sourceSet.output
-    }
-
+    ext.allSS.add(sourceSet)
     return sourceSet
 }
 
@@ -47,14 +43,88 @@ def setupDependencies(String configName, SourceSet previousSourceSet) {
     project.getDependencies().add(configName, previousSourceSet.compileClasspath)
 }
 
-// the main sourceset and its dependencies
-sourceSets {
-    main.java.srcDirs = ['java']
+// create a jar task for the code above
+tasks.create(name: "internalJar", type: Jar) {
+    baseName "internal_impl"
+}
+
+ext.allSS.each { ss ->
+    internalJar.from ss.output
 }
 
 dependencies {
     compile project(':support-annotations')
-    compile getAndroidPrebuilt('4')
+
+    // add the internal implementation as a dependency.
+    // this is not enough to make the regular compileJava task
+    // depend on the generation of this jar. This is done below
+    // when manipulating the libraryVariants.
+    compile files(internalJar.archivePath)
+}
+
+android {
+    compileSdkVersion 4
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 4
+        // TODO: get target from branch
+        //targetSdkVersion 19
+    }
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['java']
+        main.aidl.srcDirs = ['java']
+
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/java'
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+}
+
+android.libraryVariants.all { variant ->
+    variant.javaCompile.dependsOn internalJar
+
+    def name = variant.buildType.name
+
+    if (name.equals(com.android.builder.BuilderConstants.DEBUG)) {
+        return; // Skip debug builds.
+    }
+    def suffix = name.capitalize()
+
+    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
+        dependsOn variant.javaCompile
+        from variant.javaCompile.destinationDir
+        from 'LICENSE.txt'
+    }
+    def javadocTask = project.tasks.create(name: "javadoc${suffix}", type: Javadoc) {
+        source android.sourceSets.main.allJava
+        classpath = files(variant.javaCompile.classpath.files) + files(
+                "${android.plugin.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+    }
+
+    def javadocJarTask = project.tasks.create(name: "javadocJar${suffix}", type: Jar) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.allSource
+    }
+
+    project.ext.allSS.each { ss ->
+        javadocTask.source ss.allJava
+        sourcesJarTask.from ss.allSource
+    }
+
+    artifacts.add('archives', javadocJarTask);
+    artifacts.add('archives', sourcesJarTask);
 }
 
 uploadArchives {
@@ -89,51 +159,4 @@ uploadArchives {
             }
         }
     }
-}
-
-// configuration for the javadoc to include all source sets.
-javadoc {
-    source    sourceSets.main.allJava
-    source    sourceSets.eclair.allJava
-    source    sourceSets.eclairmr1.allJava
-    source    sourceSets.froyo.allJava
-    source    sourceSets.gingerbread.allJava
-    source    sourceSets.honeycomb.allJava
-    source    sourceSets.honeycombmr2.allJava
-    source    sourceSets.ics.allJava
-    source    sourceSets.icsmr1.allJava
-    source    sourceSets.jellybean.allJava
-    source    sourceSets.jellybeanmr1.allJava
-    source    sourceSets.jellybeanmr2.allJava
-    source    sourceSets.kitkat.allJava
-}
-
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn:classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    from sourceSets.eclair.allSource
-    from sourceSets.eclairmr1.allSource
-    from sourceSets.froyo.allSource
-    from sourceSets.gingerbread.allSource
-    from sourceSets.honeycomb.allSource
-    from sourceSets.honeycombmr2.allSource
-    from sourceSets.ics.allSource
-    from sourceSets.icsmr1.allSource
-    from sourceSets.jellybean.allSource
-    from sourceSets.jellybeanmr1.allSource
-    from sourceSets.jellybeanmr2.allSource
-    from sourceSets.kitkat.allSource
-}
-
-task javadocJar(type: Jar, dependsOn:javadoc) {
-    classifier         'javadoc'
-    from               javadoc.destinationDir
-}
-
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives jar
-    archives sourcesJar
-    archives javadocJar
 }
