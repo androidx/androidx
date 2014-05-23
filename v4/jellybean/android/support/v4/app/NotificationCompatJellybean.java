@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
@@ -40,6 +41,13 @@ class NotificationCompatJellybean {
     static final String EXTRA_GROUP_SUMMARY = "android.support.isGroupSummary";
     static final String EXTRA_SORT_KEY = "android.support.sortKey";
     static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
+
+    // Bundle keys for storing action fields in a bundle
+    private static final String KEY_ICON = "icon";
+    private static final String KEY_TITLE = "title";
+    private static final String KEY_ACTION_INTENT = "actionIntent";
+    private static final String KEY_EXTRAS = "extras";
+    private static final String KEY_REMOTE_INPUTS = "remoteInputs";
 
     private static final Object sExtrasLock = new Object();
     private static Field sExtrasField;
@@ -232,9 +240,10 @@ class NotificationCompatJellybean {
         }
     }
 
-    public static NotificationCompatBase.Action readAction(NotificationCompatBase.Action.Factory factory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory, int icon, CharSequence title,
-            PendingIntent actionIntent, Bundle extras) {
+    public static NotificationCompatBase.Action readAction(
+            NotificationCompatBase.Action.Factory factory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory, int icon,
+            CharSequence title, PendingIntent actionIntent, Bundle extras) {
         RemoteInputCompatBase.RemoteInput[] remoteInputs = null;
         if (extras != null) {
             remoteInputs = RemoteInputCompatJellybean.fromBundleArray(
@@ -263,7 +272,8 @@ class NotificationCompatJellybean {
     }
 
     public static NotificationCompatBase.Action getAction(Notification notif, int actionIndex,
-            NotificationCompatBase.Action.Factory factory, RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+            NotificationCompatBase.Action.Factory factory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         synchronized (sActionsLock) {
             try {
                 Object actionObject = getActionObjectsLocked(notif)[actionIndex];
@@ -325,6 +335,57 @@ class NotificationCompatJellybean {
             sActionsAccessFailed = true;
         }
         return !sActionsAccessFailed;
+    }
+
+    public static NotificationCompatBase.Action[] getActionsFromParcelableArrayList(
+            ArrayList<Parcelable> parcelables,
+            NotificationCompatBase.Action.Factory actionFactory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+        if (parcelables == null) {
+            return null;
+        }
+        NotificationCompatBase.Action[] actions = actionFactory.newArray(parcelables.size());
+        for (int i = 0; i < actions.length; i++) {
+            actions[i] = getActionFromBundle((Bundle) parcelables.get(i),
+                    actionFactory, remoteInputFactory);
+        }
+        return actions;
+    }
+
+    private static NotificationCompatBase.Action getActionFromBundle(Bundle bundle,
+            NotificationCompatBase.Action.Factory actionFactory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+        return actionFactory.build(
+                bundle.getInt(KEY_ICON),
+                bundle.getCharSequence(KEY_TITLE),
+                bundle.<PendingIntent>getParcelable(KEY_ACTION_INTENT),
+                bundle.getBundle(KEY_EXTRAS),
+                RemoteInputCompatJellybean.fromBundleArray(
+                        BundleUtil.getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
+                        remoteInputFactory));
+    }
+
+    public static ArrayList<Parcelable> getParcelableArrayListForActions(
+            NotificationCompatBase.Action[] actions) {
+        if (actions == null) {
+            return null;
+        }
+        ArrayList<Parcelable> parcelables = new ArrayList<Parcelable>(actions.length);
+        for (NotificationCompatBase.Action action : actions) {
+            parcelables.add(getBundleForAction(action));
+        }
+        return parcelables;
+    }
+
+    private static Bundle getBundleForAction(NotificationCompatBase.Action action) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(KEY_ICON, action.getIcon());
+        bundle.putCharSequence(KEY_TITLE, action.getTitle());
+        bundle.putParcelable(KEY_ACTION_INTENT, action.getActionIntent());
+        bundle.putBundle(KEY_EXTRAS, action.getExtras());
+        bundle.putParcelableArray(KEY_REMOTE_INPUTS, RemoteInputCompatJellybean.toBundleArray(
+                action.getRemoteInputs()));
+        return bundle;
     }
 
     public static boolean getLocalOnly(Notification notif) {
