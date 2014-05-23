@@ -68,9 +68,9 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
         final float zoom = gainFocus ? mFocusedZoom : 1f;
         mSpeechOrbView.animate().scaleX(zoom).scaleY(zoom).setDuration(200).start();
         if (gainFocus) {
-            mIcon.setImageResource(R.drawable.lb_search_mic);
+            mIcon.setImageResource(R.drawable.lb_ic_search_mic);
         } else {
-            mIcon.setImageResource(R.drawable.lb_search_mic_out);
+            mIcon.setImageResource(R.drawable.lb_ic_search_mic_out);
         }
     }
 

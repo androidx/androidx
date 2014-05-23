@@ -42,7 +42,7 @@
             android:id="@+id/details_overview_actions_more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/lb_actions_right_arrow"
+            android:src="@drawable/lb_ic_actions_right_arrow"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_marginRight="@dimen/lb_details_overview_actions_more_margin_right"
