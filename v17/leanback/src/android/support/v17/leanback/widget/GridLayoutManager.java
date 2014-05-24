@@ -1638,8 +1638,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public int scrollHorizontallyBy(int dx, Adapter adapter, Recycler recycler,
-            RecyclerView.State state) {
+    public int scrollHorizontallyBy(int dx, Recycler recycler, RecyclerView.State state) {
         if (DEBUG) Log.v(TAG, "scrollHorizontallyBy " + dx);
 
         if (mOrientation == HORIZONTAL) {
@@ -1650,8 +1649,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public int scrollVerticallyBy(int dy, Adapter adapter, Recycler recycler,
-            RecyclerView.State state) {
+    public int scrollVerticallyBy(int dy, Recycler recycler, RecyclerView.State state) {
         if (DEBUG) Log.v(TAG, "scrollVerticallyBy " + dy);
         if (mOrientation == VERTICAL) {
             return scrollDirectionPrimary(dy);
