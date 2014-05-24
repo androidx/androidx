@@ -22,6 +22,7 @@ import android.app.RemoteInput;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
@@ -106,13 +107,71 @@ class NotificationCompatApi20 {
     }
 
     public static NotificationCompatBase.Action getAction(Notification notif,
-            int actionIndex, NotificationCompatBase.Action.Factory factory,
+            int actionIndex, NotificationCompatBase.Action.Factory actionFactory,
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-        Notification.Action action = notif.actions[actionIndex];
+        return getActionCompatFromAction(notif.actions[actionIndex], actionFactory, remoteInputFactory);
+    }
+
+    private static NotificationCompatBase.Action getActionCompatFromAction(
+            Notification.Action action, NotificationCompatBase.Action.Factory actionFactory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
                 action.getRemoteInputs(), remoteInputFactory);
-        return factory.build(action.icon, action.title, action.actionIntent,
+        return actionFactory.build(action.icon, action.title, action.actionIntent,
                 action.getExtras(), remoteInputs);
+    }
+
+    private static Notification.Action getActionFromActionCompat(
+            NotificationCompatBase.Action actionCompat) {
+        Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                actionCompat.getIcon(), actionCompat.getTitle(), actionCompat.getActionIntent())
+                .addExtras(actionCompat.getExtras());
+        RemoteInputCompatBase.RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
+        if (remoteInputCompats != null) {
+            RemoteInput[] remoteInputs = RemoteInputCompatApi20.fromCompat(remoteInputCompats);
+            for (RemoteInput remoteInput : remoteInputs) {
+                actionBuilder.addRemoteInput(remoteInput);
+            }
+        }
+        return actionBuilder.build();
+    }
+
+    /**
+     * Get a list of notification compat actions by parsing actions stored within a list of
+     * parcelables using the {@link Bundle#getParcelableArrayList} function in the same
+     * manner that framework code would do so. In API20, Using Action parcelable directly
+     * is correct.
+     */
+    public static NotificationCompatBase.Action[] getActionsFromParcelableArrayList(
+            ArrayList<Parcelable> parcelables,
+            NotificationCompatBase.Action.Factory actionFactory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+        if (parcelables == null) {
+            return null;
+        }
+        NotificationCompatBase.Action[] actions = actionFactory.newArray(parcelables.size());
+        for (int i = 0; i < actions.length; i++) {
+            Notification.Action action = (Notification.Action) parcelables.get(i);
+            actions[i] = getActionCompatFromAction(action, actionFactory, remoteInputFactory);
+        }
+        return actions;
+    }
+
+    /**
+     * Get an array list of parcelables, suitable for {@link Bundle#putParcelableArrayList},
+     * that matches what framework code would do to store an actions list in this way. In API20,
+     * action parcelables were directly placed as entries in the array list.
+     */
+    public static ArrayList<Parcelable> getParcelableArrayListForActions(
+            NotificationCompatBase.Action[] actions) {
+        if (actions == null) {
+            return null;
+        }
+        ArrayList<Parcelable> parcelables = new ArrayList<Parcelable>(actions.length);
+        for (NotificationCompatBase.Action action : actions) {
+            parcelables.add(getActionFromActionCompat(action));
+        }
+        return parcelables;
     }
 
     public static boolean getLocalOnly(Notification notif) {

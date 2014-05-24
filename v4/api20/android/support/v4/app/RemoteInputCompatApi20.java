@@ -46,6 +46,7 @@ class RemoteInputCompatApi20 {
                     .setLabel(src.getLabel())
                     .setChoices(src.getChoices())
                     .setAllowFreeFormInput(src.getAllowFreeFormInput())
+                    .addExtras(src.getExtras())
                     .build();
         }
         return result;
