@@ -67,7 +67,7 @@ public class NotificationManagerCompat {
      * {@link android.service.notification.NotificationListenerService}.
      */
     public static final String ACTION_BIND_SIDE_CHANNEL =
-            "android.support.wearable.app.BIND_SIDE_CHANNEL";
+            "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
 
     /** Base time delay for a side channel listener queue retry. */
     private static final int SIDE_CHANNEL_RETRY_BASE_INTERVAL_MS = 1000;
