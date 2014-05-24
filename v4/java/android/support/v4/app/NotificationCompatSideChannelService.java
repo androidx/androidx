@@ -35,7 +35,7 @@ import android.os.RemoteException;
  * <pre>
  * &lt;service android:name="com.example.NotificationSideChannelService"&gt;
  *     &lt;intent-filter&gt;
- *         &lt;action android:name="android.support.wearable.app.BIND_SIDE_CHANNEL" /&gt;
+ *         &lt;action android:name="android.support.BIND_NOTIFICATION_SIDE_CHANNEL" /&gt;
  *     &lt;/intent-filter&gt;
  * &lt;/service&gt;</pre>
  *
