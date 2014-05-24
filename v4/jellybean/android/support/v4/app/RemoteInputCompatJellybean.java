@@ -34,7 +34,8 @@ class RemoteInputCompatJellybean {
     private static final String KEY_ALLOW_FREE_FORM_INPUT = "allowFreeFormInput";
     private static final String KEY_EXTRAS = "extras";
 
-    static RemoteInputCompatBase.RemoteInput fromBundle(Bundle data, RemoteInputCompatBase.RemoteInput.Factory factory) {
+    static RemoteInputCompatBase.RemoteInput fromBundle(Bundle data,
+            RemoteInputCompatBase.RemoteInput.Factory factory) {
         return factory.build(data.getString(KEY_RESULT_KEY),
                 data.getCharSequence(KEY_LABEL),
                 data.getCharSequenceArray(KEY_CHOICES),
@@ -52,7 +53,8 @@ class RemoteInputCompatJellybean {
         return data;
     }
 
-    static RemoteInputCompatBase.RemoteInput[] fromBundleArray(Bundle[] bundles, RemoteInputCompatBase.RemoteInput.Factory factory) {
+    static RemoteInputCompatBase.RemoteInput[] fromBundleArray(Bundle[] bundles,
+            RemoteInputCompatBase.RemoteInput.Factory factory) {
         if (bundles == null) {
             return null;
         }
