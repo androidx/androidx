@@ -27,7 +27,7 @@ import android.os.RemoteException;
  * {@link android.support.v4.app.NotificationManagerCompat}.
  *
  * <p>To receive side channel notifications, extend this service and register it in your
- * android manifest with an intent filter for the BIND_SIDE_CHANNEL action.
+ * android manifest with an intent filter for the BIND_NOTIFICATION_SIDE_CHANNEL action.
  * Note: you must also have an enabled
  * {@link android.service.notification.NotificationListenerService} within your package.
  *
@@ -50,17 +50,17 @@ public abstract class NotificationCompatSideChannelService extends Service {
     }
 
     /**
-     * Handle a side-channel notification was posted to the service.
+     * Handle a side-channeled notification being posted.
      */
     public abstract void notify(String packageName, int id, String tag, Notification notification);
 
     /**
-     * Handle a side-channel cancelling of an already-notified notification.
+     * Handle a side-channelled notification being cancelled.
      */
     public abstract void cancel(String packageName, int id, String tag);
 
     /**
-     * Handle a side-channel cancelling of all notifications for the given package.
+     * Handle the side-channelled cancelling of all notifications for a package.
      */
     public abstract void cancelAll(String packageName);
 

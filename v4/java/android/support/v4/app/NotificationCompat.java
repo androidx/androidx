@@ -1703,10 +1703,9 @@ public class NotificationCompat {
          * <pre class="prettyprint">
          * NotificationCompat.Action action = new NotificationCompat.Action.Builder(
          *         R.drawable.archive_all, "Archive all", actionIntent)
-         *         .apply(new NotificationCompat.Action.WearableExtender()
+         *         .extend(new NotificationCompat.Action.WearableExtender()
          *                 .setAvailableOffline(false))
-         *         .build();
-         * </pre>
+         *         .build();</pre>
          */
         public static final class WearableExtender implements Extender {
             /** Notification action extra which contains wearable extensions */
@@ -1863,8 +1862,7 @@ public class NotificationCompat {
      * <pre class="prettyprint">
      * NotificationCompat.WearableExtender wearableExtender =
      *         new NotificationCompat.WearableExtender(notification);
-     * List&lt;Notification&gt; pages = wearableExtender.getPages();
-     * </pre>
+     * List&lt;Notification&gt; pages = wearableExtender.getPages();</pre>
      */
     public static final class WearableExtender implements Extender {
         /**
@@ -2114,7 +2112,27 @@ public class NotificationCompat {
 
         /**
          * Set an intent to launch inside of an activity view when displaying
-         * this notification. This {@link PendingIntent} should be for an activity.
+         * this notification. The {@link PendingIntent} provided should be for an activity.
+         *
+         * <pre class="prettyprint">
+         * Intent displayIntent = new Intent(context, MyDisplayActivity.class);
+         * PendingIntent displayPendingIntent = PendingIntent.getActivity(context,
+         *         0, displayIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+         * Notification notif = new NotificationCompat.Builder(context)
+         *         .extend(new NotificationCompat.WearableExtender()
+         *                 .setDisplayIntent(displayPendingIntent)
+         *                 .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_MEDIUM))
+         *         .build();</pre>
+         *
+         * <p>The activity to launch needs to allow embedding, must be exported, and
+         * should have an empty task affinity.
+         *
+         * <p>Example AndroidManifest.xml entry:
+         * <pre class="prettyprint">
+         * &lt;activity android:name=&quot;com.example.MyDisplayActivity&quot;
+         *     android:exported=&quot;true&quot;
+         *     android:allowEmbedded=&quot;true&quot;
+         *     android:taskAffinity=&quot;&quot; /&gt;</pre>
          *
          * @param intent the {@link PendingIntent} for an activity
          * @return this object for method chaining
@@ -2248,12 +2266,17 @@ public class NotificationCompat {
 
         /**
          * Set an action from this notification's actions to be clickable with the content of
-         * this notification page. This action will no longer display separately from the
-         * notification content. This action's icon will display with optional subtext provided
-         * by the action's title.
-         * @param actionIndex The index of the action to hoist on the current notification page.
-         *                    If wearable actions are present, this index will apply to that list,
-         *                    otherwise it will apply to the main notification's actions list.
+         * this notification. This action will no longer display separately from the
+         * notification's content.
+         *
+         * <p>For notifications with multiple pages, child pages can also have content actions
+         * set, although the list of available actions comes from the main notification and not
+         * from the child page's notification.
+         *
+         * @param actionIndex The index of the action to hoist onto the current notification page.
+         *                    If wearable actions were added to the main notification, this index
+         *                    will apply to that list, otherwise it will apply to the regular
+         *                    actions list.
          */
         public WearableExtender setContentAction(int actionIndex) {
             mContentActionIndex = actionIndex;
@@ -2261,14 +2284,18 @@ public class NotificationCompat {
         }
 
         /**
-         * Get the action index of an action from this notification to show as clickable with
-         * the content of this notification page. When the user clicks this notification page,
-         * this action will trigger. This action will no longer display separately from the
-         * notification content. The action's icon will display with optional subtext provided
-         * by the action's title.
+         * Get the index of the notification action, if any, that was specified as being clickable
+         * with the content of this notification. This action will no longer display separately
+         * from the notification's content.
          *
-         * <p>If wearable specific actions are present, this index will apply to that list,
-         * otherwise it will apply to the main notification's actions list.
+         * <p>For notifications with multiple pages, child pages can also have content actions
+         * set, although the list of available actions comes from the main notification and not
+         * from the child page's notification.
+         *
+         * <p>If wearable specific actions were added to the main notification, this index will
+         * apply to that list, otherwise it will apply to the regular actions list.
+         *
+         * @return the action index or {@link #UNSET_ACTION_INDEX} if no action was selected.
          */
         public int getContentAction() {
             return mContentActionIndex;
