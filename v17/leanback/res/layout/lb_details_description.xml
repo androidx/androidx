@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="wrap_content"
@@ -43,4 +43,4 @@
         android:layout_height="wrap_content"
         style="?attr/detailsDescriptionBodyStyle"
         />
-</FrameLayout>
+</LinearLayout>
