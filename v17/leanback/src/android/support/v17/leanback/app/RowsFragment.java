@@ -232,7 +232,7 @@ public class RowsFragment extends BaseRowFragment {
             final int count = parent.getChildCount();
             for (int i = 0; i < count; i++) {
                 ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
-                        parent.getViewHolderForChildAt(i);
+                        parent.getChildViewHolder(parent.getChildAt(i));
                 RowViewHolderExtra extra = (RowViewHolderExtra) ibvh.getExtraObject();
                 extra.drawDimForSelection(c);
             }
