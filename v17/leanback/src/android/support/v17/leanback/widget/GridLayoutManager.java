@@ -677,7 +677,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     protected View getViewForPosition(int position) {
-        View v = mRecycler.getViewForPosition(mAdapter, position);
+        View v = mRecycler.getViewForPosition(position);
         if (v != null) {
             ((LayoutParams) v.getLayoutParams()).onViewAttached(mInLayout);
         }
@@ -1475,7 +1475,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     // Lays out items based on the current scroll position
-    @Override
     public void onLayoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
             boolean structureChanged, RecyclerView.State state) {
         if (DEBUG) {
@@ -1593,7 +1592,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             Log.d(getTag(), sw.toString());
         }
 
-        removeAndRecycleScrap(recycler);
         attemptAnimateLayoutChild();
 
         if (mRowSecondarySizeRefresh) {
@@ -2209,8 +2207,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public View onFocusSearchFailed(View focused, int direction, Adapter adapter,
-            Recycler recycler) {
+    public View onFocusSearchFailed(View focused, int direction, Recycler recycler,
+            RecyclerView.State state) {
         if (DEBUG) Log.v(getTag(), "onFocusSearchFailed direction " + direction);
 
         View view = null;
