@@ -6,12 +6,26 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <CheckBox
-            android:id="@+id/enableAnimations"
-            android:checked="true"
-            android:text="@string/enableAnimations"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+
+        <CheckBox
+                android:id="@+id/enableAnimations"
+                android:checked="true"
+                android:text="@string/enableAnimations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        <CheckBox
+                android:id="@+id/enablePredictiveAnimations"
+                android:checked="true"
+                android:text="@string/enablePredictiveAnimations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+    </LinearLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="horizontal"
