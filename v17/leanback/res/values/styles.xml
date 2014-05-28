@@ -186,18 +186,20 @@
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionTitle</item>
         <item name="android:maxLines">@integer/lb_details_description_title_max_lines</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionSubtitleStyle">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionSubtitle</item>
         <item name="android:maxLines">@integer/lb_details_description_subtitle_max_lines</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionBodyStyle">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionBody</item>
-        <item name="android:maxLines">@integer/lb_details_description_body_max_lines</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Widget.Leanback.DetailsActionButtonStyle" parent="android:Widget.Holo.Button.Borderless">
