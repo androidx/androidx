@@ -22,6 +22,7 @@ def jbMr1SS        = createApiSourceset('jellybeanmr1', 'jellybean-mr1', '17',  
 def jbMr2SS        = createApiSourceset('jellybeanmr2', 'jellybean-mr2', '18',      jbMr1SS)
 def kitkatSS       = createApiSourceset('kitkat',       'kitkat',        '19',      jbMr2SS)
 def api20SS        = createApiSourceset('api20',        'api20',         'current', kitkatSS)
+def api21SS        = createApiSourceset('api21',        'api21',         'current', api20SS)
 
 
 def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
