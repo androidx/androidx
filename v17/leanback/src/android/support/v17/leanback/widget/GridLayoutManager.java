@@ -339,6 +339,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private int mDeltaInPreLayout, mDeltaSecondaryInPreLayout;
 
+    /**
+     * Temporaries used for measuring.
+     */
+    private int[] mMeasuredDimension = new int[2];
+
     public GridLayoutManager(BaseGridView baseGridView) {
         mBaseGridView = baseGridView;
     }
@@ -718,7 +723,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             // otherwise recreate data structure
             mRows = new StaggeredGrid.Row[mNumRows];
-            mRowSizeSecondary = new int[mNumRows];
 
             for (int i = 0; i < mNumRows; i++) {
                 mRows[i] = new StaggeredGrid.Row();
@@ -771,34 +775,63 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return getRowStartSecondary(mNumRows - 1) + getRowSizeSecondary(mNumRows - 1);
     }
 
+    private void measureScrapChild(int position, int widthSpec, int heightSpec,
+            int[] measuredDimension) {
+        View view = mRecycler.getViewForPosition(position);
+        if (view != null) {
+            LayoutParams p = (LayoutParams) view.getLayoutParams();
+            int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec,
+                    getPaddingLeft() + getPaddingRight(), p.width);
+            int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec,
+                    getPaddingTop() + getPaddingBottom(), p.height);
+            view.measure(childWidthSpec, childHeightSpec);
+            measuredDimension[0] = view.getMeasuredWidth();
+            measuredDimension[1] = view.getMeasuredHeight();
+            mRecycler.recycleView(view);
+        }
+    }
+
     private boolean processRowSizeSecondary(boolean measure) {
         if (mFixedRowSizeSecondary != 0) {
             return false;
         }
 
-        List<Integer>[] rows = mGrid.getItemPositionsInRows(mFirstVisiblePos, mLastVisiblePos);
+        if (mGrid == null) {
+            measureScrapChild(mFocusPosition == NO_POSITION ? 0 : mFocusPosition,
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                    mMeasuredDimension);
+            if (DEBUG) Log.v(TAG, "measured scrap child: " + mMeasuredDimension[0] +
+                    " " + mMeasuredDimension[1]);
+        }
+
+        List<Integer>[] rows = mGrid == null ? null :
+            mGrid.getItemPositionsInRows(mFirstVisiblePos, mLastVisiblePos);
         boolean changed = false;
 
         for (int rowIndex = 0; rowIndex < mNumRows; rowIndex++) {
             int rowSize = 0;
 
-            final int rowItemCount = rows[rowIndex].size();
+            final int rowItemCount = rows == null ? 1 : rows[rowIndex].size();
             if (DEBUG) Log.v(getTag(), "processRowSizeSecondary row " + rowIndex +
                     " rowItemCount " + rowItemCount);
 
             for (int i = 0; i < rowItemCount; i++) {
-                final int position = rows[rowIndex].get(i);
-                final View view = findViewByPosition(position);
-                if (measure && view.isLayoutRequested()) {
-                    measureChild(view, rowIndex);
-                }
-                // If this view isn't visible, we ignore it.
-                if (getOpticalRight(view) < 0 || getOpticalLeft(view) > getWidth() ||
-                        getOpticalBottom(view) < 0 || getOpticalTop(view) > getHeight()) {
-                    continue;
+                if (rows != null) {
+                    final int position = rows[rowIndex].get(i);
+                    final View view = findViewByPosition(position);
+                    if (measure && view.isLayoutRequested()) {
+                        measureChild(view);
+                    }
+                    // If this view is outside the primary axis bounds, we ignore it.
+                    if (getViewMax(view) < 0 || getViewMin(view) > mSizePrimary) {
+                        continue;
+                    }
+                    mMeasuredDimension[0] = view.getWidth();
+                    mMeasuredDimension[1] = view.getHeight();
                 }
                 final int secondarySize = mOrientation == HORIZONTAL ?
-                        view.getMeasuredHeight() : view.getMeasuredWidth();
+                        mMeasuredDimension[1] : mMeasuredDimension[0];
                 if (secondarySize > rowSize) {
                     rowSize = secondarySize;
                 }
@@ -849,7 +882,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public void onMeasure(int widthSpec, int heightSpec) {
+    public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
+        saveContext(recycler, state);
+
         int sizePrimary, sizeSecondary, modeSecondary, paddingSecondary;
         int measuredSizeSecondary;
         if (mOrientation == HORIZONTAL) {
@@ -874,10 +909,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mNumRows = mNumRowsRequested == 0 ? 1 : mNumRowsRequested;
             mFixedRowSizeSecondary = 0;
 
-            // Measure all current children and update cached row heights
-            if (mGrid != null) {
-                processRowSizeSecondary(true);
+            if (mRowSizeSecondary == null || mRowSizeSecondary.length != mNumRows) {
+                mRowSizeSecondary = new int[mNumRows];
             }
+
+            // Measure all current children and update cached row heights
+            processRowSizeSecondary(true);
 
             switch (modeSecondary) {
             case MeasureSpec.UNSPECIFIED:
@@ -950,9 +987,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     " mFixedRowSizeSecondary " + mFixedRowSizeSecondary +
                     " mNumRows " + mNumRows);
         }
+
+        leaveContext();
     }
 
-    private void measureChild(View child, int rowIndex) {
+    private void measureChild(View child) {
         final ViewGroup.LayoutParams lp = child.getLayoutParams();
         final int secondarySpec = (mRowSizeSecondaryRequested == ViewGroup.LayoutParams.WRAP_CONTENT) ?
                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED) :
@@ -1008,7 +1047,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 } else {
                     addView(v, 0);
                 }
-                measureChild(v, rowIndex);
+                measureChild(v);
             }
 
             int length = mOrientation == HORIZONTAL ? v.getMeasuredWidth() : v.getMeasuredHeight();
@@ -1298,7 +1337,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 if (mOrientation == HORIZONTAL) {
                     final int primarySize = view.getMeasuredWidth();
                     if (view.isLayoutRequested()) {
-                        measureChild(view, i);
+                        measureChild(view);
                     }
                     start = getViewMin(view);
                     end = start + view.getMeasuredWidth();
@@ -1311,7 +1350,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 } else {
                     final int primarySize = view.getMeasuredHeight();
                     if (view.isLayoutRequested()) {
-                        measureChild(view, i);
+                        measureChild(view);
                     }
                     start = getViewMin(view);
                     end = start + view.getMeasuredHeight();
