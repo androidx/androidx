@@ -594,7 +594,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     protected View getViewForPosition(int position) {
-        View v = mRecycler.getViewForPosition(mAdapter, position);
+        View v = mRecycler.getViewForPosition(position);
         if (v != null) {
             ((LayoutParams) v.getLayoutParams()).onViewAttached();
         }
@@ -1209,7 +1209,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     // Lays out items based on the current scroll position
-    @Override
     public void onLayoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
             boolean structureChanged, RecyclerView.State state) {
         if (DEBUG) {
@@ -1321,7 +1320,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             Log.d(getTag(), sw.toString());
         }
 
-        removeAndRecycleScrap(recycler);
         attemptAnimateLayoutChild();
 
         if (!hasDoneFirstLayout) {
@@ -1360,8 +1358,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public int scrollHorizontallyBy(int dx, Adapter adapter, Recycler recycler,
-            RecyclerView.State state) {
+    public int scrollHorizontallyBy(int dx, Recycler recycler, RecyclerView.State state) {
         if (DEBUG) Log.v(TAG, "scrollHorizontallyBy " + dx);
 
         if (mOrientation == HORIZONTAL) {
@@ -1372,8 +1369,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public int scrollVerticallyBy(int dy, Adapter adapter, Recycler recycler,
-            RecyclerView.State state) {
+    public int scrollVerticallyBy(int dy, Recycler recycler, RecyclerView.State state) {
         if (DEBUG) Log.v(TAG, "scrollVerticallyBy " + dy);
         if (mOrientation == VERTICAL) {
             return scrollDirectionPrimary(dy);
@@ -1861,8 +1857,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public View onFocusSearchFailed(View focused, int direction, Adapter adapter,
-            Recycler recycler) {
+    public View onFocusSearchFailed(View focused, int direction, Recycler recycler,
+            RecyclerView.State state) {
         if (DEBUG) Log.v(getTag(), "onFocusSearchFailed direction " + direction);
 
         View view = null;
