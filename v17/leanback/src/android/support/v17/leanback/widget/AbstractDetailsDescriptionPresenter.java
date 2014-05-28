@@ -36,11 +36,15 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         private final TextView mSubtitle;
         private final TextView mBody;
         private final int mTitleMargin;
-        private final int mUnderTitleBaseline;
-        private final int mUnderSubtitleBaseline;
+        private final int mUnderTitleBaselineMargin;
+        private final int mUnderSubtitleBaselineMargin;
+        private final int mTitleLineSpacing;
         private final int mBodyLineSpacing;
-        private final int mSubtitleAscent;
-        private final int mBodyAscent;
+        private final int mBodyMaxLines;
+        private final int mBodyMinLines;
+        private final FontMetricsInt mTitleFontMetricsInt;
+        private final FontMetricsInt mSubtitleFontMetricsInt;
+        private final FontMetricsInt mBodyFontMetricsInt;
 
         public ViewHolder(View view) {
             super(view);
@@ -54,19 +58,32 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             // Ascent is negative
             mTitleMargin = titleAscent + titleFontMetricsInt.ascent;
 
-            mUnderTitleBaseline = view.getResources().getDimensionPixelSize(
-                    R.dimen.lb_details_description_under_title_baseline);
-            mUnderSubtitleBaseline = view.getResources().getDimensionPixelSize(
-                    R.dimen.lb_details_description_under_subtitle_baseline);
+            mUnderTitleBaselineMargin = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_description_under_title_baseline_margin);
+            mUnderSubtitleBaselineMargin = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_description_under_subtitle_baseline_margin);
 
-            FontMetricsInt subtitleFontMetricsInt = getFontMetricsInt(mSubtitle);
-            mSubtitleAscent = subtitleFontMetricsInt.ascent;
-
-            FontMetricsInt bodyFontMetricsInt = getFontMetricsInt(mBody);
-            mBodyAscent = bodyFontMetricsInt.ascent;
-
+            mTitleLineSpacing = view.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_description_title_line_spacing);
             mBodyLineSpacing = view.getResources().getDimensionPixelSize(
                     R.dimen.lb_details_description_body_line_spacing);
+
+            mBodyMaxLines = view.getResources().getInteger(
+                    R.integer.lb_details_description_body_max_lines);
+            mBodyMinLines = view.getResources().getInteger(
+                    R.integer.lb_details_description_body_min_lines);
+
+            mTitleFontMetricsInt = getFontMetricsInt(mTitle);
+            mSubtitleFontMetricsInt = getFontMetricsInt(mSubtitle);
+            mBodyFontMetricsInt = getFontMetricsInt(mBody);
+
+            mTitle.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right,
+                        int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    mBody.setMaxLines(mTitle.getLineCount() > 1 ? mBodyMinLines : mBodyMaxLines);
+                }
+            });
         }
 
         public TextView getTitle() {
@@ -108,6 +125,8 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             hasTitle = false;
         } else {
             vh.mTitle.setVisibility(View.VISIBLE);
+            vh.mTitle.setLineSpacing(vh.mTitleLineSpacing - vh.mTitle.getLineHeight() -
+                    vh.mTitle.getLineSpacingExtra(), vh.mTitle.getLineSpacingMultiplier());
         }
         setTopMargin(vh.mTitle, vh.mTitleMargin);
 
@@ -118,7 +137,8 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         } else {
             vh.mSubtitle.setVisibility(View.VISIBLE);
             if (hasTitle) {
-                setTopMargin(vh.mSubtitle, vh.mUnderTitleBaseline + vh.mSubtitleAscent);
+                setTopMargin(vh.mSubtitle, vh.mUnderTitleBaselineMargin +
+                        vh.mSubtitleFontMetricsInt.ascent - vh.mTitleFontMetricsInt.descent);
             } else {
                 setTopMargin(vh.mSubtitle, 0);
             }
@@ -132,9 +152,11 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
                     vh.mBody.getLineSpacingExtra(), vh.mBody.getLineSpacingMultiplier());
 
             if (hasSubtitle) {
-                setTopMargin(vh.mBody, vh.mUnderSubtitleBaseline + vh.mBodyAscent);
+                setTopMargin(vh.mBody, vh.mUnderSubtitleBaselineMargin +
+                        vh.mBodyFontMetricsInt.ascent - vh.mSubtitleFontMetricsInt.descent);
             } else if (hasTitle) {
-                setTopMargin(vh.mBody, vh.mUnderTitleBaseline + vh.mBodyAscent);
+                setTopMargin(vh.mBody, vh.mUnderTitleBaselineMargin +
+                        vh.mBodyFontMetricsInt.ascent - vh.mTitleFontMetricsInt.descent);
             } else {
                 setTopMargin(vh.mBody, 0);
             }
