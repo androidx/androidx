@@ -549,7 +549,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // and layout them accordingly so that animations can work as expected.
         // This case may happen if new views are added or an existing view expands and pushes
         // another view out of bounds.
-        if (getChildCount() > 0 && !state.isPreLayout() && supportsItemAnimations()) {
+        if (getChildCount() > 0 && !state.isPreLayout() && supportsPredictiveItemAnimations()) {
             // to make the logic simpler, we calculate the size of children and call fill.
             int scrapExtraStart = 0, scrapExtraEnd = 0;
             final List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
@@ -1334,7 +1334,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public boolean supportsItemAnimations() {
+    public boolean supportsPredictiveItemAnimations() {
         return true;
     }
 

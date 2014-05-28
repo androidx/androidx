@@ -1322,7 +1322,7 @@ public class RecyclerView extends ViewGroup {
      * to the items in this RecyclerView. By default, RecyclerView instantiates and
      * uses an instance of {@link DefaultItemAnimator}. Whether item animations are
      * enabled for the RecyclerView depends on the ItemAnimator and whether
-     * the LayoutManager {@link LayoutManager#supportsItemAnimations()
+     * the LayoutManager {@link LayoutManager#supportsPredictiveItemAnimations()
      * supports item animations}.
      *
      * @param animator The ItemAnimator being set. If null, no animations will occur
@@ -1362,8 +1362,8 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
-    private boolean itemAnimationsEnabled() {
-        return (mItemAnimator != null && mLayout.supportsItemAnimations());
+    private boolean predictiveItemAnimationsEnabled() {
+        return (mItemAnimator != null && mLayout.supportsPredictiveItemAnimations());
     }
 
     /**
@@ -1396,14 +1396,18 @@ public class RecyclerView extends ViewGroup {
 
         eatRequestLayout();
 
-        final boolean animateChanges = itemAnimationsEnabled() && mItemsAddedOrRemoved
+        // simple animations are a subset of advanced animations (which will cause a
+        // prelayout step)
+        final boolean animateChangesSimple = mItemAnimator != null && mItemsAddedOrRemoved
                 && !mItemsChanged;
+        final boolean animateChangesAdvanced = animateChangesSimple &&
+                predictiveItemAnimationsEnabled();
         mItemsAddedOrRemoved = mItemsChanged = false;
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
-        mState.mInPreLayout = animateChanges;
+        mState.mInPreLayout = animateChangesAdvanced;
         mState.mItemCount = mAdapter.getItemCount();
 
-        if (animateChanges) {
+        if (animateChangesSimple) {
             // Step 0: Find out where all non-removed items are, pre-layout
             mState.mPreLayoutHolderMap.clear();
             mState.mPostLayoutHolderMap.clear();
@@ -1415,6 +1419,8 @@ public class RecyclerView extends ViewGroup {
                         view.getLeft(), view.getTop(), view.getRight(), view.getBottom(),
                         holder.mPosition));
             }
+        }
+        if (animateChangesAdvanced) {
 
             // Step 1: run prelayout: This will use the old positions of items. The layout manager
             // is expected to layout everything, even removed items (though not to add removed
@@ -1456,7 +1462,7 @@ public class RecyclerView extends ViewGroup {
         mState.mStructureChanged = false;
         mPendingSavedState = null;
 
-        if (animateChanges) {
+        if (animateChangesSimple) {
             // Step 3: Find out where things are now, post-layout
             int count = getChildCount();
             for (int i = 0; i < count; ++i) {
@@ -1491,9 +1497,9 @@ public class RecyclerView extends ViewGroup {
                     if ((mState.mPreLayoutHolderMap.isEmpty() ||
                             !mState.mPreLayoutHolderMap.containsKey(itemHolder))) {
                         mState.mPostLayoutHolderMap.removeAt(i);
-
-                        animateAppearance(itemHolder,
-                                appearingViewInitialBounds.get(itemHolder.itemView),
+                        Rect initialBounds = (appearingViewInitialBounds != null) ?
+                                appearingViewInitialBounds.get(itemHolder.itemView) : null;
+                        animateAppearance(itemHolder, initialBounds,
                                 info.left, info.top);
                     }
                 }
@@ -1520,7 +1526,7 @@ public class RecyclerView extends ViewGroup {
             }
         }
         resumeRequestLayout(false);
-        mLayout.removeAndRecycleScrapInt(mRecycler, !animateChanges);
+        mLayout.removeAndRecycleScrapInt(mRecycler, !animateChangesAdvanced);
         mState.mPreviousLayoutItemCount = mState.mItemCount;
         mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
     }
@@ -1577,12 +1583,12 @@ public class RecyclerView extends ViewGroup {
                 Log.d(TAG, "REMOVED: " + disappearingItem.holder +
                         " with view " + disappearingItemView);
             }
+            disappearingItem.holder.setIsRecyclable(false);
             if (mItemAnimator.animateRemove(disappearingItem.holder)) {
                 postAnimationRunner();
             }
         }
     }
-
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -3210,18 +3216,24 @@ public class RecyclerView extends ViewGroup {
         /**
          * Returns whether this LayoutManager supports automatic item animations.
          * A LayoutManager wishing to support item animations should obey certain
-         * rules as outlined in {@link #onLayout(boolean, int, int, int, int)}.
+         * rules as outlined in {@link #onLayoutChildren(Recycler, State)}.
          * The default return value is <code>false</code>, so subclasses of LayoutManager
-         * will not get automatic item animations by default.
+         * will not get predictive item animations by default.
          *
-         * Whether item animations are enabled in a RecyclerView is determined both
+         * <p>Whether item animations are enabled in a RecyclerView is determined both
          * by the return value from this method and the
          * {@link RecyclerView#setItemAnimator(ItemAnimator) ItemAnimator} set on the
-         * RecyclerView itself.
+         * RecyclerView itself. If the RecyclerView has a non-null ItemAnimator but this
+         * method returns false, then simple item animations will be enabled, in which
+         * views that are moving onto or off of the screen are simply faded in/out. If
+         * the RecyclerView has a non-null ItemAnimator and this method returns true,
+         * then there will be two calls to {@link #onLayoutChildren(Recycler, State)} to
+         * setup up the information needed to more intelligently predict where appearing
+         * and disappearing views should be animated from/to.</p>
          *
-         * @return true if automatic item animations should be enabled, false otherwise
+         * @return true if predictive item animations should be enabled, false otherwise
          */
-        public boolean supportsItemAnimations() {
+        public boolean supportsPredictiveItemAnimations() {
             return false;
         }
 
@@ -3252,23 +3264,38 @@ public class RecyclerView extends ViewGroup {
         /**
          * Lay out all relevant child views from the given adapter.
          *
-         * <p>Special care should be taken when automatic animations of added/removed items
-         * are desired, which is the default behavior of RecyclerView (see
-         * {@link #setItemAnimator(ItemAnimator)}). When there is an itemAnimator set on
-         * the RecyclerView, there will be two calls to onLayoutChildren(). The first such
-         * call is intended to get the "pre layout" information for items which will come
-         * info view as a result of the real layout (referred to as APPEARING views).
-         * Views will remember their old pre-layout position to allow this pre-layout
-         * to happen correctly. The only requirement for this layout pass
-         * is that any items which are marked {@link LayoutParams#isItemRemoved() removed} should be
-         * positioned and laid out with the other views, but not added to the children.
-         * Similarly, the other views should be positioned appropriately, taking into account
-         * any removed views. Also, the bounds within which the views are being laid out
-         * should be extended by these removed view sizes, to allow layout to continue until
-         * all views can be laid out.</p>
+         * The LayoutManager is in charge of the behavior of item animations. By default,
+         * RecyclerView has a non-null {@link #getItemAnimator() ItemAnimator}, and simple
+         * item animations are enabled. This means that add/remove operations on the
+         * adapter will result in animations to add new or appearing items, removed or
+         * disappearing items, and moved items. If a LayoutManager returns false from
+         * {@link #supportsPredictiveItemAnimations()}, which is the default, and runs a
+         * normal layout operation during {@link #onLayoutChildren(Recycler, State)}, the
+         * RecyclerView will have enough information to run those animations in a simple
+         * way. For example, the default ItemAnimator, {@link DefaultItemAnimator}, will
+         * simple fade views in and out, whether they are actuall added/removed or whether
+         * they are moved on or off the screen due to other add/remove operations.
+         *
+         * <p>A LayoutManager wanting a better item animation experience, where items can be
+         * animated onto and off of the screen according to where the items exist when they
+         * are not on screen, then the LayoutManager should return true from
+         * {@link #supportsPredictiveItemAnimations()} and add additional logic to
+         * {@link #onLayoutChildren(Recycler, State)}. Supporting predictive animations
+         * means that {@link #onLayoutChildren(Recycler, State)} will be called twice;
+         * once as a "pre" layout step to determine where items would have been prior to
+         * a real layout, and again to do the "real" layout. In the pre-layout phase,
+         * items will remember their pre-layout positions to allow them to be laid out
+         * appropriately. Also, {@link LayoutParams#isItemRemoved() removed} items will
+         * be returned from the scrap to help determine correct placement of other items.
+         * These removed items should not be added to the child list, but should be used
+         * to help calculate correct positioning of other views, including views that
+         * were not previously onscreen (referred to as APPEARING views), but whose
+         * pre-layout offscreen position can be determined given the extra
+         * information about the pre-layout removed views.</p>
          *
          * <p>The second layout pass is the real layout in which only non-removed views
-         * will be used. The only additional requirement during this pass is to note which
+         * will be used. The only additional requirement during this pass is, if
+         * {@link #supportsPredictiveItemAnimations()} returns true, to note which
          * views exist in the child list prior to layout and which are not there after
          * layout (referred to as DISAPPEARING views), and to position/layout those views
          * appropriately, without regard to the actual bounds of the RecyclerView. This allows
@@ -3278,7 +3305,8 @@ public class RecyclerView extends ViewGroup {
          * <p>The default LayoutManager implementations for RecyclerView handle all of these
          * requirements for animations already. Clients of RecyclerView can either use one
          * of these layout managers directly or look at their implementations of
-         * onLayoutChildren() to see how they account for the APPEARING and DISAPPEARING views.</p>
+         * onLayoutChildren() to see how they account for the APPEARING and
+         * DISAPPEARING views.</p>
          *
          * @param recycler         Recycler to use for fetching potentially cached views for a
          *                         position
@@ -4718,6 +4746,8 @@ public class RecyclerView extends ViewGroup {
 
         private int mFlags;
 
+        private int mIsRecyclableCount = 0;
+
         // If non-null, view is currently considered scrap and may be reused for other data by the
         // scrap container.
         private Recycler mScrapContainer = null;
@@ -4806,15 +4836,35 @@ public class RecyclerView extends ViewGroup {
             return sb.toString();
         }
 
+        /**
+         * Informs the recycler whether this item can be recycled. Views which are not
+         * recyclable will not be reused for other items until setIsRecyclable() is
+         * later set to true. Calls to setIsRecyclable() should always be paired (one
+         * call to setIsRecyclabe(false) should always be matched with a later call to
+         * setIsRecyclable(true)). Pairs of calls may be nested, as the state is internally
+         * reference-counted.
+         *
+         * @param recyclable Whether this item is available to be recycled. Default value
+         * is true.
+         */
         public final void setIsRecyclable(boolean recyclable) {
-            // TODO: might want this to be a refcount instead
-            if (recyclable) {
-                mFlags &= ~FLAG_NOT_RECYCLABLE;
-            } else {
+            mIsRecyclableCount = recyclable ? mIsRecyclableCount - 1 : mIsRecyclableCount + 1;
+            if (mIsRecyclableCount < 0) {
+                mIsRecyclableCount = 0;
+                Log.e(VIEW_LOG_TAG, "isRecyclable decremented below 0: " +
+                        "unmatched pair of setIsRecyable() calls");
+            } else if (!recyclable && mIsRecyclableCount == 1) {
                 mFlags |= FLAG_NOT_RECYCLABLE;
+            } else if (recyclable && mIsRecyclableCount == 0) {
+                mFlags &= ~FLAG_NOT_RECYCLABLE;
             }
         }
 
+        /**
+         * @see {@link #setIsRecyclable(boolean)}
+         *
+         * @return true if this item is available to be recycled, false otherwise.
+         */
         public final boolean isRecyclable() {
             return (mFlags & FLAG_NOT_RECYCLABLE) == 0 &&
                     !ViewCompat.hasTransientState(itemView);

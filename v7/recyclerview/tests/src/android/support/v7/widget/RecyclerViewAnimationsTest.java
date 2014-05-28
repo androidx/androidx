@@ -296,7 +296,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         };
 
         @Override
-        public boolean supportsItemAnimations() {
+        public boolean supportsPredictiveItemAnimations() {
             return true;
         }
 
