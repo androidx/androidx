@@ -21,7 +21,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
-import android.view.animation.Interpolator;
 
 /**
  * Base class for vertically and horizontally scrolling lists. The items come
@@ -392,42 +391,6 @@ abstract class BaseGridView extends RecyclerView {
      */
     public boolean isChildLayoutAnimated() {
         return mLayoutManager.isChildLayoutAnimated();
-    }
-
-    /**
-     * Set an interpolator for the animation when a child changes size or when 
-     * adding or removing a child.
-     * <p><i>Unstable API, might change later.</i>
-     */
-    public void setChildLayoutAnimationInterpolator(Interpolator interpolator) {
-        mLayoutManager.setChildLayoutAnimationInterpolator(interpolator);
-    }
-
-    /**
-     * Get the interpolator for the animation when a child changes size or when
-     * adding or removing a child.
-     * <p><i>Unstable API, might change later.</i>
-     */
-    public Interpolator getChildLayoutAnimationInterpolator() {
-        return mLayoutManager.getChildLayoutAnimationInterpolator();
-    }
-
-    /**
-     * Set the duration of the animation when a child changes size or when 
-     * adding or removing a child.
-     * <p><i>Unstable API, might change later.</i>
-     */
-    public void setChildLayoutAnimationDuration(long duration) {
-        mLayoutManager.setChildLayoutAnimationDuration(duration);
-    }
-
-    /**
-     * Get the duration of the animation when a child changes size or when 
-     * adding or removing a child.
-     * <p><i>Unstable API, might change later.</i>
-     */
-    public long getChildLayoutAnimationDuration() {
-        return mLayoutManager.getChildLayoutAnimationDuration();
     }
 
     /**
