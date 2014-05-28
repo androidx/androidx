@@ -63,7 +63,6 @@
     <dimen name="lb_details_overview_margin_right">132dp</dimen>
     <dimen name="lb_details_overview_margin_bottom">40dp</dimen>
     
-    <dimen name="lb_details_description_body_line_spacing">20dp</dimen>
     <dimen name="lb_details_overview_description_margin_top">24dp</dimen>
     <dimen name="lb_details_overview_description_margin_left">24dp</dimen>
     <dimen name="lb_details_overview_description_margin_right">24dp</dimen>
@@ -81,13 +80,16 @@
     <dimen name="lb_details_description_title_text_size">34sp</dimen>
     <dimen name="lb_details_description_subtitle_text_size">16sp</dimen>
     <dimen name="lb_details_description_body_text_size">14sp</dimen>
+    <dimen name="lb_details_description_title_line_spacing">40dp</dimen>
+    <dimen name="lb_details_description_body_line_spacing">20dp</dimen>
     <dimen name="lb_details_description_title_baseline">26dp</dimen>
-    <dimen name="lb_details_description_under_title_baseline">60dp</dimen>
-    <dimen name="lb_details_description_under_subtitle_baseline">92dp</dimen>
+    <dimen name="lb_details_description_under_title_baseline_margin">32dp</dimen>
+    <dimen name="lb_details_description_under_subtitle_baseline_margin">32dp</dimen>
 
     <integer name="lb_details_description_title_max_lines">2</integer>
     <integer name="lb_details_description_subtitle_max_lines">1</integer>
     <integer name="lb_details_description_body_max_lines">5</integer>
+    <integer name="lb_details_description_body_min_lines">3</integer>
 
     <dimen name="lb_action_1_line_height">36dp</dimen>
     <dimen name="lb_action_2_lines_height">56dp</dimen>
