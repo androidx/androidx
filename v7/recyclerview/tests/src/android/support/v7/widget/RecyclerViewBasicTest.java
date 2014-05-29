@@ -199,8 +199,7 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         }
 
         @Override
-        public void onLayoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
-                boolean structureChanged, RecyclerView.State state) {
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
             mLayoutCount += 1;
         }
 
