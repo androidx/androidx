@@ -102,16 +102,8 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public void onLayoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
-                boolean structureChanged, RecyclerView.State state) {
-            layoutChildren(adapter, recycler, structureChanged);
-        }
-
-        @Override
-        public void layoutChildren(RecyclerView.Adapter adapter, RecyclerView.Recycler recycler,
-                boolean structureChanged) {
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
             final int parentBottom = getHeight() - getPaddingBottom();
-
             final View oldTopView = getChildCount() > 0 ? getChildAt(0) : null;
             int oldTop = getPaddingTop();
             if (oldTopView != null) {
@@ -125,16 +117,14 @@ public class RecyclerViewActivity extends Activity {
             final int left = getPaddingLeft();
             final int right = getWidth() - getPaddingRight();
 
-            final int count = adapter.getItemCount();
+            final int count = state.getItemCount();
             for (int i = 0; mFirstPosition + i < count && top < parentBottom; i++, top = bottom) {
-                View v = recycler.getViewForPosition(adapter, mFirstPosition + i);
+                View v = recycler.getViewForPosition(mFirstPosition + i);
                 addView(v, i);
                 measureChildWithMargins(v, 0, 0);
                 bottom = top + getDecoratedMeasuredHeight(v);
                 layoutDecorated(v, left, top, right, bottom);
             }
-
-            removeAndRecycleScrap(recycler);
         }
 
         @Override
@@ -149,8 +139,8 @@ public class RecyclerViewActivity extends Activity {
         }
 
         @Override
-        public int scrollVerticallyBy(int dy, RecyclerView.Adapter adapter,
-                RecyclerView.Recycler recycler) {
+        public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                RecyclerView.State state) {
             if (getChildCount() == 0) {
                 return 0;
             }
@@ -167,7 +157,7 @@ public class RecyclerViewActivity extends Activity {
                     offsetChildrenVertical(scrollBy);
                     if (mFirstPosition > 0 && scrolled > dy) {
                         mFirstPosition--;
-                        View v = recycler.getViewForPosition(adapter, mFirstPosition);
+                        View v = recycler.getViewForPosition(mFirstPosition);
                         addView(v, 0);
                         measureChildWithMargins(v, 0, 0);
                         final int bottom = getDecoratedTop(topView);
@@ -187,8 +177,7 @@ public class RecyclerViewActivity extends Activity {
                     scrolled -= scrollBy;
                     offsetChildrenVertical(scrollBy);
                     if (scrolled < dy && getItemCount() > mFirstPosition + getChildCount()) {
-                        View v = recycler.getViewForPosition(adapter,
-                                mFirstPosition + getChildCount());
+                        View v = recycler.getViewForPosition(mFirstPosition + getChildCount());
                         final int top = getDecoratedBottom(getChildAt(getChildCount() - 1));
                         addView(v);
                         measureChildWithMargins(v, 0, 0);
@@ -205,7 +194,7 @@ public class RecyclerViewActivity extends Activity {
 
         @Override
         public View onFocusSearchFailed(View focused, int direction,
-                RecyclerView.Adapter adapter, RecyclerView.Recycler recycler) {
+                RecyclerView.Recycler recycler, RecyclerView.State state) {
             final int oldCount = getChildCount();
 
             if (oldCount == 0) {
@@ -220,7 +209,7 @@ public class RecyclerViewActivity extends Activity {
             if (direction == View.FOCUS_UP || direction == View.FOCUS_BACKWARD) {
                 while (mFirstPosition > 0 && newViewsHeight < mScrollDistance) {
                     mFirstPosition--;
-                    View v = recycler.getViewForPosition(adapter, mFirstPosition);
+                    View v = recycler.getViewForPosition(mFirstPosition);
                     final int bottom = getDecoratedTop(getChildAt(0));
                     addView(v, 0);
                     measureChildWithMargins(v, 0, 0);
@@ -235,7 +224,7 @@ public class RecyclerViewActivity extends Activity {
             if (direction == View.FOCUS_DOWN || direction == View.FOCUS_FORWARD) {
                 while (mFirstPosition + getChildCount() < getItemCount() &&
                         newViewsHeight < mScrollDistance) {
-                    View v = recycler.getViewForPosition(adapter, mFirstPosition + getChildCount());
+                    View v = recycler.getViewForPosition(mFirstPosition + getChildCount());
                     final int top = getDecoratedBottom(getChildAt(getChildCount() - 1));
                     addView(v);
                     measureChildWithMargins(v, 0, 0);
