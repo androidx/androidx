@@ -1813,6 +1813,14 @@ public class NotificationCompat {
          */
         public static final int SIZE_LARGE = 4;
 
+        /**
+         * Size value for use with {@link #setCustomSizePreset} to show this notification
+         * full screen.
+         * <p>This value is only applicable for custom display notifications created using
+         * {@link #setDisplayIntent}.
+         */
+        public static final int SIZE_FULL_SCREEN = 5;
+
         /** Notification extra which contains wearable extensions */
         private static final String EXTRA_WEARABLE_EXTENSIONS = "android.wearable.EXTENSIONS";
 
