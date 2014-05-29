@@ -18,3 +18,6 @@ project(':support-recyclerview-v7').projectDir = new File(rootDir, 'v7/recyclerv
 
 include ':support-v13'
 project(':support-v13').projectDir = new File(rootDir, 'v13')
+
+include ':support-leanback-v17'
+project(':support-leanback-v17').projectDir = new File(rootDir, 'v17/leanback')

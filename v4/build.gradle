@@ -1,6 +1,11 @@
 apply plugin: 'android-library'
 archivesBaseName = 'support-v4'
 
+// create a jar task for the code internal implementation
+tasks.create(name: "internalJar", type: Jar) {
+    baseName "internal_impl"
+}
+
 // --------------------------
 // TO ADD NEW PLATFORM SPECIFIC CODE, UPDATE THIS:
 // create and configure the sourcesets/dependencies for platform-specific code.
@@ -36,21 +41,15 @@ def createApiSourceset(String name, String folder, String apiLevel, SourceSet pr
         setupDependencies(configName, previousSource)
     }
     ext.allSS.add(sourceSet)
+
+    internalJar.from sourceSet.output
+
     return sourceSet
 }
 
 def setupDependencies(String configName, SourceSet previousSourceSet) {
     project.getDependencies().add(configName, previousSourceSet.output)
     project.getDependencies().add(configName, previousSourceSet.compileClasspath)
-}
-
-// create a jar task for the code above
-tasks.create(name: "internalJar", type: Jar) {
-    baseName "internal_impl"
-}
-
-ext.allSS.each { ss ->
-    internalJar.from ss.output
 }
 
 dependencies {
