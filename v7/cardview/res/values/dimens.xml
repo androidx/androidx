@@ -19,4 +19,6 @@
     <dimen name="cardview_default_radius">2dp</dimen>
     <!-- Elevation value to use for CardViews on L+. -->
     <dimen name="cardview_elevation">2dp</dimen>
+    <!-- Shadow size for CardView on pre L. -->
+    <dimen name="cardview_shadow_size">2dp</dimen>
 </resources>

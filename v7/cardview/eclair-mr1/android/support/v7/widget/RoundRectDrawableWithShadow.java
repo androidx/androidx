@@ -34,7 +34,7 @@ import android.support.v7.cardview.R;
  * A rounded rectangle drawable which also includes a shadow around.
  */
 class RoundRectDrawableWithShadow extends Drawable {
-
+    final static float SHADOW_MULTIPLIER = 1.5f;
     /*
     * This helper is set by CardView implementations.
     * <p>
@@ -55,7 +55,7 @@ class RoundRectDrawableWithShadow extends Drawable {
 
     Path mCornerShadowPath;
 
-    float mShadowSize = 6;
+    float mShadowSize;
 
     private boolean mDirty = true;
 
@@ -66,6 +66,8 @@ class RoundRectDrawableWithShadow extends Drawable {
     RoundRectDrawableWithShadow(Resources resources, int backgroundColor, float radius) {
         mShadowStartColor = resources.getColor(R.color.cardview_shadow_start_color);
         mShadowEndColor = resources.getColor(R.color.cardview_shadow_end_color);
+        mShadowSize = resources.getDimension(R.dimen.cardview_shadow_size) * SHADOW_MULTIPLIER;
+
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mPaint.setColor(backgroundColor);
@@ -90,11 +92,9 @@ class RoundRectDrawableWithShadow extends Drawable {
 
     @Override
     public boolean getPadding(Rect padding) {
-        if (mCornerRadius == 0) {
-            return super.getPadding(padding);
-        }
-        final int intCornerRadius = (int) Math.ceil(mCornerRadius);
-        padding.set(intCornerRadius, intCornerRadius, intCornerRadius, intCornerRadius);
+        final int topShadow = (int) Math.ceil(mShadowSize * (1 / (SHADOW_MULTIPLIER * 2)));
+        final int sideShadow = (int) Math.ceil(mShadowSize - topShadow);
+        padding.set(sideShadow, topShadow, sideShadow, (int) Math.ceil(mShadowSize));
         return true;
     }
 
@@ -124,11 +124,16 @@ class RoundRectDrawableWithShadow extends Drawable {
             mDirty = false;
         }
         drawShadow(canvas);
-        final float offset = mShadowSize / 2f;
+        final float offset = mShadowSize * (1 - 1 / (SHADOW_MULTIPLIER * 2));
+        final float horizontalOffset = mShadowSize - offset;
         canvas.translate(0, -offset);
         mPreShadowBounds.bottom += offset;
+        mPreShadowBounds.left -= horizontalOffset;
+        mPreShadowBounds.right += horizontalOffset;
         sRoundRectHelper.drawRoundRect(canvas, mPreShadowBounds, mCornerRadius, mPaint);
         mPreShadowBounds.bottom -= offset;
+        mPreShadowBounds.left += horizontalOffset;
+        mPreShadowBounds.right -= horizontalOffset;
         canvas.translate(0, offset);
     }
 
