@@ -46,6 +46,25 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     }
 
     /**
+     * Search first occurrence of item in the list; return -1 if not found.
+     * @param item  The item to search in the list.
+     * @return First occurrence of item in the list or -1 if not found.
+     */
+    public int indexOf(Object item) {
+        return mItems.indexOf(item);
+    }
+
+    /**
+     * Notify content of range of items changed.  Note that this is not same
+     * as add or remove items.
+     * @param positionStart The position of first item that has changed.
+     * @param itemCount The count of how many items has changed.
+     */
+    public void notifyArrayItemRangeChanged(int positionStart, int itemCount) {
+        notifyItemRangeChanged(positionStart, itemCount);
+    }
+
+    /**
      * Adds an item to the end of the list.
      *
      * @param item The item to add to the end of the list.
