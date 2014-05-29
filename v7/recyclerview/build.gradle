@@ -10,6 +10,10 @@ android {
     compileSdkVersion 7
     buildToolsVersion "19.0.1"
 
+    defaultConfig {
+        minSdkVersion 7
+    }
+
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDir 'src'
@@ -20,5 +24,72 @@ android {
     lintOptions {
         // TODO: fix errors and reenable.
         abortOnError false
+    }
+}
+
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+
+    if (name.equals(com.android.builder.BuilderConstants.DEBUG)) {
+        return; // Skip debug builds.
+    }
+    def suffix = name.capitalize()
+
+    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
+        dependsOn variant.javaCompile
+        from variant.javaCompile.destinationDir
+        from 'LICENSE.txt'
+    }
+    def javadocTask = project.tasks.create(name: "javadoc${suffix}", type: Javadoc) {
+        source android.sourceSets.main.allJava
+        classpath = files(variant.javaCompile.classpath.files) + files(
+                "${android.plugin.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+    }
+
+    def javadocJarTask = project.tasks.create(name: "javadocJar${suffix}", type: Jar) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.allSource
+    }
+
+    artifacts.add('archives', javadocJarTask);
+    artifacts.add('archives', sourcesJarTask);
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
+            }
+
+            pom.project {
+                name 'Android Support RecyclerView v7'
+                description "Android Support RecyclerView v7"
+                url 'http://developer.android.com/tools/extras/support-library.html'
+                inceptionYear '2011'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                scm {
+                    url "http://source.android.com"
+                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
+                }
+                developers {
+                    developer {
+                        name 'The Android Open Source Project'
+                    }
+                }
+            }
+        }
     }
 }
