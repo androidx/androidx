@@ -2519,8 +2519,8 @@ public class RecyclerView extends ViewGroup {
                         "Scrapped or attached views may not be recycled.");
             }
 
-            if (mCachedViews.size() < mViewCacheMax && !holder.isInvalid() &&
-                    (mInPreLayout || !holder.isRemoved())) {
+            boolean cached = false;
+            if (!holder.isInvalid() && (mInPreLayout || !holder.isRemoved())) {
                 // Retire oldest cached views first
                 if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
                     for (int i = 0; i < mCachedViews.size(); i++) {
@@ -2533,8 +2533,12 @@ public class RecyclerView extends ViewGroup {
                         }
                     }
                 }
-                mCachedViews.add(holder);
-            } else if (holder.isRecyclable()) {
+                if (mCachedViews.size() < mViewCacheMax) {
+                    mCachedViews.add(holder);
+                    cached = true;
+                }
+            }
+            if (!cached && holder.isRecyclable()) {
                 getRecycledViewPool().putRecycledView(holder);
                 dispatchViewRecycled(holder);
             }
