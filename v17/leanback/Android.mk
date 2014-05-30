@@ -40,6 +40,16 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
+#  A helper sub-library that makes direct use of API 21.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v17-leanback-api21
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, api21)
+LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 #  A helper sub-library that makes direct use of KitKat APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback-kitkat
@@ -69,7 +79,7 @@ LOCAL_MODULE := android-support-v17-leanback
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat android-support-v17-leanback-jbmr2 \
-        android-support-v17-leanback-common
+        android-support-v17-leanback-api21 android-support-v17-leanback-common
 LOCAL_JAVA_LIBRARIES := \
         android-support-v4 \
         android-support-v7-recyclerview \
