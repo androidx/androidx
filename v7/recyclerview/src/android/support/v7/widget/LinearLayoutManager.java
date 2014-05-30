@@ -72,7 +72,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * Based on {@link #mOrientation}, an implementation is lazily created in
      * {@link #ensureRenderState} method.
      */
-    private OrientationHelper mOrientationHelper;
+    OrientationHelper mOrientationHelper;
 
     /**
      * We need to track this so that we can ignore current position when it changes.
@@ -1122,6 +1122,99 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         return getChildAt(mShouldReverseLayout ? 0 : getChildCount() - 1);
     }
 
+    /**
+     * Returns the adapter position of the first visible view.
+     * <p>
+     * Note that, this value is not affected by layout orientation or item order traversal.
+     * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
+     * not in the layout.
+     * <p>
+     * If RecyclerView has item decorators, they will be considered in calculations as well.
+     * <p>
+     * LinearLayoutManager may pre-cache some views that are not necessarily visible. Those views
+     * are ignored in this method.
+     *
+     * @return The adapter position of the first visible item or {@link RecyclerView#NO_POSITION} if
+     * there aren't any visible items.
+     * @see #findFirstCompletelyVisibleItemPosition()
+     * @see #findLastVisibleItemPosition()
+     */
+    public int findFirstVisibleItemPosition() {
+        return findOneVisibleChild(0, getChildCount(), false);
+    }
+
+    /**
+     * Returns the adapter position of the first fully visible view.
+     * <p>
+     * Note that bounds check is only performed in the current orientation. That means, if
+     * LinearLayoutManager is horizontal, it will only check the view's left and right edges.
+     *
+     * @return The adapter position of the first fully visible item or
+     * {@link RecyclerView#NO_POSITION} if there aren't any visible items.
+     * @see #findFirstVisibleItemPosition()
+     * @see #findLastCompletelyVisibleItemPosition()
+     */
+    public int findFirstCompletelyVisibleItemPosition() {
+        return findOneVisibleChild(0, getChildCount(), true);
+    }
+
+    /**
+     * Returns the adapter position of the last visible view.
+     * <p>
+     * Note that, this value is not affected by layout orientation or item order traversal.
+     * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
+     * not in the layout.
+     * <p>
+     * If RecyclerView has item decorators, they will be considered in calculations as well.
+     * <p>
+     * LinearLayoutManager may pre-cache some views that are not necessarily visible. Those views
+     * are ignored in this method.
+     *
+     * @return The adapter position of the last visible view or {@link RecyclerView#NO_POSITION} if
+     * there aren't any visible items.
+     * @see #findLastCompletelyVisibleItemPosition()
+     * @see #findFirstVisibleItemPosition()
+     */
+    public int findLastVisibleItemPosition() {
+        return findOneVisibleChild(getChildCount() - 1, -1, false);
+    }
+
+    /**
+     * Returns the adapter position of the last fully visible view.
+     * <p>
+     * Note that bounds check is only performed in the current orientation. That means, if
+     * LinearLayoutManager is horizontal, it will only check the view's left and right edges.
+     *
+     * @return The adapter position of the last fully visible view or
+     * {@link RecyclerView#NO_POSITION} if there aren't any visible items.
+     * @see #findLastVisibleItemPosition()
+     * @see #findFirstCompletelyVisibleItemPosition()
+     */
+    public int findLastCompletelyVisibleItemPosition() {
+        return findOneVisibleChild(getChildCount() - 1, -1, true);
+    }
+
+    int findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {
+        final int start = mOrientationHelper.getStartAfterPadding();
+        final int end = mOrientationHelper.getEndAfterPadding();
+        final int next = toIndex > fromIndex ? 1 : -1;
+        for (int i = fromIndex; i != toIndex; i+=next) {
+            final View child = getChildAt(i);
+            final int childStart = mOrientationHelper.getDecoratedStart(child);
+            final int childEnd = mOrientationHelper.getDecoratedEnd(child);
+            if (childStart < end && childEnd > start) {
+                if (completelyVisible) {
+                    if (childStart >= start && childEnd <= end) {
+                        return getPosition(child);
+                    }
+                } else {
+                    return getPosition(child);
+                }
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     @Override
     public View onFocusSearchFailed(View focused, int focusDirection,
             RecyclerView.Recycler recycler,
@@ -1466,7 +1559,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Helper interface to offload orientation based decisions
      */
-    private static interface OrientationHelper {
+    static interface OrientationHelper {
 
         /**
          * @param view The view element to check

@@ -2388,7 +2388,7 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * Obtain a view initialized for the given position.
-         * 
+         *
          * <p>This method should be used by {@link LayoutManager} implementations to obtain
          * views to represent data from an {@link Adapter}.</p>
          *
