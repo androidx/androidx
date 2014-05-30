@@ -86,10 +86,36 @@ final class ShadowHelper {
     }
 
     /**
+     * Implementation used on api 21 (and above).
+     */
+    private static final class ShadowHelperApi21Impl implements ShadowHelperVersionImpl {
+
+        @Override
+        public void prepareParent(ViewGroup parent) {
+            // do nothing
+        }
+
+        @Override
+        public Object addShadow(ViewGroup shadowContainer) {
+            return ShadowHelperApi21.addShadow(shadowContainer);
+        }
+
+        @Override
+        public void setShadowFocusLevel(Object impl, float level) {
+            ShadowHelperApi21.setShadowFocusLevel(impl, level);
+        }
+
+    }
+
+    /**
      * Returns the ShadowHelper.
      */
     private ShadowHelper() {
-        if (Build.VERSION.SDK_INT >= 18) {
+     // TODO: we should use version number once "L" is published
+        if ("L".equals(Build.VERSION.RELEASE)) {
+            mSupportsShadow = true;
+            mImpl = new ShadowHelperApi21Impl();
+        } else if (Build.VERSION.SDK_INT >= 18) {
             mSupportsShadow = true;
             mImpl = new ShadowHelperJbmr2Impl();
         } else {
