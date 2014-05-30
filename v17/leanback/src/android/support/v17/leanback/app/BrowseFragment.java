@@ -727,7 +727,7 @@ public class BrowseFragment extends Fragment {
             mSetSelectionRunnable.mPosition = position;
             mBrowseFrame.getHandler().post(mSetSelectionRunnable);
 
-            if (position == 0) {
+            if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
                 if (!mShowingTitle) {
                     sTransitionHelper.runTransition(mSceneWithTitle, mTitleDownTransition);
                     mShowingTitle = true;
