@@ -72,6 +72,8 @@ public class HeadersFragment extends BaseRowFragment {
             if (position >= 0) {
                 Row row = (Row) getAdapter().get(position);
                 mOnItemSelectedListener.onItemSelected(null, row);
+            } else {
+                mOnItemSelectedListener.onItemSelected(null, null);
             }
         }
     }
