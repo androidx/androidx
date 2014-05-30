@@ -27,8 +27,8 @@
 
     <ImageView
         android:id="@+id/browse_badge"
-        android:layout_width="@dimen/lb_browse_title_icon_width"
-        android:layout_height="@dimen/lb_browse_title_icon_height"
+        android:layout_width="@dimen/lb_browse_title_text_width"
+        android:layout_height="@dimen/lb_browse_title_height"
         android:layout_gravity="center_vertical|right"
         android:src="@null"
         android:visibility="gone"
