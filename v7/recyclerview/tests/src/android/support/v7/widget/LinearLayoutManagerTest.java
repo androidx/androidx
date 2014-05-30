@@ -17,14 +17,33 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.graphics.Rect;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Includes tests for {@link LinearLayoutManager}.
+ * <p>
+ * Since most UI tests are not practical, these tests are focused on internal data representation
+ * and stability of LinearLayoutManager in response to different events (state change, scrolling
+ * etc) where it is very hard to do manual testing.
+ */
 public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
+
+    private static final boolean DEBUG = false;
+
+    private static final String TAG = "LinearLayoutManagerTest";
 
     WrappedLinearLayoutManager mLayoutManager;
 
@@ -45,19 +64,39 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
     }
 
-    RecyclerView setupByConfig(Config config) throws Throwable {
-        final RecyclerView recyclerView = new RecyclerView(getActivity());
-        recyclerView.setHasFixedSize(true);
+    protected List<Config> addConfigVariation(List<Config> base, String fieldName,
+            Object... variations)
+            throws CloneNotSupportedException, NoSuchFieldException, IllegalAccessException {
+        List<Config> newConfigs = new ArrayList<Config>();
+        Field field = Config.class.getDeclaredField(fieldName);
+        for (Config config : base) {
+            for (Object variation : variations) {
+                Config newConfig = (Config) config.clone();
+                field.set(newConfig, variation);
+                newConfigs.add(newConfig);
+            }
+        }
+        return newConfigs;
+    }
+
+    void setupByConfig(Config config, boolean waitForFirstLayout) throws Throwable {
+        mRecyclerView = new RecyclerView(getActivity());
+        mRecyclerView.setHasFixedSize(true);
         mTestAdapter = new TestAdapter(config.mItemCount);
-        recyclerView.setAdapter(mTestAdapter);
+        mRecyclerView.setAdapter(mTestAdapter);
         mLayoutManager = new WrappedLinearLayoutManager(getActivity(), config.mOrientation,
                 config.mReverseLayout);
         mLayoutManager.setStackFromEnd(config.mStackFromEnd);
-        recyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        if (waitForFirstLayout) {
+            waitForFirstLayout();
+        }
+    }
+
+    private void waitForFirstLayout() throws Throwable {
         mLayoutManager.expectLayouts(1);
-        setRecyclerView(recyclerView);
+        setRecyclerView(mRecyclerView);
         mLayoutManager.waitForLayout(2);
-        return recyclerView;
     }
 
 
@@ -68,7 +107,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     }
 
     public void getFirstLastChildrenTest(final Config config) throws Throwable {
-        setupByConfig(config);
+        setupByConfig(config, true);
         Runnable viewInBoundsTest = new Runnable() {
             @Override
             public void run() {
@@ -141,6 +180,245 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         runTestOnUiThread(viewInBoundsTest);
     }
 
+    public void testSavedState() throws Throwable {
+        PostLayoutRunnable[] postLayoutOptions = new PostLayoutRunnable[]{
+                new PostLayoutRunnable() {
+                    @Override
+                    public void run() throws Throwable {
+                        // do nothing
+                    }
+
+                    @Override
+                    public String describe() {
+                        return "doing nothing";
+                    }
+                },
+                new PostLayoutRunnable() {
+                    @Override
+                    public void run() throws Throwable {
+                        mLayoutManager.expectLayouts(1);
+                        scrollToPosition(mTestAdapter.getItemCount() * 3 / 4);
+                        mLayoutManager.waitForLayout(2);
+                    }
+
+                    @Override
+                    public String describe() {
+                        return "scroll to position";
+                    }
+                },
+                new PostLayoutRunnable() {
+                    @Override
+                    public void run() throws Throwable {
+                        mLayoutManager.expectLayouts(1);
+                        scrollToPositionWithOffset(mTestAdapter.getItemCount() * 1 / 3,
+                                50);
+                        mLayoutManager.waitForLayout(2);
+                    }
+
+                    @Override
+                    public String describe() {
+                        return "scroll to position with positive offset";
+                    }
+                },
+                new PostLayoutRunnable() {
+                    @Override
+                    public void run() throws Throwable {
+                        mLayoutManager.expectLayouts(1);
+                        scrollToPositionWithOffset(mTestAdapter.getItemCount() * 2 / 3,
+                                -50);
+                        mLayoutManager.waitForLayout(2);
+                    }
+
+                    @Override
+                    public String describe() {
+                        return "scroll to position with negative offset";
+                    }
+                }
+        };
+
+        PostRestoreRunnable[] postRestoreOptions = new PostRestoreRunnable[]{
+                new PostRestoreRunnable() {
+                    @Override
+                    public String describe() {
+                        return "Doing nothing";
+                    }
+                },
+                new PostRestoreRunnable() {
+                    @Override
+                    void onAfterRestore(Config config) throws Throwable {
+                        // update config as well so that restore assertions will work
+                        config.mOrientation = 1 - config.mOrientation;
+                        mLayoutManager.setOrientation(config.mOrientation);
+                    }
+
+                    @Override
+                    boolean shouldLayoutMatch(Config config) {
+                        return config.mItemCount == 0;
+                    }
+
+                    @Override
+                    public String describe() {
+                        return "Changing orientation";
+                    }
+                },
+                new PostRestoreRunnable() {
+                    @Override
+                    void onAfterRestore(Config config) throws Throwable {
+                        config.mStackFromEnd = !config.mStackFromEnd;
+                        mLayoutManager.setStackFromEnd(config.mStackFromEnd);
+                    }
+
+                    @Override
+                    boolean shouldLayoutMatch(Config config) {
+                        return true; //stack from end should not move items on change
+                    }
+
+                    @Override
+                    public String describe() {
+                        return "Changing stack from end";
+                    }
+                },
+                new PostRestoreRunnable() {
+                    @Override
+                    void onAfterRestore(Config config) throws Throwable {
+                        config.mReverseLayout = !config.mReverseLayout;
+                        mLayoutManager.setReverseLayout(config.mReverseLayout);
+                    }
+
+                    @Override
+                    boolean shouldLayoutMatch(Config config) {
+                        return config.mItemCount == 0;
+                    }
+
+                    @Override
+                    public String describe() {
+                        return "Changing reverse layout";
+                    }
+                }
+        };
+        boolean[] waitForLayoutOptions = new boolean[]{false, true};
+        for (Config config : addConfigVariation(mBaseVariations, "mItemCount", 0, 300)) {
+            for (PostLayoutRunnable postLayoutRunnable : postLayoutOptions) {
+                for (boolean waitForLayout : waitForLayoutOptions) {
+                    for (PostRestoreRunnable postRestoreRunnable : postRestoreOptions) {
+                        savedStateTest((Config) config.clone(), waitForLayout, postLayoutRunnable,
+                                postRestoreRunnable);
+                        removeRecyclerView();
+                    }
+
+                }
+            }
+        }
+    }
+
+    public void savedStateTest(Config config, boolean waitForLayout,
+            PostLayoutRunnable postLayoutOperation, PostRestoreRunnable postRestoreOperation)
+            throws Throwable {
+        if (DEBUG) {
+            Log.d(TAG, "testing saved state with wait for layout = " + waitForLayout + " config " +
+                    config + " post layout action " + postLayoutOperation.describe() +
+                    "post restore action " + postRestoreOperation.describe());
+        }
+        setupByConfig(config, false);
+        if (waitForLayout) {
+            waitForFirstLayout();
+            postLayoutOperation.run();
+        }
+        Map<Item, Rect> before = mLayoutManager.collectChildCoordinates();
+        Parcelable savedState = mRecyclerView.onSaveInstanceState();
+        // we append a suffix to the parcelable to test out of bounds
+        String parcelSuffix = UUID.randomUUID().toString();
+        Parcel parcel = Parcel.obtain();
+        savedState.writeToParcel(parcel, 0);
+        parcel.writeString(parcelSuffix);
+        removeRecyclerView();
+        // reset for reading
+        parcel.setDataPosition(0);
+        // re-create
+        savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
+        removeRecyclerView();
+
+        RecyclerView restored = new RecyclerView(getActivity());
+        // this config should be no op.
+        mLayoutManager = new WrappedLinearLayoutManager(getActivity(),
+                1 - config.mOrientation, !config.mReverseLayout);
+        mLayoutManager.setStackFromEnd(!config.mStackFromEnd);
+        restored.setLayoutManager(mLayoutManager);
+        // use the same adapter for Rect matching
+        restored.setAdapter(mTestAdapter);
+        restored.onRestoreInstanceState(savedState);
+        postRestoreOperation.onAfterRestore(config);
+        assertEquals("Parcel reading should not go out of bounds", parcelSuffix,
+                parcel.readString());
+        mLayoutManager.expectLayouts(1);
+        setRecyclerView(restored);
+        mLayoutManager.waitForLayout(2);
+        // calculate prefix here instead of above to include post restore changes
+        final String logPrefix = config + "\npostLayout:" + postLayoutOperation.describe() +
+                "\npostRestore:" + postRestoreOperation.describe() + "\n";
+        assertEquals(logPrefix + " on saved state, reverse layout should be preserved",
+                config.mReverseLayout, mLayoutManager.getReverseLayout());
+        assertEquals(logPrefix + " on saved state, orientation should be preserved",
+                config.mOrientation, mLayoutManager.getOrientation());
+        assertEquals(logPrefix + " on saved state, stack from end should be preserved",
+                config.mStackFromEnd, mLayoutManager.getStackFromEnd());
+        if (waitForLayout) {
+            if (postRestoreOperation.shouldLayoutMatch(config)) {
+                assertRectSetsEqual(
+                        logPrefix + ": on restore, previous view positions should be preserved",
+                        before, mLayoutManager.collectChildCoordinates());
+            } else {
+                assertRectSetsNotEqual(
+                        logPrefix
+                                + ": on restore with changes, previous view positions should NOT be preserved",
+                        before, mLayoutManager.collectChildCoordinates());
+            }
+        }
+    }
+
+    void scrollToPositionWithOffset(final int position, final int offset) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLayoutManager.scrollToPositionWithOffset(position, offset);
+            }
+        });
+    }
+
+    public void assertRectSetsNotEqual(String message, Map<Item, Rect> before,
+            Map<Item, Rect> after) {
+        Throwable throwable = null;
+        try {
+            assertRectSetsEqual("NOT " + message, before, after);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertNotNull(message + "\ntwo layout should be different", throwable);
+    }
+
+    public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after) {
+        if (DEBUG) {
+            Log.d(TAG, "checking rectangle equality.");
+            Log.d(TAG, "before:");
+            for (Map.Entry<Item, Rect> entry : before.entrySet()) {
+                Log.d(TAG, entry.getKey().originalIndex + ":" + entry.getValue());
+            }
+            Log.d(TAG, "after:");
+            for (Map.Entry<Item, Rect> entry : after.entrySet()) {
+                Log.d(TAG, entry.getKey().originalIndex + ":" + entry.getValue());
+            }
+        }
+        assertEquals(message + ":\nitem counts should be equal", before.size()
+                , after.size());
+        for (Map.Entry<Item, Rect> entry : before.entrySet()) {
+            Rect afterRect = after.get(entry.getKey());
+            assertNotNull(message + ":\nSame item should be visible after simple re-layout",
+                    afterRect);
+            assertEquals(message + ":\nItem should be laid out at the same coordinates",
+                    entry.getValue(), afterRect);
+        }
+    }
+
     static class VisibleChildren {
 
         int firstVisiblePosition = RecyclerView.NO_POSITION;
@@ -162,9 +440,30 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
     }
 
-    static class WrappedLinearLayoutManager extends LinearLayoutManager {
+    abstract private class PostLayoutRunnable {
+
+        abstract void run() throws Throwable;
+
+        abstract String describe();
+    }
+
+    abstract private class PostRestoreRunnable {
+
+        void onAfterRestore(Config config) throws Throwable {
+        }
+
+        abstract String describe();
+
+        boolean shouldLayoutMatch(Config config) {
+            return true;
+        }
+    }
+
+    class WrappedLinearLayoutManager extends LinearLayoutManager {
 
         CountDownLatch layoutLatch;
+
+        OrientationHelper mSecondaryOrientation;
 
         public WrappedLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
             super(context, orientation, reverseLayout);
@@ -176,6 +475,22 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         public void waitForLayout(long timeout) throws InterruptedException {
             waitForLayout(timeout, TimeUnit.SECONDS);
+        }
+
+        @Override
+        public void setOrientation(int orientation) {
+            super.setOrientation(orientation);
+            mSecondaryOrientation = null;
+        }
+
+        @Override
+        void ensureRenderState() {
+            super.ensureRenderState();
+            if (mSecondaryOrientation == null) {
+                mSecondaryOrientation = getOrientation() == HORIZONTAL
+                        ? createVerticalOrientationHelper()
+                        : createHorizontalOrientationHelper();
+            }
         }
 
         private void waitForLayout(long timeout, TimeUnit timeUnit) throws InterruptedException {
@@ -239,6 +554,41 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             return visibleChildren;
         }
 
+        Rect getViewBounds(View view) {
+            if (getOrientation() == HORIZONTAL) {
+                return new Rect(
+                        mOrientationHelper.getDecoratedStart(view),
+                        mSecondaryOrientation.getDecoratedStart(view),
+                        mOrientationHelper.getDecoratedEnd(view),
+                        mSecondaryOrientation.getDecoratedEnd(view));
+            } else {
+                return new Rect(
+                        mSecondaryOrientation.getDecoratedStart(view),
+                        mOrientationHelper.getDecoratedStart(view),
+                        mSecondaryOrientation.getDecoratedEnd(view),
+                        mOrientationHelper.getDecoratedEnd(view));
+            }
+
+        }
+
+        Map<Item, Rect> collectChildCoordinates() throws Throwable {
+            final Map<Item, Rect> items = new LinkedHashMap<Item, Rect>();
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final int childCount = getChildCount();
+                    for (int i = 0; i < childCount; i++) {
+                        View child = getChildAt(i);
+                        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child
+                                .getLayoutParams();
+                        TestViewHolder vh = (TestViewHolder) lp.mViewHolder;
+                        items.put(vh.mBindedItem, getViewBounds(child));
+                    }
+                }
+            });
+            return items;
+        }
+
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
             super.onLayoutChildren(recycler, state);
@@ -246,7 +596,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
     }
 
-    static class Config {
+    static class Config implements Cloneable {
 
         private static final int DEFAULT_ITEM_COUNT = 300;
 
@@ -286,6 +636,12 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         public Config itemCount(int itemCount) {
             mItemCount = itemCount;
             return this;
+        }
+
+        // required by convention
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            return super.clone();
         }
 
         @Override
