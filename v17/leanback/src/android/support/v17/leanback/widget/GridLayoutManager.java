@@ -1819,7 +1819,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int newFocusPosition = getPositionByView(view);
         if (mInLayout || newFocusPosition != mFocusPosition) {
             mFocusPosition = newFocusPosition;
-            dispatchChildSelected();
+            if (mState == null || !mState.isPreLayout()) {
+                dispatchChildSelected();
+            }
         }
         if (mBaseGridView.isChildrenDrawingOrderEnabledInternal()) {
             mBaseGridView.invalidate();
