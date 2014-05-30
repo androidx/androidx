@@ -17,17 +17,19 @@ import android.support.v17.leanback.R;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,15 +87,6 @@ public final class BackgroundManager {
      */
     private static final boolean USE_SEPARATE_WINDOW = false;
 
-    /**
-     * If true, bitmaps will be scaled to the exact display size.
-     * Small bitmaps will be scaled up, using more memory but improving display quality.
-     * Large bitmaps will be scaled down to use less memory.
-     * Introduces an allocation overhead.
-     * TODO: support a leanback configuration option.
-     */
-    private static final boolean SCALE_BITMAPS_TO_FIT = true;
-
     private static final String WINDOW_NAME = "BackgroundManager";
     private static final String FRAGMENT_TAG = BackgroundManager.class.getCanonicalName();
 
@@ -111,7 +104,55 @@ public final class BackgroundManager {
     private int mBackgroundColor;
     private boolean mAttached;
 
-    private class DrawableWrapper {
+    private static class BitmapDrawable extends Drawable {
+
+        Bitmap mBitmap;
+        Matrix mMatrix;
+        Paint mPaint;
+
+        BitmapDrawable(Resources resources, Bitmap bitmap) {
+            this(resources, bitmap, null);
+        }
+
+        BitmapDrawable(Resources resources, Bitmap bitmap, Matrix matrix) {
+            mBitmap = bitmap;
+            mMatrix = matrix != null ? matrix : new Matrix();
+            mPaint = new Paint();
+            mPaint.setFilterBitmap(true);
+        }
+
+        Bitmap getBitmap() {
+            return mBitmap;
+        }
+
+        @Override
+        public void draw(Canvas canvas) {
+            if (mBitmap == null) {
+                return;
+            }
+            canvas.drawBitmap(mBitmap, mMatrix, mPaint);
+        }
+
+        @Override
+        public int getOpacity() {
+            return android.graphics.PixelFormat.OPAQUE;
+        }
+
+        @Override
+        public void setAlpha(int alpha) {
+            if (mPaint.getAlpha() != alpha) {
+                mPaint.setAlpha(alpha);
+                invalidateSelf();
+            }
+        }
+
+        @Override
+        public void setColorFilter(ColorFilter cf) {
+            // Abstract in Drawable, not implemented
+        }
+    }
+
+    private static class DrawableWrapper {
         protected int mAlpha;
         protected Drawable mDrawable;
         protected ObjectAnimator mAnimator;
@@ -318,10 +359,6 @@ public final class BackgroundManager {
 
         if (DEBUG) Log.v(TAG, "syncWithService color " + Integer.toHexString(color)
                 + " drawable " + drawable);
-
-        if (drawable != null) {
-            drawable = drawable.getConstantState().newDrawable(mContext.getResources()).mutate();
-        }
 
         mBackgroundColor = color;
         mBackgroundDrawable = drawable;
@@ -531,52 +568,32 @@ public final class BackgroundManager {
             return;
         }
 
-        if (mBackgroundDrawable instanceof BitmapDrawable &&
-                ((BitmapDrawable) mBackgroundDrawable).getBitmap() == bitmap) {
-            if (DEBUG) {
-                Log.v(TAG, "same bitmap detected");
-            }
-            mService.setDrawable(mBackgroundDrawable);
-            return;
-        }
+        Matrix matrix = null;
 
-        if (SCALE_BITMAPS_TO_FIT &&
-                (bitmap.getWidth() != mWidthPx || bitmap.getHeight() != mHeightPx)) {
-            // Scale proportionately to fit width and height.
-
-            Matrix matrix = new Matrix();
-
+        if ((bitmap.getWidth() != mWidthPx || bitmap.getHeight() != mHeightPx)) {
             int dwidth = bitmap.getWidth();
             int dheight = bitmap.getHeight();
             float scale;
-            int dx;
 
-            if (DEBUG) {
-                Log.v(TAG, "original image size " + dwidth + "x" + dheight);
-            }
-
+            // Scale proportionately to fit width and height.
             if (dwidth * mHeightPx > mWidthPx * dheight) {
                 scale = (float) mHeightPx / (float) dheight;
             } else {
                 scale = (float) mWidthPx / (float) dwidth;
             }
 
-            matrix.setScale(scale, scale);
-
-            if (DEBUG) {
-                Log.v(TAG, "original image size " + bitmap.getWidth() + "x" + bitmap.getHeight());
-            }
             int subX = Math.min((int) (mWidthPx / scale), dwidth);
-            int subY = Math.min((int) (mHeightPx / scale), dheight);
-            dx = Math.max(0, (dwidth - subX) / 2);
+            int dx = Math.max(0, (dwidth - subX) / 2);
 
-            bitmap = Bitmap.createBitmap(bitmap, dx, 0, subX, subY, matrix, true);
-            if (DEBUG) {
-                Log.v(TAG, "new image size " + bitmap.getWidth() + "x" + bitmap.getHeight());
-            }
+            matrix = new Matrix();
+            matrix.setScale(scale, scale);
+            matrix.preTranslate(-dx, 0);
+
+            if (DEBUG) Log.v(TAG, "original image size " + bitmap.getWidth() + "x" + bitmap.getHeight() +
+                    " scale " + scale + " dx " + dx);
         }
 
-        BitmapDrawable bitmapDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
+        BitmapDrawable bitmapDrawable = new BitmapDrawable(mContext.getResources(), bitmap, matrix);
 
         setDrawableInternal(bitmapDrawable);
     }
@@ -629,6 +646,21 @@ public final class BackgroundManager {
         return mBackgroundDrawable;
     }
 
+    private boolean sameDrawable(Drawable first, Drawable second) {
+        if (first == null || second == null) {
+            return false;
+        }
+        if (first == second) {
+            return true;
+        }
+        if (first instanceof BitmapDrawable && second instanceof BitmapDrawable) {
+            if (((BitmapDrawable) first).getBitmap().sameAs(((BitmapDrawable) second).getBitmap())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Task which changes the background.
      */
@@ -652,22 +684,10 @@ public final class BackgroundManager {
         }
 
         private void runTask() {
-            boolean newBackground = false;
             lazyInit();
 
-            if (mDrawable != mBackgroundDrawable) {
-                newBackground = true;
-                if (mDrawable instanceof BitmapDrawable &&
-                        mBackgroundDrawable instanceof BitmapDrawable) {
-                    if (((BitmapDrawable) mDrawable).getBitmap() ==
-                            ((BitmapDrawable) mBackgroundDrawable).getBitmap()) {
-                        if (DEBUG) Log.v(TAG, "same underlying bitmap detected");
-                        newBackground = false;
-                    }
-                }
-            }
-
-            if (!newBackground) {
+            if (sameDrawable(mDrawable, mBackgroundDrawable)) {
+                if (DEBUG) Log.v(TAG, "same bitmap detected");
                 return;
             }
 
