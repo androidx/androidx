@@ -48,67 +48,94 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         final HorizontalGridView mActionsRow;
         final View mMoreActionsView;
         Presenter.ViewHolder mDetailsDescriptionViewHolder;
+        int mNumItems;
+        boolean mShowMoreRight;
+        boolean mShowMoreLeft;
+        boolean mShowMoreActions;
 
-        class ScrollListener implements RecyclerView.OnScrollListener {
-            ObjectAdapter mAdapter;
-            boolean mShowMoreRight;
-            boolean mShowMoreLeft;
+        void bind(ItemBridgeAdapter bridgeAdapter) {
+            mNumItems = bridgeAdapter.getItemCount();
+            bridgeAdapter.setAdapterListener(mAdapterListener);
 
-            void bind(ObjectAdapter adapter) {
-                mAdapter = adapter;
+            mMoreActionsView.setAlpha(0f);
+            mShowMoreRight = false;
+            mShowMoreActions = false;
 
-                mMoreActionsView.setAlpha(0f);
-                mShowMoreRight = false;
-                showMoreRight(true);
+            mShowMoreLeft = true;
+            showMoreLeft(false);
+        }
 
-                mShowMoreLeft = true;
-                showMoreLeft(false);
+        final ItemBridgeAdapter.AdapterListener mAdapterListener =
+                new ItemBridgeAdapter.AdapterListener() {
+
+            @Override
+            public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+                checkFirstAndLastPosition(false);
             }
+            @Override
+            public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+                checkFirstAndLastPosition(false);
+            }
+        };
+
+        final RecyclerView.OnScrollListener mScrollListener =
+                new RecyclerView.OnScrollListener() {
 
             @Override
             public void onScrollStateChanged(int newState) {
             }
-
             @Override
             public void onScrolled(int dx, int dy) {
-                View view;
-                int position;
-
-                view = mActionsRow.getChildAt(mActionsRow.getChildCount() - 1);
-                position = mActionsRow.getChildViewHolder(view).getPosition();
-                if (position < (mAdapter.size() - 1) || view.getRight() > mActionsRow.getWidth()) {
-                    showMoreRight(true);
-                } else {
-                    showMoreRight(false);
-                }
-
-                view = mActionsRow.getChildAt(0);
-                position = mActionsRow.getChildViewHolder(view).getPosition();
-                if (position != 0 || view.getLeft() < 0) {
-                    showMoreLeft(true);
-                } else {
-                    showMoreLeft(false);
-                }
+                checkFirstAndLastPosition(true);
             }
+        };
 
-            private void showMoreLeft(boolean show) {
-                if (show != mShowMoreLeft) {
-                    mActionsRow.setFadingLeftEdge(show);
-                    mShowMoreLeft = show;
-                }
-            }
+        private int getViewCenter(View view) {
+            return (view.getRight() - view.getLeft()) / 2;
+        }
 
-            private void showMoreRight(boolean show) {
-                if (show != mShowMoreRight) {
-                    mMoreActionsView.animate().alpha(show ? 1f : 0).setDuration(
-                            MORE_ACTIONS_FADE_MS).start();
-                    mActionsRow.setFadingRightEdge(show);
-                    mShowMoreRight = show;
-                }
+        private void checkFirstAndLastPosition(boolean fromScroll) {
+            RecyclerView.ViewHolder viewHolder;
+
+            viewHolder = mActionsRow.findViewHolderForPosition(mNumItems - 1);
+            boolean showRight = (viewHolder == null ||
+                    viewHolder.itemView.getRight() > mActionsRow.getWidth());
+
+            boolean showMore = (viewHolder == null ||
+                    getViewCenter(viewHolder.itemView) > mActionsRow.getWidth());
+
+            viewHolder = mActionsRow.findViewHolderForPosition(0);
+            boolean showLeft = (viewHolder == null || viewHolder.itemView.getLeft() < 0);
+
+            if (DEBUG) Log.v(TAG, "checkFirstAndLast fromScroll " + fromScroll +
+                    " showRight " + showRight + " showLeft " + showLeft);
+
+            showMoreActions(showMore);
+            showMoreRight(showRight);
+            showMoreLeft(showLeft);
+        }
+
+        private void showMoreLeft(boolean show) {
+            if (show != mShowMoreLeft) {
+                mActionsRow.setFadingLeftEdge(show);
+                mShowMoreLeft = show;
             }
         }
 
-        final ScrollListener mScrollListener = new ScrollListener();
+        private void showMoreRight(boolean show) {
+            if (show != mShowMoreRight) {
+                mActionsRow.setFadingRightEdge(show);
+                mShowMoreRight = show;
+            }
+        }
+
+        private void showMoreActions(boolean show) {
+            if (show != mShowMoreActions) {
+                mMoreActionsView.animate().alpha(show ? 1f : 0).setDuration(
+                        MORE_ACTIONS_FADE_MS).start();
+                mShowMoreActions = show;
+            }
+        }
 
         public ViewHolder(View rootView) {
             super(rootView);
@@ -243,10 +270,11 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         mActionBridgeAdapter.clear();
         ArrayObjectAdapter aoa = new ArrayObjectAdapter(mActionPresenterSelector);
         aoa.addAll(0, (Collection)row.getActions());
-        vh.mScrollListener.bind(aoa);
 
         mActionBridgeAdapter.setAdapter(aoa);
         vh.mActionsRow.setAdapter(mActionBridgeAdapter);
+
+        vh.bind(mActionBridgeAdapter);
     }
 
     @Override
