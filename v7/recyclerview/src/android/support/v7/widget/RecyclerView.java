@@ -1269,7 +1269,10 @@ public class RecyclerView extends ViewGroup {
             resumeRequestLayout(false);
         }
 
-        mLayout.onMeasure(widthSpec, heightSpec);
+        if (mAdapter != null) {
+            mState.mItemCount = mAdapter.getItemCount();
+        }
+        mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
 
         final int widthSize = getMeasuredWidth();
         final int heightSize = getMeasuredHeight();
@@ -4321,10 +4324,12 @@ public class RecyclerView extends ViewGroup {
          * as UNSPECIFIED. AT_MOST measurements will be treated as EXACTLY and the RecyclerView
          * will consume all available space.</p>
          *
+         * @param recycler Recycler
+         * @param state Transient state of RecyclerView
          * @param widthSpec Width {@link android.view.View.MeasureSpec}
          * @param heightSpec Height {@link android.view.View.MeasureSpec}
          */
-        public void onMeasure(int widthSpec, int heightSpec) {
+        public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
             final int widthMode = MeasureSpec.getMode(widthSpec);
             final int heightMode = MeasureSpec.getMode(heightSpec);
             final int widthSize = MeasureSpec.getSize(widthSpec);
