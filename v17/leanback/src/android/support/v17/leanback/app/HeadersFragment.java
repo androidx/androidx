@@ -47,7 +47,8 @@ public class HeadersFragment extends BaseRowFragment {
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnHeaderClickedListener mOnHeaderClickedListener;
-    private boolean mShow = true;
+    private boolean mHeadersEnabled = true;
+    private boolean mHeadersGone = false;
     private int mBackgroundColor;
     private boolean mBackgroundColorSet;
 
@@ -121,13 +122,23 @@ public class HeadersFragment extends BaseRowFragment {
             FocusHighlightHelper.setupHeaderItemFocusHighlight(listView);
         }
         listView.setBackgroundColor(getBackgroundColor());
+        listView.setVisibility(mHeadersGone ? View.GONE : View.VISIBLE);
+        listView.setLayoutEnabled(mHeadersEnabled);
     }
 
-    void setHeadersVisiblity(boolean show) {
-        mShow = show;
+    void setHeadersEnabled(boolean enabled) {
+        mHeadersEnabled = enabled;
         final VerticalGridView listView = getVerticalGridView();
         if (listView != null) {
-            listView.setLayoutEnabled(show);
+            listView.setLayoutEnabled(mHeadersEnabled);
+        }
+    }
+
+    void setHeadersGone(boolean gone) {
+        mHeadersGone = gone;
+        final VerticalGridView listView = getVerticalGridView();
+        if (listView != null) {
+            listView.setVisibility(mHeadersGone ? View.GONE : View.VISIBLE);
         }
     }
 
