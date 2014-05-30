@@ -1389,7 +1389,7 @@ public class RecyclerView extends ViewGroup {
             mInPreLayout = true;
             final boolean didStructureChange = mState.mStructureChanged;
             mState.mStructureChanged = false;
-            // temporarly disable flag because we are asking for previous layout
+            // temporarily disable flag because we are asking for previous layout
             mLayout.onLayoutChildren(mRecycler, mState);
             mState.mStructureChanged = didStructureChange;
             mInPreLayout = false;
@@ -1486,7 +1486,7 @@ public class RecyclerView extends ViewGroup {
             }
         }
         resumeRequestLayout(false);
-        mLayout.removeAndRecycleScrapInt(mRecycler);
+        mLayout.removeAndRecycleScrapInt(mRecycler, !animateChanges);
         mState.mPreviousLayoutItemCount = mState.mItemCount;
         mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
     }
@@ -3824,14 +3824,30 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
-        void removeAndRecycleScrapInt(Recycler recycler) {
+        /**
+         * Recycles the scrapped views.
+         * <p>
+         * When a view is detached and removed, it does not trigger a ViewGroup invalidate. This is
+         * the expected behavior if scrapped views are used for animations. Otherwise, we need to
+         * call remove and invalidate RecyclerView to ensure UI update.
+         *
+         * @param recycler Recycler
+         * @param remove   Whether scrapped views should be removed from ViewGroup or not. This
+         *                 method will invalidate RecyclerView if it removes any scrapped child.
+         */
+        void removeAndRecycleScrapInt(Recycler recycler, boolean remove) {
             final int scrapCount = recycler.getScrapCount();
             for (int i = 0; i < scrapCount; i++) {
                 final View scrap = recycler.getScrapViewAt(i);
-                ViewHolder holder = mRecyclerView.getChildViewHolder(scrap);
+                if (remove) {
+                    mRecyclerView.removeDetachedView(scrap, false);
+                }
                 recycler.quickRecycleScrapView(scrap);
             }
             recycler.clearScrap();
+            if (remove && scrapCount > 0) {
+                mRecyclerView.invalidate();
+            }
         }
 
 

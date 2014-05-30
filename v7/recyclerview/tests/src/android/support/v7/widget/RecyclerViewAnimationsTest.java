@@ -17,10 +17,12 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
@@ -56,7 +58,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
     RecyclerView setupBasic(int itemCount, int firstLayoutStartIndex, int firstLayoutItemCount)
             throws Throwable {
-        final RecyclerView recyclerView = new TestRecyclerView(getActivity());
+        final TestRecyclerView recyclerView = new TestRecyclerView(getActivity());
         recyclerView.setHasFixedSize(true);
         mTestAdapter = new TestAdapter(itemCount);
         recyclerView.setAdapter(mTestAdapter);
@@ -66,8 +68,11 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = firstLayoutItemCount;
 
         mLayoutManager.expectLayouts(1);
+        recyclerView.expectDraw(1);
         setRecyclerView(recyclerView);
         mLayoutManager.waitForLayout(2);
+        recyclerView.waitForDraw(1);
+        mLayoutManager.mOnLayoutCallbacks.reset();
         return recyclerView;
     }
 
@@ -95,6 +100,26 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         setExpectedItemCounts(10, 13);
         mTestAdapter.addAndNotify(2, 3);
         mLayoutManager.waitForLayout(2);
+    }
+
+    public TestRecyclerView getTestRecyclerView() {
+        return (TestRecyclerView) mRecyclerView;
+    }
+
+    public void testRemoveScrapInvalidate() throws Throwable {
+        setupBasic(10);
+        TestRecyclerView testRecyclerView = getTestRecyclerView();
+        mLayoutManager.expectLayouts(1);
+        testRecyclerView.expectDraw(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTestAdapter.mItems.clear();
+                mTestAdapter.notifyDataSetChanged();
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+        testRecyclerView.waitForDraw(2);
     }
 
     public void testDeleteVisibleAndInvisible() throws Throwable {
@@ -298,6 +323,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
     }
 
     class TestRecyclerView extends RecyclerView {
+        CountDownLatch drawLatch;
 
         public TestRecyclerView(Context context) {
             super(context);
@@ -309,6 +335,24 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
         public TestRecyclerView(Context context, AttributeSet attrs, int defStyle) {
             super(context, attrs, defStyle);
+        }
+
+        public void expectDraw(int count) {
+            drawLatch = new CountDownLatch(count);
+        }
+
+        public void waitForDraw(long timeout) throws Throwable {
+            drawLatch.await(timeout * (DEBUG ? 100 : 1), TimeUnit.SECONDS);
+            assertEquals("all expected draws should happen at the expected time frame",
+                    0, drawLatch.getCount());
+        }
+
+        @Override
+        protected void dispatchDraw(Canvas canvas) {
+            super.dispatchDraw(canvas);
+            if (drawLatch != null) {
+                drawLatch.countDown();
+            }
         }
 
         @Override
