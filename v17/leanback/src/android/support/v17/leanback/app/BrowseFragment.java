@@ -537,6 +537,9 @@ public class BrowseFragment extends Fragment {
             mRowsFragment = (RowsFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
+
+        mHeadersFragment.setHeadersGone(!mCanShowHeaders);
+
         mRowsFragment.setAdapter(mAdapter);
         if (mHeaderPresenterSelector != null) {
             mHeadersFragment.setPresenterSelector(mHeaderPresenterSelector);
@@ -669,7 +672,7 @@ public class BrowseFragment extends Fragment {
 
     private void showHeaders(boolean show) {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
-        mHeadersFragment.setHeadersVisiblity(show);
+        mHeadersFragment.setHeadersEnabled(show);
         MarginLayoutParams lp;
         View containerList;
 
@@ -768,7 +771,9 @@ public class BrowseFragment extends Fragment {
                 && mRowsFragment.getView() != null) {
             mRowsFragment.getView().requestFocus();
         }
-        showHeaders(mCanShowHeaders && mShowingHeaders);
+        if (mCanShowHeaders) {
+            showHeaders(mShowingHeaders);
+        }
     }
 
     /**
@@ -851,6 +856,9 @@ public class BrowseFragment extends Fragment {
             default:
                 Log.w(TAG, "Unknown headers state: " + headersState);
                 break;
+        }
+        if (mHeadersFragment != null) {
+            mHeadersFragment.setHeadersGone(!mCanShowHeaders);
         }
     }
 }
