@@ -152,9 +152,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         SavedState state = new SavedState();
         if (getChildCount() > 0) {
             boolean didLayoutFromEnd = mLastStackFromEnd ^ mShouldReverseLayout;
-            state.mOrientation = mOrientation;
             state.mAnchorLayoutFromEnd = didLayoutFromEnd;
-
             if (didLayoutFromEnd) {
                 final View refChild = getChildClosestToEnd();
                 state.mAnchorOffset = mOrientationHelper.getEndAfterPadding() -
@@ -172,6 +170,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         state.mStackFromEnd = mStackFromEnd;
         state.mReverseLayout = mReverseLayout;
+        state.mOrientation = mOrientation;
         return state;
     }
 
@@ -208,6 +207,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * Compatibility support for {@link android.widget.AbsListView#setStackFromBottom(boolean)}
      */
     public void setStackFromEnd(boolean stackFromEnd) {
+        if (mPendingSavedState != null && mPendingSavedState.mStackFromEnd != stackFromEnd) {
+            // override pending state
+            mPendingSavedState.mStackFromEnd = stackFromEnd;
+        }
+        if (mStackFromEnd == stackFromEnd) {
+            return;
+        }
         mStackFromEnd = stackFromEnd;
         requestLayout();
     }
@@ -236,6 +242,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     public void setOrientation(int orientation) {
         if (orientation != HORIZONTAL && orientation != VERTICAL) {
             throw new IllegalArgumentException("invalid orientation.");
+        }
+        if (mPendingSavedState != null && mPendingSavedState.mOrientation != orientation) {
+            // override pending state
+            mPendingSavedState.mOrientation = orientation;
         }
         if (orientation == mOrientation) {
             return;
@@ -284,6 +294,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * {@link #setStackFromEnd(boolean)}
      */
     public void setReverseLayout(boolean reverseLayout) {
+        if (mPendingSavedState != null && mPendingSavedState.mReverseLayout != reverseLayout) {
+            // override pending state
+            mPendingSavedState.mReverseLayout = reverseLayout;
+        }
         if (reverseLayout == mReverseLayout) {
             return;
         }
@@ -665,7 +679,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         return getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
-    private void ensureRenderState() {
+    void ensureRenderState() {
         if (mRenderState == null) {
             mRenderState = new RenderState();
         }
@@ -1451,7 +1465,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private OrientationHelper createVerticalOrientationHelper() {
+    OrientationHelper createVerticalOrientationHelper() {
         return new OrientationHelper() {
             @Override
             public int getEndAfterPadding() {
@@ -1503,7 +1517,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         };
     }
 
-    private OrientationHelper createHorizontalOrientationHelper() {
+    OrientationHelper createHorizontalOrientationHelper() {
         return new OrientationHelper() {
             @Override
             public int getEndAfterPadding() {
