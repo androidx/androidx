@@ -88,6 +88,34 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         });
     }
 
+    void scrollToPosition(final int position) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getLayoutManager().scrollToPosition(position);
+            }
+        });
+    }
+
+    void smoothScrollToPosition(final int position)
+            throws Throwable {
+        Log.d(TAG, "SMOOTH scrolling to " + position);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.smoothScrollToPosition(position);
+            }
+        });
+        while (mRecyclerView.getLayoutManager().isSmoothScrolling() ||
+                mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            if (mDebug) {
+                Log.d(TAG, "SMOOTH scrolling step");
+            }
+            Thread.sleep(200);
+        }
+        Log.d(TAG, "SMOOTH scrolling done");
+    }
+
     class TestViewHolder extends RecyclerView.ViewHolder {
 
         Item mBindedItem;
