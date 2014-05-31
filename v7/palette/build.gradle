@@ -1,0 +1,13 @@
+apply plugin: 'android-library'
+
+archivesBaseName = 'palette-v7'
+
+android {
+    compileSdkVersion 7
+    buildToolsVersion "19.0.1"
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDir 'src'
+    }
+}
