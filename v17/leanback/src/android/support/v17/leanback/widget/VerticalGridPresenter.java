@@ -182,6 +182,11 @@ public class VerticalGridPresenter extends Presenter {
                     });
                 }
             }
+
+            @Override
+            public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+                viewHolder.itemView.setActivated(true);
+            }
         });
     }
 
