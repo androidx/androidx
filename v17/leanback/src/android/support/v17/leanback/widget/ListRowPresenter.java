@@ -82,6 +82,10 @@ public class ListRowPresenter extends RowPresenter {
         public final HorizontalGridView getGridView() {
             return mGridView;
         }
+
+        public final ItemBridgeAdapter getBridgeAdapter() {
+            return mItemBridgeAdapter;
+        }
     }
 
     private int mRowHeight;
@@ -220,6 +224,11 @@ public class ListRowPresenter extends RowPresenter {
                     ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
                 }
                 viewHolder.itemView.setActivated(rowViewHolder.mExpanded);
+            }
+
+            @Override
+            public void onAddPresenter(Presenter presenter, int type) {
+                rowViewHolder.getGridView().getRecycledViewPool().setMaxRecycledViews(type, 24);
             }
         });
     }

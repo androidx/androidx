@@ -735,7 +735,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             // Adapter may have changed so remove all attached views permanently
-            removeAllViews();
+            removeAndRecycleAllViews(mRecycler);
 
             mScrollOffsetPrimary = 0;
             mScrollOffsetSecondary = 0;
@@ -1385,6 +1385,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mAnimateChildLayout;
     }
 
+    private void removeAndRecycleAllViews(RecyclerView.Recycler recycler) {
+        if (DEBUG) Log.v(TAG, "removeAndRecycleAllViews " + getChildCount());
+        for (int i = getChildCount() - 1; i >= 0; i--) {
+            removeAndRecycleViewAt(i, recycler);
+        }
+    }
+
     // Lays out items based on the current scroll position
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -1408,7 +1415,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (!mLayoutEnabled) {
             discardLayoutInfo();
-            removeAllViews();
+            removeAndRecycleAllViews(recycler);
             return;
         }
         mInLayout = true;
@@ -2296,6 +2303,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter,
             RecyclerView.Adapter newAdapter) {
         discardLayoutInfo();
+        mFocusPosition = NO_POSITION;
         super.onAdapterChanged(oldAdapter, newAdapter);
     }
 
