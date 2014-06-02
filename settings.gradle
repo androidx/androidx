@@ -22,5 +22,8 @@ project(':support-recyclerview-v7').projectDir = new File(rootDir, 'v7/recyclerv
 include ':support-v13'
 project(':support-v13').projectDir = new File(rootDir, 'v13')
 
+include ':support-appcompat-v14'
+project(':support-appcompat-v14').projectDir = new File(rootDir, 'v14/appcompat')
+
 include ':support-leanback-v17'
 project(':support-leanback-v17').projectDir = new File(rootDir, 'v17/leanback')
