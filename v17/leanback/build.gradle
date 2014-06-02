@@ -9,7 +9,7 @@ dependencies {
 
 android {
     // WARNING: should be 17
-    compileSdkVersion 19
+    compileSdkVersion 'current'
 
     buildToolsVersion "19.0.1"
 
@@ -21,8 +21,8 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['common', 'jbmr2', 'kitkat', 'src']
-        main.aidl.srcDirs = ['common', 'jbmr2', 'kitkat', 'src']
+        main.java.srcDirs = ['common', 'jbmr2', 'kitkat', 'api21', 'src']
+        main.aidl.srcDirs = ['common', 'jbmr2', 'kitkat', 'api21', 'src']
         main.res.srcDirs = ['res']
 
         androidTest.setRoot('tests')
