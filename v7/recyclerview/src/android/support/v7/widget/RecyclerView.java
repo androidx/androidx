@@ -2362,7 +2362,7 @@ public class RecyclerView extends ViewGroup {
          */
         public void clear() {
             mAttachedScrap.clear();
-            mCachedViews.clear();
+            recycleCachedViews();
         }
 
         /**
@@ -2454,6 +2454,18 @@ public class RecyclerView extends ViewGroup {
          */
         public void recycleView(View view) {
             recycleViewHolder(getChildViewHolderInt(view));
+        }
+
+        void recycleCachedViews() {
+            final int count = mCachedViews.size();
+            for (int i = count - 1; i >= 0; i--) {
+                final ViewHolder cachedView = mCachedViews.get(i);
+                if (cachedView.isRecyclable()) {
+                    getRecycledViewPool().putRecycledView(cachedView);
+                    dispatchViewRecycled(cachedView);
+                }
+                mCachedViews.remove(i);
+            }
         }
 
         void recycleViewHolder(ViewHolder holder) {
