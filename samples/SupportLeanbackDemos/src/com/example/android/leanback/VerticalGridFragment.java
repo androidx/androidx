@@ -61,23 +61,23 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
         gridPresenter.setNumberOfColumns(NUM_COLUMNS);
         setGridPresenter(gridPresenter);
 
-        mAdapter = new ArrayObjectAdapter(new GridItemPresenter());
+        mAdapter = new ArrayObjectAdapter(new CardPresenter());
         for (int i = 0; i < NUM_ITEMS; i++) {
-            mAdapter.add(new MyItem(i));
+            mAdapter.add(Integer.toString(i));
         }
         setAdapter(mAdapter);
 
         setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(Object item, Row row) {
-                Log.i(TAG, "item selected: " + ((MyItem) item).id);
+                Log.i(TAG, "item selected: " + item);
             }
         });
 
         setOnItemClickedListener(new OnItemClickedListener() {
             @Override
             public void onItemClicked(Object item, Row row) {
-                Log.i(TAG, "item clicked: " + ((MyItem) item).id);
+                Log.i(TAG, "item clicked: " + item);
             }
         });
         setOnSearchClickedListener(new View.OnClickListener() {
@@ -87,33 +87,5 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
                 startActivity(intent);
             }
         });
-    }
-
-    private class GridItemPresenter extends Presenter {
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
-            TextView view = new TextView(parent.getContext());
-            // Choose a random height between HEIGHT and 1.5 * HEIGHT to
-            // demonstrate the staggered nature of the grid.
-            final int height = HEIGHT + mRandom.nextInt(HEIGHT / 2);
-            view.setLayoutParams(new ViewGroup.LayoutParams(200, height));
-            view.setFocusable(true);
-            view.setFocusableInTouchMode(true);
-            view.setBackgroundColor(Color.DKGRAY);
-            view.setGravity(Gravity.CENTER);
-            return new ViewHolder(view);
-        }
-
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-            ((TextView) viewHolder.view).setText(Integer.toString(((MyItem) item).id));
-        }
-
-        public void onUnbindViewHolder(ViewHolder viewHolder) {}
-    }
-
-    static class MyItem {
-        int id;
-        MyItem(int id) {
-            this.id = id;
-        }
     }
 }
