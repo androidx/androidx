@@ -797,12 +797,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         if (mGrid == null) {
-            measureScrapChild(mFocusPosition == NO_POSITION ? 0 : mFocusPosition,
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                    mMeasuredDimension);
-            if (DEBUG) Log.v(TAG, "measured scrap child: " + mMeasuredDimension[0] +
-                    " " + mMeasuredDimension[1]);
+            if (mState.getItemCount() > 0) {
+                measureScrapChild(mFocusPosition == NO_POSITION ? 0 : mFocusPosition,
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                        mMeasuredDimension);
+                if (DEBUG) Log.v(TAG, "measured scrap child: " + mMeasuredDimension[0] +
+                        " " + mMeasuredDimension[1]);
+            } else {
+                mMeasuredDimension[0] = mMeasuredDimension[1] = 0;
+            }
         }
 
         List<Integer>[] rows = mGrid == null ? null :
