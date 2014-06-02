@@ -63,8 +63,12 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         mRowsAdapter = new ArrayObjectAdapter(lrp);
 
+        // For good performance, it's important to use a single instance of
+        // a card presenter for all rows using that presenter.
+        final CardPresenter cardPresenter = new CardPresenter();
+
         for (int i = 0; i < NUM_ROWS; ++i) {
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             listRowAdapter.add("Hello world");
             listRowAdapter.add("This is a test");
             HeaderItem header = new HeaderItem(i, "Row " + i, null);
