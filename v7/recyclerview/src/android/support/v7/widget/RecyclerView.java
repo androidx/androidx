@@ -406,7 +406,8 @@ public class RecyclerView extends ViewGroup {
             for (int i = mAnimatingViewIndex; i < getChildCount(); ++i) {
                 final View view = getChildAt(i);
                 ViewHolder holder = getChildViewHolder(view);
-                if (holder.getPosition() == position && holder.getItemViewType() == type) {
+                if (holder.getPosition() == position &&
+                        ( type == INVALID_TYPE || holder.getItemViewType() == type)) {
                     return view;
                 }
             }
@@ -2387,6 +2388,38 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Helper method for getViewForPosition.
+         * <p>
+         * Checks whether a given view holder can be used for the provided position.
+         *
+         * @param holder         ViewHolder
+         * @param offsetPosition The position which is updated by UPDATE_OP changes on the adapter
+         * @return true if ViewHolder matches the provided position, false otherwise
+         */
+        boolean validateViewHolderForOffsetPosition(ViewHolder holder, int offsetPosition) {
+            // if it is a removed holder, nothing to verify since we cannot ask adapter anymore
+            // if it is not removed, verify the type and id.
+            if (holder.isRemoved()) {
+                return true;
+            }
+            if (offsetPosition < 0 || offsetPosition >= mAdapter.getItemCount()) {
+                if (DEBUG) {
+                    Log.d(TAG, "validateViewHolderForOffsetPosition: invalid position, returning "
+                            + "false");
+                }
+                return false;
+            }
+            final int type = mAdapter.getItemViewType(offsetPosition);
+            if (type != holder.getItemViewType()) {
+                return false;
+            }
+            if (mAdapter.hasStableIds()) {
+                return holder.getItemId() == mAdapter.getItemId(offsetPosition);
+            }
+            return true;
+        }
+
+        /**
          * Obtain a view initialized for the given position.
          *
          * <p>This method should be used by {@link LayoutManager} implementations to obtain
@@ -2402,29 +2435,48 @@ public class RecyclerView extends ViewGroup {
          */
         public View getViewForPosition(int position) {
             ViewHolder holder;
+            holder = getScrapViewForPosition(position, INVALID_TYPE);
+            final int offsetPosition = findPositionOffset(position);
+            if (holder != null) {
+                if (!validateViewHolderForOffsetPosition(holder, offsetPosition)) {
+                    // recycle this scrap
+                    removeDetachedView(holder.itemView, false);
+                    quickRecycleScrapView(holder.itemView);
 
-            final int type = mAdapter.getItemViewType(position);
-            if (mAdapter.hasStableIds()) {
-                final long id = mAdapter.getItemId(position);
-                holder = getScrapViewForId(id, type);
+                    // if validate fails, we can query scrap again w/ type. that may return a
+                    // different view holder from cache.
+                    final int type = mAdapter.getItemViewType(offsetPosition);
+                    if (mAdapter.hasStableIds()) {
+                        final long id = mAdapter.getItemId(offsetPosition);
+                        holder = getScrapViewForId(id, type);
+                    } else {
+                        holder = getScrapViewForPosition(offsetPosition, type);
+                    }
+                }
             } else {
-                holder = getScrapViewForPosition(position, type);
+                // try recycler.
+                holder = getRecycledViewPool()
+                        .getRecycledView(mAdapter.getItemViewType(offsetPosition));
             }
 
             if (holder == null) {
-                holder = mAdapter.createViewHolder(RecyclerView.this, type);
-                if (DEBUG) Log.d(TAG, "getViewForPosition created new ViewHolder");
+                if (offsetPosition < 0 || offsetPosition >= mAdapter.getItemCount()) {
+                    throw new IndexOutOfBoundsException("Invalid item position " + position
+                            + "(" + offsetPosition + ")");
+                } else {
+                    holder = mAdapter.createViewHolder(RecyclerView.this,
+                            mAdapter.getItemViewType(offsetPosition));
+                    if (DEBUG) {
+                        Log.d(TAG, "getViewForPosition created new ViewHolder");
+                    }
+                }
             }
 
-            if (!holder.isBound() || holder.needsUpdate()) {
+            if (!holder.isRemoved() && (!holder.isBound() || holder.needsUpdate())) {
                 if (DEBUG) {
                     Log.d(TAG, "getViewForPosition unbound holder or needs update; updating...");
                 }
-                int offsetPosition = findPositionOffset(position);
-                if (offsetPosition < 0 || offsetPosition >= mAdapter.getItemCount()) {
-                    if (DEBUG) Log.d(TAG, "getViewForPosition: invalid position, returning null");
-                    return null;
-                }
+
                 // TODO: think through when getOffsetPosition() is called. I use it here because
                 // existing views have already been offset appropriately through the mOldOffset
                 // mechanism, but new views do not have this mechanism.
@@ -2552,6 +2604,14 @@ public class RecyclerView extends ViewGroup {
             mAttachedScrap.clear();
         }
 
+        /**
+         * Returns a scrap view for the position. If type is not INVALID_TYPE, it also checks if
+         * ViewHolder's type matches the provided type.
+         *
+         * @param position Item position
+         * @param type View type
+         * @return a ViewHolder that can be re-used for this position.
+         */
         ViewHolder getScrapViewForPosition(int position, int type) {
             final int scrapCount = mAttachedScrap.size();
 
@@ -2560,7 +2620,7 @@ public class RecyclerView extends ViewGroup {
                 final ViewHolder holder = mAttachedScrap.get(i);
                 if (holder.getPosition() == position && !holder.isInvalid() &&
                         (mInPreLayout || !holder.isRemoved())) {
-                    if (holder.getItemViewType() != type) {
+                    if (type != INVALID_TYPE && holder.getItemViewType() != type) {
                         Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
                                 " wrong view type! (found " + holder.getItemViewType() +
                                 " but expected " + type + ")");
@@ -2590,7 +2650,8 @@ public class RecyclerView extends ViewGroup {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder.getPosition() == position) {
                     mCachedViews.remove(i);
-                    if (holder.isInvalid() && holder.getItemViewType() != type) {
+                    if (holder.isInvalid() &&
+                            (type != INVALID_TYPE && holder.getItemViewType() != type)) {
                         // Can't use it. We don't know where it's been.
                         if (DEBUG) {
                             Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
@@ -2622,7 +2683,7 @@ public class RecyclerView extends ViewGroup {
                 Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
                     ") fetching from shared pool");
             }
-            return getRecycledViewPool().getRecycledView(type);
+            return type == INVALID_TYPE ? null : getRecycledViewPool().getRecycledView(type);
         }
 
         ViewHolder getScrapViewForId(long id, int type) {
