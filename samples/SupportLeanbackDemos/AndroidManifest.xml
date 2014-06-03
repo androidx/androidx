@@ -22,6 +22,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="BrowseAnimationActivity"
+            android:exported="true" >
+        </activity>
+
         <activity android:name="DetailsActivity"
             android:exported="true" />
 
