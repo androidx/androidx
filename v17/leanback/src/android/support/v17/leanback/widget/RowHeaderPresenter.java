@@ -13,10 +13,12 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.graphics.Paint;
 import android.support.v17.leanback.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 /**
  * RowHeaderPresenter provides a default implementation for header using TextView.
@@ -26,6 +28,7 @@ import android.view.ViewGroup;
 public class RowHeaderPresenter extends Presenter {
 
     private final int mLayoutResourceId;
+    private final Paint mFontMeasurePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     public RowHeaderPresenter() {
         this(R.layout.lb_row_header);
@@ -89,5 +92,27 @@ public class RowHeaderPresenter extends Presenter {
     protected void onSelectLevelChanged(ViewHolder holder) {
         holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel *
                 (1f - holder.mUnselectAlpha));
+    }
+
+    /**
+     * Returns the space (distance in pixels) below the baseline of the
+     * text view, if one exists; otherwise, returns 0.
+     */
+    public int getSpaceUnderBaseline(ViewHolder holder) {
+        int space = holder.view.getPaddingBottom();
+        if (holder.view instanceof TextView) {
+            space += (int) getFontDescent((TextView) holder.view, mFontMeasurePaint);
+        }
+        return space;
+    }
+
+    protected static float getFontDescent(TextView textView, Paint fontMeasurePaint) {
+        if (fontMeasurePaint.getTextSize() != textView.getTextSize()) {
+            fontMeasurePaint.setTextSize(textView.getTextSize());
+        }
+        if (fontMeasurePaint.getTypeface() != textView.getTypeface()) {
+            fontMeasurePaint.setTypeface(textView.getTypeface());
+        }
+        return fontMeasurePaint.descent();
     }
 }

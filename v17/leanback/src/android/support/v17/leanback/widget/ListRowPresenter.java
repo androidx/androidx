@@ -23,6 +23,7 @@ import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.Presenter.ViewHolder;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -94,6 +95,10 @@ public class ListRowPresenter extends RowPresenter {
     private int mZoomFactor;
     private boolean mShadowEnabled = true;
     private int mBrowseRowsFadingEdgeLength = -1;
+
+    private static int sSelectedRowTopPadding;
+    private static int sExpandedSelectedRowTopPadding;
+    private static int sExpandedRowNoHovercardBottomPadding;
 
     /**
      * Constructs a ListRowPresenter with defaults.
@@ -278,8 +283,51 @@ public class ListRowPresenter extends RowPresenter {
         }
     }
 
+    private static void initStatics(Context context) {
+        if (sSelectedRowTopPadding == 0) {
+            sSelectedRowTopPadding = context.getResources().getDimensionPixelSize(
+                    R.dimen.lb_browse_selected_row_top_padding);
+            sExpandedSelectedRowTopPadding = context.getResources().getDimensionPixelSize(
+                    R.dimen.lb_browse_expanded_selected_row_top_padding);
+            sExpandedRowNoHovercardBottomPadding = context.getResources().getDimensionPixelSize(
+                    R.dimen.lb_browse_expanded_row_no_hovercard_bottom_padding);
+        }
+    }
+
+    private int getSpaceUnderBaseline(ListRowPresenter.ViewHolder vh) {
+        RowHeaderPresenter.ViewHolder headerViewHolder = vh.getHeaderViewHolder();
+        if (headerViewHolder != null) {
+            if (getHeaderPresenter() != null) {
+                return getHeaderPresenter().getSpaceUnderBaseline(headerViewHolder);
+            }
+            return headerViewHolder.view.getPaddingBottom();
+        }
+        return 0;
+    }
+
+    private void setVerticalPadding(ListRowPresenter.ViewHolder vh) {
+        int paddingTop, paddingBottom;
+        if (vh.isExpanded()) {
+            int headerSpaceUnderBaseline = getSpaceUnderBaseline(vh);
+            if (DEBUG) Log.v(TAG, "headerSpaceUnderBaseline " + headerSpaceUnderBaseline);
+            paddingTop = (vh.isSelected() ? sExpandedSelectedRowTopPadding : vh.mPaddingTop) -
+                    headerSpaceUnderBaseline;
+            paddingBottom = mHoverCardPresenterSelector == null ?
+                    sExpandedRowNoHovercardBottomPadding : vh.mPaddingBottom;
+        } else if (vh.isSelected()) {
+            paddingTop = sSelectedRowTopPadding;
+            paddingBottom = sSelectedRowTopPadding - vh.mPaddingTop;
+        } else {
+            paddingTop = vh.mPaddingTop;
+            paddingBottom = 0;
+        }
+        vh.getGridView().setPadding(vh.mPaddingLeft, paddingTop, vh.mPaddingRight,
+                paddingBottom);
+    }
+
     @Override
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
+        initStatics(parent.getContext());
         ListRowView rowView = new ListRowView(parent.getContext());
         setupFadingEffect(rowView);
         if (mRowHeight != 0) {
@@ -291,7 +339,9 @@ public class ListRowPresenter extends RowPresenter {
     @Override
     protected void onRowViewSelected(RowPresenter.ViewHolder holder, boolean selected) {
         super.onRowViewSelected(holder, selected);
-        updateFooterViewSwitcher((ViewHolder) holder);
+        ViewHolder vh = (ViewHolder) holder;
+        setVerticalPadding(vh);
+        updateFooterViewSwitcher(vh);
     }
 
     /*
@@ -335,13 +385,7 @@ public class ListRowPresenter extends RowPresenter {
             int newHeight = expanded ? getExpandedRowHeight() : getRowHeight();
             vh.getGridView().setRowHeight(newHeight);
         }
-        if (expanded) {
-            vh.getGridView().setPadding(vh.mPaddingLeft, vh.mPaddingTop,
-                    vh.mPaddingRight, vh.mPaddingBottom);
-        } else {
-            vh.getGridView().setPadding(vh.mPaddingLeft, vh.mPaddingTop,
-                    vh.mPaddingRight, 0);
-        }
+        setVerticalPadding(vh);
         vh.getGridView().setFadingLeftEdge(!expanded);
         updateFooterViewSwitcher(vh);
     }
