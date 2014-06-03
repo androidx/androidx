@@ -134,10 +134,10 @@
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
         <item name="android:paddingRight">?attr/browsePaddingRight</item>
-        <item name="android:paddingBottom">@dimen/lb_browse_item_margin</item>
-        <item name="android:paddingTop">@dimen/lb_browse_item_margin</item>
-        <item name="horizontalMargin">@dimen/lb_browse_item_margin</item>
-        <item name="verticalMargin">@dimen/lb_browse_item_margin</item>
+        <item name="android:paddingBottom">@dimen/lb_browse_item_vertical_margin</item>
+        <item name="android:paddingTop">@dimen/lb_browse_item_vertical_margin</item>
+        <item name="horizontalMargin">@dimen/lb_browse_item_horizontal_margin</item>
+        <item name="verticalMargin">@dimen/lb_browse_item_vertical_margin</item>
         <item name="focusOutFront">true</item>
         <item name="rowHeight">wrap_content</item>
     </style>
@@ -148,11 +148,11 @@
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingLeft">?attr/browsePaddingLeft</item>
         <item name="android:paddingRight">?attr/browsePaddingRight</item>
-        <item name="android:paddingBottom">@dimen/lb_browse_item_margin</item>
+        <item name="android:paddingBottom">@dimen/lb_browse_item_vertical_margin</item>
         <item name="android:paddingTop">?attr/browseRowsMarginTop</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="horizontalMargin">@dimen/lb_browse_item_margin</item>
-        <item name="verticalMargin">@dimen/lb_browse_item_margin</item>
+        <item name="horizontalMargin">@dimen/lb_browse_item_horizontal_margin</item>
+        <item name="verticalMargin">@dimen/lb_browse_item_vertical_margin</item>
         <item name="focusOutFront">true</item>
     </style>
 
