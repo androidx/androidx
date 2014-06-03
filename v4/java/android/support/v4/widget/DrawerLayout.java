@@ -64,11 +64,16 @@ import java.util.List;
  * stuttering; try to perform expensive operations during the {@link #STATE_IDLE} state.
  * {@link SimpleDrawerListener} offers default/no-op implementations of each callback method.</p>
  *
- * <p>As per the Android Design guide, any drawers positioned to the left/start should
+ * <p>As per the <a href="{@docRoot}design/patterns/navigation-drawer.html">Android Design
+ * guide</a>, any drawers positioned to the left/start should
  * always contain content for navigating around the application, whereas any drawers
  * positioned to the right/end should always contain actions to take on the current content.
  * This preserves the same navigation left, actions right structure present in the Action Bar
  * and elsewhere.</p>
+ *
+ * <p>For more information about how to use DrawerLayout, read <a
+ * href="{@docRoot}training/implementing-navigation/nav-drawer.html">Creating a Navigation
+ * Drawer</a>.</p>
  */
 public class DrawerLayout extends ViewGroup {
     private static final String TAG = "DrawerLayout";
