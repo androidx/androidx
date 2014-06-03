@@ -129,7 +129,7 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeMathFuncs.cpp
 
 ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
-LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP
+LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP -DARCH_ARM_USE_INTRINSICS
 LOCAL_ASFLAGS_arm := -mfpu=neon
 LOCAL_SRC_FILES_arm := \
         cpu_ref/rsCpuIntrinsics_neon_3DLUT.S \
