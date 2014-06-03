@@ -252,6 +252,18 @@ public class RecyclerView extends ViewGroup {
         if (mAdapter != null) {
             mAdapter.unregisterAdapterDataObserver(mObserver);
         }
+        // end all running animations
+        if (mItemAnimator != null) {
+            mItemAnimator.endAnimations();
+        }
+        // Since animations are ended, mLayout.children should be equal to recyclerView.children.
+        // This may not be true if item animator's end does not work as expected. (e.g. not release
+        // children instantly). It is safer to use mLayout's child count.
+        if (mLayout != null) {
+            mLayout.removeAndRecycleAllViews(mRecycler);
+            mLayout.removeAndRecycleScrapInt(mRecycler, true);
+        }
+
         final Adapter oldAdapter = mAdapter;
         mAdapter = adapter;
         if (adapter != null) {
@@ -3477,13 +3489,15 @@ public class RecyclerView extends ViewGroup {
             final Adapter adapter = mRecyclerView.getAdapter();
             // Only remove non-animating views
             final int childCount = mRecyclerView.getChildCount() - mRecyclerView.mNumAnimatingViews;
-            if (adapter != null) {
-                for (int i = 0; i < childCount; i++) {
-                    final View child = mRecyclerView.getChildAt(i);
+
+            for (int i = 0; i < childCount; i++) {
+                final View child = mRecyclerView.getChildAt(i);
+                if (adapter != null) {
                     adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
-                    mRecyclerView.onChildDetachedFromWindow(child);
                 }
+                mRecyclerView.onChildDetachedFromWindow(child);
             }
+
             for (int i = childCount - 1; i >= 0; i--) {
                 mRecyclerView.removeViewAt(i);
                 if (mRecyclerView.mAnimatingViewIndex >= 0) {
@@ -4443,6 +4457,12 @@ public class RecyclerView extends ViewGroup {
         private void onSmoothScrollerStopped(SmoothScroller smoothScroller) {
             if (mSmoothScroller == smoothScroller) {
                 mSmoothScroller = null;
+            }
+        }
+
+        void removeAndRecycleAllViews(Recycler recycler) {
+            for (int i = getChildCount() - 1; i >= 0; i--) {
+                removeAndRecycleViewAt(i, recycler);
             }
         }
     }
