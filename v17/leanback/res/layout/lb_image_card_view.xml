@@ -70,6 +70,7 @@
                 android:layout_alignParentRight="true"
                 android:scaleType="fitCenter"
                 android:background="@color/lb_basic_card_info_bg_color"
+                android:visibility="gone"
                 android:contentDescription="@null" />
             <ImageView
                 android:id="@+id/fade_mask"
@@ -79,6 +80,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_toStartOf="@id/extra_badge"
                 android:scaleType="fitCenter"
+                android:visibility="gone"
                 android:contentDescription="@null" />
         </RelativeLayout>
     </FrameLayout>
