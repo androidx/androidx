@@ -52,7 +52,10 @@
     <dimen name="lb_browse_row_hovercard_title_font_size">18sp</dimen>
     <dimen name="lb_browse_row_hovercard_description_font_size">14sp</dimen>
     <dimen name="lb_browse_item_horizontal_margin">8dp</dimen>
-    <dimen name="lb_browse_item_vertical_margin">10dp</dimen>
+    <dimen name="lb_browse_item_vertical_margin">8dp</dimen>
+    <dimen name="lb_browse_selected_row_top_padding">20dp</dimen>
+    <dimen name="lb_browse_expanded_selected_row_top_padding">16dp</dimen>
+    <dimen name="lb_browse_expanded_row_no_hovercard_bottom_padding">28dp</dimen>
 
     <item name="lb_focus_zoom_factor_small" type="fraction">106%</item>
     <item name="lb_focus_zoom_factor_medium" type="fraction">110%</item>
