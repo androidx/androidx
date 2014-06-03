@@ -1442,7 +1442,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         final boolean hasDoneFirstLayout = hasDoneFirstLayout();
+        int savedFocusPos = mFocusPosition;
+        boolean fastRelayout = false;
         if (!mState.didStructureChange() && !mForceFullLayout && hasDoneFirstLayout) {
+            fastRelayout = true;
             fastRelayout();
         } else {
             boolean hadFocus = mBaseGridView.hasFocus();
@@ -1523,7 +1526,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (!state.isPreLayout()) {
             mUseDeltaInPreLayout = false;
-            if (!hasDoneFirstLayout) {
+            if (!fastRelayout || mFocusPosition != savedFocusPos) {
                 dispatchChildSelected();
             }
         }
@@ -1817,9 +1820,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private void scrollToView(View view, boolean smooth) {
         int newFocusPosition = getPositionByView(view);
-        if (mInLayout || newFocusPosition != mFocusPosition) {
+        if (newFocusPosition != mFocusPosition) {
             mFocusPosition = newFocusPosition;
-            if (mState == null || !mState.isPreLayout()) {
+            if (!mInLayout) {
                 dispatchChildSelected();
             }
         }
