@@ -31,7 +31,9 @@ import android.widget.FrameLayout;
 import android.support.v17.leanback.R;
 
 /**
- * A fragment to handle searches
+ * <p>A fragment to handle searches.</p>
+ *
+ * <p>Note: Your application will need to request android.permission.RECORD_AUDIO</p>
  */
 public class SearchFragment extends Fragment {
     private static final String TAG = SearchFragment.class.getSimpleName();
@@ -61,6 +63,9 @@ public class SearchFragment extends Fragment {
          *
          * <p>This is called as soon as the query changes; it is up to the application to add a
          * delay before actually executing the queries if needed.</p>
+         *
+         * <p>This method might not always be called before onQueryTextSubmit gets called, in
+         * particular for voice input cases.</p>
          *
          * @param newQuery The current search query.
          * @return whether the results changed or not.
