@@ -104,6 +104,9 @@ public class RecyclerView extends ViewGroup {
      */
     private final Runnable mUpdateChildViewsRunnable = new Runnable() {
         public void run() {
+            if (mPendingUpdates.isEmpty()) {
+                return;
+            }
             eatRequestLayout();
             updateChildViews();
             resumeRequestLayout(true);
@@ -622,13 +625,31 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * Does not perform bounds checking. Used by internal methods that have already validated input.
+     * Helper method reflect data changes to the state.
+     * <p>
+     * Adapter changes during a scroll may trigger a crash because scroll assumes no data change
+     * but data actually changed.
+     * <p>
+     * This method consumes all deferred changes to avoid that case.
+     * <p>
+     * This also ends all pending animations. It will be changed once we can support
+     * animations during scroll.
      */
-    void scrollByInternal(int x, int y) {
+    private void consumePendingUpdateOperations() {
         if (mItemAnimator != null) {
             mItemAnimator.endAnimations();
         }
+        if (mPendingUpdates.size() > 0) {
+            mUpdateChildViewsRunnable.run();
+        }
+    }
+
+    /**
+     * Does not perform bounds checking. Used by internal methods that have already validated input.
+     */
+    void scrollByInternal(int x, int y) {
         int overscrollX = 0, overscrollY = 0;
+        consumePendingUpdateOperations();
         if (mAdapter != null) {
             eatRequestLayout();
             if (x != 0) {
@@ -2073,6 +2094,7 @@ public class RecyclerView extends ViewGroup {
         @Override
         public void run() {
             disableRunOnAnimationRequests();
+            consumePendingUpdateOperations();
             // keep a local reference so that if it is changed during onAnimation method, it wont cause
             // unexpected behaviors
             final ScrollerCompat scroller = mScroller;
