@@ -49,6 +49,9 @@
         <item name="detailsDescriptionSubtitleStyle">@style/Widget.Leanback.DetailsDescriptionSubtitleStyle</item>
         <item name="detailsDescriptionBodyStyle">@style/Widget.Leanback.DetailsDescriptionBodyStyle</item>
         <item name="detailsActionButtonStyle">@style/Widget.Leanback.DetailsActionButtonStyle</item>
+
+        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
+        <item name="defaultSearchColor">@color/lb_default_search_color</item>
     </style>
 
 </resources>
