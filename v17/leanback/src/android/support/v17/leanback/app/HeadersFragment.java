@@ -175,7 +175,7 @@ public class HeadersFragment extends BaseRowFragment {
         }
 
         TypedValue outValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(android.R.attr.colorBackground, outValue, true);
+        getActivity().getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
         return getResources().getColor(outValue.resourceId);
     }
 }
