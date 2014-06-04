@@ -125,7 +125,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             hasTitle = false;
         } else {
             vh.mTitle.setVisibility(View.VISIBLE);
-            vh.mTitle.setLineSpacing(vh.mTitleLineSpacing - vh.mTitle.getLineHeight() -
+            vh.mTitle.setLineSpacing(vh.mTitleLineSpacing - vh.mTitle.getLineHeight() +
                     vh.mTitle.getLineSpacingExtra(), vh.mTitle.getLineSpacingMultiplier());
         }
         setTopMargin(vh.mTitle, vh.mTitleMargin);
@@ -148,7 +148,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             vh.mBody.setVisibility(View.GONE);
         } else {
             vh.mBody.setVisibility(View.VISIBLE);
-            vh.mBody.setLineSpacing(vh.mBodyLineSpacing - vh.mBody.getLineHeight() -
+            vh.mBody.setLineSpacing(vh.mBodyLineSpacing - vh.mBody.getLineHeight() +
                     vh.mBody.getLineSpacingExtra(), vh.mBody.getLineSpacingMultiplier());
 
             if (hasSubtitle) {
