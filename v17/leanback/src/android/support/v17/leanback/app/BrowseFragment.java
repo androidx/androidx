@@ -236,7 +236,7 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Create arguments for a browse fragment.
-     * @deprecated Use {@link createArgs(Bundle args, String title, int headersState)}.
+     * @deprecated Use {@link #createArgs(Bundle args, String title, int headersState)}.
      */
     @Deprecated
     public static Bundle createArgs(Bundle args, String title, String badgeUri) {
@@ -245,7 +245,7 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Create arguments for a browse fragment.
-     * @deprecated Use {@link createArgs(Bundle args, String title, int headersState)}.
+     * @deprecated Use {@link #createArgs(Bundle args, String title, int headersState)}.
      */
     @Deprecated
     public static Bundle createArgs(Bundle args, String title, String badgeUri, int headersState) {
