@@ -372,7 +372,7 @@ public final class BackgroundManager {
         }
 
         mLayerDrawable = (LayerDrawable) mContext.getResources().getDrawable(
-                R.drawable.lb_background);
+                R.drawable.lb_background).mutate();
         mBgView.setBackground(mLayerDrawable);
 
         mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
