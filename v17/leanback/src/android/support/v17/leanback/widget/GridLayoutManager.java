@@ -1099,8 +1099,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (DEBUG) {
                 Log.d(getTag(), "addView " + index + " " + v);
             }
-            updateScrollMin();
-            updateScrollMax();
+            if (index == mFirstVisiblePos) {
+                updateScrollMin();
+            }
+            if (index == mLastVisiblePos) {
+                updateScrollMax();
+            }
         }
     };
 
@@ -1557,7 +1561,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 getChildAt(i).offsetLeftAndRight(increment);
             }
         }
-        mScrollOffsetSecondary -= increment;
     }
 
     private void offsetChildrenPrimary(int increment) {
@@ -1571,7 +1574,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 getChildAt(i).offsetLeftAndRight(increment);
             }
         }
-        mScrollOffsetPrimary -= increment;
     }
 
     @Override
@@ -1610,10 +1612,26 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // scroll in main direction may add/prune views
     private int scrollDirectionPrimary(int da) {
+        if (da > 0) {
+            if (!mWindowAlignment.mainAxis().isMaxUnknown()) {
+                int maxScroll = mWindowAlignment.mainAxis().getMaxScroll();
+                if (mScrollOffsetPrimary + da > maxScroll) {
+                    da = maxScroll - mScrollOffsetPrimary;
+                }
+            }
+        } else if (da < 0) {
+            if (!mWindowAlignment.mainAxis().isMinUnknown()) {
+                int minScroll = mWindowAlignment.mainAxis().getMinScroll();
+                if (mScrollOffsetPrimary + da < minScroll) {
+                    da = minScroll - mScrollOffsetPrimary;
+                }
+            }
+        }
         if (da == 0) {
             return 0;
         }
         offsetChildrenPrimary(-da);
+        mScrollOffsetPrimary += da;
         if (mInLayout) {
             return da;
         }
@@ -1650,33 +1668,94 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return 0;
         }
         offsetChildrenSecondary(-dy);
+        mScrollOffsetSecondary += dy;
         mBaseGridView.invalidate();
         return dy;
     }
 
     private void updateScrollMax() {
-        if (mLastVisiblePos >= 0 && mLastVisiblePos == mState.getItemCount() - 1) {
-            int maxEdge = Integer.MIN_VALUE;
-            for (int i = 0; i < mRows.length; i++) {
-                if (mRows[i].high > maxEdge) {
-                    maxEdge = mRows[i].high;
-                }
+        if (mLastVisiblePos < 0) {
+            return;
+        }
+        final boolean lastAvailable = mLastVisiblePos == mState.getItemCount() - 1;
+        final boolean maxUnknown = mWindowAlignment.mainAxis().isMaxUnknown();
+        if (!lastAvailable && maxUnknown) {
+            return;
+        }
+        int maxEdge = Integer.MIN_VALUE;
+        int rowIndex = -1;
+        for (int i = 0; i < mRows.length; i++) {
+            if (mRows[i].high > maxEdge) {
+                maxEdge = mRows[i].high;
+                rowIndex = i;
             }
+        }
+        int maxScroll = Integer.MAX_VALUE;
+        for (int i = mLastVisiblePos; i >= mFirstVisiblePos; i--) {
+            StaggeredGrid.Location location = mGrid.getLocation(i);
+            if (location != null && location.row == rowIndex) {
+                maxScroll = mWindowAlignment
+                        .mainAxis().getSystemScrollPos(mScrollOffsetPrimary
+                        + getViewCenter(findViewByPosition(i)));
+                break;
+            }
+        }
+        if (lastAvailable) {
             mWindowAlignment.mainAxis().setMaxEdge(maxEdge);
-            if (DEBUG) Log.v(getTag(), "updating scroll maxEdge to " + maxEdge);
+            mWindowAlignment.mainAxis().setMaxScroll(maxScroll);
+            if (DEBUG) Log.v(getTag(), "updating scroll maxEdge to " + maxEdge +
+                    " scrollMax to " + maxScroll);
+        } else {
+            // the maxScroll for currently last visible item is larger,
+            // so we must invalidate the max scroll value.
+            if (maxScroll > mWindowAlignment.mainAxis().getMaxScroll()) {
+                mWindowAlignment.mainAxis().invalidateScrollMax();
+                if (DEBUG) Log.v(getTag(), "Invalidate scrollMax since it should be "
+                        + "greater than " + maxScroll);
+            }
         }
     }
 
     private void updateScrollMin() {
-        if (mFirstVisiblePos == 0) {
-            int minEdge = Integer.MAX_VALUE;
-            for (int i = 0; i < mRows.length; i++) {
-                if (mRows[i].low < minEdge) {
-                    minEdge = mRows[i].low;
-                }
+        if (mFirstVisiblePos < 0) {
+            return;
+        }
+        final boolean firstAvailable = mFirstVisiblePos == 0;
+        final boolean minUnknown = mWindowAlignment.mainAxis().isMinUnknown();
+        if (!firstAvailable && minUnknown) {
+            return;
+        }
+        int minEdge = Integer.MAX_VALUE;
+        int rowIndex = -1;
+        for (int i = 0; i < mRows.length; i++) {
+            if (mRows[i].low < minEdge) {
+                minEdge = mRows[i].low;
+                rowIndex = i;
             }
+        }
+        int minScroll = Integer.MIN_VALUE;
+        for (int i = mFirstVisiblePos; i <= mLastVisiblePos; i++) {
+            StaggeredGrid.Location location = mGrid.getLocation(i);
+            if (location != null && location.row == rowIndex) {
+                minScroll = mWindowAlignment
+                        .mainAxis().getSystemScrollPos(mScrollOffsetPrimary
+                        + getViewCenter(findViewByPosition(i)));
+                break;
+            }
+        }
+        if (firstAvailable) {
             mWindowAlignment.mainAxis().setMinEdge(minEdge);
-            if (DEBUG) Log.v(getTag(), "updating scroll minEdge to " + minEdge);
+            mWindowAlignment.mainAxis().setMinScroll(minScroll);
+            if (DEBUG) Log.v(getTag(), "updating scroll minEdge to " + minEdge +
+                    " scrollMin to " + minScroll);
+        } else {
+            // the minScroll for currently first visible item is smaller,
+            // so we must invalidate the min scroll value.
+            if (minScroll < mWindowAlignment.mainAxis().getMinScroll()) {
+                mWindowAlignment.mainAxis().invalidateScrollMin();
+                if (DEBUG) Log.v(getTag(), "Invalidate scrollMin, since it should be "
+                        + "less than " + minScroll);
+            }
         }
     }
 
@@ -1691,8 +1770,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mWindowAlignment.vertical.setSize(getHeight());
         mWindowAlignment.vertical.setPadding(getPaddingTop(), getPaddingBottom());
         mSizePrimary = mWindowAlignment.mainAxis().getSize();
-        mWindowAlignment.mainAxis().invalidateScrollMin();
-        mWindowAlignment.mainAxis().invalidateScrollMax();
 
         if (DEBUG) {
             Log.v(getTag(), "initScrollController mSizePrimary " + mSizePrimary
@@ -1753,7 +1830,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                         } else {
                             dispatchChildSelected();
                         }
-                        if (updateScrollPosition(targetView, false, mTempDeltas)) {
+                        if (getScrollPosition(targetView, mTempDeltas)) {
                             int dx, dy;
                             if (mOrientation == HORIZONTAL) {
                                 dx = mTempDeltas[0];
@@ -1850,23 +1927,23 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // by setSelection())
             view.requestFocus();
         }
-        if (updateScrollPosition(view, mInLayout, mTempDeltas)) {
+        if (getScrollPosition(view, mTempDeltas)) {
             scrollGrid(mTempDeltas[0], mTempDeltas[1], smooth);
         }
     }
 
-    private boolean updateScrollPosition(View view, boolean force, int[] deltas) {
+    private boolean getScrollPosition(View view, int[] deltas) {
         switch (mFocusScrollStrategy) {
         case BaseGridView.FOCUS_SCROLL_ALIGNED:
         default:
-            return updateAlignedPosition(view, force, deltas);
+            return getAlignedPosition(view, deltas);
         case BaseGridView.FOCUS_SCROLL_ITEM:
         case BaseGridView.FOCUS_SCROLL_PAGE:
-            return updateNoneAlignedPosition(view, deltas);
+            return getNoneAlignedPosition(view, deltas);
         }
     }
 
-    private boolean updateNoneAlignedPosition(View view, int[] deltas) {
+    private boolean getNoneAlignedPosition(View view, int[] deltas) {
         int pos = getPositionByView(view);
         int viewMin = getViewMin(view);
         int viewMax = getViewMax(view);
@@ -1934,8 +2011,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         int viewCenterSecondary = mScrollOffsetSecondary +
                 getViewCenterSecondary(secondaryAlignedView);
-        mWindowAlignment.secondAxis().updateScrollCenter(viewCenterSecondary);
-        scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos();
+        scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(viewCenterSecondary);
         scrollSecondary -= mScrollOffsetSecondary;
         if (scrollPrimary != 0 || scrollSecondary != 0) {
             deltas[0] = scrollPrimary;
@@ -1945,22 +2021,19 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return false;
     }
 
-    private boolean updateAlignedPosition(View view, boolean force, int[] deltas) {
+    private boolean getAlignedPosition(View view, int[] deltas) {
         int viewCenterPrimary = mScrollOffsetPrimary + getViewCenter(view);
         int viewCenterSecondary = mScrollOffsetSecondary + getViewCenterSecondary(view);
 
-        if (force || viewCenterPrimary != mWindowAlignment.mainAxis().getScrollCenter()
-                || viewCenterSecondary != mWindowAlignment.secondAxis().getScrollCenter()) {
-            mWindowAlignment.mainAxis().updateScrollCenter(viewCenterPrimary);
-            mWindowAlignment.secondAxis().updateScrollCenter(viewCenterSecondary);
-            int scrollPrimary = mWindowAlignment.mainAxis().getSystemScrollPos();
-            int scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos();
-            if (DEBUG) {
-                Log.v(getTag(), "updateAlignedPosition " + scrollPrimary + " " + scrollSecondary
-                        +" " + mWindowAlignment);
-            }
-            scrollPrimary -= mScrollOffsetPrimary;
-            scrollSecondary -= mScrollOffsetSecondary;
+        int scrollPrimary = mWindowAlignment.mainAxis().getSystemScrollPos(viewCenterPrimary);
+        int scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(viewCenterSecondary);
+        if (DEBUG) {
+            Log.v(getTag(), "getAlignedPosition " + scrollPrimary + " " + scrollSecondary
+                    +" " + mWindowAlignment);
+        }
+        scrollPrimary -= mScrollOffsetPrimary;
+        scrollSecondary -= mScrollOffsetSecondary;
+        if (scrollPrimary != 0 || scrollSecondary != 0) {
             deltas[0] = scrollPrimary;
             deltas[1] = scrollSecondary;
             return true;
