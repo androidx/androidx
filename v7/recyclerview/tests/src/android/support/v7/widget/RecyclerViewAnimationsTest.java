@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
 
@@ -91,6 +92,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         return recyclerView;
     }
 
+
     public void getItemForDeletedViewTest() throws Throwable {
         testGetItemForDeletedView(false);
         testGetItemForDeletedView(true);
@@ -148,6 +150,40 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                         itemIdQueries.contains(i));
             }
         }
+    }
+
+    public void testAdapterChangeDuringScrolling() throws Throwable {
+        setupBasic(10);
+        final AtomicInteger onLayoutItemCount = new AtomicInteger(0);
+        final AtomicInteger onScrollItemCount = new AtomicInteger(0);
+
+        mLayoutManager.setOnLayoutCallbacks(new OnLayoutCallbacks() {
+            @Override
+            void onLayoutChildren(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager lm, RecyclerView.State state) {
+                onLayoutItemCount.set(state.getItemCount());
+                super.onLayoutChildren(recycler, lm, state);
+            }
+
+            @Override
+            public void onScroll(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
+                onScrollItemCount.set(state.getItemCount());
+                super.onScroll(dx, recycler, state);
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTestAdapter.mItems.remove(5);
+                mTestAdapter.notifyItemRangeRemoved(5, 1);
+                mRecyclerView.scrollBy(0, 100);
+                assertTrue("scrolling while there are pending adapter updates should "
+                        + "trigger a layout", mLayoutManager.mOnLayoutCallbacks.mLayoutCount > 0);
+                assertEquals("scroll by should be called w/ updated adapter count",
+                        mTestAdapter.mItems.size(), onScrollItemCount.get());
+
+            }
+        });
     }
 
     public void testAddInvisibleAndVisible() throws Throwable {
@@ -284,6 +320,17 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             }
         }
 
+        @Override
+        public boolean canScrollVertically() {
+            return true;
+        }
+
+        @Override
+        public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                RecyclerView.State state) {
+            mOnLayoutCallbacks.onScroll(dy, recycler, state);
+            return super.scrollVerticallyBy(dy, recycler, state);
+        }
 
         public void onPostDispatchLayout() {
             mOnLayoutCallbacks.postDispatchLayout();
@@ -393,6 +440,10 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
         boolean inPreLayout() {
             return mLayoutCount == 0;
+        }
+
+        public void onScroll(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
+
         }
     }
 

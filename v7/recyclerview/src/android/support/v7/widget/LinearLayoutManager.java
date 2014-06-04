@@ -998,6 +998,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         while (remainingSpace > 0 && renderState.hasMore(state)) {
             View view = renderState.next(recycler);
             if (view == null) {
+                if (DEBUG && renderState.mScrapList == null) {
+                    throw new RuntimeException("received null view when unexpected");
+                }
                 // if we are laying out views in scrap, this may return null which means there is
                 // no more items to layout.
                 break;
