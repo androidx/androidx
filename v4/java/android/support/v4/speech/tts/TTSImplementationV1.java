@@ -326,6 +326,16 @@ class TTSImplementationV1 implements ITextToSpeechClient {
         }
     }
 
+
+    @Override
+    public boolean isSpeaking() {
+        if (mOldClient == null) {
+            Log.e(TAG, "Client is not connected");
+            return false;
+        }
+        return mOldClient.isSpeaking();
+    }
+
     private HashMap<String, String> createParameters(final RequestConfig config,
             final UtteranceId utteranceId) {
         HashMap<String, String> parameters = new HashMap<String, String>();

@@ -114,6 +114,11 @@ class TTSImplementationV2 implements ITextToSpeechClient {
     }
 
     @Override
+    public boolean isSpeaking() {
+        return mClient.isSpeaking();
+    }
+
+    @Override
     public void queueSpeak(String utterance, UtteranceId utteranceId, RequestConfig config,
             RequestCallbacks callbacks) {
         mClient.queueSpeak(utterance, convert(utteranceId), convert(config), convert(callbacks));
