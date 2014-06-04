@@ -48,10 +48,8 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
 
         mRandom = new Random();
 
-        Params p = new Params();
-        p.setBadgeImage(getActivity().getResources().getDrawable(R.drawable.ic_title));
-        p.setTitle("Leanback Vertical Grid Demo");
-        setParams(p);
+        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        setTitle("Leanback Vertical Grid Demo");
 
         setupFragment();
     }

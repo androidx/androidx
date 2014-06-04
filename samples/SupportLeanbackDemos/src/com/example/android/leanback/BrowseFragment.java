@@ -35,11 +35,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        Params p = new Params();
-        p.setBadgeImage(getActivity().getResources().getDrawable(R.drawable.ic_title));
-        p.setTitle("Leanback Sample App");
-        p.setHeadersState(HEADERS_ENABLED);
-        setBrowseParams(p);
+        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        setTitle("Leanback Sample App");
+        setHeadersState(HEADERS_ENABLED);
 
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
