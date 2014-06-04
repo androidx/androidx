@@ -15,6 +15,7 @@ package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -46,7 +47,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SearchBar is a search widget.
+ * <p>SearchBar is a search widget.</p>
+ *
+ * <p>Note: Your application will need to request android.permission.RECORD_AUDIO</p>
  */
 public class SearchBar extends RelativeLayout {
     private static final String TAG = SearchBar.class.getSimpleName();
@@ -68,7 +71,10 @@ public class SearchBar extends RelativeLayout {
         public void onSearchQueryChange(String query);
 
         /**
-         * Method invoked when the search query is submitted.
+         * <p>Method invoked when the search query is submitted.</p>
+         *
+         * <p>This method can be called without a preceeding onSearchQueryChange,
+         * in particular in the case of a voice input.</p>
          *
          * @param query The query being submitted.
          */
@@ -110,6 +116,8 @@ public class SearchBar extends RelativeLayout {
 
     public SearchBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        enforceAudioRecordPermission();
+
         Resources r = getResources();
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
@@ -519,5 +527,12 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
+    private void enforceAudioRecordPermission() {
+        String permission = "android.permission.RECORD_AUDIO";
+        int res = getContext().checkCallingOrSelfPermission(permission);
+        if (PackageManager.PERMISSION_GRANTED != res) {
+            throw new IllegalStateException("android.premission.RECORD_AUDIO required for search");
+        }
+    }
 
 }
