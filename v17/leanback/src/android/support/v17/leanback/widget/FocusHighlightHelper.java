@@ -13,20 +13,12 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.graphics.drawable.TransitionDrawable;
 import android.support.v17.leanback.R;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.animation.TimeAnimator;
 import android.content.res.Resources;
-
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_SMALL;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_MEDIUM;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LARGE;
-
 
 /**
  * Setup the behavior how to highlight when a item gains focus.

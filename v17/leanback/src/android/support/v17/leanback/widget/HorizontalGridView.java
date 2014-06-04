@@ -29,7 +29,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * A view that shows items in a horizontal scrolling list. The items come from
