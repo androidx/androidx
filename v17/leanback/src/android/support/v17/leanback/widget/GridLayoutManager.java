@@ -1750,6 +1750,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             RecyclerView.State state, Action action) {
                         if (hasFocus()) {
                             targetView.requestFocus();
+                        } else {
+                            dispatchChildSelected();
                         }
                         if (updateScrollPosition(targetView, false, mTempDeltas)) {
                             int dx, dy;
