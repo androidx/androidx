@@ -40,7 +40,11 @@ public class VerticalGridFragment extends Fragment {
     private static final String TAG = "VerticalGridFragment";
     private static boolean DEBUG = false;
 
+    // TODO: remove Params
     private Params mParams;
+
+    private String mTitle;
+    private Drawable mBadgeDrawable;
     private ObjectAdapter mAdapter;
     private VerticalGridPresenter mGridPresenter;
     private VerticalGridPresenter.ViewHolder mGridViewHolder;
@@ -61,6 +65,7 @@ public class VerticalGridFragment extends Fragment {
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
 
+    @Deprecated
     public static class Params {
         private String mTitle;
         private Drawable mBadgeDrawable;
@@ -96,7 +101,9 @@ public class VerticalGridFragment extends Fragment {
 
     /**
      * Set fragment parameters.
+     * @deprecated Use methods on the fragment directly.
      */
+    @Deprecated
     public void setParams(Params params) {
         mParams = params;
         setBadgeDrawable(mParams.mBadgeDrawable);
@@ -105,13 +112,49 @@ public class VerticalGridFragment extends Fragment {
 
     /**
      * Returns fragment parameters.
+     * @deprecated Use methods on the fragment directly.
      */
+    @Deprecated
     public Params getParams() {
         return mParams;
     }
 
     /**
-     * Set the grid presenter.
+     * Sets the badge drawable displayed in the title area.
+     */
+    public void setBadgeDrawable(Drawable drawable) {
+        if (drawable != mBadgeDrawable) {
+            mBadgeDrawable = drawable;
+            setBadgeViewImage();
+        }
+    }
+
+    /**
+     * Returns the badge drawable.
+     */
+    public Drawable getBadgeDrawable() {
+        return mBadgeDrawable;
+    }
+
+    /**
+     * Sets a title for the fragment.
+     */
+    public void setTitle(String title) {
+        mTitle = title;
+        if (mTitleView != null) {
+            mTitleView.setText(mTitle);
+        }
+    }
+
+    /**
+     * Returns the title for the fragment.
+     */
+    public String getTitle() {
+        return mTitle;
+    }
+
+    /**
+     * Sets the grid presenter.
      */
     public void setGridPresenter(VerticalGridPresenter gridPresenter) {
         if (gridPresenter == null) {
@@ -215,21 +258,17 @@ public class VerticalGridFragment extends Fragment {
         }
     }
 
-    private void setBadgeDrawable(Drawable drawable) {
+    private void setBadgeViewImage() {
         if (mBadgeView == null) {
             return;
         }
-        mBadgeView.setImageDrawable(drawable);
-        if (drawable != null) {
+        mBadgeView.setImageDrawable(mBadgeDrawable);
+        if (mBadgeDrawable != null) {
             mBadgeView.setVisibility(View.VISIBLE);
+            mTitleView.setVisibility(View.GONE);
         } else {
             mBadgeView.setVisibility(View.GONE);
-        }
-    }
-
-    private void setTitle(String title) {
-        if (mTitleView != null) {
-            mTitleView.setText(title);
+            mTitleView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -247,10 +286,8 @@ public class VerticalGridFragment extends Fragment {
             mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
         }
 
-        if (mParams != null) {
-            setBadgeDrawable(mParams.mBadgeDrawable);
-            setTitle(mParams.mTitle);
-        }
+        setBadgeViewImage();
+        mTitleView.setText(mTitle);
 
         mSceneWithTitle = sTransitionHelper.createScene(root, new Runnable() {
             @Override

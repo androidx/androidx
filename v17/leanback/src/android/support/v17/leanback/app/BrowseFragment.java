@@ -56,10 +56,11 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  */
 public class BrowseFragment extends Fragment {
 
+    @Deprecated
     public static class Params {
         private String mTitle;
         private Drawable mBadgeDrawable;
-        private int mHeadersState;
+        private int mHeadersState = HEADERS_ENABLED;
 
         /**
          * Sets the badge image.
@@ -183,7 +184,12 @@ public class BrowseFragment extends Fragment {
 
     private ObjectAdapter mAdapter;
 
+    // TODO: remove Params
     private Params mParams;
+
+    private String mTitle;
+    private Drawable mBadgeDrawable;
+    private int mHeadersState = HEADERS_ENABLED;
     private int mBrandColor = Color.TRANSPARENT;
     private boolean mBrandColorSet;
 
@@ -229,35 +235,52 @@ public class BrowseFragment extends Fragment {
         BrowseFragment.class.getCanonicalName() + ".headersState";
 
     /**
-     * @param args Bundle to use for the arguments, if null a new Bundle will be created.
+     * Create arguments for a browse fragment.
+     * @deprecated Use {@link createArgs(Bundle args, String title, int headersState)}.
      */
+    @Deprecated
     public static Bundle createArgs(Bundle args, String title, String badgeUri) {
-        return createArgs(args, title, badgeUri, HEADERS_ENABLED);
+        return createArgs(args, title, HEADERS_ENABLED);
     }
 
+    /**
+     * Create arguments for a browse fragment.
+     * @deprecated Use {@link createArgs(Bundle args, String title, int headersState)}.
+     */
+    @Deprecated
     public static Bundle createArgs(Bundle args, String title, String badgeUri, int headersState) {
+        return createArgs(args, title, headersState);
+    }
+
+    /**
+     * Create arguments for a browse fragment.
+     */
+    public static Bundle createArgs(Bundle args, String title, int headersState) {
         if (args == null) {
             args = new Bundle();
         }
         args.putString(ARG_TITLE, title);
-        args.putString(ARG_BADGE_URI, badgeUri);
         args.putInt(ARG_HEADERS_STATE, headersState);
         return args;
     }
 
     /**
      * Set browse parameters.
+     * @deprecated Call methods on the fragment directly.
      */
+    @Deprecated
     public void setBrowseParams(Params params) {
         mParams = params;
-        setBadgeDrawable(mParams.mBadgeDrawable);
-        setTitle(mParams.mTitle);
-        setHeadersState(mParams.mHeadersState);
+        setBadgeDrawable(params.mBadgeDrawable);
+        setTitle(params.mTitle);
+        setHeadersState(params.mHeadersState);
     }
 
     /**
      * Returns browse parameters.
+     * @deprecated Call methods on the fragment directly.
      */
+    @Deprecated
     public Params getBrowseParams() {
         return mParams;
     }
@@ -506,6 +529,7 @@ public class BrowseFragment extends Fragment {
                 .getInteger(R.integer.lb_browse_headers_transition_duration);
 
         readArguments(getArguments());
+
         if (mCanShowHeaders && mHeadersBackStackEnabled) {
             mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
             mBackStackChangedListener = new BackStackListener();
@@ -554,21 +578,19 @@ public class BrowseFragment extends Fragment {
         mBrowseFrame.setOnChildFocusListener(mOnChildFocusListener);
 
         mBrowseTitle = (ViewGroup) root.findViewById(R.id.browse_title_group);
-        mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
         mTitleView = (TextView) mBrowseTitle.findViewById(R.id.browse_title);
+        mTitleView.setText(mTitle);
+        mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
+        setBadgeViewImage();
+
         mSearchOrbView = (SearchOrbView) mBrowseTitle.findViewById(R.id.browse_orb);
         mSearchOrbView.setOrbColor(getSearchAffordanceColor());
         if (mExternalOnSearchClickedListener != null) {
             mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
         }
 
-        if (mParams != null) {
-            setBadgeDrawable(mParams.mBadgeDrawable);
-            setTitle(mParams.mTitle);
-            setHeadersState(mParams.mHeadersState);
-            if (mBrandColorSet) {
-                mHeadersFragment.setBackgroundColor(mBrandColor);
-            }
+        if (mBrandColorSet) {
+            mHeadersFragment.setBackgroundColor(mBrandColor);
         }
 
         mSceneWithTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
@@ -800,26 +822,28 @@ public class BrowseFragment extends Fragment {
         if (args.containsKey(ARG_TITLE)) {
             setTitle(args.getString(ARG_TITLE));
         }
-
-        if (args.containsKey(ARG_BADGE_URI)) {
-            setBadgeUri(args.getString(ARG_BADGE_URI));
-        }
-
         if (args.containsKey(ARG_HEADERS_STATE)) {
             setHeadersState(args.getInt(ARG_HEADERS_STATE));
         }
     }
 
-    private void setBadgeUri(String badgeUri) {
-        // TODO - need a drawable downloader
+    /**
+     * Sets the drawable displayed in the fragment title area.
+     * @param drawable
+     */
+    public void setBadgeDrawable(Drawable drawable) {
+        if (mBadgeDrawable != drawable) {
+            mBadgeDrawable = drawable;
+            setBadgeViewImage();
+        }
     }
 
-    private void setBadgeDrawable(Drawable drawable) {
+    private void setBadgeViewImage() {
         if (mBadgeView == null) {
             return;
         }
-        mBadgeView.setImageDrawable(drawable);
-        if (drawable != null) {
+        mBadgeView.setImageDrawable(mBadgeDrawable);
+        if (mBadgeDrawable != null) {
             mBadgeView.setVisibility(View.VISIBLE);
             mTitleView.setVisibility(View.GONE);
         } else {
@@ -828,33 +852,68 @@ public class BrowseFragment extends Fragment {
         }
     }
 
-    private void setTitle(String title) {
+    /**
+     * Returns the badge drawable.
+     */
+    public Drawable getBadgeDrawable() {
+        return mBadgeDrawable;
+    }
+
+    /**
+     * Sets a title for the browse fragment.
+     */
+    public void setTitle(String title) {
+        mTitle = title;
         if (mTitleView != null) {
             mTitleView.setText(title);
         }
     }
 
-    private void setHeadersState(int headersState) {
+    /**
+     * Returns the title for the browse fragment.
+     */
+    public String getTitle() {
+        return mTitle;
+    }
+
+    /**
+     * Sets the state for the headers column in the browse fragment.
+     */
+    public void setHeadersState(int headersState) {
+        if (headersState < HEADERS_ENABLED || headersState > HEADERS_DISABLED) {
+            throw new IllegalArgumentException("Invalid headers state: " + headersState);
+        }
         if (DEBUG) Log.v(TAG, "setHeadersState " + headersState);
-        switch (headersState) {
-            case HEADERS_ENABLED:
-                mCanShowHeaders = true;
-                mShowingHeaders = true;
-                break;
-            case HEADERS_HIDDEN:
-                mCanShowHeaders = true;
-                mShowingHeaders = false;
-                break;
-            case HEADERS_DISABLED:
-                mCanShowHeaders = false;
-                mShowingHeaders = false;
-                break;
-            default:
-                Log.w(TAG, "Unknown headers state: " + headersState);
-                break;
+
+        if (headersState != mHeadersState) {
+            mHeadersState = headersState;
+            switch (headersState) {
+                case HEADERS_ENABLED:
+                    mCanShowHeaders = true;
+                    mShowingHeaders = true;
+                    break;
+                case HEADERS_HIDDEN:
+                    mCanShowHeaders = true;
+                    mShowingHeaders = false;
+                    break;
+                case HEADERS_DISABLED:
+                    mCanShowHeaders = false;
+                    mShowingHeaders = false;
+                    break;
+                default:
+                    Log.w(TAG, "Unknown headers state: " + headersState);
+                    break;
+            }
+            if (mHeadersFragment != null) {
+                mHeadersFragment.setHeadersGone(!mCanShowHeaders);
+            }
         }
-        if (mHeadersFragment != null) {
-            mHeadersFragment.setHeadersGone(!mCanShowHeaders);
-        }
+    }
+
+    /**
+     * Returns the state for the headers column in the browse fragment.
+     */
+    public int getHeadersState() {
+        return mHeadersState;
     }
 }
