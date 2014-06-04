@@ -54,12 +54,10 @@ public class BrowseAnimationFragment extends
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        Params p = new Params();
-        p.setBadgeImage(
+        setBadgeDrawable(
                 getActivity().getResources().getDrawable(R.drawable.ic_title));
-        p.setTitle("Leanback Sample App");
-        p.setHeadersState(HEADERS_ENABLED);
-        setBrowseParams(p);
+        setTitle("Leanback Sample App");
+        setHeadersState(HEADERS_ENABLED);
 
         setOnSearchClickedListener(new View.OnClickListener() {
                 @Override
