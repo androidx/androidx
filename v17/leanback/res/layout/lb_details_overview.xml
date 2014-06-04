@@ -38,23 +38,10 @@
             android:adjustViewBounds="true"
             />
 
-       <ImageView
-            android:id="@+id/details_overview_actions_more"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/lb_ic_actions_right_arrow"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginRight="@dimen/lb_details_overview_actions_more_margin_right"
-            android:layout_marginBottom="@dimen/lb_details_overview_actions_more_margin_bottom"
-            />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_toRightOf="@id/details_overview_image"
-            android:layout_marginLeft="@dimen/lb_details_overview_description_margin_left"
-            android:layout_marginRight="@dimen/lb_details_overview_description_margin_right"
             android:layout_marginBottom="@dimen/lb_details_overview_description_margin_bottom"
             android:layout_marginTop="@dimen/lb_details_overview_description_margin_top"
             android:orientation="vertical" >
@@ -64,7 +51,10 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="top" />
+            android:gravity="top"
+            android:layout_marginLeft="@dimen/lb_details_overview_description_margin_left"
+            android:layout_marginRight="@dimen/lb_details_overview_description_margin_right"
+            />
 
         <android.support.v17.leanback.widget.HorizontalGridView
             android:id="@+id/details_overview_actions"
@@ -75,6 +65,8 @@
             android:clipToPadding="false"
             android:focusable="true"
             android:focusableInTouchMode="true"
+            android:paddingLeft="@dimen/lb_details_overview_description_margin_left"
+            android:paddingRight="@dimen/lb_details_overview_description_margin_right"
             lb:horizontalMargin="@dimen/lb_details_overview_action_items_margin"
             lb:rowHeight="@dimen/lb_details_overview_actions_height" />
 

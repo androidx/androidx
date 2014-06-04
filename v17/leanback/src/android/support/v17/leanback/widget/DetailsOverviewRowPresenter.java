@@ -46,21 +46,16 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         final ImageView mImageView;
         final FrameLayout mDetailsDescriptionFrame;
         final HorizontalGridView mActionsRow;
-        final View mMoreActionsView;
         Presenter.ViewHolder mDetailsDescriptionViewHolder;
         int mNumItems;
         boolean mShowMoreRight;
         boolean mShowMoreLeft;
-        boolean mShowMoreActions;
 
         void bind(ItemBridgeAdapter bridgeAdapter) {
             mNumItems = bridgeAdapter.getItemCount();
             bridgeAdapter.setAdapterListener(mAdapterListener);
 
-            mMoreActionsView.setAlpha(0f);
             mShowMoreRight = false;
-            mShowMoreActions = false;
-
             mShowMoreLeft = true;
             showMoreLeft(false);
         }
@@ -101,16 +96,12 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             boolean showRight = (viewHolder == null ||
                     viewHolder.itemView.getRight() > mActionsRow.getWidth());
 
-            boolean showMore = (viewHolder == null ||
-                    getViewCenter(viewHolder.itemView) > mActionsRow.getWidth());
-
             viewHolder = mActionsRow.findViewHolderForPosition(0);
             boolean showLeft = (viewHolder == null || viewHolder.itemView.getLeft() < 0);
 
             if (DEBUG) Log.v(TAG, "checkFirstAndLast fromScroll " + fromScroll +
                     " showRight " + showRight + " showLeft " + showLeft);
 
-            showMoreActions(showMore);
             showMoreRight(showRight);
             showMoreLeft(showLeft);
         }
@@ -129,14 +120,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             }
         }
 
-        private void showMoreActions(boolean show) {
-            if (show != mShowMoreActions) {
-                mMoreActionsView.animate().alpha(show ? 1f : 0).setDuration(
-                        MORE_ACTIONS_FADE_MS).start();
-                mShowMoreActions = show;
-            }
-        }
-
         public ViewHolder(View rootView) {
             super(rootView);
             mImageView = (ImageView) rootView.findViewById(R.id.details_overview_image);
@@ -149,11 +132,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             final int fadeLength = rootView.getResources().getDimensionPixelSize(
                     R.dimen.lb_details_overview_actions_fade_size);
             mActionsRow.setFadingRightEdgeLength(fadeLength);
-            mActionsRow.setFadingRightEdgeOffset(-fadeLength);
             mActionsRow.setFadingLeftEdgeLength(fadeLength);
-            mActionsRow.setFadingLeftEdgeOffset(-fadeLength);
-
-            mMoreActionsView = rootView.findViewById(R.id.details_overview_actions_more);
         }
     }
 
