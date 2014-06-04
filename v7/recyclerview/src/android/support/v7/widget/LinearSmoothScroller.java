@@ -108,7 +108,9 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
         final int dy = calculateDyToMakeVisible(targetView, getVerticalSnapPreference());
         final int distance = (int) Math.sqrt(dx * dx + dy * dy);
         final int time = calculateTimeForDeceleration(distance);
-        action.update(-dx, -dy, time, mDecelerateInterpolator);
+        if (time > 0) {
+            action.update(-dx, -dy, time, mDecelerateInterpolator);
+        }
     }
 
     /**
