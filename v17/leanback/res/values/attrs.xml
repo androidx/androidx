@@ -169,5 +169,9 @@
         <!-- style for a vertical grid of items -->
         <attr name="itemsVerticalGridStyle" format="reference" />
 
+        <!-- Default colors -->
+        <attr name="defaultBrandColor" format="reference|color" />
+        <attr name="defaultSearchColor" format="reference|color" />
+
     </declare-styleable>
 </resources>

@@ -222,7 +222,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
     private int getDefaultBackgroundColor(Context context) {
         TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(android.R.attr.colorBackground, outValue, true);
+        context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
         return context.getResources().getColor(outValue.resourceId);
     }
 

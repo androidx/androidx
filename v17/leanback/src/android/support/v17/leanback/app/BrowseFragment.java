@@ -374,7 +374,7 @@ public class BrowseFragment extends Fragment {
         }
 
         TypedValue outValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(android.R.attr.colorForeground, outValue, true);
+        getActivity().getTheme().resolveAttribute(R.attr.defaultSearchColor, outValue, true);
         return getResources().getColor(outValue.resourceId);
     }
 
