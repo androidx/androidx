@@ -13,8 +13,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.view.View;
-
 /**
  * Interface for receiving notification when an action is clicked.
  */

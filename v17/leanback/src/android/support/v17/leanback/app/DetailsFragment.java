@@ -15,12 +15,10 @@ package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.VerticalGridView;
-import android.util.Log;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
