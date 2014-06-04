@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.View;
@@ -37,13 +38,28 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     protected RecyclerView mRecyclerView;
 
+    protected AdapterHelper mAdapterHelper;
+
     public BaseRecyclerViewInstrumentationTest() {
         this(false);
     }
 
     public BaseRecyclerViewInstrumentationTest(boolean debug) {
-        super("android.support.v7.widget", TestActivity.class);
+        super("android.support.v7.recyclerview", TestActivity.class);
         mDebug = debug;
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        if (mRecyclerView != null) {
+            try {
+                removeRecyclerView();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+        getInstrumentation().waitForIdleSync();
+        super.tearDown();
     }
 
     public void removeRecyclerView() throws Throwable {
@@ -58,6 +74,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     public void setRecyclerView(final RecyclerView recyclerView) throws Throwable {
         mRecyclerView = recyclerView;
+        mAdapterHelper = recyclerView.mAdapterHelper;
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -151,7 +168,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
 
         public void waitForLayout(long timeout) throws Throwable {
-            waitForLayout(timeout, TimeUnit.SECONDS);
+            waitForLayout(timeout * (mDebug ? 10000 : 1), TimeUnit.SECONDS);
         }
 
         @Override
@@ -170,8 +187,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 if (mDebug) {
                     Log.d(TAG, "testing item " + i);
                 }
-                assertSame("item position in LP should match adapter value",
-                        testAdapter.mItems.get(lp.getViewPosition()), item);
+                if (!lp.isItemRemoved()) {
+                    RecyclerView.ViewHolder vh = mRecyclerView.getChildViewHolder(view);
+                    assertSame("item position in LP should match adapter value :" + vh,
+                            testAdapter.mItems.get(vh.mPosition), item);
+                }
             }
         }
 
@@ -179,8 +199,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             return (RecyclerView.LayoutParams) v.getLayoutParams();
         }
 
-        void layoutRange(RecyclerView.Recycler recycler, int start,
+        /**
+         * returns skipped (removed) view count.
+         */
+        int layoutRange(RecyclerView.Recycler recycler, int start,
                 int end) {
+            int skippedAdd = 0;
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
             }
@@ -193,12 +217,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                         + "got null view at position " + i, view);
                 if (!getLp(view).isItemRemoved()) {
                     addView(view);
+                } else {
+                    skippedAdd ++;
                 }
 
                 measureChildWithMargins(view, 0, 0);
                 layoutDecorated(view, 0, (i - start) * 10, getDecoratedMeasuredWidth(view)
                         , getDecoratedMeasuredHeight(view));
             }
+            return skippedAdd;
         }
     }
 
@@ -213,6 +240,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         Item(int originalIndex, String text) {
             this.originalIndex = originalIndex;
             this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return "Item{" +
+                    "mId=" + mId +
+                    ", originalIndex=" + originalIndex +
+                    ", text='" + text + '\'' +
+                    '}';
         }
     }
 
@@ -254,19 +290,10 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
          * A D E. Then it will delete 2,1 which means it will delete E.
          */
         public void deleteAndNotify(final int[]... startCountTuples) throws Throwable {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int t = 0; t < startCountTuples.length; t++) {
-                        int[] tuple = startCountTuples[t];
-                        for (int i = 0; i < tuple[1]; i++) {
-                            mItems.remove(tuple[0]);
-                        }
-                        notifyItemRangeRemoved(tuple[0], tuple[1]);
-                    }
-
-                }
-            });
+            for (int[] tuple : startCountTuples) {
+                tuple[1] = -tuple[1];
+            }
+            new AddRemoveRunnable(startCountTuples).runOnMainThread();
         }
 
         public void addAndNotify(final int start, final int count) throws Throwable {
@@ -274,28 +301,77 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
 
         public void addAndNotify(final int[]... startCountTuples) throws Throwable {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int t = 0; t < startCountTuples.length; t++) {
-                        int[] tuple = startCountTuples[t];
-                        for (int i = 0; i < tuple[1]; i++) {
-                            mItems.add(tuple[0], new Item(i, "new item " + i));
-                        }
-                        // offset others
-                        for (int i = tuple[0] + tuple[1]; i < mItems.size(); i++) {
-                            mItems.get(i).originalIndex += tuple[1];
-                        }
-                        notifyItemRangeInserted(tuple[0], tuple[1]);
-                    }
+            new AddRemoveRunnable(startCountTuples).runOnMainThread();
+        }
 
-                }
-            });
+        /**
+         * Similar to other methods but negative count means delete and position count means add.
+         * <p>
+         * For instance, calling this method with <code>[1,1], [2,-1]</code> it will first add an
+         * item to index 1, then remove an item from index 2 (updated index 2)
+         */
+        public void addDeleteAndNotify(final int[]... startCountTuples) throws Throwable {
+            new AddRemoveRunnable(startCountTuples).runOnMainThread();
         }
 
         @Override
         public int getItemCount() {
             return mItems.size();
+        }
+
+
+        private class AddRemoveRunnable implements Runnable {
+            final int[][] mStartCountTuples;
+
+            public AddRemoveRunnable(int[][] startCountTuples) {
+                mStartCountTuples = startCountTuples;
+            }
+
+            public void runOnMainThread() throws Throwable {
+                if (Looper.myLooper() == Looper.getMainLooper()) {
+                    run();
+                } else {
+                    runTestOnUiThread(this);
+                }
+            }
+
+            @Override
+            public void run() {
+                for (int[] tuple : mStartCountTuples) {
+                    if (tuple[1] < 0) {
+                        delete(tuple);
+                    } else {
+                        add(tuple);
+                    }
+                }
+            }
+
+            private void add(int[] tuple) {
+                for (int i = 0; i < tuple[1]; i++) {
+                    mItems.add(tuple[0], new Item(i, "new item " + i));
+                }
+                // offset others
+                for (int i = tuple[0] + tuple[1]; i < mItems.size(); i++) {
+                    mItems.get(i).originalIndex += tuple[1];
+                }
+                notifyItemRangeInserted(tuple[0], tuple[1]);
+            }
+
+            private void delete(int[] tuple) {
+                for (int i = 0; i < -tuple[1]; i++) {
+                    mItems.remove(tuple[0]);
+                }
+                notifyItemRangeRemoved(tuple[0], -tuple[1]);
+            }
+        }
+    }
+
+    @Override
+    public void runTestOnUiThread(Runnable r) throws Throwable {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            r.run();
+        } else {
+            super.runTestOnUiThread(r);
         }
     }
 }

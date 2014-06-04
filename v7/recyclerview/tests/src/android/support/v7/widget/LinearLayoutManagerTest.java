@@ -147,7 +147,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         while (mLayoutManager.isSmoothScrolling() ||
                 mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
             runTestOnUiThread(viewInBoundsTest);
-            Thread.sleep(200);
+            Thread.sleep(400);
         }
         // delete all items
         mLayoutManager.expectLayouts(2);
@@ -631,7 +631,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
     static class Config implements Cloneable {
 
-        private static final int DEFAULT_ITEM_COUNT = 300;
+        private static final int DEFAULT_ITEM_COUNT = 100;
 
         private boolean mStackFromEnd;
 

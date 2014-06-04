@@ -33,6 +33,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         TestLayoutManager testLayoutManager = new TestLayoutManager() {
             @Override
             public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
                 layoutRange(recycler, 0, state.getItemCount());
                 itemCount.set(state.getItemCount());
                 structureChanged.set(state.didStructureChange());
@@ -47,7 +48,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 getActivity().mContainer.addView(recyclerView);
             }
         });
-        Thread.sleep(5000);
         testLayoutManager.waitForLayout(2, TimeUnit.SECONDS);
 
         assertEquals("item count in state should be correct", adapter.getItemCount()
@@ -62,20 +62,20 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 recyclerView.requestLayout();
             }
         });
-        testLayoutManager.waitForLayout(1, TimeUnit.SECONDS);
+        testLayoutManager.waitForLayout(2);
         assertEquals("in second layout,structure changed should be false", false,
                 structureChanged.get());
-        testLayoutManager.expectLayouts(recyclerView.getItemAnimator() == null ? 1 : 2); //
+        testLayoutManager.expectLayouts(1); //
         adapter.deleteAndNotify(3, 2);
-        testLayoutManager.waitForLayout(3, TimeUnit.SECONDS);
+        testLayoutManager.waitForLayout(2);
         assertEquals("when items are removed, item count in state should be updated",
                 adapter.getItemCount(),
                 itemCount.get());
         assertEquals("structure changed should be true when items are removed", true,
                 structureChanged.get());
-        testLayoutManager.expectLayouts(recyclerView.getItemAnimator() == null ? 1 : 2);
+        testLayoutManager.expectLayouts(1);
         adapter.addAndNotify(2, 5);
-        testLayoutManager.waitForLayout(3, TimeUnit.SECONDS);
+        testLayoutManager.waitForLayout(2);
 
         assertEquals("when items are added, item count in state should be updated",
                 adapter.getItemCount(),
