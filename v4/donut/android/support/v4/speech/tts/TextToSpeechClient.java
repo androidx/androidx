@@ -560,21 +560,4 @@ public class TextToSpeechClient {
             Log.e(TAG, "TTS Client is not connected");
         }
     }
-
-    /**
-     * Checks whether the TTS engine is busy speaking. Note that a speech item is
-     * considered complete once it's audio data has been sent to the audio mixer, or
-     * written to a file. There might be a finite lag between this point, and when
-     * the audio hardware completes playback.
-     *
-     * @return {@code true} if the TTS engine is speaking.
-     */
-    public boolean isSpeaking() {
-        if (mImplementation.isConnected()) {
-            return mImplementation.isSpeaking();
-        } else {
-            Log.e(TAG, "TTS Client is not connected");
-            return false;
-        }
-    }
 }

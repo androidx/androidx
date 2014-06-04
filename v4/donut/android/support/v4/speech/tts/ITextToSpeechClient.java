@@ -33,7 +33,6 @@ interface ITextToSpeechClient {
   public void disconnect();
   public EngineStatus getEngineStatus();
   public void stop();
-  public boolean isSpeaking();
   public void queueSpeak(final String utterance, final UtteranceId utteranceId,
       final RequestConfig config, final RequestCallbacks callbacks);
   public void queueSynthesizeToFile(final String utterance, final UtteranceId utteranceId,
