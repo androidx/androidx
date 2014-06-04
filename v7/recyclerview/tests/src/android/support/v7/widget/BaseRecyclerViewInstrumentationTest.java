@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 abstract public class BaseRecyclerViewInstrumentationTest extends
         ActivityInstrumentationTestCase2<TestActivity> {
@@ -202,6 +203,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     }
 
     static class Item {
+        final static AtomicInteger idCounter = new AtomicInteger(0);
+        final public int mId = idCounter.incrementAndGet();
 
         int originalIndex;
 

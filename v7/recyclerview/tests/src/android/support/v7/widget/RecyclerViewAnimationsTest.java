@@ -22,6 +22,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -58,9 +63,19 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
     RecyclerView setupBasic(int itemCount, int firstLayoutStartIndex, int firstLayoutItemCount)
             throws Throwable {
+        return setupBasic(itemCount, firstLayoutStartIndex, firstLayoutItemCount, null);
+    }
+
+    RecyclerView setupBasic(int itemCount, int firstLayoutStartIndex, int firstLayoutItemCount,
+            TestAdapter testAdapter)
+            throws Throwable {
         final TestRecyclerView recyclerView = new TestRecyclerView(getActivity());
         recyclerView.setHasFixedSize(true);
-        mTestAdapter = new TestAdapter(itemCount);
+        if (testAdapter == null) {
+            mTestAdapter = new TestAdapter(itemCount);
+        } else {
+            mTestAdapter = testAdapter;
+        }
         recyclerView.setAdapter(mTestAdapter);
         mLayoutManager = new AnimationLayoutManager();
         recyclerView.setLayoutManager(mLayoutManager);
@@ -74,6 +89,65 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         recyclerView.waitForDraw(1);
         mLayoutManager.mOnLayoutCallbacks.reset();
         return recyclerView;
+    }
+
+    public void getItemForDeletedViewTest() throws Throwable {
+        testGetItemForDeletedView(false);
+        testGetItemForDeletedView(true);
+    }
+
+    public void testGetItemForDeletedView(boolean stableIds) throws Throwable {
+        final Set<Integer> itemViewTypeQueries = new HashSet<Integer>();
+        final Set<Integer> itemIdQueries = new HashSet<Integer>();
+        TestAdapter adapter = new TestAdapter(10) {
+            @Override
+            public int getItemViewType(int position) {
+                itemViewTypeQueries.add(position);
+                return super.getItemViewType(position);
+            }
+
+            @Override
+            public long getItemId(int position) {
+                itemIdQueries.add(position);
+                return mItems.get(position).mId;
+            }
+        };
+        adapter.setHasStableIds(stableIds);
+        setupBasic(10, 0, 10, adapter);
+        assertEquals("getItemViewType for all items should be called", 10,
+                itemViewTypeQueries.size());
+        if (adapter.hasStableIds()) {
+            assertEquals("getItemId should be called when adapter has stable ids", 10,
+                    itemIdQueries.size());
+        } else {
+            assertEquals("getItemId should not be called when adapter does not have stable ids", 0,
+                    itemIdQueries.size());
+        }
+        itemViewTypeQueries.clear();
+        itemIdQueries.clear();
+        mLayoutManager.expectLayouts(2);
+        // delete last two
+        final int deleteStart = 8;
+        final int deleteCount = adapter.getItemCount() - deleteStart;
+        adapter.deleteAndNotify(deleteStart, deleteCount);
+        mLayoutManager.waitForLayout(2);
+        for (int i = 0; i < deleteStart; i++) {
+            assertTrue("getItemViewType for existing item " + i + " should be called",
+                    itemViewTypeQueries.contains(i));
+            if (adapter.hasStableIds()) {
+                assertTrue("getItemId for existing item " + i
+                        + " should be called when adapter has stable ids",
+                        itemIdQueries.contains(i));
+            }
+        }
+        for (int i = deleteStart; i < deleteStart + deleteCount; i++) {
+            assertFalse("getItemViewType for deleted item " + i + " SHOULD NOT be called",
+                    itemViewTypeQueries.contains(i));
+            if (adapter.hasStableIds()) {
+                assertTrue("getItemId for deleted item " + i + " SHOULD NOT be called",
+                        itemIdQueries.contains(i));
+            }
+        }
     }
 
     public void testAddInvisibleAndVisible() throws Throwable {
@@ -323,6 +397,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
     }
 
     class TestRecyclerView extends RecyclerView {
+
         CountDownLatch drawLatch;
 
         public TestRecyclerView(Context context) {
