@@ -13,21 +13,14 @@
  */
 package android.support.v17.leanback.widget;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
-import android.support.v17.leanback.widget.Presenter.ViewHolder;
-import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.FrameLayout;
 
 /**
  * ListRowPresenter renders {@link ListRow} using a

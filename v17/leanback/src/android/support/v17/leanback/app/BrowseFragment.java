@@ -23,9 +23,7 @@ import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.app.Activity;
 import android.app.Fragment;
@@ -43,8 +41,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-
-import java.util.ArrayList;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 

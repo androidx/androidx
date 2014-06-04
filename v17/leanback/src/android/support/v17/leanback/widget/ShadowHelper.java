@@ -13,7 +13,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.content.Context;
 import android.os.Build;
 import android.view.ViewGroup;
 

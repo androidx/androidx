@@ -19,7 +19,6 @@ import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.ViewGroup;
 
 /**
  * A view that shows items in a vertically scrolling list. The items come from
