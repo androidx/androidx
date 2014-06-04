@@ -294,9 +294,36 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                     public String describe() {
                         return "Changing reverse layout";
                     }
+                },
+                new PostRestoreRunnable() {
+                    int position;
+                    @Override
+                    void onAfterRestore(Config config) throws Throwable {
+                        position = mTestAdapter.getItemCount() / 2;
+                        mLayoutManager.scrollToPosition(position);
+                    }
+
+                    @Override
+                    boolean shouldLayoutMatch(Config config) {
+                        return mTestAdapter.getItemCount() == 0;
+                    }
+
+                    @Override
+                    String describe() {
+                        return "Scroll to position";
+                    }
+
+                    @Override
+                    void onAfterReLayout(Config config) {
+                        if (mTestAdapter.getItemCount() > 0) {
+                            assertEquals("scrolled view should be last completely visible position",
+                                    position,
+                                    mLayoutManager.findLastCompletelyVisibleItemPosition());
+                        }
+                    }
                 }
         };
-        boolean[] waitForLayoutOptions = new boolean[]{false, true};
+        boolean[] waitForLayoutOptions = new boolean[]{true, false};
         for (Config config : addConfigVariation(mBaseVariations, "mItemCount", 0, 300)) {
             for (PostLayoutRunnable postLayoutRunnable : postLayoutOptions) {
                 for (boolean waitForLayout : waitForLayoutOptions) {
@@ -304,6 +331,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                         savedStateTest((Config) config.clone(), waitForLayout, postLayoutRunnable,
                                 postRestoreRunnable);
                         removeRecyclerView();
+                        return;
                     }
 
                 }
@@ -373,6 +401,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                                 + ": on restore with changes, previous view positions should NOT be preserved",
                         before, mLayoutManager.collectChildCoordinates());
             }
+            postRestoreOperation.onAfterReLayout(config);
         }
     }
 
@@ -457,6 +486,10 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         boolean shouldLayoutMatch(Config config) {
             return true;
         }
+
+        void onAfterReLayout(Config config) {
+
+        };
     }
 
     class WrappedLinearLayoutManager extends LinearLayoutManager {
