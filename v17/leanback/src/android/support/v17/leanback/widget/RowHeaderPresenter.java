@@ -81,7 +81,6 @@ public class RowHeaderPresenter extends Presenter {
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        ((RowHeaderView) viewHolder.view).setText(null);
     }
 
     public final void setSelectLevel(ViewHolder holder, float selectLevel) {
