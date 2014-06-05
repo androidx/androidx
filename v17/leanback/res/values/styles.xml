@@ -74,6 +74,10 @@
         <item name="android:background">@color/lb_basic_card_bg_color</item>
     </style>
 
+    <style name="Widget.Leanback.TitleView" >
+        <item name="searchAffordanceColor">?attr/defaultSearchColor</item>
+    </style>
+
     <style name="Widget.Leanback.Title" />
 
     <style name="Widget.Leanback.Title.Text">

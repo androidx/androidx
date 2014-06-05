@@ -17,6 +17,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -24,7 +25,6 @@ import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.util.Log;
-import android.util.TypedValue;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -36,9 +36,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 
@@ -194,10 +191,7 @@ public class BrowseFragment extends Fragment {
     private boolean mBrandColorSet;
 
     private BrowseFrameLayout mBrowseFrame;
-    private ImageView mBadgeView;
-    private TextView mTitleView;
-    private ViewGroup mBrowseTitle;
-    private SearchOrbView mSearchOrbView;
+    private TitleView mTitleView;
     private boolean mShowingTitle = true;
     private boolean mHeadersBackStackEnabled = true;
     private String mWithHeadersBackStackName;
@@ -362,8 +356,8 @@ public class BrowseFragment extends Fragment {
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
         mExternalOnSearchClickedListener = listener;
-        if (mSearchOrbView != null) {
-            mSearchOrbView.setOnOrbClickedListener(listener);
+        if (mTitleView != null) {
+            mTitleView.setOnSearchClickedListener(listener);
         }
     }
 
@@ -373,9 +367,8 @@ public class BrowseFragment extends Fragment {
     public void setSearchAffordanceColor(int color) {
         mSearchAffordanceColor = color;
         mSearchAffordanceColorSet = true;
-
-        if (mSearchOrbView != null) {
-            mSearchOrbView.setOrbColor(mSearchAffordanceColor);
+        if (mTitleView != null) {
+            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
         }
     }
 
@@ -384,17 +377,13 @@ public class BrowseFragment extends Fragment {
      * Can be called only after an activity has been attached.
      */
     public int getSearchAffordanceColor() {
-        if (getActivity() == null) {
-            throw new IllegalStateException("Activity must be attached");
-        }
-
         if (mSearchAffordanceColorSet) {
             return mSearchAffordanceColor;
         }
-
-        TypedValue outValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.defaultSearchColor, outValue, true);
-        return getResources().getColor(outValue.resourceId);
+        if (mTitleView == null) {
+            throw new IllegalStateException("Fragment views not yet created");
+        }
+        return mTitleView.getSearchAffordanceColor();
     }
 
     /**
@@ -472,6 +461,7 @@ public class BrowseFragment extends Fragment {
             // If headers fragment is disabled, just return null.
             if (!mCanShowHeaders) return null;
 
+            final View searchOrbView = mTitleView.getSearchAffordanceView();
             // if headers is running transition,  focus stays
             if (isInHeadersTransition()) return focused;
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
@@ -485,13 +475,13 @@ public class BrowseFragment extends Fragment {
                     return focused;
                 }
                 return mRowsFragment.getVerticalGridView();
-            } else if (focused == mSearchOrbView && direction == View.FOCUS_DOWN) {
+            } else if (focused == searchOrbView && direction == View.FOCUS_DOWN) {
                 return mShowingHeaders ? mHeadersFragment.getVerticalGridView() :
                     mRowsFragment.getVerticalGridView();
 
-            } else if (focused != mSearchOrbView && mSearchOrbView.getVisibility() == View.VISIBLE
+            } else if (focused != searchOrbView && searchOrbView.getVisibility() == View.VISIBLE
                     && direction == View.FOCUS_UP) {
-                return mSearchOrbView;
+                return searchOrbView;
 
             } else {
                 return null;
@@ -577,16 +567,14 @@ public class BrowseFragment extends Fragment {
         mBrowseFrame.setOnFocusSearchListener(mOnFocusSearchListener);
         mBrowseFrame.setOnChildFocusListener(mOnChildFocusListener);
 
-        mBrowseTitle = (ViewGroup) root.findViewById(R.id.browse_title_group);
-        mTitleView = (TextView) mBrowseTitle.findViewById(R.id.browse_title);
-        mTitleView.setText(mTitle);
-        mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
-        setBadgeViewImage();
-
-        mSearchOrbView = (SearchOrbView) mBrowseTitle.findViewById(R.id.browse_orb);
-        mSearchOrbView.setOrbColor(getSearchAffordanceColor());
+        mTitleView = (TitleView) root.findViewById(R.id.browse_title_group);
+        mTitleView.setTitle(mTitle);
+        mTitleView.setBadgeDrawable(mBadgeDrawable);
+        if (mSearchAffordanceColorSet) {
+            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
+        }
         if (mExternalOnSearchClickedListener != null) {
-            mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
+            mTitleView.setOnSearchClickedListener(mExternalOnSearchClickedListener);
         }
 
         if (mBrandColorSet) {
@@ -596,13 +584,13 @@ public class BrowseFragment extends Fragment {
         mSceneWithTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
-                showTitle(true);
+                TitleTransitionHelper.showTitle(mTitleView, true);
             }
         });
         mSceneWithoutTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
-                showTitle(false);
+                TitleTransitionHelper.showTitle(mTitleView, false);
             }
         });
         mSceneWithHeaders = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
@@ -617,10 +605,8 @@ public class BrowseFragment extends Fragment {
                 showHeaders(false);
             }
         });
-        mTitleUpTransition = sTransitionHelper.createChangeBounds(false);
-        sTransitionHelper.setInterpolator(mTitleUpTransition, new DecelerateInterpolator(4));
-        mTitleDownTransition = sTransitionHelper.createChangeBounds(false);
-        sTransitionHelper.setInterpolator(mTitleDownTransition, new DecelerateInterpolator());
+        mTitleUpTransition = TitleTransitionHelper.createTransitionTitleUp(sTransitionHelper);
+        mTitleDownTransition = TitleTransitionHelper.createTransitionTitleDown(sTransitionHelper);
 
         sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.browse_headers, true);
         sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.browse_headers, true);
@@ -680,12 +666,6 @@ public class BrowseFragment extends Fragment {
         if (mHeadersFragment != null) {
             mHeadersFragment.setPresenterSelector(mHeaderPresenterSelector);
         }
-    }
-
-    private void showTitle(boolean show) {
-        MarginLayoutParams lp = (MarginLayoutParams) mBrowseTitle.getLayoutParams();
-        lp.topMargin = show ? 0 : -mBrowseTitle.getHeight();
-        mBrowseTitle.setLayoutParams(lp);
     }
 
     private void showHeaders(boolean show) {
@@ -834,21 +814,9 @@ public class BrowseFragment extends Fragment {
     public void setBadgeDrawable(Drawable drawable) {
         if (mBadgeDrawable != drawable) {
             mBadgeDrawable = drawable;
-            setBadgeViewImage();
-        }
-    }
-
-    private void setBadgeViewImage() {
-        if (mBadgeView == null) {
-            return;
-        }
-        mBadgeView.setImageDrawable(mBadgeDrawable);
-        if (mBadgeDrawable != null) {
-            mBadgeView.setVisibility(View.VISIBLE);
-            mTitleView.setVisibility(View.GONE);
-        } else {
-            mBadgeView.setVisibility(View.GONE);
-            mTitleView.setVisibility(View.VISIBLE);
+            if (mTitleView != null) {
+                mTitleView.setBadgeDrawable(drawable);
+            }
         }
     }
 
@@ -865,7 +833,7 @@ public class BrowseFragment extends Fragment {
     public void setTitle(String title) {
         mTitle = title;
         if (mTitleView != null) {
-            mTitleView.setText(title);
+            mTitleView.setTitle(title);
         }
     }
 

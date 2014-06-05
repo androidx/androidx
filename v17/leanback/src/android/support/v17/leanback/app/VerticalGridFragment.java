@@ -15,6 +15,7 @@ package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
@@ -55,15 +56,15 @@ public class VerticalGridFragment extends Fragment {
     private View.OnClickListener mExternalOnSearchClickedListener;
     private int mSelectedPosition = -1;
 
-    private ImageView mBadgeView;
-    private TextView mTitleView;
-    private ViewGroup mBrowseTitle;
-    private SearchOrbView mSearchOrbView;
+    private TitleView mTitleView;
+    private int mSearchAffordanceColor;
+    private boolean mSearchAffordanceColorSet;
     private boolean mShowingTitle = true;
 
     // transition related
     private static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
-    private Object mTitleTransition;
+    private Object mTitleUpTransition;
+    private Object mTitleDownTransition;
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
 
@@ -127,7 +128,9 @@ public class VerticalGridFragment extends Fragment {
     public void setBadgeDrawable(Drawable drawable) {
         if (drawable != mBadgeDrawable) {
             mBadgeDrawable = drawable;
-            setBadgeViewImage();
+            if (mTitleView != null) {
+                mTitleView.setBadgeDrawable(drawable);
+            }
         }
     }
 
@@ -144,7 +147,7 @@ public class VerticalGridFragment extends Fragment {
     public void setTitle(String title) {
         mTitle = title;
         if (mTitleView != null) {
-            mTitleView.setText(mTitle);
+            mTitleView.setTitle(mTitle);
         }
     }
 
@@ -215,11 +218,11 @@ public class VerticalGridFragment extends Fragment {
             if (!mGridViewHolder.getGridView().hasPreviousViewInSameRow(position)) {
                 // if has no sibling in front of it,  show title
                 if (!mShowingTitle) {
-                    sTransitionHelper.runTransition(mSceneWithTitle, mTitleTransition);
+                    sTransitionHelper.runTransition(mSceneWithTitle, mTitleDownTransition);
                     mShowingTitle = true;
                 }
             } else if (mShowingTitle) {
-                sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleTransition);
+                sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleUpTransition);
                 mShowingTitle = false;
             }
             mSelectedPosition = position;
@@ -255,24 +258,35 @@ public class VerticalGridFragment extends Fragment {
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
         mExternalOnSearchClickedListener = listener;
-        if (mSearchOrbView != null) {
-            mSearchOrbView.setOnOrbClickedListener(listener);
+        if (mTitleView != null) {
+            mTitleView.setOnSearchClickedListener(listener);
         }
     }
 
-    private void setBadgeViewImage() {
-        if (mBadgeView == null) {
-            return;
-        }
-        mBadgeView.setImageDrawable(mBadgeDrawable);
-        if (mBadgeDrawable != null) {
-            mBadgeView.setVisibility(View.VISIBLE);
-            mTitleView.setVisibility(View.GONE);
-        } else {
-            mBadgeView.setVisibility(View.GONE);
-            mTitleView.setVisibility(View.VISIBLE);
+    /**
+     * Sets the color used to draw the search affordance.
+     */
+    public void setSearchAffordanceColor(int color) {
+        mSearchAffordanceColor = color;
+        mSearchAffordanceColorSet = true;
+        if (mTitleView != null) {
+            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
         }
     }
+
+    /**
+     * Returns the color used to draw the search affordance.
+     */
+    public int getSearchAffordanceColor() {
+        if (mSearchAffordanceColorSet) {
+            return mSearchAffordanceColor;
+        }
+        if (mTitleView == null) {
+            throw new IllegalStateException("Fragment views not yet created");
+        }
+        return mTitleView.getSearchAffordanceColor();
+    }
+
 
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
             new BrowseFrameLayout.OnFocusSearchListener() {
@@ -280,13 +294,14 @@ public class VerticalGridFragment extends Fragment {
         public View onFocusSearch(View focused, int direction) {
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
 
-            if (focused == mSearchOrbView && (
+            final View searchOrbView = mTitleView.getSearchAffordanceView();
+            if (focused == searchOrbView && (
                     direction == View.FOCUS_DOWN || direction == View.FOCUS_RIGHT)) {
                 return mGridViewHolder.view;
 
-            } else if (focused != mSearchOrbView && mSearchOrbView.getVisibility() == View.VISIBLE
+            } else if (focused != searchOrbView && searchOrbView.getVisibility() == View.VISIBLE
                     && direction == View.FOCUS_UP) {
-                return mSearchOrbView;
+                return searchOrbView;
 
             } else {
                 return null;
@@ -303,43 +318,34 @@ public class VerticalGridFragment extends Fragment {
         mBrowseFrame = (BrowseFrameLayout) root.findViewById(R.id.browse_frame);
         mBrowseFrame.setOnFocusSearchListener(mOnFocusSearchListener);
 
-        mBrowseTitle = (ViewGroup) root.findViewById(R.id.browse_title_group);
-        mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
-        mTitleView = (TextView) mBrowseTitle.findViewById(R.id.browse_title);
-        mSearchOrbView = (SearchOrbView) mBrowseTitle.findViewById(R.id.browse_orb);
-        if (mExternalOnSearchClickedListener != null) {
-            mSearchOrbView.setOnOrbClickedListener(mExternalOnSearchClickedListener);
+        mTitleView = (TitleView) root.findViewById(R.id.browse_title_group);
+        mTitleView.setBadgeDrawable(mBadgeDrawable);
+        mTitleView.setTitle(mTitle);
+        if (mSearchAffordanceColorSet) {
+            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
         }
-
-        setBadgeViewImage();
-        mTitleView.setText(mTitle);
+        if (mExternalOnSearchClickedListener != null) {
+            mTitleView.setOnSearchClickedListener(mExternalOnSearchClickedListener);
+        }
 
         mSceneWithTitle = sTransitionHelper.createScene(root, new Runnable() {
             @Override
             public void run() {
-                showTitle(true);
+                TitleTransitionHelper.showTitle(mTitleView, true);
             }
         });
         mSceneWithoutTitle = sTransitionHelper.createScene(root, new Runnable() {
             @Override
             public void run() {
-                showTitle(false);
+                TitleTransitionHelper.showTitle(mTitleView, false);
             }
         });
-        mTitleTransition = sTransitionHelper.createTransitionSet(false);
-        Object fade = sTransitionHelper.createFadeTransition(
-                TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
-        Object changeBounds = sTransitionHelper.createChangeBounds(false);
-        sTransitionHelper.addTransition(mTitleTransition, fade);
-        sTransitionHelper.addTransition(mTitleTransition, changeBounds);
-        sTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_grid_dock, true);
-        return root;
-    }
+        mTitleUpTransition = TitleTransitionHelper.createTransitionTitleUp(sTransitionHelper);
+        mTitleDownTransition = TitleTransitionHelper.createTransitionTitleDown(sTransitionHelper);
+        sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.browse_grid_dock, true);
+        sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.browse_grid_dock, true);
 
-    private void showTitle(boolean show) {
-        MarginLayoutParams lp = (MarginLayoutParams) mBrowseTitle.getLayoutParams();
-        lp.topMargin = show ? 0 : -mBrowseTitle.getHeight();
-        mBrowseTitle.setLayoutParams(lp);
+        return root;
     }
 
     @Override

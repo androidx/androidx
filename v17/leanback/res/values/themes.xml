@@ -41,6 +41,8 @@
 
         <item name="browseTitleTextStyle">@style/Widget.Leanback.Title.Text</item>
         <item name="browseTitleIconStyle">@style/Widget.Leanback.Title.Icon</item>
+        <item name="browseTitleViewStyle">@style/Widget.Leanback.TitleView</item>
+
         <item name="rowHeaderStyle">@style/Widget.Leanback.Row.Header</item>
         <item name="rowHoverCardTitleStyle">@style/Widget.Leanback.Row.HoverCardTitle</item>
         <item name="rowHoverCardDescriptionStyle">@style/Widget.Leanback.Row.HoverCardDescription</item>
