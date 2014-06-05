@@ -120,6 +120,13 @@
         <attr name="searchAffordanceColor" format="reference|color" />
     </declare-styleable>
 
+    <declare-styleable name="lbSearchOrbView">
+        <!-- Defining icon of the search affordance -->
+        <attr name="searchOrbIcon" format="reference"/>
+        <!-- Defining color of the search affordance -->
+        <attr name="searchOrbColor" format="reference|color" />
+    </declare-styleable>
+
     <declare-styleable name="LeanbackTheme">
 
         <!-- left padding of BrowseFragment, RowsFragment, DetailsFragment -->
@@ -181,5 +188,9 @@
         <attr name="defaultBrandColor" format="reference|color" />
         <attr name="defaultSearchColor" format="reference|color" />
 
+        <!-- Style for searchOrb -->
+        <attr name="searchOrbViewStyle" format="reference"/>
     </declare-styleable>
+
+
 </resources>
