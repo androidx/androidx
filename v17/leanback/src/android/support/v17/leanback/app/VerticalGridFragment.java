@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,6 +44,7 @@ public class VerticalGridFragment extends Fragment {
     // TODO: remove Params
     private Params mParams;
 
+    private BrowseFrameLayout mBrowseFrame;
     private String mTitle;
     private Drawable mBadgeDrawable;
     private ObjectAdapter mAdapter;
@@ -272,11 +274,34 @@ public class VerticalGridFragment extends Fragment {
         }
     }
 
+    private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
+            new BrowseFrameLayout.OnFocusSearchListener() {
+        @Override
+        public View onFocusSearch(View focused, int direction) {
+            if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
+
+            if (focused == mSearchOrbView && (
+                    direction == View.FOCUS_DOWN || direction == View.FOCUS_RIGHT)) {
+                return mGridViewHolder.view;
+
+            } else if (focused != mSearchOrbView && mSearchOrbView.getVisibility() == View.VISIBLE
+                    && direction == View.FOCUS_UP) {
+                return mSearchOrbView;
+
+            } else {
+                return null;
+            }
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.lb_vertical_grid_fragment,
                 container, false);
+
+        mBrowseFrame = (BrowseFrameLayout) root.findViewById(R.id.browse_frame);
+        mBrowseFrame.setOnFocusSearchListener(mOnFocusSearchListener);
 
         mBrowseTitle = (ViewGroup) root.findViewById(R.id.browse_title_group);
         mBadgeView = (ImageView) mBrowseTitle.findViewById(R.id.browse_badge);
@@ -292,13 +317,13 @@ public class VerticalGridFragment extends Fragment {
         mSceneWithTitle = sTransitionHelper.createScene(root, new Runnable() {
             @Override
             public void run() {
-                mBrowseTitle.setVisibility(View.VISIBLE);
+                showTitle(true);
             }
         });
         mSceneWithoutTitle = sTransitionHelper.createScene(root, new Runnable() {
             @Override
             public void run() {
-                mBrowseTitle.setVisibility(View.GONE);
+                showTitle(false);
             }
         });
         mTitleTransition = sTransitionHelper.createTransitionSet(false);
@@ -309,6 +334,12 @@ public class VerticalGridFragment extends Fragment {
         sTransitionHelper.addTransition(mTitleTransition, changeBounds);
         sTransitionHelper.excludeChildren(mTitleTransition, R.id.browse_grid_dock, true);
         return root;
+    }
+
+    private void showTitle(boolean show) {
+        MarginLayoutParams lp = (MarginLayoutParams) mBrowseTitle.getLayoutParams();
+        lp.topMargin = show ? 0 : -mBrowseTitle.getHeight();
+        mBrowseTitle.setLayoutParams(lp);
     }
 
     @Override
