@@ -1579,7 +1579,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public int scrollHorizontallyBy(int dx, Recycler recycler, RecyclerView.State state) {
         if (DEBUG) Log.v(getTag(), "scrollHorizontallyBy " + dx);
-        if (!mLayoutEnabled) {
+        if (!mLayoutEnabled || !hasDoneFirstLayout()) {
             return 0;
         }
         saveContext(recycler, state);
@@ -1596,7 +1596,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public int scrollVerticallyBy(int dy, Recycler recycler, RecyclerView.State state) {
         if (DEBUG) Log.v(getTag(), "scrollVerticallyBy " + dy);
-        if (!mLayoutEnabled) {
+        if (!mLayoutEnabled || !hasDoneFirstLayout()) {
             return 0;
         }
         saveContext(recycler, state);
