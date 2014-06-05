@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -43,6 +44,7 @@ import android.support.v17.leanback.R;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>SearchBar is a search widget.</p>
@@ -346,6 +348,23 @@ public class SearchBar extends RelativeLayout {
      */
     public Drawable getBadgeDrawable() {
         return mBadgeDrawable;
+    }
+
+    /**
+     * Update the completion list shown by the IME
+     *
+     * @param completions list of completions shown in the IME, can be null or empty to clear them
+     */
+    public void displayCompletions(List<String> completions) {
+        List<CompletionInfo> infos = new ArrayList<CompletionInfo>();
+        if (null != completions) {
+            for (String completion : completions) {
+                infos.add(new CompletionInfo(infos.size(), infos.size(), completion));
+            }
+        }
+
+        mInputMethodManager.displayCompletions(mSearchTextEditor,
+                infos.toArray(new CompletionInfo[] {}));
     }
 
     private void hideNativeKeyboard() {
