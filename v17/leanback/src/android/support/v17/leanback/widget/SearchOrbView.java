@@ -150,4 +150,8 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
             enableOrbColorAnimation(true);
         }
     }
+
+    public int getOrbColor() {
+        return mSearchOrbColor;
+    }
 }

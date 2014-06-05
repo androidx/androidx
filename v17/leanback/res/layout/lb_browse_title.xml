@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v17.leanback.widget.TitleView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/browse_title_group"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -22,30 +22,5 @@
     android:paddingRight="?attr/browsePaddingRight"
     android:paddingLeft="?attr/browsePaddingLeft"
     android:paddingBottom="?attr/browsePaddingTop"
-    android:clipToPadding="false"
-    android:clipChildren="false">
+    style="?attr/browseTitleViewStyle" />
 
-    <ImageView
-        android:id="@+id/browse_badge"
-        android:layout_width="@dimen/lb_browse_title_text_width"
-        android:layout_height="@dimen/lb_browse_title_height"
-        android:layout_gravity="center_vertical|right"
-        android:src="@null"
-        android:visibility="gone"
-        style="?attr/browseTitleIconStyle"/>
-
-    <TextView
-        android:id="@+id/browse_title"
-        android:layout_width="@dimen/lb_browse_title_text_width"
-        android:layout_height="@dimen/lb_browse_title_height"
-        android:layout_gravity="center_vertical|right"
-        style="?attr/browseTitleTextStyle"/>
-
-    <android.support.v17.leanback.widget.SearchOrbView
-        android:id="@+id/browse_orb"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_gravity="center_vertical|left"
-        android:visibility="invisible" />
-
-</FrameLayout>

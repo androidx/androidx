@@ -115,6 +115,11 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="lbTitleView">
+        <!-- Defining color of the search affordance -->
+        <attr name="searchAffordanceColor" format="reference|color" />
+    </declare-styleable>
+
     <declare-styleable name="LeanbackTheme">
 
         <!-- left padding of BrowseFragment, RowsFragment, DetailsFragment -->
@@ -137,6 +142,9 @@
 
         <!-- BrowseFragment Title icon style -->
         <attr name="browseTitleIconStyle" format="reference" />
+
+        <!-- BrowseFragment TitleView style -->
+        <attr name="browseTitleViewStyle" format="reference" />
 
         <!-- vertical grid style inside HeadersFragment -->
         <attr name="headersVerticalGridStyle" format="reference" />
