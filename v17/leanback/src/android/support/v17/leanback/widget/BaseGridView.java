@@ -467,16 +467,8 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Get if view has same row sibling next to it.
-     *
-     * @param position Position in adapter.
-     */
-    public boolean hasNextViewInSameRow(int position) {
-        return mLayoutManager.hasNextViewInSameRow(position);
-    }
-
-    /**
-     * Get if view has same row sibling in front of it.
+     * Returns true if the view at the given position has a same row sibling
+     * in front of it.
      *
      * @param position Position in adapter.
      */

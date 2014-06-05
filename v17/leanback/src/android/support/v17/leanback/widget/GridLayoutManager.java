@@ -2111,26 +2111,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return null;
     }
 
-    boolean hasNextViewInSameRow(int pos) {
-        if (mGrid == null || pos == NO_POSITION) {
-            return false;
-        }
-        final int focusedRow = mGrid.getLocation(pos).row;
-        for (int i = 0, count = getChildCount(); i < count; i++) {
-            int position = getPositionByIndex(i);
-            StaggeredGrid.Location loc = mGrid.getLocation(position);
-            if (loc != null && loc.row == focusedRow) {
-                if (position > pos) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     boolean hasPreviousViewInSameRow(int pos) {
         if (mGrid == null || pos == NO_POSITION) {
             return false;
+        }
+        if (mFirstVisiblePos > 0) {
+            return true;
         }
         final int focusedRow = mGrid.getLocation(pos).row;
         for (int i = getChildCount() - 1; i >= 0; i--) {
