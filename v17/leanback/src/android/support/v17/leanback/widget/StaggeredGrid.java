@@ -234,12 +234,12 @@ abstract class StaggeredGrid {
     }
 
     protected final Location appendItemToRow(int itemIndex, int rowIndex) {
-        mProvider.createItem(itemIndex, rowIndex, true);
         Location loc = new Location(rowIndex);
         if (mLocations.size() == 0) {
             mFirstIndex = itemIndex;
         }
         mLocations.addLast(loc);
+        mProvider.createItem(itemIndex, rowIndex, true);
         return loc;
     }
 
@@ -269,10 +269,10 @@ abstract class StaggeredGrid {
     }
 
     protected final Location prependItemToRow(int itemIndex, int rowIndex) {
-        mProvider.createItem(itemIndex, rowIndex, false);
         Location loc = new Location(rowIndex);
         mFirstIndex = itemIndex;
         mLocations.addFirst(loc);
+        mProvider.createItem(itemIndex, rowIndex, false);
         return loc;
     }
 

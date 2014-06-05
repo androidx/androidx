@@ -44,6 +44,14 @@ class WindowAlignment {
          * Left or top edge of first child, typically should be zero.
          */
         private int mMinEdge;
+        /**
+         * Max Scroll value
+         */
+        private int mMaxScroll;
+        /**
+         * Min Scroll value
+         */
+        private int mMinScroll;
 
         private int mWindowAlignment = WINDOW_ALIGN_BOTH_EDGE;
 
@@ -101,8 +109,18 @@ class WindowAlignment {
             mMinEdge = minEdge;
         }
 
-        public void invalidateScrollMin() {
+        /** set minScroll,  Integer.MIN_VALUE means unknown*/
+        final public void setMinScroll(int minScroll) {
+            mMinScroll = minScroll;
+        }
+
+        final public int getMinScroll() {
+            return mMinScroll;
+        }
+
+        final public void invalidateScrollMin() {
             mMinEdge = Integer.MIN_VALUE;
+            mMinScroll = Integer.MIN_VALUE;
         }
 
         /** update max edge,  Integer.MAX_VALUE means unknown*/
@@ -110,8 +128,18 @@ class WindowAlignment {
             mMaxEdge = maxEdge;
         }
 
-        public void invalidateScrollMax() {
+        /** update max scroll,  Integer.MAX_VALUE means unknown*/
+        final public void setMaxScroll(int maxScroll) {
+            mMaxScroll = maxScroll;
+        }
+
+        final public int getMaxScroll() {
+            return mMaxScroll;
+        }
+
+        final public void invalidateScrollMax() {
             mMaxEdge = Integer.MAX_VALUE;
+            mMaxScroll = Integer.MAX_VALUE;
         }
 
         final public float updateScrollCenter(float scrollTarget) {
