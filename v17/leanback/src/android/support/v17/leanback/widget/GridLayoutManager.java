@@ -1694,9 +1694,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         for (int i = mLastVisiblePos; i >= mFirstVisiblePos; i--) {
             StaggeredGrid.Location location = mGrid.getLocation(i);
             if (location != null && location.row == rowIndex) {
+                int savedMaxEdge = mWindowAlignment.mainAxis().getMaxEdge();
+                mWindowAlignment.mainAxis().setMaxEdge(maxEdge);
                 maxScroll = mWindowAlignment
                         .mainAxis().getSystemScrollPos(mScrollOffsetPrimary
                         + getViewCenter(findViewByPosition(i)));
+                mWindowAlignment.mainAxis().setMaxEdge(savedMaxEdge);
                 break;
             }
         }
@@ -1737,9 +1740,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         for (int i = mFirstVisiblePos; i <= mLastVisiblePos; i++) {
             StaggeredGrid.Location location = mGrid.getLocation(i);
             if (location != null && location.row == rowIndex) {
+                int savedMinEdge = mWindowAlignment.mainAxis().getMinEdge();
+                mWindowAlignment.mainAxis().setMinEdge(minEdge);
                 minScroll = mWindowAlignment
                         .mainAxis().getSystemScrollPos(mScrollOffsetPrimary
                         + getViewCenter(findViewByPosition(i)));
+                mWindowAlignment.mainAxis().setMinEdge(savedMinEdge);
                 break;
             }
         }

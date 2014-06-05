@@ -109,6 +109,10 @@ class WindowAlignment {
             mMinEdge = minEdge;
         }
 
+        final public int getMinEdge() {
+            return mMinEdge;
+        }
+
         /** set minScroll,  Integer.MIN_VALUE means unknown*/
         final public void setMinScroll(int minScroll) {
             mMinScroll = minScroll;
@@ -126,6 +130,10 @@ class WindowAlignment {
         /** update max edge,  Integer.MAX_VALUE means unknown*/
         final public void setMaxEdge(int maxEdge) {
             mMaxEdge = maxEdge;
+        }
+
+        final public int getMaxEdge() {
+            return mMaxEdge;
         }
 
         /** update max scroll,  Integer.MAX_VALUE means unknown*/
