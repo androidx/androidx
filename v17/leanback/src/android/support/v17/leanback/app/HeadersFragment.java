@@ -28,6 +28,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnLayoutChangeListener;
+import android.widget.FrameLayout;
 
 /**
  * An internal fragment containing a list of row headers.
@@ -87,7 +88,11 @@ public class HeadersFragment extends BaseRowFragment {
             });
             headerView.setFocusable(true);
             headerView.setFocusableInTouchMode(true);
-            headerView.addOnLayoutChangeListener(sLayoutChangeListener);
+            if (mWrapper != null) {
+                viewHolder.itemView.addOnLayoutChangeListener(sLayoutChangeListener);
+            } else {
+                headerView.addOnLayoutChangeListener(sLayoutChangeListener);
+            }
         }
 
     };
@@ -137,12 +142,26 @@ public class HeadersFragment extends BaseRowFragment {
         }
     }
 
+    // Wrapper needed because of conflict between RecyclerView's use of alpha
+    // for ADD animations, and RowHeaderPresnter's use of alpha for selected level.
+    private final ItemBridgeAdapter.Wrapper mWrapper = new ItemBridgeAdapter.Wrapper() {
+        @Override
+        public void wrap(View wrapper, View wrapped) {
+            ((FrameLayout) wrapper).addView(wrapped);
+        }
+
+        @Override
+        public View createWrapper(View root) {
+            return new FrameLayout(root.getContext());
+        }
+    };
     @Override
     protected void updateAdapter() {
         super.updateAdapter();
         ItemBridgeAdapter adapter = getBridgeAdapter();
         if (adapter != null) {
             adapter.setAdapterListener(mAdapterListener);
+            adapter.setWrapper(mWrapper);
         }
         if (adapter != null && getVerticalGridView() != null) {
             FocusHighlightHelper.setupHeaderItemFocusHighlight(getVerticalGridView());
