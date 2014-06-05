@@ -65,8 +65,6 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         View root = inflater.inflate(R.layout.lb_search_orb, this, true);
         mSearchOrbView = root.findViewById(R.id.search_orb);
 
-        // By default we are not visible
-        setVisibility(INVISIBLE);
         setFocusable(true);
         setClipChildren(false);
 
