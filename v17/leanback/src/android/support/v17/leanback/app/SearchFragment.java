@@ -30,6 +30,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.support.v17.leanback.R;
 
+import java.util.List;
+
 /**
  * <p>A fragment to handle searches.</p>
  *
@@ -293,6 +295,14 @@ public class SearchFragment extends Fragment {
         return null;
     }
 
+    /**
+     * Display the completions shown by the IME.
+     *
+     * @param completions list of completions shown in the IME, can be null or empty to clear them
+     */
+    public void displayCompletions(List<String> completions) {
+        mSearchBar.displayCompletions(completions);
+    }
 
     private void retrieveResults(String searchQuery) {
         if (DEBUG) Log.v(TAG, String.format("retrieveResults %s", searchQuery));
