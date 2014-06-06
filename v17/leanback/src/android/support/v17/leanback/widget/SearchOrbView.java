@@ -114,7 +114,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
             mColorAnimator = null;
         }
         if (enable) {
-            // TODO: set interpolator (quantum if available)
+            // TODO: set interpolator (material if available)
             mColorAnimator = ValueAnimator.ofObject(mColorEvaluator,
                     mSearchOrbColor, mSearchOrbColorBright, mSearchOrbColor);
             mColorAnimator.setRepeatCount(ValueAnimator.INFINITE);

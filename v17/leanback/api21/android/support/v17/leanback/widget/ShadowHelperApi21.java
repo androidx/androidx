@@ -27,8 +27,8 @@ class ShadowHelperApi21 {
 
     private static void initializeResources(Resources res) {
         if (sNormalZ == Integer.MIN_VALUE) {
-            sNormalZ = (int) res.getDimension(R.dimen.lb_quantum_shadow_normal_z);
-            sFocusedZ = (int) res.getDimension(R.dimen.lb_quantum_shadow_focused_z);
+            sNormalZ = (int) res.getDimension(R.dimen.lb_material_shadow_normal_z);
+            sFocusedZ = (int) res.getDimension(R.dimen.lb_material_shadow_focused_z);
         }
     }
 
