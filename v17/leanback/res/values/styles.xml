@@ -217,4 +217,8 @@
         <item name="android:paddingRight">@dimen/lb_action_padding_horizontal</item>
     </style>
 
+    <style name="Widget.Leanback.SearchOrbViewStyle">
+        <item name="searchOrbIcon">@drawable/lb_ic_in_app_search</item>
+        <item name="searchOrbColor">?attr/defaultSearchColor</item>
+    </style>
 </resources>

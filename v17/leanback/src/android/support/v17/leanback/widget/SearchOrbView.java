@@ -19,14 +19,17 @@ package android.support.v17.leanback.widget;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private OnClickListener mListener;
@@ -54,7 +57,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     }
 
     public SearchOrbView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.style.Widget_Leanback_SearchOrbViewStyle);
     }
 
     public SearchOrbView(Context context, AttributeSet attrs, int defStyle) {
@@ -64,6 +67,16 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View root = inflater.inflate(R.layout.lb_search_orb, this, true);
         mSearchOrbView = root.findViewById(R.id.search_orb);
+
+        ImageView icon = (ImageView)root.findViewById(R.id.icon);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView, 0,
+                defStyle);
+        Drawable img = a.getDrawable(R.styleable.lbSearchOrbView_searchOrbIcon);
+        icon.setImageDrawable(img);
+
+        int color = a.getColor(R.styleable.lbSearchOrbView_searchOrbColor, 0);
+        setOrbColor(color);
+        a.recycle();
 
         setFocusable(true);
         setClipChildren(false);
