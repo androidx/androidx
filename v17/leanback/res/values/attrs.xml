@@ -190,6 +190,7 @@
 
         <!-- Style for searchOrb -->
         <attr name="searchOrbViewStyle" format="reference"/>
+        <attr name="defaultSearchIcon" format="reference" />
     </declare-styleable>
 
 
