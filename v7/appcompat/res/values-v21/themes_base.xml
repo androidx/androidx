@@ -23,23 +23,23 @@
         you should create a "Theme.Base" theme which inherits from a "Theme.Platform" theme.
     -->
     <eat-comment/>
-    <style name="Theme.Platform.AppCompat" parent="android:Theme.Quantum" />
+    <style name="Theme.Platform.AppCompat" parent="android:Theme.Material" />
 
-    <style name="Theme.Platform.AppCompat.Light" parent="android:Theme.Quantum.Light" />
+    <style name="Theme.Platform.AppCompat.Light" parent="android:Theme.Material.Light" />
 
     <style name="Theme.Platform.AppCompat.Light.DarkActionBar"
-           parent="android:Theme.Quantum.Light.DarkActionBar" />
+           parent="android:Theme.Material.Light.DarkActionBar" />
 
     <style name="Theme.Platform.AppCompat.DialogWhenLarge"
-           parent="android:Theme.Quantum.DialogWhenLarge" />
+           parent="android:Theme.Material.DialogWhenLarge" />
 
     <style name="Theme.Platform.AppCompat.Light.DialogWhenLarge"
-           parent="android:Theme.Quantum.Light.DialogWhenLarge" />
+           parent="android:Theme.Material.Light.DialogWhenLarge" />
 
     <style name="Theme.Platform.AppCompat.Dialog"
-           parent="android:Theme.Quantum.Dialog" />
+           parent="android:Theme.Material.Dialog" />
 
     <style name="Theme.Platform.AppCompat.Light.Dialog"
-           parent="android:Theme.Quantum.Light.Dialog" />
+           parent="android:Theme.Material.Light.Dialog" />
 
 </resources>
