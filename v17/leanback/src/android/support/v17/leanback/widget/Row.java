@@ -16,7 +16,7 @@ package android.support.v17.leanback.widget;
 import static android.support.v17.leanback.widget.ObjectAdapter.NO_ID;
 
 /**
- * A row in the RowContainerFragment.  This is the basic class for all Rows.
+ * A row in the RowsFragment.  This is the basic class for all Rows.
  * Developer usually overrides {@link ListRow}, but may override this class
  * for non-list Row (e.g. a HtmlRow).
  */
