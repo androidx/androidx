@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -77,8 +78,7 @@ public final class BackgroundManager {
     private static final int FULL_ALPHA = 255;
     private static final int DIM_ALPHA_ON_SOLID = (int) (0.8f * FULL_ALPHA);
     private static final int CHANGE_BG_DELAY_MS = 500;
-    private static final int FADE_DURATION_QUICK = 200;
-    private static final int FADE_DURATION_SLOW = 1000;
+    private static final int FADE_DURATION = 500;
 
     /**
      * Using a separate window for backgrounds can improve graphics performance by
@@ -106,31 +106,45 @@ public final class BackgroundManager {
 
     private static class BitmapDrawable extends Drawable {
 
-        Bitmap mBitmap;
-        Matrix mMatrix;
-        Paint mPaint;
+        static class ConstantState extends Drawable.ConstantState {
+            Bitmap mBitmap;
+            Matrix mMatrix;
+            Paint mPaint;
+
+            @Override
+            public Drawable newDrawable() {
+                return new BitmapDrawable(null, mBitmap, mMatrix);
+            }
+
+            @Override
+            public int getChangingConfigurations() {
+                return 0;
+            }
+        }
+
+        private ConstantState mState = new ConstantState();
 
         BitmapDrawable(Resources resources, Bitmap bitmap) {
             this(resources, bitmap, null);
         }
 
         BitmapDrawable(Resources resources, Bitmap bitmap, Matrix matrix) {
-            mBitmap = bitmap;
-            mMatrix = matrix != null ? matrix : new Matrix();
-            mPaint = new Paint();
-            mPaint.setFilterBitmap(true);
+            mState.mBitmap = bitmap;
+            mState.mMatrix = matrix != null ? matrix : new Matrix();
+            mState.mPaint = new Paint();
+            mState.mPaint.setFilterBitmap(true);
         }
 
         Bitmap getBitmap() {
-            return mBitmap;
+            return mState.mBitmap;
         }
 
         @Override
         public void draw(Canvas canvas) {
-            if (mBitmap == null) {
+            if (mState.mBitmap == null) {
                 return;
             }
-            canvas.drawBitmap(mBitmap, mMatrix, mPaint);
+            canvas.drawBitmap(mState.mBitmap, mState.mMatrix, mState.mPaint);
         }
 
         @Override
@@ -140,8 +154,8 @@ public final class BackgroundManager {
 
         @Override
         public void setAlpha(int alpha) {
-            if (mPaint.getAlpha() != alpha) {
-                mPaint.setAlpha(alpha);
+            if (mState.mPaint.getAlpha() != alpha) {
+                mState.mPaint.setAlpha(alpha);
                 invalidateSelf();
             }
         }
@@ -149,6 +163,11 @@ public final class BackgroundManager {
         @Override
         public void setColorFilter(ColorFilter cf) {
             // Abstract in Drawable, not implemented
+        }
+
+        @Override
+        public ConstantState getConstantState() {
+            return mState;
         }
     }
 
@@ -199,6 +218,12 @@ public final class BackgroundManager {
             return mAnimator != null && mAnimator.isStarted();
         }
         public void startAnimation() {
+            startAnimation(null);
+        }
+        public void startAnimation(Animator.AnimatorListener listener) {
+            if (listener != null) {
+                mAnimator.addListener(listener);
+            }
             mAnimator.start();
             mAnimationPending = false;
         }
@@ -343,10 +368,11 @@ public final class BackgroundManager {
             return;
         }
         if (mLayerDrawable == null) {
-            if (DEBUG) Log.v(TAG, "onActivityResume: released state, syncing with service");
+            if (DEBUG) Log.v(TAG, "onActivityResume " + this +
+                    " released state, syncing with service");
             syncWithService();
         } else {
-            if (DEBUG) Log.v(TAG, "onActivityResume: updating service color "
+            if (DEBUG) Log.v(TAG, "onActivityResume " + this + " updating service color "
                     + mBackgroundColor + " drawable " + mBackgroundDrawable);
             mService.setColor(mBackgroundColor);
             mService.setDrawable(mBackgroundDrawable);
@@ -361,7 +387,8 @@ public final class BackgroundManager {
                 + " drawable " + drawable);
 
         mBackgroundColor = color;
-        mBackgroundDrawable = drawable;
+        mBackgroundDrawable = drawable == null ? null :
+            drawable.getConstantState().newDrawable().mutate();
 
         updateImmediate();
     }
@@ -431,7 +458,7 @@ public final class BackgroundManager {
      * @hide
      */
     void detach() {
-        if (DEBUG) Log.v(TAG, "detach");
+        if (DEBUG) Log.v(TAG, "detach " + this);
         release();
 
         if (mWindowManager != null && mBgView != null) {
@@ -459,7 +486,7 @@ public final class BackgroundManager {
      * inherits the current state from the continuity service.
      */
     public void release() {
-        if (DEBUG) Log.v(TAG, "release");
+        if (DEBUG) Log.v(TAG, "release " + this);
         if (mLayerDrawable != null) {
             mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
             mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
@@ -542,7 +569,11 @@ public final class BackgroundManager {
         }
         mChangeRunnable = new ChangeBackgroundRunnable(drawable);
 
-        mHandler.postDelayed(mChangeRunnable, CHANGE_BG_DELAY_MS);
+        if (mImageInWrapper != null && mImageInWrapper.isAnimationStarted()) {
+            if (DEBUG) Log.v(TAG, "animation in progress");
+        } else {
+            mHandler.postDelayed(mChangeRunnable, CHANGE_BG_DELAY_MS);
+        }
     }
 
     /**
@@ -620,17 +651,36 @@ public final class BackgroundManager {
             mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, mBackgroundDrawable);
             if (DEBUG) Log.v(TAG, "mImageInWrapper animation starting");
             mImageInWrapper.setAlpha(0);
-            mImageInWrapper.fadeIn(FADE_DURATION_SLOW, 0);
-            mImageInWrapper.startAnimation();
+            mImageInWrapper.fadeIn(FADE_DURATION, 0);
+            mImageInWrapper.startAnimation(mImageInListener);
             dimAlpha = FULL_ALPHA;
         }
 
         if (mDimWrapper != null && dimAlpha != 0) {
             if (DEBUG) Log.v(TAG, "dimwrapper animation starting to " + dimAlpha);
-            mDimWrapper.fade(FADE_DURATION_SLOW, 0, dimAlpha);
+            mDimWrapper.fade(FADE_DURATION, 0, dimAlpha);
             mDimWrapper.startAnimation();
         }
     }
+
+    private final Animator.AnimatorListener mImageInListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animation) {
+        }
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+        }
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            if (mChangeRunnable != null) {
+                if (DEBUG) Log.v(TAG, "animation ended, found change runnable");
+                mChangeRunnable.run();
+            }
+        }
+        @Override
+        public void onAnimationCancel(Animator animation) {
+        }
+    };
 
     /**
      * Returns the current background color.
@@ -696,7 +746,7 @@ public final class BackgroundManager {
             if (mImageInWrapper != null) {
                 mImageOutWrapper = new DrawableWrapper(mImageInWrapper.getDrawable());
                 mImageOutWrapper.setAlpha(mImageInWrapper.getAlpha());
-                mImageOutWrapper.fadeOut(FADE_DURATION_QUICK);
+                mImageOutWrapper.fadeOut(FADE_DURATION);
 
                 // Order is important! Setting a drawable "removes" the
                 // previous one from the view
@@ -711,6 +761,8 @@ public final class BackgroundManager {
             mService.setDrawable(mBackgroundDrawable);
 
             applyBackgroundChanges();
+
+            mChangeRunnable = null;
         }
     }
 
