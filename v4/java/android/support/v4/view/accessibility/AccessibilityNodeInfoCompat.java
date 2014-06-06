@@ -32,6 +32,33 @@ import java.util.List;
  */
 public class AccessibilityNodeInfoCompat {
 
+    public static class AccessibilityActionCompat {
+        private final Object mAction;
+
+        private AccessibilityActionCompat(Object action) {
+            mAction = action;
+        }
+
+        /**
+         * Gets the id for this action.
+         *
+         * @return The action id.
+         */
+        public int getId() {
+            return AccessibilityNodeInfoCompatApi21.AccessibilityAction.getId(mAction);
+        }
+
+        /**
+         * Gets the label for this action. Its purpose is to describe the
+         * action to user.
+         *
+         * @return The label.
+         */
+        public CharSequence getLabel() {
+            return AccessibilityNodeInfoCompatApi21.AccessibilityAction.getLabel(mAction);
+        }
+    }
+
     public static class CollectionInfoCompat {
         private final Object mInfo;
 
@@ -179,6 +206,8 @@ public class AccessibilityNodeInfoCompat {
         public Object getCollectionInfo(Object info);
         public Object getCollectionItemInfo(Object info);
         public Object getRangeInfo(Object info);
+        public List<Object> getActionList(Object info);
+        public void addAction(Object info, int id, CharSequence label);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -516,6 +545,16 @@ public class AccessibilityNodeInfoCompat {
         public Object getRangeInfo(Object info) {
             return null;
         }
+
+        @Override
+        public List<Object> getActionList(Object info) {
+            return null;
+        }
+
+        @Override
+        public void addAction(Object info, int id, CharSequence label) {
+        }
+
     }
 
     static class AccessibilityNodeInfoIcsImpl extends AccessibilityNodeInfoStubImpl {
@@ -753,6 +792,13 @@ public class AccessibilityNodeInfoCompat {
         public void recycle(Object info) {
             AccessibilityNodeInfoCompatIcs.recycle(info);
         }
+
+        @Override
+        public void addAction(Object info, int id, CharSequence label) {
+            if (Integer.bitCount(id) == 1) {
+                addAction(info, id);
+            }
+        }
     }
 
     static class AccessibilityNodeInfoJellybeanImpl extends AccessibilityNodeInfoIcsImpl {
@@ -862,8 +908,22 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    static class AccessibilityNodeInfoApi21Impl extends AccessibilityNodeInfoKitKatImpl {
+        @Override
+        public List<Object> getActionList(Object info) {
+            return AccessibilityNodeInfoCompatApi21.getActionList(info);
+        }
+
+        @Override
+        public void addAction(Object info, int id, CharSequence label) {
+            AccessibilityNodeInfoCompatApi21.addAction(info, id, label);
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 19) { // KitKat
+        if (Build.VERSION.CODENAME.equals("L")) { // b/15469684 filed to change to API 21
+            IMPL = new AccessibilityNodeInfoApi21Impl();
+        } else if (Build.VERSION.SDK_INT >= 19) { // KitKat
             IMPL = new AccessibilityNodeInfoKitKatImpl();
         } else if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
             IMPL = new AccessibilityNodeInfoJellybeanMr2Impl();
@@ -2115,6 +2175,23 @@ public class AccessibilityNodeInfoCompat {
         if (info == null) return null;
         return new RangeInfoCompat(info);
     }
+
+    /**
+     * Gets the actions that can be performed on the node.
+     *
+     * @return A list of AccessibilityActions.
+     */
+    public List<AccessibilityActionCompat> getActionList() {
+        List<AccessibilityActionCompat> result = new ArrayList<AccessibilityActionCompat>();
+        List<Object> actions = IMPL.getActionList(mInfo);
+        final int actionCount = actions.size();
+        for (int i = 0; i < actionCount; i++) {
+            Object action = actions.get(i);
+            result.add(new AccessibilityActionCompat(action));
+        }
+        return result;
+    }
+
 
     @Override
     public int hashCode() {
