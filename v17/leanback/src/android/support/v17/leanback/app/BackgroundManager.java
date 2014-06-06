@@ -15,7 +15,7 @@ package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
 import android.animation.Animator;
-import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
 /**
@@ -174,8 +175,17 @@ public final class BackgroundManager {
     private static class DrawableWrapper {
         protected int mAlpha;
         protected Drawable mDrawable;
-        protected ObjectAnimator mAnimator;
+        protected ValueAnimator mAnimator;
         protected boolean mAnimationPending;
+
+        private final Interpolator mInterpolator = new LinearInterpolator();
+        private final ValueAnimator.AnimatorUpdateListener mAnimationUpdateListener =
+                new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                setAlpha((Integer) animation.getAnimatedValue());
+            }
+        };
 
         public DrawableWrapper(Drawable drawable) {
             mDrawable = drawable;
@@ -205,8 +215,9 @@ public final class BackgroundManager {
             if (mAnimator != null && mAnimator.isStarted()) {
                 mAnimator.cancel();
             }
-            mAnimator = ObjectAnimator.ofInt(this, "alpha", alpha);
-            mAnimator.setInterpolator(new LinearInterpolator());
+            mAnimator = ValueAnimator.ofInt(getAlpha(), alpha);
+            mAnimator.addUpdateListener(mAnimationUpdateListener);
+            mAnimator.setInterpolator(mInterpolator);
             mAnimator.setDuration(durationMs);
             mAnimator.setStartDelay(delayMs);
             mAnimationPending = true;
