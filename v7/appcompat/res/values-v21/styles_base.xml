@@ -23,153 +23,153 @@
     <eat-comment/>
 
     <style name="Widget.AppCompat.Base.ActionBar"
-           parent="android:Widget.Quantum.ActionBar">
+           parent="android:Widget.Material.ActionBar">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar"
-           parent="android:Widget.Quantum.Light.ActionBar">
+           parent="android:Widget.Material.Light.ActionBar">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.Solid"
-           parent="android:Widget.Quantum.ActionBar.Solid">
+           parent="android:Widget.Material.ActionBar.Solid">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.Solid"
-           parent="android:Widget.Quantum.Light.ActionBar.Solid">
+           parent="android:Widget.Material.Light.ActionBar.Solid">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"
-           parent="android:Widget.Quantum.Light.ActionBar.Solid">
+           parent="android:Widget.Material.Light.ActionBar.Solid">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabBar"
-           parent="android:Widget.Quantum.ActionBar.TabBar">
+           parent="android:Widget.Material.ActionBar.TabBar">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabBar"
-           parent="android:Widget.Quantum.Light.ActionBar.TabBar">
+           parent="android:Widget.Material.Light.ActionBar.TabBar">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabBar.Inverse"
-           parent="android:Widget.Quantum.Light.ActionBar.TabBar">
+           parent="android:Widget.Material.Light.ActionBar.TabBar">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabView"
-           parent="android:Widget.Quantum.ActionBar.TabView">
+           parent="android:Widget.Material.ActionBar.TabView">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabView"
-           parent="android:Widget.Quantum.Light.ActionBar.TabView">
+           parent="android:Widget.Material.Light.ActionBar.TabView">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabView.Inverse"
-           parent="android:Widget.Quantum.Light.ActionBar.TabView">
+           parent="android:Widget.Material.Light.ActionBar.TabView">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionBar.TabText"
-           parent="android:Widget.Quantum.ActionBar.TabText">
+           parent="android:Widget.Material.ActionBar.TabText">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabText"
-           parent="android:Widget.Quantum.Light.ActionBar.TabText">
+           parent="android:Widget.Material.Light.ActionBar.TabText">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionBar.TabText.Inverse"
-           parent="android:Widget.Quantum.Light.ActionBar.TabText">
+           parent="android:Widget.Material.Light.ActionBar.TabText">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
-           parent="android:Widget.Quantum.Light.ActionMode">
+           parent="android:Widget.Material.Light.ActionMode">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Menu"
-           parent="android:TextAppearance.Quantum.Widget.ActionBar.Menu">
+           parent="android:TextAppearance.Material.Widget.ActionBar.Menu">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title"
-           parent="android:TextAppearance.Quantum.Widget.ActionBar.Title">
+           parent="android:TextAppearance.Material.Widget.ActionBar.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle"
-           parent="android:TextAppearance.Quantum.Widget.ActionBar.Subtitle">
+           parent="android:TextAppearance.Material.Widget.ActionBar.Subtitle">
     </style>
 
 
     <!--
     TODO Hidden
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse"
-           parent="android:TextAppearance.Quantum.Widget.ActionBar.Title.Inverse">
+           parent="android:TextAppearance.Material.Widget.ActionBar.Title.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
-           parent="android:TextAppearance.Quantum.Widget.ActionBar.Subtitle.Inverse">
+           parent="android:TextAppearance.Material.Widget.ActionBar.Subtitle.Inverse">
     </style>
     -->
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title"
-           parent="android:TextAppearance.Quantum.Widget.ActionMode.Title">
+           parent="android:TextAppearance.Material.Widget.ActionMode.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle"
-           parent="android:TextAppearance.Quantum.Widget.ActionMode.Subtitle">
+           parent="android:TextAppearance.Material.Widget.ActionMode.Subtitle">
     </style>
 
     <!--
     TODO Hidden
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title.Inverse"
-           parent="android:TextAppearance.Quantum.Widget.ActionMode.Title.Inverse">
+           parent="android:TextAppearance.Material.Widget.ActionMode.Title.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle.Inverse"
-           parent="android:TextAppearance.Quantum.Widget.ActionMode.Subtitle.Inverse">
+           parent="android:TextAppearance.Material.Widget.ActionMode.Subtitle.Inverse">
     </style>
     -->
 
     <!-- Action Button Styles -->
 
     <style name="Widget.AppCompat.Base.ActionButton"
-           parent="android:Widget.Quantum.ActionButton">
+           parent="android:Widget.Material.ActionButton">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionButton"
-           parent="android:Widget.Quantum.Light.ActionButton">
+           parent="android:Widget.Material.Light.ActionButton">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionButton.CloseMode"
-           parent="android:Widget.Quantum.ActionButton.CloseMode">
+           parent="android:Widget.Material.ActionButton.CloseMode">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionButton.CloseMode"
-           parent="android:Widget.Quantum.Light.ActionButton.CloseMode">
+           parent="android:Widget.Material.Light.ActionButton.CloseMode">
     </style>
 
     <style name="Widget.AppCompat.Base.ActionButton.Overflow"
-           parent="android:Widget.Quantum.ActionButton.Overflow">
+           parent="android:Widget.Material.ActionButton.Overflow">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ActionButton.Overflow"
-           parent="android:Widget.Quantum.Light.ActionButton.Overflow">
+           parent="android:Widget.Material.Light.ActionButton.Overflow">
     </style>
 
     <!-- Spinner Widgets -->
 
     <style name="Widget.AppCompat.Base.ListView.DropDown"
-           parent="android:Widget.Quantum.ListView.DropDown"/>
+           parent="android:Widget.Material.ListView.DropDown"/>
 
     <style name="Widget.AppCompat.Light.Base.ListView.DropDown"
-           parent="android:Widget.Quantum.ListView.DropDown"/>
+           parent="android:Widget.Material.ListView.DropDown"/>
 
     <style name="Widget.AppCompat.Base.DropDownItem.Spinner"
-           parent="android:Widget.Quantum.DropDownItem.Spinner"/>
+           parent="android:Widget.Material.DropDownItem.Spinner"/>
 
     <style name="Widget.AppCompat.Light.Base.DropDownItem.Spinner"
-           parent="android:Widget.Quantum.Light.DropDownItem.Spinner"/>
+           parent="android:Widget.Material.Light.DropDownItem.Spinner"/>
 
     <style name="Widget.AppCompat.Base.Spinner"
-           parent="android:Widget.Quantum.Spinner" />
+           parent="android:Widget.Material.Spinner" />
 
     <style name="Widget.AppCompat.Light.Base.Spinner"
-           parent="android:Widget.Quantum.Light.Spinner"/>
+           parent="android:Widget.Material.Light.Spinner"/>
 
     <style name="Widget.AppCompat.Base.ListView.Menu"
            parent="android:Widget.ListView.Menu" />
@@ -177,48 +177,48 @@
     <!-- Popup Menu -->
 
     <style name="Widget.AppCompat.Base.ListPopupWindow"
-           parent="android:Widget.Quantum.ListPopupWindow">
+           parent="android:Widget.Material.ListPopupWindow">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.ListPopupWindow"
-           parent="android:Widget.Quantum.Light.ListPopupWindow">
+           parent="android:Widget.Material.Light.ListPopupWindow">
     </style>
 
-    <style name="Widget.AppCompat.Base.PopupMenu" parent="android:Widget.Quantum.PopupMenu">
+    <style name="Widget.AppCompat.Base.PopupMenu" parent="android:Widget.Material.PopupMenu">
     </style>
 
     <style name="Widget.AppCompat.Light.Base.PopupMenu"
-        parent="android:Widget.Quantum.Light.PopupMenu">
+        parent="android:Widget.Material.Light.PopupMenu">
     </style>
 
     <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large"
-        parent="android:TextAppearance.Quantum.Widget.PopupMenu.Large">
+        parent="android:TextAppearance.Material.Widget.PopupMenu.Large">
     </style>
 
     <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Small"
-        parent="android:TextAppearance.Quantum.Widget.PopupMenu.Small">
+        parent="android:TextAppearance.Material.Widget.PopupMenu.Small">
     </style>
 
     <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Large"
-        parent="android:TextAppearance.Quantum.Widget.PopupMenu.Large">
+        parent="android:TextAppearance.Material.Widget.PopupMenu.Large">
     </style>
 
     <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Small"
-        parent="android:TextAppearance.Quantum.Widget.PopupMenu.Small">
+        parent="android:TextAppearance.Material.Widget.PopupMenu.Small">
     </style>
 
     <!-- Search View result styles -->
 
     <style name="TextAppearance.AppCompat.Base.SearchResult.Title"
-           parent="@android:TextAppearance.Quantum.SearchResult.Title">
+           parent="@android:TextAppearance.Material.SearchResult.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.Base.SearchResult.Subtitle"
-           parent="@android:TextAppearance.Quantum.SearchResult.Subtitle">
+           parent="@android:TextAppearance.Material.SearchResult.Subtitle">
     </style>
 
     <!--
-        TextAppearance.Quantum.Light.SearchResult.* are private so we extend from the default
+        TextAppearance.Material.Light.SearchResult.* are private so we extend from the default
         versions instead (which are exactly the same).
     -->
     <style name="TextAppearance.AppCompat.Light.Base.SearchResult.Title"
