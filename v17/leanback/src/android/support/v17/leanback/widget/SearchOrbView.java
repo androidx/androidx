@@ -68,6 +68,15 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         View root = inflater.inflate(R.layout.lb_search_orb, this, true);
         mSearchOrbView = root.findViewById(R.id.search_orb);
 
+        mFocusedZoom = context.getResources().getFraction(
+                R.fraction.lb_search_orb_focused_zoom, 1, 1);
+        mBrightnessAlpha = context.getResources().getFraction(
+                R.fraction.lb_search_orb_brightness_alpha, 1, 1);
+        mPulseDurationMs = context.getResources().getInteger(
+                R.integer.lb_search_orb_pulse_duration_ms);
+        mScaleDownDurationMs = context.getResources().getInteger(
+                R.integer.lb_search_orb_scale_down_duration_ms);
+
         ImageView icon = (ImageView)root.findViewById(R.id.icon);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView, 0,
                 defStyle);
@@ -80,16 +89,6 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
         setFocusable(true);
         setClipChildren(false);
-
-        mFocusedZoom = context.getResources().getFraction(
-                R.fraction.lb_search_orb_focused_zoom, 1, 1);
-        mBrightnessAlpha = context.getResources().getFraction(
-                R.fraction.lb_search_orb_brightness_alpha, 1, 1);
-        mPulseDurationMs = context.getResources().getInteger(
-                R.integer.lb_search_orb_pulse_duration_ms);
-        mScaleDownDurationMs = context.getResources().getInteger(
-                R.integer.lb_search_orb_scale_down_duration_ms);
-
         setOnClickListener(this);
     }
 
