@@ -145,8 +145,8 @@
     <dimen name="lb_basic_card_info_height">52dp</dimen>
     <dimen name="lb_basic_card_info_padding">6dp</dimen>
     <dimen name="lb_basic_card_info_text_margin">2dp</dimen>
-    <dimen name="lb_basic_card_title_text_size">14sp</dimen>
-    <dimen name="lb_basic_card_content_text_size">10sp</dimen>
+    <dimen name="lb_basic_card_title_text_size">16sp</dimen>
+    <dimen name="lb_basic_card_content_text_size">12sp</dimen>
     <dimen name="lb_basic_card_info_badge_size">16dp</dimen>
 
     <!-- z based shadow -->
