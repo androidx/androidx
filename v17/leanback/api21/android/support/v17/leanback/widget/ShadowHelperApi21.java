@@ -22,22 +22,20 @@ import android.view.ViewGroup;
 
 class ShadowHelperApi21 {
 
-    static int sNormalZ;
+    static int sNormalZ = Integer.MIN_VALUE;
     static int sFocusedZ;
-    static ColorDrawable sColorDrawable;
 
     private static void initializeResources(Resources res) {
-        if (sColorDrawable == null) {
+        if (sNormalZ == Integer.MIN_VALUE) {
             sNormalZ = (int) res.getDimension(R.dimen.lb_quantum_shadow_normal_z);
             sFocusedZ = (int) res.getDimension(R.dimen.lb_quantum_shadow_focused_z);
-            sColorDrawable = new ColorDrawable(Color.TRANSPARENT);
         }
     }
 
     /* add shadows and return a implementation detail object */
     public static Object addShadow(ViewGroup shadowContainer) {
         initializeResources(shadowContainer.getResources());
-        shadowContainer.setBackground(sColorDrawable);
+        shadowContainer.setBackground(new ColorDrawable(Color.TRANSPARENT));
         shadowContainer.setZ(sNormalZ);
         return shadowContainer;
     }
