@@ -113,16 +113,16 @@ public class BrowseFragment extends Fragment {
         int mIndexOfHeadersBackStack;
 
         BackStackListener() {
-            reset();
-        }
-
-        void reset() {
             mLastEntryCount = getFragmentManager().getBackStackEntryCount();
             mIndexOfHeadersBackStack = -1;
         }
 
         @Override
         public void onBackStackChanged() {
+            if (getFragmentManager() == null) {
+                Log.w(TAG, "getFragmentManager() is null, stack:", new Exception());
+                return;
+            }
             int count = getFragmentManager().getBackStackEntryCount();
             // if backstack is growing and last pushed entry is "headers" backstack,
             // remember the index of the entry.
@@ -530,6 +530,14 @@ public class BrowseFragment extends Fragment {
             }
         }
 
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mBackStackChangedListener != null) {
+            getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
+        }
+        super.onDestroy();
     }
 
     @Override
