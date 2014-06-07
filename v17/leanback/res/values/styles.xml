@@ -218,7 +218,7 @@
     </style>
 
     <style name="Widget.Leanback.SearchOrbViewStyle">
-        <item name="searchOrbIcon">@drawable/lb_ic_in_app_search</item>
+        <item name="searchOrbIcon">?attr/defaultSearchIcon</item>
         <item name="searchOrbColor">?attr/defaultSearchColor</item>
     </style>
 </resources>
