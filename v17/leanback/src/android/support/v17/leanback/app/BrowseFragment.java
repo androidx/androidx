@@ -45,11 +45,12 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  * Wrapper fragment for leanback browse screens. Composed of a
  * RowsFragment and a HeadersFragment.
  * <p>
- * The fragment comes with default back key support to show headers.
- * For app customized {@link Activity#onBackPressed()}, app must disable
- * BrowseFragment's default back key support by calling
- * {@link #setHeadersTransitionOnBackEnabled(boolean)} with false and use
- * {@link BrowseFragment.BrowseTransitionListener} and {@link #startHeadersTransition(boolean)}.
+ * By default the BrowseFragment includes support for returning to the headers
+ * when the user presses Back. For Activities that customize {@link
+ * Activity#onBackPressed()}, you must disable this default Back key support by
+ * calling {@link #setHeadersTransitionOnBackEnabled(boolean)} with false and
+ * use {@link BrowseFragment.BrowseTransitionListener} and
+ * {@link #startHeadersTransition(boolean)}.
  */
 public class BrowseFragment extends Fragment {
 
@@ -144,16 +145,22 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Listener for browse transitions.
+     * Listener for transitions between browse headers and rows.
      */
     public static class BrowseTransitionListener {
         /**
          * Callback when headers transition starts.
+         *
+         * @param withHeaders True if the transition will result in headers
+         *        being shown, false otherwise.
          */
         public void onHeadersTransitionStart(boolean withHeaders) {
         }
         /**
          * Callback when headers transition stops.
+         *
+         * @param withHeaders True if the transition will result in headers
+         *        being shown, false otherwise.
          */
         public void onHeadersTransitionStop(boolean withHeaders) {
         }
@@ -248,6 +255,14 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Create arguments for a browse fragment.
+     *
+     * @param args The Bundle to place arguments into, or null if the method
+     *        should return a new Bundle.
+     * @param title The title of the BrowseFragment.
+     * @param headersState The initial state of the headers of the
+     *        BrowseFragment. Must be one of {@link #HEADERS_ENABLED}, {@link
+     *        #HEADERS_HIDDEN}, or {@link #HEADERS_DISABLED}.
+     * @return A Bundle with the given arguments for creating a BrowseFragment.
      */
     public static Bundle createArgs(Bundle args, String title, int headersState) {
         if (args == null) {
@@ -280,7 +295,11 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Sets the brand color for the browse fragment.
+     * Sets the brand color for the browse fragment. The brand color is used as
+     * the primary color for UI elements in the browse fragment. For example,
+     * the background color of the headers fragment uses the brand color.
+     *
+     * @param color The color to use as the brand color of the fragment.
      */
     public void setBrandColor(int color) {
         mBrandColor = color;
@@ -300,7 +319,14 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Sets the list of rows for the fragment.
+     * Sets the adapter containing the rows for the fragment.
+     *
+     * <p>The items referenced by the adapter must be be derived from
+     * {@link Row}. These rows will be used by the rows fragment and the headers
+     * fragment (if not disabled) to render the browse rows.
+     *
+     * @param adapter An ObjectAdapter for the browse rows. All items must
+     *        derive from {@link Row}.
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
@@ -311,14 +337,17 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Returns the list of rows.
+     * Returns the adapter containing the rows for the fragment.
      */
     public ObjectAdapter getAdapter() {
         return mAdapter;
     }
 
     /**
-     * Sets an item selection listener.
+     * Sets an item selection listener. This listener will be called when an
+     * item or row is selected by a user.
+     *
+     * @param listener The listener to call when an item or row is selected.
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mExternalOnItemSelectedListener = listener;
@@ -326,9 +355,14 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Sets an item clicked listener on the fragment.
-     * OnItemClickedListener will override {@link View.OnClickListener} that
-     * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
-     * So in general,  developer should choose one of the listeners but not both.
+     *
+     * <p>OnItemClickedListener will override {@link View.OnClickListener} that
+     * an item presenter may set during
+     * {@link Presenter#onCreateViewHolder(ViewGroup)}. So in general, you
+     * should choose to use an {@link OnItemClickedListener} or a
+     * {@link View.OnClickListener} on your item views, but not both.
+     *
+     * @param listener The listener to call when an item is clicked.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
@@ -338,7 +372,7 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Returns the item Clicked listener.
+     * Returns the item clicked listener.
      */
     public OnItemClickedListener getOnItemClickedListener() {
         return mOnItemClickedListener;
@@ -347,12 +381,14 @@ public class BrowseFragment extends Fragment {
     /**
      * Sets a click listener for the search affordance.
      *
-     * The presence of a listener will change the visibility of the search affordance in the
-     * title area. When set to non-null the title area will contain a call to search action.
+     * <p>The presence of a listener will change the visibility of the search
+     * affordance in the fragment title. When set to non-null, the title will
+     * contain an element that a user may click to begin a search.
      *
-     * The listener onClick method will be invoked when the user click on the search action.
+     * <p>The listener's {@link View.OnClickListener#onClick onClick} method
+     * will be invoked when the user clicks on the search element.
      *
-     * @param listener The listener.
+     * @param listener The listener to call when the search element is clicked.
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
         mExternalOnSearchClickedListener = listener;
@@ -363,6 +399,8 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Sets the color used to draw the search affordance.
+     *
+     * @param color The color to use for the search affordance.
      */
     public void setSearchAffordanceColor(int color) {
         mSearchAffordanceColor = color;
@@ -387,7 +425,14 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Start headers transition.
+     * Start a headers transition.
+     *
+     * <p>This method will begin a transition to either show or hide the
+     * headers, depending on the value of withHeaders. If headers are disabled
+     * for this browse fragment, this method will throw an exception.
+     *
+     * @param withHeaders True if the headers should transition to being shown,
+     *        false if the transition should result in headers being hidden.
      */
     public void startHeadersTransition(boolean withHeaders) {
         if (!mCanShowHeaders) {
@@ -400,21 +445,24 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Returns true if headers transition is currently running.
+     * Returns true if the headers transition is currently running.
      */
     public boolean isInHeadersTransition() {
         return mHeadersTransition != null;
     }
 
     /**
-     * Returns true if headers is showing.
+     * Returns true if headers are shown.
      */
     public boolean isShowingHeaders() {
         return mShowingHeaders;
     }
 
     /**
-     * Set listener for browse fragment transitions.
+     * Set a listener for browse fragment transitions.
+     *
+     * @param listener The listener to call when a browse headers transition
+     *        begins or ends.
      */
     public void setBrowseTransitionListener(BrowseTransitionListener listener) {
         mBrowseTransitionListener = listener;
@@ -669,6 +717,12 @@ public class BrowseFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets the {@link PresenterSelector} used to render the row headers.
+     *
+     * @param headerPresenterSelector The PresenterSelector that will determine
+     *        the Presenter for each row header.
+     */
     public void setHeaderPresenterSelector(PresenterSelector headerPresenterSelector) {
         mHeaderPresenterSelector = headerPresenterSelector;
         if (mHeadersFragment != null) {
@@ -783,14 +837,15 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Enable/disable headers transition on back key support.  This is enabled by default.
-     * BrowseFragment will add a back stack entry when headers are showing.
-     * Headers transition on back key only works for {@link #HEADERS_ENABLED}
-     * or {@link #HEADERS_HIDDEN}.
+     * Enable/disable headers transition on back key support. This is enabled by
+     * default. The BrowseFragment will add a back stack entry when headers are
+     * showing. Running a headers transition when the back key is pressed only
+     * works when the headers state is {@link #HEADERS_ENABLED} or
+     * {@link #HEADERS_HIDDEN}.
      * <p>
-     * NOTE: If app has its own onBackPressed() handling,
-     * app must disable this feature, app may use {@link #startHeadersTransition(boolean)}
-     * and {@link BrowseTransitionListener} in its own back stack handling.
+     * NOTE: If an Activity has its own onBackPressed() handling, you must
+     * disable this feature. You may use {@link #startHeadersTransition(boolean)}
+     * and {@link BrowseTransitionListener} in your own back stack handling.
      */
     public final void setHeadersTransitionOnBackEnabled(boolean headersBackStackEnabled) {
         mHeadersBackStackEnabled = headersBackStackEnabled;
@@ -816,8 +871,9 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Sets the drawable displayed in the fragment title area.
-     * @param drawable
+     * Sets the drawable displayed in the browse fragment title.
+     *
+     * @param drawable The Drawable to display in the browse fragment title.
      */
     public void setBadgeDrawable(Drawable drawable) {
         if (mBadgeDrawable != drawable) {
@@ -829,7 +885,7 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Returns the badge drawable.
+     * Returns the badge drawable used in the fragment title.
      */
     public Drawable getBadgeDrawable() {
         return mBadgeDrawable;
@@ -837,6 +893,8 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Sets a title for the browse fragment.
+     *
+     * @param title The title of the browse fragment.
      */
     public void setTitle(String title) {
         mTitle = title;
@@ -853,7 +911,11 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Sets the state for the headers column in the browse fragment.
+     * Sets the state for the headers column in the browse fragment. Must be one
+     * of {@link #HEADERS_ENABLED}, {@link #HEADERS_HIDDEN}, or
+     * {@link #HEADERS_DISABLED}.
+     *
+     * @param headersState The state of the headers for the browse fragment.
      */
     public void setHeadersState(int headersState) {
         if (headersState < HEADERS_ENABLED || headersState > HEADERS_DISABLED) {
@@ -887,7 +949,7 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Returns the state for the headers column in the browse fragment.
+     * Returns the state of the headers column in the browse fragment.
      */
     public int getHeadersState() {
         return mHeadersState;
