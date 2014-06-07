@@ -134,8 +134,6 @@ public class SearchBar extends RelativeLayout {
         mSearchQuery = "";
         mInputMethodManager =
                 (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
-
 
         mTextSpeechColor = r.getColor(R.color.lb_search_bar_text_speech_color);
         mBackgroundSpeechAlpha = r.getInteger(R.integer.lb_search_bar_speech_mode_background_alpha);
@@ -367,6 +365,23 @@ public class SearchBar extends RelativeLayout {
                 infos.toArray(new CompletionInfo[] {}));
     }
 
+    /**
+     * Set the speech recognizer to be used when doing voice search. The Activity/Fragment is in
+     * charge of creating and destroying the recognizer with its own lifecycle.
+     *
+     * @param recognizer a SpeechRecognizer
+     */
+    public void setSpeechRecognizer(SpeechRecognizer recognizer) {
+        if (null != mSpeechRecognizer) {
+            mSpeechRecognizer.setRecognitionListener(null);
+            if (mListening) {
+                mSpeechRecognizer.stopListening();
+                mListening = false;
+            }
+        }
+        mSpeechRecognizer = recognizer;
+    }
+
     private void hideNativeKeyboard() {
         mInputMethodManager.hideSoftInputFromWindow(mSearchTextEditor.getWindowToken(),
                 InputMethodManager.RESULT_UNCHANGED_SHOWN);
@@ -407,6 +422,8 @@ public class SearchBar extends RelativeLayout {
     }
 
     private void stopRecognition() {
+        if (null == mSpeechRecognizer) return;
+
         if (DEBUG) Log.v(TAG, "stopRecognition " + mListening);
         mSpeechOrbView.showNotListening();
 
@@ -416,6 +433,8 @@ public class SearchBar extends RelativeLayout {
     }
 
     private void startRecognition() {
+        if (null == mSpeechRecognizer) return;
+
         if (DEBUG) Log.v(TAG, "startRecognition " + mListening);
 
         mSearchTextEditor.setText("");

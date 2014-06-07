@@ -17,6 +17,7 @@ import android.app.Fragment;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.SpeechRecognizer;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
@@ -97,6 +98,8 @@ public class SearchFragment extends Fragment {
 
     private String mTitle;
     private Drawable mBadgeDrawable;
+
+    private SpeechRecognizer mSpeechRecognizer;
 
     /**
      * @param args Bundle to use for the arguments, if null a new Bundle will be created.
@@ -227,6 +230,25 @@ public class SearchFragment extends Fragment {
         list.setWindowAlignmentOffset(mContainerListAlignTop);
         list.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
         list.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (null == mSpeechRecognizer) {
+            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
+            mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (null != mSpeechRecognizer) {
+            mSearchBar.setSpeechRecognizer(null);
+            mSpeechRecognizer.destroy();
+            mSpeechRecognizer = null;
+        }
+        super.onPause();
     }
 
     /**
