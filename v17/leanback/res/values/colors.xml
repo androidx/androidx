@@ -22,7 +22,7 @@
     <color name="lb_browse_header_color">#FFFFFF</color>
 
     <color name="lb_list_item_unselected_text_color">#FFF1F1F1</color>
-    <color name="lb_background_protection">#A0333333</color>
+    <color name="lb_background_protection">#99000000</color>
 
     <color name="lb_view_dim_mask_color">#000000</color>
     <item name="lb_view_dimmed_level" type="dimen">60%</item>
