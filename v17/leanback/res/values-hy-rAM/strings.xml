@@ -17,10 +17,10 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="orb_search_label" msgid="4608909966164166532">"Maghanap"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"Pagkilos sa Paghahanap"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"Maghanap"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Magsalita upang maghanap"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="4425409611233801042">"Hanapin ang %1$s"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="598913190078109522">"Magsalita upang hanapin ang %1$s"</string>
+    <string name="orb_search_label" msgid="4608909966164166532">"Որոնում"</string>
+    <string name="orb_search_action" msgid="5651268540267663887">"Որոնման հրամանը"</string>
+    <string name="lb_search_bar_hint" msgid="8325490927970116252">"Որոնում"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Խոսեք՝ որոնելու համար"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="4425409611233801042">"Որոնել %1$s"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="598913190078109522">"Խոսեք՝ որոնելու համար %1$s"</string>
 </resources>
