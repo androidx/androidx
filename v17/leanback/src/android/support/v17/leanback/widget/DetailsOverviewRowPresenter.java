@@ -215,22 +215,26 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             mDetailsPresenter.onCreateViewHolder(vh.mDetailsDescriptionFrame);
         vh.mDetailsDescriptionFrame.addView(vh.mDetailsDescriptionViewHolder.view);
 
-        initDetailsOverview(v.findViewById(R.id.details_overview));
+        initDetailsOverview(vh);
 
         return vh;
     }
 
-    private void initDetailsOverview(View view) {
+    private void initDetailsOverview(ViewHolder vh) {
         int resId = mIsStyleLarge ? R.dimen.lb_details_overview_height_large :
             R.dimen.lb_details_overview_height_small;
 
-        ViewGroup.LayoutParams lp = view.getLayoutParams();
-        lp.height = view.getResources().getDimensionPixelSize(resId);
-        view.setLayoutParams(lp);
+        View overview = vh.view.findViewById(R.id.details_overview);
+        ViewGroup.LayoutParams lp = overview.getLayoutParams();
+        lp.height = overview.getResources().getDimensionPixelSize(resId);
+        overview.setLayoutParams(lp);
 
-        view.setBackgroundColor(mBackgroundColorSet ?
-                mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
+        overview.setBackgroundColor(mBackgroundColorSet ?
+                mBackgroundColor : getDefaultBackgroundColor(overview.getContext()));
 
+        // Max width to make a square
+        ImageView image = (ImageView) vh.view.findViewById(R.id.details_overview_image);
+        image.setMaxWidth(lp.height);
     }
 
     @Override
