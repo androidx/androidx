@@ -19,6 +19,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -30,6 +32,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.inputmethod.CompletionInfo;
@@ -44,7 +47,9 @@ import android.support.v17.leanback.R;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>SearchBar is a search widget.</p>
@@ -55,8 +60,11 @@ public class SearchBar extends RelativeLayout {
     private static final String TAG = SearchBar.class.getSimpleName();
     private static final boolean DEBUG = false;
 
-    private SpeechRecognizer mSpeechRecognizer;
-    private boolean mListening;
+    private static final float FULL_LEFT_VOLUME = 1.0f;
+    private static final float FULL_RIGHT_VOLUME = 1.0f;
+    private static final int DEFAULT_PRIORITY = 1;
+    private static final int DO_NOT_LOOP = 0;
+    private static final float DEFAULT_RATE = 1.0f;
 
     /**
      * Listener for search query changes
@@ -105,6 +113,10 @@ public class SearchBar extends RelativeLayout {
     private int mBackgroundAlpha;
     private int mBackgroundSpeechAlpha;
     private int mBarHeight;
+    private SpeechRecognizer mSpeechRecognizer;
+    private boolean mListening;
+    private SoundPool mSoundPool;
+    private SparseIntArray mSoundMap = new SparseIntArray();
 
     public SearchBar(Context context) {
         this(context, null);
@@ -140,6 +152,9 @@ public class SearchBar extends RelativeLayout {
 
         mTextColor = r.getColor(R.color.lb_search_bar_text_color);
         mBackgroundAlpha = r.getInteger(R.integer.lb_search_bar_text_mode_background_alpha);
+
+        mSoundPool = new SoundPool(8, AudioManager.STREAM_SYSTEM, 0);
+        loadSounds(context);
     }
 
     @Override
@@ -500,6 +515,7 @@ public class SearchBar extends RelativeLayout {
                 mListening = false;
                 mSpeechRecognizer.setRecognitionListener(null);
                 mSpeechOrbView.showNotListening();
+                playSearchFailure();
             }
 
             @Override
@@ -520,6 +536,7 @@ public class SearchBar extends RelativeLayout {
                 }
                 mSpeechRecognizer.setRecognitionListener(null);
                 mSpeechOrbView.showNotListening();
+                playSearchSuccess();
             }
 
             @Override
@@ -534,6 +551,7 @@ public class SearchBar extends RelativeLayout {
         });
 
         mSpeechOrbView.showListening();
+        playSearchOpen();
         mSpeechRecognizer.startListening(recognizerIntent);
         mListening = true;
     }
@@ -570,5 +588,45 @@ public class SearchBar extends RelativeLayout {
             throw new IllegalStateException("android.premission.RECORD_AUDIO required for search");
         }
     }
+
+    private void loadSounds(Context context) {
+        int[] sounds = {
+                R.raw.voice_failure,
+                R.raw.voice_open,
+                R.raw.voice_no_input,
+                R.raw.voice_success,
+        };
+        for (int sound : sounds) {
+            mSoundMap.put(sound, mSoundPool.load(context, sound, 1));
+        }
+    }
+
+    private void play(final int resId) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                int sound = mSoundMap.get(resId);
+                mSoundPool.play(sound, FULL_LEFT_VOLUME, FULL_RIGHT_VOLUME, DEFAULT_PRIORITY,
+                        DO_NOT_LOOP, DEFAULT_RATE);
+            }
+        });
+    }
+
+    private void playSearchOpen() {
+        play(R.raw.voice_open);
+    }
+
+    private void playSearchFailure() {
+        play(R.raw.voice_failure);
+    }
+
+    private void playSearchNoInput() {
+        play(R.raw.voice_no_input);
+    }
+
+    private void playSearchSuccess() {
+        play(R.raw.voice_success);
+    }
+
 
 }
