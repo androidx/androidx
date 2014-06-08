@@ -19,6 +19,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.Rect;
 
 /**
  * ShadowOverlayContainer Provides a SDK version independent wrapper container
@@ -49,6 +50,7 @@ public class ShadowOverlayContainer extends ViewGroup {
     private View mColorDimOverlay;
     private Object mShadowImpl;
     private View mWrappedView;
+    private static final Rect sTempRect = new Rect();
 
     public ShadowOverlayContainer(Context context) {
         this(context, null, 0);
@@ -194,6 +196,13 @@ public class ShadowOverlayContainer extends ViewGroup {
                 final int height = child.getMeasuredHeight();
                 child.layout(0, 0, width, height);
             }
+        }
+        if (mWrappedView != null) {
+            sTempRect.left = (int) mWrappedView.getPivotX();
+            sTempRect.top = (int) mWrappedView.getPivotY();
+            offsetDescendantRectToMyCoords(mWrappedView, sTempRect);
+            setPivotX(sTempRect.left);
+            setPivotY(sTempRect.top);
         }
     }
 
