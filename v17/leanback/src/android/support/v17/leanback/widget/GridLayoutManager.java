@@ -827,12 +827,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     if (measure && view.isLayoutRequested()) {
                         measureChild(view);
                     }
-                    // If this view is outside the primary axis bounds, we ignore it.
-                    if (getViewMax(view) < 0 || getViewMin(view) > mSizePrimary) {
-                        continue;
-                    }
-                    mMeasuredDimension[0] = view.getWidth();
-                    mMeasuredDimension[1] = view.getHeight();
+                    mMeasuredDimension[0] = view.getMeasuredWidth();
+                    mMeasuredDimension[1] = view.getMeasuredHeight();
                 }
                 final int secondarySize = mOrientation == HORIZONTAL ?
                         mMeasuredDimension[1] : mMeasuredDimension[0];
