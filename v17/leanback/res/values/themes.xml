@@ -54,10 +54,11 @@
         <item name="detailsDescriptionBodyStyle">@style/Widget.Leanback.DetailsDescriptionBodyStyle</item>
         <item name="detailsActionButtonStyle">@style/Widget.Leanback.DetailsActionButtonStyle</item>
 
+        <!-- TODO should be null, and set programatically to avoid dependence on leanback theme -->
         <item name="defaultBrandColor">@color/lb_default_brand_color</item>
-        <item name="defaultSearchColor">@color/lb_default_search_color</item>
+        <item name="defaultSearchColor">@null</item>
         <item name="defaultSearchBrightColor">@null</item>
-        <item name="defaultSearchIcon">@drawable/lb_ic_in_app_search</item>
+        <item name="defaultSearchIcon">@null</item>
     </style>
 
 </resources>
