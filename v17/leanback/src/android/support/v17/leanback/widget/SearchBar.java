@@ -591,10 +591,10 @@ public class SearchBar extends RelativeLayout {
 
     private void loadSounds(Context context) {
         int[] sounds = {
-                R.raw.voice_failure,
-                R.raw.voice_open,
-                R.raw.voice_no_input,
-                R.raw.voice_success,
+                R.raw.lb_voice_failure,
+                R.raw.lb_voice_open,
+                R.raw.lb_voice_no_input,
+                R.raw.lb_voice_success,
         };
         for (int sound : sounds) {
             mSoundMap.put(sound, mSoundPool.load(context, sound, 1));
@@ -613,19 +613,19 @@ public class SearchBar extends RelativeLayout {
     }
 
     private void playSearchOpen() {
-        play(R.raw.voice_open);
+        play(R.raw.lb_voice_open);
     }
 
     private void playSearchFailure() {
-        play(R.raw.voice_failure);
+        play(R.raw.lb_voice_failure);
     }
 
     private void playSearchNoInput() {
-        play(R.raw.voice_no_input);
+        play(R.raw.lb_voice_no_input);
     }
 
     private void playSearchSuccess() {
-        play(R.raw.voice_success);
+        play(R.raw.lb_voice_success);
     }
 
 
