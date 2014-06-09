@@ -125,6 +125,8 @@
         <attr name="searchOrbIcon" format="reference"/>
         <!-- Defining color of the search affordance -->
         <attr name="searchOrbColor" format="reference|color" />
+        <!-- Defining pulse color of the search affordance -->
+        <attr name="searchOrbBrightColor" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="LeanbackTheme">
@@ -187,6 +189,8 @@
         <!-- Default colors -->
         <attr name="defaultBrandColor" format="reference|color" />
         <attr name="defaultSearchColor" format="reference|color" />
+        <!-- Default color that search orb pulses to.  If not set, this color is determined programatically based on the defaultSearchColor -->
+        <attr name="defaultSearchBrightColor" format="reference|color" />
 
         <!-- Style for searchOrb -->
         <attr name="searchOrbViewStyle" format="reference"/>

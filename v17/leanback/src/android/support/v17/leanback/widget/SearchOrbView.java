@@ -91,7 +91,9 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         setOrbIcon(img);
 
         int color = a.getColor(R.styleable.lbSearchOrbView_searchOrbColor, 0);
-        setOrbColor(color);
+        int brightColor = a.getColor(
+                R.styleable.lbSearchOrbView_searchOrbBrightColor, getBrightColor(color));
+        setOrbColor(color, brightColor);
         a.recycle();
 
         setFocusable(true);
@@ -150,8 +152,12 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      * @param color the RGBA color
      */
     public void setOrbColor(int color) {
+        setOrbColor(color, getBrightColor(color));
+    }
+
+    public void setOrbColor(int color, int brightColor) {
         mSearchOrbColor = color;
-        mSearchOrbColorBright = getBrightColor(color);
+        mSearchOrbColorBright = brightColor;
 
         if (mColorAnimator == null) {
             setOrbViewColor(color);
