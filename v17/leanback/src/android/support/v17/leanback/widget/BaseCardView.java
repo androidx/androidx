@@ -339,6 +339,8 @@ public class BaseCardView extends ViewGroup {
                 state = View.combineMeasuredStates(state, mainView.getMeasuredState());
             }
         }
+        setPivotX(mMeasuredWidth / 2);
+        setPivotY(mainHeight / 2);
 
 
         // The MAIN area determines the card width
