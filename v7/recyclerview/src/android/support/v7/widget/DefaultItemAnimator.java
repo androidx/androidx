@@ -219,6 +219,21 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     public void endAnimation(ViewHolder item) {
         final View view = item.itemView;
         ViewCompat.animate(view).cancel();
+        if (mPendingMoves.contains(item)) {
+            ViewCompat.setTranslationY(view, 0);
+            ViewCompat.setTranslationX(view, 0);
+            dispatchMoveFinished(item);
+            mPendingMoves.remove(item);
+        }
+        if (mPendingRemovals.contains(item)) {
+            dispatchRemoveFinished(item);
+            mPendingRemovals.remove(item);
+        }
+        if (mPendingAdditions.contains(item)) {
+            ViewCompat.setAlpha(view, 1);
+            dispatchAddFinished(item);
+            mPendingAdditions.remove(item);
+        }
         if (mMoveAnimations.contains(item)) {
             ViewCompat.setTranslationY(view, 0);
             ViewCompat.setTranslationX(view, 0);
@@ -260,10 +275,34 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public void endAnimations() {
+        int count = mPendingMoves.size();
+        for (int i = count - 1; i >= 0; i--) {
+            MoveInfo item = mPendingMoves.get(i);
+            View view = item.holder.itemView;
+            ViewCompat.animate(view).cancel();
+            ViewCompat.setTranslationY(view, 0);
+            ViewCompat.setTranslationX(view, 0);
+            dispatchMoveFinished(item.holder);
+            mPendingMoves.remove(item);
+        }
+        count = mPendingRemovals.size();
+        for (int i = count - 1; i >= 0; i--) {
+            ViewHolder item = mPendingRemovals.get(i);
+            dispatchRemoveFinished(item);
+            mPendingRemovals.remove(item);
+        }
+        count = mPendingAdditions.size();
+        for (int i = count - 1; i >= 0; i--) {
+            ViewHolder item = mPendingAdditions.get(i);
+            View view = item.itemView;
+            ViewCompat.setAlpha(view, 1);
+            dispatchAddFinished(item);
+            mPendingAdditions.remove(item);
+        }
         if (!isRunning()) {
             return;
         }
-        int count = mMoveAnimations.size();
+        count = mMoveAnimations.size();
         for (int i = count - 1; i >= 0; i--) {
             ViewHolder item = mMoveAnimations.get(i);
             View view = item.itemView;
