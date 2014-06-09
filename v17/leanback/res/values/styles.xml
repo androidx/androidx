@@ -220,5 +220,6 @@
     <style name="Widget.Leanback.SearchOrbViewStyle">
         <item name="searchOrbIcon">?attr/defaultSearchIcon</item>
         <item name="searchOrbColor">?attr/defaultSearchColor</item>
+        <item name="searchOrbBrightColor">?attr/defaultSearchBrightColor</item>
     </style>
 </resources>
