@@ -56,6 +56,7 @@
 
         <item name="defaultBrandColor">@color/lb_default_brand_color</item>
         <item name="defaultSearchColor">@color/lb_default_search_color</item>
+        <item name="defaultSearchBrightColor">@null</item>
         <item name="defaultSearchIcon">@drawable/lb_ic_in_app_search</item>
     </style>
 

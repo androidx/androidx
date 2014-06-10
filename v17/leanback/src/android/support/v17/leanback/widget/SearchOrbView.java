@@ -19,6 +19,7 @@ package android.support.v17.leanback.widget;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -70,6 +71,8 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     public SearchOrbView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        final Resources res = context.getResources();
+
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View root = inflater.inflate(R.layout.lb_search_orb, this, true);
@@ -87,10 +90,15 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView,
                 defStyleAttr, 0);
+
         Drawable img = a.getDrawable(R.styleable.lbSearchOrbView_searchOrbIcon);
+        if (img == null) {
+            img = res.getDrawable(R.drawable.lb_ic_in_app_search);
+        }
         setOrbIcon(img);
 
-        int color = a.getColor(R.styleable.lbSearchOrbView_searchOrbColor, 0);
+        int defColor = res.getColor(R.color.lb_default_search_color);
+        int color = a.getColor(R.styleable.lbSearchOrbView_searchOrbColor, defColor);
         int brightColor = a.getColor(
                 R.styleable.lbSearchOrbView_searchOrbBrightColor, getBrightColor(color));
         setOrbColor(color, brightColor);

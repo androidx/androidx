@@ -41,11 +41,11 @@ public class TitleView extends FrameLayout {
     }
 
     public TitleView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.style.Widget_Leanback_Title);
+        this(context, attrs, R.attr.browseTitleViewStyle);
     }
 
-    public TitleView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public TitleView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
 
         LayoutInflater inflater = LayoutInflater.from(context);
         View rootView = inflater.inflate(R.layout.lb_title_view, this);
@@ -54,7 +54,8 @@ public class TitleView extends FrameLayout {
         mTextView = (TextView) rootView.findViewById(R.id.browse_title);
         mSearchOrbView = (SearchOrbView) rootView.findViewById(R.id.browse_orb);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbTitleView);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbTitleView,
+                defStyleAttr, 0);
         int color = a.getColor(R.styleable.lbTitleView_searchAffordanceColor, 0);
         a.recycle();
         mSearchOrbView.setOrbColor(color);
