@@ -103,6 +103,13 @@ abstract class BaseGridView extends RecyclerView {
 
     protected final GridLayoutManager mLayoutManager;
 
+    /**
+     * Animate layout changes from a child resizing or adding/removing a child.
+     */
+    private boolean mAnimateChildLayout = true;
+
+    private RecyclerView.ItemAnimator mSavedItemAnimator;
+
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager = new GridLayoutManager(this);
@@ -381,7 +388,15 @@ abstract class BaseGridView extends RecyclerView {
      * <p><i>Unstable API, might change later.</i>
      */
     public void setAnimateChildLayout(boolean animateChildLayout) {
-        mLayoutManager.setAnimateChildLayout(animateChildLayout);
+        if (mAnimateChildLayout != animateChildLayout) {
+            mAnimateChildLayout = animateChildLayout;
+            if (!mAnimateChildLayout) {
+                mSavedItemAnimator = getItemAnimator();
+                super.setItemAnimator(null);
+            } else {
+                super.setItemAnimator(mSavedItemAnimator);
+            }
+        }
     }
 
     /**
@@ -390,7 +405,7 @@ abstract class BaseGridView extends RecyclerView {
      * <p><i>Unstable API, might change later.</i>
      */
     public boolean isChildLayoutAnimated() {
-        return mLayoutManager.isChildLayoutAnimated();
+        return mAnimateChildLayout;
     }
 
     /**
