@@ -56,7 +56,9 @@ public class TitleView extends FrameLayout {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbTitleView,
                 defStyleAttr, 0);
-        int color = a.getColor(R.styleable.lbTitleView_searchAffordanceColor, 0);
+
+        int defColor = context.getResources().getColor(R.color.lb_default_search_color);
+        int color = a.getColor(R.styleable.lbTitleView_searchAffordanceColor, defColor);
         a.recycle();
         mSearchOrbView.setOrbColor(color);
 
