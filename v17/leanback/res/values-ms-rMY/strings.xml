@@ -19,9 +19,7 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="orb_search_action" msgid="5651268540267663887">"Tindakan Carian"</string>
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Carian"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Sebut untuk mencari"</string>
-    <!-- no translation found for lb_search_bar_hint_with_title (1627103380996590035) -->
-    <skip />
-    <!-- no translation found for lb_search_bar_hint_with_title_speech (2712734639766312034) -->
-    <skip />
+    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Tutur untuk membuat carian"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Cari <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Sebut untuk mencari <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
 </resources>
