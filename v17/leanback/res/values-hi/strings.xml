@@ -17,10 +17,9 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="orb_search_label" msgid="4608909966164166532">"खोजें"</string>
     <string name="orb_search_action" msgid="5651268540267663887">"खोज कार्रवाई"</string>
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"खोजें"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"खोजने के लिए बोलें"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="4425409611233801042">"%1$s खोजें"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="598913190078109522">"%1$s खोजने के लिए बोलें"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोजें"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोजने के लिए बोलें"</string>
 </resources>
