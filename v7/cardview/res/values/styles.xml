@@ -14,8 +14,13 @@
      limitations under the License.
 -->
 <resources>
-    <style name="CardViewLight">
+    <style name="CardView">
         <item name="cardBackgroundColor">@color/cardview_light_background</item>
-        <item name="cardCornerRadius">@dimen/cardview_default_radius</item>
+    </style>
+    <style name="CardView.Light">
+        <item name="cardBackgroundColor">@color/cardview_light_background</item>
+    </style>
+    <style name="CardView.Dark">
+        <item name="cardBackgroundColor">@color/cardview_dark_background</item>
     </style>
 </resources>
