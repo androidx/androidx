@@ -24,6 +24,7 @@
     <android.support.v17.leanback.app.BrowseFrameLayout
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:descendantFocusability="afterDescendants"
         android:id="@+id/browse_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
