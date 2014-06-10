@@ -15,8 +15,10 @@
 -->
 
 <resources>
-    <!-- Default background color for CardView. -->
+    <!-- Background color for light CardView. -->
     <color name="cardview_light_background">#FFFAFAFA</color>
+	<!-- Background color for dark CardView. -->
+	<color name="cardview_dark_background">#FF202020</color>
     <!-- Shadow color for the first pixels around CardView. -->
     <color name="cardview_shadow_start_color">#37000000</color>
     <!-- Shadow color for the furthest pixels around CardView. -->

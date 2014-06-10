@@ -17,7 +17,6 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v7.cardview.R;
@@ -35,7 +34,7 @@ import android.widget.FrameLayout;
  * intersection.
  *
  * @attr ref android.support.v7.cardview.R.styleable#CardView_cardBackgroundColor
- * @attr ref android.support.v7.cardview.R.styleable#CardView_cornerRadius
+ * @attr ref android.support.v7.cardview.R.styleable#CardView_cardCornerRadius
  */
 public class CardView extends FrameLayout implements CardViewDelegate {
 
@@ -68,7 +67,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
 
     private void initialize(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
-                R.style.CardViewLight);
+                R.style.CardView_Light);
         int backgroundColor = a.getColor(R.styleable.CardView_cardBackgroundColor, 0);
         float radius = a.getDimension(R.styleable.CardView_cardCornerRadius, 0);
 
@@ -81,7 +80,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      *
      * @param radius The radius in pixels of the corners of the rectangle shape
      *
-     * @attr ref android.support.v7.cardview.R.styleable#CardView_cornerRadius
+     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardCornerRadius
      *
      * @see #setRadius(float)
      *
