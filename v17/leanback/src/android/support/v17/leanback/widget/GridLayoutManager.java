@@ -324,11 +324,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private boolean mFocusSearchDisabled;
 
     /**
-     * Animate layout changes from a child resizing or adding/removing a child.
-     */
-    private boolean mAnimateChildLayout = true;
-
-    /**
      * True if prune child,  might be disabled during transition.
      */
     private boolean mPruneChild = true;
@@ -1384,11 +1379,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    @Override
-    public boolean supportsPredictiveItemAnimations() {
-        return mAnimateChildLayout;
-    }
-
     private void removeAndRecycleAllViews(RecyclerView.Recycler recycler) {
         if (DEBUG) Log.v(TAG, "removeAndRecycleAllViews " + getChildCount());
         for (int i = getChildCount() - 1; i >= 0; i--) {
@@ -2063,14 +2053,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mBaseGridView.scrollBy(scrollX, scrollY);
             }
         }
-    }
-
-    public void setAnimateChildLayout(boolean animateChildLayout) {
-        mAnimateChildLayout = animateChildLayout;
-    }
-
-    public boolean isChildLayoutAnimated() {
-        return mAnimateChildLayout;
     }
 
     public void setPruneChild(boolean pruneChild) {
