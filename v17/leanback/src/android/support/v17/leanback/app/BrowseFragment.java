@@ -372,6 +372,9 @@ public class BrowseFragment extends Fragment {
     }
 
     private void startHeadersTransitionInternal(boolean withHeaders) {
+        if (getFragmentManager().isDestroyed()) {
+            return;
+        }
         mShowingHeaders = withHeaders;
         mRowsFragment.onTransitionStart();
         mHeadersFragment.onTransitionStart();
@@ -858,3 +861,4 @@ public class BrowseFragment extends Fragment {
         return mHeadersState;
     }
 }
+
