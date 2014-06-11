@@ -42,9 +42,6 @@ public class VerticalGridFragment extends Fragment {
     private static final String TAG = "VerticalGridFragment";
     private static boolean DEBUG = false;
 
-    // TODO: remove Params
-    private Params mParams;
-
     private BrowseFrameLayout mBrowseFrame;
     private String mTitle;
     private Drawable mBadgeDrawable;
@@ -67,60 +64,6 @@ public class VerticalGridFragment extends Fragment {
     private Object mTitleDownTransition;
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
-
-    @Deprecated
-    public static class Params {
-        private String mTitle;
-        private Drawable mBadgeDrawable;
-
-        /**
-         * Sets the badge image.
-         */
-        public void setBadgeImage(Drawable drawable) {
-            mBadgeDrawable = drawable;
-        }
-
-        /**
-         * Returns the badge image.
-         */
-        public Drawable getBadgeImage() {
-            return mBadgeDrawable;
-        }
-
-        /**
-         * Sets a title for the browse fragment.
-         */
-        public void setTitle(String title) {
-            mTitle = title;
-        }
-
-        /**
-         * Returns the title for the browse fragment.
-         */
-        public String getTitle() {
-            return mTitle;
-        }
-    }
-
-    /**
-     * Set fragment parameters.
-     * @deprecated Use methods on the fragment directly.
-     */
-    @Deprecated
-    public void setParams(Params params) {
-        mParams = params;
-        setBadgeDrawable(mParams.mBadgeDrawable);
-        setTitle(mParams.mTitle);
-    }
-
-    /**
-     * Returns fragment parameters.
-     * @deprecated Use methods on the fragment directly.
-     */
-    @Deprecated
-    public Params getParams() {
-        return mParams;
-    }
 
     /**
      * Sets the badge drawable displayed in the title area.

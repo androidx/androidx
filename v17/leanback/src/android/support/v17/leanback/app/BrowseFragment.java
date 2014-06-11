@@ -54,61 +54,6 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  */
 public class BrowseFragment extends Fragment {
 
-    @Deprecated
-    public static class Params {
-        private String mTitle;
-        private Drawable mBadgeDrawable;
-        private int mHeadersState = HEADERS_ENABLED;
-
-        /**
-         * Sets the badge image.
-         */
-        public void setBadgeImage(Drawable drawable) {
-            mBadgeDrawable = drawable;
-        }
-
-        /**
-         * Returns the badge image.
-         */
-        public Drawable getBadgeImage() {
-            return mBadgeDrawable;
-        }
-
-        /**
-         * Sets a title for the browse fragment.
-         */
-        public void setTitle(String title) {
-            mTitle = title;
-        }
-
-        /**
-         * Returns the title for the browse fragment.
-         */
-        public String getTitle() {
-            return mTitle;
-        }
-
-        /**
-         * Sets the state for the headers column in the browse fragment.
-         */
-        public void setHeadersState(int headersState) {
-            if (headersState < HEADERS_ENABLED || headersState > HEADERS_DISABLED) {
-                Log.e(TAG, "Invalid headers state: " + headersState
-                        + ", default to enabled and shown.");
-                mHeadersState = HEADERS_ENABLED;
-            } else {
-                mHeadersState = headersState;
-            }
-        }
-
-        /**
-         * Returns the state for the headers column in the browse fragment.
-         */
-        public int getHeadersState() {
-            return mHeadersState;
-        }
-    }
-
     final class BackStackListener implements FragmentManager.OnBackStackChangedListener {
         int mLastEntryCount;
         int mIndexOfHeadersBackStack;
@@ -188,9 +133,6 @@ public class BrowseFragment extends Fragment {
 
     private ObjectAdapter mAdapter;
 
-    // TODO: remove Params
-    private Params mParams;
-
     private String mTitle;
     private Drawable mBadgeDrawable;
     private int mHeadersState = HEADERS_ENABLED;
@@ -237,24 +179,6 @@ public class BrowseFragment extends Fragment {
 
     /**
      * Create arguments for a browse fragment.
-     * @deprecated Use {@link #createArgs(Bundle args, String title, int headersState)}.
-     */
-    @Deprecated
-    public static Bundle createArgs(Bundle args, String title, String badgeUri) {
-        return createArgs(args, title, HEADERS_ENABLED);
-    }
-
-    /**
-     * Create arguments for a browse fragment.
-     * @deprecated Use {@link #createArgs(Bundle args, String title, int headersState)}.
-     */
-    @Deprecated
-    public static Bundle createArgs(Bundle args, String title, String badgeUri, int headersState) {
-        return createArgs(args, title, headersState);
-    }
-
-    /**
-     * Create arguments for a browse fragment.
      *
      * @param args The Bundle to place arguments into, or null if the method
      *        should return a new Bundle.
@@ -271,27 +195,6 @@ public class BrowseFragment extends Fragment {
         args.putString(ARG_TITLE, title);
         args.putInt(ARG_HEADERS_STATE, headersState);
         return args;
-    }
-
-    /**
-     * Set browse parameters.
-     * @deprecated Call methods on the fragment directly.
-     */
-    @Deprecated
-    public void setBrowseParams(Params params) {
-        mParams = params;
-        setBadgeDrawable(params.mBadgeDrawable);
-        setTitle(params.mTitle);
-        setHeadersState(params.mHeadersState);
-    }
-
-    /**
-     * Returns browse parameters.
-     * @deprecated Call methods on the fragment directly.
-     */
-    @Deprecated
-    public Params getBrowseParams() {
-        return mParams;
     }
 
     /**
