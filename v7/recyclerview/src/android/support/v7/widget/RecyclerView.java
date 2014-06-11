@@ -79,6 +79,7 @@ public class RecyclerView extends ViewGroup {
     private static final String TAG = "RecyclerView";
 
     private static final boolean DEBUG = false;
+    private static final boolean ENABLE_PREDICTIVE_ANIMATIONS = false;
 
     private static final boolean DISPATCH_TEMP_DETACH = false;
     public static final int HORIZONTAL = 0;
@@ -1400,8 +1401,8 @@ public class RecyclerView extends ViewGroup {
         // prelayout step)
         final boolean animateChangesSimple = mItemAnimator != null && mItemsAddedOrRemoved
                 && !mItemsChanged;
-        final boolean animateChangesAdvanced = animateChangesSimple &&
-                predictiveItemAnimationsEnabled();
+        final boolean animateChangesAdvanced = ENABLE_PREDICTIVE_ANIMATIONS &&
+                animateChangesSimple && predictiveItemAnimationsEnabled();
         mItemsAddedOrRemoved = mItemsChanged = false;
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
         mState.mInPreLayout = animateChangesAdvanced;
