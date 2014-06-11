@@ -45,9 +45,8 @@ public class AnimatedRecyclerView extends Activity {
     ArrayList<String> mItems = new ArrayList<String>();
     MyAdapter mAdapter;
 
-    static final boolean USE_CUSTOM_ANIMATIONS = false;
-
     boolean mAnimationsEnabled = true;
+    boolean mPredictiveAnimationsEnabled = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +71,15 @@ public class AnimatedRecyclerView extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mAnimationsEnabled = isChecked;
+            }
+        });
+
+        CheckBox enablePredictiveAnimations =
+                (CheckBox) findViewById(R.id.enablePredictiveAnimations);
+        enablePredictiveAnimations.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPredictiveAnimationsEnabled = isChecked;
             }
         });
     }
@@ -158,8 +166,8 @@ public class AnimatedRecyclerView extends Activity {
         }
 
         @Override
-        public boolean supportsItemAnimations() {
-            return mAnimationsEnabled;
+        public boolean supportsPredictiveItemAnimations() {
+            return mPredictiveAnimationsEnabled;
         }
 
         @Override
@@ -186,44 +194,46 @@ public class AnimatedRecyclerView extends Activity {
                 View v = recycler.getViewForPosition(mFirstPosition + i);
 
                 RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) v.getLayoutParams();
-                if (!params.isItemRemoved()) {
+                if (!mPredictiveAnimationsEnabled || !params.isItemRemoved()) {
                     addView(v);
                 }
                 measureChild(v, 0, 0);
                 bottom = top + v.getMeasuredHeight();
                 v.layout(left, top, right, bottom);
-                if (params.isItemRemoved()) {
+                if (mPredictiveAnimationsEnabled && params.isItemRemoved()) {
                     parentBottom += v.getHeight();
                 }
             }
 
-            // Now that we've run a full layout, figure out which views were not used
-            // (cached in previousViews). For each of these views, position it where
-            // it would go, according to its position relative to the visible
-            // positions in the list. This information will be used by RecyclerView to
-            // record post-layout positions of these items for the purposes of animating them
-            // out of view
+            if (mAnimationsEnabled && mPredictiveAnimationsEnabled) {
+                // Now that we've run a full layout, figure out which views were not used
+                // (cached in previousViews). For each of these views, position it where
+                // it would go, according to its position relative to the visible
+                // positions in the list. This information will be used by RecyclerView to
+                // record post-layout positions of these items for the purposes of animating them
+                // out of view
 
-            View lastVisibleView = getChildAt(getChildCount() - 1);
-            if (lastVisibleView != null) {
-                RecyclerView.LayoutParams lastParams =
-                        (RecyclerView.LayoutParams) lastVisibleView.getLayoutParams();
-                int lastPosition = lastParams.getViewPosition();
-                final List<RecyclerView.ViewHolder> previousViews = recycler.getScrapList();
-                count = previousViews.size();
-                for (int i = 0; i < count; ++i) {
-                    View view = previousViews.get(i).itemView;
-                    RecyclerView.LayoutParams params =
-                            (RecyclerView.LayoutParams) view.getLayoutParams();
-                    int position = params.getViewPosition();
-                    int newTop;
-                    if (position < mFirstPosition) {
-                        newTop = view.getHeight() * (position - mFirstPosition);
-                    } else {
-                        newTop = lastVisibleView.getTop() + view.getHeight() *
-                                (position - lastPosition);
+                View lastVisibleView = getChildAt(getChildCount() - 1);
+                if (lastVisibleView != null) {
+                    RecyclerView.LayoutParams lastParams =
+                            (RecyclerView.LayoutParams) lastVisibleView.getLayoutParams();
+                    int lastPosition = lastParams.getViewPosition();
+                    final List<RecyclerView.ViewHolder> previousViews = recycler.getScrapList();
+                    count = previousViews.size();
+                    for (int i = 0; i < count; ++i) {
+                        View view = previousViews.get(i).itemView;
+                        RecyclerView.LayoutParams params =
+                                (RecyclerView.LayoutParams) view.getLayoutParams();
+                        int position = params.getViewPosition();
+                        int newTop;
+                        if (position < mFirstPosition) {
+                            newTop = view.getHeight() * (position - mFirstPosition);
+                        } else {
+                            newTop = lastVisibleView.getTop() + view.getHeight() *
+                                    (position - lastPosition);
+                        }
+                        view.offsetTopAndBottom(newTop - view.getTop());
                     }
-                    view.offsetTopAndBottom(newTop - view.getTop());
                 }
             }
         }
