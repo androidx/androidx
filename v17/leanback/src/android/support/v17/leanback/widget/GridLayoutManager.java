@@ -490,11 +490,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (view == null) {
             return NO_POSITION;
         }
-        RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(view);
-        if (vh == null) {
+        LayoutParams params = (LayoutParams) view.getLayoutParams();
+        if (params == null || params.isItemRemoved()) {
+            // when item is removed, the position value can be any value.
             return NO_POSITION;
         }
-        return vh.getPosition();
+        return params.getViewPosition();
     }
 
     private int getPositionByIndex(int index) {
@@ -1426,14 +1427,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             if (mFocusPosition != NO_POSITION
                     && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+                // FIXME: we should get the remaining scroll animation offset from RecyclerView
                 View focusView = findViewByPosition(mFocusPosition);
                 if (focusView != null) {
-                    delta = mWindowAlignment.mainAxis().getSystemScrollPos(
-                            getViewCenter(focusView) + mScrollOffsetPrimary) - mScrollOffsetPrimary;
-                    deltaSecondary =
-                        mWindowAlignment.secondAxis().getSystemScrollPos(
-                                getViewCenterSecondary(focusView) + mScrollOffsetSecondary)
-                        - mScrollOffsetSecondary;
+                    delta = mWindowAlignment.mainAxis().getSystemScrollPos(mScrollOffsetPrimary
+                            + getViewCenter(focusView), false, false) - mScrollOffsetPrimary;
+                    deltaSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(
+                            mScrollOffsetSecondary + getViewCenterSecondary(focusView),
+                            false, false) - mScrollOffsetSecondary;
                     if (mUseDeltaInPreLayout = state.isPreLayout()) {
                         mDeltaInPreLayout = delta;
                         mDeltaSecondaryInPreLayout = deltaSecondary;
@@ -1682,9 +1683,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (location != null && location.row == rowIndex) {
                 int savedMaxEdge = mWindowAlignment.mainAxis().getMaxEdge();
                 mWindowAlignment.mainAxis().setMaxEdge(maxEdge);
-                maxScroll = mWindowAlignment
-                        .mainAxis().getSystemScrollPos(mScrollOffsetPrimary
-                        + getViewCenter(findViewByPosition(i)));
+                maxScroll = getPrimarySystemScrollPosition(findViewByPosition(i));
                 mWindowAlignment.mainAxis().setMaxEdge(savedMaxEdge);
                 break;
             }
@@ -1728,9 +1727,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (location != null && location.row == rowIndex) {
                 int savedMinEdge = mWindowAlignment.mainAxis().getMinEdge();
                 mWindowAlignment.mainAxis().setMinEdge(minEdge);
-                minScroll = mWindowAlignment
-                        .mainAxis().getSystemScrollPos(mScrollOffsetPrimary
-                        + getViewCenter(findViewByPosition(i)));
+                minScroll = getPrimarySystemScrollPosition(findViewByPosition(i));
                 mWindowAlignment.mainAxis().setMinEdge(savedMinEdge);
                 break;
             }
@@ -1889,12 +1886,49 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     public void getViewSelectedOffsets(View view, int[] offsets) {
-        int scrollOffsetX = getScrollOffsetX();
-        int scrollOffsetY = getScrollOffsetY();
-        int viewCenterX = scrollOffsetX + getViewCenterX(view);
-        int viewCenterY = scrollOffsetY + getViewCenterY(view);
-        offsets[0] = mWindowAlignment.horizontal.getSystemScrollPos(viewCenterX) - scrollOffsetX;
-        offsets[1] = mWindowAlignment.vertical.getSystemScrollPos(viewCenterY) - scrollOffsetY;
+        if (mOrientation == HORIZONTAL) {
+            offsets[0] = getPrimarySystemScrollPosition(view) - mScrollOffsetPrimary;
+            offsets[1] = getSecondarySystemScrollPosition(view) - mScrollOffsetSecondary;
+        } else {
+            offsets[1] = getPrimarySystemScrollPosition(view) - mScrollOffsetPrimary;
+            offsets[0] = getSecondarySystemScrollPosition(view) - mScrollOffsetSecondary;
+        }
+    }
+
+    private int getPrimarySystemScrollPosition(View view) {
+        int viewCenterPrimary = mScrollOffsetPrimary + getViewCenter(view);
+        int pos = getPositionByView(view);
+        StaggeredGrid.Location location = mGrid.getLocation(pos);
+        final int row = location.row;
+        boolean isFirst = mFirstVisiblePos == 0;
+        // TODO: change to use State object in onRequestChildFocus()
+        boolean isLast = mLastVisiblePos == (mState == null ?
+                getItemCount() : mState.getItemCount()) - 1;
+        if (isFirst || isLast) {
+            for (int i = getChildCount() - 1; i >= 0; i--) {
+                int position = getPositionByIndex(i);
+                StaggeredGrid.Location loc = mGrid.getLocation(position);
+                if (loc != null && loc.row == row) {
+                    if (position < pos) {
+                        isFirst = false;
+                    } else if (position > pos) {
+                        isLast = false;
+                    }
+                }
+            }
+        }
+        return mWindowAlignment.mainAxis().getSystemScrollPos(viewCenterPrimary, isFirst, isLast);
+    }
+
+    private int getSecondarySystemScrollPosition(View view) {
+        int viewCenterSecondary = mScrollOffsetSecondary + getViewCenterSecondary(view);
+        int pos = getPositionByView(view);
+        StaggeredGrid.Location location = mGrid.getLocation(pos);
+        final int row = location.row;
+        boolean isFirst = row == 0;
+        boolean isLast = row == mGrid.getNumRows() - 1;
+        return mWindowAlignment.secondAxis().getSystemScrollPos(viewCenterSecondary,
+                isFirst, isLast);
     }
 
     /**
@@ -2001,9 +2035,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             secondaryAlignedView = view;
         }
-        int viewCenterSecondary = mScrollOffsetSecondary +
-                getViewCenterSecondary(secondaryAlignedView);
-        scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(viewCenterSecondary);
+        scrollSecondary = getSecondarySystemScrollPosition(secondaryAlignedView);
         scrollSecondary -= mScrollOffsetSecondary;
         if (scrollPrimary != 0 || scrollSecondary != 0) {
             deltas[0] = scrollPrimary;
@@ -2014,11 +2046,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private boolean getAlignedPosition(View view, int[] deltas) {
-        int viewCenterPrimary = mScrollOffsetPrimary + getViewCenter(view);
-        int viewCenterSecondary = mScrollOffsetSecondary + getViewCenterSecondary(view);
-
-        int scrollPrimary = mWindowAlignment.mainAxis().getSystemScrollPos(viewCenterPrimary);
-        int scrollSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(viewCenterSecondary);
+        int scrollPrimary = getPrimarySystemScrollPosition(view);
+        int scrollSecondary = getSecondarySystemScrollPosition(view);
         if (DEBUG) {
             Log.v(getTag(), "getAlignedPosition " + scrollPrimary + " " + scrollSecondary
                     +" " + mWindowAlignment);
