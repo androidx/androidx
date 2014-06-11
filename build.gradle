@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-ext.supportVersion = '19.2.0'
+ext.supportVersion = '20.0.0'
 ext.extraVersion = 6
 ext.supportRepoOut = ''
 
