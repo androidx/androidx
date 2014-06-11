@@ -23,6 +23,7 @@ import java.util.Locale;
 /**
  * Set of common heuristics for selecting {@link VoiceInfo} from
  * {@link TextToSpeechClient#getEngineStatus()} output.
+ * @hide
  */
 public final class RequestConfigHelper {
     private RequestConfigHelper() {}

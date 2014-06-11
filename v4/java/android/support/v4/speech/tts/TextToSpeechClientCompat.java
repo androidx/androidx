@@ -25,6 +25,7 @@ import android.support.v4.speech.tts.TextToSpeechClient.RequestCallbacks;
 /**
  * Helper for accessing features in {@link android.speech.tts.TextToSpeechClient}
  * introduced in API level 20 in a backwards compatible fashion.
+ * @hide
  */
 public class TextToSpeechClientCompat {
     /**

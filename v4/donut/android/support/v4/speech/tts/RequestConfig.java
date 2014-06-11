@@ -24,6 +24,7 @@ import android.os.Bundle;
  *
  * This class is immutable, and can only be constructed using
  * {@link RequestConfig.Builder}.
+ * @hide
  */
 public final class RequestConfig {
 
