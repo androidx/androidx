@@ -1385,7 +1385,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public boolean supportsItemAnimations() {
+    public boolean supportsPredictiveItemAnimations() {
         return mAnimateChildLayout;
     }
 

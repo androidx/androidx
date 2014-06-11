@@ -151,6 +151,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                     public void onAnimationCancel(View view) {
                         ViewCompat.setAlpha(view, 1);
                     }
+
                     @Override
                     public void onAnimationEnd(View view) {
                         dispatchAddFinished(holder);
