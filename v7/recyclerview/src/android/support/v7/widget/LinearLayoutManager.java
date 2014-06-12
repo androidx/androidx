@@ -171,8 +171,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                         mOrientationHelper.getStartAfterPadding();
             }
         } else {
-            state.mAnchorPosition = 0;
-            state.mAnchorOffset = 0;
+            state.invalidateAnchor();
         }
         state.mStackFromEnd = mStackFromEnd;
         state.mReverseLayout = mReverseLayout;
@@ -395,7 +394,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             setOrientation(mPendingSavedState.mOrientation);
             setReverseLayout(mPendingSavedState.mReverseLayout);
             setStackFromEnd(mPendingSavedState.mStackFromEnd);
-            mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
+            if (mPendingSavedState.hasValidAnchor()) {
+                mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
+            }
         }
 
         ensureRenderState();
@@ -423,7 +424,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             // if child is visible, try to make it a reference child and ensure it is fully visible.
             // if child is not visible, align it depending on its virtual position.
             anchorItemPosition = mPendingScrollPosition;
-            if (mPendingSavedState != null) {
+            if (mPendingSavedState != null && mPendingSavedState.hasValidAnchor()) {
                 // Anchor offset depends on how that child was laid out. Here, we update it
                 // according to our current view bounds
                 layoutFromEnd = mPendingSavedState.mAnchorLayoutFromEnd;
@@ -712,6 +713,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     public void scrollToPosition(int position) {
         mPendingScrollPosition = position;
         mPendingScrollPositionOffset = INVALID_OFFSET;
+        if (mPendingSavedState != null) {
+            mPendingSavedState.invalidateAnchor();
+        }
         requestLayout();
     }
 
@@ -732,6 +736,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     public void scrollToPositionWithOffset(int position, int offset) {
         mPendingScrollPosition = position;
         mPendingScrollPositionOffset = offset;
+        if (mPendingSavedState != null) {
+            mPendingSavedState.invalidateAnchor();
+        }
         requestLayout();
     }
 
@@ -1713,6 +1720,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mReverseLayout = other.mReverseLayout;
             mStackFromEnd = other.mStackFromEnd;
             mAnchorLayoutFromEnd = other.mAnchorLayoutFromEnd;
+        }
+
+        boolean hasValidAnchor() {
+            return mAnchorPosition >= 0;
+        }
+
+        void invalidateAnchor() {
+            mAnchorPosition = RecyclerView.NO_POSITION;
         }
 
         @Override
