@@ -331,13 +331,7 @@ public final class BackgroundManager {
         return new BackgroundManager(activity);
     }
 
-    /**
-     * Construct a BackgroundManager instance. The Initial background is set
-     * from the continuity service.
-     * @deprecated Use getInstance(Activity).
-     */
-    @Deprecated
-    public BackgroundManager(Activity activity) {
+    private BackgroundManager(Activity activity) {
         mContext = activity;
         mService = BackgroundContinuityService.getInstance();
         mHeightPx = mContext.getResources().getDisplayMetrics().heightPixels;
