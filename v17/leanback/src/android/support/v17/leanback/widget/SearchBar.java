@@ -47,9 +47,7 @@ import android.support.v17.leanback.R;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>SearchBar is a search widget.</p>
@@ -117,6 +115,8 @@ public class SearchBar extends RelativeLayout {
     private boolean mListening;
     private SoundPool mSoundPool;
     private SparseIntArray mSoundMap = new SparseIntArray();
+    private boolean mRecognizing = false;
+    private final Context mContext;
 
     public SearchBar(Context context) {
         this(context, null);
@@ -128,6 +128,7 @@ public class SearchBar extends RelativeLayout {
 
     public SearchBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mContext = context;
         enforceAudioRecordPermission();
 
         Resources r = getResources();
@@ -153,8 +154,6 @@ public class SearchBar extends RelativeLayout {
         mTextColor = r.getColor(R.color.lb_search_bar_text_color);
         mBackgroundAlpha = r.getInteger(R.integer.lb_search_bar_text_mode_background_alpha);
 
-        mSoundPool = new SoundPool(8, AudioManager.STREAM_SYSTEM, 0);
-        loadSounds(context);
     }
 
     @Override
@@ -259,7 +258,7 @@ public class SearchBar extends RelativeLayout {
         mSpeechOrbView.setOnOrbClickedListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                startRecognition();
+                toggleRecognition();
             }
         });
         mSpeechOrbView.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -293,6 +292,10 @@ public class SearchBar extends RelativeLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        if (DEBUG) Log.v(TAG, "Loading soundPool");
+        mSoundPool = new SoundPool(2, AudioManager.STREAM_SYSTEM, 0);
+        loadSounds(mContext);
+
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -300,6 +303,14 @@ public class SearchBar extends RelativeLayout {
                 mSearchTextEditor.requestFocusFromTouch();
             }
         });
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (DEBUG) Log.v(TAG, "Releasing SoundPool");
+        mSoundPool.release();
+
+        super.onDetachedFromWindow();
     }
 
     /**
@@ -436,8 +447,18 @@ public class SearchBar extends RelativeLayout {
         mSearchTextEditor.setHint(title);
     }
 
+    private void toggleRecognition() {
+        if (mRecognizing) {
+            stopRecognition();
+        } else {
+            startRecognition();
+        }
+    }
+
     private void stopRecognition() {
         if (null == mSpeechRecognizer) return;
+        if (!mRecognizing) return;
+        mRecognizing = false;
 
         if (DEBUG) Log.v(TAG, "stopRecognition " + mListening);
         mSpeechOrbView.showNotListening();
@@ -449,6 +470,8 @@ public class SearchBar extends RelativeLayout {
 
     private void startRecognition() {
         if (null == mSpeechRecognizer) return;
+        if (mRecognizing) return;
+        mRecognizing = true;
 
         if (DEBUG) Log.v(TAG, "startRecognition " + mListening);
 
@@ -585,7 +608,7 @@ public class SearchBar extends RelativeLayout {
         String permission = "android.permission.RECORD_AUDIO";
         int res = getContext().checkCallingOrSelfPermission(permission);
         if (PackageManager.PERMISSION_GRANTED != res) {
-            throw new IllegalStateException("android.premission.RECORD_AUDIO required for search");
+            throw new IllegalStateException("android.permission.RECORD_AUDIO required for search");
         }
     }
 
