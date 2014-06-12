@@ -407,7 +407,7 @@ final class ColorCutQuantizer {
     }
 
     private static boolean shouldIgnoreColor(float[] hslColor) {
-        return isWhite(hslColor) || isBlack(hslColor) || isSkinTone(hslColor);
+        return isWhite(hslColor) || isBlack(hslColor) || isNearRedILine(hslColor);
     }
 
     /**
@@ -425,9 +425,9 @@ final class ColorCutQuantizer {
     }
 
     /**
-     * @return true if the color represents a skin tone.
+     * @return true if the color lies close to the red side of the I line.
      */
-    private static boolean isSkinTone(float[] hslColor) {
+    private static boolean isNearRedILine(float[] hslColor) {
         return hslColor[0] >= 10f && hslColor[0] <= 37f && hslColor[1] <= 0.82f;
     }
 
