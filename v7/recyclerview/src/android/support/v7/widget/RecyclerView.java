@@ -981,7 +981,7 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public void requestChildFocus(View child, View focused) {
-        if (!mLayout.onRequestChildFocus(this, child, focused)) {
+        if (!mLayout.onRequestChildFocus(this, mState, child, focused)) {
             mTempRect.set(0, 0, focused.getWidth(), focused.getHeight());
             offsetDescendantRectToMyCoords(focused, mTempRect);
             offsetRectIntoDescendantCoords(child, mTempRect);
@@ -4293,6 +4293,14 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * @deprecated Use {@link #onRequestChildFocus(RecyclerView, State, View, View)}
+         */
+        @Deprecated
+        public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
+            return false;
+        }
+
+        /**
          * Called when a descendant view of the RecyclerView requests focus.
          *
          * <p>A LayoutManager wishing to keep focused views aligned in a specific
@@ -4302,13 +4310,15 @@ public class RecyclerView extends ViewGroup {
          * behavior of scrolling the focused child on screen instead of running alongside it,
          * this method should return true.</p>
          *
-         * @param parent The RecyclerView hosting this LayoutManager
-         * @param child Direct child of the RecyclerView containing the newly focused view
+         * @param parent  The RecyclerView hosting this LayoutManager
+         * @param state   Current state of RecyclerView
+         * @param child   Direct child of the RecyclerView containing the newly focused view
          * @param focused The newly focused view. This may be the same view as child
          * @return true if the default scroll behavior should be suppressed
          */
-        public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
-            return false;
+        public boolean onRequestChildFocus(RecyclerView parent, State state, View child,
+                View focused) {
+            return onRequestChildFocus(parent, child, focused);
         }
 
         /**
