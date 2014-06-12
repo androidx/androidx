@@ -24,6 +24,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/**
+ * A card view with an {@link ImageView} as its main region.
+ */
 public class ImageCardView extends BaseCardView {
 
     private ImageView mImageView;

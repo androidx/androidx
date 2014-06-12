@@ -42,8 +42,15 @@ import android.graphics.drawable.Drawable;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
- * Wrapper fragment for leanback browse screens. Composed of a
+ * A fragment for creating Leanback browse screens. It is composed of a
  * RowsFragment and a HeadersFragment.
+ * <p>
+ * A BrowseFragment renders the elements of its {@link ObjectAdapter} as a set
+ * of rows in a vertical list. The elements in this adapter must be subclasses
+ * of {@link Row}.
+ * <p>
+ * The HeadersFragment can be set to be either shown or hidden by default, or
+ * may be disabled entirely. See {@link #setHeadersState} for details.
  * <p>
  * By default the BrowseFragment includes support for returning to the headers
  * when the user presses Back. For Activities that customize {@link
