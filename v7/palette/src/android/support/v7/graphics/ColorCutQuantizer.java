@@ -46,8 +46,8 @@ final class ColorCutQuantizer {
 
     private final float[] mTempHsl = new float[3];
 
-    private static final int BLACK_FILTER = 22;
-    private static final int WHITE_FILTER = 237;
+    private static final float BLACK_MAX_LIGHTNESS = 0.05f;
+    private static final float WHITE_MIN_LIGHTNESS = 0.95f;
 
     private static final int COMPONENT_RED = -3;
     private static final int COMPONENT_GREEN = -2;
@@ -397,36 +397,43 @@ final class ColorCutQuantizer {
         }
     }
 
-    private boolean shouldIgnoreColor(PaletteItem color) {
-        return isWhite(color.getRgb()) || isBlack(color.getRgb()) || isSkinTone(color.getRgb());
+    private boolean shouldIgnoreColor(int color) {
+        ColorUtils.RGBtoHSL(Color.red(color), Color.green(color), Color.blue(color), mTempHsl);
+        return shouldIgnoreColor(mTempHsl);
     }
 
-    private boolean shouldIgnoreColor(int color) {
-        return isWhite(color) || isBlack(color) || isSkinTone(color);
+    private static boolean shouldIgnoreColor(PaletteItem color) {
+        return shouldIgnoreColor(color.getHsl());
+    }
+
+    private static boolean shouldIgnoreColor(float[] hslColor) {
+        return isWhite(hslColor) || isBlack(hslColor) || isSkinTone(hslColor);
     }
 
     /**
      * @return true if the color represents a color which is close to black.
      */
-    private boolean isBlack(int color) {
-        return ((Color.red(color) + Color.green(color) + Color.blue(color)) / 3f) <= BLACK_FILTER;
+    private static boolean isBlack(float[] hslColor) {
+        return hslColor[2] <= BLACK_MAX_LIGHTNESS;
     }
 
     /**
      * @return true if the color represents a color which is close to white.
      */
-    private boolean isWhite(int color) {
-        return ((Color.red(color) + Color.green(color) + Color.blue(color)) / 3f) >= WHITE_FILTER;
+    private static boolean isWhite(float[] hslColor) {
+        return hslColor[2] >= WHITE_MIN_LIGHTNESS;
     }
 
     /**
      * @return true if the color represents a skin tone.
      */
-    private boolean isSkinTone(int color) {
-        ColorUtils.RGBtoHSL(Color.red(color), Color.green(color), Color.blue(color), mTempHsl);
-        return mTempHsl[0] >= 10f && mTempHsl[0] <= 37f && mTempHsl[1] <= 0.82f;
+    private static boolean isSkinTone(float[] hslColor) {
+        return hslColor[0] >= 10f && hslColor[0] <= 37f && hslColor[1] <= 0.82f;
     }
 
+    /**
+     * Comparator which sorts {@link Vbox} instances based on their volume, in descending order
+     */
     private static final Comparator<Vbox> VBOX_COMPARATOR_VOLUME = new Comparator<Vbox>() {
         @Override
         public int compare(Vbox lhs, Vbox rhs) {
