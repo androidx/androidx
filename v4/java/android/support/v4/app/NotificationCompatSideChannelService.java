@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -41,9 +42,17 @@ import android.os.RemoteException;
  *
  */
 public abstract class NotificationCompatSideChannelService extends Service {
+    // In support lib, we cannot reference version codes >= 4 from android.os.Build.
+    private static final int BUILD_VERSION_CODE_KITKAT_WATCH = 20;
+
     @Override
     public IBinder onBind(Intent intent) {
         if (intent.getAction().equals(NotificationManagerCompat.ACTION_BIND_SIDE_CHANNEL)) {
+            // Group support is the only current reason to use side channel,
+            // so disallow clients to bind for side channel on devices past KITKAT_WATCH for now.
+            if (Build.VERSION.SDK_INT >= BUILD_VERSION_CODE_KITKAT_WATCH) {
+                return null;
+            }
             return new NotificationSideChannelStub();
         }
         return null;
