@@ -18,7 +18,7 @@ import android.support.v17.leanback.database.CursorMapper;
 import android.util.LruCache;
 
 /**
- * Adapter implemented with a {@link Cursor}.
+ * An ObjectAdapter implemented with a {@link Cursor}.
  */
 public class CursorObjectAdapter extends ObjectAdapter {
     private static final int CACHE_SIZE = 100;
@@ -26,21 +26,31 @@ public class CursorObjectAdapter extends ObjectAdapter {
     private CursorMapper mMapper;
     private final LruCache<Integer, Object> mItemCache = new LruCache<Integer, Object>(CACHE_SIZE);
 
+    /**
+     * Construct an adapter with the given {@link PresenterSelector}.
+     */
     public CursorObjectAdapter(PresenterSelector presenterSelector) {
         super(presenterSelector);
     }
 
+    /**
+     * Construct an adapter that uses the given {@link Presenter} for all items.
+     */
     public CursorObjectAdapter(Presenter presenter) {
         super(presenter);
     }
 
+    /**
+     * Construct an adapter.
+     */
     public CursorObjectAdapter() {
         super();
     }
 
     /**
      * Change the underlying cursor to a new cursor. If there is
-     * an existing cursor it will be closed.
+     * an existing cursor it will be closed if it is different than the new
+     * cursor.
      *
      * @param cursor The new cursor to be used.
      */

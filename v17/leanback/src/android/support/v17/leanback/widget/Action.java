@@ -29,18 +29,44 @@ public class Action {
     private CharSequence mLabel1;
     private CharSequence mLabel2;
 
+    /**
+     * Constructor for an Action.
+     *
+     * @param id The id of the Action.
+     */
     public Action(long id) {
         this(id, "");
     }
 
+    /**
+     * Constructor for an Action.
+     *
+     * @param id The id of the Action.
+     * @param label The label to display for the Action.
+     */
     public Action(long id, CharSequence label) {
         this(id, label, null);
     }
 
+    /**
+     * Constructor for an Action.
+     *
+     * @param id The id of the Action.
+     * @param label1 The label to display on the first line of the Action.
+     * @param label2 The label to display on the second line of the Action.
+     */
     public Action(long id, CharSequence label1, CharSequence label2) {
         this(id, label1, label2, null);
     }
 
+    /**
+     * Constructor for an Action.
+     *
+     * @param id The id of the Action.
+     * @param label1 The label to display on the first line of the Action.
+     * @param label2 The label to display on the second line of the Action.
+     * @param icon The icon to display for the Action.
+     */
     public Action(long id, CharSequence label1, CharSequence label2, Drawable icon) {
         setId(id);
         setLabel1(label1);
@@ -49,56 +75,56 @@ public class Action {
     }
 
     /**
-     * Set id for this action.
+     * Set id for this Action.
      */
     public final void setId(long id) {
         mId = id;
     }
 
     /**
-     * Returns the id for this action.
+     * Returns the id for this Action.
      */
     public final long getId() {
         return mId;
     }
 
     /**
-     * Set the first line label for this action.
+     * Set the first line label for this Action.
      */
     public final void setLabel1(CharSequence label) {
         mLabel1 = label;
     }
 
     /**
-     * Returns the first line label for this action.
+     * Returns the first line label for this Action.
      */
     public final CharSequence getLabel1() {
         return mLabel1;
     }
 
     /**
-     * Set the second line label for this action.
+     * Set the second line label for this Action.
      */
     public final void setLabel2(CharSequence label) {
         mLabel2 = label;
     }
 
     /**
-     * Returns the second line label for this action.
+     * Returns the second line label for this Action.
      */
     public final CharSequence getLabel2() {
         return mLabel2;
     }
 
     /**
-     * Set the icon drawable for this action.
+     * Set the icon drawable for this Action.
      */
     public final void setIcon(Drawable icon) {
         mIcon = icon;
     }
 
     /**
-     * Returns the icon drawable for this action.
+     * Returns the icon drawable for this Action.
      */
     public final Drawable getIcon() {
         return mIcon;
