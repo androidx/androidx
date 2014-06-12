@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -30,6 +31,8 @@ class BrowseFrameLayout extends FrameLayout {
     }
 
     public interface OnChildFocusListener {
+        public boolean onRequestFocusInDescendants(int direction,
+                Rect previouslyFocusedRect);
         public void onRequestChildFocus(View child, View focused);
     }
 
@@ -54,6 +57,16 @@ class BrowseFrameLayout extends FrameLayout {
 
     public void setOnChildFocusListener(OnChildFocusListener listener) {
         mOnChildFocusListener = listener;
+    }
+
+    @Override
+    protected boolean onRequestFocusInDescendants(int direction,
+            Rect previouslyFocusedRect) {
+        if (mOnChildFocusListener != null) {
+            return mOnChildFocusListener.onRequestFocusInDescendants(direction,
+                    previouslyFocusedRect);
+        }
+        return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
     }
 
     @Override

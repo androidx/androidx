@@ -37,8 +37,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
@@ -452,6 +452,21 @@ public class BrowseFragment extends Fragment {
 
     private final BrowseFrameLayout.OnChildFocusListener mOnChildFocusListener =
             new BrowseFrameLayout.OnChildFocusListener() {
+
+        @Override
+        public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+            // Make sure not changing focus when requestFocus() is called.
+            if (mCanShowHeaders && mShowingHeaders) {
+                if (mHeadersFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
+                    return true;
+                }
+            }
+            if (mRowsFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
+                return true;
+            }
+            return mTitleView.requestFocus(direction, previouslyFocusedRect);
+        };
+
         @Override
         public void onRequestChildFocus(View child, View focused) {
             int childId = child.getId();
