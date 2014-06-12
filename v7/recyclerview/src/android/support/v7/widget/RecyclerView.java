@@ -1399,7 +1399,7 @@ public class RecyclerView extends ViewGroup {
 
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
-        final boolean animateChangesSimple = mItemAnimator != null && mItemsAddedOrRemoved
+        boolean animateChangesSimple = mItemAnimator != null && mItemsAddedOrRemoved
                 && !mItemsChanged;
         final boolean animateChangesAdvanced = ENABLE_PREDICTIVE_ANIMATIONS &&
                 animateChangesSimple && predictiveItemAnimationsEnabled();
@@ -1462,6 +1462,9 @@ public class RecyclerView extends ViewGroup {
 
         mState.mStructureChanged = false;
         mPendingSavedState = null;
+
+        // onLayoutChildren may have caused client code to disable item animations; re-check
+        animateChangesSimple = animateChangesSimple && mItemAnimator != null;
 
         if (animateChangesSimple) {
             // Step 3: Find out where things are now, post-layout
