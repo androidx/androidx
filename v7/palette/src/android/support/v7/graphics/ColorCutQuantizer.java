@@ -398,11 +398,11 @@ final class ColorCutQuantizer {
     }
 
     private boolean shouldIgnoreColor(PaletteItem color) {
-        return isWhite(color.getRgb()) || isBlack(color.getRgb()) || isSkinTone(color.getRgb());
+        return isWhite(color.getRgb()) || isBlack(color.getRgb()) || isNearRedILine(color.getRgb());
     }
 
     private boolean shouldIgnoreColor(int color) {
-        return isWhite(color) || isBlack(color) || isSkinTone(color);
+        return isWhite(color) || isBlack(color) || isNearRedILine(color);
     }
 
     /**
@@ -420,9 +420,9 @@ final class ColorCutQuantizer {
     }
 
     /**
-     * @return true if the color represents a skin tone.
+     * @return true if the color lies close to the red side of the I line.
      */
-    private boolean isSkinTone(int color) {
+    private boolean isNearRedILine(int color) {
         ColorUtils.RGBtoHSL(Color.red(color), Color.green(color), Color.blue(color), mTempHsl);
         return mTempHsl[0] >= 10f && mTempHsl[0] <= 37f && mTempHsl[1] <= 0.82f;
     }
