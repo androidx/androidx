@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 /** Simple bridge to the actual TTS V2 implementation. */
-class TTSImplementationV2 implements ITextToSpeechClient {
+class TTSImplementationV2 implements TTSImplementation {
     private static final String TAG = "android.support.v4.speech.tts";
 
     interface TextToSpeechClientConstructor {

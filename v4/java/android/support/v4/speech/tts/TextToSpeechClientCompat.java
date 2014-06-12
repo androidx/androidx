@@ -51,7 +51,7 @@ public class TextToSpeechClientCompat {
             String engine, boolean fallbackToDefaultEngine,
             RequestCallbacks defaultRequestCallbacks,
             ConnectionCallbacks connectionCallbacks) {
-        ITextToSpeechClient implementation;
+        TTSImplementation implementation;
         if (Build.VERSION.CODENAME.equals("L")) {
             implementation = new TTSImplementationV2();
         } else {

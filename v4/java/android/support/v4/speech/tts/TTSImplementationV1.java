@@ -42,7 +42,7 @@ import java.util.Set;
 /**
  * Implementation of the TTS V2 API using V1 API.
  */
-class TTSImplementationV1 implements ITextToSpeechClient {
+class TTSImplementationV1 implements TTSImplementation {
     private static final String TAG = "android.support.v4.speech.tts";
     private TextToSpeech mOldClient;
     private Context mContext;

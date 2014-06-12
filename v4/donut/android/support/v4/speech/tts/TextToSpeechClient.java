@@ -365,9 +365,9 @@ public class TextToSpeechClient {
         }
     }
 
-    private final ITextToSpeechClient mImplementation;
+    private final TTSImplementation mImplementation;
 
-    TextToSpeechClient(ITextToSpeechClient implementation,
+    TextToSpeechClient(TTSImplementation implementation,
             Context context, String engine, boolean fallbackToDefaultEngine,
             RequestCallbacks defaultRequestCallbacks,
             ConnectionCallbacks connectionCallbacks) {

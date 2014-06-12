@@ -25,7 +25,7 @@ import android.support.v4.speech.tts.TextToSpeechClient.UtteranceId;
 
 import java.io.File;
 
-interface ITextToSpeechClient {
+interface TTSImplementation {
   public void setup(Context context, String engine, boolean fallbackToDefaultEngine,
       RequestCallbacks defaultRequestCallbacks, ConnectionCallbacks connectionCallbacks);
   public void connect();
