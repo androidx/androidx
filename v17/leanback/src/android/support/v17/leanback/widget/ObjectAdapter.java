@@ -21,6 +21,7 @@ import android.database.Observable;
  */
 public abstract class ObjectAdapter {
 
+    /** Indicates that an id has not been set. */
     public static final int NO_ID = -1;
 
     /**
@@ -31,7 +32,7 @@ public abstract class ObjectAdapter {
     public static abstract class DataObserver {
         /**
          * Called whenever the ObjectAdapter's data has changed in some manner
-         * outside of the set of changes covered by the other range based change
+         * outside of the set of changes covered by the other range-based change
          * notification methods.
          */
         public void onChanged() {
@@ -148,7 +149,7 @@ public abstract class ObjectAdapter {
     }
 
     /**
-     * Returns the presenter selector;
+     * Returns the presenter selector for this ObjectAdapter.
      */
     public final PresenterSelector getPresenterSelector() {
         return mPresenterSelector;
@@ -169,7 +170,7 @@ public abstract class ObjectAdapter {
     }
 
     /**
-     * Unregister all DataObservers for this ObservableList.
+     * Unregister all DataObservers for this ObjectAdapter.
      */
     public final void unregisterAllObservers() {
         mObservable.unregisterAll();
@@ -193,8 +194,8 @@ public abstract class ObjectAdapter {
 
     /**
      * Indicates whether the item ids are stable across changes to the
-     * underlying data.  When this is true, client of Adapter can use
-     * {@link #getId(int)} to correlate objects across changes.
+     * underlying data.  When this is true, clients of the ObjectAdapter can use
+     * {@link #getId(int)} to correlate Objects across changes.
      */
     public final boolean hasStableIds() {
         return mHasStableIds;
