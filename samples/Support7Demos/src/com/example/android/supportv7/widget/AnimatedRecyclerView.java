@@ -286,7 +286,7 @@ public class AnimatedRecyclerView extends Activity {
                     final int scrollBy = -Math.min(dy - scrolled, hangingBottom);
                     scrolled -= scrollBy;
                     offsetChildrenVertical(scrollBy);
-                    if (scrolled < dy && getItemCount() > mFirstPosition + getChildCount()) {
+                    if (scrolled < dy && state.getItemCount() > mFirstPosition + getChildCount()) {
                         View v = recycler.getViewForPosition(mFirstPosition + getChildCount());
                         final int top = getChildAt(getChildCount() - 1).getBottom();
                         addView(v);
@@ -332,7 +332,7 @@ public class AnimatedRecyclerView extends Activity {
                 }
             }
             if (direction == View.FOCUS_DOWN || direction == View.FOCUS_FORWARD) {
-                while (mFirstPosition + getChildCount() < getItemCount() &&
+                while (mFirstPosition + getChildCount() < state.getItemCount() &&
                         newViewsHeight < mScrollDistance) {
                     View v = recycler.getViewForPosition(mFirstPosition + getChildCount());
                     final int top = getChildAt(getChildCount() - 1).getBottom();
