@@ -28,9 +28,9 @@ import android.widget.ImageView;
 import java.util.Collection;
 
 /**
- * DetailsOverviewRowPresenter renders {@link DetailsOverviewRow} to display an
+ * A DetailsOverviewRowPresenter renders a {@link DetailsOverviewRow} to display an
  * overview of an item. Typically this row will be the first row in a fragment
- * such as {@link android.support.v17.leanback.app.DetailsFragment
+ * such as the {@link android.support.v17.leanback.app.DetailsFragment
  * DetailsFragment}.
  *
  * <p>The detailed description is rendered using a {@link Presenter}.
@@ -42,6 +42,9 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
     private static final int MORE_ACTIONS_FADE_MS = 100;
 
+    /**
+     * A ViewHolder for the DetailsOverviewRow.
+     */
     public static class ViewHolder extends RowPresenter.ViewHolder {
         final ImageView mImageView;
         final FrameLayout mDetailsDescriptionFrame;
@@ -120,6 +123,12 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             }
         }
 
+        /**
+         * Constructor for the ViewHolder.
+         *
+         * @param rootView The root View that this view holder will be attached
+         *        to.
+         */
         public ViewHolder(View rootView) {
             super(rootView);
             mImageView = (ImageView) rootView.findViewById(R.id.details_overview_image);
@@ -144,8 +153,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     private boolean mIsStyleLarge = true;
 
     /**
-     * Constructor that uses the given {@link Presenter} to render the detailed
-     * description for the row.
+     * Constructor for a DetailsOverviewRowPresenter.
+     *
+     * @param detailsPresenter The {@link Presenter} used to render the detailed
+     *        description of the row.
      */
     public DetailsOverviewRowPresenter(Presenter detailsPresenter) {
         setHeaderPresenter(null);
@@ -156,21 +167,21 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Sets the listener for action click events.
+     * Sets the listener for Action click events.
      */
     public void setOnActionClickedListener(OnActionClickedListener listener) {
         mActionPresenterSelector.setOnActionClickedListener(listener);
     }
 
     /**
-     * Gets the listener for action click events.
+     * Gets the listener for Action click events.
      */
     public OnActionClickedListener getOnActionClickedListener() {
         return mActionPresenterSelector.getOnActionClickedListener();
     }
 
     /**
-     * Sets the background color.  If not set a default from the theme will be used.
+     * Sets the background color.  If not set, a default from the theme will be used.
      */
     public void setBackgroundColor(int color) {
         mBackgroundColor = color;
@@ -178,15 +189,16 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Returns the background color.  If no background color was set, returns transparent.
+     * Returns the background color.  If no background color was set, transparent
+     * is returned.
      */
     public int getBackgroundColor() {
         return mBackgroundColor;
     }
 
     /**
-     * Sets the layout style to be large or small.
-     * The default is large.
+     * Sets the layout style to be large or small. This affects the height of
+     * the overview, including the text description. The default is large.
      */
     public void setStyleLarge(boolean large) {
         mIsStyleLarge = large;
