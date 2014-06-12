@@ -17,20 +17,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Adapter implemented with an {@link ArrayList}.
+ * An ObjectAdapter implemented with an {@link ArrayList}.
  */
 public class ArrayObjectAdapter extends ObjectAdapter {
 
     private ArrayList<Object> mItems = new ArrayList<Object>();
 
+    /**
+     * Construct an adapter with the given {@link PresenterSelector}.
+     */
     public ArrayObjectAdapter(PresenterSelector presenterSelector) {
         super(presenterSelector);
     }
 
+    /**
+     * Construct an adapter that uses the given {@link Presenter} for all items.
+     */
     public ArrayObjectAdapter(Presenter presenter) {
         super(presenter);
     }
 
+    /**
+     * Construct an adapter.
+     */
     public ArrayObjectAdapter() {
         super();
     }
@@ -46,38 +55,42 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     }
 
     /**
-     * Search first occurrence of item in the list; return -1 if not found.
-     * @param item  The item to search in the list.
-     * @return First occurrence of item in the list or -1 if not found.
+     * Returns the index for the first occurrence of item in the adapter, or -1 if
+     * not found.
+     *
+     * @param item  The item to find in the list.
+     * @return Index of the first occurrence of the item in the adapter, or -1
+     *         if not found.
      */
     public int indexOf(Object item) {
         return mItems.indexOf(item);
     }
 
     /**
-     * Notify content of range of items changed.  Note that this is not same
-     * as add or remove items.
+     * Notify that the content of a range of items changed. Note that this is
+     * not same as items being added or removed.
+     *
      * @param positionStart The position of first item that has changed.
-     * @param itemCount The count of how many items has changed.
+     * @param itemCount The count of how many items have changed.
      */
     public void notifyArrayItemRangeChanged(int positionStart, int itemCount) {
         notifyItemRangeChanged(positionStart, itemCount);
     }
 
     /**
-     * Adds an item to the end of the list.
+     * Adds an item to the end of the adapter.
      *
-     * @param item The item to add to the end of the list.
+     * @param item The item to add to the end of the adapter.
      */
     public void add(Object item) {
         add(mItems.size(), item);
     }
 
     /**
-     * Inserts an item into this list at the specified index.
+     * Inserts an item into this adapter at the specified index.
      *
      * @param index The index at which the item should be inserted.
-     * @param item The item to insert into the list.
+     * @param item The item to insert into the adapter.
      */
     public void add(int index, Object item) {
         mItems.add(index, item);
@@ -85,7 +98,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     }
 
     /**
-     * Adds the objects in the given collection to the list, starting at the
+     * Adds the objects in the given collection to the adapter, starting at the
      * given index.
      *
      * @param index The index at which the items should be inserted.
@@ -98,10 +111,10 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     }
 
     /**
-     * Removes the first occurrence of the given item from the list.
+     * Removes the first occurrence of the given item from the adapter.
      *
-     * @param item The item to remove from the list.
-     * @return True if the item was found and thus removed from the list.
+     * @param item The item to remove from the adapter.
+     * @return True if the item was found and thus removed from the adapter.
      */
     public boolean remove(Object item) {
         int index = mItems.indexOf(item);
@@ -113,7 +126,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     }
 
     /**
-     * Removes a range of items from the list. The range is specified by giving
+     * Removes a range of items from the adapter. The range is specified by giving
      * the starting position and the number of elements to remove.
      *
      * @param position The index of the first item to remove.
@@ -131,7 +144,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     }
 
     /**
-     * Removes all items from this list, leaving it empty.
+     * Removes all items from this adapter, leaving it empty.
      */
     public void clear() {
         int itemCount = mItems.size();
