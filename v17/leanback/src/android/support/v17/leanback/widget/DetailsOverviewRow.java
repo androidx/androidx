@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The overview row for a details fragment. This row consists of an image, a
- * description view, and optionally a series of actions that can be taken for
+ * An overview row for a details fragment. This row consists of an image, a
+ * description view, and optionally a series of {@link Action}s that can be taken for
  * the item.
  */
 public class DetailsOverviewRow extends Row {
@@ -34,7 +34,7 @@ public class DetailsOverviewRow extends Row {
     private ArrayList<Action> mActions = new ArrayList<Action>();
 
     /**
-     * Constructor.
+     * Constructor for a DetailsOverviewRow.
      *
      * @param item The main item for the details page.
      */
@@ -81,38 +81,38 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Add an action to the overview.
+     * Add an Action to the overview.
      *
-     * @param action The action to add.
+     * @param action The Action to add.
      */
     public final void addAction(Action action) {
         mActions.add(action);
     }
 
     /**
-     * Add an action to the overview at the specified position.
+     * Add an Action to the overview at the specified position.
      *
-     * @param pos The position to insert the action.
-     * @param action The action to add.
+     * @param pos The position to insert the Action.
+     * @param action The Action to add.
      */
     public final void addAction(int pos, Action action) {
         mActions.add(pos, action);
     }
 
     /**
-     * Remove the given action from the overview.
+     * Remove the given Action from the overview.
      *
-     * @param action The action to remove.
-     * @return true if the overview contained the specified action.
+     * @param action The Action to remove.
+     * @return true if the overview contained the specified Action.
      */
     public final boolean removeAction(Action action) {
         return mActions.remove(action);
     }
 
     /**
-     * Gets a read-only view of the list of actions of this details overview.
+     * Gets a read-only view of the list of Actions of this details overview.
      *
-     * @return An unmodifiable view of the list of actions.
+     * @return An unmodifiable view of the list of Actions.
      */
     public final List<Action> getActions() {
         return Collections.unmodifiableList(mActions);
