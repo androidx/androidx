@@ -34,9 +34,13 @@ import android.support.v17.leanback.R;
 import java.util.List;
 
 /**
- * <p>A fragment to handle searches.</p>
+ * A fragment to handle searches. An application will supply an implementation
+ * of the {@link SearchResultProvider} interface to handle the search and return
+ * an {@link ObjectAdapter} containing the results. The results are rendered
+ * into a {@link RowsFragment}, in the same way that they are in a {@link
+ * BrowseFragment}.
  *
- * <p>Note: Your application will need to request android.permission.RECORD_AUDIO</p>
+ * <p>Note: Your application will need to request android.permission.RECORD_AUDIO.
  */
 public class SearchFragment extends Fragment {
     private static final String TAG = SearchFragment.class.getSimpleName();
@@ -47,7 +51,7 @@ public class SearchFragment extends Fragment {
     private static final String ARG_TITLE = ARG_PREFIX  + ".title";
 
     /**
-     * Search API exposed to application
+     * Search API to be provided by the application.
      */
     public static interface SearchResultProvider {
         /**
@@ -65,13 +69,13 @@ public class SearchFragment extends Fragment {
          * <p>Method invoked when the search query is updated.</p>
          *
          * <p>This is called as soon as the query changes; it is up to the application to add a
-         * delay before actually executing the queries if needed.</p>
+         * delay before actually executing the queries if needed.
          *
          * <p>This method might not always be called before onQueryTextSubmit gets called, in
-         * particular for voice input cases.</p>
+         * particular for voice input.
          *
          * @param newQuery The current search query.
-         * @return whether the results changed or not.
+         * @return whether the results changed as a result of the new query.
          */
         public boolean onQueryTextChange(String newQuery);
 
@@ -79,8 +83,8 @@ public class SearchFragment extends Fragment {
          * Method invoked when the search query is submitted, either by dismissing the keyboard,
          * pressing search or next on the keyboard or when voice has detected the end of the query.
          *
-         * @param query The query.
-         * @return whether the results changed or not
+         * @param query The query entered.
+         * @return whether the results changed as a result of the query.
          */
         public boolean onQueryTextSubmit(String query);
     }
@@ -118,12 +122,13 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Create a search fragment with a given search query to start with
+     * Create a search fragment with a given search query.
      *
-     * You should only use this if you need to start the search fragment with a pre-filled query
+     * <p>You should only use this if you need to start the search fragment with a
+     * pre-filled query.
      *
-     * @param query the search query to start with
-     * @return a new SearchFragment
+     * @param query The search query to begin with.
+     * @return A new SearchFragment.
      */
     public static SearchFragment newInstance(String query) {
         SearchFragment fragment = new SearchFragment();
@@ -252,10 +257,8 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Set the search provider, which is responsible for returning items given
-     * a search term
-     *
-     * @param searchResultProvider the search provider
+     * Set the search provider that is responsible for returning results for the
+     * search query.
      */
     public void setSearchResultProvider(SearchResultProvider searchResultProvider) {
         mProvider = searchResultProvider;
@@ -263,22 +266,29 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Sets an item selection listener.
-     * @param listener the item selection listener
+     * Sets an item selection listener for the results.
+     *
+     * @param listener The item selection listener to be invoked when an item in
+     *        the search results is selected.
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
     }
 
     /**
-     * Sets an item clicked listener.
+     * Sets an item clicked listener for the results.
+     *
+     * @param listener The item clicked listener to be invoked when an item in
+     *        the search results is clicked.
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
     }
 
     /**
-     * Sets the title string to be be shown in an empty search bar
+     * Sets the title string to be be shown in an empty search bar. The title
+     * may be placed in a call-to-action, such as "Search <i>title</i>" or
+     * "Speak to search <i>title</i>".
      */
     public void setTitle(String title) {
         mTitle = title;
@@ -288,7 +298,7 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Returns the title set
+     * Returns the title set in the search bar.
      */
     public String getTitle() {
         if (null != mSearchBar) {
@@ -298,7 +308,8 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Sets the badge drawable that will be shown inside the search bar, next to the hint
+     * Sets the badge drawable that will be shown inside the search bar next to
+     * the title.
      */
     public void setBadgeDrawable(Drawable drawable) {
         mBadgeDrawable = drawable;
@@ -308,7 +319,7 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Returns the badge drawable
+     * Returns the badge drawable in the search bar.
      */
     public Drawable getBadgeDrawable() {
         if (null != mSearchBar) {
@@ -318,9 +329,11 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Display the completions shown by the IME.
+     * Display the completions shown by the IME. An application may provide
+     * a list of query completions that the system will show in the IME.
      *
-     * @param completions list of completions shown in the IME, can be null or empty to clear them
+     * @param completions A list of completions to show in the IME. Setting to
+     *        null or empty will clear the list.
      */
     public void displayCompletions(List<String> completions) {
         mSearchBar.displayCompletions(completions);
@@ -369,7 +382,4 @@ public class SearchFragment extends Fragment {
     private void setSearchQuery(String query) {
         mSearchBar.setSearchQuery(query);
     }
-
-
-
 }
