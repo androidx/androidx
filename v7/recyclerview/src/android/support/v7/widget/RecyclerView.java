@@ -2727,7 +2727,7 @@ public class RecyclerView extends ViewGroup {
         ViewHolder getScrapViewForId(long id, int type, boolean dryRun) {
             // Look in our attached views first
             final int count = mAttachedScrap.size();
-            for (int i = 0; i < count; i++) {
+            for (int i = count - 1; i >= 0; i--) {
                 final ViewHolder holder = mAttachedScrap.get(i);
                 if (holder.getItemId() == id) {
                     if (type == holder.getItemViewType()) {
@@ -2736,21 +2736,29 @@ public class RecyclerView extends ViewGroup {
                             holder.setScrapContainer(null);
                         }
                         return holder;
-                    } else {
-                        break;
+                    } else if (!dryRun) {
+                        // recycle this scrap
+                        mAttachedScrap.remove(i);
+                        removeDetachedView(holder.itemView, false);
+                        quickRecycleScrapView(holder.itemView);
                     }
                 }
             }
 
             // Search the first-level cache
             final int cacheSize = mCachedViews.size();
-            for (int i = 0; i < cacheSize; i++) {
+            for (int i = cacheSize - 1; i >= 0; i--) {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder.getItemId() == id) {
-                    if (! dryRun) {
+                    if (type == holder.getItemViewType()) {
+                        if (!dryRun) {
+                            mCachedViews.remove(i);
+                        }
+                        return holder;
+                    } else if (!dryRun) {
                         mCachedViews.remove(i);
+                        recycleViewHolder(holder);
                     }
-                    return holder;
                 }
             }
             return null;

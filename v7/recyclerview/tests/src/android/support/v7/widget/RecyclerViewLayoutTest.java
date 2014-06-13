@@ -23,6 +23,68 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest {
 
+    private static final boolean DEBUG = false;
+
+    public RecyclerViewLayoutTest() {
+        super(DEBUG);
+    }
+
+    public void testTypeForCache() throws Throwable {
+        final AtomicInteger viewType = new AtomicInteger(1);
+        final TestAdapter adapter = new TestAdapter(100) {
+            @Override
+            public int getItemViewType(int position) {
+                return viewType.get();
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return mItems.get(position).mId;
+            }
+        };
+        adapter.setHasStableIds(true);
+        final AtomicInteger layoutStart = new AtomicInteger(2);
+        final int childCount = 10;
+        final TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, layoutStart.get(), layoutStart.get() + childCount);
+                layoutLatch.countDown();
+            }
+        };
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setItemViewCacheSize(10);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        getInstrumentation().waitForIdleSync();
+        layoutStart.set(4); // trigger a cache for 3,4
+        lm.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        lm.waitForLayout(2);
+        //
+        viewType.incrementAndGet();
+        layoutStart.set(2); // go back to bring views from cache
+        lm.expectLayouts(1);
+        adapter.mItems.remove(1);
+        adapter.notifyChange();
+        lm.waitForLayout(2);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 2; i < 4; i++) {
+                    RecyclerView.ViewHolder vh = recyclerView.findViewHolderForPosition(2);
+                    assertEquals("View holder's type should match latest type", viewType.get(),
+                            vh.getItemViewType());
+                }
+            }
+        });
+    }
+
     public void testState() throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         final RecyclerView recyclerView = new RecyclerView(getActivity());
