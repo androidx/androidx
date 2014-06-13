@@ -4843,7 +4843,7 @@ public class RecyclerView extends ViewGroup {
         /**
          * Returns The itemId represented by this ViewHolder.
          *
-         * @return The the item's id if adapter has stable ids, {@link #RecyclerView#NO_ID}
+         * @return The the item's id if adapter has stable ids, {@link RecyclerView#NO_ID}
          * otherwise
          */
         public final long getItemId() {
