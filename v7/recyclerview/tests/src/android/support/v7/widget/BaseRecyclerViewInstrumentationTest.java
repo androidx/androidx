@@ -304,6 +304,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             new AddRemoveRunnable(startCountTuples).runOnMainThread();
         }
 
+        public void notifyChange() throws Throwable {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
+        }
+
         /**
          * Similar to other methods but negative count means delete and position count means add.
          * <p>
