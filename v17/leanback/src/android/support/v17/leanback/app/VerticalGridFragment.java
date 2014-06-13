@@ -33,9 +33,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * Leanback fragment for a vertical grid.
+ * A fragment for creating leanback vertical grids.
  *
- * Renders a vertical grid of objects given a {@link VerticalGridPresenter} and
+ * <p>Renders a vertical grid of objects given a {@link VerticalGridPresenter} and
  * an {@link ObjectAdapter}.
  */
 public class VerticalGridFragment extends Fragment {
@@ -192,12 +192,15 @@ public class VerticalGridFragment extends Fragment {
     /**
      * Sets a click listener for the search affordance.
      *
-     * The presence of a listener will change the visibility of the search affordance in the
-     * title area. When set to non-null the title area will contain a call to search action.
+     * <p>The presence of a listener will change the visibility of the search
+     * affordance in the title area. When set to non-null, the title area will
+     * contain a call to search action.
      *
-     * The listener onClick method will be invoked when the user click on the search action.
+     * <p>The listener's onClick method will be invoked when the user clicks on
+     * the search action.
      *
-     * @param listener The listener.
+     * @param listener The listener to invoke when the search affordance is
+     *        clicked, or null to hide the search affordance.
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
         mExternalOnSearchClickedListener = listener;
