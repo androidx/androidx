@@ -503,8 +503,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
 
         detachAndScrapAttachedViews(recycler);
-        final int extraForStart;
-        final int extraForEnd;
+        int extraForStart;
+        int extraForEnd;
         final int extra = getExtraLayoutSpace(state);
         boolean before = state.getTargetScrollPosition() < anchorItemPosition;
         if (before == mShouldReverseLayout) {
@@ -514,22 +514,36 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             extraForStart = extra;
             extraForEnd = 0;
         }
-        // first fill towards start
-        updateRenderStateToFillStart(anchorItemPosition, anchorCoordinate);
-        mRenderState.mExtra = extraForStart;
-        if (!layoutFromEnd) {
-            mRenderState.mCurrentPosition += mRenderState.mItemDirection;
-        }
-        fill(recycler, mRenderState, state, false);
-        int startOffset = mRenderState.mOffset;
-        // fill towards end
-        updateRenderStateToFillEnd(anchorItemPosition, anchorCoordinate);
-        mRenderState.mExtra = extraForEnd;
+        int startOffset;
+        int endOffset;
         if (layoutFromEnd) {
+            // fill towards start
+            updateRenderStateToFillStart(anchorItemPosition, anchorCoordinate);
+            mRenderState.mExtra = extraForStart;
+            fill(recycler, mRenderState, state, false);
+            startOffset = mRenderState.mOffset;
+            extraForEnd += mRenderState.mAvailable;
+            // fill towards end
+            updateRenderStateToFillEnd(anchorItemPosition, anchorCoordinate);
+            mRenderState.mExtra = extraForEnd;
             mRenderState.mCurrentPosition += mRenderState.mItemDirection;
+            fill(recycler, mRenderState, state, false);
+            endOffset = mRenderState.mOffset;
+        } else {
+            // fill towards end
+            updateRenderStateToFillEnd(anchorItemPosition, anchorCoordinate);
+            mRenderState.mExtra = extraForEnd;
+            fill(recycler, mRenderState, state, false);
+            endOffset = mRenderState.mOffset;
+            extraForStart += mRenderState.mAvailable;
+            // fill towards start
+            updateRenderStateToFillStart(anchorItemPosition, anchorCoordinate);
+            mRenderState.mExtra = extraForStart;
+            mRenderState.mCurrentPosition += mRenderState.mItemDirection;
+            fill(recycler, mRenderState, state, false);
+            startOffset = mRenderState.mOffset;
         }
-        fill(recycler, mRenderState, state, false);
-        int endOffset = mRenderState.mOffset;
+
         // changes may cause gaps on the UI, try to fix them.
         if (getChildCount() > 0) {
             // because layout from end may be changed by scroll to position
