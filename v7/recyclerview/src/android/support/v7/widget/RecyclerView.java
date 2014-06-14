@@ -110,14 +110,18 @@ public class RecyclerView extends ViewGroup {
             if (!mAdapterHelper.hasPendingUpdates()) {
                 return;
             }
-            eatRequestLayout();
-            mAdapterHelper.preProcess();
-            if (!mEatRequestLayout) {
-                // We run this after pre-processing is complete so that ViewHolders have their
-                // final adapter positions. No need to run it if a layout is already requested.
-                rebindInvalidViewHolders();
+            if (mDataSetHasChangedAfterLayout) {
+                dispatchLayout();
+            } else {
+                eatRequestLayout();
+                mAdapterHelper.preProcess();
+                if (!mEatRequestLayout) {
+                    // We run this after pre-processing is complete so that ViewHolders have their
+                    // final adapter positions. No need to run it if a layout is already requested.
+                    rebindInvalidViewHolders();
+                }
+                resumeRequestLayout(true);
             }
-            resumeRequestLayout(true);
         }
     };
 
@@ -136,6 +140,12 @@ public class RecyclerView extends ViewGroup {
     private boolean mLayoutRequestEaten;
     private boolean mAdapterUpdateDuringMeasure;
     private final boolean mPostUpdatesOnAnimation;
+
+    /**
+     * Set to true when an adapter data set changed notification is received.
+     * In that case, we cannot run any animations since we don't know what happened.
+     */
+    private boolean mDataSetHasChangedAfterLayout = false;
 
     private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
 
@@ -1458,17 +1468,26 @@ public class RecyclerView extends ViewGroup {
         }
 
         eatRequestLayout();
-        saveOldPositions();
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
         boolean animateChangesSimple = mItemAnimator != null && mItemsAddedOrRemoved
-                && !mItemsChanged;
+                && !mItemsChanged && !mDataSetHasChangedAfterLayout;
         final boolean animateChangesAdvanced = animateChangesSimple &&
                 predictiveItemAnimationsEnabled();
         mItemsAddedOrRemoved = mItemsChanged = false;
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
         mState.mInPreLayout = animateChangesAdvanced;
         mState.mItemCount = mAdapter.getItemCount();
+
+        if (mDataSetHasChangedAfterLayout) {
+            // Processing these items have no value since data set changed unexpectedly.
+            // Instead, we just reset it.
+            // TODO consider handling updates that arrived before notifyDataSetChanged is called.
+            mAdapterHelper.reset();
+            markKnownViewsInvalid();
+            mLayout.onItemsChanged(this);
+        }
+
         if (animateChangesSimple) {
             // Step 0: Find out where all non-removed items are, pre-layout
             mState.mPreLayoutHolderMap.clear();
@@ -1487,7 +1506,9 @@ public class RecyclerView extends ViewGroup {
             // items back to the container). This gives the pre-layout position of APPEARING views
             // which come into existence as part of the real layout.
 
-            // make sure any pending data updates are flushed before laying out
+            // Save old positions so that LayoutManager can run its mapping logic.
+            saveOldPositions();
+            // Make sure any pending data updates are flushed before laying out.
             mAdapterHelper.preProcess();
             mInPreLayout = true;
             final boolean didStructureChange = mState.mStructureChanged;
@@ -1513,14 +1534,13 @@ public class RecyclerView extends ViewGroup {
                             child.getRight(), child.getBottom()));
                 }
             }
-        }
-        clearOldPositions();
-        if (animateChangesAdvanced) {
+            clearOldPositions();
             mAdapterHelper.consumePostponedUpdates();
         } else {
             mAdapterHelper.consumeUpdatesInOnePass();
         }
         mState.mItemCount = mAdapter.getItemCount();
+        mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
 
         // Step 2: Run layout
         mState.mInPreLayout = false;
@@ -1597,7 +1617,7 @@ public class RecyclerView extends ViewGroup {
         resumeRequestLayout(false);
         mLayout.removeAndRecycleScrapInt(mRecycler, !animateChangesAdvanced);
         mState.mPreviousLayoutItemCount = mState.mItemCount;
-        mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
+        mDataSetHasChangedAfterLayout = false;
     }
 
     private void animateAppearance(ViewHolder itemHolder, Rect beforeBounds, int afterLeft,
@@ -2270,13 +2290,16 @@ public class RecyclerView extends ViewGroup {
         @Override
         public void onChanged() {
             if (mAdapter.hasStableIds()) {
-                // TODO Determine what actually changed
-                markKnownViewsInvalid();
+                // TODO Determine what actually changed.
+                // This is more important to implement now since this callback will disable all
+                // animations because we cannot rely on positions.
                 mState.mStructureChanged = true;
-                requestLayout();
+                mDataSetHasChangedAfterLayout = true;
             } else {
-                markKnownViewsInvalid();
                 mState.mStructureChanged = true;
+                mDataSetHasChangedAfterLayout = true;
+            }
+            if (!mAdapterHelper.hasPendingUpdates()) {
                 requestLayout();
             }
         }
@@ -4412,6 +4435,15 @@ public class RecyclerView extends ViewGroup {
         public boolean onAddFocusables(RecyclerView recyclerView, ArrayList<View> views,
                 int direction, int focusableMode) {
             return false;
+        }
+
+        /**
+         * Called when {@link Adapter#notifyDataSetChanged()} is triggered instead of giving
+         * detailed information on what has actually changed.
+         *
+         * @param recyclerView
+         */
+        public void onItemsChanged(RecyclerView recyclerView) {
         }
 
         /**

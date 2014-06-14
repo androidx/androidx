@@ -83,10 +83,36 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         recyclerView.waitForDraw(1);
         mLayoutManager.mOnLayoutCallbacks.reset();
         getInstrumentation().waitForIdleSync();
-        assertEquals("extra layouts should not happend", 1, mLayoutManager.getTotalLayoutCount());
+        assertEquals("extra layouts should not happen", 1, mLayoutManager.getTotalLayoutCount());
         assertEquals("all expected children should be laid out", firstLayoutItemCount,
                 mLayoutManager.getChildCount());
         return recyclerView;
+    }
+
+    public void testNotifyDataSetChanged() throws Throwable {
+        setupBasic(10, 3, 4);
+        int layoutCount = mLayoutManager.mTotalLayoutCount;
+        mLayoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mTestAdapter.deleteAndNotify(4, 1);
+                    mTestAdapter.notifyChange();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+        getInstrumentation().waitForIdleSync();
+        assertEquals("on notify data set changed, predictive animations should not run",
+                layoutCount + 1, mLayoutManager.mTotalLayoutCount);
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.addAndNotify(4, 2);
+        // make sure animations recover
+        mLayoutManager.waitForLayout(2);
     }
 
 
