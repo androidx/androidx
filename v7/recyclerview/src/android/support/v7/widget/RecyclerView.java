@@ -3529,6 +3529,13 @@ public class RecyclerView extends ViewGroup {
          * @param index Index to add child at
          */
         public void addView(View child, int index) {
+            if (mRecyclerView.mAnimatingViewIndex >= 0) {
+                if (index > mRecyclerView.mAnimatingViewIndex) {
+                    throw new IndexOutOfBoundsException("index=" + index + " count="
+                            + mRecyclerView.mAnimatingViewIndex);
+                }
+                mRecyclerView.mAnimatingViewIndex++;
+            }
             final ViewHolder holder = getChildViewHolderInt(child);
             if (holder.isScrap()) {
                 holder.unScrap();
@@ -3561,7 +3568,6 @@ public class RecyclerView extends ViewGroup {
         public void addView(View child) {
             if (mRecyclerView.mAnimatingViewIndex >= 0) {
                 addView(child, mRecyclerView.mAnimatingViewIndex);
-                mRecyclerView.mAnimatingViewIndex++;
             } else {
                 addView(child, -1);
             }
