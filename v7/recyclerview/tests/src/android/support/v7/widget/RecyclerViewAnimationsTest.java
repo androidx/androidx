@@ -38,8 +38,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
     private static final String TAG = "RecyclerViewAnimationsTest";
 
-    Throwable mainThreadException;
-
     AnimationLayoutManager mLayoutManager;
 
     TestAdapter mTestAdapter;
@@ -51,12 +49,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-    }
-
-    void checkForMainThreadException() throws Throwable {
-        if (mainThreadException != null) {
-            throw mainThreadException;
-        }
     }
 
     RecyclerView setupBasic(int itemCount) throws Throwable {
@@ -818,20 +810,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         }
 
 
-    }
-
-    private void postExceptionToInstrumentation(Throwable t) {
-        if (DEBUG) {
-            Log.e(TAG, "captured exception on main thread", t);
-        }
-        mainThreadException = t;
-        if (mLayoutManager instanceof TestLayoutManager) {
-            TestLayoutManager lm = mLayoutManager;
-            // finish all layouts so that we get the correct exception
-            while (lm.layoutLatch.getCount() > 0) {
-                lm.layoutLatch.countDown();
-            }
-        }
     }
 
     abstract class AdapterOps {
