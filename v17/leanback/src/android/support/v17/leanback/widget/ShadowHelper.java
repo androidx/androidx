@@ -15,6 +15,7 @@ package android.support.v17.leanback.widget;
 
 import android.os.Build;
 import android.view.ViewGroup;
+import android.view.View;
 
 
 /**
@@ -34,6 +35,8 @@ final class ShadowHelper {
         public void prepareParent(ViewGroup parent);
 
         public Object addShadow(ViewGroup shadowContainer);
+
+        public void setZ(View view, float focusLevel);
 
         public void setShadowFocusLevel(Object impl, float level);
 
@@ -60,6 +63,11 @@ final class ShadowHelper {
             // do nothing
         }
 
+        @Override
+        public void setZ(View view, float focusLevel) {
+            // do nothing
+        }
+
     }
 
     /**
@@ -82,6 +90,11 @@ final class ShadowHelper {
             ShadowHelperJbmr2.setShadowFocusLevel(impl, level);
         }
 
+        @Override
+        public void setZ(View view, float focusLevel) {
+            // Not supported
+        }
+
     }
 
     /**
@@ -102,6 +115,11 @@ final class ShadowHelper {
         @Override
         public void setShadowFocusLevel(Object impl, float level) {
             ShadowHelperApi21.setShadowFocusLevel(impl, level);
+        }
+
+        @Override
+        public void setZ(View view, float focusLevel) {
+            ShadowHelperApi21.setZ(view, focusLevel);
         }
 
     }
@@ -141,5 +159,12 @@ final class ShadowHelper {
 
     public void setShadowFocusLevel(Object impl, float level) {
         mImpl.setShadowFocusLevel(impl, level);
+    }
+
+    /**
+     * Set the view z coordinate with the given focus level from 0..1.
+     */
+    public void setZ(View view, float focusLevel) {
+        mImpl.setZ(view, focusLevel);
     }
 }

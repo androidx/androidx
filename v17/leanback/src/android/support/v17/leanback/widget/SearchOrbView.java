@@ -60,6 +60,16 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         }
     };
 
+    private ValueAnimator mShadowFocusAnimator;
+
+    private final ValueAnimator.AnimatorUpdateListener mFocusUpdateListener =
+            new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            ShadowHelper.getInstance().setZ(mSearchOrbView, animation.getAnimatedFraction());
+        }
+    };
+
     public SearchOrbView(Context context) {
         this(context, null);
     }
@@ -107,6 +117,10 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         setFocusable(true);
         setClipChildren(false);
         setOnClickListener(this);
+
+        ShadowHelper.getInstance().setZ(mSearchOrbView, 0f);
+        // Icon has no background, but must be on top of the search orb view
+        ShadowHelper.getInstance().setZ(mIcon, 1f);
     }
 
     @Override
@@ -116,12 +130,26 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         }
     }
 
+    private void startShadowFocusAnimation(boolean gainFocus, int duration) {
+        if (mShadowFocusAnimator == null) {
+            mShadowFocusAnimator = ValueAnimator.ofFloat(0f, 1f);
+            mShadowFocusAnimator.addUpdateListener(mFocusUpdateListener);
+        }
+        if (gainFocus) {
+            mShadowFocusAnimator.start();
+        } else {
+            mShadowFocusAnimator.reverse();
+        }
+        mShadowFocusAnimator.setDuration(duration);
+    }
+
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         final float zoom = gainFocus ? mFocusedZoom : 1f;
         final int duration = gainFocus ? mPulseDurationMs : mScaleDownDurationMs;
         mSearchOrbView.animate().scaleX(zoom).scaleY(zoom).setDuration(duration).start();
+        startShadowFocusAnimation(gainFocus, duration);
         enableOrbColorAnimation(gainFocus);
     }
 

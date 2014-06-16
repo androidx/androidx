@@ -243,6 +243,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         overview.setBackgroundColor(mBackgroundColorSet ?
                 mBackgroundColor : getDefaultBackgroundColor(overview.getContext()));
+        ShadowHelper.getInstance().setZ(overview, 0f);
 
         // Max width to make a square
         ImageView image = (ImageView) vh.view.findViewById(R.id.details_overview_image);
