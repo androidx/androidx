@@ -310,15 +310,17 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
                     @Override
                     String describe() {
-                        return "Scroll to position";
+                        return "Scroll to position " + position ;
                     }
 
                     @Override
                     void onAfterReLayout(Config config) {
                         if (mTestAdapter.getItemCount() > 0) {
-                            assertEquals("scrolled view should be last completely visible position",
+                            assertEquals(config + ":scrolled view should be last completely visible",
                                     position,
-                                    mLayoutManager.findLastCompletelyVisibleItemPosition());
+                                    config.mStackFromEnd ?
+                                            mLayoutManager.findLastCompletelyVisibleItemPosition()
+                                        : mLayoutManager.findFirstCompletelyVisibleItemPosition());
                         }
                     }
                 }
@@ -331,7 +333,6 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                         savedStateTest((Config) config.clone(), waitForLayout, postLayoutRunnable,
                                 postRestoreRunnable);
                         removeRecyclerView();
-                        return;
                     }
 
                 }
