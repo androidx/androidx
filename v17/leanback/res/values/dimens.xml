@@ -151,6 +151,6 @@
 
     <!-- z based shadow -->
     <dimen name="lb_material_shadow_normal_z">2dp</dimen>
-    <dimen name="lb_material_shadow_focused_z">12dp</dimen>
+    <dimen name="lb_material_shadow_focused_z">8dp</dimen>
 
 </resources>

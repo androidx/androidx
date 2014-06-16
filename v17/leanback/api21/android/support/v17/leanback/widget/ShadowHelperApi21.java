@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
+import android.view.View;
 
 class ShadowHelperApi21 {
 
@@ -44,5 +45,10 @@ class ShadowHelperApi21 {
     public static void setShadowFocusLevel(Object impl, float level) {
         ViewGroup shadowContainer = (ViewGroup) impl;
         shadowContainer.setZ(sNormalZ + level * (sFocusedZ - sNormalZ));
+    }
+
+    public static void setZ(View view, float level) {
+        initializeResources(view.getResources());
+        view.setZ(sNormalZ + level * (sFocusedZ - sNormalZ));
     }
 }
