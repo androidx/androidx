@@ -241,6 +241,21 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             dispatchMoveFinished(item);
             mMoveAnimations.remove(item);
         }
+        for (int i = mMoves.size() - 1; i >= 0; i--) {
+            MoveInfo moveInfo = mMoves.get(i);
+            if (moveInfo.holder == item) {
+                ViewCompat.setTranslationY(view, 0);
+                ViewCompat.setTranslationX(view, 0);
+                dispatchMoveFinished(item);
+                mMoves.remove(i);
+                break;
+            }
+        }
+        if (mAdditions.contains(item)) {
+            ViewCompat.setAlpha(view, 1);
+            dispatchAddFinished(item);
+            mAdditions.remove(item);
+        }
         if (mRemoveAnimations.contains(item)) {
             ViewCompat.setAlpha(view, 1);
             dispatchRemoveFinished(item);
@@ -284,13 +299,13 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             ViewCompat.setTranslationY(view, 0);
             ViewCompat.setTranslationX(view, 0);
             dispatchMoveFinished(item.holder);
-            mPendingMoves.remove(item);
+            mPendingMoves.remove(i);
         }
         count = mPendingRemovals.size();
         for (int i = count - 1; i >= 0; i--) {
             ViewHolder item = mPendingRemovals.get(i);
             dispatchRemoveFinished(item);
-            mPendingRemovals.remove(item);
+            mPendingRemovals.remove(i);
         }
         count = mPendingAdditions.size();
         for (int i = count - 1; i >= 0; i--) {
@@ -298,7 +313,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             View view = item.itemView;
             ViewCompat.setAlpha(view, 1);
             dispatchAddFinished(item);
-            mPendingAdditions.remove(item);
+            mPendingAdditions.remove(i);
         }
         if (!isRunning()) {
             return;
@@ -308,31 +323,39 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             ViewHolder item = mMoveAnimations.get(i);
             View view = item.itemView;
             ViewCompat.animate(view).cancel();
-            ViewCompat.setTranslationY(view, 0);
-            ViewCompat.setTranslationX(view, 0);
-            dispatchMoveFinished(item);
-            mMoveAnimations.remove(item);
         }
         count = mRemoveAnimations.size();
         for (int i = count - 1; i >= 0; i--) {
             ViewHolder item = mRemoveAnimations.get(i);
             View view = item.itemView;
             ViewCompat.animate(view).cancel();
-            ViewCompat.setAlpha(view, 1);
-            dispatchRemoveFinished(item);
-            mRemoveAnimations.remove(item);
         }
         count = mAddAnimations.size();
         for (int i = count - 1; i >= 0; i--) {
             ViewHolder item = mAddAnimations.get(i);
             View view = item.itemView;
             ViewCompat.animate(view).cancel();
+        }
+
+        count = mMoves.size();
+        for (int i = count - 1; i >= 0; i--) {
+            MoveInfo moveInfo = mMoves.get(i);
+            ViewHolder item = moveInfo.holder;
+            View view = item.itemView;
+            ViewCompat.setTranslationY(view, 0);
+            ViewCompat.setTranslationX(view, 0);
+            dispatchMoveFinished(moveInfo.holder);
+            mMoves.remove(i);
+        }
+        count = mAdditions.size();
+        for (int i = count - 1; i >= 0; i--) {
+            ViewHolder item = mAdditions.get(i);
+            View view = item.itemView;
             ViewCompat.setAlpha(view, 1);
             dispatchAddFinished(item);
-            mAddAnimations.remove(item);
+            mAdditions.remove(i);
         }
-        mMoves.clear();
-        mAdditions.clear();
+
         dispatchAnimationsFinished();
     }
 

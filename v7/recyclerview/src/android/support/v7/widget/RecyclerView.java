@@ -1387,6 +1387,7 @@ public class RecyclerView extends ViewGroup {
      */
     public void setItemAnimator(ItemAnimator animator) {
         if (mItemAnimator != null) {
+            mItemAnimator.endAnimations();
             mItemAnimator.setListener(null);
         }
         mItemAnimator = animator;
