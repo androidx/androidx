@@ -17,6 +17,8 @@
 
 package android.support.v7.widget;
 
+import android.view.View;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,6 +29,88 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
+    }
+
+    public void testFindViewById() throws Throwable {
+        findViewByIdTest(false);
+        removeRecyclerView();
+        findViewByIdTest(true);
+    }
+
+    public void findViewByIdTest(final boolean supportPredictive) throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final int initialAdapterSize = 20;
+        final TestAdapter adapter = new TestAdapter(initialAdapterSize);
+        final int deleteStart = 6;
+        final int deleteCount = 5;
+        recyclerView.setAdapter(adapter);
+        final AtomicBoolean assertPositions = new AtomicBoolean(false);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                if (assertPositions.get()) {
+                    if (state.isPreLayout()) {
+                        for (int i = 0; i < deleteStart; i ++) {
+                            View view = findViewByPosition(i);
+                            assertNotNull("find view by position for existing items should work "
+                                    + "fine", view);
+                            assertFalse("view should not be marked as removed",
+                                    ((RecyclerView.LayoutParams) view.getLayoutParams())
+                                            .isItemRemoved());
+                        }
+                        for (int i = 0;  i < deleteCount; i++) {
+                            View view = findViewByPosition(i + deleteStart);
+                            assertNotNull("find view by position should work fine for removed "
+                                    + "views in pre-layout", view);
+                            assertTrue("view should be marked as removed",
+                                    ((RecyclerView.LayoutParams) view.getLayoutParams())
+                                            .isItemRemoved());
+                        }
+                        for (int i = deleteStart + deleteCount; i < 20; i++) {
+                            View view = findViewByPosition(i);
+                            assertNotNull(view);
+                            assertFalse("view should not be marked as removed",
+                                    ((RecyclerView.LayoutParams) view.getLayoutParams())
+                                            .isItemRemoved());
+                        }
+                    } else {
+                        for (int i = 0; i < initialAdapterSize - deleteCount; i ++) {
+                            View view = findViewByPosition(i);
+                            assertNotNull("find view by position for existing items should work "
+                                    + "fine", view);
+                            TestViewHolder viewHolder =
+                                    (TestViewHolder) mRecyclerView.getChildViewHolder(view);
+                            assertSame("should be the correct item " + viewHolder
+                                    ,viewHolder.mBindedItem,
+                                    adapter.mItems.get(viewHolder.mPosition));
+                            assertFalse("view should not be marked as removed",
+                                    ((RecyclerView.LayoutParams) view.getLayoutParams())
+                                            .isItemRemoved());
+                        }
+                    }
+
+                }
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, state.getItemCount() - 1, -1);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return supportPredictive;
+            }
+        };
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        getInstrumentation().waitForIdleSync();
+
+        assertPositions.set(true);
+        lm.expectLayouts(supportPredictive ? 2 : 1);
+        adapter.deleteAndNotify(new int[]{deleteStart, deleteCount - 1}, new int[]{deleteStart, 1});
+        lm.waitForLayout(2);
     }
 
     public void testTypeForCache() throws Throwable {

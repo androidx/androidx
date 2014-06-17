@@ -231,7 +231,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
             }
-            for (int i = start; i < end; i++) {
+            int diff = end > start ? 1 : -1;
+            for (int i = start; i != end; i+=diff) {
                 if (mDebug) {
                     Log.d(TAG, "laying out item " + i);
                 }
@@ -245,7 +246,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 }
 
                 measureChildWithMargins(view, 0, 0);
-                layoutDecorated(view, 0, (i - start) * 10, getDecoratedMeasuredWidth(view)
+                layoutDecorated(view, 0, Math.abs(i - start) * 10, getDecoratedMeasuredWidth(view)
                         , getDecoratedMeasuredHeight(view));
             }
             return skippedAdd;
