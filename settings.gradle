@@ -19,6 +19,9 @@ project(':support-palette-v7').projectDir = new File(rootDir, 'v7/palette')
 include ':support-recyclerview-v7'
 project(':support-recyclerview-v7').projectDir = new File(rootDir, 'v7/recyclerview')
 
+include ':support-cardview-v7'
+project(':support-cardview-v7').projectDir = new File(rootDir, 'v7/cardview')
+
 include ':support-v13'
 project(':support-v13').projectDir = new File(rootDir, 'v13')
 

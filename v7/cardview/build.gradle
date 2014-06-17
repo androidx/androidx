@@ -1,28 +1,23 @@
 apply plugin: 'android-library'
 
-archivesBaseName = 'leanback-v17'
-
-dependencies {
-    compile project(':support-v4')
-    compile project(':support-recyclerview-v7')
-}
+archivesBaseName = 'cardview-v7'
 
 android {
-    // WARNING: should be 17
+    // WARNING: should be 7
     compileSdkVersion 'current'
 
     buildToolsVersion "19.0.1"
 
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 7
         // TODO: get target from branch
         //targetSdkVersion 19
     }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['common', 'jbmr2', 'kitkat', 'api21', 'src']
-        main.aidl.srcDirs = ['common', 'jbmr2', 'kitkat', 'api21', 'src']
+        main.java.srcDirs = ['base', 'eclair-mr1', 'jellybean-mr1', 'api21', 'src']
+        main.aidl.srcDirs = ['base', 'eclair-mr1', 'jellybean-mr1', 'api21', 'src']
         main.res.srcDirs = ['res']
 
         androidTest.setRoot('tests')
@@ -75,8 +70,8 @@ uploadArchives {
             }
 
             pom.project {
-                name 'Android Support Leanback v17'
-                description "Android Support Leanback v17"
+                name 'Android Support CardView v7'
+                description "Android Support CardView v7"
                 url 'http://developer.android.com/tools/extras/support-library.html'
                 inceptionYear '2011'
 
