@@ -577,7 +577,8 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @param x The view-relative x coordinate
      * @param y The view-relative y coordinate
      * @return virtual view identifier for the logical item under
-     *         coordinates (x,y)
+     *         coordinates (x,y) or {@link View#NO_ID} if there is no item at
+     *         the given coordinates
      */
     protected abstract int getVirtualViewAt(float x, float y);
 
