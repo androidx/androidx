@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-ext.supportVersion = '20.0.0'
+ext.supportVersion = '21.0.0 rc1'
 ext.extraVersion = 7
 ext.supportRepoOut = ''
 
@@ -50,14 +50,18 @@ task createRepository(type: Zip, dependsOn: mainUpload) {
 createArchive.dependsOn createRepository
 
 // prepare repository with older versions
-task prepareRepo(type: Copy) {
+task unzipRepo(type: Copy) {
     from "$rootDir/../../prebuilts/maven_repo/android"
     into project.ext.supportRepoOut
 }
 
-prepareRepo.doFirst {
+unzipRepo.doFirst {
     project.ext.supportRepoOut.deleteDir()
     project.ext.supportRepoOut.mkdirs()
+}
+
+// anchor for prepare repo. This is post unzip + sourceProp.
+task(prepareRepo) << {
 }
 
 import com.google.common.io.Files
@@ -92,6 +96,21 @@ task(createXml) << {
     Files.write(xml, new File(project.ext.distDir, 'repo-extras.xml'), Charsets.UTF_8)
 }
 createArchive.dependsOn createXml
+
+task(createSourceProp) << {
+    def sourceProp =
+"Extra.VendorDisplay=Android\n\
+Extra.Path=m2repository\n\
+Archive.Arch=ANY\n\
+Extra.NameDisplay=Android Support Repository\n\
+Archive.Os=ANY\n\
+Pkg.Revision=${project.ext.extraVersion}.0.0\n\
+Extra.VendorId=android"
+
+    Files.write(sourceProp, new File(project.ext.supportRepoOut, 'source.properties'), Charsets.UTF_8)
+}
+createSourceProp.dependsOn unzipRepo
+prepareRepo.dependsOn createSourceProp
 
 
 import com.google.common.hash.HashCode
