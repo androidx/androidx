@@ -24,6 +24,7 @@
     <dimen name="lb_browse_rows_margin_start">238dp</dimen>
     <dimen name="lb_browse_rows_margin_top">167dp</dimen>
     <dimen name="lb_browse_rows_fading_edge">16dp</dimen>
+    <dimen name="lb_vertical_grid_padding_bottom">87dp</dimen>
 
     <dimen name="lb_browse_title_height">60dp</dimen>
     <dimen name="lb_browse_title_icon_height">52dp</dimen>
