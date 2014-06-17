@@ -14,6 +14,6 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.v4">
+          package="android.support.v13">
     <application />
 </manifest>
