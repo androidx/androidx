@@ -572,6 +572,7 @@ public class RecyclerView extends ViewGroup {
         if (mScrollListener != null) {
             mScrollListener.onScrollStateChanged(state);
         }
+        mLayout.onScrollStateChanged(state);
     }
 
     /**
@@ -4676,6 +4677,14 @@ public class RecyclerView extends ViewGroup {
             if (mSmoothScroller == smoothScroller) {
                 mSmoothScroller = null;
             }
+        }
+
+        /**
+         * RecyclerView calls this method to notify LayoutManager that scroll state has changed.
+         *
+         * @param state The new scroll state for RecyclerView
+         */
+        public void onScrollStateChanged(int state) {
         }
 
         void removeAndRecycleAllViews(Recycler recycler) {

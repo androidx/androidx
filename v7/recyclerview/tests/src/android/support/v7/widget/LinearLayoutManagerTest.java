@@ -518,12 +518,11 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
 
         @Override
-        void ensureRenderState() {
-            super.ensureRenderState();
+        void ensureLayoutState() {
+            super.ensureLayoutState();
             if (mSecondaryOrientation == null) {
-                mSecondaryOrientation = getOrientation() == HORIZONTAL
-                        ? createVerticalOrientationHelper()
-                        : createHorizontalOrientationHelper();
+                mSecondaryOrientation = OrientationHelper.createOrientationHelper(this,
+                        1 - getOrientation());
             }
         }
 
