@@ -40,6 +40,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     protected AdapterHelper mAdapterHelper;
 
+    Throwable mainThreadException;
+
     public BaseRecyclerViewInstrumentationTest() {
         this(false);
     }
@@ -47,6 +49,27 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     public BaseRecyclerViewInstrumentationTest(boolean debug) {
         super("android.support.v7.recyclerview", TestActivity.class);
         mDebug = debug;
+    }
+
+    void checkForMainThreadException() throws Throwable {
+        if (mainThreadException != null) {
+            throw mainThreadException;
+        }
+    }
+
+    void postExceptionToInstrumentation(Throwable t) {
+        if (mDebug) {
+            Log.e(TAG, "captured exception on main thread", t);
+        }
+        mainThreadException = t;
+        if (mRecyclerView != null && mRecyclerView
+                .getLayoutManager() instanceof TestLayoutManager) {
+            TestLayoutManager lm = (TestLayoutManager) mRecyclerView.getLayoutManager();
+            // finish all layouts so that we get the correct exception
+            while (lm.layoutLatch.getCount() > 0) {
+                lm.layoutLatch.countDown();
+            }
+        }
     }
 
     @Override
@@ -309,6 +332,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 @Override
                 public void run() {
                     notifyDataSetChanged();
+                }
+            });
+        }
+
+        public void notifyItemChange(final int start, final int count) throws Throwable {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyItemRangeChanged(start, count);
                 }
             });
         }

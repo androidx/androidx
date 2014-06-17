@@ -112,6 +112,11 @@ public class RecyclerView extends ViewGroup {
             }
             eatRequestLayout();
             mAdapterHelper.preProcess();
+            if (!mEatRequestLayout) {
+                // We run this after pre-processing is complete so that ViewHolders have their
+                // final adapter positions. No need to run it if a layout is already requested.
+                rebindInvalidViewHolders();
+            }
             resumeRequestLayout(true);
         }
     };
@@ -1842,12 +1847,31 @@ public class RecyclerView extends ViewGroup {
             }
 
             if (holder.mPosition >= positionStart && holder.mPosition < positionEnd) {
+                // We re-bind these view holders after pre-processing is complete so that
+                // ViewHolders have their final positions assigned.
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
-                // Binding an attached view will request a layout if needed.
-                mAdapter.bindViewHolder(holder, holder.getPosition());
             }
         }
         mRecycler.viewRangeUpdate(positionStart, itemCount);
+    }
+
+    void rebindInvalidViewHolders() {
+        final int childCount = getChildCount();
+        for (int i = 0; i < getChildCount(); i++) {
+            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            // validate type is correct
+            if (holder != null && !holder.isRemoved() && holder.isInvalid()) {
+                final int type = mAdapter.getItemViewType(holder.mPosition);
+                if (holder.getItemViewType() == type) {
+                    // Binding an attached view will request a layout if needed.
+                    mAdapter.bindViewHolder(holder, holder.mPosition);
+                } else {
+                    // binding to a new view will need re-layout anyways. We can as well trigger
+                    // it here so that it happens during layout
+                    requestLayout();
+                }
+            }
+        }
     }
 
     /**

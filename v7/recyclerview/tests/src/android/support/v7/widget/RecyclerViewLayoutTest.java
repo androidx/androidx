@@ -85,6 +85,62 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    public void testTypeForExistingViews() throws Throwable {
+        final AtomicInteger viewType = new AtomicInteger(1);
+        final int invalidatedCount = 2;
+        final int layoutStart = 2;
+        final TestAdapter adapter = new TestAdapter(100) {
+            @Override
+            public int getItemViewType(int position) {
+                return viewType.get();
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                if (position >= layoutStart && position < invalidatedCount + layoutStart) {
+                    try {
+                        assertEquals("holder type should match current view type at position " +
+                                position, viewType.get(), holder.getItemViewType());
+                    } catch (Throwable t) {
+                        postExceptionToInstrumentation(t);
+                    }
+                }
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return mItems.get(position).mId;
+            }
+        };
+        adapter.setHasStableIds(true);
+
+        final int childCount = 10;
+        final TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, layoutStart, layoutStart + childCount);
+                layoutLatch.countDown();
+            }
+        };
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        getInstrumentation().waitForIdleSync();
+        viewType.incrementAndGet();
+        lm.expectLayouts(1);
+        adapter.notifyItemChange(layoutStart, invalidatedCount);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
+
     public void testState() throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         final RecyclerView recyclerView = new RecyclerView(getActivity());
