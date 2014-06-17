@@ -3666,7 +3666,12 @@ public class RecyclerView extends ViewGroup {
             final int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 View child = getChildAt(i);
-                if (getPosition(child) == position) {
+                ViewHolder vh = getChildViewHolderInt(child);
+                if (vh == null) {
+                    continue;
+                }
+                if (vh.getPosition() == position &&
+                        (mRecyclerView.mState.isPreLayout() || !vh.isRemoved())) {
                     return child;
                 }
             }
