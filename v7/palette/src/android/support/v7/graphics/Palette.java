@@ -47,7 +47,6 @@ import java.util.List;
  *
  * <pre>
  * Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
- *     @Override
  *     public void onGenerated(Palette palette) {
  *         // Do something with colors...
  *     }
