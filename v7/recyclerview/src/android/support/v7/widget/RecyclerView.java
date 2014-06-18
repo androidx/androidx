@@ -1537,6 +1537,7 @@ public class RecyclerView extends ViewGroup {
             clearOldPositions();
             mAdapterHelper.consumePostponedUpdates();
         } else {
+            clearOldPositions();
             mAdapterHelper.consumeUpdatesInOnePass();
         }
         mState.mItemCount = mAdapter.getItemCount();
