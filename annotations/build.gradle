@@ -47,13 +47,13 @@ uploadArchives {
 
 // configuration for the javadoc to include all source sets.
 javadoc {
-    source    sourceSets.main.allJava
+    source    sourceSets.main.java.srcDirs
 }
 
 // custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn:classes) {
     classifier = 'sources'
-    from sourceSets.main.allSource
+    from sourceSets.main.java.srcDirs
 }
 
 task javadocJar(type: Jar, dependsOn:javadoc) {

@@ -4,7 +4,15 @@ archivesBaseName = 'palette-v7'
 
 android {
     compileSdkVersion 7
-    buildToolsVersion "19.0.1"
+    buildToolsVersion '19.1.0'
+
+    defaultConfig {
+        // TODO: get target from branch
+        targetSdkVersion "L"
+
+        // FOR PREVIEW:
+        minSdkVersion "L"
+    }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'

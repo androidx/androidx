@@ -8,7 +8,15 @@ dependencies {
 
 android {
     compileSdkVersion 'current'
-    buildToolsVersion '19.0.3'
+    buildToolsVersion '19.1.0'
+
+    defaultConfig {
+        // TODO: get target from branch
+        targetSdkVersion "L"
+
+        // FOR PREVIEW:
+        minSdkVersion "L"
+    }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
