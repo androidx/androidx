@@ -194,11 +194,11 @@ class WindowAlignment {
             return mSize - mPaddingLow - mPaddingHigh;
         }
 
-        final public int getSystemScrollPos() {
-            return getSystemScrollPos((int) mScrollCenter);
+        final public int getSystemScrollPos(boolean isFirst, boolean isLast) {
+            return getSystemScrollPos((int) mScrollCenter, isFirst, isLast);
         }
 
-        final public int getSystemScrollPos(int scrollCenter) {
+        final public int getSystemScrollPos(int scrollCenter, boolean isFirst, boolean isLast) {
             int middlePosition;
             if (mWindowAlignmentOffset >= 0) {
                 middlePosition = mWindowAlignmentOffset - mPaddingLow;
@@ -222,7 +222,7 @@ class WindowAlignment {
             }
             if (!isMinUnknown) {
                 if ((mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0 &&
-                        scrollCenter - mMinEdge <= middlePosition) {
+                        (isFirst || scrollCenter - mMinEdge <= middlePosition)) {
                     // scroll center is within half of view port size: align the left edge
                     // of first child to the left edge of view port
                     return mMinEdge - mPaddingLow;
@@ -230,7 +230,7 @@ class WindowAlignment {
             }
             if (!isMaxUnknown) {
                 if ((mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0 &&
-                        mMaxEdge - scrollCenter <= afterMiddlePosition) {
+                        (isLast || mMaxEdge - scrollCenter <= afterMiddlePosition)) {
                     // scroll center is very close to the right edge of view port : align the
                     // right edge of last children (plus expanded size) to view port's right
                     return mMaxEdge -mPaddingLow - (clientSize);
