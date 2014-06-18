@@ -2674,6 +2674,11 @@ public class RecyclerView extends ViewGroup {
          */
         void scrapView(View view) {
             final ViewHolder holder = getChildViewHolderInt(view);
+            if (holder.isInvalid() && !holder.isRemoved()) {
+                throw new IllegalArgumentException("Called scrap view with an invalid view."
+                        + " Invalid views cannot be reused from scrap, they should rebound from"
+                        + " recycler pool.");
+            }
             holder.setScrapContainer(this);
             mAttachedScrap.add(holder);
         }
@@ -2789,13 +2794,13 @@ public class RecyclerView extends ViewGroup {
             for (int i = count - 1; i >= 0; i--) {
                 final ViewHolder holder = mAttachedScrap.get(i);
                 if (holder.getItemId() == id && !holder.wasReturnedFromScrap()) {
-                    if (type == holder.getItemViewType()) {
+                    if (type == holder.getItemViewType() && !holder.isInvalid()) {
                         if (!dryRun) {
                             holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
                         }
                         return holder;
                     } else if (!dryRun) {
-                        // recycle this scrap
+                        // Recycle this scrap. Either invalid or type mismatch.
                         mAttachedScrap.remove(i);
                         removeDetachedView(holder.itemView, false);
                         quickRecycleScrapView(holder.itemView);
@@ -3844,8 +3849,8 @@ public class RecyclerView extends ViewGroup {
          * @param recycler Recycler to deposit the new scrap view into
          */
         public void detachAndScrapView(View child, Recycler recycler) {
-            detachView(child);
-            recycler.scrapView(child);
+            int index = mRecyclerView.indexOfChild(child);
+            scrapOrRecycleView(recycler, index, child);
         }
 
         /**
@@ -3859,8 +3864,7 @@ public class RecyclerView extends ViewGroup {
          */
         public void detachAndScrapViewAt(int index, Recycler recycler) {
             final View child = getChildAt(index);
-            detachViewAt(index);
-            recycler.scrapView(child);
+            scrapOrRecycleView(recycler, index, child);
         }
 
         /**
@@ -4043,8 +4047,18 @@ public class RecyclerView extends ViewGroup {
             final int childCount = getChildCount();
             for (int i = childCount - 1; i >= 0; i--) {
                 final View v = getChildAt(i);
-                detachViewAt(i);
-                recycler.scrapView(v);
+                scrapOrRecycleView(recycler, i, v);
+            }
+        }
+
+        private void scrapOrRecycleView(Recycler recycler, int index, View view) {
+            final ViewHolder viewHolder = getChildViewHolderInt(view);
+            if (viewHolder.isInvalid() && !viewHolder.isRemoved()) {
+                removeViewAt(index);
+                recycler.recycleView(view);
+            } else {
+                detachViewAt(index);
+                recycler.scrapView(view);
             }
         }
 

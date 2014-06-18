@@ -77,8 +77,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     } else {
                         for (int i = 0; i < initialAdapterSize - deleteCount; i ++) {
                             View view = findViewByPosition(i);
-                            assertNotNull("find view by position for existing items should work "
-                                    + "fine", view);
+                            assertNotNull("find view by position for existing item " + i +
+                                    " should work fine. child count:" + getChildCount(), view);
                             TestViewHolder viewHolder =
                                     (TestViewHolder) mRecyclerView.getChildViewHolder(view);
                             assertSame("should be the correct item " + viewHolder
@@ -89,7 +89,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                             .isItemRemoved());
                         }
                     }
-
                 }
                 detachAndScrapAttachedViews(recycler);
                 layoutRange(recycler, state.getItemCount() - 1, -1);

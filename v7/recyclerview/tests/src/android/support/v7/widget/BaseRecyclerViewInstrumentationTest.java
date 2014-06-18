@@ -227,6 +227,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
          */
         int layoutRange(RecyclerView.Recycler recycler, int start,
                 int end) {
+            assertScrap(recycler);
             int skippedAdd = 0;
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
@@ -250,6 +251,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                         , getDecoratedMeasuredHeight(view));
             }
             return skippedAdd;
+        }
+
+        private void assertScrap(RecyclerView.Recycler recycler) {
+            for (RecyclerView.ViewHolder viewHolder : recycler.getScrapList()) {
+                assertFalse("Invalid scrap should be no kept", viewHolder.isInvalid());
+            }
         }
     }
 
