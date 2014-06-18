@@ -195,8 +195,15 @@ class AllocationThunker extends Allocation {
 
     public void setFromFieldPacker(int xoff, FieldPacker fp) {
         try {
+            // Must construct actual FieldPacker from scratch, since we don't
+            // know how many bytes were actually used.
+            byte[] data = fp.getData();
+            int fp_length = fp.getPos();
             android.renderscript.FieldPacker nfp =
-                new android.renderscript.FieldPacker(fp.getData());
+                new android.renderscript.FieldPacker(fp_length);
+            for (int i = 0; i < fp_length; i++) {
+                nfp.addI8(data[i]);
+            }
             mN.setFromFieldPacker(xoff, nfp);
         } catch (android.renderscript.RSRuntimeException e) {
             throw ExceptionThunker.convertException(e);
@@ -204,8 +211,15 @@ class AllocationThunker extends Allocation {
     }
     public void setFromFieldPacker(int xoff, int component_number, FieldPacker fp) {
         try {
+            // Must construct actual FieldPacker from scratch, since we don't
+            // know how many bytes were actually used.
+            byte[] data = fp.getData();
+            int fp_length = fp.getPos();
             android.renderscript.FieldPacker nfp =
-                new android.renderscript.FieldPacker(fp.getData());
+                new android.renderscript.FieldPacker(fp_length);
+            for (int i = 0; i < fp_length; i++) {
+                nfp.addI8(data[i]);
+            }
             mN.setFromFieldPacker(xoff, component_number, nfp);
         } catch (android.renderscript.RSRuntimeException e) {
             throw ExceptionThunker.convertException(e);
