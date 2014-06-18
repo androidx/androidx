@@ -148,7 +148,7 @@ public class NotificationManagerCompat {
         }
     }
 
-    static class ImplIceCreamSandwich extends ImplBase {
+    static class ImplIceCreamSandwich extends ImplEclair {
         @Override
         public int getSideChannelBindFlags() {
             return NotificationManagerCompatIceCreamSandwich.SIDE_CHANNEL_BIND_FLAGS;
@@ -156,7 +156,9 @@ public class NotificationManagerCompat {
     }
 
     static {
-        if (Build.VERSION.SDK_INT >= 5) {
+        if (Build.VERSION.SDK_INT >= 14) {
+            IMPL = new ImplIceCreamSandwich();
+        } else if (Build.VERSION.SDK_INT >= 5) {
             IMPL = new ImplEclair();
         } else {
             IMPL = new ImplBase();
