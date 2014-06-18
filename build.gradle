@@ -12,6 +12,7 @@ buildscript {
 ext.supportVersion = '20.0.0'
 ext.extraVersion = 6
 ext.supportRepoOut = ''
+ext.buildToolsVersion = '19.0.3'
 
 /*
  * With the build server you are given two env variables.
@@ -126,6 +127,12 @@ subprojects {
     release.dependsOn rootProject.tasks.prepareRepo
     // make the mainupload depend on this one.
     mainUpload.dependsOn release
+
+    project.plugins.whenPluginAdded { plugin ->
+        if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)) {
+            project.android.buildToolsVersion = rootProject.buildToolsVersion
+        }
+    }
 }
 
 FileCollection getAndroidPrebuilt(String apiLevel) {
