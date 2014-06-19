@@ -103,6 +103,15 @@ public class VerticalGridPresenter extends Presenter {
         return ShadowOverlayContainer.supportsShadow();
     }
 
+    /**
+     * Returns true if SDK >= L, where Z shadow is enabled so that Z order is enabled
+     * on each child of vertical grid.   If subclass returns false in isUsingDefaultShadow()
+     * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
+     */
+    public boolean isUsingZOrder() {
+        return ShadowHelper.getInstance().usesZShadow();
+    }
+
     final boolean needsDefaultShadow() {
         return isUsingDefaultShadow() && getShadowEnabled();
     }
@@ -142,6 +151,13 @@ public class VerticalGridPresenter extends Presenter {
         }
     };
 
+    /**
+     * Called after a {@link VerticalGridPresenter.ViewHolder} is created.
+     * Subclasses may override this method and start by calling
+     * super.initializeGridViewHolder(ViewHolder).
+     *
+     * @param vh The ViewHolder to initialize for the vertical grid.
+     */
     protected void initializeGridViewHolder(ViewHolder vh) {
         if (mNumColumns == -1) {
             throw new IllegalStateException("Number of columns must be set");
@@ -155,6 +171,7 @@ public class VerticalGridPresenter extends Presenter {
             ShadowOverlayContainer.prepareParentForShadow(vh.getGridView());
             ((ViewGroup) vh.view).setClipChildren(false);
         }
+        vh.getGridView().setFocusDrawingOrderEnabled(!isUsingZOrder());
         FocusHighlightHelper.setupBrowseItemFocusHighlight(vh.mItemBridgeAdapter, mZoomFactor);
 
         final ViewHolder gridViewHolder = vh;
