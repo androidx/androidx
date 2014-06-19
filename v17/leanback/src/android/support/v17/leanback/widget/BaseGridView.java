@@ -490,4 +490,18 @@ abstract class BaseGridView extends RecyclerView {
     public boolean hasPreviousViewInSameRow(int position) {
         return mLayoutManager.hasPreviousViewInSameRow(position);
     }
+
+    /**
+     * Enable or disable the default "focus draw at last" order rule.
+     */
+    public void setFocusDrawingOrderEnabled(boolean enabled) {
+        super.setChildrenDrawingOrderEnabled(enabled);
+    }
+
+    /**
+     * Returns true if default "focus draw at last" order rule is enabled.
+     */
+    public boolean isFocusDrawingOrderEnabled() {
+        return super.isChildrenDrawingOrderEnabled();
+    }
 }
