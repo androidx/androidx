@@ -63,15 +63,29 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             showMoreLeft(false);
         }
 
+        final View.OnLayoutChangeListener mLayoutChangeListener =
+                new View.OnLayoutChangeListener() {
+
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right,
+                    int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (DEBUG) Log.v(TAG, "onLayoutChange " + v);
+                checkFirstAndLastPosition(false);
+            }
+        };
+
         final ItemBridgeAdapter.AdapterListener mAdapterListener =
                 new ItemBridgeAdapter.AdapterListener() {
 
             @Override
             public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-                checkFirstAndLastPosition(false);
+                // Remove first to ensure we don't add ourselves more than once.
+                viewHolder.itemView.removeOnLayoutChangeListener(mLayoutChangeListener);
+                viewHolder.itemView.addOnLayoutChangeListener(mLayoutChangeListener);
             }
             @Override
             public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+                viewHolder.itemView.removeOnLayoutChangeListener(mLayoutChangeListener);
                 checkFirstAndLastPosition(false);
             }
         };
