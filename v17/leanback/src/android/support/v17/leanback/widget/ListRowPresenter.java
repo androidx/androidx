@@ -188,6 +188,7 @@ public class ListRowPresenter extends RowPresenter {
             }
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter, mZoomFactor);
+        rowViewHolder.mGridView.setFocusDrawingOrderEnabled(!isUsingZOrder());
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {
             @Override
@@ -425,6 +426,15 @@ public class ListRowPresenter extends RowPresenter {
      */
     public boolean isUsingDefaultShadow() {
         return ShadowOverlayContainer.supportsShadow();
+    }
+
+    /**
+     * Returns true if SDK >= L, where Z shadow is enabled so that Z order is enabled
+     * on each child of horizontal list.   If subclass returns false in isUsingDefaultShadow()
+     * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
+     */
+    public boolean isUsingZOrder() {
+        return ShadowHelper.getInstance().usesZShadow();
     }
 
     /**

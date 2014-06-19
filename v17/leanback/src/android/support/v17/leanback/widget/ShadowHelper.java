@@ -25,6 +25,7 @@ final class ShadowHelper {
 
     final static ShadowHelper sInstance = new ShadowHelper();
     boolean mSupportsShadow;
+    boolean mUsesZShadow;
     ShadowHelperVersionImpl mImpl;
 
     /**
@@ -131,6 +132,7 @@ final class ShadowHelper {
      // TODO: we should use version number once "L" is published
         if ("L".equals(Build.VERSION.RELEASE)) {
             mSupportsShadow = true;
+            mUsesZShadow = true;
             mImpl = new ShadowHelperApi21Impl();
         } else if (Build.VERSION.SDK_INT >= 18) {
             mSupportsShadow = true;
@@ -147,6 +149,10 @@ final class ShadowHelper {
 
     public boolean supportsShadow() {
         return mSupportsShadow;
+    }
+
+    public boolean usesZShadow() {
+        return mUsesZShadow;
     }
 
     public void prepareParent(ViewGroup parent) {
