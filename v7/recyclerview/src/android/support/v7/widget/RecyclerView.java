@@ -118,7 +118,7 @@ public class RecyclerView extends ViewGroup {
                 if (!mEatRequestLayout) {
                     // We run this after pre-processing is complete so that ViewHolders have their
                     // final adapter positions. No need to run it if a layout is already requested.
-                    rebindInvalidViewHolders();
+                    rebindUpdatedViewHolders();
                 }
                 resumeRequestLayout(true);
             }
@@ -1877,12 +1877,17 @@ public class RecyclerView extends ViewGroup {
         mRecycler.viewRangeUpdate(positionStart, itemCount);
     }
 
-    void rebindInvalidViewHolders() {
+    void rebindUpdatedViewHolders() {
         final int childCount = getChildCount();
-        for (int i = 0; i < getChildCount(); i++) {
+        for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
             // validate type is correct
-            if (holder != null && !holder.isRemoved() && holder.isInvalid()) {
+            if (holder == null || holder.isRemoved()) {
+                continue;
+            }
+            if (holder.isInvalid()) {
+                requestLayout();
+            } else if (holder.needsUpdate()) {
                 final int type = mAdapter.getItemViewType(holder.mPosition);
                 if (holder.getItemViewType() == type) {
                     // Binding an attached view will request a layout if needed.
@@ -1890,6 +1895,7 @@ public class RecyclerView extends ViewGroup {
                 } else {
                     // binding to a new view will need re-layout anyways. We can as well trigger
                     // it here so that it happens during layout
+                    holder.addFlags(ViewHolder.FLAG_INVALID);
                     requestLayout();
                 }
             }
