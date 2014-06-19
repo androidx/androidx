@@ -13,7 +13,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.animation.TimeAnimator;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -36,8 +35,6 @@ import android.view.ViewParent;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -165,11 +162,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private static final String TAG = "GridLayoutManager";
     private static final boolean DEBUG = false;
-
-    private static final Interpolator sDefaultAnimationChildLayoutInterpolator
-            = new DecelerateInterpolator();
-
-    private static final long DEFAULT_CHILD_ANIMATION_DURATION_MS = 250;
 
     private String getTag() {
         return TAG + ":" + mBaseGridView.getId();
