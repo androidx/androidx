@@ -2651,6 +2651,7 @@ public class RecyclerView extends ViewGroup {
         void quickRecycleScrapView(View view) {
             final ViewHolder holder = getChildViewHolderInt(view);
             holder.mScrapContainer = null;
+            holder.clearReturnedFromScrapFlag();
             recycleViewHolder(holder);
         }
 
@@ -2678,6 +2679,7 @@ public class RecyclerView extends ViewGroup {
         void unscrapView(ViewHolder holder) {
             mAttachedScrap.remove(holder);
             holder.mScrapContainer = null;
+            holder.clearReturnedFromScrapFlag();
         }
 
         int getScrapCount() {
@@ -2707,8 +2709,8 @@ public class RecyclerView extends ViewGroup {
             // Try first for an exact, non-invalid match from scrap.
             for (int i = 0; i < scrapCount; i++) {
                 final ViewHolder holder = mAttachedScrap.get(i);
-                if (holder.getPosition() == position && !holder.isInvalid() &&
-                        (mInPreLayout || !holder.isRemoved())) {
+                if (!holder.wasReturnedFromScrap() && holder.getPosition() == position
+                        && !holder.isInvalid() && (mInPreLayout || !holder.isRemoved())) {
                     if (type != INVALID_TYPE && holder.getItemViewType() != type) {
                         Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
                                 " wrong view type! (found " + holder.getItemViewType() +
@@ -2716,8 +2718,7 @@ public class RecyclerView extends ViewGroup {
                         break;
                     }
                     if (!dryRun) {
-                        mAttachedScrap.remove(i);
-                        holder.setScrapContainer(null);
+                        holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
                         if (DEBUG) {
                             Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
                                     ") found exact match in scrap: " + holder);
@@ -2779,11 +2780,10 @@ public class RecyclerView extends ViewGroup {
             final int count = mAttachedScrap.size();
             for (int i = count - 1; i >= 0; i--) {
                 final ViewHolder holder = mAttachedScrap.get(i);
-                if (holder.getItemId() == id) {
+                if (holder.getItemId() == id && !holder.wasReturnedFromScrap()) {
                     if (type == holder.getItemViewType()) {
                         if (!dryRun) {
-                            mAttachedScrap.remove(i);
-                            holder.setScrapContainer(null);
+                            holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
                         }
                         return holder;
                     } else if (!dryRun) {
@@ -3587,7 +3587,7 @@ public class RecyclerView extends ViewGroup {
                 mRecyclerView.mAnimatingViewIndex++;
             }
             final ViewHolder holder = getChildViewHolderInt(child);
-            if (holder.isScrap()) {
+            if (holder.wasReturnedFromScrap()) {
                 holder.unScrap();
                 mRecyclerView.attachViewToParent(child, index, child.getLayoutParams());
                 if (DISPATCH_TEMP_DETACH) {
@@ -4860,6 +4860,14 @@ public class RecyclerView extends ViewGroup {
          */
         static final int FLAG_NOT_RECYCLABLE = 1 << 4;
 
+        /**
+         * This ViewHolder is returned from scrap which means we are expecting an addView call
+         * for this itemView. When returned from scrap, ViewHolder stays in the scrap list until
+         * the end of the layout pass and then recycled by RecyclerView if it is not added back to
+         * the RecyclerView.
+         */
+        static final int FLAG_RETURNED_FROM_SCRAP = 1 << 5;
+
         private int mFlags;
 
         private int mIsRecyclableCount = 0;
@@ -4941,7 +4949,14 @@ public class RecyclerView extends ViewGroup {
 
         void unScrap() {
             mScrapContainer.unscrapView(this);
-            mScrapContainer = null;
+        }
+
+        boolean wasReturnedFromScrap() {
+            return (mFlags & FLAG_RETURNED_FROM_SCRAP) != 0;
+        }
+
+        void clearReturnedFromScrapFlag() {
+            mFlags = mFlags & ~FLAG_RETURNED_FROM_SCRAP;
         }
 
         void setScrapContainer(Recycler recycler) {
