@@ -474,6 +474,7 @@ public class RecyclerView extends ViewGroup {
      */
     private void removeAnimatingView(View view) {
         if (mNumAnimatingViews > 0) {
+            eatRequestLayout();
             for (int i = mAnimatingViewIndex; i < getChildCount(); ++i) {
                 if (getChildAt(i) == view) {
                     removeViewAt(i);
@@ -482,9 +483,10 @@ public class RecyclerView extends ViewGroup {
                         mAnimatingViewIndex = -1;
                     }
                     mRecycler.recycleView(view);
-                    return;
+                    break;
                 }
             }
+            resumeRequestLayout(false);
         }
     }
 
