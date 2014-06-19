@@ -544,6 +544,13 @@ public class FieldPacker {
         return mData;
     }
 
+    public int getPos() {
+        if (RenderScript.shouldThunk()) {
+            return mN.getPos();
+        }
+        return mPos;
+    }
+
     private final byte mData[];
     private int mPos;
     private int mLen;
