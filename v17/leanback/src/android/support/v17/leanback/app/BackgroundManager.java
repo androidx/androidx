@@ -570,6 +570,10 @@ public final class BackgroundManager {
         }
 
         if (mChangeRunnable != null) {
+            if (sameDrawable(drawable, mChangeRunnable.mDrawable)) {
+                if (DEBUG) Log.v(TAG, "setting same drawable");
+                return;
+            }
             mChangeRunnable.cancel();
         }
         mChangeRunnable = new ChangeBackgroundRunnable(drawable);
