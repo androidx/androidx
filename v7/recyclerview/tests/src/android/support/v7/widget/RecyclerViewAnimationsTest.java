@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final String TAG = "RecyclerViewAnimationsTest";
 
@@ -530,10 +530,10 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             return log;
         }
 
-        private String prepareLog(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        private String prepareLog(RecyclerView.Recycler recycler, RecyclerView.State state, boolean done) {
             StringBuilder builder = new StringBuilder();
-            builder.append("is pre layout:").append(state.isPreLayout());
-            builder.append("ViewHolders:\n");
+            builder.append("is pre layout:").append(state.isPreLayout()).append(", done:").append(done);
+            builder.append("\nViewHolders:\n");
             for (RecyclerView.ViewHolder vh : ((TestRecyclerView)mRecyclerView).collectViewHolders()) {
                 builder.append(vh).append("\n");
             }
@@ -541,7 +541,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             for (RecyclerView.ViewHolder vh : recycler.getScrapList()) {
                 builder.append(vh).append("\n");
             }
-            if (state.isPreLayout()) {
+
+            if (state.isPreLayout() && !done) {
                 log = "\n" + builder.toString();
             } else {
                 log += "\n" + builder.toString();
@@ -564,10 +565,42 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 RecyclerView.State state) {
             try {
                 mTotalLayoutCount++;
-                prepareLog(recycler, state);
+                prepareLog(recycler, state, false);
+                if (state.isPreLayout()) {
+                    validateOldPositions(recycler, state);
+                } else {
+                    validateClearedOldPositions(recycler, state);
+                }
                 mOnLayoutCallbacks.onLayoutChildren(recycler, this, state);
+                prepareLog(recycler, state, true);
             } finally {
                 layoutLatch.countDown();
+            }
+        }
+
+        private void validateClearedOldPositions(RecyclerView.Recycler recycler,
+                RecyclerView.State state) {
+            if (getTestRecyclerView() == null) {
+                return;
+            }
+            for (RecyclerView.ViewHolder viewHolder : getTestRecyclerView().collectViewHolders()) {
+                assertEquals("there should NOT be an old position in post layout",
+                        RecyclerView.NO_POSITION, viewHolder.mOldPosition);
+                assertEquals("there should NOT be a pre layout position in post layout",
+                        RecyclerView.NO_POSITION, viewHolder.mPreLayoutPosition);
+            }
+        }
+
+        private void validateOldPositions(RecyclerView.Recycler recycler,
+                RecyclerView.State state) {
+            if (getTestRecyclerView() == null) {
+                return;
+            }
+            for (RecyclerView.ViewHolder viewHolder : getTestRecyclerView().collectViewHolders()) {
+                if (!viewHolder.isRemoved() && !viewHolder.isInvalid()) {
+                    assertTrue("there should be an old position in pre-layout",
+                            viewHolder.mOldPosition != RecyclerView.NO_POSITION);
+                }
             }
         }
 
@@ -747,22 +780,32 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
 
         private void validateViewHolderPositions() {
-            final Set<Integer> removedOffsets = new HashSet<Integer>();
             final Set<Integer> existingOffsets = new HashSet<Integer>();
-            int childCount = getLayoutManager().getChildCount();
+            int childCount = getChildCount();
+            StringBuilder log = new StringBuilder();
             for (int i = 0; i < childCount; i++) {
                 ViewHolder vh = getChildViewHolderInt(getChildAt(i));
-                if (vh.isRemoved()) {
-                    if (!removedOffsets.add(vh.getPosition())) {
-                        throw new IllegalStateException(
-                                "view holder position conflict for deleted views " + vh
-                                        .getPosition());
+                TestViewHolder tvh = (TestViewHolder) vh;
+                log.append(tvh.mBindedItem).append(vh)
+                        .append(" hidden:")
+                        .append(mChildHelper.mHiddenViews.contains(vh.itemView))
+                        .append("\n");
+            }
+            for (int i = 0; i < childCount; i++) {
+                ViewHolder vh = getChildViewHolderInt(getChildAt(i));
+                if (vh.isInvalid()) {
+                    continue;
+                }
+                if (vh.getPosition() < 0) {
+                    LayoutManager lm = getLayoutManager();
+                    for (int j = 0; j < lm.getChildCount(); j ++) {
+                        assertNotSame("removed view holder should not be in LM's child list",
+                                vh.itemView, lm.getChildAt(j));
                     }
-                } else {
+                } else if (!mChildHelper.mHiddenViews.contains(vh.itemView)) {
                     if (!existingOffsets.add(vh.getPosition())) {
-                        throw new IllegalStateException(
-                                "view holder position conflict for existing views " + vh
-                                        .getPosition());
+                        throw new IllegalStateException("view holder position conflict for "
+                                + "existing views " + vh + "\n" + log);
                     }
                 }
             }
@@ -786,7 +829,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             for (ViewHolder vh : collectViewHolders()) {
                 if (!vh.isRemoved() && vh.mPreLayoutPosition >= 0) {
                     assertEquals("adapter position calculations should match view holder "
-                            + "positions\n" + vh + "\n" + lm.getLog(),
+                            + "pre layout:" + mState.isPreLayout()
+                            + " positions\n" + vh + "\n" + lm.getLog(),
                             mAdapterHelper.findPositionOffset(vh.mPreLayoutPosition), vh.mPosition);
                 }
             }

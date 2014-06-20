@@ -99,6 +99,10 @@ public class RecyclerView extends ViewGroup {
 
     AdapterHelper mAdapterHelper;
 
+    ChildHelper mChildHelper;
+
+    final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
+
     /**
      * Note: this Runnable is only ever posted if:
      * 1) We've been through first layout
@@ -194,8 +198,6 @@ public class RecyclerView extends ViewGroup {
     // For use in item animations
     boolean mItemsAddedOrRemoved = false;
     boolean mItemsChanged = false;
-    int mAnimatingViewIndex = -1;
-    int mNumAnimatingViews = 0;
     boolean mInPreLayout = false;
     private ItemAnimator.ItemAnimatorListener mItemAnimatorListener =
             new ItemAnimatorRestoreListener();
@@ -239,6 +241,57 @@ public class RecyclerView extends ViewGroup {
 
         mItemAnimator.setListener(mItemAnimatorListener);
         initAdapterManager();
+        initChildrenHelper();
+    }
+
+    private void initChildrenHelper() {
+        mChildHelper = new ChildHelper(new ChildHelper.Callback() {
+            @Override
+            public int getChildCount() {
+                return RecyclerView.this.getChildCount();
+            }
+
+            @Override
+            public void addView(View child, int index) {
+                RecyclerView.this.addView(child, index);
+            }
+
+            @Override
+            public int indexOfChild(View view) {
+                return RecyclerView.this.indexOfChild(view);
+            }
+
+            @Override
+            public void removeViewAt(int index) {
+                RecyclerView.this.removeViewAt(index);
+            }
+
+            @Override
+            public View getChildAt(int offset) {
+                return RecyclerView.this.getChildAt(offset);
+            }
+
+            @Override
+            public void removeAllViews() {
+                RecyclerView.this.removeAllViews();
+            }
+
+            @Override
+            public ViewHolder getChildViewHolder(View view) {
+                return getChildViewHolderInt(view);
+            }
+
+            @Override
+            public void attachViewToParent(View child, int index,
+                    ViewGroup.LayoutParams layoutParams) {
+                RecyclerView.this.attachViewToParent(child, index, layoutParams);
+            }
+
+            @Override
+            public void detachViewFromParent(int offset) {
+                RecyclerView.this.detachViewFromParent(offset);
+            }
+        });
     }
 
     void initAdapterManager() {
@@ -395,12 +448,12 @@ public class RecyclerView extends ViewGroup {
         }
 
         mRecycler.clear();
-        removeAllViews();
+        mChildHelper.removeAllViewsUnfiltered();
         if (mLayout != null) {
             if (mIsAttached) {
                 mLayout.onDetachedFromWindow(this);
             }
-            mLayout.mRecyclerView = null;
+            mLayout.setRecyclerView(null);
         }
         mLayout = layout;
         if (layout != null) {
@@ -408,7 +461,7 @@ public class RecyclerView extends ViewGroup {
                 throw new IllegalArgumentException("LayoutManager " + layout +
                         " is already attached to a RecyclerView: " + layout.mRecyclerView);
             }
-            layout.mRecyclerView = this;
+            mLayout.setRecyclerView(this);
             if (mIsAttached) {
                 mLayout.onAttachedToWindow(this);
             }
@@ -448,23 +501,13 @@ public class RecyclerView extends ViewGroup {
      * @param view The view to be removed
      */
     private void addAnimatingView(View view) {
-        boolean alreadyAdded = false;
-        if (mNumAnimatingViews > 0) {
-            for (int i = mAnimatingViewIndex; i < getChildCount(); ++i) {
-                if (getChildAt(i) == view) {
-                    alreadyAdded = true;
-                    break;
-                }
-            }
-        }
-        if (!alreadyAdded) {
-            if (mNumAnimatingViews == 0) {
-                mAnimatingViewIndex = getChildCount();
-            }
-            ++mNumAnimatingViews;
-            addView(view);
-        }
+        final boolean alreadyParented = view.getParent() == this;
         mRecycler.unscrapView(getChildViewHolder(view));
+        if (!alreadyParented) {
+            mChildHelper.addView(view, true);
+        } else {
+            mChildHelper.hide(view);
+        }
     }
 
     /**
@@ -473,35 +516,15 @@ public class RecyclerView extends ViewGroup {
      * @see #addAnimatingView(View)
      */
     private void removeAnimatingView(View view) {
-        if (mNumAnimatingViews > 0) {
-            eatRequestLayout();
-            for (int i = mAnimatingViewIndex; i < getChildCount(); ++i) {
-                if (getChildAt(i) == view) {
-                    removeViewAt(i);
-                    --mNumAnimatingViews;
-                    if (mNumAnimatingViews == 0) {
-                        mAnimatingViewIndex = -1;
-                    }
-                    mRecycler.recycleView(view);
-                    break;
-                }
-            }
-            resumeRequestLayout(false);
-        }
-    }
-
-    private View getAnimatingView(int position, int type) {
-        if (mNumAnimatingViews > 0) {
-            for (int i = mAnimatingViewIndex; i < getChildCount(); ++i) {
-                final View view = getChildAt(i);
-                ViewHolder holder = getChildViewHolder(view);
-                if (holder.getPosition() == position &&
-                        ( type == INVALID_TYPE || holder.getItemViewType() == type)) {
-                    return view;
-                }
+        eatRequestLayout();
+        if (mChildHelper.removeViewIfHidden(view)) {
+            mRecycler.unscrapView(getChildViewHolderInt(view));
+            mRecycler.recycleView(view);
+            if (DEBUG) {
+                Log.d(TAG, "after removing animated view: " + view + ", " + this);
             }
         }
-        return null;
+        resumeRequestLayout(false);
     }
 
     /**
@@ -706,14 +729,8 @@ public class RecyclerView extends ViewGroup {
      * but data actually changed.
      * <p>
      * This method consumes all deferred changes to avoid that case.
-     * <p>
-     * This also ends all pending animations. It will be changed once we can support
-     * animations during scroll.
      */
     private void consumePendingUpdateOperations() {
-        if (mItemAnimator != null) {
-            mItemAnimator.endAnimations();
-        }
         if (mAdapterHelper.hasPendingUpdates()) {
             mUpdateChildViewsRunnable.run();
         }
@@ -1469,17 +1486,17 @@ public class RecyclerView extends ViewGroup {
             Log.e(TAG, "No adapter attached; skipping layout");
             return;
         }
-
+        mDisappearingViewsInLayoutPass.clear();
         eatRequestLayout();
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
-        boolean animateChangesSimple = mItemAnimator != null && mItemsAddedOrRemoved
+        mState.mRunSimpleAnimations = mItemAnimator != null && mItemsAddedOrRemoved
                 && !mItemsChanged && !mDataSetHasChangedAfterLayout;
-        final boolean animateChangesAdvanced = animateChangesSimple &&
+        mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
                 predictiveItemAnimationsEnabled();
         mItemsAddedOrRemoved = mItemsChanged = false;
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
-        mState.mInPreLayout = animateChangesAdvanced;
+        mState.mInPreLayout = mState.mRunPredictiveAnimations;
         mState.mItemCount = mAdapter.getItemCount();
 
         if (mDataSetHasChangedAfterLayout) {
@@ -1491,19 +1508,19 @@ public class RecyclerView extends ViewGroup {
             mLayout.onItemsChanged(this);
         }
 
-        if (animateChangesSimple) {
+        if (mState.mRunSimpleAnimations) {
             // Step 0: Find out where all non-removed items are, pre-layout
             mState.mPreLayoutHolderMap.clear();
             mState.mPostLayoutHolderMap.clear();
-            int count = getChildCount();
+            int count = mChildHelper.getChildCount();
             for (int i = 0; i < count; ++i) {
-                final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+                final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
                 final View view = holder.itemView;
                 mState.mPreLayoutHolderMap.put(holder, new ItemHolderInfo(holder,
                         view.getLeft(), view.getTop(), view.getRight(), view.getBottom()));
             }
         }
-        if (animateChangesAdvanced) {
+        if (mState.mRunPredictiveAnimations) {
             // Step 1: run prelayout: This will use the old positions of items. The layout manager
             // is expected to layout everything, even removed items (though not to add removed
             // items back to the container). This gives the pre-layout position of APPEARING views
@@ -1522,9 +1539,9 @@ public class RecyclerView extends ViewGroup {
             mInPreLayout = false;
 
             appearingViewInitialBounds = new ArrayMap<View, Rect>();
-            for (int i = 0; i < getChildCount(); ++i) {
+            for (int i = 0; i < mChildHelper.getChildCount(); ++i) {
                 boolean found = false;
-                View child = getChildAt(i);
+                View child = mChildHelper.getChildAt(i);
                 for (int j = 0; j < mState.mPreLayoutHolderMap.size(); ++j) {
                     ViewHolder holder = mState.mPreLayoutHolderMap.keyAt(j);
                     if (holder.itemView == child) {
@@ -1537,6 +1554,7 @@ public class RecyclerView extends ViewGroup {
                             child.getRight(), child.getBottom()));
                 }
             }
+            processDisappearingList();
             clearOldPositions();
             mAdapterHelper.consumePostponedUpdates();
         } else {
@@ -1554,18 +1572,18 @@ public class RecyclerView extends ViewGroup {
         mPendingSavedState = null;
 
         // onLayoutChildren may have caused client code to disable item animations; re-check
-        animateChangesSimple = animateChangesSimple && mItemAnimator != null;
+        mState.mRunSimpleAnimations = mState.mRunSimpleAnimations && mItemAnimator != null;
 
-        if (animateChangesSimple) {
+        if (mState.mRunSimpleAnimations) {
             // Step 3: Find out where things are now, post-layout
-            int count = getChildCount();
+            int count = mChildHelper.getChildCount();
             for (int i = 0; i < count; ++i) {
-                ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+                ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
                 final View view = holder.itemView;
                 mState.mPostLayoutHolderMap.put(holder, new ItemHolderInfo(holder,
                         view.getLeft(), view.getTop(), view.getRight(), view.getBottom()));
             }
-
+            processDisappearingList();
             // Step 4: Animate DISAPPEARING and REMOVED items
             int preLayoutCount = mState.mPreLayoutHolderMap.size();
             for (int i = preLayoutCount - 1; i >= 0; i--) {
@@ -1619,15 +1637,40 @@ public class RecyclerView extends ViewGroup {
             }
         }
         resumeRequestLayout(false);
-        mLayout.removeAndRecycleScrapInt(mRecycler, !animateChangesAdvanced);
+        mLayout.removeAndRecycleScrapInt(mRecycler, !mState.mRunPredictiveAnimations);
         mState.mPreviousLayoutItemCount = mState.mItemCount;
         mDataSetHasChangedAfterLayout = false;
+        mState.mRunSimpleAnimations = false;
+        mState.mRunPredictiveAnimations = false;
+    }
+
+    /**
+     * A LayoutManager may want to layout a view just to animate disappearance.
+     * This method handles those views and triggers remove animation on them.
+     */
+    private void processDisappearingList() {
+        final int count = mDisappearingViewsInLayoutPass.size();
+        for (int i = 0; i < count; i ++) {
+            View view = mDisappearingViewsInLayoutPass.get(i);
+            ViewHolder vh = getChildViewHolderInt(view);
+            final ItemHolderInfo info = mState.mPreLayoutHolderMap.remove(vh);
+            if (!mState.isPreLayout()) {
+                mState.mPostLayoutHolderMap.remove(vh);
+            }
+            if (info != null) {
+                animateDisappearance(info);
+            } else {
+                // let it disappear from the position it becomes visible
+                animateDisappearance(new ItemHolderInfo(vh, view.getLeft(), view.getTop(),
+                        view.getRight(), view.getBottom()));
+            }
+        }
+        mDisappearingViewsInLayoutPass.clear();
     }
 
     private void animateAppearance(ViewHolder itemHolder, Rect beforeBounds, int afterLeft,
             int afterTop) {
         View newItemView = itemHolder.itemView;
-
         if (beforeBounds != null &&
                 (beforeBounds.left != afterLeft || beforeBounds.top != afterTop)) {
             // slide items in if before/after locations differ
@@ -1667,6 +1710,7 @@ public class RecyclerView extends ViewGroup {
                 Log.d(TAG, "DISAPPEARING: " + disappearingItem.holder +
                         " with view " + disappearingItemView);
             }
+            disappearingItem.holder.setIsRecyclable(false);
             if (mItemAnimator.animateMove(disappearingItem.holder, oldLeft, oldTop,
                     newLeft, newTop)) {
                 postAnimationRunner();
@@ -1701,9 +1745,9 @@ public class RecyclerView extends ViewGroup {
     }
 
     void markItemDecorInsetsDirty() {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
+            final View child = mChildHelper.getUnfilteredChildAt(i);
             ((LayoutParams) child.getLayoutParams()).mInsetsDirty = true;
         }
     }
@@ -1791,26 +1835,30 @@ public class RecyclerView extends ViewGroup {
     }
 
     void saveOldPositions() {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
+            if (DEBUG && holder.mPosition == -1 && !holder.isRemoved()) {
+                throw new IllegalStateException("view holder cannot have position -1 unless it"
+                        + " is not removed");
+            }
             holder.saveOldPosition();
         }
     }
 
     void clearOldPositions() {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             holder.clearOldPosition();
         }
         mRecycler.clearOldPositions();
     }
 
     void offsetPositionRecordsForInsert(int positionStart, int itemCount) {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null && holder.mPosition >= positionStart) {
                 if (DEBUG) {
                     Log.d(TAG, "offsetPositionRecordsForInsert attached child " + i + " holder " +
@@ -1827,9 +1875,9 @@ public class RecyclerView extends ViewGroup {
     void offsetPositionRecordsForRemove(int positionStart, int itemCount,
             boolean applyToPreLayout) {
         final int positionEnd = positionStart + itemCount;
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null) {
                 if (holder.mPosition >= positionEnd) {
                     if (DEBUG) {
@@ -1861,11 +1909,11 @@ public class RecyclerView extends ViewGroup {
      * @param itemCount Number of views that must explicitly be rebound
      */
     void viewRangeUpdate(int positionStart, int itemCount) {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         final int positionEnd = positionStart + itemCount;
 
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder == null) {
                 continue;
             }
@@ -1880,14 +1928,14 @@ public class RecyclerView extends ViewGroup {
     }
 
     void rebindUpdatedViewHolders() {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             // validate type is correct
-            if (holder == null || holder.isRemoved()) {
+            if (holder == null) {
                 continue;
             }
-            if (holder.isInvalid()) {
+            if (holder.isRemoved() || holder.isInvalid()) {
                 requestLayout();
             } else if (holder.needsUpdate()) {
                 final int type = mAdapter.getItemViewType(holder.mPosition);
@@ -1909,10 +1957,9 @@ public class RecyclerView extends ViewGroup {
      * data change event.
      */
     void markKnownViewsInvalid() {
-        final int childCount = getChildCount();
-
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null) {
                 holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
             }
@@ -1978,9 +2025,9 @@ public class RecyclerView extends ViewGroup {
     }
 
     ViewHolder findViewHolderForPosition(int position, boolean checkNewPosition) {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null && !holder.isRemoved()) {
                 if (checkNewPosition) {
                     if (holder.mPosition == position) {
@@ -2007,9 +2054,9 @@ public class RecyclerView extends ViewGroup {
      * is no such item.
      */
     public ViewHolder findViewHolderForItemId(long id) {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(getChildAt(i));
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null && holder.getItemId() == id) {
                 return holder;
             }
@@ -2025,9 +2072,9 @@ public class RecyclerView extends ViewGroup {
      * @return The child view under (x, y) or null if no matching child is found
      */
     public View findChildViewUnder(float x, float y) {
-        final int count = getChildCount();
+        final int count = mChildHelper.getChildCount();
         for (int i = count - 1; i >= 0; i--) {
-            final View child = getChildAt(i);
+            final View child = mChildHelper.getChildAt(i);
             final float translationX = ViewCompat.getTranslationX(child);
             final float translationY = ViewCompat.getTranslationY(child);
             if (x >= child.getLeft() + translationX &&
@@ -2047,9 +2094,9 @@ public class RecyclerView extends ViewGroup {
      * @param dy Vertical pixel offset to apply to the bounds of all child views
      */
     public void offsetChildrenVertical(int dy) {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            getChildAt(i).offsetTopAndBottom(dy);
+            mChildHelper.getChildAt(i).offsetTopAndBottom(dy);
         }
     }
 
@@ -2085,9 +2132,9 @@ public class RecyclerView extends ViewGroup {
      * @param dx Horizontal pixel offset to apply to the bounds of all child views
      */
     public void offsetChildrenHorizontal(int dx) {
-        final int childCount = getChildCount();
+        final int childCount = mChildHelper.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            getChildAt(i).offsetLeftAndRight(dx);
+            mChildHelper.getChildAt(i).offsetLeftAndRight(dx);
         }
     }
 
@@ -2619,7 +2666,9 @@ public class RecyclerView extends ViewGroup {
         void recycleViewHolder(ViewHolder holder) {
             if (holder.isScrap() || holder.itemView.getParent() != null) {
                 throw new IllegalArgumentException(
-                        "Scrapped or attached views may not be recycled.");
+                        "Scrapped or attached views may not be recycled. isScrap:"
+                                + holder.isScrap() + " isAttached:"
+                                + (holder.itemView.getParent() != null));
             }
 
             boolean cached = false;
@@ -2741,8 +2790,8 @@ public class RecyclerView extends ViewGroup {
                 }
             }
 
-            if (!dryRun && mNumAnimatingViews != 0) {
-                View view = getAnimatingView(position, type);
+            if (!dryRun) {
+                View view = mChildHelper.findHiddenNonRemovedView(position, type);
                 if (view != null) {
                     // ending the animation should cause it to get recycled before we reuse it
                     mItemAnimator.endAnimation(getChildViewHolder(view));
@@ -3280,10 +3329,22 @@ public class RecyclerView extends ViewGroup {
      * layout managers are provided for general use.
      */
     public static abstract class LayoutManager {
+        ChildHelper mChildHelper;
         RecyclerView mRecyclerView;
 
         @Nullable
         SmoothScroller mSmoothScroller;
+
+        void setRecyclerView(RecyclerView recyclerView) {
+            if (recyclerView == null) {
+                mRecyclerView = null;
+                mChildHelper = null;
+            } else {
+                mRecyclerView = recyclerView;
+                mChildHelper = recyclerView.mChildHelper;
+            }
+
+        }
 
         /**
          * Calls {@code RecyclerView#requestLayout} on the underlying RecyclerView
@@ -3584,41 +3645,38 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Add a view to the currently attached RecyclerView if needed. LayoutManagers should
-         * use this method to add views obtained from a {@link Recycler} using
-         * {@link Recycler#getViewForPosition(int)}.
+         * To be called only during {@link #onLayoutChildren(Recycler, State)} to add a view
+         * to the layout that is known to be going away, either because it has been
+         * {@link Adapter#notifyItemRemoved(int) removed} or because it is actually not in the
+         * visible portion of the container but is being laid out in order to inform RecyclerView
+         * in how to animate the item out of view.
+         * <p>
+         * Views added via this method are going to be invisible to LayoutManager after the
+         * dispatchLayout pass is complete. They cannot be retrieved via {@link #getChildAt(int)}
+         * or won't be included in {@link #getChildCount()} method.
          *
-         * @param child View to add
-         * @param index Index to add child at
+         * @param child View to add and then remove with animation.
          */
-        public void addView(View child, int index) {
-            if (mRecyclerView.mAnimatingViewIndex >= 0) {
-                if (index > mRecyclerView.mAnimatingViewIndex) {
-                    throw new IndexOutOfBoundsException("index=" + index + " count="
-                            + mRecyclerView.mAnimatingViewIndex);
-                }
-                mRecyclerView.mAnimatingViewIndex++;
-            }
-            final ViewHolder holder = getChildViewHolderInt(child);
-            if (holder.wasReturnedFromScrap()) {
-                holder.unScrap();
-                mRecyclerView.attachViewToParent(child, index, child.getLayoutParams());
-                if (DISPATCH_TEMP_DETACH) {
-                    ViewCompat.dispatchFinishTemporaryDetach(child);
-                }
-            } else {
-                mRecyclerView.addView(child, index);
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                lp.mInsetsDirty = true;
-                final Adapter adapter = mRecyclerView.getAdapter();
-                if (adapter != null) {
-                    adapter.onViewAttachedToWindow(getChildViewHolderInt(child));
-                }
-                mRecyclerView.onChildAttachedToWindow(child);
-                if (mSmoothScroller != null && mSmoothScroller.isRunning()) {
-                    mSmoothScroller.onChildAttachedToWindow(child);
-                }
-            }
+        public void addDisappearingView(View child) {
+            addDisappearingView(child, -1);
+        }
+
+        /**
+         * To be called only during {@link #onLayoutChildren(Recycler, State)} to add a view
+         * to the layout that is known to be going away, either because it has been
+         * {@link Adapter#notifyItemRemoved(int) removed} or because it is actually not in the
+         * visible portion of the container but is being laid out in order to inform RecyclerView
+         * in how to animate the item out of view.
+         * <p>
+         * Views added via this method are going to be invisible to LayoutManager after the
+         * dispatchLayout pass is complete. They cannot be retrieved via {@link #getChildAt(int)}
+         * or won't be included in {@link #getChildCount()} method.
+         *
+         * @param child View to add and then remove with animation.
+         * @param index Index of the view.
+         */
+        public void addDisappearingView(View child, int index) {
+            addViewInt(child, index, true);
         }
 
         /**
@@ -3629,10 +3687,46 @@ public class RecyclerView extends ViewGroup {
          * @param child View to add
          */
         public void addView(View child) {
-            if (mRecyclerView.mAnimatingViewIndex >= 0) {
-                addView(child, mRecyclerView.mAnimatingViewIndex);
+            addView(child, -1);
+        }
+
+        /**
+         * Add a view to the currently attached RecyclerView if needed. LayoutManagers should
+         * use this method to add views obtained from a {@link Recycler} using
+         * {@link Recycler#getViewForPosition(int)}.
+         *
+         * @param child View to add
+         * @param index Index to add child at
+         */
+        public void addView(View child, int index) {
+            addViewInt(child, index, false);
+        }
+
+        private void addViewInt(View child, int index, boolean disappearing) {
+            final ViewHolder holder = getChildViewHolderInt(child);
+            if (disappearing || holder.isRemoved()) {
+                // these views will be hidden at the end of the layout pass.
+                mRecyclerView.mDisappearingViewsInLayoutPass.add(child);
+            }
+            if (holder.wasReturnedFromScrap() || holder.isScrap()) {
+                holder.unScrap();
+                mChildHelper.attachViewToParent(child, index, child.getLayoutParams(), false);
+                if (DISPATCH_TEMP_DETACH) {
+                    ViewCompat.dispatchFinishTemporaryDetach(child);
+                }
             } else {
-                addView(child, -1);
+                mChildHelper.addView(child, index, false);
+                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                lp.mInsetsDirty = true;
+                final Adapter adapter = mRecyclerView.getAdapter();
+                if (adapter != null) {
+                    adapter.onViewAttachedToWindow(getChildViewHolderInt(child));
+                }
+                mRecyclerView.onChildAttachedToWindow(child);
+                // TODO should we tell smooth scroller if view is hidden?
+                if (mSmoothScroller != null && mSmoothScroller.isRunning()) {
+                    mSmoothScroller.onChildAttachedToWindow(child);
+                }
             }
         }
 
@@ -3650,10 +3744,7 @@ public class RecyclerView extends ViewGroup {
                 adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
             }
             mRecyclerView.onChildDetachedFromWindow(child);
-            mRecyclerView.removeView(child);
-            if (mRecyclerView.mAnimatingViewIndex >= 0) {
-                mRecyclerView.mAnimatingViewIndex--;
-            }
+            mChildHelper.removeView(child);
         }
 
         /**
@@ -3665,17 +3756,14 @@ public class RecyclerView extends ViewGroup {
          * @param index Index of the child view to remove
          */
         public void removeViewAt(int index) {
-            final View child = mRecyclerView.getChildAt(index);
+            final View child = getChildAt(index);
             if (child != null) {
                 final Adapter adapter = mRecyclerView.getAdapter();
                 if (adapter != null) {
                     adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
                 }
                 mRecyclerView.onChildDetachedFromWindow(child);
-                mRecyclerView.removeViewAt(index);
-                if (mRecyclerView.mAnimatingViewIndex >= 0) {
-                    mRecyclerView.mAnimatingViewIndex--;
-                }
+                mChildHelper.removeViewAt(index);
             }
         }
 
@@ -3686,10 +3774,10 @@ public class RecyclerView extends ViewGroup {
         public void removeAllViews() {
             final Adapter adapter = mRecyclerView.getAdapter();
             // Only remove non-animating views
-            final int childCount = mRecyclerView.getChildCount() - mRecyclerView.mNumAnimatingViews;
+            final int childCount = getChildCount();
 
             for (int i = 0; i < childCount; i++) {
-                final View child = mRecyclerView.getChildAt(i);
+                final View child = getChildAt(i);
                 if (adapter != null) {
                     adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
                 }
@@ -3697,10 +3785,7 @@ public class RecyclerView extends ViewGroup {
             }
 
             for (int i = childCount - 1; i >= 0; i--) {
-                mRecyclerView.removeViewAt(i);
-                if (mRecyclerView.mAnimatingViewIndex >= 0) {
-                    mRecyclerView.mAnimatingViewIndex--;
-                }
+                mChildHelper.removeViewAt(i);
             }
         }
 
@@ -3779,12 +3864,9 @@ public class RecyclerView extends ViewGroup {
          */
         public void detachViewAt(int index) {
             if (DISPATCH_TEMP_DETACH) {
-                ViewCompat.dispatchStartTemporaryDetach(mRecyclerView.getChildAt(index));
+                ViewCompat.dispatchStartTemporaryDetach(getChildAt(index));
             }
-            mRecyclerView.detachViewFromParent(index);
-            if (mRecyclerView.mAnimatingViewIndex >= 0) {
-                --mRecyclerView.mAnimatingViewIndex;
-            }
+            mChildHelper.detachViewFromParent(index);
         }
 
         /**
@@ -3797,10 +3879,11 @@ public class RecyclerView extends ViewGroup {
          * @param lp LayoutParams for child
          */
         public void attachView(View child, int index, LayoutParams lp) {
-            mRecyclerView.attachViewToParent(child, index, lp);
-            if (mRecyclerView.mAnimatingViewIndex >= 0) {
-                ++mRecyclerView.mAnimatingViewIndex;
+            ViewHolder vh = getChildViewHolderInt(child);
+            if (vh.isRemoved()) {
+                mRecyclerView.mDisappearingViewsInLayoutPass.add(child);
             }
+            mChildHelper.attachViewToParent(child, index, lp, vh.isRemoved());
             if (DISPATCH_TEMP_DETACH)  {
                 ViewCompat.dispatchFinishTemporaryDetach(child);
             }
@@ -3849,7 +3932,7 @@ public class RecyclerView extends ViewGroup {
          * @param recycler Recycler to deposit the new scrap view into
          */
         public void detachAndScrapView(View child, Recycler recycler) {
-            int index = mRecyclerView.indexOfChild(child);
+            int index = mChildHelper.indexOfChild(child);
             scrapOrRecycleView(recycler, index, child);
         }
 
@@ -3897,8 +3980,7 @@ public class RecyclerView extends ViewGroup {
          * @return Number of attached children
          */
         public int getChildCount() {
-            return mRecyclerView != null ?
-                    mRecyclerView.getChildCount() - mRecyclerView.mNumAnimatingViews : 0;
+            return mChildHelper != null ? mChildHelper.getChildCount() : 0;
         }
 
         /**
@@ -3907,7 +3989,7 @@ public class RecyclerView extends ViewGroup {
          * @return Child view at index
          */
         public View getChildAt(int index) {
-            return mRecyclerView != null ? mRecyclerView.getChildAt(index) : null;
+            return mChildHelper != null ? mChildHelper.getChildAt(index) : null;
         }
 
         /**
@@ -5023,6 +5105,8 @@ public class RecyclerView extends ViewGroup {
             if (!isBound()) sb.append(" unbound");
             if (needsUpdate()) sb.append(" update");
             if (isRemoved()) sb.append(" removed");
+            if (!isRecyclable()) sb.append(" not recyclable");
+            if (itemView.getParent() == null) sb.append(" no parent");
             sb.append("}");
             return sb.toString();
         }
@@ -5301,10 +5385,10 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * @see RecyclerView#getChildCount()
+         * @see RecyclerView.LayoutManager#getChildCount()
          */
         public int getChildCount() {
-            return mRecyclerView.getChildCount();
+            return mRecyclerView.mLayout.getChildCount();
         }
 
         /**
@@ -5651,6 +5735,10 @@ public class RecyclerView extends ViewGroup {
 
         private boolean mInPreLayout = false;
 
+        private boolean mRunSimpleAnimations = false;
+
+        private boolean mRunPredictiveAnimations = false;
+
         State reset() {
             mTargetPosition = RecyclerView.NO_POSITION;
             if (mData != null) {
@@ -5663,6 +5751,28 @@ public class RecyclerView extends ViewGroup {
 
         public boolean isPreLayout() {
             return mInPreLayout;
+        }
+
+        /**
+         * Returns whether RecyclerView will run predictive animations in this layout pass
+         * or not.
+         *
+         * @return true if RecyclerView is calculating predictive animations to be run at the end
+         *         of the layout pass.
+         */
+        public boolean willRunPredictiveAnimations() {
+            return mRunPredictiveAnimations;
+        }
+
+        /**
+         * Returns whether RecyclerView will run simple animations in this layout pass
+         * or not.
+         *
+         * @return true if RecyclerView is calculating simple animations to be run at the end of
+         *         the layout pass.
+         */
+        public boolean willRunSimpleAnimations() {
+            return mRunSimpleAnimations;
         }
 
         /**
@@ -6091,5 +6201,4 @@ public class RecyclerView extends ViewGroup {
             this.bottom = bottom;
         }
     }
-
 }

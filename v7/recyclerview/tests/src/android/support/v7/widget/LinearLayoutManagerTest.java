@@ -21,6 +21,7 @@ import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 import android.view.View;
 
 import java.lang.reflect.Field;
@@ -427,17 +428,17 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     }
 
     public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after) {
-        if (DEBUG) {
-            Log.d(TAG, "checking rectangle equality.");
-            Log.d(TAG, "before:");
-            for (Map.Entry<Item, Rect> entry : before.entrySet()) {
-                Log.d(TAG, entry.getKey().mAdapterIndex + ":" + entry.getValue());
-            }
-            Log.d(TAG, "after:");
-            for (Map.Entry<Item, Rect> entry : after.entrySet()) {
-                Log.d(TAG, entry.getKey().mAdapterIndex + ":" + entry.getValue());
-            }
+        StringBuilder sb = new StringBuilder();
+        sb.append("checking rectangle equality.");
+         sb.append("before:\n");
+        for (Map.Entry<Item, Rect> entry : before.entrySet()) {
+            sb.append(entry.getKey().mAdapterIndex + ":" + entry.getValue()).append("\n");
         }
+        sb.append("after:\n");
+        for (Map.Entry<Item, Rect> entry : after.entrySet()) {
+            sb.append(entry.getKey().mAdapterIndex + ":" + entry.getValue()).append("\n");
+        }
+        message = message + "\n" + sb.toString();
         assertEquals(message + ":\nitem counts should be equal", before.size()
                 , after.size());
         for (Map.Entry<Item, Rect> entry : before.entrySet()) {

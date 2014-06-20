@@ -138,6 +138,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             }
         };
         final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setItemAnimator(null);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(lm);
         recyclerView.setItemViewCacheSize(10);

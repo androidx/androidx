@@ -25,7 +25,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -116,11 +115,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     private SavedState mPendingSavedState = null;
 
     /**
-     * Temporary list to keep removed Views that are laid out but not added.
-     */
-    final private List<View> mRemovedViews = new ArrayList<View>();
-
-    /**
      * Creates a vertical LinearLayoutManager
      *
      * @param context Current context, will be used to access resources.
@@ -159,12 +153,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             boolean didLayoutFromEnd = mLastStackFromEnd ^ mShouldReverseLayout;
             state.mAnchorLayoutFromEnd = didLayoutFromEnd;
             if (didLayoutFromEnd) {
-                final View refChild = getChildClosestToEnd(false);
+                final View refChild = getChildClosestToEnd();
                 state.mAnchorOffset = mOrientationHelper.getEndAfterPadding() -
                         mOrientationHelper.getDecoratedEnd(refChild);
                 state.mAnchorPosition = getPosition(refChild);
             } else {
-                final View refChild = getChildClosestToStart(false);
+                final View refChild = getChildClosestToStart();
                 state.mAnchorPosition = getPosition(refChild);
                 state.mAnchorOffset = mOrientationHelper.getDecoratedStart(refChild) -
                         mOrientationHelper.getStartAfterPadding();
@@ -487,11 +481,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
         } else if (getChildCount() > 0 && !stackFromEndChanged) {
             if (layoutFromEnd) {
-                View referenceChild = getChildClosestToEnd(false);
+                View referenceChild = getChildClosestToEnd();
                 anchorCoordinate = mOrientationHelper.getDecoratedEnd(referenceChild);
                 anchorItemPosition = getPosition(referenceChild);
             } else {
-                View referenceChild = getChildClosestToStart(false);
+                View referenceChild = getChildClosestToStart();
                 anchorCoordinate = mOrientationHelper.getDecoratedStart(referenceChild);
                 anchorItemPosition = getPosition(referenceChild);
             }
@@ -569,7 +563,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // and layout them accordingly so that animations can work as expected.
         // This case may happen if new views are added or an existing view expands and pushes
         // another view out of bounds.
-        if (getChildCount() > 0 && !state.isPreLayout() && supportsPredictiveItemAnimations()) {
+        if (state.willRunPredictiveAnimations() &&  getChildCount() > 0 && !state.isPreLayout()) {
             // to make the logic simpler, we calculate the size of children and call fill.
             int scrapExtraStart = 0, scrapExtraEnd = 0;
             final List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
@@ -593,7 +587,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             mLayoutState.mScrapList = scrapList;
             if (scrapExtraStart > 0) {
-                View anchor = getChildClosestToStart(true);
+                View anchor = getChildClosestToStart();
                 updateLayoutStateToFillStart(getPosition(anchor), startOffset);
                 mLayoutState.mExtra = scrapExtraStart;
                 mLayoutState.mAvailable = 0;
@@ -602,7 +596,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
 
             if (scrapExtraEnd > 0) {
-                View anchor = getChildClosestToEnd(true);
+                View anchor = getChildClosestToEnd();
                 updateLayoutStateToFillEnd(getPosition(anchor), endOffset);
                 mLayoutState.mExtra = scrapExtraEnd;
                 mLayoutState.mAvailable = 0;
@@ -616,7 +610,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         mPendingScrollPositionOffset = INVALID_OFFSET;
         mLastStackFromEnd = mStackFromEnd;
         mPendingSavedState = null; // we don't need this anymore
-        mRemovedViews.clear();
         if (DEBUG) {
             validateChildOrder();
         }
@@ -784,7 +777,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0) {
             return 0;
         }
-        final int topPosition = getPosition(getChildClosestToStart(false));
+        final int topPosition = getPosition(getChildClosestToStart());
         return mShouldReverseLayout ? state.getItemCount() - 1 - topPosition : topPosition;
     }
 
@@ -793,7 +786,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0) {
             return 0;
         }
-        final int topPosition = getPosition(getChildClosestToStart(false));
+        final int topPosition = getPosition(getChildClosestToStart());
         return mShouldReverseLayout ? state.getItemCount() - 1 - topPosition : topPosition;
     }
 
@@ -824,7 +817,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int fastScrollSpace;
         if (layoutDirection == LayoutState.LAYOUT_END) {
             // get the first child in the direction we are going
-            final View child = getChildClosestToEnd(true);
+            final View child = getChildClosestToEnd();
             // the direction in which we are traversing children
             mLayoutState.mItemDirection = mShouldReverseLayout ? LayoutState.ITEM_DIRECTION_HEAD
                     : LayoutState.ITEM_DIRECTION_TAIL;
@@ -835,7 +828,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                     - mOrientationHelper.getEndAfterPadding();
 
         } else {
-            final View child = getChildClosestToStart(true);
+            final View child = getChildClosestToStart();
             mLayoutState.mItemDirection = mShouldReverseLayout ? LayoutState.ITEM_DIRECTION_TAIL
                     : LayoutState.ITEM_DIRECTION_HEAD;
             mLayoutState.mCurrentPosition = getPosition(child) + mLayoutState.mItemDirection;
@@ -1029,7 +1022,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 break;
             }
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-            if (!params.isItemRemoved() && mLayoutState.mScrapList == null) {
+            if (mLayoutState.mScrapList == null) {
                 if (mShouldReverseLayout == (layoutState.mLayoutDirection
                         == LayoutState.LAYOUT_START)) {
                     addView(view);
@@ -1039,9 +1032,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             } else {
                 if (mShouldReverseLayout == (layoutState.mLayoutDirection
                         == LayoutState.LAYOUT_START)) {
-                    mRemovedViews.add(view);
+                    addDisappearingView(view);
                 } else {
-                    mRemovedViews.add(0, view);
+                    addDisappearingView(view, 0);
                 }
             }
             measureChildWithMargins(view, 0, 0);
@@ -1085,7 +1078,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             layoutState.mOffset += consumed * layoutState.mLayoutDirection;
 
-            if (!params.isItemRemoved()) {
+            if (!params.isItemRemoved() || mLayoutState.mScrapList == null) {
                 layoutState.mAvailable -= consumed;
                 // we keep a separate remaining space because mAvailable is important for recycling
                 remainingSpace -= consumed;
@@ -1152,59 +1145,19 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Convenience method to find the child closes to start. Caller should check it has enough
      * children.
-     * @param  includeRemoved If true, checks removed children as well. They are the views that
-     *                        were laid out but not added because of animations.
      * @return The child closes to start of the layout from user's perspective.
      */
-    private View getChildClosestToStart(boolean includeRemoved) {
-        if (includeRemoved && !mRemovedViews.isEmpty()) {
-            if (mShouldReverseLayout) {
-                final View visible = getChildAt(getChildCount() - 1);
-                final View removed = mRemovedViews.get(mRemovedViews.size() - 1);
-                if (getPosition(visible) > getPosition(removed)) {
-                    return visible;
-                }
-                return removed;
-            } else {
-                final View visible = getChildAt(0);
-                final View removed = mRemovedViews.get(0);
-                if (getPosition(visible) < getPosition(removed)) {
-                    return visible;
-                }
-                return removed;
-            }
-        } else {
-            return getChildAt(mShouldReverseLayout ? getChildCount() - 1 : 0);
-        }
+    private View getChildClosestToStart() {
+        return getChildAt(mShouldReverseLayout ? getChildCount() - 1 : 0);
     }
 
     /**
      * Convenience method to find the child closes to end. Caller should check it has enough
      * children.
-     * @param  includeRemoved If true, checks removed children as well. They are the views that
-     *                        were laid out but not added because of animations.
      * @return The child closes to end of the layout from user's perspective.
      */
-    private View getChildClosestToEnd(boolean includeRemoved) {
-        if (includeRemoved && !mRemovedViews.isEmpty()) {
-            if (mShouldReverseLayout) {
-                final View visible = getChildAt(0);
-                final View removed = mRemovedViews.get(0);
-                if (getPosition(visible) < getPosition(removed)) {
-                    return visible;
-                }
-                return removed;
-            } else {
-                final View visible = getChildAt(getChildCount() - 1);
-                final View removed = mRemovedViews.get(mRemovedViews.size() - 1);
-                if (getPosition(visible) > getPosition(removed)) {
-                    return visible;
-                }
-                return removed;
-            }
-        } else {
-            return getChildAt(mShouldReverseLayout ? 0 : getChildCount() - 1);
-        }
+    private View getChildClosestToEnd() {
+        return getChildAt(mShouldReverseLayout ? 0 : getChildCount() - 1);
     }
 
     /**
@@ -1314,9 +1267,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         final View referenceChild;
         if (layoutDir == LayoutState.LAYOUT_START) {
-            referenceChild = getChildClosestToStart(false);
+            referenceChild = getChildClosestToStart();
         } else {
-            referenceChild = getChildClosestToEnd(false);
+            referenceChild = getChildClosestToEnd();
         }
         ensureLayoutState();
         final int maxScroll = (int) (MAX_SCROLL_FACTOR * (mOrientationHelper.getEndAfterPadding() -
@@ -1326,9 +1279,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         fill(recycler, mLayoutState, state, true);
         final View nextFocus;
         if (layoutDir == LayoutState.LAYOUT_START) {
-            nextFocus = getChildClosestToStart(false);
+            nextFocus = getChildClosestToStart();
         } else {
-            nextFocus = getChildClosestToEnd(false);
+            nextFocus = getChildClosestToEnd();
         }
         if (nextFocus == referenceChild || !nextFocus.isFocusable()) {
             return null;

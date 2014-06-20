@@ -263,10 +263,10 @@ class AdapterHelper {
         return findPositionOffset(position, 0);
     }
 
-    int findPositionOffset(int position, int firstPosponedItem) {
+    int findPositionOffset(int position, int firstPostponedItem) {
         int offsetPosition = position;
         int count = mPostponedList.size();
-        for (int i = firstPosponedItem; i < count; ++i) {
+        for (int i = firstPostponedItem; i < count; ++i) {
             UpdateOp op = mPostponedList.get(i);
             if (op.positionStart <= offsetPosition) {
                 if (op.cmd == UpdateOp.REMOVE) {
