@@ -296,7 +296,7 @@ import java.util.Map;
  * <h3 id="">More Information</h3>
  * <p>
  *    To learn more about FileProvider, see the Android training class
- *    <a href="{@docRoot}training/secure-uri/index.html">Sharing Files Securely with URIs</a>.
+ *    <a href="{@docRoot}training/secure-file-sharing/index.html">Sharing Files Securely with URIs</a>.
  * </p>
  */
 public class FileProvider extends ContentProvider {
