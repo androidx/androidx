@@ -49,6 +49,11 @@ public class NotificationCompat {
      * Use the default notification sound. This will ignore any sound set using
      * {@link Builder#setSound}
      *
+     * <p>
+     * A notification that is noisy is more likely to be presented as a heads-up notification,
+     * on some platforms.
+     * </p>
+     *
      * @see Builder#setDefaults
      */
     public static final int DEFAULT_SOUND = 1;
@@ -57,6 +62,11 @@ public class NotificationCompat {
      * Use the default notification vibrate. This will ignore any vibrate set using
      * {@link Builder#setVibrate}. Using phone vibration requires the
      * {@link android.Manifest.permission#VIBRATE VIBRATE} permission.
+     *
+     * <p>
+     * A notification that vibrates is more likely to be presented as a heads-up notification,
+     * on some platforms.
+     * </p>
      *
      * @see Builder#setDefaults
      */
@@ -875,6 +885,11 @@ public class NotificationCompat {
          * to turn it off and use a normal notification, as this can be extremely
          * disruptive.
          *
+         * <p>
+         * On some platforms, the system UI may choose to display a heads-up notification,
+         * instead of launching this intent, while the user is using the device.
+         * </p>
+         *
          * @param intent The pending intent to launch.
          * @param highPriority Passing true will cause this notification to be sent
          *          even if other notifications are suppressed.
@@ -915,6 +930,11 @@ public class NotificationCompat {
 
         /**
          * Set the sound to play.  It will play on the default stream.
+         *
+         * <p>
+         * On some platforms, a notification that is noisy is more likely to be presented
+         * as a heads-up notification.
+         * </p>
          */
         public Builder setSound(Uri sound) {
             mNotification.sound = sound;
@@ -924,6 +944,11 @@ public class NotificationCompat {
 
         /**
          * Set the sound to play.  It will play on the stream you supply.
+         *
+         * <p>
+         * On some platforms, a notification that is noisy is more likely to be presented
+         * as a heads-up notification.
+         * </p>
          *
          * @see Notification#STREAM_DEFAULT
          * @see AudioManager for the <code>STREAM_</code> constants.
@@ -936,6 +961,11 @@ public class NotificationCompat {
 
         /**
          * Set the vibration pattern to use.
+         *
+         * <p>
+         * On some platforms, a notification that vibrates is more likely to be presented
+         * as a heads-up notification.
+         * </p>
          *
          * @see android.os.Vibrator for a discussion of the <code>pattern</code>
          * parameter.
