@@ -155,7 +155,7 @@ public class BrowseFragment extends Fragment {
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginLeft;
     private int mContainerListAlignTop;
-    private int mSearchAffordanceColor;
+    private SearchOrbView.Colors mSearchAffordanceColors;
     private boolean mSearchAffordanceColorSet;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
     private OnClickListener mExternalOnSearchClickedListener;
@@ -308,30 +308,44 @@ public class BrowseFragment extends Fragment {
     }
 
     /**
-     * Sets the color used to draw the search affordance.
-     *
-     * @param color The color to use for the search affordance.
+     * Sets the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
-    public void setSearchAffordanceColor(int color) {
-        mSearchAffordanceColor = color;
+    public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
+        mSearchAffordanceColors = colors;
         mSearchAffordanceColorSet = true;
         if (mTitleView != null) {
-            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
+            mTitleView.setSearchAffordanceColors(mSearchAffordanceColors);
         }
     }
 
     /**
-     * Returns the color used to draw the search affordance.
-     * Can be called only after an activity has been attached.
+     * Returns the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
-    public int getSearchAffordanceColor() {
+    public SearchOrbView.Colors getSearchAffordanceColors() {
         if (mSearchAffordanceColorSet) {
-            return mSearchAffordanceColor;
+            return mSearchAffordanceColors;
         }
         if (mTitleView == null) {
             throw new IllegalStateException("Fragment views not yet created");
         }
-        return mTitleView.getSearchAffordanceColor();
+        return mTitleView.getSearchAffordanceColors();
+    }
+
+    /**
+     * Sets the color used to draw the search affordance.
+     * A default brighter color will be set by the framework.
+     *
+     * @param color The color to use for the search affordance.
+     */
+    public void setSearchAffordanceColor(int color) {
+        setSearchAffordanceColors(new SearchOrbView.Colors(color));
+    }
+
+    /**
+     * Returns the color used to draw the search affordance.
+     */
+    public int getSearchAffordanceColor() {
+        return getSearchAffordanceColors().color;
     }
 
     /**
@@ -555,7 +569,7 @@ public class BrowseFragment extends Fragment {
         mTitleView.setTitle(mTitle);
         mTitleView.setBadgeDrawable(mBadgeDrawable);
         if (mSearchAffordanceColorSet) {
-            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
+            mTitleView.setSearchAffordanceColors(mSearchAffordanceColors);
         }
         if (mExternalOnSearchClickedListener != null) {
             mTitleView.setOnSearchClickedListener(mExternalOnSearchClickedListener);

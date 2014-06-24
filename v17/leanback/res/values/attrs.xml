@@ -115,14 +115,11 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="lbTitleView">
-        <!-- Defining color of the search affordance -->
-        <attr name="searchAffordanceColor" format="reference|color" />
-    </declare-styleable>
-
     <declare-styleable name="lbSearchOrbView">
         <!-- Defining icon of the search affordance -->
         <attr name="searchOrbIcon" format="reference"/>
+        <!-- Defining icon tint color of the search affordance -->
+        <attr name="searchOrbIconColor" format="reference|color"/>
         <!-- Defining color of the search affordance -->
         <attr name="searchOrbColor" format="reference|color" />
         <!-- Defining pulse color of the search affordance -->

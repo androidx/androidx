@@ -14,14 +14,11 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,14 +50,6 @@ public class TitleView extends FrameLayout {
         mBadgeView = (ImageView) rootView.findViewById(R.id.browse_badge);
         mTextView = (TextView) rootView.findViewById(R.id.browse_title);
         mSearchOrbView = (SearchOrbView) rootView.findViewById(R.id.browse_orb);
-
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbTitleView,
-                defStyleAttr, 0);
-
-        int defColor = context.getResources().getColor(R.color.lb_default_search_color);
-        int color = a.getColor(R.styleable.lbTitleView_searchAffordanceColor, defColor);
-        a.recycle();
-        mSearchOrbView.setOrbColor(color);
 
         setClipToPadding(false);
         setClipChildren(false);
@@ -117,16 +106,16 @@ public class TitleView extends FrameLayout {
     }
 
     /**
-     * Sets the color used to draw the search affordance.
+     * Sets the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
-    public void setSearchAffordanceColor(int color) {
-        mSearchOrbView.setOrbColor(color);
+    public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
+        mSearchOrbView.setOrbColors(colors);
     }
 
     /**
-     * Returns the color used to draw the search affordance.
+     * Returns the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
-    public int getSearchAffordanceColor() {
-        return mSearchOrbView.getOrbColor();
+    public SearchOrbView.Colors getSearchAffordanceColors() {
+        return mSearchOrbView.getOrbColors();
     }
 }
