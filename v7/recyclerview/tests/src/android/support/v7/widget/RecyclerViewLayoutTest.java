@@ -19,6 +19,9 @@ package android.support.v7.widget;
 
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -119,6 +122,115 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.assertNoLayout("When RV is not attached, layout should not happen", 1);
         assertEquals("No extra layout should happen when detached", prevLayoutCount,
                 layoutCount.get());
+    }
+
+    public void testNotifyDataSetChangedWithStableIds() throws Throwable {
+        final int defaultViewType = 1;
+        final Map<Item, Integer> viewTypeMap = new HashMap<Item, Integer>();
+        Thread.sleep(5000);
+        final Map<Integer, Integer> oldPositionToNewPositionMapping =
+                new HashMap<Integer, Integer>();
+        final TestAdapter adapter = new TestAdapter(100) {
+            @Override
+            public int getItemViewType(int position) {
+                Integer type = viewTypeMap.get(mItems.get(position));
+                return type == null ? defaultViewType : type;
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return mItems.get(position).mId;
+            }
+        };
+        adapter.setHasStableIds(true);
+        final ArrayList<Item> previousItems = new ArrayList<Item>();
+        previousItems.addAll(adapter.mItems);
+
+        final AtomicInteger layoutStart = new AtomicInteger(50);
+        final AtomicBoolean validate = new AtomicBoolean(false);
+        final int childCount = 10;
+        final TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    super.onLayoutChildren(recycler, state);
+                    if (validate.get()) {
+                        assertEquals("Cached views should be kept", 5, recycler
+                                .mCachedViews.size());
+                        for (RecyclerView.ViewHolder vh : recycler.mCachedViews) {
+                            TestViewHolder tvh = (TestViewHolder) vh;
+                            assertTrue("view holder should be marked for update", tvh.needsUpdate());
+                            assertTrue("view holder should be marked as invalid", tvh.isInvalid());
+                        }
+                    }
+                    detachAndScrapAttachedViews(recycler);
+                    if (validate.get()) {
+                        assertEquals("cache size should stay the same", 5,
+                                recycler.mCachedViews.size());
+                        assertEquals("all views should be scrapped", childCount,
+                                recycler.getScrapList().size());
+                        for (RecyclerView.ViewHolder vh : recycler.getScrapList()) {
+                            // TODO create test case for type change
+                            TestViewHolder tvh = (TestViewHolder) vh;
+                            assertTrue("view holder should be marked for update", tvh.needsUpdate());
+                            assertTrue("view holder should be marked as invalid", tvh.isInvalid());
+                        }
+                    }
+                    layoutRange(recycler, layoutStart.get(), layoutStart.get() + childCount);
+                    if (validate.get()) {
+                        for (int i = 0; i < getChildCount(); i++) {
+                            View view = getChildAt(i);
+                            TestViewHolder tvh = (TestViewHolder) mRecyclerView
+                                    .getChildViewHolder(view);
+                            final int oldPos = previousItems.indexOf(tvh.mBindedItem);
+                            assertEquals("view holder's position should be correct",
+                                    oldPositionToNewPositionMapping.get(oldPos).intValue(),
+                                    tvh.getPosition());
+;                        }
+                    }
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+        };
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setItemAnimator(null);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setItemViewCacheSize(10);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+        getInstrumentation().waitForIdleSync();
+        layoutStart.set(layoutStart.get() + 5);//55
+        lm.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        lm.waitForLayout(2);
+        validate.set(true);
+        lm.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    adapter.moveItems(false,
+                            new int[]{50, 56}, new int[]{51, 1}, new int[]{52, 2},
+                            new int[]{53, 54}, new int[]{60, 61}, new int[]{62, 64},
+                            new int[]{75, 58});
+                    for (int i = 0; i < previousItems.size(); i++) {
+                        Item item = previousItems.get(i);
+                        oldPositionToNewPositionMapping.put(i, adapter.mItems.indexOf(item));
+                    }
+                    adapter.notifyChange();
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+            }
+        });
+        lm.waitForLayout(2);
+        checkForMainThreadException();
     }
 
     public void testFindViewById() throws Throwable {

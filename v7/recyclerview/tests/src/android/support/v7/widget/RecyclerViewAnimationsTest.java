@@ -115,6 +115,36 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mLayoutManager.waitForLayout(2);
     }
 
+    public void testStableIdNotifyDataSetChanged() throws Throwable {
+        final int itemCount = 20;
+        List<Item> initialSet = new ArrayList<Item>();
+        final TestAdapter adapter = new TestAdapter(itemCount) {
+            @Override
+            public long getItemId(int position) {
+                return mItems.get(position).mId;
+            }
+        };
+        adapter.setHasStableIds(true);
+        initialSet.addAll(adapter.mItems);
+        positionStatesTest(itemCount, 5, 5, adapter, new AdapterOps() {
+            @Override
+            void onRun(TestAdapter testAdapter) throws Throwable {
+                Item item5 = adapter.mItems.get(5);
+                Item item6 = adapter.mItems.get(6);
+                item5.mAdapterIndex = 6;
+                item6.mAdapterIndex = 5;
+                adapter.mItems.remove(5);
+                adapter.mItems.add(6, item5);
+                adapter.notifyChange();
+                //hacky, we support only 1 layout pass
+                mLayoutManager.layoutLatch.countDown();
+            }
+        }, PositionConstraint.scrap(6, -1, 5), PositionConstraint.scrap(5, -1, 6),
+                PositionConstraint.scrap(7, -1, 7), PositionConstraint.scrap(8, -1, 8),
+                PositionConstraint.scrap(9, -1, 9));
+        // now mix items.
+    }
+
 
     public void testGetItemForDeletedView() throws Throwable {
         getItemForDeletedViewTest(false);
@@ -369,26 +399,28 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mLayoutManager.waitForLayout(2);
     }
 
-    private CollectPositionResult findByPos(RecyclerView.Recycler recycler,
-            RecyclerView.State state, int position) {
-        RecyclerView.ViewHolder scrap = recycler
-                .getScrapViewForPosition(position, RecyclerView.INVALID_TYPE, true);
-        if (scrap != null) {
-            return CollectPositionResult.fromScrap(scrap);
+    private CollectPositionResult findByPos(RecyclerView recyclerView,
+            RecyclerView.Recycler recycler, RecyclerView.State state, int position) {
+        View view = recycler.getViewForPosition(position, true);
+        RecyclerView.ViewHolder vh = recyclerView.getChildViewHolder(view);
+        if (vh.wasReturnedFromScrap()) {
+            vh.clearReturnedFromScrapFlag(); //keep data consistent.
+            return CollectPositionResult.fromScrap(vh);
+        } else {
+            return CollectPositionResult.fromAdapter(vh);
         }
-        return CollectPositionResult.fromAdapter(
-                mRecyclerView.getChildViewHolder(recycler.getViewForPosition(position)));
     }
 
-    public Map<Integer, CollectPositionResult> collectPositions(RecyclerView.Recycler recycler,
-            RecyclerView.State state, int... positions) {
+    public Map<Integer, CollectPositionResult> collectPositions(RecyclerView recyclerView,
+            RecyclerView.Recycler recycler, RecyclerView.State state, int... positions) {
         Map<Integer, CollectPositionResult> positionToAdapterMapping
                 = new HashMap<Integer, CollectPositionResult>();
         for (int position : positions) {
             if (position < 0) {
                 continue;
             }
-            positionToAdapterMapping.put(position, findByPos(recycler, state, position));
+            positionToAdapterMapping.put(position,
+                    findByPos(recyclerView, recycler, state, position));
         }
         return positionToAdapterMapping;
     }
@@ -460,9 +492,15 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
 
     public void positionStatesTest(int itemCount, int firstLayoutStartIndex,
-            int firstLayoutItemCount
-            , AdapterOps adapterChanges, final PositionConstraint... constraints) throws Throwable {
-        setupBasic(itemCount, firstLayoutStartIndex, firstLayoutItemCount);
+            int firstLayoutItemCount, AdapterOps adapterChanges,
+            final PositionConstraint... constraints) throws Throwable {
+        positionStatesTest(itemCount, firstLayoutStartIndex, firstLayoutItemCount, null,
+                adapterChanges,  constraints);
+    }
+    public void positionStatesTest(int itemCount, int firstLayoutStartIndex,
+            int firstLayoutItemCount,TestAdapter adapter, AdapterOps adapterChanges,
+            final PositionConstraint... constraints) throws Throwable {
+        setupBasic(itemCount, firstLayoutStartIndex, firstLayoutItemCount, adapter);
         mLayoutManager.expectLayouts(2);
         mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
             @Override
@@ -476,7 +514,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                     ids[i] = constraints[i].mPreLayoutPos;
                 }
                 Map<Integer, CollectPositionResult> positions
-                        = collectPositions(recycler, state, ids);
+                        = collectPositions(lm.mRecyclerView, recycler, state, ids);
                 for (PositionConstraint constraint : constraints) {
                     if (constraint.mPreLayoutPos != -1) {
                         constraint.validate(state, positions.get(constraint.mPreLayoutPos),
@@ -495,7 +533,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                     ids[i] = constraints[i].mPostLayoutPos;
                 }
                 Map<Integer, CollectPositionResult> positions
-                        = collectPositions(recycler, state, ids);
+                        = collectPositions(lm.mRecyclerView, recycler, state, ids);
                 for (PositionConstraint constraint : constraints) {
                     if (constraint.mPostLayoutPos >= 0) {
                         constraint.validate(state, positions.get(constraint.mPostLayoutPos),
@@ -506,6 +544,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         };
         adapterChanges.run(mTestAdapter);
         mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
         for (PositionConstraint constraint : constraints) {
             constraint.assertValidate();
         }
@@ -991,6 +1030,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             }
             if (state.isPreLayout()) {
                 assertEquals(this + ": pre-layout position should match\n" + log, mPreLayoutPos,
+                        viewHolder.mPreLayoutPosition == -1 ? viewHolder.mPosition :
                         viewHolder.mPreLayoutPosition);
                 assertEquals(this + ": pre-layout getPosition should match\n" + log, mPreLayoutPos,
                         viewHolder.getPosition());
@@ -1000,8 +1040,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 }
             } else if (mType == Type.adapter || mType == Type.adapterScrap || !result.scrapResult
                     .isRemoved()) {
-                assertEquals(this + ": post-layout position should match\n" + log, mPostLayoutPos,
-                        viewHolder.getPosition());
+                assertEquals(this + ": post-layout position should match\n" + log + "\n\n"
+                        + viewHolder, mPostLayoutPos, viewHolder.getPosition());
             }
         }
     }

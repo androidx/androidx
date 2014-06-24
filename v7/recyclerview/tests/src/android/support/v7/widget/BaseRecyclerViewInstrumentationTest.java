@@ -178,6 +178,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             layoutLatch.await(timeout * (mDebug ? 100 : 1), timeUnit);
             assertEquals("all expected layouts should be executed at the expected time",
                     0, layoutLatch.getCount());
+            getInstrumentation().waitForIdleSync();
         }
 
         public void assertLayoutCount(int count, String msg, long timeout) throws Throwable {
@@ -254,8 +255,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
 
         private void assertScrap(RecyclerView.Recycler recycler) {
-            for (RecyclerView.ViewHolder viewHolder : recycler.getScrapList()) {
-                assertFalse("Invalid scrap should be no kept", viewHolder.isInvalid());
+            if (mRecyclerView.getAdapter() != null &&
+                    !mRecyclerView.getAdapter().hasStableIds()) {
+                for (RecyclerView.ViewHolder viewHolder : recycler.getScrapList()) {
+                    assertFalse("Invalid scrap should be no kept", viewHolder.isInvalid());
+                }
             }
         }
     }
@@ -333,6 +337,17 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
         }
 
+        /**
+         * @param start inclusive
+         * @param end exclusive
+         * @param offset
+         */
+        public void offsetOriginalIndicesBetween(int start, int end, int offset) {
+            for (int i = start; i < end && i < mItems.size(); i++) {
+                mItems.get(i).mAdapterIndex += offset;
+            }
+        }
+
         public void addAndNotify(final int start, final int count) throws Throwable {
             addAndNotify(new int[]{start, count});
         }
@@ -372,6 +387,32 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         @Override
         public int getItemCount() {
             return mItems.size();
+        }
+
+        public void moveItems(boolean notifyChange, int[]... fromToTuples) throws Throwable {
+            for (int i = 0; i < fromToTuples.length; i += 1) {
+                int[] tuple = fromToTuples[i];
+                moveItem(tuple[0], tuple[1], false);
+            }
+            if (notifyChange) {
+                notifyChange();
+            }
+        }
+
+        public void moveItem(final int from, final int to, final boolean notifyChange)
+                throws Throwable {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Item item = mItems.remove(from);
+                    mItems.add(to, item);
+                    offsetOriginalIndices(from, to - 1);
+                    item.mAdapterIndex = to;
+                    if (notifyChange) {
+                        notifyDataSetChanged();
+                    }
+                }
+            });
         }
 
 
