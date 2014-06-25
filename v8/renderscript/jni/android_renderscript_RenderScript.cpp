@@ -741,7 +741,7 @@ nScriptSetVarVE(JNIEnv *_env, jobject _this, RsContext con, jint script, jint sl
     jint dimsLen = _env->GetArrayLength(dims) * sizeof(int);
     jint *dimsPtr = _env->GetIntArrayElements(dims, NULL);
     rsScriptSetVarVE(con, (RsScript)script, slot, ptr, len, (RsElement)elem,
-                     (const size_t*) dimsPtr, dimsLen);
+                     (const uint32_t *)dimsPtr, dimsLen);
     _env->ReleaseByteArrayElements(data, ptr, JNI_ABORT);
     _env->ReleaseIntArrayElements(dims, dimsPtr, JNI_ABORT);
 }
