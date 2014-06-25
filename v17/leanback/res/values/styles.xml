@@ -75,7 +75,6 @@
     </style>
 
     <style name="Widget.Leanback.TitleView" >
-        <item name="searchAffordanceColor">?attr/defaultSearchColor</item>
     </style>
 
     <style name="Widget.Leanback.Title" />

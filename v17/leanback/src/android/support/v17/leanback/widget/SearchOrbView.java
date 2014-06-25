@@ -42,12 +42,79 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private View mSearchOrbView;
     private ImageView mIcon;
     private Drawable mIconDrawable;
-    private int mSearchOrbColor, mSearchOrbColorBright;
+    private Colors mColors;
     private final float mFocusedZoom;
-    private final float mBrightnessAlpha;
     private final int mPulseDurationMs;
     private final int mScaleDownDurationMs;
     private ValueAnimator mColorAnimator;
+
+    /**
+     * A set of colors used to display the search orb.
+     */
+    public static class Colors {
+        private static final float sBrightnessAlpha = 0.15f;
+
+        /**
+         * Constructs a color set using the given color for the search orb.
+         * Other colors are provided by the framework.
+         * 
+         * @param color The main search orb color.
+         */
+        public Colors(int color) {
+            this(color, color);
+        }
+
+        /**
+         * Constructs a color set using the given colors for the search orb.
+         * Other colors are provided by the framework.
+         * 
+         * @param color The main search orb color.
+         * @param brightColor A brighter version of the search orb used for animation.
+         */
+        public Colors(int color, int brightColor) {
+            this(color, brightColor, Color.TRANSPARENT);
+        }
+
+        /**
+         * Constructs a color set using the given colors.
+         *
+         * @param color The main search orb color.
+         * @param brightColor A brighter version of the search orb used for animation.
+         * @param iconColor A color used to tint the search orb icon.
+         */
+        public Colors(int color, int brightColor, int iconColor) {
+            this.color = color;
+            this.brightColor = brightColor == color ? getBrightColor(color) : brightColor;
+            this.iconColor = iconColor;
+        }
+
+        /**
+         * The main color of the search orb.
+         */
+        public int color;
+
+        /**
+         * A brighter version of the search orb used for animation.
+         */
+        public int brightColor;
+
+        /**
+         * A color used to tint the search orb icon.
+         */
+        public int iconColor;
+
+        /**
+         * Computes a default brighter version of the given color.
+         */
+        public static int getBrightColor(int color) {
+            final float brightnessValue = 0xff * sBrightnessAlpha;
+            int red = (int)(Color.red(color) * (1 - sBrightnessAlpha) + brightnessValue);
+            int green = (int)(Color.green(color) * (1 - sBrightnessAlpha) + brightnessValue);
+            int blue = (int)(Color.blue(color) * (1 - sBrightnessAlpha) + brightnessValue);
+            int alpha = (int)(Color.alpha(color) * (1 - sBrightnessAlpha) + brightnessValue);
+            return Color.argb(alpha, red, green, blue);
+        }
+    }
 
     private final ArgbEvaluator mColorEvaluator = new ArgbEvaluator();
 
@@ -91,8 +158,6 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
         mFocusedZoom = context.getResources().getFraction(
                 R.fraction.lb_search_orb_focused_zoom, 1, 1);
-        mBrightnessAlpha = context.getResources().getFraction(
-                R.fraction.lb_search_orb_brightness_alpha, 1, 1);
         mPulseDurationMs = context.getResources().getInteger(
                 R.integer.lb_search_orb_pulse_duration_ms);
         mScaleDownDurationMs = context.getResources().getInteger(
@@ -110,8 +175,9 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         int defColor = res.getColor(R.color.lb_default_search_color);
         int color = a.getColor(R.styleable.lbSearchOrbView_searchOrbColor, defColor);
         int brightColor = a.getColor(
-                R.styleable.lbSearchOrbView_searchOrbBrightColor, getBrightColor(color));
-        setOrbColor(color, brightColor);
+                R.styleable.lbSearchOrbView_searchOrbBrightColor, color);
+        int iconColor = a.getColor(R.styleable.lbSearchOrbView_searchOrbIconColor, Color.TRANSPARENT);
+        setOrbColors(new Colors(color, brightColor, iconColor));
         a.recycle();
 
         setFocusable(true);
@@ -184,22 +250,23 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     }
 
     /**
-     * Set the background color of the search orb.
+     * Sets the background color of the search orb.
+     * Other colors will be provided by the framework.
+     * 
      * @param color the RGBA color
      */
     public void setOrbColor(int color) {
-        setOrbColor(color, getBrightColor(color));
+        setOrbColors(new Colors(color, color, Color.TRANSPARENT));
     }
 
+    /**
+     * Sets the search orb colors.
+     * Other colors are provided by the framework.
+     * @deprecated Use {@link #setOrbColors(Colors)} instead.
+     */
+    @Deprecated
     public void setOrbColor(int color, int brightColor) {
-        mSearchOrbColor = color;
-        mSearchOrbColorBright = brightColor;
-
-        if (mColorAnimator == null) {
-            setOrbViewColor(color);
-        } else {
-            enableOrbColorAnimation(true);
-        }
+        setOrbColors(new Colors(color, brightColor, Color.TRANSPARENT));
     }
 
     /**
@@ -207,16 +274,28 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      * @return the RGBA color
      */
     public int getOrbColor() {
-        return mSearchOrbColor;
+        return mColors.color;
     }
 
-    private int getBrightColor(int color) {
-        final float brightnessValue = 0xff * mBrightnessAlpha;
-        int red = (int)(Color.red(color) * (1 - mBrightnessAlpha) + brightnessValue);
-        int green = (int)(Color.green(color) * (1 - mBrightnessAlpha) + brightnessValue);
-        int blue = (int)(Color.blue(color) * (1 - mBrightnessAlpha) + brightnessValue);
-        int alpha = (int)(Color.alpha(color) * (1 - mBrightnessAlpha) + brightnessValue);
-        return Color.argb(alpha, red, green, blue);
+    /**
+     * Set the {@link Colors} used to display the search orb.
+     */
+    public void setOrbColors(Colors colors) {
+        mColors = colors;
+        mIcon.setColorFilter(mColors.iconColor);
+
+        if (mColorAnimator == null) {
+            setOrbViewColor(mColors.color);
+        } else {
+            enableOrbColorAnimation(true);
+        }
+    }
+
+    /**
+     * Returns the {@link Colors} used to display the search orb.
+     */
+    public Colors getOrbColors() {
+        return mColors;
     }
 
     private void enableOrbColorAnimation(boolean enable) {
@@ -227,7 +306,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         if (enable) {
             // TODO: set interpolator (material if available)
             mColorAnimator = ValueAnimator.ofObject(mColorEvaluator,
-                    mSearchOrbColor, mSearchOrbColorBright, mSearchOrbColor);
+                    mColors.color, mColors.brightColor, mColors.color);
             mColorAnimator.setRepeatCount(ValueAnimator.INFINITE);
             mColorAnimator.setDuration(mPulseDurationMs * 2);
             mColorAnimator.addUpdateListener(mUpdateListener);

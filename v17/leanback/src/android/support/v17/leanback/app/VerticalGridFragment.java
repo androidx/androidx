@@ -54,7 +54,7 @@ public class VerticalGridFragment extends Fragment {
     private int mSelectedPosition = -1;
 
     private TitleView mTitleView;
-    private int mSearchAffordanceColor;
+    private SearchOrbView.Colors mSearchAffordanceColors;
     private boolean mSearchAffordanceColorSet;
     private boolean mShowingTitle = true;
 
@@ -210,29 +210,45 @@ public class VerticalGridFragment extends Fragment {
     }
 
     /**
-     * Sets the color used to draw the search affordance.
+     * Sets the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
-    public void setSearchAffordanceColor(int color) {
-        mSearchAffordanceColor = color;
+    public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
+        mSearchAffordanceColors = colors;
         mSearchAffordanceColorSet = true;
         if (mTitleView != null) {
-            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
+            mTitleView.setSearchAffordanceColors(mSearchAffordanceColors);
         }
+    }
+
+    /**
+     * Returns the {@link SearchOrbView.Colors} used to draw the search affordance.
+     */
+    public SearchOrbView.Colors getSearchAffordanceColors() {
+        if (mSearchAffordanceColorSet) {
+            return mSearchAffordanceColors;
+        }
+        if (mTitleView == null) {
+            throw new IllegalStateException("Fragment views not yet created");
+        }
+        return mTitleView.getSearchAffordanceColors();
+    }
+
+    /**
+     * Sets the color used to draw the search affordance.
+     * A default brighter color will be set by the framework.
+     *
+     * @param color The color to use for the search affordance.
+     */
+    public void setSearchAffordanceColor(int color) {
+        setSearchAffordanceColors(new SearchOrbView.Colors(color));
     }
 
     /**
      * Returns the color used to draw the search affordance.
      */
     public int getSearchAffordanceColor() {
-        if (mSearchAffordanceColorSet) {
-            return mSearchAffordanceColor;
-        }
-        if (mTitleView == null) {
-            throw new IllegalStateException("Fragment views not yet created");
-        }
-        return mTitleView.getSearchAffordanceColor();
+        return getSearchAffordanceColors().color;
     }
-
 
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
             new BrowseFrameLayout.OnFocusSearchListener() {
@@ -268,7 +284,7 @@ public class VerticalGridFragment extends Fragment {
         mTitleView.setBadgeDrawable(mBadgeDrawable);
         mTitleView.setTitle(mTitle);
         if (mSearchAffordanceColorSet) {
-            mTitleView.setSearchAffordanceColor(mSearchAffordanceColor);
+            mTitleView.setSearchAffordanceColors(mSearchAffordanceColors);
         }
         if (mExternalOnSearchClickedListener != null) {
             mTitleView.setOnSearchClickedListener(mExternalOnSearchClickedListener);
