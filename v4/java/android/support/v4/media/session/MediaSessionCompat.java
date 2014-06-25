@@ -509,12 +509,12 @@ public class MediaSessionCompat {
         }
 
         /**
-         * Gets the underlying framework {@link android.media.session.MediaSessionToken} object.
+         * Gets the underlying framework {@link android.media.session.MediaSession.Token} object.
          * <p>
          * This method is only supported on API 21+.
          * </p>
          *
-         * @return The underlying {@link android.media.session.MediaSessionToken} object,
+         * @return The underlying {@link android.media.session.MediaSession.Token} object,
          * or null if none.
          */
         public Object getToken() {

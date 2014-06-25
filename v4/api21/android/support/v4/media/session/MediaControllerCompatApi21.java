@@ -19,7 +19,7 @@ package android.support.v4.media.session;
 import android.media.MediaMetadata;
 import android.media.Rating;
 import android.media.session.MediaController;
-import android.media.session.MediaSessionToken;
+import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,7 +28,7 @@ import android.view.KeyEvent;
 
 class MediaControllerCompatApi21 {
     public static Object fromToken(Object sessionToken) {
-        return MediaController.fromToken((MediaSessionToken)sessionToken);
+        return MediaController.fromToken((MediaSession.Token)sessionToken);
     }
 
     public static Object createCallback(Callback callback) {
