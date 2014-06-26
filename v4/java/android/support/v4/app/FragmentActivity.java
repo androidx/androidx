@@ -178,8 +178,46 @@ public class FragmentActivity extends Activity {
      */
     public void onBackPressed() {
         if (!mFragments.popBackStackImmediate()) {
-            finish();
+            finishAfterTransition();
         }
+    }
+
+    /**
+     * Reverses the Activity Scene entry Transition and triggers the calling Activity
+     * to reverse its exit Transition. When the exit Transition completes,
+     * {@link #finish()} is called. If no entry Transition was used, finish() is called
+     * immediately and the Activity exit Transition is run.
+     *
+     * <p>On Android 4.4 or lower, this method only finishes the Activity with no
+     * special exit transition.</p>
+     */
+    public void finishAfterTransition() {
+        ActivityCompat.finishAfterTransition(this);
+    }
+
+    /**
+     * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
+     * android.view.View, String)} was used to start an Activity, <var>listener</var>
+     * will be called to handle shared elements on the <i>launched</i> Activity. This requires
+     * {@link Window#FEATURE_CONTENT_TRANSITIONS}.
+     *
+     * @param listener Used to manipulate shared element transitions on the launched Activity.
+     */
+    public void setEnterSharedElementListener(SharedElementListener listener) {
+        ActivityCompat.setEnterSharedElementListener(this, listener);
+    }
+
+    /**
+     * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
+     * android.view.View, String)} was used to start an Activity, <var>listener</var>
+     * will be called to handle shared elements on the <i>launching</i> Activity. Most
+     * calls will only come when returning from the started Activity.
+     * This requires {@link Window#FEATURE_CONTENT_TRANSITIONS}.
+     *
+     * @param listener Used to manipulate shared element transitions on the launching Activity.
+     */
+    public void setExitSharedElementListener(SharedElementListener listener) {
+        ActivityCompat.setExitSharedElementListener(this, listener);
     }
 
     /**
