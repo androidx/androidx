@@ -112,6 +112,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     private int mPendingScrollPositionOffset = INVALID_OFFSET;
 
+    private boolean mRecycleChildrenOnDetach;
+
     private SavedState mPendingSavedState = null;
 
     /**
@@ -143,12 +145,55 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
+    /**
+     * Returns whether LinearLayoutManager will recycle its children when it is detached from
+     * RecyclerView.
+     *
+     * @return true if LinearLayoutManager will recycle its children when it is detached from
+     * RecyclerView.
+     */
+    public boolean getRecycleChildrenOnDetach() {
+        return mRecycleChildrenOnDetach;
+    }
+
+    /**
+     * Set whether LinearLayoutManager will recycle its children when it is detached from
+     * RecyclerView.
+     * <p>
+     * If you are using a {@link RecyclerView.RecycledViewPool}, it might be a good idea to set
+     * this flag to <code>true</code> so that views will be avilable to other RecyclerViews
+     * immediately.
+     * <p>
+     * Note that, setting this flag will result in a performance drop if RecyclerView
+     * is restored.
+     *
+     * @param recycleChildrenOnDetach Whether children should be recycled in detach or not.
+     */
+    public void setRecycleChildrenOnDetach(boolean recycleChildrenOnDetach) {
+        if (mPendingSavedState != null &&
+                mPendingSavedState.mRecycleChildrenOnDetach != recycleChildrenOnDetach) {
+            // override pending state
+            mPendingSavedState.mRecycleChildrenOnDetach = recycleChildrenOnDetach;
+        }
+        mRecycleChildrenOnDetach = recycleChildrenOnDetach;
+    }
+
+    @Override
+    public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+        super.onDetachedFromWindow(view, recycler);
+        if (mRecycleChildrenOnDetach) {
+            removeAndRecycleAllViews(recycler);
+            recycler.clear();
+        }
+    }
+
     @Override
     public Parcelable onSaveInstanceState() {
         if (mPendingSavedState != null) {
             return new SavedState(mPendingSavedState);
         }
         SavedState state = new SavedState();
+        state.mRecycleChildrenOnDetach = mRecycleChildrenOnDetach;
         if (getChildCount() > 0) {
             boolean didLayoutFromEnd = mLastStackFromEnd ^ mShouldReverseLayout;
             state.mAnchorLayoutFromEnd = didLayoutFromEnd;
@@ -387,6 +432,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             setOrientation(mPendingSavedState.mOrientation);
             setReverseLayout(mPendingSavedState.mReverseLayout);
             setStackFromEnd(mPendingSavedState.mStackFromEnd);
+            setRecycleChildrenOnDetach(mPendingSavedState.mRecycleChildrenOnDetach);
             if (mPendingSavedState.hasValidAnchor()) {
                 mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
             }
@@ -1503,6 +1549,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         boolean mAnchorLayoutFromEnd;
 
+        boolean mRecycleChildrenOnDetach;
+
 
         public SavedState() {
 
@@ -1515,6 +1563,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mReverseLayout = in.readInt() == 1;
             mStackFromEnd = in.readInt() == 1;
             mAnchorLayoutFromEnd = in.readInt() == 1;
+            mRecycleChildrenOnDetach = in.readInt() == 1;
         }
 
         public SavedState(SavedState other) {
@@ -1524,6 +1573,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mReverseLayout = other.mReverseLayout;
             mStackFromEnd = other.mStackFromEnd;
             mAnchorLayoutFromEnd = other.mAnchorLayoutFromEnd;
+            mRecycleChildrenOnDetach = other.mRecycleChildrenOnDetach;
         }
 
         boolean hasValidAnchor() {
@@ -1547,6 +1597,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             dest.writeInt(mReverseLayout ? 1 : 0);
             dest.writeInt(mStackFromEnd ? 1 : 0);
             dest.writeInt(mAnchorLayoutFromEnd ? 1 : 0);
+            dest.writeInt(mRecycleChildrenOnDetach ? 1 : 0);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR

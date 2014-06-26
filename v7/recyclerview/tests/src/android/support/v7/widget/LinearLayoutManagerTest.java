@@ -21,7 +21,6 @@ import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 import android.view.View;
 
 import java.lang.reflect.Field;
@@ -88,6 +87,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         mLayoutManager = new WrappedLinearLayoutManager(getActivity(), config.mOrientation,
                 config.mReverseLayout);
         mLayoutManager.setStackFromEnd(config.mStackFromEnd);
+        mLayoutManager.setRecycleChildrenOnDetach(config.mRecycleChildrenOnDetach);
         mRecyclerView.setLayoutManager(mLayoutManager);
         if (waitForFirstLayout) {
             waitForFirstLayout();
@@ -105,6 +105,35 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         for (Config config : mBaseVariations) {
             getFirstLastChildrenTest(config);
         }
+    }
+
+    public void testDontRecycleChildrenOnDetach() throws Throwable {
+        setupByConfig(new Config().recycleChildrenOnDetach(false), true);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int recyclerSize = mRecyclerView.mRecycler.getRecycledViewPool().size();
+                mRecyclerView.setLayoutManager(new TestLayoutManager());
+                assertEquals("No views are recycled", recyclerSize,
+                        mRecyclerView.mRecycler.getRecycledViewPool().size());
+            }
+        });
+    }
+
+    public void testRecycleChildrenOnDetach() throws Throwable {
+        setupByConfig(new Config().recycleChildrenOnDetach(true), true);
+        final int childCount = mLayoutManager.getChildCount();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int recyclerSize = mRecyclerView.mRecycler.getRecycledViewPool().size();
+                mRecyclerView.mRecycler.getRecycledViewPool().setMaxRecycledViews(
+                        mTestAdapter.getItemViewType(0), recyclerSize + childCount);
+                mRecyclerView.setLayoutManager(new TestLayoutManager());
+                assertEquals("All children should be recycled", childCount + recyclerSize,
+                        mRecyclerView.mRecycler.getRecycledViewPool().size());
+            }
+        });
     }
 
     public void getFirstLastChildrenTest(final Config config) throws Throwable {
@@ -182,6 +211,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     }
 
     public void testSavedState() throws Throwable {
+        Thread.sleep(5000);
         PostLayoutRunnable[] postLayoutOptions = new PostLayoutRunnable[]{
                 new PostLayoutRunnable() {
                     @Override
@@ -297,6 +327,23 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                     }
                 },
                 new PostRestoreRunnable() {
+                    @Override
+                    void onAfterRestore(Config config) throws Throwable {
+                        config.mRecycleChildrenOnDetach = !config.mRecycleChildrenOnDetach;
+                        mLayoutManager.setRecycleChildrenOnDetach(config.mRecycleChildrenOnDetach);
+                    }
+
+                    @Override
+                    boolean shouldLayoutMatch(Config config) {
+                        return true;
+                    }
+
+                    @Override
+                    String describe() {
+                        return "Change shoudl recycle children";
+                    }
+                },
+                new PostRestoreRunnable() {
                     int position;
                     @Override
                     void onAfterRestore(Config config) throws Throwable {
@@ -327,7 +374,9 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                 }
         };
         boolean[] waitForLayoutOptions = new boolean[]{true, false};
-        for (Config config : addConfigVariation(mBaseVariations, "mItemCount", 0, 300)) {
+        List<Config> variations = addConfigVariation(mBaseVariations, "mItemCount", 0, 300);
+        variations = addConfigVariation(variations, "mRecycleChildrenOnDetach", true);
+        for (Config config : variations) {
             for (PostLayoutRunnable postLayoutRunnable : postLayoutOptions) {
                 for (boolean waitForLayout : waitForLayoutOptions) {
                     for (PostRestoreRunnable postRestoreRunnable : postRestoreOptions) {
@@ -392,6 +441,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                 config.mOrientation, mLayoutManager.getOrientation());
         assertEquals(logPrefix + " on saved state, stack from end should be preserved",
                 config.mStackFromEnd, mLayoutManager.getStackFromEnd());
+        assertEquals(logPrefix + " on saved state, mRecycleChildrenOnDetach should be preserved",
+                config.mRecycleChildrenOnDetach, mLayoutManager.getRecycleChildrenOnDetach());
         if (waitForLayout) {
             if (postRestoreOperation.shouldLayoutMatch(config)) {
                 assertRectSetsEqual(
@@ -400,7 +451,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             } else {
                 assertRectSetsNotEqual(
                         logPrefix
-                                + ": on restore with changes, previous view positions should NOT be preserved",
+                                + ": on restore with changes, previous view positions should NOT "
+                                + "be preserved",
                         before, mLayoutManager.collectChildCoordinates());
             }
             postRestoreOperation.onAfterReLayout(config);
@@ -640,6 +692,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         boolean mReverseLayout = false;
 
+        boolean mRecycleChildrenOnDetach = false;
+
         int mItemCount = DEFAULT_ITEM_COUNT;
 
         Config(int orientation, boolean reverseLayout, boolean stackFromEnd) {
@@ -650,6 +704,11 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         public Config() {
 
+        }
+
+        Config recycleChildrenOnDetach(boolean recycleChildrenOnDetach) {
+            mRecycleChildrenOnDetach = recycleChildrenOnDetach;
+            return this;
         }
 
         Config orientation(int orientation) {
@@ -684,6 +743,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                     "mStackFromEnd=" + mStackFromEnd +
                     ", mOrientation=" + mOrientation +
                     ", mReverseLayout=" + mReverseLayout +
+                    ", mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach +
                     ", mItemCount=" + mItemCount +
                     '}';
         }

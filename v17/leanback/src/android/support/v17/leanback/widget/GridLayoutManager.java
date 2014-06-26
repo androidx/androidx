@@ -1374,7 +1374,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void removeAndRecycleAllViews(RecyclerView.Recycler recycler) {
+    public void removeAndRecycleAllViews(RecyclerView.Recycler recycler) {
         if (DEBUG) Log.v(TAG, "removeAndRecycleAllViews " + getChildCount());
         for (int i = getChildCount() - 1; i >= 0; i--) {
             removeAndRecycleViewAt(i, recycler);

@@ -446,15 +446,16 @@ public class RecyclerView extends ViewGroup {
         if (layout == mLayout) {
             return;
         }
-
-        mRecycler.clear();
-        mChildHelper.removeAllViewsUnfiltered();
+        // TODO We should do this switch a dispachLayout pass and animate children. There is a good
+        // chance that LayoutManagers will re-use views.
         if (mLayout != null) {
             if (mIsAttached) {
-                mLayout.onDetachedFromWindow(this);
+                mLayout.onDetachedFromWindow(this, mRecycler);
             }
             mLayout.setRecyclerView(null);
         }
+        mRecycler.clear();
+        mChildHelper.removeAllViewsUnfiltered();
         mLayout = layout;
         if (layout != null) {
             if (layout.mRecyclerView != null) {
@@ -1131,11 +1132,9 @@ public class RecyclerView extends ViewGroup {
         mFirstLayoutComplete = false;
 
         stopScroll();
-        // TODO Mark what our target position was if relevant, then we can jump there
-        // on reattach.
         mIsAttached = false;
         if (mLayout != null) {
-            mLayout.onDetachedFromWindow(this);
+            mLayout.onDetachedFromWindow(this, mRecycler);
         }
         removeCallbacks(mItemAnimatorRunner);
     }
@@ -2450,6 +2449,17 @@ public class RecyclerView extends ViewGroup {
             return null;
         }
 
+        int size() {
+            int count = 0;
+            for (int i = 0; i < mScrap.size(); i ++) {
+                ArrayList<ViewHolder> viewHolders = mScrap.valueAt(i);
+                if (viewHolders != null) {
+                    count += viewHolders.size();
+                }
+            }
+            return count;
+        }
+
         public void putRecycledView(ViewHolder scrap) {
             final int viewType = scrap.getItemViewType();
             final ArrayList scrapHeap = getScrapHeapForType(viewType);
@@ -3417,6 +3427,15 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * @deprecated
+         * override {@link #onDetachedFromWindow(RecyclerView, Recycler)}
+         */
+        @Deprecated
+        public void onDetachedFromWindow(RecyclerView view) {
+
+        }
+
+        /**
          * Called when this LayoutManager is detached from its parent RecyclerView or when
          * its parent RecyclerView is detached from its window.
          *
@@ -3424,8 +3443,11 @@ public class RecyclerView extends ViewGroup {
          * </p>
          *
          * @param view The RecyclerView this LayoutManager is bound to
+         * @param recycler The recycler to use if you prefer to recycle your children instead of
+         *                 keeping them around.
          */
-        public void onDetachedFromWindow(RecyclerView view) {
+        public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {
+            onDetachedFromWindow(view);
         }
 
         /**
@@ -4816,7 +4838,16 @@ public class RecyclerView extends ViewGroup {
         public void onScrollStateChanged(int state) {
         }
 
-        void removeAndRecycleAllViews(Recycler recycler) {
+        /**
+         * Removes all views and recycles them using the given recycler.
+         * <p>
+         * If you want to clean cached views as well, you should call {@link Recycler#clear()} too.
+         *
+         * @param recycler Recycler to use to recycle children
+         * @see #removeAndRecycleView(View, Recycler)
+         * @see #removeAndRecycleViewAt(int, Recycler)
+         */
+        public void removeAndRecycleAllViews(Recycler recycler) {
             for (int i = getChildCount() - 1; i >= 0; i--) {
                 removeAndRecycleViewAt(i, recycler);
             }

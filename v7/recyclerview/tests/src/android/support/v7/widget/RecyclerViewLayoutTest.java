@@ -31,6 +31,35 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         super(DEBUG);
     }
 
+    public void testRecycleOnDetach() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestAdapter testAdapter = new TestAdapter(10);
+        final AtomicBoolean didRunOnDetach = new AtomicBoolean(false);
+        final TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                layoutRange(recycler, 0, state.getItemCount() - 1);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+                super.onDetachedFromWindow(view, recycler);
+                didRunOnDetach.set(true);
+                removeAndRecycleAllViews(recycler);
+            }
+        };
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        removeRecyclerView();
+        assertTrue("When recycler view is removed, detach should run", didRunOnDetach.get());
+        assertEquals("All children should be recycled", recyclerView.getChildCount(), 0);
+    }
+
     public void testFindViewById() throws Throwable {
         findViewByIdTest(false);
         removeRecyclerView();
