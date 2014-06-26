@@ -102,6 +102,13 @@
     <dimen name="lb_action_icon_margin">12dp</dimen>
     <dimen name="lb_action_text_size">16sp</dimen>
 
+    <dimen name="lb_error_image_max_height">120dp</dimen>
+    <integer name="lb_error_message_max_lines">1</integer>
+    <dimen name="lb_error_message_max_width">600dp</dimen>
+    <dimen name="lb_error_message_text_size">16sp</dimen>
+    <dimen name="lb_error_under_image_baseline_margin">36dp</dimen>
+    <dimen name="lb_error_under_message_baseline_margin">24dp</dimen>
+
     <!-- Search bar -->
     <dimen name="lb_search_bar_height">60dp</dimen>
     <dimen name="lb_search_bar_padding_left">56dp</dimen>

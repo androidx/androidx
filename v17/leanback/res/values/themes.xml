@@ -54,6 +54,8 @@
         <item name="detailsDescriptionBodyStyle">@style/Widget.Leanback.DetailsDescriptionBodyStyle</item>
         <item name="detailsActionButtonStyle">@style/Widget.Leanback.DetailsActionButtonStyle</item>
 
+        <item name="errorMessageStyle">@style/Widget.Leanback.ErrorMessageStyle</item>
+
         <!-- TODO should be null, and set programatically to avoid dependence on leanback theme -->
         <item name="defaultBrandColor">@color/lb_default_brand_color</item>
         <item name="defaultSearchColor">@null</item>

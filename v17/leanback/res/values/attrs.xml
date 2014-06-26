@@ -183,6 +183,9 @@
         <!-- style for a vertical grid of items -->
         <attr name="itemsVerticalGridStyle" format="reference" />
 
+        <!-- for messages in the error fragment -->
+        <attr name="errorMessageStyle" format="reference" />
+
         <!-- Default colors -->
         <attr name="defaultBrandColor" format="reference|color" />
         <attr name="defaultSearchColor" format="reference|color" />
