@@ -759,6 +759,7 @@ public class RecyclerView extends ViewGroup {
             invalidate();
         }
         if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
+            considerReleasingGlowsOnScroll(x, y);
             pullGlows(overscrollX, overscrollY);
         }
         if (mScrollListener != null && (x != 0 || y != 0)) {
@@ -1010,6 +1011,25 @@ public class RecyclerView extends ViewGroup {
         if (mTopGlow != null) needsInvalidate |= mTopGlow.onRelease();
         if (mRightGlow != null) needsInvalidate |= mRightGlow.onRelease();
         if (mBottomGlow != null) needsInvalidate |= mBottomGlow.onRelease();
+        if (needsInvalidate) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
+    }
+
+    private void considerReleasingGlowsOnScroll(int dx, int dy) {
+        boolean needsInvalidate = false;
+        if (mLeftGlow != null && !mLeftGlow.isFinished() && dx > 0) {
+            needsInvalidate = mLeftGlow.onRelease();
+        }
+        if (mRightGlow != null && !mRightGlow.isFinished() && dx < 0) {
+            needsInvalidate |= mRightGlow.onRelease();
+        }
+        if (mTopGlow != null && !mTopGlow.isFinished() && dy > 0) {
+            needsInvalidate |= mTopGlow.onRelease();
+        }
+        if (mBottomGlow != null && !mBottomGlow.isFinished() && dy < 0) {
+            needsInvalidate |= mBottomGlow.onRelease();
+        }
         if (needsInvalidate) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
@@ -1760,7 +1780,8 @@ public class RecyclerView extends ViewGroup {
         for (int i = 0; i < count; i++) {
             mItemDecorations.get(i).onDrawOver(c, this);
         }
-
+        // TODO If padding is not 0 and chilChildrenToPadding is false, to draw glows properly, we
+        // need find children closest to edges. Not sure if it is worth the effort.
         boolean needsInvalidate = false;
         if (mLeftGlow != null && !mLeftGlow.isFinished()) {
             final int restore = c.save();
@@ -1772,6 +1793,7 @@ public class RecyclerView extends ViewGroup {
         if (mTopGlow != null && !mTopGlow.isFinished()) {
             c.translate(getPaddingLeft(), getPaddingTop());
             needsInvalidate |= mTopGlow != null && mTopGlow.draw(c);
+            c.translate(-getPaddingLeft(), -getPaddingTop());
         }
         if (mRightGlow != null && !mRightGlow.isFinished()) {
             final int restore = c.save();
@@ -2212,7 +2234,10 @@ public class RecyclerView extends ViewGroup {
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
                 }
-
+                if (ViewCompat.getOverScrollMode(RecyclerView.this) !=
+                        ViewCompat.OVER_SCROLL_NEVER) {
+                    considerReleasingGlowsOnScroll(dx, dy);
+                }
                 if (overscrollX != 0 || overscrollY != 0) {
                     final int vel = (int) scroller.getCurrVelocity();
 

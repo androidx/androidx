@@ -846,7 +846,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         final int recycleLine;
         // Line of the furthest row.
         if (layoutState.mLayoutDirection == LAYOUT_END) {
-            recycleLine = mPrimaryOrientation.getEndAfterPadding() + mLayoutState.mAvailable;
+            // ignore padding for recycler
+            recycleLine = mPrimaryOrientation.getEnd() + mLayoutState.mAvailable;
             targetLine = recycleLine + mLayoutState.mExtra;
             final int defaultLine = mPrimaryOrientation.getStartAfterPadding();
             for (int i = 0; i < mSpanCount; i++) {
@@ -857,7 +858,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         } else { // LAYOUT_START
-            recycleLine = mPrimaryOrientation.getStartAfterPadding() - mLayoutState.mAvailable;
+            // ignore padding for recycler
+            recycleLine = - mLayoutState.mAvailable;
             targetLine = recycleLine - mLayoutState.mExtra;
             for (int i = 0; i < mSpanCount; i++) {
                 final Span span = mSpans[i];
