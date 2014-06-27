@@ -35,5 +35,8 @@
         <activity android:name="SearchActivity"
             android:exported="true" />
 
+        <activity android:name="BrowseErrorActivity"
+                  android:exported="true" />
+
     </application>
 </manifest>
