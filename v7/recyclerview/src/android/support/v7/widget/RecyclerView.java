@@ -114,6 +114,10 @@ public class RecyclerView extends ViewGroup {
             if (!mAdapterHelper.hasPendingUpdates()) {
                 return;
             }
+            if (!mFirstLayoutComplete) {
+                // a layout request will happen, we should not do layout here.
+                return;
+            }
             if (mDataSetHasChangedAfterLayout) {
                 dispatchLayout();
             } else {
@@ -1509,8 +1513,8 @@ public class RecyclerView extends ViewGroup {
         eatRequestLayout();
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
-        mState.mRunSimpleAnimations = mItemAnimator != null && mItemsAddedOrRemoved
-               && !mDataSetHasChangedAfterLayout;
+        mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null
+                && mItemsAddedOrRemoved && !mDataSetHasChangedAfterLayout;
         mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
                 predictiveItemAnimationsEnabled();
         mItemsAddedOrRemoved = mItemsChanged = false;

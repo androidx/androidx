@@ -59,6 +59,67 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertTrue("When recycler view is removed, detach should run", didRunOnDetach.get());
         assertEquals("All children should be recycled", recyclerView.getChildCount(), 0);
     }
+    
+    public void testUpdatesWhileDetached() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final int initialAdapterSize = 20;
+        final TestAdapter adapter = new TestAdapter(initialAdapterSize);
+        final AtomicInteger layoutCount = new AtomicInteger(0);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                layoutRange(recycler, 0, 5);
+                layoutCount.incrementAndGet();
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setHasFixedSize(true);
+        lm.expectLayouts(1);
+        adapter.addAndNotify(4, 5);
+        lm.assertNoLayout("When RV is not attached, layout should not happen", 1);
+    }
+
+    public void testUpdatesAfterDetach() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final int initialAdapterSize = 20;
+        final TestAdapter adapter = new TestAdapter(initialAdapterSize);
+        final AtomicInteger layoutCount = new AtomicInteger(0);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                layoutRange(recycler, 0, 5);
+                layoutCount.incrementAndGet();
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        recyclerView.setHasFixedSize(true);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        lm.expectLayouts(1);
+        final int prevLayoutCount = layoutCount.get();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    adapter.addAndNotify(4, 5);
+                    removeRecyclerView();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+
+        lm.assertNoLayout("When RV is not attached, layout should not happen", 1);
+        assertEquals("No extra layout should happen when detached", prevLayoutCount,
+                layoutCount.get());
+    }
 
     public void testFindViewById() throws Throwable {
         findViewByIdTest(false);
