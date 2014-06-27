@@ -908,7 +908,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             return;
         }
-        final int limit = mOrientationHelper.getStartAfterPadding() + dt;
+        // ignore padding, ViewGroup may not clip children.
+        final int limit = dt;
         final int childCount = getChildCount();
         if (mShouldReverseLayout) {
             for (int i = childCount - 1; i >= 0; i--) {
@@ -947,7 +948,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             return;
         }
-        final int limit = mOrientationHelper.getEndAfterPadding() - dt;
+        final int limit = mOrientationHelper.getEnd() - dt;
         if (mShouldReverseLayout) {
             for (int i = 0; i < childCount; i++) {
                 View child = getChildAt(i);

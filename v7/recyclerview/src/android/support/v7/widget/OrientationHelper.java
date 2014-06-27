@@ -100,6 +100,13 @@ public abstract class OrientationHelper {
     public abstract int getEndAfterPadding();
 
     /**
+     * Returns the end position of the layout without taking padding into account.
+     *
+     * @return The end boundary for this layout without considering padding.
+     */
+    public abstract int getEnd();
+
+    /**
      * Offsets all children's positions by the given amount.
      *
      * @param amount Value to add to each child's layout parameters
@@ -152,6 +159,11 @@ public abstract class OrientationHelper {
             @Override
             public int getEndAfterPadding() {
                 return mLayoutManager.getWidth() - mLayoutManager.getPaddingRight();
+            }
+
+            @Override
+            public int getEnd() {
+                return mLayoutManager.getWidth();
             }
 
             @Override
@@ -218,6 +230,11 @@ public abstract class OrientationHelper {
             @Override
             public int getEndAfterPadding() {
                 return mLayoutManager.getHeight() - mLayoutManager.getPaddingBottom();
+            }
+
+            @Override
+            public int getEnd() {
+                return mLayoutManager.getHeight();
             }
 
             @Override
