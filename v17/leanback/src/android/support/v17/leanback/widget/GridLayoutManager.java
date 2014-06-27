@@ -860,14 +860,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // Force the second layout by posting a delayed runnable.
         // TODO: investigate allowing a second layout pass,
         // or move child add/measure logic to the measure phase.
-        mBaseGridView.getHandler().post(new Runnable() {
-           @Override
-           public void run() {
-               if (DEBUG) Log.v(getTag(), "request Layout from runnable");
-               requestLayout();
-           }
-        });
+        mBaseGridView.postOnAnimation(mRequestLayoutRunnable);
     }
+
+    private final Runnable mRequestLayoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (DEBUG) Log.v(getTag(), "request Layout from runnable");
+            requestLayout();
+        }
+     };
 
     @Override
     public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
