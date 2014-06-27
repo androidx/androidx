@@ -51,14 +51,14 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     private static final boolean DEBUG = false;
 
+    public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
+
+    public static final int VERTICAL = OrientationHelper.VERTICAL;
+
     /**
      * Does not do anything to hide gaps
      */
     public static final int GAP_HANDLING_NONE = 0;
-
-    public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
-
-    public static final int VERTICAL = OrientationHelper.VERTICAL;
 
     /**
      * Scroll the shorter span slower to avoid gaps in the UI.

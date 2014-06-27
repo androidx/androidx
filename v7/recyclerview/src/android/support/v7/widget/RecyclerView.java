@@ -119,7 +119,7 @@ public class RecyclerView extends ViewGroup {
             } else {
                 eatRequestLayout();
                 mAdapterHelper.preProcess();
-                if (!mEatRequestLayout) {
+                if (!mLayoutRequestEaten) {
                     // We run this after pre-processing is complete so that ViewHolders have their
                     // final adapter positions. No need to run it if a layout is already requested.
                     rebindUpdatedViewHolders();
@@ -1491,7 +1491,7 @@ public class RecyclerView extends ViewGroup {
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
         mState.mRunSimpleAnimations = mItemAnimator != null && mItemsAddedOrRemoved
-                && !mItemsChanged && !mDataSetHasChangedAfterLayout;
+               && !mDataSetHasChangedAfterLayout;
         mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
                 predictiveItemAnimationsEnabled();
         mItemsAddedOrRemoved = mItemsChanged = false;
@@ -5364,7 +5364,7 @@ public class RecyclerView extends ViewGroup {
                 // verify target position
                 if (getChildPosition(mTargetView) == mTargetPosition) {
                     onTargetFound(mTargetView, mRecyclerView.mState, mRecyclingAction);
-                    mRecyclingAction.runInNecessary(mRecyclerView);
+                    mRecyclingAction.runIfNecessary(mRecyclerView);
                     stop();
                 } else {
                     Log.e(TAG, "Passed over target position while smooth scrolling.");
@@ -5373,7 +5373,7 @@ public class RecyclerView extends ViewGroup {
             }
             if (mRunning) {
                 onSeekTargetStep(dx, dy, mRecyclerView.mState, mRecyclingAction);
-                mRecyclingAction.runInNecessary(mRecyclerView);
+                mRecyclingAction.runIfNecessary(mRecyclerView);
             }
         }
 
@@ -5513,7 +5513,7 @@ public class RecyclerView extends ViewGroup {
                 mDuration = duration;
                 mInterpolator = interpolator;
             }
-            private void runInNecessary(RecyclerView recyclerView) {
+            private void runIfNecessary(RecyclerView recyclerView) {
                 if (changed) {
                     validate();
                     if (mInterpolator == null) {
