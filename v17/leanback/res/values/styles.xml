@@ -64,6 +64,12 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <style name="TextAppearance.Leanback.ErrorMessage">
+        <item name="android:textSize">@dimen/lb_error_message_text_size</item>
+        <item name="android:textColor">@color/lb_error_message_color_on_opaque</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="Widget.Leanback" parent="android:Widget.Holo" />
 
     <style name="Widget.Leanback.BaseCardViewStyle" />
@@ -215,6 +221,13 @@
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingLeft">@dimen/lb_action_padding_horizontal</item>
         <item name="android:paddingRight">@dimen/lb_action_padding_horizontal</item>
+    </style>
+
+    <style name="Widget.Leanback.ErrorMessageStyle">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.ErrorMessage</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">@integer/lb_error_message_max_lines</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Widget.Leanback.SearchOrbViewStyle">
