@@ -17,7 +17,11 @@
 
 <resources>
 
-    <style name="Theme.Leanback" parent="android:Theme.Holo.NoActionBar">
+    <!-- LeanbackBase may be overridden for specific api levels -->
+    <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
+    </style>
+
+    <style name="Theme.Leanback" parent="Theme.LeanbackBase">
 
         <item name="android:windowOverscan">true</item>
 
@@ -59,6 +63,7 @@
         <item name="defaultSearchColor">@null</item>
         <item name="defaultSearchBrightColor">@null</item>
         <item name="defaultSearchIcon">@null</item>
+
     </style>
 
 </resources>
