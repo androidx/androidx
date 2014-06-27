@@ -31,16 +31,12 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.List;
 
 
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
-import static android.support.v7.widget.OrientationHelper.HORIZONTAL;
-import static android.support.v7.widget.OrientationHelper.VERTICAL;
-
 /**
  * A LayoutManager that lays out children in a staggered grid formation.
  * It supports horizontal & vertical layout as well as an ability to layout children in reverse.
@@ -59,6 +55,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * Does not do anything to hide gaps
      */
     public static final int GAP_HANDLING_NONE = 0;
+
+    public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
+
+    public static final int VERTICAL = OrientationHelper.VERTICAL;
 
     /**
      * Scroll the shorter span slower to avoid gaps in the UI.
@@ -164,15 +164,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private int mGapStrategy = GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
 
     /**
-     * This list is used to keep track of views that we should remove. Due to complexity of not
-     * adding views, StaggeredGridLayoutManager keeps a list of children to be removed and removes
-     * them after first layout pass.
-     * TODO this will not be necessary when RV is updated not to require laying out not-added
-     * children
-     */
-    private final List<View> mChildrenToBeRemoved = new ArrayList<View>();
-
-    /**
      * Saved state needs this information to properly layout on restore.
      */
     private boolean mLastLayoutFromEnd;
@@ -195,7 +186,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      *
      * @param spanCount   If orientation is vertical, spanCount is number of columns. If
      *                    orientation is horizontal, spanCount is number of rows.
-     * @param orientation {@link OrientationHelper#VERTICAL} or {@link OrientationHelper#HORIZONTAL}
+     * @param orientation {@link #VERTICAL} or {@link #HORIZONTAL}
      */
     public StaggeredGridLayoutManager(int spanCount, int orientation) {
         mOrientation = orientation;
@@ -583,13 +574,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        // TODO remove this once RecyclerView is updated not to require this.
-        final int removedChildCount = mChildrenToBeRemoved.size();
-        for (int i = removedChildCount - 1; i >= 0; i--) {
-            View view = mChildrenToBeRemoved.get(i);
-            removeView(view);
-        }
-        mChildrenToBeRemoved.clear();
         mPendingScrollPosition = RecyclerView.NO_POSITION;
         mPendingScrollPositionOffset = INVALID_OFFSET;
         mLastLayoutFromEnd = layoutFromEnd;
@@ -885,9 +869,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 addView(view);
             } else {
                 addView(view, 0);
-            }
-            if (lp.isItemRemoved()) {
-                mChildrenToBeRemoved.add(view);
             }
             if (lp.mFullSpan) {
                 final int fullSizeSpec = View.MeasureSpec.makeMeasureSpec(
