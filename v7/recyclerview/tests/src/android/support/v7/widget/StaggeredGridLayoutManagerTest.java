@@ -35,13 +35,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static android.support.v7.widget.OrientationHelper.*;
 import static android.support.v7.widget.LayoutState.*;
 import static android.support.v7.widget.StaggeredGridLayoutManager.*;
 
 public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final String TAG = "StaggeredGridLayoutManagerTest";
 
@@ -73,6 +72,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mAdapter = new GridTestAdapter(config.mItemCount, config.mOrientation);
         mRecyclerView = new RecyclerView(getActivity());
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new WrappedLayoutManager(config.mSpanCount,
                 config.mOrientation);
         mLayoutManager.setGapStrategy(config.mGapStrategy);
@@ -167,7 +167,8 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 mAdapter.notifyItemChanged(changePosition);
             }
         });
-        mLayoutManager.waitForLayout(2);
+        mLayoutManager.assertNoLayout("no layout should happen when an invisible child is updated",
+                1);
         // item change should not affect span assignments
         assertSpanAssignmentEquality("item change should not affect span assignments ",
                 prevAssignments, mLayoutManager.mLazySpanLookup.mData, 0, prevAssignments.length);
@@ -187,8 +188,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mLayoutManager.waitForLayout(2);
         assertRectSetsEqual(config + " when an item towards the head of the list is deleted, it "
                 + "should not affect the layout if it is not visible", before,
-                mLayoutManager.collectChildCoordinates()
-        );
+                mLayoutManager.collectChildCoordinates());
         deletedPosition = mLayoutManager.getPosition(mLayoutManager.getChildAt(2));
         mLayoutManager.expectLayouts(1);
         mAdapter.deleteAndNotify(deletedPosition, 1);
@@ -855,16 +855,20 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     }
 
     public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after) {
+        StringBuilder log = new StringBuilder();
         if (DEBUG) {
-            Log.d(TAG, "checking rectangle equality.");
-            Log.d(TAG, "before:");
+            log.append("checking rectangle equality.\n");
+            log.append("before:");
             for (Map.Entry<Item, Rect> entry : before.entrySet()) {
-                Log.d(TAG, entry.getKey().mAdapterIndex + ":" + entry.getValue());
+                log.append("\n").append(entry.getKey().mAdapterIndex).append(":")
+                        .append(entry.getValue());
             }
-            Log.d(TAG, "after:");
+            log.append("\nafter:");
             for (Map.Entry<Item, Rect> entry : after.entrySet()) {
-                Log.d(TAG, entry.getKey().mAdapterIndex + ":" + entry.getValue());
+                log.append("\n").append(entry.getKey().mAdapterIndex).append(":")
+                        .append(entry.getValue());
             }
+            message += "\n\n" + log.toString();
         }
         assertEquals(message + ": item counts should be equal", before.size()
                 , after.size());
@@ -896,6 +900,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             layoutLatch.await(timeout, timeUnit);
             assertEquals("all expected layouts should be executed at the expected time",
                     0, layoutLatch.getCount());
+        }
+
+        public void assertNoLayout(String msg, long timeout) throws Throwable {
+            layoutLatch.await(timeout, TimeUnit.SECONDS);
+            assertFalse(msg, layoutLatch.getCount() == 0);
         }
 
         @Override
@@ -948,6 +957,13 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     final int childCount = getChildCount();
                     for (int i = 0; i < childCount; i++) {
                         View child = getChildAt(i);
+                        // do it if and only if child is visible
+                        if (child.getRight() < 0 || child.getBottom() < 0 ||
+                                child.getLeft() >= getWidth() || child.getTop() >= getHeight()) {
+                            // invisible children may be drawn in cases like scrolling so we should
+                            // ignore them
+                            continue;
+                        }
                         LayoutParams lp = (LayoutParams) child
                                 .getLayoutParams();
                         TestViewHolder vh = (TestViewHolder) lp.mViewHolder;
