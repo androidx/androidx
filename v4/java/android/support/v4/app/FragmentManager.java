@@ -1531,7 +1531,7 @@ final class FragmentManagerImpl extends FragmentManager {
                 return false;
             }
             final BackStackRecord bss = mBackStack.remove(last);
-            bss.popFromBackStack(true);
+            bss.popFromBackStack(true, null);
             reportBackStackChanged();
         } else {
             int index = -1;
@@ -1575,9 +1575,10 @@ final class FragmentManagerImpl extends FragmentManager {
                 states.add(mBackStack.remove(i));
             }
             final int LAST = states.size()-1;
+            Object transitionState = null;
             for (int i=0; i<=LAST; i++) {
                 if (DEBUG) Log.v(TAG, "Popping back stack state: " + states.get(i));
-                states.get(i).popFromBackStack(i == LAST);
+                transitionState = states.get(i).popFromBackStack(i == LAST, transitionState);
             }
             reportBackStackChanged();
         }
