@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Recycler;
@@ -860,7 +861,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // Force the second layout by posting a delayed runnable.
         // TODO: investigate allowing a second layout pass,
         // or move child add/measure logic to the measure phase.
-        mBaseGridView.postOnAnimation(mRequestLayoutRunnable);
+        ViewCompat.postOnAnimation(mBaseGridView, mRequestLayoutRunnable);
     }
 
     private final Runnable mRequestLayoutRunnable = new Runnable() {
