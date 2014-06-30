@@ -156,6 +156,16 @@ public class RecyclerView extends ViewGroup {
      */
     private boolean mDataSetHasChangedAfterLayout = false;
 
+    /**
+     * This variable is set to true during a dispatchLayout and/or scroll.
+     * Some methods should not be called during these periods (e.g. adapter data change).
+     * Doing so will create hard to find bugs so we better check it and throw an exception.
+     *
+     * @see #assertInLayoutOrScroll(String)
+     * @see #assertNotInLayoutOrScroll(String)
+     */
+    private boolean mRunningLayoutOrScroll = false;
+
     private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
 
     ItemAnimator mItemAnimator = new DefaultItemAnimator();
@@ -750,6 +760,7 @@ public class RecyclerView extends ViewGroup {
         consumePendingUpdateOperations();
         if (mAdapter != null) {
             eatRequestLayout();
+            mRunningLayoutOrScroll = true;
             if (x != 0) {
                 final int hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
                 overscrollX = x - hresult;
@@ -758,9 +769,9 @@ public class RecyclerView extends ViewGroup {
                 final int vresult = mLayout.scrollVerticallyBy(y, mRecycler, mState);
                 overscrollY = y - vresult;
             }
+            mRunningLayoutOrScroll = false;
             resumeRequestLayout(false);
         }
-
         if (!mItemDecorations.isEmpty()) {
             invalidate();
         }
@@ -1145,6 +1156,41 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * Checks if RecyclerView is in the middle of a layout or scroll and throws an
+     * {@link IllegalStateException} if it <b>is not</b>.
+     *
+     * @param message The message for the exception. Can be null.
+     * @see #assertNotInLayoutOrScroll(String)
+     */
+    void assertInLayoutOrScroll(String message) {
+        if (!mRunningLayoutOrScroll) {
+            if (message == null) {
+                throw new IllegalStateException("Cannot call this method unless RecyclerView is "
+                        + "computing a layout or scrolling");
+            }
+            throw new IllegalStateException(message);
+
+        }
+    }
+
+    /**
+     * Checks if RecyclerView is in the middle of a layout or scroll and throws an
+     * {@link IllegalStateException} if it <b>is</b>.
+     *
+     * @param message The message for the exception. Can be null.
+     * @see #assertInLayoutOrScroll(String)
+     */
+    void assertNotInLayoutOrScroll(String message) {
+        if (mRunningLayoutOrScroll) {
+            if (message == null) {
+                throw new IllegalStateException("Cannot call this method while RecyclerView is "
+                        + "computing a layout or scrolling");
+            }
+            throw new IllegalStateException(message);
+        }
+    }
+
+    /**
      * Add an {@link OnItemTouchListener} to intercept touch events before they are dispatched
      * to child views or this view's standard scrolling behavior.
      *
@@ -1512,6 +1558,7 @@ public class RecyclerView extends ViewGroup {
         }
         mDisappearingViewsInLayoutPass.clear();
         eatRequestLayout();
+        mRunningLayoutOrScroll = true;
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
         mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null &&
@@ -1670,6 +1717,7 @@ public class RecyclerView extends ViewGroup {
         mDataSetHasChangedAfterLayout = false;
         mState.mRunSimpleAnimations = false;
         mState.mRunPredictiveAnimations = false;
+        mRunningLayoutOrScroll = false;
     }
 
     /**
@@ -2210,8 +2258,8 @@ public class RecyclerView extends ViewGroup {
         public void run() {
             disableRunOnAnimationRequests();
             consumePendingUpdateOperations();
-            // keep a local reference so that if it is changed during onAnimation method, it wont cause
-            // unexpected behaviors
+            // keep a local reference so that if it is changed during onAnimation method, it won't
+            // cause unexpected behaviors
             final ScrollerCompat scroller = mScroller;
             final SmoothScroller smoothScroller = mLayout.mSmoothScroller;
             if (scroller.computeScrollOffset()) {
@@ -2224,6 +2272,7 @@ public class RecyclerView extends ViewGroup {
                 int overscrollX = 0, overscrollY = 0;
                 if (mAdapter != null) {
                     eatRequestLayout();
+                    mRunningLayoutOrScroll = true;
                     if (dx != 0) {
                         final int hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
                         overscrollX = dx - hresult;
@@ -2237,6 +2286,7 @@ public class RecyclerView extends ViewGroup {
                             smoothScroller.isRunning()) {
                         smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
                     }
+                    mRunningLayoutOrScroll = false;
                     resumeRequestLayout(false);
                 }
                 if (!mItemDecorations.isEmpty()) {
@@ -2379,6 +2429,7 @@ public class RecyclerView extends ViewGroup {
     private class RecyclerViewDataObserver extends AdapterDataObserver {
         @Override
         public void onChanged() {
+            assertNotInLayoutOrScroll(null);
             if (mAdapter.hasStableIds()) {
                 // TODO Determine what actually changed.
                 // This is more important to implement now since this callback will disable all
@@ -2396,6 +2447,7 @@ public class RecyclerView extends ViewGroup {
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
+            assertNotInLayoutOrScroll(null);
             if (mAdapterHelper.onItemRangeChanged(positionStart, itemCount)) {
                 triggerUpdateProcessor();
             }
@@ -2403,6 +2455,7 @@ public class RecyclerView extends ViewGroup {
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
+            assertNotInLayoutOrScroll(null);
             if (mAdapterHelper.onItemRangeInserted(positionStart, itemCount)) {
                 triggerUpdateProcessor();
             }
@@ -2410,6 +2463,7 @@ public class RecyclerView extends ViewGroup {
 
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
+            assertNotInLayoutOrScroll(null);
             if (mAdapterHelper.onItemRangeRemoved(positionStart, itemCount)) {
                 triggerUpdateProcessor();
             }
@@ -3386,6 +3440,32 @@ public class RecyclerView extends ViewGroup {
         public void requestLayout() {
             if(mRecyclerView != null) {
                 mRecyclerView.requestLayout();
+            }
+        }
+
+        /**
+         * Checks if RecyclerView is in the middle of a layout or scroll and throws an
+         * {@link IllegalStateException} if it <b>is not</b>.
+         *
+         * @param message The message for the exception. Can be null.
+         * @see #assertNotInLayoutOrScroll(String)
+         */
+        public void assertInLayoutOrScroll(String message) {
+            if (mRecyclerView != null) {
+                mRecyclerView.assertInLayoutOrScroll(message);
+            }
+        }
+
+        /**
+         * Checks if RecyclerView is in the middle of a layout or scroll and throws an
+         * {@link IllegalStateException} if it <b>is</b>.
+         *
+         * @param message The message for the exception. Can be null.
+         * @see #assertInLayoutOrScroll(String)
+         */
+        public void assertNotInLayoutOrScroll(String message) {
+            if (mRecyclerView != null) {
+                mRecyclerView.assertNotInLayoutOrScroll(message);
             }
         }
 

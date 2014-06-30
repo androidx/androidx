@@ -222,6 +222,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * @param spanCount Number of spans to layout
      */
     public void setSpanCount(int spanCount) {
+        assertNotInLayoutOrScroll(null);
         if (mPendingSavedState != null && mPendingSavedState.mSpanCount != spanCount) {
             // invalidate span info in saved state
             mPendingSavedState.invalidateSpanInfo();
@@ -249,6 +250,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         if (orientation != HORIZONTAL && orientation != VERTICAL) {
             throw new IllegalArgumentException("invalid orientation.");
         }
+        assertNotInLayoutOrScroll(null);
         if (mPendingSavedState != null && mPendingSavedState.mOrientation != orientation) {
             // override pending state
             mPendingSavedState.mOrientation = orientation;
@@ -280,6 +282,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * @param reverseLayout Whether layout should be in reverse or not
      */
     public void setReverseLayout(boolean reverseLayout) {
+        assertNotInLayoutOrScroll(null);
         if (mPendingSavedState != null && mPendingSavedState.mReverseLayout != reverseLayout) {
             mPendingSavedState.mReverseLayout = reverseLayout;
         }
@@ -316,6 +319,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * @see #getGapStrategy()
      */
     public void setGapStrategy(int gapStrategy) {
+        assertNotInLayoutOrScroll(null);
         if (mPendingSavedState != null && mPendingSavedState.mGapStrategy != gapStrategy) {
             mPendingSavedState.mGapStrategy = gapStrategy;
         }
@@ -329,6 +333,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         mGapStrategy = gapStrategy;
         requestLayout();
+    }
+
+    @Override
+    public void assertNotInLayoutOrScroll(String message) {
+        if (mPendingSavedState == null) {
+            super.assertNotInLayoutOrScroll(message);
+        }
     }
 
     /**

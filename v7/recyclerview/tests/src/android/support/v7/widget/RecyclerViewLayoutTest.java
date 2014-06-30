@@ -34,6 +34,166 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         super(DEBUG);
     }
 
+    public void testAdapterChangeDuringLayout() throws Throwable {
+        adapterChangeInMainThreadTest("notifyDataSetChanged", new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getAdapter().notifyDataSetChanged();
+            }
+        });
+
+        adapterChangeInMainThreadTest("notifyItemChanged", new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getAdapter().notifyItemChanged(2);
+            }
+        });
+
+        adapterChangeInMainThreadTest("notifyItemInserted", new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getAdapter().notifyItemInserted(2);
+            }
+        });
+        adapterChangeInMainThreadTest("notifyItemRemoved", new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.getAdapter().notifyItemRemoved(2);
+            }
+        });
+    }
+
+    public void adapterChangeInMainThreadTest(String msg,
+            final Runnable onLayoutRunnable) throws Throwable {
+        final AtomicBoolean doneFirstLayout = new AtomicBoolean(false);
+        TestAdapter testAdapter = new TestAdapter(10);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                try {
+                    layoutRange(recycler, 0, state.getItemCount());
+                    if (doneFirstLayout.get()) {
+                        onLayoutRunnable.run();
+                    }
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setAdapter(testAdapter);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        doneFirstLayout.set(true);
+        lm.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        lm.waitForLayout(2);
+        removeRecyclerView();
+        assertTrue("Invalid data updates should be caught:" + msg,
+                mainThreadException instanceof IllegalStateException);
+    }
+
+    public void testAdapterChangeDuringScroll() throws Throwable {
+        for (int orientation : new int[]{OrientationHelper.HORIZONTAL,
+                OrientationHelper.VERTICAL}) {
+            adapterChangeDuringScrollTest("notifyDataSetChanged", orientation,
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            mRecyclerView.getAdapter().notifyDataSetChanged();
+                        }
+                    });
+            adapterChangeDuringScrollTest("notifyItemChanged", orientation, new Runnable() {
+                @Override
+                public void run() {
+                    mRecyclerView.getAdapter().notifyItemChanged(2);
+                }
+            });
+
+            adapterChangeDuringScrollTest("notifyItemInserted", orientation, new Runnable() {
+                @Override
+                public void run() {
+                    mRecyclerView.getAdapter().notifyItemInserted(2);
+                }
+            });
+            adapterChangeDuringScrollTest("notifyItemRemoved", orientation, new Runnable() {
+                @Override
+                public void run() {
+                    mRecyclerView.getAdapter().notifyItemRemoved(2);
+                }
+            });
+        }
+    }
+
+    public void adapterChangeDuringScrollTest(String msg, final int orientation,
+            final Runnable onScrollRunnable) throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(100);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                try {
+                    layoutRange(recycler, 0, 10);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return orientation == OrientationHelper.VERTICAL;
+            }
+
+            @Override
+            public boolean canScrollHorizontally() {
+                return orientation == OrientationHelper.HORIZONTAL;
+            }
+
+            public int mockScroll() {
+                try {
+                    onScrollRunnable.run();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+                return 0;
+            }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                return mockScroll();
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                return mockScroll();
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setAdapter(testAdapter);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        lm.expectLayouts(1);
+        scrollBy(200);
+        lm.waitForLayout(2);
+        removeRecyclerView();
+        assertTrue("Invalid data updates should be caught:" + msg,
+                mainThreadException instanceof IllegalStateException);
+    }
+
     public void testRecycleOnDetach() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity());
         final TestAdapter testAdapter = new TestAdapter(10);
@@ -62,7 +222,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertTrue("When recycler view is removed, detach should run", didRunOnDetach.get());
         assertEquals("All children should be recycled", recyclerView.getChildCount(), 0);
     }
-    
+
     public void testUpdatesWhileDetached() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity());
         final int initialAdapterSize = 20;
@@ -159,7 +319,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                 .mCachedViews.size());
                         for (RecyclerView.ViewHolder vh : recycler.mCachedViews) {
                             TestViewHolder tvh = (TestViewHolder) vh;
-                            assertTrue("view holder should be marked for update", tvh.needsUpdate());
+                            assertTrue("view holder should be marked for update",
+                                    tvh.needsUpdate());
                             assertTrue("view holder should be marked as invalid", tvh.isInvalid());
                         }
                     }
@@ -172,7 +333,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         for (RecyclerView.ViewHolder vh : recycler.getScrapList()) {
                             // TODO create test case for type change
                             TestViewHolder tvh = (TestViewHolder) vh;
-                            assertTrue("view holder should be marked for update", tvh.needsUpdate());
+                            assertTrue("view holder should be marked for update",
+                                    tvh.needsUpdate());
                             assertTrue("view holder should be marked as invalid", tvh.isInvalid());
                         }
                     }
@@ -186,7 +348,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                             assertEquals("view holder's position should be correct",
                                     oldPositionToNewPositionMapping.get(oldPos).intValue(),
                                     tvh.getPosition());
-;                        }
+                            ;
+                        }
                     }
                 } catch (Throwable t) {
                     postExceptionToInstrumentation(t);
@@ -253,7 +416,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 super.onLayoutChildren(recycler, state);
                 if (assertPositions.get()) {
                     if (state.isPreLayout()) {
-                        for (int i = 0; i < deleteStart; i ++) {
+                        for (int i = 0; i < deleteStart; i++) {
                             View view = findViewByPosition(i);
                             assertNotNull("find view by position for existing items should work "
                                     + "fine", view);
@@ -261,7 +424,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                     ((RecyclerView.LayoutParams) view.getLayoutParams())
                                             .isItemRemoved());
                         }
-                        for (int i = 0;  i < deleteCount; i++) {
+                        for (int i = 0; i < deleteCount; i++) {
                             View view = findViewByPosition(i + deleteStart);
                             assertNotNull("find view by position should work fine for removed "
                                     + "views in pre-layout", view);
@@ -277,14 +440,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                             .isItemRemoved());
                         }
                     } else {
-                        for (int i = 0; i < initialAdapterSize - deleteCount; i ++) {
+                        for (int i = 0; i < initialAdapterSize - deleteCount; i++) {
                             View view = findViewByPosition(i);
                             assertNotNull("find view by position for existing item " + i +
                                     " should work fine. child count:" + getChildCount(), view);
                             TestViewHolder viewHolder =
                                     (TestViewHolder) mRecyclerView.getChildViewHolder(view);
                             assertSame("should be the correct item " + viewHolder
-                                    ,viewHolder.mBindedItem,
+                                    , viewHolder.mBindedItem,
                                     adapter.mItems.get(viewHolder.mPosition));
                             assertFalse("view should not be marked as removed",
                                     ((RecyclerView.LayoutParams) view.getLayoutParams())
