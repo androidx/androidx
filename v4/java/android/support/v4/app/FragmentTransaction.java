@@ -22,6 +22,8 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.StyleRes;
+import android.support.v4.util.Pair;
+import android.view.View;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -192,7 +194,37 @@ public abstract class FragmentTransaction {
      */
     public abstract FragmentTransaction setCustomAnimations(@AnimRes int enter,
             @AnimRes int exit, @AnimRes int popEnter, @AnimRes int popExit);
-    
+
+    /**
+     * Set a {@link android.transition.Transition} resource id to use with this transaction.
+     * <var>transitionId</var> will be played for fragments when going forward and when popping
+     * the back stack.
+     * @param sceneRootId The ID of the element acting as the scene root for the transition.
+     *                    This should be a ViewGroup containing all Fragments in the transaction.
+     * @param transitionId The resource ID for the Transition used during the Fragment transaction.
+     */
+    public abstract FragmentTransaction setCustomTransition(int sceneRootId, int transitionId);
+
+    /**
+     * Used with {@link #setCustomTransition(int, int)} to map a View from a removed or hidden
+     * Fragment to a View from a shown or added Fragment.
+     * <var>sharedElement</var> must have a unique transitionName in the View hierarchy.
+     * @param sharedElement A View in a disappearing Fragment to match with a View in an
+     *                      appearing Fragment.
+     * @param name The transitionName for a View in an appearing Fragment to match to the shared
+     *             element.
+     */
+    public abstract FragmentTransaction setSharedElement(View sharedElement, String name);
+
+    /**
+     * Used with {@link #setCustomTransition(int, int)} to map multiple Views from removed or hidden
+     * Fragments to a Views from a shown or added Fragments. Views in
+     * <var>sharedElements</var> must have unique transitionNames in the View hierarchy.
+     * @param sharedElements Pairs of Views in disappearing Fragments to transitionNames in
+     *                       appearing Fragments.
+     */
+    public abstract FragmentTransaction setSharedElements(Pair<View, String>... sharedElements);
+
     /**
      * Select a standard transition animation for this transaction.  May be
      * one of {@link #TRANSIT_NONE}, {@link #TRANSIT_FRAGMENT_OPEN},

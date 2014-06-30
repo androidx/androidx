@@ -16,10 +16,12 @@
 
 package android.support.v4.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.util.Pair;
 import android.view.View;
 
 /**
@@ -108,6 +110,69 @@ public class ActivityOptionsCompat {
         return new ActivityOptionsCompat();
     }
 
+    /**
+     * Create an ActivityOptions to transition between Activities using cross-Activity scene
+     * animations. This method carries the position of one shared element to the started Activity.
+     * The position of <code>sharedElement</code> will be used as the epicenter for the
+     * exit Transition. The position of the shared element in the launched Activity will be the
+     * epicenter of its entering Transition.
+     *
+     * <p>This requires {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS} to be
+     * enabled on the calling Activity to cause an exit transition. The same must be in
+     * the called Activity to get an entering transition.</p>
+     * @param activity The Activity whose window contains the shared elements.
+     * @param sharedElement The View to transition to the started Activity. sharedElement must
+     *                      have a non-null sharedElementName.
+     * @param sharedElementName The shared element name as used in the target Activity. This may
+     *                          be null if it has the same name as sharedElement.
+     * @return Returns a new ActivityOptions object that you can use to
+     *         supply these options as the options Bundle when starting an activity.
+     */
+    public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
+            View sharedElement, String sharedElementName) {
+        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            return new ActivityOptionsCompat.ActivityOptionsImpl21(
+                    ActivityOptionsCompat21.makeSceneTransitionAnimation(activity,
+                            sharedElement, sharedElementName));
+        }
+        return new ActivityOptionsCompat();
+    }
+
+    /**
+     * Create an ActivityOptions to transition between Activities using cross-Activity scene
+     * animations. This method carries the position of multiple shared elements to the started
+     * Activity. The position of the first element in sharedElements
+     * will be used as the epicenter for the exit Transition. The position of the associated
+     * shared element in the launched Activity will be the epicenter of its entering Transition.
+     *
+     * <p>This requires {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS} to be
+     * enabled on the calling Activity to cause an exit transition. The same must be in
+     * the called Activity to get an entering transition.</p>
+     * @param activity The Activity whose window contains the shared elements.
+     * @param sharedElements The names of the shared elements to transfer to the called
+     *                       Activity and their associated Views. The Views must each have
+     *                       a unique shared element name.
+     * @return Returns a new ActivityOptions object that you can use to
+     *         supply these options as the options Bundle when starting an activity.
+     */
+    public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
+            Pair<View, String>... sharedElements) {
+        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            View[] views = null;
+            String[] names = null;
+            if (sharedElements != null) {
+                views = new View[sharedElements.length];
+                names = new String[sharedElements.length];
+                for (int i = 0; i < sharedElements.length; i++) {
+                    views[i] = sharedElements[i].first;
+                    names[i] = sharedElements[i].second;
+                }
+            }
+            return new ActivityOptionsCompat.ActivityOptionsImpl21(
+                    ActivityOptionsCompat21.makeSceneTransitionAnimation(activity, views, names));
+        }
+        return new ActivityOptionsCompat();
+    }
 
     private static class ActivityOptionsImplJB extends ActivityOptionsCompat {
         private final ActivityOptionsCompatJB mImpl;
@@ -130,6 +195,27 @@ public class ActivityOptionsCompat {
         }
     }
 
+    private static class ActivityOptionsImpl21 extends ActivityOptionsCompat {
+        private final ActivityOptionsCompat21 mImpl;
+
+        ActivityOptionsImpl21(ActivityOptionsCompat21 impl) {
+            mImpl = impl;
+        }
+
+        @Override
+        public Bundle toBundle() {
+            return mImpl.toBundle();
+        }
+
+        @Override
+        public void update(ActivityOptionsCompat otherOptions) {
+            if (otherOptions instanceof ActivityOptionsCompat.ActivityOptionsImpl21) {
+                ActivityOptionsCompat.ActivityOptionsImpl21
+                        otherImpl = (ActivityOptionsCompat.ActivityOptionsImpl21)otherOptions;
+                mImpl.update(otherImpl.mImpl);
+            }
+        }
+    }
 
     protected ActivityOptionsCompat() {
     }

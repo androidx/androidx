@@ -22,6 +22,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper for accessing features in {@link android.app.Activity}
@@ -137,4 +141,93 @@ public class ActivityCompat extends ContextCompat {
         }
     }
 
+    /**
+     * Reverses the Activity Scene entry Transition and triggers the calling Activity
+     * to reverse its exit Transition. When the exit Transition completes,
+     * {@link Activity#finish()} is called. If no entry Transition was used, finish() is called
+     * immediately and the Activity exit Transition is run.
+     *
+     * <p>On Android 4.4 or lower, this method only finishes the Activity with no
+     * special exit transition.</p>
+     */
+    public static void finishAfterTransition(Activity activity) {
+        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            ActivityCompat21.finishAfterTransition(activity);
+        } else {
+            activity.finish();
+        }
+    }
+
+    /**
+     * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
+     * android.view.View, String)} was used to start an Activity, <var>listener</var>
+     * will be called to handle shared elements on the <i>launched</i> Activity. This requires
+     * {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS}.
+     *
+     * @param listener Used to manipulate shared element transitions on the launched Activity.
+     */
+    public static void setEnterSharedElementListener(Activity activity,
+            SharedElementListener listener) {
+        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            ActivityCompat21.setEnterSharedElementListener(activity, createListener(listener));
+        }
+    }
+
+    /**
+     * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
+     * android.view.View, String)} was used to start an Activity, <var>listener</var>
+     * will be called to handle shared elements on the <i>launching</i> Activity. Most
+     * calls will only come when returning from the started Activity.
+     * This requires {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS}.
+     *
+     * @param listener Used to manipulate shared element transitions on the launching Activity.
+     */
+    public static void setExitSharedElementListener(Activity activity,
+            SharedElementListener listener) {
+        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            ActivityCompat21.setExitSharedElementListener(activity, createListener(listener));
+        }
+    }
+
+    private static ActivityCompat21.SharedElementListener21 createListener(
+            SharedElementListener listener) {
+        ActivityCompat21.SharedElementListener21 newListener = null;
+        if (listener != null) {
+            newListener = new SharedElementListener21Impl(listener);
+        }
+        return newListener;
+    }
+
+    private static class SharedElementListener21Impl
+            extends ActivityCompat21.SharedElementListener21 {
+        private SharedElementListener mListener;
+
+        public SharedElementListener21Impl(SharedElementListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public void setSharedElementStart(List<String> sharedElementNames,
+                List<View> sharedElements, List<View> sharedElementSnapshots) {
+            mListener.setSharedElementStart(sharedElementNames, sharedElements,
+                    sharedElementSnapshots);
+        }
+
+        @Override
+        public void setSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements,
+                List<View> sharedElementSnapshots) {
+            mListener.setSharedElementEnd(sharedElementNames, sharedElements,
+                    sharedElementSnapshots);
+        }
+
+        @Override
+        public void handleRejectedSharedElements(List<View> rejectedSharedElements) {
+            mListener.handleRejectedSharedElements(rejectedSharedElements);
+        }
+
+        @Override
+        public void remapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            mListener.remapSharedElements(names, sharedElements);
+        }
+    }
 }
