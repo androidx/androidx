@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="5441529851481176817">"प्रणाली"</string>
+    <string name="mr_user_route_category_name" msgid="7498112907524977311">"उपकरणहरू"</string>
+    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"मिडियाको उत्पादन"</string>
+    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"उपकरणसँग जडान गर्नुहोस्"</string>
+    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"उपकरणहरूका लागि खोजी गरिँदै..."</string>
+    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"विच्छेदन गर्नुहोस्"</string>
+</resources>
