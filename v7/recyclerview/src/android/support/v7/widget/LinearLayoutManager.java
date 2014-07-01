@@ -250,6 +250,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * Compatibility support for {@link android.widget.AbsListView#setStackFromBottom(boolean)}
      */
     public void setStackFromEnd(boolean stackFromEnd) {
+        assertNotInLayoutOrScroll(null);
         if (mPendingSavedState != null && mPendingSavedState.mStackFromEnd != stackFromEnd) {
             // override pending state
             mPendingSavedState.mStackFromEnd = stackFromEnd;
@@ -286,6 +287,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (orientation != HORIZONTAL && orientation != VERTICAL) {
             throw new IllegalArgumentException("invalid orientation:" + orientation);
         }
+        assertNotInLayoutOrScroll(null);
         if (mPendingSavedState != null && mPendingSavedState.mOrientation != orientation) {
             // override pending state
             mPendingSavedState.mOrientation = orientation;
@@ -337,6 +339,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * {@link #setStackFromEnd(boolean)}
      */
     public void setReverseLayout(boolean reverseLayout) {
+        assertNotInLayoutOrScroll(null);
         if (mPendingSavedState != null && mPendingSavedState.mReverseLayout != reverseLayout) {
             // override pending state
             mPendingSavedState.mReverseLayout = reverseLayout;
@@ -911,6 +914,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             Log.d(TAG, "scroll req: " + dy + " scrolled: " + scrolled);
         }
         return scrolled;
+    }
+
+    @Override
+    public void assertNotInLayoutOrScroll(String message) {
+        if (mPendingSavedState == null) {
+            super.assertNotInLayoutOrScroll(message);
+        }
     }
 
     /**
