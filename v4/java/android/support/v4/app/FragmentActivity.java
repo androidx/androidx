@@ -178,7 +178,7 @@ public class FragmentActivity extends Activity {
      */
     public void onBackPressed() {
         if (!mFragments.popBackStackImmediate()) {
-            finishAfterTransition();
+            supportFinishAfterTransition();
         }
     }
 
@@ -191,7 +191,7 @@ public class FragmentActivity extends Activity {
      * <p>On Android 4.4 or lower, this method only finishes the Activity with no
      * special exit transition.</p>
      */
-    public void finishAfterTransition() {
+    public void supportFinishAfterTransition() {
         ActivityCompat.finishAfterTransition(this);
     }
 
