@@ -533,8 +533,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             // We don't recycle views out of adapter order. This way, we can rely on the first or
             // last child as the anchor position.
-            anchorItemPosition = mShouldReverseLayout ? getLastChildPosition()
-                    : getFirstChildPosition();
+            anchorItemPosition = mShouldReverseLayout
+                    ? findLastReferenceChildPosition(state.getItemCount())
+                    : findFirstReferenceChildPosition(state.getItemCount());
             anchorOffset = INVALID_OFFSET;
         }
         if (getChildCount() > 0 && (mPendingSavedState == null
@@ -1399,6 +1400,39 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private int getFirstChildPosition() {
         final int childCount = getChildCount();
         return childCount == 0 ? 0 : getPosition(getChildAt(0));
+    }
+
+    /**
+     * Finds the first View that can be used as an anchor View.
+     *
+     * @return Position of the View or 0 if it cannot find any such View.
+     */
+    private int findFirstReferenceChildPosition(int itemCount) {
+        final int limit = getChildCount();
+        for (int i = 0; i < limit; i++) {
+            final View view = getChildAt(i);
+            final int position = getPosition(view);
+            if (position >= 0 && position < itemCount) {
+                return position;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Finds the last View that can be used as an anchor View.
+     *
+     * @return Position of the View or 0 if it cannot find any such View.
+     */
+    private int findLastReferenceChildPosition(int itemCount) {
+        for (int i = getChildCount() - 1; i >= 0; i--) {
+            final View view = getChildAt(i);
+            final int position = getPosition(view);
+            if (position >= 0 && position < itemCount) {
+                return position;
+            }
+        }
+        return 0;
     }
 
     @Override

@@ -530,13 +530,25 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
         } else if (getChildCount() > 0 && !stackFromEndChanged) {
             if (layoutFromEnd) {
-                View referenceChild = getChildClosestToEnd();
-                anchorCoordinate = mOrientationHelper.getDecoratedEnd(referenceChild);
-                anchorItemPosition = getPosition(referenceChild);
+                View referenceChild = findReferenceChildClosestToEnd(state);
+                if (referenceChild != null) {
+                    anchorCoordinate = mOrientationHelper.getDecoratedEnd(referenceChild);
+                    anchorItemPosition = getPosition(referenceChild);
+                } else {
+                    anchorCoordinate = layoutFromEnd ? mOrientationHelper.getEndAfterPadding() :
+                            mOrientationHelper.getStartAfterPadding();
+                    anchorItemPosition = mStackFromEnd ? state.getItemCount() - 1 : 0;
+                }
             } else {
-                View referenceChild = getChildClosestToStart();
-                anchorCoordinate = mOrientationHelper.getDecoratedStart(referenceChild);
-                anchorItemPosition = getPosition(referenceChild);
+                View referenceChild = findReferenceChildClosestToStart(state);
+                if (referenceChild != null) {
+                    anchorCoordinate = mOrientationHelper.getDecoratedStart(referenceChild);
+                    anchorItemPosition = getPosition(referenceChild);
+                } else {
+                    anchorCoordinate = layoutFromEnd ? mOrientationHelper.getEndAfterPadding() :
+                            mOrientationHelper.getStartAfterPadding();
+                    anchorItemPosition = mStackFromEnd ? state.getItemCount() - 1 : 0;
+                }
             }
         } else {
             anchorCoordinate = layoutFromEnd ? mOrientationHelper.getEndAfterPadding() :
@@ -1211,6 +1223,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Convenience method to find the child closes to start. Caller should check it has enough
      * children.
+     *
      * @return The child closes to start of the layout from user's perspective.
      */
     private View getChildClosestToStart() {
@@ -1220,10 +1233,64 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Convenience method to find the child closes to end. Caller should check it has enough
      * children.
+     *
      * @return The child closes to end of the layout from user's perspective.
      */
     private View getChildClosestToEnd() {
         return getChildAt(mShouldReverseLayout ? 0 : getChildCount() - 1);
+    }
+
+
+    /**
+     * Among the children that are suitable to be considered as an anchor child, returns the one
+     * closest to the end of the layout.
+     * <p>
+     * Due to ambiguous adapter updates or children being removed, some children's positions may be
+     * invalid. This method is a best effort to find a position within adapter bounds if possible.
+     *
+     * @return A View that can be used an an anchor View.
+     */
+    private View findReferenceChildClosestToEnd(RecyclerView.State state) {
+        return mShouldReverseLayout ? findFirstReferenceChild(state.getItemCount()) :
+                findLastReferenceChild(state.getItemCount());
+    }
+
+    /**
+     * Among the children that are suitable to be considered as an anchor child, returns the one
+     * closest to the start of the layout.
+     * <p>
+     * Due to ambiguous adapter updates or children being removed, some children's positions may be
+     * invalid. This method is a best effort to find a position within adapter bounds if possible.
+     *
+     * @return A View that can be used an an anchor View.
+     */
+    private View findReferenceChildClosestToStart(RecyclerView.State state) {
+        return mShouldReverseLayout ? findLastReferenceChild(state.getItemCount()) :
+                findFirstReferenceChild(state.getItemCount());
+    }
+
+
+    private View findFirstReferenceChild(int itemCount) {
+        final int limit = getChildCount();
+        for (int i = 0; i < limit; i++) {
+            final View view = getChildAt(i);
+            final int position = getPosition(view);
+            if (position >= 0 && position < itemCount) {
+                return view;
+            }
+        }
+        return null;
+    }
+
+    private View findLastReferenceChild(int itemCount) {
+        for (int i = getChildCount() - 1; i >= 0; i--) {
+            final View view = getChildAt(i);
+            final int position = getPosition(view);
+            if (position >= 0 && position < itemCount) {
+                return view;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1333,9 +1400,16 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         final View referenceChild;
         if (layoutDir == LayoutState.LAYOUT_START) {
-            referenceChild = getChildClosestToStart();
+            referenceChild = findReferenceChildClosestToStart(state);
         } else {
-            referenceChild = getChildClosestToEnd();
+            referenceChild = findReferenceChildClosestToEnd(state);
+        }
+        if (referenceChild == null) {
+            if (DEBUG) {
+                Log.d(TAG,
+                        "Cannot find a child with a valid position to be used for focus search.");
+            }
+            return null;
         }
         ensureLayoutState();
         final int maxScroll = (int) (MAX_SCROLL_FACTOR * (mOrientationHelper.getEndAfterPadding() -
