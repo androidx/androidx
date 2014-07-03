@@ -215,7 +215,6 @@
     <style name="Widget.Leanback.DetailsActionButtonStyle" parent="android:Widget.Holo.Button.Borderless">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsActionButton</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:background">@drawable/lb_selector_action_bg</item>
         <item name="android:drawablePadding">@dimen/lb_action_icon_margin</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
