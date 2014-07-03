@@ -30,20 +30,22 @@ final class ColorHistogram {
     /**
      * A new {@link ColorHistogram} instance.
      *
-     * @param pixels array of image contents
+     * @param imagePixels array of image contents
      */
-    ColorHistogram(final int[] pixels) {
+    ColorHistogram(final int[] imagePixels) {
+        // Lets take a copy of the original pixels
+        final int[] pixels = new int[imagePixels.length];
+        System.arraycopy(imagePixels, 0, pixels, 0, pixels.length);
+
         // Sort the pixels to enable counting below
         Arrays.sort(pixels);
 
-        // Count number of distinct colors
         mNumberColors = countDistinctColors(pixels);
 
         // Create arrays
         mColors = new int[mNumberColors];
         mColorCounts = new int[mNumberColors];
 
-        // Finally count the frequency of each color
         countFrequencies(pixels);
     }
 
@@ -68,17 +70,16 @@ final class ColorHistogram {
         return mColorCounts;
     }
 
-    private static int countDistinctColors(final int[] pixels) {
-        if (pixels.length < 2) {
-            // If we have less than 2 pixels we can stop here
-            return pixels.length;
+    static int countDistinctColors(final int[] pixels) {
+        if (pixels.length == 0) {
+            return 0;
         }
 
-        // If we have at least 2 pixels, we have a minimum of 1 color...
+        // If we have at least 1 pixel, we have a minimum of 1 color
         int colorCount = 1;
         int currentColor = pixels[0];
 
-        // Now iterate from the second pixel to the end, counting distinct colors
+        // Now iterate from the second pixel to the end, population distinct colors
         for (int i = 1; i < pixels.length; i++) {
             // If we encounter a new color, increase the population
             if (pixels[i] != currentColor) {
@@ -100,11 +101,6 @@ final class ColorHistogram {
 
         mColors[currentColorIndex] = currentColor;
         mColorCounts[currentColorIndex] = 1;
-
-        if (pixels.length == 1) {
-            // If we only have one pixel, we can stop here
-            return;
-        }
 
         // Now iterate from the second pixel to the end, population distinct colors
         for (int i = 1; i < pixels.length; i++) {
