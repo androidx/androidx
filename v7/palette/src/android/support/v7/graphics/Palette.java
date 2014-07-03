@@ -17,11 +17,8 @@
 package android.support.v7.graphics;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.AsyncTask;
-import android.support.v4.os.AsyncTaskCompat;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -89,17 +86,17 @@ public final class Palette {
     private static final float TARGET_VIBRANT_SATURATION = 1f;
     private static final float MIN_VIBRANT_SATURATION = 0.35f;
 
-    private final List<Swatch> mSwatches;
+    private final List<PaletteItem> mPallete;
     private final int mHighestPopulation;
 
-    private Swatch mVibrantSwatch;
-    private Swatch mMutedSwatch;
+    private PaletteItem mVibrantColor;
+    private PaletteItem mMutedColor;
 
-    private Swatch mDarkVibrantSwatch;
-    private Swatch mDarkMutedSwatch;
+    private PaletteItem mDarkVibrantColor;
+    private PaletteItem mDarkMutedColor;
 
-    private Swatch mLightVibrantSwatch;
-    private Swatch mLightMutedColor;
+    private PaletteItem mLightVibrantColor;
+    private PaletteItem mLightMutedColor;
 
     /**
      * Generate a {@link Palette} from a {@link Bitmap} using the default number of colors.
@@ -118,8 +115,9 @@ public final class Palette {
      *                  number will increase the time needed to compute the values.
      */
     public static Palette generate(Bitmap bitmap, int numColors) {
-        checkBitmapParam(bitmap);
-        checkNumberColorsParam(numColors);
+        if (bitmap == null) {
+            throw new IllegalArgumentException("bitmap can not be null");
+        }
 
         // First we'll scale down the bitmap so it's shortest dimension is 100px
         final Bitmap scaledBitmap = scaleBitmapDown(bitmap);
@@ -145,7 +143,7 @@ public final class Palette {
      *
      * @return the {@link android.os.AsyncTask} used to asynchronously generate the instance.
      */
-    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
+    public static AsyncTask<Void, Void, Palette> generateAsync(
             Bitmap bitmap, PaletteAsyncListener listener) {
         return generateAsync(bitmap, DEFAULT_CALCULATE_NUMBER_COLORS, listener);
     }
@@ -159,180 +157,127 @@ public final class Palette {
      *
      * @return the {@link android.os.AsyncTask} used to asynchronously generate the instance.
      */
-    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
+    public static AsyncTask<Void, Void, Palette> generateAsync(
             final Bitmap bitmap, final int numColors, final PaletteAsyncListener listener) {
-        checkBitmapParam(bitmap);
-        checkNumberColorsParam(numColors);
-        checkAsyncListenerParam(listener);
+        if (listener == null) {
+            throw new IllegalArgumentException("listener can not be null");
+        }
 
-        return AsyncTaskCompat.executeParallel(
-                new AsyncTask<Bitmap, Void, Palette>() {
-                    @Override
-                    protected Palette doInBackground(Bitmap... params) {
-                        return generate(params[0], numColors);
-                    }
+        AsyncTask<Void, Void, Palette> task = new AsyncTask<Void, Void, Palette>() {
+            @Override
+            protected Palette doInBackground(Void... voids) {
+                return generate(bitmap, numColors);
+            }
 
-                    @Override
-                    protected void onPostExecute(Palette colorExtractor) {
-                        listener.onGenerated(colorExtractor);
-                    }
-                }, bitmap);
+            @Override
+            protected void onPostExecute(Palette colorExtractor) {
+                super.onPostExecute(colorExtractor);
+                listener.onGenerated(colorExtractor);
+            }
+        };
+        task.execute();
+        return task;
     }
 
-    private Palette(List<Swatch> swatches) {
-        mSwatches = swatches;
+    private Palette(List<PaletteItem> palette) {
+        mPallete = palette;
         mHighestPopulation = findMaxPopulation();
 
-        mVibrantSwatch = findColor(TARGET_NORMAL_LUMA, MIN_NORMAL_LUMA, MAX_NORMAL_LUMA,
+        mVibrantColor = findColor(TARGET_NORMAL_LUMA, MIN_NORMAL_LUMA, MAX_NORMAL_LUMA,
                 TARGET_VIBRANT_SATURATION, MIN_VIBRANT_SATURATION, 1f);
 
-        mLightVibrantSwatch = findColor(TARGET_LIGHT_LUMA, MIN_LIGHT_LUMA, 1f,
+        mLightVibrantColor = findColor(TARGET_LIGHT_LUMA, MIN_LIGHT_LUMA, 1f,
                 TARGET_VIBRANT_SATURATION, MIN_VIBRANT_SATURATION, 1f);
 
-        mDarkVibrantSwatch = findColor(TARGET_DARK_LUMA, 0f, MAX_DARK_LUMA,
+        mDarkVibrantColor = findColor(TARGET_DARK_LUMA, 0f, MAX_DARK_LUMA,
                 TARGET_VIBRANT_SATURATION, MIN_VIBRANT_SATURATION, 1f);
 
-        mMutedSwatch = findColor(TARGET_NORMAL_LUMA, MIN_NORMAL_LUMA, MAX_NORMAL_LUMA,
+        mMutedColor = findColor(TARGET_NORMAL_LUMA, MIN_NORMAL_LUMA, MAX_NORMAL_LUMA,
                 TARGET_MUTED_SATURATION, 0f, MAX_MUTED_SATURATION);
 
         mLightMutedColor = findColor(TARGET_LIGHT_LUMA, MIN_LIGHT_LUMA, 1f,
                 TARGET_MUTED_SATURATION, 0f, MAX_MUTED_SATURATION);
 
-        mDarkMutedSwatch = findColor(TARGET_DARK_LUMA, 0f, MAX_DARK_LUMA,
+        mDarkMutedColor = findColor(TARGET_DARK_LUMA, 0f, MAX_DARK_LUMA,
                 TARGET_MUTED_SATURATION, 0f, MAX_MUTED_SATURATION);
 
         // Now try and generate any missing colors
-        generateEmptySwatches();
+        generateEmptyColors();
     }
 
     /**
-     * Returns all of the swatches which make up the palette.
+     * The total palette of colors which make up the image.
      */
-    public List<Swatch> getSwatches() {
-        return Collections.unmodifiableList(mSwatches);
+    public List<PaletteItem> getPallete() {
+        return Collections.unmodifiableList(mPallete);
     }
 
     /**
-     * Returns the most vibrant swatch in the palette. Might be null.
+     * Returns the most vibrant color in the image. Might be null.
      */
-    public Swatch getVibrantSwatch() {
-        return mVibrantSwatch;
+    public PaletteItem getVibrantColor() {
+        return mVibrantColor;
     }
 
     /**
-     * Returns a light and vibrant swatch from the palette. Might be null.
+     * Returns a light and vibrant color from the image. Might be null.
      */
-    public Swatch getLightVibrantSwatch() {
-        return mLightVibrantSwatch;
+    public PaletteItem getLightVibrantColor() {
+        return mLightVibrantColor;
     }
 
     /**
-     * Returns a dark and vibrant swatch from the palette. Might be null.
+     * Returns a dark and vibrant color from the image. Might be null.
      */
-    public Swatch getDarkVibrantSwatch() {
-        return mDarkVibrantSwatch;
+    public PaletteItem getDarkVibrantColor() {
+        return mDarkVibrantColor;
     }
 
     /**
-     * Returns a muted swatch from the palette. Might be null.
+     * Returns a muted color from the image. Might be null.
      */
-    public Swatch getMutedSwatch() {
-        return mMutedSwatch;
+    public PaletteItem getMutedColor() {
+        return mMutedColor;
     }
 
     /**
-     * Returns a muted and light swatch from the palette. Might be null.
+     * Returns a muted and light color from the image. Might be null.
      */
-    public Swatch getLightMutedSwatch() {
+    public PaletteItem getLightMutedColor() {
         return mLightMutedColor;
     }
 
     /**
-     * Returns a muted and dark swatch from the palette. Might be null.
+     * Returns a muted and dark color from the image. Might be null.
      */
-    public Swatch getDarkMutedSwatch() {
-        return mDarkMutedSwatch;
+    public PaletteItem getDarkMutedColor() {
+        return mDarkMutedColor;
     }
 
     /**
-     * Returns the most vibrant color in the palette as an RGB packed int.
-     *
-     * @param defaultColor value to return if the swatch isn't available
+     * @return true if we have already selected {@code item}
      */
-    public int getVibrantColor(int defaultColor) {
-        return mVibrantSwatch != null ? mVibrantSwatch.getRgb() : defaultColor;
+    private boolean isAlreadySelected(PaletteItem item) {
+        return mVibrantColor == item || mDarkVibrantColor == item || mLightVibrantColor == item ||
+                mMutedColor == item || mDarkMutedColor == item || mLightMutedColor == item;
     }
 
-    /**
-     * Returns a light and vibrant color from the palette as an RGB packed int.
-     *
-     * @param defaultColor value to return if the swatch isn't available
-     */
-    public int getLightVibrantColor(int defaultColor) {
-        return mLightVibrantSwatch != null ? mLightVibrantSwatch.getRgb() : defaultColor;
-    }
-
-    /**
-     * Returns a dark and vibrant color from the palette as an RGB packed int.
-     *
-     * @param defaultColor value to return if the swatch isn't available
-     */
-    public int getDarkVibrantColor(int defaultColor) {
-        return mDarkVibrantSwatch != null ? mDarkVibrantSwatch.getRgb() : defaultColor;
-    }
-
-    /**
-     * Returns a muted color from the palette as an RGB packed int.
-     *
-     * @param defaultColor value to return if the swatch isn't available
-     */
-    public int getMutedColor(int defaultColor) {
-        return mMutedSwatch != null ? mMutedSwatch.getRgb() : defaultColor;
-    }
-
-    /**
-     * Returns a muted and light color from the palette as an RGB packed int.
-     *
-     * @param defaultColor value to return if the swatch isn't available
-     */
-    public int getLightMutedColor(int defaultColor) {
-        return mLightMutedColor != null ? mLightMutedColor.getRgb() : defaultColor;
-    }
-
-    /**
-     * Returns a muted and dark color from the palette as an RGB packed int.
-     *
-     * @param defaultColor value to return if the swatch isn't available
-     */
-    public int getDarkMutedColor(int defaultColor) {
-        return mDarkMutedSwatch != null ? mDarkMutedSwatch.getRgb() : defaultColor;
-    }
-
-    /**
-     * @return true if we have already selected {@code swatch}
-     */
-    private boolean isAlreadySelected(Swatch swatch) {
-        return mVibrantSwatch == swatch || mDarkVibrantSwatch == swatch ||
-                mLightVibrantSwatch == swatch || mMutedSwatch == swatch ||
-                mDarkMutedSwatch == swatch || mLightMutedColor == swatch;
-    }
-
-    private Swatch findColor(float targetLuma, float minLuma, float maxLuma,
-                             float targetSaturation, float minSaturation, float maxSaturation) {
-        Swatch max = null;
+    private PaletteItem findColor(float targetLuma, float minLuma, float maxLuma,
+                                float targetSaturation, float minSaturation, float maxSaturation) {
+        PaletteItem max = null;
         float maxValue = 0f;
 
-        for (Swatch swatch : mSwatches) {
-            final float sat = swatch.getHsl()[1];
-            final float luma = swatch.getHsl()[2];
+        for (PaletteItem paletteItem : mPallete) {
+            final float sat = paletteItem.getHsl()[1];
+            final float luma = paletteItem.getHsl()[2];
 
             if (sat >= minSaturation && sat <= maxSaturation &&
                     luma >= minLuma && luma <= maxLuma &&
-                    !isAlreadySelected(swatch)) {
+                    !isAlreadySelected(paletteItem)) {
                 float thisValue = createComparisonValue(sat, targetSaturation, luma, targetLuma,
-                        swatch.getPopulation(), mHighestPopulation);
+                        paletteItem.getPopulation(), mHighestPopulation);
                 if (max == null || thisValue > maxValue) {
-                    max = swatch;
+                    max = paletteItem;
                     maxValue = thisValue;
                 }
             }
@@ -342,37 +287,37 @@ public final class Palette {
     }
 
     /**
-     * Try and generate any missing swatches from the swatches we did find.
+     * Try and generate any missing colors from the colors we did find.
      */
-    private void generateEmptySwatches() {
-        if (mVibrantSwatch == null) {
+    private void generateEmptyColors() {
+        if (mVibrantColor == null) {
             // If we do not have a vibrant color...
-            if (mDarkVibrantSwatch != null) {
+            if (mDarkVibrantColor != null) {
                 // ...but we do have a dark vibrant, generate the value by modifying the luma
-                final float[] newHsl = copyHslValues(mDarkVibrantSwatch);
+                final float[] newHsl = copyHslValues(mDarkVibrantColor);
                 newHsl[2] = TARGET_NORMAL_LUMA;
-                mVibrantSwatch = new Swatch(ColorUtils.HSLtoRGB(newHsl), 0);
+                mVibrantColor = new PaletteItem(ColorUtils.HSLtoRGB(newHsl), 0);
             }
         }
 
-        if (mDarkVibrantSwatch == null) {
+        if (mDarkVibrantColor == null) {
             // If we do not have a dark vibrant color...
-            if (mVibrantSwatch != null) {
+            if (mVibrantColor != null) {
                 // ...but we do have a vibrant, generate the value by modifying the luma
-                final float[] newHsl = copyHslValues(mVibrantSwatch);
+                final float[] newHsl = copyHslValues(mVibrantColor);
                 newHsl[2] = TARGET_DARK_LUMA;
-                mDarkVibrantSwatch = new Swatch(ColorUtils.HSLtoRGB(newHsl), 0);
+                mDarkVibrantColor = new PaletteItem(ColorUtils.HSLtoRGB(newHsl), 0);
             }
         }
     }
 
     /**
-     * Find the {@link Swatch} with the highest population value and return the population.
+     * Find the {@link PaletteItem} with the highest population value and return the population.
      */
     private int findMaxPopulation() {
         int population = 0;
-        for (Swatch swatch : mSwatches) {
-            population = Math.max(population, swatch.getPopulation());
+        for (PaletteItem item : mPallete) {
+            population = Math.max(population, item.getPopulation());
         }
         return population;
     }
@@ -408,9 +353,9 @@ public final class Palette {
     }
 
     /**
-     * Copy a {@link Swatch}'s HSL values into a new float[].
+     * Copy a {@link PaletteItem}'s HSL values into a new float[].
      */
-    private static float[] copyHslValues(Swatch color) {
+    private static float[] copyHslValues(PaletteItem color) {
         final float[] newHsl = new float[3];
         System.arraycopy(color.getHsl(), 0, newHsl, 0, 3);
         return newHsl;
@@ -441,93 +386,6 @@ public final class Palette {
         }
 
         return sum / sumWeight;
-    }
-
-    private static void checkBitmapParam(Bitmap bitmap) {
-        if (bitmap == null) {
-            throw new IllegalArgumentException("bitmap can not be null");
-        }
-        if (bitmap.isRecycled()) {
-            throw new IllegalArgumentException("bitmap can not be recycled");
-        }
-    }
-
-    private static void checkNumberColorsParam(int numColors) {
-        if (numColors < 1) {
-            throw new IllegalArgumentException("numColors must be 1 of greater");
-        }
-    }
-
-    private static void checkAsyncListenerParam(PaletteAsyncListener listener) {
-        if (listener == null) {
-            throw new IllegalArgumentException("listener can not be null");
-        }
-    }
-
-    /**
-     * Represents a color swatch generated from an image's palette. The RGB color can be retrieved
-     * by calling {@link #getRgb()}.
-     */
-    public static final class Swatch {
-
-        final int mRed, mGreen, mBlue;
-        final int mRgb;
-        final int mPopulation;
-
-        private float[] mHsl;
-
-        Swatch(int rgbColor, int population) {
-            mRed = Color.red(rgbColor);
-            mGreen = Color.green(rgbColor);
-            mBlue = Color.blue(rgbColor);
-            mRgb = rgbColor;
-            mPopulation = population;
-        }
-
-        Swatch(int red, int green, int blue, int population) {
-            mRed = red;
-            mGreen = green;
-            mBlue = blue;
-            mRgb = Color.rgb(red, green, blue);
-            mPopulation = population;
-        }
-
-        /**
-         * @return this swatch's RGB color value
-         */
-        public int getRgb() {
-            return mRgb;
-        }
-
-        /**
-         * Return this swatch's HSL values.
-         *     hsv[0] is Hue [0 .. 360)
-         *     hsv[1] is Saturation [0...1]
-         *     hsv[2] is Lightness [0...1]
-         */
-        public float[] getHsl() {
-            if (mHsl == null) {
-                // Lazily generate HSL values from RGB
-                mHsl = new float[3];
-                ColorUtils.RGBtoHSL(mRed, mGreen, mBlue, mHsl);
-            }
-            return mHsl;
-        }
-
-        /**
-         * @return the number of pixels represented by this swatch
-         */
-        public int getPopulation() {
-            return mPopulation;
-        }
-
-        @Override
-        public String toString() {
-            return new StringBuilder(getClass().getSimpleName()).append(" ")
-                    .append("[").append(Integer.toHexString(getRgb())).append(']')
-                    .append("[HSL: ").append(Arrays.toString(getHsl())).append(']')
-                    .append("[Population: ").append(mPopulation).append(']').toString();
-        }
     }
 
 }
