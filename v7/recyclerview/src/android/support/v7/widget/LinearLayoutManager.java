@@ -1056,8 +1056,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @return Number of pixels that it added. Useful for scoll functions.
      */
     private int fill(RecyclerView.Recycler recycler, LayoutState layoutState,
-            RecyclerView.State state,
-            boolean stopOnFocusable) {
+            RecyclerView.State state, boolean stopOnFocusable) {
         // max offset we should set is mFastScroll + available
         final int start = layoutState.mAvailable;
         if (layoutState.mScrollingOffset != LayoutState.SCOLLING_OFFSET_NaN) {
@@ -1135,7 +1134,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             layoutState.mOffset += consumed * layoutState.mLayoutDirection;
 
-            if (!params.isItemRemoved() || mLayoutState.mScrapList == null) {
+            /**
+             * Consume the available space if:
+             * * view is not removed
+             * * OR we are laying out scrap children
+             * * OR we are not doing pre-layout
+             */
+            if (!params.isItemRemoved() || mLayoutState.mScrapList != null ||
+                    !state.isPreLayout()) {
                 layoutState.mAvailable -= consumed;
                 // we keep a separate remaining space because mAvailable is important for recycling
                 remainingSpace -= consumed;
@@ -1152,7 +1158,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 break;
             }
 
-            if (state != null && state.getTargetScrollPosition() == getPosition(view)) {
+            // some deleted views may have position -1. Make sure state has a real target scroll
+            // position
+            if (state.getTargetScrollPosition() != RecyclerView.NO_POSITION &&
+                    state.getTargetScrollPosition() == getPosition(view)) {
                 break;
             }
         }
