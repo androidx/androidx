@@ -27,6 +27,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import android.support.v7.graphics.Palette.Swatch;
+
 /**
  * An color quantizer based on the Median-cut algorithm, but optimized for picking out distinct
  * colors rather than representation colors.
@@ -56,7 +58,7 @@ final class ColorCutQuantizer {
     private final int[] mColors;
     private final SparseIntArray mColorPopulations;
 
-    private final List<PaletteItem> mQuantizedColors;
+    private final List<Swatch> mQuantizedColors;
 
     /**
      * Factory-method to generate a {@link ColorCutQuantizer} from a {@link Bitmap} object.
@@ -68,23 +70,22 @@ final class ColorCutQuantizer {
         final int width = bitmap.getWidth();
         final int height = bitmap.getHeight();
 
-        final int[] rgbPixels = new int[width * height];
-        bitmap.getPixels(rgbPixels, 0, width, 0, 0, width, height);
+        final int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
 
-        return new ColorCutQuantizer(rgbPixels, maxColors);
+        return new ColorCutQuantizer(new ColorHistogram(pixels), maxColors);
     }
 
     /**
      * Private constructor.
      *
-     * @param pixels array of rgb packed ints
+     * @param colorHistogram histogram representing an image's pixel data
      * @param maxColors The maximum number of colors that should be in the result palette.
      */
-    ColorCutQuantizer(int[] pixels, int maxColors) {
-        final ColorHistogram colorHist = new ColorHistogram(pixels);
-        final int rawColorCount = colorHist.getNumberOfColors();
-        final int[] rawColors = colorHist.getColors();
-        final int[] rawColorCounts = colorHist.getColorCounts();
+    private ColorCutQuantizer(ColorHistogram colorHistogram, int maxColors) {
+        final int rawColorCount = colorHistogram.getNumberOfColors();
+        final int[] rawColors = colorHistogram.getColors();
+        final int[] rawColorCounts = colorHistogram.getColorCounts();
 
         // First, lets pack the populations into a SparseIntArray so that they can be easily
         // retrieved without knowing a color's index
@@ -104,9 +105,9 @@ final class ColorCutQuantizer {
 
         if (validColorCount <= maxColors) {
             // The image has fewer colors than the maximum requested, so just return the colors
-            mQuantizedColors = new ArrayList<PaletteItem>();
+            mQuantizedColors = new ArrayList<Swatch>();
             for (final int color : mColors) {
-                mQuantizedColors.add(new PaletteItem(color, mColorPopulations.get(color)));
+                mQuantizedColors.add(new Swatch(color, mColorPopulations.get(color)));
             }
         } else {
             // We need use quantization to reduce the number of colors
@@ -117,11 +118,11 @@ final class ColorCutQuantizer {
     /**
      * @return the list of quantized colors
      */
-    List<PaletteItem> getQuantizedColors() {
+    List<Swatch> getQuantizedColors() {
         return mQuantizedColors;
     }
 
-    private List<PaletteItem> quantizePixels(int maxColorIndex, int maxColors) {
+    private List<Swatch> quantizePixels(int maxColorIndex, int maxColors) {
         // Create the priority queue which is sorted by volume descending. This means we always
         // split the largest box in the queue
         final PriorityQueue<Vbox> pq = new PriorityQueue<Vbox>(maxColors, VBOX_COMPARATOR_VOLUME);
@@ -162,10 +163,10 @@ final class ColorCutQuantizer {
         }
     }
 
-    private List<PaletteItem> generateAverageColors(Collection<Vbox> vboxes) {
-        ArrayList<PaletteItem> colors = new ArrayList<PaletteItem>(vboxes.size());
+    private List<Swatch> generateAverageColors(Collection<Vbox> vboxes) {
+        ArrayList<Swatch> colors = new ArrayList<Swatch>(vboxes.size());
         for (Vbox vbox : vboxes) {
-            PaletteItem color = vbox.getAverageColor();
+            Swatch color = vbox.getAverageColor();
             if (!shouldIgnoreColor(color)) {
                 // As we're averaging a color box, we can still get colors which we do not want, so
                 // we check again here
@@ -330,7 +331,7 @@ final class ColorCutQuantizer {
         /**
          * @return the average color of this box.
          */
-        PaletteItem getAverageColor() {
+        Swatch getAverageColor() {
             int redSum = 0;
             int greenSum = 0;
             int blueSum = 0;
@@ -350,7 +351,7 @@ final class ColorCutQuantizer {
             final int greenAverage = Math.round(greenSum / (float) totalPopulation);
             final int blueAverage = Math.round(blueSum / (float) totalPopulation);
 
-            return new PaletteItem(redAverage, greenAverage, blueAverage, totalPopulation);
+            return new Swatch(redAverage, greenAverage, blueAverage, totalPopulation);
         }
 
         /**
@@ -402,7 +403,7 @@ final class ColorCutQuantizer {
         return shouldIgnoreColor(mTempHsl);
     }
 
-    private static boolean shouldIgnoreColor(PaletteItem color) {
+    private static boolean shouldIgnoreColor(Swatch color) {
         return shouldIgnoreColor(color.getHsl());
     }
 
