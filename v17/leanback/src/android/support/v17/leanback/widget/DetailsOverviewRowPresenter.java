@@ -14,7 +14,9 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -246,22 +248,21 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         return vh;
     }
 
-    private void initDetailsOverview(ViewHolder vh) {
+    private int getCardHeight(Context context) {
         int resId = mIsStyleLarge ? R.dimen.lb_details_overview_height_large :
             R.dimen.lb_details_overview_height_small;
+        return context.getResources().getDimensionPixelSize(resId);
+    }
 
+    private void initDetailsOverview(ViewHolder vh) {
         View overview = vh.view.findViewById(R.id.details_overview);
         ViewGroup.LayoutParams lp = overview.getLayoutParams();
-        lp.height = overview.getResources().getDimensionPixelSize(resId);
+        lp.height = getCardHeight(overview.getContext());
         overview.setLayoutParams(lp);
 
         overview.setBackgroundColor(mBackgroundColorSet ?
                 mBackgroundColor : getDefaultBackgroundColor(overview.getContext()));
         ShadowHelper.getInstance().setZ(overview, 0f);
-
-        // Max width to make a square
-        ImageView image = (ImageView) vh.view.findViewById(R.id.details_overview_image);
-        image.setMaxWidth(lp.height);
     }
 
     @Override
@@ -270,11 +271,68 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         DetailsOverviewRow row = (DetailsOverviewRow) item;
         ViewHolder vh = (ViewHolder) holder;
-        if (row.getImageDrawable() != null) {
-            vh.mImageView.setImageDrawable(row.getImageDrawable());
+
+        ViewGroup.MarginLayoutParams layoutParams =
+                (ViewGroup.MarginLayoutParams) vh.mImageView.getLayoutParams();
+        final int cardHeight = getCardHeight(vh.mImageView.getContext());
+        final int verticalMargin = vh.mImageView.getResources().getDimensionPixelSize(
+                R.dimen.lb_details_overview_image_margin_vertical);
+        final int horizontalMargin = vh.mImageView.getResources().getDimensionPixelSize(
+                R.dimen.lb_details_overview_image_margin_horizontal);
+        boolean scaleImage = row.isImageScaleUpAllowed();
+        boolean useMargin = false;
+        boolean landscape = false;
+
+        // If large style and landscape image we always use margin.
+        if (row.getImageDrawable().getIntrinsicWidth() >
+                row.getImageDrawable().getIntrinsicHeight()) {
+            landscape = true;
+            if (mIsStyleLarge) {
+                useMargin = true;
+            }
         }
-        if (vh.mDetailsDescriptionViewHolder == null) {
+        // If long dimension bigger than the card height we scale down.
+        if ((landscape && row.getImageDrawable().getIntrinsicWidth() > cardHeight) ||
+                    (!landscape && row.getImageDrawable().getIntrinsicHeight() > cardHeight)) {
+            scaleImage = true;
         }
+        // If we're not scaling to fit the card height then we always use margin.
+        if (!scaleImage) {
+            useMargin = true;
+        }
+        // If using margin than may need to scale down.
+        if (useMargin && !scaleImage) {
+            if (landscape && row.getImageDrawable().getIntrinsicWidth() >
+                    cardHeight - horizontalMargin) {
+                scaleImage = true;
+            } else if (!landscape && row.getImageDrawable().getIntrinsicHeight() >
+                    cardHeight - 2 * verticalMargin) {
+                scaleImage = true;
+            }
+        }
+
+        if (useMargin) {
+            layoutParams.leftMargin = horizontalMargin;
+            layoutParams.topMargin = layoutParams.bottomMargin = verticalMargin;
+        } else {
+            layoutParams.leftMargin = layoutParams.topMargin = layoutParams.bottomMargin = 0;
+        }
+        if (scaleImage) {
+            vh.mImageView.setScaleType(ImageView.ScaleType.FIT_START);
+            vh.mImageView.setAdjustViewBounds(true);
+            vh.mImageView.setMaxWidth(cardHeight);
+            layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        } else {
+            vh.mImageView.setScaleType(ImageView.ScaleType.CENTER);
+            vh.mImageView.setAdjustViewBounds(false);
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            // Limit width to the card height
+            layoutParams.width = Math.min(cardHeight, row.getImageDrawable().getIntrinsicWidth());
+        }
+        vh.mImageView.setLayoutParams(layoutParams);
+        vh.mImageView.setImageDrawable(row.getImageDrawable());
+
         mDetailsPresenter.onBindViewHolder(vh.mDetailsDescriptionViewHolder, row);
 
         mActionBridgeAdapter.clear();
