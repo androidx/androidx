@@ -223,13 +223,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             return (RecyclerView.LayoutParams) v.getLayoutParams();
         }
 
-        /**
-         * returns skipped (removed) view count.
-         */
-        int layoutRange(RecyclerView.Recycler recycler, int start,
+        void layoutRange(RecyclerView.Recycler recycler, int start,
                 int end) {
             assertScrap(recycler);
-            int skippedAdd = 0;
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
             }
@@ -241,17 +237,20 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 View view = recycler.getViewForPosition(i);
                 assertNotNull("view should not be null for valid position. "
                         + "got null view at position " + i, view);
-                if (!getLp(view).isItemRemoved()) {
-                    addView(view);
-                } else {
-                    skippedAdd ++;
+                if (!mRecyclerView.mState.isPreLayout()) {
+                    RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view
+                            .getLayoutParams();
+                    assertFalse("In post layout, getViewForPosition should never return a view "
+                            + "that is removed", layoutParams != null
+                            && layoutParams.isItemRemoved());
+
                 }
+                addView(view);
 
                 measureChildWithMargins(view, 0, 0);
                 layoutDecorated(view, 0, Math.abs(i - start) * 10, getDecoratedMeasuredWidth(view)
                         , getDecoratedMeasuredHeight(view));
             }
-            return skippedAdd;
         }
 
         private void assertScrap(RecyclerView.Recycler recycler) {
@@ -329,6 +328,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 tuple[1] = -tuple[1];
             }
             new AddRemoveRunnable(startCountTuples).runOnMainThread();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return hasStableIds() ? mItems.get(position).mId : super.getItemId(position);
         }
 
         public void offsetOriginalIndices(int start, int offset) {

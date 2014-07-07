@@ -34,6 +34,81 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         super(DEBUG);
     }
 
+    public void testMovingViaStableIds() throws Throwable {
+        stableIdsMoveTest(true);
+        removeRecyclerView();
+        stableIdsMoveTest(false);
+        removeRecyclerView();
+    }
+
+    public void stableIdsMoveTest(final boolean supportsPredictive) throws Throwable {
+        final TestAdapter testAdapter = new TestAdapter(10);
+        testAdapter.setHasStableIds(true);
+        final AtomicBoolean test = new AtomicBoolean(false);
+        final int movedViewFromIndex = 3;
+        final int movedViewToIndex = 6;
+        final View[] movedView = new View[1];
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                try {
+                    if (test.get()) {
+                        if (state.isPreLayout()) {
+                            View view = recycler.getViewForPosition(movedViewFromIndex, true);
+                            assertSame("In pre layout, should be able to get moved view w/ old "
+                                    + "position", movedView[0], view);
+                            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(view);
+                            assertTrue("it should come from scrap", holder.wasReturnedFromScrap());
+                            // clear scrap flag
+                            holder.clearReturnedFromScrapFlag();
+                        } else {
+                            View view = recycler.getViewForPosition(movedViewToIndex, true);
+                            assertSame("In post layout, should be able to get moved view w/ new "
+                                    + "position", movedView[0], view);
+                            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(view);
+                            assertTrue("it should come from scrap", holder.wasReturnedFromScrap());
+                            // clear scrap flag
+                            holder.clearReturnedFromScrapFlag();
+                        }
+                    }
+                    layoutRange(recycler, 0, state.getItemCount());
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+
+
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return supportsPredictive;
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(this.getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(1);
+
+        movedView[0] = recyclerView.getChildAt(movedViewFromIndex);
+        test.set(true);
+        lm.expectLayouts(supportsPredictive ? 2 : 1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Item item = testAdapter.mItems.remove(movedViewFromIndex);
+                testAdapter.mItems.add(movedViewToIndex, item);
+                testAdapter.notifyItemRemoved(movedViewFromIndex);
+                testAdapter.notifyItemInserted(movedViewToIndex);
+            }
+        });
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+    }
     public void testAdapterChangeDuringLayout() throws Throwable {
         adapterChangeInMainThreadTest("notifyDataSetChanged", new Runnable() {
             @Override
@@ -287,7 +362,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     public void testNotifyDataSetChangedWithStableIds() throws Throwable {
         final int defaultViewType = 1;
         final Map<Item, Integer> viewTypeMap = new HashMap<Item, Integer>();
-        Thread.sleep(5000);
         final Map<Integer, Integer> oldPositionToNewPositionMapping =
                 new HashMap<Integer, Integer>();
         final TestAdapter adapter = new TestAdapter(100) {

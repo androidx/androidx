@@ -717,9 +717,9 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             final int start = mLayoutMin == Integer.MIN_VALUE ? 0 : mLayoutMin;
             final int count = mLayoutItemCount
                     == Integer.MAX_VALUE ? state.getItemCount() : mLayoutItemCount;
-            int skippedAdd = lm.layoutRange(recycler, start, start + count);
+            lm.layoutRange(recycler, start, start + count);
             assertEquals("correct # of children should be laid out",
-                    count - skippedAdd, lm.getChildCount());
+                    count, lm.getChildCount());
             lm.assertVisibleItemPositions();
         }
 

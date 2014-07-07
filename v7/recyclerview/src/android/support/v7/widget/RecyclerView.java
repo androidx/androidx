@@ -1629,7 +1629,7 @@ public class RecyclerView extends ViewGroup {
                             child.getRight(), child.getBottom()));
                 }
             }
-            processDisappearingList();
+            // we don't process disappearing list because they may re-appear in post layout pass.
             clearOldPositions();
             mAdapterHelper.consumePostponedUpdates();
         } else {
@@ -2926,6 +2926,20 @@ public class RecyclerView extends ViewGroup {
                 if (holder.getItemId() == id && !holder.wasReturnedFromScrap()) {
                     if (type == holder.getItemViewType()) {
                         holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
+                        if (holder.isRemoved()) {
+                            // this might be valid in two cases:
+                            // > item is removed but we are in pre-layout pass
+                            // >> do nothing. return as is. make sure we don't rebind
+                            // > item is removed then added to another position and we are in
+                            // post layout.
+                            // >> remove removed and invalid flags, add update flag to rebind
+                            // because item was invisible to us and we don't know what happened in
+                            // between.
+                            if (!mState.isPreLayout()) {
+                                holder.setFlags(ViewHolder.FLAG_UPDATE, ViewHolder.FLAG_UPDATE |
+                                        ViewHolder.FLAG_INVALID | ViewHolder.FLAG_REMOVED);
+                            }
+                        }
                         return holder;
                     } else if (!dryRun) {
                         // Recycle this scrap. Type mismatch.
@@ -3833,7 +3847,15 @@ public class RecyclerView extends ViewGroup {
             if (disappearing || holder.isRemoved()) {
                 // these views will be hidden at the end of the layout pass.
                 mRecyclerView.mDisappearingViewsInLayoutPass.add(child);
+            } else {
+                // This may look like unnecessary but may happen if layout manager supports
+                // predictive layouts and adapter removed then re-added the same item.
+                // In this case, added version will be visible in the post layout (because add is
+                // deferred) but RV will still bind it to the same View.
+                // So if a View re-appears in post layout pass, remove it from disappearing list.
+                mRecyclerView.mDisappearingViewsInLayoutPass.remove(child);
             }
+
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
                 holder.unScrap();
                 mChildHelper.attachViewToParent(child, index, child.getLayoutParams(), false);
@@ -4008,6 +4030,8 @@ public class RecyclerView extends ViewGroup {
             ViewHolder vh = getChildViewHolderInt(child);
             if (vh.isRemoved()) {
                 mRecyclerView.mDisappearingViewsInLayoutPass.add(child);
+            } else {
+                mRecyclerView.mDisappearingViewsInLayoutPass.remove(child);
             }
             mChildHelper.attachViewToParent(child, index, lp, vh.isRemoved());
             if (DISPATCH_TEMP_DETACH)  {
