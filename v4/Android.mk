@@ -73,12 +73,22 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
+# A helper sub-library that makes direct use of Honeycomb MR1 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-honeycomb-mr1
+LOCAL_SDK_VERSION := 12
+LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb_mr1)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-honeycomb
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 # A helper sub-library that makes direct use of Honeycomb MR2 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-honeycomb-mr2
 LOCAL_SDK_VERSION := 13
 LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb_mr2)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-honeycomb
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-honeycomb-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
