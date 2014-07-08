@@ -1562,7 +1562,8 @@ public class RecyclerView extends ViewGroup {
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
         mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null &&
-                (mDataSetHasChangedAfterLayout || mItemsAddedOrRemoved) &&
+                (mDataSetHasChangedAfterLayout || mItemsAddedOrRemoved ||
+                        mLayout.mRequestedSimpleAnimations) &&
                 (!mDataSetHasChangedAfterLayout || mAdapter.hasStableIds());
         mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
                 (mItemsAddedOrRemoved && !mDataSetHasChangedAfterLayout && !mItemsChanged)
@@ -1718,6 +1719,7 @@ public class RecyclerView extends ViewGroup {
         mState.mRunSimpleAnimations = false;
         mState.mRunPredictiveAnimations = false;
         mRunningLayoutOrScroll = false;
+        mLayout.mRequestedSimpleAnimations = false;
     }
 
     /**
@@ -3437,6 +3439,8 @@ public class RecyclerView extends ViewGroup {
         @Nullable
         SmoothScroller mSmoothScroller;
 
+        private boolean mRequestedSimpleAnimations = false;
+
         void setRecyclerView(RecyclerView recyclerView) {
             if (recyclerView == null) {
                 mRecyclerView = null;
@@ -4955,6 +4959,20 @@ public class RecyclerView extends ViewGroup {
             for (int i = getChildCount() - 1; i >= 0; i--) {
                 removeAndRecycleViewAt(i, recycler);
             }
+        }
+
+        /**
+         * A LayoutManager can call this method to force RecyclerView to run simple animations in
+         * the next layout pass, even if there is not any trigger to do so. (e.g. adapter data
+         * change).
+         * <p>
+         * Note that, calling this method will not guarantee that RecyclerView will run animations
+         * at all. For example, if there is not any {@link ItemAnimator} set, RecyclerView will
+         * not run any animations but will still clear this flag after the layout is complete.
+         *
+         */
+        public void requestSimpleAnimationsInNextLayout() {
+            mRequestedSimpleAnimations = true;
         }
     }
 

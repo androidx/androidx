@@ -207,6 +207,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 mLazySpanLookup.invalidateAfter(lastVisiblePosition + 1);
             } else {
                 mLazySpanLookup.invalidateAfter(getPosition(gapView));
+                requestSimpleAnimationsInNextLayout();
                 requestLayout(); // Trigger a re-layout which will fix the layout assignments.
             }
         }
@@ -538,9 +539,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                     : findFirstReferenceChildPosition(state.getItemCount());
             anchorOffset = INVALID_OFFSET;
         }
-        if (getChildCount() > 0 && (mPendingSavedState == null
-                || !mPendingSavedState.mHasSpanOffsets)) {
-            if (invalidateSpanOffsets) {
+        if (getChildCount() > 0 && (mPendingSavedState == null ||
+                !mPendingSavedState.mHasSpanOffsets)) {
+            if (invalidateSpanOffsets || mHasGaps) {
                 for (int i = 0; i < mSpanCount; i++) {
                     // Scroll to position is set, clear.
                     mSpans[i].clear();
@@ -843,8 +844,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         // Line of the furthest row.
         if (layoutState.mLayoutDirection == LAYOUT_END) {
             // ignore padding for recycler
-            recycleLine = mPrimaryOrientation.getEnd() + mLayoutState.mAvailable;
-            targetLine = recycleLine + mLayoutState.mExtra;
+            recycleLine = mPrimaryOrientation.getEndAfterPadding() + mLayoutState.mAvailable;
+            targetLine = recycleLine + mLayoutState.mExtra + mPrimaryOrientation.getEndPadding();
             final int defaultLine = mPrimaryOrientation.getStartAfterPadding();
             for (int i = 0; i < mSpanCount; i++) {
                 final Span span = mSpans[i];
@@ -855,8 +856,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         } else { // LAYOUT_START
             // ignore padding for recycler
-            recycleLine = - mLayoutState.mAvailable;
-            targetLine = recycleLine - mLayoutState.mExtra;
+            recycleLine = mPrimaryOrientation.getStartAfterPadding() - mLayoutState.mAvailable;
+            targetLine = recycleLine - mLayoutState.mExtra -
+                    mPrimaryOrientation.getStartAfterPadding();
             for (int i = 0; i < mSpanCount; i++) {
                 final Span span = mSpans[i];
                 final int defaultLine = mPrimaryOrientation.getEndAfterPadding();
@@ -964,13 +966,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             if (mLayoutState.mLayoutDirection == LAYOUT_START) {
                 // calculate recycle line
                 int maxStart = getMaxStart(currentSpan.getStartLine());
-                recycleFromEnd(recycler, Math.max(recycleLine, maxStart)
-                        + mPrimaryOrientation.getTotalSpace());
+                recycleFromEnd(recycler, Math.max(recycleLine, maxStart) +
+                        (mPrimaryOrientation.getEnd() - mPrimaryOrientation.getStartAfterPadding()));
             } else {
                 // calculate recycle line
                 int minEnd = getMinEnd(currentSpan.getEndLine());
-                recycleFromStart(recycler, Math.min(recycleLine, minEnd)
-                        - mPrimaryOrientation.getTotalSpace());
+                recycleFromStart(recycler, Math.min(recycleLine, minEnd) -
+                        (mPrimaryOrientation.getEnd() - mPrimaryOrientation.getStartAfterPadding()));
             }
         }
         if (DEBUG) {
@@ -978,10 +980,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         if (mLayoutState.mLayoutDirection == LAYOUT_START) {
             final int minStart = getMinStart(mPrimaryOrientation.getStartAfterPadding());
-            return Math.max(0, mLayoutState.mAvailable + (targetLine - minStart));
+            return Math.max(0, mLayoutState.mAvailable + (recycleLine - minStart));
         } else {
             final int max = getMaxEnd(mPrimaryOrientation.getEndAfterPadding());
-            return Math.max(0, mLayoutState.mAvailable + (max - targetLine));
+            return Math.max(0, mLayoutState.mAvailable + (max - recycleLine));
         }
     }
 
