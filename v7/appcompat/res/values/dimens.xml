@@ -26,8 +26,6 @@
          a few are present. -->
     <dimen name="abc_action_bar_stacked_tab_max_width">180dp</dimen>
 
-    <!-- Default height of an action bar. -->
-    <dimen name="abc_action_bar_default_height">48dip</dimen>
     <!-- Vertical padding around action bar icons. -->
     <dimen name="abc_action_bar_icon_vertical_padding">8dip</dimen>
     <!-- Text size for action bar titles -->

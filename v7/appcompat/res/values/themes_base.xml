@@ -41,49 +41,48 @@
          directly by apps. -->
     <eat-comment/>
 
-    <style name="Theme.Base" parent="Theme.Platform.AppCompat">
+    <style name="Base.Theme" parent="Theme.Platform.AppCompat">
     </style>
 
-    <style name="Theme.Base.Light" parent="Theme.Platform.AppCompat.Light">
+    <style name="Base.Theme.Light" parent="Theme.Platform.AppCompat.Light">
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.Base.AppCompat" parent="Theme.Base">
-        <item name="windowActionBar">true</item>
+    <style name="Base.Theme.AppCompat" parent="Base.Theme">
+        <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_light</item>
+        <item name="android:colorBackground">@color/background_material_dark</item>
+        <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_dark</item>
+        <item name="android:disabledAlpha">0.5</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+
         <!-- Remove system title bars; we will add the action bar ourselves. -->
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/background_material_dark</item>
+
+        <item name="windowActionBar">true</item>
 
         <item name="buttonBarStyle">@android:style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_dark</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_dark</item>
 
         <item name="dividerVertical">@drawable/abc_list_divider_holo_dark</item>
         <item name="dividerHorizontal">@drawable/abc_list_divider_holo_dark</item>
 
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
-        <item name="listPreferredItemPaddingLeft">8dip</item>
-        <item name="listPreferredItemPaddingRight">8dip</item>
-
-        <item name="textAppearanceListItem">?android:attr/textAppearanceLarge</item>
-        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceLarge</item>
-
+        <!-- Action Bar Styles -->
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.ActionBar.TabBar</item>
         <item name="actionBarTabTextStyle">@style/Widget.AppCompat.ActionBar.TabText</item>
         <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
-        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid</item>
         <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/abc_action_bar_default_height</item>
+        <item name="actionBarSize">@dimen/abc_action_bar_default_height_material</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
-        <item name="actionMenuTextAppearance">
-            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
-        </item>
+        <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimaryDisableOnly</item>
 
         <!-- Dropdown Spinner Attributes -->
@@ -91,74 +90,101 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">@drawable/abc_cab_background_top_holo_dark</item>
-        <item name="actionModeSplitBackground">@drawable/abc_cab_background_bottom_holo_dark</item>
+        <item name="actionModeBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_holo_dark</item>
-        <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode
-        </item>
+        <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
 
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
         <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
-        <item name="android:panelBackground">@drawable/abc_menu_hardkey_panel_holo_dark</item>
+        <item name="android:panelBackground">?android:attr/colorBackground</item>
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_dark</item>
+
+        <!-- Text styles -->
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
+        <item name="android:textAppearanceInverse">@style/TextAppearance.AppCompat.Inverse</item>
+
+        <item name="android:textColorPrimary">@color/abc_primary_text_material_dark</item>
+        <item name="android:textColorPrimaryInverse">@color/abc_primary_text_material_light</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/abc_primary_text_disable_only_material_dark</item>
+        <item name="android:textColorSecondary">@color/secondary_text_material_dark</item>
+        <item name="android:textColorSecondaryInverse">@color/secondary_text_material_light</item>
+        <item name="android:textColorTertiary">@color/tertiary_text_material_dark</item>
+        <item name="android:textColorTertiaryInverse">@color/tertiary_text_material_light</item>
+        <item name="android:textColorHint">@color/hint_foreground_material_dark</item>
+        <item name="android:textColorHintInverse">@color/hint_foreground_material_light</item>
+        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>
+        <item name="android:textColorLink">@color/material_teal_500</item>
+
+        <item name="android:textAppearanceLarge">@style/TextAppearance.AppCompat.Large</item>
+        <item name="android:textAppearanceLargeInverse">@style/TextAppearance.AppCompat.Large.Inverse</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
+        <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
+
+        <item name="textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
+
+        <item name="listPreferredItemHeight">64dp</item>
+        <item name="listPreferredItemHeightSmall">48dp</item>
+        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemPaddingLeft">16dip</item>
+        <item name="listPreferredItemPaddingRight">16dip</item>
 
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light" parent="Theme.Base.Light">
-        <item name="windowActionBar">true</item>
+    <style name="Base.Theme.AppCompat.Light" parent="Base.Theme.Light">
+        <item name="android:colorForeground">@color/bright_foreground_material_light</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_dark</item>
+        <item name="android:colorBackground">@color/background_material_light</item>
+        <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_light</item>
+        <item name="android:disabledAlpha">0.5</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+
         <!-- Remove system title bars; we will add the action bar ourselves. -->
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/background_material_light</item>
+
+        <item name="windowActionBar">true</item>
 
         <item name="buttonBarStyle">@android:style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_light</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_light</item>
 
         <item name="dividerVertical">@drawable/abc_list_divider_holo_light</item>
         <item name="dividerHorizontal">@drawable/abc_list_divider_holo_light</item>
-
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
-        <item name="listPreferredItemPaddingLeft">8dip</item>
-        <item name="listPreferredItemPaddingRight">8dip</item>
-
-        <item name="textAppearanceListItem">?android:attr/textAppearanceLarge</item>
-        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceLarge</item>
 
         <!-- Action Bar Styles -->
         <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView</item>
         <item name="actionBarTabBarStyle">@style/Widget.AppCompat.Light.ActionBar.TabBar</item>
         <item name="actionBarTabTextStyle">@style/Widget.AppCompat.Light.ActionBar.TabText</item>
         <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
-        <item name="actionOverflowButtonStyle">
-            @style/Widget.AppCompat.Light.ActionButton.Overflow
-        </item>
-        <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.Light.ActionButton.Overflow</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid</item>
         <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
         <item name="actionBarWidgetTheme">@null</item>
-        <item name="actionBarSize">@dimen/abc_action_bar_default_height</item>
+        <item name="actionBarSize">@dimen/abc_action_bar_default_height_material</item>
         <item name="actionBarDivider">?attr/dividerVertical</item>
         <item name="actionBarItemBackground">?attr/selectableItemBackground</item>
-        <item name="actionMenuTextAppearance">
-            @style/TextAppearance.AppCompat.Widget.ActionBar.Menu
-        </item>
+        <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimaryDisableOnly</item>
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">@drawable/abc_cab_background_top_holo_light</item>
-        <item name="actionModeSplitBackground">@drawable/abc_cab_background_bottom_holo_light</item>
+        <item name="actionModeBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_holo_light</item>
-        <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode
-        </item>
+        <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode</item>
 
         <!-- Dropdown Spinner Attributes -->
-        <item name="actionDropDownStyle">
-            @style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar
-        </item>
+        <item name="actionDropDownStyle">@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
+
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.ListPopupWindow</item>
+        <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
 
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
@@ -166,32 +192,59 @@
         <item name="android:panelBackground">@drawable/abc_menu_hardkey_panel_holo_light</item>
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>
 
+        <!-- Text styles -->
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
+        <item name="android:textAppearanceInverse">@style/TextAppearance.AppCompat.Inverse</item>
+
+        <item name="android:textColorPrimary">@color/abc_primary_text_material_light</item>
+        <item name="android:textColorPrimaryInverse">@color/abc_primary_text_material_dark</item>
+        <item name="android:textColorSecondary">@color/secondary_text_material_light</item>
+        <item name="android:textColorSecondaryInverse">@color/secondary_text_material_dark</item>
+        <item name="android:textColorTertiary">@color/tertiary_text_material_light</item>
+        <item name="android:textColorTertiaryInverse">@color/tertiary_text_material_dark</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/abc_primary_text_disable_only_material_light</item>
+        <item name="android:textColorPrimaryInverseDisableOnly">@color/abc_primary_text_disable_only_material_dark</item>
+        <item name="android:textColorHint">@color/hint_foreground_material_light</item>
+        <item name="android:textColorHintInverse">@color/hint_foreground_material_dark</item>
+        <item name="android:textColorHighlight">@color/highlighted_text_material_light</item>
+        <item name="android:textColorLink">@color/material_teal_500</item>
+
+        <item name="android:textAppearanceLarge">@style/TextAppearance.AppCompat.Large</item>
+        <item name="android:textAppearanceLargeInverse">@style/TextAppearance.AppCompat.Large.Inverse</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
+        <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
+
+        <item name="textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
+
+        <item name="listPreferredItemHeight">64dp</item>
+        <item name="listPreferredItemHeightSmall">48dp</item>
+        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemPaddingLeft">16dip</item>
+        <item name="listPreferredItemPaddingRight">16dip</item>
+
     </style>
 
     <!-- Base platform-dependent theme providing a dark action bar in a light-themed activity. -->
-    <style name="Theme.Base.AppCompat.Light.DarkActionBar" parent="Theme.Base.AppCompat.Light">
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_holo_dark</item>
+    <style name="Base.Theme.AppCompat.Light.DarkActionBar" parent="Base.Theme.AppCompat.Light">
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_dark</item>
 
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse</item>
         <item name="actionBarWidgetTheme">@style/Theme.AppCompat</item>
         <item name="actionBarDivider">@drawable/abc_list_divider_holo_dark</item>
         <item name="actionBarItemBackground">@drawable/abc_item_background_holo_dark</item>
-        <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView.Inverse
-        </item>
-        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.Light.ActionBar.TabBar.Inverse
-        </item>
-        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.Light.ActionBar.TabText.Inverse
-        </item>
+        <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView.Inverse</item>
+        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.Light.ActionBar.TabBar.Inverse</item>
+        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.Light.ActionBar.TabText.Inverse</item>
         <item name="actionMenuTextColor">?android:attr/textColorPrimaryInverseDisableOnly</item>
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.Light.ActionMode.Inverse</item>
-        <item name="actionModeBackground">@drawable/abc_cab_background_top_holo_dark</item>
-        <item name="actionModeSplitBackground">@drawable/abc_cab_background_bottom_holo_dark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_holo_dark</item>
-        <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode
-        </item>
+        <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
 
         <!-- Dropdown Spinner Attributes -->
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
@@ -203,27 +256,18 @@
     </style>
 
     <!-- Menu/item attributes -->
-    <style name="Theme.AppCompat.Base.CompactMenu" parent="">
-        <item name="android:itemTextAppearance">
-            @style/TextAppearance.Widget.AppCompat.ExpandedMenu.Item</item>
+    <style name="Base.Theme.AppCompat.CompactMenu" parent="">
+        <item name="android:itemTextAppearance">?android:attr/textAppearanceMedium</item>
         <item name="android:listViewStyle">@style/Widget.AppCompat.ListView.Menu</item>
     </style>
 
-    <style name="Theme.AppCompat.Base.CompactMenu.Dialog" parent="">
-        <item name="android:itemTextAppearance">
-            @style/TextAppearance.AppCompat.Base.CompactMenu.Dialog</item>
-        <item name="android:listViewStyle">@android:style/Widget.ListView.Menu</item>
+    <style name="Base.Theme.AppCompat.DialogWhenLarge" parent="Base.Theme.AppCompat">
     </style>
 
-    <style name="Theme.Base.AppCompat.DialogWhenLarge"
-           parent="Theme.Base.AppCompat">
+    <style name="Base.Theme.AppCompat.Light.DialogWhenLarge" parent="Base.Theme.AppCompat.Light">
     </style>
 
-    <style name="Theme.Base.AppCompat.Light.DialogWhenLarge"
-           parent="Theme.Base.AppCompat.Light">
-    </style>
-
-    <style name="Theme.Base.AppCompat.Dialog.FixedSize" parent="Theme.Platform.AppCompat.Dialog">
+    <style name="Base.Theme.AppCompat.Dialog.FixedSize" parent="Theme.Platform.AppCompat.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
         <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>
@@ -233,38 +277,11 @@
         <!-- Remove system title bars; we will add the action bar ourselves. -->
         <item name="android:windowNoTitle">true</item>
 
-        <item name="buttonBarStyle">@android:style/ButtonBar</item>
-        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
-        <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
+        <!-- TODO: Need fixing once Base.Theme.AppCompat themes are done -->
 
-        <item name="dividerVertical">@drawable/abc_list_divider_holo_dark</item>
-        <item name="dividerHorizontal">@drawable/abc_list_divider_holo_dark</item>
-
-        <item name="listPreferredItemHeight">?android:attr/listPreferredItemHeight</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
-        <item name="listPreferredItemPaddingLeft">8dip</item>
-        <item name="listPreferredItemPaddingRight">8dip</item>
-
-        <item name="textAppearanceListItem">?android:attr/textAppearanceMedium</item>
-        <item name="textAppearanceListItemSmall">?android:attr/textAppearanceMedium</item>
-
-        <!-- Action Mode -->
-        <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">@drawable/abc_cab_background_top_holo_dark</item>
-        <item name="actionModeSplitBackground">@drawable/abc_cab_background_bottom_holo_dark</item>
-        <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_holo_dark</item>
-        <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode
-        </item>
-
-        <!-- Panel attributes -->
-        <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
-        <item name="panelMenuListTheme">@style/Theme.AppCompat.CompactMenu</item>
-        <item name="android:panelBackground">@drawable/abc_menu_hardkey_panel_holo_dark</item>
-        <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_dark</item>
     </style>
 
-    <style name="Theme.Base.AppCompat.Dialog.Light.FixedSize"
-           parent="Theme.Base.AppCompat.Dialog.FixedSize" />
+    <style name="Base.Theme.AppCompat.Dialog.Light.FixedSize"
+           parent="Base.Theme.AppCompat.Dialog.FixedSize" />
 
 </resources>
