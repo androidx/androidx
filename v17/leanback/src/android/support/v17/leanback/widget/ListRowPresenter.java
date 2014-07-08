@@ -201,15 +201,20 @@ public class ListRowPresenter extends RowPresenter {
             @Override
             public void onCreate(final ItemBridgeAdapter.ViewHolder viewHolder) {
                 // Only when having an OnItemClickListner, we will attach the OnClickListener.
-                if (getOnItemClickedListener() != null) {
+                if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
                     viewHolder.mHolder.view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
-                                    rowViewHolder.mGridView.getChildViewHolder(viewHolder.itemView);
+                                    rowViewHolder.mGridView
+                                            .getChildViewHolder(viewHolder.itemView);
                             if (getOnItemClickedListener() != null) {
                                 getOnItemClickedListener().onItemClicked(ibh.mItem,
                                         (ListRow) rowViewHolder.mRow);
+                            }
+                            if (getOnItemViewClickedListener() != null) {
+                                getOnItemViewClickedListener().onItemClicked(viewHolder.mHolder,
+                                        ibh.mItem, rowViewHolder, (ListRow) rowViewHolder.mRow);
                             }
                         }
                     });
@@ -263,6 +268,10 @@ public class ListRowPresenter extends RowPresenter {
             if (mHoverCardPresenterSelector != null) {
                 rowViewHolder.mHoverCardViewSwitcher.unselect();
             }
+            if (getOnItemViewSelectedListener() != null) {
+                getOnItemViewSelectedListener().onItemSelected(null, null,
+                        rowViewHolder, rowViewHolder.mRow);
+            }
             if (getOnItemSelectedListener() != null) {
                 getOnItemSelectedListener().onItemSelected(null, rowViewHolder.mRow);
             }
@@ -270,6 +279,10 @@ public class ListRowPresenter extends RowPresenter {
             if (mHoverCardPresenterSelector != null) {
                 rowViewHolder.mHoverCardViewSwitcher.select(rowViewHolder.mGridView, view,
                         ibh.mItem);
+            }
+            if (getOnItemViewSelectedListener() != null) {
+                getOnItemViewSelectedListener().onItemSelected(ibh.mHolder, ibh.mItem,
+                        rowViewHolder, rowViewHolder.mRow);
             }
             if (getOnItemSelectedListener() != null) {
                 getOnItemSelectedListener().onItemSelected(ibh.mItem, rowViewHolder.mRow);
