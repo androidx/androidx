@@ -23,20 +23,13 @@ import android.view.View;
 
 /**
  * Represents a contextual mode of the user interface. Action modes can be used to provide
- * alternative interaction modes and replace parts of the normal UI until finished. Examples of good
- * action modes include text selection and contextual actions.
- *
- * <p class="note"><strong>Note:</strong> This class is included in the <a
- * href="{@docRoot}tools/extras/support-library.html">support library</a> for compatibility
- * with API level 7 and higher. If you're developing your app for API level 11 and higher
- * <em>only</em>, you should instead use the framework {@link android.view.ActionMode} class.</p>
- *
+ * alternative interaction modes and replace parts of the normal UI until finished.
+ * Examples of good action modes include text selection and contextual actions.
  * <div class="special reference">
  *
  * <h3>Developer Guides</h3>
- *
- * <p>For information about how to provide contextual actions with {@code
- * ActionMode}, read the <a href="{@docRoot}guide/topics/ui/menus.html#context-menu">Menus</a>
+ * <p>For information about how to provide contextual actions with {@code ActionMode},
+ * read the <a href="{@docRoot}guide/topics/ui/menus.html#context-menu">Menus</a>
  * developer guide.</p>
  *
  * </div>
@@ -49,10 +42,11 @@ public abstract class ActionMode {
     /**
      * Set a tag object associated with this ActionMode.
      *
-     * <p>Like the tag available to views, this allows applications to associate arbitrary data with
-     * an ActionMode for later reference.
+     * <p>Like the tag available to views, this allows applications to associate arbitrary
+     * data with an ActionMode for later reference.
      *
      * @param tag Tag to associate with this ActionMode
+     *
      * @see #getTag()
      */
     public void setTag(Object tag) {
@@ -62,10 +56,11 @@ public abstract class ActionMode {
     /**
      * Retrieve the tag object associated with this ActionMode.
      *
-     * <p>Like the tag available to views, this allows applications to associate arbitrary data with
-     * an ActionMode for later reference.
+     * <p>Like the tag available to views, this allows applications to associate arbitrary
+     * data with an ActionMode for later reference.
      *
      * @return Tag associated with this ActionMode
+     *
      * @see #setTag(Object)
      */
     public Object getTag() {
@@ -73,55 +68,61 @@ public abstract class ActionMode {
     }
 
     /**
-     * Set the title of the action mode. This method will have no visible effect if a custom view
-     * has been set.
+     * Set the title of the action mode. This method will have no visible effect if
+     * a custom view has been set.
      *
      * @param title Title string to set
+     *
      * @see #setTitle(int)
      * @see #setCustomView(View)
      */
     public abstract void setTitle(CharSequence title);
 
     /**
-     * Set the title of the action mode. This method will have no visible effect if a custom view
-     * has been set.
+     * Set the title of the action mode. This method will have no visible effect if
+     * a custom view has been set.
      *
      * @param resId Resource ID of a string to set as the title
+     *
      * @see #setTitle(CharSequence)
      * @see #setCustomView(View)
      */
     public abstract void setTitle(int resId);
 
     /**
-     * Set the subtitle of the action mode. This method will have no visible effect if a custom view
-     * has been set.
+     * Set the subtitle of the action mode. This method will have no visible effect if
+     * a custom view has been set.
      *
      * @param subtitle Subtitle string to set
+     *
      * @see #setSubtitle(int)
      * @see #setCustomView(View)
      */
     public abstract void setSubtitle(CharSequence subtitle);
 
     /**
-     * Set the subtitle of the action mode. This method will have no visible effect if a custom view
-     * has been set.
+     * Set the subtitle of the action mode. This method will have no visible effect if
+     * a custom view has been set.
      *
      * @param resId Resource ID of a string to set as the subtitle
+     *
      * @see #setSubtitle(CharSequence)
      * @see #setCustomView(View)
      */
     public abstract void setSubtitle(int resId);
 
     /**
-     * Set whether or not the title/subtitle display for this action mode is optional.
+     * Set whether or not the title/subtitle display for this action mode
+     * is optional.
      *
-     * <p>In many cases the supplied title for an action mode is merely meant to add context and is
-     * not strictly required for the action mode to be useful. If the title is optional, the system
-     * may choose to hide the title entirely rather than truncate it due to a lack of available
-     * space.</p>
+     * <p>In many cases the supplied title for an action mode is merely
+     * meant to add context and is not strictly required for the action
+     * mode to be useful. If the title is optional, the system may choose
+     * to hide the title entirely rather than truncate it due to a lack
+     * of available space.</p>
      *
-     * <p>Note that this is merely a hint; the underlying implementation may choose to ignore this
-     * setting under some circumstances.</p>
+     * <p>Note that this is merely a hint; the underlying implementation
+     * may choose to ignore this setting under some circumstances.</p>
      *
      * @param titleOptional true if the title only presents optional information.
      */
@@ -130,8 +131,9 @@ public abstract class ActionMode {
     }
 
     /**
-     * @return true if this action mode has been given a hint to consider the title/subtitle display
-     *         to be optional.
+     * @return true if this action mode has been given a hint to consider the
+     *         title/subtitle display to be optional.
+     *
      * @see #setTitleOptionalHint(boolean)
      * @see #isTitleOptional()
      */
@@ -140,34 +142,36 @@ public abstract class ActionMode {
     }
 
     /**
-     * @return true if this action mode considers the title and subtitle fields as optional.
-     *         Optional titles may not be displayed to the user.
+     * @return true if this action mode considers the title and subtitle fields
+     *         as optional. Optional titles may not be displayed to the user.
      */
     public boolean isTitleOptional() {
         return false;
     }
 
     /**
-     * Set a custom view for this action mode. The custom view will take the place of the title and
-     * subtitle. Useful for things like search boxes.
+     * Set a custom view for this action mode. The custom view will take the place of
+     * the title and subtitle. Useful for things like search boxes.
      *
      * @param view Custom view to use in place of the title/subtitle.
+     *
      * @see #setTitle(CharSequence)
      * @see #setSubtitle(CharSequence)
      */
     public abstract void setCustomView(View view);
 
     /**
-     * Invalidate the action mode and refresh menu content. The mode's {@link ActionMode.Callback}
-     * will have its {@link Callback#onPrepareActionMode(ActionMode, Menu)} method called. If it
-     * returns true the menu will be scanned for updated content and any relevant changes will be
-     * reflected to the user.
+     * Invalidate the action mode and refresh menu content. The mode's
+     * {@link ActionMode.Callback} will have its
+     * {@link Callback#onPrepareActionMode(ActionMode, Menu)} method called.
+     * If it returns true the menu will be scanned for updated content and any relevant changes
+     * will be reflected to the user.
      */
     public abstract void invalidate();
 
     /**
-     * Finish and close this action mode. The action mode's {@link ActionMode.Callback} will have
-     * its {@link Callback#onDestroyActionMode(ActionMode)} method called.
+     * Finish and close this action mode. The action mode's {@link ActionMode.Callback} will
+     * have its {@link Callback#onDestroyActionMode(ActionMode)} method called.
      */
     public abstract void finish();
 
@@ -205,9 +209,9 @@ public abstract class ActionMode {
     public abstract MenuInflater getMenuInflater();
 
     /**
-     * Returns whether the UI presenting this action mode can take focus or not. This is used by
-     * internal components within the framework that would otherwise present an action mode UI that
-     * requires focus, such as an EditText as a custom view.
+     * Returns whether the UI presenting this action mode can take focus or not.
+     * This is used by internal components within the framework that would otherwise
+     * present an action mode UI that requires focus, such as an EditText as a custom view.
      *
      * @return true if the UI used to show this action mode can take focus
      * @hide Internal use only
@@ -218,34 +222,31 @@ public abstract class ActionMode {
 
     /**
      * Callback interface for action modes. Supplied to
-     * {@link android.support.v7.app.ActionBarActivity#startSupportActionMode(Callback)}
+     * {@link android.support.v7.app.ActionBarActivity#startSupportActionMode(Callback)} (Callback)},
      * a Callback configures and handles events raised by a user's interaction with an action mode.
      *
      * <p>An action mode's lifecycle is as follows:
-     *
-     * <ul><li>{@link Callback#onCreateActionMode(ActionMode,
-     * Menu)} once on initial creation</li>
-     *
-     * <li>{@link Callback#onPrepareActionMode(ActionMode, Menu)}
-     * after creation and any time the {@link ActionMode} is invalidated</li>
-     *
-     * <li>{@link
-     * Callback#onActionItemClicked(ActionMode, MenuItem)} any time a contextual action button is
-     * clicked</li>
-     *
-     * <li>{@link Callback#onDestroyActionMode(ActionMode)} when the action mode is
-     * closed</li></ul>
+     * <ul>
+     * <li>{@link Callback#onCreateActionMode(ActionMode, Menu)} once on initial
+     * creation</li>
+     * <li>{@link Callback#onPrepareActionMode(ActionMode, Menu)} after creation
+     * and any time the {@link ActionMode} is invalidated</li>
+     * <li>{@link Callback#onActionItemClicked(ActionMode, MenuItem)} any time a
+     * contextual action button is clicked</li>
+     * <li>{@link Callback#onDestroyActionMode(ActionMode)} when the action mode
+     * is closed</li>
+     * </ul>
      */
     public interface Callback {
 
         /**
-         * Called when action mode is first created. The menu supplied will be used to generate
-         * action buttons for the action mode.
+         * Called when action mode is first created. The menu supplied will be used to
+         * generate action buttons for the action mode.
          *
          * @param mode ActionMode being created
          * @param menu Menu used to populate action buttons
-         * @return true if the action mode should be created, false if entering this mode should be
-         *         aborted.
+         * @return true if the action mode should be created, false if entering this
+         *              mode should be aborted.
          */
         public boolean onCreateActionMode(ActionMode mode, Menu menu);
 

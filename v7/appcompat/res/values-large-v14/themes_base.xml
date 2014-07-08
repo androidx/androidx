@@ -16,10 +16,10 @@
 
 <resources>
 
-    <style name="Theme.Base.AppCompat.DialogWhenLarge"
-           parent="Theme.Base.AppCompat.DialogWhenLarge.Base" />
+    <style name="Base.Theme.AppCompat.DialogWhenLarge"
+           parent="Base.Theme.AppCompat.DialogWhenLarge.Base" />
 
-    <style name="Theme.Base.AppCompat.Light.DialogWhenLarge"
-           parent="Theme.Base.AppCompat.Light.DialogWhenLarge.Base" />
+    <style name="Base.Theme.AppCompat.Light.DialogWhenLarge"
+           parent="Base.Theme.AppCompat.Light.DialogWhenLarge.Base" />
 
 </resources>

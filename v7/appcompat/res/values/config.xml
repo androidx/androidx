@@ -31,4 +31,9 @@
          Defaults to true. If this is not appropriate for specific locales
          it should be disabled in that locale's resources. -->
     <bool name="abc_config_actionMenuItemAllCaps">true</bool>
+
+    <!-- The duration (in milliseconds) of the activity open/close and fragment open/close animations. -->
+    <integer name="abc_config_activityShortDur">150</integer>
+    <integer name="abc_config_activityDefaultDur">220</integer>
+
 </resources>

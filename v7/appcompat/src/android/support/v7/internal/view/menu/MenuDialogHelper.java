@@ -59,7 +59,7 @@ public class MenuDialogHelper implements DialogInterface.OnKeyListener,
         // Need to force Light Menu theme as list_menu_item_layout is usually against a dark bg and
         // AlertDialog's bg is white
         mPresenter = new ListMenuPresenter(R.layout.abc_list_menu_item_layout,
-                R.style.Theme_AppCompat_CompactMenu_Dialog);
+                R.style.Theme_AppCompat_CompactMenu);
 
         mPresenter.setCallback(this);
         mMenu.addMenuPresenter(mPresenter);
