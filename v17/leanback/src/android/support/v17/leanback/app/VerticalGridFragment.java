@@ -14,7 +14,11 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -50,6 +54,8 @@ public class VerticalGridFragment extends Fragment {
     private VerticalGridPresenter.ViewHolder mGridViewHolder;
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
+    private OnItemViewSelectedListener mOnItemViewSelectedListener;
+    private OnItemViewClickedListener mOnItemViewClickedListener;
     private View.OnClickListener mExternalOnSearchClickedListener;
     private int mSelectedPosition = -1;
 
@@ -109,7 +115,10 @@ public class VerticalGridFragment extends Fragment {
             throw new IllegalArgumentException("Grid presenter may not be null");
         }
         mGridPresenter = gridPresenter;
-        mGridPresenter.setOnItemSelectedListener(mRowSelectedListener);
+        mGridPresenter.setOnItemViewSelectedListener(mRowSelectedListener);
+        if (mOnItemViewClickedListener != null) {
+            mGridPresenter.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        }
         if (mOnItemClickedListener != null) {
             mGridPresenter.setOnItemClickedListener(mOnItemClickedListener);
         }
@@ -137,23 +146,37 @@ public class VerticalGridFragment extends Fragment {
         return mAdapter;
     }
 
-    final private OnItemSelectedListener mRowSelectedListener = new OnItemSelectedListener() {
+    final private OnItemViewSelectedListener mRowSelectedListener =
+            new OnItemViewSelectedListener() {
         @Override
-        public void onItemSelected(Object item, Row row) {
+        public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                RowPresenter.ViewHolder rowViewHolder, Row row) {
             int position = mGridViewHolder.getGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
             if (mOnItemSelectedListener != null) {
                 mOnItemSelectedListener.onItemSelected(item, row);
             }
+            if (mOnItemViewSelectedListener != null) {
+                mOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
+                        rowViewHolder, row);
+            }
         }
     };
 
     /**
      * Sets an item selection listener.
+     * @deprecated
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
+    }
+
+    /**
+     * Sets an item selection listener.
+     */
+    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        mOnItemViewSelectedListener = listener;
     }
 
     private void onRowSelected(int position) {
@@ -174,6 +197,7 @@ public class VerticalGridFragment extends Fragment {
 
     /**
      * Sets an item clicked listener.
+     * @deprecated
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
@@ -184,9 +208,27 @@ public class VerticalGridFragment extends Fragment {
 
     /**
      * Returns the item clicked listener.
+     * @deprecated
      */
     public OnItemClickedListener getOnItemClickedListener() {
         return mOnItemClickedListener;
+    }
+
+    /**
+     * Sets an item clicked listener.
+     */
+    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        mOnItemViewClickedListener = listener;
+        if (mGridPresenter != null) {
+            mGridPresenter.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        }
+    }
+
+    /**
+     * Returns the item clicked listener.
+     */
+    public OnItemViewClickedListener getOnItemViewClickedListener() {
+        return mOnItemViewClickedListener;
     }
 
     /**
