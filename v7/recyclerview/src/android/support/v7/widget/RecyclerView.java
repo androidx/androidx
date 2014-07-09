@@ -768,6 +768,27 @@ public class RecyclerView extends ViewGroup {
                 final int vresult = mLayout.scrollVerticallyBy(y, mRecycler, mState);
                 overscrollY = y - vresult;
             }
+            if (supportsChangeAnimations()) {
+                // Fix up shadow views used by changing animations
+                int count = mChildHelper.getChildCount();
+                for (int i = 0; i < count; i++) {
+                    View view = mChildHelper.getChildAt(i);
+                    ViewHolder holder = getChildViewHolder(view);
+                    if (holder != null && holder.mShadowingHolder != null) {
+                        ViewHolder shadowingHolder = holder.mShadowingHolder;
+                        View shadowingView = shadowingHolder != null ? shadowingHolder.itemView : null;
+                        if (shadowingView != null) {
+                            int left = view.getLeft();
+                            int top = view.getTop();
+                            if (left != shadowingView.getLeft() || top != shadowingView.getTop()) {
+                                shadowingView.layout(left, top,
+                                        left + shadowingView.getWidth(),
+                                        top + shadowingView.getHeight());
+                            }
+                        }
+                    }
+                }
+            }
             mRunningLayoutOrScroll = false;
             resumeRequestLayout(false);
         }
@@ -1513,6 +1534,10 @@ public class RecyclerView extends ViewGroup {
         return mItemAnimator;
     }
 
+    private boolean supportsChangeAnimations() {
+        return mItemAnimator != null && mItemAnimator.getSupportsChangeAnimations();
+    }
+
     /**
      * Post a runnable to the next frame to run pending item animations. Only the first such
      * request will be posted, governed by the mPostedAnimatorRunner flag.
@@ -1560,13 +1585,18 @@ public class RecyclerView extends ViewGroup {
         mRunningLayoutOrScroll = true;
         // simple animations are a subset of advanced animations (which will cause a
         // prelayout step)
+        boolean animationTypeSupported = (mItemsAddedOrRemoved && !mItemsChanged) ||
+                (mItemsAddedOrRemoved || (mItemsChanged && supportsChangeAnimations()));
         mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null &&
-                (mDataSetHasChangedAfterLayout || mItemsAddedOrRemoved ||
+                (mDataSetHasChangedAfterLayout || animationTypeSupported ||
                         mLayout.mRequestedSimpleAnimations) &&
                 (!mDataSetHasChangedAfterLayout || mAdapter.hasStableIds());
         mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
-                (mItemsAddedOrRemoved && !mDataSetHasChangedAfterLayout && !mItemsChanged)
-                && predictiveItemAnimationsEnabled();
+                animationTypeSupported && !mDataSetHasChangedAfterLayout &&
+                predictiveItemAnimationsEnabled();
+        ArrayMap<Long, ViewHolder> oldChangedHolders =
+                mState.mRunSimpleAnimations && mItemsChanged && supportsChangeAnimations() ?
+                        new ArrayMap<Long, ViewHolder>() : null;
         mItemsAddedOrRemoved = mItemsChanged = false;
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
         mState.mInPreLayout = mState.mRunPredictiveAnimations;
@@ -1605,7 +1635,20 @@ public class RecyclerView extends ViewGroup {
             saveOldPositions();
             // Make sure any pending data updates are flushed before laying out.
             mAdapterHelper.preProcess();
-            mInPreLayout = true;
+            if (oldChangedHolders != null) {
+                int count = mChildHelper.getChildCount();
+                for (int i = 0; i < count; ++i) {
+                    final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
+                    if (holder.isChanged() && !holder.isRemoved()) {
+                        long key = mAdapter.hasStableIds() ? holder.getItemId() :
+                                (long) holder.mPosition;
+                        oldChangedHolders.put(key, holder);
+                        mState.mPreLayoutHolderMap.remove(holder);
+                    }
+                }
+            }
+
+                mInPreLayout = true;
             final boolean didStructureChange = mState.mStructureChanged;
             mState.mStructureChanged = false;
             // temporarily disable flag because we are asking for previous layout
@@ -1635,6 +1678,18 @@ public class RecyclerView extends ViewGroup {
         } else {
             clearOldPositions();
             mAdapterHelper.consumeUpdatesInOnePass();
+            if (oldChangedHolders != null) {
+                int count = mChildHelper.getChildCount();
+                for (int i = 0; i < count; ++i) {
+                    final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
+                    if (holder.isChanged() && !holder.isRemoved()) {
+                        long key = mAdapter.hasStableIds() ? holder.getItemId() :
+                                (long) holder.mPosition;
+                        oldChangedHolders.put(key, holder);
+                        mState.mPreLayoutHolderMap.remove(holder);
+                    }
+                }
+            }
         }
         mState.mItemCount = mAdapter.getItemCount();
         mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
@@ -1651,12 +1706,20 @@ public class RecyclerView extends ViewGroup {
 
         if (mState.mRunSimpleAnimations) {
             // Step 3: Find out where things are now, post-layout
+            ArrayMap<Long, ViewHolder> newChangedHolders = oldChangedHolders != null ?
+                    new ArrayMap<Long, ViewHolder>() : null;
             int count = mChildHelper.getChildCount();
             for (int i = 0; i < count; ++i) {
                 ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
                 final View view = holder.itemView;
-                mState.mPostLayoutHolderMap.put(holder, new ItemHolderInfo(holder,
-                        view.getLeft(), view.getTop(), view.getRight(), view.getBottom()));
+                long key = mAdapter.hasStableIds() ? holder.getItemId() :
+                        (long) holder.mPosition;
+                if (newChangedHolders != null && oldChangedHolders.get(key) != null) {
+                    newChangedHolders.put(key, holder);
+                } else {
+                    mState.mPostLayoutHolderMap.put(holder, new ItemHolderInfo(holder,
+                            view.getLeft(), view.getTop(), view.getRight(), view.getBottom()));
+                }
             }
             processDisappearingList();
             // Step 4: Animate DISAPPEARING and REMOVED items
@@ -1710,6 +1773,31 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
             }
+            // Step 7: Animate CHANGING items
+            count = oldChangedHolders != null ? oldChangedHolders.size() : 0;
+            for (int i = 0; i < count; ++i) {
+                long key = oldChangedHolders.keyAt(i);
+                ViewHolder oldHolder = oldChangedHolders.get(key);
+                View oldView = oldHolder.itemView;
+                if (mRecycler.mChangedScrap.contains(oldHolder)) {
+                    oldHolder.setIsRecyclable(false);
+                    removeDetachedView(oldView, false);
+                    addAnimatingView(oldView);
+                    mRecycler.unscrapView(oldHolder);
+                    if (DEBUG) {
+                        Log.d(TAG, "CHANGED: " + oldHolder + " with view " + oldView);
+                    }
+                    ViewHolder newHolder = newChangedHolders.get(key);
+                    oldHolder.mShadowedHolder = newHolder;
+                    if (newHolder != null) {
+                        newHolder.setIsRecyclable(false);
+                        newHolder.mShadowingHolder = oldHolder;
+                    }
+                    if (mItemAnimator.animateChange(oldHolder, newHolder)) {
+                        postAnimationRunner();
+                    }
+                }
+            }
         }
         resumeRequestLayout(false);
         mLayout.removeAndRecycleScrapInt(mRecycler, !mState.mRunPredictiveAnimations);
@@ -1719,6 +1807,9 @@ public class RecyclerView extends ViewGroup {
         mState.mRunPredictiveAnimations = false;
         mRunningLayoutOrScroll = false;
         mLayout.mRequestedSimpleAnimations = false;
+        if (mRecycler.mChangedScrap != null) {
+            mRecycler.mChangedScrap.clear();
+        }
     }
 
     /**
@@ -2000,6 +2091,9 @@ public class RecyclerView extends ViewGroup {
                 // We re-bind these view holders after pre-processing is complete so that
                 // ViewHolders have their final positions assigned.
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
+                if (supportsChangeAnimations()) {
+                    holder.addFlags(ViewHolder.FLAG_CHANGED);
+                }
             }
         }
         mRecycler.viewRangeUpdate(positionStart, itemCount);
@@ -2019,7 +2113,14 @@ public class RecyclerView extends ViewGroup {
                 final int type = mAdapter.getItemViewType(holder.mPosition);
                 if (holder.getItemViewType() == type) {
                     // Binding an attached view will request a layout if needed.
-                    mAdapter.bindViewHolder(holder, holder.mPosition);
+                    if (!holder.isChanged() || !supportsChangeAnimations()) {
+                        mAdapter.bindViewHolder(holder, holder.mPosition);
+                    } else {
+                        // Don't rebind changed holders if change animations are enabled.
+                        // We want the old contents for the animation and will get a new
+                        // holder for the new contents.
+                        requestLayout();
+                    }
                 } else {
                     // binding to a new view will need re-layout anyways. We can as well trigger
                     // it here so that it happens during layout
@@ -2282,6 +2383,28 @@ public class RecyclerView extends ViewGroup {
                     if (dy != 0) {
                         final int vresult = mLayout.scrollVerticallyBy(dy, mRecycler, mState);
                         overscrollY = dy - vresult;
+                    }
+                    if (supportsChangeAnimations()) {
+                        // Fix up shadow views used by changing animations
+                        int count = mChildHelper.getChildCount();
+                        for (int i = 0; i < count; i++) {
+                            View view = mChildHelper.getChildAt(i);
+                            ViewHolder holder = getChildViewHolder(view);
+                            if (holder != null && holder.mShadowingHolder != null) {
+                                View shadowingView = holder.mShadowingHolder != null ?
+                                        holder.mShadowingHolder.itemView : null;
+                                if (shadowingView != null) {
+                                    int left = view.getLeft();
+                                    int top = view.getTop();
+                                    if (left != shadowingView.getLeft() ||
+                                            top != shadowingView.getTop()) {
+                                        shadowingView.layout(left, top,
+                                                left + shadowingView.getWidth(),
+                                                top + shadowingView.getHeight());
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     if (smoothScroller != null && !smoothScroller.isPendingInitialRun() &&
@@ -2578,6 +2701,7 @@ public class RecyclerView extends ViewGroup {
      */
     public final class Recycler {
         private final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
+        private ArrayList<ViewHolder> mChangedScrap = null;
 
         final ArrayList<ViewHolder> mCachedViews = new ArrayList<ViewHolder>();
 
@@ -2803,7 +2927,8 @@ public class RecyclerView extends ViewGroup {
             }
 
             boolean cached = false;
-            if (!holder.isInvalid() && (mInPreLayout || !holder.isRemoved())) {
+            if (!holder.isInvalid() && (mInPreLayout || !holder.isRemoved()) &&
+                    !holder.isChanged()) {
                 // Retire oldest cached views first
                 if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
                     for (int i = 0; i < mCachedViews.size(); i++) {
@@ -2856,7 +2981,14 @@ public class RecyclerView extends ViewGroup {
                         + " recycler pool.");
             }
             holder.setScrapContainer(this);
-            mAttachedScrap.add(holder);
+            if (!holder.isChanged() || !supportsChangeAnimations()) {
+                mAttachedScrap.add(holder);
+            } else {
+                if (mChangedScrap == null) {
+                    mChangedScrap = new ArrayList<ViewHolder>();
+                }
+                mChangedScrap.add(holder);
+            }
         }
 
         /**
@@ -2866,7 +2998,11 @@ public class RecyclerView extends ViewGroup {
          * until it is explicitly removed and recycled.</p>
          */
         void unscrapView(ViewHolder holder) {
-            mAttachedScrap.remove(holder);
+            if (!holder.isChanged() || !supportsChangeAnimations() || mChangedScrap == null) {
+                mAttachedScrap.remove(holder);
+            } else {
+                mChangedScrap.remove(holder);
+            }
             holder.mScrapContainer = null;
             holder.clearReturnedFromScrapFlag();
         }
@@ -3089,6 +3225,9 @@ public class RecyclerView extends ViewGroup {
                 final int pos = holder.getPosition();
                 if (pos >= positionStart && pos < positionEnd) {
                     holder.addFlags(ViewHolder.FLAG_UPDATE);
+                    if (supportsChangeAnimations()) {
+                        holder.addFlags(ViewHolder.FLAG_CHANGED);
+                    }
                 }
             }
         }
@@ -5112,6 +5251,11 @@ public class RecyclerView extends ViewGroup {
         int mItemViewType = INVALID_TYPE;
         int mPreLayoutPosition = NO_POSITION;
 
+        // The item that this holder is shadowing during an item change event/animation
+        ViewHolder mShadowedHolder = null;
+        // The item that is shadowing this holder during an item change event/animation
+        ViewHolder mShadowingHolder = null;
+
         /**
          * This ViewHolder has been bound to a position; mPosition, mItemId and mItemViewType
          * are all valid.
@@ -5150,6 +5294,12 @@ public class RecyclerView extends ViewGroup {
          * the RecyclerView.
          */
         static final int FLAG_RETURNED_FROM_SCRAP = 1 << 5;
+
+        /**
+         * This ViewHolder's contents have changed. This flag is used as an indication that
+         * change animations may be used, if supported by the ItemAnimator.
+         */
+        static final int FLAG_CHANGED = 1 << 6;
 
         private int mFlags;
 
@@ -5252,6 +5402,10 @@ public class RecyclerView extends ViewGroup {
 
         boolean needsUpdate() {
             return (mFlags & FLAG_UPDATE) != 0;
+        }
+
+        boolean isChanged() {
+            return (mFlags & FLAG_CHANGED) != 0;
         }
 
         boolean isBound() {
@@ -6076,6 +6230,19 @@ public class RecyclerView extends ViewGroup {
             item.setIsRecyclable(true);
             removeAnimatingView(item.itemView);
         }
+
+        @Override
+        public void onChangeFinished(ViewHolder item) {
+            item.setIsRecyclable(true);
+            removeAnimatingView(item.itemView);
+            item.setFlags(~ViewHolder.FLAG_CHANGED, item.mFlags);
+            ViewHolder shadowedHolder = item.mShadowedHolder;
+            if (shadowedHolder != null) {
+                shadowedHolder.setIsRecyclable(true);
+                shadowedHolder.mShadowingHolder = null;
+            }
+            item.mShadowedHolder = null;
+        }
     };
 
     /**
@@ -6101,6 +6268,9 @@ public class RecyclerView extends ViewGroup {
         private long mAddDuration = 120;
         private long mRemoveDuration = 120;
         private long mMoveDuration = 250;
+        private long mChangeDuration = 250;
+
+        private boolean mSupportsChangeAnimations = false;
 
         /**
          * Gets the current duration for which all move animations will run.
@@ -6112,9 +6282,9 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Sets the current duration for which all move animations will run.
+         * Sets the duration for which all move animations will run.
          *
-         * @param moveDuration The current move duration
+         * @param moveDuration The move duration
          */
         public void setMoveDuration(long moveDuration) {
             mMoveDuration = moveDuration;
@@ -6130,9 +6300,9 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Sets the current duration for which all add animations will run.
+         * Sets the duration for which all add animations will run.
          *
-         * @param addDuration The current add duration
+         * @param addDuration The add duration
          */
         public void setAddDuration(long addDuration) {
             mAddDuration = addDuration;
@@ -6148,12 +6318,60 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Sets the current duration for which all remove animations will run.
+         * Sets the duration for which all remove animations will run.
          *
-         * @param removeDuration The current remove duration
+         * @param removeDuration The remove duration
          */
         public void setRemoveDuration(long removeDuration) {
             mRemoveDuration = removeDuration;
+        }
+
+        /**
+         * Gets the current duration for which all change animations will run.
+         *
+         * @return The current change duration
+         */
+        public long getChangeDuration() {
+            return mChangeDuration;
+        }
+
+        /**
+         * Sets the duration for which all change animations will run.
+         *
+         * @param changeDuration The change duration
+         */
+        public void setChangeDuration(long changeDuration) {
+            mChangeDuration = changeDuration;
+        }
+
+        /**
+         * Returns whether this ItemAnimator supports animations of change events.
+         *
+         * @return true if change animations are supported, false otherwise
+         */
+        public boolean getSupportsChangeAnimations() {
+            return mSupportsChangeAnimations;
+        }
+
+        /**
+         * Sets whether this ItemAnimator supports animations of item change events.
+         * By default, ItemAnimator only supports animations when items are added or removed.
+         * By setting this property to true, actions on the data set which change the
+         * contents of items may also be animated. What those animations are is left
+         * up to the discretion of the ItemAnimator subclass, in its
+         * {@link #animateChange(ViewHolder, ViewHolder)} implementation.
+         * The value of this property is false by default.
+         *
+         * @see Adapter#notifyItemChanged(int)
+         * @see Adapter#notifyItemRangeChanged(int, int)
+         *
+         * @param supportsChangeAnimations true if change animations are supported by
+         * this ItemAnimator, false otherwise. If the property is false, the ItemAnimator
+         * will not receive a call to {@link #animateChange(ViewHolder, ViewHolder)} when
+         * changes occur.
+         */
+        public void setSupportsChangeAnimations(boolean supportsChangeAnimations) {
+            mSupportsChangeAnimations = supportsChangeAnimations;
         }
 
         /**
@@ -6185,11 +6403,12 @@ public class RecyclerView extends ViewGroup {
          * {@link #dispatchRemoveFinished(ViewHolder)} when done, either
          * immediately (if no animation will occur) or after the animation actually finishes.
          * The return value indicates whether an animation has been set up and whether the
-         * ItemAnimators {@link #runPendingAnimations()} method should be called at the
+         * ItemAnimator's {@link #runPendingAnimations()} method should be called at the
          * next opportunity. This mechanism allows ItemAnimator to set up individual animations
          * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
-         * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()}, and
-         * {@link #animateRemove(ViewHolder) animateRemove()} come in one by one, then
+         * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
+         * {@link #animateRemove(ViewHolder) animateRemove()}, and
+         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
          * start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * <p>This method may also be called for disappearing items which continue to exist in the
@@ -6209,11 +6428,12 @@ public class RecyclerView extends ViewGroup {
          * {@link #dispatchAddFinished(ViewHolder)} when done, either
          * immediately (if no animation will occur) or after the animation actually finishes.
          * The return value indicates whether an animation has been set up and whether the
-         * ItemAnimators {@link #runPendingAnimations()} method should be called at the
+         * ItemAnimator's {@link #runPendingAnimations()} method should be called at the
          * next opportunity. This mechanism allows ItemAnimator to set up individual animations
          * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
-         * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()}, and
-         * {@link #animateRemove(ViewHolder) animateRemove()} come in one by one, then
+         * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
+         * {@link #animateRemove(ViewHolder) animateRemove()}, and
+         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
          * start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * <p>This method may also be called for appearing items which were already in the
@@ -6233,11 +6453,12 @@ public class RecyclerView extends ViewGroup {
          * {@link #dispatchMoveFinished(ViewHolder)} when done, either
          * immediately (if no animation will occur) or after the animation actually finishes.
          * The return value indicates whether an animation has been set up and whether the
-         * ItemAnimators {@link #runPendingAnimations()} method should be called at the
+         * ItemAnimator's {@link #runPendingAnimations()} method should be called at the
          * next opportunity. This mechanism allows ItemAnimator to set up individual animations
          * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
-         * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()}, and
-         * {@link #animateRemove(ViewHolder) animateRemove()} come in one by one, then
+         * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
+         * {@link #animateRemove(ViewHolder) animateRemove()}, and
+         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
          * start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * @param holder The item that is being moved.
@@ -6246,6 +6467,29 @@ public class RecyclerView extends ViewGroup {
          */
         abstract public boolean animateMove(ViewHolder holder, int fromX, int fromY,
                 int toX, int toY);
+
+        /**
+         * Called when an item is changed in the RecyclerView, as indicated by a call to
+         * {@link Adapter#notifyItemChanged(int)} or
+         * {@link Adapter#notifyItemRangeChanged(int, int)}. Implementors can choose
+         * whether and how to animate changes, but must always call
+         * {@link #dispatchChangeFinished(ViewHolder)} with <code>oldHolder</code>when done, either
+         * immediately (if no animation will occur) or after the animation actually finishes.
+         * The return value indicates whether an animation has been set up and whether the
+         * ItemAnimator's {@link #runPendingAnimations()} method should be called at the
+         * next opportunity. This mechanism allows ItemAnimator to set up individual animations
+         * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
+         * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
+         * {@link #animateRemove(ViewHolder) animateRemove()}, and
+         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
+         * start the animations together in the later call to {@link #runPendingAnimations()}.
+         *
+         * @param oldHolder The original item that changed.
+         * @param newHolder The new item that was created with the changed content.
+         * @return true if a later call to {@link #runPendingAnimations()} is requested,
+         * false otherwise.
+         */
+        abstract public boolean animateChange(ViewHolder oldHolder, ViewHolder newHolder);
 
         /**
          * Method to be called by subclasses when a remove animation is done.
@@ -6277,6 +6521,19 @@ public class RecyclerView extends ViewGroup {
         public final void dispatchAddFinished(ViewHolder item) {
             if (mListener != null) {
                 mListener.onAddFinished(item);
+            }
+        }
+
+        /**
+         * Method to be called by subclasses when a change animation is done.
+         *
+         * @param item The item which has been changed (this is the original, or "old"
+         * ViewHolder item, not the "new" holder which was also passed into the call to
+         * {@link #animateChange(ViewHolder, ViewHolder)}).
+         */
+        public final void dispatchChangeFinished(ViewHolder item) {
+            if (mListener != null) {
+                mListener.onChangeFinished(item);
             }
         }
 
@@ -6352,6 +6609,7 @@ public class RecyclerView extends ViewGroup {
             void onRemoveFinished(ViewHolder item);
             void onAddFinished(ViewHolder item);
             void onMoveFinished(ViewHolder item);
+            void onChangeFinished(ViewHolder item);
         }
 
         /**
