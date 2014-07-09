@@ -221,6 +221,22 @@ public class FragmentActivity extends Activity {
     }
 
     /**
+     * Support library version of {@link android.app.Activity#postponeEnterTransition()} that works
+     * only on API 21 and later.
+     */
+    public void supportPostponeEnterTransition() {
+        ActivityCompat.postponeEnterTransition(this);
+    }
+
+    /**
+     * Support library version of {@link android.app.Activity#startPostponedEnterTransition()}
+     * that only works with API 21 and later.
+     */
+    public void supportStartPostponedEnterTransition() {
+        ActivityCompat.startPostponedEnterTransition(this);
+    }
+
+    /**
      * Dispatch configuration change to all fragments.
      */
     @Override
