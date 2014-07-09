@@ -107,9 +107,11 @@ LOCAL_SRC_FILES:= \
 	driver/rsdAllocation.cpp \
 	driver/rsdBcc.cpp \
 	driver/rsdCore.cpp \
+	driver/rsdElement.cpp \
 	driver/rsdRuntimeStubs.cpp \
 	driver/rsdSampler.cpp \
 	driver/rsdScriptGroup.cpp \
+	driver/rsdType.cpp \
 	cpu_ref/rsCpuCore.cpp \
 	cpu_ref/rsCpuScript.cpp \
 	cpu_ref/rsCpuRuntimeMath.cpp \
