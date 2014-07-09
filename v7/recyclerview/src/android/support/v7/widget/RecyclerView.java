@@ -27,7 +27,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
-import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
@@ -1788,7 +1787,6 @@ public class RecyclerView extends ViewGroup {
                 Log.d(TAG, "DISAPPEARING: " + disappearingItem.holder +
                         " with view " + disappearingItemView);
             }
-            disappearingItem.holder.setIsRecyclable(false);
             if (mItemAnimator.animateMove(disappearingItem.holder, oldLeft, oldTop,
                     newLeft, newTop)) {
                 postAnimationRunner();
@@ -2141,7 +2139,9 @@ public class RecyclerView extends ViewGroup {
                 return holder;
             }
         }
-        return mRecycler.findViewHolderForItemId(id);
+        // this method should not query cached views. They are not children so they
+        // should not be returned in this public method
+        return null;
     }
 
     /**
@@ -2531,12 +2531,7 @@ public class RecyclerView extends ViewGroup {
             if (mMaxScrap.get(viewType) <= scrapHeap.size()) {
                 return;
             }
-
-            scrap.mPosition = NO_POSITION;
-            scrap.mOldPosition = NO_POSITION;
-            scrap.mItemId = NO_ID;
-            scrap.mPreLayoutPosition = NO_POSITION;
-            scrap.clearFlagsForSharedPool();
+            scrap.reset();
             scrapHeap.add(scrap);
         }
 
@@ -2601,7 +2596,7 @@ public class RecyclerView extends ViewGroup {
          */
         public void clear() {
             mAttachedScrap.clear();
-            recycleCachedViews();
+            recycleAndClearCachedViews();
         }
 
         /**
@@ -2611,6 +2606,11 @@ public class RecyclerView extends ViewGroup {
          */
         public void setViewCacheSize(int viewCount) {
             mViewCacheMax = viewCount;
+            // first, try the views that can be recycled
+            for (int i = mCachedViews.size() - 1; i >= 0 && mCachedViews.size() > viewCount; i--) {
+                tryToRecycleCachedViewAt(i);
+            }
+            // if we could not recycle enough of them, remove some.
             while (mCachedViews.size() > viewCount) {
                 mCachedViews.remove(mCachedViews.size() - 1);
             }
@@ -2715,6 +2715,9 @@ public class RecyclerView extends ViewGroup {
                     }
                     holder = getRecycledViewPool()
                             .getRecycledView(mAdapter.getItemViewType(offsetPosition));
+                    if (holder != null) {
+                        holder.reset();
+                    }
                 }
                 if (holder == null) {
                     holder = mAdapter.createViewHolder(RecyclerView.this,
@@ -2759,16 +2762,36 @@ public class RecyclerView extends ViewGroup {
             recycleViewHolder(getChildViewHolderInt(view));
         }
 
-        void recycleCachedViews() {
+        void recycleAndClearCachedViews() {
             final int count = mCachedViews.size();
             for (int i = count - 1; i >= 0; i--) {
-                final ViewHolder cachedView = mCachedViews.get(i);
-                if (cachedView.isRecyclable()) {
-                    getRecycledViewPool().putRecycledView(cachedView);
-                    dispatchViewRecycled(cachedView);
-                }
-                mCachedViews.remove(i);
+                tryToRecycleCachedViewAt(i);
             }
+            mCachedViews.clear();
+        }
+
+        /**
+         * Tries to recyle a cached view and removes the view from the list if and only if it
+         * is recycled.
+         *
+         * @param cachedViewIndex The index of the view in cached views list
+         * @return True if item is recycled
+         */
+        boolean tryToRecycleCachedViewAt(int cachedViewIndex) {
+            if (DEBUG) {
+                Log.d(TAG, "Recycling cached view at index " + cachedViewIndex);
+            }
+            ViewHolder viewHolder = mCachedViews.get(cachedViewIndex);
+            if (DEBUG) {
+                Log.d(TAG, "CachedViewHolder to be recycled(if recycleable): " + viewHolder);
+            }
+            if (viewHolder.isRecyclable()) {
+                getRecycledViewPool().putRecycledView(viewHolder);
+                dispatchViewRecycled(viewHolder);
+                mCachedViews.remove(cachedViewIndex);
+                return true;
+            }
+            return false;
         }
 
         void recycleViewHolder(ViewHolder holder) {
@@ -2784,11 +2807,7 @@ public class RecyclerView extends ViewGroup {
                 // Retire oldest cached views first
                 if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
                     for (int i = 0; i < mCachedViews.size(); i++) {
-                        final ViewHolder cachedView = mCachedViews.get(i);
-                        if (cachedView.isRecyclable()) {
-                            mCachedViews.remove(i);
-                            getRecycledViewPool().putRecycledView(cachedView);
-                            dispatchViewRecycled(cachedView);
+                        if (tryToRecycleCachedViewAt(i)) {
                             break;
                         }
                     }
@@ -2963,8 +2982,7 @@ public class RecyclerView extends ViewGroup {
                         }
                         return holder;
                     } else if (!dryRun) {
-                        mCachedViews.remove(i);
-                        recycleViewHolder(holder);
+                        tryToRecycleCachedViewAt(i);
                     }
                 }
             }
@@ -3024,13 +3042,19 @@ public class RecyclerView extends ViewGroup {
                         holder.offsetPosition(-count, applyToPreLayout);
                     } else if (holder.getPosition() >= removedFrom) {
                         // Item for this view was removed. Dump it from the cache.
-                        if (DEBUG) {
+                        if (!tryToRecycleCachedViewAt(i)) {
+                            // if we cannot recycle it, at least invalidate so that we won't return
+                            // it by position.
+                            holder.addFlags(ViewHolder.FLAG_INVALID);
+                            if (DEBUG) {
+                                Log.d(TAG, "offsetPositionRecordsForRemove cached " + i +
+                                        " holder " + holder + " now flagged as invalid because it "
+                                        + "could not be recycled");
+                            }
+                        } else if (DEBUG) {
                             Log.d(TAG, "offsetPositionRecordsForRemove cached " + i +
                                     " holder " + holder + " now placed in pool");
                         }
-                        mCachedViews.remove(i);
-                        getRecycledViewPool().putRecycledView(holder);
-                        dispatchViewRecycled(holder);
                     }
                 }
             }
@@ -3051,40 +3075,6 @@ public class RecyclerView extends ViewGroup {
                 mRecyclerPool = new RecycledViewPool();
             }
             return mRecyclerPool;
-        }
-
-        ViewHolder findViewHolderForPosition(int position, boolean checkNewPosition) {
-            final int cachedCount = mCachedViews.size();
-            for (int i = 0; i < cachedCount; i++) {
-                final ViewHolder holder = mCachedViews.get(i);
-                if (holder == null) {
-                    continue;
-                }
-                if (checkNewPosition) {
-                    if (holder.mPosition == position) {
-                        return mCachedViews.remove(i);
-                    }
-                } else if (holder.getPosition() == position) {
-                    return mCachedViews.remove(i);
-                }
-            }
-            return null;
-        }
-
-        ViewHolder findViewHolderForItemId(long id) {
-            if (!mAdapter.hasStableIds()) {
-                return null;
-            }
-
-            final int cachedCount = mCachedViews.size();
-            for (int i = 0; i < cachedCount; i++) {
-                final ViewHolder holder = mCachedViews.get(i);
-                if (holder != null && holder.getItemId() == id) {
-                    mCachedViews.remove(i);
-                    return holder;
-                }
-            }
-            return null;
         }
 
         void viewRangeUpdate(int positionStart, int itemCount) {
@@ -3113,8 +3103,15 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
             } else {
-                // we cannot re-use cached views in this case
-                recycleCachedViews();
+                // we cannot re-use cached views in this case. Recycle the ones we can and flag
+                // the remaining as invalid so that they can be recycled later on (when their
+                // animations end.)
+                for (int i = mCachedViews.size() - 1; i >= 0; i--) {
+                    if (!tryToRecycleCachedViewAt(i)) {
+                        final ViewHolder holder = mCachedViews.get(i);
+                        holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+                    }
+                }
             }
 
         }
@@ -3861,7 +3858,11 @@ public class RecyclerView extends ViewGroup {
             }
 
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
-                holder.unScrap();
+                if (holder.isScrap()) {
+                    holder.unScrap();
+                } else {
+                    holder.clearReturnedFromScrapFlag();
+                }
                 mChildHelper.attachViewToParent(child, index, child.getLayoutParams(), false);
                 if (DISPATCH_TEMP_DETACH) {
                     ViewCompat.dispatchFinishTemporaryDetach(child);
@@ -5269,8 +5270,13 @@ public class RecyclerView extends ViewGroup {
             mFlags |= flags;
         }
 
-        void clearFlagsForSharedPool() {
+        void reset() {
             mFlags = 0;
+            mPosition = NO_POSITION;
+            mOldPosition = NO_POSITION;
+            mItemId = NO_ID;
+            mPreLayoutPosition = NO_POSITION;
+            mIsRecyclableCount = 0;
         }
 
         @Override
@@ -5302,6 +5308,10 @@ public class RecyclerView extends ViewGroup {
          */
         public final void setIsRecyclable(boolean recyclable) {
             mIsRecyclableCount = recyclable ? mIsRecyclableCount - 1 : mIsRecyclableCount + 1;
+            if (DEBUG) {
+                Log.d(TAG, "setIsRecyclable for item id:" + mItemId + "val:" + recyclable + ","
+                        + "cnt:" + mIsRecyclableCount);
+            }
             if (mIsRecyclableCount < 0) {
                 mIsRecyclableCount = 0;
                 Log.e(VIEW_LOG_TAG, "isRecyclable decremented below 0: " +

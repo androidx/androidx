@@ -97,6 +97,26 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     public void setRecyclerView(final RecyclerView recyclerView) throws Throwable {
         mRecyclerView = recyclerView;
+        RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
+            @Override
+            public RecyclerView.ViewHolder getRecycledView(int viewType) {
+                RecyclerView.ViewHolder viewHolder = super.getRecycledView(viewType);
+                if (viewHolder == null) {
+                    return null;
+                }
+                viewHolder.addFlags(RecyclerView.ViewHolder.FLAG_BOUND);
+                viewHolder.mPosition = 200;
+                viewHolder.mOldPosition = 300;
+                viewHolder.mPreLayoutPosition = 500;
+                return viewHolder;
+            }
+
+            @Override
+            public void putRecycledView(RecyclerView.ViewHolder scrap) {
+                super.putRecycledView(scrap);
+            }
+        };
+        mRecyclerView.setRecycledViewPool(pool);
         mAdapterHelper = recyclerView.mAdapterHelper;
         runTestOnUiThread(new Runnable() {
             @Override
@@ -245,6 +265,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                             && layoutParams.isItemRemoved());
 
                 }
+                assertEquals("getViewForPosition should return correct position",
+                        i, getPosition(view));
                 addView(view);
 
                 measureChildWithMargins(view, 0, 0);
