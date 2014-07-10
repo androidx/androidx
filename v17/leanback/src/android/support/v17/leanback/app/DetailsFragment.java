@@ -17,7 +17,11 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -38,6 +42,8 @@ public class DetailsFragment extends Fragment {
     private int mContainerListAlignTop;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
+    private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
+    private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = -1;
 
     /**
@@ -59,6 +65,7 @@ public class DetailsFragment extends Fragment {
 
     /**
      * Sets an item selection listener.
+     * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mExternalOnItemSelectedListener = listener;
@@ -66,6 +73,7 @@ public class DetailsFragment extends Fragment {
 
     /**
      * Sets an item Clicked listener.
+     * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
@@ -75,10 +83,35 @@ public class DetailsFragment extends Fragment {
     }
 
     /**
+     * Sets an item selection listener.
+     */
+    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        mExternalOnItemViewSelectedListener = listener;
+    }
+
+    /**
+     * Sets an item Clicked listener.
+     */
+    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        mOnItemViewClickedListener = listener;
+        if (mRowsFragment != null) {
+            mRowsFragment.setOnItemViewClickedListener(listener);
+        }
+    }
+
+    /**
      * Returns the item Clicked listener.
+     * @deprecated Use {@link #getOnItemViewClickedListener()}
      */
     public OnItemClickedListener getOnItemClickedListener() {
         return mOnItemClickedListener;
+    }
+
+    /**
+     * Returns the item Clicked listener.
+     */
+    public OnItemViewClickedListener getOnItemViewClickedListener() {
+        return mOnItemViewClickedListener;
     }
 
     @Override
@@ -101,16 +134,22 @@ public class DetailsFragment extends Fragment {
                     .replace(R.id.fragment_dock, mRowsFragment).commit();
         }
         mRowsFragment.setAdapter(mAdapter);
-        mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
+        mRowsFragment.setOnItemViewSelectedListener(mRowSelectedListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
+        mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
         return view;
     }
 
-    private OnItemSelectedListener mRowSelectedListener = new OnItemSelectedListener() {
+    private OnItemViewSelectedListener mRowSelectedListener = new OnItemViewSelectedListener() {
         @Override
-        public void onItemSelected(Object item, Row row) {
+        public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (mExternalOnItemSelectedListener != null) {
                 mExternalOnItemSelectedListener.onItemSelected(item, row);
+            }
+            if (mExternalOnItemViewSelectedListener != null) {
+                mExternalOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
+                        rowViewHolder, row);
             }
         }
     };

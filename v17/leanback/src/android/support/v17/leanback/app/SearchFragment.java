@@ -21,9 +21,13 @@ import android.speech.SpeechRecognizer;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SearchBar;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v17.leanback.widget.Presenter.ViewHolder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,6 +102,8 @@ public class SearchFragment extends Fragment {
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
+    private OnItemViewSelectedListener mOnItemViewSelectedListener;
+    private OnItemViewClickedListener mOnItemViewClickedListener;
     private ObjectAdapter mResultAdapter;
 
     private String mTitle;
@@ -195,24 +201,34 @@ public class SearchFragment extends Fragment {
             mRowsFragment = (RowsFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
-        mRowsFragment.setOnItemSelectedListener(new OnItemSelectedListener() {
+        mRowsFragment.setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
             @Override
-            public void onItemSelected(Object item, Row row) {
+            public void onItemSelected(ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
                 int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
                 if (DEBUG) Log.v(TAG, String.format("onItemSelected %d", position));
                 mSearchBar.setVisibility(0 >= position ? View.VISIBLE : View.GONE);
                 if (null != mOnItemSelectedListener) {
                     mOnItemSelectedListener.onItemSelected(item, row);
                 }
+                if (null != mOnItemViewSelectedListener) {
+                    mOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
+                            rowViewHolder, row);
+                }
             }
         });
-        mRowsFragment.setOnItemClickedListener(new OnItemClickedListener() {
+        mRowsFragment.setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
-            public void onItemClicked(Object item, Row row) {
+            public void onItemClicked(ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
                 int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
                 if (DEBUG) Log.v(TAG, String.format("onItemClicked %d", position));
                 if (null != mOnItemClickedListener) {
                     mOnItemClickedListener.onItemClicked(item, row);
+                }
+                if (null != mOnItemViewClickedListener) {
+                    mOnItemViewClickedListener.onItemClicked(itemViewHolder, item,
+                            rowViewHolder, row);
                 }
             }
         });
@@ -270,6 +286,7 @@ public class SearchFragment extends Fragment {
      *
      * @param listener The item selection listener to be invoked when an item in
      *        the search results is selected.
+     * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
@@ -280,9 +297,30 @@ public class SearchFragment extends Fragment {
      *
      * @param listener The item clicked listener to be invoked when an item in
      *        the search results is clicked.
+     * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
+    }
+
+    /**
+     * Sets an item selection listener for the results.
+     *
+     * @param listener The item selection listener to be invoked when an item in
+     *        the search results is selected.
+     */
+    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        mOnItemViewSelectedListener = listener;
+    }
+
+    /**
+     * Sets an item clicked listener for the results.
+     *
+     * @param listener The item clicked listener to be invoked when an item in
+     *        the search results is clicked.
+     */
+    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        mOnItemViewClickedListener = listener;
     }
 
     /**
