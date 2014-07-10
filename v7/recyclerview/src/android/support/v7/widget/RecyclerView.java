@@ -350,6 +350,9 @@ public class RecyclerView extends ViewGroup {
                     case UpdateOp.UPDATE:
                         mLayout.onItemsUpdated(RecyclerView.this, op.positionStart, op.itemCount);
                         break;
+                    case UpdateOp.MOVE:
+                        mLayout.onItemsMoved(RecyclerView.this, op.positionStart, op.itemCount, 1);
+                        break;
                 }
             }
 
@@ -361,6 +364,13 @@ public class RecyclerView extends ViewGroup {
             @Override
             public void offsetPositionsForAdd(int positionStart, int itemCount) {
                 offsetPositionRecordsForInsert(positionStart, itemCount);
+                mItemsAddedOrRemoved = true;
+            }
+
+            @Override
+            public void offsetPositionsForMove(int from, int to) {
+                offsetPositionRecordsForMove(from, to);
+                // should we create mItemsMoved ?
                 mItemsAddedOrRemoved = true;
             }
         });
@@ -2046,6 +2056,40 @@ public class RecyclerView extends ViewGroup {
         mRecycler.clearOldPositions();
     }
 
+    void offsetPositionRecordsForMove(int from, int to) {
+        final int childCount = mChildHelper.getUnfilteredChildCount();
+        final int start, end, inBetweenOffset;
+        if (from < to) {
+            start = from;
+            end = to;
+            inBetweenOffset = -1;
+        } else {
+            start = to;
+            end = from;
+            inBetweenOffset = 1;
+        }
+
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
+            if (holder == null || holder.mPosition < start || holder.mPosition > end) {
+                continue;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "offsetPositionRecordsForMove attached child " + i + " holder " +
+                        holder);
+            }
+            if (holder.mPosition == from) {
+                holder.offsetPosition(to - from, false);
+            } else {
+                holder.offsetPosition(inBetweenOffset, false);
+            }
+
+            mState.mStructureChanged = true;
+        }
+        mRecycler.offsetPositionRecordsForMove(from, to);
+        requestLayout();
+    }
+
     void offsetPositionRecordsForInsert(int positionStart, int itemCount) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -2615,6 +2659,14 @@ public class RecyclerView extends ViewGroup {
         public void onItemRangeRemoved(int positionStart, int itemCount) {
             assertNotInLayoutOrScroll(null);
             if (mAdapterHelper.onItemRangeRemoved(positionStart, itemCount)) {
+                triggerUpdateProcessor();
+            }
+        }
+
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            assertNotInLayoutOrScroll(null);
+            if (mAdapterHelper.onItemRangeMoved(fromPosition, toPosition, itemCount)) {
                 triggerUpdateProcessor();
             }
         }
@@ -3248,6 +3300,35 @@ public class RecyclerView extends ViewGroup {
             getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter);
         }
 
+        void offsetPositionRecordsForMove(int from, int to) {
+            final int start, end, inBetweenOffset;
+            if (from < to) {
+                start = from;
+                end = to;
+                inBetweenOffset = -1;
+            } else {
+                start = to;
+                end = from;
+                inBetweenOffset = 1;
+            }
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder == null || holder.mPosition < start || holder.mPosition > end) {
+                    continue;
+                }
+                if (holder.mPosition == from) {
+                    holder.offsetPosition(to - from, false);
+                } else {
+                    holder.offsetPosition(inBetweenOffset, false);
+                }
+                if (DEBUG) {
+                    Log.d(TAG, "offsetPositionRecordsForMove cached child " + i + " holder " +
+                            holder);
+                }
+            }
+        }
+
         void offsetPositionRecordsForInsert(int insertedAt, int count) {
             final int cachedCount = mCachedViews.size();
             for (int i = 0; i < cachedCount; i++) {
@@ -3647,6 +3728,21 @@ public class RecyclerView extends ViewGroup {
          */
         public final void notifyItemInserted(int position) {
             mObservable.notifyItemRangeInserted(position, 1);
+        }
+
+        /**
+         * Notify any registered observers that the item reflected at <code>fromPosition</code>
+         * has been moved to <code>toPosition</code>.
+         *
+         * <p>This is a structural change event. Representations of other existing items in the
+         * data set are still considered up to date and will not be rebound, though their
+         * positions may be altered.</p>
+         *
+         * @param fromPosition Previous position of the item.
+         * @param toPosition New position of the item.
+         */
+        public final void notifyItemMoved(int fromPosition, int toPosition) {
+            mObservable.notifyItemMoved(fromPosition, toPosition);
         }
 
         /**
@@ -5120,6 +5216,22 @@ public class RecyclerView extends ViewGroup {
         public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
         }
 
+        /**
+         * Called when an item is moved withing the adapter.
+         * <p>
+         * Note that, an item may also change position in response to another ADD/REMOVE/MOVE
+         * operation. This callback is only called if and only if {@link Adapter#notifyItemMoved}
+         * is called.
+         *
+         * @param recyclerView
+         * @param from
+         * @param to
+         * @param itemCount
+         */
+        public void onItemsMoved(RecyclerView recyclerView, int from, int to, int itemCount) {
+
+        }
+
 
         /**
          * <p>Override this method if you want to support scroll bars.</p>
@@ -5867,6 +5979,10 @@ public class RecyclerView extends ViewGroup {
         public void onItemRangeRemoved(int positionStart, int itemCount) {
             // do nothing
         }
+
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            // do nothing
+        }
     }
 
     /**
@@ -6278,6 +6394,12 @@ public class RecyclerView extends ViewGroup {
             // to avoid such problems, just march thru the list in the reverse order.
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onItemRangeRemoved(positionStart, itemCount);
+            }
+        }
+
+        public void notifyItemMoved(int fromPosition, int toPosition) {
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onItemRangeMoved(fromPosition, toPosition, 1);
             }
         }
     }
