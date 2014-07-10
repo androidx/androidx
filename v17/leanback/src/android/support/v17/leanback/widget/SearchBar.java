@@ -279,14 +279,6 @@ public class SearchBar extends RelativeLayout {
         });
 
         updateHint();
-        // Start in voice mode
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mAutoStartRecognition = true;
-                mSpeechOrbView.requestFocus();
-            }
-        }, 200);
     }
 
     @Override
@@ -296,13 +288,12 @@ public class SearchBar extends RelativeLayout {
         mSoundPool = new SoundPool(2, AudioManager.STREAM_SYSTEM, 0);
         loadSounds(mContext);
 
-        mHandler.post(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mSearchTextEditor.requestFocus();
-                mSearchTextEditor.requestFocusFromTouch();
+                startRecognition();
             }
-        });
+        }, 300);
     }
 
     @Override
