@@ -15,6 +15,7 @@
  */
 package com.example.android.supportv7.widget;
 
+import android.support.v4.util.ArrayMap;
 import android.widget.CompoundButton;
 import com.example.android.supportv7.R;
 import android.app.Activity;
@@ -47,6 +48,7 @@ public class AnimatedRecyclerView extends Activity {
 
     boolean mAnimationsEnabled = true;
     boolean mPredictiveAnimationsEnabled = true;
+    RecyclerView.ItemAnimator mCachedAnimator = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class AnimatedRecyclerView extends Activity {
 
         ViewGroup container = (ViewGroup) findViewById(R.id.container);
         mRecyclerView = new RecyclerView(this);
+        mCachedAnimator = mRecyclerView.getItemAnimator();
         mRecyclerView.setLayoutManager(new MyLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -70,6 +73,11 @@ public class AnimatedRecyclerView extends Activity {
         enableAnimations.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked && mRecyclerView.getItemAnimator() == null) {
+                    mRecyclerView.setItemAnimator(mCachedAnimator);
+                } else if (!isChecked && mRecyclerView.getItemAnimator() != null) {
+                    mRecyclerView.setItemAnimator(null);
+                }
                 mAnimationsEnabled = isChecked;
             }
         });
@@ -80,6 +88,15 @@ public class AnimatedRecyclerView extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mPredictiveAnimationsEnabled = isChecked;
+            }
+        });
+
+        CheckBox enableChangeAnimations =
+                (CheckBox) findViewById(R.id.enableChangeAnimations);
+        enableChangeAnimations.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mCachedAnimator.setSupportsChangeAnimations(isChecked);
             }
         });
     }
@@ -102,6 +119,13 @@ public class AnimatedRecyclerView extends Activity {
         boolean selected = ((CheckBox) view).isChecked();
         MyViewHolder holder = (MyViewHolder) mRecyclerView.getChildViewHolder(parent);
         mAdapter.selectItem(holder, selected);
+    }
+
+    public void itemClicked(View view) {
+        ViewGroup parent = (ViewGroup) view;
+        MyViewHolder holder = (MyViewHolder) mRecyclerView.getChildViewHolder(parent);
+        mAdapter.toggleExpanded(holder);
+        mAdapter.notifyItemChanged(holder.getPosition());
     }
 
     public void deleteItem(View view) {
@@ -135,6 +159,7 @@ public class AnimatedRecyclerView extends Activity {
     private void addAtPosition(int position, String text) {
         mItems.add(position, text);
         mAdapter.mSelected.put(text, Boolean.FALSE);
+        mAdapter.mExpanded.put(text, Boolean.FALSE);
         mAdapter.notifyItemInserted(position);
     }
 
@@ -399,7 +424,8 @@ public class AnimatedRecyclerView extends Activity {
     class MyAdapter extends RecyclerView.Adapter {
         private int mBackground;
         List<String> mData;
-        HashMap<String, Boolean> mSelected = new HashMap<String, Boolean>();
+        ArrayMap<String, Boolean> mSelected = new ArrayMap<String, Boolean>();
+        ArrayMap<String, Boolean> mExpanded = new ArrayMap<String, Boolean>();
 
         public MyAdapter(List<String> data) {
             TypedValue val = new TypedValue();
@@ -409,6 +435,7 @@ public class AnimatedRecyclerView extends Activity {
             mData = data;
             for (String itemText : mData) {
                 mSelected.put(itemText, Boolean.FALSE);
+                mExpanded.put(itemText, Boolean.FALSE);
             }
         }
 
@@ -426,11 +453,20 @@ public class AnimatedRecyclerView extends Activity {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             String itemText = mData.get(position);
             ((MyViewHolder) holder).textView.setText(itemText);
+            ((MyViewHolder) holder).expandedText.setText("More text for the expanded version");
             boolean selected = false;
             if (mSelected.get(itemText) != null) {
                 selected = mSelected.get(itemText);
             }
             ((MyViewHolder) holder).checkBox.setChecked(selected);
+            Boolean expanded = mExpanded.get(itemText);
+            if (expanded != null && expanded) {
+                ((MyViewHolder) holder).expandedText.setVisibility(View.VISIBLE);
+                ((MyViewHolder) holder).textView.setVisibility(View.GONE);
+            } else {
+                ((MyViewHolder) holder).expandedText.setVisibility(View.GONE);
+                ((MyViewHolder) holder).textView.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -445,14 +481,21 @@ public class AnimatedRecyclerView extends Activity {
         public void selectItem(MyViewHolder holder, boolean selected) {
             mSelected.put((String) holder.textView.getText(), selected);
         }
+
+        public void toggleExpanded(MyViewHolder holder) {
+            String text = (String) holder.textView.getText();
+            mExpanded.put(text, !mExpanded.get(text));
+        }
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder {
+        public TextView expandedText;
         public TextView textView;
         public CheckBox checkBox;
 
         public MyViewHolder(View v) {
             super(v);
+            expandedText = (TextView) v.findViewById(R.id.expandedText);
             textView = (TextView) v.findViewById(R.id.text);
             checkBox = (CheckBox) v.findViewById(R.id.selected);
         }
@@ -461,4 +504,5 @@ public class AnimatedRecyclerView extends Activity {
         public String toString() {
             return super.toString() + " \"" + textView.getText() + "\"";
         }
-    }}
+    }
+}

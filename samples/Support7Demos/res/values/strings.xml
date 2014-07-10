@@ -102,8 +102,9 @@
     <string name="checkbox_reverse">Rev.</string>
     <string name="checkbox_layout_dir">Layout Dir</string>
     <string name="checkbox_stack_from_end">Stack From End</string>
-    <string name="enableAnimations">Animate Changes</string>
-    <string name="enablePredictiveAnimations">Predictive Animations</string>
+    <string name="enableAnimations">Animate</string>
+    <string name="enablePredictiveAnimations">Predictive</string>
+    <string name="enableChangeAnimations">Change Anims</string>
     <string name="add_item">Add</string>
     <string name="delete_item">Del</string>
     <string name="add_delete_item">A+D</string>
