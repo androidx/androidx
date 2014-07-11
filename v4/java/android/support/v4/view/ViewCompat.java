@@ -1916,7 +1916,7 @@ public class ViewCompat {
      * <p>Prior to API 11 this will have no effect.</p>
      *
      */
-    public float getPivotX(View view) {
+    public static float getPivotX(View view) {
         return IMPL.getPivotX(view);
     }
 
@@ -1931,7 +1931,7 @@ public class ViewCompat {
      *
      * @param value The x location of the pivot point.
      */
-    public void setPivotX(View view, float value) {
+    public static void setPivotX(View view, float value) {
         IMPL.setPivotX(view, value);
     }
 
@@ -1943,7 +1943,7 @@ public class ViewCompat {
      *
      * @return The y location of the pivot point.
      */
-    public float getPivotY(View view) {
+    public static float getPivotY(View view) {
         return IMPL.getPivotY(view);
     }
 
@@ -1958,35 +1958,35 @@ public class ViewCompat {
      *
      * @param value The y location of the pivot point.
      */
-    public void setPivotY(View view, float value) {
+    public static void setPivotY(View view, float value) {
         IMPL.setPivotX(view, value);
     }
 
-    public float getRotation(View view) {
+    public static float getRotation(View view) {
         return IMPL.getRotation(view);
     }
 
-    public float getRotationX(View view) {
+    public static float getRotationX(View view) {
         return IMPL.getRotationX(view);
     }
 
-    public float getRotationY(View view) {
+    public static float getRotationY(View view) {
         return IMPL.getRotationY(view);
     }
 
-    public float getScaleX(View view) {
+    public static float getScaleX(View view) {
         return IMPL.getScaleX(view);
     }
 
-    public float getScaleY(View view) {
+    public static float getScaleY(View view) {
         return IMPL.getScaleY(view);
     }
 
-    public float getX(View view) {
+    public static float getX(View view) {
         return IMPL.getX(view);
     }
 
-    public float getY(View view) {
+    public static float getY(View view) {
         return IMPL.getY(view);
     }
 
@@ -1997,7 +1997,7 @@ public class ViewCompat {
      * @param view The View against which to invoke the method.
      * @param transitionName The name of the View to uniquely identify it for Transitions.
      */
-    public void setTransitionName(View view, String transitionName) {
+    public static void setTransitionName(View view, String transitionName) {
         IMPL.setTransitionName(view, transitionName);
     }
 
@@ -2011,7 +2011,7 @@ public class ViewCompat {
      * @return The name used of the View to be used to identify Views in Transitions or null
      * if no name has been given.
      */
-    public String getTransitionName(View view) {
+    public static String getTransitionName(View view) {
         return IMPL.getTransitionName(view);
     }
 
