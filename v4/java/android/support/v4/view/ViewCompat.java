@@ -317,6 +317,8 @@ public class ViewCompat {
         public void setPivotY(View view, float value);
         public float getPivotX(View view);
         public float getPivotY(View view);
+        public void setTransitionName(View view, String transitionName);
+        public String getTransitionName(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -645,6 +647,15 @@ public class ViewCompat {
         @Override
         public float getPivotY(View view) {
             return 0;
+        }
+
+        @Override
+        public void setTransitionName(View view, String transitionName) {
+        }
+
+        @Override
+        public String getTransitionName(View view) {
+            return null;
         }
     }
 
@@ -976,10 +987,24 @@ public class ViewCompat {
         }
     }
 
+    static class Api21ViewCompatImpl extends KitKatViewCompatImpl {
+        @Override
+        public void setTransitionName(View view, String transitionName) {
+            ViewCompatApi21.setTransitionName(view, transitionName);
+        }
+
+        @Override
+        public String getTransitionName(View view) {
+            return ViewCompatApi21.getTransitionName(view);
+        }
+    }
+
     static final ViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (version >= 21 || android.os.Build.VERSION.CODENAME.equals("L")) {
+            IMPL = new Api21ViewCompatImpl();
+        } else if (version >= 19) {
             IMPL = new KitKatViewCompatImpl();
         } else if (version >= 17) {
             IMPL = new JbMr1ViewCompatImpl();
@@ -1963,6 +1988,31 @@ public class ViewCompat {
 
     public float getY(View view) {
         return IMPL.getY(view);
+    }
+
+    /**
+     * Sets the name of the View to be used to identify Views in Transitions.
+     * Names should be unique in the View hierarchy.
+     *
+     * @param view The View against which to invoke the method.
+     * @param transitionName The name of the View to uniquely identify it for Transitions.
+     */
+    public void setTransitionName(View view, String transitionName) {
+        IMPL.setTransitionName(view, transitionName);
+    }
+
+    /**
+     * Returns the name of the View to be used to identify Views in Transitions.
+     * Names should be unique in the View hierarchy.
+     *
+     * <p>This returns null if the View has not been given a name.</p>
+     *
+     * @param view The View against which to invoke the method.
+     * @return The name used of the View to be used to identify Views in Transitions or null
+     * if no name has been given.
+     */
+    public String getTransitionName(View view) {
+        return IMPL.getTransitionName(view);
     }
 
     // TODO: getters for various view properties (rotation, etc)
