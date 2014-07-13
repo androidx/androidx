@@ -5778,7 +5778,7 @@ public class RecyclerView extends ViewGroup {
      * to create their own subclass of this <code>LayoutParams</code> class
      * to store any additional required per-child view metadata about the layout.
      */
-    public static class LayoutParams extends MarginLayoutParams {
+    public static class LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
         ViewHolder mViewHolder;
         final Rect mDecorInsets = new Rect();
         boolean mInsetsDirty = true;
@@ -6279,7 +6279,7 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
-    static class SavedState extends BaseSavedState {
+    static class SavedState extends android.view.View.BaseSavedState {
 
         Parcelable mLayoutState;
 
