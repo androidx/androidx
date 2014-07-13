@@ -150,13 +150,13 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public boolean animateRemove(final ViewHolder holder) {
+        endAnimation(holder);
         mPendingRemovals.add(holder);
         return true;
     }
 
     private void animateRemoveImpl(final ViewHolder holder) {
         final View view = holder.itemView;
-        ViewCompat.animate(view).cancel();
         ViewCompat.animate(view).setDuration(getRemoveDuration()).
                 alpha(0).setListener(new VpaListenerAdapter() {
             @Override
@@ -172,6 +172,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public boolean animateAdd(final ViewHolder holder) {
+        endAnimation(holder);
         ViewCompat.setAlpha(holder.itemView, 0);
         mPendingAdditions.add(holder);
         return true;
@@ -179,7 +180,6 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     private void animateAddImpl(final ViewHolder holder) {
         final View view = holder.itemView;
-        ViewCompat.animate(view).cancel();
         ViewCompat.animate(view).alpha(1).setDuration(getAddDuration()).
                 setListener(new VpaListenerAdapter() {
                     @Override
@@ -201,6 +201,9 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     public boolean animateMove(final ViewHolder holder, int fromX, int fromY,
             int toX, int toY) {
         final View view = holder.itemView;
+        fromX += ViewCompat.getTranslationX(holder.itemView);
+        fromY += ViewCompat.getTranslationY(holder.itemView);
+        endAnimation(holder);
         int deltaX = toX - fromX;
         int deltaY = toY - fromY;
         if (deltaX == 0 && deltaY == 0) {
@@ -221,7 +224,6 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         final View view = holder.itemView;
         final int deltaX = toX - fromX;
         final int deltaY = toY - fromY;
-        ViewCompat.animate(view).cancel();
         if (deltaX != 0) {
             ViewCompat.animate(view).translationX(0);
         }
@@ -253,7 +255,9 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public boolean animateChange(ViewHolder oldHolder, ViewHolder newHolder) {
+        endAnimation(oldHolder);
         if (newHolder != null && newHolder.itemView != null) {
+            endAnimation(newHolder);
             ViewCompat.setAlpha(newHolder.itemView, 0);
         }
         mPendingChanges.add(new ChangeInfo(oldHolder, newHolder));
@@ -265,7 +269,6 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         final View view = holder.itemView;
         final ViewHolder newHolder = changeInfo.newHolder;
         final View newView = newHolder != null ? newHolder.itemView : null;
-        ViewCompat.animate(view).cancel();
         if (newView != null) {
             ViewCompat.animate(newView).cancel();
         }

@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,6 +88,48 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         assertEquals("all expected children should be laid out", firstLayoutItemCount,
                 mLayoutManager.getChildCount());
         return recyclerView;
+    }
+
+    public void testRecycleDuringAnimations() throws Throwable {
+        final AtomicInteger childCount = new AtomicInteger(0);
+        final TestAdapter adapter = new TestAdapter(1000) {
+            @Override
+            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                childCount.incrementAndGet();
+                return super.onCreateViewHolder(parent, viewType);
+            }
+        };
+        setupBasic(1000, 10, 20, adapter);
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 10;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 20;
+
+        mRecyclerView.setRecycledViewPool(new RecyclerView.RecycledViewPool() {
+            @Override
+            public void putRecycledView(RecyclerView.ViewHolder scrap) {
+                super.putRecycledView(scrap);
+                childCount.decrementAndGet();
+            }
+
+            @Override
+            public RecyclerView.ViewHolder getRecycledView(int viewType) {
+                final RecyclerView.ViewHolder recycledView = super.getRecycledView(viewType);
+                if (recycledView != null) {
+                    childCount.incrementAndGet();
+                }
+                return recycledView;
+            }
+        });
+
+        // now keep adding children to trigger more children being created etc.
+        for (int i = 0; i < 100; i ++) {
+            adapter.addAndNotify(15, 1);
+            Thread.sleep(50);
+        }
+        getInstrumentation().waitForIdleSync();
+        waitForAnimations(2);
+        assertEquals("Children count should add up", childCount.get(),
+                mRecyclerView.getChildCount() + mRecyclerView.mRecycler.mCachedViews.size());
     }
 
     public void testNotifyDataSetChanged() throws Throwable {

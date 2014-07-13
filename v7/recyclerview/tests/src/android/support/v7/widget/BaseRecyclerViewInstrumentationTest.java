@@ -95,6 +95,20 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         });
     }
 
+    void waitForAnimations(int seconds) throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(2);
+        boolean running = mRecyclerView.mItemAnimator
+                .isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                    @Override
+                    public void onAnimationsFinished() {
+                        latch.countDown();
+                    }
+                });
+        if (running) {
+            latch.await(seconds, TimeUnit.SECONDS);
+        }
+    }
+
     public void setRecyclerView(final RecyclerView recyclerView) throws Throwable {
         mRecyclerView = recyclerView;
         RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
@@ -175,6 +189,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             Thread.sleep(200);
         }
         Log.d(TAG, "SMOOTH scrolling done");
+        getInstrumentation().waitForIdleSync();
     }
 
     class TestViewHolder extends RecyclerView.ViewHolder {
@@ -183,6 +198,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
         public TestViewHolder(View itemView) {
             super(itemView);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString() + " item:" + mBindedItem;
         }
     }
 
@@ -250,6 +270,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 Log.d(TAG, "will layout items from " + start + " to " + end);
             }
             int diff = end > start ? 1 : -1;
+            int top = 0;
             for (int i = start; i != end; i+=diff) {
                 if (mDebug) {
                     Log.d(TAG, "laying out item " + i);
@@ -270,8 +291,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 addView(view);
 
                 measureChildWithMargins(view, 0, 0);
-                layoutDecorated(view, 0, Math.abs(i - start) * 10, getDecoratedMeasuredWidth(view)
-                        , getDecoratedMeasuredHeight(view));
+                layoutDecorated(view, 0, top, getDecoratedMeasuredWidth(view)
+                        , top + getDecoratedMeasuredHeight(view));
+                top += view.getMeasuredHeight();
             }
         }
 
