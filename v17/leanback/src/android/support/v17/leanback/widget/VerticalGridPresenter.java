@@ -234,7 +234,6 @@ public class VerticalGridPresenter extends Presenter {
     /**
      * Sets the item selected listener.
      * Since this is a grid the row parameter is always null.
-     * @deprecated
      */
     public final void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
@@ -242,7 +241,6 @@ public class VerticalGridPresenter extends Presenter {
 
     /**
      * Returns the item selected listener.
-     * @deprecated
      */
     public final OnItemSelectedListener getOnItemSelectedListener() {
         return mOnItemSelectedListener;
@@ -268,7 +266,6 @@ public class VerticalGridPresenter extends Presenter {
      * OnItemClickedListener will override {@link View.OnClickListener} that
      * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
      * So in general, developer should choose one of the listeners but not both.
-     * @deprecated
      */
     public final void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
@@ -286,7 +283,6 @@ public class VerticalGridPresenter extends Presenter {
 
     /**
      * Returns the item clicked listener.
-     * @deprecated
      */
     public final OnItemClickedListener getOnItemClickedListener() {
         return mOnItemClickedListener;
