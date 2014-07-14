@@ -482,7 +482,7 @@ public class RecyclerView extends ViewGroup {
             stopScroll();
         }
         if (mScrollListener != null) {
-            mScrollListener.onScrollStateChanged(state);
+            mScrollListener.onScrollStateChanged(this, state);
         }
     }
 
@@ -616,14 +616,15 @@ public class RecyclerView extends ViewGroup {
             mItemAnimator.endAnimations();
         }
         int overscrollX = 0, overscrollY = 0;
+        int hresult = 0, vresult = 0;
         if (mAdapter != null) {
             eatRequestLayout();
             if (x != 0) {
-                final int hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
+                hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
                 overscrollX = x - hresult;
             }
             if (y != 0) {
-                final int vresult = mLayout.scrollVerticallyBy(y, mRecycler, mState);
+                vresult = mLayout.scrollVerticallyBy(y, mRecycler, mState);
                 overscrollY = y - vresult;
             }
             resumeRequestLayout(false);
@@ -635,8 +636,8 @@ public class RecyclerView extends ViewGroup {
         if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
             pullGlows(overscrollX, overscrollY);
         }
-        if (mScrollListener != null && (x != 0 || y != 0)) {
-            mScrollListener.onScrolled(x, y);
+        if (mScrollListener != null && (hresult != 0 || vresult != 0)) {
+            mScrollListener.onScrolled(this, hresult, vresult);
         }
         if (!awakenScrollBars()) {
             invalidate();
@@ -2066,17 +2067,19 @@ public class RecyclerView extends ViewGroup {
                 final int y = scroller.getCurrY();
                 final int dx = x - mLastFlingX;
                 final int dy = y - mLastFlingY;
+                int hresult = 0;
+                int vresult = 0;
                 mLastFlingX = x;
                 mLastFlingY = y;
                 int overscrollX = 0, overscrollY = 0;
                 if (mAdapter != null) {
                     eatRequestLayout();
                     if (dx != 0) {
-                        final int hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
+                        hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
                         overscrollX = dx - hresult;
                     }
                     if (dy != 0) {
-                        final int vresult = mLayout.scrollVerticallyBy(dy, mRecycler, mState);
+                        vresult = mLayout.scrollVerticallyBy(dy, mRecycler, mState);
                         overscrollY = dy - vresult;
                     }
 
@@ -2113,8 +2116,8 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
 
-                if (mScrollListener != null && (x != 0 || y != 0)) {
-                    mScrollListener.onScrolled(dx, dy);
+                if (mScrollListener != null && (hresult != 0 || vresult != 0)) {
+                    mScrollListener.onScrolled(RecyclerView.this, hresult, vresult);
                 }
 
                 if (!awakenScrollBars()) {
@@ -4503,9 +4506,25 @@ public class RecyclerView extends ViewGroup {
      *
      * @see RecyclerView#setOnScrollListener(OnScrollListener)
      */
-    public interface OnScrollListener {
-        public void onScrollStateChanged(int newState);
-        public void onScrolled(int dx, int dy);
+    abstract static public class OnScrollListener {
+        /**
+         * Callback method to be invoked when RecyclerView's scroll state changes.
+         *
+         * @param recyclerView The RecyclerView whose scroll state has changed.
+         * @param newState     The updated scroll state. One of {@link #SCROLL_STATE_IDLE},
+         *                     {@link #SCROLL_STATE_DRAGGING} or {@link #SCROLL_STATE_SETTLING}.
+         */
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState){}
+
+        /**
+         * Callback method to be invoked when the RecyclerView has been scrolled. This will be
+         * called after the scroll has completed.
+         *
+         * @param recyclerView The RecyclerView which scrolled.
+         * @param dx The amount of horizontal scroll.
+         * @param dy The amount of vertical scroll.
+         */
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy){}
     }
 
     /**
