@@ -130,6 +130,15 @@ public abstract class OrientationHelper {
     public abstract void offsetChild(View view, int offset);
 
     /**
+     * Returns the padding at the end of the layout. For horizontal helper, this is the right
+     * padding and for vertical helper, this is the bottom padding. This method does not check
+     * whether the layout is RTL or not.
+     *
+     * @return The padding at the end of the layout.
+     */
+    public abstract int getEndPadding();
+
+    /**
      * Creates an OrientationHelper for the given LayoutManager and orientation.
      *
      * @param layoutManager LayoutManager to attach to
@@ -216,6 +225,11 @@ public abstract class OrientationHelper {
             public void offsetChild(View view, int offset) {
                 view.offsetLeftAndRight(offset);
             }
+
+            @Override
+            public int getEndPadding() {
+                return mLayoutManager.getPaddingRight();
+            }
         };
     }
 
@@ -286,6 +300,11 @@ public abstract class OrientationHelper {
             @Override
             public void offsetChild(View view, int offset) {
                 view.offsetTopAndBottom(offset);
+            }
+
+            @Override
+            public int getEndPadding() {
+                return mLayoutManager.getPaddingBottom();
             }
         };
     }
