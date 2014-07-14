@@ -187,7 +187,7 @@ public final class PlaybackStateCompat implements Parcelable {
     private final int mState;
     private final long mPosition;
     private final long mBufferPosition;
-    private final float mSpeed;
+    private final float mRate;
     private final long mActions;
     private final CharSequence mErrorMessage;
     private final long mUpdateTime;
@@ -199,7 +199,7 @@ public final class PlaybackStateCompat implements Parcelable {
         mState = state;
         mPosition = position;
         mBufferPosition = bufferPosition;
-        mSpeed = rate;
+        mRate = rate;
         mActions = actions;
         mErrorMessage = errorMessage;
         mUpdateTime = updateTime;
@@ -208,7 +208,7 @@ public final class PlaybackStateCompat implements Parcelable {
     private PlaybackStateCompat(Parcel in) {
         mState = in.readInt();
         mPosition = in.readLong();
-        mSpeed = in.readFloat();
+        mRate = in.readFloat();
         mUpdateTime = in.readLong();
         mBufferPosition = in.readLong();
         mActions = in.readLong();
@@ -221,7 +221,7 @@ public final class PlaybackStateCompat implements Parcelable {
         bob.append("state=").append(mState);
         bob.append(", position=").append(mPosition);
         bob.append(", buffered position=").append(mBufferPosition);
-        bob.append(", speed=").append(mSpeed);
+        bob.append(", rate=").append(mRate);
         bob.append(", updated=").append(mUpdateTime);
         bob.append(", actions=").append(mActions);
         bob.append(", error=").append(mErrorMessage);
@@ -238,7 +238,7 @@ public final class PlaybackStateCompat implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mState);
         dest.writeLong(mPosition);
-        dest.writeFloat(mSpeed);
+        dest.writeFloat(mRate);
         dest.writeLong(mUpdateTime);
         dest.writeLong(mBufferPosition);
         dest.writeLong(mActions);
@@ -278,14 +278,14 @@ public final class PlaybackStateCompat implements Parcelable {
     }
 
     /**
-     * Get the current playback speed as a multiple of normal playback. This
+     * Get the current playback rate as a multiple of normal playback. This
      * should be negative when rewinding. A value of 1 means normal playback and
      * 0 means paused.
      *
-     * @return The current speed of playback.
+     * @return The current rate of playback.
      */
-    public float getPlaybackSpeed() {
-        return mSpeed;
+    public float getPlaybackRate() {
+        return mRate;
     }
 
     /**
@@ -343,7 +343,7 @@ public final class PlaybackStateCompat implements Parcelable {
                 PlaybackStateCompatApi21.getState(stateObj),
                 PlaybackStateCompatApi21.getPosition(stateObj),
                 PlaybackStateCompatApi21.getBufferPosition(stateObj),
-                PlaybackStateCompatApi21.getPlaybackSpeed(stateObj),
+                PlaybackStateCompatApi21.getPlaybackRate(stateObj),
                 PlaybackStateCompatApi21.getActions(stateObj),
                 PlaybackStateCompatApi21.getErrorMessage(stateObj),
                 PlaybackStateCompatApi21.getLastPositionUpdateTime(stateObj));
@@ -365,7 +365,7 @@ public final class PlaybackStateCompat implements Parcelable {
         }
 
         mStateObj = PlaybackStateCompatApi21.newInstance(mState, mPosition, mBufferPosition,
-                mSpeed, mActions, mErrorMessage, mUpdateTime);
+                mRate, mActions, mErrorMessage, mUpdateTime);
         return mStateObj;
     }
 
@@ -409,7 +409,7 @@ public final class PlaybackStateCompat implements Parcelable {
         public Builder(PlaybackStateCompat source) {
             mState = source.mState;
             mPosition = source.mPosition;
-            mRate = source.mSpeed;
+            mRate = source.mRate;
             mUpdateTime = source.mUpdateTime;
             mBufferPosition = source.mBufferPosition;
             mActions = source.mActions;
