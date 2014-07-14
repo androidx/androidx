@@ -600,7 +600,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run() {
                 for (int i = 2; i < 4; i++) {
-                    RecyclerView.ViewHolder vh = recyclerView.findViewHolderForPosition(2);
+                    RecyclerView.ViewHolder vh = recyclerView.findViewHolderForPosition(i);
                     assertEquals("View holder's type should match latest type", viewType.get(),
                             vh.getItemViewType());
                 }

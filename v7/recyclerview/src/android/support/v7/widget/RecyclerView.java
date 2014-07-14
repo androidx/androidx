@@ -2683,8 +2683,16 @@ public class RecyclerView extends ViewGroup {
                 if (!validateViewHolderForOffsetPosition(holder)) {
                     // recycle this scrap
                     if (!dryRun) {
-                        removeDetachedView(holder.itemView, false);
-                        quickRecycleScrapView(holder.itemView);
+                        // we would like to recycle this but need to make sure it is not used by
+                        // animation logic etc.
+                        holder.addFlags(ViewHolder.FLAG_INVALID);
+                        if (holder.isScrap()) {
+                            removeDetachedView(holder.itemView, false);
+                            holder.unScrap();
+                        } else if (holder.wasReturnedFromScrap()) {
+                            holder.clearReturnedFromScrapFlag();
+                        }
+                        recycleViewHolder(holder);
                     }
                     holder = null;
                 }
