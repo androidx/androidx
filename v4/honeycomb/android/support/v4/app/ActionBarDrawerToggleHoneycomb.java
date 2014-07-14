@@ -90,15 +90,7 @@ class ActionBarDrawerToggleHoneycomb {
     }
 
     public static Drawable getThemeUpIndicator(Activity activity) {
-        final ActionBar actionBar = activity.getActionBar();
-        final Context context;
-        if (actionBar != null) {
-            context = actionBar.getThemedContext();
-        } else {
-            context = activity;
-        }
-
-        final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
+        final TypedArray a = activity.obtainStyledAttributes(THEME_ATTRS);
         final Drawable result = a.getDrawable(0);
         a.recycle();
         return result;
