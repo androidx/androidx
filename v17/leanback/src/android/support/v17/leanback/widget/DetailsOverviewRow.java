@@ -32,6 +32,7 @@ public class DetailsOverviewRow extends Row {
     private Object mItem;
     private Drawable mImageDrawable;
     private ArrayList<Action> mActions = new ArrayList<Action>();
+    private boolean mImageScaleUpAllowed = true;
 
     /**
      * Constructor for a DetailsOverviewRow.
@@ -78,6 +79,21 @@ public class DetailsOverviewRow extends Row {
      */
     public final Drawable getImageDrawable() {
         return mImageDrawable;
+    }
+
+    /**
+     * Allows or disallows scaling up of images.
+     * Images will always be scaled down if necessary.
+     */
+    public void setImageScaleUpAllowed(boolean allowed) {
+        mImageScaleUpAllowed = allowed;
+    }
+
+    /**
+     * Returns true if the image may be scaled up; false otherwise.
+     */
+    public boolean isImageScaleUpAllowed() {
+        return mImageScaleUpAllowed;
     }
 
     /**

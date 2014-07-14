@@ -72,6 +72,8 @@
     <dimen name="lb_details_overview_description_margin_left">24dp</dimen>
     <dimen name="lb_details_overview_description_margin_right">24dp</dimen>
     <dimen name="lb_details_overview_description_margin_bottom">12dp</dimen>
+    <dimen name="lb_details_overview_image_margin_horizontal">24dp</dimen>
+    <dimen name="lb_details_overview_image_margin_vertical">24dp</dimen>
     <dimen name="lb_details_overview_action_items_margin">0dp</dimen>
     <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
     <dimen name="lb_details_overview_actions_padding_left">294dp</dimen>
