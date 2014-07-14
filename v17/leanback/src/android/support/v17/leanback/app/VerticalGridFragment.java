@@ -166,6 +166,7 @@ public class VerticalGridFragment extends Fragment {
 
     /**
      * Sets an item selection listener.
+     * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
@@ -196,6 +197,7 @@ public class VerticalGridFragment extends Fragment {
 
     /**
      * Sets an item clicked listener.
+     * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
@@ -206,6 +208,7 @@ public class VerticalGridFragment extends Fragment {
 
     /**
      * Returns the item clicked listener.
+     * @deprecated Use {@link #getOnItemViewClickedListener()}
      */
     public OnItemClickedListener getOnItemClickedListener() {
         return mOnItemClickedListener;
