@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
@@ -272,6 +273,16 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         ShadowHelper.getInstance().setZ(overview, 0f);
     }
 
+    private static int getNonNegativeWidth(Drawable drawable) {
+        final int width = (drawable == null) ? 0 : drawable.getIntrinsicWidth();
+        return (width > 0 ? width : 0);
+    }
+
+    private static int getNonNegativeHeight(Drawable drawable) {
+        final int height = (drawable == null) ? 0 : drawable.getIntrinsicHeight();
+        return (height > 0 ? height : 0);
+    }
+
     @Override
     protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
         super.onBindRowViewHolder(holder, item);
@@ -286,35 +297,38 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                 R.dimen.lb_details_overview_image_margin_vertical);
         final int horizontalMargin = vh.mImageView.getResources().getDimensionPixelSize(
                 R.dimen.lb_details_overview_image_margin_horizontal);
+        final int drawableWidth = getNonNegativeWidth(row.getImageDrawable());
+        final int drawableHeight = getNonNegativeHeight(row.getImageDrawable());
+
         boolean scaleImage = row.isImageScaleUpAllowed();
         boolean useMargin = false;
-        boolean landscape = false;
 
-        // If large style and landscape image we always use margin.
-        if (row.getImageDrawable().getIntrinsicWidth() >
-                row.getImageDrawable().getIntrinsicHeight()) {
-            landscape = true;
-            if (mIsStyleLarge) {
+        if (row.getImageDrawable() != null) {
+            boolean landscape = false;
+
+            // If large style and landscape image we always use margin.
+            if (drawableWidth > drawableHeight) {
+                landscape = true;
+                if (mIsStyleLarge) {
+                    useMargin = true;
+                }
+            }
+            // If long dimension bigger than the card height we scale down.
+            if ((landscape && drawableWidth > cardHeight) ||
+                    (!landscape && drawableHeight > cardHeight)) {
+                scaleImage = true;
+            }
+            // If we're not scaling to fit the card height then we always use margin.
+            if (!scaleImage) {
                 useMargin = true;
             }
-        }
-        // If long dimension bigger than the card height we scale down.
-        if ((landscape && row.getImageDrawable().getIntrinsicWidth() > cardHeight) ||
-                    (!landscape && row.getImageDrawable().getIntrinsicHeight() > cardHeight)) {
-            scaleImage = true;
-        }
-        // If we're not scaling to fit the card height then we always use margin.
-        if (!scaleImage) {
-            useMargin = true;
-        }
-        // If using margin than may need to scale down.
-        if (useMargin && !scaleImage) {
-            if (landscape && row.getImageDrawable().getIntrinsicWidth() >
-                    cardHeight - horizontalMargin) {
-                scaleImage = true;
-            } else if (!landscape && row.getImageDrawable().getIntrinsicHeight() >
-                    cardHeight - 2 * verticalMargin) {
-                scaleImage = true;
+            // If using margin than may need to scale down.
+            if (useMargin && !scaleImage) {
+                if (landscape && drawableWidth > cardHeight - horizontalMargin) {
+                    scaleImage = true;
+                } else if (!landscape && drawableHeight > cardHeight - 2 * verticalMargin) {
+                    scaleImage = true;
+                }
             }
         }
 
@@ -335,7 +349,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             vh.mImageView.setAdjustViewBounds(false);
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             // Limit width to the card height
-            layoutParams.width = Math.min(cardHeight, row.getImageDrawable().getIntrinsicWidth());
+            layoutParams.width = Math.min(cardHeight, drawableWidth);
         }
         vh.mImageView.setLayoutParams(layoutParams);
         vh.mImageView.setImageDrawable(row.getImageDrawable());
