@@ -32,8 +32,8 @@ class PlaybackStateCompatApi21 {
         return ((PlaybackState)stateObj).getBufferPosition();
     }
 
-    public static float getPlaybackRate(Object stateObj) {
-        return ((PlaybackState)stateObj).getPlaybackRate();
+    public static float getPlaybackSpeed(Object stateObj) {
+        return ((PlaybackState)stateObj).getPlaybackSpeed();
     }
 
     public static long getActions(Object stateObj) {
@@ -45,19 +45,16 @@ class PlaybackStateCompatApi21 {
     }
 
     public static long getLastPositionUpdateTime(Object stateObj) {
-        // TODO: this method is inaccessible
-        // return ((PlaybackState)stateObj).getLastPositionUpdateTime();
-        return SystemClock.uptimeMillis();
+        return ((PlaybackState)stateObj).getLastPositionUpdateTime();
     }
 
     public static Object newInstance(int state, long position, long bufferPosition,
-            float rate, long actions, CharSequence errorMessage, long updateTime) {
-        PlaybackState stateObj = new PlaybackState();
-        stateObj.setState(state, position, rate);
+            float speed, long actions, CharSequence errorMessage, long updateTime) {
+        PlaybackState.Builder stateObj = new PlaybackState.Builder();
+        stateObj.setState(state, position, speed, updateTime);
         stateObj.setBufferPosition(bufferPosition);
         stateObj.setActions(actions);
         stateObj.setErrorMessage(errorMessage);
-        // TODO: updateTime is inaccessible
-        return stateObj;
+        return stateObj.build();
     }
 }
