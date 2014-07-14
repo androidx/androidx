@@ -1951,7 +1951,7 @@ public class RecyclerView extends ViewGroup {
         if (mLeftGlow != null && !mLeftGlow.isFinished()) {
             final int restore = c.save();
             c.rotate(270);
-            c.translate(-getHeight() + getPaddingTop(), 0);
+            c.translate(-getHeight() + getPaddingBottom(), 0);
             needsInvalidate = mLeftGlow != null && mLeftGlow.draw(c);
             c.restoreToCount(restore);
         }
@@ -1972,7 +1972,7 @@ public class RecyclerView extends ViewGroup {
         if (mBottomGlow != null && !mBottomGlow.isFinished()) {
             final int restore = c.save();
             c.rotate(180);
-            c.translate(-getWidth() + getPaddingLeft(), -getHeight() + getPaddingTop());
+            c.translate(-getWidth() + getPaddingRight(), -getHeight() + getPaddingBottom());
             needsInvalidate |= mBottomGlow != null && mBottomGlow.draw(c);
             c.restoreToCount(restore);
         }
