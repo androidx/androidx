@@ -382,7 +382,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             new AddRemoveRunnable(startCountTuples).runOnMainThread();
         }
 
-        public void notifyChange() throws Throwable {
+        public void dispatchDataSetChanged() throws Throwable {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -391,11 +391,22 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             });
         }
 
-        public void notifyItemChange(final int start, final int count) throws Throwable {
+        public void changeAndNotify(final int start, final int count) throws Throwable {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     notifyItemRangeChanged(start, count);
+                }
+            });
+        }
+
+        public void changePositionsAndNotify(final int... positions) throws Throwable {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < positions.length; i += 1) {
+                        TestAdapter.super.notifyItemRangeChanged(positions[i], 1);
+                    }
                 }
             });
         }
@@ -421,7 +432,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 moveItem(tuple[0], tuple[1], false);
             }
             if (notifyChange) {
-                notifyChange();
+                dispatchDataSetChanged();
             }
         }
 

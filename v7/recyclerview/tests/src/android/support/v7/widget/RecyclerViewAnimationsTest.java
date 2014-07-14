@@ -98,7 +98,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             public void run() {
                 try {
                     mTestAdapter.deleteAndNotify(4, 1);
-                    mTestAdapter.notifyChange();
+                    mTestAdapter.dispatchDataSetChanged();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 }
@@ -135,7 +135,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 item6.mAdapterIndex = 5;
                 adapter.mItems.remove(5);
                 adapter.mItems.add(6, item5);
-                adapter.notifyChange();
+                adapter.dispatchDataSetChanged();
                 //hacky, we support only 1 layout pass
                 mLayoutManager.layoutLatch.countDown();
             }

@@ -1925,7 +1925,7 @@ public class RecyclerView extends ViewGroup {
 
         final int count = mItemDecorations.size();
         for (int i = 0; i < count; i++) {
-            mItemDecorations.get(i).onDrawOver(c, this);
+            mItemDecorations.get(i).onDrawOver(c, this, mState);
         }
         // TODO If padding is not 0 and chilChildrenToPadding is false, to draw glows properly, we
         // need find children closest to edges. Not sure if it is worth the effort.
@@ -1970,7 +1970,7 @@ public class RecyclerView extends ViewGroup {
 
         final int count = mItemDecorations.size();
         for (int i = 0; i < count; i++) {
-            mItemDecorations.get(i).onDraw(c, this);
+            mItemDecorations.get(i).onDraw(c, this, mState);
         }
     }
 
@@ -2082,11 +2082,11 @@ public class RecyclerView extends ViewGroup {
         final int positionEnd = positionStart + itemCount;
 
         for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
+            final View child = mChildHelper.getUnfilteredChildAt(i);
+            final ViewHolder holder = getChildViewHolderInt(child);
             if (holder == null) {
                 continue;
             }
-
             if (holder.mPosition >= positionStart && holder.mPosition < positionEnd) {
                 // We re-bind these view holders after pre-processing is complete so that
                 // ViewHolders have their final positions assigned.
@@ -2094,6 +2094,8 @@ public class RecyclerView extends ViewGroup {
                 if (supportsChangeAnimations()) {
                     holder.addFlags(ViewHolder.FLAG_CHANGED);
                 }
+                // lp cannot be null since we get ViewHolder from it.
+                ((LayoutParams) child.getLayoutParams()).mInsetsDirty = true;
             }
         }
         mRecycler.viewRangeUpdate(positionStart, itemCount);
@@ -2143,6 +2145,7 @@ public class RecyclerView extends ViewGroup {
                 holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
             }
         }
+        markItemDecorInsetsDirty();
         mRecycler.markKnownViewsInvalid();
     }
 
@@ -2330,7 +2333,7 @@ public class RecyclerView extends ViewGroup {
         final int decorCount = mItemDecorations.size();
         for (int i = 0; i < decorCount; i++) {
             mTempRect.set(0, 0, 0, 0);
-            mItemDecorations.get(i).getItemOffsets(mTempRect, lp.getViewPosition(), this);
+            mItemDecorations.get(i).getItemOffsets(mTempRect, child, this, mState);
             insets.left += mTempRect.left;
             insets.top += mTempRect.top;
             insets.right += mTempRect.right;
@@ -5130,8 +5133,9 @@ public class RecyclerView extends ViewGroup {
      * between items, highlights, visual grouping boundaries and more.
      *
      * <p>All ItemDecorations are drawn in the order they were added, before the item
-     * views (in {@link ItemDecoration#onDraw(Canvas, RecyclerView) onDraw()} and after the items
-     * (in {@link ItemDecoration#onDrawOver(Canvas, RecyclerView)}.</p>
+     * views (in {@link ItemDecoration#onDraw(Canvas, RecyclerView, RecyclerView.State) onDraw()}
+     * and after the items (in {@link ItemDecoration#onDrawOver(Canvas, RecyclerView,
+     * RecyclerView.State)}.</p>
      */
     public static abstract class ItemDecoration {
         /**
@@ -5141,7 +5145,17 @@ public class RecyclerView extends ViewGroup {
          *
          * @param c Canvas to draw into
          * @param parent RecyclerView this ItemDecoration is drawing into
+         * @param state The current state of RecyclerView
          */
+        public void onDraw(Canvas c, RecyclerView parent, State state) {
+            onDraw(c, parent);
+        }
+
+        /**
+         * @deprecated
+         * Override {@link #onDraw(Canvas, RecyclerView, RecyclerView.State)}
+         */
+        @Deprecated
         public void onDraw(Canvas c, RecyclerView parent) {
         }
 
@@ -5152,8 +5166,28 @@ public class RecyclerView extends ViewGroup {
          *
          * @param c Canvas to draw into
          * @param parent RecyclerView this ItemDecoration is drawing into
+         * @param state The current state of RecyclerView.
          */
+        public void onDrawOver(Canvas c, RecyclerView parent, State state) {
+            onDrawOver(c, parent);
+        }
+
+        /**
+         * @deprecated
+         * Override {@link #onDrawOver(Canvas, RecyclerView, RecyclerView.State)}
+         */
+        @Deprecated
         public void onDrawOver(Canvas c, RecyclerView parent) {
+        }
+
+
+        /**
+         * @deprecated
+         * Use {@link #getItemOffsets(Rect, View, RecyclerView, State)}
+         */
+        @Deprecated
+        public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
+            outRect.set(0, 0, 0, 0);
         }
 
         /**
@@ -5166,11 +5200,13 @@ public class RecyclerView extends ViewGroup {
          * before returning.</p>
          *
          * @param outRect Rect to receive the output.
-         * @param itemPosition Adapter position of the item to offset
-         * @param parent RecyclerView this ItemDecoration is decorating
+         * @param view    The child view to decorate
+         * @param parent  RecyclerView this ItemDecoration is decorating
+         * @param state   The current state of RecyclerView.
          */
-        public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
-            outRect.set(0, 0, 0, 0);
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, State state) {
+            getItemOffsets(outRect, ((LayoutParams) view.getLayoutParams()).getViewPosition(),
+                    parent);
         }
     }
 
@@ -5335,6 +5371,9 @@ public class RecyclerView extends ViewGroup {
                 mPreLayoutPosition += offset;
             }
             mPosition += offset;
+            if (itemView.getLayoutParams() != null) {
+                ((LayoutParams) itemView.getLayoutParams()).mInsetsDirty = true;
+            }
         }
 
         void clearOldPosition() {

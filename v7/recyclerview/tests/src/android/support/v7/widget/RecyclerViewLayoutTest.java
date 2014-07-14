@@ -34,6 +34,86 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         super(DEBUG);
     }
 
+    public void testInvalidateDecorOffsets() throws Throwable {
+        final TestAdapter adapter = new TestAdapter(10);
+        adapter.setHasStableIds(true);
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(adapter);
+
+        final Map<Long, Boolean> changes = new HashMap<Long, Boolean>();
+
+        TestLayoutManager testLayoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    if (changes.size() > 0) {
+                        // test
+                        for (int i = 0; i < getChildCount(); i ++) {
+                            View child = getChildAt(i);
+                            RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams)
+                                    child.getLayoutParams();
+                            RecyclerView.ViewHolder vh = lp.mViewHolder;
+                            if (!changes.containsKey(vh.getItemId())) {
+                                continue; //nothing to test
+                            }
+                            assertEquals(
+                                    "Decord insets validation for VH should have expected value.",
+                                    changes.get(vh.getItemId()).booleanValue(),
+                                    lp.mInsetsDirty);
+                        }
+                    }
+                    detachAndScrapAttachedViews(recycler);
+                    layoutRange(recycler, 0, state.getItemCount());
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
+        recyclerView.setLayoutManager(testLayoutManager);
+        testLayoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        testLayoutManager.waitForLayout(2);
+        int itemAddedTo = 5;
+        for (int i = 0; i < itemAddedTo; i++) {
+            changes.put(mRecyclerView.findViewHolderForPosition(i).getItemId(), false);
+        }
+        for (int i = itemAddedTo; i < mRecyclerView.getChildCount(); i++) {
+            changes.put(mRecyclerView.findViewHolderForPosition(i).getItemId(), true);
+        }
+        testLayoutManager.expectLayouts(1);
+        adapter.addAndNotify(5, 1);
+        testLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+
+        changes.clear();
+        int[] changedItems = new int[]{3, 5, 6};
+        for (int i = 0; i < adapter.getItemCount(); i ++) {
+            changes.put(mRecyclerView.findViewHolderForPosition(i).getItemId(), false);
+        }
+        for (int i = 0; i < changedItems.length; i ++) {
+            changes.put(mRecyclerView.findViewHolderForPosition(changedItems[i]).getItemId(), true);
+        }
+        testLayoutManager.expectLayouts(1);
+        adapter.changePositionsAndNotify(changedItems);
+        testLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+
+        for (int i = 0; i < adapter.getItemCount(); i ++) {
+            changes.put(mRecyclerView.findViewHolderForPosition(i).getItemId(), true);
+        }
+        testLayoutManager.expectLayouts(1);
+        adapter.dispatchDataSetChanged();
+        testLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
     public void testMovingViaStableIds() throws Throwable {
         stableIdsMoveTest(true);
         removeRecyclerView();
@@ -109,6 +189,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.waitForLayout(2);
         checkForMainThreadException();
     }
+
     public void testAdapterChangeDuringLayout() throws Throwable {
         adapterChangeInMainThreadTest("notifyDataSetChanged", new Runnable() {
             @Override
@@ -460,7 +541,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         Item item = previousItems.get(i);
                         oldPositionToNewPositionMapping.put(i, adapter.mItems.indexOf(item));
                     }
-                    adapter.notifyChange();
+                    adapter.dispatchDataSetChanged();
                 } catch (Throwable throwable) {
                     postExceptionToInstrumentation(throwable);
                 }
@@ -594,7 +675,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         layoutStart.set(2); // go back to bring views from cache
         lm.expectLayouts(1);
         adapter.mItems.remove(1);
-        adapter.notifyChange();
+        adapter.dispatchDataSetChanged();
         lm.waitForLayout(2);
         runTestOnUiThread(new Runnable() {
             @Override
@@ -658,7 +739,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         getInstrumentation().waitForIdleSync();
         viewType.incrementAndGet();
         lm.expectLayouts(1);
-        adapter.notifyItemChange(layoutStart, invalidatedCount);
+        adapter.changeAndNotify(layoutStart, invalidatedCount);
         lm.waitForLayout(2);
         checkForMainThreadException();
     }
