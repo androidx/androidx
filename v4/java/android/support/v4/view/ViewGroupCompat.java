@@ -50,6 +50,8 @@ public class ViewGroupCompat {
         public void setMotionEventSplittingEnabled(ViewGroup group, boolean split);
         public int getLayoutMode(ViewGroup group);
         public void setLayoutMode(ViewGroup group, int mode);
+        public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup);
+        public boolean isTransitionGroup(ViewGroup group);
     }
 
     static class ViewGroupCompatStubImpl implements ViewGroupCompatImpl {
@@ -70,6 +72,15 @@ public class ViewGroupCompat {
         @Override
         public void setLayoutMode(ViewGroup group, int mode) {
             // no-op, didn't exist. Views only support clip bounds.
+        }
+
+        @Override
+        public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
+        }
+
+        @Override
+        public boolean isTransitionGroup(ViewGroup group) {
+            return false;
         }
     }
 
@@ -100,10 +111,24 @@ public class ViewGroupCompat {
         }
     }
 
+    static class ViewGroupCompatApi21Impl extends ViewGroupCompatJellybeanMR2Impl {
+        @Override
+        public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
+            ViewGroupCompatApi21.setTransitionGroup(group, isTransitionGroup);
+        }
+
+        @Override
+        public boolean isTransitionGroup(ViewGroup group) {
+            return ViewGroupCompatApi21.isTransitionGroup(group);
+        }
+    }
+
     static final ViewGroupCompatImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= 18) {
+        if (version >= 21 || android.os.Build.VERSION.CODENAME.equals("L")) {
+            IMPL = new ViewGroupCompatApi21Impl();
+        } else if (version >= 18) {
             IMPL = new ViewGroupCompatJellybeanMR2Impl();
         } else if (version >= 14) {
             IMPL = new ViewGroupCompatIcsImpl();
@@ -188,5 +213,26 @@ public class ViewGroupCompat {
      */
     public static void setLayoutMode(ViewGroup group, int mode) {
         IMPL.setLayoutMode(group, mode);
+    }
+
+    /**
+     * Changes whether or not this ViewGroup should be treated as a single entity during
+     * Activity Transitions.
+     * @param isTransitionGroup Whether or not the ViewGroup should be treated as a unit
+     *                          in Activity transitions. If false, the ViewGroup won't transition,
+     *                          only its children. If true, the entire ViewGroup will transition
+     *                          together.
+     */
+    public static void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
+        IMPL.setTransitionGroup(group, isTransitionGroup);
+    }
+
+    /**
+     * Returns true if this ViewGroup should be considered as a single entity for removal
+     * when executing an Activity transition. If this is false, child elements will move
+     * individually during the transition.
+     */
+    public static boolean isTransitionGroup(ViewGroup group) {
+        return IMPL.isTransitionGroup(group);
     }
 }
