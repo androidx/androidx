@@ -69,6 +69,12 @@ public class NotificationManagerCompat {
     public static final String ACTION_BIND_SIDE_CHANNEL =
             "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
 
+    /**
+     * Maximum sdk build version which needs support for side channeled notifications.
+     * Currently the only needed use is for side channeling group children before KITKAT_WATCH.
+     */
+    static final int MAX_SIDE_CHANNEL_SDK_VERSION = 19;
+
     /** Base time delay for a side channel listener queue retry. */
     private static final int SIDE_CHANNEL_RETRY_BASE_INTERVAL_MS = 1000;
     /** Maximum retries for a side channel listener before dropping tasks. */
@@ -181,13 +187,17 @@ public class NotificationManagerCompat {
      */
     public void cancel(String tag, int id) {
         IMPL.cancelNotification(mNotificationManager, tag, id);
-        pushSideChannelQueue(new CancelTask(mContext.getPackageName(), id, tag));
+        if (Build.VERSION.SDK_INT <= MAX_SIDE_CHANNEL_SDK_VERSION) {
+            pushSideChannelQueue(new CancelTask(mContext.getPackageName(), id, tag));
+        }
     }
 
     /** Cancel all previously shown notifications. */
     public void cancelAll() {
         mNotificationManager.cancelAll();
-        pushSideChannelQueue(new CancelTask(mContext.getPackageName()));
+        if (Build.VERSION.SDK_INT <= MAX_SIDE_CHANNEL_SDK_VERSION) {
+            pushSideChannelQueue(new CancelTask(mContext.getPackageName()));
+        }
     }
 
     /**
@@ -208,6 +218,9 @@ public class NotificationManagerCompat {
     public void notify(String tag, int id, Notification notification) {
         if (useSideChannelForNotification(notification)) {
             pushSideChannelQueue(new NotifyTask(mContext.getPackageName(), id, tag, notification));
+            // Cancel this notification in notification manager if it just transitioned to being
+            // side channelled.
+            IMPL.cancelNotification(mNotificationManager, tag, id);
         } else {
             IMPL.postNotification(mNotificationManager, tag, id, notification);
         }
