@@ -41,6 +41,14 @@ class ActivityCompat21 {
         activity.setExitSharedElementListener(createListener(listener));
     }
 
+    public static void postponeEnterTransition(Activity activity) {
+        activity.postponeEnterTransition();
+    }
+
+    public static void startPostponedEnterTransition(Activity activity) {
+        activity.startPostponedEnterTransition();
+    }
+
     public abstract static class SharedElementListener21 {
         public abstract void setSharedElementStart(List<String> sharedElementNames,
                 List<View> sharedElements, List<View> sharedElementSnapshots);

@@ -189,6 +189,18 @@ public class ActivityCompat extends ContextCompat {
         }
     }
 
+    public static void postponeEnterTransition(Activity activity) {
+        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            ActivityCompat21.postponeEnterTransition(activity);
+        }
+    }
+
+    public static void startPostponedEnterTransition(Activity activity) {
+        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            ActivityCompat21.startPostponedEnterTransition(activity);
+        }
+    }
+
     private static ActivityCompat21.SharedElementListener21 createListener(
             SharedElementListener listener) {
         ActivityCompat21.SharedElementListener21 newListener = null;
