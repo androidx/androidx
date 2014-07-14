@@ -225,6 +225,13 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         return mIsStyleLarge;
     }
 
+    /**
+     * Get image view associated with view holder.
+     */
+    public ImageView getImageView(RowPresenter.ViewHolder holder) {
+        return ((ViewHolder) holder).mImageView;
+    }
+
     private int getDefaultBackgroundColor(Context context) {
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);

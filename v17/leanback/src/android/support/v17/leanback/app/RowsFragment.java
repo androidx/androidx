@@ -22,6 +22,9 @@ import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
@@ -134,7 +137,9 @@ public class RowsFragment extends BaseRowFragment {
     private boolean mViewsCreated;
 
     private OnItemSelectedListener mOnItemSelectedListener;
+    private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
+    private OnItemViewClickedListener mOnItemViewClickedListener;
 
     // Select animation and interpolator are not intended to be
     // exposed at this moment. They might be synced with vertical scroll
@@ -150,6 +155,7 @@ public class RowsFragment extends BaseRowFragment {
      * OnItemClickedListener will override {@link View.OnClickListener} that
      * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
      * So in general,  developer should choose one of the listeners but not both.
+     * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
         mOnItemClickedListener = listener;
@@ -161,9 +167,31 @@ public class RowsFragment extends BaseRowFragment {
 
     /**
      * Returns the item clicked listener.
+     * @deprecated Use {@link #getOnItemClickedListener()}
      */
     public OnItemClickedListener getOnItemClickedListener() {
         return mOnItemClickedListener;
+    }
+
+    /**
+     * Sets an item clicked listener on the fragment.
+     * OnItemViewClickedListener will override {@link View.OnClickListener} that
+     * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
+     * So in general,  developer should choose one of the listeners but not both.
+     */
+    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        mOnItemViewClickedListener = listener;
+        if (mViewsCreated) {
+            throw new IllegalStateException(
+                    "Item clicked listener must be set before views are created");
+        }
+    }
+
+    /**
+     * Returns the item clicked listener.
+     */
+    public OnItemViewClickedListener getOnItemViewClickedListener() {
+        return mOnItemViewClickedListener;
     }
 
     /**
@@ -185,6 +213,7 @@ public class RowsFragment extends BaseRowFragment {
 
     /**
      * Sets an item selection listener.
+     * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
@@ -198,6 +227,30 @@ public class RowsFragment extends BaseRowFragment {
                 setOnItemSelectedListener(vh, mOnItemSelectedListener);
             }
         }
+    }
+
+    /**
+     * Sets an item selection listener.
+     */
+    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        mOnItemViewSelectedListener = listener;
+        VerticalGridView listView = getVerticalGridView();
+        if (listView != null) {
+            final int count = listView.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View view = listView.getChildAt(i);
+                ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
+                        listView.getChildViewHolder(view);
+                setOnItemViewSelectedListener(vh, mOnItemViewSelectedListener);
+            }
+        }
+    }
+
+    /**
+     * Returns an item selection listener.
+     */
+    public OnItemViewSelectedListener getOnItemViewSelectedListener() {
+        return mOnItemViewSelectedListener;
     }
 
     @Override
@@ -283,11 +336,17 @@ public class RowsFragment extends BaseRowFragment {
         ((RowPresenter) vh.getPresenter()).setOnItemSelectedListener(listener);
     }
 
+    private static void setOnItemViewSelectedListener(ItemBridgeAdapter.ViewHolder vh,
+            OnItemViewSelectedListener listener) {
+        ((RowPresenter) vh.getPresenter()).setOnItemViewSelectedListener(listener);
+    }
+
     private final ItemBridgeAdapter.AdapterListener mBridgeAdapterListener =
             new ItemBridgeAdapter.AdapterListener() {
         @Override
         public void onAddPresenter(Presenter presenter, int type) {
             ((RowPresenter) presenter).setOnItemClickedListener(mOnItemClickedListener);
+            ((RowPresenter) presenter).setOnItemViewClickedListener(mOnItemViewClickedListener);
         }
         @Override
         public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
@@ -313,6 +372,7 @@ public class RowsFragment extends BaseRowFragment {
             // thing in onBind.
             setRowViewExpanded(vh, mExpand);
             setOnItemSelectedListener(vh, mOnItemSelectedListener);
+            setOnItemViewSelectedListener(vh, mOnItemViewSelectedListener);
         }
         @Override
         public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
