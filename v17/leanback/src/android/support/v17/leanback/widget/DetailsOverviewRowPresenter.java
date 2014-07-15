@@ -48,6 +48,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
      * A ViewHolder for the DetailsOverviewRow.
      */
     public static class ViewHolder extends RowPresenter.ViewHolder {
+        final ViewGroup mOverviewView;
         final ImageView mImageView;
         final FrameLayout mDetailsDescriptionFrame;
         final HorizontalGridView mActionsRow;
@@ -147,6 +148,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
          */
         public ViewHolder(View rootView) {
             super(rootView);
+            mOverviewView = (ViewGroup) rootView.findViewById(R.id.details_overview);
             mImageView = (ImageView) rootView.findViewById(R.id.details_overview_image);
             mDetailsDescriptionFrame =
                     (FrameLayout) rootView.findViewById(R.id.details_overview_description);
@@ -228,10 +230,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Get image view associated with view holder.
+     * Get overview view with background color.
      */
-    public ImageView getImageView(RowPresenter.ViewHolder holder) {
-        return ((ViewHolder) holder).mImageView;
+    public ViewGroup getOverviewView(ViewHolder holder) {
+        return holder.mOverviewView;
     }
 
     private int getDefaultBackgroundColor(Context context) {
