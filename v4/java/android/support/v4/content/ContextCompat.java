@@ -323,7 +323,7 @@ public class ContextCompat {
 
     /**
      * Returns the absolute path to the directory on the filesystem similar to
-     * {@link #getFilesDir()}.  The difference is that files placed under this
+     * {@link Context#getFilesDir()}.  The difference is that files placed under this
      * directory will be excluded from automatic backup to remote storage on
      * devices running {@link android.os.Build.VERSION_CODES#L} or later.  See
      * {@link android.app.backup.BackupAgent BackupAgent} for a full discussion
