@@ -18,6 +18,7 @@ package android.support.v4.content;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Resources.Theme;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -317,6 +318,32 @@ public class ContextCompat {
             return ContextCompatApi21.getDrawable(context, id);
         } else {
             return context.getResources().getDrawable(id);
+        }
+    }
+
+    /**
+     * Returns the absolute path to the directory on the filesystem similar to
+     * {@link #getFilesDir()}.  The difference is that files placed under this
+     * directory will be excluded from automatic backup to remote storage on
+     * devices running {@link android.os.Build.VERSION_CODES#L} or later.  See
+     * {@link android.app.backup.BackupAgent BackupAgent} for a full discussion
+     * of the automatic backup mechanism in Android.
+     *
+     * <p>No permissions are required to read or write to the returned path, since this
+     * path is internal storage.
+     *
+     * @return The path of the directory holding application files that will not be
+     *         automatically backed up to remote storage.
+     *
+     * @see android.content.Context.getFilesDir
+     */
+    public final File getNoBackupFilesDir(Context context) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 21) {
+            return ContextCompatApi21.getNoBackupFilesDir(context);
+        } else {
+            ApplicationInfo appInfo = context.getApplicationInfo();
+            return new File(appInfo.dataDir, "no_backup");
         }
     }
 }
