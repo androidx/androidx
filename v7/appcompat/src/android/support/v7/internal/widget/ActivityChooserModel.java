@@ -23,6 +23,7 @@ import android.content.pm.ResolveInfo;
 import android.database.DataSetObservable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.v4.os.AsyncTaskCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
@@ -574,22 +575,9 @@ public class ActivityChooserModel extends DataSetObservable {
         }
         mHistoricalRecordsChanged = false;
         if (!TextUtils.isEmpty(mHistoryFileName)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                executePersistHistoryAsyncTaskSDK11();
-            } else {
-                executePersistHistoryAsyncTaskBase();
-            }
+            AsyncTaskCompat.executeParallel(new PersistHistoryAsyncTask(),
+                    mHistoricalRecords, mHistoryFileName);
         }
-    }
-
-    private void executePersistHistoryAsyncTaskBase() {
-        new PersistHistoryAsyncTask().execute(new ArrayList<HistoricalRecord>(mHistoricalRecords),
-                mHistoryFileName);
-    }
-
-    private void executePersistHistoryAsyncTaskSDK11() {
-        new PersistHistoryAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,
-                new ArrayList<HistoricalRecord>(mHistoricalRecords), mHistoryFileName);
     }
 
     /**

@@ -63,9 +63,8 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         super(context, attrs);
         mContext = context;
 
-        TypedArray a =
-                context.obtainStyledAttributes(
-                        attrs, R.styleable.MenuView, defStyle, 0);
+        final TypedArray a = context.obtainStyledAttributes(
+                attrs, R.styleable.MenuView, defStyle, 0);
 
         mBackground = a.getDrawable(R.styleable.MenuView_android_itemBackground);
         mTextAppearance = a.getResourceId(R.styleable.
@@ -117,13 +116,9 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         if (title != null) {
             mTitleView.setText(title);
 
-            if (mTitleView.getVisibility() != VISIBLE) {
-                mTitleView.setVisibility(VISIBLE);
-            }
+            if (mTitleView.getVisibility() != VISIBLE) mTitleView.setVisibility(VISIBLE);
         } else {
-            if (mTitleView.getVisibility() != GONE) {
-                mTitleView.setVisibility(GONE);
-            }
+            if (mTitleView.getVisibility() != GONE) mTitleView.setVisibility(GONE);
         }
     }
 

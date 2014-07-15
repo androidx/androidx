@@ -49,7 +49,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     /**
      * Construct a new BaseMenuPresenter.
      *
-     * @param context       Context for generating system-supplied views
+     * @param context Context for generating system-supplied views
      * @param menuLayoutRes Layout resource ID for the menu container view
      * @param itemLayoutRes Layout resource ID for a single item view
      */
@@ -67,6 +67,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
         mMenu = menu;
     }
 
+    @Override
     public MenuView getMenuView(ViewGroup root) {
         if (mMenuView == null) {
             mMenuView = (MenuView) mSystemInflater.inflate(mMenuLayoutRes, root, false);
@@ -82,9 +83,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
      */
     public void updateMenuView(boolean cleared) {
         final ViewGroup parent = (ViewGroup) mMenuView;
-        if (parent == null) {
-            return;
-        }
+        if (parent == null) return;
 
         int childIndex = 0;
         if (mMenu != null) {
@@ -123,7 +122,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     /**
      * Add an item view at the given index.
      *
-     * @param itemView   View to add
+     * @param itemView View to add
      * @param childIndex Index within the parent to insert at
      */
     protected void addItemView(View itemView, int childIndex) {
@@ -136,8 +135,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
 
     /**
      * Filter the child view at index and remove it if appropriate.
-     *
-     * @param parent     Parent to filter from
+     * @param parent Parent to filter from
      * @param childIndex Index to filter
      * @return true if the child view at index was removed
      */
@@ -150,6 +148,10 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
         mCallback = cb;
     }
 
+    public Callback getCallback() {
+        return mCallback;
+    }
+
     /**
      * Create a new item view that can be re-bound to other item data later.
      *
@@ -160,14 +162,14 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     }
 
     /**
-     * Prepare an item view for use. See AdapterView for the basic idea at work here. This may
-     * require creating a new item view, but well-behaved implementations will re-use the view
-     * passed as convertView if present. The returned view will be populated with data from the item
-     * parameter.
+     * Prepare an item view for use. See AdapterView for the basic idea at work here.
+     * This may require creating a new item view, but well-behaved implementations will
+     * re-use the view passed as convertView if present. The returned view will be populated
+     * with data from the item parameter.
      *
-     * @param item        Item to present
+     * @param item Item to present
      * @param convertView Existing view to reuse
-     * @param parent      Intended parent view - use for inflation.
+     * @param parent Intended parent view - use for inflation.
      * @return View that presents the requested menu item
      */
     public View getItemView(MenuItemImpl item, View convertView, ViewGroup parent) {
@@ -184,7 +186,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     /**
      * Bind item data to an existing item view.
      *
-     * @param item     Item to bind
+     * @param item Item to bind
      * @param itemView View to populate with item data
      */
     public abstract void bindItemView(MenuItemImpl item, MenuView.ItemView itemView);
@@ -193,7 +195,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
      * Filter item by child index and item data.
      *
      * @param childIndex Indended presentation index of this item
-     * @param item       Item to present
+     * @param item Item to present
      * @return true if this item should be included in this menu presentation; false otherwise
      */
     public boolean shouldIncludeItem(int childIndex, MenuItemImpl item) {

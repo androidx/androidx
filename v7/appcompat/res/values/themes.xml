@@ -26,8 +26,11 @@
          "Theme.Base" theme. -->
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat" parent="Base.Theme.AppCompat">
+    <style name="Theme.AppCompat" parent="Overlay.Theme.AppCompat">
         <item name="isLightTheme">false</item>
+
+        <item name="windowActionBar">true</item>
+        <item name="windowActionBarOverlay">false</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
@@ -38,6 +41,7 @@
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.PopupMenu.Overflow</item>
         <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Widget.PopupMenu.Large</item>
         <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Widget.PopupMenu.Small</item>
         <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
@@ -48,11 +52,11 @@
         <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_dark</item>
         <item name="searchViewTextFieldRight">@drawable/abc_textfield_searchview_right_holo_dark
         </item>
-        <item name="searchViewCloseIcon">@drawable/abc_ic_clear</item>
-        <item name="searchViewSearchIcon">@drawable/abc_ic_search</item>
-        <item name="searchViewGoIcon">@drawable/abc_ic_go</item>
-        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search</item>
-        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_holo_dark</item>
+        <item name="searchViewCloseIcon">@drawable/abc_ic_clear_material_dark</item>
+        <item name="searchViewSearchIcon">@drawable/abc_ic_search_api_material_dark</item>
+        <item name="searchViewGoIcon">@drawable/abc_ic_go_search_api_material_dark</item>
+        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search_api_material_dark</item>
+        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_material_dark</item>
         <item name="searchViewEditQueryBackground">?attr/selectableItemBackground</item>
         <item name="searchViewAutoCompleteTextView">
             @style/Widget.AppCompat.AutoCompleteTextView</item>
@@ -64,10 +68,14 @@
             @style/TextAppearance.AppCompat.SearchResult.Subtitle
         </item>
 
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_dark</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
 
         <!-- ShareActionProvider attributes -->
         <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView</item>
+
+        <!-- Toolbar styles -->
+        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
+        <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
@@ -83,8 +91,11 @@
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.AppCompat.Light" parent="Base.Theme.AppCompat.Light">
+    <style name="Theme.AppCompat.Light" parent="Overlay.Theme.AppCompat.Light">
         <item name="isLightTheme">true</item>
+
+        <item name="windowActionBar">true</item>
+        <item name="windowActionBarOverlay">false</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
@@ -95,6 +106,7 @@
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
         <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large</item>
         <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small</item>
         <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.ListPopupWindow</item>
@@ -105,11 +117,11 @@
         <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_light</item>
         <item name="searchViewTextFieldRight">@drawable/abc_textfield_searchview_right_holo_light
         </item>
-        <item name="searchViewCloseIcon">@drawable/abc_ic_clear_holo_light</item>
-        <item name="searchViewSearchIcon">@drawable/abc_ic_search_api_holo_light</item>
-        <item name="searchViewGoIcon">@drawable/abc_ic_go_search_api_holo_light</item>
-        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search_api_holo_light</item>
-        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_holo_light</item>
+        <item name="searchViewCloseIcon">@drawable/abc_ic_clear_material_light</item>
+        <item name="searchViewSearchIcon">@drawable/abc_ic_search_api_material_light</item>
+        <item name="searchViewGoIcon">@drawable/abc_ic_go_search_api_material_light</item>
+        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search_api_material_light</item>
+        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_material_light</item>
         <item name="searchViewEditQueryBackground">?attr/selectableItemBackground</item>
         <item name="searchViewAutoCompleteTextView">
             @style/Widget.AppCompat.Light.AutoCompleteTextView</item>
@@ -121,10 +133,14 @@
             @style/TextAppearance.AppCompat.Light.SearchResult.Subtitle
         </item>
 
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_light</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_light</item>
 
         <!-- ShareActionProvider attributes -->
         <item name="activityChooserViewStyle">@style/Widget.AppCompat.Light.ActivityChooserView</item>
+
+        <!-- Toolbar styles -->
+        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
+        <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/material_blue_grey_600</item>
@@ -140,8 +156,11 @@
     </style>
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat.Light.DarkActionBar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.AppCompat.Light.DarkActionBar" parent="Overlay.Theme.AppCompat.Light.DarkActionBar">
         <item name="isLightTheme">true</item>
+
+        <item name="windowActionBar">true</item>
+        <item name="windowActionBarOverlay">false</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
         <item name="spinnerDropDownItemStyle">
@@ -152,6 +171,7 @@
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
         <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large</item>
         <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small</item>
         <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
@@ -160,13 +180,12 @@
         <!-- SearchView attributes -->
         <item name="searchDropdownBackground">@drawable/abc_search_dropdown_dark</item>
         <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_dark</item>
-        <item name="searchViewTextFieldRight">@drawable/abc_textfield_searchview_right_holo_dark
-        </item>
-        <item name="searchViewCloseIcon">@drawable/abc_ic_clear</item>
-        <item name="searchViewSearchIcon">@drawable/abc_ic_search</item>
-        <item name="searchViewGoIcon">@drawable/abc_ic_go</item>
-        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search</item>
-        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_holo_dark</item>
+        <item name="searchViewTextFieldRight">@drawable/abc_textfield_searchview_right_holo_dark</item>
+        <item name="searchViewCloseIcon">@drawable/abc_ic_clear_material_dark</item>
+        <item name="searchViewSearchIcon">@drawable/abc_ic_search_api_material_dark</item>
+        <item name="searchViewGoIcon">@drawable/abc_ic_go_search_api_material_dark</item>
+        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search_api_material_dark</item>
+        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_material_dark</item>
         <item name="searchViewEditQueryBackground">?attr/selectableItemBackground</item>
         <item name="searchViewAutoCompleteTextView">
             @style/Widget.AppCompat.AutoCompleteTextView</item>
@@ -178,10 +197,14 @@
             @style/TextAppearance.AppCompat.SearchResult.Subtitle
         </item>
 
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_dark</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
 
         <!-- ShareActionProvider attributes -->
         <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView</item>
+
+        <!-- Toolbar styles -->
+        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
+        <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
@@ -193,6 +216,16 @@
 
         <item name="colorControlHighlight">@color/ripple_material_light</item>
         <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_light</item>-->
+    </style>
+
+    <style name="Theme.AppCompat.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="Theme.AppCompat.DialogWhenLarge"

@@ -17,6 +17,7 @@
 package android.support.v4.graphics.drawable;
 
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Drawable}
@@ -30,6 +31,7 @@ public class DrawableCompat {
         void jumpToCurrentState(Drawable drawable);
         void setAutoMirrored(Drawable drawable, boolean mirrored);
         boolean isAutoMirrored(Drawable drawable);
+        void setHotspot(Drawable drawable, float x, float y);
     }
 
     /**
@@ -48,6 +50,10 @@ public class DrawableCompat {
         public boolean isAutoMirrored(Drawable drawable) {
             return false;
         }
+
+        @Override
+        public void setHotspot(Drawable drawable, float x, float y) {
+        }
     }
 
     /**
@@ -61,7 +67,7 @@ public class DrawableCompat {
     }
 
     /**
-     * Interface implementation for devices with at least v11 APIs.
+     * Interface implementation for devices with at least KitKat APIs.
      */
     static class KitKatDrawableImpl extends HoneycombDrawableImpl {
         @Override
@@ -76,12 +82,24 @@ public class DrawableCompat {
     }
 
     /**
+     * Interface implementation for devices with at least L APIs.
+     */
+    static class LDrawableImpl extends KitKatDrawableImpl {
+        @Override
+        public void setHotspot(Drawable drawable, float x, float y) {
+            DrawableCompatL.setHotspot(drawable, x, y);
+        }
+    }
+
+    /**
      * Select the correct implementation to use for the current platform.
      */
     static final DrawableImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (version >= 21 || Build.VERSION.CODENAME.equals("L")) {
+            IMPL = new LDrawableImpl();
+        } else if (version >= 19) {
             IMPL = new KitKatDrawableImpl();
         } else if (version >= 11) {
             IMPL = new HoneycombDrawableImpl();
@@ -131,5 +149,15 @@ public class DrawableCompat {
      */
     public static boolean isAutoMirrored(Drawable drawable) {
         return IMPL.isAutoMirrored(drawable);
+    }
+
+    /**
+     * Specifies the hotspot's location within the drawable.
+     *
+     * @param x The X coordinate of the center of the hotspot
+     * @param y The Y coordinate of the center of the hotspot
+     */
+    public static void setHotspot(Drawable drawable, float x, float y) {
+        IMPL.setHotspot(drawable, x, y);
     }
 }
