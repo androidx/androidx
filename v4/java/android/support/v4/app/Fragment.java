@@ -914,7 +914,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * inflation.  Maybe this should become a public API. Note sure.
      */
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
-        return mActivity.getLayoutInflater();
+        LayoutInflater result = mActivity.getLayoutInflater().cloneInContext(mActivity);
+        getChildFragmentManager(); // Init if needed; use raw implementation below.
+        result.setFactory(mChildFragmentManager.getLayoutInflaterFactory());
+        return result;
     }
     
     /**
