@@ -19,13 +19,13 @@ package android.support.v4.content;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.res.Resources.Theme;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.v4.os.EnvironmentCompat;
+import android.util.Log;
 
 import java.io.File;
 
@@ -34,6 +34,7 @@ import java.io.File;
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public class ContextCompat {
+    private static final String TAG = "ContextCompat";
 
     private static final String DIR_ANDROID = "Android";
     private static final String DIR_DATA = "data";
@@ -343,7 +344,46 @@ public class ContextCompat {
             return ContextCompatApi21.getNoBackupFilesDir(context);
         } else {
             ApplicationInfo appInfo = context.getApplicationInfo();
-            return new File(appInfo.dataDir, "no_backup");
+            return createFilesDir(new File(appInfo.dataDir, "no_backup"));
         }
+    }
+
+    /**
+     * Returns the absolute path to the application specific cache directory on
+     * the filesystem designed for storing cached code. On devices running
+     * {@link android.os.Build.VERSION_CODES#L} or later, the system will delete
+     * any files stored in this location both when your specific application is
+     * upgraded, and when the entire platform is upgraded.
+     * <p>
+     * This location is optimal for storing compiled or optimized code generated
+     * by your application at runtime.
+     * <p>
+     * Apps require no extra permissions to read or write to the returned path,
+     * since this path lives in their private storage.
+     *
+     * @return The path of the directory holding application code cache files.
+     */
+    public final File getCodeCacheDir(Context context) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 21) {
+            return ContextCompatApi21.getCodeCacheDir(context);
+        } else {
+            ApplicationInfo appInfo = context.getApplicationInfo();
+            return createFilesDir(new File(appInfo.dataDir, "code_cache"));
+        }
+    }
+
+    private synchronized static File createFilesDir(File file) {
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                if (file.exists()) {
+                    // spurious failure; probably racing with another process for this app
+                    return file;
+                }
+                Log.w(TAG, "Unable to create files subdir " + file.getPath());
+                return null;
+            }
+        }
+        return file;
     }
 }

@@ -29,4 +29,8 @@ class ContextCompatApi21 {
     public static File getNoBackupFilesDir(Context context) {
         return context.getNoBackupFilesDir();
     }
+
+    public static File getCodeCacheDir(Context context) {
+        return context.getCodeCacheDir();
+    }
 }
