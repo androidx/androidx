@@ -28,7 +28,7 @@ import android.view.KeyEvent;
 
 class MediaControllerCompatApi21 {
     public static Object fromToken(Object sessionToken) {
-        return MediaController.fromToken((MediaSession.Token)sessionToken);
+        return new MediaController((MediaSession.Token) sessionToken);
     }
 
     public static Object createCallback(Callback callback) {
