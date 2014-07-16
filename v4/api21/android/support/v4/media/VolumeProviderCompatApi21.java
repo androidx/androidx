@@ -33,8 +33,8 @@ class VolumeProviderCompatApi21 {
             }
 
             @Override
-            public void onAdjustVolumeBy(int delta) {
-                delegate.onAdjustVolumeBy(delta);
+            public void onAdjustVolume(int direction) {
+                delegate.onAdjustVolume(direction);
             }
         };
     }
@@ -46,6 +46,6 @@ class VolumeProviderCompatApi21 {
     public interface Delegate {
         int onGetCurrentVolume();
         void onSetVolumeTo(int volume);
-        void onAdjustVolumeBy(int delta);
+        void onAdjustVolume(int delta);
     }
 }
