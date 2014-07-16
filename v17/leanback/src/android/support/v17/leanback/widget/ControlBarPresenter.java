@@ -1,0 +1,180 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package android.support.v17.leanback.widget;
+
+import android.support.v17.leanback.R;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+/**
+ * A presenter that assumes a LinearLayout container for a series
+ * of control buttons backed by objects of type {@link Action}.
+ *
+ * Different layouts may be passed to the presenter constructor.
+ * The layout must contain a view with id control_bar.
+ */
+class ControlBarPresenter extends Presenter {
+
+    private static final int MAX_CONTROLS = 7;
+
+    /**
+     * The data type expected by this presenter.
+     */
+    static class BoundData {
+        /**
+         * Adapter containing objects of type {@link Action}.
+         */
+        ObjectAdapter adapter;
+
+        /**
+         * The presenter to be used for the adapter objects.
+         */
+        Presenter presenter;
+    }
+
+    /**
+     * A ViewHolder for an actions bar.
+     */
+    class ViewHolder extends Presenter.ViewHolder {
+        ObjectAdapter mAdapter;
+        Presenter mPresenter;
+        LinearLayout mControlBar;
+        SparseArray<Presenter.ViewHolder> mViewHolders =
+                new SparseArray<Presenter.ViewHolder>();
+        ObjectAdapter.DataObserver mDataObserver;
+
+        /**
+         * Constructor for the ViewHolder.
+         */
+        ViewHolder(View rootView) {
+            super(rootView);
+            mControlBar = (LinearLayout) rootView.findViewById(R.id.control_bar);
+            if (mControlBar == null) {
+                throw new IllegalStateException("Couldn't find control_bar");
+            }
+            mDataObserver = new ObjectAdapter.DataObserver() {
+                @Override
+                public void onChanged() {
+                    showControls(mAdapter, mPresenter);
+                }
+                @Override
+                public void onItemRangeChanged(int positionStart, int itemCount) {
+                    for (int i = 0; i < itemCount; i++) {
+                        bindControlToAction(positionStart + i, mAdapter, mPresenter);
+                    }
+                }
+            };
+        }
+
+        void showControls(ObjectAdapter adapter, Presenter presenter) {
+            View focusedChild = mControlBar.getFocusedChild();
+            mControlBar.removeAllViews();
+            for (int position = 0; position < adapter.size() && position < MAX_CONTROLS;
+                    position++) {
+                bindControlToAction(position, adapter, presenter);
+            }
+            if (focusedChild != null) {
+                focusedChild.requestFocus();
+            }
+        }
+
+        void bindControlToAction(final int position, ObjectAdapter adapter, Presenter presenter) {
+            Presenter.ViewHolder vh = mViewHolders.get(position);
+            Object item = adapter.get(position);
+            if (vh == null) {
+                vh = presenter.onCreateViewHolder(mControlBar);
+                mViewHolders.put(position, vh);
+                presenter.setOnClickListener(vh, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Object item = getAdapter().get(position);
+                        if (mOnActionClickedListener != null && item instanceof Action) {
+                            mOnActionClickedListener.onActionClicked((Action) item);
+                        }
+                    }
+                });
+            }
+            if (vh.view.getParent() == null) {
+                mControlBar.addView(vh.view);
+            }
+            presenter.onBindViewHolder(vh, item);
+        }
+
+        ObjectAdapter getAdapter() {
+            return mAdapter;
+        }
+    }
+
+    private OnActionClickedListener mOnActionClickedListener;
+    private int mLayoutResourceId;
+
+    /**
+     * Constructor for a ControlBarPresenter.
+     *
+     * @param layoutResourceId The resource id of the layout for this presenter.
+     */
+    public ControlBarPresenter(int layoutResourceId) {
+        mLayoutResourceId = layoutResourceId;
+    }
+
+    /**
+     * Returns the layout resource id.
+     */
+    public int getLayoutResourceId() {
+        return mLayoutResourceId;
+    }
+
+    /**
+     * Sets the listener for {@link Action} click events.
+     */
+    public void setOnActionClickedListener(OnActionClickedListener listener) {
+        mOnActionClickedListener = listener;
+    }
+
+    /**
+     * Gets the listener for {@link Action} click events.
+     */
+    public OnActionClickedListener getOnActionClickedListener() {
+        return mOnActionClickedListener;
+    }
+
+    @Override
+    public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
+        View v = LayoutInflater.from(parent.getContext())
+            .inflate(getLayoutResourceId(), parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(Presenter.ViewHolder holder, Object item) {
+        ViewHolder vh = (ViewHolder) holder;
+        BoundData data = (BoundData) item;
+        if (vh.mAdapter != data.adapter) {
+            vh.mAdapter = data.adapter;
+            vh.mAdapter.registerObserver(vh.mDataObserver);
+        }
+        vh.mPresenter = data.presenter;
+        vh.showControls(vh.mAdapter, vh.mPresenter);
+    }
+
+    @Override
+    public void onUnbindViewHolder(Presenter.ViewHolder holder) {
+        ViewHolder vh = (ViewHolder) holder;
+        vh.mAdapter.unregisterObserver(vh.mDataObserver);
+        vh.mAdapter = null;
+    }
+}

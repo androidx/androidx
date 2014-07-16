@@ -180,6 +180,9 @@
         <attr name="detailsDescriptionBodyStyle" format="reference" />
         <attr name="detailsActionButtonStyle" format="reference" />
 
+        <!-- for playback controls -->
+        <attr name="playbackControlsButtonStyle" format="reference" />
+
         <!-- style for a vertical grid of items -->
         <attr name="itemsVerticalGridStyle" format="reference" />
 

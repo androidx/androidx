@@ -154,7 +154,7 @@ public class DetailsFragment extends Fragment {
         }
     };
 
-    private void setVerticalGridViewLayout(VerticalGridView listview) {
+    void setVerticalGridViewLayout(VerticalGridView listview) {
         // align the top edge of item to a fixed position
         listview.setItemAlignmentOffset(0);
         listview.setItemAlignmentOffsetPercent(VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
@@ -163,13 +163,16 @@ public class DetailsFragment extends Fragment {
         listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
     }
 
+    VerticalGridView getVerticalGridView() {
+        return mRowsFragment == null ? null : mRowsFragment.getVerticalGridView();
+    }
+
     /**
      * Setup dimensions that are only meaningful when the child Fragments are inside
      * DetailsFragment.
      */
     private void setupChildFragmentLayout() {
-        VerticalGridView containerList = mRowsFragment.getVerticalGridView();
-        setVerticalGridViewLayout(containerList);
+        setVerticalGridViewLayout(mRowsFragment.getVerticalGridView());
     }
 
     @Override
