@@ -331,6 +331,7 @@ public class NotificationCompat {
         public Action getAction(Notification n, int actionIndex);
         public Action[] getActionsFromParcelableArrayList(ArrayList<Parcelable> parcelables);
         public ArrayList<Parcelable> getParcelableArrayListForActions(Action[] actions);
+        public String getCategory(Notification n);
         public boolean getLocalOnly(Notification n);
         public String getGroup(Notification n);
         public boolean isGroupSummary(Notification n);
@@ -373,6 +374,11 @@ public class NotificationCompat {
 
         @Override
         public ArrayList<Parcelable> getParcelableArrayListForActions(Action[] actions) {
+            return null;
+        }
+
+        @Override
+        public String getCategory(Notification n) {
             return null;
         }
 
@@ -639,9 +645,18 @@ public class NotificationCompat {
         }
     }
 
+    static class NotificationCompatImplApi21 extends NotificationCompatImplApi20 {
+        @Override
+        public String getCategory(Notification notif) {
+            return NotificationCompatApi21.getCategory(notif);
+        }
+    }
+
     static {
-        // TODO: Replace this if clause when SDK_INT is incremented to 20.
+        // TODO: Replace this if clause when SDK_INT is incremented to 21.
         if (Build.VERSION.RELEASE.equals("L")) {
+            IMPL = new NotificationCompatImplApi21();
+        } else if (Build.VERSION.SDK_INT >= 20) {
             IMPL = new NotificationCompatImplApi20();
         } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new NotificationCompatImplKitKat();
@@ -2541,6 +2556,15 @@ public class NotificationCompat {
      */
     public static Action getAction(Notification notif, int actionIndex) {
         return IMPL.getAction(notif, actionIndex);
+    }
+
+    /**
+    * Get the category of this notification in a backwards compatible
+    * manner.
+    * @param notif The notification to inspect.
+    */
+    public static String getCategory(Notification notif) {
+        return IMPL.getCategory(notif);
     }
 
     /**
