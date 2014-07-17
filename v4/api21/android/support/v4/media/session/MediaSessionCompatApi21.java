@@ -31,9 +31,7 @@ import android.os.ResultReceiver;
 
 class MediaSessionCompatApi21 {
     public static Object createSession(Context context, String tag) {
-        MediaSessionManager mgr = (MediaSessionManager)context.getSystemService(
-                Context.MEDIA_SESSION_SERVICE);
-        return mgr.createSession(tag);
+        return new MediaSession(context, tag);
     }
 
     public static Object createCallback(Callback callback) {
