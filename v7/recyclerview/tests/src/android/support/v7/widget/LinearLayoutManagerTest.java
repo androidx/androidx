@@ -22,7 +22,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Includes tests for {@link LinearLayoutManager}.
@@ -82,7 +85,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     void setupByConfig(Config config, boolean waitForFirstLayout) throws Throwable {
         mRecyclerView = new RecyclerView(getActivity());
         mRecyclerView.setHasFixedSize(true);
-        mTestAdapter = new TestAdapter(config.mItemCount);
+        mTestAdapter = config.mTestAdapter == null ? new TestAdapter(config.mItemCount)
+                : config.mTestAdapter;
         mRecyclerView.setAdapter(mTestAdapter);
         mLayoutManager = new WrappedLinearLayoutManager(getActivity(), config.mOrientation,
                 config.mReverseLayout);
@@ -98,6 +102,71 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         mLayoutManager.expectLayouts(1);
         setRecyclerView(mRecyclerView);
         mLayoutManager.waitForLayout(2);
+    }
+
+    public void testRecycleDuringAnimations() throws Throwable {
+        final AtomicInteger childCount = new AtomicInteger(0);
+        final TestAdapter adapter = new TestAdapter(300) {
+            @Override
+            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                final int cnt = childCount.incrementAndGet();
+                final TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
+                if (DEBUG) {
+                    Log.d(TAG, "CHILD_CNT(create):" + cnt + ", " + testViewHolder);
+                }
+                return testViewHolder;
+            }
+        };
+        setupByConfig(new Config(LinearLayoutManager.VERTICAL, false, false).itemCount(300)
+                .adapter(adapter), true);
+
+        final RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
+            @Override
+            public void putRecycledView(RecyclerView.ViewHolder scrap) {
+                super.putRecycledView(scrap);
+                int cnt = childCount.decrementAndGet();
+                if (DEBUG) {
+                    Log.d(TAG, "CHILD_CNT(put):" + cnt + ", " + scrap);
+                }
+            }
+
+            @Override
+            public RecyclerView.ViewHolder getRecycledView(int viewType) {
+                final RecyclerView.ViewHolder recycledView = super.getRecycledView(viewType);
+                if (recycledView != null) {
+                    final int cnt = childCount.incrementAndGet();
+                    if (DEBUG) {
+                        Log.d(TAG, "CHILD_CNT(get):" + cnt + ", " + recycledView);
+                    }
+                }
+                return recycledView;
+            }
+        };
+        pool.setMaxRecycledViews(mTestAdapter.getItemViewType(0), 500);
+        mRecyclerView.setRecycledViewPool(pool);
+
+
+        // now keep adding children to trigger more children being created etc.
+        for (int i = 0; i < 100; i ++) {
+            adapter.addAndNotify(15, 1);
+            Thread.sleep(15);
+        }
+        getInstrumentation().waitForIdleSync();
+        waitForAnimations(2);
+        assertEquals("Children count should add up", childCount.get(),
+                mRecyclerView.getChildCount() + mRecyclerView.mRecycler.mCachedViews.size());
+
+        // now trigger lots of add again, followed by a scroll to position
+        for (int i = 0; i < 100; i ++) {
+            adapter.addAndNotify(5 + (i % 3) * 3, 1);
+            Thread.sleep(25);
+        }
+        smoothScrollToPosition(mLayoutManager.findLastVisibleItemPosition() + 20);
+        waitForAnimations(2);
+        getInstrumentation().waitForIdleSync();
+        assertEquals("Children count should add up", childCount.get(),
+                mRecyclerView.getChildCount() + mRecyclerView.mRecycler.mCachedViews.size());
     }
 
 
@@ -571,6 +640,22 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
 
         @Override
+        public void removeAndRecycleView(View child, RecyclerView.Recycler recycler) {
+            if (DEBUG) {
+                Log.d(TAG, "recycling view " + mRecyclerView.getChildViewHolder(child));
+            }
+            super.removeAndRecycleView(child, recycler);
+        }
+
+        @Override
+        public void removeAndRecycleViewAt(int index, RecyclerView.Recycler recycler) {
+            if (DEBUG) {
+                Log.d(TAG, "recycling view at" + mRecyclerView.getChildViewHolder(getChildAt(index)));
+            }
+            super.removeAndRecycleViewAt(index, recycler);
+        }
+
+        @Override
         void ensureLayoutState() {
             super.ensureLayoutState();
             if (mSecondaryOrientation == null) {
@@ -696,6 +781,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         int mItemCount = DEFAULT_ITEM_COUNT;
 
+        TestAdapter mTestAdapter;
+
         Config(int orientation, boolean reverseLayout, boolean stackFromEnd) {
             mOrientation = orientation;
             mReverseLayout = reverseLayout;
@@ -704,6 +791,11 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         public Config() {
 
+        }
+
+        Config adapter(TestAdapter adapter) {
+            mTestAdapter = adapter;
+            return this;
         }
 
         Config recycleChildrenOnDetach(boolean recycleChildrenOnDetach) {
