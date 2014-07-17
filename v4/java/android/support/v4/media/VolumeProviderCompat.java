@@ -34,14 +34,14 @@ public abstract class VolumeProviderCompat {
 
     /**
      * The volume control uses relative adjustment via
-     * {@link #onAdjustVolumeBy(int)}. Attempts to set the volume to a specific
+     * {@link #onAdjustVolume(int)}. Attempts to set the volume to a specific
      * value should be ignored.
      */
     public static final int VOLUME_CONTROL_RELATIVE = 1;
 
     /**
      * The volume control uses an absolute value. It may be adjusted using
-     * {@link #onAdjustVolumeBy(int)} or set directly using
+     * {@link #onAdjustVolume(int)} or set directly using
      * {@link #onSetVolumeTo(int)}.
      */
     public static final int VOLUME_CONTROL_ABSOLUTE = 2;
@@ -108,12 +108,11 @@ public abstract class VolumeProviderCompat {
     }
 
     /**
-     * Override to handle requests to adjust the volume of the current
-     * output.
+     * Override to handle requests to adjust the volume of the current output.
      *
-     * @param delta The amount to change the volume
+     * @param direction The direction to adjust the volume in.
      */
-    public void onAdjustVolumeBy(int delta) {
+    public void onAdjustVolume(int direction) {
     }
 
     /**
@@ -152,8 +151,8 @@ public abstract class VolumeProviderCompat {
             }
 
             @Override
-            public void onAdjustVolumeBy(int delta) {
-                VolumeProviderCompat.this.onAdjustVolumeBy(delta);
+            public void onAdjustVolume(int direction) {
+                VolumeProviderCompat.this.onAdjustVolume(direction);
             }
         });
         return mVolumeProviderObj;
