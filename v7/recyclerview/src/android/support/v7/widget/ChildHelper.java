@@ -309,11 +309,9 @@ class ChildHelper {
      */
     boolean removeViewIfHidden(View view) {
         final int index = mCallback.indexOfChild(view);
-        if (index < -1) {
-            if (DEBUG) {
-                if (mHiddenViews.contains(view)) {
-                    throw new IllegalStateException("view is in hidden list but not in view group");
-                }
+        if (index == -1) {
+            if (mHiddenViews.remove(view) && DEBUG) {
+                throw new IllegalStateException("view is in hidden list but not in view group");
             }
             return true;
         }

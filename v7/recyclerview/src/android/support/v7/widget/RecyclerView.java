@@ -3026,26 +3026,30 @@ public class RecyclerView extends ViewGroup {
             if (holder.shouldIgnore()) {
                 throw new IllegalArgumentException("Trying to recycle an ignored view holder");
             }
-
-            boolean cached = false;
-            if (!holder.isInvalid() && (mInPreLayout || !holder.isRemoved()) &&
-                    !holder.isChanged()) {
-                // Retire oldest cached views first
-                if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
-                    for (int i = 0; i < mCachedViews.size(); i++) {
-                        if (tryToRecycleCachedViewAt(i)) {
-                            break;
+            if (holder.isRecyclable()) {
+                boolean cached = false;
+                if (!holder.isInvalid() && (mInPreLayout || !holder.isRemoved()) &&
+                        !holder.isChanged()) {
+                    // Retire oldest cached views first
+                    if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
+                        for (int i = 0; i < mCachedViews.size(); i++) {
+                            if (tryToRecycleCachedViewAt(i)) {
+                                break;
+                            }
                         }
                     }
+                    if (mCachedViews.size() < mViewCacheMax) {
+                        mCachedViews.add(holder);
+                        cached = true;
+                    }
                 }
-                if (mCachedViews.size() < mViewCacheMax) {
-                    mCachedViews.add(holder);
-                    cached = true;
+                if (!cached) {
+                    getRecycledViewPool().putRecycledView(holder);
+                    dispatchViewRecycled(holder);
                 }
-            }
-            if (!cached && holder.isRecyclable()) {
-                getRecycledViewPool().putRecycledView(holder);
-                dispatchViewRecycled(holder);
+            } else if (DEBUG) {
+                Log.d(TAG, "trying to recycle a non-recycleable holder. Hopefully, it will "
+                        + "re-visit here. We are stil removing it from animation lists");
             }
             // Remove from pre/post maps that are used to animate items; a recycled holder
             // should not be animated
@@ -5727,7 +5731,7 @@ public class RecyclerView extends ViewGroup {
             if (needsUpdate()) sb.append(" update");
             if (isRemoved()) sb.append(" removed");
             if (shouldIgnore()) sb.append(" ignored");
-            if (!isRecyclable()) sb.append(" not recyclable");
+            if (!isRecyclable()) sb.append(" not recyclable(" + mIsRecyclableCount + ")");
             if (itemView.getParent() == null) sb.append(" no parent");
             sb.append("}");
             return sb.toString();
@@ -5746,10 +5750,6 @@ public class RecyclerView extends ViewGroup {
          */
         public final void setIsRecyclable(boolean recyclable) {
             mIsRecyclableCount = recyclable ? mIsRecyclableCount - 1 : mIsRecyclableCount + 1;
-            if (DEBUG) {
-                Log.d(TAG, "setIsRecyclable for item id:" + mItemId + "val:" + recyclable + ","
-                        + "cnt:" + mIsRecyclableCount);
-            }
             if (mIsRecyclableCount < 0) {
                 mIsRecyclableCount = 0;
                 Log.e(VIEW_LOG_TAG, "isRecyclable decremented below 0: " +
@@ -5758,6 +5758,9 @@ public class RecyclerView extends ViewGroup {
                 mFlags |= FLAG_NOT_RECYCLABLE;
             } else if (recyclable && mIsRecyclableCount == 0) {
                 mFlags &= ~FLAG_NOT_RECYCLABLE;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "setIsRecyclable val:" + recyclable + this);
             }
         }
 
@@ -6511,19 +6514,25 @@ public class RecyclerView extends ViewGroup {
         @Override
         public void onAddFinished(ViewHolder item) {
             item.setIsRecyclable(true);
-            removeAnimatingView(item.itemView);
+            if (item.isRecyclable()) {
+                removeAnimatingView(item.itemView);
+            }
         }
 
         @Override
         public void onMoveFinished(ViewHolder item) {
             item.setIsRecyclable(true);
-            removeAnimatingView(item.itemView);
+            if (item.isRecyclable()) {
+                removeAnimatingView(item.itemView);
+            }
         }
 
         @Override
         public void onChangeFinished(ViewHolder item) {
             item.setIsRecyclable(true);
-            removeAnimatingView(item.itemView);
+            if (item.isRecyclable()) {
+                removeAnimatingView(item.itemView);
+            }
             item.setFlags(~ViewHolder.FLAG_CHANGED, item.mFlags);
             ViewHolder shadowedHolder = item.mShadowedHolder;
             if (shadowedHolder != null) {
