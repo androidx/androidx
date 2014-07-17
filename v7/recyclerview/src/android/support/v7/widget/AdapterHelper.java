@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.support.v4.util.Pools;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +48,10 @@ class AdapterHelper {
     final static int POSITION_TYPE_INVISIBLE = 0;
 
     final static int POSITION_TYPE_NEW_OR_LAID_OUT = 1;
+
+    private static final boolean DEBUG = false;
+
+    private static final String TAG = "AHT";
 
     private Pools.Pool<UpdateOp> mUpdateOpPool = new Pools.SimplePool<UpdateOp>(UpdateOp.POOL_SIZE);
 
@@ -80,6 +85,7 @@ class AdapterHelper {
     }
 
     void preProcess() {
+        pruneInvalidMoveOps();
         final int count = mPendingUpdates.size();
         for (int i = 0; i < count; i++) {
             UpdateOp op = mPendingUpdates.get(i);
@@ -93,12 +99,154 @@ class AdapterHelper {
                 case UpdateOp.UPDATE:
                     applyUpdate(op);
                     break;
+                case UpdateOp.MOVE:
+                    applyMove(op);
+                    break;
             }
             if (mOnItemProcessedCallback != null) {
                 mOnItemProcessedCallback.run();
             }
         }
         mPendingUpdates.clear();
+    }
+
+    /**
+     * When an item is moved, we still represent it in pre-layout even if we don't have a
+     * ViewHolder for it. This may be a problem if item is removed in the same layout pass.
+     * This is why we make sure item is not removed and if it is removed, we replace MOVE op
+     * with a REMOVE op and update the remaining UpdateOps accordingly.
+     */
+    private void pruneInvalidMoveOps() {
+        for (int i = mPendingUpdates.size() - 1; i >= 0; i--) {
+            UpdateOp op = mPendingUpdates.get(i);
+            if (op.cmd != UpdateOp.MOVE) {
+                continue;
+            }
+            // IF MOVE(from) is a newly added item, we defer it gracefully.
+            // IF MOVE(to) is removed, we have to invalidate MOVE
+            final int count = mPendingUpdates.size();
+            int to = op.itemCount;
+            int removedIndex = -1;
+            for (int j = i + 1; j < count; j++) {
+                UpdateOp other = mPendingUpdates.get(j);
+                if (other.cmd == UpdateOp.ADD && other.positionStart <= to) {
+                    to += other.itemCount;
+                } else if (other.cmd == UpdateOp.REMOVE && other.positionStart <= to) {
+                    if (other.positionStart + other.itemCount > to) {
+                        removedIndex = j;
+                        break;
+                    } else {
+                        to -= other.itemCount;
+                    }
+                } else if (other.cmd == UpdateOp.MOVE) {
+                    if (to == other.positionStart) {
+                        to = other.itemCount;
+                    } else {
+                        if (to > other.positionStart) {
+                            to--;
+                        }
+                        if (to >= other.itemCount) {
+                            to++;
+                        }
+                    }
+                }
+            }
+            if (removedIndex != -1) {
+                if (DEBUG) {
+                    Log.d(TAG,
+                            "detected a move that has been removed at" + removedIndex + ":" + op);
+                }
+                to = op.itemCount;
+                op.itemCount = 1;
+                op.cmd = UpdateOp.REMOVE;
+                // now, update all remaining ops according to this :/.
+                for (int j = i + 1; j <= removedIndex; j++) {
+                    UpdateOp other = mPendingUpdates.get(j);
+                    switch (other.cmd) {
+                        case UpdateOp.ADD:
+                            if (other.positionStart > to) {
+                                other.positionStart--;
+                            } else {
+                                to += other.itemCount;
+                            }
+                            break;
+                        case UpdateOp.UPDATE:
+                            if (other.positionStart > to) {
+                                other.positionStart--;
+                            } else if (other.positionStart <= to
+                                    && to < other.positionStart + other.itemCount) {
+                                other.itemCount--;
+                            }
+                            break;
+                        case UpdateOp.REMOVE:
+                            if (other.positionStart <= to) {
+                                if (other.positionStart + other.itemCount > to) {
+                                    other.itemCount--;
+                                } else {
+                                    to -= other.itemCount;
+                                }
+                            } else {
+                                other.positionStart--;
+                            }
+                            break;
+                        case UpdateOp.MOVE:
+                            if (to == other.positionStart) {
+                                throw new IllegalStateException("move updated removed move. "
+                                        + "Should've detected earlier");
+                            } else {
+                                final int start, end, inBetweenDiff;
+                                if (other.positionStart > other.itemCount) {
+                                    start = other.itemCount;
+                                    end = other.positionStart;
+                                    inBetweenDiff = 1;
+                                } else {
+                                    start = other.positionStart;
+                                    end = other.itemCount;
+                                    inBetweenDiff = -1;
+                                }
+                                // since to is not added anymore, offset other if necessary
+                                if (to < other.positionStart) {
+                                    other.positionStart--;
+                                }
+                                if (to <= other.itemCount) {
+                                    other.itemCount--;
+                                }
+                                // now apply other to "to" position
+                                if (start <= to && end >= to) {
+                                    to += inBetweenDiff;
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                for (int j = removedIndex; j > i; j--) {
+                    UpdateOp other = mPendingUpdates.get(j);
+                    if (other.cmd != UpdateOp.MOVE && other.itemCount <= 0) {
+                        if (DEBUG) {
+                            Log.d(TAG, "Recycling no-op " + other);
+                        }
+                        mPendingUpdates.remove(j);
+                        recycleUpdateOp(other);
+                    } else if (other.cmd == UpdateOp.MOVE &&
+                            (other.itemCount == other.positionStart ||
+                                    other.itemCount < 0)) {
+                        if (DEBUG) {
+                            Log.d(TAG, "Recycling no-op " + other);
+                        }
+                        mPendingUpdates.remove(j);
+                        recycleUpdateOp(other);
+                    }
+                }
+            }
+        }
+        if (DEBUG) {
+            Log.d(TAG, "after pruning is complete.");
+            for (UpdateOp op : mPendingUpdates) {
+                Log.d(TAG, op.toString());
+            }
+            Log.d(TAG, "------");
+        }
     }
 
     void consumePostponedUpdates() {
@@ -109,6 +257,13 @@ class AdapterHelper {
         recycleUpdateOpsAndClearList(mPostponedList);
     }
 
+    private void applyMove(UpdateOp op) {
+        // MOVE ops are pre-processed so at this point, we know that item is still in the adapter.
+        // otherwise, it would be converted into a REMOVE operation
+        mCallback.offsetPositionsForMove(op.positionStart, op.itemCount);
+        postpone(op);
+    }
+
     private void applyRemove(UpdateOp op) {
         int tmpStart = op.positionStart;
         int tmpCount = 0;
@@ -117,7 +272,7 @@ class AdapterHelper {
         for (int position = op.positionStart; position < tmpEnd; position++) {
             boolean typeChanged = false;
             ViewHolder vh = mCallback.findViewHolder(position);
-            if (vh != null || isNewlyAdded(position)) {
+            if (vh != null || canFindInPreLayout(position)) {
                 // If a ViewHolder exists or this is a newly added item, we can defer this update
                 // to post layout stage.
                 // * For existing ViewHolders, we'll fake its existence in the pre-layout phase.
@@ -176,7 +331,7 @@ class AdapterHelper {
         int type = -1;
         for (int position = op.positionStart; position < tmpEnd; position++) {
             ViewHolder vh = mCallback.findViewHolder(position);
-            if (vh != null || isNewlyAdded(position)) { // deferred
+            if (vh != null || canFindInPreLayout(position)) { // deferred
                 if (type == POSITION_TYPE_INVISIBLE) {
                     UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
                     mCallback.markViewHoldersUpdated(newOp.positionStart, newOp.itemCount);
@@ -218,29 +373,176 @@ class AdapterHelper {
         // tricky part.
         // traverse all postpones and revert their changes on this op if necessary, apply updated
         // dispatch to them since now they are after this op.
+        if (op.cmd == UpdateOp.ADD || op.cmd == UpdateOp.MOVE) {
+            throw new IllegalArgumentException("should not dispatch add or move for pre layout");
+        }
+        if (DEBUG) {
+            Log.d(TAG, "dispat (pre)" + op);
+            Log.d(TAG, "postponed state before:");
+            for (UpdateOp updateOp : mPostponedList) {
+                Log.d(TAG, updateOp.toString());
+            }
+            Log.d(TAG, "----");
+        }
+
+        // handle each pos 1 by 1 to ensure continuity. If it breaks, dispatch partial
+        int tmpStart = updatePositionWithPostponed(op.positionStart, op.cmd);
+        if (DEBUG) {
+            Log.d(TAG, "pos:" + op.positionStart + ",updatedPos:" + tmpStart);
+        }
+        int tmpCnt = 1;
+        for (int p = 1; p < op.itemCount; p++) {
+            int pos = -1;
+            switch (op.cmd) {
+                case UpdateOp.UPDATE:
+                    pos = op.positionStart + p;
+                    break;
+                case UpdateOp.REMOVE:
+                    pos = op.positionStart;
+            }
+            int updatedPos = updatePositionWithPostponed(pos, op.cmd);
+            if (DEBUG) {
+                Log.d(TAG, "pos:" + pos + ",updatedPos:" + updatedPos);
+            }
+            boolean continuous = false;
+            switch (op.cmd) {
+                case UpdateOp.UPDATE:
+                    continuous = updatedPos == tmpStart + 1;
+                    break;
+                case UpdateOp.REMOVE:
+                    continuous = updatedPos == tmpStart;
+                    break;
+            }
+            if (continuous) {
+                tmpCnt++;
+            } else {
+                // need to dispatch this separately
+                UpdateOp tmp = obtainUpdateOp(op.cmd, tmpStart, tmpCnt);
+                if (DEBUG) {
+                    Log.d(TAG, "need to dispatch separately " + tmp);
+                }
+                mCallback.onDispatchFirstPass(tmp);
+                recycleUpdateOp(tmp);
+                tmpStart = updatedPos;// need to remove previously dispatched
+                tmpCnt = 1;
+            }
+        }
+        recycleUpdateOp(op);
+        if (tmpCnt > 0) {
+            UpdateOp tmp = obtainUpdateOp(op.cmd, tmpStart, tmpCnt);
+            if (DEBUG) {
+                Log.d(TAG, "dispatching:" + tmp);
+            }
+            mCallback.onDispatchFirstPass(tmp);
+            recycleUpdateOp(tmp);
+        }
+        if (DEBUG) {
+            Log.d(TAG, "post dispatch");
+            Log.d(TAG, "postponed state after:");
+            for (UpdateOp updateOp : mPostponedList) {
+                Log.d(TAG, updateOp.toString());
+            }
+            Log.d(TAG, "----");
+        }
+    }
+
+    private int updatePositionWithPostponed(int pos, int cmd) {
         final int count = mPostponedList.size();
         for (int i = count - 1; i >= 0; i--) {
             UpdateOp postponed = mPostponedList.get(i);
-            if (postponed.positionStart <= op.positionStart) {
-                op.positionStart += postponed.itemCount;
+            if (postponed.cmd == UpdateOp.MOVE) {
+                int start, end;
+                if (postponed.positionStart < postponed.itemCount) {
+                    start = postponed.positionStart;
+                    end = postponed.itemCount;
+                } else {
+                    start = postponed.itemCount;
+                    end = postponed.positionStart;
+                }
+                if (pos >= start && pos <= end) {
+                    //i'm affected
+                    if (start == postponed.positionStart) {
+                        if (cmd == UpdateOp.ADD) {
+                            postponed.itemCount++;
+                        } else if (cmd == UpdateOp.REMOVE) {
+                            postponed.itemCount--;
+                        }
+                        // op moved to left, move it right to revert
+                        pos++;
+                    } else {
+                        if (cmd == UpdateOp.ADD) {
+                            postponed.positionStart++;
+                        } else if (cmd == UpdateOp.REMOVE) {
+                            postponed.positionStart--;
+                        }
+                        // op was moved right, move left to revert
+                        pos--;
+                    }
+                } else if (pos < postponed.positionStart) {
+                    // postponed MV is outside the dispatched OP. if it is before, offset
+                    if (cmd == UpdateOp.ADD) {
+                        postponed.positionStart++;
+                        postponed.itemCount++;
+                    } else if (cmd == UpdateOp.REMOVE) {
+                        postponed.positionStart--;
+                        postponed.itemCount--;
+                    }
+                }
             } else {
-                postponed.positionStart -= op.itemCount;
+                if (postponed.positionStart <= pos) {
+                    if (postponed.cmd == UpdateOp.ADD) {
+                        pos -= postponed.itemCount;
+                    } else if (postponed.cmd == UpdateOp.REMOVE) {
+                        pos += postponed.itemCount;
+                    }
+                } else {
+                    if (cmd == UpdateOp.ADD) {
+                        postponed.positionStart++;
+                    } else if (cmd == UpdateOp.REMOVE) {
+                        postponed.positionStart--;
+                    }
+                }
+            }
+            if (DEBUG) {
+                Log.d(TAG, "dispath (step" + i + ")");
+                Log.d(TAG, "postponed state:" + i + ", pos:" + pos);
+                for (UpdateOp updateOp : mPostponedList) {
+                    Log.d(TAG, updateOp.toString());
+                }
+                Log.d(TAG, "----");
             }
         }
-        mCallback.onDispatchFirstPass(op);
-        recycleUpdateOp(op);
+        for (int i = mPostponedList.size() - 1; i >= 0; i--) {
+            UpdateOp op = mPostponedList.get(i);
+            if (op.cmd == UpdateOp.MOVE) {
+                if (op.itemCount == op.positionStart || op.itemCount < 0) {
+                    mPostponedList.remove(i);
+                    recycleUpdateOp(op);
+                }
+            } else if (op.itemCount <= 0) {
+                mPostponedList.remove(i);
+                recycleUpdateOp(op);
+            }
+        }
+        return pos;
     }
 
-    private boolean isNewlyAdded(int position) {
+    private boolean canFindInPreLayout(int position) {
         final int count = mPostponedList.size();
         for (int i = 0; i < count; i++) {
             UpdateOp op = mPostponedList.get(i);
-            if (op.cmd != UpdateOp.ADD) {
-                continue;
-            }
-            int updatedStart = findPositionOffset(op.positionStart, i + 1);
-            if (updatedStart <= position && updatedStart + op.itemCount > position) {
-                return true;
+            if (op.cmd == UpdateOp.MOVE) {
+                if (op.positionStart == position) {
+                    return true;
+                }
+            } else if (op.cmd == UpdateOp.ADD) {
+                // TODO optimize.
+                final int end = op.positionStart + op.itemCount;
+                for (int pos = op.positionStart; pos < end; pos++) {
+                    if (findPositionOffset(pos, i + 1) == position) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -252,6 +554,9 @@ class AdapterHelper {
     }
 
     private void postpone(UpdateOp op) {
+        if (DEBUG) {
+            Log.d(TAG, "postponing " + op);
+        }
         mPostponedList.add(op);
     }
 
@@ -264,19 +569,28 @@ class AdapterHelper {
     }
 
     int findPositionOffset(int position, int firstPostponedItem) {
-        int offsetPosition = position;
         int count = mPostponedList.size();
         for (int i = firstPostponedItem; i < count; ++i) {
             UpdateOp op = mPostponedList.get(i);
-            if (op.positionStart <= offsetPosition) {
+            if (op.cmd == UpdateOp.MOVE) {
+                if (op.positionStart == position) {
+                    // TODO check if this should be returned instead. probably not
+                    position = op.itemCount;
+                } else if (op.positionStart < position) {
+                    position--; // like a remove
+                }
+                if (op.itemCount <= position) {
+                    position++; // like an add
+                }
+            } else if (op.positionStart <= position) {
                 if (op.cmd == UpdateOp.REMOVE) {
-                    offsetPosition -= op.itemCount;
+                    position -= op.itemCount;
                 } else if (op.cmd == UpdateOp.ADD) {
-                    offsetPosition += op.itemCount;
+                    position += op.itemCount;
                 }
             }
         }
-        return offsetPosition;
+        return position;
     }
 
     /**
@@ -304,6 +618,20 @@ class AdapterHelper {
     }
 
     /**
+     * @return True if updates should be processed.
+     */
+    boolean onItemRangeMoved(int from, int to, int itemCount) {
+        if (from == to) {
+            return false;//no-op
+        }
+        if (itemCount != 1) {
+            throw new IllegalArgumentException("Moving more than 1 item is not supported yet");
+        }
+        mPendingUpdates.add(obtainUpdateOp(UpdateOp.MOVE, from, to));
+        return mPendingUpdates.size() == 1;
+    }
+
+    /**
      * Skips pre-processing and applies all updates in one pass.
      */
     void consumeUpdatesInOnePass() {
@@ -325,6 +653,9 @@ class AdapterHelper {
                 case UpdateOp.UPDATE:
                     mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount);
                     break;
+                case UpdateOp.MOVE:
+                    mCallback.offsetPositionsForMove(op.positionStart, op.itemCount);
+                    break;
             }
             if (mOnItemProcessedCallback != null) {
                 mOnItemProcessedCallback.run();
@@ -344,12 +675,15 @@ class AdapterHelper {
 
         static final int UPDATE = 2;
 
+        static final int MOVE = 3;
+
         static final int POOL_SIZE = 30;
 
         int cmd;
 
         int positionStart;
 
+        // holds the target position if this is a MOVE
         int itemCount;
 
         UpdateOp(int cmd, int positionStart, int itemCount) {
@@ -366,6 +700,8 @@ class AdapterHelper {
                     return "rm";
                 case UPDATE:
                     return "up";
+                case MOVE:
+                    return "mv";
             }
             return "??";
         }
@@ -452,5 +788,7 @@ class AdapterHelper {
         void onDispatchSecondPass(UpdateOp updateOp);
 
         void offsetPositionsForAdd(int positionStart, int itemCount);
+
+        void offsetPositionsForMove(int from, int to);
     }
 }
