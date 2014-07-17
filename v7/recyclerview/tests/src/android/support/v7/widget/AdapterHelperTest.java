@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -30,7 +31,9 @@ import static android.support.v7.widget.RecyclerView.*;
 
 public class AdapterHelperTest extends AndroidTestCase {
 
-    static final int NO_POSITION = -1;
+    private static final boolean DEBUG = false;
+
+    private static final String TAG = "AHT";
 
     List<ViewHolder> mViewHolders;
 
@@ -42,12 +45,15 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     TestAdapter mPreProcessClone; // we clone adapter pre-process to run operations to see result
 
+    private List<TestAdapter.Item> mPreLayoutItems;
+
     @Override
     protected void setUp() throws Exception {
         cleanState();
     }
 
     private void cleanState() {
+        mPreLayoutItems = new ArrayList<TestAdapter.Item>();
         mViewHolders = new ArrayList<ViewHolder>();
         mFirstPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
         mSecondPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
@@ -101,11 +107,17 @@ public class AdapterHelperTest extends AndroidTestCase {
 
             @Override
             public void onDispatchFirstPass(AdapterHelper.UpdateOp updateOp) {
+                if (DEBUG) {
+                    Log.d(TAG, "first pass:" + updateOp.toString());
+                }
                 mFirstPassUpdates.add(updateOp);
             }
 
             @Override
             public void onDispatchSecondPass(AdapterHelper.UpdateOp updateOp) {
+                if (DEBUG) {
+                    Log.d(TAG, "second pass:" + updateOp.toString());
+                }
                 mSecondPassUpdates.add(updateOp);
             }
 
@@ -117,10 +129,33 @@ public class AdapterHelperTest extends AndroidTestCase {
                     }
                 }
             }
+
+            @Override
+            public void offsetPositionsForMove(int from, int to) {
+                final int start, end, inBetweenOffset;
+                if (from < to) {
+                    start = from;
+                    end = to;
+                    inBetweenOffset = -1;
+                } else {
+                    start = to;
+                    end = from;
+                    inBetweenOffset = 1;
+                }
+                for (ViewHolder holder : mViewHolders) {
+                    if (holder == null || holder.mPosition < start || holder.mPosition > end) {
+                        continue;
+                    }
+                    holder.offsetPosition(inBetweenOffset, false);
+                }
+            }
         }, true);
     }
 
     void setupBasic(int count, int visibleStart, int visibleCount) {
+        if (DEBUG) {
+            Log.d(TAG, "setupBasic(" + count + "," + visibleStart + "," + visibleCount + ");");
+        }
         mTestAdapter = new TestAdapter(count, mAdapterHelper);
         for (int i = 0; i < visibleCount; i++) {
             addViewHolder(visibleStart + i);
@@ -185,7 +220,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         assertDispatch(1, 1);
     }
 
-    public void testSchenerio1() {
+    public void testScenario1() {
         setupBasic(10, 3, 2);
         rm(4, 1);
         rm(3, 1);
@@ -201,7 +236,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         assertDispatch(1, 1);
     }
 
-    public void testSchenerio2() {
+    public void testScenario2() {
         setupBasic(10, 3, 3); // 3-4-5
         add(4, 2); // 3 a b 4 5
         rm(0, 1); // (0) 3(2) a(3) b(4) 4(3) 5(4)
@@ -210,7 +245,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         assertDispatch(2, 2);
     }
 
-    public void testSchenerio3() {
+    public void testScenario3() {
         setupBasic(10, 2, 2);
         rm(0, 5);
         preProcess();
@@ -218,8 +253,10 @@ public class AdapterHelperTest extends AndroidTestCase {
         assertOps(mFirstPassUpdates, rmOp(0, 2), rmOp(2, 1));
         assertOps(mSecondPassUpdates, rmOp(0, 2));
     }
+    // TODO test MOVE then remove items in between.
+    // TODO test MOVE then remove it, make sure it is not dispatched
 
-    public void testSchenerio4() {
+    public void testScenario4() {
         setupBasic(5, 0, 5);
         // 0 1 2 3 4
         // 0 1 2 a b 3 4
@@ -236,7 +273,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         preProcess();
     }
 
-    public void testSchenerio5() {
+    public void testScenario5() {
         setupBasic(5, 0, 5);
         // 0 1 2 3 4
         // 0 1 2 a b 3 4
@@ -248,34 +285,244 @@ public class AdapterHelperTest extends AndroidTestCase {
         preProcess();
     }
 
+    public void testScenario6() {
+//        setupBasic(47, 19, 24);
+//        mv(11, 12);
+//        add(24, 16);
+//        rm(9, 3);
+        setupBasic(10, 5, 3);
+        mv(2, 3);
+        add(6, 4);
+        rm(4, 1);
+        preProcess();
+    }
+
+    public void testScenario8() {
+        setupBasic(68, 51, 13);
+        mv(22, 11);
+        mv(22, 52);
+        rm(37, 19);
+        add(12, 38);
+        preProcess();
+    }
+
+    public void testScenario9() {
+        setupBasic(44, 3, 7);
+        add(7, 21);
+        rm(31, 3);
+        rm(32, 11);
+        mv(29, 5);
+        mv(30, 32);
+        add(25, 32);
+        rm(15, 66);
+        preProcess();
+    }
+
+    public void testScenario10() {
+        setupBasic(14, 10, 3);
+        rm(4, 4);
+        add(5, 11);
+        mv(5, 18);
+        rm(2, 9);
+        preProcess();
+    }
+
+    public void testScenario11() {
+        setupBasic(78, 3, 64);
+        mv(34, 28);
+        add(1, 11);
+        rm(9, 74);
+        preProcess();
+    }
+
+    public void testScenario12() {
+        setupBasic(38, 9, 7);
+        rm(26, 3);
+        mv(29, 15);
+        rm(30, 1);
+        preProcess();
+    }
+
+    public void testScenario13() {
+        setupBasic(49, 41, 3);
+        rm(30, 13);
+        add(4, 10);
+        mv(3, 38);
+        mv(20, 17);
+        rm(18, 23);
+        preProcess();
+    }
+
+    public void testScenario14() {
+        setupBasic(24, 3, 11);
+        rm(2, 15);
+        mv(2, 1);
+        add(2, 34);
+        add(11, 3);
+        rm(10, 25);
+        rm(13, 6);
+        rm(4, 4);
+        rm(6, 4);
+        preProcess();
+    }
+
+    public void testScenario15() {
+        setupBasic(10, 8, 1);
+        mv(6, 1);
+        mv(1, 4);
+        rm(3, 1);
+        preProcess();
+    }
+
+    public void testScenario16() {
+        setupBasic(10, 3, 3);
+        rm(2, 1);
+        rm(1, 7);
+        rm(0, 1);
+        preProcess();
+    }
+
+    public void testScenario17() {
+        setupBasic(10, 8, 1);
+        mv(1, 0);
+        mv(5, 1);
+        rm(1, 7);
+        preProcess();
+    }
+
+    public void testScenario18() throws InterruptedException {
+        setupBasic(10, 1, 4);
+        add(2, 11);
+        rm(16, 1);
+        add(3, 1);
+        rm(9, 10);
+        preProcess();
+    }
+
+    public void testScenario19() {
+        setupBasic(10,8,1);
+        mv(9,7);
+        mv(9,3);
+        rm(5,4);
+        preProcess();
+    }
+
+    public void testScenario20() {
+        setupBasic(10,7,1);
+        mv(9,1);
+        mv(3,9);
+        rm(7,2);
+        preProcess();
+    }
+
+    public void testScenario21() {
+        setupBasic(10,5,2);
+        mv(1,0);
+        mv(9,1);
+        rm(2,3);
+        preProcess();
+    }
+
+    public void testScenario22() {
+        setupBasic(10,7,2);
+        add(2,16);
+        mv(20,9);
+        rm(17,6);
+        preProcess();
+    }
+
+    public void testScenario23() {
+        setupBasic(10,5,3);
+        mv(9,6);
+        add(4,15);
+        rm(21,3);
+        preProcess();
+    }
+
+    public void testScenario24() {
+        setupBasic(10,1,6);
+        add(6,5);
+        mv(14,6);
+        rm(7,6);
+        preProcess();
+    }
+
+    public void testScenario25() {
+        setupBasic(10,3,4);
+        mv(3,9);
+        mv(2,9);
+        rm(5,4);
+        preProcess();
+    }
+
+    public void testScenario26() {
+        setupBasic(10,4,4);
+        rm(3,5);
+        mv(2,0);
+        mv(1,0);
+        rm(1,1);
+        mv(0,2);
+        preProcess();
+    }
+
+    public void testScenario27() {
+        setupBasic(10,0,3);
+        mv(9,4);
+        mv(8,4);
+        add(7,10);
+        rm(5,5);
+        mv(6,5);
+        preProcess();
+    }
+
+    public void testMoveAdded() {
+        setupBasic(10, 2, 2);
+        add(3, 5);
+        mv(4, 2);
+        preProcess();
+    }
+
     public void testRandom() {
         Random random = new Random(System.nanoTime());
-        for (int i = 0; i < 10; i++) {
-            randomTest(random, i);
+        for (int i = 0; i < 1000; i++) {
+            randomTest(random, 5);
         }
     }
 
     public void randomTest(Random random, int opCount) {
         cleanState();
-        final int count = 10 + random.nextInt(100);
+        if (DEBUG) {
+            Log.d(TAG, "randomTest");
+        }
+        final int count = 10;// + random.nextInt(100);
         final int start = random.nextInt(count - 1);
         final int layoutCount = Math.max(1, random.nextInt(count - start));
         setupBasic(count, start, layoutCount);
 
         while (opCount-- > 0) {
-            final int op = random.nextInt(AdapterHelper.UpdateOp.REMOVE);
+            final int op = random.nextInt(3);
             switch (op) {
-                case AdapterHelper.UpdateOp.REMOVE:
+                case 0:
                     if (mTestAdapter.mItems.size() > 1) {
                         int s = random.nextInt(mTestAdapter.mItems.size() - 1);
                         int len = Math.max(1, random.nextInt(mTestAdapter.mItems.size() - s));
                         rm(s, len);
                     }
                     break;
-                case AdapterHelper.UpdateOp.ADD:
-                    int s = random.nextInt(mTestAdapter.mItems.size() - 1);
+                case 1:
+                    int s = mTestAdapter.mItems.size() == 0 ? 0 :
+                            random.nextInt(mTestAdapter.mItems.size());
                     add(s, random.nextInt(50));
                     break;
+                case 2:
+                    if (mTestAdapter.mItems.size() >= 2) {
+                        int from = random.nextInt(mTestAdapter.mItems.size());
+                        int to;
+                        do {
+                            to = random.nextInt(mTestAdapter.mItems.size());
+                        } while (to == from);
+                        mv(from, to);
+                    }
             }
         }
         preProcess();
@@ -296,6 +543,16 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     void preProcess() {
         mAdapterHelper.preProcess();
+        for (int i = 0; i < mPreProcessClone.mItems.size(); i++) {
+            TestAdapter.Item item = mPreProcessClone.mItems.get(i);
+            final int preLayoutIndex = mPreLayoutItems.indexOf(item);
+            final int endIndex = mTestAdapter.mItems.indexOf(item);
+            if (preLayoutIndex != -1 && endIndex != -1) {
+                assertEquals("find position offset should work properly for moved element " + i
+                        + " at pre layout position " + preLayoutIndex + " and post layout position "
+                        + endIndex, endIndex, mAdapterHelper.findPositionOffset(preLayoutIndex));
+            }
+        }
         mAdapterHelper.consumePostponedUpdates();
         // now assert these two adapters have identical data.
         mPreProcessClone.applyOps(mFirstPassUpdates, mTestAdapter);
@@ -331,10 +588,38 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     void add(int start, int count) {
+        if (DEBUG) {
+            Log.d(TAG, "add(" + start + "," + count + ");");
+        }
         mTestAdapter.add(start, count);
     }
 
+    boolean isItemLaidOut(int pos) {
+        for (ViewHolder viewHolder : mViewHolders) {
+            if (viewHolder.mOldPosition == pos) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void mv(int from, int to) {
+        if (DEBUG) {
+            Log.d(TAG, "mv(" + from + "," + to + ");");
+        }
+        mTestAdapter.move(from, to);
+    }
+
     void rm(int start, int count) {
+        if (DEBUG) {
+            Log.d(TAG, "rm(" + start + "," + count + ");");
+        }
+        for (int i = start; i < start + count; i++) {
+            if (!isItemLaidOut(i)) {
+                TestAdapter.Item item = mTestAdapter.mItems.get(i);
+                mPreLayoutItems.remove(item);
+            }
+        }
         mTestAdapter.remove(start, count);
     }
 
@@ -370,6 +655,12 @@ public class AdapterHelperTest extends AndroidTestCase {
             ));
         }
 
+        public void move(int from, int to) {
+            mItems.add(to, mItems.remove(from));
+            mAdapterHelper.addUpdateOp(new AdapterHelper.UpdateOp(
+                    AdapterHelper.UpdateOp.MOVE, from, to
+            ));
+        }
         public void remove(int index, int count) {
             for (int i = 0; i < count; i++) {
                 mItems.remove(index);
@@ -414,6 +705,9 @@ public class AdapterHelperTest extends AndroidTestCase {
                         for (int i = 0; i < op.itemCount; i++) {
                             mItems.get(i).handleUpdate();
                         }
+                        break;
+                    case AdapterHelper.UpdateOp.MOVE:
+                        mItems.add(op.itemCount, mItems.remove(op.positionStart));
                         break;
                 }
             }
