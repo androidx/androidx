@@ -93,6 +93,9 @@ public final class Palette {
     private static final float WEIGHT_LUMA = 6f;
     private static final float WEIGHT_POPULATION = 1f;
 
+    private static final float MIN_CONTRAST_TITLE_TEXT = 3.0f;
+    private static final float MIN_CONTRAST_BODY_TEXT = 4.5f;
+
     private final List<Swatch> mSwatches;
     private final int mHighestPopulation;
 
@@ -473,10 +476,13 @@ public final class Palette {
      * by calling {@link #getRgb()}.
      */
     public static final class Swatch {
+        private final int mRed, mGreen, mBlue;
+        private final int mRgb;
+        private final int mPopulation;
 
-        final int mRed, mGreen, mBlue;
-        final int mRgb;
-        final int mPopulation;
+        private boolean mGeneratedTextColors;
+        private int mTitleTextColor;
+        private int mBodyTextColor;
 
         private float[] mHsl;
 
@@ -525,12 +531,43 @@ public final class Palette {
             return mPopulation;
         }
 
+        /**
+         * Returns an appropriate color to use for any 'title' text which is displayed over this
+         * {@link Swatch}'s color. This color is guaranteed to have sufficient contrast.
+         */
+        public int getTitleTextColor() {
+            ensureTextColorsGenerated();
+            return mTitleTextColor;
+        }
+
+        /**
+         * Returns an appropriate color to use for any 'body' text which is displayed over this
+         * {@link Swatch}'s color. This color is guaranteed to have sufficient contrast.
+         */
+        public int getBodyTextColor() {
+            ensureTextColorsGenerated();
+            return mBodyTextColor;
+        }
+
+        private void ensureTextColorsGenerated() {
+            if (!mGeneratedTextColors) {
+                mTitleTextColor = ColorUtils.getTextColorForBackground(mRgb,
+                        MIN_CONTRAST_TITLE_TEXT);
+                mBodyTextColor = ColorUtils.getTextColorForBackground(mRgb,
+                        MIN_CONTRAST_BODY_TEXT);
+                mGeneratedTextColors = true;
+            }
+        }
+
         @Override
         public String toString() {
-            return new StringBuilder(getClass().getSimpleName()).append(" ")
-                    .append("[").append(Integer.toHexString(getRgb())).append(']')
-                    .append("[HSL: ").append(Arrays.toString(getHsl())).append(']')
-                    .append("[Population: ").append(mPopulation).append(']').toString();
+            return new StringBuilder(getClass().getSimpleName())
+                    .append(" [RGB: #").append(Integer.toHexString(getRgb())).append(']')
+                    .append(" [HSL: ").append(Arrays.toString(getHsl())).append(']')
+                    .append(" [Population: ").append(mPopulation).append(']')
+                    .append(" [Title Text: #").append(Integer.toHexString(mTitleTextColor)).append(']')
+                    .append(" [Body Text: #").append(Integer.toHexString(mBodyTextColor)).append(']')
+                    .toString();
         }
     }
 

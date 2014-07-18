@@ -18,6 +18,7 @@ package android.support.v7.graphics;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v7.graphics.Palette.Swatch;
 import android.util.SparseIntArray;
 
 import java.util.ArrayList;
@@ -26,8 +27,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
-
-import android.support.v7.graphics.Palette.Swatch;
 
 /**
  * An color quantizer based on the Median-cut algorithm, but optimized for picking out distinct
