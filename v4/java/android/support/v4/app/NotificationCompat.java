@@ -322,6 +322,79 @@ public class NotificationCompat {
      */
     public static final int VISIBILITY_SECRET = -1;
 
+    /**
+     * Notification category: incoming call (voice or video) or similar synchronous communication request.
+     */
+    public static final String CATEGORY_CALL = NotificationCompatApi21.CATEGORY_CALL;
+
+    /**
+     * Notification category: incoming direct message (SMS, instant message, etc.).
+     */
+    public static final String CATEGORY_MESSAGE = NotificationCompatApi21.CATEGORY_MESSAGE;
+
+    /**
+     * Notification category: asynchronous bulk message (email).
+     */
+    public static final String CATEGORY_EMAIL = NotificationCompatApi21.CATEGORY_EMAIL;
+
+    /**
+     * Notification category: calendar event.
+     */
+    public static final String CATEGORY_EVENT = NotificationCompatApi21.CATEGORY_EVENT;
+
+    /**
+     * Notification category: promotion or advertisement.
+     */
+    public static final String CATEGORY_PROMO = NotificationCompatApi21.CATEGORY_PROMO;
+
+    /**
+     * Notification category: alarm or timer.
+     */
+    public static final String CATEGORY_ALARM = NotificationCompatApi21.CATEGORY_ALARM;
+
+    /**
+     * Notification category: progress of a long-running background operation.
+     */
+    public static final String CATEGORY_PROGRESS = NotificationCompatApi21.CATEGORY_PROGRESS;
+
+    /**
+     * Notification category: social network or sharing update.
+     */
+    public static final String CATEGORY_SOCIAL = NotificationCompatApi21.CATEGORY_SOCIAL;
+
+    /**
+     * Notification category: error in background operation or authentication status.
+     */
+    public static final String CATEGORY_ERROR = NotificationCompatApi21.CATEGORY_ERROR;
+
+    /**
+     * Notification category: media transport control for playback.
+     */
+    public static final String CATEGORY_TRANSPORT = NotificationCompatApi21.CATEGORY_TRANSPORT;
+
+    /**
+     * Notification category: system or device status update.  Reserved for system use.
+     */
+    public static final String CATEGORY_SYSTEM = NotificationCompatApi21.CATEGORY_SYSTEM;
+
+    /**
+     * Notification category: indication of running background service.
+     */
+    public static final String CATEGORY_SERVICE = NotificationCompatApi21.CATEGORY_SERVICE;
+
+    /**
+     * Notification category: a specific, timely recommendation for a single thing.
+     * For example, a news app might want to recommend a news story it believes the user will
+     * want to read next.
+     */
+    public static final String CATEGORY_RECOMMENDATION =
+            NotificationCompatApi21.CATEGORY_RECOMMENDATION;
+
+    /**
+     * Notification category: ongoing information about device or contextual status.
+     */
+    public static final String CATEGORY_STATUS = NotificationCompatApi21.CATEGORY_STATUS;
+
     private static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
