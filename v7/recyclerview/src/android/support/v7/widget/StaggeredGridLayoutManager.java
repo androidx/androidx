@@ -228,6 +228,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             // invalidate span info in saved state
             mPendingSavedState.invalidateSpanInfo();
             mPendingSavedState.mSpanCount = spanCount;
+            mPendingSavedState.mAnchorPosition = mPendingSavedState.mVisibleAnchorPosition;
         }
         if (spanCount != mSpanCount) {
             invalidateSpanAssignments();
@@ -642,6 +643,137 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         return true;
     }
 
+    /**
+     * Returns the adapter position of the first visible view for each span.
+     * <p>
+     * Note that, this value is not affected by layout orientation or item order traversal.
+     * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
+     * not in the layout.
+     * <p>
+     * If RecyclerView has item decorators, they will be considered in calculations as well.
+     * <p>
+     * StaggeredGridLayoutManager may pre-cache some views that are not necessarily visible. Those
+     * views are ignored in this method.
+     *
+     * @return The adapter position of the first visible item in each span. If a span does not have
+     * any items, {@link RecyclerView#NO_POSITION} is returned for that span.
+     *
+     * @param into An array to put the results into. If you don't provide any, LayoutManager will
+     *             create a new one.
+     * @see #findFirstCompletelyVisibleItemPositions(int[])
+     * @see #findLastVisibleItemPositions(int[])
+     */
+    public int[] findFirstVisibleItemPositions(int[] into) {
+        if (into == null) {
+            into = new int[mSpanCount];
+        } else if (into.length < mSpanCount) {
+            throw new IllegalArgumentException("Provided int[]'s size must be more than or equal"
+                    + " to span count. Expected:" + mSpanCount + ", array size:" + into.length);
+        }
+        for (int i = 0; i < mSpanCount; i ++) {
+            into[i] = mSpans[i].findFirstVisibleItemPosition();
+        }
+        return into;
+    }
+
+    /**
+     * Returns the adapter position of the first completely visible view for each span.
+     * <p>
+     * Note that, this value is not affected by layout orientation or item order traversal.
+     * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
+     * not in the layout.
+     * <p>
+     * If RecyclerView has item decorators, they will be considered in calculations as well.
+     * <p>
+     * StaggeredGridLayoutManager may pre-cache some views that are not necessarily visible. Those
+     * views are ignored in this method.
+     *
+     * @return The adapter position of the first fully visible item in each span. If a span does
+     * not have any items, {@link RecyclerView#NO_POSITION} is returned for that span.
+     * @param into An array to put the results into. If you don't provide any, LayoutManager will
+     *             create a new one.
+     * @see #findFirstVisibleItemPositions(int[])
+     * @see #findLastCompletelyVisibleItemPositions(int[])
+     */
+    public int[] findFirstCompletelyVisibleItemPositions(int[] into) {
+        if (into == null) {
+            into = new int[mSpanCount];
+        } else if (into.length < mSpanCount) {
+            throw new IllegalArgumentException("Provided int[]'s size must be more than or equal"
+                    + " to span count. Expected:" + mSpanCount + ", array size:" + into.length);
+        }
+        for (int i = 0; i < mSpanCount; i ++) {
+            into[i] = mSpans[i].findFirstCompletelyVisibleItemPosition();
+        }
+        return into;
+    }
+
+    /**
+     * Returns the adapter position of the last visible view for each span.
+     * <p>
+     * Note that, this value is not affected by layout orientation or item order traversal.
+     * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
+     * not in the layout.
+     * <p>
+     * If RecyclerView has item decorators, they will be considered in calculations as well.
+     * <p>
+     * StaggeredGridLayoutManager may pre-cache some views that are not necessarily visible. Those
+     * views are ignored in this method.
+     *
+     * @return The adapter position of the last visible item in each span. If a span does not have
+     * any items, {@link RecyclerView#NO_POSITION} is returned for that span.
+     *
+     * @param into An array to put the results into. If you don't provide any, LayoutManager will
+     *             create a new one.
+     * @see #findLastCompletelyVisibleItemPositions(int[])
+     * @see #findFirstVisibleItemPositions(int[])
+     */
+    public int[] findLastVisibleItemPositions(int[] into) {
+        if (into == null) {
+            into = new int[mSpanCount];
+        } else if (into.length < mSpanCount) {
+            throw new IllegalArgumentException("Provided int[]'s size must be more than or equal"
+                    + " to span count. Expected:" + mSpanCount + ", array size:" + into.length);
+        }
+        for (int i = 0; i < mSpanCount; i ++) {
+            into[i] = mSpans[i].findLastVisibleItemPosition();
+        }
+        return into;
+    }
+
+    /**
+     * Returns the adapter position of the last completely visible view for each span.
+     * <p>
+     * Note that, this value is not affected by layout orientation or item order traversal.
+     * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
+     * not in the layout.
+     * <p>
+     * If RecyclerView has item decorators, they will be considered in calculations as well.
+     * <p>
+     * StaggeredGridLayoutManager may pre-cache some views that are not necessarily visible. Those
+     * views are ignored in this method.
+     *
+     * @return The adapter position of the last fully visible item in each span. If a span does not
+     * have any items, {@link RecyclerView#NO_POSITION} is returned for that span.
+     *
+     * @param into An array to put the results into. If you don't provide any, LayoutManager will
+     *             create a new one.
+     * @see #findFirstCompletelyVisibleItemPositions(int[])
+     * @see #findLastVisibleItemPositions(int[])
+     */
+    public int[] findLastCompletelyVisibleItemPositions(int[] into) {
+        if (into == null) {
+            into = new int[mSpanCount];
+        } else if (into.length < mSpanCount) {
+            throw new IllegalArgumentException("Provided int[]'s size must be more than or equal"
+                    + " to span count. Expected:" + mSpanCount + ", array size:" + into.length);
+        }
+        for (int i = 0; i < mSpanCount; i ++) {
+            into[i] = mSpans[i].findLastCompletelyVisibleItemPosition();
+        }
+        return into;
+    }
+
     private void measureChildWithDecorationsAndMargin(View child, int widthSpec,
             int heightSpec) {
         final Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);
@@ -697,6 +829,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() > 0) {
             state.mAnchorPosition = mLastLayoutFromEnd ? getLastChildPosition()
                     : getFirstChildPosition();
+            state.mVisibleAnchorPosition = findFirstVisibleItemPositionInt();
             state.mHasSpanOffsets = true;
             state.mSpanOffsets = new int[mSpanCount];
             for (int i = 0; i < mSpanCount; i++) {
@@ -705,12 +838,40 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         } else {
             state.mAnchorPosition = RecyclerView.NO_POSITION;
+            state.mVisibleAnchorPosition = RecyclerView.NO_POSITION;
             state.mHasSpanOffsets = false;
         }
         if (DEBUG) {
             Log.d(TAG, "saved state:\n" + state);
         }
         return state;
+    }
+
+    /**
+     * Finds the first fully visible child to be used as an anchor child if span count changes when
+     * state is restored.
+     */
+    int findFirstVisibleItemPositionInt() {
+        final int start, end, diff;
+        if (mLastLayoutFromEnd) {
+            start = getChildCount() - 1;
+            end = -1;
+            diff = -1;
+        } else {
+            start = 0;
+            end = getChildCount();
+            diff = 1;
+        }
+        final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
+        final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
+        for (int i = start; i != end; i += diff) {
+            final View child = getChildAt(i);
+            if (mPrimaryOrientation.getDecoratedStart(child) >= boundsStart
+                    && mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd) {
+                return getPosition(child);
+            }
+        }
+        return RecyclerView.NO_POSITION;
     }
 
     private void fixEndGap(RecyclerView.Recycler recycler, RecyclerView.State state,
@@ -1729,6 +1890,51 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
             return true;
         }
+
+        public int findFirstVisibleItemPosition() {
+            return mReverseLayout
+                    ? findOneVisibleChild(mViews.size() - 1, -1, false)
+                    : findOneVisibleChild(0, mViews.size(), false);
+        }
+
+        public int findFirstCompletelyVisibleItemPosition() {
+            return mReverseLayout
+                    ? findOneVisibleChild(mViews.size() -1, -1, true)
+                    : findOneVisibleChild(0, mViews.size(), true);
+        }
+
+        public int findLastVisibleItemPosition() {
+            return mReverseLayout
+                    ? findOneVisibleChild(0, mViews.size(), false)
+                    : findOneVisibleChild(mViews.size() - 1, -1, false);
+        }
+
+        public int findLastCompletelyVisibleItemPosition() {
+            return mReverseLayout
+                    ? findOneVisibleChild(0, mViews.size(), true)
+                    : findOneVisibleChild(mViews.size() - 1, -1, true);
+        }
+
+        int findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {
+            final int start = mPrimaryOrientation.getStartAfterPadding();
+            final int end = mPrimaryOrientation.getEndAfterPadding();
+            final int next = toIndex > fromIndex ? 1 : -1;
+            for (int i = fromIndex; i != toIndex; i+=next) {
+                final View child = mViews.get(i);
+                final int childStart = mPrimaryOrientation.getDecoratedStart(child);
+                final int childEnd = mPrimaryOrientation.getDecoratedEnd(child);
+                if (childStart < end && childEnd > start) {
+                    if (completelyVisible) {
+                        if (childStart >= start && childEnd <= end) {
+                            return getPosition(child);
+                        }
+                    } else {
+                        return getPosition(child);
+                    }
+                }
+            }
+            return RecyclerView.NO_POSITION;
+        }
     }
 
     /**
@@ -1822,6 +2028,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         int mAnchorPosition;
 
+        int mVisibleAnchorPosition; // if span count changes (span offsets are invalidated),
+        // we use this one instead
+
         int[] mSpanOffsets;
 
         int mSpanLookupSize;
@@ -1842,6 +2051,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mSpanCount = in.readInt();
             mGapStrategy = in.readInt();
             mAnchorPosition = in.readInt();
+            mVisibleAnchorPosition = in.readInt();
             mHasSpanOffsets = in.readInt() == 1;
             if (mHasSpanOffsets) {
                 mSpanOffsets = new int[mSpanCount];
@@ -1862,6 +2072,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mSpanCount = other.mSpanCount;
             mGapStrategy = other.mGapStrategy;
             mAnchorPosition = other.mAnchorPosition;
+            mVisibleAnchorPosition = other.mVisibleAnchorPosition;
             mHasSpanOffsets = other.mHasSpanOffsets;
             mSpanOffsets = other.mSpanOffsets;
             mSpanLookupSize = other.mSpanLookupSize;
@@ -1882,6 +2093,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mSpanOffsets = null;
             mHasSpanOffsets = false;
             mAnchorPosition = RecyclerView.NO_POSITION;
+            mVisibleAnchorPosition = RecyclerView.NO_POSITION;
         }
 
         @Override
@@ -1895,6 +2107,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             dest.writeInt(mSpanCount);
             dest.writeInt(mGapStrategy);
             dest.writeInt(mAnchorPosition);
+            dest.writeInt(mVisibleAnchorPosition);
             dest.writeInt(mHasSpanOffsets ? 1 : 0);
             if (mHasSpanOffsets) {
                 dest.writeIntArray(mSpanOffsets);
@@ -1914,6 +2127,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                     ", mSpanCount=" + mSpanCount +
                     ", mGapStrategy=" + mGapStrategy +
                     ", mAnchorPosition=" + mAnchorPosition +
+                    ", mVisibleAnchorPosition=" + mVisibleAnchorPosition +
                     ", mSpanOffsets=" + Arrays.toString(mSpanOffsets) +
                     ", mSpanLookupSize=" + mSpanLookupSize +
                     ", mSpanLookup=" + Arrays.toString(mSpanLookup) +
