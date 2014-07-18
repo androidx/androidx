@@ -568,6 +568,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             extraForStart = extra;
             extraForEnd = 0;
         }
+        extraForStart += mOrientationHelper.getStartAfterPadding();
+        extraForEnd += mOrientationHelper.getEndPadding();
         int startOffset;
         int endOffset;
         if (layoutFromEnd) {
@@ -576,7 +578,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mLayoutState.mExtra = extraForStart;
             fill(recycler, mLayoutState, state, false);
             startOffset = mLayoutState.mOffset;
-            extraForEnd += mLayoutState.mAvailable;
+            if (mLayoutState.mAvailable > 0) {
+                extraForEnd += mLayoutState.mAvailable;
+            }
             // fill towards end
             updateLayoutStateToFillEnd(anchorItemPosition, anchorCoordinate);
             mLayoutState.mExtra = extraForEnd;
@@ -589,7 +593,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mLayoutState.mExtra = extraForEnd;
             fill(recycler, mLayoutState, state, false);
             endOffset = mLayoutState.mOffset;
-            extraForStart += mLayoutState.mAvailable;
+            if (mLayoutState.mAvailable > 0) {
+                extraForStart += mLayoutState.mAvailable;
+            }
             // fill towards start
             updateLayoutStateToFillStart(anchorItemPosition, anchorCoordinate);
             mLayoutState.mExtra = extraForStart;
@@ -877,6 +883,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         mLayoutState.mLayoutDirection = layoutDirection;
         int fastScrollSpace;
         if (layoutDirection == LayoutState.LAYOUT_END) {
+            mLayoutState.mExtra += mOrientationHelper.getEndPadding();
             // get the first child in the direction we are going
             final View child = getChildClosestToEnd();
             // the direction in which we are traversing children
@@ -890,6 +897,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         } else {
             final View child = getChildClosestToStart();
+            mLayoutState.mExtra += mOrientationHelper.getStartAfterPadding();
             mLayoutState.mItemDirection = mShouldReverseLayout ? LayoutState.ITEM_DIRECTION_TAIL
                     : LayoutState.ITEM_DIRECTION_HEAD;
             mLayoutState.mCurrentPosition = getPosition(child) + mLayoutState.mItemDirection;
@@ -1412,8 +1420,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             return null;
         }
         ensureLayoutState();
-        final int maxScroll = (int) (MAX_SCROLL_FACTOR * (mOrientationHelper.getEndAfterPadding() -
-                mOrientationHelper.getStartAfterPadding()));
+        final int maxScroll = (int) (MAX_SCROLL_FACTOR * mOrientationHelper.getTotalSpace());
         updateLayoutState(layoutDir, maxScroll, false, state);
         mLayoutState.mScrollingOffset = LayoutState.SCOLLING_OFFSET_NaN;
         fill(recycler, mLayoutState, state, true);
