@@ -20,19 +20,129 @@ import android.graphics.Color;
 
 final class ColorUtils {
 
+    private static final int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
+    private static final int MIN_ALPHA_SEARCH_PRECISION = 10;
+
     private ColorUtils() {}
 
     /**
-     * @return luma value according to to XYZ color space in the range 0.0 - 1.0
+     * Composite two potentially translucent colors over each other and returns the result.
      */
-    static float calculateXyzLuma(int color) {
-        return (0.2126f * Color.red(color) +
-                0.7152f * Color.green(color) +
-                0.0722f * Color.blue(color)) / 255f;
+    private static int compositeColors(int fg, int bg) {
+        final float alpha1 = Color.alpha(fg) / 255f;
+        final float alpha2 = Color.alpha(bg) / 255f;
+
+        float a = (alpha1 + alpha2) * (1f - alpha1);
+        float r = (Color.red(fg) * alpha1) + (Color.red(bg) * alpha2 * (1f - alpha1));
+        float g = (Color.green(fg) * alpha1) + (Color.green(bg) * alpha2 * (1f - alpha1));
+        float b = (Color.blue(fg) * alpha1) + (Color.blue(bg) * alpha2 * (1f - alpha1));
+
+        return Color.argb((int) a, (int) r, (int) g, (int) b);
     }
 
-    static float calculateContrast(int color1, int color2) {
-        return Math.abs(ColorUtils.calculateXyzLuma(color1) - ColorUtils.calculateXyzLuma(color2));
+    /**
+     * Returns the luminance of a color.
+     *
+     * Formula defined here: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
+     */
+    private static double calculateLuminance(int color) {
+        double red = Color.red(color) / 255d;
+        red = red < 0.03928 ? red / 12.92 : Math.pow((red + 0.055) / 1.055, 2.4);
+
+        double green = Color.green(color) / 255d;
+        green = green < 0.03928 ? green / 12.92 : Math.pow((green + 0.055) / 1.055, 2.4);
+
+        double blue = Color.blue(color) / 255d;
+        blue = blue < 0.03928 ? blue / 12.92 : Math.pow((blue + 0.055) / 1.055, 2.4);
+
+        return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
+    }
+
+    /**
+     * Returns the contrast ratio between two colors.
+     *
+     * Formula defined here: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef
+     */
+    private static double calculateContrast(int foreground, int background) {
+        if (Color.alpha(background) != 255) {
+            throw new IllegalArgumentException("background can not be translucent");
+        }
+        if (Color.alpha(foreground) < 255) {
+            // If the foreground is translucent, composite the foreground over the background
+            foreground = compositeColors(foreground, background);
+        }
+
+        final double luminance1 = calculateLuminance(foreground) + 0.05;
+        final double luminance2 = calculateLuminance(background) + 0.05;
+
+        // Now return the lighter luminance divided by the darker luminance
+        return Math.max(luminance1, luminance2) / Math.min(luminance1, luminance2);
+    }
+
+    /**
+     * Finds the minimum alpha value which can be applied to {@code foreground} so that is has a
+     * contrast value of at least {@code minContrastRatio} when compared to background.
+     *
+     * @return the alpha value in the range 0-255.
+     */
+    private static int findMinimumAlpha(int foreground, int background, double minContrastRatio) {
+        if (Color.alpha(background) != 255) {
+            throw new IllegalArgumentException("background can not be translucent");
+        }
+
+        // First lets check that a fully opaque foreground has sufficient contrast
+        int testForeground = modifyAlpha(foreground, 255);
+        double testRatio = calculateContrast(testForeground, background);
+        if (testRatio < minContrastRatio) {
+            // Fully opaque foreground does not have sufficient contrast, return error
+            return -1;
+        }
+
+        // Binary search to find a value with the minimum value which provides sufficient contrast
+        int numIterations = 0;
+        int minAlpha = 0;
+        int maxAlpha = 255;
+
+        while (numIterations <= MIN_ALPHA_SEARCH_MAX_ITERATIONS &&
+                (maxAlpha - minAlpha) > MIN_ALPHA_SEARCH_PRECISION) {
+            final int testAlpha = (minAlpha + maxAlpha) / 2;
+
+            testForeground = modifyAlpha(foreground, testAlpha);
+            testRatio = calculateContrast(testForeground, background);
+
+            if (testRatio < minContrastRatio) {
+                minAlpha = testAlpha;
+            } else {
+                maxAlpha = testAlpha;
+            }
+
+            numIterations++;
+        }
+
+        // Conservatively return the max of the range of possible alphas, which is known to pass.
+        return maxAlpha;
+    }
+
+    static int getTextColorForBackground(int backgroundColor, float minContrastRatio) {
+        // First we will check white as most colors will be dark
+        final int whiteMinAlpha = ColorUtils
+                .findMinimumAlpha(Color.WHITE, backgroundColor, minContrastRatio);
+
+        if (whiteMinAlpha >= 0) {
+            return ColorUtils.modifyAlpha(Color.WHITE, whiteMinAlpha);
+        }
+
+        // If we hit here then there is not an translucent white which provides enough contrast,
+        // so check black
+        final int blackMinAlpha = ColorUtils
+                .findMinimumAlpha(Color.BLACK, backgroundColor, minContrastRatio);
+
+        if (blackMinAlpha >= 0) {
+            return ColorUtils.modifyAlpha(Color.BLACK, blackMinAlpha);
+        }
+
+        // This should not happen!
+        return -1;
     }
 
     static void RGBtoHSL(int r, int g, int b, float[] hsl) {
@@ -119,6 +229,13 @@ final class ColorUtils {
         b = Math.max(0, Math.min(255, b));
 
         return Color.rgb(r, g, b);
+    }
+
+    /**
+     * Set the alpha component of {@code color} to be {@code alpha}.
+     */
+    static int modifyAlpha(int color, int alpha) {
+        return (color & 0x00ffffff) | (alpha << 24);
     }
 
 }
