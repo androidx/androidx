@@ -1196,7 +1196,7 @@ public class RecyclerView extends ViewGroup {
 
     @Override
     public void requestChildFocus(View child, View focused) {
-        if (!mLayout.onRequestChildFocus(this, mState, child, focused)) {
+        if (!mLayout.onRequestChildFocus(this, mState, child, focused) && focused != null) {
             mTempRect.set(0, 0, focused.getWidth(), focused.getHeight());
             offsetDescendantRectToMyCoords(focused, mTempRect);
             offsetRectIntoDescendantCoords(child, mTempRect);
@@ -5187,7 +5187,8 @@ public class RecyclerView extends ViewGroup {
          * @param parent  The RecyclerView hosting this LayoutManager
          * @param state   Current state of RecyclerView
          * @param child   Direct child of the RecyclerView containing the newly focused view
-         * @param focused The newly focused view. This may be the same view as child
+         * @param focused The newly focused view. This may be the same view as child or it may be
+         *                null
          * @return true if the default scroll behavior should be suppressed
          */
         public boolean onRequestChildFocus(RecyclerView parent, State state, View child,
