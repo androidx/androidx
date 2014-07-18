@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -82,6 +83,90 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
     LayoutParams getLp(View view) {
         return (LayoutParams) view.getLayoutParams();
+    }
+
+    public void testGetFirstLastChildrenTest() throws Throwable {
+        for (boolean provideArr : new boolean[]{true, false}) {
+            for (Config config : mBaseVariations) {
+                getFirstLastChildrenTest(config, provideArr);
+                removeRecyclerView();
+            }
+        }
+    }
+
+    public void getFirstLastChildrenTest(final Config config, final boolean provideArr)
+            throws Throwable {
+        setupByConfig(config);
+        waitFirstLayout();
+        Runnable viewInBoundsTest = new Runnable() {
+            @Override
+            public void run() {
+                VisibleChildren visibleChildren = mLayoutManager.traverseAndFindVisibleChildren();
+                final String boundsLog = mLayoutManager.getBoundsLog();
+                VisibleChildren queryResult = new VisibleChildren(mLayoutManager.getSpanCount());
+                queryResult.firstFullyVisiblePositions = mLayoutManager
+                        .findFirstCompletelyVisibleItemPositions(
+                                provideArr ? new int[mLayoutManager.getSpanCount()] : null);
+                queryResult.firstVisiblePositions = mLayoutManager
+                        .findFirstVisibleItemPositions(
+                                provideArr ? new int[mLayoutManager.getSpanCount()] : null);
+                queryResult.lastFullyVisiblePositions = mLayoutManager
+                        .findLastCompletelyVisibleItemPositions(
+                                provideArr ? new int[mLayoutManager.getSpanCount()] : null);
+                queryResult.lastVisiblePositions = mLayoutManager
+                        .findLastVisibleItemPositions(
+                                provideArr ? new int[mLayoutManager.getSpanCount()] : null);
+                assertEquals(config + ":\nfirst visible child should match traversal result\n"
+                                + "traversed:" + visibleChildren + "\n"
+                                + "queried:" + queryResult + "\n"
+                                + boundsLog, visibleChildren, queryResult
+                );
+            }
+        };
+        runTestOnUiThread(viewInBoundsTest);
+        // smooth scroll to end of the list and keep testing meanwhile. This will test pre-caching
+        // case
+        final int scrollPosition = mAdapter.getItemCount();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.smoothScrollToPosition(scrollPosition);
+            }
+        });
+        while (mLayoutManager.isSmoothScrolling() ||
+                mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            runTestOnUiThread(viewInBoundsTest);
+            Thread.sleep(400);
+        }
+        // delete all items
+        mLayoutManager.expectLayouts(2);
+        mAdapter.deleteAndNotify(0, mAdapter.getItemCount());
+        mLayoutManager.waitForLayout(2);
+        // test empty case
+        runTestOnUiThread(viewInBoundsTest);
+        // set a new adapter with huge items to test full bounds check
+        mLayoutManager.expectLayouts(1);
+        final int totalSpace = mLayoutManager.mPrimaryOrientation.getTotalSpace();
+        final TestAdapter newAdapter = new TestAdapter(100) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                if (config.mOrientation == LinearLayoutManager.HORIZONTAL) {
+                    holder.itemView.setMinimumWidth(totalSpace + 5);
+                } else {
+                    holder.itemView.setMinimumHeight(totalSpace + 5);
+                }
+            }
+        };
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setAdapter(newAdapter);
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+        runTestOnUiThread(viewInBoundsTest);
     }
 
     public void testInnerGapHandling() throws Throwable {
@@ -187,8 +272,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mAdapter.deleteAndNotify(deletedPosition, 1);
         mLayoutManager.waitForLayout(2);
         assertRectSetsEqual(config + " when an item towards the head of the list is deleted, it "
-                + "should not affect the layout if it is not visible", before,
-                mLayoutManager.collectChildCoordinates());
+                        + "should not affect the layout if it is not visible", before,
+                mLayoutManager.collectChildCoordinates()
+        );
         deletedPosition = mLayoutManager.getPosition(mLayoutManager.getChildAt(2));
         mLayoutManager.expectLayouts(1);
         mAdapter.deleteAndNotify(deletedPosition, 1);
@@ -223,7 +309,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         waitFirstLayout();
         // run these tests twice. once initial layout, once after scroll
         String logSuffix = "";
-        for (int i = 0; i < 2; i ++) {
+        for (int i = 0; i < 2; i++) {
             Map<Item, Rect> itemRectMap = mLayoutManager.collectChildCoordinates();
             Rect recyclerViewBounds = getDecoratedRecyclerViewBounds();
             Rect usedLayoutBounds = new Rect();
@@ -391,10 +477,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     + config + " post layout action " + postLayoutOperations.describe());
         }
         setupByConfig(config);
+        waitFirstLayout();
         if (waitForLayout) {
-            waitFirstLayout();
             postLayoutOperations.run();
         }
+        final int firstCompletelyVisiblePosition = mLayoutManager.findFirstVisibleItemPositionInt();
         Map<Item, Rect> before = mLayoutManager.collectChildCoordinates();
         Parcelable savedState = mRecyclerView.onSaveInstanceState();
         // we append a suffix to the parcelable to test out of bounds
@@ -428,9 +515,12 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 config.mSpanCount, mLayoutManager.getSpanCount());
         assertEquals(config + " on saved state, gap strategy should be preserved",
                 config.mGapStrategy, mLayoutManager.getGapStrategy());
+        assertEquals(config + " on saved state, first completely visible child position should"
+                + " be preserved", firstCompletelyVisiblePosition,
+                mLayoutManager.findFirstVisibleItemPositionInt());
         if (waitForLayout) {
             assertRectSetsEqual(config + "\npost layout op:" + postLayoutOperations.describe()
-                    + ": on restore, previous view positions should be preserved",
+                            + ": on restore, previous view positions should be preserved",
                     before, mLayoutManager.collectChildCoordinates()
             );
         }
@@ -501,14 +591,14 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
             if (config.mReverseLayout) {
                 assertEquals(config + " when scrolling with offset to an invisible in reverse "
-                        + "layout, its end should align with recycler view's end - offset",
+                                + "layout, its end should align with recycler view's end - offset",
                         orientationHelper.getEndAfterPadding() - offset,
                         orientationHelper.getDecoratedEnd(child)
                 );
             } else {
                 assertEquals(config + " when scrolling with offset to an invisible child in normal"
-                        + " layout its start should align with recycler view's start + "
-                        + "offset",
+                                + " layout its start should align with recycler view's start + "
+                                + "offset",
                         orientationHelper.getStartAfterPadding() + offset,
                         orientationHelper.getDecoratedStart(child)
                 );
@@ -622,8 +712,8 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                             + layoutBounds);
                 }
                 assertTrue(config
-                        + " after scrolling to a partially visible child, it should become fully "
-                        + " visible. " + bounds + " not inside " + layoutBounds,
+                                + " after scrolling to a partially visible child, it should become fully "
+                                + " visible. " + bounds + " not inside " + layoutBounds,
                         layoutBounds.contains(bounds)
                 );
                 assertTrue(config + " when scrolling to a partially visible item, one of its edges "
@@ -659,7 +749,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 );
             } else {
                 assertEquals(config + " when scrolling to an invisible child below, its end "
-                        + "should align with recycler view's end",
+                                + "should align with recycler view's end",
                         orientationHelper.getEndAfterPadding(),
                         orientationHelper.getDecoratedEnd(child)
                 );
@@ -946,7 +1036,63 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                         mSecondaryOrientation.getDecoratedEnd(view),
                         mPrimaryOrientation.getDecoratedEnd(view));
             }
+        }
 
+        public String getBoundsLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("view bounds:[start:").append(mPrimaryOrientation.getStartAfterPadding())
+                    .append(",").append(" end").append(mPrimaryOrientation.getEndAfterPadding());
+            sb.append("\nchildren bounds\n");
+            final int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                sb.append("child (ind:").append(i).append(", pos:").append(getPosition(child))
+                        .append("[").append("start:").append(
+                        mPrimaryOrientation.getDecoratedStart(child)).append(", end:")
+                        .append(mPrimaryOrientation.getDecoratedEnd(child)).append("]\n");
+            }
+            return sb.toString();
+        }
+
+        public VisibleChildren traverseAndFindVisibleChildren() {
+            int childCount = getChildCount();
+            final VisibleChildren visibleChildren = new VisibleChildren(getSpanCount());
+            final int start = mPrimaryOrientation.getStartAfterPadding();
+            final int end = mPrimaryOrientation.getEndAfterPadding();
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                final int childStart = mPrimaryOrientation.getDecoratedStart(child);
+                final int childEnd = mPrimaryOrientation.getDecoratedEnd(child);
+                final boolean fullyVisible = childStart >= start && childEnd <= end;
+                final boolean hidden = childEnd <= start || childStart >= end;
+                if (hidden) {
+                    continue;
+                }
+                final int position = getPosition(child);
+                final int span = getLp(child).getSpanIndex();
+                if (fullyVisible) {
+                    if (position < visibleChildren.firstFullyVisiblePositions[span] ||
+                            visibleChildren.firstFullyVisiblePositions[span]
+                                    == RecyclerView.NO_POSITION) {
+                        visibleChildren.firstFullyVisiblePositions[span] = position;
+                    }
+
+                    if (position > visibleChildren.lastFullyVisiblePositions[span]) {
+                        visibleChildren.lastFullyVisiblePositions[span] = position;
+                    }
+                }
+
+                if (position < visibleChildren.firstVisiblePositions[span] ||
+                        visibleChildren.firstVisiblePositions[span] == RecyclerView.NO_POSITION) {
+                    visibleChildren.firstVisiblePositions[span] = position;
+                }
+
+                if (position > visibleChildren.lastVisiblePositions[span]) {
+                    visibleChildren.lastVisiblePositions[span] = position;
+                }
+
+            }
+            return visibleChildren;
         }
 
         Map<Item, Rect> collectChildCoordinates() throws Throwable {
@@ -972,6 +1118,82 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 }
             });
             return items;
+        }
+
+
+    }
+
+    static class VisibleChildren {
+
+        int[] firstVisiblePositions;
+
+        int[] firstFullyVisiblePositions;
+
+        int[] lastVisiblePositions;
+
+        int[] lastFullyVisiblePositions;
+
+        VisibleChildren(int spanCount) {
+            firstFullyVisiblePositions = new int[spanCount];
+            firstVisiblePositions = new int[spanCount];
+            lastVisiblePositions = new int[spanCount];
+            lastFullyVisiblePositions = new int[spanCount];
+            for (int i = 0; i < spanCount; i++) {
+                firstFullyVisiblePositions[i] = RecyclerView.NO_POSITION;
+                firstVisiblePositions[i] = RecyclerView.NO_POSITION;
+                lastVisiblePositions[i] = RecyclerView.NO_POSITION;
+                lastFullyVisiblePositions[i] = RecyclerView.NO_POSITION;
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            VisibleChildren that = (VisibleChildren) o;
+
+            if (!Arrays.equals(firstFullyVisiblePositions, that.firstFullyVisiblePositions)) {
+                return false;
+            }
+            if (!Arrays.equals(firstVisiblePositions, that.firstVisiblePositions)) {
+                return false;
+            }
+            if (!Arrays.equals(lastFullyVisiblePositions, that.lastFullyVisiblePositions)) {
+                return false;
+            }
+            if (!Arrays.equals(lastVisiblePositions, that.lastVisiblePositions)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = firstVisiblePositions != null ? Arrays.hashCode(firstVisiblePositions) : 0;
+            result = 31 * result + (firstFullyVisiblePositions != null ? Arrays
+                    .hashCode(firstFullyVisiblePositions) : 0);
+            result = 31 * result + (lastVisiblePositions != null ? Arrays
+                    .hashCode(lastVisiblePositions)
+                    : 0);
+            result = 31 * result + (lastFullyVisiblePositions != null ? Arrays
+                    .hashCode(lastFullyVisiblePositions) : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "VisibleChildren{" +
+                    "firstVisiblePositions=" + Arrays.toString(firstVisiblePositions) +
+                    ", firstFullyVisiblePositions=" + Arrays.toString(firstFullyVisiblePositions) +
+                    ", lastVisiblePositions=" + Arrays.toString(lastVisiblePositions) +
+                    ", lastFullyVisiblePositions=" + Arrays.toString(lastFullyVisiblePositions) +
+                    '}';
         }
     }
 
@@ -1108,6 +1330,8 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             }
             return "gap strategy: unknown";
         }
+
+
     }
 
     private static class TargetTuple {
