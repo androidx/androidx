@@ -16,7 +16,9 @@
 
 package android.support.v7.internal.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.internal.view.menu.MenuWrapperFactory;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
@@ -26,6 +28,7 @@ import android.view.View;
 /**
  * @hide
  */
+@TargetApi(Build.VERSION_CODES.CUR_DEVELOPMENT)
 public class ActionModeWrapper extends ActionMode {
 
     final MenuInflater mInflater;
@@ -104,6 +107,21 @@ public class ActionModeWrapper extends ActionMode {
     @Override
     public MenuInflater getMenuInflater() {
         return mInflater;
+    }
+
+    @Override
+    public boolean getTitleOptionalHint() {
+        return mWrappedObject.getTitleOptionalHint();
+    }
+
+    @Override
+    public void setTitleOptionalHint(boolean titleOptional) {
+        mWrappedObject.setTitleOptionalHint(titleOptional);
+    }
+
+    @Override
+    public boolean isTitleOptional() {
+        return mWrappedObject.isTitleOptional();
     }
 
     /**

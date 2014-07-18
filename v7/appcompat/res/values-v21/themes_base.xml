@@ -42,4 +42,84 @@
     <style name="Theme.Platform.AppCompat.Light.Dialog"
            parent="android:Theme.Material.Light.Dialog" />
 
+    <style name="Base.Theme.AppCompat" parent="Theme.Platform.AppCompat">
+        <item name="windowActionBar">true</item>
+
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+    </style>
+
+    <style name="Base.Theme.AppCompat.Light" parent="Theme.Platform.AppCompat.Light">
+        <item name="windowActionBar">true</item>
+
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+    </style>
+
+    <style name="Base.Theme.AppCompat.Light.DarkActionBar" parent="Theme.Platform.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">true</item>
+
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+    </style>
+
+    <style name="Base.Theme.AppCompat.DialogWhenLarge" parent="Theme.Platform.AppCompat.DialogWhenLarge">
+        <item name="windowActionBar">true</item>
+
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+    </style>
+
+    <style name="Base.Theme.AppCompat.Light.DialogWhenLarge" parent="Theme.Platform.AppCompat.Light.DialogWhenLarge">
+        <item name="windowActionBar">true</item>
+
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+    </style>
+
+    <style name="Base.Theme.AppCompat.Dialog" parent="Theme.Platform.AppCompat.Dialog">
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+    </style>
+
+    <style name="Base.Theme.AppCompat.Light.Dialog" parent="Theme.Platform.AppCompat.Light.Dialog">
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>
+    </style>
+
 </resources>

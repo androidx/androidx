@@ -19,8 +19,6 @@
          an action bar/action mode. This will be used to determine how many
          showAsAction="ifRoom" items can fit. "always" items can override this. -->
     <integer name="abc_max_action_buttons">5</integer>
-    <!-- Default height of an action bar. -->
-    <dimen name="abc_action_bar_default_height">56dip</dimen>
     <!-- Vertical padding around action bar icons. -->
     <dimen name="abc_action_bar_icon_vertical_padding">4dip</dimen>
     <!-- Text size for action bar titles -->

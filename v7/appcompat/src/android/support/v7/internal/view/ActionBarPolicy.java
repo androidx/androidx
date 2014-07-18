@@ -17,10 +17,13 @@
 package android.support.v7.internal.view;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v7.appcompat.R;
+import android.view.ViewConfiguration;
 
 /**
  * Allows components to query for various configuration policy decisions about how the action bar
@@ -45,8 +48,8 @@ public class ActionBarPolicy {
     }
 
     public boolean showsOverflowMenuButton() {
-        // Only show overflow on HC+ devices
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+        // TODO: Add backwards compatible way to check for UI_MODE_TYPE_TELEVISION
+        return !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mContext));
     }
 
     public int getEmbeddedMenuWidthLimit() {
@@ -54,6 +57,11 @@ public class ActionBarPolicy {
     }
 
     public boolean hasEmbeddedTabs() {
+        final int targetSdk = mContext.getApplicationInfo().targetSdkVersion;
+        if (targetSdk >= Build.VERSION_CODES.JELLY_BEAN) {
+            return mContext.getResources().getBoolean(R.bool.abc_action_bar_embed_tabs);
+        }
+
         // The embedded tabs policy changed in Jellybean; give older apps the old policy
         // so they get what they expect.
         return mContext.getResources().getBoolean(R.bool.abc_action_bar_embed_tabs_pre_jb);

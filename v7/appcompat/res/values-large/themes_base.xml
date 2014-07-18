@@ -16,10 +16,10 @@
 
 <resources>
 
-    <style name="Theme.Base.AppCompat.DialogWhenLarge"
-           parent="Theme.Base.AppCompat.Dialog.FixedSize" />
+    <style name="Base.Theme.AppCompat.DialogWhenLarge"
+           parent="Base.Theme.AppCompat.Dialog.FixedSize" />
 
-    <style name="Theme.Base.AppCompat.Light.DialogWhenLarge"
-           parent="Theme.Base.AppCompat.Dialog.Light.FixedSize" />
+    <style name="Base.Theme.AppCompat.Light.DialogWhenLarge"
+           parent="Base.Theme.AppCompat.Dialog.Light.FixedSize" />
 
 </resources>

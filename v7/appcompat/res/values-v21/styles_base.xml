@@ -94,9 +94,6 @@
            parent="android:TextAppearance.Material.Widget.ActionBar.Subtitle">
     </style>
 
-
-    <!--
-    TODO Hidden
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse"
            parent="android:TextAppearance.Material.Widget.ActionBar.Title.Inverse">
     </style>
@@ -104,7 +101,6 @@
     <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
            parent="android:TextAppearance.Material.Widget.ActionBar.Subtitle.Inverse">
     </style>
-    -->
 
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title"
            parent="android:TextAppearance.Material.Widget.ActionMode.Title">
@@ -114,8 +110,6 @@
            parent="android:TextAppearance.Material.Widget.ActionMode.Subtitle">
     </style>
 
-    <!--
-    TODO Hidden
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title.Inverse"
            parent="android:TextAppearance.Material.Widget.ActionMode.Title.Inverse">
     </style>
@@ -123,7 +117,6 @@
     <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle.Inverse"
            parent="android:TextAppearance.Material.Widget.ActionMode.Subtitle.Inverse">
     </style>
-    -->
 
     <!-- Action Button Styles -->
 
