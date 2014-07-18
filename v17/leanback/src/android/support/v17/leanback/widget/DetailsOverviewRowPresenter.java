@@ -98,10 +98,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                 new RecyclerView.OnScrollListener() {
 
             @Override
-            public void onScrollStateChanged(int newState) {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             }
             @Override
-            public void onScrolled(int dx, int dy) {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 checkFirstAndLastPosition(true);
             }
         };
