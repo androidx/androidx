@@ -103,7 +103,6 @@ public class RecyclerView extends ViewGroup {
 
     final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
 
-
     /**
      * Prior to L, there is no way to query this variable which is why we override the setter and
      * track it here.
@@ -2038,6 +2037,14 @@ public class RecyclerView extends ViewGroup {
             }
             needsInvalidate |= mBottomGlow != null && mBottomGlow.draw(c);
             c.restoreToCount(restore);
+        }
+
+        // If some views are animating, ItemDecorators are likely to move/change with them.
+        // Invalidate RecyclerView to re-draw decorators. This is still efficient because children's
+        // display lists are not invalidated.
+        if (!needsInvalidate && mItemAnimator != null && mItemDecorations.size() > 0 &&
+                mItemAnimator.isRunning()) {
+            needsInvalidate = true;
         }
 
         if (needsInvalidate) {
