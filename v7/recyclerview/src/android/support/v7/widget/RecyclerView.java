@@ -103,6 +103,13 @@ public class RecyclerView extends ViewGroup {
 
     final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
 
+
+    /**
+     * Prior to L, there is no way to query this variable which is why we override the setter and
+     * track it here.
+     */
+    private boolean mClipToPadding;
+
     /**
      * Note: this Runnable is only ever posted if:
      * 1) We've been through first layout
@@ -393,6 +400,18 @@ public class RecyclerView extends ViewGroup {
      */
     public boolean hasFixedSize() {
         return mHasFixedSize;
+    }
+
+    @Override
+    public void setClipToPadding(boolean clipToPadding) {
+        if (clipToPadding != mClipToPadding) {
+            invalidateGlows();
+        }
+        mClipToPadding = clipToPadding;
+        super.setClipToPadding(clipToPadding);
+        if (mFirstLayoutComplete) {
+            requestLayout();
+        }
     }
 
     /**
@@ -1027,34 +1046,18 @@ public class RecyclerView extends ViewGroup {
      */
     private void pullGlows(int overscrollX, int overscrollY) {
         if (overscrollX < 0) {
-            if (mLeftGlow == null) {
-                mLeftGlow = new EdgeEffectCompat(getContext());
-                mLeftGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
-                        getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
-            }
+            ensureLeftGlow();
             mLeftGlow.onPull(-overscrollX / (float) getWidth());
         } else if (overscrollX > 0) {
-            if (mRightGlow == null) {
-                mRightGlow = new EdgeEffectCompat(getContext());
-                mRightGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
-                        getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
-            }
+            ensureRightGlow();
             mRightGlow.onPull(overscrollX / (float) getWidth());
         }
 
         if (overscrollY < 0) {
-            if (mTopGlow == null) {
-                mTopGlow = new EdgeEffectCompat(getContext());
-                mTopGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
-                        getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
-            }
+            ensureTopGlow();
             mTopGlow.onPull(-overscrollY / (float) getHeight());
         } else if (overscrollY > 0) {
-            if (mBottomGlow == null) {
-                mBottomGlow = new EdgeEffectCompat(getContext());
-                mBottomGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
-                        getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
-            }
+            ensureBottomGlow();
             mBottomGlow.onPull(overscrollY / (float) getHeight());
         }
 
@@ -1095,40 +1098,81 @@ public class RecyclerView extends ViewGroup {
 
     void absorbGlows(int velocityX, int velocityY) {
         if (velocityX < 0) {
-            if (mLeftGlow == null) {
-                mLeftGlow = new EdgeEffectCompat(getContext());
-                mLeftGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
-                        getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
-            }
+            ensureLeftGlow();
             mLeftGlow.onAbsorb(-velocityX);
         } else if (velocityX > 0) {
-            if (mRightGlow == null) {
-                mRightGlow = new EdgeEffectCompat(getContext());
-                mRightGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
-                        getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
-            }
+            ensureRightGlow();
             mRightGlow.onAbsorb(velocityX);
         }
 
         if (velocityY < 0) {
-            if (mTopGlow == null) {
-                mTopGlow = new EdgeEffectCompat(getContext());
-                mTopGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
-                        getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
-            }
+            ensureTopGlow();
             mTopGlow.onAbsorb(-velocityY);
         } else if (velocityY > 0) {
-            if (mBottomGlow == null) {
-                mBottomGlow = new EdgeEffectCompat(getContext());
-                mBottomGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
-                        getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
-            }
+            ensureBottomGlow();
             mBottomGlow.onAbsorb(velocityY);
         }
 
         if (velocityX != 0 || velocityY != 0) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
+    }
+
+    void ensureLeftGlow() {
+        if (mLeftGlow != null) {
+            return;
+        }
+        mLeftGlow = new EdgeEffectCompat(getContext());
+        if (mClipToPadding) {
+            mLeftGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
+                    getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
+        } else {
+            mLeftGlow.setSize(getMeasuredHeight(), getMeasuredWidth());
+        }
+    }
+
+    void ensureRightGlow() {
+        if (mRightGlow != null) {
+            return;
+        }
+        mRightGlow = new EdgeEffectCompat(getContext());
+        if (mClipToPadding) {
+            mRightGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
+                    getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
+        } else {
+            mRightGlow.setSize(getMeasuredHeight(), getMeasuredWidth());
+        }
+    }
+
+    void ensureTopGlow() {
+        if (mTopGlow != null) {
+            return;
+        }
+        mTopGlow = new EdgeEffectCompat(getContext());
+        if (mClipToPadding) {
+            mTopGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
+                    getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
+        } else {
+            mTopGlow.setSize(getMeasuredWidth(), getMeasuredHeight());
+        }
+
+    }
+
+    void ensureBottomGlow() {
+        if (mBottomGlow != null) {
+            return;
+        }
+        mBottomGlow = new EdgeEffectCompat(getContext());
+        if (mClipToPadding) {
+            mBottomGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
+                    getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
+        } else {
+            mBottomGlow.setSize(getMeasuredWidth(), getMeasuredHeight());
+        }
+    }
+
+    void invalidateGlows() {
+        mLeftGlow = mRightGlow = mTopGlow = mBottomGlow = null;
     }
 
     // Focus handling
@@ -1960,29 +2004,37 @@ public class RecyclerView extends ViewGroup {
         boolean needsInvalidate = false;
         if (mLeftGlow != null && !mLeftGlow.isFinished()) {
             final int restore = c.save();
+            final int padding = mClipToPadding ? getPaddingBottom() : 0;
             c.rotate(270);
-            c.translate(-getHeight() + getPaddingBottom(), 0);
+            c.translate(-getHeight() + padding, 0);
             needsInvalidate = mLeftGlow != null && mLeftGlow.draw(c);
             c.restoreToCount(restore);
         }
         if (mTopGlow != null && !mTopGlow.isFinished()) {
-            c.translate(getPaddingLeft(), getPaddingTop());
+            final int restore = c.save();
+            if (mClipToPadding) {
+                c.translate(getPaddingLeft(), getPaddingTop());
+            }
             needsInvalidate |= mTopGlow != null && mTopGlow.draw(c);
-            c.translate(-getPaddingLeft(), -getPaddingTop());
+            c.restoreToCount(restore);
         }
         if (mRightGlow != null && !mRightGlow.isFinished()) {
             final int restore = c.save();
             final int width = getWidth();
-
+            final int padding = mClipToPadding ? getPaddingTop() : 0;
             c.rotate(90);
-            c.translate(-getPaddingTop(), -width);
+            c.translate(-padding, -width);
             needsInvalidate |= mRightGlow != null && mRightGlow.draw(c);
             c.restoreToCount(restore);
         }
         if (mBottomGlow != null && !mBottomGlow.isFinished()) {
             final int restore = c.save();
             c.rotate(180);
-            c.translate(-getWidth() + getPaddingRight(), -getHeight() + getPaddingBottom());
+            if (mClipToPadding) {
+                c.translate(-getWidth() + getPaddingRight(), -getHeight() + getPaddingBottom());
+            } else {
+                c.translate(-getWidth(), -getHeight());
+            }
             needsInvalidate |= mBottomGlow != null && mBottomGlow.draw(c);
             c.restoreToCount(restore);
         }
@@ -3920,6 +3972,15 @@ public class RecyclerView extends ViewGroup {
          */
         public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {
             onDetachedFromWindow(view);
+        }
+
+        /**
+         * Check if the RecyclerView is configured to clip child views to its padding.
+         *
+         * @return true if this RecyclerView clips children to its padding, false otherwise
+         */
+        public boolean getClipToPadding() {
+            return mRecyclerView != null && mRecyclerView.mClipToPadding;
         }
 
         /**
