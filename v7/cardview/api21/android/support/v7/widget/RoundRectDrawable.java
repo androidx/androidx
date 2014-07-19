@@ -54,9 +54,8 @@ class RoundRectDrawable extends Drawable {
     }
 
     @Override
-    public boolean getOutline(Outline outline) {
+    public void getOutline(Outline outline) {
         outline.setRoundRect(getBounds(), mRadius);
-        return true;
     }
 
     public void setRadius(float radius) {
