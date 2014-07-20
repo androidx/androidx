@@ -52,14 +52,14 @@ import android.widget.SpinnerAdapter;
  * android.R.style#Theme_Holo Holo} theme (or one of its descendant themes), which is the default.
  * You may otherwise add the action bar by calling {@link
  * android.view.Window#requestFeature requestFeature(FEATURE_ACTION_BAR)} or by declaring it in a
- * custom theme with the {@link R.styleable#Theme_windowActionBar windowActionBar} property.
+ * custom theme with the {@link android.R.styleable#Theme_windowActionBar windowActionBar} property.
  * </p>
  *
  * <p>Beginning with Android L (API level 21), the action bar may be represented by any
  * Toolbar widget within the application layout. The application may signal to the Activity
  * which Toolbar should be treated as the Activity's action bar. Activities that use this
  * feature should use one of the supplied <code>.NoActionBar</code> themes, set the
- * {@link R.styleable#Theme_windowActionBar windowActionBar} attribute to <code>false</code>
+ * {@link android.R.styleable#Theme_windowActionBar windowActionBar} attribute to <code>false</code>
  * or otherwise not request the window feature.</p>
  *
  * <p>By adjusting the window features requested by the theme and the layouts used for
@@ -941,7 +941,7 @@ public abstract class ActionBar {
      * Enable hiding the action bar on content scroll.
      *
      * <p>If enabled, the action bar will scroll out of sight along with a
-     * {@link View#adb logcsetNestedScrollingEnabled(boolean) nested scrolling child} view's content.
+     * {@link View#setNestedScrollingEnabled(boolean) nested scrolling child} view's content.
      * The action bar must be in {@link Window#FEATURE_ACTION_BAR_OVERLAY overlay mode}
      * to enable hiding on content scroll.</p>
      *
