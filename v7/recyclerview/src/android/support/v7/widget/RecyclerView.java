@@ -3138,7 +3138,8 @@ public class RecyclerView extends ViewGroup {
             }
 
             if (holder.shouldIgnore()) {
-                throw new IllegalArgumentException("Trying to recycle an ignored view holder");
+                throw new IllegalArgumentException("Trying to recycle an ignored view holder. You"
+                        + " should first call stopIgnoringView(view) before calling recycle.");
             }
             if (holder.isRecyclable()) {
                 boolean cached = false;
@@ -4776,10 +4777,16 @@ public class RecyclerView extends ViewGroup {
         /**
          * Flags a view so that it will not be scrapped or recycled.
          * <p>
-         * Note that View is still a child of the ViewGroup. If LayoutManager calls methods like
-         * {@link LayoutManager#offsetChildrenHorizontal(int)}, this View will be offset as well.
+         * Scope of ignoring a child is strictly restricted to scrapping and recyling. Methods like
+         * {@link #removeAndRecycleAllViews(Recycler)} will ignore the child whereas
+         * {@link #removeAllViews()} or {@link #offsetChildrenHorizontal(int)} will not ignore the
+         * child.
+         * <p>
+         * Before this child can be recycled again, you have to call
+         * {@link #stopIgnoringView(View)}.
          *
          * @param view View to ignore.
+         * @see #stopIgnoringView(View)
          */
         public void ignoreView(View view) {
             if (view.getParent() != mRecyclerView || mRecyclerView.indexOfChild(view) == -1) {
@@ -5510,14 +5517,20 @@ public class RecyclerView extends ViewGroup {
          * Removes all views and recycles them using the given recycler.
          * <p>
          * If you want to clean cached views as well, you should call {@link Recycler#clear()} too.
+         * <p>
+         * If a View is marked as "ignored", it is not removed nor recycled.
          *
          * @param recycler Recycler to use to recycle children
          * @see #removeAndRecycleView(View, Recycler)
          * @see #removeAndRecycleViewAt(int, Recycler)
+         * @see #ignoreView(View)
          */
         public void removeAndRecycleAllViews(Recycler recycler) {
             for (int i = getChildCount() - 1; i >= 0; i--) {
-                removeAndRecycleViewAt(i, recycler);
+                final View view = getChildAt(i);
+                if (!getChildViewHolderInt(view).shouldIgnore()) {
+                    removeAndRecycleViewAt(i, recycler);
+                }
             }
         }
 
