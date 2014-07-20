@@ -356,7 +356,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         vh.mImageView.setLayoutParams(layoutParams);
         vh.mImageView.setImageDrawable(row.getImageDrawable());
 
-        mDetailsPresenter.onBindViewHolder(vh.mDetailsDescriptionViewHolder, row);
+        mDetailsPresenter.onBindViewHolder(vh.mDetailsDescriptionViewHolder, row.getItem());
 
         mActionBridgeAdapter.clear();
         ArrayObjectAdapter aoa = new ArrayObjectAdapter(mActionPresenterSelector);
