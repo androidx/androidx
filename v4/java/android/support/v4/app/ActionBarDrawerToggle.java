@@ -18,6 +18,8 @@
 package android.support.v4.app;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -218,6 +220,39 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public ActionBarDrawerToggle(Activity activity, DrawerLayout drawerLayout,
             @DrawableRes int drawerImageRes, @StringRes int openDrawerContentDescRes,
             @StringRes int closeDrawerContentDescRes) {
+        this(activity, drawerLayout, !assumeMaterial(activity), drawerImageRes,
+                openDrawerContentDescRes, closeDrawerContentDescRes);
+    }
+
+    private static boolean assumeMaterial(Context context) {
+        return context.getApplicationInfo().targetSdkVersion >= 21 &&
+                (Build.VERSION.SDK_INT >= 21 || "L".equals(Build.VERSION.CODENAME));
+    }
+
+    /**
+     * Construct a new ActionBarDrawerToggle.
+     *
+     * <p>The given {@link Activity} will be linked to the specified {@link DrawerLayout}.
+     * The provided drawer indicator drawable will animate slightly off-screen as the drawer
+     * is opened, indicating that in the open state the drawer will move off-screen when pressed
+     * and in the closed state the drawer will move on-screen when pressed.</p>
+     *
+     * <p>String resources must be provided to describe the open/close drawer actions for
+     * accessibility services.</p>
+     *
+     * @param activity The Activity hosting the drawer
+     * @param drawerLayout The DrawerLayout to link to the given Activity's ActionBar
+     * @param animate True to animate the drawer indicator along with the drawer's position.
+     *                Material apps should set this to false.
+     * @param drawerImageRes A Drawable resource to use as the drawer indicator
+     * @param openDrawerContentDescRes A String resource to describe the "open drawer" action
+     *                                 for accessibility
+     * @param closeDrawerContentDescRes A String resource to describe the "close drawer" action
+     *                                  for accessibility
+     */
+    public ActionBarDrawerToggle(Activity activity, DrawerLayout drawerLayout, boolean animate,
+            @DrawableRes int drawerImageRes, @StringRes int openDrawerContentDescRes,
+            @StringRes int closeDrawerContentDescRes) {
         mActivity = activity;
 
         // Allow the Activity to provide an impl
@@ -235,7 +270,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         mThemeImage = getThemeUpIndicator();
         mDrawerImage = activity.getResources().getDrawable(drawerImageRes);
         mSlider = new SlideDrawable(mDrawerImage);
-        mSlider.setOffset(TOGGLE_DRAWABLE_OFFSET);
+        mSlider.setOffset(animate ? TOGGLE_DRAWABLE_OFFSET : 0);
     }
 
     /**
