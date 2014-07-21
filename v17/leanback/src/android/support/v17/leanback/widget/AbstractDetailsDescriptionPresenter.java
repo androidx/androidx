@@ -116,8 +116,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
     @Override
     public final void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         ViewHolder vh = (ViewHolder) viewHolder;
-        DetailsOverviewRow row = (DetailsOverviewRow) item;
-        onBindDescription(vh, row.getItem());
+        onBindDescription(vh, item);
 
         boolean hasTitle = true;
         if (TextUtils.isEmpty(vh.mTitle.getText())) {
