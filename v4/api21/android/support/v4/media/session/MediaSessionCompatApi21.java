@@ -23,7 +23,6 @@ import android.media.MediaMetadata;
 import android.media.Rating;
 import android.media.VolumeProvider;
 import android.media.session.MediaSession;
-import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.Handler;
@@ -107,7 +106,7 @@ class MediaSessionCompatApi21 {
 
     public static interface Callback {
         public void onMediaButtonEvent(Intent mediaButtonIntent);
-        public void onControlCommand(String command, Bundle extras, ResultReceiver cb);
+        public void onCommand(String command, Bundle extras, ResultReceiver cb);
     }
 
     public static interface TransportControlsCallback {
@@ -135,8 +134,8 @@ class MediaSessionCompatApi21 {
         }
 
         @Override
-        public void onControlCommand(String command, Bundle extras, ResultReceiver cb) {
-            mCallback.onControlCommand(command, extras, cb);
+        public void onCommand(String command, Bundle args, ResultReceiver cb) {
+            mCallback.onCommand(command, args, cb);
         }
     }
 
