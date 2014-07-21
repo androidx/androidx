@@ -57,6 +57,25 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 
+    void setAdapter(final RecyclerView.Adapter adapter) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setAdapter(adapter);
+            }
+        });
+    }
+
+    void swapAdapter(final RecyclerView.Adapter adapter,
+            final boolean removeAndRecycleExistingViews) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.swapAdapter(adapter, removeAndRecycleExistingViews);
+            }
+        });
+    }
+
     void postExceptionToInstrumentation(Throwable t) {
         if (mDebug) {
             Log.e(TAG, "captured exception on main thread", t);
@@ -110,27 +129,33 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     }
 
     public void setRecyclerView(final RecyclerView recyclerView) throws Throwable {
+        setRecyclerView(recyclerView, true);
+    }
+    public void setRecyclerView(final RecyclerView recyclerView, boolean assignDummyPool)
+            throws Throwable {
         mRecyclerView = recyclerView;
-        RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
-            @Override
-            public RecyclerView.ViewHolder getRecycledView(int viewType) {
-                RecyclerView.ViewHolder viewHolder = super.getRecycledView(viewType);
-                if (viewHolder == null) {
-                    return null;
+        if (assignDummyPool) {
+            RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
+                @Override
+                public RecyclerView.ViewHolder getRecycledView(int viewType) {
+                    RecyclerView.ViewHolder viewHolder = super.getRecycledView(viewType);
+                    if (viewHolder == null) {
+                        return null;
+                    }
+                    viewHolder.addFlags(RecyclerView.ViewHolder.FLAG_BOUND);
+                    viewHolder.mPosition = 200;
+                    viewHolder.mOldPosition = 300;
+                    viewHolder.mPreLayoutPosition = 500;
+                    return viewHolder;
                 }
-                viewHolder.addFlags(RecyclerView.ViewHolder.FLAG_BOUND);
-                viewHolder.mPosition = 200;
-                viewHolder.mOldPosition = 300;
-                viewHolder.mPreLayoutPosition = 500;
-                return viewHolder;
-            }
 
-            @Override
-            public void putRecycledView(RecyclerView.ViewHolder scrap) {
-                super.putRecycledView(scrap);
-            }
-        };
-        mRecyclerView.setRecycledViewPool(pool);
+                @Override
+                public void putRecycledView(RecyclerView.ViewHolder scrap) {
+                    super.putRecycledView(scrap);
+                }
+            };
+            mRecyclerView.setRecycledViewPool(pool);
+        }
         mAdapterHelper = recyclerView.mAdapterHelper;
         runTestOnUiThread(new Runnable() {
             @Override
