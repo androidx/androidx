@@ -18,9 +18,12 @@
 package android.support.v7.widget;
 
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,6 +35,96 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
+    }
+
+    public void testSetCompatibleAdapter() throws Throwable {
+        compatibleAdapterTest(true, true);
+        removeRecyclerView();
+        compatibleAdapterTest(false, true);
+        removeRecyclerView();
+        compatibleAdapterTest(true, false);
+        removeRecyclerView();
+        compatibleAdapterTest(false, false);
+        removeRecyclerView();
+    }
+
+    private void compatibleAdapterTest(boolean useCustomPool, boolean removeAndRecycleExistingViews)
+            throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        final AtomicInteger recycledViewCount = new AtomicInteger();
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                try {
+                    layoutRange(recycler, 0, state.getItemCount());
+                    layoutLatch.countDown();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setRecyclerListener(new RecyclerView.RecyclerListener() {
+            @Override
+            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+                recycledViewCount.incrementAndGet();
+            }
+        });
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView, !useCustomPool);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+        lm.expectLayouts(1);
+        swapAdapter(new TestAdapter(10), removeAndRecycleExistingViews);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+        if (removeAndRecycleExistingViews) {
+            assertTrue("Previous views should be recycled", recycledViewCount.get() > 0);
+        } else {
+            assertEquals("No views should be recycled if adapters are compatible and developer "
+                    + "did not request a recycle", 0, recycledViewCount.get());
+        }
+    }
+
+    public void testSetIncompatibleAdapter() throws Throwable {
+        incompatibleAdapterTest(true);
+        incompatibleAdapterTest(false);
+    }
+
+    public void incompatibleAdapterTest(boolean useCustomPool) throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                try {
+                    layoutRange(recycler, 0, state.getItemCount());
+                    layoutLatch.countDown();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView, !useCustomPool);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+        lm.expectLayouts(1);
+        setAdapter(new TestAdapter2(10));
+        lm.waitForLayout(2);
+        checkForMainThreadException();
     }
 
     public void testRecycleIgnored() throws Throwable {
@@ -845,7 +938,40 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 itemCount.get());
         assertEquals("structure changed should be true when items are removed", true,
                 structureChanged.get());
+    }
 
+    private static class TestViewHolder2 extends RecyclerView.ViewHolder {
+        public TestViewHolder2(View itemView) {
+            super(itemView);
+        }
+    }
+
+    private static class TestAdapter2 extends RecyclerView.Adapter<TestViewHolder2> {
+        List<Item> mItems;
+
+        private TestAdapter2(int count) {
+            mItems = new ArrayList<Item>(count);
+            for (int i = 0; i < count; i++) {
+                mItems.add(new Item(i, "Item " + i));
+            }
+        }
+
+        @Override
+        public TestViewHolder2 onCreateViewHolder(ViewGroup parent,
+                int viewType) {
+            return new TestViewHolder2(new TextView(parent.getContext()));
+        }
+
+        @Override
+        public void onBindViewHolder(TestViewHolder2 holder, int position) {
+            final Item item = mItems.get(position);
+            ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mAdapterIndex + ")");
+        }
+
+        @Override
+        public int getItemCount() {
+            return mItems.size();
+        }
     }
 
 }

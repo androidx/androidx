@@ -414,24 +414,65 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * Set a new adapter to provide child views on demand.
+     * Swaps the current adapter with the provided one. It is similar to
+     * {@link #setAdapter(Adapter)} but assumes existing adapter and the new adapter uses the same
+     * {@link ViewHolder} and does not clear the RecycledViewPool.
+     * <p>
+     * Note that it still calls onAdapterChanged callbacks.
      *
      * @param adapter The new adapter to set, or null to set no adapter.
+     * @param removeAndRecycleExistingViews If set to true, RecyclerView will recycle all existing
+     *                                      Views. If adapters have stable ids and/or you want to
+     *                                      animate the disappearing views, you may prefer to set
+     *                                      this to false.
+     * @see #setAdapter(Adapter)
+     */
+    public void swapAdapter(Adapter adapter, boolean removeAndRecycleExistingViews) {
+        setAdapterInternal(adapter, true, removeAndRecycleExistingViews);
+        mDataSetHasChangedAfterLayout = true;
+        requestLayout();
+    }
+    /**
+     * Set a new adapter to provide child views on demand.
+     * <p>
+     * When adapter is changed, all existing views are recycled back to the pool. If the pool has
+     * only one adapter, it will be cleared.
+     *
+     * @param adapter The new adapter to set, or null to set no adapter.
+     * @see #swapAdapter(Adapter, boolean)
      */
     public void setAdapter(Adapter adapter) {
+        setAdapterInternal(adapter, false, true);
+        requestLayout();
+    }
+
+    /**
+     * Replaces the current adapter with the new one and triggers listeners.
+     * @param adapter The new adapter
+     * @param compatibleWithPrevious If true, the new adapter is using the same View Holders and
+     *                               item types with the current adapter (helps us avoid cache
+     *                               invalidation).
+     * @param removeAndRecycleViews  If true, we'll remove and recycle all existing views. If
+     *                               compatibleWithPrevious is false, this parameter is ignored.
+     */
+    private void setAdapterInternal(Adapter adapter, boolean compatibleWithPrevious,
+            boolean removeAndRecycleViews) {
         if (mAdapter != null) {
             mAdapter.unregisterAdapterDataObserver(mObserver);
         }
-        // end all running animations
-        if (mItemAnimator != null) {
-            mItemAnimator.endAnimations();
-        }
-        // Since animations are ended, mLayout.children should be equal to recyclerView.children.
-        // This may not be true if item animator's end does not work as expected. (e.g. not release
-        // children instantly). It is safer to use mLayout's child count.
-        if (mLayout != null) {
-            mLayout.removeAndRecycleAllViews(mRecycler);
-            mLayout.removeAndRecycleScrapInt(mRecycler, true);
+        if (!compatibleWithPrevious || removeAndRecycleViews) {
+            // end all running animations
+            if (mItemAnimator != null) {
+                mItemAnimator.endAnimations();
+            }
+            // Since animations are ended, mLayout.children should be equal to
+            // recyclerView.children. This may not be true if item animator's end does not work as
+            // expected. (e.g. not release children instantly). It is safer to use mLayout's child
+            // count.
+            if (mLayout != null) {
+                mLayout.removeAndRecycleAllViews(mRecycler);
+                mLayout.removeAndRecycleScrapInt(mRecycler, true);
+            }
         }
         mAdapterHelper.reset();
         final Adapter oldAdapter = mAdapter;
@@ -442,10 +483,9 @@ public class RecyclerView extends ViewGroup {
         if (mLayout != null) {
             mLayout.onAdapterChanged(oldAdapter, mAdapter);
         }
-        mRecycler.onAdapterChanged(oldAdapter, mAdapter);
+        mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
         mState.mStructureChanged = true;
         markKnownViewsInvalid();
-        requestLayout();
     }
 
     /**
@@ -2743,6 +2783,15 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    /**
+     * RecycledViewPool lets you share Views between multiple RecyclerViews.
+     * <p>
+     * If you want to recycle views across RecyclerViews, create an instance of RecycledViewPool
+     * and use {@link RecyclerView#setRecycledViewPool(RecycledViewPool)}.
+     * <p>
+     * RecyclerView automatically creates a pool for itself if you don't provide one.
+     *
+     */
     public static class RecycledViewPool {
         private SparseArray<ArrayList<ViewHolder>> mScrap =
                 new SparseArray<ArrayList<ViewHolder>>();
@@ -2806,9 +2855,27 @@ public class RecyclerView extends ViewGroup {
         }
 
 
-        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
-            if (mAttachCount == 1) {
+        /**
+         * Detaches the old adapter and attaches the new one.
+         * <p>
+         * RecycledViewPool will clear its cache if it has only one adapter attached and the new
+         * adapter uses a different ViewHolder than the oldAdapter.
+         *
+         * @param oldAdapter The previous adapter instance. Will be detached.
+         * @param newAdapter The new adapter instance. Will be attached.
+         * @param compatibleWithPrevious True if both oldAdapter and newAdapter are using the same
+         *                               ViewHolder and view types.
+         */
+        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter,
+                boolean compatibleWithPrevious) {
+            if (oldAdapter != null) {
+                detach();
+            }
+            if (!compatibleWithPrevious && mAttachCount == 0) {
                 clear();
+            }
+            if (newAdapter != null) {
+                attach(newAdapter);
             }
         }
 
@@ -3358,9 +3425,10 @@ public class RecyclerView extends ViewGroup {
             if (DEBUG) Log.d(TAG, "dispatchViewRecycled: " + holder);
         }
 
-        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
+        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter,
+                boolean compatibleWithPrevious) {
             clear();
-            getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter);
+            getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter, compatibleWithPrevious);
         }
 
         void offsetPositionRecordsForMove(int from, int to) {
