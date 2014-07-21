@@ -350,6 +350,7 @@ public final class MediaControllerCompat {
      */
     public static final class VolumeInfo {
         private final int mVolumeType;
+        // TODO update audio stream with AudioAttributes support version
         private final int mAudioStream;
         private final int mVolumeControl;
         private final int mMaxVolume;
@@ -517,7 +518,7 @@ public final class MediaControllerCompat {
 
         @Override
         public TransportControls getTransportControls() {
-            Object controlsObj = MediaControllerCompatApi21.getTransportControls(mControllerObj); 
+            Object controlsObj = MediaControllerCompatApi21.getTransportControls(mControllerObj);
             return controlsObj != null ? new TransportControlsApi21(controlsObj) : null;
         }
 
@@ -543,7 +544,7 @@ public final class MediaControllerCompat {
             Object volumeInfoObj = MediaControllerCompatApi21.getVolumeInfo(mControllerObj);
             return volumeInfoObj != null ? new VolumeInfo(
                     MediaControllerCompatApi21.VolumeInfo.getVolumeType(volumeInfoObj),
-                    MediaControllerCompatApi21.VolumeInfo.getAudioStream(volumeInfoObj),
+                    MediaControllerCompatApi21.VolumeInfo.getLegacyAudioStream(volumeInfoObj),
                     MediaControllerCompatApi21.VolumeInfo.getVolumeControl(volumeInfoObj),
                     MediaControllerCompatApi21.VolumeInfo.getMaxVolume(volumeInfoObj),
                     MediaControllerCompatApi21.VolumeInfo.getCurrentVolume(volumeInfoObj)) : null;
