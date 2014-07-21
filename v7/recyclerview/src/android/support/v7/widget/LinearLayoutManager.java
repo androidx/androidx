@@ -1250,12 +1250,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
             /**
              * Consume the available space if:
-             * * view is not removed
+             * * view is not removed OR changed
              * * OR we are laying out scrap children
              * * OR we are not doing pre-layout
              */
-            if (!params.isItemRemoved() || mLayoutState.mScrapList != null ||
-                    !state.isPreLayout()) {
+            if (!(params.isItemRemoved() || params.isItemChanged())
+                    || mLayoutState.mScrapList != null || !state.isPreLayout()) {
                 layoutState.mAvailable -= consumed;
                 // we keep a separate remaining space because mAvailable is important for recycling
                 remainingSpace -= consumed;
