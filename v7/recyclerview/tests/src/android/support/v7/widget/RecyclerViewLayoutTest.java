@@ -34,6 +34,47 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         super(DEBUG);
     }
 
+    public void testRecycleIgnored() throws Throwable {
+        final TestAdapter adapter = new TestAdapter(10);
+        final TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 5);
+                layoutLatch.countDown();
+            }
+        };
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View child1 = lm.findViewByPosition(0);
+                View child2 = lm.findViewByPosition(1);
+                lm.ignoreView(child1);
+                lm.ignoreView(child2);
+
+                lm.removeAndRecycleAllViews(recyclerView.mRecycler);
+                assertEquals("ignored child should not be recycled or removed", 2,
+                        lm.getChildCount());
+
+                Throwable[] throwables = new Throwable[1];
+                try {
+                    lm.removeAndRecycleView(child1, mRecyclerView.mRecycler);
+                } catch (Throwable t) {
+                    throwables[0] = t;
+                }
+                assertTrue("Trying to recycle an ignored view should throw IllegalArgException "
+                , throwables[0] instanceof IllegalArgumentException);
+                lm.removeAllViews();
+                assertEquals("ignored child should be removed as well ", 0, lm.getChildCount());
+            }
+        });
+    }
+
     public void testInvalidateDecorOffsets() throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(true);
