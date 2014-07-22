@@ -87,7 +87,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     private boolean mReverseLayout = false;
 
     /**
-     * This keeps the final value for how LayoutManager shouls start laying out views.
+     * This keeps the final value for how LayoutManager should start laying out views.
      * It is calculated by checking {@link #getReverseLayout()} and View's layout direction.
      * {@link #onLayoutChildren(RecyclerView.Recycler, RecyclerView.State)} is run.
      */
@@ -99,6 +99,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * see {@link android.widget.AbsListView#setStackFromBottom(boolean)}
      */
     private boolean mStackFromEnd = false;
+
+    /**
+     * Works the same way as {@link android.widget.AbsListView#setSmoothScrollbarEnabled(boolean)}.
+     * see {@link android.widget.AbsListView#setSmoothScrollbarEnabled(boolean)}
+     */
+    private boolean mSmoothScrollbarEnabled = true;
 
     /**
      * When LayoutManager needs to scroll to a position, it sets this variable and requests a
@@ -214,6 +220,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         state.mStackFromEnd = mStackFromEnd;
         state.mReverseLayout = mReverseLayout;
         state.mOrientation = mOrientation;
+        state.mSmoothScrollbarEnabled = mSmoothScrollbarEnabled;
         return state;
     }
 
@@ -436,6 +443,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             setReverseLayout(mPendingSavedState.mReverseLayout);
             setStackFromEnd(mPendingSavedState.mStackFromEnd);
             setRecycleChildrenOnDetach(mPendingSavedState.mRecycleChildrenOnDetach);
+            setSmoothScrollbarEnabled(mPendingSavedState.mSmoothScrollbarEnabled);
             if (mPendingSavedState.hasValidAnchor()) {
                 mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
             }
@@ -841,40 +849,126 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int computeHorizontalScrollOffset(RecyclerView.State state) {
-        if (getChildCount() == 0) {
-            return 0;
-        }
-        final int topPosition = getPosition(getChildClosestToStart());
-        return mShouldReverseLayout ? state.getItemCount() - 1 - topPosition : topPosition;
+        return computeScrollOffset(state);
     }
 
     @Override
     public int computeVerticalScrollOffset(RecyclerView.State state) {
-        if (getChildCount() == 0) {
-            return 0;
-        }
-        final int topPosition = getPosition(getChildClosestToStart());
-        return mShouldReverseLayout ? state.getItemCount() - 1 - topPosition : topPosition;
+        return computeScrollOffset(state);
     }
 
     @Override
     public int computeHorizontalScrollExtent(RecyclerView.State state) {
-        return getChildCount();
+        return computeScrollExtent(state);
     }
 
     @Override
     public int computeVerticalScrollExtent(RecyclerView.State state) {
-        return getChildCount();
+        return computeScrollExtent(state);
     }
 
     @Override
     public int computeHorizontalScrollRange(RecyclerView.State state) {
-        return state.getItemCount();
+        return computeScrollRange(state);
     }
 
     @Override
     public int computeVerticalScrollRange(RecyclerView.State state) {
-        return state.getItemCount();
+        return computeScrollRange(state);
+    }
+
+    private int computeScrollOffset(RecyclerView.State state) {
+        if (getChildCount() == 0 || state.getItemCount() == 0) {
+            return 0;
+        }
+        final View startChild = getChildClosestToStart();
+        final int itemsBefore = mShouldReverseLayout
+                ? Math.max(0, state.getItemCount() - getPosition(startChild) - 1)
+                : Math.max(0, getPosition(startChild) - 1);
+        if (!mSmoothScrollbarEnabled) {
+            return itemsBefore;
+        }
+        final View endChild = getChildClosestToEnd();
+        final int laidOutArea = mOrientationHelper.getDecoratedEnd(endChild) -
+                mOrientationHelper.getDecoratedStart(startChild);
+        final int laidOutRange = Math.abs(getPosition(startChild) - getPosition(endChild)) + 1;
+        final float avgSizePerRow = (float) laidOutArea / laidOutRange;
+
+        return Math.round(itemsBefore * avgSizePerRow + (mOrientationHelper.getStartAfterPadding()
+                - mOrientationHelper.getDecoratedStart(startChild)));
+    }
+
+    private int computeScrollExtent(RecyclerView.State state) {
+        if (state.getItemCount() == 0 || getChildCount() == 0) {
+            return 1;
+        }
+        if (!mSmoothScrollbarEnabled) {
+            return findLastVisibleItemPosition() - findFirstVisibleItemPosition() + 1;
+        }
+        final View firstVisible = findOneVisibleChild(0, getChildCount(), false);
+        final View lastVisible = findOneVisibleChild(getChildCount() - 1, -1, false);
+        if (firstVisible == null || lastVisible == null) {
+            return 1;
+        }
+        final int extend;
+        if (mShouldReverseLayout) {
+            // first visible is below
+            extend = mOrientationHelper.getDecoratedEnd(firstVisible) -
+                    mOrientationHelper.getDecoratedStart(lastVisible);
+        } else {
+            extend = mOrientationHelper.getDecoratedEnd(lastVisible) -
+                    mOrientationHelper.getDecoratedStart(firstVisible);
+        }
+        return Math.min(mOrientationHelper.getTotalSpace(), extend);
+    }
+
+    private int computeScrollRange(RecyclerView.State state) {
+        if (state.getItemCount() == 0 || getChildCount() == 0) {
+            return 0;
+        }
+        if (!mSmoothScrollbarEnabled) {
+            return state.getItemCount();
+        }
+        // smooth scrollbar enabled. try to estimate better.
+        final View startChild = getChildClosestToStart();
+        final View endChild = getChildClosestToEnd();
+        final int laidOutArea = mOrientationHelper.getDecoratedEnd(endChild) -
+                mOrientationHelper.getDecoratedStart(startChild);
+        final int laidOutRange = Math.abs(getPosition(startChild) - getPosition(endChild)) + 1;
+        // estimate a size for full list.
+        return (int) ((float)laidOutArea / laidOutRange * state.getItemCount());
+    }
+
+    /**
+     * When smooth scrollbar is enabled, the position and size of the scrollbar thumb is computed
+     * based on the number of visible pixels in the visible items. This however assumes that all
+     * list items have similar or equal widths or heights (depending on list orientation).
+     * If you use a list in which items have different dimensions, the scrollbar will change
+     * appearance as the user scrolls through the list. To avoid this issue,  you need to disable
+     * this property.
+     *
+     * When smooth scrollbar is disabled, the position and size of the scrollbar thumb is based
+     * solely on the number of items in the adapter and the position of the visible items inside
+     * the adapter. This provides a stable scrollbar as the user navigates through a list of items
+     * with varying widths / heights.
+     *
+     * @param enabled Whether or not to enable smooth scrollbar.
+     *
+     * @see #setSmoothScrollbarEnabled(boolean)
+     */
+    public void setSmoothScrollbarEnabled(boolean enabled) {
+        mSmoothScrollbarEnabled = enabled;
+    }
+
+    /**
+     * Returns the current state of the smooth scrollbar feature. It is enabled by default.
+     *
+     * @return True if smooth scrollbar is enabled, false otherwise.
+     *
+     * @see #setSmoothScrollbarEnabled(boolean)
+     */
+    public boolean isSmoothScrollbarEnabled() {
+        return mSmoothScrollbarEnabled;
     }
 
     private void updateLayoutState(int layoutDirection, int requiredSpace,
@@ -1319,7 +1413,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findLastVisibleItemPosition()
      */
     public int findFirstVisibleItemPosition() {
-        return findOneVisibleChild(0, getChildCount(), false);
+        final View child = findOneVisibleChild(0, getChildCount(), false);
+        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
     }
 
     /**
@@ -1334,7 +1429,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findLastCompletelyVisibleItemPosition()
      */
     public int findFirstCompletelyVisibleItemPosition() {
-        return findOneVisibleChild(0, getChildCount(), true);
+        final View child = findOneVisibleChild(0, getChildCount(), true);
+        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
     }
 
     /**
@@ -1355,7 +1451,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findFirstVisibleItemPosition()
      */
     public int findLastVisibleItemPosition() {
-        return findOneVisibleChild(getChildCount() - 1, -1, false);
+        final View child = findOneVisibleChild(getChildCount() - 1, -1, false);
+        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
     }
 
     /**
@@ -1370,10 +1467,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findFirstCompletelyVisibleItemPosition()
      */
     public int findLastCompletelyVisibleItemPosition() {
-        return findOneVisibleChild(getChildCount() - 1, -1, true);
+        final View child = findOneVisibleChild(getChildCount() - 1, -1, true);
+        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
     }
 
-    int findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {
+    View findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {
         final int start = mOrientationHelper.getStartAfterPadding();
         final int end = mOrientationHelper.getEndAfterPadding();
         final int next = toIndex > fromIndex ? 1 : -1;
@@ -1384,14 +1482,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             if (childStart < end && childEnd > start) {
                 if (completelyVisible) {
                     if (childStart >= start && childEnd <= end) {
-                        return getPosition(child);
+                        return child;
                     }
                 } else {
-                    return getPosition(child);
+                    return child;
                 }
             }
         }
-        return RecyclerView.NO_POSITION;
+        return null;
     }
 
     @Override
@@ -1651,6 +1749,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         boolean mRecycleChildrenOnDetach;
 
+        boolean mSmoothScrollbarEnabled;
+
 
         public SavedState() {
 
@@ -1664,6 +1764,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mStackFromEnd = in.readInt() == 1;
             mAnchorLayoutFromEnd = in.readInt() == 1;
             mRecycleChildrenOnDetach = in.readInt() == 1;
+            mSmoothScrollbarEnabled = in.readInt() == 1;
         }
 
         public SavedState(SavedState other) {
@@ -1674,6 +1775,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mStackFromEnd = other.mStackFromEnd;
             mAnchorLayoutFromEnd = other.mAnchorLayoutFromEnd;
             mRecycleChildrenOnDetach = other.mRecycleChildrenOnDetach;
+            mSmoothScrollbarEnabled = other.mSmoothScrollbarEnabled;
         }
 
         boolean hasValidAnchor() {
@@ -1698,6 +1800,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             dest.writeInt(mStackFromEnd ? 1 : 0);
             dest.writeInt(mAnchorLayoutFromEnd ? 1 : 0);
             dest.writeInt(mRecycleChildrenOnDetach ? 1 : 0);
+            dest.writeInt(mSmoothScrollbarEnabled ? 1 : 0);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR
