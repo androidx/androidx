@@ -5150,10 +5150,10 @@ public class RecyclerView extends ViewGroup {
          *
          * @param child Child to query
          * @return Child left edge with offsets applied
+         * @see #getLeftDecorationWidth(View)
          */
         public int getDecoratedLeft(View child) {
-            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
-            return child.getLeft() - insets.left;
+            return child.getLeft() - getLeftDecorationWidth(child);
         }
 
         /**
@@ -5162,10 +5162,10 @@ public class RecyclerView extends ViewGroup {
          *
          * @param child Child to query
          * @return Child top edge with offsets applied
+         * @see #getTopDecorationHeight(View)
          */
         public int getDecoratedTop(View child) {
-            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
-            return child.getTop() - insets.top;
+            return child.getTop() - getTopDecorationHeight(child);
         }
 
         /**
@@ -5174,10 +5174,10 @@ public class RecyclerView extends ViewGroup {
          *
          * @param child Child to query
          * @return Child right edge with offsets applied
+         * @see #getRightDecorationWidth(View)
          */
         public int getDecoratedRight(View child) {
-            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
-            return child.getRight() + insets.right;
+            return child.getRight() + getRightDecorationWidth(child);
         }
 
         /**
@@ -5186,10 +5186,62 @@ public class RecyclerView extends ViewGroup {
          *
          * @param child Child to query
          * @return Child bottom edge with offsets applied
+         * @see #getBottomDecorationHeight(View)
          */
         public int getDecoratedBottom(View child) {
-            final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
-            return child.getBottom() + insets.bottom;
+            return child.getBottom() + getBottomDecorationHeight(child);
+        }
+
+        /**
+         * Returns the total height of item decorations applied to child's top.
+         * <p>
+         * Note that this value is not updated until the View is measured.
+         *
+         * @param child Child to query
+         * @return The total height of item decorations applied to the child's top.
+         * @see #getDecoratedTop(View)
+         */
+        public int getTopDecorationHeight(View child) {
+            return ((LayoutParams) child.getLayoutParams()).mDecorInsets.top;
+        }
+
+        /**
+         * Returns the total height of item decorations applied to child's bottom.
+         * <p>
+         * Note that this value is not updated until the View is measured.
+         *
+         * @param child Child to query
+         * @return The total height of item decorations applied to the child's bottom.
+         * @see #getDecoratedBottom(View)
+         */
+        public int getBottomDecorationHeight(View child) {
+            return ((LayoutParams) child.getLayoutParams()).mDecorInsets.bottom;
+        }
+
+        /**
+         * Returns the total width of item decorations applied to child's left.
+         * <p>
+         * Note that this value is not updated until the View is measured.
+         *
+         * @param child Child to query
+         * @return The total width of item decorations applied to the child's left.
+         * @see #getDecoratedLeft(View)
+         */
+        public int getLeftDecorationWidth(View child) {
+            return ((LayoutParams) child.getLayoutParams()).mDecorInsets.left;
+        }
+
+        /**
+         * Returns the total width of item decorations applied to child's right.
+         * <p>
+         * Note that this value is not updated until the View is measured.
+         * 
+         * @param child Child to query
+         * @return The total width of item decorations applied to the child's right.
+         * @see #getDecoratedRight(View)
+         */
+        public int getRightDecorationWidth(View child) {
+            return ((LayoutParams) child.getLayoutParams()).mDecorInsets.right;
         }
 
         /**
