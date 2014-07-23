@@ -16,6 +16,8 @@
 
 package android.support.v4.media.session;
 
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.Rating;
 import android.media.session.MediaController;
@@ -116,8 +118,13 @@ class MediaControllerCompatApi21 {
             return ((MediaController.VolumeInfo)volumeInfoObj).getVolumeType();
         }
 
-        public static int getAudioStream(Object volumeInfoObj) {
-            return ((MediaController.VolumeInfo)volumeInfoObj).getAudioStream();
+        public static AudioAttributes getAudioAttributes(Object volumeInfoObj) {
+            return ((MediaController.VolumeInfo) volumeInfoObj).getAudioAttributes();
+        }
+
+        public static int getLegacyAudioStream(Object volumeInfoObj) {
+            AudioAttributes attrs = getAudioAttributes(volumeInfoObj);
+            return toLegacyStreamType(attrs);
         }
 
         public static int getVolumeControl(Object volumeInfoObj) {
@@ -130,6 +137,51 @@ class MediaControllerCompatApi21 {
 
         public static int getCurrentVolume(Object volumeInfoObj) {
             return ((MediaController.VolumeInfo)volumeInfoObj).getCurrentVolume();
+        }
+
+        // This is copied from AudioAttributes.toLegacyStreamType. TODO This
+        // either needs to be kept in sync with that one or toLegacyStreamType
+        // needs to be made public so it can be used by the support lib.
+        private static final int FLAG_SCO = 0x1 << 2;
+        private static final int STREAM_BLUETOOTH_SCO = 6;
+        private static final int STREAM_SYSTEM_ENFORCED = 7;
+        private static int toLegacyStreamType(AudioAttributes aa) {
+            // flags to stream type mapping
+            if ((aa.getFlags() & AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                    == AudioAttributes.FLAG_AUDIBILITY_ENFORCED) {
+                return STREAM_SYSTEM_ENFORCED;
+            }
+            if ((aa.getFlags() & FLAG_SCO) == FLAG_SCO) {
+                return STREAM_BLUETOOTH_SCO;
+            }
+
+            // usage to stream type mapping
+            switch (aa.getUsage()) {
+                case AudioAttributes.USAGE_MEDIA:
+                case AudioAttributes.USAGE_GAME:
+                case AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY:
+                case AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
+                    return AudioManager.STREAM_MUSIC;
+                case AudioAttributes.USAGE_ASSISTANCE_SONIFICATION:
+                    return AudioManager.STREAM_SYSTEM;
+                case AudioAttributes.USAGE_VOICE_COMMUNICATION:
+                    return AudioManager.STREAM_VOICE_CALL;
+                case AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING:
+                    return AudioManager.STREAM_DTMF;
+                case AudioAttributes.USAGE_ALARM:
+                    return AudioManager.STREAM_ALARM;
+                case AudioAttributes.USAGE_NOTIFICATION_RINGTONE:
+                    return AudioManager.STREAM_RING;
+                case AudioAttributes.USAGE_NOTIFICATION:
+                case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
+                case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
+                case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
+                case AudioAttributes.USAGE_NOTIFICATION_EVENT:
+                    return AudioManager.STREAM_NOTIFICATION;
+                case AudioAttributes.USAGE_UNKNOWN:
+                default:
+                    return AudioManager.STREAM_MUSIC;
+            }
         }
     }
 
