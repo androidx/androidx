@@ -70,9 +70,9 @@ class MediaControllerCompatApi21 {
         return ((MediaController)controllerObj).dispatchMediaButtonEvent(event);
     }
 
-    public static void sendControlCommand(Object controllerObj,
+    public static void sendCommand(Object controllerObj,
             String command, Bundle params, ResultReceiver cb) {
-        ((MediaController)controllerObj).sendControlCommand(command, params, cb);
+        ((MediaController)controllerObj).sendCommand(command, params, cb);
     }
 
     public static class TransportControls {
