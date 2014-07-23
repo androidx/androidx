@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -51,6 +52,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     public static class ViewHolder extends RowPresenter.ViewHolder {
         final ViewGroup mOverviewView;
         final ImageView mImageView;
+        final ViewGroup mRightPanel;
         final FrameLayout mDetailsDescriptionFrame;
         final HorizontalGridView mActionsRow;
         Presenter.ViewHolder mDetailsDescriptionViewHolder;
@@ -151,10 +153,11 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             super(rootView);
             mOverviewView = (ViewGroup) rootView.findViewById(R.id.details_overview);
             mImageView = (ImageView) rootView.findViewById(R.id.details_overview_image);
+            mRightPanel = (ViewGroup) rootView.findViewById(R.id.details_overview_right_panel);
             mDetailsDescriptionFrame =
-                    (FrameLayout) rootView.findViewById(R.id.details_overview_description);
+                    (FrameLayout) mRightPanel.findViewById(R.id.details_overview_description);
             mActionsRow =
-                    (HorizontalGridView) rootView.findViewById(R.id.details_overview_actions);
+                    (HorizontalGridView) mRightPanel.findViewById(R.id.details_overview_actions);
             mActionsRow.setOnScrollListener(mScrollListener);
 
             final int fadeLength = rootView.getResources().getDimensionPixelSize(
@@ -170,6 +173,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     private int mBackgroundColor = Color.TRANSPARENT;
     private boolean mBackgroundColorSet;
     private boolean mIsStyleLarge = true;
+
+    private DetailsOverviewSharedElementHelper mSharedElementHelper;
 
     /**
      * Constructor for a DetailsOverviewRowPresenter.
@@ -231,10 +236,22 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Get overview view with background color.
+     * Set enter transition of target activity (typically a DetailActivity) to be
+     * transiting into overview row created by this presenter.
+     * <p>
+     * It assumes shared element passed from calling activity is an ImageView;
+     * the shared element transits to overview image on the left of detail
+     * overview row, while bounds of overview row grows and reveals text
+     * and buttons on the right.
+     * <p>
+     * The method must be invoked in target Activity's onCreate().
      */
-    public ViewGroup getOverviewView(ViewHolder holder) {
-        return holder.mOverviewView;
+    public final void setSharedElementEnterTransition(Activity activity,
+            String sharedElementName) {
+        if (mSharedElementHelper == null) {
+            mSharedElementHelper = new DetailsOverviewSharedElementHelper();
+        }
+        mSharedElementHelper.setSharedElementEnterTransition(activity, sharedElementName);
     }
 
     private int getDefaultBackgroundColor(Context context) {
@@ -366,6 +383,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         vh.mActionsRow.setAdapter(mActionBridgeAdapter);
 
         vh.bind(mActionBridgeAdapter);
+
+        if (row.getImageDrawable() != null && mSharedElementHelper != null) {
+            mSharedElementHelper.onBindToDrawable(vh);
+        }
     }
 
     @Override
