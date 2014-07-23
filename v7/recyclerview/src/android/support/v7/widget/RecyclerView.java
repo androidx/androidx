@@ -228,7 +228,6 @@ public class RecyclerView extends ViewGroup {
     // For use in item animations
     boolean mItemsAddedOrRemoved = false;
     boolean mItemsChanged = false;
-    boolean mInPreLayout = false;
     private ItemAnimator.ItemAnimatorListener mItemAnimatorListener =
             new ItemAnimatorRestoreListener();
     private boolean mPostedAnimatorRunner = false;
@@ -1595,23 +1594,39 @@ public class RecyclerView extends ViewGroup {
     protected void onMeasure(int widthSpec, int heightSpec) {
         if (mAdapterUpdateDuringMeasure) {
             eatRequestLayout();
-            mAdapterHelper.preProcess();
+            processAdapterUpdatesAndSetAnimationFlags();
+
+            if (mState.mRunPredictiveAnimations) {
+                // TODO: try to provide a better approach.
+                // When RV decides to run predictive animations, we need to measure in pre-layout
+                // state so that pre-layout pass results in correct layout.
+                // On the other hand, this will prevent the layout manager from resizing properly.
+                mState.mInPreLayout = true;
+            } else {
+                // consume remaining updates to provide a consistent state with the layout pass.
+                mAdapterHelper.consumeUpdatesInOnePass();
+                mState.mInPreLayout = false;
+            }
             mAdapterUpdateDuringMeasure = false;
             resumeRequestLayout(false);
         }
 
         if (mAdapter != null) {
             mState.mItemCount = mAdapter.getItemCount();
+        } else {
+            mState.mItemCount = 0;
         }
+
         mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
+        mState.mInPreLayout = false; // clear
+    }
 
-        final int widthSize = getMeasuredWidth();
-        final int heightSize = getMeasuredHeight();
-
-        if (mLeftGlow != null) mLeftGlow.setSize(heightSize, widthSize);
-        if (mTopGlow != null) mTopGlow.setSize(widthSize, heightSize);
-        if (mRightGlow != null) mRightGlow.setSize(heightSize, widthSize);
-        if (mBottomGlow != null) mBottomGlow.setSize(widthSize, heightSize);
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (w != oldw || h != oldh) {
+            invalidateGlows();
+        }
     }
 
     /**
@@ -1669,6 +1684,39 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * Consumes adapter updates and calculates which type of animations we want to run.
+     * Called in onMeasure and dispatchLayout.
+     * <p>
+     * This method may process only the pre-layout state of updates or all of them.
+     */
+    private void processAdapterUpdatesAndSetAnimationFlags() {
+        if (mDataSetHasChangedAfterLayout) {
+            // Processing these items have no value since data set changed unexpectedly.
+            // Instead, we just reset it.
+            mAdapterHelper.reset();
+            markKnownViewsInvalid();
+            mLayout.onItemsChanged(this);
+        }
+        // simple animations are a subset of advanced animations (which will cause a
+        // pre-layout step)
+        // If layout supports predictive animations, pre-process to decide if we want to run them
+        if (mItemAnimator != null && mLayout.supportsPredictiveItemAnimations()) {
+            mAdapterHelper.preProcess();
+        } else {
+            mAdapterHelper.consumeUpdatesInOnePass();
+        }
+        boolean animationTypeSupported = (mItemsAddedOrRemoved && !mItemsChanged) ||
+                (mItemsAddedOrRemoved || (mItemsChanged && supportsChangeAnimations()));
+        mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null &&
+                (mDataSetHasChangedAfterLayout || animationTypeSupported ||
+                        mLayout.mRequestedSimpleAnimations) &&
+                (!mDataSetHasChangedAfterLayout || mAdapter.hasStableIds());
+        mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
+                animationTypeSupported && !mDataSetHasChangedAfterLayout &&
+                predictiveItemAnimationsEnabled();
+    }
+
+    /**
      * Wrapper around layoutChildren() that handles animating changes caused by layout.
      * Animations work on the assumption that there are five different kinds of items
      * in play:
@@ -1698,17 +1746,9 @@ public class RecyclerView extends ViewGroup {
         mDisappearingViewsInLayoutPass.clear();
         eatRequestLayout();
         mRunningLayoutOrScroll = true;
-        // simple animations are a subset of advanced animations (which will cause a
-        // prelayout step)
-        boolean animationTypeSupported = (mItemsAddedOrRemoved && !mItemsChanged) ||
-                (mItemsAddedOrRemoved || (mItemsChanged && supportsChangeAnimations()));
-        mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null &&
-                (mDataSetHasChangedAfterLayout || animationTypeSupported ||
-                        mLayout.mRequestedSimpleAnimations) &&
-                (!mDataSetHasChangedAfterLayout || mAdapter.hasStableIds());
-        mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
-                animationTypeSupported && !mDataSetHasChangedAfterLayout &&
-                predictiveItemAnimationsEnabled();
+
+        processAdapterUpdatesAndSetAnimationFlags();
+
         ArrayMap<Long, ViewHolder> oldChangedHolders =
                 mState.mRunSimpleAnimations && mItemsChanged && supportsChangeAnimations() ?
                         new ArrayMap<Long, ViewHolder>() : null;
@@ -1716,14 +1756,6 @@ public class RecyclerView extends ViewGroup {
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
         mState.mInPreLayout = mState.mRunPredictiveAnimations;
         mState.mItemCount = mAdapter.getItemCount();
-
-        if (mDataSetHasChangedAfterLayout) {
-            // Processing these items have no value since data set changed unexpectedly.
-            // Instead, we just reset it.
-            mAdapterHelper.reset();
-            markKnownViewsInvalid();
-            mLayout.onItemsChanged(this);
-        }
 
         if (mState.mRunSimpleAnimations) {
             // Step 0: Find out where all non-removed items are, pre-layout
@@ -1748,8 +1780,7 @@ public class RecyclerView extends ViewGroup {
 
             // Save old positions so that LayoutManager can run its mapping logic.
             saveOldPositions();
-            // Make sure any pending data updates are flushed before laying out.
-            mAdapterHelper.preProcess();
+            // processAdapterUpdatesAndSetAnimationFlags already run pre-layout animations.
             if (oldChangedHolders != null) {
                 int count = mChildHelper.getChildCount();
                 for (int i = 0; i < count; ++i) {
@@ -1763,13 +1794,11 @@ public class RecyclerView extends ViewGroup {
                 }
             }
 
-                mInPreLayout = true;
             final boolean didStructureChange = mState.mStructureChanged;
             mState.mStructureChanged = false;
             // temporarily disable flag because we are asking for previous layout
             mLayout.onLayoutChildren(mRecycler, mState);
             mState.mStructureChanged = didStructureChange;
-            mInPreLayout = false;
 
             appearingViewInitialBounds = new ArrayMap<View, Rect>();
             for (int i = 0; i < mChildHelper.getChildCount(); ++i) {
@@ -1795,6 +1824,7 @@ public class RecyclerView extends ViewGroup {
             mAdapterHelper.consumePostponedUpdates();
         } else {
             clearOldPositions();
+            // in case pre layout did run but we decided not to run predictive animations.
             mAdapterHelper.consumeUpdatesInOnePass();
             if (oldChangedHolders != null) {
                 int count = mChildHelper.getChildCount();
@@ -3250,7 +3280,7 @@ public class RecyclerView extends ViewGroup {
             }
             if (holder.isRecyclable()) {
                 boolean cached = false;
-                if (!holder.isInvalid() && (mInPreLayout || !holder.isRemoved()) &&
+                if (!holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved()) &&
                         !holder.isChanged()) {
                     // Retire oldest cached views first
                     if (mCachedViews.size() == mViewCacheMax && !mCachedViews.isEmpty()) {
@@ -3362,7 +3392,7 @@ public class RecyclerView extends ViewGroup {
             for (int i = 0; i < scrapCount; i++) {
                 final ViewHolder holder = mAttachedScrap.get(i);
                 if (!holder.wasReturnedFromScrap() && holder.getPosition() == position
-                        && !holder.isInvalid() && (mInPreLayout || !holder.isRemoved())) {
+                        && !holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved())) {
                     if (type != INVALID_TYPE && holder.getItemViewType() != type) {
                         Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
                                 " wrong view type! (found " + holder.getItemViewType() +
@@ -6876,6 +6906,24 @@ public class RecyclerView extends ViewGroup {
         public void onViewIgnored(ViewHolder holder) {
             mPreLayoutHolderMap.remove(holder);
             mPostLayoutHolderMap.remove(holder);
+        }
+
+        @Override
+        public String toString() {
+            return "State{" +
+                    "mTargetPosition=" + mTargetPosition +
+                    ", mPreLayoutHolderMap=" + mPreLayoutHolderMap +
+                    ", mPostLayoutHolderMap=" + mPostLayoutHolderMap +
+                    ", mData=" + mData +
+                    ", mItemCount=" + mItemCount +
+                    ", mPreviousLayoutItemCount=" + mPreviousLayoutItemCount +
+                    ", mDeletedInvisibleItemCountSincePreviousLayout="
+                    + mDeletedInvisibleItemCountSincePreviousLayout +
+                    ", mStructureChanged=" + mStructureChanged +
+                    ", mInPreLayout=" + mInPreLayout +
+                    ", mRunSimpleAnimations=" + mRunSimpleAnimations +
+                    ", mRunPredictiveAnimations=" + mRunPredictiveAnimations +
+                    '}';
         }
     }
 
