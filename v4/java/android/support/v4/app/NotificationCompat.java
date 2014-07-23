@@ -293,8 +293,8 @@ public class NotificationCompat {
     public static final String EXTRA_PEOPLE = "android.people";
 
     /**
-     * {@link #extras} key: the indices of actions to be shown in the compact view,
-     * as supplied to (e.g.) {@link MediaStyle#setShowActionsInCompactView(int...)}.
+     * Notification extras key: the indices of actions to be shown in the compact view,
+     * as supplied to (e.g.) {@link Notification.MediaStyle#setShowActionsInCompactView(int...)}.
      */
     public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
 
