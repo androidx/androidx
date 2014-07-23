@@ -293,6 +293,12 @@ public class NotificationCompat {
     public static final String EXTRA_PEOPLE = "android.people";
 
     /**
+     * {@link #extras} key: the indices of actions to be shown in the compact view,
+     * as supplied to (e.g.) {@link MediaStyle#setShowActionsInCompactView(int...)}.
+     */
+    public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
+
+    /**
      * Value of {@link Notification#color} equal to 0 (also known as
      * {@link android.graphics.Color#TRANSPARENT Color.TRANSPARENT}),
      * telling the system not to decorate this notification with any special color but instead use
