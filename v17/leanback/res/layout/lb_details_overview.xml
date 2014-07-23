@@ -22,6 +22,7 @@
     android:paddingLeft="@dimen/lb_details_overview_margin_left"
     android:paddingRight="@dimen/lb_details_overview_margin_right"
     android:paddingBottom="@dimen/lb_details_overview_margin_bottom"
+    android:clipToPadding="false"
     >
 
     <!-- Background is applied to this inner layout -->
@@ -41,6 +42,7 @@
             />
 
         <LinearLayout
+            android:id="@+id/details_overview_right_panel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/lb_details_overview_description_margin_bottom"
