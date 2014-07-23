@@ -18,6 +18,7 @@ package android.support.v4.media.session;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.media.MediaMetadata;
 import android.media.Rating;
 import android.media.VolumeProvider;
@@ -51,7 +52,10 @@ class MediaSessionCompatApi21 {
     }
 
     public static void setPlaybackToLocal(Object sessionObj, int stream) {
-        ((MediaSession)sessionObj).setPlaybackToLocal(stream);
+        // TODO update APIs to use support version of AudioAttributes
+        AudioAttributes.Builder bob = new AudioAttributes.Builder();
+        bob.setLegacyStreamType(stream);
+        ((MediaSession) sessionObj).setPlaybackToLocal(bob.build());
     }
 
     public static void setPlaybackToRemote(Object sessionObj, Object volumeProviderObj) {
