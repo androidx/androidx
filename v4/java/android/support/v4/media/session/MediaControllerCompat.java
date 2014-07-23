@@ -198,11 +198,11 @@ public final class MediaControllerCompat {
      * @param params Any parameters to include with the command
      * @param cb The callback to receive the result on
      */
-    public void sendControlCommand(String command, Bundle params, ResultReceiver cb) {
+    public void sendCommand(String command, Bundle params, ResultReceiver cb) {
         if (TextUtils.isEmpty(command)) {
             throw new IllegalArgumentException("command cannot be null or empty");
         }
-        mImpl.sendControlCommand(command, params, cb);
+        mImpl.sendCommand(command, params, cb);
     }
 
     /**
@@ -431,7 +431,7 @@ public final class MediaControllerCompat {
         MediaMetadataCompat getMetadata();
         int getRatingType();
         VolumeInfo getVolumeInfo();
-        void sendControlCommand(String command, Bundle params, ResultReceiver cb);
+        void sendCommand(String command, Bundle params, ResultReceiver cb);
         Object getMediaController();
     }
 
@@ -476,7 +476,7 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public void sendControlCommand(String command, Bundle params, ResultReceiver cb) {
+        public void sendCommand(String command, Bundle params, ResultReceiver cb) {
         }
 
         @Override
@@ -551,9 +551,8 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public void sendControlCommand(String command, Bundle params, ResultReceiver cb) {
-            MediaControllerCompatApi21.sendControlCommand(mControllerObj,
-                    command, params, cb);
+        public void sendCommand(String command, Bundle params, ResultReceiver cb) {
+            MediaControllerCompatApi21.sendCommand(mControllerObj, command, params, cb);
         }
 
         @Override

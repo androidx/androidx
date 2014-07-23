@@ -347,7 +347,7 @@ public class MediaSessionCompat {
          * @param extras Optional parameters for the command, may be null.
          * @param cb A result receiver to which a result may be sent by the command, may be null.
          */
-        public void onControlCommand(String command, Bundle extras, ResultReceiver cb) {
+        public void onCommand(String command, Bundle extras, ResultReceiver cb) {
         }
 
         private class StubApi21 implements MediaSessionCompatApi21.Callback {
@@ -357,9 +357,8 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public void onControlCommand(
-                    String command, Bundle extras, ResultReceiver cb) {
-                Callback.this.onControlCommand(command, extras, cb);
+            public void onCommand(String command, Bundle extras, ResultReceiver cb) {
+                Callback.this.onCommand(command, extras, cb);
             }
         }
     }
