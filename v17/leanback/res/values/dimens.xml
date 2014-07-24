@@ -104,6 +104,23 @@
     <dimen name="lb_action_icon_margin">12dp</dimen>
     <dimen name="lb_action_text_size">16sp</dimen>
 
+    <dimen name="lb_playback_controls_align_bottom">48dp</dimen>
+    <dimen name="lb_playback_controls_card_height">176dp</dimen>
+    <dimen name="lb_playback_controls_margin_left">132dp</dimen>
+    <dimen name="lb_playback_controls_margin_right">132dp</dimen>
+    <dimen name="lb_playback_controls_margin_bottom">20dp</dimen>
+    <dimen name="lb_playback_description_margin_top">24dp</dimen>
+    <dimen name="lb_playback_description_margin_start">24dp</dimen>
+    <dimen name="lb_playback_description_margin_end">24dp</dimen>
+    <dimen name="lb_secondary_controls_margin_top">12dp</dimen>
+
+    <dimen name="lb_control_button_diameter">76dp</dimen>
+    <dimen name="lb_control_button_height">64dp</dimen>
+    <dimen name="lb_control_button_secondary_diameter">48dp</dimen>
+    <dimen name="lb_control_button_secondary_height">48dp</dimen>
+    <dimen name="lb_control_icon_width">32dp</dimen>
+    <dimen name="lb_control_icon_height">32dp</dimen>
+
     <dimen name="lb_error_image_max_height">120dp</dimen>
     <integer name="lb_error_message_max_lines">1</integer>
     <dimen name="lb_error_message_max_width">600dp</dimen>

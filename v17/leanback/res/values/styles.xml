@@ -212,7 +212,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="Widget.Leanback.DetailsActionButtonStyle" parent="android:Widget.Holo.Button.Borderless">
+    <style name="Widget.Leanback.DetailsActionButtonStyle" parent="android:Widget.Material.Button.Borderless">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsActionButton</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:drawablePadding">@dimen/lb_action_icon_margin</item>
@@ -220,6 +220,11 @@
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingLeft">@dimen/lb_action_padding_horizontal</item>
         <item name="android:paddingRight">@dimen/lb_action_padding_horizontal</item>
+    </style>
+
+    <style name="Widget.Leanback.PlaybackControlsButtonStyle" >
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
     </style>
 
     <style name="Widget.Leanback.ErrorMessageStyle">

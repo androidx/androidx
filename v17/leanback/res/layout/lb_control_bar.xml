@@ -14,19 +14,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
- <resources>
-     <item type="id" name="lb_focus_animator" />
-     <item type="id" name="lb_header_transition_position" />
 
-     <item type="id" name="lb_control_play_pause" />
-     <item type="id" name="lb_control_fast_forward" />
-     <item type="id" name="lb_control_fast_rewind" />
-     <item type="id" name="lb_control_skip_next" />
-     <item type="id" name="lb_control_skip_previous" />
-     <item type="id" name="lb_control_more_actions" />
-     <item type="id" name="lb_control_thumbs_up" />
-     <item type="id" name="lb_control_thumbs_down" />
-     <item type="id" name="lb_control_repeat" />
-     <item type="id" name="lb_control_shuffle" />
-
- </resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/control_bar"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" />
