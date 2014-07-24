@@ -90,6 +90,113 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         return recyclerView;
     }
 
+    public void testChangeAnimations()  throws Throwable {
+        final boolean[] booleans = {true, false};
+        for (boolean supportsChange : booleans) {
+            for (boolean changeType : booleans) {
+                for (boolean hasStableIds : booleans) {
+                    for (boolean deleteSomeItems : booleans) {
+                        changeAnimTest(supportsChange, changeType, hasStableIds, deleteSomeItems);
+                    }
+                    removeRecyclerView();
+                }
+            }
+        }
+    }
+    public void changeAnimTest(final boolean supportsChangeAnim, final boolean changeType,
+            final boolean hasStableIds, final boolean deleteSomeItems)  throws Throwable {
+        final int changedIndex = 3;
+        final int defaultType = 1;
+        final AtomicInteger changedIndexNewType = new AtomicInteger(defaultType);
+        final String logPrefix = "supportsChangeAnim:" + supportsChangeAnim +
+                ", change view type:" + changeType +
+                ", has stable ids:" + hasStableIds +
+                ", force predictive:" + deleteSomeItems;
+        TestAdapter testAdapter = new TestAdapter(10) {
+            @Override
+            public int getItemViewType(int position) {
+                return position == changedIndex ? changedIndexNewType.get() : defaultType;
+            }
+
+            @Override
+            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
+                if (DEBUG) {
+                    Log.d(TAG, logPrefix + " onCreateVH" + vh.toString());
+                }
+                return vh;
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                if (DEBUG) {
+                    Log.d(TAG, logPrefix + " onBind to " + position + "" + holder.toString());
+                }
+            }
+        };
+        testAdapter.setHasStableIds(hasStableIds);
+        setupBasic(testAdapter.getItemCount(), 0, 10, testAdapter);
+        mRecyclerView.getItemAnimator().setSupportsChangeAnimations(supportsChangeAnim);
+
+        final RecyclerView.ViewHolder toBeChangedVH =
+                mRecyclerView.findViewHolderForPosition(changedIndex);
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void afterPreLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager layoutManager,
+                    RecyclerView.State state) {
+                RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForPosition(changedIndex);
+                if (supportsChangeAnim) {
+                    assertTrue(logPrefix + " changed view holder should have correct flag"
+                            , vh.isChanged());
+                } else {
+                    assertFalse(logPrefix + " changed view holder should have correct flag"
+                            , vh.isChanged());
+                }
+            }
+
+            @Override
+            void afterPostLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager layoutManager, RecyclerView.State state) {
+                RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForPosition(changedIndex);
+                assertFalse(logPrefix + "VH should not be marked as changed", vh.isChanged());
+                if (supportsChangeAnim) {
+                    assertNotSame(logPrefix + "a new VH should be given if change is supported",
+                            toBeChangedVH, vh);
+                } else if (!changeType && hasStableIds) {
+                    assertSame(logPrefix + "if change animations are not supported but we have "
+                            + "stable ids, same view holder should be returned", toBeChangedVH, vh);
+                }
+                super.beforePostLayout(recycler, layoutManager, state);
+            }
+        };
+        mLayoutManager.expectLayouts(1);
+        if (changeType) {
+            changedIndexNewType.set(defaultType + 1);
+        }
+        if (deleteSomeItems) {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mTestAdapter.deleteAndNotify(changedIndex + 2, 1);
+                        mTestAdapter.notifyItemChanged(3);
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                }
+            });
+        } else {
+            mTestAdapter.notifyItemChanged(3);
+        }
+
+        mLayoutManager.waitForLayout(2);
+    }
+
     public void testRecycleDuringAnimations() throws Throwable {
         final AtomicInteger childCount = new AtomicInteger(0);
         final TestAdapter adapter = new TestAdapter(1000) {

@@ -1930,7 +1930,10 @@ public class RecyclerView extends ViewGroup {
                 long key = oldChangedHolders.keyAt(i);
                 ViewHolder oldHolder = oldChangedHolders.get(key);
                 View oldView = oldHolder.itemView;
-                if (!oldHolder.shouldIgnore() &&
+                if (oldHolder.shouldIgnore()) {
+                    continue;
+                }
+                if (mRecycler.mChangedScrap != null &&
                         mRecycler.mChangedScrap.contains(oldHolder)) {
                     oldHolder.setIsRecyclable(false);
                     removeDetachedView(oldView, false);
@@ -1948,6 +1951,8 @@ public class RecyclerView extends ViewGroup {
                     if (mItemAnimator.animateChange(oldHolder, newHolder)) {
                         postAnimationRunner();
                     }
+                } else if (DEBUG) {
+                    Log.e(TAG, "cannot find old changed holder in changed scrap :/" + oldHolder);
                 }
             }
         }
@@ -3015,9 +3020,12 @@ public class RecyclerView extends ViewGroup {
                 throw new IndexOutOfBoundsException("Inconsistency detected. Invalid view holder "
                         + "adapter position" + holder);
             }
-            final int type = mAdapter.getItemViewType(holder.mPosition);
-            if (type != holder.getItemViewType()) {
-                return false;
+            if (!mState.isPreLayout()) {
+                // don't check type if it is pre-layout.
+                final int type = mAdapter.getItemViewType(holder.mPosition);
+                if (type != holder.getItemViewType()) {
+                    return false;
+                }
             }
             if (mAdapter.hasStableIds()) {
                 return holder.getItemId() == mAdapter.getItemId(holder.mPosition);
@@ -3093,25 +3101,31 @@ public class RecyclerView extends ViewGroup {
                 throw new IndexOutOfBoundsException("Invalid item position " + position
                         + "(" + position + "). Item count:" + mState.getItemCount());
             }
-            ViewHolder holder;
+            ViewHolder holder = null;
+            // 0) If there is a changed scrap, try to find from there
+            if (mState.isPreLayout()) {
+                holder = getChangedScrapViewForPosition(position);
+            }
             // 1) Find from scrap by position
-            holder = getScrapViewForPosition(position, INVALID_TYPE, dryRun);
-            if (holder != null) {
-                if (!validateViewHolderForOffsetPosition(holder)) {
-                    // recycle this scrap
-                    if (!dryRun) {
-                        // we would like to recycle this but need to make sure it is not used by
-                        // animation logic etc.
-                        holder.addFlags(ViewHolder.FLAG_INVALID);
-                        if (holder.isScrap()) {
-                            removeDetachedView(holder.itemView, false);
-                            holder.unScrap();
-                        } else if (holder.wasReturnedFromScrap()) {
-                            holder.clearReturnedFromScrapFlag();
+            if (holder == null) {
+                holder = getScrapViewForPosition(position, INVALID_TYPE, dryRun);
+                if (holder != null) {
+                    if (!validateViewHolderForOffsetPosition(holder)) {
+                        // recycle this scrap
+                        if (!dryRun) {
+                            // we would like to recycle this but need to make sure it is not used by
+                            // animation logic etc.
+                            holder.addFlags(ViewHolder.FLAG_INVALID);
+                            if (holder.isScrap()) {
+                                removeDetachedView(holder.itemView, false);
+                                holder.unScrap();
+                            } else if (holder.wasReturnedFromScrap()) {
+                                holder.clearReturnedFromScrapFlag();
+                            }
+                            recycleViewHolder(holder);
                         }
-                        recycleViewHolder(holder);
+                        holder = null;
                     }
-                    holder = null;
                 }
             }
             if (holder == null) {
@@ -3173,8 +3187,14 @@ public class RecyclerView extends ViewGroup {
                 }
             }
 
-            if (!holder.isRemoved() && (!holder.isBound() || holder.needsUpdate() ||
-                    holder.isInvalid())) {
+            if (mState.isPreLayout() && holder.isBound()) {
+                // do not update unless we absolutely have to.
+                holder.mPreLayoutPosition = position;
+            } else if (!holder.isBound() || holder.needsUpdate() || holder.isInvalid()) {
+                if (DEBUG && holder.isRemoved()) {
+                    throw new IllegalStateException("Removed holder should be bound and it should"
+                            + " come here only in pre-layout. Holder: " + holder);
+                }
                 final int offsetPosition = mAdapterHelper.findPositionOffset(position);
                 mAdapter.bindViewHolder(holder, offsetPosition);
                 if (mState.isPreLayout()) {
@@ -3332,13 +3352,13 @@ public class RecyclerView extends ViewGroup {
          */
         void scrapView(View view) {
             final ViewHolder holder = getChildViewHolderInt(view);
-            if (holder.isInvalid() && !holder.isRemoved() && !mAdapter.hasStableIds()) {
-                throw new IllegalArgumentException("Called scrap view with an invalid view."
-                        + " Invalid views cannot be reused from scrap, they should rebound from"
-                        + " recycler pool.");
-            }
             holder.setScrapContainer(this);
             if (!holder.isChanged() || !supportsChangeAnimations()) {
+                if (holder.isInvalid() && !holder.isRemoved() && !mAdapter.hasStableIds()) {
+                    throw new IllegalArgumentException("Called scrap view with an invalid view."
+                            + " Invalid views cannot be reused from scrap, they should rebound from"
+                            + " recycler pool.");
+                }
                 mAttachedScrap.add(holder);
             } else {
                 if (mChangedScrap == null) {
@@ -3374,6 +3394,37 @@ public class RecyclerView extends ViewGroup {
 
         void clearScrap() {
             mAttachedScrap.clear();
+        }
+
+        ViewHolder getChangedScrapViewForPosition(int position) {
+            // If pre-layout, check the changed scrap for an exact match.
+            final int changedScrapSize;
+            if (mChangedScrap == null || (changedScrapSize = mChangedScrap.size()) == 0) {
+                return null;
+            }
+            // find by position
+            for (int i = 0; i < changedScrapSize; i++) {
+                final ViewHolder holder = mChangedScrap.get(i);
+                if (!holder.wasReturnedFromScrap() && holder.getPosition() == position) {
+                    holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
+                    return holder;
+                }
+            }
+            // find by id
+            if (mAdapter.hasStableIds()) {
+                final int offsetPosition = mAdapterHelper.findPositionOffset(position);
+                if (offsetPosition > 0 && offsetPosition < mAdapter.getItemCount()) {
+                    final long id = mAdapter.getItemId(offsetPosition);
+                    for (int i = 0; i < changedScrapSize; i++) {
+                        final ViewHolder holder = mChangedScrap.get(i);
+                        if (!holder.wasReturnedFromScrap() && holder.getItemId() == id) {
+                            holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
+                            return holder;
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         /**
@@ -4974,7 +5025,7 @@ public class RecyclerView extends ViewGroup {
                 }
                 return;
             }
-            if (viewHolder.isInvalid() && !viewHolder.isRemoved() &&
+            if (viewHolder.isInvalid() && !viewHolder.isRemoved() && !viewHolder.isChanged() &&
                     !mRecyclerView.mAdapter.hasStableIds()) {
                 removeViewAt(index);
                 recycler.recycleView(view);
@@ -6238,6 +6289,17 @@ public class RecyclerView extends ViewGroup {
          */
         public boolean isItemRemoved() {
             return mViewHolder.isRemoved();
+        }
+
+        /**
+         * Returns true if the adapter data item corresponding to the view this LayoutParams
+         * is attached to has been changed in the data set. A LayoutManager may choose to
+         * treat it differently in order to animate its changing state.
+         *
+         * @return true if the item the view corresponds to was changed in the data set
+         */
+        public boolean isItemChanged() {
+            return mViewHolder.isChanged();
         }
 
         /**
