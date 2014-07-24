@@ -19,7 +19,6 @@ package android.support.v4.app;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -189,7 +188,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     private final DrawerLayout mDrawerLayout;
     private boolean mDrawerIndicatorEnabled = true;
 
-    private Drawable mThemeImage;
+    private Drawable mHomeAsUpIndicator;
     private Drawable mDrawerImage;
     private SlideDrawable mSlider;
     private final int mDrawerImageResource;
@@ -267,7 +266,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         mOpenDrawerContentDescRes = openDrawerContentDescRes;
         mCloseDrawerContentDescRes = closeDrawerContentDescRes;
 
-        mThemeImage = getThemeUpIndicator();
+        mHomeAsUpIndicator = getThemeUpIndicator();
         mDrawerImage = activity.getResources().getDrawable(drawerImageRes);
         mSlider = new SlideDrawable(mDrawerImage);
         mSlider.setOffset(animate ? TOGGLE_DRAWABLE_OFFSET : 0);
@@ -296,6 +295,49 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     /**
+     * Set the up indicator to display when the drawer indicator is not
+     * enabled.
+     * <p>
+     * If you pass <code>null</code> to this method, the default drawable from
+     * the theme will be used.
+     *
+     * @param indicator A drawable to use for the up indicator, or null to use
+     *                  the theme's default
+     * @see #setDrawerIndicatorEnabled(boolean)
+     */
+    public void setHomeAsUpIndicator(Drawable indicator) {
+        if (indicator == null) {
+            indicator = getThemeUpIndicator();
+        }
+
+        mHomeAsUpIndicator = indicator;
+
+        if (!mDrawerIndicatorEnabled) {
+            setActionBarUpIndicator(indicator, 0);
+        }
+    }
+
+    /**
+     * Set the up indicator to display when the drawer indicator is not
+     * enabled.
+     * <p>
+     * If you pass 0 to this method, the default drawable from the theme will
+     * be used.
+     *
+     * @param resId Resource ID of a drawable to use for the up indicator, or 0
+     *              to use the theme's default
+     * @see #setDrawerIndicatorEnabled(boolean)
+     */
+    public void setHomeAsUpIndicator(int resId) {
+        Drawable indicator = null;
+        if (resId != 0) {
+            indicator = mActivity.getDrawable(resId);
+        }
+
+        setHomeAsUpIndicator(indicator);
+    }
+
+    /**
      * Enable or disable the drawer indicator. The indicator defaults to enabled.
      *
      * <p>When the indicator is disabled, the <code>ActionBar</code> will revert to displaying
@@ -311,7 +353,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
                 setActionBarUpIndicator(mSlider, mDrawerLayout.isDrawerOpen(GravityCompat.START) ?
                         mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
             } else {
-                setActionBarUpIndicator(mThemeImage, 0);
+                setActionBarUpIndicator(mHomeAsUpIndicator, 0);
             }
             mDrawerIndicatorEnabled = enable;
         }
@@ -334,7 +376,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
      */
     public void onConfigurationChanged(Configuration newConfig) {
         // Reload drawables that can change with configuration
-        mThemeImage = getThemeUpIndicator();
+        mHomeAsUpIndicator = getThemeUpIndicator();
         mDrawerImage = mActivity.getResources().getDrawable(mDrawerImageResource);
         syncState();
     }
