@@ -313,7 +313,7 @@ public class ContextCompat {
      *            The value 0 is an invalid identifier.
      * @return Drawable An object that can be used to draw this resource.
      */
-    public final Drawable getDrawable(Context context, int id) {
+    public static final Drawable getDrawable(Context context, int id) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
             return ContextCompatApi21.getDrawable(context, id);
