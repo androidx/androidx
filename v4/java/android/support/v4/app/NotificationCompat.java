@@ -639,8 +639,7 @@ public class NotificationCompat {
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
-                    b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
@@ -687,6 +686,27 @@ public class NotificationCompat {
         }
     }
 
+    static class NotificationCompatImplApi21 extends NotificationCompatImplApi20 {
+        @Override
+        public Notification build(Builder b) {
+            NotificationCompatApi21.Builder builder = new NotificationCompatApi21.Builder(
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
+                    b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
+            addActionsToBuilder(builder, b.mActions);
+            addStyleToBuilderJellybean(builder, b.mStyle);
+            return builder.build();
+        }
+
+        @Override
+        public String getCategory(Notification notif) {
+            return NotificationCompatApi21.getCategory(notif);
+        }
+    }
+
     private static void addActionsToBuilder(NotificationBuilderWithActions builder,
             ArrayList<Action> actions) {
         for (Action action : actions) {
@@ -721,13 +741,6 @@ public class NotificationCompat {
                         bigPictureStyle.mBigLargeIcon,
                         bigPictureStyle.mBigLargeIconSet);
             }
-        }
-    }
-
-    static class NotificationCompatImplApi21 extends NotificationCompatImplApi20 {
-        @Override
-        public String getCategory(Notification notif) {
-            return NotificationCompatApi21.getCategory(notif);
         }
     }
 

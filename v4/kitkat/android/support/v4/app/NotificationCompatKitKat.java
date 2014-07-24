@@ -38,7 +38,7 @@ class NotificationCompatKitKat {
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
                 RemoteViews tickerView, int number,
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
-                int mProgressMax, int mProgress, boolean mProgressIndeterminate,
+                int progressMax, int progress, boolean progressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
                 String sortKey) {
@@ -66,7 +66,7 @@ class NotificationCompatKitKat {
                 .setNumber(number)
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority)
-                .setProgress(mProgressMax, mProgress, mProgressIndeterminate);
+                .setProgress(progressMax, progress, progressIndeterminate);
             mExtras = new Bundle();
             if (extras != null) {
                 mExtras.putAll(extras);
