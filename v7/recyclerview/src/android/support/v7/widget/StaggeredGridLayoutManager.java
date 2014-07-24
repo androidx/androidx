@@ -1756,7 +1756,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             if (mViews.size() == 1) {
                 mCachedEnd = INVALID_LINE;
             }
-            if (lp.isItemRemoved()) {
+            if (lp.isItemRemoved() || lp.isItemChanged()) {
                 mDeletedSize += mPrimaryOrientation.getDecoratedMeasurement(view);
             }
         }
@@ -1769,7 +1769,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             if (mViews.size() == 1) {
                 mCachedStart = INVALID_LINE;
             }
-            if (lp.isItemRemoved()) {
+            if (lp.isItemRemoved() || lp.isItemChanged()) {
                 mDeletedSize += mPrimaryOrientation.getDecoratedMeasurement(view);
             }
         }
@@ -1812,7 +1812,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             View end = mViews.remove(size - 1);
             final LayoutParams lp = getLayoutParams(end);
             lp.mSpan = null;
-            if (lp.isItemRemoved()) {
+            if (lp.isItemRemoved() || lp.isItemChanged()) {
                 mDeletedSize -= mPrimaryOrientation.getDecoratedMeasurement(end);
             }
             if (size == 1) {
@@ -1828,7 +1828,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             if (mViews.size() == 0) {
                 mCachedEnd = INVALID_LINE;
             }
-            if (lp.isItemRemoved()) {
+            if (lp.isItemRemoved() || lp.isItemChanged()) {
                 mDeletedSize -= mPrimaryOrientation.getDecoratedMeasurement(start);
             }
             mCachedStart = INVALID_LINE;
