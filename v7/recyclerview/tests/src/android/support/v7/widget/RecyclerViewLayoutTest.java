@@ -37,6 +37,70 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         super(DEBUG);
     }
 
+    public void testAccessRecyclerOnOnMeasure() throws Throwable {
+        accessRecyclerOnOnMeasureTest(false);
+        removeRecyclerView();
+        accessRecyclerOnOnMeasureTest(true);
+    }
+
+    public void accessRecyclerOnOnMeasureTest(final boolean enablePredictiveAnimations)
+            throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        final AtomicInteger expectedOnMeasureStateCount = new AtomicInteger(10);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                try {
+                    layoutRange(recycler, 0, state.getItemCount());
+                    layoutLatch.countDown();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state,
+                    int widthSpec, int heightSpec) {
+                try {
+                    // make sure we access all views
+                    for (int i = 0; i < state.getItemCount(); i++) {
+                        View view = recycler.getViewForPosition(i);
+                        assertNotNull(view);
+                        assertEquals(i, getPosition(view));
+                    }
+                    assertEquals(state.toString(),
+                            expectedOnMeasureStateCount.get(), state.getItemCount());
+                } catch(Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+                super.onMeasure(recycler, state, widthSpec, heightSpec);
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return enablePredictiveAnimations;
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setLayoutManager(lm);
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+        lm.expectLayouts(1);
+        if (!enablePredictiveAnimations) {
+            expectedOnMeasureStateCount.set(15);
+        }
+        testAdapter.addAndNotify(4, 5);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
     public void testSetCompatibleAdapter() throws Throwable {
         compatibleAdapterTest(true, true);
         removeRecyclerView();
@@ -161,7 +225,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     throwables[0] = t;
                 }
                 assertTrue("Trying to recycle an ignored view should throw IllegalArgException "
-                , throwables[0] instanceof IllegalArgumentException);
+                        , throwables[0] instanceof IllegalArgumentException);
                 lm.removeAllViews();
                 assertEquals("ignored child should be removed as well ", 0, lm.getChildCount());
             }
