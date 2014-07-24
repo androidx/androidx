@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
     <!-- This is actually used for the badge icon *or* the badge label (or neither) -->
     <TextView
@@ -35,8 +34,7 @@
             android:drawablePadding="0dip"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
 
     <ImageView
             android:id="@+id/search_button"
@@ -44,10 +42,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:src="?attr/searchViewSearchIcon"
             android:focusable="true"
-            android:contentDescription="@string/abc_searchview_description_search"
-            />
+            android:contentDescription="@string/abc_searchview_description_search" />
 
     <LinearLayout
             android:id="@+id/search_edit_frame"
@@ -59,18 +55,18 @@
             android:layout_marginBottom="4dip"
             android:layout_marginLeft="8dip"
             android:layout_marginRight="8dip"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layoutDirection="locale">
 
         <ImageView
                 android:id="@+id/search_mag_icon"
                 android:layout_width="@dimen/abc_dropdownitem_icon_width"
                 android:layout_height="wrap_content"
                 android:scaleType="centerInside"
+                android:layout_marginStart="@dimen/abc_dropdownitem_text_padding_left"
                 android:layout_marginLeft="@dimen/abc_dropdownitem_text_padding_left"
                 android:layout_gravity="center_vertical"
-                android:src="?attr/searchViewSearchIcon"
-                android:visibility="gone"
-                />
+                android:visibility="gone" />
 
         <!-- Inner layout contains the app icon, button(s) and EditText -->
         <LinearLayout
@@ -79,11 +75,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:orientation="horizontal"
-                android:background="?attr/searchViewTextField">
+                android:orientation="horizontal">
 
             <view class="android.support.v7.widget.SearchView$SearchAutoComplete"
-                  style="?attr/searchViewAutoCompleteTextView"
                   android:id="@+id/search_src_text"
                   android:layout_height="36dip"
                   android:layout_width="0dp"
@@ -101,8 +95,7 @@
                   android:dropDownAnchor="@id/search_edit_frame"
                   android:dropDownVerticalOffset="0dip"
                   android:dropDownHorizontalOffset="0dip"
-                  android:contentDescription="@string/abc_searchview_description_query"
-                    />
+                  android:contentDescription="@string/abc_searchview_description_query" />
 
             <ImageView
                     android:id="@+id/search_close_btn"
@@ -112,10 +105,8 @@
                     android:paddingRight="8dip"
                     android:layout_gravity="center_vertical"
                     android:background="?attr/selectableItemBackground"
-                    android:src="?attr/searchViewCloseIcon"
                     android:focusable="true"
-                    android:contentDescription="@string/abc_searchview_description_clear"
-                    />
+                    android:contentDescription="@string/abc_searchview_description_clear" />
 
         </LinearLayout>
 
@@ -123,37 +114,31 @@
                 android:id="@+id/submit_area"
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="?attr/searchViewTextFieldRight">
+                android:layout_height="match_parent">
 
             <ImageView
                     android:id="@+id/search_go_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:paddingLeft="16dip"
-                    android:paddingRight="16dip"
+                    android:paddingStart="16dip"
+                    android:paddingEnd="16dip"
                     android:background="?attr/selectableItemBackground"
-                    android:src="?attr/searchViewGoIcon"
                     android:visibility="gone"
                     android:focusable="true"
-                    android:contentDescription="@string/abc_searchview_description_submit"
-                    />
+                    android:contentDescription="@string/abc_searchview_description_submit" />
 
             <ImageView
                     android:id="@+id/search_voice_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:paddingLeft="16dip"
-                    android:paddingRight="16dip"
-                    android:src="?attr/searchViewVoiceIcon"
+                    android:paddingStart="16dip"
+                    android:paddingEnd="16dip"
                     android:background="?attr/selectableItemBackground"
                     android:visibility="gone"
                     android:focusable="true"
-                    android:contentDescription="@string/abc_searchview_description_voice"
-                    />
+                    android:contentDescription="@string/abc_searchview_description_voice" />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>
