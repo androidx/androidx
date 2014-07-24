@@ -28,6 +28,7 @@ import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -187,6 +188,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     private final Delegate mActivityImpl;
     private final DrawerLayout mDrawerLayout;
     private boolean mDrawerIndicatorEnabled = true;
+    private boolean mHasCustomUpIndicator;
 
     private Drawable mHomeAsUpIndicator;
     private Drawable mDrawerImage;
@@ -267,7 +269,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         mCloseDrawerContentDescRes = closeDrawerContentDescRes;
 
         mHomeAsUpIndicator = getThemeUpIndicator();
-        mDrawerImage = activity.getResources().getDrawable(drawerImageRes);
+        mDrawerImage = ContextCompat.getDrawable(activity, drawerImageRes);
         mSlider = new SlideDrawable(mDrawerImage);
         mSlider.setOffset(animate ? TOGGLE_DRAWABLE_OFFSET : 0);
     }
@@ -307,13 +309,15 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
      */
     public void setHomeAsUpIndicator(Drawable indicator) {
         if (indicator == null) {
-            indicator = getThemeUpIndicator();
+            mHomeAsUpIndicator = getThemeUpIndicator();
+            mHasCustomUpIndicator = false;
+        } else {
+            mHomeAsUpIndicator = indicator;
+            mHasCustomUpIndicator = true;
         }
 
-        mHomeAsUpIndicator = indicator;
-
         if (!mDrawerIndicatorEnabled) {
-            setActionBarUpIndicator(indicator, 0);
+            setActionBarUpIndicator(mHomeAsUpIndicator, 0);
         }
     }
 
@@ -331,7 +335,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public void setHomeAsUpIndicator(int resId) {
         Drawable indicator = null;
         if (resId != 0) {
-            indicator = mActivity.getDrawable(resId);
+            indicator = ContextCompat.getDrawable(mActivity, resId);
         }
 
         setHomeAsUpIndicator(indicator);
@@ -376,8 +380,10 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
      */
     public void onConfigurationChanged(Configuration newConfig) {
         // Reload drawables that can change with configuration
-        mHomeAsUpIndicator = getThemeUpIndicator();
-        mDrawerImage = mActivity.getResources().getDrawable(mDrawerImageResource);
+        if (!mHasCustomUpIndicator) {
+            mHomeAsUpIndicator = getThemeUpIndicator();
+        }
+        mDrawerImage = ContextCompat.getDrawable(mActivity, mDrawerImageResource);
         syncState();
     }
 
