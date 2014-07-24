@@ -31,15 +31,15 @@ class NotificationCompatApi20 {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
+        private Bundle mExtras;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
                 RemoteViews tickerView, int number,
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
-                int mProgressMax, int mProgress, boolean mProgressIndeterminate,
+                int progressMax, int progress, boolean progressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                String category, ArrayList<String> people, Bundle extras, int color,
-                int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
+                ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
                 String sortKey) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
@@ -65,35 +65,24 @@ class NotificationCompatApi20 {
                 .setNumber(number)
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority)
-                .setProgress(mProgressMax, mProgress, mProgressIndeterminate)
+                .setProgress(progressMax, progress, progressIndeterminate)
                 .setLocalOnly(localOnly)
-                .setCategory(category)
-                .setExtras(extras)
-                .setColor(color)
-                .setVisibility(visibility)
-                .setPublicVersion(publicVersion)
                 .setGroup(groupKey)
                 .setGroupSummary(groupSummary)
                 .setSortKey(sortKey);
-            for (String person: people) {
-                b.addPerson(person);
+            mExtras = new Bundle();
+            if (extras != null) {
+                mExtras.putAll(extras);
+            }
+            if (people != null && !people.isEmpty()) {
+                mExtras.putStringArray(Notification.EXTRA_PEOPLE,
+                        people.toArray(new String[people.size()]));
             }
         }
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
-            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
-                    action.getIcon(), action.getTitle(), action.getActionIntent());
-            if (action.getRemoteInputs() != null) {
-                for (RemoteInput remoteInput : RemoteInputCompatApi20.fromCompat(
-                        action.getRemoteInputs())) {
-                    actionBuilder.addRemoteInput(remoteInput);
-                }
-            }
-            if (action.getExtras() != null) {
-                actionBuilder.addExtras(action.getExtras());
-            }
-            b.addAction(actionBuilder.build());
+            NotificationCompatApi20.addAction(b, action);
         }
 
         @Override
@@ -102,8 +91,24 @@ class NotificationCompatApi20 {
         }
 
         public Notification build() {
+            b.setExtras(mExtras);
             return b.build();
         }
+    }
+
+    public static void addAction(Notification.Builder b, NotificationCompatBase.Action action) {
+        Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                action.getIcon(), action.getTitle(), action.getActionIntent());
+        if (action.getRemoteInputs() != null) {
+            for (RemoteInput remoteInput : RemoteInputCompatApi20.fromCompat(
+                    action.getRemoteInputs())) {
+                actionBuilder.addRemoteInput(remoteInput);
+            }
+        }
+        if (action.getExtras() != null) {
+            actionBuilder.addExtras(action.getExtras());
+        }
+        b.addAction(actionBuilder.build());
     }
 
     public static NotificationCompatBase.Action getAction(Notification notif,
