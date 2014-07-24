@@ -108,4 +108,17 @@ public abstract class Presenter {
     public void onViewDetachedFromWindow(ViewHolder holder) {
     }
 
+    /**
+     * Called to set a click listener for the given view holder.
+     *
+     * The default implementation sets the click listener on the root view in the view holder.
+     * If the root view isn't focusable this method should be overridden to set the listener
+     * on the appropriate focusable child view(s).
+     *
+     * @param holder The view holder containing the view(s) on which the listener should be set.
+     * @param listener The click listener to be set.
+     */
+    public void setOnClickListener(ViewHolder holder, View.OnClickListener listener) {
+        holder.view.setOnClickListener(listener);
+    }
 }

@@ -52,4 +52,7 @@
 
     <color name="lb_default_brand_color">#FF455A64</color>
     <color name="lb_default_search_color">#FFFFAA3F</color>
+
+    <color name="lb_control_button_color">#66EEEEEE</color>
+
 </resources>
