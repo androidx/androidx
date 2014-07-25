@@ -30,7 +30,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.widget.ListPopupWindow;
-import android.support.v7.widget.PopupWindow;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -41,6 +40,7 @@ import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.SpinnerAdapter;
 
 
@@ -1075,8 +1075,8 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
             super.show();
             final ListView listView = getListView();
             listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            listView.setTextDirection(textDirection);
-            listView.setTextAlignment(textAlignment);
+            //listView.setTextDirection(textDirection);
+            //listView.setTextAlignment(textAlignment);
             setSelection(SpinnerCompat.this.getSelectedItemPosition());
 
             if (wasShowing) {
