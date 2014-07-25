@@ -13,11 +13,20 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.animation.ValueAnimator;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.support.v17.leanback.R;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 /**
  * A presenter for a control bar that supports "more actions",
@@ -39,13 +48,22 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
     class ViewHolder extends ControlBarPresenter.ViewHolder {
         ObjectAdapter mMoreActionsAdapter;
         ObjectAdapter.DataObserver mMoreActionsObserver;
-        FrameLayout mMoreActionsDock;
+        final FrameLayout mMoreActionsDock;
         Presenter.ViewHolder mMoreActionsViewHolder;
         boolean mMoreActionsShowing;
+        final TextView mCurrentTime;
+        final TextView mTotalTime;
+        final ProgressBar mProgressBar;
+        int mCurrentTimeInSeconds;
+        StringBuilder mTotalTimeStringBuilder = new StringBuilder();
+        StringBuilder mCurrentTimeStringBuilder = new StringBuilder();
 
         ViewHolder(View rootView) {
             super(rootView);
             mMoreActionsDock = (FrameLayout) rootView.findViewById(R.id.more_actions_dock);
+            mCurrentTime = (TextView) rootView.findViewById(R.id.current_time);
+            mTotalTime = (TextView) rootView.findViewById(R.id.total_time);
+            mProgressBar = (ProgressBar) rootView.findViewById(R.id.playback_progress);
             mMoreActionsObserver = new ObjectAdapter.DataObserver() {
                 @Override
                 public void onChanged() {
@@ -89,6 +107,65 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         ObjectAdapter getAdapter() {
             return mMoreActionsShowing ? mMoreActionsAdapter : mAdapter;
         }
+
+        void setTotalTime(int totalTimeMs) {
+            if (totalTimeMs <= 0) {
+                mTotalTime.setVisibility(View.GONE);
+                mProgressBar.setVisibility(View.GONE);
+            } else {
+                mTotalTime.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
+                formatTime(totalTimeMs / 1000, mTotalTimeStringBuilder);
+                mTotalTime.setText(mTotalTimeStringBuilder.toString());
+                mProgressBar.setMax(totalTimeMs);
+            }
+        }
+
+        int getTotalTime() {
+            return mProgressBar.getMax();
+        }
+
+        void setCurrentTime(int currentTimeMs) {
+            int seconds = currentTimeMs / 1000;
+            if (seconds != mCurrentTimeInSeconds) {
+                mCurrentTimeInSeconds = seconds;
+                formatTime(mCurrentTimeInSeconds, mCurrentTimeStringBuilder);
+                mCurrentTime.setText(mCurrentTimeStringBuilder.toString());
+            }
+            mProgressBar.setProgress(currentTimeMs);
+        }
+
+        int getCurrentTime() {
+            return mProgressBar.getProgress();
+        }
+
+        void setSecondaryProgress(int progressMs) {
+            mProgressBar.setSecondaryProgress(progressMs);
+        }
+
+        int getSecondaryProgress() {
+            return mProgressBar.getSecondaryProgress();
+        }
+    }
+
+    private static void formatTime(int seconds, StringBuilder sb) {
+        int minutes = seconds / 60;
+        int hours = minutes / 60;
+        seconds -= minutes * 60;
+        minutes -= hours * 60;
+
+        sb.setLength(0);
+        if (hours > 0) {
+            sb.append(hours).append(':');
+            if (minutes < 10) {
+                sb.append('0');
+            }
+        }
+        sb.append(minutes).append(':');
+        if (seconds < 10) {
+            sb.append('0');
+        }
+        sb.append(seconds);
     }
 
     private boolean mMoreActionsEnabled = true;
@@ -116,6 +193,37 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
      */
     public boolean areMoreActionsEnabled() {
         return mMoreActionsEnabled;
+    }
+
+    public void setProgressColor(ViewHolder vh, int color) {
+        Drawable drawable = new ClipDrawable(new ColorDrawable(color),
+                Gravity.LEFT, ClipDrawable.HORIZONTAL);
+        ((LayerDrawable) vh.mProgressBar.getProgressDrawable())
+                .setDrawableByLayerId(android.R.id.progress, drawable);
+    }
+
+    public void setTotalTime(ViewHolder vh, int ms) {
+        vh.setTotalTime(ms);
+    }
+
+    public int getTotalTime(ViewHolder vh) {
+        return vh.getTotalTime();
+    }
+
+    public void setCurrentTime(ViewHolder vh, int ms) {
+        vh.setCurrentTime(ms);
+    }
+
+    public int getCurrentTime(ViewHolder vh) {
+        return vh.getCurrentTime();
+    }
+
+    public void setSecondaryProgress(ViewHolder vh, int progressMs) {
+        vh.setSecondaryProgress(progressMs);
+    }
+
+    public int getSecondaryProgress(ViewHolder vh) {
+        return vh.getSecondaryProgress();
     }
 
     @Override
