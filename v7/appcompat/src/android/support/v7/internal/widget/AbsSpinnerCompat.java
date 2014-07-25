@@ -21,6 +21,7 @@ import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -36,7 +37,6 @@ abstract class AbsSpinnerCompat extends AdapterViewCompat<SpinnerAdapter> {
 
     int mHeightMeasureSpec;
     int mWidthMeasureSpec;
-    boolean mBlockLayoutRequests;
 
     int mSelectionLeftPadding = 0;
     int mSelectionTopPadding = 0;
@@ -182,9 +182,7 @@ abstract class AbsSpinnerCompat extends AdapterViewCompat<SpinnerAdapter> {
             if (view != null) {
                 // Put in recycler for re-measuring and/or layout
                 mRecycler.put(selectedPosition, view);
-            }
 
-            if (view != null) {
                 if (view.getLayoutParams() == null) {
                     mBlockLayoutRequests = true;
                     view.setLayoutParams(generateDefaultLayoutParams());
@@ -210,8 +208,8 @@ abstract class AbsSpinnerCompat extends AdapterViewCompat<SpinnerAdapter> {
         preferredHeight = Math.max(preferredHeight, getSuggestedMinimumHeight());
         preferredWidth = Math.max(preferredWidth, getSuggestedMinimumWidth());
 
-        heightSize = resolveSize(preferredHeight, heightMeasureSpec);
-        widthSize = resolveSize(preferredWidth, widthMeasureSpec);
+        heightSize = ViewCompat.resolveSizeAndState(preferredHeight, heightMeasureSpec, 0);
+        widthSize = ViewCompat.resolveSizeAndState(preferredWidth, widthMeasureSpec, 0);
 
         setMeasuredDimension(widthSize, heightSize);
         mHeightMeasureSpec = heightMeasureSpec;
@@ -357,7 +355,7 @@ abstract class AbsSpinnerCompat extends AdapterViewCompat<SpinnerAdapter> {
         /**
          * Constructor called from {@link #CREATOR}
          */
-        private SavedState(Parcel in) {
+        SavedState(Parcel in) {
             super(in);
             selectedId = in.readLong();
             position = in.readInt();
