@@ -317,8 +317,14 @@ public class ViewCompat {
         public void setPivotY(View view, float value);
         public float getPivotX(View view);
         public float getPivotY(View view);
+        public void setElevation(View view, float elevation);
+        public float getElevation(View view);
+        public void setTranslationZ(View view, float translationZ);
+        public float getTranslationZ(View view);
         public void setTransitionName(View view, String transitionName);
         public String getTransitionName(View view);
+        public int getWindowSystemUiVisibility(View view);
+        public void requestApplyInsets(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -657,6 +663,33 @@ public class ViewCompat {
         public String getTransitionName(View view) {
             return null;
         }
+
+        @Override
+        public int getWindowSystemUiVisibility(View view) {
+            return 0;
+        }
+
+        @Override
+        public void requestApplyInsets(View view) {
+        }
+
+        @Override
+        public void setElevation(View view, float elevation) {
+        }
+
+        @Override
+        public float getElevation(View view) {
+            return 0f;
+        }
+
+        @Override
+        public void setTranslationZ(View view, float translationZ) {
+        }
+
+        @Override
+        public float getTranslationZ(View view) {
+            return 0f;
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -925,6 +958,11 @@ public class ViewCompat {
         public int getMinimumHeight(View view) {
             return ViewCompatJB.getMinimumHeight(view);
         }
+
+        @Override
+        public void requestApplyInsets(View view) {
+            ViewCompatJB.requestApplyInsets(view);
+        }
     }
 
     static class JbMr1ViewCompatImpl extends JBViewCompatImpl {
@@ -968,6 +1006,11 @@ public class ViewCompat {
         public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
             ViewCompatJellybeanMr1.setPaddingRelative(view, start, top, end, bottom);
         }
+
+        @Override
+        public int getWindowSystemUiVisibility(View view) {
+            return ViewCompatJellybeanMr1.getWindowSystemUiVisibility(view);
+        }
     }
 
     static class KitKatViewCompatImpl extends JbMr1ViewCompatImpl {
@@ -996,6 +1039,31 @@ public class ViewCompat {
         @Override
         public String getTransitionName(View view) {
             return ViewCompatApi21.getTransitionName(view);
+        }
+
+        @Override
+        public void requestApplyInsets(View view) {
+            ViewCompatApi21.requestApplyInsets(view);
+        }
+
+        @Override
+        public void setElevation(View view, float elevation) {
+            ViewCompatApi21.setElevation(view, elevation);
+        }
+
+        @Override
+        public float getElevation(View view) {
+            return ViewCompatApi21.getElevation(view);
+        }
+
+        @Override
+        public void setTranslationZ(View view, float translationZ) {
+            ViewCompatApi21.setTranslationZ(view, translationZ);
+        }
+
+        @Override
+        public float getTranslationZ(View view) {
+            return ViewCompatApi21.getTranslationZ(view);
         }
     }
 
@@ -1991,6 +2059,38 @@ public class ViewCompat {
     }
 
     /**
+     * Sets the base elevation of this view, in pixels.
+     */
+    public static void setElevation(View view, float elevation) {
+        IMPL.setElevation(view, elevation);
+    }
+
+    /**
+     * The base elevation of this view relative to its parent, in pixels.
+     *
+     * @return The base depth position of the view, in pixels.
+     */
+    public static float getElevation(View view) {
+        return IMPL.getElevation(view);
+    }
+
+    /**
+     * Sets the depth location of this view relative to its {@link #getElevation(View) elevation}.
+     */
+    public static void setTranslationZ(View view, float translationZ) {
+        IMPL.setTranslationZ(view, translationZ);
+    }
+
+    /**
+     * The depth location of this view relative to its {@link #getElevation(View) elevation}.
+     *
+     * @return The depth of this view relative to its elevation.
+     */
+    public static float getTranslationZ(View view) {
+        return IMPL.getTranslationZ(view);
+    }
+
+    /**
      * Sets the name of the View to be used to identify Views in Transitions.
      * Names should be unique in the View hierarchy.
      *
@@ -2013,6 +2113,21 @@ public class ViewCompat {
      */
     public static String getTransitionName(View view) {
         return IMPL.getTransitionName(view);
+    }
+
+    /**
+     * Returns the current system UI visibility that is currently set for the entire window.
+     */
+    public static int getWindowSystemUiVisibility(View view) {
+        return IMPL.getWindowSystemUiVisibility(view);
+    }
+
+    /**
+     * Ask that a new dispatch of {@code View.onApplyWindowInsets(WindowInsets)} be performed. This
+     * falls back to {@code View.requestFitSystemWindows()} where available.
+     */
+    public static void requestApplyInsets(View view) {
+        IMPL.requestApplyInsets(view);
     }
 
     // TODO: getters for various view properties (rotation, etc)

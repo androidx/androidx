@@ -30,7 +30,6 @@ import android.view.View;
  * @hide
  */
 public class SubMenuBuilder extends MenuBuilder implements SubMenu {
-
     private MenuBuilder mParentMenu;
     private MenuItemImpl mItem;
 
@@ -74,12 +73,13 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
         mParentMenu.setCallback(callback);
     }
 
+    @Override
     public MenuBuilder getRootMenu() {
         return mParentMenu;
     }
 
     @Override
-    public boolean dispatchMenuItemSelected(MenuBuilder menu, MenuItem item) {
+    boolean dispatchMenuItemSelected(MenuBuilder menu, MenuItem item) {
         return super.dispatchMenuItemSelected(menu, item) ||
                 mParentMenu.dispatchMenuItemSelected(menu, item);
     }
@@ -117,10 +117,6 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
     public SubMenu setHeaderView(View view) {
         super.setHeaderViewInt(view);
         return this;
-    }
-
-    @Override
-    public void clearHeader() {
     }
 
     @Override

@@ -55,4 +55,8 @@ class ViewCompatJellybeanMr1 {
     public static void setPaddingRelative(View view, int start, int top, int end, int bottom) {
         view.setPaddingRelative(start, top, end, bottom);
     }
+
+    public static int getWindowSystemUiVisibility(View view) {
+        return view.getWindowSystemUiVisibility();
+    }
 }

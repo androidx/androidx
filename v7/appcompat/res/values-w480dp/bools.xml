@@ -15,5 +15,4 @@
 -->
 <resources>
     <bool name="abc_action_bar_embed_tabs_pre_jb">true</bool>
-    <bool name="abc_split_action_bar_is_narrow">false</bool>
 </resources>

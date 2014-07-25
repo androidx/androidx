@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2010 The Android Open Source Project
+<!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -22,11 +22,13 @@
               android:contentDescription="@string/abc_action_mode_done"
               style="?attr/actionModeCloseButtonStyle"
               android:layout_width="wrap_content"
-              android:layout_height="fill_parent"
+              android:layout_height="match_parent"
               android:layout_marginRight="16dip">
-    <ImageView android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_gravity="center"
-               android:scaleType="fitCenter"
-               android:src="?attr/actionModeCloseDrawable"/>
+
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="?attr/actionModeCloseDrawable"/>
 </LinearLayout>

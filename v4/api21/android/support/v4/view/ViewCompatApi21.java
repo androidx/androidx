@@ -27,4 +27,24 @@ class ViewCompatApi21 {
     public static String getTransitionName(View view) {
         return view.getTransitionName();
     }
+
+    public static void requestApplyInsets(View view) {
+        view.requestApplyInsets();
+    }
+
+    public static void setElevation(View view, float elevation) {
+        view.setElevation(elevation);
+    }
+
+    public static float getElevation(View view) {
+        return view.getElevation();
+    }
+
+    public static void setTranslationZ(View view, float translationZ) {
+        view.setTranslationZ(translationZ);
+    }
+
+    public static float getTranslationZ(View view) {
+        return view.getTranslationZ();
+    }
 }

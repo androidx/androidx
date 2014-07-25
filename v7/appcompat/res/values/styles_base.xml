@@ -186,6 +186,7 @@
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle" parent="TextAppearance.AppCompat.Small">
@@ -282,6 +283,12 @@
         <item name="android:dropDownWidth">wrap_content</item>
     </style>
 
+    <style name="Base.Widget.AppCompat.PopupMenu.Overflow">
+    </style>
+
+    <style name="Base.Widget.AppCompat.Light.PopupMenu.Overflow">
+    </style>
+
     <style name="Base.Widget.AppCompat.PopupMenu" parent="@style/Widget.AppCompat.ListPopupWindow">
     </style>
 
@@ -355,6 +362,34 @@
     <style name="Base.Widget.AppCompat.Light.ActivityChooserView"
            parent="Base.Widget.AppCompat.ActivityChooserView">
         <item name="android:background">@drawable/abc_ab_share_pack_holo_light</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.PopupWindow" parent="android:Widget.PopupWindow">
+    </style>
+
+    <style name="Base.Widget.AppCompat.Toolbar" parent="android:Widget">
+        <item name="titleTextAppearance">@style/TextAppearance.Widget.AppCompat.Toolbar.Title</item>
+        <item name="subtitleTextAppearance">@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="titleMargins">4dp</item>
+        <item name="maxButtonHeight">56dp</item>
+        <item name="buttonGravity">top</item>
+        <item name="collapseIcon">?attr/homeAsUpIndicator</item>
+        <item name="contentInsetStart">16dp</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.Toolbar.Button.Navigation" parent="android:Widget">
+        <item name="android:minWidth">56dp</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="Base.TextAppearance.Widget.AppCompat.Toolbar.Title"
+           parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+    </style>
+
+    <style name="Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
+           parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
     </style>
 
 </resources>
