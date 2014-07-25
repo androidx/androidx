@@ -489,14 +489,14 @@ public final class MediaControllerCompat {
         private final Object mControllerObj;
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
-            mControllerObj = MediaControllerCompatApi21.fromToken(
+            mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     session.getSessionToken().getToken());
         }
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
                 throws RemoteException {
             // TODO: refactor framework implementation
-            mControllerObj = MediaControllerCompatApi21.fromToken(
+            mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     sessionToken.getToken());
             if (mControllerObj == null) throw new RemoteException();
         }
