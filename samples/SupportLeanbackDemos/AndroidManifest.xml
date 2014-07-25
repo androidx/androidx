@@ -29,6 +29,9 @@
         <activity android:name="DetailsActivity"
             android:exported="true" />
 
+        <activity android:name="PlaybackOverlayActivity"
+            android:exported="true" />
+
         <activity android:name="VerticalGridActivity"
             android:exported="true" />
 
