@@ -235,8 +235,7 @@
     </style>
 
     <style name="Base.Widget.AppCompat.DropDownItem.Spinner" parent="">
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.DropDownItem
-        </item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.DropDownItem</item>
         <item name="android:paddingLeft">8dp</item>
         <item name="android:paddingRight">8dp</item>
         <item name="android:gravity">center_vertical</item>
@@ -393,6 +392,30 @@
 
     <style name="Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
            parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+    </style>
+
+    <style name="Base.Widget.AppCompat.SearchView" parent="android:Widget">
+        <item name="layout">@layout/abc_search_view</item>
+        <item name="queryBackground">@drawable/abc_textfield_search_material_dark</item>
+        <item name="submitBackground">@drawable/abc_textfield_search_material_dark</item>
+        <item name="closeIcon">@drawable/abc_ic_clear_material_dark</item>
+        <item name="searchIcon">@drawable/abc_ic_search_api_material_dark</item>
+        <item name="goIcon">@drawable/abc_ic_go_search_api_material_dark</item>
+        <item name="voiceIcon">@drawable/abc_ic_voice_search_api_material_dark</item>
+        <item name="commitIcon">@drawable/abc_ic_commit_search_api_material_dark</item>
+        <item name="suggestionRowLayout">@layout/abc_search_dropdown_item_icons_2line</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.Light.SearchView" parent="android:Widget">
+        <item name="layout">@layout/abc_search_view</item>
+        <item name="queryBackground">@drawable/abc_textfield_search_material_light</item>
+        <item name="submitBackground">@drawable/abc_textfield_search_material_light</item>
+        <item name="closeIcon">@drawable/abc_ic_clear_material_light</item>
+        <item name="searchIcon">@drawable/abc_ic_search_api_material_light</item>
+        <item name="goIcon">@drawable/abc_ic_go_search_api_material_light</item>
+        <item name="voiceIcon">@drawable/abc_ic_voice_search_api_material_light</item>
+        <item name="commitIcon">@drawable/abc_ic_commit_search_api_material_light</item>
+        <item name="suggestionRowLayout">@layout/abc_search_dropdown_item_icons_2line</item>
     </style>
 
 </resources>

@@ -48,19 +48,9 @@
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
         <!-- SearchView attributes -->
-        <item name="searchDropdownBackground">@drawable/abc_search_dropdown_dark</item>
-        <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_dark</item>
-        <item name="searchViewTextFieldRight">@drawable/abc_textfield_searchview_right_holo_dark
-        </item>
-        <item name="searchViewCloseIcon">@drawable/abc_ic_clear_material_dark</item>
-        <item name="searchViewSearchIcon">@drawable/abc_ic_search_api_material_dark</item>
-        <item name="searchViewGoIcon">@drawable/abc_ic_go_search_api_material_dark</item>
-        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search_api_material_dark</item>
-        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_material_dark</item>
-        <item name="searchViewEditQueryBackground">?attr/selectableItemBackground</item>
-        <item name="searchViewAutoCompleteTextView">
-            @style/Widget.AppCompat.AutoCompleteTextView</item>
-        <item name="textColorSearchUrl">@color/abc_search_url_text_holo</item>
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
+        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
+        <item name="textColorSearchUrl">@color/abc_search_url_text</item>
         <item name="textAppearanceSearchResultTitle">
             @style/TextAppearance.AppCompat.SearchResult.Title
         </item>
@@ -113,19 +103,9 @@
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
 
         <!-- SearchView attributes -->
-        <item name="searchDropdownBackground">@drawable/abc_search_dropdown_light</item>
-        <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_light</item>
-        <item name="searchViewTextFieldRight">@drawable/abc_textfield_searchview_right_holo_light
-        </item>
-        <item name="searchViewCloseIcon">@drawable/abc_ic_clear_material_light</item>
-        <item name="searchViewSearchIcon">@drawable/abc_ic_search_api_material_light</item>
-        <item name="searchViewGoIcon">@drawable/abc_ic_go_search_api_material_light</item>
-        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search_api_material_light</item>
-        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_material_light</item>
-        <item name="searchViewEditQueryBackground">?attr/selectableItemBackground</item>
-        <item name="searchViewAutoCompleteTextView">
-            @style/Widget.AppCompat.Light.AutoCompleteTextView</item>
-        <item name="textColorSearchUrl">@color/abc_search_url_text_holo</item>
+        <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
+        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.DropDownItem.Spinner</item>
+        <item name="textColorSearchUrl">@color/abc_search_url_text</item>
         <item name="textAppearanceSearchResultTitle">
             @style/TextAppearance.AppCompat.Light.SearchResult.Title
         </item>
@@ -178,18 +158,9 @@
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
         <!-- SearchView attributes -->
-        <item name="searchDropdownBackground">@drawable/abc_search_dropdown_dark</item>
-        <item name="searchViewTextField">@drawable/abc_textfield_searchview_holo_dark</item>
-        <item name="searchViewTextFieldRight">@drawable/abc_textfield_searchview_right_holo_dark</item>
-        <item name="searchViewCloseIcon">@drawable/abc_ic_clear_material_dark</item>
-        <item name="searchViewSearchIcon">@drawable/abc_ic_search_api_material_dark</item>
-        <item name="searchViewGoIcon">@drawable/abc_ic_go_search_api_material_dark</item>
-        <item name="searchViewVoiceIcon">@drawable/abc_ic_voice_search_api_material_dark</item>
-        <item name="searchViewEditQuery">@drawable/abc_ic_commit_search_api_material_dark</item>
-        <item name="searchViewEditQueryBackground">?attr/selectableItemBackground</item>
-        <item name="searchViewAutoCompleteTextView">
-            @style/Widget.AppCompat.AutoCompleteTextView</item>
-        <item name="textColorSearchUrl">@color/abc_search_url_text_holo</item>
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
+        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
+        <item name="textColorSearchUrl">@color/abc_search_url_text</item>
         <item name="textAppearanceSearchResultTitle">
             @style/TextAppearance.AppCompat.SearchResult.Title
         </item>
