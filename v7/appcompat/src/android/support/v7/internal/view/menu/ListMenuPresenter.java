@@ -98,22 +98,16 @@ public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClick
 
     @Override
     public MenuView getMenuView(ViewGroup root) {
-        if (mAdapter == null) {
-            mAdapter = new MenuAdapter();
-        }
-
-        if (!mAdapter.isEmpty()) {
-            if (mMenuView == null) {
-                mMenuView = (ExpandedMenuView) mInflater.inflate(
-                        R.layout.abc_expanded_menu_layout, root, false);
-                mMenuView.setAdapter(mAdapter);
-                mMenuView.setOnItemClickListener(this);
+        if (mMenuView == null) {
+            mMenuView = (ExpandedMenuView) mInflater.inflate(
+                    R.layout.abc_expanded_menu_layout, root, false);
+            if (mAdapter == null) {
+                mAdapter = new MenuAdapter();
             }
-            return mMenuView;
+            mMenuView.setAdapter(mAdapter);
+            mMenuView.setOnItemClickListener(this);
         }
-
-        // If we reach here, the Menu is empty so we have nothing to display
-        return null;
+        return mMenuView;
     }
 
     /**
@@ -172,7 +166,7 @@ public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClick
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mMenu.performItemAction(mAdapter.getItem(position), 0);
+        mMenu.performItemAction(mAdapter.getItem(position), this, 0);
     }
 
     @Override

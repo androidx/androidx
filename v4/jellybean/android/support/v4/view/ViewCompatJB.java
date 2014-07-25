@@ -77,4 +77,8 @@ class ViewCompatJB {
     public static int getMinimumHeight(View view) {
         return view.getMinimumHeight();
     }
+
+    public static void requestApplyInsets(View view) {
+        view.requestFitSystemWindows();
+    }
 }

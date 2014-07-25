@@ -17,18 +17,24 @@
 package android.support.v7.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.WindowCompat;
+import android.support.v7.internal.app.WindowDecorActionBar;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -65,6 +71,25 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     public ActionBar getSupportActionBar() {
         return mImpl.getSupportActionBar();
+    }
+
+    /**
+     * Set a {@link android.widget.Toolbar Toolbar} to act as the {@link ActionBar} for this
+     * Activity window.
+     *
+     * <p>When set to a non-null value the {@link #getActionBar()} method will return
+     * an {@link ActionBar} object that can be used to control the given toolbar as if it were
+     * a traditional window decor action bar. The toolbar's menu will be populated with the
+     * Activity's options menu and the navigation button will be wired through the standard
+     * {@link android.R.id#home home} menu select action.</p>
+     *
+     * <p>In order to use a Toolbar within the Activity's window content the application
+     * must not request the window feature {@link Window#FEATURE_ACTION_BAR FEATURE_ACTION_BAR}.</p>
+     *
+     * @param toolbar Toolbar to set as the Activity's action bar
+     */
+    public void setSupportActionBar(@Nullable Toolbar toolbar) {
+        mImpl.setSupportActionBar(toolbar);
     }
 
     @Override

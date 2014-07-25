@@ -61,9 +61,11 @@ public class ViewPropertyAnimatorCompat {
         public void withStartAction(View view, Runnable runnable);
         public void withEndAction(View view, Runnable runnable);
         public void setListener(View view, ViewPropertyAnimatorListener listener);
+        public void setUpdateListener(View view, ViewPropertyAnimatorUpdateListener listener);
     };
 
     static class BaseViewPropertyAnimatorCompatImpl implements ViewPropertyAnimatorCompatImpl {
+        private ViewPropertyAnimatorListener mListener;
 
         @Override
         public void setDuration(View view, long value) {
@@ -208,7 +210,11 @@ public class ViewPropertyAnimatorCompat {
 
         @Override
         public void start(View view) {
-            // noop on versions prior to ICS
+            if (mListener != null) {
+                // If a listener has been set, start and then end it immediately
+                mListener.onAnimationStart(view);
+                mListener.onAnimationEnd(view);
+            }
         }
 
         @Override
@@ -224,7 +230,12 @@ public class ViewPropertyAnimatorCompat {
 
         @Override
         public void setListener(View view, ViewPropertyAnimatorListener listener) {
-            // Noop
+            mListener = listener;
+        }
+
+        @Override
+        public void setUpdateListener(View view, ViewPropertyAnimatorUpdateListener listener) {
+            // noop
         }
     }
 
@@ -455,10 +466,19 @@ public class ViewPropertyAnimatorCompat {
         }
     }
 
+    static class KitKatViewPropertyAnimatorCompatImpl extends JBMr2ViewPropertyAnimatorCompatImpl {
+        @Override
+        public void setUpdateListener(View view, ViewPropertyAnimatorUpdateListener listener) {
+            ViewPropertyAnimatorCompatKK.setUpdateListener(view, listener);
+        }
+    }
+
     static final ViewPropertyAnimatorCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 18) {
+        if (version >= 19) {
+            IMPL = new KitKatViewPropertyAnimatorCompatImpl();
+        } else if (version >= 18) {
             IMPL = new JBMr2ViewPropertyAnimatorCompatImpl();
         } else if (version >= 16) {
             IMPL = new JBViewPropertyAnimatorCompatImpl();
@@ -1056,6 +1076,25 @@ public class ViewPropertyAnimatorCompat {
         View view;
         if ((view = mView.get()) != null) {
             IMPL.setListener(view, listener);
+        }
+        return this;
+    }
+
+    /**
+     * Sets a listener for update events in the underlying Animator that runs
+     * the property animations.
+     *
+     * <p>Prior to API 19, this method will do nothing.</p>
+     *
+     * @param listener The listener to be called with update events. A value of
+     * <code>null</code> removes any existing listener.
+     * @return This object, allowing calls to methods in this class to be chained.
+     */
+    public ViewPropertyAnimatorCompat setUpdateListener(
+            ViewPropertyAnimatorUpdateListener listener) {
+        View view;
+        if ((view = mView.get()) != null) {
+            IMPL.setUpdateListener(view, listener);
         }
         return this;
     }

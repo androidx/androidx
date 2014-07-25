@@ -17,32 +17,12 @@
 <resources>
 
     <!--
-        Theme in the "Theme.Platform.AppCompat" family are designed to be aliases for the default
-        theme on a given platform version. They should not set any styleable attributes. Instead
-        you should create a "Base.Theme" theme which inherits from a "Theme.Platform" theme.
+        Theme in the "Platform.Theme.AppCompat" family are designed to be aliases for the default
+        theme on a given platform version and should set up the default theme ready for adding our
+        unbundled Action Bar.
     -->
     <eat-comment/>
-    <style name="Theme.Platform.AppCompat" parent="android:Theme.Holo" />
-
-    <style name="Theme.Platform.AppCompat.Light" parent="android:Theme.Holo.Light" />
-
-    <style name="Theme.Platform.AppCompat.Dialog" parent="android:Theme.Holo.Dialog" />
-
-    <style name="Theme.Platform.AppCompat.Light.Dialog" parent="android:Theme.Holo.Light.Dialog" />
-
-    <!-- Themes in the "Base.Theme" family vary based on the current platform
-          version to provide the correct basis on each device. You probably don't
-          want to use them directly in your apps.
-
-          Themes in the "Theme.AppCompat" family are meant to be extended or used
-          directly by apps.
-
-          This is the values-v11/ file that only declares the Base themes for
-          Honeycomb+. You probably want to edit values/themes.xml instead. -->
-    <eat-comment/>
-
-    <!-- Base platform-dependent theme  -->
-    <style name="Base.Theme" parent="Theme.Platform.AppCompat">
+    <style name="Platform.Theme.AppCompat" parent="android:Theme.Holo">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -52,15 +32,9 @@
             displays over the compat Action Bar.
         -->
         <item name="android:windowActionModeOverlay">true</item>
-
-        <!-- Attributes populated from the framework to be read by apps -->
-        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
-        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
-    <!-- Base platform-dependent theme providing a light-themed activity. -->
-    <style name="Base.Theme.Light" parent="Theme.Platform.AppCompat.Light">
+    <style name="Platform.Theme.AppCompat.Light" parent="android:Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -70,14 +44,43 @@
             displays over the compat Action Bar.
         -->
         <item name="android:windowActionModeOverlay">true</item>
-
-        <!-- Attributes populated from the framework to be read by apps -->
-        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
-        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
-    <style name="Base.Theme.AppCompat.Dialog.FixedSize" parent="Theme.Platform.AppCompat.Dialog">
+    <style name="Platform.Theme.AppCompat.Dialog" parent="android:Theme.Holo.Dialog" />
+
+    <style name="Platform.Theme.AppCompat.Light.Dialog" parent="android:Theme.Holo.Light.Dialog" />
+
+    <style name="Overlay.Theme.AppCompat.Light.DarkActionBar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <!-- Action Bar styling attributes -->
+        <item name="actionBarSize">?android:attr/actionBarSize</item>
+        <item name="actionBarDivider">?android:attr/actionBarDivider</item>
+        <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
+        <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
+        <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
+        <item name="actionOverflowButtonStyle">?android:attr/actionOverflowButtonStyle</item>
+        <item name="homeAsUpIndicator">?android:attr/homeAsUpIndicator</item>
+
+        <!-- For PopupMenu -->
+        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="textAppearanceLargePopupMenu">?android:attr/textAppearanceLargePopupMenu</item>
+        <item name="textAppearanceSmallPopupMenu">?android:attr/textAppearanceSmallPopupMenu</item>
+
+        <!-- General view attributes -->
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+
+        <!-- Copy our color theme attributes to the framework -->
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
+        <item name="android:colorAccent">?attr/colorAccent</item>
+        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
+        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+    </style>
+
+
+
+    <style name="Base.Theme.AppCompat.Dialog.FixedSize" parent="Platform.Theme.AppCompat.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
         <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>
@@ -91,7 +94,7 @@
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog.Light.FixedSize"
-           parent="Theme.Platform.AppCompat.Light.Dialog">
+           parent="Platform.Theme.AppCompat.Light.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
         <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>

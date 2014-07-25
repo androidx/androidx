@@ -1,4 +1,18 @@
-// Copyright 2012 Google Inc. All Rights Reserved.
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package android.support.v7.internal.view.menu;
 
@@ -129,15 +143,18 @@ public class MenuBuilder implements SupportMenu {
      * Header icon for menu types that have a header and support icons (context)
      */
     Drawable mHeaderIcon;
-
-    /**
-     * Header custom view for menu types that have a header and support custom views (context)
-     */
+    /** Header custom view for menu types that have a header and support custom views (context) */
     View mHeaderView;
 
     /**
-     * Prevents onItemsChanged from doing its junk, useful for batching commands that may
-     * individually call onItemsChanged.
+     * Contains the state of the View hierarchy for all menu views when the menu
+     * was frozen.
+     */
+    private SparseArray<Parcelable> mFrozenViewStates;
+
+    /**
+     * Prevents onItemsChanged from doing its junk, useful for batching commands
+     * that may individually call onItemsChanged.
      */
     private boolean mPreventDispatchingItemsChanged = false;
 
@@ -185,7 +202,6 @@ public class MenuBuilder implements SupportMenu {
      * @hide
      */
     public interface ItemInvoker {
-
         public boolean invokeItem(MenuItemImpl item);
     }
 
@@ -217,8 +233,21 @@ public class MenuBuilder implements SupportMenu {
      * @param presenter The presenter to add
      */
     public void addMenuPresenter(MenuPresenter presenter) {
+        addMenuPresenter(presenter, mContext);
+    }
+
+    /**
+     * Add a presenter to this menu that uses an alternate context for
+     * inflating menu items. This will only hold a WeakReference; you do not
+     * need to explicitly remove a presenter, but you can using
+     * {@link #removeMenuPresenter(MenuPresenter)}.
+     *
+     * @param presenter The presenter to add
+     * @param menuContext The context used to inflate menu items
+     */
+    public void addMenuPresenter(MenuPresenter presenter, Context menuContext) {
         mPresenters.add(new WeakReference<MenuPresenter>(presenter));
-        presenter.initForMenu(mContext, this);
+        presenter.initForMenu(menuContext, this);
         mIsActionItemsStale = true;
     }
 
@@ -238,9 +267,7 @@ public class MenuBuilder implements SupportMenu {
     }
 
     private void dispatchPresenterUpdate(boolean cleared) {
-        if (mPresenters.isEmpty()) {
-            return;
-        }
+        if (mPresenters.isEmpty()) return;
 
         stopDispatchingItemsChanged();
         for (WeakReference<MenuPresenter> ref : mPresenters) {
@@ -254,12 +281,16 @@ public class MenuBuilder implements SupportMenu {
         startDispatchingItemsChanged();
     }
 
-    private boolean dispatchSubMenuSelected(SubMenuBuilder subMenu) {
-        if (mPresenters.isEmpty()) {
-            return false;
-        }
+    private boolean dispatchSubMenuSelected(SubMenuBuilder subMenu,
+            MenuPresenter preferredPresenter) {
+        if (mPresenters.isEmpty()) return false;
 
         boolean result = false;
+
+        // Try the preferred presenter first.
+        if (preferredPresenter != null) {
+            result = preferredPresenter.onSubMenuSelected(subMenu);
+        }
 
         for (WeakReference<MenuPresenter> ref : mPresenters) {
             final MenuPresenter presenter = ref.get();
@@ -273,9 +304,7 @@ public class MenuBuilder implements SupportMenu {
     }
 
     private void dispatchSaveInstanceState(Bundle outState) {
-        if (mPresenters.isEmpty()) {
-            return;
-        }
+        if (mPresenters.isEmpty()) return;
 
         SparseArray<Parcelable> presenterStates = new SparseArray<Parcelable>();
 
@@ -300,9 +329,7 @@ public class MenuBuilder implements SupportMenu {
     private void dispatchRestoreInstanceState(Bundle state) {
         SparseArray<Parcelable> presenterStates = state.getSparseParcelableArray(PRESENTER_KEY);
 
-        if (presenterStates == null || mPresenters.isEmpty()) {
-            return;
-        }
+        if (presenterStates == null || mPresenters.isEmpty()) return;
 
         for (WeakReference<MenuPresenter> ref : mPresenters) {
             final MenuPresenter presenter = ref.get();
@@ -399,8 +426,8 @@ public class MenuBuilder implements SupportMenu {
     private MenuItem addInternal(int group, int id, int categoryOrder, CharSequence title) {
         final int ordering = getOrdering(categoryOrder);
 
-        final MenuItemImpl item = new MenuItemImpl(this, group, id, categoryOrder,
-                ordering, title, mDefaultShowAsAction);
+        final MenuItemImpl item = createNewMenuItem(group, id, categoryOrder, ordering, title,
+                mDefaultShowAsAction);
 
         if (mCurrentMenuInfo != null) {
             // Pass along the current menu info
@@ -413,7 +440,13 @@ public class MenuBuilder implements SupportMenu {
         return item;
     }
 
-    @Override
+    // Layoutlib overrides this method to return its custom implementation of MenuItemImpl
+    private MenuItemImpl createNewMenuItem(int group, int id, int categoryOrder, int ordering,
+            CharSequence title, int defaultShowAsAction) {
+        return new MenuItemImpl(this, group, id, categoryOrder, ordering, title,
+                defaultShowAsAction);
+    }
+
     public MenuItem add(CharSequence title) {
         return addInternal(0, 0, 0, title);
     }
@@ -510,23 +543,21 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Remove the item at the given index and optionally forces menu views to update.
+     * Remove the item at the given index and optionally forces menu views to
+     * update.
      *
-     * @param index                     The index of the item to be removed. If this index is
-     *                                  invalid an exception is thrown.
-     * @param updateChildrenOnMenuViews Whether to force update on menu views. Please make sure you
-     *                                  eventually call this after your batch of removals.
+     * @param index The index of the item to be removed. If this index is
+     *            invalid an exception is thrown.
+     * @param updateChildrenOnMenuViews Whether to force update on menu views.
+     *            Please make sure you eventually call this after your batch of
+     *            removals.
      */
     private void removeItemAtInt(int index, boolean updateChildrenOnMenuViews) {
-        if ((index < 0) || (index >= mItems.size())) {
-            return;
-        }
+        if ((index < 0) || (index >= mItems.size())) return;
 
         mItems.remove(index);
 
-        if (updateChildrenOnMenuViews) {
-            onItemsChanged(true);
-        }
+        if (updateChildrenOnMenuViews) onItemsChanged(true);
     }
 
     public void removeItemAt(int index) {
@@ -559,12 +590,8 @@ public class MenuBuilder implements SupportMenu {
         for (int i = 0; i < N; i++) {
             MenuItemImpl curItem = mItems.get(i);
             if (curItem.getGroupId() == group) {
-                if (!curItem.isExclusiveCheckable()) {
-                    continue;
-                }
-                if (!curItem.isCheckable()) {
-                    continue;
-                }
+                if (!curItem.isExclusiveCheckable()) continue;
+                if (!curItem.isCheckable()) continue;
 
                 // Check the item meant to be checked, uncheck the others (that are in the group)
                 curItem.setCheckedInt(curItem == item);
@@ -589,22 +616,18 @@ public class MenuBuilder implements SupportMenu {
     public void setGroupVisible(int group, boolean visible) {
         final int N = mItems.size();
 
-        // We handle the notification of items being changed ourselves, so we use setVisibleInt
-        // rather than setVisible and at the end notify of items being changed
+        // We handle the notification of items being changed ourselves, so we use setVisibleInt rather
+        // than setVisible and at the end notify of items being changed
 
         boolean changedAtLeastOneItem = false;
         for (int i = 0; i < N; i++) {
             MenuItemImpl item = mItems.get(i);
             if (item.getGroupId() == group) {
-                if (item.setVisibleInt(visible)) {
-                    changedAtLeastOneItem = true;
-                }
+                if (item.setVisibleInt(visible)) changedAtLeastOneItem = true;
             }
         }
 
-        if (changedAtLeastOneItem) {
-            onItemsChanged(true);
-        }
+        if (changedAtLeastOneItem) onItemsChanged(true);
     }
 
     @Override
@@ -710,14 +733,15 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Returns the ordering across all items. This will grab the category from the upper bits, find
-     * out how to order the category with respect to other categories, and combine it with the lower
-     * bits.
+     * Returns the ordering across all items. This will grab the category from
+     * the upper bits, find out how to order the category with respect to other
+     * categories, and combine it with the lower bits.
      *
-     * @param categoryOrder The category order for a particular item (if it has not been or/add with
-     *                      a category, the default category is assumed).
-     * @return An ordering integer that can be used to order this item across all the items (even
-     *         from other categories).
+     * @param categoryOrder The category order for a particular item (if it has
+     *            not been or/add with a category, the default category is
+     *            assumed).
+     * @return An ordering integer that can be used to order this item across
+     *         all the items (even from other categories).
      */
     private static int getOrdering(int categoryOrder) {
         final int index = (categoryOrder & CATEGORY_MASK) >> CATEGORY_SHIFT;
@@ -837,18 +861,16 @@ public class MenuBuilder implements SupportMenu {
         for (int i = 0; i < N; i++) {
             MenuItemImpl item = mItems.get(i);
             if (item.hasSubMenu()) {
-                ((MenuBuilder) item.getSubMenu())
-                        .findItemsWithShortcutForKey(items, keyCode, event);
+                ((MenuBuilder)item.getSubMenu()).findItemsWithShortcutForKey(items, keyCode, event);
             }
-            final char shortcutChar = qwerty ? item.getAlphabeticShortcut()
-                    : item.getNumericShortcut();
+            final char shortcutChar = qwerty ? item.getAlphabeticShortcut() : item.getNumericShortcut();
             if (((metaState & (KeyEvent.META_SHIFT_ON | KeyEvent.META_SYM_ON)) == 0) &&
-                    (shortcutChar != 0) &&
-                    (shortcutChar == possibleChars.meta[0]
-                            || shortcutChar == possibleChars.meta[2]
-                            || (qwerty && shortcutChar == '\b' &&
-                            keyCode == KeyEvent.KEYCODE_DEL)) &&
-                    item.isEnabled()) {
+                  (shortcutChar != 0) &&
+                  (shortcutChar == possibleChars.meta[0]
+                      || shortcutChar == possibleChars.meta[2]
+                      || (qwerty && shortcutChar == '\b' &&
+                          keyCode == KeyEvent.KEYCODE_DEL)) &&
+                  item.isEnabled()) {
                 items.add(item);
             }
         }
@@ -896,9 +918,9 @@ public class MenuBuilder implements SupportMenu {
                     item.getNumericShortcut();
             if ((shortcutChar == possibleChars.meta[0] &&
                     (metaState & KeyEvent.META_ALT_ON) == 0)
-                    || (shortcutChar == possibleChars.meta[2] &&
+                || (shortcutChar == possibleChars.meta[2] &&
                     (metaState & KeyEvent.META_ALT_ON) != 0)
-                    || (qwerty && shortcutChar == '\b' &&
+                || (qwerty && shortcutChar == '\b' &&
                     keyCode == KeyEvent.KEYCODE_DEL)) {
                 return item;
             }
@@ -913,6 +935,10 @@ public class MenuBuilder implements SupportMenu {
     }
 
     public boolean performItemAction(MenuItem item, int flags) {
+        return performItemAction(item, null, flags);
+    }
+
+    public boolean performItemAction(MenuItem item, MenuPresenter preferredPresenter, int flags) {
         MenuItemImpl itemImpl = (MenuItemImpl) item;
 
         if (itemImpl == null || !itemImpl.isEnabled()) {
@@ -925,9 +951,7 @@ public class MenuBuilder implements SupportMenu {
         final boolean providerHasSubMenu = provider != null && provider.hasSubMenu();
         if (itemImpl.hasCollapsibleActionView()) {
             invoked |= itemImpl.expandActionView();
-            if (invoked) {
-                close(true);
-            }
+            if (invoked) close(true);
         } else if (itemImpl.hasSubMenu() || providerHasSubMenu) {
             close(false);
 
@@ -939,10 +963,8 @@ public class MenuBuilder implements SupportMenu {
             if (providerHasSubMenu) {
                 provider.onPrepareSubMenu(subMenu);
             }
-            invoked |= dispatchSubMenuSelected(subMenu);
-            if (!invoked) {
-                close(true);
-            }
+            invoked |= dispatchSubMenuSelected(subMenu, preferredPresenter);
+            if (!invoked) close(true);
         } else {
             if ((flags & FLAG_PERFORM_NO_CLOSE) == 0) {
                 close(true);
@@ -955,15 +977,14 @@ public class MenuBuilder implements SupportMenu {
     /**
      * Closes the visible menu.
      *
-     * @param allMenusAreClosing Whether the menus are completely closing (true), or whether there
-     *                           is another menu coming in this menu's place (false). For example,
-     *                           if the menu is closing because a sub menu is about to be shown,
-     *                           <var>allMenusAreClosing</var> is false.
+     * @param allMenusAreClosing Whether the menus are completely closing (true),
+     *            or whether there is another menu coming in this menu's place
+     *            (false). For example, if the menu is closing because a
+     *            sub menu is about to be shown, <var>allMenusAreClosing</var>
+     *            is false.
      */
-    final void close(boolean allMenusAreClosing) {
-        if (mIsClosing) {
-            return;
-        }
+    public final void close(boolean allMenusAreClosing) {
+        if (mIsClosing) return;
 
         mIsClosing = true;
         for (WeakReference<MenuPresenter> ref : mPresenters) {
@@ -985,11 +1006,11 @@ public class MenuBuilder implements SupportMenu {
     /**
      * Called when an item is added or removed.
      *
-     * @param structureChanged true if the menu structure changed, false if only item properties
-     *                         changed. (Visibility is a structural property since it affects
-     *                         layout.)
+     * @param structureChanged true if the menu structure changed,
+     *                         false if only item properties changed.
+     *                         (Visibility is a structural property since it affects layout.)
      */
-    void onItemsChanged(boolean structureChanged) {
+    public void onItemsChanged(boolean structureChanged) {
         if (!mPreventDispatchingItemsChanged) {
             if (structureChanged) {
                 mIsVisibleItemsStale = true;
@@ -1003,9 +1024,9 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Stop dispatching item changed events to presenters until {@link
-     * #startDispatchingItemsChanged()} is called. Useful when many menu operations are going to be
-     * performed as a batch.
+     * Stop dispatching item changed events to presenters until
+     * {@link #startDispatchingItemsChanged()} is called. Useful when
+     * many menu operations are going to be performed as a batch.
      */
     public void stopDispatchingItemsChanged() {
         if (!mPreventDispatchingItemsChanged) {
@@ -1045,10 +1066,8 @@ public class MenuBuilder implements SupportMenu {
         onItemsChanged(true);
     }
 
-    ArrayList<MenuItemImpl> getVisibleItems() {
-        if (!mIsVisibleItemsStale) {
-            return mVisibleItems;
-        }
+    public ArrayList<MenuItemImpl> getVisibleItems() {
+        if (!mIsVisibleItemsStale) return mVisibleItems;
 
         // Refresh the visible items
         mVisibleItems.clear();
@@ -1057,9 +1076,7 @@ public class MenuBuilder implements SupportMenu {
         MenuItemImpl item;
         for (int i = 0; i < itemsSize; i++) {
             item = mItems.get(i);
-            if (item.isVisible()) {
-                mVisibleItems.add(item);
-            }
+            if (item.isVisible()) mVisibleItems.add(item);
         }
 
         mIsVisibleItemsStale = false;
@@ -1093,6 +1110,10 @@ public class MenuBuilder implements SupportMenu {
      * to avoid inadvertent reordering that may break the app's intended design.
      */
     public void flagActionItems() {
+        // Important side effect: if getVisibleItems is stale it may refresh,
+        // which can affect action items staleness.
+        final ArrayList<MenuItemImpl> visibleItems = getVisibleItems();
+
         if (!mIsActionItemsStale) {
             return;
         }
@@ -1111,7 +1132,6 @@ public class MenuBuilder implements SupportMenu {
         if (flagged) {
             mActionItems.clear();
             mNonActionItems.clear();
-            ArrayList<MenuItemImpl> visibleItems = getVisibleItems();
             final int itemsSize = visibleItems.size();
             for (int i = 0; i < itemsSize; i++) {
                 MenuItemImpl item = visibleItems.get(i);
@@ -1131,12 +1151,12 @@ public class MenuBuilder implements SupportMenu {
         mIsActionItemsStale = false;
     }
 
-    ArrayList<MenuItemImpl> getActionItems() {
+    public ArrayList<MenuItemImpl> getActionItems() {
         flagActionItems();
         return mActionItems;
     }
 
-    ArrayList<MenuItemImpl> getNonActionItems() {
+    public ArrayList<MenuItemImpl> getNonActionItems() {
         flagActionItems();
         return mNonActionItems;
     }
@@ -1181,8 +1201,8 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Sets the header's title. This replaces the header view. Called by the builder-style methods
-     * of subclasses.
+     * Sets the header's title. This replaces the header view. Called by the
+     * builder-style methods of subclasses.
      *
      * @param title The new title.
      * @return This MenuBuilder so additional setters can be called.
@@ -1193,8 +1213,8 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Sets the header's title. This replaces the header view. Called by the builder-style methods
-     * of subclasses.
+     * Sets the header's title. This replaces the header view. Called by the
+     * builder-style methods of subclasses.
      *
      * @param titleRes The new title (as a resource ID).
      * @return This MenuBuilder so additional setters can be called.
@@ -1205,8 +1225,8 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Sets the header's icon. This replaces the header view. Called by the builder-style methods of
-     * subclasses.
+     * Sets the header's icon. This replaces the header view. Called by the
+     * builder-style methods of subclasses.
      *
      * @param icon The new icon.
      * @return This MenuBuilder so additional setters can be called.
@@ -1217,8 +1237,8 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Sets the header's icon. This replaces the header view. Called by the builder-style methods of
-     * subclasses.
+     * Sets the header's icon. This replaces the header view. Called by the
+     * builder-style methods of subclasses.
      *
      * @param iconRes The new icon (as a resource ID).
      * @return This MenuBuilder so additional setters can be called.
@@ -1229,8 +1249,8 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Sets the header's view. This replaces the title and icon. Called by the builder-style methods
-     * of subclasses.
+     * Sets the header's view. This replaces the title and icon. Called by the
+     * builder-style methods of subclasses.
      *
      * @param view The new view.
      * @return This MenuBuilder so additional setters can be called.
@@ -1262,9 +1282,9 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Sets the current menu info that is set on all items added to this menu (until this is called
-     * again with different menu info, in which case that one will be added to all subsequent item
-     * additions).
+     * Sets the current menu info that is set on all items added to this menu
+     * (until this is called again with different menu info, in which case that
+     * one will be added to all subsequent item additions).
      *
      * @param menuInfo The extra menu information to add.
      */
@@ -1281,9 +1301,7 @@ public class MenuBuilder implements SupportMenu {
     }
 
     public boolean expandItemActionView(MenuItemImpl item) {
-        if (mPresenters.isEmpty()) {
-            return false;
-        }
+        if (mPresenters.isEmpty()) return false;
 
         boolean expanded = false;
 
@@ -1305,9 +1323,7 @@ public class MenuBuilder implements SupportMenu {
     }
 
     public boolean collapseItemActionView(MenuItemImpl item) {
-        if (mPresenters.isEmpty() || mExpandedItem != item) {
-            return false;
-        }
+        if (mPresenters.isEmpty() || mExpandedItem != item) return false;
 
         boolean collapsed = false;
 

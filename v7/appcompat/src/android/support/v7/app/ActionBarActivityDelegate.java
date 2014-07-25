@@ -25,10 +25,11 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,14 +40,11 @@ import android.view.ViewGroup;
 abstract class ActionBarActivityDelegate {
 
     static final String METADATA_UI_OPTIONS = "android.support.UI_OPTIONS";
-    static final String UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW = "splitActionBarWhenNarrow";
 
     private static final String TAG = "ActionBarActivityDelegate";
 
     static ActionBarActivityDelegate createDelegate(ActionBarActivity activity) {
-        if (Build.VERSION.CODENAME.equals("L")) {
-            return new ActionBarActivityDelegateL(activity);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             return new ActionBarActivityDelegateHC(activity);
         } else {
             return new ActionBarActivityDelegateBase(activity);
@@ -63,8 +61,6 @@ abstract class ActionBarActivityDelegate {
     // true if this activity's action bar overlays other activity content.
     boolean mOverlayActionBar;
 
-    private boolean mEnableDefaultActionBarUp;
-
     ActionBarActivityDelegate(ActionBarActivity activity) {
         mActivity = activity;
     }
@@ -77,10 +73,6 @@ abstract class ActionBarActivityDelegate {
         if (mHasActionBar || mOverlayActionBar) {
             if (mActionBar == null) {
                 mActionBar = createSupportActionBar();
-
-                if (mEnableDefaultActionBarUp) {
-                    mActionBar.setDisplayHomeAsUpEnabled(true);
-                }
             }
         } else {
             // If we're not set to have a Action Bar, null it just in case it's been set
@@ -88,6 +80,12 @@ abstract class ActionBarActivityDelegate {
         }
         return mActionBar;
     }
+
+    protected final void setSupportActionBar(ActionBar actionBar) {
+        mActionBar = actionBar;
+    }
+
+    abstract void setSupportActionBar(Toolbar toolbar);
 
     MenuInflater getMenuInflater() {
         if (mMenuInflater == null) {
@@ -97,25 +95,17 @@ abstract class ActionBarActivityDelegate {
     }
 
     void onCreate(Bundle savedInstanceState) {
-        TypedArray a = mActivity.obtainStyledAttributes(R.styleable.ActionBarWindow);
+        TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
 
-        if (!a.hasValue(R.styleable.ActionBarWindow_windowActionBar)) {
+        if (!a.hasValue(R.styleable.Theme_windowActionBar)) {
             a.recycle();
             throw new IllegalStateException(
                     "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
         }
 
-        mHasActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBar, false);
-        mOverlayActionBar = a.getBoolean(R.styleable.ActionBarWindow_windowActionBarOverlay, false);
+        mHasActionBar = a.getBoolean(R.styleable.Theme_windowActionBar, false);
+        mOverlayActionBar = a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false);
         a.recycle();
-
-        if (NavUtils.getParentActivityName(mActivity) != null) {
-            if (mActionBar == null) {
-                mEnableDefaultActionBarUp = true;
-            } else {
-                mActionBar.setDisplayHomeAsUpEnabled(true);
-            }
-        }
     }
 
     abstract void onConfigurationChanged(Configuration newConfig);
@@ -177,7 +167,7 @@ abstract class ActionBarActivityDelegate {
 
     abstract void onContentChanged();
 
-    protected final String getUiOptionsFromMetadata() {
+    final String getUiOptionsFromMetadata() {
         try {
             PackageManager pm = mActivity.getPackageManager();
             ActivityInfo info = pm.getActivityInfo(mActivity.getComponentName(),
@@ -233,4 +223,21 @@ abstract class ActionBarActivityDelegate {
             }
         }
     }
+
+    final WindowCallback mWindowMenuCallback = new WindowCallback() {
+        @Override
+        public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
+            return mActivity.superOnMenuItemSelected(featureId, menuItem);
+        }
+
+        @Override
+        public boolean onCreatePanelMenu(int featureId, Menu menu) {
+            return mActivity.superOnCreatePanelMenu(featureId, menu);
+        }
+
+        @Override
+        public boolean onPreparePanel(int featureId, View menuView, Menu menu) {
+            return mActivity.superOnPreparePanel(featureId, menuView, menu);
+        }
+    };
 }
