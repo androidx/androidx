@@ -187,6 +187,14 @@
            parent="Base.Widget.AppCompat.Light.ListPopupWindow">
     </style>
 
+    <style name="Widget.AppCompat.PopupMenu.Overflow"
+           parent="Base.Widget.AppCompat.PopupMenu.Overflow">
+    </style>
+
+    <style name="Widget.AppCompat.Light.PopupMenu.Overflow"
+           parent="Base.Widget.AppCompat.Light.PopupMenu.Overflow">
+    </style>
+
     <style name="Widget.AppCompat.PopupMenu" parent="Base.Widget.AppCompat.PopupMenu">
     </style>
 
@@ -195,6 +203,9 @@
     </style>
 
     <style name="Widget.AppCompat.ListView.Menu" parent="Base.Widget.AppCompat.ListView.Menu">
+    </style>
+
+    <style name="Widget.AppCompat.PopupWindow" parent="Base.Widget.AppCompat.PopupWindow">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.PopupMenu.Large"
@@ -244,6 +255,22 @@
     <style name="Widget.AppCompat.Light.ActivityChooserView"
            parent="Base.Widget.AppCompat.Light.ActivityChooserView">
     </style>
+
+    <!-- Toolbar -->
+
+    <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
+
+    <style name="Widget.AppCompat.Toolbar.Button.Navigation"
+           parent="Base.Widget.AppCompat.Toolbar.Button.Navigation" />
+
+    <style name="TextAppearance.Widget.AppCompat.Toolbar.Title"
+           parent="Base.TextAppearance.Widget.AppCompat.Toolbar.Title">
+    </style>
+
+    <style name="TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
+           parent="Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+    </style>
+
 
     <eat-comment />
     <!-- Text styles -->

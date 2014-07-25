@@ -13,29 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v7.internal.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
-import android.support.v7.internal.view.menu.ActionMenuPresenter;
-import android.support.v7.internal.view.menu.ActionMenuView;
+import android.support.v7.widget.ActionMenuPresenter;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * @hide
  */
-public class ActionBarContextView extends AbsActionBarView {
-
+public class ActionBarContextView extends AbsActionBarView implements ViewPropertyAnimatorListener {
     private static final String TAG = "ActionBarContextView";
 
     private CharSequence mTitle;
@@ -50,6 +56,14 @@ public class ActionBarContextView extends AbsActionBarView {
     private int mSubtitleStyleRes;
     private Drawable mSplitBackground;
     private boolean mTitleOptional;
+
+    //private ViewPropertyAnimatorCompat mCurrentAnimation;
+    private boolean mAnimateInOnLayout;
+    private int mAnimationMode;
+
+    private static final int ANIMATE_IDLE = 0;
+    private static final int ANIMATE_IN = 1;
+    private static final int ANIMATE_OUT = 2;
 
     public ActionBarContextView(Context context) {
         this(context, null);
@@ -89,20 +103,17 @@ public class ActionBarContextView extends AbsActionBarView {
     }
 
     @Override
-    public void setSplitActionBar(boolean split) {
+    public void setSplitToolbar(boolean split) {
         if (mSplitActionBar != split) {
             if (mActionMenuPresenter != null) {
                 // Mode is already active; move everything over and adjust the menu itself.
-                final ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.FILL_PARENT);
+                final LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                        LayoutParams.MATCH_PARENT);
                 if (!split) {
                     mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
                     mMenuView.setBackgroundDrawable(null);
                     final ViewGroup oldParent = (ViewGroup) mMenuView.getParent();
-                    if (oldParent != null) {
-                        oldParent.removeView(mMenuView);
-                    }
+                    if (oldParent != null) oldParent.removeView(mMenuView);
                     addView(mMenuView, layoutParams);
                 } else {
                     // Allow full screen width in split mode.
@@ -111,18 +122,16 @@ public class ActionBarContextView extends AbsActionBarView {
                     // No limit to the item count; use whatever will fit.
                     mActionMenuPresenter.setItemLimit(Integer.MAX_VALUE);
                     // Span the whole width
-                    layoutParams.width = ViewGroup.LayoutParams.FILL_PARENT;
+                    layoutParams.width = LayoutParams.MATCH_PARENT;
                     layoutParams.height = mContentHeight;
                     mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
                     mMenuView.setBackgroundDrawable(mSplitBackground);
                     final ViewGroup oldParent = (ViewGroup) mMenuView.getParent();
-                    if (oldParent != null) {
-                        oldParent.removeView(mMenuView);
-                    }
+                    if (oldParent != null) oldParent.removeView(mMenuView);
                     mSplitView.addView(mMenuView, layoutParams);
                 }
             }
-            super.setSplitActionBar(split);
+            super.setSplitToolbar(split);
         }
     }
 
@@ -200,7 +209,7 @@ public class ActionBarContextView extends AbsActionBarView {
         }
 
         View closeButton = mClose.findViewById(R.id.action_mode_close_button);
-        closeButton.setOnClickListener(new View.OnClickListener() {
+        closeButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 mode.finish();
             }
@@ -213,11 +222,10 @@ public class ActionBarContextView extends AbsActionBarView {
         mActionMenuPresenter = new ActionMenuPresenter(getContext());
         mActionMenuPresenter.setReserveOverflow(true);
 
-        final ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.FILL_PARENT);
+        final LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT);
         if (!mSplitActionBar) {
-            menu.addMenuPresenter(mActionMenuPresenter);
+            menu.addMenuPresenter(mActionMenuPresenter, mPopupContext);
             mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
             mMenuView.setBackgroundDrawable(null);
             addView(mMenuView, layoutParams);
@@ -228,20 +236,29 @@ public class ActionBarContextView extends AbsActionBarView {
             // No limit to the item count; use whatever will fit.
             mActionMenuPresenter.setItemLimit(Integer.MAX_VALUE);
             // Span the whole width
-            layoutParams.width = ViewGroup.LayoutParams.FILL_PARENT;
+            layoutParams.width = LayoutParams.MATCH_PARENT;
             layoutParams.height = mContentHeight;
-            menu.addMenuPresenter(mActionMenuPresenter);
+            menu.addMenuPresenter(mActionMenuPresenter, mPopupContext);
             mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
             mMenuView.setBackgroundDrawable(mSplitBackground);
             mSplitView.addView(mMenuView, layoutParams);
         }
+
+        mAnimateInOnLayout = true;
     }
 
     public void closeMode() {
+        if (mAnimationMode == ANIMATE_OUT) {
+            // Called again during close; just finish what we were doing.
+            return;
+        }
         if (mClose == null) {
             killMode();
             return;
         }
+
+        mAnimationMode = ANIMATE_OUT;
+        startOutAnimation();
     }
 
     public void killMode() {
@@ -251,6 +268,7 @@ public class ActionBarContextView extends AbsActionBarView {
         }
         mCustomView = null;
         mMenuView = null;
+        mAnimateInOnLayout = false;
     }
 
     @Override
@@ -281,44 +299,41 @@ public class ActionBarContextView extends AbsActionBarView {
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
         // Used by custom views if they don't supply layout params. Everything else
         // added to an ActionBarContextView should have them already.
-        return new ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        return new MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
     }
 
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new ViewGroup.MarginLayoutParams(getContext(), attrs);
+        return new MarginLayoutParams(getContext(), attrs);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int widthMode = View.MeasureSpec.getMode(widthMeasureSpec);
-        if (widthMode != View.MeasureSpec.EXACTLY) {
+        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        if (widthMode != MeasureSpec.EXACTLY) {
             throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
-                    "with android:layout_width=\"FILL_PARENT\" (or fill_parent)");
+                    "with android:layout_width=\"match_parent\" (or fill_parent)");
         }
 
-        final int heightMode = View.MeasureSpec.getMode(heightMeasureSpec);
-        if (heightMode == View.MeasureSpec.UNSPECIFIED) {
+        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        if (heightMode == MeasureSpec.UNSPECIFIED) {
             throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
                     "with android:layout_height=\"wrap_content\"");
         }
 
-        final int contentWidth = View.MeasureSpec.getSize(widthMeasureSpec);
+        final int contentWidth = MeasureSpec.getSize(widthMeasureSpec);
 
         int maxHeight = mContentHeight > 0 ?
-                mContentHeight : View.MeasureSpec.getSize(heightMeasureSpec);
+                mContentHeight : MeasureSpec.getSize(heightMeasureSpec);
 
         final int verticalPadding = getPaddingTop() + getPaddingBottom();
         int availableWidth = contentWidth - getPaddingLeft() - getPaddingRight();
         final int height = maxHeight - verticalPadding;
-        final int childSpecHeight = View.MeasureSpec
-                .makeMeasureSpec(height, View.MeasureSpec.AT_MOST);
+        final int childSpecHeight = MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST);
 
         if (mClose != null) {
             availableWidth = measureChildView(mClose, availableWidth, childSpecHeight, 0);
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mClose
-                    .getLayoutParams();
+            MarginLayoutParams lp = (MarginLayoutParams) mClose.getLayoutParams();
             availableWidth -= lp.leftMargin + lp.rightMargin;
         }
 
@@ -329,8 +344,7 @@ public class ActionBarContextView extends AbsActionBarView {
 
         if (mTitleLayout != null && mCustomView == null) {
             if (mTitleOptional) {
-                final int titleWidthSpec = View.MeasureSpec
-                        .makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+                final int titleWidthSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
                 mTitleLayout.measure(titleWidthSpec, childSpecHeight);
                 final int titleWidth = mTitleLayout.getMeasuredWidth();
                 final boolean titleFits = titleWidth <= availableWidth;
@@ -345,16 +359,16 @@ public class ActionBarContextView extends AbsActionBarView {
 
         if (mCustomView != null) {
             ViewGroup.LayoutParams lp = mCustomView.getLayoutParams();
-            final int customWidthMode = lp.width != ViewGroup.LayoutParams.WRAP_CONTENT ?
-                    View.MeasureSpec.EXACTLY : View.MeasureSpec.AT_MOST;
+            final int customWidthMode = lp.width != LayoutParams.WRAP_CONTENT ?
+                    MeasureSpec.EXACTLY : MeasureSpec.AT_MOST;
             final int customWidth = lp.width >= 0 ?
                     Math.min(lp.width, availableWidth) : availableWidth;
-            final int customHeightMode = lp.height != ViewGroup.LayoutParams.WRAP_CONTENT ?
-                    View.MeasureSpec.EXACTLY : View.MeasureSpec.AT_MOST;
+            final int customHeightMode = lp.height != LayoutParams.WRAP_CONTENT ?
+                    MeasureSpec.EXACTLY : MeasureSpec.AT_MOST;
             final int customHeight = lp.height >= 0 ?
                     Math.min(lp.height, height) : height;
-            mCustomView.measure(View.MeasureSpec.makeMeasureSpec(customWidth, customWidthMode),
-                    View.MeasureSpec.makeMeasureSpec(customHeight, customHeightMode));
+            mCustomView.measure(MeasureSpec.makeMeasureSpec(customWidth, customWidthMode),
+                    MeasureSpec.makeMeasureSpec(customHeight, customHeightMode));
         }
 
         if (mContentHeight <= 0) {
@@ -373,33 +387,121 @@ public class ActionBarContextView extends AbsActionBarView {
         }
     }
 
+    private void startInAnimation() {
+        int leftMargin = ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin;
+        ViewCompat.setTranslationX(mClose, -mClose.getWidth() - leftMargin);
+
+        ViewPropertyAnimatorCompat buttonAnimator = ViewCompat.animate(mClose).translationX(0f);
+        buttonAnimator.setDuration(200);
+        buttonAnimator.setListener(this);
+        buttonAnimator.setInterpolator(new DecelerateInterpolator());
+
+        if (mMenuView != null) {
+            final int count = mMenuView.getChildCount();
+            if (count > 0) {
+                for (int i = count - 1, j = 0; i >= 0; i--, j++) {
+                    View child = mMenuView.getChildAt(i);
+                    ViewCompat.setScaleY(child, 0f);
+                    ViewCompat.animate(child).scaleY(1f).setDuration(300).start();
+                }
+            }
+        }
+
+        buttonAnimator.start();
+    }
+
+    private void startOutAnimation() {
+        int leftMargin = ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin;
+        ViewPropertyAnimatorCompat buttonAnimator = ViewCompat.animate(mClose)
+                .translationX(-mClose.getWidth() - leftMargin);
+        buttonAnimator.setDuration(200);
+        buttonAnimator.setListener(this);
+        buttonAnimator.setInterpolator(new DecelerateInterpolator());
+
+        if (mMenuView != null) {
+            final int count = mMenuView.getChildCount();
+            if (count > 0) {
+                for (int i = count - 1, j = 0; i >= 0; i--, j++) {
+                    View child = mMenuView.getChildAt(i);
+                    ViewCompat.setScaleY(child, 1f);
+                    ViewCompat.animate(child).scaleY(0f).setDuration(300).start();
+                }
+            }
+        }
+
+        buttonAnimator.start();
+    }
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int x = getPaddingLeft();
+        final boolean isLayoutRtl = ViewUtils.isLayoutRtl(this);
+        int x = isLayoutRtl ? r - l - getPaddingRight() : getPaddingLeft();
         final int y = getPaddingTop();
         final int contentHeight = b - t - getPaddingTop() - getPaddingBottom();
 
         if (mClose != null && mClose.getVisibility() != GONE) {
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mClose
-                    .getLayoutParams();
-            x += lp.leftMargin;
-            x += positionChild(mClose, x, y, contentHeight);
-            x += lp.rightMargin;
+            MarginLayoutParams lp = (MarginLayoutParams) mClose.getLayoutParams();
+            final int startMargin = (isLayoutRtl ? lp.rightMargin : lp.leftMargin);
+            final int endMargin = (isLayoutRtl ? lp.leftMargin : lp.rightMargin);
+            x = next(x, startMargin, isLayoutRtl);
+            x += positionChild(mClose, x, y, contentHeight, isLayoutRtl);
+            x = next(x, endMargin, isLayoutRtl);
 
+            if (mAnimateInOnLayout) {
+                mAnimationMode = ANIMATE_IN;
+                startInAnimation();
+                mAnimateInOnLayout = false;
+            }
         }
 
         if (mTitleLayout != null && mCustomView == null && mTitleLayout.getVisibility() != GONE) {
-            x += positionChild(mTitleLayout, x, y, contentHeight);
+            x += positionChild(mTitleLayout, x, y, contentHeight, isLayoutRtl);
         }
 
         if (mCustomView != null) {
-            x += positionChild(mCustomView, x, y, contentHeight);
+            x += positionChild(mCustomView, x, y, contentHeight, isLayoutRtl);
         }
 
-        x = r - l - getPaddingRight();
+        x = isLayoutRtl ? getPaddingLeft() : r - l - getPaddingRight();
 
         if (mMenuView != null) {
-            x -= positionChildInverse(mMenuView, x, y, contentHeight);
+            x += positionChild(mMenuView, x, y, contentHeight, !isLayoutRtl);
+        }
+    }
+
+    @Override
+    public void onAnimationStart(View view) {
+    }
+
+    @Override
+    public void onAnimationEnd(View view) {
+        if (mAnimationMode == ANIMATE_OUT) {
+            killMode();
+        }
+        mAnimationMode = ANIMATE_IDLE;
+    }
+
+    @Override
+    public void onAnimationCancel(View view) {
+    }
+
+    @Override
+    public boolean shouldDelayChildPressedState() {
+        return false;
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+        if (Build.VERSION.SDK_INT >= 14) {
+            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                // Action mode started
+                event.setSource(this);
+                event.setClassName(getClass().getName());
+                event.setPackageName(getContext().getPackageName());
+                event.setContentDescription(mTitle);
+            } else {
+                super.onInitializeAccessibilityEvent(event);
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v7.widget;
 
 
@@ -23,6 +24,7 @@ import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +44,7 @@ public class PopupMenu implements MenuBuilder.Callback, MenuPresenter.Callback {
     private MenuPopupHelper mPopup;
     private OnMenuItemClickListener mMenuItemClickListener;
     private OnDismissListener mDismissListener;
+    private View.OnTouchListener mDragListener;
 
     /**
      * Callback interface used to notify the application that the menu has closed.
@@ -63,12 +66,68 @@ public class PopupMenu implements MenuBuilder.Callback, MenuPresenter.Callback {
      *               is room, or above it if there is not.
      */
     public PopupMenu(Context context, View anchor) {
+        this(context, anchor, Gravity.NO_GRAVITY);
+    }
+
+    /**
+     * Construct a new PopupMenu.
+     *
+     * @param context Context for the PopupMenu.
+     * @param anchor Anchor view for this popup. The popup will appear below the anchor if there
+     *               is room, or above it if there is not.
+     * @param gravity The {@link Gravity} value for aligning the popup with its anchor
+     */
+    public PopupMenu(Context context, View anchor, int gravity) {
+        // TODO Theme?
         mContext = context;
         mMenu = new MenuBuilder(context);
         mMenu.setCallback(this);
         mAnchor = anchor;
         mPopup = new MenuPopupHelper(context, mMenu, anchor);
+        mPopup.setGravity(gravity);
         mPopup.setCallback(this);
+    }
+
+    /**
+     * Returns an {@link android.view.View.OnTouchListener} that can be added to the anchor view
+     * to implement drag-to-open behavior.
+     * <p>
+     * When the listener is set on a view, touching that view and dragging
+     * outside of its bounds will open the popup window. Lifting will select the
+     * currently touched list item.
+     * <p>
+     * Example usage:
+     * <pre>
+     * PopupMenu myPopup = new PopupMenu(context, myAnchor);
+     * myAnchor.setOnTouchListener(myPopup.getDragToOpenListener());
+     * </pre>
+     *
+     * @return a touch listener that controls drag-to-open behavior
+     */
+    public View.OnTouchListener getDragToOpenListener() {
+        if (mDragListener == null) {
+            mDragListener = new ListPopupWindow.ForwardingListener(mAnchor) {
+                @Override
+                protected boolean onForwardingStarted() {
+                    show();
+                    return true;
+                }
+
+                @Override
+                protected boolean onForwardingStopped() {
+                    dismiss();
+                    return true;
+                }
+
+                @Override
+                public ListPopupWindow getPopup() {
+                    // This will be null until show() is called.
+                    return mPopup.getPopup();
+                }
+            };
+        }
+
+        return mDragListener;
     }
 
     /**

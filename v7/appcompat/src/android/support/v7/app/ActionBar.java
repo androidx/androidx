@@ -16,22 +16,19 @@
 
 package android.support.v7.app;
 
-import android.content.res.Configuration;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.IntDef;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.LayoutRes;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.util.AttributeSet;
@@ -39,9 +36,11 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.view.Window;
 import android.widget.SpinnerAdapter;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A primary toolbar within the activity that may display the activity title, application-level
@@ -997,6 +996,33 @@ public abstract class ActionBar {
         }
     }
 
+    /**
+     * Set the Z-axis elevation of the action bar in pixels.
+     *
+     * <p>The action bar's elevation is the distance it is placed from its parent surface. Higher
+     * values are closer to the user.</p>
+     *
+     * @param elevation Elevation value in pixels
+     */
+    public void setElevation(float elevation) {
+        if (elevation != 0) {
+            throw new UnsupportedOperationException("Setting a non-zero elevation is " +
+                    "not supported in this action bar configuration.");
+        }
+    }
+
+    /**
+     * Get the Z-axis elevation of the action bar in pixels.
+     *
+     * <p>The action bar's elevation is the distance it is placed from its parent surface. Higher
+     * values are closer to the user.</p>
+     *
+     * @return Elevation value in pixels
+     */
+    public float getElevation() {
+        return 0;
+    }
+
     /** @hide */
     public void setDefaultDisplayHomeAsUpEnabled(boolean enabled) {
     }
@@ -1288,7 +1314,7 @@ public abstract class ActionBar {
          *
          * @see android.view.Gravity
          */
-        public int gravity = -1;
+        public int gravity = Gravity.NO_GRAVITY;
 
         public LayoutParams(@NonNull Context c, AttributeSet attrs) {
             super(c, attrs);
@@ -1300,7 +1326,7 @@ public abstract class ActionBar {
 
         public LayoutParams(int width, int height) {
             super(width, height);
-            this.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+            this.gravity = Gravity.CENTER_VERTICAL | GravityCompat.START;
         }
 
         public LayoutParams(int width, int height, int gravity) {
