@@ -17,41 +17,17 @@
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item android:id="@android:id/background">
-        <shape>
-            <solid android:color="#16FFFFFF" />
-
-            <corners
-                android:bottomLeftRadius="0dp"
-                android:bottomRightRadius="0dp"
-                android:topLeftRadius="2dp"
-                android:topRightRadius="2dp" />
-        </shape>
-    </item>
+    <item
+        android:id="@android:id/background"
+        android:drawable="@color/lb_playback_background_progress_color"/>
     <item android:id="@android:id/secondaryProgress">
         <clip>
-            <shape>
-                <solid android:color="#1DFFFFFF" />
-
-                <corners
-                    android:bottomLeftRadius="0dp"
-                    android:bottomRightRadius="0dp"
-                    android:topLeftRadius="2dp"
-                    android:topRightRadius="2dp" />
-            </shape>
+            <color android:color="@color/lb_playback_secondary_progress_color" />
         </clip>
     </item>
     <item android:id="@android:id/progress">
         <clip>
-            <shape>
-                <solid android:color="#00ff00" />
-
-                <corners
-                    android:bottomLeftRadius="0dp"
-                    android:bottomRightRadius="0dp"
-                    android:topLeftRadius="2dp"
-                    android:topRightRadius="2dp" />
-            </shape>
+            <color android:color="?attr/playbackProgressPrimaryColor" />
         </clip>
     </item>
 

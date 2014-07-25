@@ -16,11 +16,14 @@ package android.support.v17.leanback.app;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ObjectAdapter;
+import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
 import android.support.v17.leanback.widget.VerticalGridView;
 
 
 /**
  * A fragment for displaying playback controls and related content.
+ * The {@link android.support.v17.leanback.widget.PlaybackControlsRow} is expected to be
+ * at position 0 in the adapter.
  */
 public class PlaybackOverlayFragment extends DetailsFragment {
 
@@ -31,7 +34,13 @@ public class PlaybackOverlayFragment extends DetailsFragment {
      */
     @Override
     public void setAdapter(ObjectAdapter adapter) {
+        if (getAdapter() != null) {
+            getAdapter().unregisterObserver(mObserver);
+        }
         super.setAdapter(adapter);
+        if (adapter != null) {
+            adapter.registerObserver(mObserver);
+        }
         setVerticalGridViewLayout(getVerticalGridView());
     }
 
@@ -55,4 +64,10 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         mAlignPosition =
             getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_align_bottom);
     }
+
+    private final DataObserver mObserver = new DataObserver() {
+        public void onChanged() {
+            setVerticalGridViewLayout(getVerticalGridView());
+        }
+    };
 }
