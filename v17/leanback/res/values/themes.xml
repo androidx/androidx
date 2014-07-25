@@ -19,6 +19,7 @@
 
     <!-- LeanbackBase may be overridden for specific api levels -->
     <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
+        <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
     </style>
 
     <style name="Theme.Leanback" parent="Theme.LeanbackBase">
