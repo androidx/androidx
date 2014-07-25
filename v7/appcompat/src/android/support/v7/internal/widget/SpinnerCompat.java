@@ -50,8 +50,6 @@ import android.widget.SpinnerAdapter;
  *
  * <p>See the <a href="{@docRoot}resources/tutorials/views/hello-spinner.html">Spinner
  * tutorial</a>.</p>
- *
- * @attr ref android.support.v7.appcompat.R.styleable#Spinner_prompt
  */
 class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickListener {
     private static final String TAG = "Spinner";
@@ -236,7 +234,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * #MODE_DROPDOWN}; this method is a no-op in other modes.
      *
      * @param background Background drawable
-     * @attr ref android.R.styleable#Spinner_popupBackground
      */
     public void setPopupBackgroundDrawable(Drawable background) {
         if (!(mPopup instanceof DropdownPopup)) {
@@ -251,7 +248,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * #MODE_DROPDOWN}; this method is a no-op in other modes.
      *
      * @param resId Resource ID of a background drawable
-     * @attr ref android.R.styleable#Spinner_popupBackground
      */
     public void setPopupBackgroundResource(int resId) {
         setPopupBackgroundDrawable(getContext().getDrawable(resId));
@@ -262,7 +258,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * #MODE_DROPDOWN}; other modes will return null.
      *
      * @return background Background drawable
-     * @attr ref android.R.styleable#Spinner_popupBackground
      */
     public Drawable getPopupBackground() {
         return mPopup.getBackground();
@@ -273,7 +268,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * {@link #MODE_DROPDOWN}; this method is a no-op in other modes.
      *
      * @param pixels Vertical offset in pixels
-     * @attr ref android.R.styleable#Spinner_dropDownVerticalOffset
      */
     public void setDropDownVerticalOffset(int pixels) {
         mPopup.setVerticalOffset(pixels);
@@ -284,7 +278,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * valid in {@link #MODE_DROPDOWN}; other modes will return 0.
      *
      * @return Vertical offset in pixels
-     * @attr ref android.R.styleable#Spinner_dropDownVerticalOffset
      */
     public int getDropDownVerticalOffset() {
         return mPopup.getVerticalOffset();
@@ -295,7 +288,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * {@link #MODE_DROPDOWN}; this method is a no-op in other modes.
      *
      * @param pixels Horizontal offset in pixels
-     * @attr ref android.R.styleable#Spinner_dropDownHorizontalOffset
      */
     public void setDropDownHorizontalOffset(int pixels) {
         mPopup.setHorizontalOffset(pixels);
@@ -306,7 +298,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * Only valid in {@link #MODE_DROPDOWN}; other modes will return 0.
      *
      * @return Horizontal offset in pixels
-     * @attr ref android.R.styleable#Spinner_dropDownHorizontalOffset
      */
     public int getDropDownHorizontalOffset() {
         return mPopup.getHorizontalOffset();
@@ -321,7 +312,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * <p>Only valid in {@link #MODE_DROPDOWN}; this method is a no-op in other modes.</p>
      *
      * @param pixels Width in pixels, WRAP_CONTENT, or MATCH_PARENT
-     * @attr ref android.R.styleable#Spinner_dropDownWidth
      */
     public void setDropDownWidth(int pixels) {
         if (!(mPopup instanceof DropdownPopup)) {
@@ -338,7 +328,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * to wrap to the measured size of contained dropdown list items.
      *
      * @return Width in pixels, WRAP_CONTENT, or MATCH_PARENT
-     * @attr ref android.R.styleable#Spinner_dropDownWidth
      */
     public int getDropDownWidth() {
         return mDropDownWidth;
@@ -360,7 +349,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * is used. The default is determined by the current theme.
      *
      * @param gravity See {@link android.view.Gravity}
-     * @attr ref android.R.styleable#Spinner_gravity
      */
     public void setGravity(int gravity) {
         if (mGravity != gravity) {
