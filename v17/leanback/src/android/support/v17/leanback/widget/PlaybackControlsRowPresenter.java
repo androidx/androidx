@@ -35,7 +35,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     /**
      * A ViewHolder for the PlaybackControlsRow.
      */
-    public static class ViewHolder extends RowPresenter.ViewHolder {
+    public class ViewHolder extends RowPresenter.ViewHolder {
         final ViewGroup mCard;
         final ImageView mImageView;
         final ViewGroup mDescriptionDock;
@@ -46,11 +46,22 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         int mControlsDockMarginStart;
         int mControlsDockMarginEnd;
         Presenter.ViewHolder mDescriptionVh;
-        Presenter.ViewHolder mControlsVh;
+        PlaybackControlsPresenter.ViewHolder mControlsVh;
         Presenter.ViewHolder mSecondaryControlsVh;
         PlaybackControlsPresenter.BoundData mControlsBoundData =
                 new PlaybackControlsPresenter.BoundData();
         ControlBarPresenter.BoundData mSecondaryBoundData = new ControlBarPresenter.BoundData();
+        PlaybackControlsRow.OnPlaybackStateChangedListener mListener =
+                new PlaybackControlsRow.OnPlaybackStateChangedListener() {
+                    @Override
+                    public void onCurrentTimeChanged(int ms) {
+                        mPlaybackControlsPresenter.setCurrentTime(mControlsVh, ms);
+                    }
+                    @Override
+                    public void onBufferedProgressChanged(int ms) {
+                        mPlaybackControlsPresenter.setSecondaryProgress(mControlsVh, ms);
+                    }
+        };
 
         ViewHolder(View rootView) {
             super(rootView);
@@ -79,6 +90,8 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
 
     private int mBackgroundColor = Color.TRANSPARENT;
     private boolean mBackgroundColorSet;
+    private int mProgressColor = Color.TRANSPARENT;
+    private boolean mProgressColorSet;
     private boolean mSecondaryActionsHidden;
     private Presenter mDescriptionPresenter;
     private PlaybackControlsPresenter mPlaybackControlsPresenter;
@@ -137,6 +150,23 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     }
 
     /**
+     * Sets the primary color for the progress bar.  If not set, a default from
+     * the theme will be used.
+     */
+    public void setProgressColor(int color) {
+        mProgressColor = color;
+        mProgressColorSet = true;
+    }
+
+    /**
+     * Returns the primary color for the progress bar.  If no color was set, transparent
+     * is returned.
+     */
+    public int getProgressColor() {
+        return mProgressColor;
+    }
+
+    /**
      * Sets the secondary actions to be hidden behind a "more actions" button.
      * When "more actions" is selected, the primary actions are replaced with
      * the secondary actions.
@@ -155,6 +185,12 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     private int getDefaultBackgroundColor(Context context) {
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
+        return context.getResources().getColor(outValue.resourceId);
+    }
+
+    private int getDefaultProgressColor(Context context) {
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.playbackProgressPrimaryColor, outValue, true);
         return context.getResources().getColor(outValue.resourceId);
     }
 
@@ -179,7 +215,11 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             vh.mDescriptionDock.addView(vh.mDescriptionVh.view);
         }
 
-        vh.mControlsVh = mPlaybackControlsPresenter.onCreateViewHolder(vh.mControlsDock);
+        vh.mControlsVh = (PlaybackControlsPresenter.ViewHolder)
+                mPlaybackControlsPresenter.onCreateViewHolder(vh.mControlsDock);
+        mPlaybackControlsPresenter.setProgressColor(vh.mControlsVh,
+                mProgressColorSet ? mProgressColor :
+                        getDefaultProgressColor(vh.mControlsDock.getContext()));
         vh.mControlsDock.addView(vh.mControlsVh.view);
 
         vh.mSecondaryControlsVh =
@@ -247,17 +287,25 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
                 row.getSecondaryActionsAdapter().get(0), false);
         mSecondaryControlsPresenter.onBindViewHolder(vh.mSecondaryControlsVh,
                 vh.mSecondaryBoundData);
+
+        mPlaybackControlsPresenter.setTotalTime(vh.mControlsVh, row.getTotalTime());
+        mPlaybackControlsPresenter.setCurrentTime(vh.mControlsVh, row.getCurrentTime());
+        mPlaybackControlsPresenter.setSecondaryProgress(vh.mControlsVh, row.getBufferedProgress());
+        row.setOnPlaybackStateChangedListener(vh.mListener);
     }
 
     @Override
     protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
-        super.onUnbindRowViewHolder(holder);
-
         ViewHolder vh = (ViewHolder) holder;
+        PlaybackControlsRow row = (PlaybackControlsRow) vh.getRow();
+
         if (vh.mDescriptionVh != null) {
             mDescriptionPresenter.onUnbindViewHolder(vh.mDescriptionVh);
         }
         mPlaybackControlsPresenter.onUnbindViewHolder(vh.mControlsVh);
         mSecondaryControlsPresenter.onUnbindViewHolder(vh.mSecondaryControlsVh);
+        row.setOnPlaybackStateChangedListener(null);
+
+        super.onUnbindRowViewHolder(holder);
     }
 }

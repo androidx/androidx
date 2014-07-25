@@ -198,6 +198,9 @@
         <!-- Style for searchOrb -->
         <attr name="searchOrbViewStyle" format="reference"/>
         <attr name="defaultSearchIcon" format="reference" />
+
+        <attr name="playbackProgressPrimaryColor" format="reference|color" />
+
     </declare-styleable>
 
 

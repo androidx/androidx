@@ -78,6 +78,13 @@ public class PlaybackControlsRow extends Row {
         public void toggle() {
             setIcon(getIcon() == mPlayIcon ? mPauseIcon : mPlayIcon);
         }
+
+        /**
+         * Returns true if the current icon is play.
+         */
+        public boolean isPlayIconShown() {
+            return getIcon() == mPlayIcon;
+        }
     }
 
     /**
@@ -182,9 +189,9 @@ public class PlaybackControlsRow extends Row {
      * An action for displaying three repeat states: none, one, or all.
      */
     public static class RepeatAction extends Action {
-        private static int NONE = 0;
-        private static int ONE = 1;
-        private static int ALL = 2;
+        public static int NONE = 0;
+        public static int ONE = 1;
+        public static int ALL = 2;
         private Drawable[] mRepeatIcon = new Drawable[3];
         private int mState;
 
@@ -233,6 +240,13 @@ public class PlaybackControlsRow extends Row {
             mState = mState == ALL ? NONE : mState + 1;
             setIcon(mRepeatIcon[mState]);
         }
+
+        /**
+         * Returns the current state (NONE, ALL, or ONE).
+         */
+        public int getState() {
+            return mState;
+        }
     }
 
     /**
@@ -262,6 +276,10 @@ public class PlaybackControlsRow extends Row {
     private Drawable mImageDrawable;
     private ObjectAdapter mPrimaryActionsAdapter;
     private ObjectAdapter mSecondaryActionsAdapter;
+    private int mTotalTimeMs;
+    private int mCurrentTimeMs;
+    private int mBufferedProgressMs;
+    private OnPlaybackStateChangedListener mListener;
 
     /**
      * Constructor for a PlaybackControlsRow that displays some details from
@@ -341,5 +359,84 @@ public class PlaybackControlsRow extends Row {
      */
     public final ObjectAdapter getSecondaryActionsAdapter() {
         return mSecondaryActionsAdapter;
+    }
+
+    /**
+     * Sets the total time in milliseconds for the playback controls row.
+     */
+    public void setTotalTime(int ms) {
+        mTotalTimeMs = ms;
+    }
+
+    /**
+     * Returns the total time in milliseconds for the playback controls row.
+     */
+    public int getTotalTime() {
+        return mTotalTimeMs;
+    }
+
+    /**
+     * Sets the current time in milliseconds for the playback controls row.
+     */
+    public void setCurrentTime(int ms) {
+        if (mCurrentTimeMs != ms) {
+            mCurrentTimeMs = ms;
+            currentTimeChanged();
+        }
+    }
+
+    /**
+     * Returns the current time in milliseconds for the playback controls row.
+     */
+    public int getCurrentTime() {
+        return mCurrentTimeMs;
+    }
+
+    /**
+     * Sets the buffered progress for the playback controls row.
+     */
+    public void setBufferedProgress(int ms) {
+        if (mBufferedProgressMs != ms) {
+            mBufferedProgressMs = ms;
+            bufferedProgressChanged();
+        }
+    }
+
+    /**
+     * Returns the buffered progress for the playback controls row.
+     */
+    public int getBufferedProgress() {
+        return mBufferedProgressMs;
+    }
+
+    interface OnPlaybackStateChangedListener {
+        public void onCurrentTimeChanged(int currentTimeMs);
+        public void onBufferedProgressChanged(int bufferedProgressMs);
+    }
+
+    /**
+     * Sets a listener to be called when the playback state changes.
+     */
+    public void setOnPlaybackStateChangedListener(OnPlaybackStateChangedListener listener) {
+        mListener = listener;
+    }
+
+    /**
+     * Returns the playback state listener.
+     */
+    public OnPlaybackStateChangedListener getOnPlaybackStateChangedListener() {
+        return mListener;
+    }
+
+    private void currentTimeChanged() {
+        if (mListener != null) {
+            mListener.onCurrentTimeChanged(mCurrentTimeMs);
+        }
+    }
+
+    private void bufferedProgressChanged() {
+        if (mListener != null) {
+            mListener.onBufferedProgressChanged(mBufferedProgressMs);
+        }
     }
 }
