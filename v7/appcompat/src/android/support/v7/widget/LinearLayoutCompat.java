@@ -52,13 +52,6 @@ import java.lang.annotation.RetentionPolicy;
  * <p>
  * Also see {@link LinearLayoutCompat.LayoutParams android.widget.LinearLayoutCompat.LayoutParams}
  * for layout attributes </p>
- *
- * @attr ref android.R.styleable#LinearLayout_baselineAligned
- * @attr ref android.R.styleable#LinearLayout_baselineAlignedChildIndex
- * @attr ref android.R.styleable#LinearLayout_gravity
- * @attr ref R.styleable#LinearLayout_measureWithLargestChild
- * @attr ref android.R.styleable#LinearLayout_orientation
- * @attr ref android.R.styleable#LinearLayout_weightSum
  */
 public class LinearLayoutCompat extends ViewGroup {
     /** @hide */
@@ -220,8 +213,6 @@ public class LinearLayoutCompat extends ViewGroup {
      * @return the divider Drawable that will divide each item.
      *
      * @see #setDividerDrawable(Drawable)
-     *
-     * @attr ref android.R.styleable#LinearLayout_divider
      */
     public Drawable getDividerDrawable() {
         return mDivider;
@@ -233,8 +224,6 @@ public class LinearLayoutCompat extends ViewGroup {
      * @param divider Drawable that will divide each item.
      *
      * @see #setShowDividers(int)
-     *
-     * @attr ref android.R.styleable#LinearLayout_divider
      */
     public void setDividerDrawable(Drawable divider) {
         if (divider == mDivider) {
@@ -394,8 +383,6 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @param baselineAligned true to align widgets on their baseline,
      *         false otherwise
-     *
-     * @attr ref android.R.styleable#LinearLayout_baselineAligned
      */
     public void setBaselineAligned(boolean baselineAligned) {
         mBaselineAligned = baselineAligned;
@@ -408,8 +395,6 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @return True to measure children with a weight using the minimum
      *         size of the largest child, false otherwise.
-     *
-     * @attr ref android.R.styleable#LinearLayout_measureWithLargestChild
      */
     public boolean isMeasureWithLargestChildEnabled() {
         return mUseLargestChild;
@@ -424,8 +409,6 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @param enabled True to measure children with a weight using the
      *        minimum size of the largest child, false otherwise.
-     *
-     * @attr ref android.R.styleable#LinearLayout_measureWithLargestChild
      */
     public void setMeasureWithLargestChildEnabled(boolean enabled) {
         mUseLargestChild = enabled;
@@ -496,8 +479,6 @@ public class LinearLayoutCompat extends ViewGroup {
     /**
      * @param i The index of the child that will be used if this layout is
      *          part of a larger layout that is baseline aligned.
-     *
-     * @attr ref android.R.styleable#LinearLayout_baselineAlignedChildIndex
      */
     public void setBaselineAlignedChildIndex(int i) {
         if ((i < 0) || (i >= getChildCount())) {
@@ -1664,8 +1645,6 @@ public class LinearLayoutCompat extends ViewGroup {
      * Should the layout be a column or a row.
      * @param orientation Pass {@link #HORIZONTAL} or {@link #VERTICAL}. Default
      * value is {@link #HORIZONTAL}.
-     *
-     * @attr ref android.R.styleable#LinearLayout_orientation
      */
     public void setOrientation(@OrientationMode int orientation) {
         if (mOrientation != orientation) {
@@ -1691,8 +1670,6 @@ public class LinearLayoutCompat extends ViewGroup {
      * HORIZONTAL orientation, this controls the alignment of the children.
      *
      * @param gravity See {@link android.view.Gravity}
-     *
-     * @attr ref android.R.styleable#LinearLayout_gravity
      */
     public void setGravity(int gravity) {
         if (mGravity != gravity) {
@@ -1776,9 +1753,6 @@ public class LinearLayoutCompat extends ViewGroup {
 
     /**
      * Per-child layout information associated with ViewLinearLayout.
-     *
-     * @attr ref android.R.styleable#LinearLayout_Layout_layout_weight
-     * @attr ref android.R.styleable#LinearLayout_Layout_layout_gravity
      */
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
         /**

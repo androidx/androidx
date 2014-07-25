@@ -1305,8 +1305,6 @@ public abstract class ActionBar {
 
     /**
      * Per-child layout information associated with action bar custom views.
-     *
-     * @attr ref android.R.styleable#ActionBar_LayoutParams_layout_gravity
      */
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
         /**
