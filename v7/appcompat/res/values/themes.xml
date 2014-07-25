@@ -26,7 +26,7 @@
          "Theme.Base" theme. -->
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat" parent="Theme.Base.AppCompat">
+    <style name="Theme.AppCompat" parent="Base.Theme.AppCompat">
         <item name="isLightTheme">false</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
@@ -38,13 +38,8 @@
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.PopupMenu</item>
-        <item name="textAppearanceLargePopupMenu">
-            @style/TextAppearance.AppCompat.Widget.PopupMenu.Large
-        </item>
-        <item name="textAppearanceSmallPopupMenu">
-            @style/TextAppearance.AppCompat.Widget.PopupMenu.Small
-        </item>
-
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Widget.PopupMenu.Large</item>
+        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Widget.PopupMenu.Small</item>
         <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
@@ -74,10 +69,21 @@
         <!-- ShareActionProvider attributes -->
         <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView</item>
 
+        <!-- Color palette -->
+        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
+        <item name="colorPrimary">@color/material_blue_grey_800</item>
+        <item name="colorAccent">@color/material_light_blue_A200</item>
+
+        <item name="colorControlNormal">?android:attr/textColorSecondary</item>
+        <item name="colorControlActivated">?attr/colorAccent</item>
+
+        <item name="colorControlHighlight">@color/ripple_material_dark</item>
+        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_dark</item>-->
+
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.AppCompat.Light" parent="Theme.Base.AppCompat.Light">
+    <style name="Theme.AppCompat.Light" parent="Base.Theme.AppCompat.Light">
         <item name="isLightTheme">true</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
@@ -89,13 +95,8 @@
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
-        <item name="textAppearanceLargePopupMenu">
-            @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large
-        </item>
-        <item name="textAppearanceSmallPopupMenu">
-            @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small
-        </item>
-
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large</item>
+        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small</item>
         <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.ListPopupWindow</item>
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
 
@@ -123,14 +124,23 @@
         <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_light</item>
 
         <!-- ShareActionProvider attributes -->
-        <item name="activityChooserViewStyle">@style/Widget.AppCompat.Light.ActivityChooserView
-        </item>
+        <item name="activityChooserViewStyle">@style/Widget.AppCompat.Light.ActivityChooserView</item>
+
+        <!-- Color palette -->
+        <item name="colorPrimaryDark">@color/material_blue_grey_600</item>
+        <item name="colorPrimary">@color/material_blue_grey_400</item>
+        <item name="colorAccent">@color/material_light_blue_A200</item>
+
+        <item name="colorControlNormal">?android:attr/textColorSecondary</item>
+        <item name="colorControlActivated">?attr/colorAccent</item>
+
+        <item name="colorControlHighlight">@color/ripple_material_light</item>
+        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_light</item>-->
 
     </style>
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat.Light.DarkActionBar"
-           parent="Theme.Base.AppCompat.Light.DarkActionBar">
+    <style name="Theme.AppCompat.Light.DarkActionBar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
         <item name="isLightTheme">true</item>
 
         <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
@@ -142,13 +152,8 @@
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
-        <item name="textAppearanceLargePopupMenu">
-            @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large
-        </item>
-        <item name="textAppearanceSmallPopupMenu">
-            @style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small
-        </item>
-
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large</item>
+        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small</item>
         <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
         <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
@@ -176,25 +181,30 @@
         <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_holo_dark</item>
 
         <!-- ShareActionProvider attributes -->
-        <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView
-        </item>
+        <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView</item>
 
+        <!-- Color palette -->
+        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
+        <item name="colorPrimary">@color/material_blue_grey_800</item>
+        <item name="colorAccent">@color/material_light_blue_A200</item>
+
+        <item name="colorControlNormal">?android:attr/textColorSecondary</item>
+        <item name="colorControlActivated">?attr/colorAccent</item>
+
+        <item name="colorControlHighlight">@color/ripple_material_light</item>
+        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_light</item>-->
     </style>
 
     <style name="Theme.AppCompat.DialogWhenLarge"
-           parent="Theme.Base.AppCompat.DialogWhenLarge">
+           parent="Base.Theme.AppCompat.DialogWhenLarge">
     </style>
 
     <style name="Theme.AppCompat.Light.DialogWhenLarge"
-           parent="Theme.Base.AppCompat.Light.DialogWhenLarge">
+           parent="Base.Theme.AppCompat.Light.DialogWhenLarge">
     </style>
 
     <!-- Menu/item attributes -->
-    <style name="Theme.AppCompat.CompactMenu" parent="Theme.AppCompat.Base.CompactMenu">
-    </style>
-
-    <style name="Theme.AppCompat.CompactMenu.Dialog"
-           parent="Theme.AppCompat.Base.CompactMenu.Dialog">
+    <style name="Theme.AppCompat.CompactMenu" parent="Base.Theme.AppCompat.CompactMenu">
     </style>
 
 </resources>

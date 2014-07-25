@@ -19,7 +19,7 @@
     <!--
         Theme in the "Theme.Platform.AppCompat" family are designed to be aliases for the default
         theme on a given platform version. They should not set any styleable attributes. Instead
-        you should create a "Theme.Base" theme which inherits from a "Theme.Platform" theme.
+        you should create a "Base.Theme" theme which inherits from a "Theme.Platform" theme.
     -->
     <eat-comment/>
     <style name="Theme.Platform.AppCompat" parent="android:Theme.Holo" />
@@ -30,7 +30,7 @@
 
     <style name="Theme.Platform.AppCompat.Light.Dialog" parent="android:Theme.Holo.Light.Dialog" />
 
-    <!-- Themes in the "Theme.Base" family vary based on the current platform
+    <!-- Themes in the "Base.Theme" family vary based on the current platform
           version to provide the correct basis on each device. You probably don't
           want to use them directly in your apps.
 
@@ -42,7 +42,7 @@
     <eat-comment/>
 
     <!-- Base platform-dependent theme  -->
-    <style name="Theme.Base" parent="Theme.Platform.AppCompat">
+    <style name="Base.Theme" parent="Theme.Platform.AppCompat">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -60,7 +60,7 @@
     </style>
 
     <!-- Base platform-dependent theme providing a light-themed activity. -->
-    <style name="Theme.Base.Light" parent="Theme.Platform.AppCompat.Light">
+    <style name="Base.Theme.Light" parent="Theme.Platform.AppCompat.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -77,7 +77,7 @@
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
-    <style name="Theme.Base.AppCompat.Dialog.FixedSize" parent="Theme.Platform.AppCompat.Dialog">
+    <style name="Base.Theme.AppCompat.Dialog.FixedSize" parent="Theme.Platform.AppCompat.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
         <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>
@@ -90,7 +90,7 @@
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
-    <style name="Theme.Base.AppCompat.Dialog.Light.FixedSize"
+    <style name="Base.Theme.AppCompat.Dialog.Light.FixedSize"
            parent="Theme.Platform.AppCompat.Light.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>

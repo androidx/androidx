@@ -16,16 +16,19 @@
 
 package android.support.v7.app;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.widget.NativeActionModeAwareLayout;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 class ActionBarImplHC extends ActionBarImplBase
         implements NativeActionModeAwareLayout.OnActionModeForChildListener {
 
-    final NativeActionModeAwareLayout mNativeActionModeAwareLayout;
+    private final NativeActionModeAwareLayout mNativeActionModeAwareLayout;
     private ActionMode mCurActionMode;
 
     public ActionBarImplHC(ActionBarActivity activity, Callback callback) {
