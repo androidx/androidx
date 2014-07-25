@@ -256,6 +256,12 @@
            parent="Base.Widget.AppCompat.Light.ActivityChooserView">
     </style>
 
+    <style name="Widget.AppCompat.SearchView" parent="Base.Widget.AppCompat.SearchView">
+    </style>
+
+    <style name="Widget.AppCompat.Light.SearchView" parent="Base.Widget.AppCompat.Light.SearchView">
+    </style>
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
