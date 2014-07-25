@@ -16,154 +16,139 @@
 
 <resources>
 
-    <!-- Like in themes_base.xml, the namespace "*.AppCompat.Base" is used to
+    <!-- Like in themes_base.xml, the namespace "Base.AppCompat.*" is used to
          define base styles for the platform version. The "*.AppCompat"
          variants are for direct use or use as parent styles by the app. -->
     <eat-comment/>
 
-    <style name="Widget.AppCompat.Base.ActionBar" parent="">
-        <item name="displayOptions">useLogo|showHome|showTitle</item>
+    <style name="Base.Widget.AppCompat.ActionBar" parent="">
+        <item name="displayOptions">showTitle</item>
         <item name="divider">?attr/dividerVertical</item>
         <item name="height">?attr/actionBarSize</item>
         <item name="homeLayout">@layout/abc_action_bar_home</item>
 
         <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle
-        </item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle</item>
 
-        <item name="background">@drawable/abc_ab_transparent_dark_holo</item>
-        <item name="backgroundStacked">@drawable/abc_ab_stacked_transparent_dark_holo</item>
-        <item name="backgroundSplit">@drawable/abc_ab_bottom_transparent_dark_holo</item>
+        <item name="background">@null</item>
+        <item name="backgroundStacked">@null</item>
+        <item name="backgroundSplit">@null</item>
 
         <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
 
         <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
         <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
+
+        <item name="android:gravity">center_vertical</item>
+
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar" parent="Widget.AppCompat.Base.ActionBar">
-        <item name="background">@drawable/abc_ab_transparent_light_holo</item>
-        <item name="backgroundStacked">@drawable/abc_ab_stacked_transparent_light_holo</item>
-        <item name="backgroundSplit">@drawable/abc_ab_bottom_transparent_light_holo</item>
-
+    <style name="Base.Widget.AppCompat.Light.ActionBar" parent="Base.Widget.AppCompat.ActionBar">
         <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
-        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.Light.ActionButton.Overflow
-        </item>
-
-        <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
-        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.Light.ActionButton.Overflow</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionBar.Solid" parent="Widget.AppCompat.Base.ActionBar">
-        <item name="background">@drawable/abc_ab_solid_dark_holo</item>
-        <item name="backgroundStacked">@drawable/abc_ab_stacked_solid_dark_holo</item>
-        <item name="backgroundSplit">@drawable/abc_ab_bottom_solid_dark_holo</item>
+    <style name="Base.Widget.AppCompat.ActionBar.Solid">
+        <item name="background">?attr/colorPrimary</item>
+        <item name="backgroundStacked">?attr/colorPrimary</item>
+        <item name="backgroundSplit">?attr/colorPrimary</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid"
-           parent="Widget.AppCompat.Light.Base.ActionBar">
-        <item name="background">@drawable/abc_ab_solid_light_holo</item>
-        <item name="backgroundStacked">@drawable/abc_ab_stacked_solid_light_holo</item>
-        <item name="backgroundSplit">@drawable/abc_ab_bottom_solid_light_holo</item>
+    <style name="Base.Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="background">?attr/colorPrimary</item>
+        <item name="backgroundStacked">?attr/colorPrimary</item>
+        <item name="backgroundSplit">?attr/colorPrimary</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.Solid.Inverse"
-           parent="Widget.AppCompat.Base.ActionBar.Solid">
-        <item name="titleTextStyle">
-            @style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse
-        </item>
-        <item name="subtitleTextStyle">
-            @style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse
-        </item>
-        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
-        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow
-        </item>
+    <style name="Base.Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionButton" parent="">
+    <style name="Base.Widget.AppCompat.ActionButton" parent="">
         <item name="android:background">?attr/actionBarItemBackground</item>
         <item name="android:paddingLeft">12dip</item>
         <item name="android:paddingRight">12dip</item>
-        <item name="android:minWidth">@dimen/abc_action_button_min_width</item>
-        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="android:minWidth">@dimen/abc_action_button_min_width_material</item>
+        <item name="android:minHeight">@dimen/abc_action_button_min_height_material</item>
+        <item name="android:scaleType">center</item>
         <item name="android:gravity">center</item>
         <item name="android:maxLines">2</item>
         <item name="textAllCaps">@bool/abc_config_actionMenuItemAllCaps</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionButton"
-           parent="Widget.AppCompat.Base.ActionButton">
+    <style name="Base.Widget.AppCompat.Light.ActionButton" parent="Base.Widget.AppCompat.ActionButton">
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionButton.CloseMode"
-           parent="Widget.AppCompat.Base.ActionButton">
+    <style name="Base.Widget.AppCompat.ActionButton.CloseMode" parent="Base.Widget.AppCompat.ActionButton">
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionButton.CloseMode"
-           parent="Widget.AppCompat.Light.Base.ActionButton">
+    <style name="Base.Widget.AppCompat.Light.ActionButton.CloseMode" parent="Base.Widget.AppCompat.Light.ActionButton">
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionButton.Overflow"
-           parent="Widget.AppCompat.Base.ActionButton">
-        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_normal_holo_dark</item>
+    <style name="Base.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton">
+        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_dark</item>
+        <item name="android:minWidth">@dimen/abc_action_overflow_min_width_material</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionButton.Overflow"
-           parent="Widget.AppCompat.Light.Base.ActionButton">
-        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_normal_holo_light</item>
+    <style name="Base.Widget.AppCompat.Light.ActionButton.Overflow" parent="Base.Widget.AppCompat.Light.ActionButton">
+        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_light</item>
+        <item name="android:minWidth">@dimen/abc_action_overflow_min_width_material</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionBar.TabBar" parent="">
+    <style name="Base.Widget.AppCompat.ActionBar.TabBar" parent="">
         <item name="divider">?attr/actionBarDivider</item>
         <item name="showDividers">middle</item>
-        <item name="dividerPadding">12dip</item>
+        <item name="dividerPadding">8dip</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.TabBar"
-           parent="Widget.AppCompat.Base.ActionBar.TabBar">
+    <style name="Base.Widget.AppCompat.Light.ActionBar.TabBar"
+           parent="Base.Widget.AppCompat.ActionBar.TabBar">
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.TabBar.Inverse"
-           parent="Widget.AppCompat.Light.Base.ActionBar.TabBar">
+    <style name="Base.Widget.AppCompat.Light.ActionBar.TabBar.Inverse"
+           parent="Base.Widget.AppCompat.Light.ActionBar.TabBar">
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionBar.TabView" parent="">
-        <item name="android:background">@drawable/abc_tab_indicator_ab_holo</item>
+    <style name="Base.Widget.AppCompat.ActionBar.TabView" parent="">
+        <item name="android:background">@drawable/abc_tab_indicator_material</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:minWidth">80dip</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.TabView"
-           parent="Widget.AppCompat.Base.ActionBar.TabView">
+    <style name="Base.Widget.AppCompat.Light.ActionBar.TabView"
+           parent="Base.Widget.AppCompat.ActionBar.TabView">
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.TabView.Inverse"
-           parent="Widget.AppCompat.Light.Base.ActionBar.TabView">
+    <style name="Base.Widget.AppCompat.Light.ActionBar.TabView.Inverse"
+           parent="Base.Widget.AppCompat.Light.ActionBar.TabView">
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionBar.TabText" parent="">
-        <item name="android:textAppearance">@null</item>
-        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
+    <style name="Base.Widget.AppCompat.ActionBar.TabText" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Medium</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:ellipsize">marquee</item>
         <item name="android:maxLines">2</item>
+        <item name="android:maxWidth">180dp</item>
         <item name="textAllCaps">true</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.TabText"
-           parent="Widget.AppCompat.Base.ActionBar.TabText">
+    <style name="Base.Widget.AppCompat.Light.ActionBar.TabText"
+           parent="Base.Widget.AppCompat.ActionBar.TabText">
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionBar.TabText.Inverse"
-           parent="Widget.AppCompat.Light.Base.ActionBar.TabText">
-        <item name="android:textColor">?android:attr/textColorPrimaryInverseDisableOnly</item>
+    <style name="Base.Widget.AppCompat.Light.ActionBar.TabText.Inverse"
+           parent="Base.Widget.AppCompat.Light.ActionBar.TabText">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Medium.Inverse</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ActionMode" parent="">
+    <style name="Base.Widget.AppCompat.ActionMode" parent="">
         <item name="background">?attr/actionModeBackground</item>
         <item name="backgroundSplit">?attr/actionModeSplitBackground</item>
         <item name="height">?attr/actionBarSize</item>
@@ -172,66 +157,53 @@
         </item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActionMode.Inverse"
-           parent="Widget.AppCompat.Base.ActionMode">
-        <item name="titleTextStyle">
-            @style/TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse
-        </item>
-        <item name="subtitleTextStyle">
-            @style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse
-        </item>
+    <style name="Base.Widget.AppCompat.Light.ActionMode.Inverse" parent="Base.Widget.AppCompat.ActionMode">
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title"
-           parent="android:TextAppearance.Medium">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle"
-           parent="android:TextAppearance.Small">
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Title.Inverse"
-           parent="android:TextAppearance.Medium.Inverse">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse" parent="TextAppearance.AppCompat.Medium.Inverse">
+        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionMode.Subtitle.Inverse"
-           parent="android:TextAppearance.Small.Inverse">
-        <item name="android:textColor">?android:attr/textColorSecondaryInverse</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse" parent="TextAppearance.AppCompat.Small.Inverse">
+        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Menu"
-           parent="android:TextAppearance.Small">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Menu" parent="android:TextAppearance.Small">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">?attr/actionMenuTextColor</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title"
-           parent="android:TextAppearance.Medium">
-        <item name="android:textSize">@dimen/abc_action_bar_title_text_size</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle"
-           parent="android:TextAppearance.Small">
-        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse"
-           parent="android:TextAppearance.Medium.Inverse">
-        <item name="android:textSize">@dimen/abc_action_bar_title_text_size</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse" parent="TextAppearance.AppCompat.Medium.Inverse">
+        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.ActionBar.Subtitle.Inverse"
-           parent="android:TextAppearance.Small.Inverse">
-        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse" parent="TextAppearance.AppCompat.Small.Inverse">
+        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ProgressBar.Horizontal"
-           parent="android:Widget.ProgressBar.Horizontal">
+    <style name="Base.Widget.AppCompat.ProgressBar.Horizontal" parent="android:Widget.ProgressBar.Horizontal">
     </style>
 
-    <style name="Widget.AppCompat.Base.ProgressBar" parent="android:Widget.ProgressBar">
+    <style name="Base.Widget.AppCompat.ProgressBar" parent="android:Widget.ProgressBar">
         <item name="android:minWidth">@dimen/abc_action_bar_progress_bar_size</item>
         <item name="android:maxWidth">@dimen/abc_action_bar_progress_bar_size</item>
         <item name="android:minHeight">@dimen/abc_action_bar_progress_bar_size</item>
@@ -240,7 +212,7 @@
 
     <!-- Action Bar Spinner Widgets -->
 
-    <style name="Widget.AppCompat.Base.Spinner" parent="">
+    <style name="Base.Widget.AppCompat.Spinner" parent="">
         <item name="spinnerMode">dropdown</item>
         <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
@@ -252,13 +224,13 @@
         <item name="android:background">@drawable/abc_spinner_ab_holo_dark</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.Spinner" parent="Widget.AppCompat.Base.Spinner">
+    <style name="Base.Widget.AppCompat.Light.Spinner" parent="Base.Widget.AppCompat.Spinner">
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
         <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_light</item>
         <item name="android:background">@drawable/abc_spinner_ab_holo_light</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.DropDownItem.Spinner" parent="">
+    <style name="Base.Widget.AppCompat.DropDownItem.Spinner" parent="">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.DropDownItem
         </item>
         <item name="android:paddingLeft">8dp</item>
@@ -266,129 +238,113 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.DropDownItem.Spinner"
-           parent="Widget.AppCompat.Base.DropDownItem.Spinner">
+    <style name="Base.Widget.AppCompat.Light.DropDownItem.Spinner"
+           parent="Base.Widget.AppCompat.DropDownItem.Spinner">
     </style>
 
-    <style name="Widget.AppCompat.Base.ListView.DropDown" parent="android:Widget.ListView">
+    <style name="Base.Widget.AppCompat.ListView.DropDown" parent="android:Widget.ListView">
         <item name="android:listSelector">@drawable/abc_list_selector_holo_dark</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ListView.DropDown"
+    <style name="Base.Widget.AppCompat.Light.ListView.DropDown"
            parent="android:Widget.ListView">
         <item name="android:listSelector">@drawable/abc_list_selector_holo_light</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.Base.DropDownItem"
+    <style name="Base.TextAppearance.AppCompat.Widget.DropDownItem"
            parent="android:TextAppearance.Small">
         <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
     </style>
 
-    <style name="TextAppearance.Widget.AppCompat.Base.ExpandedMenu.Item"
+    <style name="Base.TextAppearance.Widget.AppCompat.ExpandedMenu.Item"
            parent="android:TextAppearance.Medium">
         <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
     </style>
 
-    <!-- Mimic text appearance in select_dialog_item.xml -->
-    <style name="TextAppearance.AppCompat.Base.CompactMenu.Dialog"
-           parent="android:TextAppearance.Medium">
-        <item name="android:textColor">@android:color/primary_text_light</item>
-    </style>
-
-    <style name="Widget.AppCompat.Base.ListView.Menu" parent="android:Widget.ListView.Menu">
+    <style name="Base.Widget.AppCompat.ListView.Menu" parent="android:Widget.ListView.Menu">
         <item name="android:listSelector">?attr/listChoiceBackgroundIndicator</item>
         <item name="android:divider">?attr/dividerHorizontal</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ListPopupWindow" parent="">
+    <style name="Base.Widget.AppCompat.ListPopupWindow" parent="">
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
-        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
+        <item name="android:popupBackground">@drawable/abc_popup_background_material_dark</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ListPopupWindow" parent="">
+    <style name="Base.Widget.AppCompat.Light.ListPopupWindow" parent="">
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
-        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_light</item>
+        <item name="android:popupBackground">@drawable/abc_popup_background_material_light</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.PopupMenu"
-           parent="@style/Widget.AppCompat.Base.ListPopupWindow">
+    <style name="Base.Widget.AppCompat.PopupMenu" parent="@style/Widget.AppCompat.ListPopupWindow">
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.PopupMenu"
-           parent="@style/Widget.AppCompat.Light.Base.ListPopupWindow">
+    <style name="Base.Widget.AppCompat.Light.PopupMenu" parent="@style/Widget.AppCompat.Light.ListPopupWindow">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large"
-           parent="android:TextAppearance.Widget">
-        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
-        <item name="android:textSize">18sp</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.PopupMenu.Large" parent="TextAppearance.AppCompat.Menu">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.Widget.PopupMenu.Small"
-           parent="android:TextAppearance.Widget">
-        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
-        <item name="android:textSize">14sp</item>
+    <style name="Base.TextAppearance.AppCompat.Widget.PopupMenu.Small" parent="TextAppearance.AppCompat.Menu">
     </style>
 
-    <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Large"
-           parent="TextAppearance.AppCompat.Base.Widget.PopupMenu.Large">
+    <style name="Base.TextAppearance.AppCompat.Light.Widget.PopupMenu.Large" parent="TextAppearance.AppCompat.Menu">
     </style>
 
-    <style name="TextAppearance.AppCompat.Light.Base.Widget.PopupMenu.Small"
-           parent="TextAppearance.AppCompat.Base.Widget.PopupMenu.Small">
+    <style name="Base.TextAppearance.AppCompat.Light.Widget.PopupMenu.Small" parent="TextAppearance.AppCompat.Menu">
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.SearchResult" parent="">
+    <style name="Base.TextAppearance.AppCompat.SearchResult" parent="">
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">?android:textColorPrimary</item>
         <item name="android:textColorHint">?android:textColorHint</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.SearchResult.Title">
+    <style name="Base.TextAppearance.AppCompat.SearchResult.Title">
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Base.SearchResult.Subtitle">
+    <style name="Base.TextAppearance.AppCompat.SearchResult.Subtitle">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Light.Base.SearchResult"
-           parent="TextAppearance.AppCompat.Base.SearchResult">
+    <style name="Base.TextAppearance.AppCompat.Light.SearchResult"
+           parent="Base.TextAppearance.AppCompat.SearchResult">
         <item name="android:textColor">?android:textColorPrimary</item>
         <item name="android:textColorHint">?android:textColorHint</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Light.Base.SearchResult.Title">
+    <style name="Base.TextAppearance.AppCompat.Light.SearchResult.Title">
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Light.Base.SearchResult.Subtitle">
+    <style name="Base.TextAppearance.AppCompat.Light.SearchResult.Subtitle">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.AutoCompleteTextView"
+    <style name="Base.Widget.AppCompat.AutoCompleteTextView"
            parent="android:Widget.AutoCompleteTextView">
         <item name="android:textColor">?attr/actionMenuTextColor</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
         <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.AutoCompleteTextView"
+    <style name="Base.Widget.AppCompat.Light.AutoCompleteTextView"
            parent="android:Widget.AutoCompleteTextView">
         <item name="android:textColor">?attr/actionMenuTextColor</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
         <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_light</item>
     </style>
 
-    <style name="Widget.AppCompat.Base.ActivityChooserView" parent="">
+    <style name="Base.Widget.AppCompat.ActivityChooserView" parent="">
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/abc_ab_share_pack_holo_dark</item>
         <item name="divider">?attr/dividerVertical</item>
@@ -396,8 +352,8 @@
         <item name="dividerPadding">6dip</item>
     </style>
 
-    <style name="Widget.AppCompat.Light.Base.ActivityChooserView"
-           parent="Widget.AppCompat.Base.ActivityChooserView">
+    <style name="Base.Widget.AppCompat.Light.ActivityChooserView"
+           parent="Base.Widget.AppCompat.ActivityChooserView">
         <item name="android:background">@drawable/abc_ab_share_pack_holo_light</item>
     </style>
 
