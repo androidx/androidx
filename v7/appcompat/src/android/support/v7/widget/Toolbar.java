@@ -1640,8 +1640,6 @@ public class Toolbar extends ViewGroup {
      * {@link android.support.v7.app.ActionBarActivity#setSupportActionBar(Toolbar)
      * ActionBarActivity.setActionBar}
      * for more info on how to use a Toolbar as your Activity's ActionBar.</p>
-     *
-     * @attr ref android.R.styleable#Toolbar_LayoutParams_layout_gravity
      */
     public static class LayoutParams extends ActionBar.LayoutParams {
         static final int CUSTOM = 0;

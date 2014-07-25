@@ -432,8 +432,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      *
      * @see TextView#setImeOptions(int)
      * @param imeOptions the options to set on the query text field
-     *
-     * @attr ref android.R.styleable#SearchView_imeOptions
      */
     public void setImeOptions(int imeOptions) {
         mQueryTextView.setImeOptions(imeOptions);
@@ -443,8 +441,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * Returns the IME options set on the query text field.
      * @return the ime options
      * @see TextView#setImeOptions(int)
-     *
-     * @attr ref android.R.styleable#SearchView_imeOptions
      */
     public int getImeOptions() {
         return mQueryTextView.getImeOptions();
@@ -455,8 +451,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      *
      * @see TextView#setInputType(int)
      * @param inputType the input type to set on the query text field
-     *
-     * @attr ref android.R.styleable#SearchView_inputType
      */
     public void setInputType(int inputType) {
         mQueryTextView.setInputType(inputType);
@@ -465,8 +459,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     /**
      * Returns the input type set on the query text field.
      * @return the input type
-     *
-     * @attr ref android.R.styleable#SearchView_inputType
      */
     public int getInputType() {
         return mQueryTextView.getInputType();
@@ -585,8 +577,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * in the SearchableInfo.
      *
      * @param hint the hint text to display
-     *
-     * @attr ref android.R.styleable#SearchView_queryHint
      */
     public void setQueryHint(CharSequence hint) {
         mQueryHint = hint;
@@ -596,8 +586,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     /**
      * Gets the hint text to display in the query text field.
      * @return the query hint text, if specified, null otherwise.
-     *
-     * @attr ref android.R.styleable#SearchView_queryHint
      */
     public CharSequence getQueryHint() {
         if (mQueryHint != null) {
@@ -622,8 +610,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * <p>The default value is true.</p>
      *
      * @param iconified whether the search field should be iconified by default
-     *
-     * @attr ref android.R.styleable#SearchView_iconifiedByDefault
      */
     public void setIconifiedByDefault(boolean iconified) {
         if (mIconifiedByDefault == iconified) return;
@@ -635,8 +621,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     /**
      * Returns the default iconified state of the search field.
      * @return
-     *
-     * @attr ref android.R.styleable#SearchView_iconifiedByDefault
      */
     public boolean isIconfiedByDefault() {
         return mIconifiedByDefault;
@@ -744,8 +728,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
     /**
      * Makes the view at most this many pixels wide
-     *
-     * @attr ref android.R.styleable#SearchView_maxWidth
      */
     public void setMaxWidth(int maxpixels) {
         mMaxWidth = maxpixels;
@@ -757,8 +739,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * Gets the specified maximum width in pixels, if set. Returns zero if
      * no maximum width was specified.
      * @return the maximum width of the view
-     *
-     * @attr ref android.R.styleable#SearchView_maxWidth
      */
     public int getMaxWidth() {
         return mMaxWidth;
