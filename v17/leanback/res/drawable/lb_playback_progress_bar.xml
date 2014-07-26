@@ -21,14 +21,11 @@
         android:id="@android:id/background"
         android:drawable="@color/lb_playback_background_progress_color"/>
     <item android:id="@android:id/secondaryProgress">
-        <clip>
-            <color android:color="@color/lb_playback_secondary_progress_color" />
-        </clip>
+        <clip android:drawable="@color/lb_playback_secondary_progress_color" />
     </item>
     <item android:id="@android:id/progress">
-        <clip>
-            <color android:color="?attr/playbackProgressPrimaryColor" />
-        </clip>
+        <!--  Progress color set programmtically, this is just a placeholder. -->
+        <clip android:drawable="@color/lb_playback_progress_color_no_theme" />
     </item>
 
 </layer-list>
