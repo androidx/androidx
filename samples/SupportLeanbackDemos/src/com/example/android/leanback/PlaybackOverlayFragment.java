@@ -16,6 +16,7 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
@@ -32,9 +33,11 @@ import android.widget.Toast;
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 
-    private static final int NUM_ROWS = 3;
-    private static final boolean SHOW_ITEM_DETAIL = true;
+    private static final boolean SHOW_DETAIL = true;
+    private static final boolean SHOW_IMAGE = true;
     private static final boolean HIDE_MORE_ACTIONS = false;
+    private static final int TOTAL_TIME_MS = 120 * 1000;
+    private static final int NUM_ROWS = 3;
 
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mPrimaryActionsAdapter;
@@ -42,11 +45,15 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private PlaybackControlsRow.PlayPauseAction mPlayPauseAction;
     private PlaybackControlsRow.RepeatAction mRepeatAction;
     private PlaybackControlsRow mPlaybackControlsRow;
+    private Handler mHandler;
+    private Runnable mRunnable;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        mHandler = new Handler();
 
         setupRows();
     }
@@ -59,7 +66,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         ClassPresenterSelector ps = new ClassPresenterSelector();
 
         PlaybackControlsRowPresenter playbackControlsRowPresenter;
-        if (SHOW_ITEM_DETAIL) {
+        if (SHOW_DETAIL) {
             playbackControlsRowPresenter = new PlaybackControlsRowPresenter(
                     new DetailsDescriptionPresenter());
         } else {
@@ -69,6 +76,15 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             public void onActionClicked(Action action) {
                 Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
                 if (action.getId() == mPlayPauseAction.getId()) {
+                    if (mPlayPauseAction.isPlayIconShown()) {
+                        int totalTime = mPlaybackControlsRow.getTotalTime();
+                        if (totalTime > 0 && mPlaybackControlsRow.getCurrentTime() >= totalTime) {
+                            mPlaybackControlsRow.setCurrentTime(0);
+                        }
+                        startProgressAutomation();
+                    } else {
+                        stopProgressAutomation();
+                    }
                     mPlayPauseAction.toggle();
                     notifyChanged(mPrimaryActionsAdapter, mPlayPauseAction);
                 } else if (action.getId() == mRepeatAction.getId()) {
@@ -95,15 +111,21 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         mPrimaryActionsAdapter = new ArrayObjectAdapter(presenterSelector);
         mSecondaryActionsAdapter = new ArrayObjectAdapter(presenterSelector);
 
-        if (SHOW_ITEM_DETAIL) {
+        if (SHOW_DETAIL) {
             mPlaybackControlsRow = new PlaybackControlsRow("Playback Controls Title");
-            mPlaybackControlsRow.setImageDrawable(context.getResources().getDrawable(
-                    R.drawable.details_img));
         } else {
             mPlaybackControlsRow = new PlaybackControlsRow();
         }
+        if (SHOW_IMAGE) {
+            mPlaybackControlsRow.setImageDrawable(context.getResources().getDrawable(
+                    R.drawable.details_img));
+        }
         mPlaybackControlsRow.setPrimaryActionsAdapter(mPrimaryActionsAdapter);
         mPlaybackControlsRow.setSecondaryActionsAdapter(mSecondaryActionsAdapter);
+        mPlaybackControlsRow.setTotalTime(TOTAL_TIME_MS);
+        mPlaybackControlsRow.setCurrentTime(10 * 1000);
+        mPlaybackControlsRow.setBufferedProgress(75 * 1000);
+
         mRowsAdapter.add(mPlaybackControlsRow);
 
         mPlayPauseAction = new PlaybackControlsRow.PlayPauseAction(context);
@@ -126,6 +148,30 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             listRowAdapter.add("Other related content");
             HeaderItem header = new HeaderItem(i, "Row " + i, null);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
+        }
+    }
+
+    private void startProgressAutomation() {
+        int width = getView().getWidth();
+        final int totalTime = mPlaybackControlsRow.getTotalTime();
+        final int updateFreq = totalTime <= 0 ? 1000 :
+                Math.max(16, totalTime / width);
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                int currentTime = mPlaybackControlsRow.getCurrentTime() + updateFreq;
+                mPlaybackControlsRow.setCurrentTime(currentTime);
+                if (totalTime <= 0 || totalTime > currentTime) {
+                    mHandler.postDelayed(this, updateFreq);
+                }
+            }
+        };
+        mHandler.postDelayed(mRunnable, updateFreq);
+    }
+
+    private void stopProgressAutomation() {
+        if (mHandler != null && mRunnable != null) {
+            mHandler.removeCallbacks(mRunnable);
         }
     }
 }
