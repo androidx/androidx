@@ -203,6 +203,11 @@
         <!-- Default PopupWindow style. -->
         <attr name="popupWindowStyle" format="reference" />
 
+        <!-- EditText text foreground color. -->
+        <attr name="editTextColor" format="reference|color" />
+        <!-- EditText background drawable. -->
+        <attr name="editTextBackground" format="reference" />
+
         <!-- ============================ -->
         <!-- SearchView styles and assets -->
         <!-- ============================ -->
