@@ -718,6 +718,10 @@ public class RecyclerView extends ViewGroup {
      *              is negative the decoration will be added at the end.
      */
     public void addItemDecoration(ItemDecoration decor, int index) {
+        if (mLayout != null) {
+            mLayout.assertNotInLayoutOrScroll("Cannot add item decoration during a scroll  or"
+                    + " layout");
+        }
         if (mItemDecorations.isEmpty()) {
             setWillNotDraw(false);
         }
@@ -756,6 +760,10 @@ public class RecyclerView extends ViewGroup {
      * @see #addItemDecoration(ItemDecoration)
      */
     public void removeItemDecoration(ItemDecoration decor) {
+        if (mLayout != null) {
+            mLayout.assertNotInLayoutOrScroll("Cannot remove item decoration during a scroll  or"
+                    + " layout");
+        }
         mItemDecorations.remove(decor);
         if (mItemDecorations.isEmpty()) {
             setWillNotDraw(ViewCompat.getOverScrollMode(this) == ViewCompat.OVER_SCROLL_NEVER);
@@ -2074,6 +2082,7 @@ public class RecyclerView extends ViewGroup {
             final View child = mChildHelper.getUnfilteredChildAt(i);
             ((LayoutParams) child.getLayoutParams()).mInsetsDirty = true;
         }
+        mRecycler.markItemDecorInsetsDirty();
     }
 
     @Override
@@ -2358,6 +2367,22 @@ public class RecyclerView extends ViewGroup {
         }
         markItemDecorInsetsDirty();
         mRecycler.markKnownViewsInvalid();
+    }
+
+    /**
+     * Invalidates all ItemDecorations. If RecyclerView has item decorations, calling this method
+     * will trigger a {@link #requestLayout()} call.
+     */
+    public void invalidateItemDecorations() {
+        if (mItemDecorations.size() == 0) {
+            return;
+        }
+        if (mLayout != null) {
+            mLayout.assertNotInLayoutOrScroll("Cannot invalidate item decorations during a scroll"
+                    + " or layout");
+        }
+        markItemDecorInsetsDirty();
+        requestLayout();
     }
 
     /**
@@ -3702,6 +3727,17 @@ public class RecyclerView extends ViewGroup {
             for (int i = 0; i < cachedCount; i++) {
                 final ViewHolder holder = mCachedViews.get(i);
                 holder.clearOldPosition();
+            }
+        }
+
+        void markItemDecorInsetsDirty() {
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                LayoutParams layoutParams = (LayoutParams) holder.itemView.getLayoutParams();
+                if (layoutParams != null) {
+                    layoutParams.mInsetsDirty = true;
+                }
             }
         }
     }
