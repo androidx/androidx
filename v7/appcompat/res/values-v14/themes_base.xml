@@ -17,19 +17,16 @@
 <resources>
 
     <!--
-        Theme in the "Theme.Platform.AppCompat" family are designed to be aliases for the default
+        Theme in the "Platform.AppCompat" family are designed to be aliases for the default
         theme on a given platform version. They should not set any styleable attributes. Instead
-        you should create a "Theme.Base" theme which inherits from a "Theme.Platform" theme.
+        you should create a "Theme.Base" theme which inherits from a "Platform" theme.
     -->
     <eat-comment/>
 
-    <style name="Theme.Platform.AppCompat.Light.DarkActionBar"
-           parent="android:Theme.Holo.Light.DarkActionBar" />
-
-    <style name="Theme.Platform.AppCompat.DialogWhenLarge"
+    <style name="Platform.AppCompat.DialogWhenLarge"
            parent="android:Theme.Holo.DialogWhenLarge" />
 
-    <style name="Theme.Platform.AppCompat.Light.DialogWhenLarge"
+    <style name="Platform.AppCompat.Light.DialogWhenLarge"
            parent="android:Theme.Holo.Light.DialogWhenLarge" />
 
     <style name="Base.Theme.AppCompat.DialogWhenLarge"
@@ -46,12 +43,12 @@
     -->
 
     <style name="Base.Theme.AppCompat.DialogWhenLarge.Base"
-           parent="Theme.Platform.AppCompat.DialogWhenLarge">
+           parent="Platform.AppCompat.DialogWhenLarge">
         <!-- TODO: Need fixing once Base.Theme.AppCompat themes are done -->
     </style>
 
     <style name="Base.Theme.AppCompat.Light.DialogWhenLarge.Base"
-           parent="Theme.Platform.AppCompat.Light.DialogWhenLarge">
+           parent="Platform.AppCompat.Light.DialogWhenLarge">
         <!-- TODO: Need fixing once Base.Theme.AppCompat themes are done -->
     </style>
 

@@ -1,0 +1,65 @@
+==========================================
+
+       appcompat themes structure
+
+==========================================
+
+The themes structure in appcompat is complex since we
+need to deal with attributes and styles which are available
+at differing platform versions.
+
+The structure is as so:
+
+<- denote inherits from.
+
+---------------------
+Fourth level themes (Platform)
+---------------------
+These are the base themes and allow us to switch out the framework base
+theme automatically. These should setup the framework theme ready so
+that they are the theme is mostly the same on all platform versions.
+
+Example:
+values-v11/
+Platform.AppCompat    <-   android:Theme.Holo
+
+
+---------------------
+Third level
+---------------------
+Platform specific themes which inherit from the previous platform version. These allows us
+to build up the theme across platforms. These themes do most of the work.
+
+Example:
+(various)                         values/                        values-v21/
+Platform.AppCompat    <-    Base.V7.Theme.AppCompat   <-   Base.V21.Theme.AppCompat
+
+
+---------------------
+Second level
+---------------------
+There are the themes which are pointers to the correct third level theme.
+They can also be used to set attributes for that specific platform (and platforms up until the
+next declaration).
+
+Because of this, every time there is a third level theme set, there should be a second level
+theme pointing to it. This is so that devices do not use themes from newer and unavailable
+platforms.
+ 
+Names: Theme.Base.AppCompat, Theme.Base.AppCompat.Light and Theme.Base.AppCompat.Light.DarkActionBar
+
+Example:
+values-v21/
+Theme.V21.Base.AppCompat   <-  Theme.Base.AppCompat
+
+---------------------
+Top level themes
+---------------------
+These are the themes to be used directly by developers. These inherit from
+the second level relevant second level theme below.
+
+Names: Theme.AppCompat, Theme.AppCompat.Light and Theme.AppCompat.Light.DarkActionBar
+
+Example:
+values/
+Theme.AppCompat    <-    Theme.Base.AppCompat
