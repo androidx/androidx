@@ -60,5 +60,6 @@
     <color name="lb_playback_background_progress_color">#19FFFFFF</color>
     <color name="lb_playback_controls_background_light">#80000000</color>
     <color name="lb_playback_controls_background_dark">#c0000000</color>
+    <color name="lb_playback_controls_time_text_color">#B2EEEEEE</color>
 
 </resources>

@@ -23,6 +23,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -57,6 +58,8 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         int mCurrentTimeInSeconds;
         StringBuilder mTotalTimeStringBuilder = new StringBuilder();
         StringBuilder mCurrentTimeStringBuilder = new StringBuilder();
+        int mCurrentTimeMarginStart;
+        int mTotalTimeMarginEnd;
 
         ViewHolder(View rootView) {
             super(rootView);
@@ -81,6 +84,10 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
                     }
                 }
             };
+            mCurrentTimeMarginStart =
+                    ((MarginLayoutParams) mCurrentTime.getLayoutParams()).getMarginStart();
+            mTotalTimeMarginEnd =
+                    ((MarginLayoutParams) mTotalTime.getLayoutParams()).getMarginEnd();
         }
 
         void showMoreActions() {
@@ -224,6 +231,17 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
 
     public int getSecondaryProgress(ViewHolder vh) {
         return vh.getSecondaryProgress();
+    }
+
+    public void enableTimeMargins(ViewHolder vh, boolean enable) {
+        MarginLayoutParams lp;
+        lp = (MarginLayoutParams) vh.mCurrentTime.getLayoutParams();
+        lp.setMarginStart(enable ? vh.mCurrentTimeMarginStart : 0);
+        vh.mCurrentTime.setLayoutParams(lp);
+
+        lp = (MarginLayoutParams) vh.mTotalTime.getLayoutParams();
+        lp.setMarginEnd(enable ? vh.mTotalTimeMarginEnd : 0);
+        vh.mTotalTime.setLayoutParams(lp);
     }
 
     @Override
