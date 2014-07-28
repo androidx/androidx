@@ -16,6 +16,7 @@
 
 package android.support.v4.media.session;
 
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
@@ -29,8 +30,8 @@ import android.os.ResultReceiver;
 import android.view.KeyEvent;
 
 class MediaControllerCompatApi21 {
-    public static Object fromToken(Object sessionToken) {
-        return new MediaController((MediaSession.Token) sessionToken);
+    public static Object fromToken(Context context, Object sessionToken) {
+        return new MediaController(context, (MediaSession.Token) sessionToken);
     }
 
     public static Object createCallback(Callback callback) {
