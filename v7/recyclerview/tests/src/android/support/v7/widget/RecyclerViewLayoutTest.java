@@ -232,6 +232,146 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    public void testInvalidateAllDecorOffsets() throws Throwable {
+        final TestAdapter adapter = new TestAdapter(10);
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final AtomicBoolean invalidatedOffsets = new AtomicBoolean(true);
+        recyclerView.setAdapter(adapter);
+        final AtomicInteger layoutCount = new AtomicInteger(4);
+        final RecyclerView.ItemDecoration dummyItemDecoration = new RecyclerView.ItemDecoration() {
+        };
+        TestLayoutManager testLayoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    // test
+                    for (int i = 0; i < getChildCount(); i ++) {
+                        View child = getChildAt(i);
+                        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams)
+                                child.getLayoutParams();
+                        assertEquals(
+                                "Decor insets validation for VH should have expected value.",
+                                invalidatedOffsets.get(), lp.mInsetsDirty);
+                    }
+                    for (RecyclerView.ViewHolder vh : mRecyclerView.mRecycler.mCachedViews) {
+                        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams)
+                                vh.itemView.getLayoutParams();
+                        assertEquals(
+                                "Decor insets invalidation in cache for VH should have expected "
+                                        + "value.",
+                                invalidatedOffsets.get(), lp.mInsetsDirty);
+                    }
+                    detachAndScrapAttachedViews(recycler);
+                    layoutRange(recycler, 0, layoutCount.get());
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
+        // first layout
+        recyclerView.setItemViewCacheSize(5);
+        recyclerView.setLayoutManager(testLayoutManager);
+        testLayoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        testLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+
+        // re-layout w/o any change
+        invalidatedOffsets.set(false);
+        testLayoutManager.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+
+        // invalidate w/o an item decorator
+        invalidateDecorOffsets(recyclerView);
+        testLayoutManager.expectLayouts(1);
+        invalidateDecorOffsets(recyclerView);
+        testLayoutManager.assertNoLayout("layout should not happen", 2);
+        checkForMainThreadException();
+
+        // set item decorator, should invalidate
+        invalidatedOffsets.set(true);
+        testLayoutManager.expectLayouts(1);
+        addItemDecoration(mRecyclerView, dummyItemDecoration);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+
+        // re-layout w/o any change
+        invalidatedOffsets.set(false);
+        testLayoutManager.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+
+        // invalidate w/ item decorator
+        invalidatedOffsets.set(true);
+        invalidateDecorOffsets(recyclerView);
+        testLayoutManager.expectLayouts(1);
+        invalidateDecorOffsets(recyclerView);
+        testLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+
+        // trigger cache.
+        layoutCount.set(3);
+        invalidatedOffsets.set(false);
+        testLayoutManager.expectLayouts(1);
+        requestLayoutOnUIThread(mRecyclerView);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+        assertEquals("a view should be cached", 1, mRecyclerView.mRecycler.mCachedViews.size());
+
+        layoutCount.set(5);
+        invalidatedOffsets.set(true);
+        testLayoutManager.expectLayouts(1);
+        invalidateDecorOffsets(recyclerView);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+
+        // remove item decorator
+        invalidatedOffsets.set(true);
+        testLayoutManager.expectLayouts(1);
+        removeItemDecoration(mRecyclerView, dummyItemDecoration);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+    }
+
+    public void addItemDecoration(final RecyclerView recyclerView, final
+            RecyclerView.ItemDecoration itemDecoration) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.addItemDecoration(itemDecoration);
+            }
+        });
+    }
+
+    public void removeItemDecoration(final RecyclerView recyclerView, final
+    RecyclerView.ItemDecoration itemDecoration) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.removeItemDecoration(itemDecoration);
+            }
+        });
+    }
+
+    public void invalidateDecorOffsets(final RecyclerView recyclerView) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.invalidateItemDecorations();
+            }
+        });
+    }
+
     public void testInvalidateDecorOffsets() throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(true);
