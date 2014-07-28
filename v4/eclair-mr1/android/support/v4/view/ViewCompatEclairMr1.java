@@ -17,10 +17,40 @@
 
 package android.support.v4.view;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 class ViewCompatEclairMr1 {
+    public static final String TAG = "ViewCompat";
+
+    private static Method sChildrenDrawingOrderMethod;
+
     public static boolean isOpaque(View view) {
         return view.isOpaque();
+    }
+
+    public static void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
+        if (sChildrenDrawingOrderMethod == null) {
+            try {
+                sChildrenDrawingOrderMethod = ViewGroup.class
+                        .getDeclaredMethod("setChildrenDrawingOrderEnabled", boolean.class);
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Unable to find childrenDrawingOrderEnabled", e);
+            }
+            sChildrenDrawingOrderMethod.setAccessible(true);
+        }
+        try {
+            sChildrenDrawingOrderMethod.invoke(viewGroup, enabled);
+        } catch (IllegalAccessException e) {
+            Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+        } catch (InvocationTargetException e) {
+            Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+        }
     }
 }

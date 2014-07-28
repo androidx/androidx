@@ -80,6 +80,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     // Default background for the progress spinner
     private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
     private static final float MIN_CIRCLE_SCALE = .1f;
+    // Default offset in dips from the top of the view to where the progress spinner should stop
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
     private View mTarget; // the target of the gesture
@@ -244,18 +245,25 @@ public class SwipeRefreshLayout extends ViewGroup {
         // end at 64, and its starts -Diameter offscreen, it needs to move overall this
         mDistanceToTriggerSync = (mTargetCirclePosition / DRAG_RATE)
                 + (mCircleWidth / DRAG_RATE);
+        createProgressView();
+        ViewCompat.setChildrenDrawingOrderEnabled(this, true);
     }
 
-    @Override
-    public void onFinishInflate() {
-        super.onFinishInflate();
+    protected int getChildDrawingOrder (int childCount, int i) {
+        if (getChildAt(i).equals(mCircleView)) {
+            return childCount - 1;
+        }
+        return i;
+    }
+
+    private void createProgressView() {
         mCircleView = new CircleImageView(getContext());
         ShapeDrawable circle = new ShapeDrawable(new OvalShape());
         circle.getPaint().setColor(CIRCLE_BG_LIGHT);
         mCircleView.setBackgroundDrawable(circle);
         mProgress = new MaterialProgressDrawable(getContext(), this);
         mCircleView.setImageDrawable(mProgress);
-        addView(mCircleView, 1);
+        addView(mCircleView);
         mCircleView.setLayoutParams(new ViewGroup.LayoutParams(mCircleWidth, mCircleWidth));
         mCurrentTargetOffsetTop = mOriginalOffsetTop = -mCircleWidth;
     }
@@ -388,7 +396,13 @@ public class SwipeRefreshLayout extends ViewGroup {
         // Don't bother getting the parent height if the parent hasn't been laid
         // out yet.
         if (mTarget == null) {
-            mTarget = getChildAt(0);
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                if (!child.equals(mCircleView)) {
+                    mTarget = child;
+                    break;
+                }
+            }
         }
     }
 
@@ -408,7 +422,13 @@ public class SwipeRefreshLayout extends ViewGroup {
         if (getChildCount() == 0) {
             return;
         }
-        final View child = getChildAt(0);
+        if (mTarget == null) {
+            ensureTarget();
+        }
+        if (mTarget == null) {
+            return;
+        }
+        final View child = mTarget;
         final int childLeft = getPaddingLeft();
         final int childTop = getPaddingTop();
         final int childWidth = width - getPaddingLeft() - getPaddingRight();
@@ -421,15 +441,18 @@ public class SwipeRefreshLayout extends ViewGroup {
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (getChildCount() > 0) {
-            getChildAt(0).measure(
-                    MeasureSpec.makeMeasureSpec(getMeasuredWidth() - getPaddingLeft()
-                            - getPaddingRight(), MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(getMeasuredHeight() - getPaddingTop()
-                            - getPaddingBottom(), MeasureSpec.EXACTLY));
-            mCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleWidth, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(mCircleHeight, MeasureSpec.EXACTLY));
+        if (mTarget == null) {
+            ensureTarget();
         }
+        if (mTarget == null) {
+            return;
+        }
+        mTarget.measure(MeasureSpec.makeMeasureSpec(
+                getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
+                MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(
+                getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY));
+        mCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleWidth, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(mCircleHeight, MeasureSpec.EXACTLY));
     }
 
     /**
@@ -527,6 +550,7 @@ public class SwipeRefreshLayout extends ViewGroup {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                mLastY = mInitialMotionY = ev.getY();
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mIsBeingDragged = false;
                 break;
