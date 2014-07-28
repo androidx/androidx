@@ -37,7 +37,6 @@
             @style/Widget.AppCompat.DropDownItem.Spinner
         </item>
         <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-        <item name="searchResultListItemHeight">58dip</item>
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.PopupMenu</item>
@@ -92,7 +91,6 @@
             @style/Widget.AppCompat.Light.DropDownItem.Spinner
         </item>
         <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-        <item name="searchResultListItemHeight">58dip</item>
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
@@ -147,7 +145,6 @@
             @style/Widget.AppCompat.Light.DropDownItem.Spinner
         </item>
         <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-        <item name="searchResultListItemHeight">58dip</item>
 
         <!-- Popup Menu styles -->
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
