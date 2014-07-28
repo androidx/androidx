@@ -18,8 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"प्रणाली"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"उपकरणहरू"</string>
-    <!-- no translation found for mr_media_route_button_content_description (8327680881775995150) -->
-    <skip />
+    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"सुरूआत"</string>
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"उपकरणसँग जडान गर्नुहोस्"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"उपकरणहरूका लागि खोजी गरिँदै..."</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"विच्छेदन गर्नुहोस्"</string>
