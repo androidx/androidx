@@ -1943,22 +1943,7 @@ public class RecyclerView extends ViewGroup {
                 }
                 if (mRecycler.mChangedScrap != null &&
                         mRecycler.mChangedScrap.contains(oldHolder)) {
-                    oldHolder.setIsRecyclable(false);
-                    removeDetachedView(oldView, false);
-                    addAnimatingView(oldView);
-                    mRecycler.unscrapView(oldHolder);
-                    if (DEBUG) {
-                        Log.d(TAG, "CHANGED: " + oldHolder + " with view " + oldView);
-                    }
-                    ViewHolder newHolder = newChangedHolders.get(key);
-                    oldHolder.mShadowedHolder = newHolder;
-                    if (newHolder != null && !newHolder.shouldIgnore()) {
-                        newHolder.setIsRecyclable(false);
-                        newHolder.mShadowingHolder = oldHolder;
-                    }
-                    if (mItemAnimator.animateChange(oldHolder, newHolder)) {
-                        postAnimationRunner();
-                    }
+                    animateChange(oldHolder, newChangedHolders.get(key));
                 } else if (DEBUG) {
                     Log.e(TAG, "cannot find old changed holder in changed scrap :/" + oldHolder);
                 }
@@ -2056,6 +2041,33 @@ public class RecyclerView extends ViewGroup {
             if (mItemAnimator.animateRemove(disappearingItem.holder)) {
                 postAnimationRunner();
             }
+        }
+    }
+
+    private void animateChange(ViewHolder oldHolder, ViewHolder newHolder) {
+        oldHolder.setIsRecyclable(false);
+        removeDetachedView(oldHolder.itemView, false);
+        addAnimatingView(oldHolder.itemView);
+        oldHolder.mShadowedHolder = newHolder;
+        mRecycler.unscrapView(oldHolder);
+        if (DEBUG) {
+            Log.d(TAG, "CHANGED: " + oldHolder + " with view " + oldHolder.itemView);
+        }
+        final int fromLeft = oldHolder.itemView.getLeft();
+        final int fromTop = oldHolder.itemView.getTop();
+        final int toLeft, toTop;
+        if (newHolder == null || newHolder.shouldIgnore()) {
+            toLeft = fromLeft;
+            toTop = fromTop;
+        } else {
+            toLeft = newHolder.itemView.getLeft();
+            toTop = newHolder.itemView.getTop();
+            newHolder.setIsRecyclable(false);
+            newHolder.mShadowingHolder = oldHolder;
+        }
+        if(mItemAnimator.animateChange(oldHolder, newHolder,
+                fromLeft, fromTop, toLeft, toTop)) {
+            postAnimationRunner();
         }
     }
 
@@ -6208,6 +6220,8 @@ public class RecyclerView extends ViewGroup {
             mItemId = NO_ID;
             mPreLayoutPosition = NO_POSITION;
             mIsRecyclableCount = 0;
+            mShadowedHolder = null;
+            mShadowingHolder = null;
         }
 
         @Override
@@ -6221,6 +6235,7 @@ public class RecyclerView extends ViewGroup {
             if (needsUpdate()) sb.append(" update");
             if (isRemoved()) sb.append(" removed");
             if (shouldIgnore()) sb.append(" ignored");
+            if (isChanged()) sb.append(" changed");
             if (!isRecyclable()) sb.append(" not recyclable(" + mIsRecyclableCount + ")");
             if (itemView.getParent() == null) sb.append(" no parent");
             sb.append("}");
@@ -6250,7 +6265,7 @@ public class RecyclerView extends ViewGroup {
                 mFlags &= ~FLAG_NOT_RECYCLABLE;
             }
             if (DEBUG) {
-                Log.d(TAG, "setIsRecyclable val:" + recyclable + this);
+                Log.d(TAG, "setIsRecyclable val:" + recyclable + ":" + this);
             }
         }
 
@@ -7059,16 +7074,43 @@ public class RecyclerView extends ViewGroup {
         @Override
         public void onChangeFinished(ViewHolder item) {
             item.setIsRecyclable(true);
+            /**
+             * We check both shadowed and shadowing because a ViewHolder may get both roles at the
+             * same time.
+             *
+             * Assume this flow:
+             * item X is represented by VH_1. Then itemX changes, so we create VH_2 .
+             * RV sets the following and calls item animator:
+             * VH_1.shadowed = VH_2;
+             * VH_1.mChanged = true;
+             * VH_2.shadowing =VH_1;
+             *
+             * Then, before the first change finishes, item changes again so we create VH_3.
+             * RV sets the following and calls item animator:
+             * VH_2.shadowed = VH_3
+             * VH_2.mChanged = true
+             * VH_3.shadowing = VH_2
+             *
+             * Because VH_2 already has an animation, it will be cancelled. At this point VH_2 has
+             * both shadowing and shadowed fields set. Shadowing information is obsolete now
+             * because the first animation where VH_2 is newViewHolder is not valid anymore.
+             * We ended up in this case because VH_2 played both roles. On the other hand,
+             * we DO NOT want to clear its changed flag.
+             *
+             * If second change was simply reverting first change, we would find VH_1 in
+             * {@link Recycler#getScrapViewForPosition(int, int, boolean)} and recycle it before
+             * re-using
+             */
+            if (item.mShadowedHolder != null && item.mShadowingHolder == null) { // old vh
+                item.mShadowedHolder = null;
+                item.setFlags(~ViewHolder.FLAG_CHANGED, item.mFlags);
+            }
+            // always null this because an OldViewHolder can never become NewViewHolder w/o being
+            // recycled.
+            item.mShadowingHolder = null;
             if (item.isRecyclable()) {
                 removeAnimatingView(item.itemView);
             }
-            item.setFlags(~ViewHolder.FLAG_CHANGED, item.mFlags);
-            ViewHolder shadowedHolder = item.mShadowedHolder;
-            if (shadowedHolder != null) {
-                shadowedHolder.setIsRecyclable(true);
-                shadowedHolder.mShadowingHolder = null;
-            }
-            item.mShadowedHolder = null;
         }
     };
 
@@ -7298,8 +7340,9 @@ public class RecyclerView extends ViewGroup {
         /**
          * Called when an item is changed in the RecyclerView, as indicated by a call to
          * {@link Adapter#notifyItemChanged(int)} or
-         * {@link Adapter#notifyItemRangeChanged(int, int)}. Implementors can choose
-         * whether and how to animate changes, but must always call
+         * {@link Adapter#notifyItemRangeChanged(int, int)}.
+         * <p>
+         * Implementors can choose whether and how to animate changes, but must always call
          * {@link #dispatchChangeFinished(ViewHolder)} with <code>oldHolder</code>when done, either
          * immediately (if no animation will occur) or after the animation actually finishes.
          * The return value indicates whether an animation has been set up and whether the
@@ -7312,11 +7355,18 @@ public class RecyclerView extends ViewGroup {
          * start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * @param oldHolder The original item that changed.
-         * @param newHolder The new item that was created with the changed content.
+         * @param newHolder The new item that was created with the changed content. Might be null
+         * @param fromLeft  Left of the old view holder
+         * @param fromTop   Top of the old view holder
+         * @param toLeft    Left of the new view holder
+         * @param toTop     Top of the new view holder
          * @return true if a later call to {@link #runPendingAnimations()} is requested,
          * false otherwise.
+         * @see #animateChange(ViewHolder, ViewHolder)
          */
-        abstract public boolean animateChange(ViewHolder oldHolder, ViewHolder newHolder);
+        abstract public boolean animateChange(ViewHolder oldHolder,
+                ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop);
+
 
         /**
          * Method to be called by subclasses when a remove animation is done.
