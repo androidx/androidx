@@ -27,7 +27,7 @@ import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewDebug;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -325,6 +325,7 @@ public class ViewCompat {
         public String getTransitionName(View view);
         public int getWindowSystemUiVisibility(View view);
         public void requestApplyInsets(View view);
+        public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -690,12 +691,22 @@ public class ViewCompat {
         public float getTranslationZ(View view) {
             return 0f;
         }
+
+        @Override
+        public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
+            // noop
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
         @Override
         public boolean isOpaque(View view) {
             return ViewCompatEclairMr1.isOpaque(view);
+        }
+
+        @Override
+        public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
+            ViewCompatEclairMr1.setChildrenDrawingOrderEnabled(viewGroup, enabled);
         }
     }
 
@@ -1084,6 +1095,8 @@ public class ViewCompat {
             IMPL = new HCViewCompatImpl();
         } else if (version >= 9) {
             IMPL = new GBViewCompatImpl();
+        } else if (version >= 7) {
+            IMPL = new EclairMr1ViewCompatImpl();
         } else {
             IMPL = new BaseViewCompatImpl();
         }
@@ -2128,6 +2141,19 @@ public class ViewCompat {
      */
     public static void requestApplyInsets(View view) {
         IMPL.requestApplyInsets(view);
+    }
+
+    /**
+     * Tells the ViewGroup whether to draw its children in the order defined by the method
+     * {@link #getChildDrawingOrder(int, int)}.
+     *
+     * @param enabled true if the order of the children when drawing is determined by
+     *        {@link #getChildDrawingOrder(int, int)}, false otherwise
+     *
+     * <p>Prior to API 7 this will have no effect.</p>
+     */
+    public static void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
+       IMPL.setChildrenDrawingOrderEnabled(viewGroup, enabled);
     }
 
     // TODO: getters for various view properties (rotation, etc)
