@@ -18,12 +18,12 @@
 <resources>
 
     <!--
-        Theme in the "Platform.Theme.AppCompat" family are designed to be aliases for the default
+        Theme in the "Platform.AppCompat" family are designed to be aliases for the default
         theme on a given platform version and should set up the default theme ready for adding our
         unbundled Action Bar.
     -->
     <eat-comment/>
-    <style name="Platform.Theme.AppCompat" parent="android:Theme.Material">
+    <style name="Platform.AppCompat" parent="android:Theme.Material">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -35,7 +35,7 @@
         <item name="android:windowActionModeOverlay">true</item>
     </style>
 
-    <style name="Platform.Theme.AppCompat.Light" parent="android:Theme.Material.Light">
+    <style name="Platform.AppCompat.Light" parent="android:Theme.Material.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -47,19 +47,23 @@
         <item name="android:windowActionModeOverlay">true</item>
     </style>
 
-    <style name="Theme.Platform.AppCompat.DialogWhenLarge"
+    <style name="Platform.AppCompat.DialogWhenLarge"
            parent="android:Theme.Material.DialogWhenLarge" />
 
-    <style name="Theme.Platform.AppCompat.Light.DialogWhenLarge"
+    <style name="Platform.AppCompat.Light.DialogWhenLarge"
            parent="android:Theme.Material.Light.DialogWhenLarge" />
 
-    <style name="Theme.Platform.AppCompat.Dialog"
+    <style name="Platform.AppCompat.Dialog"
            parent="android:Theme.Material.Dialog" />
 
-    <style name="Theme.Platform.AppCompat.Light.Dialog"
+    <style name="Platform.AppCompat.Light.Dialog"
            parent="android:Theme.Material.Light.Dialog" />
 
-    <style name="Overlay.Theme.AppCompat" parent="Base.Theme.AppCompat">
+    <style name="Base.Theme.AppCompat" parent="Base.V21.Theme.AppCompat" />
+
+    <style name="Base.Theme.AppCompat.Light" parent="Base.V21.Theme.AppCompat.Light" />
+
+    <style name="Base.V21.Theme.AppCompat" parent="Base.V7.Theme.AppCompat">
         <!-- Action Bar styling attributes -->
         <item name="actionBarSize">?android:attr/actionBarSize</item>
         <item name="actionBarDivider">?android:attr/actionBarDivider</item>
@@ -90,7 +94,7 @@
         <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
-    <style name="Overlay.Theme.AppCompat.Light" parent="Base.Theme.AppCompat.Light">
+    <style name="Base.V21.Theme.AppCompat.Light" parent="Base.V7.Theme.AppCompat.Light">
         <!-- Action Bar styling attributes -->
         <item name="actionBarSize">?android:attr/actionBarSize</item>
         <item name="actionBarDivider">?android:attr/actionBarDivider</item>
@@ -119,36 +123,7 @@
         <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
-    <style name="Overlay.Theme.AppCompat.Light.DarkActionBar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
-        <!-- Action Bar styling attributes -->
-        <item name="actionBarSize">?android:attr/actionBarSize</item>
-        <item name="actionBarDivider">?android:attr/actionBarDivider</item>
-        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
-        <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
-        <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
-        <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
-        <item name="actionOverflowButtonStyle">?android:attr/actionOverflowButtonStyle</item>
-        <item name="homeAsUpIndicator">?android:attr/homeAsUpIndicator</item>
-
-        <!-- For PopupMenu -->
-        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="textAppearanceLargePopupMenu">?android:attr/textAppearanceLargePopupMenu</item>
-        <item name="textAppearanceSmallPopupMenu">?android:attr/textAppearanceSmallPopupMenu</item>
-
-        <!-- General view attributes -->
-        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
-
-        <!-- Copy our color theme attributes to the framework -->
-        <item name="android:colorPrimary">?attr/colorPrimary</item>
-        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
-        <item name="android:colorAccent">?attr/colorAccent</item>
-        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
-        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
-        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
-        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
-    </style>
-
-    <style name="Base.Theme.AppCompat.DialogWhenLarge" parent="Theme.Platform.AppCompat.DialogWhenLarge">
+    <style name="Base.Theme.AppCompat.DialogWhenLarge" parent="Platform.AppCompat.DialogWhenLarge">
         <item name="windowActionBar">true</item>
 
         <item name="android:colorPrimary">?attr/colorPrimary</item>
@@ -160,7 +135,7 @@
         <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
-    <style name="Base.Theme.AppCompat.Light.DialogWhenLarge" parent="Theme.Platform.AppCompat.Light.DialogWhenLarge">
+    <style name="Base.Theme.AppCompat.Light.DialogWhenLarge" parent="Platform.AppCompat.Light.DialogWhenLarge">
         <item name="windowActionBar">true</item>
 
         <item name="android:colorPrimary">?attr/colorPrimary</item>
@@ -172,7 +147,7 @@
         <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
-    <style name="Base.Theme.AppCompat.Dialog" parent="Theme.Platform.AppCompat.Dialog">
+    <style name="Base.Theme.AppCompat.Dialog" parent="Platform.AppCompat.Dialog">
         <item name="android:colorPrimary">?attr/colorPrimary</item>
         <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
         <item name="android:colorAccent">?attr/colorAccent</item>
@@ -182,7 +157,7 @@
         <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
-    <style name="Base.Theme.AppCompat.Light.Dialog" parent="Theme.Platform.AppCompat.Light.Dialog">
+    <style name="Base.Theme.AppCompat.Light.Dialog" parent="Platform.AppCompat.Light.Dialog">
         <item name="android:colorPrimary">?attr/colorPrimary</item>
         <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
         <item name="android:colorAccent">?attr/colorAccent</item>
