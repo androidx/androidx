@@ -18,27 +18,42 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.v7.cardview.R;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
 /**
- * A ViewGroup with a rounded corner background and shadow behind.
+ * A FrameLayout with a rounded corner background and shadow.
  * <p>
  * CardView uses <code>elevation</code> property on L for shadows and falls back to a custom shadow
  * implementation on older platforms.
  * <p>
- * Due to expensive nature of rounded corner clipping, on platforms before L, CardView does not clip
- * its children that intersect with rounded corners. Instead, it adds padding to avoid such
+ * Due to expensive nature of rounded corner clipping, on platforms before L, CardView does not
+ * clip its children that intersect with rounded corners. Instead, it adds padding to avoid such
  * intersection.
+ * <p>
+ * Before L, CardView adds padding to its content and draws shadows to that area. This padding
+ * amount is equal to {@link #getMaxCardElevation()} on the sides and
+ * <code>1.5 * {@link #getMaxCardElevation()}</code> on top and bottom. Since padding is used to
+ * offset content for shadows, you cannot set custom padding on CardView.
+ * <p>
+ * To change CardView's elevation in a backward compatible way, use
+ * {@link #setCardElevation(float)}. CardView will use elevation API on L and before L, it will
+ * change the shadow size. To avoid moving the View while shadow size is changing, shadow size is
+ * clamped by {@link #getMaxCardElevation()}. If you want to change elevation dynamically, you
+ * should call {@link #setMaxCardElevation(float)} when CardView is initialized.
  *
  * @attr ref android.support.v7.cardview.R.styleable#CardView_cardBackgroundColor
  * @attr ref android.support.v7.cardview.R.styleable#CardView_cardCornerRadius
+ * @attr ref android.support.v7.cardview.R.styleable#CardView_cardElevation
+ * @attr ref android.support.v7.cardview.R.styleable#CardView_cardMaxElevation
  */
 public class CardView extends FrameLayout implements CardViewDelegate {
 
     private final static CardViewImpl IMPL;
+
     static {
         if ("L".equals(Build.VERSION.CODENAME) || Build.VERSION.SDK_INT >= 21) {
             IMPL = new CardViewApi21();
@@ -65,25 +80,70 @@ public class CardView extends FrameLayout implements CardViewDelegate {
         initialize(context, attrs, defStyleAttr);
     }
 
+    private Rect mShadowRect = new Rect();
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (IMPL instanceof CardViewApi21 == false) {
+            final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+            int extraWidth = 0;
+            int extraHeight = 0;
+            switch (widthMode) {
+                case MeasureSpec.EXACTLY:
+                case MeasureSpec.AT_MOST:
+                    final int minWidth = (int) Math.ceil(IMPL.getMinWidth(this));
+                    widthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.max(minWidth,
+                            MeasureSpec.getSize(widthMeasureSpec)), widthMode);
+                    break;
+                case MeasureSpec.UNSPECIFIED:
+                    extraWidth = mShadowRect.left + mShadowRect.right;
+                    break;
+            }
+
+            final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+            switch (heightMode) {
+                case MeasureSpec.EXACTLY:
+                case MeasureSpec.AT_MOST:
+                    final int minHeight = (int) Math.ceil(IMPL.getMinHeight(this));
+                    heightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.max(minHeight,
+                            MeasureSpec.getSize(heightMeasureSpec)), heightMode);
+                    break;
+                case MeasureSpec.UNSPECIFIED:
+                    extraHeight = mShadowRect.top + mShadowRect.bottom;
+                    break;
+            }
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            if (extraWidth != 0 || extraHeight != 0) {
+                setMeasuredDimension(getMeasuredWidth() + extraWidth,
+                        getMeasuredHeight() + extraHeight);
+            }
+        } else {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
+
+    }
+
     private void initialize(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
                 R.style.CardView_Light);
         int backgroundColor = a.getColor(R.styleable.CardView_cardBackgroundColor, 0);
         float radius = a.getDimension(R.styleable.CardView_cardCornerRadius, 0);
-
+        float elevation = a.getDimension(R.styleable.CardView_cardElevation, 0);
+        float maxElevation = a.getDimension(R.styleable.CardView_cardMaxElevation, 0);
+        if (elevation > maxElevation) {
+            maxElevation = elevation;
+        }
         a.recycle();
-        IMPL.initialize(this, context, backgroundColor, radius);
+
+        IMPL.initialize(this, context, backgroundColor, radius, elevation, maxElevation);
     }
 
     /**
      * Updates the corner radius of the CardView.
      *
      * @param radius The radius in pixels of the corners of the rectangle shape
-     *
      * @attr ref android.support.v7.cardview.R.styleable#CardView_cardCornerRadius
-     *
      * @see #setRadius(float)
-     *
      */
     public void setRadius(float radius) {
         IMPL.setRadius(this, radius);
@@ -93,10 +153,59 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * Returns the corner radius of the CardView.
      *
      * @return Corner radius of the CardView
-     *
      * @see #getRadius()
      */
     public float getRadius() {
         return IMPL.getRadius(this);
+    }
+
+    /**
+     * Updates the backward compatible elevation of the CardView.
+     *
+     * @param radius The backward compatible elevation in pixels.
+     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardElevation
+     * @see #getCardElevation()
+     * @see #setMaxCardElevation(float)
+     */
+    public void setCardElevation(float radius) {
+        IMPL.setElevation(this, radius);
+    }
+
+    /**
+     * Returns the backward compatible elevation of the CardView.
+     *
+     * @return Elevation of the CardView
+     * @see #setCardElevation(float)
+     * @see #getMaxCardElevation()
+     */
+    public float getCardElevation() {
+        return IMPL.getElevation(this);
+    }
+
+    /**
+     * Updates the backward compatible elevation of the CardView.
+     * <p>
+     * Calling this method has no effect if device OS version is L or newer.
+     *
+     * @param radius The backward compatible elevation in pixels.
+     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardElevation
+     * @see #setCardElevation(float)
+     * @see #getMaxCardElevation()
+     */
+    public void setMaxCardElevation(float radius) {
+        IMPL.setMaxElevation(this, radius);
+    }
+
+    /**
+     * Returns the backward compatible elevation of the CardView.
+     * <p>
+     * If device OS version is L or newer, this method returns 0.
+     *
+     * @return Elevation of the CardView
+     * @see #setMaxCardElevation(float)
+     * @see #getCardElevation()
+     */
+    public float getMaxCardElevation() {
+        return IMPL.getMaxElevation(this);
     }
 }
