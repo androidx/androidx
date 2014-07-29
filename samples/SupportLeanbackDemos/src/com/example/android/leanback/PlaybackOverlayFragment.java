@@ -15,6 +15,7 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.Action;
@@ -28,6 +29,7 @@ import android.support.v17.leanback.widget.PlaybackControlsRow.ThumbsDownAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.ShuffleAction;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnActionClickedListener;
@@ -43,6 +45,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private static final int PRIMARY_CONTROLS = 7;
     private static final boolean SHOW_IMAGE = PRIMARY_CONTROLS <= 5;
     private static final int TOTAL_TIME_MS = 15 * 1000;
+    private static final int BACKGROUND_TYPE = PlaybackOverlayFragment.BG_LIGHT;
     private static final int NUM_ROWS = 3;
 
     private ArrayObjectAdapter mRowsAdapter;
@@ -54,6 +57,8 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private ThumbsDownAction mThumbsDownAction;
     private ShuffleAction mShuffleAction;
     private PlaybackControlsRow mPlaybackControlsRow;
+    private Drawable mDetailsDrawable;
+    private Drawable mOtherDrawable;
     private Handler mHandler;
     private Runnable mRunnable;
 
@@ -63,6 +68,9 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         super.onCreate(savedInstanceState);
 
         mHandler = new Handler();
+
+        setBackgroundType(BACKGROUND_TYPE);
+        setFadingEnabled(false);
 
         setupRows();
     }
@@ -100,8 +108,10 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                             mPlaybackControlsRow.setCurrentTime(0);
                         }
                         startProgressAutomation();
+                        setFadingEnabled(true);
                     } else {
                         stopProgressAutomation();
+                        setFadingEnabled(false);
                     }
                 }
                 if (action instanceof PlaybackControlsRow.MultiAction) {
@@ -134,8 +144,9 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             mPlaybackControlsRow = new PlaybackControlsRow();
         }
         if (SHOW_IMAGE) {
-            mPlaybackControlsRow.setImageDrawable(context.getResources().getDrawable(
-                    R.drawable.details_img));
+            mDetailsDrawable = context.getResources().getDrawable(R.drawable.details_img);
+            mOtherDrawable = context.getResources().getDrawable(R.drawable.img16x9);
+            mPlaybackControlsRow.setImageDrawable(mDetailsDrawable);
         }
         mPlaybackControlsRow.setPrimaryActionsAdapter(mPrimaryActionsAdapter);
         mPlaybackControlsRow.setSecondaryActionsAdapter(mSecondaryActionsAdapter);
@@ -193,10 +204,16 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             @Override
             public void run() {
                 int currentTime = mPlaybackControlsRow.getCurrentTime() + updateFreq;
-                mPlaybackControlsRow.setCurrentTime(currentTime);
-                if (totalTime <= 0 || totalTime > currentTime) {
-                    mHandler.postDelayed(this, updateFreq);
+                if (totalTime > 0 && totalTime <= currentTime) {
+                    currentTime = 0;
+                    mPlaybackControlsRow.setCurrentTime(0);
+                    mPlaybackControlsRow.setImageDrawable(
+                            mPlaybackControlsRow.getImageDrawable() == mDetailsDrawable ?
+                                    mOtherDrawable : mDetailsDrawable);
+                    mRowsAdapter.notifyArrayItemRangeChanged(0, 1);
                 }
+                mPlaybackControlsRow.setCurrentTime(currentTime);
+                mHandler.postDelayed(this, updateFreq);
             }
         };
         mHandler.postDelayed(mRunnable, updateFreq);

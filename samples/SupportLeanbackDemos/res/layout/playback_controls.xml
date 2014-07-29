@@ -15,9 +15,20 @@
      limitations under the License.
 -->
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:name="com.example.android.leanback.PlaybackOverlayFragment"
-    android:id="@+id/playback_controls_fragment"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-/>
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/media_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bg" />
+
+    <fragment
+        android:id="@+id/playback_controls_fragment"
+        android:name="com.example.android.leanback.PlaybackOverlayFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

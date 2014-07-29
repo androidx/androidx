@@ -24,6 +24,7 @@ public class VerticalGridActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vertical_grid);
-        getWindow().setBackgroundDrawableResource(R.drawable.grid_bg);
+        // TODO: use BackgroundManager here
+        getWindow().setBackgroundDrawableResource(R.drawable.bg);
     }
 }
