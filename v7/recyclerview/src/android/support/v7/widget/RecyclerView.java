@@ -7362,7 +7362,6 @@ public class RecyclerView extends ViewGroup {
          * @param toTop     Top of the new view holder
          * @return true if a later call to {@link #runPendingAnimations()} is requested,
          * false otherwise.
-         * @see #animateChange(ViewHolder, ViewHolder)
          */
         abstract public boolean animateChange(ViewHolder oldHolder,
                 ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop);
