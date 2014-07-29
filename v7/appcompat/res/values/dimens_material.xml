@@ -36,6 +36,10 @@
     <dimen name="text_size_menu_material">14sp</dimen>
     <dimen name="text_size_button_material">14sp</dimen>
 
+    <dimen name="text_size_large_material">22sp</dimen>
+    <dimen name="text_size_medium_material">18sp</dimen>
+    <dimen name="text_size_small_material">14sp</dimen>
+
     <!-- Text size for action bar titles -->
     <dimen name="abc_action_bar_title_text_size_material">20sp</dimen>
     <!-- Text size for action bar subtitles -->
