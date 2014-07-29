@@ -2145,10 +2145,10 @@ public class ViewCompat {
 
     /**
      * Tells the ViewGroup whether to draw its children in the order defined by the method
-     * {@link #getChildDrawingOrder(int, int)}.
+     * {@code ViewGroup.getChildDrawingOrder(int, int)}.
      *
      * @param enabled true if the order of the children when drawing is determined by
-     *        {@link #getChildDrawingOrder(int, int)}, false otherwise
+     *        {@link ViewGroup#getChildDrawingOrder(int, int)}, false otherwise
      *
      * <p>Prior to API 7 this will have no effect.</p>
      */
