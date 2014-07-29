@@ -17,12 +17,12 @@
 <resources>
 
     <!--
-        Theme in the "Platform.Theme.AppCompat" family are designed to be aliases for the default
+        Theme in the "Platform.AppCompat" family are designed to be aliases for the default
         theme on a given platform version and should set up the default theme ready for adding our
         unbundled Action Bar.
     -->
     <eat-comment/>
-    <style name="Platform.Theme.AppCompat" parent="android:Theme.Holo">
+    <style name="Platform.AppCompat" parent="android:Theme.Holo">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -32,9 +32,41 @@
             displays over the compat Action Bar.
         -->
         <item name="android:windowActionModeOverlay">true</item>
+
+        <!-- Window colors -->
+        <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_light</item>
+        <item name="android:colorBackground">@color/background_material_dark</item>
+        <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_dark</item>
+        <item name="android:disabledAlpha">0.5</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+        <item name="android:windowBackground">@color/background_material_dark</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/abc_primary_text_material_dark</item>
+        <item name="android:textColorPrimaryInverse">@color/abc_primary_text_material_light</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/abc_primary_text_disable_only_material_dark</item>
+        <item name="android:textColorSecondary">@color/secondary_text_material_dark</item>
+        <item name="android:textColorSecondaryInverse">@color/secondary_text_material_light</item>
+        <item name="android:textColorTertiary">@color/tertiary_text_material_dark</item>
+        <item name="android:textColorTertiaryInverse">@color/tertiary_text_material_light</item>
+        <item name="android:textColorHint">@color/hint_foreground_material_dark</item>
+        <item name="android:textColorHintInverse">@color/hint_foreground_material_light</item>
+        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>
+        <item name="android:textColorLink">@color/material_teal_500</item>
+
+        <!-- Text styles -->
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
+        <item name="android:textAppearanceInverse">@style/TextAppearance.AppCompat.Inverse</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.AppCompat.Large</item>
+        <item name="android:textAppearanceLargeInverse">@style/TextAppearance.AppCompat.Large.Inverse</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
+        <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
     </style>
 
-    <style name="Platform.Theme.AppCompat.Light" parent="android:Theme.Holo.Light">
+    <style name="Platform.AppCompat.Light" parent="android:Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
@@ -44,43 +76,46 @@
             displays over the compat Action Bar.
         -->
         <item name="android:windowActionModeOverlay">true</item>
+
+        <!-- Window colors -->
+        <item name="android:colorForeground">@color/bright_foreground_material_light</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_dark</item>
+        <item name="android:colorBackground">@color/background_material_light</item>
+        <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_light</item>
+        <item name="android:disabledAlpha">0.5</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+        <item name="android:windowBackground">@color/background_material_light</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/abc_primary_text_material_light</item>
+        <item name="android:textColorPrimaryInverse">@color/abc_primary_text_material_dark</item>
+        <item name="android:textColorSecondary">@color/secondary_text_material_light</item>
+        <item name="android:textColorSecondaryInverse">@color/secondary_text_material_dark</item>
+        <item name="android:textColorTertiary">@color/tertiary_text_material_light</item>
+        <item name="android:textColorTertiaryInverse">@color/tertiary_text_material_dark</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/abc_primary_text_disable_only_material_light</item>
+        <item name="android:textColorPrimaryInverseDisableOnly">@color/abc_primary_text_disable_only_material_dark</item>
+        <item name="android:textColorHint">@color/hint_foreground_material_light</item>
+        <item name="android:textColorHintInverse">@color/hint_foreground_material_dark</item>
+        <item name="android:textColorHighlight">@color/highlighted_text_material_light</item>
+        <item name="android:textColorLink">@color/material_teal_500</item>
+
+        <!-- Text styles -->
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
+        <item name="android:textAppearanceInverse">@style/TextAppearance.AppCompat.Inverse</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.AppCompat.Large</item>
+        <item name="android:textAppearanceLargeInverse">@style/TextAppearance.AppCompat.Large.Inverse</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
+        <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
     </style>
 
-    <style name="Platform.Theme.AppCompat.Dialog" parent="android:Theme.Holo.Dialog" />
+    <style name="Platform.AppCompat.Dialog" parent="android:Theme.Holo.Dialog" />
 
-    <style name="Platform.Theme.AppCompat.Light.Dialog" parent="android:Theme.Holo.Light.Dialog" />
+    <style name="Platform.AppCompat.Light.Dialog" parent="android:Theme.Holo.Light.Dialog" />
 
-    <style name="Overlay.Theme.AppCompat.Light.DarkActionBar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
-        <!-- Action Bar styling attributes -->
-        <item name="actionBarSize">?android:attr/actionBarSize</item>
-        <item name="actionBarDivider">?android:attr/actionBarDivider</item>
-        <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
-        <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
-        <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
-        <item name="actionOverflowButtonStyle">?android:attr/actionOverflowButtonStyle</item>
-        <item name="homeAsUpIndicator">?android:attr/homeAsUpIndicator</item>
-
-        <!-- For PopupMenu -->
-        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="textAppearanceLargePopupMenu">?android:attr/textAppearanceLargePopupMenu</item>
-        <item name="textAppearanceSmallPopupMenu">?android:attr/textAppearanceSmallPopupMenu</item>
-
-        <!-- General view attributes -->
-        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
-
-        <!-- Copy our color theme attributes to the framework -->
-        <item name="android:colorPrimary">?attr/colorPrimary</item>
-        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
-        <item name="android:colorAccent">?attr/colorAccent</item>
-        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
-        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
-        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
-        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
-    </style>
-
-
-
-    <style name="Base.Theme.AppCompat.Dialog.FixedSize" parent="Platform.Theme.AppCompat.Dialog">
+    <style name="Base.Theme.AppCompat.Dialog.FixedSize" parent="Platform.AppCompat.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
         <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>
@@ -94,7 +129,7 @@
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog.Light.FixedSize"
-           parent="Platform.Theme.AppCompat.Light.Dialog">
+           parent="Platform.AppCompat.Light.Dialog">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
         <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
         <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>

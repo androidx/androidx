@@ -26,164 +26,18 @@
          "Theme.Base" theme. -->
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat" parent="Overlay.Theme.AppCompat">
-        <item name="isLightTheme">false</item>
-
-        <item name="windowActionBar">true</item>
-        <item name="windowActionBarOverlay">false</item>
-
-        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
-        <item name="spinnerDropDownItemStyle">
-            @style/Widget.AppCompat.DropDownItem.Spinner
-        </item>
-        <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-
-        <!-- Popup Menu styles -->
-        <item name="popupMenuStyle">@style/Widget.AppCompat.PopupMenu</item>
-        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.PopupMenu.Overflow</item>
-        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Widget.PopupMenu.Large</item>
-        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Widget.PopupMenu.Small</item>
-        <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
-        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
-
-        <!-- SearchView attributes -->
-        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
-        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
-        <item name="textColorSearchUrl">@color/abc_search_url_text</item>
-        <item name="textAppearanceSearchResultTitle">
-            @style/TextAppearance.AppCompat.SearchResult.Title
-        </item>
-        <item name="textAppearanceSearchResultSubtitle">
-            @style/TextAppearance.AppCompat.SearchResult.Subtitle
-        </item>
-
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
-
-        <!-- ShareActionProvider attributes -->
-        <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView</item>
-
-        <!-- Toolbar styles -->
-        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
-        <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
-
-        <!-- Color palette -->
-        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
-        <item name="colorPrimary">@color/material_blue_grey_800</item>
-        <item name="colorAccent">@color/material_light_blue_A200</item>
-
-        <item name="colorControlNormal">?android:attr/textColorSecondary</item>
-        <item name="colorControlActivated">?attr/colorAccent</item>
-
-        <item name="colorControlHighlight">@color/ripple_material_dark</item>
-        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_dark</item>-->
-
+    <style name="Theme.AppCompat"
+           parent="Base.Theme.AppCompat">
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.AppCompat.Light" parent="Overlay.Theme.AppCompat.Light">
-        <item name="isLightTheme">true</item>
-
-        <item name="windowActionBar">true</item>
-        <item name="windowActionBarOverlay">false</item>
-
-        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
-        <item name="spinnerDropDownItemStyle">
-            @style/Widget.AppCompat.Light.DropDownItem.Spinner
-        </item>
-        <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-
-        <!-- Popup Menu styles -->
-        <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
-        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
-        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large</item>
-        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small</item>
-        <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.ListPopupWindow</item>
-        <item name="dropDownListViewStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
-
-        <!-- SearchView attributes -->
-        <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
-        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.DropDownItem.Spinner</item>
-        <item name="textColorSearchUrl">@color/abc_search_url_text</item>
-        <item name="textAppearanceSearchResultTitle">
-            @style/TextAppearance.AppCompat.Light.SearchResult.Title
-        </item>
-        <item name="textAppearanceSearchResultSubtitle">
-            @style/TextAppearance.AppCompat.Light.SearchResult.Subtitle
-        </item>
-
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_light</item>
-
-        <!-- ShareActionProvider attributes -->
-        <item name="activityChooserViewStyle">@style/Widget.AppCompat.Light.ActivityChooserView</item>
-
-        <!-- Toolbar styles -->
-        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
-        <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
-
-        <!-- Color palette -->
-        <item name="colorPrimaryDark">@color/material_blue_grey_600</item>
-        <item name="colorPrimary">@color/material_blue_grey_400</item>
-        <item name="colorAccent">@color/material_light_blue_A200</item>
-
-        <item name="colorControlNormal">?android:attr/textColorSecondary</item>
-        <item name="colorControlActivated">?attr/colorAccent</item>
-
-        <item name="colorControlHighlight">@color/ripple_material_light</item>
-        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_light</item>-->
-
+    <style name="Theme.AppCompat.Light"
+           parent="Base.Theme.AppCompat.Light">
     </style>
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat.Light.DarkActionBar" parent="Overlay.Theme.AppCompat.Light.DarkActionBar">
-        <item name="isLightTheme">true</item>
-
-        <item name="windowActionBar">true</item>
-        <item name="windowActionBarOverlay">false</item>
-
-        <!-- Required for use of support_simple_spinner_dropdown_item.xml -->
-        <item name="spinnerDropDownItemStyle">
-            @style/Widget.AppCompat.Light.DropDownItem.Spinner
-        </item>
-        <item name="dropdownListPreferredItemHeight">?attr/listPreferredItemHeightSmall</item>
-
-        <!-- Popup Menu styles -->
-        <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
-        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
-        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large</item>
-        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small</item>
-        <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
-        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
-
-        <!-- SearchView attributes -->
-        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
-        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
-        <item name="textColorSearchUrl">@color/abc_search_url_text</item>
-        <item name="textAppearanceSearchResultTitle">
-            @style/TextAppearance.AppCompat.SearchResult.Title
-        </item>
-        <item name="textAppearanceSearchResultSubtitle">
-            @style/TextAppearance.AppCompat.SearchResult.Subtitle
-        </item>
-
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
-
-        <!-- ShareActionProvider attributes -->
-        <item name="activityChooserViewStyle">@style/Widget.AppCompat.ActivityChooserView</item>
-
-        <!-- Toolbar styles -->
-        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
-        <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
-
-        <!-- Color palette -->
-        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
-        <item name="colorPrimary">@color/material_blue_grey_800</item>
-        <item name="colorAccent">@color/material_light_blue_A200</item>
-
-        <item name="colorControlNormal">?android:attr/textColorSecondary</item>
-        <item name="colorControlActivated">?attr/colorAccent</item>
-
-        <item name="colorControlHighlight">@color/ripple_material_light</item>
-        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_light</item>-->
+    <style name="Theme.AppCompat.Light.DarkActionBar"
+           parent="Base.Theme.AppCompat.Light.DarkActionBar">
     </style>
 
     <style name="Theme.AppCompat.NoActionBar">
@@ -205,7 +59,8 @@
     </style>
 
     <!-- Menu/item attributes -->
-    <style name="Theme.AppCompat.CompactMenu" parent="Base.Theme.AppCompat.CompactMenu">
+    <style name="Theme.AppCompat.CompactMenu"
+           parent="Base.Theme.AppCompat.CompactMenu">
     </style>
 
 </resources>
