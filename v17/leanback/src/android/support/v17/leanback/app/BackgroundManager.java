@@ -302,7 +302,7 @@ public final class BackgroundManager {
     private Drawable getThemeDrawable() {
         Drawable drawable = null;
         if (mThemeDrawableResourceId != -1) {
-            drawable = mContext.getResources().getDrawable(mThemeDrawableResourceId);
+            drawable = mContext.getResources().getDrawable(mThemeDrawableResourceId).mutate();
         }
         if (drawable == null) {
             drawable = createEmptyDrawable();
