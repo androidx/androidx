@@ -7228,7 +7228,7 @@ public class RecyclerView extends ViewGroup {
          * By setting this property to true, actions on the data set which change the
          * contents of items may also be animated. What those animations are is left
          * up to the discretion of the ItemAnimator subclass, in its
-         * {@link #animateChange(ViewHolder, ViewHolder)} implementation.
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} implementation.
          * The value of this property is false by default.
          *
          * @see Adapter#notifyItemChanged(int)
@@ -7236,8 +7236,8 @@ public class RecyclerView extends ViewGroup {
          *
          * @param supportsChangeAnimations true if change animations are supported by
          * this ItemAnimator, false otherwise. If the property is false, the ItemAnimator
-         * will not receive a call to {@link #animateChange(ViewHolder, ViewHolder)} when
-         * changes occur.
+         * will not receive a call to
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} when changes occur.
          */
         public void setSupportsChangeAnimations(boolean supportsChangeAnimations) {
             mSupportsChangeAnimations = supportsChangeAnimations;
@@ -7277,8 +7277,8 @@ public class RecyclerView extends ViewGroup {
          * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
          * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
          * {@link #animateRemove(ViewHolder) animateRemove()}, and
-         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
-         * start the animations together in the later call to {@link #runPendingAnimations()}.
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} come in one by one,
+         * then start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * <p>This method may also be called for disappearing items which continue to exist in the
          * RecyclerView, but for which the system does not have enough information to animate
@@ -7302,8 +7302,8 @@ public class RecyclerView extends ViewGroup {
          * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
          * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
          * {@link #animateRemove(ViewHolder) animateRemove()}, and
-         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
-         * start the animations together in the later call to {@link #runPendingAnimations()}.
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} come in one by one,
+         * then start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * <p>This method may also be called for appearing items which were already in the
          * RecyclerView, but for which the system does not have enough information to animate
@@ -7327,8 +7327,8 @@ public class RecyclerView extends ViewGroup {
          * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
          * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
          * {@link #animateRemove(ViewHolder) animateRemove()}, and
-         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
-         * start the animations together in the later call to {@link #runPendingAnimations()}.
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} come in one by one,
+         * then start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * @param holder The item that is being moved.
          * @return true if a later call to {@link #runPendingAnimations()} is requested,
@@ -7351,8 +7351,8 @@ public class RecyclerView extends ViewGroup {
          * as separate calls to {@link #animateAdd(ViewHolder) animateAdd()},
          * {@link #animateMove(ViewHolder, int, int, int, int) animateMove()},
          * {@link #animateRemove(ViewHolder) animateRemove()}, and
-         * {@link #animateChange(ViewHolder, ViewHolder)} come in one by one, then
-         * start the animations together in the later call to {@link #runPendingAnimations()}.
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} come in one by one,
+         * then start the animations together in the later call to {@link #runPendingAnimations()}.
          *
          * @param oldHolder The original item that changed.
          * @param newHolder The new item that was created with the changed content. Might be null
@@ -7405,7 +7405,7 @@ public class RecyclerView extends ViewGroup {
          *
          * @param item The item which has been changed (this is the original, or "old"
          * ViewHolder item, not the "new" holder which was also passed into the call to
-         * {@link #animateChange(ViewHolder, ViewHolder)}).
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)}).
          */
         public final void dispatchChangeFinished(ViewHolder item) {
             if (mListener != null) {
