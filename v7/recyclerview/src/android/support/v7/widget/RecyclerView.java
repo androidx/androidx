@@ -4986,9 +4986,14 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Return the number of items in the adapter bound to the parent RecyclerView
+         * Returns the number of items in the adapter bound to the parent RecyclerView.
+         * <p>
+         * Note that this number is not necessarily equal to {@link State#getItemCount()}. In
+         * methods where State is available, you should use {@link State#getItemCount()} instead.
+         * For more details, check the documentation for {@link State#getItemCount()}.
          *
-         * @return Items in the bound adapter
+         * @return The number of items in the bound adapter
+         * @see State#getItemCount()
          */
         public int getItemCount() {
             final Adapter a = mRecyclerView != null ? mRecyclerView.getAdapter() : null;
@@ -7009,9 +7014,28 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * @return Total number of items to be laid out. Note that, this number is not necessarily
-         * equal to the number of items in the adapter, so you should always use this number for
-         * your position calculations and never call adapter directly.
+         * Returns the total number of items that can be laid out. Note that this number is not
+         * necessarily equal to the number of items in the adapter, so you should always use this
+         * number for your position calculations and never access the adapter directly.
+         * <p>
+         * RecyclerView listens for Adapter's notify events and calculates the effects of adapter
+         * data changes on existing Views. These calculations are used to decide which animations
+         * should be run.
+         * <p>
+         * To support predictive animations, RecyclerView may rewrite or reorder Adapter changes to
+         * present the correct state to LayoutManager in pre-layout pass.
+         * <p>
+         * For example, a newly added item is not included in pre-layout item count because
+         * pre-layout reflects the contents of the adapter before the item is added. Behind the
+         * scenes, RecyclerView offsets {@link Recycler#getViewForPosition(int)} calls such that
+         * LayoutManager does not know about the new item's existence in pre-layout. The item will
+         * be available in second layout pass and will be included in the item count. Similar
+         * adjustments are made for moved and removed items as well.
+         * <p>
+         * You can get the adapter's item count via {@link LayoutManager#getItemCount()} method.
+         *
+         * @return The number of items currently available
+         * @see LayoutManager#getItemCount()
          */
         public int getItemCount() {
             return mInPreLayout ?
