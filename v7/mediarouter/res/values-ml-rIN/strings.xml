@@ -18,8 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"സിസ്റ്റം"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"ഉപകരണങ്ങൾ"</string>
-    <!-- no translation found for mr_media_route_button_content_description (8327680881775995150) -->
-    <skip />
+    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"കാസ്‌റ്റുചെയ്യുക"</string>
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"ഉപകരണത്തിലേക്ക് കണക്റ്റുചെയ്യുക"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"ഉപകരണങ്ങൾക്കായി തിരയുന്നു…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"വിച്ഛേദിക്കുക"</string>
