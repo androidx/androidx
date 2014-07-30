@@ -28,6 +28,7 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
                 android:id="@+id/radius_label"
                 android:layout_marginBottom="5dp"
                 android:text="@string/card_view_radius"/>
@@ -42,6 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
+                android:textColor="@android:color/black"
                 android:id="@+id/width_label"
                 android:text="@string/card_view_width"
                 android:layout_below="@id/radius_label"
@@ -57,6 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
+                android:textColor="@android:color/black"
                 android:id="@+id/height_label"
                 android:text="@string/card_view_height"
                 android:layout_below="@id/width_label"
@@ -69,16 +72,98 @@
                 android:layout_toRightOf="@id/height_label"
                 android:layout_alignTop="@id/height_label"/>
 
-    </RelativeLayout>
-    <android.support.v7.widget.CardView
-            android:id="@+id/card_view"
-            android:layout_gravity="center"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            card_view:cardCornerRadius="4dp">
         <TextView
-                android:id="@+id/info_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/elevation_label"
+                android:textColor="@android:color/black"
+                android:text="@string/card_view_elevation"
+                android:layout_below="@id/height_label"
+                android:layout_alignRight="@id/height_label"/>
+        <SeekBar
+                android:id="@+id/elevation_seek_bar"
+                android:max="50"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-    </android.support.v7.widget.CardView>
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/elevation_label"
+                android:layout_alignTop="@id/elevation_label"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/max_elevation_label"
+                android:textColor="@android:color/black"
+                android:text="@string/card_view_max_elevation"
+                android:layout_below="@id/elevation_label"
+                android:layout_alignRight="@id/elevation_label"/>
+        <SeekBar
+                android:id="@+id/max_elevation_seek_bar"
+                android:max="60"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/max_elevation_label"
+                android:layout_alignTop="@id/max_elevation_label"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/alpha_label"
+                android:textColor="@android:color/black"
+                android:text="@string/card_view_alpha"
+                android:layout_below="@id/max_elevation_label"
+                android:layout_alignRight="@id/max_elevation_label"/>
+        <SeekBar
+                android:id="@+id/alpha_seek_bar"
+                android:max="255"
+                android:progress="255"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/alpha_label"
+                android:layout_alignTop="@id/alpha_label"/>
+
+        <RadioGroup
+                android:id="@+id/select_target_radio"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@id/alpha_seek_bar">
+            <RadioButton
+                    android:id="@+id/resize_card_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:text="@string/card_view_resize_card_view"
+                    android:checked="true"/>
+            <RadioButton
+                    android:id="@+id/resize_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:text="@string/card_view_resize_content"/>
+        </RadioGroup>
+
+    </RelativeLayout>
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:layout_height="match_parent">
+        <android.support.v7.widget.CardView
+                android:id="@+id/card_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                card_view:cardElevation="10dp">
+            <TextView
+                    android:id="@+id/info_text"
+                    android:textColor="@android:color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+        </android.support.v7.widget.CardView>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@string/card_view_sample_text"
+                  android:textColor="@android:color/black"
+                android:layout_toRightOf="@id/card_view"
+                android:layout_alignTop="@id/card_view"/>
+    </RelativeLayout>
+
 </LinearLayout>

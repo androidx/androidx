@@ -18,9 +18,11 @@ package com.example.android.supportv7.view;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.CardView;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.view.ViewGroup;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.example.android.supportv7.R;
@@ -36,6 +38,14 @@ public class CardViewActivity extends Activity {
     SeekBar mWidthSeekBar;
 
     SeekBar mHeightSeekBar;
+
+    SeekBar mElevationSeekBar;
+
+    SeekBar mMaxElevationSeekBar;
+
+    SeekBar mAlphaSeekBar;
+
+    boolean mResizeCardView = true;
 
     private SeekBar.OnSeekBarChangeListener mOnSeekBarChangedListener
             = new SeekBar.OnSeekBarChangeListener() {
@@ -56,13 +66,41 @@ public class CardViewActivity extends Activity {
     };
 
     private void update() {
-        mCardView.setRadius(mCornerRadiusSeekBar.getProgress());
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mCardView.getLayoutParams();
+        mElevationSeekBar.setMax(mMaxElevationSeekBar.getProgress());
+        if (mCornerRadiusSeekBar.getProgress() != mCardView.getRadius()) {
+            mCardView.setRadius(mCornerRadiusSeekBar.getProgress());
+        }
+        if (mElevationSeekBar.getProgress() != mCardView.getCardElevation()) {
+            mCardView.setCardElevation(mElevationSeekBar.getProgress());
+        }
+        if (mMaxElevationSeekBar.getProgress() != mCardView.getMaxCardElevation()) {
+            mCardView.setMaxCardElevation(mMaxElevationSeekBar.getProgress());
+        }
+        ViewCompat.setAlpha(mCardView, mAlphaSeekBar.getProgress() / 255f);
+        ViewGroup.LayoutParams lp;
+        if (mResizeCardView) {
+            lp = setViewBounds(mCardView);
+        } else {
+            lp = setViewBounds(mInfoText);
+        }
+        mInfoText.setText("radius: " + mCornerRadiusSeekBar.getProgress()
+                +", alpha: " + mAlphaSeekBar.getProgress()
+                + "\n w: " + lp.width + "\nh: " + lp.height
+                + "\nelevation: " + mCardView.getCardElevation() + " of "
+                + mCardView.getMaxCardElevation());
+    }
+
+    private ViewGroup.LayoutParams setViewBounds(View view) {
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        boolean changed = lp.width != mWidthSeekBar.getProgress()
+                || lp.height != mHeightSeekBar.getProgress();
+        if (!changed) {
+            return lp;
+        }
         lp.width = mWidthSeekBar.getProgress();
         lp.height = mHeightSeekBar.getProgress();
-        mCardView.setLayoutParams(lp);
-        mInfoText.setText("radius : " + mCornerRadiusSeekBar.getProgress()
-                + "\n w:" + lp.width + "\nh:" + lp.height);
+        view.setLayoutParams(lp);
+        return lp;
     }
 
     @Override
@@ -83,6 +121,27 @@ public class CardViewActivity extends Activity {
         mHeightSeekBar = (SeekBar) findViewById(R.id.height_seek_bar);
         mHeightSeekBar.setProgress(mCardView.getLayoutParams().height);
         mHeightSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangedListener);
+
+        mElevationSeekBar = (SeekBar) findViewById(R.id.elevation_seek_bar);
+        mElevationSeekBar.setProgress((int) mCardView.getCardElevation());
+        mElevationSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangedListener);
+
+        mMaxElevationSeekBar = (SeekBar) findViewById(R.id.max_elevation_seek_bar);
+        mMaxElevationSeekBar.setProgress((int) mCardView.getMaxCardElevation());
+        mMaxElevationSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangedListener);
+
+        mAlphaSeekBar = (SeekBar) findViewById(R.id.alpha_seek_bar);
+        mAlphaSeekBar.setProgress((int) ViewCompat.getAlpha(mCardView) * 255);
+        mAlphaSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangedListener);
+
+        RadioGroup rb = (RadioGroup) findViewById(R.id.select_target_radio);
+        rb.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                mResizeCardView = checkedId == R.id.resize_card_view;
+                update();
+            }
+        });
 
         update();
         new Handler().postDelayed(new Runnable() {

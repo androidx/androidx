@@ -115,6 +115,12 @@
     <string name="card_view_radius">Radius</string>
     <string name="card_view_width">Width</string>
     <string name="card_view_height">Height</string>
+    <string name="card_view_elevation">Elevation</string>
+    <string name="card_view_max_elevation">Max Elevation</string>
+    <string name="card_view_alpha">Alpha</string>
+    <string name="card_view_sample_text">Sample text on right</string>
+    <string name="card_view_resize_card_view">Resize CardView</string>
+    <string name="card_view_resize_content">Resize Content</string>
 
     <string name="palette">Palette</string>
     <string name="palette_all_colors">Full color palette</string>
