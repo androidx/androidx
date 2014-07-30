@@ -7420,8 +7420,8 @@ public class RecyclerView extends ViewGroup {
          * {@link Adapter#notifyItemChanged(int)} or
          * {@link Adapter#notifyItemRangeChanged(int, int)}.
          * <p>
-         * Implementors can choose whether and how to animate changes, but must always call
-         * {@link #dispatchChangeFinished(ViewHolder)} with <code>oldHolder</code>when done, either
+         * Implementers can choose whether and how to animate changes, but must always call
+         * {@link #dispatchChangeFinished(ViewHolder)} for each non-null ViewHolder, either
          * immediately (if no animation will occur) or after the animation actually finishes.
          * The return value indicates whether an animation has been set up and whether the
          * ItemAnimator's {@link #runPendingAnimations()} method should be called at the
