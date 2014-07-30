@@ -610,8 +610,9 @@ public class RecyclerView extends ViewGroup {
     private void removeAnimatingView(View view) {
         eatRequestLayout();
         if (mChildHelper.removeViewIfHidden(view)) {
-            mRecycler.unscrapView(getChildViewHolderInt(view));
-            mRecycler.recycleView(view);
+            final ViewHolder viewHolder = getChildViewHolderInt(view);
+            mRecycler.unscrapView(viewHolder);
+            mRecycler.recycleViewHolderInternal(viewHolder);
             if (DEBUG) {
                 Log.d(TAG, "after removing animated view: " + view + ", " + this);
             }
@@ -1757,9 +1758,8 @@ public class RecyclerView extends ViewGroup {
 
         processAdapterUpdatesAndSetAnimationFlags();
 
-        ArrayMap<Long, ViewHolder> oldChangedHolders =
-                mState.mRunSimpleAnimations && mItemsChanged && supportsChangeAnimations() ?
-                        new ArrayMap<Long, ViewHolder>() : null;
+        mState.mOldChangedHolders = mState.mRunSimpleAnimations && mItemsChanged
+                && supportsChangeAnimations() ? new ArrayMap<Long, ViewHolder>() : null;
         mItemsAddedOrRemoved = mItemsChanged = false;
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
         mState.mInPreLayout = mState.mRunPredictiveAnimations;
@@ -1789,14 +1789,13 @@ public class RecyclerView extends ViewGroup {
             // Save old positions so that LayoutManager can run its mapping logic.
             saveOldPositions();
             // processAdapterUpdatesAndSetAnimationFlags already run pre-layout animations.
-            if (oldChangedHolders != null) {
+            if (mState.mOldChangedHolders != null) {
                 int count = mChildHelper.getChildCount();
                 for (int i = 0; i < count; ++i) {
                     final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
                     if (holder.isChanged() && !holder.isRemoved() && !holder.shouldIgnore()) {
-                        long key = mAdapter.hasStableIds() ? holder.getItemId() :
-                                (long) holder.mPosition;
-                        oldChangedHolders.put(key, holder);
+                        long key = getChangedHolderKey(holder);
+                        mState.mOldChangedHolders.put(key, holder);
                         mState.mPreLayoutHolderMap.remove(holder);
                     }
                 }
@@ -1834,14 +1833,13 @@ public class RecyclerView extends ViewGroup {
             clearOldPositions();
             // in case pre layout did run but we decided not to run predictive animations.
             mAdapterHelper.consumeUpdatesInOnePass();
-            if (oldChangedHolders != null) {
+            if (mState.mOldChangedHolders != null) {
                 int count = mChildHelper.getChildCount();
                 for (int i = 0; i < count; ++i) {
                     final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
                     if (holder.isChanged() && !holder.isRemoved() && !holder.shouldIgnore()) {
-                        long key = mAdapter.hasStableIds() ? holder.getItemId() :
-                                (long) holder.mPosition;
-                        oldChangedHolders.put(key, holder);
+                        long key = getChangedHolderKey(holder);
+                        mState.mOldChangedHolders.put(key, holder);
                         mState.mPreLayoutHolderMap.remove(holder);
                     }
                 }
@@ -1862,7 +1860,7 @@ public class RecyclerView extends ViewGroup {
 
         if (mState.mRunSimpleAnimations) {
             // Step 3: Find out where things are now, post-layout
-            ArrayMap<Long, ViewHolder> newChangedHolders = oldChangedHolders != null ?
+            ArrayMap<Long, ViewHolder> newChangedHolders = mState.mOldChangedHolders != null ?
                     new ArrayMap<Long, ViewHolder>() : null;
             int count = mChildHelper.getChildCount();
             for (int i = 0; i < count; ++i) {
@@ -1871,9 +1869,8 @@ public class RecyclerView extends ViewGroup {
                     continue;
                 }
                 final View view = holder.itemView;
-                long key = mAdapter.hasStableIds() ? holder.getItemId() :
-                        (long) holder.mPosition;
-                if (newChangedHolders != null && oldChangedHolders.get(key) != null) {
+                long key = getChangedHolderKey(holder);
+                if (newChangedHolders != null && mState.mOldChangedHolders.get(key) != null) {
                     newChangedHolders.put(key, holder);
                 } else {
                     mState.mPostLayoutHolderMap.put(holder, new ItemHolderInfo(holder,
@@ -1933,14 +1930,17 @@ public class RecyclerView extends ViewGroup {
                 }
             }
             // Step 7: Animate CHANGING items
-            count = oldChangedHolders != null ? oldChangedHolders.size() : 0;
-            for (int i = 0; i < count; ++i) {
-                long key = oldChangedHolders.keyAt(i);
-                ViewHolder oldHolder = oldChangedHolders.get(key);
+            count = mState.mOldChangedHolders != null ? mState.mOldChangedHolders.size() : 0;
+            // traverse reverse in case view gets recycled while we are traversing the list.
+            for (int i = count - 1; i >= 0; i--) {
+                long key = mState.mOldChangedHolders.keyAt(i);
+                ViewHolder oldHolder = mState.mOldChangedHolders.get(key);
                 View oldView = oldHolder.itemView;
                 if (oldHolder.shouldIgnore()) {
                     continue;
                 }
+                // We probably don't need this check anymore since these views are removed from
+                // the list if they are recycled.
                 if (mRecycler.mChangedScrap != null &&
                         mRecycler.mChangedScrap.contains(oldHolder)) {
                     animateChange(oldHolder, newChangedHolders.get(key));
@@ -1960,6 +1960,15 @@ public class RecyclerView extends ViewGroup {
         if (mRecycler.mChangedScrap != null) {
             mRecycler.mChangedScrap.clear();
         }
+        mState.mOldChangedHolders = null;
+    }
+
+    /**
+     * Returns a unique key to be used while handling change animations.
+     * It might be child's position or stable id depending on the adapter type.
+     */
+    long getChangedHolderKey(ViewHolder holder) {
+        return mAdapter.hasStableIds() ? holder.getItemId() : holder.mPosition;
     }
 
     /**
@@ -3167,7 +3176,7 @@ public class RecyclerView extends ViewGroup {
                             } else if (holder.wasReturnedFromScrap()) {
                                 holder.clearReturnedFromScrapFlag();
                             }
-                            recycleViewHolder(holder);
+                            recycleViewHolderInternal(holder);
                         }
                         holder = null;
                     }
@@ -3291,12 +3300,31 @@ public class RecyclerView extends ViewGroup {
          * Recycle a detached view. The specified view will be added to a pool of views
          * for later rebinding and reuse.
          *
-         * <p>A view must be fully detached before it may be recycled.</p>
+         * <p>A view must be fully detached before it may be recycled. If the View is scrapped,
+         * it will be removed from scrap list.</p>
          *
          * @param view Removed view for recycling
+         * @see LayoutManager#removeAndRecycleView(View, Recycler)
          */
         public void recycleView(View view) {
-            recycleViewHolder(getChildViewHolderInt(view));
+            // This public recycle method tries to make view recycle-able since layout manager
+            // intended to recycle this view (e.g. even if it is in scrap or change cache)
+            ViewHolder holder = getChildViewHolderInt(view);
+            if (holder.isScrap()) {
+                holder.unScrap();
+            } else if (holder.wasReturnedFromScrap()){
+                holder.clearReturnedFromScrapFlag();
+            }
+            recycleViewHolderInternal(holder);
+        }
+
+        /**
+         * Internally, use this method instead of {@link #recycleView(android.view.View)} to
+         * catch potential bugs.
+         * @param view
+         */
+        void recycleViewInternal(View view) {
+            recycleViewHolderInternal(getChildViewHolderInt(view));
         }
 
         void recycleAndClearCachedViews() {
@@ -3331,7 +3359,12 @@ public class RecyclerView extends ViewGroup {
             return false;
         }
 
-        void recycleViewHolder(ViewHolder holder) {
+        /**
+         * internal implementation checks if view is scrapped or attached and throws an exception
+         * if so.
+         * Public version un-scraps before calling recycle.
+         */
+        void recycleViewHolderInternal(ViewHolder holder) {
             if (holder.isScrap() || holder.itemView.getParent() != null) {
                 throw new IllegalArgumentException(
                         "Scrapped or attached views may not be recycled. isScrap:"
@@ -3368,10 +3401,9 @@ public class RecyclerView extends ViewGroup {
                 Log.d(TAG, "trying to recycle a non-recycleable holder. Hopefully, it will "
                         + "re-visit here. We are stil removing it from animation lists");
             }
-            // Remove from pre/post maps that are used to animate items; a recycled holder
-            // should not be animated
-            mState.mPreLayoutHolderMap.remove(holder);
-            mState.mPostLayoutHolderMap.remove(holder);
+            // even if the holder is not removed, we still call this method so that it is removed
+            // from view holder lists.
+            mState.onViewRecycled(holder);
         }
 
         /**
@@ -3383,7 +3415,7 @@ public class RecyclerView extends ViewGroup {
             final ViewHolder holder = getChildViewHolderInt(view);
             holder.mScrapContainer = null;
             holder.clearReturnedFromScrapFlag();
-            recycleViewHolder(holder);
+            recycleViewHolderInternal(holder);
         }
 
         /**
@@ -5089,7 +5121,7 @@ public class RecyclerView extends ViewGroup {
             if (viewHolder.isInvalid() && !viewHolder.isRemoved() && !viewHolder.isChanged() &&
                     !mRecyclerView.mAdapter.hasStableIds()) {
                 removeViewAt(index);
-                recycler.recycleView(view);
+                recycler.recycleViewHolderInternal(viewHolder);
             } else {
                 detachViewAt(index);
                 recycler.scrapView(view);
@@ -6876,10 +6908,12 @@ public class RecyclerView extends ViewGroup {
     public static class State {
 
         private int mTargetPosition = RecyclerView.NO_POSITION;
-        private ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
+        ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
                 new ArrayMap<ViewHolder, ItemHolderInfo>();
-        private ArrayMap<ViewHolder, ItemHolderInfo> mPostLayoutHolderMap =
+        ArrayMap<ViewHolder, ItemHolderInfo> mPostLayoutHolderMap =
                 new ArrayMap<ViewHolder, ItemHolderInfo>();
+        // nullable
+        ArrayMap<Long, ViewHolder> mOldChangedHolders = new ArrayMap<Long, ViewHolder>();
 
         private SparseArray<Object> mData;
 
@@ -7046,11 +7080,23 @@ public class RecyclerView extends ViewGroup {
         public void onViewRecycled(ViewHolder holder) {
             mPreLayoutHolderMap.remove(holder);
             mPostLayoutHolderMap.remove(holder);
+            if (mOldChangedHolders != null) {
+                removeFrom(mOldChangedHolders, holder);
+            }
+            // holder cannot be in new list.
         }
 
         public void onViewIgnored(ViewHolder holder) {
-            mPreLayoutHolderMap.remove(holder);
-            mPostLayoutHolderMap.remove(holder);
+            onViewRecycled(holder);
+        }
+
+        private void removeFrom(ArrayMap<Long, ViewHolder> holderMap, ViewHolder holder) {
+            for (int i = holderMap.size() - 1; i >= 0; i --) {
+                if (holder == holderMap.valueAt(i)) {
+                    holderMap.removeAt(i);
+                    return;
+                }
+            }
         }
 
         @Override
