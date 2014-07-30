@@ -42,6 +42,72 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
     }
+    public void testRecycleScrap() throws Throwable {
+        recycleScrapTest(false);
+        removeRecyclerView();
+        recycleScrapTest(true);
+    }
+
+    public void recycleScrapTest(final boolean useRecycler) throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        final AtomicBoolean test = new AtomicBoolean(false);
+        TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                if (test.get()) {
+                    try {
+                        detachAndScrapAttachedViews(recycler);
+                        for (int i = recycler.getScrapList().size() - 1; i >= 0; i--) {
+                            if (useRecycler) {
+                                recycler.recycleView(recycler.getScrapList().get(i).itemView);
+                            } else {
+                                removeAndRecycleView(recycler.getScrapList().get(i).itemView,
+                                        recycler);
+                            }
+                        }
+                        if (state.mOldChangedHolders != null) {
+                            for (int i = state.mOldChangedHolders.size() - 1; i >= 0; i--) {
+                                if (useRecycler) {
+                                    recycler.recycleView(
+                                            state.mOldChangedHolders.valueAt(i).itemView);
+                                } else {
+                                    removeAndRecycleView(
+                                            state.mOldChangedHolders.valueAt(i).itemView, recycler);
+                                }
+                            }
+                        }
+                        assertEquals("no scrap should be left over", 0, recycler.getScrapCount());
+                        assertEquals("pre layout map should be empty", 0,
+                                state.mPreLayoutHolderMap.size());
+                        assertEquals("post layout map should be empty", 0,
+                                state.mPostLayoutHolderMap.size());
+                        if (state.mOldChangedHolders != null) {
+                            assertEquals("post old change map should be empty", 0,
+                                    state.mOldChangedHolders.size());
+                        }
+                    } catch (Throwable t) {
+                        postExceptionToInstrumentation(t);
+                    }
+
+                }
+                layoutRange(recycler, 0, 5);
+                layoutLatch.countDown();
+                super.onLayoutChildren(recycler, state);
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(lm);
+        recyclerView.getItemAnimator().setSupportsChangeAnimations(true);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        test.set(true);
+        lm.expectLayouts(1);
+        testAdapter.changeAndNotify(3, 1);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+    }
 
     public void testAccessRecyclerOnOnMeasure() throws Throwable {
         accessRecyclerOnOnMeasureTest(false);
