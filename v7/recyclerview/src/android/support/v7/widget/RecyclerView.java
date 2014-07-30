@@ -2662,7 +2662,15 @@ public class RecyclerView extends ViewGroup {
 
                     if (smoothScroller != null && !smoothScroller.isPendingInitialRun() &&
                             smoothScroller.isRunning()) {
-                        smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
+                        final int adapterSize = mState.getItemCount();
+                        if (adapterSize == 0) {
+                            smoothScroller.stop();
+                        } else if (smoothScroller.getTargetPosition() >= adapterSize) {
+                            smoothScroller.setTargetPosition(adapterSize - 1);
+                            smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
+                        } else {
+                            smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
+                        }
                     }
                     mRunningLayoutOrScroll = false;
                     resumeRequestLayout(false);
@@ -6476,7 +6484,7 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Returns true if SmoothScroller has beens started but has not received the first
+         * Returns true if SmoothScroller has been started but has not received the first
          * animation
          * callback yet.
          *
