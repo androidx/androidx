@@ -17,6 +17,9 @@
 
 package android.support.v7.widget;
 
+import android.graphics.PointF;
+import android.support.v4.view.ViewCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,6 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest {
 
     private static final boolean DEBUG = false;
+
+    private static final String TAG = "RecyclerViewLayoutTest";
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
@@ -41,6 +47,127 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         accessRecyclerOnOnMeasureTest(false);
         removeRecyclerView();
         accessRecyclerOnOnMeasureTest(true);
+    }
+
+    public void testSmoothScrollWithRemovedItems() throws Throwable {
+        smoothScrollTest(false);
+        removeRecyclerView();
+        smoothScrollTest(true);
+    }
+
+    public void smoothScrollTest(final boolean removeItem) throws Throwable {
+        final LinearSmoothScroller[] lss = new LinearSmoothScroller[1];
+        final CountDownLatch calledOnStart = new CountDownLatch(1);
+        final CountDownLatch calledOnStop = new CountDownLatch(1);
+        final int visibleChildCount = 10;
+        TestLayoutManager lm = new TestLayoutManager() {
+            int start = 0;
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                layoutRange(recycler, start, visibleChildCount);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                start++;
+                if (DEBUG) {
+                    Log.d(TAG, "on scroll, remove and recycling. start:" + start + ", cnt:"
+                            + visibleChildCount);
+                }
+                removeAndRecycleAllViews(recycler);
+                layoutRange(recycler, start, start + visibleChildCount);
+                return dy;
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
+                    int position) {
+                LinearSmoothScroller linearSmoothScroller =
+                        new LinearSmoothScroller(recyclerView.getContext()) {
+                            @Override
+                            public PointF computeScrollVectorForPosition(int targetPosition) {
+                                return new PointF(0, 1);
+                            }
+
+                            @Override
+                            protected void onStart() {
+                                super.onStart();
+                                calledOnStart.countDown();
+                            }
+
+                            @Override
+                            protected void onStop() {
+                                super.onStop();
+                                calledOnStop.countDown();
+                            }
+                        };
+                linearSmoothScroller.setTargetPosition(position);
+                lss[0] = linearSmoothScroller;
+                startSmoothScroll(linearSmoothScroller);
+            }
+        };
+        final RecyclerView rv = new RecyclerView(getActivity());
+        TestAdapter testAdapter = new TestAdapter(500);
+        rv.setLayoutManager(lm);
+        rv.setAdapter(testAdapter);
+        lm.expectLayouts(1);
+        setRecyclerView(rv);
+        lm.waitForLayout(1);
+        // regular scroll
+        final int targetPosition = visibleChildCount * (removeItem ? 30 : 4);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.smoothScrollToPosition(targetPosition);
+            }
+        });
+        if (DEBUG) {
+            Log.d(TAG, "scrolling to target position " + targetPosition);
+        }
+        assertTrue("on start should be called very soon", calledOnStart.await(2, TimeUnit.SECONDS));
+        if (removeItem) {
+            final int newTarget = targetPosition - 10;
+            testAdapter.deleteAndNotify(newTarget + 1, testAdapter.getItemCount() - newTarget - 1);
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ViewCompat.postOnAnimationDelayed(rv, new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                assertEquals("scroll position should be updated to next available",
+                                        newTarget, lss[0].getTargetPosition());
+                            } catch (Throwable t) {
+                                postExceptionToInstrumentation(t);
+                            }
+                        }
+                    }, 200);
+                }
+            });
+            checkForMainThreadException();
+            assertTrue("on stop should be called", calledOnStop.await(30, TimeUnit.SECONDS));
+            checkForMainThreadException();
+            assertNotNull("should scroll to new target " + newTarget
+                    , rv.findViewHolderForPosition(newTarget));
+            if (DEBUG) {
+                Log.d(TAG, "on stop has been called on time");
+            }
+        } else {
+            assertTrue("on stop should be called eventually",
+                    calledOnStop.await(30, TimeUnit.SECONDS));
+            assertNotNull("scroll to position should succeed",
+                    rv.findViewHolderForPosition(targetPosition));
+        }
+        checkForMainThreadException();
     }
 
     public void accessRecyclerOnOnMeasureTest(final boolean enablePredictiveAnimations)
