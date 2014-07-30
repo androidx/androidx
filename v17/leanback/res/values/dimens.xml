@@ -117,8 +117,11 @@
     <dimen name="lb_playback_total_time_margin_end">16dp</dimen>
     <dimen name="lb_playback_time_padding_top">8dp</dimen>
     <dimen name="lb_secondary_controls_margin_top">12dp</dimen>
+    <dimen name="lb_playback_controls_child_margin_default">48dp</dimen>
+    <dimen name="lb_playback_controls_child_margin_bigger">64dp</dimen>
+    <dimen name="lb_playback_controls_child_margin_biggest">88dp</dimen>
 
-    <dimen name="lb_control_button_diameter">76dp</dimen>
+    <dimen name="lb_control_button_diameter">90dp</dimen>
     <dimen name="lb_control_button_height">64dp</dimen>
     <dimen name="lb_control_button_secondary_diameter">48dp</dimen>
     <dimen name="lb_control_button_secondary_height">48dp</dimen>
