@@ -159,7 +159,7 @@ public class ToolbarActionBar extends ActionBar {
 
     @Override
     public void setHomeActionContentDescription(CharSequence description) {
-        mToolbar.setNavigationDescription(description);
+        mToolbar.setNavigationContentDescription(description);
     }
 
     @Override
@@ -169,7 +169,7 @@ public class ToolbarActionBar extends ActionBar {
 
     @Override
     public void setHomeActionContentDescription(int resId) {
-        mToolbar.setNavigationDescription(resId);
+        mToolbar.setNavigationContentDescription(resId);
     }
 
     @Override

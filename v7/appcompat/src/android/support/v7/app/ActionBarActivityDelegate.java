@@ -74,9 +74,6 @@ abstract class ActionBarActivityDelegate {
             if (mActionBar == null) {
                 mActionBar = createSupportActionBar();
             }
-        } else {
-            // If we're not set to have a Action Bar, null it just in case it's been set
-            mActionBar = null;
         }
         return mActionBar;
     }
