@@ -29,6 +29,7 @@
 
     <color name="lb_details_overview_bg_color">#1B1B1B</color>
     <color name="lb_details_description_color">#EEEEEE</color>
+    <color name="lb_details_description_body_color">#B2EEEEEE</color>
 
     <color name="lb_error_background_color_opaque">#262626</color>
     <color name="lb_error_background_color_translucent">#E6000000</color>
