@@ -17,13 +17,11 @@
 package android.support.v7.app;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.ActivityCompat;
@@ -31,13 +29,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.WindowCompat;
-import android.support.v7.internal.app.WindowDecorActionBar;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -153,7 +148,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public final boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
-        if (mImpl.onMenuItemSelected(featureId, item)) {
+        if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
 
@@ -264,10 +259,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     boolean superOnPrepareOptionsPanel(View view, Menu menu) {
         return super.onPrepareOptionsPanel(view, menu);
-    }
-
-    boolean superOnMenuItemSelected(int featureId, MenuItem menuItem) {
-        return super.onMenuItemSelected(featureId, menuItem);
     }
 
     @Override
