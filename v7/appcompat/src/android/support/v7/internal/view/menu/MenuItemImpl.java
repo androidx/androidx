@@ -624,13 +624,13 @@ public final class MenuItemImpl implements SupportMenuItem {
     @Override
     public MenuItem setActionProvider(android.view.ActionProvider actionProvider) {
         throw new UnsupportedOperationException(
-                "Implementation should use setSupportActionProvider!");
+                "This is not supported, use MenuItemCompat.setActionProvider()");
     }
 
     @Override
     public android.view.ActionProvider getActionProvider() {
         throw new UnsupportedOperationException(
-                "Implementation should use getSupportActionProvider!");
+                "This is not supported, use MenuItemCompat.getActionProvider()");
     }
 
     @Override
@@ -725,6 +725,6 @@ public final class MenuItemImpl implements SupportMenuItem {
     @Override
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
         throw new UnsupportedOperationException(
-                "Implementation should use setSupportOnActionExpandListener!");
+                "This is not supported, use MenuItemCompat.setOnActionExpandListener()");
     }
 }
