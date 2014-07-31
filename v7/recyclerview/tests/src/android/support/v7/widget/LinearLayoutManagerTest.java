@@ -98,6 +98,68 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
     }
 
+    public void testScrollToPositionWithPredictive() throws Throwable {
+        scrollToPositionWithPredictive(0, LinearLayoutManager.INVALID_OFFSET);
+        removeRecyclerView();
+        scrollToPositionWithPredictive(3, 20);
+        removeRecyclerView();
+        scrollToPositionWithPredictive(Config.DEFAULT_ITEM_COUNT / 2,
+                LinearLayoutManager.INVALID_OFFSET);
+        removeRecyclerView();
+        scrollToPositionWithPredictive(Config.DEFAULT_ITEM_COUNT / 2, 10);
+    }
+
+    public void scrollToPositionWithPredictive(final int scrollPosition, final int scrollOffset)
+            throws Throwable {
+        setupByConfig(new Config(LinearLayoutManager.VERTICAL, false, false), true);
+
+        mLayoutManager.mOnLayoutListener = new OnLayoutListener() {
+            @Override
+            void after(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                if (state.isPreLayout()) {
+                    assertEquals("pending scroll position should still be pending",
+                            scrollPosition, mLayoutManager.mPendingScrollPosition);
+                    if (scrollOffset != LinearLayoutManager.INVALID_OFFSET) {
+                        assertEquals("pending scroll position offset should still be pending",
+                                scrollOffset, mLayoutManager.mPendingScrollPositionOffset);
+                    }
+                } else {
+                    RecyclerView.ViewHolder vh =
+                            mRecyclerView.findViewHolderForPosition(scrollPosition);
+                    assertNotNull("scroll to position should work", vh);
+                    if (scrollOffset != LinearLayoutManager.INVALID_OFFSET) {
+                        assertEquals("scroll offset should be applied properly",
+                                mLayoutManager.getPaddingTop() + scrollOffset +
+                                        ((RecyclerView.LayoutParams) vh.itemView
+                                                .getLayoutParams()).topMargin,
+                                mLayoutManager.getDecoratedTop(vh.itemView));
+                    }
+                }
+            }
+        };
+        mLayoutManager.expectLayouts(2);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mTestAdapter.addAndNotify(0, 1);
+                    if (scrollOffset == LinearLayoutManager.INVALID_OFFSET) {
+                        mLayoutManager.scrollToPosition(scrollPosition);
+                    } else {
+                        mLayoutManager.scrollToPositionWithOffset(scrollPosition,
+                                scrollOffset);
+                    }
+
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
     private void waitForFirstLayout() throws Throwable {
         mLayoutManager.expectLayouts(1);
         setRecyclerView(mRecyclerView);
@@ -621,6 +683,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         OrientationHelper mSecondaryOrientation;
 
+        OnLayoutListener mOnLayoutListener;
+
         public WrappedLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
             super(context, orientation, reverseLayout);
         }
@@ -665,9 +729,10 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
 
         private void waitForLayout(long timeout, TimeUnit timeUnit) throws InterruptedException {
-            layoutLatch.await(timeout, timeUnit);
+            layoutLatch.await(timeout * (DEBUG ? 100 : 1), timeUnit);
             assertEquals("all expected layouts should be executed at the expected time",
                     0, layoutLatch.getCount());
+            getInstrumentation().waitForIdleSync();
         }
 
         public String getBoundsLog() {
@@ -762,9 +827,26 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            super.onLayoutChildren(recycler, state);
+            try {
+                if (mOnLayoutListener != null) {
+                    mOnLayoutListener.before(recycler, state);
+                }
+                super.onLayoutChildren(recycler, state);
+                if (mOnLayoutListener != null) {
+                    mOnLayoutListener.after(recycler, state);
+                }
+            } catch (Throwable t) {
+                postExceptionToInstrumentation(t);
+            }
             layoutLatch.countDown();
         }
+
+
+    }
+
+    static class OnLayoutListener {
+        void before(RecyclerView.Recycler recycler, RecyclerView.State state){}
+        void after(RecyclerView.Recycler recycler, RecyclerView.State state){}
     }
 
     static class Config implements Cloneable {

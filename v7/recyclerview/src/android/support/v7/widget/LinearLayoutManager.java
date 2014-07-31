@@ -110,17 +110,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * When LayoutManager needs to scroll to a position, it sets this variable and requests a
      * layout which will check this variable and re-layout accordingly.
      */
-    private int mPendingScrollPosition = RecyclerView.NO_POSITION;
+    int mPendingScrollPosition = RecyclerView.NO_POSITION;
 
     /**
      * Used to keep the offset value when {@link #scrollToPositionWithOffset(int, int)} is
      * called.
      */
-    private int mPendingScrollPositionOffset = INVALID_OFFSET;
+    int mPendingScrollPositionOffset = INVALID_OFFSET;
 
     private boolean mRecycleChildrenOnDetach;
 
-    private SavedState mPendingSavedState = null;
+    SavedState mPendingSavedState = null;
 
     /**
      * Creates a vertical LinearLayoutManager
@@ -454,7 +454,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         resolveShouldLayoutReverse();
 
         // validate scroll position if exists
-        if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+        if (!state.isPreLayout() && mPendingScrollPosition != RecyclerView.NO_POSITION) {
             // validate it
             if (mPendingScrollPosition < 0 || mPendingScrollPosition >= state.getItemCount()) {
                 mPendingScrollPosition = RecyclerView.NO_POSITION;
@@ -470,7 +470,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         final boolean stackFromEndChanged = mLastStackFromEnd != mStackFromEnd;
 
         int anchorCoordinate, anchorItemPosition;
-        if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+        if (!state.isPreLayout() && mPendingScrollPosition != RecyclerView.NO_POSITION) {
             // if child is visible, try to make it a reference child and ensure it is fully visible.
             // if child is not visible, align it depending on its virtual position.
             anchorItemPosition = mPendingScrollPosition;
@@ -680,9 +680,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
             mLayoutState.mScrapList = null;
         }
-
-        mPendingScrollPosition = RecyclerView.NO_POSITION;
-        mPendingScrollPositionOffset = INVALID_OFFSET;
+        if (!state.isPreLayout()) {
+            mPendingScrollPosition = RecyclerView.NO_POSITION;
+            mPendingScrollPositionOffset = INVALID_OFFSET;
+        }
         mLastStackFromEnd = mStackFromEnd;
         mPendingSavedState = null; // we don't need this anymore
         if (DEBUG) {
@@ -1600,7 +1601,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public boolean supportsPredictiveItemAnimations() {
-        return true;
+        return mPendingSavedState == null && mLastStackFromEnd == mStackFromEnd;
     }
 
     /**

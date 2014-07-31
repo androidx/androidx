@@ -144,13 +144,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * When LayoutManager needs to scroll to a position, it sets this variable and requests a
      * layout which will check this variable and re-layout accordingly.
      */
-    private int mPendingScrollPosition = RecyclerView.NO_POSITION;
+    int mPendingScrollPosition = RecyclerView.NO_POSITION;
 
     /**
      * Used to keep the offset value when {@link #scrollToPositionWithOffset(int, int)} is
      * called.
      */
-    private int mPendingScrollPositionOffset = INVALID_OFFSET;
+    int mPendingScrollPositionOffset = INVALID_OFFSET;
 
     /**
      * Keeps the mapping between the adapter positions and spans. This is necessary to provide
@@ -450,7 +450,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         // Validate scroll position if exists.
-        if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+        if (!state.isPreLayout() && mPendingScrollPosition != RecyclerView.NO_POSITION) {
             // Validate it.
             if (mPendingScrollPosition < 0 || mPendingScrollPosition >= state.getItemCount()) {
                 mPendingScrollPosition = RecyclerView.NO_POSITION;
@@ -458,7 +458,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+        if (!state.isPreLayout() && mPendingScrollPosition != RecyclerView.NO_POSITION) {
             if (mPendingSavedState == null
                     || mPendingSavedState.mAnchorPosition == RecyclerView.NO_POSITION
                     || !mPendingSavedState.mHasSpanOffsets) {
@@ -588,8 +588,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        mPendingScrollPosition = RecyclerView.NO_POSITION;
-        mPendingScrollPositionOffset = INVALID_OFFSET;
+        if (!state.isPreLayout()) {
+            mPendingScrollPosition = RecyclerView.NO_POSITION;
+            mPendingScrollPositionOffset = INVALID_OFFSET;
+        }
         mLastLayoutFromEnd = layoutFromEnd;
         mPendingSavedState = null; // we don't need this anymore
     }
@@ -640,7 +642,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public boolean supportsPredictiveItemAnimations() {
-        return true;
+        return mPendingSavedState == null;
     }
 
     /**

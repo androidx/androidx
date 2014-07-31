@@ -81,6 +81,70 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mRecyclerView.setLayoutManager(mLayoutManager);
     }
 
+    public void testScrollToPositionWithPredictive() throws Throwable {
+        scrollToPositionWithPredictive(0, LinearLayoutManager.INVALID_OFFSET);
+        removeRecyclerView();
+        scrollToPositionWithPredictive(Config.DEFAULT_ITEM_COUNT / 2,
+                LinearLayoutManager.INVALID_OFFSET);
+        removeRecyclerView();
+        scrollToPositionWithPredictive(9, 20);
+        removeRecyclerView();
+        scrollToPositionWithPredictive(Config.DEFAULT_ITEM_COUNT / 2, 10);
+
+    }
+
+    public void scrollToPositionWithPredictive(final int scrollPosition, final int scrollOffset)
+            throws Throwable {
+        setupByConfig(new Config(StaggeredGridLayoutManager.VERTICAL,
+                false, 3, StaggeredGridLayoutManager.GAP_HANDLING_NONE));
+        waitFirstLayout();
+        mLayoutManager.mOnLayoutListener = new OnLayoutListener() {
+            @Override
+            void after(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                if (state.isPreLayout()) {
+                    assertEquals("pending scroll position should still be pending",
+                            scrollPosition, mLayoutManager.mPendingScrollPosition);
+                    if (scrollOffset != LinearLayoutManager.INVALID_OFFSET) {
+                        assertEquals("pending scroll position offset should still be pending",
+                                scrollOffset, mLayoutManager.mPendingScrollPositionOffset);
+                    }
+                } else {
+                    RecyclerView.ViewHolder vh =
+                            mRecyclerView.findViewHolderForPosition(scrollPosition);
+                    assertNotNull("scroll to position should work", vh);
+                    if (scrollOffset != LinearLayoutManager.INVALID_OFFSET) {
+                        assertEquals("scroll offset should be applied properly",
+                                mLayoutManager.getPaddingTop() + scrollOffset
+                                        + ((RecyclerView.LayoutParams) vh.itemView
+                                            .getLayoutParams()).topMargin,
+                                mLayoutManager.getDecoratedTop(vh.itemView));
+                    }
+                }
+            }
+        };
+        mLayoutManager.expectLayouts(2);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mAdapter.addAndNotify(0, 1);
+                    if (scrollOffset == LinearLayoutManager.INVALID_OFFSET) {
+                        mLayoutManager.scrollToPosition(scrollPosition);
+                    } else {
+                        mLayoutManager.scrollToPositionWithOffset(scrollPosition,
+                                scrollOffset);
+                    }
+
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
     LayoutParams getLp(View view) {
         return (LayoutParams) view.getLayoutParams();
     }
@@ -974,9 +1038,15 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
     // test layout params assignment
 
+    static class OnLayoutListener {
+        void before(RecyclerView.Recycler recycler, RecyclerView.State state){}
+        void after(RecyclerView.Recycler recycler, RecyclerView.State state){}
+    }
+
     class WrappedLayoutManager extends StaggeredGridLayoutManager {
 
         CountDownLatch layoutLatch;
+        OnLayoutListener mOnLayoutListener;
 
         public void expectLayouts(int count) {
             layoutLatch = new CountDownLatch(count);
@@ -999,7 +1069,17 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            super.onLayoutChildren(recycler, state);
+            try {
+                if (mOnLayoutListener != null) {
+                    mOnLayoutListener.before(recycler, state);
+                }
+                super.onLayoutChildren(recycler, state);
+                if (mOnLayoutListener != null) {
+                    mOnLayoutListener.after(recycler, state);
+                }
+            } catch (Throwable t) {
+                postExceptionToInstrumentation(t);
+            }
             layoutLatch.countDown();
         }
 

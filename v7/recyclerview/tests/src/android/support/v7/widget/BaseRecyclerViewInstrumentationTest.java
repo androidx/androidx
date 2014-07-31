@@ -80,7 +80,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         if (mDebug) {
             Log.e(TAG, "captured exception on main thread", t);
         }
-        mainThreadException = t;
+        if (mainThreadException != null) {
+            Log.e(TAG, "receiving another main thread exception. dropping.", t);
+        } else {
+            mainThreadException = t;
+        }
+
         if (mRecyclerView != null && mRecyclerView
                 .getLayoutManager() instanceof TestLayoutManager) {
             TestLayoutManager lm = (TestLayoutManager) mRecyclerView.getLayoutManager();
@@ -101,6 +106,13 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
         }
         getInstrumentation().waitForIdleSync();
+        try {
+            checkForMainThreadException();
+        } catch (Exception e) {
+            throw e;
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
         super.tearDown();
     }
 
