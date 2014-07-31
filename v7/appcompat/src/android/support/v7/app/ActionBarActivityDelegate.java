@@ -142,8 +142,6 @@ abstract class ActionBarActivityDelegate {
 
     abstract boolean onCreatePanelMenu(int featureId, Menu menu);
 
-    abstract boolean onMenuItemSelected(int featureId, MenuItem item);
-
     abstract boolean onBackPressed();
 
     abstract ActionMode startSupportActionMode(ActionMode.Callback callback);
@@ -224,7 +222,7 @@ abstract class ActionBarActivityDelegate {
     final WindowCallback mWindowMenuCallback = new WindowCallback() {
         @Override
         public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
-            return mActivity.superOnMenuItemSelected(featureId, menuItem);
+            return mActivity.onMenuItemSelected(featureId, menuItem);
         }
 
         @Override
