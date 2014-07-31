@@ -25,18 +25,15 @@ import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.ToolbarActionBar;
-import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.app.WindowDecorActionBar;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
-import android.support.v7.internal.view.menu.MenuWrapperFactory;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.ProgressBarCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -354,14 +351,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            item = MenuWrapperFactory.createMenuItemWrapper(item);
-        }
-        return mActivity.superOnMenuItemSelected(featureId, item);
-    }
-
-    @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
         return mActivity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
     }
@@ -607,6 +596,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         // Already prepared (isPrepared will be reset to false later)
         if (mPanelIsPrepared) {
             return true;
+        }
+
+        if (mDecorContentParent != null) {
+            // Enforce ordering guarantees around events so that the action bar never
+            // dispatches menu-related events before the panel is prepared.
+            mDecorContentParent.setMenuPrepared();
         }
 
         // Init the panel state's menu--return false if init failed
