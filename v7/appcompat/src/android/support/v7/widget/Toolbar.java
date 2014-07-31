@@ -721,7 +721,8 @@ public class Toolbar extends ViewGroup {
      * will make the navigation button visible.</p>
      *
      * <p>If you use a navigation icon you should also set a description for its action using
-     * {@link #setNavigationDescription(int)}. This is used for accessibility and tooltips.</p>
+     * {@link #setNavigationContentDescription(int)}. This is used for accessibility
+     * andtooltips.</p>
      *
      * @param icon Drawable to set
      */
