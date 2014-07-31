@@ -43,7 +43,7 @@
     <style name="TextAppearance.Leanback.DetailsDescriptionTitle">
         <item name="android:textSize">@dimen/lb_details_description_title_text_size</item>
         <item name="android:textColor">@color/lb_details_description_color</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
     <style name="TextAppearance.Leanback.DetailsDescriptionSubtitle">
@@ -54,7 +54,7 @@
 
     <style name="TextAppearance.Leanback.DetailsDescriptionBody">
         <item name="android:textSize">@dimen/lb_details_description_body_text_size</item>
-        <item name="android:textColor">@color/lb_details_description_color</item>
+        <item name="android:textColor">@color/lb_details_description_body_color</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
