@@ -98,6 +98,9 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
             mViewHolder.mRightPanel.postOnAnimation(new Runnable() {
                 @Override
                 public void run() {
+                    if (mActivityToRunTransition == null) {
+                        return;
+                    }
                     ViewCompat.setTransitionName(mViewHolder.mOverviewView, mSharedElementName);
                     ActivityCompat.startPostponedEnterTransition(mActivityToRunTransition);
                     mActivityToRunTransition = null;
