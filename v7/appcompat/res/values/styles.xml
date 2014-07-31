@@ -34,10 +34,6 @@
            parent="Base.Widget.AppCompat.Light.ActionBar.Solid">
     </style>
 
-    <style name="Widget.AppCompat.Light.ActionBar.Solid.Inverse"
-           parent="Base.Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-    </style>
-
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Title"
            parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Title">
     </style>
@@ -93,20 +89,12 @@
            parent="Base.Widget.AppCompat.Light.ActionBar.TabBar">
     </style>
 
-    <style name="Widget.AppCompat.Light.ActionBar.TabBar.Inverse"
-           parent="Base.Widget.AppCompat.Light.ActionBar.TabBar.Inverse">
-    </style>
-
     <style name="Widget.AppCompat.ActionBar.TabView"
            parent="Base.Widget.AppCompat.ActionBar.TabView">
     </style>
 
     <style name="Widget.AppCompat.Light.ActionBar.TabView"
            parent="Base.Widget.AppCompat.Light.ActionBar.TabView">
-    </style>
-
-    <style name="Widget.AppCompat.Light.ActionBar.TabView.Inverse"
-           parent="Base.Widget.AppCompat.Light.ActionBar.TabView.Inverse">
     </style>
 
     <style name="Widget.AppCompat.ActionBar.TabText"
@@ -318,5 +306,15 @@
     <style name="TextAppearance.AppCompat.Small" parent="Base.TextAppearance.AppCompat.Small" />
 
     <style name="TextAppearance.AppCompat.Small.Inverse" parent="Base.TextAppearance.AppCompat.Small.Inverse" />
+
+
+    <!--
+         The following themes are deprecated and now resolve to their parent.
+    -->
+    <style name="Widget.AppCompat.Light.ActionBar.Solid.Inverse" />
+
+    <style name="Widget.AppCompat.Light.ActionBar.TabBar.Inverse" />
+
+    <style name="Widget.AppCompat.Light.ActionBar.TabView.Inverse" />
 
 </resources>
