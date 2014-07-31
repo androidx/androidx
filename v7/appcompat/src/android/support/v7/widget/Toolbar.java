@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewCompat;
@@ -657,27 +658,13 @@ public class Toolbar extends ViewGroup {
     }
 
     /**
-     * Set the icon to use for the toolbar's navigation button.
-     *
-     * <p>The navigation button appears at the start of the toolbar if present. Setting an icon
-     * will make the navigation button visible.</p>
-     *
-     * <p>If you use a navigation icon you should also set a description for its action using
-     * {@link #setNavigationDescription(int)}. This is used for accessibility and tooltips.</p>
-     *
-     * @param resId Resource ID of a drawable to set
-     */
-    public void setNavigationIcon(int resId) {
-        setNavigationIcon(getContext().getResources().getDrawable(resId));
-    }
-
-    /**
      * Retrieve the currently configured content description for the navigation button view.
      * This will be used to describe the navigation action to users through mechanisms such
      * as screen readers or tooltips.
      *
      * @return The navigation button's content description
      */
+    @Nullable
     public CharSequence getNavigationContentDescription() {
         return mNavButtonView != null ? mNavButtonView.getContentDescription() : null;
     }
@@ -687,11 +674,11 @@ public class Toolbar extends ViewGroup {
      * description will be read via screen readers or other accessibility systems to explain
      * the action of the navigation button.
      *
-     * @param description Content description to set
+     * @param resId Resource ID of a content description string to set, or 0 to
+     *              clear the description
      */
-    public void setNavigationContentDescription(CharSequence description) {
-        ensureNavButtonView();
-        mNavButtonView.setContentDescription(description);
+    public void setNavigationContentDescription(int resId) {
+        setNavigationContentDescription(resId != 0 ? getContext().getText(resId) : null);
     }
 
     /**
@@ -699,11 +686,32 @@ public class Toolbar extends ViewGroup {
      * description will be read via screen readers or other accessibility systems to explain
      * the action of the navigation button.
      *
-     * @param resId Resource ID of a content description string to set
+     * @param description Content description to set, or <code>null</code> to
+     *                    clear the content description
      */
-    public void setNavigationContentDescription(int resId) {
-        ensureNavButtonView();
-        mNavButtonView.setContentDescription(resId != 0 ? getContext().getText(resId) : null);
+    public void setNavigationContentDescription(@Nullable CharSequence description) {
+        if (!TextUtils.isEmpty(description)) {
+            ensureNavButtonView();
+        }
+        if (mNavButtonView != null) {
+            mNavButtonView.setContentDescription(description);
+        }
+    }
+    
+    /**
+     * Set the icon to use for the toolbar's navigation button.
+     *
+     * <p>The navigation button appears at the start of the toolbar if present. Setting an icon
+     * will make the navigation button visible.</p>
+     *
+     * <p>If you use a navigation icon you should also set a description for its action using
+     * {@link #setNavigationContentDescription(int)}. This is used for accessibility and
+     * tooltips.</p>
+     *
+     * @param resId Resource ID of a drawable to set
+     */
+    public void setNavigationIcon(int resId) {
+        setNavigationIcon(getContext().getResources().getDrawable(resId));
     }
 
     /**
@@ -717,7 +725,7 @@ public class Toolbar extends ViewGroup {
      *
      * @param icon Drawable to set
      */
-    public void setNavigationIcon(Drawable icon) {
+    public void setNavigationIcon(@Nullable Drawable icon) {
         if (icon != null) {
             ensureNavButtonView();
             if (mNavButtonView.getParent() == null) {
@@ -736,37 +744,9 @@ public class Toolbar extends ViewGroup {
      *
      * @return The navigation icon drawable
      */
+    @Nullable
     public Drawable getNavigationIcon() {
         return mNavButtonView != null ? mNavButtonView.getDrawable() : null;
-    }
-
-    /**
-     * Set a description for the navigation button.
-     *
-     * <p>This description string is used for accessibility, tooltips and other facilities
-     * to improve discoverability.</p>
-     *
-     * @param resId Resource ID of a string to set
-     */
-    public void setNavigationDescription(int resId) {
-        setNavigationDescription(getContext().getText(resId));
-    }
-
-    /**
-     * Set a description for the navigation button.
-     *
-     * <p>This description string is used for accessibility, tooltips and other facilities
-     * to improve discoverability.</p>
-     *
-     * @param description String to set as the description
-     */
-    public void setNavigationDescription(CharSequence description) {
-        if (!TextUtils.isEmpty(description)) {
-            ensureNavButtonView();
-        }
-        if (mNavButtonView != null) {
-            mNavButtonView.setContentDescription(description);
-        }
     }
 
     /**
