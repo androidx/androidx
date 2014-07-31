@@ -51,16 +51,27 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         PlaybackControlsPresenter.BoundData mControlsBoundData =
                 new PlaybackControlsPresenter.BoundData();
         ControlBarPresenter.BoundData mSecondaryBoundData = new ControlBarPresenter.BoundData();
-        PlaybackControlsRow.OnPlaybackStateChangedListener mListener =
+        final PlaybackControlsRow.OnPlaybackStateChangedListener mListener =
                 new PlaybackControlsRow.OnPlaybackStateChangedListener() {
-                    @Override
-                    public void onCurrentTimeChanged(int ms) {
-                        mPlaybackControlsPresenter.setCurrentTime(mControlsVh, ms);
-                    }
-                    @Override
-                    public void onBufferedProgressChanged(int ms) {
-                        mPlaybackControlsPresenter.setSecondaryProgress(mControlsVh, ms);
-                    }
+            @Override
+            public void onCurrentTimeChanged(int ms) {
+                mPlaybackControlsPresenter.setCurrentTime(mControlsVh, ms);
+            }
+            @Override
+            public void onBufferedProgressChanged(int ms) {
+                mPlaybackControlsPresenter.setSecondaryProgress(mControlsVh, ms);
+            }
+        };
+        final OnItemViewSelectedListener mOnItemViewSelectedListener =
+                new OnItemViewSelectedListener() {
+            @Override
+            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                if (getOnItemViewSelectedListener() != null) {
+                    getOnItemViewSelectedListener().onItemSelected(itemViewHolder, item,
+                            ViewHolder.this, getRow());
+                }
+            }
         };
 
         ViewHolder(View rootView) {
@@ -220,6 +231,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         mPlaybackControlsPresenter.setProgressColor(vh.mControlsVh,
                 mProgressColorSet ? mProgressColor :
                         getDefaultProgressColor(vh.mControlsDock.getContext()));
+        mPlaybackControlsPresenter.setOnItemViewSelectedListener(vh.mOnItemViewSelectedListener);
         vh.mControlsDock.addView(vh.mControlsVh.view);
 
         vh.mSecondaryControlsVh =
@@ -227,6 +239,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         if (!mSecondaryActionsHidden) {
             vh.mSecondaryControlsDock.addView(vh.mSecondaryControlsVh.view);
         }
+        mSecondaryControlsPresenter.setOnItemViewSelectedListener(vh.mOnItemViewSelectedListener);
     }
 
     private void setBackground(View view) {
