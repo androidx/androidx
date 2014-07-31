@@ -835,8 +835,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             state.mHasSpanOffsets = true;
             state.mSpanOffsets = new int[mSpanCount];
             for (int i = 0; i < mSpanCount; i++) {
-                state.mSpanOffsets[i] = mLastLayoutFromEnd ? mSpans[i].getEndLine()
-                        : mSpans[i].getStartLine();
+                state.mSpanOffsets[i] = mLastLayoutFromEnd ? mSpans[i].getEndLine(Span.INVALID_LINE)
+                        : mSpans[i].getStartLine(Span.INVALID_LINE);
             }
         } else {
             state.mAnchorPosition = RecyclerView.NO_POSITION;
@@ -1693,7 +1693,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     // Package scoped to access from tests.
     class Span {
 
-        final int INVALID_LINE = Integer.MIN_VALUE;
+        static final int INVALID_LINE = Integer.MIN_VALUE;
 
         private ArrayList<View> mViews = new ArrayList<View>();
 
