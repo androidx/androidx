@@ -20,5 +20,9 @@
         <attr name="cardBackgroundColor" format="color" />
         <!-- Corner radius for CardView. -->
         <attr name="cardCornerRadius" format="dimension" />
+        <!-- Elevation for CardView. -->
+        <attr name="cardElevation" format="dimension" />
+        <!-- Maximum Elevation for CardView. -->
+        <attr name="cardMaxElevation" format="dimension" />
     </declare-styleable>
 </resources>
