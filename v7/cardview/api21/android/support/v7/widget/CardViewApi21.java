@@ -16,6 +16,7 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.View;
 import android.support.v7.cardview.R;
 
@@ -23,11 +24,11 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void initialize(CardViewDelegate cardView, Context context, int backgroundColor,
-            float radius) {
+            float radius, float elevation, float maxElevation/*ignored*/) {
         cardView.setBackgroundDrawable(new RoundRectDrawable(backgroundColor, radius));
         View view = (View) cardView;
         view.setClipToOutline(true);
-        view.setElevation(context.getResources().getDimension(R.dimen.cardview_elevation));
+        view.setElevation(elevation);
     }
 
     @Override
@@ -40,8 +41,38 @@ class CardViewApi21 implements CardViewImpl {
     }
 
     @Override
+    public void setMaxElevation(CardViewDelegate cardView, float maxElevation) {
+        // no op
+    }
+
+    @Override
+    public float getMaxElevation(CardViewDelegate cardView) {
+        return 0;
+    }
+
+    @Override
+    public float getMinWidth(CardViewDelegate cardView) {
+        return getRadius(cardView) * 2;
+    }
+
+    @Override
+    public float getMinHeight(CardViewDelegate cardView) {
+        return getRadius(cardView) * 2;
+    }
+
+    @Override
     public float getRadius(CardViewDelegate cardView) {
         return ((RoundRectDrawable) (cardView.getBackground())).getRadius();
+    }
+
+    @Override
+    public void setElevation(CardViewDelegate cardView, float elevation) {
+        ((View) cardView).setElevation(elevation);
+    }
+
+    @Override
+    public float getElevation(CardViewDelegate cardView) {
+        return ((View) cardView).getElevation();
     }
 
 }

@@ -18,7 +18,10 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.view.View;
+import android.view.ViewGroup;
 
 class CardViewEclairMr1 implements CardViewImpl {
 
@@ -65,19 +68,71 @@ class CardViewEclairMr1 implements CardViewImpl {
 
     @Override
     public void initialize(CardViewDelegate cardView, Context context, int backgroundColor,
-            float radius) {
-        RoundRectDrawableWithShadow background = new RoundRectDrawableWithShadow(
-                context.getResources(), backgroundColor, radius);
+            float radius, float elevation, float maxElevation) {
+        RoundRectDrawableWithShadow background = createBackground(context, backgroundColor, radius,
+                elevation, maxElevation);
         cardView.setBackgroundDrawable(background);
+        updatePadding(cardView);
+    }
+
+    RoundRectDrawableWithShadow createBackground(Context context, int backgroundColor,
+            float radius, float elevation, float maxElevation) {
+        return new RoundRectDrawableWithShadow(context.getResources(), backgroundColor, radius,
+                elevation, maxElevation);
+    }
+
+    private void updatePadding(CardViewDelegate cardView) {
+        Rect shadowPadding = new Rect();
+        getShadowBackground(cardView).getMaxShadowAndCornerPadding(shadowPadding);
+        ((View)cardView).setPadding(shadowPadding.left, shadowPadding.top, shadowPadding.right,
+                shadowPadding.bottom);
+        ((View)cardView).setMinimumHeight((int) Math.ceil(getMinHeight(cardView)));
+        ((View)cardView).setMinimumWidth((int) Math.ceil(getMinWidth(cardView)));
     }
 
     @Override
     public void setRadius(CardViewDelegate cardView, float radius) {
-        ((RoundRectDrawableWithShadow) cardView.getBackground()).setCornerRadius(radius);
+        getShadowBackground(cardView).setCornerRadius(radius);
+        updatePadding(cardView);
     }
 
     @Override
     public float getRadius(CardViewDelegate cardView) {
-        return ((RoundRectDrawableWithShadow) cardView.getBackground()).getCornerRadius();
+        return getShadowBackground(cardView).getCornerRadius();
+    }
+
+    @Override
+    public void setElevation(CardViewDelegate cardView, float elevation) {
+        getShadowBackground(cardView).setShadowSize(elevation);
+    }
+
+    @Override
+    public float getElevation(CardViewDelegate cardView) {
+        return getShadowBackground(cardView).getShadowSize();
+    }
+
+    @Override
+    public void setMaxElevation(CardViewDelegate cardView, float maxElevation) {
+        getShadowBackground(cardView).setMaxShadowSize(maxElevation);
+        updatePadding(cardView);
+    }
+
+    @Override
+    public float getMaxElevation(CardViewDelegate cardView) {
+        return getShadowBackground(cardView).getMaxShadowSize();
+    }
+
+    @Override
+    public float getMinWidth(CardViewDelegate cardView) {
+        return getShadowBackground(cardView).getMinWidth();
+    }
+
+    @Override
+    public float getMinHeight(CardViewDelegate cardView) {
+        return getShadowBackground(cardView).getMinHeight();
+    }
+
+    private RoundRectDrawableWithShadow getShadowBackground(CardViewDelegate cardView) {
+        return ((RoundRectDrawableWithShadow) cardView.getBackground());
     }
 }
