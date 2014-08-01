@@ -58,6 +58,10 @@
            parent="Base.Theme.AppCompat.Light.DialogWhenLarge">
     </style>
 
+    <style name="Theme.AppCompat.Dialog" parent="Base.Theme.AppCompat.Dialog" />
+
+    <style name="Theme.AppCompat.Light.Dialog" parent="Base.Theme.AppCompat.Light.Dialog" />
+
     <!-- Menu/item attributes -->
     <style name="Theme.AppCompat.CompactMenu"
            parent="Base.Theme.AppCompat.CompactMenu">
