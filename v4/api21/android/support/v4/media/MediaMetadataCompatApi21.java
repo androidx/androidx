@@ -39,8 +39,8 @@ class MediaMetadataCompatApi21 {
         return ((MediaMetadata)metadataObj).getRating(key);
     }
 
-    public static CharSequence getText(Object metadataObj, String key) {
-        return ((MediaMetadata) metadataObj).getText(key);
+    public static String getString(Object metadataObj, String key) {
+        return ((MediaMetadata)metadataObj).getString(key);
     }
 
     public static class Builder {
@@ -60,12 +60,8 @@ class MediaMetadataCompatApi21 {
             ((MediaMetadata.Builder)builderObj).putRating(key, (Rating)ratingObj);
         }
 
-        public static void putText(Object builderObj, String key, CharSequence value) {
-            ((MediaMetadata.Builder) builderObj).putText(key, value);
-        }
-
         public static void putString(Object builderObj, String key, String value) {
-            ((MediaMetadata.Builder) builderObj).putString(key, value);
+            ((MediaMetadata.Builder)builderObj).putString(key, value);
         }
 
         public static Object build(Object builderObj) {

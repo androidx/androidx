@@ -143,81 +143,35 @@ public final class MediaMetadataCompat implements Parcelable {
      */
     public static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
 
-    /**
-     * A title that is suitable for display to the user. This will generally be
-     * the same as {@link #METADATA_KEY_TITLE} but may differ for some formats.
-     * When displaying media described by this metadata this should be preferred
-     * if present.
-     */
-    public static final String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
-
-    /**
-     * A subtitle that is suitable for display to the user. When displaying a
-     * second line for media described by this metadata this should be preferred
-     * to other fields if present.
-     */
-    public static final String METADATA_KEY_DISPLAY_SUBTITLE
-            = "android.media.metadata.DISPLAY_SUBTITLE";
-
-    /**
-     * A description that is suitable for display to the user. When displaying
-     * more information for media described by this metadata this should be
-     * preferred to other fields if present.
-     */
-    public static final String METADATA_KEY_DISPLAY_DESCRIPTION
-            = "android.media.metadata.DISPLAY_DESCRIPTION";
-
-    /**
-     * An icon or thumbnail that is suitable for display to the user. When
-     * displaying an icon for media described by this metadata this should be
-     * preferred to other fields if present. This must be a {@link Bitmap}.
-     */
-    public static final String METADATA_KEY_DISPLAY_ICON
-            = "android.media.metadata.DISPLAY_ICON";
-
-    /**
-     * An icon or thumbnail that is suitable for display to the user. When
-     * displaying more information for media described by this metadata the
-     * display description should be preferred to other fields when present.
-     * This must be a Uri style String.
-     */
-    public static final String METADATA_KEY_DISPLAY_ICON_URI
-            = "android.media.metadata.DISPLAY_ICON_URI";
-
     private static final int METADATA_TYPE_LONG = 0;
-    private static final int METADATA_TYPE_TEXT = 1;
+    private static final int METADATA_TYPE_STRING = 1;
     private static final int METADATA_TYPE_BITMAP = 2;
     private static final int METADATA_TYPE_RATING = 3;
     private static final ArrayMap<String, Integer> METADATA_KEYS_TYPE;
 
     static {
         METADATA_KEYS_TYPE = new ArrayMap<String, Integer>();
-        METADATA_KEYS_TYPE.put(METADATA_KEY_TITLE, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_ARTIST, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_TITLE, METADATA_TYPE_STRING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ARTIST, METADATA_TYPE_STRING);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DURATION, METADATA_TYPE_LONG);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_AUTHOR, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_WRITER, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_COMPOSER, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_COMPILATION, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_DATE, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM, METADATA_TYPE_STRING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_AUTHOR, METADATA_TYPE_STRING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_WRITER, METADATA_TYPE_STRING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_COMPOSER, METADATA_TYPE_STRING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_COMPILATION, METADATA_TYPE_STRING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DATE, METADATA_TYPE_STRING);
         METADATA_KEYS_TYPE.put(METADATA_KEY_YEAR, METADATA_TYPE_LONG);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_GENRE, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_GENRE, METADATA_TYPE_STRING);
         METADATA_KEYS_TYPE.put(METADATA_KEY_TRACK_NUMBER, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_NUM_TRACKS, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DISC_NUMBER, METADATA_TYPE_LONG);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ARTIST, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ARTIST, METADATA_TYPE_STRING);
         METADATA_KEYS_TYPE.put(METADATA_KEY_ART, METADATA_TYPE_BITMAP);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_ART_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ART_URI, METADATA_TYPE_STRING);
         METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ART, METADATA_TYPE_BITMAP);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ART_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ART_URI, METADATA_TYPE_STRING);
         METADATA_KEYS_TYPE.put(METADATA_KEY_USER_RATING, METADATA_TYPE_RATING);
         METADATA_KEYS_TYPE.put(METADATA_KEY_RATING, METADATA_TYPE_RATING);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_TITLE, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_SUBTITLE, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_DESCRIPTION, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON, METADATA_TYPE_BITMAP);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON_URI, METADATA_TYPE_TEXT);
     }
 
     private final Bundle mBundle;
@@ -247,26 +201,10 @@ public final class MediaMetadataCompat implements Parcelable {
      * associated with the key.
      *
      * @param key The key the value is stored under
-     * @return a CharSequence value, or null
-     */
-    public CharSequence getText(String key) {
-        return mBundle.getCharSequence(key);
-    }
-
-    /**
-     * Returns the value associated with the given key, or null if no mapping of
-     * the desired type exists for the given key or a null value is explicitly
-     * associated with the key.
-     *
-     * @param key The key the value is stored under
      * @return a String value, or null
      */
     public String getString(String key) {
-        CharSequence text = mBundle.getCharSequence(key);
-        if (text != null) {
-            return text.toString();
-        }
-        return null;
+        return mBundle.getString(key);
     }
 
     /**
@@ -375,9 +313,9 @@ public final class MediaMetadataCompat implements Parcelable {
                         builder.putRating(key, RatingCompat.fromRating(
                                 MediaMetadataCompatApi21.getRating(metadataObj, key)));
                         break;
-                    case METADATA_TYPE_TEXT:
-                        builder.putText(key,
-                                MediaMetadataCompatApi21.getText(metadataObj, key));
+                    case METADATA_TYPE_STRING:
+                        builder.putString(key,
+                                MediaMetadataCompatApi21.getString(metadataObj, key));
                         break;
                 }
             }
@@ -417,9 +355,9 @@ public final class MediaMetadataCompat implements Parcelable {
                         MediaMetadataCompatApi21.Builder.putRating(builderObj, key,
                                 getRating(key).getRating());
                         break;
-                    case METADATA_TYPE_TEXT:
-                        MediaMetadataCompatApi21.Builder.putText(builderObj, key,
-                                getText(key));
+                    case METADATA_TYPE_STRING:
+                        MediaMetadataCompatApi21.Builder.putString(builderObj, key,
+                                getString(key));
                         break;
                 }
             }
@@ -468,43 +406,6 @@ public final class MediaMetadataCompat implements Parcelable {
         }
 
         /**
-         * Put a CharSequence value into the metadata. Custom keys may be used,
-         * but if the METADATA_KEYs defined in this class are used they may only
-         * be one of the following:
-         * <ul>
-         * <li>{@link #METADATA_KEY_TITLE}</li>
-         * <li>{@link #METADATA_KEY_ARTIST}</li>
-         * <li>{@link #METADATA_KEY_ALBUM}</li>
-         * <li>{@link #METADATA_KEY_AUTHOR}</li>
-         * <li>{@link #METADATA_KEY_WRITER}</li>
-         * <li>{@link #METADATA_KEY_COMPOSER}</li>
-         * <li>{@link #METADATA_KEY_DATE}</li>
-         * <li>{@link #METADATA_KEY_GENRE}</li>
-         * <li>{@link #METADATA_KEY_ALBUM_ARTIST}</li>
-         * <li>{@link #METADATA_KEY_ART_URI}</li>
-         * <li>{@link #METADATA_KEY_ALBUM_ART_URI}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_TITLE}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_SUBTITLE}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_DESCRIPTION}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
-         * </ul>
-         *
-         * @param key The key for referencing this value
-         * @param value The CharSequence value to store
-         * @return The Builder to allow chaining
-         */
-        public Builder putText(String key, CharSequence value) {
-            if (METADATA_KEYS_TYPE.containsKey(key)) {
-                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
-                    throw new IllegalArgumentException("The " + key
-                            + " key cannot be used to put a CharSequence");
-                }
-            }
-            mBundle.putCharSequence(key, value);
-            return this;
-        }
-
-        /**
          * Put a String value into the metadata. Custom keys may be used, but if
          * the METADATA_KEYs defined in this class are used they may only be one
          * of the following:
@@ -520,10 +421,6 @@ public final class MediaMetadataCompat implements Parcelable {
          * <li>{@link #METADATA_KEY_ALBUM_ARTIST}</li>
          * <li>{@link #METADATA_KEY_ART_URI}</li>
          * <li>{@link #METADATA_KEY_ALBUM_ART_URI}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_TITLE}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_SUBTITLE}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_DESCRIPTION}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
          * </ul>
          *
          * @param key The key for referencing this value
@@ -532,12 +429,12 @@ public final class MediaMetadataCompat implements Parcelable {
          */
         public Builder putString(String key, String value) {
             if (METADATA_KEYS_TYPE.containsKey(key)) {
-                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
+                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_STRING) {
                     throw new IllegalArgumentException("The " + key
                             + " key cannot be used to put a String");
                 }
             }
-            mBundle.putCharSequence(key, value);
+            mBundle.putString(key, value);
             return this;
         }
 
@@ -599,7 +496,6 @@ public final class MediaMetadataCompat implements Parcelable {
          * <ul>
          * <li>{@link #METADATA_KEY_ART}</li>
          * <li>{@link #METADATA_KEY_ALBUM_ART}</li>
-         * <li>{@link #METADATA_KEY_DISPLAY_ICON}</li>
          * </ul>
          *
          * @param key The key for referencing this value
