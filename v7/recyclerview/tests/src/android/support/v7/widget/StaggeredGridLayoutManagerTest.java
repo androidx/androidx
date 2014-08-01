@@ -523,7 +523,18 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 }
         };
         boolean[] waitForLayoutOptions = new boolean[]{false, true};
+        List<Config> testVariations = new ArrayList<Config>();
+        testVariations.addAll(mBaseVariations);
         for (Config config : mBaseVariations) {
+            if (config.mSpanCount < 2) {
+                continue;
+            }
+            final Config clone = (Config) config.clone();
+            clone.mItemCount = clone.mSpanCount - 1;
+            testVariations.add(clone);
+        }
+
+        for (Config config : testVariations) {
             for (PostLayoutRunnable runnable : postLayoutOptions) {
                 for (boolean waitForLayout : waitForLayoutOptions) {
                     savedStateTest(config, waitForLayout, runnable);
@@ -1338,7 +1349,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         }
     }
 
-    static class Config {
+    static class Config implements Cloneable {
 
         private static final int DEFAULT_ITEM_COUNT = 300;
 
@@ -1351,8 +1362,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         int mGapStrategy = GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
 
         int mItemCount = DEFAULT_ITEM_COUNT;
-
-        OrientationHelper mOrientationHelper;
 
         Config(int orientation, boolean reverseLayout, int spanCount, int gapStrategy) {
             mOrientation = orientation;
@@ -1411,7 +1420,10 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             return "gap strategy: unknown";
         }
 
-
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            return super.clone();
+        }
     }
 
     private static class TargetTuple {
