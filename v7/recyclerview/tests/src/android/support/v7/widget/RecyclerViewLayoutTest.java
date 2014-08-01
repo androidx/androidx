@@ -784,6 +784,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         removeRecyclerView();
         assertTrue("Invalid data updates should be caught:" + msg,
                 mainThreadException instanceof IllegalStateException);
+        mainThreadException = null;
     }
 
     public void testAdapterChangeDuringScroll() throws Throwable {
@@ -879,6 +880,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         removeRecyclerView();
         assertTrue("Invalid data updates should be caught:" + msg,
                 mainThreadException instanceof IllegalStateException);
+        mainThreadException = null;
     }
 
     public void testRecycleOnDetach() throws Throwable {
