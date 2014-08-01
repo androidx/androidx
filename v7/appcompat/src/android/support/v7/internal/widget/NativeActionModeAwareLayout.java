@@ -20,12 +20,12 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * @hide
  */
-public class NativeActionModeAwareLayout extends FrameLayout {
+public class NativeActionModeAwareLayout extends LinearLayout {
 
     private OnActionModeForChildListener mActionModeForChildListener;
 
@@ -39,7 +39,7 @@ public class NativeActionModeAwareLayout extends FrameLayout {
 
     public ActionMode startActionModeForChild(View originalView, ActionMode.Callback callback) {
         if (mActionModeForChildListener != null) {
-            callback = mActionModeForChildListener.onActionModeForChild(callback);
+            return mActionModeForChildListener.startActionModeForChild(originalView, callback);
         }
         return super.startActionModeForChild(originalView, callback);
     }
@@ -48,6 +48,6 @@ public class NativeActionModeAwareLayout extends FrameLayout {
      * @hide
      */
     public interface OnActionModeForChildListener {
-        ActionMode.Callback onActionModeForChild(ActionMode.Callback callback);
+        ActionMode startActionModeForChild(View originalView, ActionMode.Callback callback);
     }
 }

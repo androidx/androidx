@@ -44,9 +44,11 @@ public class AnimatorSetCompat {
         mAnimators = new ArrayList<ViewPropertyAnimatorCompat>();
     }
 
-    public void play(ViewPropertyAnimatorCompat animator) {
-        if (mIsStarted) return;
-        mAnimators.add(animator);
+    public AnimatorSetCompat play(ViewPropertyAnimatorCompat animator) {
+        if (!mIsStarted) {
+            mAnimators.add(animator);
+        }
+        return this;
     }
 
     public void start() {
@@ -75,29 +77,36 @@ public class AnimatorSetCompat {
         }
     }
 
-    public void setDuration(long duration) {
-        if (mIsStarted) return;
-        mDuration = duration;
+    public AnimatorSetCompat setDuration(long duration) {
+        if (!mIsStarted) {
+            mDuration = duration;
+        }
+        return this;
     }
 
-    public void setInterpolator(Interpolator interpolator) {
-        if (mIsStarted) return;
-        mInterpolator = interpolator;
+    public AnimatorSetCompat setInterpolator(Interpolator interpolator) {
+        if (!mIsStarted) {
+            mInterpolator = interpolator;
+        }
+        return this;
     }
 
-    public void setListener(ViewPropertyAnimatorListener listener) {
-        if (mIsStarted) return;
-        mListener = listener;
+    public AnimatorSetCompat setListener(ViewPropertyAnimatorListener listener) {
+        if (!mIsStarted) {
+            mListener = listener;
+        }
+        return this;
     }
 
     private final ViewPropertyAnimatorListenerAdapter mProxyListener
             = new ViewPropertyAnimatorListenerAdapter() {
-        private int mStarted = 0;
+        private boolean mIsStarted = false;
         private int mEnded = 0;
 
         @Override
         public void onAnimationStart(View view) {
-            if (mListener != null && ++mStarted == mAnimators.size()) {
+            if (mListener != null && !mIsStarted) {
+                mIsStarted = true;
                 mListener.onAnimationStart(null);
             }
         }
