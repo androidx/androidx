@@ -384,6 +384,60 @@ public final class Palette {
         return population;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Palette palette = (Palette) o;
+
+        if (mSwatches != null ? !mSwatches.equals(palette.mSwatches) : palette.mSwatches != null) {
+            return false;
+        }
+        if (mDarkMutedSwatch != null ? !mDarkMutedSwatch.equals(palette.mDarkMutedSwatch)
+                : palette.mDarkMutedSwatch != null) {
+            return false;
+        }
+        if (mDarkVibrantSwatch != null ? !mDarkVibrantSwatch.equals(palette.mDarkVibrantSwatch)
+                : palette.mDarkVibrantSwatch != null) {
+            return false;
+        }
+        if (mLightMutedColor != null ? !mLightMutedColor.equals(palette.mLightMutedColor)
+                : palette.mLightMutedColor != null) {
+            return false;
+        }
+        if (mLightVibrantSwatch != null ? !mLightVibrantSwatch.equals(palette.mLightVibrantSwatch)
+                : palette.mLightVibrantSwatch != null) {
+            return false;
+        }
+        if (mMutedSwatch != null ? !mMutedSwatch.equals(palette.mMutedSwatch)
+                : palette.mMutedSwatch != null) {
+            return false;
+        }
+        if (mVibrantSwatch != null ? !mVibrantSwatch.equals(palette.mVibrantSwatch)
+                : palette.mVibrantSwatch != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mSwatches != null ? mSwatches.hashCode() : 0;
+        result = 31 * result + (mVibrantSwatch != null ? mVibrantSwatch.hashCode() : 0);
+        result = 31 * result + (mMutedSwatch != null ? mMutedSwatch.hashCode() : 0);
+        result = 31 * result + (mDarkVibrantSwatch != null ? mDarkVibrantSwatch.hashCode() : 0);
+        result = 31 * result + (mDarkMutedSwatch != null ? mDarkMutedSwatch.hashCode() : 0);
+        result = 31 * result + (mLightVibrantSwatch != null ? mLightVibrantSwatch.hashCode() : 0);
+        result = 31 * result + (mLightMutedColor != null ? mLightMutedColor.hashCode() : 0);
+        return result;
+    }
+
     /**
      * Scale the bitmap down so that it's smallest dimension is
      * {@value #CALCULATE_BITMAP_MIN_DIMENSION}px. If {@code bitmap} is smaller than this, than it
@@ -568,6 +622,24 @@ public final class Palette {
                     .append(" [Title Text: #").append(Integer.toHexString(mTitleTextColor)).append(']')
                     .append(" [Body Text: #").append(Integer.toHexString(mBodyTextColor)).append(']')
                     .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Swatch swatch = (Swatch) o;
+            return mPopulation == swatch.mPopulation && mRgb == swatch.mRgb;
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * mRgb + mPopulation;
         }
     }
 
