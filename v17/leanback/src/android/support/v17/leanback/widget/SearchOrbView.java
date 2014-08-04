@@ -39,6 +39,7 @@ import android.widget.ImageView;
  */
 public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private OnClickListener mListener;
+    private View mRootView;
     private View mSearchOrbView;
     private ImageView mIcon;
     private Drawable mIconDrawable;
@@ -152,9 +153,9 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View root = inflater.inflate(R.layout.lb_search_orb, this, true);
-        mSearchOrbView = root.findViewById(R.id.search_orb);
-        mIcon = (ImageView)root.findViewById(R.id.icon);
+        mRootView = inflater.inflate(R.layout.lb_search_orb, this, true);
+        mSearchOrbView = mRootView.findViewById(R.id.search_orb);
+        mIcon = (ImageView) mRootView.findViewById(R.id.icon);
 
         mFocusedZoom = context.getResources().getFraction(
                 R.fraction.lb_search_orb_focused_zoom, 1, 1);
@@ -214,7 +215,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         final float zoom = gainFocus ? mFocusedZoom : 1f;
         final int duration = gainFocus ? mPulseDurationMs : mScaleDownDurationMs;
-        mSearchOrbView.animate().scaleX(zoom).scaleY(zoom).setDuration(duration).start();
+        mRootView.animate().scaleX(zoom).scaleY(zoom).setDuration(duration).start();
         startShadowFocusAnimation(gainFocus, duration);
         enableOrbColorAnimation(gainFocus);
     }
