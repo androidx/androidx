@@ -46,7 +46,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private Colors mColors;
     private final float mFocusedZoom;
     private final int mPulseDurationMs;
-    private final int mScaleDownDurationMs;
+    private final int mScaleDurationMs;
     private ValueAnimator mColorAnimator;
 
     /**
@@ -161,8 +161,8 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
                 R.fraction.lb_search_orb_focused_zoom, 1, 1);
         mPulseDurationMs = context.getResources().getInteger(
                 R.integer.lb_search_orb_pulse_duration_ms);
-        mScaleDownDurationMs = context.getResources().getInteger(
-                R.integer.lb_search_orb_scale_down_duration_ms);
+        mScaleDurationMs = context.getResources().getInteger(
+                R.integer.lb_search_orb_scale_duration_ms);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView,
                 defStyleAttr, 0);
@@ -214,9 +214,8 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         final float zoom = gainFocus ? mFocusedZoom : 1f;
-        final int duration = gainFocus ? mPulseDurationMs : mScaleDownDurationMs;
-        mRootView.animate().scaleX(zoom).scaleY(zoom).setDuration(duration).start();
-        startShadowFocusAnimation(gainFocus, duration);
+        mRootView.animate().scaleX(zoom).scaleY(zoom).setDuration(mScaleDurationMs).start();
+        startShadowFocusAnimation(gainFocus, mScaleDurationMs);
         enableOrbColorAnimation(gainFocus);
     }
 

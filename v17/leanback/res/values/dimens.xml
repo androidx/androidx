@@ -153,7 +153,7 @@
     <dimen name="lb_search_orb_size">52dp</dimen>
     <item name="lb_search_orb_focused_zoom" type="fraction">120%</item>
     <item name="lb_search_orb_pulse_duration_ms" type="integer">1000</item>
-    <item name="lb_search_orb_scale_down_duration_ms" type="integer">100</item>
+    <item name="lb_search_orb_scale_duration_ms" type="integer">150</item>
 
     <dimen name="lb_search_orb_margin_top">4dp</dimen>
     <dimen name="lb_search_orb_margin_bottom">4dp</dimen>
