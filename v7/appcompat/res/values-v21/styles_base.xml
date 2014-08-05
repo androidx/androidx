@@ -30,10 +30,6 @@
            parent="android:Widget.Material.Light.ActionBar.TabView">
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionBar.TabView.Inverse"
-           parent="android:Widget.Material.Light.ActionBar.TabView">
-    </style>
-
     <style name="Base.Widget.AppCompat.ActionBar.TabText"
            parent="android:Widget.Material.ActionBar.TabText">
     </style>
