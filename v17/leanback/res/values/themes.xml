@@ -20,6 +20,7 @@
     <!-- LeanbackBase may be overridden for specific api levels -->
     <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
         <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
+        <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
     </style>
 
     <style name="Theme.Leanback" parent="Theme.LeanbackBase">
@@ -60,6 +61,7 @@
         <item name="detailsActionButtonStyle">@style/Widget.Leanback.DetailsActionButtonStyle</item>
         <item name="playbackControlsButtonStyle">@style/Widget.Leanback.PlaybackControlsButtonStyle</item>
         <item name="playbackControlsTimeStyle">@style/Widget.Leanback.PlaybackControlsTimeStyle</item>
+        <item name="playbackControlsActionIcons">@style/Widget.Leanback.PlaybackControlsActionIconsStyle</item>
 
         <item name="errorMessageStyle">@style/Widget.Leanback.ErrorMessageStyle</item>
 
