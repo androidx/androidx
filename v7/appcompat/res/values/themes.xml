@@ -63,4 +63,23 @@
            parent="Base.Theme.AppCompat.CompactMenu">
     </style>
 
+    <style name="ThemeOverlay.AppCompat" parent="Base.ThemeOverlay.AppCompat" />
+
+    <!-- Theme overlay that replaces colors with their light versions but preserves
+         the value of colorAccent, colorPrimary and its variants. -->
+    <style name="ThemeOverlay.AppCompat.Light" parent="Base.ThemeOverlay.AppCompat.Light" />
+
+    <!-- Theme overlay that replaces colors with their dark versions but preserves
+         the value of colorAccent, colorPrimary and its variants. -->
+    <style name="ThemeOverlay.AppCompat.Dark" parent="Base.ThemeOverlay.AppCompat.Dark" />
+
+    <!-- Theme overlay that replaces the normal control color, which by default is the same as the
+         secondary text color, with the primary text color. -->
+    <style name="ThemeOverlay.AppCompat.ActionBar" parent="Base.ThemeOverlay.AppCompat.ActionBar" />
+
+    <!-- Theme overlay that replaces colors with their dark versions and replaces the normal
+         control color, which by default is the same as the secondary text color, with the primary
+         text color. -->
+    <style name="ThemeOverlay.AppCompat.Dark.ActionBar" parent="Base.ThemeOverlay.AppCompat.Dark.ActionBar" />
+
 </resources>

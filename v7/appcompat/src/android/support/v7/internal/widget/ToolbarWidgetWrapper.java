@@ -150,6 +150,11 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             mToolbar.setSubtitleTextAppearance(mToolbar.getContext(), subtitleTextStyle);
         }
 
+        final int popupTheme = a.getResourceId(R.styleable.ActionBar_popupTheme, 0);
+        if (popupTheme != 0) {
+            mToolbar.setPopupTheme(popupTheme);
+        }
+
         a.recycle();
 
         if (TextUtils.isEmpty(mToolbar.getNavigationContentDescription())) {

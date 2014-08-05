@@ -41,7 +41,8 @@
         <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
 
         <item name="android:gravity">center_vertical</item>
-
+        <item name="elevation">8dp</item>
+        <item name="popupTheme">?attr/actionBarPopupTheme</item>
     </style>
 
     <style name="Base.Widget.AppCompat.Light.ActionBar" parent="Base.Widget.AppCompat.ActionBar">
@@ -59,11 +60,6 @@
         <item name="background">?attr/colorPrimary</item>
         <item name="backgroundStacked">?attr/colorPrimary</item>
         <item name="backgroundSplit">?attr/colorPrimary</item>
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActionButton" parent="">
@@ -107,10 +103,6 @@
            parent="Base.Widget.AppCompat.ActionBar.TabBar">
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionBar.TabBar.Inverse"
-           parent="Base.Widget.AppCompat.Light.ActionBar.TabBar">
-    </style>
-
     <style name="Base.Widget.AppCompat.ActionBar.TabView" parent="">
         <item name="android:background">@drawable/abc_tab_indicator_material</item>
         <item name="android:gravity">center_horizontal</item>
@@ -125,12 +117,9 @@
            parent="Base.Widget.AppCompat.ActionBar.TabView">
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionBar.TabView.Inverse"
-           parent="Base.Widget.AppCompat.Light.ActionBar.TabView">
-    </style>
-
     <style name="Base.Widget.AppCompat.ActionBar.TabText" parent="">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:ellipsize">marquee</item>
