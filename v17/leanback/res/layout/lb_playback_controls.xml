@@ -51,23 +51,20 @@
             android:id="@+id/current_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|left"
-            android:layout_marginLeft="16dp"
-            android:fontFamily="sans-serif"
-            android:paddingTop="12dp"
-            android:textColor="#b2eeeeee"
-            android:textSize="12sp" />
+            android:layout_gravity="top|start"
+            android:layout_marginStart="@dimen/lb_playback_current_time_margin_start"
+            android:paddingTop="@dimen/lb_playback_time_padding_top"
+            style="?attr/playbackControlsTimeStyle" />
 
         <TextView
             android:id="@+id/total_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|right"
-            android:layout_marginRight="16dp"
-            android:fontFamily="sans-serif"
-            android:paddingTop="12dp"
-            android:textColor="#b2eeeeee"
-            android:textSize="12sp" />
+            android:layout_gravity="top|end"
+            android:layout_marginEnd="@dimen/lb_playback_total_time_margin_end"
+            android:paddingTop="@dimen/lb_playback_time_padding_top"
+            style="?attr/playbackControlsTimeStyle" />
+
     </FrameLayout>
 
 </LinearLayout>

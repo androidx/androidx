@@ -112,6 +112,10 @@
     <dimen name="lb_playback_description_margin_top">24dp</dimen>
     <dimen name="lb_playback_description_margin_start">24dp</dimen>
     <dimen name="lb_playback_description_margin_end">24dp</dimen>
+    <dimen name="lb_playback_controls_time_text_size">12sp</dimen>
+    <dimen name="lb_playback_current_time_margin_start">16dp</dimen>
+    <dimen name="lb_playback_total_time_margin_end">16dp</dimen>
+    <dimen name="lb_playback_time_padding_top">8dp</dimen>
     <dimen name="lb_secondary_controls_margin_top">12dp</dimen>
 
     <dimen name="lb_control_button_diameter">76dp</dimen>
