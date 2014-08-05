@@ -23,8 +23,10 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
-import java.lang.ref.WeakReference;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -57,8 +59,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        for (int orientation : new int[]{LinearLayoutManager.VERTICAL,
-                LinearLayoutManager.HORIZONTAL}) {
+        for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
             for (boolean reverseLayout : new boolean[]{false, true}) {
                 for (boolean stackFromBottom : new boolean[]{false, true}) {
                     mBaseVariations.add(new Config(orientation, reverseLayout, stackFromBottom));
@@ -98,6 +99,84 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
     }
 
+    public void testKeepFocusOnRelayout() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).itemCount(500), true);
+        int center = (mLayoutManager.findLastVisibleItemPosition()
+                - mLayoutManager.findFirstVisibleItemPosition()) / 2;
+        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForPosition(center);
+        final int top = mLayoutManager.mOrientationHelper.getDecoratedStart(vh.itemView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                vh.itemView.requestFocus();
+            }
+        });
+        assertTrue("view should have the focus", vh.itemView.hasFocus());
+        // add a bunch of items right before that view, make sure it keeps its position
+        mLayoutManager.expectLayouts(2);
+        final int childCountToAdd = mRecyclerView.getChildCount() * 2;
+        mTestAdapter.addAndNotify(center, childCountToAdd);
+        center += childCountToAdd; // offset item
+        mLayoutManager.waitForLayout(2);
+        mLayoutManager.waitForAnimationsToEnd(20);
+        final RecyclerView.ViewHolder postVH = mRecyclerView.findViewHolderForPosition(center);
+        assertNotNull("focused child should stay in layout", postVH);
+        assertSame("same view holder should be kept for unchanged child", vh, postVH);
+        assertEquals("focused child's screen position should stay unchanged", top,
+                mLayoutManager.mOrientationHelper.getDecoratedStart(postVH.itemView));
+    }
+
+    public void testStackFromEnd() throws Throwable {
+        for(Config config : addConfigVariation(mBaseVariations, "mItemCount", 5
+                , Config.DEFAULT_ITEM_COUNT)) {
+            stackFromEndTest(config);
+            removeRecyclerView();
+        }
+    }
+
+    public void stackFromEndTest(final Config config) throws Throwable {
+        final FrameLayout container = getRecyclerViewContainer();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                container.setPadding(0, 0, 0, 0);
+            }
+        });
+
+        setupByConfig(config, true);
+        int lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition();
+        int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
+        int lastCompletelyVisibleItemPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
+        int firstCompletelyVisibleItemPosition = mLayoutManager.findFirstCompletelyVisibleItemPosition();
+
+        mLayoutManager.expectLayouts(1);
+        // resize the recycler view to half
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (config.mOrientation == HORIZONTAL) {
+                    container.setPadding(0, 0, container.getWidth() / 2, 0);
+                } else {
+                    container.setPadding(0, 0, 0, container.getWidth() / 2);
+                }
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        if (config.mStackFromEnd) {
+            assertEquals("[" + config + "]: last visible position should not change.",
+                    lastVisibleItemPosition, mLayoutManager.findLastVisibleItemPosition());
+            assertEquals("[" + config + "]: last completely visible position should not change",
+                    lastCompletelyVisibleItemPosition,
+                    mLayoutManager.findLastCompletelyVisibleItemPosition());
+        } else {
+            assertEquals("[" + config + "]: first visible position should not change.",
+                    firstVisibleItemPosition, mLayoutManager.findFirstVisibleItemPosition());
+            assertEquals("[" + config + "]: last completely visible position should not change",
+                    firstCompletelyVisibleItemPosition,
+                    mLayoutManager.findFirstCompletelyVisibleItemPosition());
+        }
+    }
+
     public void testScrollToPositionWithPredictive() throws Throwable {
         scrollToPositionWithPredictive(0, LinearLayoutManager.INVALID_OFFSET);
         removeRecyclerView();
@@ -111,7 +190,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
     public void scrollToPositionWithPredictive(final int scrollPosition, final int scrollOffset)
             throws Throwable {
-        setupByConfig(new Config(LinearLayoutManager.VERTICAL, false, false), true);
+        setupByConfig(new Config(VERTICAL, false, false), true);
 
         mLayoutManager.mOnLayoutListener = new OnLayoutListener() {
             @Override
@@ -180,7 +259,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                 return testViewHolder;
             }
         };
-        setupByConfig(new Config(LinearLayoutManager.VERTICAL, false, false).itemCount(300)
+        setupByConfig(new Config(VERTICAL, false, false).itemCount(300)
                 .adapter(adapter), true);
 
         final RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
@@ -324,7 +403,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             public void onBindViewHolder(TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
-                if (config.mOrientation == LinearLayoutManager.HORIZONTAL) {
+                if (config.mOrientation == HORIZONTAL) {
                     holder.itemView.setMinimumWidth(totalSpace + 5);
                 } else {
                     holder.itemView.setMinimumHeight(totalSpace + 5);
@@ -751,6 +830,25 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             return sb.toString();
         }
 
+        public void waitForAnimationsToEnd(int timeoutInSeconds) throws InterruptedException {
+            RecyclerView.ItemAnimator itemAnimator = mRecyclerView.getItemAnimator();
+            if (itemAnimator == null) {
+                return;
+            }
+            final CountDownLatch latch = new CountDownLatch(1);
+            final boolean running = itemAnimator.isRunning(
+                    new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                        @Override
+                        public void onAnimationsFinished() {
+                            latch.countDown();
+                        }
+                    }
+            );
+            if (running) {
+                latch.await(timeoutInSeconds, TimeUnit.SECONDS);
+            }
+        }
+
         public VisibleChildren traverseAndFindVisibleChildren() {
             int childCount = getChildCount();
             final VisibleChildren visibleChildren = new VisibleChildren();
@@ -855,7 +953,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
         private boolean mStackFromEnd;
 
-        int mOrientation = LinearLayoutManager.VERTICAL;
+        int mOrientation = VERTICAL;
 
         boolean mReverseLayout = false;
 

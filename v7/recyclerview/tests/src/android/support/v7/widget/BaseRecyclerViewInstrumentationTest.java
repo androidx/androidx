@@ -21,6 +21,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -177,6 +178,10 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         });
     }
 
+    protected FrameLayout getRecyclerViewContainer() {
+        return getActivity().mContainer;
+    }
+
     public void requestLayoutOnUIThread(final View view) throws Throwable {
         runTestOnUiThread(new Runnable() {
             @Override
@@ -235,6 +240,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
         public TestViewHolder(View itemView) {
             super(itemView);
+            itemView.setFocusable(true);
         }
 
         @Override
