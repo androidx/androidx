@@ -421,7 +421,6 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     }
 
     public void testSavedState() throws Throwable {
-        Thread.sleep(5000);
         PostLayoutRunnable[] postLayoutOptions = new PostLayoutRunnable[]{
                 new PostLayoutRunnable() {
                     @Override
@@ -550,7 +549,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
 
                     @Override
                     String describe() {
-                        return "Change shoudl recycle children";
+                        return "Change should recycle children";
                     }
                 },
                 new PostRestoreRunnable() {
