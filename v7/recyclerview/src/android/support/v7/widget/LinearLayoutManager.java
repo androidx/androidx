@@ -56,7 +56,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Current orientation. Either {@link #HORIZONTAL} or {@link #VERTICAL}
      */
-    private int mOrientation;
+    int mOrientation;
 
     /**
      * Helper class that keeps temporary layout state.
@@ -91,7 +91,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * It is calculated by checking {@link #getReverseLayout()} and View's layout direction.
      * {@link #onLayoutChildren(RecyclerView.Recycler, RecyclerView.State)} is run.
      */
-    private boolean mShouldReverseLayout = false;
+    boolean mShouldReverseLayout = false;
 
     /**
      * Works the same way as {@link android.widget.AbsListView#setStackFromBottom(boolean)} and
@@ -487,6 +487,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         extraForEnd += mOrientationHelper.getEndPadding();
         int startOffset;
         int endOffset;
+        onAnchorReady(mAnchorInfo);
         if (mAnchorInfo.mLayoutFromEnd) {
             // fill towards start
             updateLayoutStateToFillStart(mAnchorInfo);
@@ -556,6 +557,16 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
+     * Method called when Anchor position is decided. Extending class can setup accordingly or
+     * even update anchor info if necessary.
+     *
+     * @param anchorInfo Simple data structure to keep anchor point information for the next layout
+     *                   pass
+     */
+    void onAnchorReady(AnchorInfo anchorInfo) {
+    }
+
+    /**
      * If necessary, layouts new items for predictive animations
      */
     private void layoutForPredictiveAnimations(RecyclerView.Recycler recycler,
@@ -564,7 +575,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         // and layout them accordingly so that animations can work as expected.
         // This case may happen if new views are added or an existing view expands and pushes
         // another view out of bounds.
-        if (!state.willRunPredictiveAnimations() ||  getChildCount() == 0 || state.isPreLayout()) {
+        if (!state.willRunPredictiveAnimations() ||  getChildCount() == 0 || state.isPreLayout()
+                || !supportsPredictiveItemAnimations()) {
             return;
         }
 
@@ -820,8 +832,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     }
 
-
-    private boolean isLayoutRTL() {
+    protected boolean isLayoutRTL() {
         return getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
@@ -1228,7 +1239,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @param stopOnFocusable If true, filling stops in the first focusable new child
      * @return Number of pixels that it added. Useful for scoll functions.
      */
-    private int fill(RecyclerView.Recycler recycler, LayoutState layoutState,
+    int fill(RecyclerView.Recycler recycler, LayoutState layoutState,
             RecyclerView.State state, boolean stopOnFocusable) {
         // max offset we should set is mFastScroll + available
         final int start = layoutState.mAvailable;
@@ -1240,101 +1251,35 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             recycleByLayoutState(recycler, layoutState);
         }
         int remainingSpace = layoutState.mAvailable + layoutState.mExtra;
+        LayoutChunkResult layoutChunkResult = new LayoutChunkResult();
         while (remainingSpace > 0 && layoutState.hasMore(state)) {
-            View view = layoutState.next(recycler);
-            if (view == null) {
-                if (DEBUG && layoutState.mScrapList == null) {
-                    throw new RuntimeException("received null view when unexpected");
-                }
-                // if we are laying out views in scrap, this may return null which means there is
-                // no more items to layout.
+            layoutChunkResult.resetInternal();
+            layoutChunk(recycler, state, layoutState, layoutChunkResult);
+            if (layoutChunkResult.mFinished) {
                 break;
             }
-            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-            if (mLayoutState.mScrapList == null) {
-                if (mShouldReverseLayout == (layoutState.mLayoutDirection
-                        == LayoutState.LAYOUT_START)) {
-                    addView(view);
-                } else {
-                    addView(view, 0);
-                }
-            } else {
-                if (mShouldReverseLayout == (layoutState.mLayoutDirection
-                        == LayoutState.LAYOUT_START)) {
-                    addDisappearingView(view);
-                } else {
-                    addDisappearingView(view, 0);
-                }
-            }
-            measureChildWithMargins(view, 0, 0);
-            int consumed = mOrientationHelper.getDecoratedMeasurement(view);
-            int left, top, right, bottom;
-            if (mOrientation == VERTICAL) {
-                if (isLayoutRTL()) {
-                    right = getWidth() - getPaddingRight();
-                    left = right - mOrientationHelper.getDecoratedMeasurementInOther(view);
-                } else {
-                    left = getPaddingLeft();
-                    right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
-                }
-                if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
-                    bottom = layoutState.mOffset;
-                    top = layoutState.mOffset - consumed;
-                } else {
-                    top = layoutState.mOffset;
-                    bottom = layoutState.mOffset + consumed;
-                }
-            } else {
-                top = getPaddingTop();
-                bottom = top + mOrientationHelper.getDecoratedMeasurementInOther(view);
-
-                if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
-                    right = layoutState.mOffset;
-                    left = layoutState.mOffset - consumed;
-                } else {
-                    left = layoutState.mOffset;
-                    right = layoutState.mOffset + consumed;
-                }
-            }
-            // We calculate everything with View's bounding box (which includes decor and margins)
-            // To calculate correct layout position, we subtract margins.
-            layoutDecorated(view, left + params.leftMargin, top + params.topMargin
-                    , right - params.rightMargin, bottom - params.bottomMargin);
-            if (DEBUG) {
-                Log.d(TAG, "laid out child at position " + getPosition(view) + ", with l:"
-                        + (left + params.leftMargin) + ", t:" + (top + params.topMargin) + ", r:"
-                        + (right - params.rightMargin) + ", b:" + (bottom - params.bottomMargin));
-            }
-            layoutState.mOffset += consumed * layoutState.mLayoutDirection;
-
+            layoutState.mOffset += layoutChunkResult.mConsumed * layoutState.mLayoutDirection;
             /**
              * Consume the available space if:
-             * * view is not removed OR changed
+             * * layoutChunk did not request to be ignored
              * * OR we are laying out scrap children
              * * OR we are not doing pre-layout
              */
-            if (!(params.isItemRemoved() || params.isItemChanged())
-                    || mLayoutState.mScrapList != null || !state.isPreLayout()) {
-                layoutState.mAvailable -= consumed;
+            if (!layoutChunkResult.mIgnoreConsumed || mLayoutState.mScrapList != null
+                    || !state.isPreLayout()) {
+                layoutState.mAvailable -= layoutChunkResult.mConsumed;
                 // we keep a separate remaining space because mAvailable is important for recycling
-                remainingSpace -= consumed;
+                remainingSpace -= layoutChunkResult.mConsumed;
             }
 
             if (layoutState.mScrollingOffset != LayoutState.SCOLLING_OFFSET_NaN) {
-                layoutState.mScrollingOffset += consumed;
+                layoutState.mScrollingOffset += layoutChunkResult.mConsumed;
                 if (layoutState.mAvailable < 0) {
                     layoutState.mScrollingOffset += layoutState.mAvailable;
                 }
                 recycleByLayoutState(recycler, layoutState);
             }
-            if (stopOnFocusable && view.isFocusable()) {
-                break;
-            }
-
-            // some deleted views may have position -1. Make sure state has a real target scroll
-            // position
-            if (state.getTargetScrollPosition() != RecyclerView.NO_POSITION &&
-                    state.getTargetScrollPosition() == getPosition(view)) {
+            if (stopOnFocusable && layoutChunkResult.mFocusable) {
                 break;
             }
         }
@@ -1342,6 +1287,80 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             validateChildOrder();
         }
         return start - layoutState.mAvailable;
+    }
+
+    void layoutChunk(RecyclerView.Recycler recycler, RecyclerView.State state,
+            LayoutState layoutState, LayoutChunkResult result) {
+        View view = layoutState.next(recycler);
+        if (view == null) {
+            if (DEBUG && layoutState.mScrapList == null) {
+                throw new RuntimeException("received null view when unexpected");
+            }
+            // if we are laying out views in scrap, this may return null which means there is
+            // no more items to layout.
+            result.mFinished = true;
+            return;
+        }
+        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
+        if (layoutState.mScrapList == null) {
+            if (mShouldReverseLayout == (layoutState.mLayoutDirection
+                    == LayoutState.LAYOUT_START)) {
+                addView(view);
+            } else {
+                addView(view, 0);
+            }
+        } else {
+            if (mShouldReverseLayout == (layoutState.mLayoutDirection
+                    == LayoutState.LAYOUT_START)) {
+                addDisappearingView(view);
+            } else {
+                addDisappearingView(view, 0);
+            }
+        }
+        measureChildWithMargins(view, 0, 0);
+        result.mConsumed = mOrientationHelper.getDecoratedMeasurement(view);
+        int left, top, right, bottom;
+        if (mOrientation == VERTICAL) {
+            if (isLayoutRTL()) {
+                right = getWidth() - getPaddingRight();
+                left = right - mOrientationHelper.getDecoratedMeasurementInOther(view);
+            } else {
+                left = getPaddingLeft();
+                right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
+            }
+            if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
+                bottom = layoutState.mOffset;
+                top = layoutState.mOffset - result.mConsumed;
+            } else {
+                top = layoutState.mOffset;
+                bottom = layoutState.mOffset + result.mConsumed;
+            }
+        } else {
+            top = getPaddingTop();
+            bottom = top + mOrientationHelper.getDecoratedMeasurementInOther(view);
+
+            if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
+                right = layoutState.mOffset;
+                left = layoutState.mOffset - result.mConsumed;
+            } else {
+                left = layoutState.mOffset;
+                right = layoutState.mOffset + result.mConsumed;
+            }
+        }
+        // We calculate everything with View's bounding box (which includes decor and margins)
+        // To calculate correct layout position, we subtract margins.
+        layoutDecorated(view, left + params.leftMargin, top + params.topMargin,
+                right - params.rightMargin, bottom - params.bottomMargin);
+        if (DEBUG) {
+            Log.d(TAG, "laid out child at position " + getPosition(view) + ", with l:"
+                    + (left + params.leftMargin) + ", t:" + (top + params.topMargin) + ", r:"
+                    + (right - params.rightMargin) + ", b:" + (bottom - params.bottomMargin));
+        }
+        // Consume the available space if the view is not removed OR changed
+        if (params.isItemRemoved() || params.isItemChanged()) {
+            result.mIgnoreConsumed = true;
+        }
+        result.mFocusable = view.isFocusable();
     }
 
     /**
@@ -1617,7 +1636,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * In reverse layout, last child should be closes to screen position 0 and first child should
      * be closest to position WIDTH  or HEIGHT
      */
-    private void validateChildOrder() {
+    void validateChildOrder() {
         Log.d(TAG, "validating child count " + getChildCount());
         if (getChildCount() < 1) {
             return;
@@ -1666,7 +1685,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * Helper class that keeps temporary state while {LayoutManager} is filling out the empty
      * space.
      */
-    private static class LayoutState {
+    static class LayoutState {
 
         final static String TAG = "LinearLayoutManager#LayoutState";
 
@@ -1879,7 +1898,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Simple data class to keep Anchor information
      */
-    private final class AnchorInfo {
+    class AnchorInfo {
         int mPosition;
         int mCoordinate;
         boolean mLayoutFromEnd;
@@ -1931,6 +1950,20 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             }
 
             mPosition = getPosition(child);
+        }
+    }
+
+    protected static class LayoutChunkResult {
+        public int mConsumed;
+        public boolean mFinished;
+        public boolean mIgnoreConsumed;
+        public boolean mFocusable;
+
+        void resetInternal() {
+            mConsumed = 0;
+            mFinished = false;
+            mIgnoreConsumed = false;
+            mFocusable = false;
         }
     }
 }
