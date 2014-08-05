@@ -55,7 +55,8 @@
     <color name="lb_default_search_color">#FFFFAA3F</color>
 
     <color name="lb_control_button_color">#66EEEEEE</color>
-    <color name="lb_playback_progress_color_no_theme">#CCFFFFFF</color>
+    <color name="lb_playback_progress_color_no_theme">#ff40c4ff</color>
+    <color name="lb_playback_icon_highlight_no_theme">#ff40c4ff</color>
     <color name="lb_playback_secondary_progress_color">#33FFFFFF</color>
     <color name="lb_playback_background_progress_color">#19FFFFFF</color>
     <color name="lb_playback_controls_background_light">#80000000</color>
