@@ -785,46 +785,51 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return false;
         }
 
-        if (mGrid == null) {
-            if (mState.getItemCount() > 0) {
-                measureScrapChild(mFocusPosition == NO_POSITION ? 0 : mFocusPosition,
-                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                        mMeasuredDimension);
-                if (DEBUG) Log.v(TAG, "measured scrap child: " + mMeasuredDimension[0] +
-                        " " + mMeasuredDimension[1]);
-            } else {
-                mMeasuredDimension[0] = mMeasuredDimension[1] = 0;
-            }
-        }
-
         List<Integer>[] rows = mGrid == null ? null :
             mGrid.getItemPositionsInRows(mFirstVisiblePos, mLastVisiblePos);
         boolean changed = false;
+        int scrapChildWidth = -1;
+        int scrapChildHeight = -1;
 
         for (int rowIndex = 0; rowIndex < mNumRows; rowIndex++) {
-            int rowSize = 0;
-
-            final int rowItemCount = rows == null ? 1 : rows[rowIndex].size();
+            final int rowItemCount = rows == null ? 0 : rows[rowIndex].size();
             if (DEBUG) Log.v(getTag(), "processRowSizeSecondary row " + rowIndex +
                     " rowItemCount " + rowItemCount);
 
+            int rowSize = -1;
             for (int i = 0; i < rowItemCount; i++) {
-                if (rows != null) {
-                    final int position = rows[rowIndex].get(i);
-                    final View view = findViewByPosition(position);
-                    if (measure && view.isLayoutRequested()) {
-                        measureChild(view);
-                    }
-                    mMeasuredDimension[0] = view.getMeasuredWidth();
-                    mMeasuredDimension[1] = view.getMeasuredHeight();
+                final View view = findViewByPosition(rows[rowIndex].get(i));
+                if (view == null) {
+                    continue;
+                }
+                if (measure && view.isLayoutRequested()) {
+                    measureChild(view);
                 }
                 final int secondarySize = mOrientation == HORIZONTAL ?
-                        mMeasuredDimension[1] : mMeasuredDimension[0];
+                        view.getMeasuredHeight() : view.getMeasuredWidth();
                 if (secondarySize > rowSize) {
                     rowSize = secondarySize;
                 }
             }
+
+            if (measure && rowSize < 0 && mState.getItemCount() > 0) {
+                if (scrapChildWidth < 0 && scrapChildHeight < 0) {
+                    measureScrapChild(mFocusPosition == NO_POSITION ? 0 : mFocusPosition,
+                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                            mMeasuredDimension);
+                    scrapChildWidth = mMeasuredDimension[0];
+                    scrapChildHeight = mMeasuredDimension[1];
+                    if (DEBUG) Log.v(TAG, "measured scrap child: " + scrapChildWidth +
+                            " " + scrapChildHeight);
+                }
+                rowSize = mOrientation == HORIZONTAL ? scrapChildHeight : scrapChildWidth;
+            }
+
+            if (rowSize < 0) {
+                rowSize = 0;
+            }
+
             if (DEBUG) Log.v(getTag(), "row " + rowIndex + " rowItemCount " + rowItemCount +
                     " rowSize " + rowSize);
 
