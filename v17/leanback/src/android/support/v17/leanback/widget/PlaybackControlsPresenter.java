@@ -14,6 +14,8 @@
 package android.support.v17.leanback.widget;
 
 import android.animation.ValueAnimator;
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -115,6 +117,19 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
             return mMoreActionsShowing ? mMoreActionsAdapter : mAdapter;
         }
 
+        @Override
+        int getChildMarginFromCenter(Context context, int numControls) {
+            int margin = getControlIconWidth(context);
+            if (numControls < 4) {
+                margin += getChildMarginBiggest(context);
+            } else if (numControls < 6) {
+                margin += getChildMarginBigger(context);
+            } else {
+                margin += getChildMarginDefault(context);
+            }
+            return margin;
+        }
+
         void setTotalTime(int totalTimeMs) {
             if (totalTimeMs <= 0) {
                 mTotalTime.setVisibility(View.GONE);
@@ -176,6 +191,8 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
     }
 
     private boolean mMoreActionsEnabled = true;
+    private static int sChildMarginBigger;
+    private static int sChildMarginBiggest;
 
     /**
      * Constructor for a PlaybackControlsRowPresenter.
@@ -272,5 +289,21 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         ViewHolder vh = (ViewHolder) holder;
         vh.mMoreActionsAdapter.unregisterObserver(vh.mMoreActionsObserver);
         vh.mMoreActionsAdapter = null;
+    }
+
+    int getChildMarginBigger(Context context) {
+        if (sChildMarginBigger == 0) {
+            sChildMarginBigger = context.getResources().getDimensionPixelSize(
+                    R.dimen.lb_playback_controls_child_margin_bigger);
+        }
+        return sChildMarginBigger;
+    }
+
+    int getChildMarginBiggest(Context context) {
+        if (sChildMarginBiggest == 0) {
+            sChildMarginBiggest = context.getResources().getDimensionPixelSize(
+                    R.dimen.lb_playback_controls_child_margin_biggest);
+        }
+        return sChildMarginBiggest;
     }
 }
