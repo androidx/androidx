@@ -23,6 +23,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.view.AnimatorSetCompat;
 import android.support.v7.widget.ActionMenuPresenter;
 import android.support.v7.widget.ActionMenuView;
 import android.util.AttributeSet;
@@ -143,18 +144,13 @@ abstract class AbsActionBarView extends ViewGroup {
             ViewPropertyAnimatorCompat anim = ViewCompat.animate(this).alpha(1f);
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
-
             if (mSplitView != null && mMenuView != null) {
-                // TODO: Create a AnimatorSetCompat
-                //AnimatorSet set = new AnimatorSet();
+                AnimatorSetCompat set = new AnimatorSetCompat();
                 ViewPropertyAnimatorCompat splitAnim = ViewCompat.animate(mMenuView).alpha(1f);
                 splitAnim.setDuration(FADE_DURATION);
-                splitAnim.setInterpolator(sAlphaInterpolator);
-                splitAnim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                splitAnim.start();
-                //set.addListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                //set.play(anim).with(splitAnim);
-                //set.start();
+                set.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
+                set.play(anim).play(splitAnim);
+                set.start();
             } else {
                 anim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
                 anim.start();
@@ -164,30 +160,16 @@ abstract class AbsActionBarView extends ViewGroup {
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
             if (mSplitView != null && mMenuView != null) {
-                // TODO: Create a AnimatorSetCompat
-                //AnimatorSet set = new AnimatorSet();
+                AnimatorSetCompat set = new AnimatorSetCompat();
                 ViewPropertyAnimatorCompat splitAnim = ViewCompat.animate(mMenuView).alpha(0f);
                 splitAnim.setDuration(FADE_DURATION);
-                splitAnim.setInterpolator(sAlphaInterpolator);
-                splitAnim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                splitAnim.start();
-                //set.addListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                //set.play(anim).with(splitAnim);
-                //set.start();
+                set.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
+                set.play(anim).play(splitAnim);
+                set.start();
             } else {
                 anim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
                 anim.start();
             }
-        }
-    }
-
-    @Override
-    public void setVisibility(int visibility) {
-        if (visibility != getVisibility()) {
-            if (mVisibilityAnim != null) {
-                mVisibilityAnim.cancel();
-            }
-            super.setVisibility(visibility);
         }
     }
 

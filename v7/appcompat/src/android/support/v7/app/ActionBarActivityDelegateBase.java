@@ -27,10 +27,12 @@ import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowDecorActionBar;
+import android.support.v7.internal.view.StandaloneActionMode;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
+import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.ProgressBarCompat;
 import android.support.v7.view.ActionMode;
@@ -39,13 +41,17 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.Window;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
+import android.widget.PopupWindow;
 
 class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         MenuPresenter.Callback, MenuBuilder.Callback {
@@ -59,7 +65,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     private ListMenuPresenter mListMenuPresenter;
     private MenuBuilder mMenu;
 
-    private ActionMode mActionMode;
+    ActionMode mActionMode;
+    ActionBarContextView mActionModeView;
+    PopupWindow mActionModePopup;
+    Runnable mShowActionModePopup;
 
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
@@ -447,6 +456,68 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         }
     }
 
+    @Override
+    ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback) {
+        if (mActionMode != null) {
+            mActionMode.finish();
+        }
+
+        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
+        ActionMode mode = null;
+
+        if (mActionModeView == null) {
+            if (mIsFloating) {
+                mActionModeView = new ActionBarContextView(mActivity);
+                mActionModePopup = new PopupWindow(mActivity, null,
+                        R.attr.actionModePopupWindowStyle);
+                mActionModePopup.setContentView(mActionModeView);
+                mActionModePopup.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+                TypedValue heightValue = new TypedValue();
+                mActivity.getTheme().resolveAttribute(R.attr.actionBarSize, heightValue, true);
+                final int height = TypedValue.complexToDimensionPixelSize(heightValue.data,
+                        mActivity.getResources().getDisplayMetrics());
+                mActionModeView.setContentHeight(height);
+                mActionModePopup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+                mShowActionModePopup = new Runnable() {
+                    public void run() {
+                        mActionModePopup.showAtLocation(
+                                mActionModeView,
+                                Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
+                    }
+                };
+            } else {
+                ViewStub stub = (ViewStub) mActivity.findViewById(R.id.action_mode_bar_stub);
+                if (stub != null) {
+                    mActionModeView = (ActionBarContextView) stub.inflate();
+                }
+            }
+        }
+
+        if (mActionModeView != null) {
+            mActionModeView.killMode();
+            mode = new StandaloneActionMode(mActivity, mActionModeView, wrappedCallback,
+                    mActionModePopup == null);
+            if (callback.onCreateActionMode(mode, mode.getMenu())) {
+                mode.invalidate();
+                mActionModeView.initForMode(mode);
+                mActionModeView.setVisibility(View.VISIBLE);
+                mActionMode = mode;
+                if (mActionModePopup != null) {
+                    mActivity.getWindow().getDecorView().post(mShowActionModePopup);
+                }
+                mActionModeView.sendAccessibilityEvent(
+                        AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            } else {
+                mActionMode = null;
+            }
+        }
+        if (mActionMode != null && mActivity != null) {
+            mActivity.onSupportActionModeStarted(mActionMode);
+        }
+        return mActionMode;
+    }
+
     private void reopenMenu(MenuBuilder menu, boolean toggleMenuMode) {
         if (mDecorContentParent != null && mDecorContentParent.canShowOverflowMenu() &&
                 (!ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mActivity)) ||
@@ -748,7 +819,22 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
         public void onDestroyActionMode(ActionMode mode) {
             mWrapped.onDestroyActionMode(mode);
-            mActivity.onSupportActionModeFinished(mode);
+            if (mActionModePopup != null) {
+                mActivity.getWindow().getDecorView().removeCallbacks(mShowActionModePopup);
+                mActionModePopup.dismiss();
+            } else if (mActionModeView != null) {
+                mActionModeView.setVisibility(View.GONE);
+            }
+            if (mActionModeView != null) {
+                mActionModeView.removeAllViews();
+            }
+            if (mActivity != null) {
+                try {
+                    mActivity.onSupportActionModeFinished(mActionMode);
+                } catch (AbstractMethodError ame) {
+                    // Older apps might not implement this callback method.
+                }
+            }
             mActionMode = null;
         }
     }

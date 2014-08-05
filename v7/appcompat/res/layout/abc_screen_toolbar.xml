@@ -18,12 +18,13 @@
     This is an optimized layout for a screen with a toolbar enabled.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:id="@+id/action_bar_root"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
+             android:orientation="vertical"
              android:fitsSystemWindows="true">
 
     <!-- @layout/abc_screen_toolbar_include will be inflated and merged in code -->
 
-</FrameLayout>
+</LinearLayout>

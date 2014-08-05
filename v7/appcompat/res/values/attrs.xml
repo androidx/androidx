@@ -65,6 +65,7 @@
              or a fraction of the screen size in that dimension. -->
         <attr name="windowFixedHeightMajor" format="dimension|fraction" />
 
+        <attr name="android:windowIsFloating" />
 
         <!-- =================== -->
         <!-- Action bar styles   -->

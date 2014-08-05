@@ -20,22 +20,25 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.v7.internal.view.menu.MenuWrapperFactory;
-import android.support.v7.view.ActionMode;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 
 /**
+ * Wraps a support {@link android.support.v7.view.ActionMode} as a framework
+ * {@link android.view.ActionMode}.
+ *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.CUR_DEVELOPMENT)
-public class ActionModeWrapper extends ActionMode {
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class SupportActionModeWrapper extends ActionMode {
 
     final MenuInflater mInflater;
-    final android.view.ActionMode mWrappedObject;
+    final android.support.v7.view.ActionMode mWrappedObject;
 
-    public ActionModeWrapper(Context context, android.view.ActionMode frameworkActionMode) {
-        mWrappedObject = frameworkActionMode;
+    public SupportActionModeWrapper(Context context, android.support.v7.view.ActionMode supportActionMode) {
+        mWrappedObject = supportActionMode;
         mInflater = new SupportMenuInflater(context);
     }
 
@@ -127,11 +130,11 @@ public class ActionModeWrapper extends ActionMode {
     /**
      * @hide
      */
-    public static class CallbackWrapper implements android.view.ActionMode.Callback {
+    public static class CallbackWrapper implements android.support.v7.view.ActionMode.Callback {
         final Callback mWrappedCallback;
         final Context mContext;
 
-        private ActionModeWrapper mLastStartedActionMode;
+        private SupportActionModeWrapper mLastStartedActionMode;
 
         public CallbackWrapper(Context context, Callback supportCallback) {
             mContext = context;
@@ -139,34 +142,34 @@ public class ActionModeWrapper extends ActionMode {
         }
 
         @Override
-        public boolean onCreateActionMode(android.view.ActionMode mode, android.view.Menu menu) {
+        public boolean onCreateActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
             return mWrappedCallback.onCreateActionMode(getActionModeWrapper(mode),
                     MenuWrapperFactory.createMenuWrapper(menu));
         }
 
         @Override
-        public boolean onPrepareActionMode(android.view.ActionMode mode, android.view.Menu menu) {
+        public boolean onPrepareActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
             return mWrappedCallback.onPrepareActionMode(getActionModeWrapper(mode),
                     MenuWrapperFactory.createMenuWrapper(menu));
         }
 
         @Override
-        public boolean onActionItemClicked(android.view.ActionMode mode,
+        public boolean onActionItemClicked(android.support.v7.view.ActionMode mode,
                 android.view.MenuItem item) {
             return mWrappedCallback.onActionItemClicked(getActionModeWrapper(mode),
                     MenuWrapperFactory.createMenuItemWrapper(item));
         }
 
         @Override
-        public void onDestroyActionMode(android.view.ActionMode mode) {
+        public void onDestroyActionMode(android.support.v7.view.ActionMode mode) {
             mWrappedCallback.onDestroyActionMode(getActionModeWrapper(mode));
         }
 
-        public void setLastStartedActionMode(ActionModeWrapper modeWrapper) {
+        public void setLastStartedActionMode(SupportActionModeWrapper modeWrapper) {
             mLastStartedActionMode = modeWrapper;
         }
 
-        private ActionMode getActionModeWrapper(android.view.ActionMode mode) {
+        private ActionMode getActionModeWrapper(android.support.v7.view.ActionMode mode) {
             if (mLastStartedActionMode != null && mLastStartedActionMode.mWrappedObject == mode) {
                 // If the given mode equals our wrapped mode, just return it
                 return mLastStartedActionMode;
@@ -175,9 +178,9 @@ public class ActionModeWrapper extends ActionMode {
             }
         }
 
-        protected ActionModeWrapper createActionModeWrapper(Context context,
-                android.view.ActionMode mode) {
-            return new ActionModeWrapper(context, mode);
+        protected SupportActionModeWrapper createActionModeWrapper(Context context,
+                android.support.v7.view.ActionMode mode) {
+            return new SupportActionModeWrapper(context, mode);
         }
     }
 }
