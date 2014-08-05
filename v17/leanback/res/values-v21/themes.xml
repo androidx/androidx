@@ -18,5 +18,6 @@
 <resources>
     <style name="Theme.LeanbackBase" parent="android:Theme.Material.NoActionBar">
         <item name="playbackProgressPrimaryColor">?android:attr/colorAccent</item>
+        <item name="playbackControlsIconHighlightColor">?android:attr/colorAccent</item>
     </style>
 </resources>
