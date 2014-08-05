@@ -21,6 +21,13 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+        <CheckBox
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:id="@+id/enable_smooth_scroll"
+                android:text="smooth scroll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
         <EditText
                 android:id="@+id/scroll_offset"
                 android:layout_width="wrap_content"
@@ -31,11 +38,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/spinner"/>
-        <CheckBox
-                android:id="@+id/enable_smooth_scroll"
-                android:text="smooth scroll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+        <Button android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="scroll"
+                android:onClick="onScrollClicked"/>
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

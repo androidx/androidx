@@ -97,7 +97,8 @@
 
     <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
     <string name="animated_recycler_view">RecyclerView/AnimatedRecyclerView</string>
-    <string name="linear_layout_manager">Linear Layout Manager</string>
+    <string name="linear_layout_manager">RecyclerView/Linear Layout Manager</string>
+    <string name="grid_layout_manager">RecyclerView/Grid Layout Manager</string>
     <string name="checkbox_orientation">Horz.</string>
     <string name="checkbox_reverse">Rev.</string>
     <string name="checkbox_layout_dir">Layout Dir</string>

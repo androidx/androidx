@@ -13,35 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.example.android.supportv7.widget;
 
-import com.example.android.supportv7.widget.decorator.DividerItemDecoration;
+import com.example.android.supportv7.Cheeses;
+import com.example.android.supportv7.R;
+import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;
 
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import com.example.android.supportv7.R;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
- * A sample activity that uses {@link LinearLayoutManager}.
+ * A sample Activity to demonstrate capabilities of {@link GridLayoutManager}.
  */
-public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<LinearLayoutManager> {
-    private DividerItemDecoration mDividerItemDecoration;
-
+public class GridLayoutManagerActivity extends BaseLayoutManagerActivity<GridLayoutManager> {
+    SimpleStringAdapter mAdapter;
     @Override
-    protected LinearLayoutManager createLayoutManager() {
-        return new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+    protected GridLayoutManager createLayoutManager() {
+        GridLayoutManager lm = new GridLayoutManager(this, 3);
+        lm.setReverseLayout(true);
+        lm.setSpanSizeLookup(mSpanSizeLookup);
+        return lm;
     }
 
-    @Override
-    protected void onRecyclerViewInit(RecyclerView recyclerView) {
-        mDividerItemDecoration = new DividerItemDecoration(this, mLayoutManager.getOrientation());
-        recyclerView.addItemDecoration(mDividerItemDecoration);
-    }
+    GridLayoutManager.SpanSizeLookup mSpanSizeLookup = new GridLayoutManager.SpanSizeLookup() {
+        @Override
+        public int getSpanSize(int position) {
+            String item = mAdapter.getValueAt(position);
+            return 1 + (Math.abs(item.hashCode()) % mLayoutManager.getSpanCount());
+        }
+    };
 
     @Override
-    BaseLayoutManagerActivity.ConfigToggle[] createConfigToggles() {
+    ConfigToggle[] createConfigToggles() {
         return new ConfigToggle[]{
                 new ConfigToggle(this, R.string.checkbox_orientation) {
                     @Override
@@ -53,10 +60,6 @@ public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<Linea
                     public void onChange(boolean newValue) {
                         mLayoutManager.setOrientation(newValue ? LinearLayoutManager.HORIZONTAL
                                 : LinearLayoutManager.VERTICAL);
-                        if (mDividerItemDecoration != null) {
-                            mDividerItemDecoration.setOrientation(mLayoutManager.getOrientation());
-                        }
-
                     }
                 },
                 new ConfigToggle(this, R.string.checkbox_reverse) {
@@ -95,5 +98,37 @@ public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<Linea
                     }
                 }
         };
+    }
+
+    @Override
+    protected void scrollToPositionWithOffset(boolean smooth, int position, int offset) {
+        if (smooth) {
+            super.scrollToPositionWithOffset(smooth, position, offset);
+        } else {
+            mLayoutManager.scrollToPositionWithOffset(position, offset);
+        }
+    }
+
+    protected RecyclerView.Adapter createAdapter() {
+        mAdapter = new SimpleStringAdapter(this, Cheeses.sCheeseStrings) {
+            @Override
+            public SimpleStringAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                final SimpleStringAdapter.ViewHolder vh = super
+                        .onCreateViewHolder(parent, viewType);
+                vh.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final int pos = vh.getPosition();
+                        if (pos + 1 < getItemCount()) {
+                            swap(pos, pos + 1);
+                        }
+                        notifyItemChanged(pos);
+                    }
+                });
+                return vh;
+            }
+        };
+        return mAdapter;
     }
 }

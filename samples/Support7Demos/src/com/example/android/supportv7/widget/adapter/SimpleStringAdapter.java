@@ -33,7 +33,7 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
     private ArrayList<String> mValues;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
+        public String mBoundString;
         public TextView mTextView;
 
         public ViewHolder(TextView v) {
@@ -45,6 +45,10 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
         public String toString() {
             return super.toString() + " '" + mTextView.getText();
         }
+    }
+
+    public String getValueAt(int position) {
+        return mValues.get(position);
     }
 
     public SimpleStringAdapter(Context context, String[] strings) {
@@ -86,6 +90,7 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.mBoundString = mValues.get(position);
         holder.mTextView.setText(position + ":" + mValues.get(position));
         holder.mTextView.setMinHeight((200 + mValues.get(position).length() * 10));
         holder.mTextView.setBackgroundColor(getBackgroundColor(position));
@@ -95,7 +100,7 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
         switch (position % 4) {
             case 0: return Color.BLACK;
             case 1: return Color.RED;
-            case 2: return Color.GREEN;
+            case 2: return Color.DKGRAY;
             case 3: return Color.BLUE;
         }
         return Color.TRANSPARENT;
