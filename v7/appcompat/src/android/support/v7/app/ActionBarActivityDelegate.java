@@ -60,6 +60,8 @@ abstract class ActionBarActivityDelegate {
     boolean mHasActionBar;
     // true if this activity's action bar overlays other activity content.
     boolean mOverlayActionBar;
+    // true if this activity is floating (e.g. Dialog)
+    boolean mIsFloating;
 
     ActionBarActivityDelegate(ActionBarActivity activity) {
         mActivity = activity;
@@ -102,6 +104,7 @@ abstract class ActionBarActivityDelegate {
 
         mHasActionBar = a.getBoolean(R.styleable.Theme_windowActionBar, false);
         mOverlayActionBar = a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false);
+        mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
         a.recycle();
     }
 
@@ -219,6 +222,8 @@ abstract class ActionBarActivityDelegate {
         }
     }
 
+    abstract ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback);
+
     final WindowCallback mWindowMenuCallback = new WindowCallback() {
         @Override
         public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
@@ -233,6 +238,11 @@ abstract class ActionBarActivityDelegate {
         @Override
         public boolean onPreparePanel(int featureId, View menuView, Menu menu) {
             return mActivity.superOnPreparePanel(featureId, menuView, menu);
+        }
+
+        @Override
+        public ActionMode startActionMode(ActionMode.Callback callback) {
+            return startSupportActionModeFromWindow(callback);
         }
     };
 }

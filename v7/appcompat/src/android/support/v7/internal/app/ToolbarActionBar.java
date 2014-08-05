@@ -184,8 +184,7 @@ public class ToolbarActionBar extends ActionBar {
 
     @Override
     public ActionMode startActionMode(ActionMode.Callback callback) {
-        // TODO:
-        return null; //mToolbar.startActionMode(callback);
+        return mWindowCallback.startActionMode(callback);
     }
 
     @Override
