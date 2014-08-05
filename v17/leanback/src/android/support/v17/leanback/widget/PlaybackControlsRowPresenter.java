@@ -267,12 +267,14 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             vh.mCard.setBackgroundColor(Color.TRANSPARENT);
             lp.setMarginStart(0);
             lp.setMarginEnd(0);
+            mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, true);
         } else {
             vh.mImageView.setImageDrawable(row.getImageDrawable());
             setBackground(vh.mCard);
             vh.mControlsDock.setBackgroundColor(Color.TRANSPARENT);
             lp.setMarginStart(vh.mControlsDockMarginStart);
             lp.setMarginEnd(vh.mControlsDockMarginEnd);
+            mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, false);
         }
         vh.mControlsDock.setLayoutParams(lp);
 
