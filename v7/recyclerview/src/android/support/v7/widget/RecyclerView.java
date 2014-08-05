@@ -7198,9 +7198,15 @@ public class RecyclerView extends ViewGroup {
      *
      * Subclasses of ItemAnimator can be used to implement custom animations for actions on
      * ViewHolder items. The RecyclerView will manage retaining these items while they
-     * are being animated, but implementors must call the appropriate "Finished"
-     * method when each item animation is done ({@link #dispatchRemoveFinished(ViewHolder)},
-     * {@link #dispatchMoveFinished(ViewHolder)}, or {@link #dispatchAddFinished(ViewHolder)}).
+     * are being animated, but implementors must call the appropriate "Starting"
+     * ({@link #dispatchRemoveStarting(ViewHolder)}, {@link #dispatchMoveStarting(ViewHolder)},
+     * {@link #dispatchChangeStarting(ViewHolder, boolean)}, or
+     * {@link #dispatchAddStarting(ViewHolder)})
+     * and "Finished" ({@link #dispatchRemoveFinished(ViewHolder)},
+     * {@link #dispatchMoveFinished(ViewHolder)},
+     * {@link #dispatchChangeFinished(ViewHolder, boolean)},
+     * or {@link #dispatchAddFinished(ViewHolder)}) methods when each item animation is
+     * being started and ended.
      *
      * <p>By default, RecyclerView uses {@link DefaultItemAnimator}</p>
      *
@@ -7421,8 +7427,8 @@ public class RecyclerView extends ViewGroup {
          * {@link Adapter#notifyItemRangeChanged(int, int)}.
          * <p>
          * Implementers can choose whether and how to animate changes, but must always call
-         * {@link #dispatchChangeFinished(ViewHolder)} for each non-null ViewHolder, either
-         * immediately (if no animation will occur) or after the animation actually finishes.
+         * {@link #dispatchChangeFinished(ViewHolder, boolean)} for each non-null ViewHolder,
+         * either immediately (if no animation will occur) or after the animation actually finishes.
          * The return value indicates whether an animation has been set up and whether the
          * ItemAnimator's {@link #runPendingAnimations()} method should be called at the
          * next opportunity. This mechanism allows ItemAnimator to set up individual animations
@@ -7451,6 +7457,7 @@ public class RecyclerView extends ViewGroup {
          * @param item The item which has been removed
          */
         public final void dispatchRemoveFinished(ViewHolder item) {
+            onRemoveFinished(item);
             if (mListener != null) {
                 mListener.onRemoveFinished(item);
             }
@@ -7462,6 +7469,7 @@ public class RecyclerView extends ViewGroup {
          * @param item The item which has been moved
          */
         public final void dispatchMoveFinished(ViewHolder item) {
+            onMoveFinished(item);
             if (mListener != null) {
                 mListener.onMoveFinished(item);
             }
@@ -7473,22 +7481,76 @@ public class RecyclerView extends ViewGroup {
          * @param item The item which has been added
          */
         public final void dispatchAddFinished(ViewHolder item) {
+            onAddFinished(item);
             if (mListener != null) {
                 mListener.onAddFinished(item);
             }
         }
 
         /**
+         * @deprecated
+         * Use {@link #dispatchChangeFinished(ViewHolder, boolean)}
+         */
+        @Deprecated
+        public final void dispatchChangeFinished(ViewHolder item) {
+            dispatchChangeFinished(item, true);
+        }
+
+        /**
          * Method to be called by subclasses when a change animation is done.
          *
-         * @param item The item which has been changed (this is the original, or "old"
-         * ViewHolder item, not the "new" holder which was also passed into the call to
+         * @see #animateChange(ViewHolder, ViewHolder, int, int, int, int)
+         * @param item The item which has been changed (this method must be called for
+         * each non-null ViewHolder passed into
          * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)}).
+         * @param oldItem true if this is the old item that was changed, false if
+         * it is the new item that replaced the old item.
          */
-        public final void dispatchChangeFinished(ViewHolder item) {
+        public final void dispatchChangeFinished(ViewHolder item, boolean oldItem) {
+            onChangeFinished(item, oldItem);
             if (mListener != null) {
                 mListener.onChangeFinished(item);
             }
+        }
+
+        /**
+         * Method to be called by subclasses when a remove animation is being started.
+         *
+         * @param item The item being removed
+         */
+        public final void dispatchRemoveStarting(ViewHolder item) {
+            onRemoveStarting(item);
+        }
+
+        /**
+         * Method to be called by subclasses when a move animation is being started.
+         *
+         * @param item The item being moved
+         */
+        public final void dispatchMoveStarting(ViewHolder item) {
+            onMoveStarting(item);
+        }
+
+        /**
+         * Method to be called by subclasses when an add animation is being started.
+         *
+         * @param item The item being added
+         */
+        public final void dispatchAddStarting(ViewHolder item) {
+            onAddStarting(item);
+        }
+
+        /**
+         * Method to be called by subclasses when a change animation is being started.
+         *
+         * @param item The item which has been changed (this method must be called for
+         * each non-null ViewHolder passed into
+         * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)}).
+         * @param oldItem true if this is the old item that was changed, false if
+         * it is the new item that replaced the old item.
+         */
+        public final void dispatchChangeStarting(ViewHolder item, boolean oldItem) {
+            onChangeStarting(item, oldItem);
         }
 
         /**
@@ -7588,6 +7650,91 @@ public class RecyclerView extends ViewGroup {
         public interface ItemAnimatorFinishedListener {
             void onAnimationsFinished();
         }
+
+        /**
+         * Called when a remove animation is being started on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         */
+        public void onRemoveStarting(ViewHolder item) {}
+
+        /**
+         * Called when a remove animation has ended on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         */
+        public void onRemoveFinished(ViewHolder item) {}
+
+        /**
+         * Called when an add animation is being started on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         */
+        public void onAddStarting(ViewHolder item) {}
+
+        /**
+         * Called when an add animation has ended on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         */
+        public void onAddFinished(ViewHolder item) {}
+
+        /**
+         * Called when a move animation is being started on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         */
+        public void onMoveStarting(ViewHolder item) {}
+
+        /**
+         * Called when a move animation has ended on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         */
+        public void onMoveFinished(ViewHolder item) {}
+
+        /**
+         * Called when a change animation is being started on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         * @param oldItem true if this is the old item that was changed, false if
+         * it is the new item that replaced the old item.
+         */
+        public void onChangeStarting(ViewHolder item, boolean oldItem) {}
+
+        /**
+         * Called when a change animation has ended on the given ViewHolder.
+         * The default implementation does nothing. Subclasses may wish to override
+         * this method to handle any ViewHolder-specific operations linked to animation
+         * lifecycles.
+         *
+         * @param item The ViewHolder being animated.
+         * @param oldItem true if this is the old item that was changed, false if
+         * it is the new item that replaced the old item.
+         */
+        public void onChangeFinished(ViewHolder item, boolean oldItem) {}
+
     }
 
     /**
