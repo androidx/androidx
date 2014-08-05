@@ -16,6 +16,7 @@
 
 package android.support.v7.internal.app;
 
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,5 +34,7 @@ public interface WindowCallback {
     boolean onCreatePanelMenu(int featureId, Menu menu);
 
     boolean onPreparePanel(int featureId, View menuView, Menu menu);
+
+    ActionMode startActionMode(ActionMode.Callback callback);
 
 }
