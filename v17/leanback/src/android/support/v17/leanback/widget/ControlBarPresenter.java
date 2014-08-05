@@ -67,6 +67,22 @@ class ControlBarPresenter extends Presenter {
             if (mControlBar == null) {
                 throw new IllegalStateException("Couldn't find control_bar");
             }
+            mControlBar.setOnChildFocusedListener(new ControlBar.OnChildFocusedListener() {
+                @Override
+                public void onChildFocusedListener(View child, View focused) {
+                    if (mOnItemViewSelectedListener == null) {
+                        return;
+                    }
+                    for (int position = 0; position < mViewHolders.size(); position++) {
+                        if (mViewHolders.get(position).view == child) {
+                            mOnItemViewSelectedListener.onItemSelected(
+                                    mViewHolders.get(position), getAdapter().get(position),
+                                            null, null);
+                            break;
+                        }
+                    }
+                }
+            });
             mDataObserver = new ObjectAdapter.DataObserver() {
                 @Override
                 public void onChanged() {
@@ -128,6 +144,7 @@ class ControlBarPresenter extends Presenter {
     }
 
     private OnActionClickedListener mOnActionClickedListener;
+    private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private int mLayoutResourceId;
     private static int sChildMarginDefault;
     private static int sControlIconWidth;
@@ -160,6 +177,21 @@ class ControlBarPresenter extends Presenter {
      */
     public OnActionClickedListener getOnActionClickedListener() {
         return mOnActionClickedListener;
+    }
+
+    /**
+     * Sets the listener for item selection.  When this listener is invoked,
+     *  the rowViewHolder and row are always null.
+     */
+    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        mOnItemViewSelectedListener = listener;
+    }
+
+    /**
+     * Gets the listener for item selection.
+     */
+    public OnItemViewSelectedListener getOnItemViewSelectedListener() {
+        return mOnItemViewSelectedListener;
     }
 
     @Override
