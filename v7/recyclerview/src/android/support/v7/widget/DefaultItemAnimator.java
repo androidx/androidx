@@ -19,7 +19,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -40,9 +39,10 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     private ArrayList<MoveInfo> mPendingMoves = new ArrayList<MoveInfo>();
     private ArrayList<ChangeInfo> mPendingChanges = new ArrayList<ChangeInfo>();
 
-    private ArrayList<ViewHolder> mAdditions = new ArrayList<ViewHolder>();
-    private ArrayList<MoveInfo> mMoves = new ArrayList<MoveInfo>();
-    private ArrayList<ChangeInfo> mChanges = new ArrayList<ChangeInfo>();
+    private ArrayList<ArrayList<ViewHolder>> mAdditionsList =
+            new ArrayList<ArrayList<ViewHolder>>();
+    private ArrayList<ArrayList<MoveInfo>> mMovesList = new ArrayList<ArrayList<MoveInfo>>();
+    private ArrayList<ArrayList<ChangeInfo>> mChangesList = new ArrayList<ArrayList<ChangeInfo>>();
 
     private ArrayList<ViewHolder> mAddAnimations = new ArrayList<ViewHolder>();
     private ArrayList<ViewHolder> mMoveAnimations = new ArrayList<ViewHolder>();
@@ -109,20 +109,23 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         mPendingRemovals.clear();
         // Next, move stuff
         if (movesPending) {
-            mMoves.addAll(mPendingMoves);
+            final ArrayList<MoveInfo> moves = new ArrayList<MoveInfo>();
+            moves.addAll(mPendingMoves);
+            mMovesList.add(moves);
             mPendingMoves.clear();
             Runnable mover = new Runnable() {
                 @Override
                 public void run() {
-                    for (MoveInfo moveInfo : mMoves) {
+                    for (MoveInfo moveInfo : moves) {
                         animateMoveImpl(moveInfo.holder, moveInfo.fromX, moveInfo.fromY,
                                 moveInfo.toX, moveInfo.toY);
                     }
-                    mMoves.clear();
+                    moves.clear();
+                    mMovesList.remove(moves);
                 }
             };
             if (removalsPending) {
-                View view = mMoves.get(0).holder.itemView;
+                View view = moves.get(0).holder.itemView;
                 ViewCompat.postOnAnimationDelayed(view, mover, getRemoveDuration());
             } else {
                 mover.run();
@@ -130,19 +133,22 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         }
         // Next, change stuff, to run in parallel with move animations
         if (changesPending) {
-            mChanges.addAll(mPendingChanges);
+            final ArrayList<ChangeInfo> changes = new ArrayList<ChangeInfo>();
+            changes.addAll(mPendingChanges);
+            mChangesList.add(changes);
             mPendingChanges.clear();
             Runnable changer = new Runnable() {
                 @Override
                 public void run() {
-                    for (ChangeInfo change : mChanges) {
+                    for (ChangeInfo change : changes) {
                         animateChangeImpl(change);
                     }
-                    mChanges.clear();
+                    changes.clear();
+                    mChangesList.remove(changes);
                 }
             };
             if (removalsPending) {
-                ViewHolder holder = mChanges.get(0).oldHolder;
+                ViewHolder holder = changes.get(0).oldHolder;
                 ViewCompat.postOnAnimationDelayed(holder.itemView, changer, getRemoveDuration());
             } else {
                 changer.run();
@@ -150,14 +156,17 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         }
         // Next, add stuff
         if (additionsPending) {
-            mAdditions.addAll(mPendingAdditions);
+            final ArrayList<ViewHolder> additions = new ArrayList<ViewHolder>();
+            additions.addAll(mPendingAdditions);
+            mAdditionsList.add(additions);
             mPendingAdditions.clear();
             Runnable adder = new Runnable() {
                 public void run() {
-                    for (ViewHolder holder : mAdditions) {
+                    for (ViewHolder holder : additions) {
                         animateAddImpl(holder);
                     }
-                    mAdditions.clear();
+                    additions.clear();
+                    mAdditionsList.remove(additions);
                 }
             };
             if (removalsPending || movesPending) {
@@ -165,7 +174,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 long moveDuration = movesPending ? getMoveDuration() : 0;
                 long changeDuration = changesPending ? getChangeDuration() : 0;
                 long totalDelay = removeDuration + Math.max(moveDuration, changeDuration);
-                View view = mAdditions.get(0).itemView;
+                View view = additions.get(0).itemView;
                 ViewCompat.postOnAnimationDelayed(view, adder, totalDelay);
             } else {
                 adder.run();
@@ -422,21 +431,39 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             ViewCompat.setAlpha(view, 1);
             dispatchAddFinished(item);
         }
-        endChangeAnimation(mChanges, item);
 
-        for (int i = mMoves.size() - 1; i >= 0; i--) {
-            MoveInfo moveInfo = mMoves.get(i);
-            if (moveInfo.holder == item) {
-                ViewCompat.setTranslationY(view, 0);
-                ViewCompat.setTranslationX(view, 0);
-                dispatchMoveFinished(item);
-                mMoves.remove(i);
-                break;
+        for (int i = mChangesList.size() - 1; i >= 0; i--) {
+            ArrayList<ChangeInfo> changes = mChangesList.get(i);
+            endChangeAnimation(changes, item);
+            if (changes.isEmpty()) {
+                mChangesList.remove(changes);
             }
         }
-        if (mAdditions.remove(item)) {
-            ViewCompat.setAlpha(view, 1);
-            dispatchAddFinished(item);
+        for (int i = mMovesList.size() - 1; i >= 0; i--) {
+            ArrayList<MoveInfo> moves = mMovesList.get(i);
+            for (int j = moves.size() - 1; j >= 0; j--) {
+                MoveInfo moveInfo = moves.get(j);
+                if (moveInfo.holder == item) {
+                    ViewCompat.setTranslationY(view, 0);
+                    ViewCompat.setTranslationX(view, 0);
+                    dispatchMoveFinished(item);
+                    moves.remove(j);
+                    if (moves.isEmpty()) {
+                        mMovesList.remove(moves);
+                    }
+                    break;
+                }
+            }
+        }
+        for (int i = mAdditionsList.size() - 1; i >= 0; i--) {
+            ArrayList<ViewHolder> additions = mAdditionsList.get(i);
+            if (additions.remove(item)) {
+                ViewCompat.setAlpha(view, 1);
+                dispatchAddFinished(item);
+                if (additions.isEmpty()) {
+                    mAdditionsList.remove(additions);
+                }
+            }
         }
 
         // animations should be ended by the cancel above.
@@ -469,9 +496,9 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 !mRemoveAnimations.isEmpty() ||
                 !mAddAnimations.isEmpty() ||
                 !mChangeAnimations.isEmpty() ||
-                !mMoves.isEmpty() ||
-                !mAdditions.isEmpty() ||
-                !mChanges.isEmpty());
+                !mMovesList.isEmpty() ||
+                !mAdditionsList.isEmpty() ||
+                !mChangesList.isEmpty());
     }
 
     /**
@@ -519,29 +546,49 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             return;
         }
 
-        count = mMoves.size();
-        for (int i = count - 1; i >= 0; i--) {
-            MoveInfo moveInfo = mMoves.get(i);
-            ViewHolder item = moveInfo.holder;
-            View view = item.itemView;
-            ViewCompat.setTranslationY(view, 0);
-            ViewCompat.setTranslationX(view, 0);
-            dispatchMoveFinished(moveInfo.holder);
-            mMoves.remove(i);
+        int listCount = mMovesList.size();
+        for (int i = listCount - 1; i >= 0; i--) {
+            ArrayList<MoveInfo> moves = mMovesList.get(i);
+            count = moves.size();
+            for (int j = count - 1; j >= 0; j--) {
+                MoveInfo moveInfo = moves.get(j);
+                ViewHolder item = moveInfo.holder;
+                View view = item.itemView;
+                ViewCompat.setTranslationY(view, 0);
+                ViewCompat.setTranslationX(view, 0);
+                dispatchMoveFinished(moveInfo.holder);
+                moves.remove(j);
+                if (moves.isEmpty()) {
+                    mMovesList.remove(moves);
+                }
+            }
         }
-        count = mAdditions.size();
-        for (int i = count - 1; i >= 0; i--) {
-            ViewHolder item = mAdditions.get(i);
-            View view = item.itemView;
-            ViewCompat.setAlpha(view, 1);
-            dispatchAddFinished(item);
-            mAdditions.remove(i);
+        listCount = mAdditionsList.size();
+        for (int i = listCount - 1; i >= 0; i--) {
+            ArrayList<ViewHolder> additions = mAdditionsList.get(i);
+            count = additions.size();
+            for (int j = count - 1; j >= 0; j--) {
+                ViewHolder item = additions.get(j);
+                View view = item.itemView;
+                ViewCompat.setAlpha(view, 1);
+                dispatchAddFinished(item);
+                additions.remove(j);
+                if (additions.isEmpty()) {
+                    mAdditionsList.remove(additions);
+                }
+            }
         }
-        count = mChanges.size();
-        for (int i = count - 1; i >= 0; i--) {
-            endChangeAnimationIfNecessary(mChanges.get(i));
+        listCount = mChangesList.size();
+        for (int i = listCount - 1; i >= 0; i--) {
+            ArrayList<ChangeInfo> changes = mChangesList.get(i);
+            count = changes.size();
+            for (int j = count - 1; j >= 0; j--) {
+                endChangeAnimationIfNecessary(changes.get(j));
+                if (changes.isEmpty()) {
+                    mChangesList.remove(changes);
+                }
+            }
         }
-        mChanges.clear();
 
         cancelAll(mRemoveAnimations);
         cancelAll(mMoveAnimations);
