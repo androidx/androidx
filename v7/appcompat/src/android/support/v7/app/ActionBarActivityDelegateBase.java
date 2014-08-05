@@ -18,6 +18,7 @@ package android.support.v7.app;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -36,6 +37,8 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -186,6 +189,27 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         if (!mSubDecorInstalled) {
             if (mHasActionBar) {
                 mActivity.superSetContentView(R.layout.abc_screen_toolbar);
+
+                ViewGroup root = (ViewGroup) mActivity.findViewById(R.id.action_bar_root);
+                if (root != null && root.getChildCount() == 0) {
+                    /**
+                     * This needs some explanation. As we can not use the android:theme attribute
+                     * pre-L, we emulate it by manually creating a LayoutInflater using a
+                     * ContextThemeWrapper pointing to actionBarTheme.
+                     */
+                    TypedValue outValue = new TypedValue();
+                    mActivity.getTheme().resolveAttribute(R.attr.actionBarTheme, outValue, true);
+
+                    Context themedContext;
+                    if (outValue.resourceId != 0) {
+                        themedContext = new ContextThemeWrapper(mActivity, outValue.resourceId);
+                    } else {
+                        themedContext = mActivity;
+                    }
+
+                    LayoutInflater.from(themedContext)
+                            .inflate(R.layout.abc_screen_toolbar_include, root, true);
+                }
 
                 mDecorContentParent = (DecorContentParent) mActivity.findViewById(R.id.decor_content_parent);
                 mDecorContentParent.setWindowCallback(mWindowMenuCallback);
@@ -587,8 +611,42 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     private boolean initializePanelMenu() {
-        mMenu = new MenuBuilder(getActionBarThemedContext());
+        Context context = mActivity;
+
+        if (mDecorContentParent != null) {
+            final TypedValue outValue = new TypedValue();
+            final Resources.Theme baseTheme = context.getTheme();
+            baseTheme.resolveAttribute(R.attr.actionBarTheme, outValue, true);
+
+            Resources.Theme widgetTheme = null;
+            if (outValue.resourceId != 0) {
+                widgetTheme = context.getResources().newTheme();
+                widgetTheme.setTo(baseTheme);
+                widgetTheme.applyStyle(outValue.resourceId, true);
+                widgetTheme.resolveAttribute(
+                        R.attr.actionBarWidgetTheme, outValue, true);
+            } else {
+                baseTheme.resolveAttribute(
+                        R.attr.actionBarWidgetTheme, outValue, true);
+            }
+
+            if (outValue.resourceId != 0) {
+                if (widgetTheme == null) {
+                    widgetTheme = context.getResources().newTheme();
+                    widgetTheme.setTo(baseTheme);
+                }
+                widgetTheme.applyStyle(outValue.resourceId, true);
+            }
+
+            if (widgetTheme != null) {
+                context = new ContextThemeWrapper(context, 0);
+                context.getTheme().setTo(widgetTheme);
+            }
+        }
+
+        mMenu = new MenuBuilder(context);
         mMenu.setCallback(this);
+
         return true;
     }
 

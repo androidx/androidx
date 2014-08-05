@@ -21,6 +21,6 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <include layout="@layout/abc_screen_toolbar_include" />
+    <!-- @layout/abc_screen_toolbar_include will be inflated and merged in code -->
 
 </android.support.v7.internal.widget.NativeActionModeAwareLayout>

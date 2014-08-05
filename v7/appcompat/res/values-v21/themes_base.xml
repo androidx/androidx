@@ -167,4 +167,29 @@
         <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>
     </style>
 
+    <style name="Base.ThemeOverlay.AppCompat" parent="android:ThemeOverlay.Material">
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+    </style>
+
+    <style name="Base.ThemeOverlay.AppCompat.Dark" parent="android:ThemeOverlay.Material.Dark">
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+    </style>
+
+    <style name="Base.ThemeOverlay.AppCompat.Light" parent="android:ThemeOverlay.Material.Light">
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+    </style>
+
+    <style name="Base.ThemeOverlay.AppCompat.ActionBar" parent="android:ThemeOverlay.Material.ActionBar">
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+    </style>
+
+    <style name="Base.ThemeOverlay.AppCompat.Dark.ActionBar" parent="android:ThemeOverlay.Material.Dark.ActionBar">
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+    </style>
+
 </resources>
