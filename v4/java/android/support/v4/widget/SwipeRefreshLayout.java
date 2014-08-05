@@ -19,7 +19,6 @@ package android.support.v4.widget;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.drawable.ShapeDrawable;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -27,7 +26,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -35,7 +33,6 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
-import android.graphics.drawable.shapes.OvalShape;
 
 /**
  * The SwipeRefreshLayout should be used whenever the user can refresh the
@@ -257,14 +254,10 @@ public class SwipeRefreshLayout extends ViewGroup {
     }
 
     private void createProgressView() {
-        mCircleView = new CircleImageView(getContext());
-        ShapeDrawable circle = new ShapeDrawable(new OvalShape());
-        circle.getPaint().setColor(CIRCLE_BG_LIGHT);
-        mCircleView.setBackgroundDrawable(circle);
+        mCircleView = new CircleImageView(getContext(), CIRCLE_BG_LIGHT, CIRCLE_DIAMETER/2);
         mProgress = new MaterialProgressDrawable(getContext(), this);
         mCircleView.setImageDrawable(mProgress);
         addView(mCircleView);
-        mCircleView.setLayoutParams(new ViewGroup.LayoutParams(mCircleWidth, mCircleWidth));
         mCurrentTargetOffsetTop = mOriginalOffsetTop = -mCircleWidth;
     }
 
@@ -344,10 +337,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     }
 
     public void setProgressBackgroundColor(int colorRes) {
-            final Resources res = getResources();
-            ShapeDrawable circle = new ShapeDrawable(new OvalShape());
-            circle.getPaint().setColor(res.getColor(colorRes));
-            mCircleView.setBackgroundDrawable(circle);
+        mCircleView.setBackgroundColor(colorRes);
     }
 
     /**
@@ -724,38 +714,4 @@ public class SwipeRefreshLayout extends ViewGroup {
     public interface OnRefreshListener {
         public void onRefresh();
     }
-
-    /**
-     * Private class created to work around issues with AnimationListeners being
-     * called before the animation is actually complete.
-     */
-    private static class CircleImageView extends ImageView {
-
-        private Animation.AnimationListener mListener;
-
-        public CircleImageView(Context context) {
-            super(context);
-        }
-
-        public void setAnimationListener(Animation.AnimationListener listener) {
-            mListener = listener;
-        }
-
-        @Override
-        public void onAnimationStart() {
-            super.onAnimationStart();
-            if (mListener != null) {
-                mListener.onAnimationStart(getAnimation());
-            }
-        }
-
-        @Override
-        public void onAnimationEnd() {
-            super.onAnimationEnd();
-            if (mListener != null) {
-                mListener.onAnimationEnd(getAnimation());
-            }
-        }
-    }
-
 }
