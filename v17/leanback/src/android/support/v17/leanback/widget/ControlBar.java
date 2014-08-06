@@ -16,9 +16,12 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.LinearLayout;
 
 class ControlBar extends LinearLayout {
+
+    private int mChildMarginFromCenter;
 
     public ControlBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -38,4 +41,29 @@ class ControlBar extends LinearLayout {
         return super.requestFocus(direction, previouslyFocusedRect);
     }
 
+    public void setChildMarginFromCenter(int marginFromCenter) {
+        mChildMarginFromCenter = marginFromCenter;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (mChildMarginFromCenter <= 0) {
+            return;
+        }
+
+        int totalExtraMargin = 0;
+        for (int i = 0; i < getChildCount() - 1; i++) {
+            View first = getChildAt(i);
+            View second = getChildAt(i+1);
+            int measuredWidth = first.getMeasuredWidth() + second.getMeasuredWidth();
+            int marginStart = mChildMarginFromCenter - measuredWidth / 2;
+            LayoutParams lp = (LayoutParams) second.getLayoutParams();
+            int extraMargin = marginStart - lp.getMarginStart();
+            lp.setMarginStart(marginStart);
+            second.setLayoutParams(lp);
+            totalExtraMargin += extraMargin;
+        }
+        setMeasuredDimension(getMeasuredWidth() + totalExtraMargin, getMeasuredHeight());
+    }
 }

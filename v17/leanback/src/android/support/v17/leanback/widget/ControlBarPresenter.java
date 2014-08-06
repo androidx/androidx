@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.content.Context;
 import android.support.v17.leanback.R;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -52,7 +53,7 @@ class ControlBarPresenter extends Presenter {
     class ViewHolder extends Presenter.ViewHolder {
         ObjectAdapter mAdapter;
         Presenter mPresenter;
-        LinearLayout mControlBar;
+        ControlBar mControlBar;
         SparseArray<Presenter.ViewHolder> mViewHolders =
                 new SparseArray<Presenter.ViewHolder>();
         ObjectAdapter.DataObserver mDataObserver;
@@ -62,7 +63,7 @@ class ControlBarPresenter extends Presenter {
          */
         ViewHolder(View rootView) {
             super(rootView);
-            mControlBar = (LinearLayout) rootView.findViewById(R.id.control_bar);
+            mControlBar = (ControlBar) rootView.findViewById(R.id.control_bar);
             if (mControlBar == null) {
                 throw new IllegalStateException("Couldn't find control_bar");
             }
@@ -80,6 +81,11 @@ class ControlBarPresenter extends Presenter {
             };
         }
 
+        int getChildMarginFromCenter(Context context, int numControls) {
+            // Includes margin between icons plus two times half the icon width.
+            return getChildMarginDefault(context) + getControlIconWidth(context);
+        }
+
         void showControls(ObjectAdapter adapter, Presenter presenter) {
             View focusedChild = mControlBar.getFocusedChild();
             mControlBar.removeAllViews();
@@ -90,6 +96,8 @@ class ControlBarPresenter extends Presenter {
             if (focusedChild != null) {
                 focusedChild.requestFocus();
             }
+            mControlBar.setChildMarginFromCenter(
+                    getChildMarginFromCenter(mControlBar.getContext(), adapter.size()));
         }
 
         void bindControlToAction(final int position, ObjectAdapter adapter, Presenter presenter) {
@@ -121,6 +129,8 @@ class ControlBarPresenter extends Presenter {
 
     private OnActionClickedListener mOnActionClickedListener;
     private int mLayoutResourceId;
+    private static int sChildMarginDefault;
+    private static int sControlIconWidth;
 
     /**
      * Constructor for a ControlBarPresenter.
@@ -176,5 +186,21 @@ class ControlBarPresenter extends Presenter {
         ViewHolder vh = (ViewHolder) holder;
         vh.mAdapter.unregisterObserver(vh.mDataObserver);
         vh.mAdapter = null;
+    }
+
+    int getChildMarginDefault(Context context) {
+        if (sChildMarginDefault == 0) {
+            sChildMarginDefault = context.getResources().getDimensionPixelSize(
+                    R.dimen.lb_playback_controls_child_margin_default);
+        }
+        return sChildMarginDefault;
+    }
+
+    int getControlIconWidth(Context context) {
+        if (sControlIconWidth == 0) {
+            sControlIconWidth = context.getResources().getDimensionPixelSize(
+                    R.dimen.lb_control_icon_width);
+        }
+        return sControlIconWidth;
     }
 }
