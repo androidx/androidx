@@ -78,7 +78,9 @@
 
     <style name="Widget.Leanback" parent="android:Widget.Holo" />
 
-    <style name="Widget.Leanback.BaseCardViewStyle" />
+    <style name="Widget.Leanback.BaseCardViewStyle">
+        <item name="android:foreground">@drawable/lb_card_foreground</item>
+    </style>
 
     <style name="Widget.Leanback.ImageCardViewStyle" parent="Widget.Leanback.BaseCardViewStyle">
         <item name="cardType">infoUnder</item>
