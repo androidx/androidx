@@ -76,17 +76,34 @@ public class ImageCardView extends BaseCardView {
         }
     }
 
+    /**
+     * Set drawable with fade-in animation.
+     */
     public void setMainImage(Drawable drawable) {
+        setMainImage(drawable, true);
+    }
+
+    /**
+     * Set drawable with optional fade-in animation.
+     */
+    public void setMainImage(Drawable drawable, boolean fade) {
         if (mImageView == null) {
             return;
         }
 
         mImageView.setImageDrawable(drawable);
         if (drawable == null) {
+            mImageView.animate().cancel();
+            mImageView.setAlpha(1f);
             mImageView.setVisibility(View.INVISIBLE);
         } else {
             mImageView.setVisibility(View.VISIBLE);
-            fadeIn(mImageView);
+            if (fade) {
+                fadeIn(mImageView);
+            } else {
+                mImageView.animate().cancel();
+                mImageView.setAlpha(1f);
+            }
         }
     }
 
