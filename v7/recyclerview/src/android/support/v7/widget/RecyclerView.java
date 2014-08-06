@@ -5018,6 +5018,22 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Returns the item View which has or contains focus.
+         *
+         * @return A direct child of RecyclerView which has focus or contains the focused child.
+         */
+        public View findItemWhichHasFocus() {
+            if (mRecyclerView == null) {
+                return null;
+            }
+            View focused = mRecyclerView.findFocus();
+            if (focused != null && focused.getParent() == mRecyclerView) {
+                return focused;
+            }
+            return null;
+        }
+
+        /**
          * Returns the number of items in the adapter bound to the parent RecyclerView.
          * <p>
          * Note that this number is not necessarily equal to {@link State#getItemCount()}. In

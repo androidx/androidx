@@ -31,14 +31,41 @@ import android.widget.LinearLayout;
  */
 public abstract class OrientationHelper {
 
+    private static final int INVALID_SIZE = Integer.MIN_VALUE;
+
     protected final RecyclerView.LayoutManager mLayoutManager;
 
     public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
 
     public static final int VERTICAL = LinearLayout.VERTICAL;
 
+    private int mLastTotalSpace = INVALID_SIZE;
+
     private OrientationHelper(RecyclerView.LayoutManager layoutManager) {
         mLayoutManager = layoutManager;
+    }
+
+    /**
+     * Call this method after onLayout method is complete if state is NOT pre-layout.
+     * This method records information like layout bounds that might be useful in the next layout
+     * calculations.
+     */
+    public void onLayoutComplete() {
+        mLastTotalSpace = getTotalSpace();
+    }
+
+    /**
+     * Returns the layout space change between the previous layout pass and current layout pass.
+     * <p>
+     * Make sure you call {@link #onLayoutComplete()} at the end of your LayoutManager's
+     * {@link RecyclerView.LayoutManager#onLayoutChildren(RecyclerView.Recycler,
+     * RecyclerView.State)} method.
+     *
+     * @return The difference between the current total space and previous layout's total space.
+     * @see #onLayoutComplete()
+     */
+    public int getTotalSpaceChange() {
+        return INVALID_SIZE == mLastTotalSpace ? 0 : getTotalSpace() - mLastTotalSpace;
     }
 
     /**
