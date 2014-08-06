@@ -136,6 +136,13 @@ public class RenderScript {
                         }
                     }
 
+                    // blur issues on some drivers with 4.4
+                    if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableBlurWorkaround") == true) {
+                        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.KITKAT) {
+                            //android.util.Log.e("rs", "war on");
+                            sThunk = 0;
+                        }
+                    }
                 }
                 // end of workarounds
             }
