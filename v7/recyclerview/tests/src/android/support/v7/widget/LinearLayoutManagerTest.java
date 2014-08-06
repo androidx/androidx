@@ -629,8 +629,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         RecyclerView restored = new RecyclerView(getActivity());
         // this config should be no op.
         mLayoutManager = new WrappedLinearLayoutManager(getActivity(),
-                1 - config.mOrientation, !config.mReverseLayout);
-        mLayoutManager.setStackFromEnd(!config.mStackFromEnd);
+                config.mOrientation, config.mReverseLayout);
+        mLayoutManager.setStackFromEnd(config.mStackFromEnd);
         restored.setLayoutManager(mLayoutManager);
         // use the same adapter for Rect matching
         restored.setAdapter(mTestAdapter);
@@ -650,8 +650,6 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                 config.mOrientation, mLayoutManager.getOrientation());
         assertEquals(logPrefix + " on saved state, stack from end should be preserved",
                 config.mStackFromEnd, mLayoutManager.getStackFromEnd());
-        assertEquals(logPrefix + " on saved state, mRecycleChildrenOnDetach should be preserved",
-                config.mRecycleChildrenOnDetach, mLayoutManager.getRecycleChildrenOnDetach());
         if (waitForLayout) {
             if (postRestoreOperation.shouldLayoutMatch(config)) {
                 assertRectSetsEqual(
