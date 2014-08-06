@@ -16,6 +16,7 @@
 
 package android.support.v7.media;
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -30,6 +31,7 @@ import android.os.Message;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityManagerCompat;
 import android.support.v4.hardware.display.DisplayManagerCompat;
 import android.support.v7.media.MediaRouteProvider.ProviderMetadata;
 import android.util.Log;
@@ -119,8 +121,8 @@ public final class MediaRouter {
     public static final int CALLBACK_FLAG_UNFILTERED_EVENTS = 1 << 1;
 
     /**
-     * Flag for {@link #addCallback}: Request that route discovery be performed while this
-     * callback is registered.
+     * Flag for {@link #addCallback}: Request passive route discovery while this
+     * callback is registered, except on {@link ActivityManager#isLowRamDevice low-RAM devices}.
      * <p>
      * When this flag is specified, the media router will try to discover routes.
      * Although route discovery is intended to be efficient, checking for new routes may
@@ -134,11 +136,30 @@ public final class MediaRouter {
      * method and remove it in the {@link android.app.Activity#onStop onStop} method.
      * The {@link android.support.v7.app.MediaRouteDiscoveryFragment} fragment may
      * also be used for this purpose.
+     * </p><p class="note">
+     * On {@link ActivityManager#isLowRamDevice low-RAM devices} this flag
+     * will be ignored.  Refer to
+     * {@link #addCallback(MediaRouteSelector, Callback, int) addCallback} for details.
      * </p>
      *
      * @see android.support.v7.app.MediaRouteDiscoveryFragment
      */
     public static final int CALLBACK_FLAG_REQUEST_DISCOVERY = 1 << 2;
+
+    /**
+     * Flag for {@link #addCallback}: Request passive route discovery while this
+     * callback is registered, even on {@link ActivityManager#isLowRamDevice low-RAM devices}.
+     * <p class="note">
+     * This flag has a significant performance impact on low-RAM devices
+     * since it may cause many media route providers to be started simultaneously.
+     * It is much better to use {@link #CALLBACK_FLAG_REQUEST_DISCOVERY} instead to avoid
+     * performing passive discovery on these devices altogether.  Refer to
+     * {@link #addCallback(MediaRouteSelector, Callback, int) addCallback} for details.
+     * </p>
+     *
+     * @see android.support.v7.app.MediaRouteDiscoveryFragment
+     */
+    public static final int CALLBACK_FLAG_FORCE_DISCOVERY = 1 << 3;
 
     /**
      * Flag for {@link #isRouteAvailable}: Ignore the default route.
@@ -150,6 +171,21 @@ public final class MediaRouter {
      * </p>
      */
     public static final int AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE = 1 << 0;
+
+    /**
+     * Flag for {@link #isRouteAvailable}: Require an actual route to be matched.
+     * <p>
+     * If this flag is not set, then {@link #isRouteAvailable} will return true
+     * if it is possible to discover a matching route even if discovery is not in
+     * progress or if no matching route has yet been found.  This feature is used to
+     * save resources by removing the need to perform passive route discovery on
+     * {@link ActivityManager#isLowRamDevice low-RAM devices}.
+     * </p><p>
+     * If this flag is set, then {@link #isRouteAvailable} will only return true if
+     * a matching route has actually been discovered.
+     * </p>
+     */
+    public static final int AVAILABILITY_FLAG_REQUIRE_MATCH = 1 << 1;
 
     MediaRouter(Context context) {
         mContext = context;
@@ -322,11 +358,17 @@ public final class MediaRouter {
      * regardless of whether they are enabled or disabled.  If the
      * {@link #AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE} flag is specified, then
      * the method will only consider non-default routes.
+     * </p><p class="note">
+     * On {@link ActivityManager#isLowRamDevice low-RAM devices} this method
+     * will return true if it is possible to discover a matching route even if
+     * discovery is not in progress or if no matching route has yet been found.
+     * Use {@link #AVAILABILITY_FLAG_REQUIRE_MATCH} to require an actual match.
      * </p>
      *
      * @param selector The selector to match.
      * @param flags Flags to control the determination of whether a route may be available.
-     * May be zero or {@link #AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE}.
+     * May be zero or some combination of {@link #AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE}
+     * and {@link #AVAILABILITY_FLAG_REQUIRE_MATCH}.
      * @return True if a matching route may be available.
      */
     public boolean isRouteAvailable(@NonNull MediaRouteSelector selector, int flags) {
@@ -372,6 +414,28 @@ public final class MediaRouter {
      * By default, the callback will only be invoked for events that affect routes
      * that match the specified selector.  Event filtering may be disabled by specifying
      * the {@link #CALLBACK_FLAG_UNFILTERED_EVENTS} flag when the callback is registered.
+     * </p><p>
+     * Applications should use the {@link #isRouteAvailable} method to determine
+     * whether is it possible to discover a route with the desired capabilities
+     * and therefore whether the media route button should be shown to the user.
+     * </p><p>
+     * The {@link #CALLBACK_FLAG_REQUEST_DISCOVERY} flag should be used while the application
+     * is in the foreground to request that passive discovery be performed if there are
+     * sufficient resources to allow continuous passive discovery.
+     * On {@link ActivityManager#isLowRamDevice low-RAM devices} this flag will be
+     * ignored to conserve resources.
+     * </p><p>
+     * The {@link #CALLBACK_FLAG_FORCE_DISCOVERY} flag should be used when
+     * passive discovery absolutely must be performed, even on low-RAM devices.
+     * This flag has a significant performance impact on low-RAM devices
+     * since it may cause many media route providers to be started simultaneously.
+     * It is much better to use {@link #CALLBACK_FLAG_REQUEST_DISCOVERY} instead to avoid
+     * performing passive discovery on these devices altogether.
+     * </p><p>
+     * The {@link #CALLBACK_FLAG_PERFORM_ACTIVE_SCAN} flag should be used when the
+     * media route chooser dialog is showing to confirm the presence of available
+     * routes that the user may connect to.  This flag may use substantially more
+     * power.
      * </p>
      *
      * <h3>Example</h3>
@@ -1430,6 +1494,7 @@ public final class MediaRouter {
         private final CallbackHandler mCallbackHandler = new CallbackHandler();
         private final DisplayManagerCompat mDisplayManager;
         private final SystemMediaRouteProvider mSystemProvider;
+        private final boolean mLowRam;
 
         private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
         private RouteInfo mDefaultRoute;
@@ -1440,6 +1505,9 @@ public final class MediaRouter {
         GlobalMediaRouter(Context applicationContext) {
             mApplicationContext = applicationContext;
             mDisplayManager = DisplayManagerCompat.getInstance(applicationContext);
+            mLowRam = ActivityManagerCompat.isLowRamDevice(
+                    (ActivityManager)applicationContext.getSystemService(
+                            Context.ACTIVITY_SERVICE));
 
             // Add the system media route provider for interoperating with
             // the framework media router.  This one is special and receives
@@ -1559,6 +1627,15 @@ public final class MediaRouter {
         }
 
         public boolean isRouteAvailable(MediaRouteSelector selector, int flags) {
+            if (selector.isEmpty()) {
+                return false;
+            }
+
+            // On low-RAM devices, do not rely on actual discovery results unless asked to.
+            if ((flags & AVAILABILITY_FLAG_REQUIRE_MATCH) == 0 && mLowRam) {
+                return true;
+            }
+
             // Check whether any existing routes match the selector.
             final int routeCount = mRoutes.size();
             for (int i = 0; i < routeCount; i++) {
@@ -1595,6 +1672,11 @@ public final class MediaRouter {
                             discover = true; // perform active scan implies request discovery
                         }
                         if ((callback.mFlags & CALLBACK_FLAG_REQUEST_DISCOVERY) != 0) {
+                            if (!mLowRam) {
+                                discover = true;
+                            }
+                        }
+                        if ((callback.mFlags & CALLBACK_FLAG_FORCE_DISCOVERY) != 0) {
                             discover = true;
                         }
                     }
@@ -1620,6 +1702,12 @@ public final class MediaRouter {
             }
             if (DEBUG) {
                 Log.d(TAG, "Updated discovery request: " + mDiscoveryRequest);
+            }
+            if (discover && !activeScan && mLowRam) {
+                Log.i(TAG, "Forcing passive route discovery on a low-RAM device, "
+                        + "system performance may be affected.  Please consider using "
+                        + "CALLBACK_FLAG_REQUEST_DISCOVERY instead of "
+                        + "CALLBACK_FLAG_FORCE_DISCOVERY.");
             }
 
             // Notify providers.
