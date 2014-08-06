@@ -54,6 +54,9 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     SpanSizeLookup mSpanSizeLookup = new DefaultSpanSizeLookup();
 
+    // re-used variable to acquire decor insets from RecyclerView
+    final Rect mDecorInsets = new Rect();
+
     public GridLayoutManager(Context context, int spanCount) {
         super(context);
         setSpanCount(spanCount);
@@ -196,7 +199,8 @@ public class GridLayoutManager extends LinearLayoutManager {
         int maxSize = 0;
         final boolean layingOutInPrimaryDirection = mShouldReverseLayout ==
                 (layoutState.mLayoutDirection == LayoutState.LAYOUT_START);
-
+        // we should assign spans before item decor offsets are calculated
+        assignSpans(count, layingOutInPrimaryDirection);
         for (int i = 0; i < count; i ++) {
             View view = mSet[i];
             if (layingOutInPrimaryDirection) {
@@ -219,7 +223,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         }
         result.mConsumed = maxSize;
 
-        int left = 0, top = 0, right = 0, bottom = 0;
+        int left = 0, right = 0, top = 0, bottom = 0;
         if (mOrientation == VERTICAL) {
             if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
                 bottom = layoutState.mOffset;
@@ -237,6 +241,58 @@ public class GridLayoutManager extends LinearLayoutManager {
                 right = left + maxSize;
             }
         }
+        for (int i = 0; i < count; i ++) {
+            View view = mSet[i];
+            LayoutParams params = (LayoutParams) view.getLayoutParams();
+            if (mOrientation == VERTICAL) {
+                left = getPaddingLeft() + mSizePerSpan * params.mSpanIndex;
+                right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
+            } else {
+                top = getPaddingTop() + mSizePerSpan * params.mSpanIndex;
+                bottom = top + mOrientationHelper.getDecoratedMeasurementInOther(view);
+            }
+            // We calculate everything with View's bounding box (which includes decor and margins)
+            // To calculate correct layout position, we subtract margins.
+            layoutDecorated(view, left + params.leftMargin, top + params.topMargin,
+                    right - params.rightMargin, bottom - params.bottomMargin);
+            if (DEBUG) {
+                Log.d(TAG, "laid out child at position " + getPosition(view) + ", with l:"
+                        + (left + params.leftMargin) + ", t:" + (top + params.topMargin) + ", r:"
+                        + (right - params.rightMargin) + ", b:" + (bottom - params.bottomMargin)
+                        + ", span:" + params.mSpanIndex + ", spanSize:" + params.mSpanSize);
+            }
+            // Consume the available space if the view is not removed OR changed
+            if (params.isItemRemoved() || params.isItemChanged()) {
+                result.mIgnoreConsumed = true;
+            }
+            result.mFocusable |= view.isFocusable();
+        }
+        Arrays.fill(mSet, null);
+    }
+
+    private void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec) {
+        calculateItemDecorationsForChild(child, mDecorInsets);
+        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
+        widthSpec = updateSpecWithExtra(widthSpec, lp.leftMargin + mDecorInsets.left,
+                lp.rightMargin + mDecorInsets.right);
+        heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + mDecorInsets.top,
+                lp.bottomMargin + mDecorInsets.bottom);
+        child.measure(widthSpec, heightSpec);
+    }
+
+    private int updateSpecWithExtra(int spec, int startInset, int endInset) {
+        if (startInset == 0 && endInset == 0) {
+            return spec;
+        }
+        final int mode = View.MeasureSpec.getMode(spec);
+        if (mode == View.MeasureSpec.AT_MOST || mode == View.MeasureSpec.EXACTLY) {
+            return View.MeasureSpec.makeMeasureSpec(
+                    View.MeasureSpec.getSize(spec) - startInset - endInset, mode);
+        }
+        return spec;
+    }
+
+    private void assignSpans(int count, boolean layingOutInPrimaryDirection) {
         int span, spanDiff, start, end, diff;
         // make sure we traverse from min position to max position
         if (layingOutInPrimaryDirection) {
@@ -258,62 +314,14 @@ public class GridLayoutManager extends LinearLayoutManager {
         for (int i = start; i != end; i += diff) {
             View view = mSet[i];
             LayoutParams params = (LayoutParams) view.getLayoutParams();
-            int spanSize = mSpanSizeLookup.getSpanSize(getPosition(view));
-            final int startSpan;
-            if (spanDiff == -1 && spanSize > 1) {
-                startSpan = span - (spanSize - 1);
+            params.mSpanSize = mSpanSizeLookup.getSpanSize(getPosition(view));
+            if (spanDiff == -1 && params.mSpanSize > 1) {
+                params.mSpanIndex = span - (params.mSpanSize - 1);
             } else {
-                startSpan = span;
+                params.mSpanIndex = span;
             }
-            if (mOrientation == VERTICAL) {
-                left = getPaddingLeft() + mSizePerSpan * startSpan;
-                right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
-            } else {
-                top = getPaddingTop() + mSizePerSpan * startSpan;
-                bottom = top + mOrientationHelper.getDecoratedMeasurementInOther(view);
-            }
-            params.mSpanIndex = startSpan;
-            params.mSpanSize = spanSize;
-            // We calculate everything with View's bounding box (which includes decor and margins)
-            // To calculate correct layout position, we subtract margins.
-            layoutDecorated(view, left + params.leftMargin, top + params.topMargin,
-                    right - params.rightMargin, bottom - params.bottomMargin);
-            if (DEBUG) {
-                Log.d(TAG, "laid out child at position " + getPosition(view) + ", with l:"
-                        + (left + params.leftMargin) + ", t:" + (top + params.topMargin) + ", r:"
-                        + (right - params.rightMargin) + ", b:" + (bottom - params.bottomMargin)
-                        + ", span:" + span + ", spanSize:" + spanSize);
-            }
-            // Consume the available space if the view is not removed OR changed
-            if (params.isItemRemoved() || params.isItemChanged()) {
-                result.mIgnoreConsumed = true;
-            }
-            result.mFocusable |= view.isFocusable();
-            span += spanDiff * spanSize;
+            span += spanDiff * params.mSpanSize;
         }
-        Arrays.fill(mSet, null);
-    }
-
-    private void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec) {
-        final Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);
-        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-        widthSpec = updateSpecWithExtra(widthSpec, lp.leftMargin + insets.left,
-                lp.rightMargin + insets.right);
-        heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + insets.top,
-                lp.bottomMargin + insets.bottom);
-        child.measure(widthSpec, heightSpec);
-    }
-
-    private int updateSpecWithExtra(int spec, int startInset, int endInset) {
-        if (startInset == 0 && endInset == 0) {
-            return spec;
-        }
-        final int mode = View.MeasureSpec.getMode(spec);
-        if (mode == View.MeasureSpec.AT_MOST || mode == View.MeasureSpec.EXACTLY) {
-            return View.MeasureSpec.makeMeasureSpec(
-                    View.MeasureSpec.getSize(spec) - startInset - endInset, mode);
-        }
-        return spec;
     }
 
     /**
