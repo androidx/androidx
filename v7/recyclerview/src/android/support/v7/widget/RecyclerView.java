@@ -2684,6 +2684,7 @@ public class RecyclerView extends ViewGroup {
                     mRunningLayoutOrScroll = false;
                     resumeRequestLayout(false);
                 }
+                final boolean fullyConsumedScroll = dx == hresult && dy == vresult;
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
                 }
@@ -2713,7 +2714,6 @@ public class RecyclerView extends ViewGroup {
                         scroller.abortAnimation();
                     }
                 }
-
                 if (mScrollListener != null && (hresult != 0 || vresult != 0)) {
                     mScrollListener.onScrolled(RecyclerView.this, hresult, vresult);
                 }
@@ -2722,8 +2722,8 @@ public class RecyclerView extends ViewGroup {
                     invalidate();
                 }
 
-                if (scroller.isFinished()) {
-                    setScrollState(SCROLL_STATE_IDLE);
+                if (scroller.isFinished() || !fullyConsumedScroll) {
+                    setScrollState(SCROLL_STATE_IDLE); // setting state to idle will stop this.
                 } else {
                     postOnAnimation();
                 }
