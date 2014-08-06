@@ -70,14 +70,6 @@
            parent="android:TextAppearance.Material.Widget.ActionMode.Subtitle">
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse"
-           parent="android:TextAppearance.Material.Widget.ActionMode.Title.Inverse">
-    </style>
-
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse"
-           parent="android:TextAppearance.Material.Widget.ActionMode.Subtitle.Inverse">
-    </style>
-
     <!-- Action Button Styles -->
 
     <style name="Base.Widget.AppCompat.ActionButton"
@@ -202,6 +194,10 @@
            parent="@android:TextAppearance.Material.SearchResult.Subtitle">
     </style>
 
+    <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.Material.AutoCompleteTextView" />
+
+    <style name="Base.Widget.AppCompat.Light.AutoCompleteTextView" parent="android:Widget.Material.AutoCompleteTextView" />
+
     <!-- Progress Bar -->
 
     <style name="Base.Widget.AppCompat.ProgressBar.Horizontal"
@@ -210,18 +206,6 @@
 
     <style name="Base.Widget.AppCompat.ProgressBar"
            parent="android:Widget.Material.ProgressBar">
-    </style>
-
-    <!--
-        TextAppearance.Material.Light.SearchResult.* are private so we extend from the default
-        versions instead (which are exactly the same).
-    -->
-    <style name="Base.TextAppearance.AppCompat.Light.SearchResult.Title"
-           parent="Base.TextAppearance.AppCompat.SearchResult.Title">
-    </style>
-
-    <style name="Base.TextAppearance.AppCompat.Light.SearchResult.Subtitle"
-           parent="Base.TextAppearance.AppCompat.SearchResult.Subtitle">
     </style>
 
     <!-- TODO. Needs updating for Material -->
