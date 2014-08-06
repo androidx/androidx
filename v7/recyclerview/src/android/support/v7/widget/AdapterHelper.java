@@ -283,9 +283,9 @@ class AdapterHelper {
                     // Looks like we have other updates that we cannot merge with this one.
                     // Create an UpdateOp and dispatch it to LayoutManager.
                     UpdateOp newOp = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
+                    dispatch(newOp);
                     mCallback.offsetPositionsForRemovingInvisible(newOp.positionStart,
                             newOp.itemCount);
-                    dispatch(newOp);
                     typeChanged = true;
                 }
                 type = POSITION_TYPE_NEW_OR_LAID_OUT;
@@ -316,8 +316,8 @@ class AdapterHelper {
             op = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
         }
         if (type == POSITION_TYPE_INVISIBLE) {
-            mCallback.offsetPositionsForRemovingInvisible(op.positionStart, op.itemCount);
             dispatch(op);
+            mCallback.offsetPositionsForRemovingInvisible(op.positionStart, op.itemCount);
         } else {
             mCallback.offsetPositionsForRemovingLaidOutOrNewView(op.positionStart, op.itemCount);
             postpone(op);
@@ -334,8 +334,9 @@ class AdapterHelper {
             if (vh != null || canFindInPreLayout(position)) { // deferred
                 if (type == POSITION_TYPE_INVISIBLE) {
                     UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
-                    mCallback.markViewHoldersUpdated(newOp.positionStart, newOp.itemCount);
                     dispatch(newOp);
+                    mCallback.markViewHoldersUpdated(newOp.positionStart, newOp.itemCount);
+
                     // tmpStart is still same since dispatch already shifts elements
                     position -= newOp.itemCount; // also equal to tmpStart
                     tmpEnd -= newOp.itemCount;
@@ -361,12 +362,12 @@ class AdapterHelper {
             recycleUpdateOp(op);
             op = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
         }
-        mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount);
         if (type == POSITION_TYPE_INVISIBLE) {
             dispatch(op);
         } else {
             postpone(op);
         }
+        mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount);
     }
 
     private void dispatch(UpdateOp op) {
@@ -643,17 +644,19 @@ class AdapterHelper {
             UpdateOp op = mPendingUpdates.get(i);
             switch (op.cmd) {
                 case UpdateOp.ADD:
-                    mCallback.offsetPositionsForAdd(op.positionStart, op.itemCount);
                     mCallback.onDispatchSecondPass(op);
+                    mCallback.offsetPositionsForAdd(op.positionStart, op.itemCount);
                     break;
                 case UpdateOp.REMOVE:
-                    mCallback.offsetPositionsForRemovingInvisible(op.positionStart, op.itemCount);
                     mCallback.onDispatchSecondPass(op);
+                    mCallback.offsetPositionsForRemovingInvisible(op.positionStart, op.itemCount);
                     break;
                 case UpdateOp.UPDATE:
+                    mCallback.onDispatchSecondPass(op);
                     mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount);
                     break;
                 case UpdateOp.MOVE:
+                    mCallback.onDispatchSecondPass(op);
                     mCallback.offsetPositionsForMove(op.positionStart, op.itemCount);
                     break;
             }
