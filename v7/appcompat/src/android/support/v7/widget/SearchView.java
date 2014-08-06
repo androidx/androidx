@@ -37,6 +37,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
@@ -1007,7 +1008,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
             return hintText;
         }
 
-        final Drawable searchIcon = getResources().getDrawable(mSearchIconResId);
+        final Drawable searchIcon = ContextCompat.getDrawable(getContext(), mSearchIconResId);
         final int textSize = (int) (mQueryTextView.getTextSize() * 1.25);
         searchIcon.setBounds(0, 0, textSize, textSize);
 

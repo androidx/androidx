@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -250,7 +251,7 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * @param resId Resource ID of a background drawable
      */
     public void setPopupBackgroundResource(int resId) {
-        setPopupBackgroundDrawable(getContext().getDrawable(resId));
+        setPopupBackgroundDrawable(ContextCompat.getDrawable(getContext(), resId));
     }
 
     /**

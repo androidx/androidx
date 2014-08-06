@@ -18,6 +18,7 @@ package android.support.v7.internal.view.menu;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -100,7 +101,7 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
     }
 
     public SubMenu setHeaderIcon(int iconRes) {
-        super.setHeaderIconInt(getContext().getResources().getDrawable(iconRes));
+        super.setHeaderIconInt(ContextCompat.getDrawable(getContext(), iconRes));
         return this;
     }
 
