@@ -49,7 +49,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
         imageView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
         imageView.layout(0, 0, width, height);
-        View rightPanel = mViewHolder.mRightPanel;
+        final View rightPanel = mViewHolder.mRightPanel;
         if (mRightPanelWidth != 0 && mRightPanelHeight != 0) {
             rightPanel.measure(MeasureSpec.makeMeasureSpec(mRightPanelWidth, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(mRightPanelHeight, MeasureSpec.EXACTLY));
@@ -58,6 +58,21 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
         } else {
             rightPanel.offsetLeftAndRight(width - rightPanel.getLeft());
         }
+        rightPanel.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void setSharedElementEnd(List<String> sharedElementNames,
+            List<View> sharedElements, List<View> sharedElementSnapshots) {
+        if (sharedElements.size() < 1) {
+            return;
+        }
+        View overviewView = sharedElements.get(0);
+        if (mViewHolder == null || mViewHolder.mOverviewView != overviewView) {
+            return;
+        }
+        final View rightPanel = mViewHolder.mRightPanel;
+        rightPanel.setVisibility(View.VISIBLE);
     }
 
     void setSharedElementEnterTransition(Activity activity, String sharedElementName) {
