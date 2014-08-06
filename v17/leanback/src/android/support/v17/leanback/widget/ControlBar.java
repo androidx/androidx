@@ -21,7 +21,12 @@ import android.widget.LinearLayout;
 
 class ControlBar extends LinearLayout {
 
+    public interface OnChildFocusedListener {
+        public void onChildFocusedListener(View child, View focused);
+    }
+
     private int mChildMarginFromCenter;
+    private OnChildFocusedListener mOnChildFocusedListener;
 
     public ControlBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -41,8 +46,20 @@ class ControlBar extends LinearLayout {
         return super.requestFocus(direction, previouslyFocusedRect);
     }
 
+    public void setOnChildFocusedListener(OnChildFocusedListener listener) {
+        mOnChildFocusedListener = listener;
+    }
+
     public void setChildMarginFromCenter(int marginFromCenter) {
         mChildMarginFromCenter = marginFromCenter;
+    }
+
+    @Override
+    public void requestChildFocus (View child, View focused) {
+        super.requestChildFocus(child, focused);
+        if (mOnChildFocusedListener != null) {
+            mOnChildFocusedListener.onChildFocusedListener(child, focused);
+        }
     }
 
     @Override
