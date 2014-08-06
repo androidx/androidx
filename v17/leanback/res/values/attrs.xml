@@ -126,6 +126,24 @@
         <attr name="searchOrbBrightColor" format="reference|color" />
     </declare-styleable>
 
+    <declare-styleable name="lbPlaybackControlsActionIcons">
+        <attr name="play" format="reference"/>
+        <attr name="pause" format="reference"/>
+        <attr name="fast_forward" format="reference"/>
+        <attr name="rewind" format="reference"/>
+        <attr name="skip_next" format="reference"/>
+        <attr name="skip_previous" format="reference"/>
+        <attr name="thumb_up_outline" format="reference"/>
+        <attr name="thumb_up" format="reference"/>
+        <attr name="thumb_down_outline" format="reference"/>
+        <attr name="thumb_down" format="reference"/>
+        <attr name="repeat" format="reference"/>
+        <attr name="repeat_one" format="reference"/>
+        <attr name="shuffle" format="reference"/>
+        <attr name="high_quality" format="reference"/>
+        <attr name="closed_captioning" format="reference"/>
+    </declare-styleable>
+
     <declare-styleable name="LeanbackTheme">
 
         <!-- left padding of BrowseFragment, RowsFragment, DetailsFragment -->
@@ -201,6 +219,8 @@
         <attr name="defaultSearchIcon" format="reference" />
 
         <attr name="playbackProgressPrimaryColor" format="reference|color" />
+        <attr name="playbackControlsIconHighlightColor" format="reference|color" />
+        <attr name="playbackControlsActionIcons" format="reference" />
 
     </declare-styleable>
 

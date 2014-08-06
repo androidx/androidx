@@ -14,7 +14,9 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.R;
+import android.util.TypedValue;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -41,11 +43,87 @@ import android.graphics.drawable.Drawable;
 public class PlaybackControlsRow extends Row {
 
     /**
+     * Base class for an action comprised of a series of icons.
+     */
+    public static abstract class MultiAction extends Action {
+        private int mIndex;
+        private Drawable[] mDrawables;
+
+        /**
+         * Constructor
+         * @param id The id of the Action.
+         */
+        public MultiAction(int id) {
+            super(id);
+        }
+
+        /**
+         * Sets the array of drawables.  The size of the array defines the range
+         * of valid indices for this action.
+         */
+        public void setDrawables(Drawable[] drawables) {
+            mDrawables = drawables;
+            setIndex(0);
+        }
+
+        /**
+         * Returns the number of drawables.
+         */
+        public int getNumberOfDrawables() {
+            return mDrawables.length;
+        }
+
+        /**
+         * Returns the drawable at the given index.
+         */
+        public Drawable getDrawable(int index) {
+            return mDrawables[index];
+        }
+
+        /**
+         * Increments the index, wrapping to zero once the end is reached.
+         */
+        public void nextIndex() {
+            setIndex(mIndex < mDrawables.length - 1 ? mIndex + 1 : 0);
+        }
+
+        /**
+         * @deprecated Use nextIndex instead
+         */
+        @Deprecated
+        public void toggle() {
+            nextIndex();
+        }
+
+        /**
+         * Sets the current index.
+         */
+        public void setIndex(int index) {
+            mIndex = index;
+            setIcon(mDrawables[mIndex]);
+        }
+
+        /**
+         * Gets the current index.
+         */
+        public int getIndex() {
+            return mIndex;
+        }
+    }
+
+    /**
      * An action displaying icons for play and pause.
      */
-    public static class PlayPauseAction extends Action {
-        Drawable mPlayIcon;
-        Drawable mPauseIcon;
+    public static class PlayPauseAction extends MultiAction {
+        /**
+         * Action index for the play icon.
+         */
+        public static int PLAY = 0;
+
+        /**
+         * Action index for the pause icon.
+         */
+        public static int PAUSE = 1;
 
         /**
          * Constructor
@@ -53,37 +131,21 @@ public class PlaybackControlsRow extends Row {
          */
         public PlayPauseAction(Context context) {
             super(R.id.lb_control_play_pause);
-            mPlayIcon = context.getResources().getDrawable(R.drawable.lb_ic_play);
-            mPauseIcon = context.getResources().getDrawable(R.drawable.lb_ic_pause);
-            play();
-        }
-
-        /**
-         * Display the play icon.
-         */
-        public void play() {
-            setIcon(mPlayIcon);
-        }
-
-        /**
-         * Display the pause icon.
-         */
-        public void pause() {
-            setIcon(mPauseIcon);
-        }
-
-        /**
-         * Toggle between the play and pause icon.
-         */
-        public void toggle() {
-            setIcon(getIcon() == mPlayIcon ? mPauseIcon : mPlayIcon);
+            Drawable[] drawables = new Drawable[2];
+            drawables[PLAY] = getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_play);
+            drawables[PAUSE] = getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_pause);
+            setDrawables(drawables);
         }
 
         /**
          * Returns true if the current icon is play.
+         * @deprecated Use getIndex instead
          */
+        @Deprecated
         public boolean isPlayIconShown() {
-            return getIcon() == mPlayIcon;
+            return getIndex() == PLAY;
         }
     }
 
@@ -97,7 +159,8 @@ public class PlaybackControlsRow extends Row {
          */
         public FastForwardAction(Context context) {
             super(R.id.lb_control_fast_forward);
-            setIcon(context.getResources().getDrawable(R.drawable.lb_ic_fast_forward));
+            setIcon(getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_fast_forward));
         }
     }
 
@@ -111,7 +174,8 @@ public class PlaybackControlsRow extends Row {
          */
         public RewindAction(Context context) {
             super(R.id.lb_control_fast_rewind);
-            setIcon(context.getResources().getDrawable(R.drawable.lb_ic_fast_rewind));
+            setIcon(getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_rewind));
         }
     }
 
@@ -125,7 +189,8 @@ public class PlaybackControlsRow extends Row {
          */
         public SkipNextAction(Context context) {
             super(R.id.lb_control_skip_next);
-            setIcon(context.getResources().getDrawable(R.drawable.lb_ic_skip_next));
+            setIcon(getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_skip_next));
         }
     }
 
@@ -139,7 +204,8 @@ public class PlaybackControlsRow extends Row {
          */
         public SkipPreviousAction(Context context) {
             super(R.id.lb_control_skip_previous);
-            setIcon(context.getResources().getDrawable(R.drawable.lb_ic_skip_previous));
+            setIcon(getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_skip_previous));
         }
     }
 
@@ -158,108 +224,218 @@ public class PlaybackControlsRow extends Row {
     }
 
     /**
-     * An action displaying an icon for thumbs up.
+     * A base class for displaying a thumbs action.
      */
-    public static class ThumbsUpAction extends Action {
+    public static abstract class ThumbsAction extends MultiAction {
+        /**
+         * Action index for the solid thumb icon.
+         */
+        public static int SOLID = 0;
+
+        /**
+         * Action index for the outline thumb icon.
+         */
+        public static int OUTLINE = 1;
+
         /**
          * Constructor
          * @param context Context used for loading resources.
          */
+        public ThumbsAction(int id, Context context, int solidIconIndex, int outlineIconIndex) {
+            super(id);
+            Drawable[] drawables = new Drawable[2];
+            drawables[SOLID] = getStyledDrawable(context, solidIconIndex);
+            drawables[OUTLINE] = getStyledDrawable(context, outlineIconIndex);
+            setDrawables(drawables);
+        }
+    }
+
+    /**
+     * An action displaying an icon for thumbs up.
+     */
+    public static class ThumbsUpAction extends ThumbsAction {
         public ThumbsUpAction(Context context) {
-            super(R.id.lb_control_thumbs_up);
-            setIcon(context.getResources().getDrawable(R.drawable.lb_ic_thumb_up));
+            super(R.id.lb_control_thumbs_up, context,
+                    R.styleable.lbPlaybackControlsActionIcons_thumb_up,
+                    R.styleable.lbPlaybackControlsActionIcons_thumb_up_outline);
         }
     }
 
     /**
      * An action displaying an icon for thumbs down.
      */
-    public static class ThumbsDownAction extends Action {
-        /**
-         * Constructor
-         * @param context Context used for loading resources.
-         */
+    public static class ThumbsDownAction extends ThumbsAction {
         public ThumbsDownAction(Context context) {
-            super(R.id.lb_control_thumbs_down);
-            setIcon(context.getResources().getDrawable(R.drawable.lb_ic_thumb_down));
+            super(R.id.lb_control_thumbs_down, context,
+                    R.styleable.lbPlaybackControlsActionIcons_thumb_down,
+                    R.styleable.lbPlaybackControlsActionIcons_thumb_down_outline);
         }
     }
 
-    /**
+     /**
      * An action for displaying three repeat states: none, one, or all.
      */
-    public static class RepeatAction extends Action {
+    public static class RepeatAction extends MultiAction {
+        /**
+         * Action index for the repeat-none icon.
+         */
         public static int NONE = 0;
-        public static int ONE = 1;
-        public static int ALL = 2;
-        private Drawable[] mRepeatIcon = new Drawable[3];
-        private int mState;
+
+        /**
+         * Action index for the repeat-all icon.
+         */
+        public static int ALL = 1;
+
+        /**
+         * Action index for the repeat-one icon.
+         */
+        public static int ONE = 2;
 
         /**
          * Constructor
          * @param context Context used for loading resources.
          */
         public RepeatAction(Context context) {
+            this(context, getColorFromTheme(context,
+                    R.attr.playbackControlsIconHighlightColor));
+        }
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources
+         * @param highlightColor Color to display the repeat-all and repeat0one icons.
+         */
+        public RepeatAction(Context context, int highlightColor) {
+            this(context, highlightColor, highlightColor);
+        }
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources
+         * @param repeatAllColor Color to display the repeat-all icon.
+         * @param repeatOneColor Color to display the repeat-one icon.
+         */
+        public RepeatAction(Context context, int repeatAllColor, int repeatOneColor) {
             super(R.id.lb_control_repeat);
-            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.lb_ic_loop);
-            mRepeatIcon[NONE] = new BitmapDrawable(context.getResources(),
-                    bitmap);
-            mRepeatIcon[ONE] = new BitmapDrawable(context.getResources(),
-                    createBitmap(bitmap, Color.CYAN));
-            mRepeatIcon[ALL] = new BitmapDrawable(context.getResources(),
-                    createBitmap(bitmap, Color.GREEN));
-            repeatNone();
-        }
-
-        /**
-         * Display the icon for repeat-none.
-         */
-        public void repeatNone() {
-            setIcon(mRepeatIcon[mState = NONE]);
-        }
-
-        /**
-         * Display the icon for repeat-one.
-         */
-        public void repeatOne() {
-            setIcon(mRepeatIcon[mState = ONE]);
-        }
-
-        /**
-         * Display the icon for repeat-all.
-         */
-        public void repeatAll() {
-            setIcon(mRepeatIcon[mState = ALL]);
+            Drawable[] drawables = new Drawable[3];
+            BitmapDrawable repeatDrawable = (BitmapDrawable) getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_repeat);
+            BitmapDrawable repeatOneDrawable = (BitmapDrawable) getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_repeat_one);
+            drawables[NONE] = repeatDrawable;
+            drawables[ALL] = new BitmapDrawable(context.getResources(),
+                    createBitmap(repeatDrawable.getBitmap(), repeatAllColor));
+            drawables[ONE] = new BitmapDrawable(context.getResources(),
+                    createBitmap(repeatOneDrawable.getBitmap(), repeatOneColor));
+            setDrawables(drawables);
         }
 
         /**
          * Display the next icon in the series.
+         * @deprecated Use nextIndex instead
          */
+        @Deprecated
         public void next() {
-            mState = mState == ALL ? NONE : mState + 1;
-            setIcon(mRepeatIcon[mState]);
-        }
-
-        /**
-         * Returns the current state (NONE, ALL, or ONE).
-         */
-        public int getState() {
-            return mState;
+            nextIndex();
         }
     }
 
     /**
      * An action for displaying a shuffle icon.
      */
-    public static class ShuffleAction extends Action {
+    public static class ShuffleAction extends MultiAction {
+        public static int OFF = 0;
+        public static int ON = 1;
+
         /**
          * Constructor
          * @param context Context used for loading resources.
          */
         public ShuffleAction(Context context) {
+            this(context, getColorFromTheme(context,
+                    R.attr.playbackControlsIconHighlightColor));
+        }
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         * @param highlightColor Color for the highlighted icon state.
+         */
+        public ShuffleAction(Context context, int highlightColor) {
             super(R.id.lb_control_shuffle);
-            setIcon(context.getResources().getDrawable(R.drawable.lb_ic_shuffle));
+            BitmapDrawable uncoloredDrawable = (BitmapDrawable) getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_shuffle);
+            Drawable[] drawables = new Drawable[2];
+            drawables[OFF] = uncoloredDrawable;
+            drawables[ON] = new BitmapDrawable(context.getResources(),
+                    createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
+            setDrawables(drawables);
+        }
+    }
+
+    /**
+     * An action for displaying a HQ (High Quality) icon.
+     */
+    public static class HighQualityAction extends MultiAction {
+        public static int OFF = 0;
+        public static int ON = 1;
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         */
+        public HighQualityAction(Context context) {
+            this(context, getColorFromTheme(context,
+                    R.attr.playbackControlsIconHighlightColor));
+        }
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         * @param highlightColor Color for the highlighted icon state.
+         */
+        public HighQualityAction(Context context, int highlightColor) {
+            super(R.id.lb_control_high_quality);
+            BitmapDrawable uncoloredDrawable = (BitmapDrawable) getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_high_quality);
+            Drawable[] drawables = new Drawable[2];
+            drawables[OFF] = uncoloredDrawable;
+            drawables[ON] = new BitmapDrawable(context.getResources(),
+                    createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
+            setDrawables(drawables);
+        }
+    }
+
+    /**
+     * An action for displaying a CC (Closed Captioning) icon.
+     */
+    public static class ClosedCaptioningAction extends MultiAction {
+        public static int OFF = 0;
+        public static int ON = 1;
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         */
+        public ClosedCaptioningAction(Context context) {
+            this(context, getColorFromTheme(context,
+                    R.attr.playbackControlsIconHighlightColor));
+        }
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         * @param highlightColor Color for the highlighted icon state.
+         */
+        public ClosedCaptioningAction(Context context, int highlightColor) {
+            super(R.id.lb_control_high_quality);
+            BitmapDrawable uncoloredDrawable = (BitmapDrawable) getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_closed_captioning);
+            Drawable[] drawables = new Drawable[2];
+            drawables[OFF] = uncoloredDrawable;
+            drawables[ON] = new BitmapDrawable(context.getResources(),
+                    createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
+            setDrawables(drawables);
         }
     }
 
@@ -270,6 +446,23 @@ public class PlaybackControlsRow extends Row {
         paint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
         canvas.drawBitmap(bitmap, 0, 0, paint);
         return dst;
+    }
+
+    private static int getColorFromTheme(Context context, int attributeResId) {
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(attributeResId, outValue, true);
+        return outValue.data;
+    }
+
+    private static Drawable getStyledDrawable(Context context, int index) {
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(
+                R.attr.playbackControlsActionIcons, outValue, false);
+        TypedArray array = context.getTheme().obtainStyledAttributes(outValue.data,
+                R.styleable.lbPlaybackControlsActionIcons);
+        Drawable drawable = array.getDrawable(index);
+        array.recycle();
+        return drawable;
     }
 
     private Object mItem;
