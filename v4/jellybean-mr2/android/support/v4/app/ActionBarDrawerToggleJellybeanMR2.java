@@ -60,7 +60,8 @@ class ActionBarDrawerToggleJellybeanMR2 {
             context = activity;
         }
 
-        final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
+        final TypedArray a = context.obtainStyledAttributes(null, THEME_ATTRS,
+                R.attr.actionBarStyle, 0);
         final Drawable result = a.getDrawable(0);
         a.recycle();
         return result;
