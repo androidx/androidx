@@ -150,6 +150,8 @@ public class RowsFragment extends BaseRowFragment {
     private RecyclerView.RecycledViewPool mRecycledViewPool;
     private ArrayList<Presenter> mPresenterMapper;
 
+    private ItemBridgeAdapter.AdapterListener mExternalAdapterListener;
+
     /**
      * Sets an item clicked listener on the fragment.
      * OnItemClickedListener will override {@link View.OnClickListener} that
@@ -307,6 +309,10 @@ public class RowsFragment extends BaseRowFragment {
         }
     }
 
+    void setExternalAdapterListener(ItemBridgeAdapter.AdapterListener listener) {
+        mExternalAdapterListener = listener;
+    }
+
     private RecyclerView.ItemDecoration mItemDecoration = new RecyclerView.ItemDecoration() {
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent) {
@@ -347,6 +353,9 @@ public class RowsFragment extends BaseRowFragment {
         public void onAddPresenter(Presenter presenter, int type) {
             ((RowPresenter) presenter).setOnItemClickedListener(mOnItemClickedListener);
             ((RowPresenter) presenter).setOnItemViewClickedListener(mOnItemViewClickedListener);
+            if (mExternalAdapterListener != null) {
+                mExternalAdapterListener.onAddPresenter(presenter, type);
+            }
         }
         @Override
         public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
@@ -361,6 +370,9 @@ public class RowsFragment extends BaseRowFragment {
             // events.  When there is rebind, grid view fires onChildSelected event properly.
             // So we don't need do anything special later in onBind or onAttachedToWindow.
             setRowViewSelected(vh, false, true);
+            if (mExternalAdapterListener != null) {
+                mExternalAdapterListener.onCreate(vh);
+            }
         }
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
@@ -373,11 +385,29 @@ public class RowsFragment extends BaseRowFragment {
             setRowViewExpanded(vh, mExpand);
             setOnItemSelectedListener(vh, mOnItemSelectedListener);
             setOnItemViewSelectedListener(vh, mOnItemViewSelectedListener);
+            if (mExternalAdapterListener != null) {
+                mExternalAdapterListener.onAttachedToWindow(vh);
+            }
+        }
+        @Override
+        public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder vh) {
+            if (mExternalAdapterListener != null) {
+                mExternalAdapterListener.onDetachedFromWindow(vh);
+            }
+        }
+        @Override
+        public void onBind(ItemBridgeAdapter.ViewHolder vh) {
+            if (mExternalAdapterListener != null) {
+                mExternalAdapterListener.onBind(vh);
+            }
         }
         @Override
         public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
             RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
             extra.endAnimations();
+            if (mExternalAdapterListener != null) {
+                mExternalAdapterListener.onUnbind(vh);
+            }
         }
     };
 

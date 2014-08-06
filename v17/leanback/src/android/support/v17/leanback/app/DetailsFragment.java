@@ -167,6 +167,10 @@ public class DetailsFragment extends Fragment {
         return mRowsFragment == null ? null : mRowsFragment.getVerticalGridView();
     }
 
+    RowsFragment getRowsFragment() {
+        return mRowsFragment;
+    }
+
     /**
      * Setup dimensions that are only meaningful when the child Fragments are inside
      * DetailsFragment.
