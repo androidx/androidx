@@ -20,6 +20,8 @@ import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -101,6 +103,36 @@ abstract class BaseGridView extends RecyclerView {
      */
     public final static float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1;
 
+    /**
+     * Listener for intercepting touch dispatch events.
+     */
+    public interface OnTouchInterceptListener {
+        /**
+         * Returns true if the touch dispatch event should be consumed.
+         */
+        public boolean onInterceptTouchEvent(MotionEvent event);
+    }
+
+    /**
+     * Listener for intercepting generic motion dispatch events.
+     */
+    public interface OnMotionInterceptListener {
+        /**
+         * Returns true if the touch dispatch event should be consumed.
+         */
+        public boolean onInterceptMotionEvent(MotionEvent event);
+    }
+
+    /**
+     * Listener for intercepting key dispatch events.
+     */
+    public interface OnKeyInterceptListener {
+        /**
+         * Returns true if the key dispatch event should be consumed.
+         */
+        public boolean onInterceptKeyEvent(KeyEvent event);
+    }
+
     protected final GridLayoutManager mLayoutManager;
 
     /**
@@ -109,6 +141,10 @@ abstract class BaseGridView extends RecyclerView {
     private boolean mAnimateChildLayout = true;
 
     private RecyclerView.ItemAnimator mSavedItemAnimator;
+
+    private OnTouchInterceptListener mOnTouchInterceptListener;
+    private OnMotionInterceptListener mOnMotionInterceptListener;
+    private OnKeyInterceptListener mOnKeyInterceptListener;
 
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -503,5 +539,56 @@ abstract class BaseGridView extends RecyclerView {
      */
     public boolean isFocusDrawingOrderEnabled() {
         return super.isChildrenDrawingOrderEnabled();
+    }
+
+    /**
+     * Sets the touch intercept listener.
+     */
+    public void setOnTouchInterceptListener(OnTouchInterceptListener listener) {
+        mOnTouchInterceptListener = listener;
+    }
+
+    /**
+     * Sets the generic motion intercept listener.
+     */
+    public void setOnMotionInterceptListener(OnMotionInterceptListener listener) {
+        mOnMotionInterceptListener = listener;
+    }
+
+    /**
+     * Sets the key intercept listener.
+     */
+    public void setOnKeyInterceptListener(OnKeyInterceptListener listener) {
+        mOnKeyInterceptListener = listener;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (mOnKeyInterceptListener != null) {
+            if (mOnKeyInterceptListener.onInterceptKeyEvent(event)) {
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (mOnTouchInterceptListener != null) {
+            if (mOnTouchInterceptListener.onInterceptTouchEvent(event)) {
+                return true;
+            }
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    public boolean dispatchGenericFocusedEvent(MotionEvent event) {
+        if (mOnMotionInterceptListener != null) {
+            if (mOnMotionInterceptListener.onInterceptMotionEvent(event)) {
+                return true;
+            }
+        }
+        return super.dispatchGenericFocusedEvent(event);
     }
 }
