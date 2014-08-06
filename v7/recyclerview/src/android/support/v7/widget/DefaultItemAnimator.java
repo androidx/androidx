@@ -185,6 +185,10 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         ViewCompat.animate(view).setDuration(getRemoveDuration()).
                 alpha(0).setListener(new VpaListenerAdapter() {
             @Override
+            public void onAnimationStart(View view) {
+                dispatchRemoveStarting(holder);
+            }
+            @Override
             public void onAnimationEnd(View view) {
                 ViewCompat.setAlpha(view, 1);
                 dispatchRemoveFinished(holder);
@@ -208,6 +212,10 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         mAddAnimations.add(holder);
         ViewCompat.animate(view).alpha(1).setDuration(getAddDuration()).
                 setListener(new VpaListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        dispatchAddStarting(holder);
+                    }
                     @Override
                     public void onAnimationCancel(View view) {
                         ViewCompat.setAlpha(view, 1);
@@ -260,6 +268,10 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         // need listener functionality in VPACompat for this. Ick.
         mMoveAnimations.add(holder);
         ViewCompat.animate(view).setDuration(getMoveDuration()).setListener(new VpaListenerAdapter() {
+            @Override
+            public void onAnimationStart(View view) {
+                dispatchMoveStarting(holder);
+            }
             @Override
             public void onAnimationCancel(View view) {
                 if (deltaX != 0) {
@@ -315,11 +327,15 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         oldViewAnim.translationY(changeInfo.toY - changeInfo.fromY);
         oldViewAnim.alpha(0).setListener(new VpaListenerAdapter() {
             @Override
+            public void onAnimationStart(View view) {
+                dispatchChangeStarting(changeInfo.oldHolder, true);
+            }
+            @Override
             public void onAnimationEnd(View view) {
                 ViewCompat.setAlpha(view, 1);
                 ViewCompat.setTranslationX(view, 0);
                 ViewCompat.setTranslationY(view, 0);
-                dispatchChangeFinished(changeInfo.oldHolder);
+                dispatchChangeFinished(changeInfo.oldHolder, true);
                 mChangeAnimations.remove(changeInfo.oldHolder);
                 dispatchFinishedWhenDone();
             }
@@ -330,11 +346,15 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             newViewAnimation.translationX(0).translationY(0).setDuration(getChangeDuration()).
                     alpha(1).setListener(new VpaListenerAdapter() {
                 @Override
+                public void onAnimationStart(View view) {
+                    dispatchChangeStarting(changeInfo.newHolder, false);
+                }
+                @Override
                 public void onAnimationEnd(View view) {
                     ViewCompat.setAlpha(newView, 1);
                     ViewCompat.setTranslationX(newView, 0);
                     ViewCompat.setTranslationY(newView, 0);
-                    dispatchChangeFinished(changeInfo.newHolder);
+                    dispatchChangeFinished(changeInfo.newHolder, false);
                     mChangeAnimations.remove(changeInfo.newHolder);
                     dispatchFinishedWhenDone();
                 }
@@ -362,17 +382,19 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         }
     }
     private boolean endChangeAnimationIfNecessary(ChangeInfo changeInfo, ViewHolder item) {
+        boolean oldItem = false;
         if (changeInfo.newHolder == item) {
             changeInfo.newHolder = null;
         } else if (changeInfo.oldHolder == item) {
             changeInfo.oldHolder = null;
+            oldItem = true;
         } else {
             return false;
         }
         ViewCompat.setAlpha(item.itemView, 1);
         ViewCompat.setTranslationX(item.itemView, 0);
         ViewCompat.setTranslationY(item.itemView, 0);
-        dispatchChangeFinished(item);
+        dispatchChangeFinished(item, oldItem);
         return true;
     }
 
