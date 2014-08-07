@@ -44,17 +44,16 @@ import android.text.TextUtils;
  * create a {@link MediaControllerCompat} to interact with the session.
  * <p>
  * To receive commands, media keys, and other events a {@link Callback} must be
- * set with {@link #addCallback(Callback)}. To receive transport control
- * commands a {@link TransportControlsCallback} must be set with
- * {@link #addTransportControlsCallback}.
+ * set with {@link #setCallback(Callback)}.
  * <p>
  * When an app is finished performing playback it must call {@link #release()}
  * to clean up the session and notify any controllers.
  * <p>
  * MediaSession objects are thread safe.
  * <p>
- * This is a helper for accessing features in {@link android.media.session.MediaSession}
- * introduced after API level 4 in a backwards compatible fashion.
+ * This is a helper for accessing features in
+ * {@link android.media.session.MediaSession} introduced after API level 4 in a
+ * backwards compatible fashion.
  */
 public class MediaSessionCompat {
     private final MediaSessionImpl mImpl;
@@ -67,8 +66,7 @@ public class MediaSessionCompat {
 
     /**
      * Set this flag on the session to indicate that it handles transport
-     * control commands through a {@link TransportControlsCallback}.
-     * The callback can be retrieved by calling {@link #addTransportControlsCallback}.
+     * control commands through its {@link Callback}.
      */
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
 
@@ -110,34 +108,20 @@ public class MediaSessionCompat {
      *
      * @param callback The callback object
      */
-    public void addCallback(Callback callback) {
-        addCallback(callback, null);
+    public void setCallback(Callback callback) {
+        setCallback(callback, null);
     }
 
     /**
-     * Add a callback to receive updates for the MediaSession. This includes
-     * media button and volume events.
+     * Set the callback to receive updates for the MediaSession. This includes
+     * media button and volume events. Set the callback to null to stop
+     * receiving events.
      *
      * @param callback The callback to receive updates on.
      * @param handler The handler that events should be posted on.
      */
-    public void addCallback(Callback callback, Handler handler) {
-        if (callback == null) {
-            throw new IllegalArgumentException("callback must not be null");
-        }
-        mImpl.addCallback(callback, handler != null ? handler : new Handler());
-    }
-
-    /**
-     * Remove a callback. It will no longer receive updates.
-     *
-     * @param callback The callback to remove.
-     */
-    public void removeCallback(Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("callback must not be null");
-        }
-        mImpl.removeCallback(callback);
+    public void setCallback(Callback callback, Handler handler) {
+        mImpl.setCallback(callback, handler != null ? handler : new Handler());
     }
 
     /**
@@ -238,45 +222,6 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Add a callback to receive transport controls on, such as play, rewind, or
-     * fast forward.
-     *
-     * @param callback The callback object.
-     */
-    public void addTransportControlsCallback(TransportControlsCallback callback) {
-        addTransportControlsCallback(callback, null);
-    }
-
-    /**
-     * Add a callback to receive transport controls on, such as play, rewind, or
-     * fast forward. The updates will be posted to the specified handler. If no
-     * handler is provided they will be posted to the caller's thread.
-     *
-     * @param callback The callback to receive updates on.
-     * @param handler The handler to post the updates on.
-     */
-    public void addTransportControlsCallback(TransportControlsCallback callback,
-            Handler handler) {
-        if (callback == null) {
-            throw new IllegalArgumentException("Callback cannot be null");
-        }
-        mImpl.addTransportControlsCallback(callback, handler != null ? handler : new Handler());
-    }
-
-    /**
-     * Stop receiving transport controls on the specified callback. If an update
-     * has already been posted you may still receive it after this call returns.
-     *
-     * @param callback The callback to stop receiving updates on.
-     */
-    public void removeTransportControlsCallback(TransportControlsCallback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("Callback cannot be null");
-        }
-        mImpl.removeTransportControlsCallback(callback);
-    }
-
-    /**
      * Update the current playback state.
      *
      * @param state The current state of playback
@@ -309,8 +254,8 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Receives generic commands or updates from controllers and the system.
-     * Callbacks may be registered using {@link #addCallback}.
+     * Receives transport controls, media buttons, and commands from controllers
+     * and the system. The callback may be set using {@link #setCallback}.
      */
     public abstract static class Callback {
         final Object mCallbackObj;
@@ -321,21 +266,6 @@ public class MediaSessionCompat {
             } else {
                 mCallbackObj = null;
             }
-        }
-
-        /**
-         * Called when a media button is pressed and this session has the
-         * highest priority or a controller sends a media button event to the
-         * session. TODO determine if using Intents identical to the ones
-         * RemoteControlClient receives is useful
-         * <p>
-         * The intent will be of type {@link Intent#ACTION_MEDIA_BUTTON} with a
-         * KeyEvent in {@link Intent#EXTRA_KEY_EVENT}
-         *
-         * @param mediaButtonIntent an intent containing the KeyEvent as an
-         *            extra
-         */
-        public void onMediaButtonEvent(Intent mediaButtonIntent) {
         }
 
         /**
@@ -350,33 +280,14 @@ public class MediaSessionCompat {
         public void onCommand(String command, Bundle extras, ResultReceiver cb) {
         }
 
-        private class StubApi21 implements MediaSessionCompatApi21.Callback {
-            @Override
-            public void onMediaButtonEvent(Intent mediaButtonIntent) {
-                Callback.this.onMediaButtonEvent(mediaButtonIntent);
-            }
-
-            @Override
-            public void onCommand(String command, Bundle extras, ResultReceiver cb) {
-                Callback.this.onCommand(command, extras, cb);
-            }
-        }
-    }
-
-    /**
-     * Receives transport control commands. Callbacks may be registered using
-     * {@link #addTransportControlsCallback}.
-     */
-    public static abstract class TransportControlsCallback {
-        final Object mCallbackObj;
-
-        public TransportControlsCallback() {
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
-                mCallbackObj = MediaSessionCompatApi21.createTransportControlsCallback(
-                        new StubApi21());
-            } else {
-                mCallbackObj = null;
-            }
+        /**
+         * Override to handle media button events.
+         *
+         * @param mediaButtonEvent The media button event intent.
+         * @return True if the event was handled, false otherwise.
+         */
+        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            return false;
         }
 
         /**
@@ -437,50 +348,61 @@ public class MediaSessionCompat {
         public void onSetRating(RatingCompat rating) {
         }
 
-        private class StubApi21 implements MediaSessionCompatApi21.TransportControlsCallback {
+        private class StubApi21 implements MediaSessionCompatApi21.Callback {
+
+            @Override
+            public void onCommand(String command, Bundle extras, ResultReceiver cb) {
+                Callback.this.onCommand(command, extras, cb);
+            }
+
+            @Override
+            public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                return Callback.this.onMediaButtonEvent(mediaButtonIntent);
+            }
+
             @Override
             public void onPlay() {
-                TransportControlsCallback.this.onPlay();
+                Callback.this.onPlay();
             }
 
             @Override
             public void onPause() {
-                TransportControlsCallback.this.onPause();
+                Callback.this.onPause();
             }
 
             @Override
             public void onSkipToNext() {
-                TransportControlsCallback.this.onSkipToNext();
+                Callback.this.onSkipToNext();
             }
 
             @Override
             public void onSkipToPrevious() {
-                TransportControlsCallback.this.onSkipToPrevious();
+                Callback.this.onSkipToPrevious();
             }
 
             @Override
             public void onFastForward() {
-                TransportControlsCallback.this.onFastForward();
+                Callback.this.onFastForward();
             }
 
             @Override
             public void onRewind() {
-                TransportControlsCallback.this.onRewind();
+                Callback.this.onRewind();
             }
 
             @Override
             public void onStop() {
-                TransportControlsCallback.this.onStop();
+                Callback.this.onStop();
             }
 
             @Override
             public void onSeekTo(long pos) {
-                TransportControlsCallback.this.onSeekTo(pos);
+                Callback.this.onSeekTo(pos);
             }
 
             @Override
             public void onSetRating(Object ratingObj) {
-                TransportControlsCallback.this.onSetRating(RatingCompat.fromRating(ratingObj));
+                Callback.this.onSetRating(RatingCompat.fromRating(ratingObj));
             }
         }
     }
@@ -535,8 +457,7 @@ public class MediaSessionCompat {
     }
 
     interface MediaSessionImpl {
-        void addCallback(Callback callback, Handler handler);
-        void removeCallback(Callback callback);
+        void setCallback(Callback callback, Handler handler);
         void setFlags(int flags);
         void setPlaybackToLocal(int stream);
         void setPlaybackToRemote(VolumeProviderCompat volumeProvider);
@@ -545,8 +466,6 @@ public class MediaSessionCompat {
         void sendSessionEvent(String event, Bundle extras);
         void release();
         Token getSessionToken();
-        void addTransportControlsCallback(TransportControlsCallback callback, Handler handler);
-        void removeTransportControlsCallback(TransportControlsCallback callback);
         void setPlaybackState(PlaybackStateCompat state);
         void setMetadata(MediaMetadataCompat metadata);
         Object getMediaSession();
@@ -555,11 +474,7 @@ public class MediaSessionCompat {
     // TODO: compatibility implementation
     static class MediaSessionImplBase implements MediaSessionImpl {
         @Override
-        public void addCallback(Callback callback, Handler handler) {
-        }
-
-        @Override
-        public void removeCallback(Callback callback) {
+        public void setCallback(Callback callback, Handler handler) {
         }
 
         @Override
@@ -597,15 +512,6 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void addTransportControlsCallback(TransportControlsCallback callback,
-                Handler handler) {
-        }
-
-        @Override
-        public void removeTransportControlsCallback(TransportControlsCallback callback) {
-        }
-
-        @Override
         public void setPlaybackState(PlaybackStateCompat state) {
         }
 
@@ -629,13 +535,8 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void addCallback(Callback callback, Handler handler) {
-            MediaSessionCompatApi21.addCallback(mSessionObj, callback.mCallbackObj, handler);
-        }
-
-        @Override
-        public void removeCallback(Callback callback) {
-            MediaSessionCompatApi21.removeCallback(mSessionObj, callback.mCallbackObj);
+        public void setCallback(Callback callback, Handler handler) {
+            MediaSessionCompatApi21.setCallback(mSessionObj, callback.mCallbackObj, handler);
         }
 
         @Override
@@ -677,19 +578,6 @@ public class MediaSessionCompat {
         @Override
         public Token getSessionToken() {
             return mToken;
-        }
-
-        @Override
-        public void addTransportControlsCallback(TransportControlsCallback callback,
-                Handler handler) {
-            MediaSessionCompatApi21.addTransportControlsCallback(
-                    mSessionObj, callback.mCallbackObj, handler);
-        }
-
-        @Override
-        public void removeTransportControlsCallback(TransportControlsCallback callback) {
-            MediaSessionCompatApi21.removeTransportControlsCallback(
-                    mSessionObj, callback.mCallbackObj);
         }
 
         @Override
