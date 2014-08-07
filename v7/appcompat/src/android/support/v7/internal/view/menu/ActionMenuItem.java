@@ -19,6 +19,7 @@ package android.support.v7.internal.view.menu;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
@@ -166,7 +167,7 @@ public class ActionMenuItem implements SupportMenuItem {
 
     public MenuItem setIcon(int iconRes) {
         mIconResId = iconRes;
-        mIconDrawable = mContext.getResources().getDrawable(iconRes);
+        mIconDrawable = ContextCompat.getDrawable(mContext, iconRes);
         return this;
     }
 
