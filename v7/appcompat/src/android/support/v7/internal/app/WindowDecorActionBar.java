@@ -75,6 +75,11 @@ public class WindowDecorActionBar extends ActionBar implements
         ActionBarOverlayLayout.ActionBarVisibilityCallback {
     private static final String TAG = "WindowDecorActionBar";
 
+    /**
+     * Only allow show/hide animations on ICS+, as that is what ViewPropertyAnimatorCompat supports
+     */
+    private static final boolean ALLOW_SHOW_HIDE_ANIMATIONS = Build.VERSION.SDK_INT >= 14;
+
     private Context mContext;
     private Context mThemedContext;
     private FragmentActivity mActivity;
@@ -755,7 +760,8 @@ public class WindowDecorActionBar extends ActionBar implements
         }
         mContainerView.setVisibility(View.VISIBLE);
 
-        if (mCurWindowVisibility == View.VISIBLE && (mShowHideAnimationEnabled || fromSystem)) {
+        if (mCurWindowVisibility == View.VISIBLE && ALLOW_SHOW_HIDE_ANIMATIONS &&
+                (mShowHideAnimationEnabled || fromSystem)) {
             // because we're about to ask its window loc
             ViewCompat.setTranslationY(mContainerView, 0f);
             float startingY = -mContainerView.getHeight();
@@ -814,8 +820,8 @@ public class WindowDecorActionBar extends ActionBar implements
             mCurrentShowAnim.cancel();
         }
 
-        if (mCurWindowVisibility == View.VISIBLE && (mShowHideAnimationEnabled
-                || fromSystem)) {
+        if (mCurWindowVisibility == View.VISIBLE && ALLOW_SHOW_HIDE_ANIMATIONS &&
+                (mShowHideAnimationEnabled || fromSystem)) {
             ViewCompat.setAlpha(mContainerView, 1f);
             mContainerView.setTransitioning(true);
             AnimatorSetCompat anim = new AnimatorSetCompat();
