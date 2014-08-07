@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.*;
 import android.support.v7.app.ActionBar;
@@ -711,7 +712,7 @@ public class ActionBarView extends AbsActionBarView implements DecorToolbar {
     }
 
     public void setIcon(int resId) {
-        setIcon(resId != 0 ? mContext.getDrawable(resId) : null);
+        setIcon(resId != 0 ? ContextCompat.getDrawable(mContext, resId) : null);
     }
 
     public boolean hasIcon() {
@@ -726,7 +727,7 @@ public class ActionBarView extends AbsActionBarView implements DecorToolbar {
     }
 
     public void setLogo(int resId) {
-        setLogo(resId != 0 ? mContext.getDrawable(resId) : null);
+        setLogo(resId != 0 ? ContextCompat.getDrawable(mContext, resId) : null);
     }
 
     public boolean hasLogo() {
@@ -1434,7 +1435,9 @@ public class ActionBarView extends AbsActionBarView implements DecorToolbar {
 
         public void setUpIndicator(int resId) {
             mUpIndicatorRes = resId;
-            mUpView.setImageDrawable(resId != 0 ? getContext().getDrawable(resId) : null);
+            mUpView.setImageDrawable(resId != 0
+                    ? ContextCompat.getDrawable(getContext(), resId)
+                    : null);
         }
 
         protected void onConfigurationChanged(Configuration newConfig) {

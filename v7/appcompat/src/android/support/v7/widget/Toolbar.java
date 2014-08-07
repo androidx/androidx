@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewCompat;
@@ -288,7 +289,7 @@ public class Toolbar extends ViewGroup {
      * @param resId ID of a drawable resource
      */
     public void setLogo(int resId) {
-        setLogo(getContext().getResources().getDrawable(resId));
+        setLogo(ContextCompat.getDrawable(getContext(), resId));
     }
 
     /** @hide */
@@ -712,7 +713,7 @@ public class Toolbar extends ViewGroup {
      * @param resId Resource ID of a drawable to set
      */
     public void setNavigationIcon(int resId) {
-        setNavigationIcon(getContext().getResources().getDrawable(resId));
+        setNavigationIcon(ContextCompat.getDrawable(getContext(), resId));
     }
 
     /**

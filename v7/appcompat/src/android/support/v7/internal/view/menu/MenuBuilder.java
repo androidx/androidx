@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.R;
 import android.support.v4.view.ActionProvider;
@@ -1187,7 +1188,7 @@ public class MenuBuilder implements SupportMenu {
             }
 
             if (iconRes > 0) {
-                mHeaderIcon = r.getDrawable(iconRes);
+                mHeaderIcon = ContextCompat.getDrawable(getContext(), iconRes);
             } else if (icon != null) {
                 mHeaderIcon = icon;
             }

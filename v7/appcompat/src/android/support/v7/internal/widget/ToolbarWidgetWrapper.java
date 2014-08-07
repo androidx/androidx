@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v7.appcompat.R;
@@ -286,7 +287,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setIcon(int resId) {
-        setIcon(resId != 0 ? getContext().getResources().getDrawable(resId) : null);
+        setIcon(resId != 0 ? ContextCompat.getDrawable(getContext(), resId) : null);
     }
 
     @Override
@@ -297,7 +298,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setLogo(int resId) {
-        setLogo(resId != 0 ? getContext().getResources().getDrawable(resId) : null);
+        setLogo(resId != 0 ? ContextCompat.getDrawable(getContext(), resId) : null);
     }
 
     @Override
@@ -579,7 +580,9 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setNavigationIcon(int resId) {
-        setNavigationIcon(resId != 0 ? mToolbar.getContext().getResources().getDrawable(resId) : null);
+        setNavigationIcon(resId != 0
+                ? ContextCompat.getDrawable(mToolbar.getContext(), resId)
+                : null);
     }
 
     @Override
