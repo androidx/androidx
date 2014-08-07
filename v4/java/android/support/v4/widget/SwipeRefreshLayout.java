@@ -88,6 +88,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     private int mTouchSlop;
     private float mDistanceToTriggerSync = -1;
     private int mMediumAnimationDuration;
+    private int mShortAnimationDuration;
     private int mCurrentTargetOffsetTop;
 
     private float mInitialMotionY;
@@ -231,6 +232,8 @@ public class SwipeRefreshLayout extends ViewGroup {
 
         mMediumAnimationDuration = getResources().getInteger(
                 android.R.integer.config_mediumAnimTime);
+        mShortAnimationDuration = getResources().getInteger(
+                android.R.integer.config_shortAnimTime);
 
         setWillNotDraw(false);
         mDecelerateInterpolator = new DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR);
@@ -343,7 +346,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                 setAnimationProgress(1 - interpolatedTime);
             }
         };
-        mScaleDownAnimation.setDuration(mMediumAnimationDuration);
+        mScaleDownAnimation.setDuration(mShortAnimationDuration);
         if (listener != null) {
             mCircleView.setAnimationListener(listener);
         }
