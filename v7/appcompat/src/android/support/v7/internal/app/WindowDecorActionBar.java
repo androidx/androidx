@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -1176,7 +1177,7 @@ public class WindowDecorActionBar extends ActionBar implements
 
         @Override
         public Tab setIcon(int resId) {
-            return setIcon(mContext.getResources().getDrawable(resId));
+            return setIcon(ContextCompat.getDrawable(mContext, resId));
         }
 
         @Override

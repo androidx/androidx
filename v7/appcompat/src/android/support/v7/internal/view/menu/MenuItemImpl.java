@@ -20,6 +20,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
@@ -406,7 +407,7 @@ public final class MenuItemImpl implements SupportMenuItem {
         }
 
         if (mIconResId != NO_ICON) {
-            Drawable icon =  mMenu.getResources().getDrawable(mIconResId);
+            Drawable icon =  ContextCompat.getDrawable(mMenu.getContext(), mIconResId);
             mIconResId = NO_ICON;
             mIconDrawable = icon;
             return icon;
