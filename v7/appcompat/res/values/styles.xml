@@ -250,6 +250,10 @@
     <style name="Widget.AppCompat.Light.SearchView" parent="Base.Widget.AppCompat.Light.SearchView">
     </style>
 
+    <style name="Widget.AppCompat.EditText"
+           parent="Base.Widget.AppCompat.EditText">
+    </style>
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
