@@ -193,6 +193,10 @@
         <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
+        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
+        <item name="editTextBackground">@drawable/abc_edit_text_material_dark</item>
+        <item name="editTextColor">?android:attr/textColorPrimary</item>
+
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
         <item name="colorPrimary">@color/material_blue_grey_800</item>
@@ -287,6 +291,10 @@
         <!-- Toolbar styles -->
         <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
+
+        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
+        <item name="editTextBackground">@drawable/abc_edit_text_material_light</item>
+        <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/material_blue_grey_600</item>
