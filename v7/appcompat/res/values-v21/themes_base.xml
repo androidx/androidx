@@ -83,6 +83,8 @@
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
         <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
         <item name="dividerVertical">?android:attr/dividerVertical</item>
+        <item name="editTextBackground">?android:attr/editTextBackground</item>
+        <item name="editTextColor">?android:attr/editTextColor</item>
 
         <!-- Copy our color theme attributes to the framework -->
         <item name="android:colorPrimary">?attr/colorPrimary</item>
@@ -92,6 +94,8 @@
         <item name="android:colorControlActivated">?attr/colorControlActivated</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
         <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
+
+
     </style>
 
     <style name="Base.V21.Theme.AppCompat.Light" parent="Base.V7.Theme.AppCompat.Light">
@@ -112,6 +116,10 @@
 
         <!-- General view attributes -->
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
+        <item name="dividerVertical">?android:attr/dividerVertical</item>
+        <item name="editTextBackground">?android:attr/editTextBackground</item>
+        <item name="editTextColor">?android:attr/editTextColor</item>
 
         <!-- Copy our color theme attributes to the framework -->
         <item name="android:colorPrimary">?attr/colorPrimary</item>

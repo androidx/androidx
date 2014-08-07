@@ -70,4 +70,9 @@
          (the screen is in landscape). This may be either a fraction or a dimension.-->
     <item type="dimen" name="dialog_fixed_height_minor">100%</item>
 
+    <!-- Default insets (outer padding) around controls -->
+    <dimen name="abc_control_inset_material">4dp</dimen>
+    <!-- Default inner padding within controls -->
+    <dimen name="abc_control_padding_material">4dp</dimen>
+
 </resources>
