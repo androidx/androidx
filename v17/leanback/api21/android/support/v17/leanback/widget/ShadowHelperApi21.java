@@ -16,15 +16,24 @@ package android.support.v17.leanback.widget;
 import android.support.v17.leanback.R;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 
 class ShadowHelperApi21 {
 
     static int sNormalZ = Integer.MIN_VALUE;
     static int sFocusedZ;
+    static final ViewOutlineProvider sOutlineProvider = new ViewOutlineProvider() {
+        @Override
+        public void getOutline(View view, Outline outline) {
+            outline.setRect(0, 0, view.getWidth(), view.getHeight());
+            outline.setAlpha(1.0f);
+        }
+    };
 
     private static void initializeResources(Resources res) {
         if (sNormalZ == Integer.MIN_VALUE) {
@@ -36,7 +45,7 @@ class ShadowHelperApi21 {
     /* add shadows and return a implementation detail object */
     public static Object addShadow(ViewGroup shadowContainer) {
         initializeResources(shadowContainer.getResources());
-        shadowContainer.setBackground(new ColorDrawable(Color.TRANSPARENT));
+        shadowContainer.setOutlineProvider(sOutlineProvider);
         shadowContainer.setZ(sNormalZ);
         return shadowContainer;
     }
