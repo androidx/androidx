@@ -309,6 +309,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         if (listener != null) {
             mCircleView.setAnimationListener(listener);
         }
+        mCircleView.clearAnimation();
         mCircleView.startAnimation(mScaleAnimation);
     }
 
@@ -338,6 +339,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         if (listener != null) {
             mCircleView.setAnimationListener(listener);
         }
+        mCircleView.clearAnimation();
         mCircleView.startAnimation(mScaleDownAnimation);
     }
 
@@ -587,7 +589,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                         }
                         if (mScale || mCurrentTargetOffsetTop > -mCircleHeight / 2) {
                             // start showing the arrow
-                            float pullPercent = yDiff / mDistanceToTriggerSync;
+                            float pullPercent = yDiff / mDistanceToTriggerSync * DRAG_RATE;
                             mProgress.setProgressRotation((float) (Math.PI / 4 * pullPercent));
                         }
                     } else {
@@ -607,10 +609,10 @@ public class SwipeRefreshLayout extends ViewGroup {
                                 true /* requires update */);
                         if (mScale || mCurrentTargetOffsetTop > -mCircleHeight / 2) {
                             // start showing the arrow
-                            float pullPercent = yDiff / mDistanceToTriggerSync;
+                            float pullPercent = yDiff / mDistanceToTriggerSync * DRAG_RATE;
                             float startTrim = (float) (.2 * Math.min(.75f, (pullPercent)));
                             mProgress.setStartEndTrim(startTrim,
-                                    Math.min(.75f, (float) (pullPercent)));
+                                    Math.min(.75f, pullPercent));
                             mProgress.setProgressRotation((float) (Math.PI / 4 * pullPercent));
                         }
                     }
@@ -654,6 +656,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         if (listener != null) {
             mCircleView.setAnimationListener(listener);
         }
+        mCircleView.clearAnimation();
         mCircleView.startAnimation(mAnimateToCorrectPosition);
     }
 
@@ -665,6 +668,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         if (listener != null) {
             mCircleView.setAnimationListener(listener);
         }
+        mCircleView.clearAnimation();
         mCircleView.startAnimation(mAnimateToStartPosition);
     }
 
