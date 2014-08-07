@@ -39,7 +39,7 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegateBase
     void onSubDecorInstalled() {
         // NativeActionModeAwareLayout is used to notify us when a native Action Mode is started
         mNativeActionModeAwareLayout = (NativeActionModeAwareLayout) mActivity
-                .findViewById(R.id.action_bar_root);
+                .findViewById(android.R.id.content);
 
         // Can be null when using FEATURE_ACTION_BAR_OVERLAY
         if (mNativeActionModeAwareLayout != null) {
