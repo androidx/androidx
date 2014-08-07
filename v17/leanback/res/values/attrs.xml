@@ -115,6 +115,10 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="lbImageCardView">
+        <attr name="infoAreaBackground" format="reference|color"/>
+    </declare-styleable>
+
     <declare-styleable name="lbSearchOrbView">
         <!-- Defining icon of the search affordance -->
         <attr name="searchOrbIcon" format="reference"/>
