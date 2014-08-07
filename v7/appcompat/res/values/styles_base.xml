@@ -104,7 +104,7 @@
     </style>
 
     <style name="Base.Widget.AppCompat.ActionBar.TabView" parent="">
-        <item name="android:background">@drawable/abc_tab_indicator_material</item>
+        <item name="android:background">@drawable/abc_tab_indicator_material_dark</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
@@ -113,8 +113,8 @@
         <item name="android:minWidth">80dip</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionBar.TabView"
-           parent="Base.Widget.AppCompat.ActionBar.TabView">
+    <style name="Base.Widget.AppCompat.Light.ActionBar.TabView" parent="Base.Widget.AppCompat.ActionBar.TabView">
+        <item name="android:background">@drawable/abc_tab_indicator_material_light</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActionBar.TabText" parent="">
