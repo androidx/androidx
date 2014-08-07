@@ -18,14 +18,10 @@ package android.support.v7.internal.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.VersionUtils;
 import android.support.v7.view.ActionMode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -43,11 +39,11 @@ public class ActionBarContainer extends FrameLayout {
     private View mTabContainer;
     private View mActionBarView;
 
-    private Drawable mBackground;
-    private Drawable mStackedBackground;
-    private Drawable mSplitBackground;
-    private boolean mIsSplit;
-    private boolean mIsStacked;
+    Drawable mBackground;
+    Drawable mStackedBackground;
+    Drawable mSplitBackground;
+    boolean mIsSplit;
+    boolean mIsStacked;
     private int mHeight;
 
     public ActionBarContainer(Context context) {
@@ -58,7 +54,10 @@ public class ActionBarContainer extends FrameLayout {
         super(context, attrs);
 
         // Set a transparent background so that we project appropriately.
-        setBackgroundDrawable(new ActionBarBackgroundDrawable());
+        final Drawable bg = VersionUtils.isAtLeastL()
+                ? new ActionBarBackgroundDrawableV21(this)
+                : new ActionBarBackgroundDrawable(this);
+        setBackgroundDrawable(bg);
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.ActionBar);
@@ -295,39 +294,6 @@ public class ActionBarContainer extends FrameLayout {
 
         if (needsInvalidate) {
             invalidate();
-        }
-    }
-
-    /**
-     * Dummy drawable so that we don't break background display lists and
-     * projection surfaces.
-     */
-    private class ActionBarBackgroundDrawable extends Drawable {
-        @Override
-        public void draw(Canvas canvas) {
-            if (mIsSplit) {
-                if (mSplitBackground != null) mSplitBackground.draw(canvas);
-            } else {
-                if (mBackground != null) {
-                    mBackground.draw(canvas);
-                }
-                if (mStackedBackground != null && mIsStacked) {
-                    mStackedBackground.draw(canvas);
-                }
-            }
-        }
-
-        @Override
-        public void setAlpha(int alpha) {
-        }
-
-        @Override
-        public void setColorFilter(ColorFilter cf) {
-        }
-
-        @Override
-        public int getOpacity() {
-            return 0;
         }
     }
 }
