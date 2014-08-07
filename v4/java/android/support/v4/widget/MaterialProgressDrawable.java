@@ -377,7 +377,6 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         private float mStrokeWidth = 5.0f;
         private float mStrokeInset = 2.5f;
 
-        private int mAlpha = 0xFF;
         private int mColor = Color.BLACK;
         private int[] mColors;
         private int mColorIndex;
@@ -453,18 +452,20 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         }
 
         public void setAlpha(int alpha) {
-            mAlpha = alpha;
-            mPaint.setColor(mColor & 0xFFFFFF | alpha << 24);
-            invalidateSelf();
+            final int oldAlpha = mPaint.getAlpha();
+            if (alpha != oldAlpha) {
+                mPaint.setAlpha(alpha);
+                invalidateSelf();
+            }
         }
 
         public int getAlpha() {
-            return mAlpha;
+            return mPaint.getAlpha();
         }
 
         public void setColor(int color) {
             mColor = color;
-            mPaint.setColor(color & 0xFFFFFF | mAlpha << 24);
+            mPaint.setColor(color);
             invalidateSelf();
         }
 
