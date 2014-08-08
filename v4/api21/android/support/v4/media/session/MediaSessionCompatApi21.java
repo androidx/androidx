@@ -38,12 +38,8 @@ class MediaSessionCompatApi21 {
         return new CallbackProxy<Callback>(callback);
     }
 
-    public static void addCallback(Object sessionObj, Object callbackObj, Handler handler) {
-        ((MediaSession)sessionObj).addCallback((MediaSession.Callback)callbackObj, handler);
-    }
-
-    public static void removeCallback(Object sessionObj, Object callbackObj) {
-        ((MediaSession)sessionObj).removeCallback((MediaSession.Callback)callbackObj);
+    public static void setCallback(Object sessionObj, Object callbackObj, Handler handler) {
+        ((MediaSession) sessionObj).setCallback((MediaSession.Callback) callbackObj, handler);
     }
 
     public static void setFlags(Object sessionObj, int flags) {
@@ -81,21 +77,6 @@ class MediaSessionCompatApi21 {
         return ((MediaSession)sessionObj).getSessionToken();
     }
 
-    public static Object createTransportControlsCallback(TransportControlsCallback callback) {
-        return new TransportControlsCallbackProxy<TransportControlsCallback>(callback);
-    }
-
-    public static void addTransportControlsCallback(Object sessionObj, Object callbackObj,
-            Handler handler) {
-        ((MediaSession)sessionObj).addTransportControlsCallback(
-                (MediaSession.TransportControlsCallback)callbackObj, handler);
-    }
-
-    public static void removeTransportControlsCallback(Object sessionObj, Object callbackObj) {
-        ((MediaSession)sessionObj).removeTransportControlsCallback(
-                (MediaSession.TransportControlsCallback)callbackObj);
-    }
-
     public static void setPlaybackState(Object sessionObj, Object stateObj) {
         ((MediaSession)sessionObj).setPlaybackState((PlaybackState)stateObj);
     }
@@ -105,11 +86,8 @@ class MediaSessionCompatApi21 {
     }
 
     public static interface Callback {
-        public void onMediaButtonEvent(Intent mediaButtonIntent);
         public void onCommand(String command, Bundle extras, ResultReceiver cb);
-    }
-
-    public static interface TransportControlsCallback {
+        public boolean onMediaButtonEvent(Intent mediaButtonIntent);
         public void onPlay();
         public void onPause();
         public void onSkipToNext();
@@ -129,22 +107,13 @@ class MediaSessionCompatApi21 {
         }
 
         @Override
-        public void onMediaButtonEvent(Intent mediaButtonIntent) {
-            mCallback.onMediaButtonEvent(mediaButtonIntent);
-        }
-
-        @Override
         public void onCommand(String command, Bundle args, ResultReceiver cb) {
             mCallback.onCommand(command, args, cb);
         }
-    }
 
-    static class TransportControlsCallbackProxy<T extends TransportControlsCallback>
-            extends MediaSession.TransportControlsCallback {
-        protected final T mCallback;
-
-        public TransportControlsCallbackProxy(T callback) {
-            mCallback = callback;
+        @Override
+        public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+            return mCallback.onMediaButtonEvent(mediaButtonIntent);
         }
 
         @Override
