@@ -58,7 +58,8 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
         } else {
             rightPanel.offsetLeftAndRight(width - rightPanel.getLeft());
         }
-        rightPanel.setVisibility(View.INVISIBLE);
+        mViewHolder.mActionsRow.setVisibility(View.INVISIBLE);
+        mViewHolder.mDetailsDescriptionFrame.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -71,8 +72,8 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
         if (mViewHolder == null || mViewHolder.mOverviewView != overviewView) {
             return;
         }
-        final View rightPanel = mViewHolder.mRightPanel;
-        rightPanel.setVisibility(View.VISIBLE);
+        mViewHolder.mActionsRow.setVisibility(View.VISIBLE);
+        mViewHolder.mDetailsDescriptionFrame.setVisibility(View.VISIBLE);
     }
 
     void setSharedElementEnterTransition(Activity activity, String sharedElementName) {
