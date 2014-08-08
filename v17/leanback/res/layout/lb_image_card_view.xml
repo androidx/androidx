@@ -33,7 +33,6 @@
         lb:layout_viewType="info" >
         <RelativeLayout
             android:id="@+id/info_field"
-            android:background="@color/lb_basic_card_info_bg_color"
             android:layout_width="match_parent"
             android:layout_height="@dimen/lb_basic_card_info_height"
             android:padding="@dimen/lb_basic_card_info_padding"
@@ -70,7 +69,6 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:scaleType="fitCenter"
-                android:background="@color/lb_basic_card_info_bg_color"
                 android:visibility="gone"
                 android:contentDescription="@null" />
             <ImageView
