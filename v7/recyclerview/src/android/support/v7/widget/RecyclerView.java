@@ -7567,15 +7567,6 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * @deprecated
-         * Use {@link #dispatchChangeFinished(ViewHolder, boolean)}
-         */
-        @Deprecated
-        public final void dispatchChangeFinished(ViewHolder item) {
-            dispatchChangeFinished(item, true);
-        }
-
-        /**
          * Method to be called by subclasses when a change animation is done.
          *
          * @see #animateChange(ViewHolder, ViewHolder, int, int, int, int)
