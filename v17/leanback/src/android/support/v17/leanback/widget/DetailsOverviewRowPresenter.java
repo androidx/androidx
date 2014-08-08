@@ -35,9 +35,26 @@ import java.util.Collection;
  * A DetailsOverviewRowPresenter renders a {@link DetailsOverviewRow} to display an
  * overview of an item. Typically this row will be the first row in a fragment
  * such as the {@link android.support.v17.leanback.app.DetailsFragment
- * DetailsFragment}.
+ * DetailsFragment}.  View created by DetailsOverviewRowPresenter is made in three parts:
+ * ImageView on the left, action list view on the bottom and a customizable detailed
+ * description view on the right.
  *
- * <p>The detailed description is rendered using a {@link Presenter}.
+ * <p>The detailed description is rendered using a {@link Presenter} passed in
+ * {@link #DetailsOverviewRowPresenter(Presenter)}.  User can access detailed description
+ * ViewHolder from {@link ViewHolder#mDetailsDescriptionViewHolder}.
+ * </p>
+ *
+ * <p>
+ * To participate in activity transition, call {@link #setSharedElementEnterTransition(Activity,
+ * String)} during Activity's onCreate().
+ * </p>
+ *
+ * <p>
+ * Because transition support and layout are fully controlled by DetailsOverviewRowPresenter,
+ * developer can not override DetailsOverviewRowPresenter.ViewHolder for adding/replacing views
+ * of DetailsOverviewRowPresenter.  If developer wants more customization beyond replacing
+ * detailed description , he/she should write a new presenter class for row object.
+ * </p>
  */
 public class DetailsOverviewRowPresenter extends RowPresenter {
 
@@ -49,13 +66,13 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     /**
      * A ViewHolder for the DetailsOverviewRow.
      */
-    public static class ViewHolder extends RowPresenter.ViewHolder {
+    public final static class ViewHolder extends RowPresenter.ViewHolder {
         final ViewGroup mOverviewView;
         final ImageView mImageView;
         final ViewGroup mRightPanel;
         final FrameLayout mDetailsDescriptionFrame;
         final HorizontalGridView mActionsRow;
-        Presenter.ViewHolder mDetailsDescriptionViewHolder;
+        public final Presenter.ViewHolder mDetailsDescriptionViewHolder;
         int mNumItems;
         boolean mShowMoreRight;
         boolean mShowMoreLeft;
@@ -149,7 +166,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
          * @param rootView The root View that this view holder will be attached
          *        to.
          */
-        public ViewHolder(View rootView) {
+        public ViewHolder(View rootView, Presenter detailsPresenter) {
             super(rootView);
             mOverviewView = (ViewGroup) rootView.findViewById(R.id.details_overview);
             mImageView = (ImageView) rootView.findViewById(R.id.details_overview_image);
@@ -164,6 +181,9 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                     R.dimen.lb_details_overview_actions_fade_size);
             mActionsRow.setFadingRightEdgeLength(fadeLength);
             mActionsRow.setFadingLeftEdgeLength(fadeLength);
+            mDetailsDescriptionViewHolder =
+                    detailsPresenter.onCreateViewHolder(mDetailsDescriptionFrame);
+            mDetailsDescriptionFrame.addView(mDetailsDescriptionViewHolder.view);
         }
     }
 
@@ -264,11 +284,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
         View v = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.lb_details_overview, parent, false);
-        ViewHolder vh = new ViewHolder(v);
-
-        vh.mDetailsDescriptionViewHolder =
-            mDetailsPresenter.onCreateViewHolder(vh.mDetailsDescriptionFrame);
-        vh.mDetailsDescriptionFrame.addView(vh.mDetailsDescriptionViewHolder.view);
+        ViewHolder vh = new ViewHolder(v, mDetailsPresenter);
 
         initDetailsOverview(vh);
 
