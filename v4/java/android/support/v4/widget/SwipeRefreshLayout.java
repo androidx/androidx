@@ -65,6 +65,8 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     private static final String LOG_TAG = SwipeRefreshLayout.class.getSimpleName();
 
+    private static final int MAX_ALPHA = 255;
+
     private static final int CIRCLE_DIAMETER = 48;
     private static final int CIRCLE_DIAMETER_LARGE = 96;
     private static final int CIRCLE_DIAMETER_SMALL = 16;
@@ -147,11 +149,19 @@ public class SwipeRefreshLayout extends ViewGroup {
                 mCircleView.setVisibility(View.GONE);
                 // Return the circle to its start position
                 if (mScale) {
-                    ViewCompat.setScaleX(mCircleView, MIN_CIRCLE_SCALE);
-                    ViewCompat.setScaleY(mCircleView, MIN_CIRCLE_SCALE);
+                    if (android.os.Build.VERSION.SDK_INT < 11) {
+                        setColorViewAlpha(0);
+                    } else {
+                        ViewCompat.setScaleX(mCircleView, MIN_CIRCLE_SCALE);
+                        ViewCompat.setScaleY(mCircleView, MIN_CIRCLE_SCALE);
+                    }
                 } else {
-                    ViewCompat.setScaleX(mCircleView, 1f);
-                    ViewCompat.setScaleY(mCircleView, 1f);
+                    if (android.os.Build.VERSION.SDK_INT < 11) {
+                        setColorViewAlpha(MAX_ALPHA);
+                    } else {
+                        ViewCompat.setScaleX(mCircleView, 1f);
+                        ViewCompat.setScaleY(mCircleView, 1f);
+                    }
                     setTargetOffsetTopAndBottom(-mCircleHeight - mCurrentTargetOffsetTop,
                             true /* requires update */);
                     mCircleView.setVisibility(View.VISIBLE);
@@ -160,6 +170,11 @@ public class SwipeRefreshLayout extends ViewGroup {
             mCurrentTargetOffsetTop = mCircleView.getTop();
         }
     };
+
+    private void setColorViewAlpha(int targetAlpha) {
+        mCircleView.getBackground().setAlpha(targetAlpha);
+        mProgress.setAlpha(targetAlpha);
+    }
 
     /**
      * The refresh indicator starting and resting position is always positioned
@@ -293,9 +308,14 @@ public class SwipeRefreshLayout extends ViewGroup {
         mScaleAnimation = new Animation() {
             @Override
             public void applyTransformation(float interpolatedTime, Transformation t) {
-                float targetScale = (.1f + ((1f - .1f) * interpolatedTime));
-                ViewCompat.setScaleX(mCircleView, targetScale);
-                ViewCompat.setScaleY(mCircleView, targetScale);
+                if (android.os.Build.VERSION.SDK_INT < 11) {
+                    int targetAlpha = (int)(MAX_ALPHA * interpolatedTime);
+                    setColorViewAlpha(targetAlpha);
+                } else {
+                    float targetScale = (.1f + ((1f - .1f) * interpolatedTime));
+                    ViewCompat.setScaleX(mCircleView, targetScale);
+                    ViewCompat.setScaleY(mCircleView, targetScale);
+                }
             }
         };
         mScaleAnimation.setDuration(mMediumAnimationDuration);
@@ -323,9 +343,14 @@ public class SwipeRefreshLayout extends ViewGroup {
         mScaleDownAnimation = new Animation() {
             @Override
             public void applyTransformation(float interpolatedTime, Transformation t) {
-                float targetScale = (1f + ((.1f - 1f) * interpolatedTime));
-                ViewCompat.setScaleX(mCircleView, targetScale);
-                ViewCompat.setScaleY(mCircleView, targetScale);
+                if (android.os.Build.VERSION.SDK_INT < 11) {
+                    int targetAlpha = (int) (MAX_ALPHA - (MAX_ALPHA * interpolatedTime));
+                    setColorViewAlpha(targetAlpha);
+                } else {
+                    float targetScale = (1f + ((.1f - 1f) * interpolatedTime));
+                    ViewCompat.setScaleX(mCircleView, targetScale);
+                    ViewCompat.setScaleY(mCircleView, targetScale);
+                }
             }
         };
         mScaleDownAnimation.setDuration(mMediumAnimationDuration);
@@ -587,12 +612,16 @@ public class SwipeRefreshLayout extends ViewGroup {
                             mCircleView.setVisibility(View.VISIBLE);
                         }
                         if (mScale) {
-                            float scale = Math
-                                    .max(MIN_CIRCLE_SCALE,
-                                            Math.min(1f, MIN_CIRCLE_SCALE + yDiff
-                                                    / mDistanceToTriggerSync));
-                            ViewCompat.setScaleX(mCircleView, scale);
-                            ViewCompat.setScaleY(mCircleView, scale);
+                            if (android.os.Build.VERSION.SDK_INT < 11) {
+                                int alpha = Math.max(0, Math.min(MAX_ALPHA,
+                                        (int) (yDiff / mDistanceToTriggerSync * MAX_ALPHA)));
+                                setColorViewAlpha(alpha);
+                            } else {
+                                float scale = Math.max(MIN_CIRCLE_SCALE, Math.min(1f,
+                                        MIN_CIRCLE_SCALE + yDiff / mDistanceToTriggerSync));
+                                ViewCompat.setScaleX(mCircleView, scale);
+                                ViewCompat.setScaleY(mCircleView, scale);
+                            }
                         }
                         // Just track the user's movement
                         setTargetOffsetTopAndBottom((int) ((y - mLastY) * DRAG_RATE),
