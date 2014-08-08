@@ -120,24 +120,6 @@ public class GridLayoutManager extends LinearLayoutManager {
         return mSpanSizeLookup;
     }
 
-    @Override
-    public Parcelable onSaveInstanceState() {
-        SavedState ss = (SavedState) super.onSaveInstanceState();
-        GridSavedState gss = new GridSavedState(ss);
-        if (gss.mSpanCount == DEFAULT_SPAN_COUNT) {
-            gss.mSpanCount = mSpanCount;
-        }
-        return gss;
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        super.onRestoreInstanceState(state);
-        if (state instanceof GridSavedState) {
-            setSpanCount(((GridSavedState) state).mSpanCount);
-        }
-    }
-
     private void updateMeasurements() {
         int totalSpace;
         if (getOrientation() == VERTICAL) {
@@ -425,43 +407,6 @@ public class GridLayoutManager extends LinearLayoutManager {
         public int getSpanIndex(int position, int spanCount) {
             return position % spanCount;
         }
-    }
-
-    static class GridSavedState extends SavedState {
-        int mSpanCount = -1;
-
-        GridSavedState(Parcel in) {
-            super(in);
-            mSpanCount = in.readInt();
-        }
-
-        public GridSavedState(SavedState other) {
-            super(other);
-            if (other instanceof GridSavedState) {
-                mSpanCount = ((GridSavedState) other).mSpanCount;
-            } else {
-                mSpanCount = DEFAULT_SPAN_COUNT;
-            }
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeInt(mSpanCount);
-        }
-
-        public static final Parcelable.Creator<GridSavedState> CREATOR
-                = new Parcelable.Creator<GridSavedState>() {
-            @Override
-            public GridSavedState createFromParcel(Parcel in) {
-                return new GridSavedState(in);
-            }
-
-            @Override
-            public GridSavedState[] newArray(int size) {
-                return new GridSavedState[size];
-            }
-        };
     }
 
     /**

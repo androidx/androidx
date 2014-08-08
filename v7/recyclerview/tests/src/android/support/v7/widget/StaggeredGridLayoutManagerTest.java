@@ -424,8 +424,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     }
 
     public void testSpanCountChangeOnRestoreSavedState() throws Throwable {
-        Config config = new Config(HORIZONTAL, true, 5,
-                GAP_HANDLING_NONE);
+        Config config = new Config(HORIZONTAL, true, 5, GAP_HANDLING_NONE);
         setupByConfig(config);
         waitFirstLayout();
 
@@ -445,6 +444,8 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         RecyclerView restored = new RecyclerView(getActivity());
         mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
+        mLayoutManager.setReverseLayout(config.mReverseLayout);
+        mLayoutManager.setGapStrategy(config.mGapStrategy);
         restored.setLayoutManager(mLayoutManager);
         // use the same adapter for Rect matching
         restored.setAdapter(mAdapter);
@@ -457,7 +458,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 config.mReverseLayout, mLayoutManager.getReverseLayout());
         assertEquals("on saved state, orientation should be preserved",
                 config.mOrientation, mLayoutManager.getOrientation());
-        assertEquals("after setting new span cound, layout manager should keep new value",
+        assertEquals("after setting new span count, layout manager should keep new value",
                 1, mLayoutManager.getSpanCount());
         assertEquals("on saved state, gap strategy should be preserved",
                 config.mGapStrategy, mLayoutManager.getGapStrategy());
@@ -573,6 +574,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         RecyclerView restored = new RecyclerView(getActivity());
         mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
+        mLayoutManager.setGapStrategy(config.mGapStrategy);
         restored.setLayoutManager(mLayoutManager);
         // use the same adapter for Rect matching
         restored.setAdapter(mAdapter);
