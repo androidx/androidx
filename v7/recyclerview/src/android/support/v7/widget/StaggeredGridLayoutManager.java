@@ -224,12 +224,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      */
     public void setSpanCount(int spanCount) {
         assertNotInLayoutOrScroll(null);
-        if (mPendingSavedState != null && mPendingSavedState.mSpanCount != spanCount) {
-            // invalidate span info in saved state
-            mPendingSavedState.invalidateSpanInfo();
-            mPendingSavedState.mSpanCount = spanCount;
-            mPendingSavedState.mAnchorPosition = mPendingSavedState.mVisibleAnchorPosition;
-        }
         if (spanCount != mSpanCount) {
             invalidateSpanAssignments();
             mSpanCount = spanCount;
@@ -253,10 +247,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             throw new IllegalArgumentException("invalid orientation.");
         }
         assertNotInLayoutOrScroll(null);
-        if (mPendingSavedState != null && mPendingSavedState.mOrientation != orientation) {
-            // override pending state
-            mPendingSavedState.mOrientation = orientation;
-        }
         if (orientation == mOrientation) {
             return;
         }
@@ -322,9 +312,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      */
     public void setGapStrategy(int gapStrategy) {
         assertNotInLayoutOrScroll(null);
-        if (mPendingSavedState != null && mPendingSavedState.mGapStrategy != gapStrategy) {
-            mPendingSavedState.mGapStrategy = gapStrategy;
-        }
         if (gapStrategy == mGapStrategy) {
             return;
         }
@@ -422,9 +409,17 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             if (DEBUG) {
                 Log.d(TAG, "found saved state: " + mPendingSavedState);
             }
-            setOrientation(mPendingSavedState.mOrientation);
-            setSpanCount(mPendingSavedState.mSpanCount);
-            setGapStrategy(mPendingSavedState.mGapStrategy);
+            if (mPendingSavedState.mSpanOffsetsSize > 0) {
+                if (mPendingSavedState.mSpanOffsetsSize == mSpanCount) {
+                    for (int i = 0; i < mSpanCount; i++) {
+                        mSpans[i].clear();
+                        mSpans[i].setLine(mPendingSavedState.mSpanOffsets[i]);
+                    }
+                } else {
+                    mPendingSavedState.invalidateSpanInfo();
+                    mPendingSavedState.mAnchorPosition = mPendingSavedState.mVisibleAnchorPosition;
+                }
+            }
             setReverseLayout(mPendingSavedState.mReverseLayout);
             resolveShouldLayoutReverse();
 
@@ -433,12 +428,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 layoutFromEnd = mPendingSavedState.mAnchorLayoutFromEnd;
             } else {
                 layoutFromEnd = mShouldReverseLayout;
-            }
-            if (mPendingSavedState.mHasSpanOffsets) {
-                for (int i = 0; i < mSpanCount; i++) {
-                    mSpans[i].clear();
-                    mSpans[i].setLine(mPendingSavedState.mSpanOffsets[i]);
-                }
             }
             if (mPendingSavedState.mSpanLookupSize > 1) {
                 mLazySpanLookup.mData = mPendingSavedState.mSpanLookup;
@@ -461,7 +450,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         if (!state.isPreLayout() && mPendingScrollPosition != RecyclerView.NO_POSITION) {
             if (mPendingSavedState == null
                     || mPendingSavedState.mAnchorPosition == RecyclerView.NO_POSITION
-                    || !mPendingSavedState.mHasSpanOffsets) {
+                    || mPendingSavedState.mSpanOffsetsSize < 1) {
                 // If item is visible, make it fully visible.
                 final View child = findViewByPosition(mPendingScrollPosition);
                 if (child != null) {
@@ -541,7 +530,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             anchorOffset = INVALID_OFFSET;
         }
         if (getChildCount() > 0 && (mPendingSavedState == null ||
-                !mPendingSavedState.mHasSpanOffsets)) {
+                mPendingSavedState.mSpanOffsetsSize < 1)) {
             if (invalidateSpanOffsets || mHasGaps) {
                 for (int i = 0; i < mSpanCount; i++) {
                     // Scroll to position is set, clear.
@@ -815,11 +804,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             return new SavedState(mPendingSavedState);
         }
         SavedState state = new SavedState();
-        state.mOrientation = mOrientation;
         state.mReverseLayout = mReverseLayout;
-        state.mSpanCount = mSpanCount;
         state.mAnchorLayoutFromEnd = mLastLayoutFromEnd;
-        state.mGapStrategy = mGapStrategy;
 
         if (mLazySpanLookup != null && mLazySpanLookup.mData != null) {
             state.mSpanLookup = mLazySpanLookup.mData;
@@ -832,7 +818,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             state.mAnchorPosition = mLastLayoutFromEnd ? getLastChildPosition()
                     : getFirstChildPosition();
             state.mVisibleAnchorPosition = findFirstVisibleItemPositionInt();
-            state.mHasSpanOffsets = true;
+            state.mSpanOffsetsSize = mSpanCount;
             state.mSpanOffsets = new int[mSpanCount];
             for (int i = 0; i < mSpanCount; i++) {
                 state.mSpanOffsets[i] = mLastLayoutFromEnd ? mSpans[i].getEndLine(Span.INVALID_LINE)
@@ -841,7 +827,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             state.mAnchorPosition = RecyclerView.NO_POSITION;
             state.mVisibleAnchorPosition = RecyclerView.NO_POSITION;
-            state.mHasSpanOffsets = false;
+            state.mSpanOffsetsSize = 0;
         }
         if (DEBUG) {
             Log.d(TAG, "saved state:\n" + state);
@@ -2022,16 +2008,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     static class SavedState implements Parcelable {
 
-        int mOrientation;
-
-        int mSpanCount;
-
-        int mGapStrategy;
-
         int mAnchorPosition;
 
         int mVisibleAnchorPosition; // if span count changes (span offsets are invalidated),
         // we use this one instead
+
+        int mSpanOffsetsSize;
 
         int[] mSpanOffsets;
 
@@ -2043,20 +2025,15 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         boolean mAnchorLayoutFromEnd;
 
-        boolean mHasSpanOffsets;
-
         public SavedState() {
         }
 
         SavedState(Parcel in) {
-            mOrientation = in.readInt();
-            mSpanCount = in.readInt();
-            mGapStrategy = in.readInt();
             mAnchorPosition = in.readInt();
             mVisibleAnchorPosition = in.readInt();
-            mHasSpanOffsets = in.readInt() == 1;
-            if (mHasSpanOffsets) {
-                mSpanOffsets = new int[mSpanCount];
+            mSpanOffsetsSize = in.readInt();
+            if (mSpanOffsetsSize > 0) {
+                mSpanOffsets = new int[mSpanOffsetsSize];
                 in.readIntArray(mSpanOffsets);
             }
 
@@ -2070,12 +2047,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         public SavedState(SavedState other) {
-            mOrientation = other.mOrientation;
-            mSpanCount = other.mSpanCount;
-            mGapStrategy = other.mGapStrategy;
+            mSpanOffsetsSize = other.mSpanOffsetsSize;
             mAnchorPosition = other.mAnchorPosition;
             mVisibleAnchorPosition = other.mVisibleAnchorPosition;
-            mHasSpanOffsets = other.mHasSpanOffsets;
             mSpanOffsets = other.mSpanOffsets;
             mSpanLookupSize = other.mSpanLookupSize;
             mSpanLookup = other.mSpanLookup;
@@ -2085,15 +2059,14 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         void invalidateSpanInfo() {
             mSpanOffsets = null;
-            mHasSpanOffsets = false;
-            mSpanCount = -1;
+            mSpanOffsetsSize = 0;
             mSpanLookupSize = 0;
             mSpanLookup = null;
         }
 
         void invalidateAnchorPositionInfo() {
             mSpanOffsets = null;
-            mHasSpanOffsets = false;
+            mSpanOffsetsSize = 0;
             mAnchorPosition = RecyclerView.NO_POSITION;
             mVisibleAnchorPosition = RecyclerView.NO_POSITION;
         }
@@ -2105,13 +2078,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mOrientation);
-            dest.writeInt(mSpanCount);
-            dest.writeInt(mGapStrategy);
             dest.writeInt(mAnchorPosition);
             dest.writeInt(mVisibleAnchorPosition);
-            dest.writeInt(mHasSpanOffsets ? 1 : 0);
-            if (mHasSpanOffsets) {
+            dest.writeInt(mSpanOffsetsSize);
+            if (mSpanOffsetsSize > 0) {
                 dest.writeIntArray(mSpanOffsets);
             }
             dest.writeInt(mSpanLookupSize);
@@ -2125,9 +2095,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         @Override
         public String toString() {
             return "SavedState{" +
-                    "mOrientation=" + mOrientation +
-                    ", mSpanCount=" + mSpanCount +
-                    ", mGapStrategy=" + mGapStrategy +
                     ", mAnchorPosition=" + mAnchorPosition +
                     ", mVisibleAnchorPosition=" + mVisibleAnchorPosition +
                     ", mSpanOffsets=" + Arrays.toString(mSpanOffsets) +
@@ -2135,7 +2102,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                     ", mSpanLookup=" + Arrays.toString(mSpanLookup) +
                     ", mReverseLayout=" + mReverseLayout +
                     ", mAnchorLayoutFromEnd=" + mAnchorLayoutFromEnd +
-                    ", mHasSpanOffsets=" + mHasSpanOffsets +
+                    ", mSpanOffsetsSize=" + mSpanOffsetsSize +
                     '}';
         }
 
