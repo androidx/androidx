@@ -224,6 +224,11 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         return mActionPresenterSelector.getOnActionClickedListener();
     }
 
+    private void applyBackground(View view) {
+        view.setBackgroundColor(mBackgroundColorSet ?
+                mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
+    }
+
     /**
      * Sets the background color.  If not set, a default from the theme will be used.
      */
@@ -303,8 +308,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         lp.height = getCardHeight(overview.getContext());
         overview.setLayoutParams(lp);
 
-        overview.setBackgroundColor(mBackgroundColorSet ?
-                mBackgroundColor : getDefaultBackgroundColor(overview.getContext()));
         ShadowHelper.getInstance().setZ(overview, 0f);
     }
 
@@ -370,8 +373,12 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         if (useMargin) {
             layoutParams.leftMargin = horizontalMargin;
             layoutParams.topMargin = layoutParams.bottomMargin = verticalMargin;
+            applyBackground(vh.mOverviewView);
+            vh.mRightPanel.setBackground(null);
         } else {
             layoutParams.leftMargin = layoutParams.topMargin = layoutParams.bottomMargin = 0;
+            applyBackground(vh.mRightPanel);
+            vh.mOverviewView.setBackground(null);
         }
         if (scaleImage) {
             vh.mImageView.setScaleType(ImageView.ScaleType.FIT_START);

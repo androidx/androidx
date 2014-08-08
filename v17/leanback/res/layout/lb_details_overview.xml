@@ -45,8 +45,8 @@
             android:id="@+id/details_overview_right_panel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/lb_details_overview_description_margin_bottom"
-            android:layout_marginTop="@dimen/lb_details_overview_description_margin_top"
+            android:paddingBottom="@dimen/lb_details_overview_description_margin_bottom"
+            android:paddingTop="@dimen/lb_details_overview_description_margin_top"
             android:orientation="vertical" >
 
         <FrameLayout
