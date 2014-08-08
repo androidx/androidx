@@ -183,11 +183,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @param recycleChildrenOnDetach Whether children should be recycled in detach or not.
      */
     public void setRecycleChildrenOnDetach(boolean recycleChildrenOnDetach) {
-        if (mPendingSavedState != null &&
-                mPendingSavedState.mRecycleChildrenOnDetach != recycleChildrenOnDetach) {
-            // override pending state
-            mPendingSavedState.mRecycleChildrenOnDetach = recycleChildrenOnDetach;
-        }
         mRecycleChildrenOnDetach = recycleChildrenOnDetach;
     }
 
@@ -206,7 +201,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             return new SavedState(mPendingSavedState);
         }
         SavedState state = new SavedState();
-        state.mRecycleChildrenOnDetach = mRecycleChildrenOnDetach;
         if (getChildCount() > 0) {
             boolean didLayoutFromEnd = mLastStackFromEnd ^ mShouldReverseLayout;
             state.mAnchorLayoutFromEnd = didLayoutFromEnd;
@@ -224,10 +218,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         } else {
             state.invalidateAnchor();
         }
-        state.mStackFromEnd = mStackFromEnd;
-        state.mReverseLayout = mReverseLayout;
-        state.mOrientation = mOrientation;
-        state.mSmoothScrollbarEnabled = mSmoothScrollbarEnabled;
         return state;
     }
 
@@ -265,10 +255,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     public void setStackFromEnd(boolean stackFromEnd) {
         assertNotInLayoutOrScroll(null);
-        if (mPendingSavedState != null && mPendingSavedState.mStackFromEnd != stackFromEnd) {
-            // override pending state
-            mPendingSavedState.mStackFromEnd = stackFromEnd;
-        }
         if (mStackFromEnd == stackFromEnd) {
             return;
         }
@@ -302,10 +288,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             throw new IllegalArgumentException("invalid orientation:" + orientation);
         }
         assertNotInLayoutOrScroll(null);
-        if (mPendingSavedState != null && mPendingSavedState.mOrientation != orientation) {
-            // override pending state
-            mPendingSavedState.mOrientation = orientation;
-        }
         if (orientation == mOrientation) {
             return;
         }
@@ -354,10 +336,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     public void setReverseLayout(boolean reverseLayout) {
         assertNotInLayoutOrScroll(null);
-        if (mPendingSavedState != null && mPendingSavedState.mReverseLayout != reverseLayout) {
-            // override pending state
-            mPendingSavedState.mReverseLayout = reverseLayout;
-        }
         if (reverseLayout == mReverseLayout) {
             return;
         }
@@ -445,15 +423,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (DEBUG) {
             Log.d(TAG, "is pre layout:" + state.isPreLayout());
         }
-        if (mPendingSavedState != null) {
-            setOrientation(mPendingSavedState.mOrientation);
-            setReverseLayout(mPendingSavedState.mReverseLayout);
-            setStackFromEnd(mPendingSavedState.mStackFromEnd);
-            setRecycleChildrenOnDetach(mPendingSavedState.mRecycleChildrenOnDetach);
-            setSmoothScrollbarEnabled(mPendingSavedState.mSmoothScrollbarEnabled);
-            if (mPendingSavedState.hasValidAnchor()) {
-                mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
-            }
+        if (mPendingSavedState != null && mPendingSavedState.hasValidAnchor()) {
+            mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
         }
 
         ensureLayoutState();
@@ -1813,47 +1784,26 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
     static class SavedState implements Parcelable {
 
-        int mOrientation;
-
         int mAnchorPosition;
 
         int mAnchorOffset;
 
-        boolean mReverseLayout;
-
-        boolean mStackFromEnd;
-
         boolean mAnchorLayoutFromEnd;
-
-        boolean mRecycleChildrenOnDetach;
-
-        boolean mSmoothScrollbarEnabled;
-
 
         public SavedState() {
 
         }
 
         SavedState(Parcel in) {
-            mOrientation = in.readInt();
             mAnchorPosition = in.readInt();
             mAnchorOffset = in.readInt();
-            mReverseLayout = in.readInt() == 1;
-            mStackFromEnd = in.readInt() == 1;
             mAnchorLayoutFromEnd = in.readInt() == 1;
-            mRecycleChildrenOnDetach = in.readInt() == 1;
-            mSmoothScrollbarEnabled = in.readInt() == 1;
         }
 
         public SavedState(SavedState other) {
-            mOrientation = other.mOrientation;
             mAnchorPosition = other.mAnchorPosition;
             mAnchorOffset = other.mAnchorOffset;
-            mReverseLayout = other.mReverseLayout;
-            mStackFromEnd = other.mStackFromEnd;
             mAnchorLayoutFromEnd = other.mAnchorLayoutFromEnd;
-            mRecycleChildrenOnDetach = other.mRecycleChildrenOnDetach;
-            mSmoothScrollbarEnabled = other.mSmoothScrollbarEnabled;
         }
 
         boolean hasValidAnchor() {
@@ -1871,14 +1821,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mOrientation);
             dest.writeInt(mAnchorPosition);
             dest.writeInt(mAnchorOffset);
-            dest.writeInt(mReverseLayout ? 1 : 0);
-            dest.writeInt(mStackFromEnd ? 1 : 0);
             dest.writeInt(mAnchorLayoutFromEnd ? 1 : 0);
-            dest.writeInt(mRecycleChildrenOnDetach ? 1 : 0);
-            dest.writeInt(mSmoothScrollbarEnabled ? 1 : 0);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR
