@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
@@ -58,6 +59,17 @@ public class ImageCardView extends BaseCardView {
         mContentView = (TextView) v.findViewById(R.id.content_text);
         mBadgeImage = (ImageView) v.findViewById(R.id.extra_badge);
         mBadgeFadeMask = (ImageView) v.findViewById(R.id.fade_mask);
+
+        if (mInfoArea != null) {
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbImageCardView,
+                    defStyle, 0);
+            try {
+                setInfoAreaBackground(
+                        a.getDrawable(R.styleable.lbImageCardView_infoAreaBackground));
+            } finally {
+                a.recycle();
+            }
+        }
     }
 
     public final ImageView getMainImageView() {
@@ -120,6 +132,31 @@ public class ImageCardView extends BaseCardView {
         }
 
         return mImageView.getDrawable();
+    }
+
+    public Drawable getInfoAreaBackground() {
+        if (mInfoArea != null) {
+            return mInfoArea.getBackground();
+        }
+        return null;
+    }
+
+    public void setInfoAreaBackground(Drawable drawable) {
+        if (mInfoArea != null) {
+            mInfoArea.setBackground(drawable);
+            if (mBadgeImage != null) {
+                mBadgeImage.setBackground(drawable);
+            }
+        }
+    }
+
+    public void setInfoAreaBackgroundColor(int color) {
+        if (mInfoArea != null) {
+            mInfoArea.setBackgroundColor(color);
+            if (mBadgeImage != null) {
+                mBadgeImage.setBackgroundColor(color);
+            }
+        }
     }
 
     public void setTitleText(CharSequence text) {

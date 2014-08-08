@@ -86,6 +86,7 @@
         <item name="cardType">infoUnder</item>
         <item name="infoVisibility">activated</item>
         <item name="android:background">@color/lb_basic_card_bg_color</item>
+        <item name="infoAreaBackground">@color/lb_basic_card_info_bg_color</item>
     </style>
 
     <style name="Widget.Leanback.TitleView" >
