@@ -11,12 +11,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.transition;
 
 /**
  * Listeners for transition start and stop.
+ * @hide
  */
-class TransitionListener {
+public class TransitionListener {
 
     public void onTransitionStart(Object transition) {
     }
