@@ -5383,13 +5383,41 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Calculates the item decor insets applied to the given child and updates the provided
+         * Rect instance with the inset values.
+         * <ul>
+         *     <li>The Rect's left is set to the total width of left decorations.</li>
+         *     <li>The Rect's top is set to the total height of top decorations.</li>
+         *     <li>The Rect's right is set to the total width of right decorations.</li>
+         *     <li>The Rect's bottom is set to total height of bottom decorations.</li>
+         * </ul>
+         * <p>
+         * Note that item decorations are automatically calculated when one of the LayoutManager's
+         * measure child methods is called. If you need to measure the child with custom specs via
+         * {@link View#measure(int, int)}, you can use this method to get decorations.
+         *
+         * @param child The child view whose decorations should be calculated
+         * @param outRect The Rect to hold result values
+         */
+        public void calculateItemDecorationsForChild(View child, Rect outRect) {
+            if (mRecyclerView == null) {
+                outRect.set(0, 0, 0, 0);
+                return;
+            }
+            Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);
+            outRect.set(insets);
+        }
+
+        /**
          * Returns the total height of item decorations applied to child's top.
          * <p>
-         * Note that this value is not updated until the View is measured.
+         * Note that this value is not updated until the View is measured or
+         * {@link #calculateItemDecorationsForChild(View, Rect)} is called.
          *
          * @param child Child to query
          * @return The total height of item decorations applied to the child's top.
          * @see #getDecoratedTop(View)
+         * @see #calculateItemDecorationsForChild(View, Rect)
          */
         public int getTopDecorationHeight(View child) {
             return ((LayoutParams) child.getLayoutParams()).mDecorInsets.top;
@@ -5398,11 +5426,13 @@ public class RecyclerView extends ViewGroup {
         /**
          * Returns the total height of item decorations applied to child's bottom.
          * <p>
-         * Note that this value is not updated until the View is measured.
+         * Note that this value is not updated until the View is measured or
+         * {@link #calculateItemDecorationsForChild(View, Rect)} is called.
          *
          * @param child Child to query
          * @return The total height of item decorations applied to the child's bottom.
          * @see #getDecoratedBottom(View)
+         * @see #calculateItemDecorationsForChild(View, Rect)
          */
         public int getBottomDecorationHeight(View child) {
             return ((LayoutParams) child.getLayoutParams()).mDecorInsets.bottom;
@@ -5411,11 +5441,13 @@ public class RecyclerView extends ViewGroup {
         /**
          * Returns the total width of item decorations applied to child's left.
          * <p>
-         * Note that this value is not updated until the View is measured.
+         * Note that this value is not updated until the View is measured or
+         * {@link #calculateItemDecorationsForChild(View, Rect)} is called.
          *
          * @param child Child to query
          * @return The total width of item decorations applied to the child's left.
          * @see #getDecoratedLeft(View)
+         * @see #calculateItemDecorationsForChild(View, Rect)
          */
         public int getLeftDecorationWidth(View child) {
             return ((LayoutParams) child.getLayoutParams()).mDecorInsets.left;
@@ -5424,11 +5456,13 @@ public class RecyclerView extends ViewGroup {
         /**
          * Returns the total width of item decorations applied to child's right.
          * <p>
-         * Note that this value is not updated until the View is measured.
-         * 
+         * Note that this value is not updated until the View is measured or
+         * {@link #calculateItemDecorationsForChild(View, Rect)} is called.
+         *
          * @param child Child to query
          * @return The total width of item decorations applied to the child's right.
          * @see #getDecoratedRight(View)
+         * @see #calculateItemDecorationsForChild(View, Rect)
          */
         public int getRightDecorationWidth(View child) {
             return ((LayoutParams) child.getLayoutParams()).mDecorInsets.right;
