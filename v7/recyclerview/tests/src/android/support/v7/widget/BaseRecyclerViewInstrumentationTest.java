@@ -118,6 +118,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     }
 
     public void removeRecyclerView() throws Throwable {
+        if (mRecyclerView == null) {
+            return;
+        }
         mRecyclerView = null;
         runTestOnUiThread(new Runnable() {
             @Override

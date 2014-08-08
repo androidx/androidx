@@ -19,6 +19,7 @@ package android.support.v7.widget;
 
 
 import android.graphics.Rect;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -27,6 +28,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,11 +47,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
     private static final String TAG = "StaggeredGridLayoutManagerTest";
 
-    WrappedLayoutManager mLayoutManager;
+    volatile WrappedLayoutManager mLayoutManager;
 
     GridTestAdapter mAdapter;
-
-    RecyclerView mRecyclerView;
 
     final List<Config> mBaseVariations = new ArrayList<Config>();
 
@@ -81,6 +81,153 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mRecyclerView.setLayoutManager(mLayoutManager);
     }
 
+    public void testRTL() throws Throwable {
+        for (boolean changeRtlAfter : new boolean[]{false, true}) {
+            for (Config config : mBaseVariations) {
+                rtlTest(config, changeRtlAfter);
+                removeRecyclerView();
+            }
+        }
+    }
+
+    void rtlTest(Config config, boolean changeRtlAfter) throws Throwable {
+        if (config.mSpanCount == 1) {
+            config.mSpanCount = 2;
+        }
+        String logPrefix = config + ", changeRtlAfterLayout:" + changeRtlAfter;
+        setupByConfig(config.itemCount(5));
+        if (changeRtlAfter) {
+            waitFirstLayout();
+            mLayoutManager.expectLayouts(1);
+            mLayoutManager.setFakeRtl(true);
+            mLayoutManager.waitForLayout(2);
+        } else {
+            mLayoutManager.mFakeRTL = true;
+            waitFirstLayout();
+        }
+
+        assertEquals("view should become rtl", true, mLayoutManager.isLayoutRTL());
+        OrientationHelper helper = OrientationHelper.createHorizontalHelper(mLayoutManager);
+        View child0 = mLayoutManager.findViewByPosition(0);
+        View child1 = mLayoutManager.findViewByPosition(config.mOrientation == VERTICAL ? 1
+            : config.mSpanCount);
+        assertNotNull(logPrefix + " child position 0 should be laid out", child0);
+        assertNotNull(logPrefix + " child position 0 should be laid out", child1);
+        if (config.mOrientation == VERTICAL || !config.mReverseLayout) {
+            assertTrue(logPrefix + " second child should be to the left of first child",
+                    helper.getDecoratedStart(child0) >= helper.getDecoratedEnd(child1));
+            assertEquals(logPrefix + " first child should be right aligned",
+                    helper.getDecoratedEnd(child0), helper.getEndAfterPadding());
+        } else {
+            assertTrue(logPrefix + " first child should be to the left of second child",
+                    helper.getDecoratedStart(child1) >= helper.getDecoratedEnd(child0));
+            assertEquals(logPrefix + " first child should be left aligned",
+                    helper.getDecoratedStart(child0), helper.getStartAfterPadding());
+        }
+        checkForMainThreadException();
+    }
+
+    public void testScrollBackAndPreservePositions() throws Throwable {
+        for (boolean saveRestore : new boolean[]{false, true}) {
+            for (Config config : mBaseVariations) {
+                scrollBackAndPreservePositionsTest(config, saveRestore);
+                removeRecyclerView();
+            }
+        }
+    }
+
+    public void scrollBackAndPreservePositionsTest(final Config config, final boolean saveRestoreInBetween)
+            throws Throwable {
+        setupByConfig(config);
+        mAdapter.mOnBindHandler = new OnBindHandler() {
+            @Override
+            public void onBoundItem(TestViewHolder vh, int postion) {
+                LayoutParams lp = (LayoutParams) vh.itemView.getLayoutParams();
+                lp.setFullSpan((postion * 7) % (config.mSpanCount + 1) == 0);
+            }
+        };
+        waitFirstLayout();
+        final int[] globalPositions = new int[mAdapter.getItemCount()];
+        Arrays.fill(globalPositions, Integer.MIN_VALUE);
+        final int scrollStep = (mLayoutManager.mPrimaryOrientation.getTotalSpace() / 10)
+                * (config.mReverseLayout ? -1 : 1);
+
+
+        final int[] globalPos = new int[1];
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int globalScrollPosition = 0;
+                while (globalPositions[mAdapter.getItemCount() - 1] == Integer.MIN_VALUE) {
+                    for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
+                        View child = mRecyclerView.getChildAt(i);
+                        final int pos = mRecyclerView.getChildPosition(child);
+                        if (globalPositions[pos] != Integer.MIN_VALUE) {
+                            continue;
+                        }
+                        if (config.mReverseLayout) {
+                            globalPositions[pos] = globalScrollPosition +
+                                    mLayoutManager.mPrimaryOrientation.getDecoratedEnd(child);
+                        } else {
+                            globalPositions[pos] = globalScrollPosition +
+                                    mLayoutManager.mPrimaryOrientation.getDecoratedStart(child);
+                        }
+                    }
+                    globalScrollPosition += mLayoutManager.scrollBy(scrollStep,
+                            mRecyclerView.mRecycler, mRecyclerView.mState);
+                }
+                if (DEBUG) {
+                    Log.d(TAG, "done recording positions " + Arrays.toString(globalPositions));
+                }
+                globalPos[0] = globalScrollPosition;
+            }
+        });
+        checkForMainThreadException();
+
+        if (saveRestoreInBetween) {
+            saveRestore(config);
+        }
+
+        checkForMainThreadException();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int globalScrollPosition = globalPos[0];
+                // now scroll back and make sure global positions match
+                BitSet shouldTest = new BitSet(mAdapter.getItemCount());
+                shouldTest.set(0, mAdapter.getItemCount() - 1, true);
+                String assertPrefix = config + ", restored in between:" + saveRestoreInBetween
+                        + " global pos must match when scrolling in reverse for position ";
+                int scrollAmount = Integer.MAX_VALUE;
+                while (!shouldTest.isEmpty() && scrollAmount != 0) {
+                    for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
+                        View child = mRecyclerView.getChildAt(i);
+                        int pos = mRecyclerView.getChildPosition(child);
+                        if (!shouldTest.get(pos)) {
+                            continue;
+                        }
+                        shouldTest.clear(pos);
+                        int globalPos;
+                        if (config.mReverseLayout) {
+                            globalPos = globalScrollPosition +
+                                    mLayoutManager.mPrimaryOrientation.getDecoratedEnd(child);
+                        } else {
+                            globalPos = globalScrollPosition +
+                                    mLayoutManager.mPrimaryOrientation.getDecoratedStart(child);
+                        }
+                        assertEquals(assertPrefix + pos,
+                                globalPositions[pos], globalPos);
+                    }
+                    scrollAmount = mLayoutManager.scrollBy(-scrollStep,
+                            mRecyclerView.mRecycler, mRecyclerView.mState);
+                    globalScrollPosition += scrollAmount;
+                }
+                assertTrue("all views should be seen", shouldTest.isEmpty());
+            }
+        });
+        checkForMainThreadException();
+    }
+
     public void testScrollToPositionWithPredictive() throws Throwable {
         scrollToPositionWithPredictive(0, LinearLayoutManager.INVALID_OFFSET);
         removeRecyclerView();
@@ -101,6 +248,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mLayoutManager.mOnLayoutListener = new OnLayoutListener() {
             @Override
             void after(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                RecyclerView rv = mLayoutManager.mRecyclerView;
                 if (state.isPreLayout()) {
                     assertEquals("pending scroll position should still be pending",
                             scrollPosition, mLayoutManager.mPendingScrollPosition);
@@ -109,8 +257,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                                 scrollOffset, mLayoutManager.mPendingScrollPositionOffset);
                     }
                 } else {
-                    RecyclerView.ViewHolder vh =
-                            mRecyclerView.findViewHolderForPosition(scrollPosition);
+                    RecyclerView.ViewHolder vh = rv.findViewHolderForPosition(scrollPosition);
                     assertNotNull("scroll to position should work", vh);
                     if (scrollOffset != LinearLayoutManager.INVALID_OFFSET) {
                         assertEquals("scroll offset should be applied properly",
@@ -255,7 +402,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         if (strategy == GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS) {
             mLayoutManager.expectLayouts(1);
         }
-
         // state
         // now smooth scroll to 99 to trigger a layout around 100
         smoothScrollToPosition(99);
@@ -264,11 +410,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 assertSpans("gap handling:" + Config.gapStrategyName(strategy), new int[]{100, 0},
                         new int[]{101, 2}, new int[]{102, 0}, new int[]{103, 1}, new int[]{104, 2},
                         new int[]{105, 0});
-
-                // should be able to detect the gap
-                View gapView = mLayoutManager.hasGapsToFix(0, mLayoutManager.getChildCount());
-                assertSame("gap should be detected", mLayoutManager.findViewByPosition(101),
-                        gapView);
                 break;
             case GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS:
                 mLayoutManager.waitForLayout(2);
@@ -302,26 +443,113 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 getLp(view).mSpan.mIndex);
     }
 
+    public void gapInTheMiddle(Config config) throws Throwable {
+
+    }
+
+    public void testGapAtTheBeginning() throws Throwable {
+        for (Config config : mBaseVariations) {
+            for (int deleteCount = 1; deleteCount < config.mSpanCount * 2; deleteCount ++) {
+                for (int deletePosition = config.mSpanCount - 1;
+                        deletePosition < config.mSpanCount + 2; deletePosition ++) {
+                    gapAtTheBeginningOfTheListTest(config, deletePosition, deleteCount);
+                    removeRecyclerView();
+                }
+            }
+        }
+    }
+
+    public void gapAtTheBeginningOfTheListTest(final Config config, int deletePosition,
+            int deleteCount) throws Throwable {
+        if (config.mSpanCount < 2 || config.mGapStrategy == GAP_HANDLING_NONE) {
+            return;
+        }
+        if (config.mItemCount < 100) {
+            config.itemCount(100);
+        }
+        final String logPrefix = config + ", deletePos:" + deletePosition + ", deleteCount:"
+                + deleteCount;
+        setupByConfig(config);
+        final RecyclerView.Adapter adapter = mAdapter;
+        waitFirstLayout();
+        // scroll far away
+        smoothScrollToPosition(config.mItemCount / 2);
+        // assert to be deleted child is not visible
+        assertNull(logPrefix + " test sanity, to be deleted child should be invisible",
+                mRecyclerView.findViewHolderForPosition(deletePosition));
+        // delete the child and notify
+        mAdapter.deleteAndNotify(deletePosition, deleteCount);
+        getInstrumentation().waitForIdleSync();
+        mLayoutManager.expectLayouts(1);
+        smoothScrollToPosition(0);
+        mLayoutManager.waitForLayout(2);
+        // due to data changes, first item may become visible before others which will cause
+        // smooth scrolling to stop. Triggering it twice more is a naive hack.
+        // Until we have time to consider it as a bug, this is the only workaround.
+        smoothScrollToPosition(0);
+        Thread.sleep(300);
+        smoothScrollToPosition(0);
+        Thread.sleep(500);
+        // some animations should happen and we should recover layout
+        final Map<Item, Rect> actualCoords = mLayoutManager.collectChildCoordinates();
+        // now layout another RV with same adapter
+        removeRecyclerView();
+        setupByConfig(config);
+        mRecyclerView.setAdapter(adapter);// use same adapter so that items can be matched
+        waitFirstLayout();
+        final Map<Item, Rect> desiredCoords = mLayoutManager.collectChildCoordinates();
+        assertRectSetsEqual(logPrefix + " when an item from the start of the list is deleted, "
+                        + "layout should recover the state once scrolling is stopped",
+                desiredCoords, actualCoords);
+    }
+
+    public void testPartialSpanInvalidation() throws Throwable {
+        Config config = new Config().spanCount(5).itemCount(100);
+        setupByConfig(config);
+        for (int i = 20; i < mAdapter.getItemCount(); i += 20) {
+            mAdapter.mFullSpanItems.add(i);
+        }
+        waitFirstLayout();
+        smoothScrollToPosition(50);
+        int prevSpanId = mLayoutManager.mLazySpanLookup.mData[30];
+        mAdapter.changeAndNotify(15, 2);
+        Thread.sleep(200);
+        assertEquals("Invalidation should happen within full span item boundaries", prevSpanId,
+                mLayoutManager.mLazySpanLookup.mData[30]);
+        assertEquals("item in invalidated range should have clear span id",
+                LayoutParams.INVALID_SPAN_ID, mLayoutManager.mLazySpanLookup.mData[16]);
+        smoothScrollToPosition(85);
+        int[] prevSpans = copyOfRange(mLayoutManager.mLazySpanLookup.mData, 62, 85);
+        mAdapter.deleteAndNotify(55, 2);
+        Thread.sleep(200);
+        assertEquals("item in invalidated range should have clear span id",
+                LayoutParams.INVALID_SPAN_ID, mLayoutManager.mLazySpanLookup.mData[16]);
+        int[] newSpans = copyOfRange(mLayoutManager.mLazySpanLookup.mData, 60, 83);
+        assertSpanAssignmentEquality("valid spans should be shifted for deleted item", prevSpans,
+                newSpans, 0, 0, newSpans.length);
+    }
+
+    // Same as Arrays.copyOfRange but for API 7
+    private int[] copyOfRange(int[] original, int from, int to) {
+        int newLength = to - from;
+        if (newLength < 0)
+            throw new IllegalArgumentException(from + " > " + to);
+        int[] copy = new int[newLength];
+        System.arraycopy(original, from, copy, 0,
+                Math.min(original.length - from, newLength));
+        return copy;
+    }
+
     public void testSpanReassignmentsOnItemChange() throws Throwable {
         Config config = new Config().spanCount(5);
         setupByConfig(config);
         waitFirstLayout();
         smoothScrollToPosition(mAdapter.getItemCount() / 2);
         final int changePosition = mAdapter.getItemCount() / 4;
-        int[] prevAssignments = mLayoutManager.mLazySpanLookup.mData.clone();
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.notifyItemChanged(changePosition);
-            }
-        });
+        mAdapter.changeAndNotify(changePosition, 1);
         mLayoutManager.assertNoLayout("no layout should happen when an invisible child is updated",
                 1);
-        // item change should not affect span assignments
-        assertSpanAssignmentEquality("item change should not affect span assignments ",
-                prevAssignments, mLayoutManager.mLazySpanLookup.mData, 0, prevAssignments.length);
-
         // delete an item before visible area
         int deletedPosition = mLayoutManager.getPosition(mLayoutManager.getChildAt(0)) - 2;
         Map<Item, Rect> before = mLayoutManager.collectChildCoordinates();
@@ -332,7 +560,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             }
         }
         mLayoutManager.expectLayouts(1);
-        // TODO move these bounds to edge case once animation changes are in.
         mAdapter.deleteAndNotify(deletedPosition, 1);
         mLayoutManager.waitForLayout(2);
         assertRectSetsEqual(config + " when an item towards the head of the list is deleted, it "
@@ -491,21 +718,23 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
                     @Override
                     public String describe() {
-                        return "scroll to position";
+                        return "scroll to position " + (mAdapter == null ? "" :
+                                mAdapter.getItemCount() * 3 / 4);
                     }
                 },
                 new PostLayoutRunnable() {
                     @Override
                     public void run() throws Throwable {
                         mLayoutManager.expectLayouts(1);
-                        scrollToPositionWithOffset(mAdapter.getItemCount() * 1 / 3,
+                        scrollToPositionWithOffset(mAdapter.getItemCount() / 3,
                                 50);
                         mLayoutManager.waitForLayout(2);
                     }
 
                     @Override
                     public String describe() {
-                        return "scroll to position with positive offset";
+                        return "scroll to position " + (mAdapter == null ? "" :
+                                mAdapter.getItemCount() / 3) + "with positive offset";
                     }
                 },
                 new PostLayoutRunnable() {
@@ -542,6 +771,35 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     removeRecyclerView();
                 }
             }
+        }
+    }
+
+    private void saveRestore(Config config) throws Throwable {
+        Parcelable savedState = mRecyclerView.onSaveInstanceState();
+        // we append a suffix to the parcelable to test out of bounds
+        String parcelSuffix = UUID.randomUUID().toString();
+        Parcel parcel = Parcel.obtain();
+        savedState.writeToParcel(parcel, 0);
+        parcel.writeString(parcelSuffix);
+        removeRecyclerView();
+        // reset for reading
+        parcel.setDataPosition(0);
+        // re-create
+        savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
+        RecyclerView restored = new RecyclerView(getActivity());
+        mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
+        mLayoutManager.setGapStrategy(config.mGapStrategy);
+        restored.setLayoutManager(mLayoutManager);
+        // use the same adapter for Rect matching
+        restored.setAdapter(mAdapter);
+        restored.onRestoreInstanceState(savedState);
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            mLayoutManager.expectLayouts(1);
+            setRecyclerView(restored);
+        } else {
+            mLayoutManager.expectLayouts(1);
+            setRecyclerView(restored);
+            mLayoutManager.waitForLayout(2);
         }
     }
 
@@ -885,6 +1143,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mLayoutManager.expectLayouts(1);
         setRecyclerView(mRecyclerView);
         mLayoutManager.waitForLayout(2);
+        getInstrumentation().waitForIdleSync();
     }
 
     public void scrollByTest(Config config) throws Throwable {
@@ -1060,6 +1319,15 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         CountDownLatch layoutLatch;
         OnLayoutListener mOnLayoutListener;
+        // gradle does not yet let us customize manifest for tests which is necessary to test RTL.
+        // until bug is fixed, we'll fake it.
+        // public issue id: 57819
+        Boolean mFakeRTL;
+
+        @Override
+        boolean isLayoutRTL() {
+            return mFakeRTL == null ? super.isLayoutRTL() : mFakeRTL;
+        }
 
         public void expectLayouts(int count) {
             layoutLatch = new CountDownLatch(count);
@@ -1214,6 +1482,14 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         }
 
 
+        public void setFakeRtl(Boolean fakeRtl) {
+            mFakeRTL = fakeRtl;
+            try {
+                requestLayoutOnUIThread(mRecyclerView);
+            } catch (Throwable throwable) {
+                postExceptionToInstrumentation(throwable);
+            }
+        }
     }
 
     static class VisibleChildren {
@@ -1299,6 +1575,8 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         private boolean mViewsHaveEqualSize = false; // size in the scrollable direction
 
+        private OnBindHandler mOnBindHandler;
+
         GridTestAdapter(int count, int orientation) {
             super(count);
             mOrientation = orientation;
@@ -1348,7 +1626,15 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             lp.leftMargin = 5;
             lp.rightMargin = 7;
             lp.bottomMargin = 9;
+
+            if (mOnBindHandler != null) {
+                mOnBindHandler.onBoundItem(holder, position);
+            }
         }
+    }
+
+    static interface OnBindHandler {
+        void onBoundItem(TestViewHolder vh, int postion);
     }
 
     static class Config implements Cloneable {
@@ -1407,6 +1693,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     " span:" + mSpanCount + "," +
                     " orientation:" + (mOrientation == HORIZONTAL ? "horz," : "vert,") +
                     " reverse:" + (mReverseLayout ? "T" : "F") +
+                    " itemCount:" + mItemCount +
                     " gap strategy: " + gapStrategyName(mGapStrategy);
         }
 
@@ -1416,8 +1703,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     return "none";
                 case GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS:
                     return "move spans";
-                case GAP_HANDLING_LAZY:
-                    return "lazy";
             }
             return "gap strategy: unknown";
         }
