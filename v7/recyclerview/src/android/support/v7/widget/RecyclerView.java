@@ -3133,6 +3133,35 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * RecyclerView provides artificial position range (item count) in pre-layout state and
+         * automatically maps these positions to {@link Adapter} positions when
+         * {@link #getViewForPosition(int)} or {@link #bindViewToPosition(View, int)} is called.
+         * <p>
+         * Usually, LayoutManager does not need to worry about this. However, in some cases, your
+         * LayoutManager may need to call some custom component with item positions in which
+         * case you need the actual adapter position instead of the pre layout position. You
+         * can use this method to convert a pre-layout position to adapter (post layout) position.
+         * <p>
+         * Note that if the provided position belongs to a deleted ViewHolder, this method will
+         * return -1.
+         * <p>
+         * Calling this method in post-layout state returns the same value back.
+         *
+         * @param position The pre-layout position to convert. Must be greater or equal to 0 and
+         *                 less than {@link State#getItemCount()}.
+         */
+        public int convertPreLayoutPositionToPostLayout(int position) {
+            if (position < 0 || position >= mState.getItemCount()) {
+                throw new IndexOutOfBoundsException("invalid position " + position + ". State "
+                        + "item count is " + mState.getItemCount());
+            }
+            if (!mState.isPreLayout()) {
+                return position;
+            }
+            return mAdapterHelper.findPositionOffset(position);
+        }
+
+        /**
          * Obtain a view initialized for the given position.
          *
          * This method should be used by {@link LayoutManager} implementations to obtain
