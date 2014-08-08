@@ -16,10 +16,7 @@
 package android.support.v4.graphics.drawable;
 
 import android.content.res.Resources;
-import android.content.res.Resources.Theme;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -29,18 +26,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.support.v4.graphics.BitmapCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewCompat;
-import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * A Drawable that wraps a bitmap and can be drawn with rounded corners. You can create a
@@ -52,62 +39,24 @@ import java.io.IOException;
  * {@link android.graphics.Canvas}.
  * </p>
  */
-public class RoundedBitmapDrawable extends Drawable {
-
-    private static final String TAG = "RoundedBitmapDrawable";
+public abstract class RoundedBitmapDrawable extends Drawable {
     private static final int DEFAULT_PAINT_FLAGS =
             Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG;
-    private Bitmap mBitmap;
+    Bitmap mBitmap;
     private int mTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
     private int mGravity = Gravity.FILL;
     private Paint mPaint = new Paint(DEFAULT_PAINT_FLAGS);
     private BitmapShader mBitmapShader;
     private float mCornerRadius;
 
-    private final Rect mDstRect = new Rect();   // Gravity.apply() sets this
-    private final RectF mDstRectF = new RectF();
+    final Rect mDstRect = new Rect();   // Gravity.apply() sets this
+    final RectF mDstRectF = new RectF();
 
     private boolean mApplyGravity = true;
 
      // These are scaled to match the target density.
     private int mBitmapWidth;
     private int mBitmapHeight;
-
-
-    /**
-     * Returns a new drawable by creating it from a bitmap, setting initial target density based on
-     * the display metrics of the resources.
-     */
-    public static RoundedBitmapDrawable createRoundedBitmapDrawable(Resources res, Bitmap bitmap) {
-        return new RoundedBitmapDrawable(res, bitmap);
-    }
-
-    /**
-     * Returns a new drawable, creating it by opening a given file path and decoding the bitmap.
-     */
-    public static RoundedBitmapDrawable createRoundedBitmapDrawable(Resources res,
-            String filepath) {
-        final RoundedBitmapDrawable drawable =
-                createRoundedBitmapDrawable(res, BitmapFactory.decodeFile(filepath));
-        if (drawable.mBitmap == null) {
-            Log.w(TAG, "BitmapDrawable cannot decode " + filepath);
-        }
-        return drawable;
-    }
-
-
-    /**
-     * Returns a new drawable, creating it by decoding a bitmap from the given input stream.
-     */
-    public static RoundedBitmapDrawable createRoundedBitmapDrawable(Resources res,
-            java.io.InputStream is) {
-        final RoundedBitmapDrawable drawable =
-                createRoundedBitmapDrawable(res, BitmapFactory.decodeStream(is));
-        if (drawable.mBitmap == null) {
-            Log.w(TAG, "BitmapDrawable cannot decode " + is);
-        }
-        return drawable;
-    }
 
     /**
      * Returns the paint used to render this drawable.
@@ -210,10 +159,7 @@ public class RoundedBitmapDrawable extends Drawable {
      * @see #hasMipMap()
      */
     public void setMipMap(boolean mipMap) {
-        if (mBitmap != null) {
-            BitmapCompat.setHasMipMap(mBitmap, mipMap);
-            invalidateSelf();
-        }
+        throw new UnsupportedOperationException(); // must be overridden in subclasses
     }
 
     /**
@@ -225,7 +171,7 @@ public class RoundedBitmapDrawable extends Drawable {
      * @see #setMipMap(boolean)
      */
     public boolean hasMipMap() {
-        return mBitmap != null && BitmapCompat.hasMipMap(mBitmap);
+        throw new UnsupportedOperationException(); // must be overridden in subclasses
     }
 
     /**
@@ -264,6 +210,20 @@ public class RoundedBitmapDrawable extends Drawable {
         invalidateSelf();
     }
 
+    void gravityCompatApply(int gravity, int bitmapWidth, int bitmapHeight,
+            Rect bounds, Rect outRect) {
+        throw new UnsupportedOperationException();
+    }
+
+    void updateDstRect() {
+        if (mApplyGravity) {
+            gravityCompatApply(mGravity, mBitmapWidth, mBitmapHeight,
+                    getBounds(), mDstRect);
+            mDstRectF.set(mDstRect);
+            mApplyGravity = false;
+        }
+    }
+
     @Override
     public void draw(Canvas canvas) {
         final Bitmap bitmap = mBitmap;
@@ -271,26 +231,13 @@ public class RoundedBitmapDrawable extends Drawable {
             return;
         }
 
-        final Paint paint = mPaint;
+        updateDstRect();
 
+        final Paint paint = mPaint;
         final Shader shader = paint.getShader();
         if (shader == null) {
-            if (mApplyGravity) {
-                GravityCompat.apply(mGravity, mBitmapWidth, mBitmapHeight,
-                        getBounds(), mDstRect, ViewCompat.LAYOUT_DIRECTION_LTR);
-                mDstRectF.set(mDstRect);
-                mApplyGravity = false;
-            }
-
             canvas.drawBitmap(bitmap, null, mDstRect, paint);
-
         } else {
-            if (mApplyGravity) {
-                copyBounds(mDstRect);
-                mDstRectF.set(mDstRect);
-                mApplyGravity = false;
-            }
-
             canvas.drawRoundRect(mDstRectF, mCornerRadius, mCornerRadius, paint);
         }
     }
@@ -360,7 +307,7 @@ public class RoundedBitmapDrawable extends Drawable {
                 ? PixelFormat.TRANSLUCENT : PixelFormat.OPAQUE;
     }
 
-    private RoundedBitmapDrawable(Resources res, Bitmap bitmap) {
+    RoundedBitmapDrawable(Resources res, Bitmap bitmap) {
         if (res != null) {
             mTargetDensity = res.getDisplayMetrics().densityDpi;
         }
@@ -374,7 +321,7 @@ public class RoundedBitmapDrawable extends Drawable {
         }
     }
 
-    private boolean isGreaterThanZero(float toCompare) {
+    private static boolean isGreaterThanZero(float toCompare) {
         return Float.compare(toCompare, +0.0f) > 0;
     }
 }
