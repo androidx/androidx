@@ -71,6 +71,10 @@
         <item name="defaultSearchBrightColor">@null</item>
         <item name="defaultSearchIcon">@null</item>
 
-    </style>
+        <item name="android:windowSharedElementEnterTransition">@transition/lb_shared_element_enter_transition</item>
+        <item name="android:windowEnterTransition">@transition/lb_enter_transition</item>
+        <item name="android:windowSharedElementReturnTransition">@transition/lb_shared_element_return_transition</item>
+        <item name="android:windowReturnTransition">@transition/lb_return_transition</item>
+        </style>
 
 </resources>
