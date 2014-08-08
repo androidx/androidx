@@ -424,11 +424,16 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             mActionMode = ab.startActionMode(wrappedCallback);
+            if (mActionMode != null) {
+                mActivity.onSupportActionModeStarted(mActionMode);
+            }
         }
 
-        if (mActionMode != null) {
-            mActivity.onSupportActionModeStarted(mActionMode);
+        if (mActionMode == null) {
+            // If the action bar didn't provide an action mode, start the emulated window one
+            mActionMode = startSupportActionModeFromWindow(wrappedCallback);
         }
+
         return mActionMode;
     }
 
