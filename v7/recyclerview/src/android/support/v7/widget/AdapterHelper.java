@@ -159,85 +159,7 @@ class AdapterHelper {
                 to = op.itemCount;
                 op.itemCount = 1;
                 op.cmd = UpdateOp.REMOVE;
-                // now, update all remaining ops according to this :/.
-                for (int j = i + 1; j <= removedIndex; j++) {
-                    UpdateOp other = mPendingUpdates.get(j);
-                    switch (other.cmd) {
-                        case UpdateOp.ADD:
-                            if (other.positionStart > to) {
-                                other.positionStart--;
-                            } else {
-                                to += other.itemCount;
-                            }
-                            break;
-                        case UpdateOp.UPDATE:
-                            if (other.positionStart > to) {
-                                other.positionStart--;
-                            } else if (other.positionStart <= to
-                                    && to < other.positionStart + other.itemCount) {
-                                other.itemCount--;
-                            }
-                            break;
-                        case UpdateOp.REMOVE:
-                            if (other.positionStart <= to) {
-                                if (other.positionStart + other.itemCount > to) {
-                                    other.itemCount--;
-                                } else {
-                                    to -= other.itemCount;
-                                }
-                            } else {
-                                other.positionStart--;
-                            }
-                            break;
-                        case UpdateOp.MOVE:
-                            if (to == other.positionStart) {
-                                throw new IllegalStateException("move updated removed move. "
-                                        + "Should've detected earlier");
-                            } else {
-                                final int start, end, inBetweenDiff;
-                                if (other.positionStart > other.itemCount) {
-                                    start = other.itemCount;
-                                    end = other.positionStart;
-                                    inBetweenDiff = 1;
-                                } else {
-                                    start = other.positionStart;
-                                    end = other.itemCount;
-                                    inBetweenDiff = -1;
-                                }
-                                // since to is not added anymore, offset other if necessary
-                                if (to < other.positionStart) {
-                                    other.positionStart--;
-                                }
-                                if (to <= other.itemCount) {
-                                    other.itemCount--;
-                                }
-                                // now apply other to "to" position
-                                if (start <= to && end >= to) {
-                                    to += inBetweenDiff;
-                                }
-                            }
-                            break;
-                    }
-                }
-
-                for (int j = removedIndex; j > i; j--) {
-                    UpdateOp other = mPendingUpdates.get(j);
-                    if (other.cmd != UpdateOp.MOVE && other.itemCount <= 0) {
-                        if (DEBUG) {
-                            Log.d(TAG, "Recycling no-op " + other);
-                        }
-                        mPendingUpdates.remove(j);
-                        recycleUpdateOp(other);
-                    } else if (other.cmd == UpdateOp.MOVE &&
-                            (other.itemCount == other.positionStart ||
-                                    other.itemCount < 0)) {
-                        if (DEBUG) {
-                            Log.d(TAG, "Recycling no-op " + other);
-                        }
-                        mPendingUpdates.remove(j);
-                        recycleUpdateOp(other);
-                    }
-                }
+                createFakeAddForRemovedMove(to, i + 1);
             }
         }
         if (DEBUG) {
@@ -247,6 +169,18 @@ class AdapterHelper {
             }
             Log.d(TAG, "------");
         }
+    }
+
+    /**
+     * when a Move op is removed in the same layout pass, we convert it into a delete op and create
+     * another add op. This way, we can keep using the same code path w/o the complexity of move.
+     *
+     * @param adapterIndex Target position of the move operation
+     * @param pendingUpdateIndex The UpdateOp index of the move operation
+     */
+    void createFakeAddForRemovedMove(int adapterIndex, int pendingUpdateIndex) {
+        UpdateOp fakeAdd = obtainUpdateOp(UpdateOp.ADD, adapterIndex, 1);
+        mPendingUpdates.add(pendingUpdateIndex, fakeAdd);
     }
 
     void consumePostponedUpdates() {
@@ -575,16 +509,20 @@ class AdapterHelper {
             UpdateOp op = mPostponedList.get(i);
             if (op.cmd == UpdateOp.MOVE) {
                 if (op.positionStart == position) {
-                    // TODO check if this should be returned instead. probably not
                     position = op.itemCount;
-                } else if (op.positionStart < position) {
-                    position--; // like a remove
-                }
-                if (op.itemCount <= position) {
-                    position++; // like an add
+                } else {
+                    if (op.positionStart < position) {
+                        position--; // like a remove
+                    }
+                    if (op.itemCount <= position) {
+                        position++; // like an add
+                    }
                 }
             } else if (op.positionStart <= position) {
                 if (op.cmd == UpdateOp.REMOVE) {
+                    if (position < op.positionStart + op.itemCount) {
+                        return -1;
+                    }
                     position -= op.itemCount;
                 } else if (op.cmd == UpdateOp.ADD) {
                     position += op.itemCount;

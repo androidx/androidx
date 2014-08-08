@@ -160,7 +160,20 @@ public class AdapterHelperTest extends AndroidTestCase {
                     holder.offsetPosition(inBetweenOffset, false);
                 }
             }
-        }, true);
+        }, true) {
+            @Override
+            void createFakeAddForRemovedMove(int adapterIndex, int pendingUpdateIndex) {
+                int addsBefore = 0;
+                for (int i = 0; i < pendingUpdateIndex; i ++) {
+                    final UpdateOp updateOp = mPendingUpdates.get(i);
+                    if (updateOp.cmd == UpdateOp.ADD) {
+                        addsBefore += updateOp.itemCount;
+                    }
+                }
+                mTestAdapter.createFakeItemAt(addsBefore);
+                super.createFakeAddForRemovedMove(adapterIndex, pendingUpdateIndex);
+            }
+        };
     }
 
     void setupBasic(int count, int visibleStart, int visibleCount) {
@@ -179,6 +192,27 @@ public class AdapterHelperTest extends AndroidTestCase {
                 new TextView(getContext()));
         viewHolder.mPosition = posiiton;
         mViewHolders.add(viewHolder);
+    }
+
+    public void testFindPositionOffsetInPreLayout() {
+        setupBasic(50, 25, 10);
+        rm(24, 5);
+        mAdapterHelper.preProcess();
+        // since 25 is invisible, we offset by one while checking
+        assertEquals("find position for view 23",
+                23, mAdapterHelper.findPositionOffset(23));
+        assertEquals("find position for view 24",
+                -1, mAdapterHelper.findPositionOffset(24));
+        assertEquals("find position for view 25",
+                -1, mAdapterHelper.findPositionOffset(25));
+        assertEquals("find position for view 26",
+                -1, mAdapterHelper.findPositionOffset(26));
+        assertEquals("find position for view 27",
+                -1, mAdapterHelper.findPositionOffset(27));
+        assertEquals("find position for view 28",
+                24, mAdapterHelper.findPositionOffset(28));
+        assertEquals("find position for view 29",
+                25, mAdapterHelper.findPositionOffset(29));
     }
 
     public void testSinglePass() {
@@ -476,13 +510,12 @@ public class AdapterHelperTest extends AndroidTestCase {
         preProcess();
     }
 
-    public void testScenario27() {
-        setupBasic(10,0,3);
+    public void testScenario27() throws InterruptedException {
+        setupBasic(10, 0, 3);
         mv(9,4);
         mv(8,4);
-        add(7,10);
+        add(7,6);
         rm(5,5);
-        mv(6,5);
         preProcess();
     }
 
@@ -495,8 +528,8 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     public void testRandom() {
         Random random = new Random(System.nanoTime());
-        for (int i = 0; i < 1000; i++) {
-            randomTest(random, 5);
+        for (int i = 0; i < 100; i++) {
+            randomTest(random, i + 10);
         }
     }
 
@@ -558,8 +591,8 @@ public class AdapterHelperTest extends AndroidTestCase {
             TestAdapter.Item item = mPreProcessClone.mItems.get(i);
             final int preLayoutIndex = mPreLayoutItems.indexOf(item);
             final int endIndex = mTestAdapter.mItems.indexOf(item);
-            if (preLayoutIndex != -1 && endIndex != -1) {
-                assertEquals("find position offset should work properly for moved element " + i
+            if (preLayoutIndex != -1) {
+                assertEquals("find position offset should work properly for existing elements" + i
                         + " at pre layout position " + preLayoutIndex + " and post layout position "
                         + endIndex, endIndex, mAdapterHelper.findPositionOffset(preLayoutIndex));
             }
@@ -726,6 +759,11 @@ public class AdapterHelperTest extends AndroidTestCase {
 
         private Item consumeNextAdded() {
             return mPendingAdded.remove();
+        }
+
+        public void createFakeItemAt(int fakeAddedItemIndex) {
+            Item fakeItem = new Item();
+            ((LinkedList<Item>)mPendingAdded).add(fakeAddedItemIndex, fakeItem);
         }
 
         public static class Item {
