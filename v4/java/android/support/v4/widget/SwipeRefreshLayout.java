@@ -78,7 +78,6 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     // Default background for the progress spinner
     private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
-    private static final float MIN_CIRCLE_SCALE = .1f;
     // Default offset in dips from the top of the view to where the progress spinner should stop
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
@@ -354,6 +353,11 @@ public class SwipeRefreshLayout extends ViewGroup {
         mCircleView.startAnimation(mScaleDownAnimation);
     }
 
+    /**
+     * Set the background color of the progress spinner disc.
+     *
+     * @param colorRes Resource id of the color.
+     */
     public void setProgressBackgroundColor(int colorRes) {
         mCircleView.setBackgroundColor(colorRes);
     }
