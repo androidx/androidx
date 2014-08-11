@@ -116,6 +116,7 @@ public class HorizontalGridView extends BaseGridView {
                 mTempBitmapLow = null;
             }
             invalidate();
+            updateLayerType();
         }
     }
 
@@ -181,6 +182,7 @@ public class HorizontalGridView extends BaseGridView {
                 mTempBitmapHigh = null;
             }
             invalidate();
+            updateLayerType();
         }
     }
 
@@ -361,6 +363,21 @@ public class HorizontalGridView extends BaseGridView {
             canvas.translate(highEdge - mHighFadeShaderLength, 0);
             canvas.drawBitmap(tempBitmap, mTempRect, mTempRect, null);
             canvas.translate(-(highEdge - mHighFadeShaderLength), 0);
+        }
+    }
+
+    /**
+     * Updates the layer type for this view.
+     * If fading edges are needed, use a hardware layer.  This works around the problem
+     * that when a child invalidates itself (for example has an animated background),
+     * the parent view must also be invalidated to refresh the display list which
+     * updates the the caching bitmaps used to draw the fading edges.
+     */
+    private void updateLayerType() {
+        if (mFadingLowEdge || mFadingHighEdge) {
+            setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        } else {
+            setLayerType(View.LAYER_TYPE_NONE, null);
         }
     }
 }
