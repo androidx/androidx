@@ -145,7 +145,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         }
         if (SHOW_IMAGE) {
             mDetailsDrawable = context.getResources().getDrawable(R.drawable.details_img);
-            mOtherDrawable = context.getResources().getDrawable(R.drawable.img16x9);
+            mOtherDrawable = context.getResources().getDrawable(R.drawable.details_img_16x9);
             mPlaybackControlsRow.setImageDrawable(mDetailsDrawable);
         }
         mPlaybackControlsRow.setPrimaryActionsAdapter(mPrimaryActionsAdapter);
