@@ -16,16 +16,18 @@
 
 package android.support.v7.internal.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.View;
-import android.widget.LinearLayout;
 
 /**
  * @hide
  */
-public class NativeActionModeAwareLayout extends LinearLayout {
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class NativeActionModeAwareLayout extends ContentFrameLayout {
 
     private OnActionModeForChildListener mActionModeForChildListener;
 

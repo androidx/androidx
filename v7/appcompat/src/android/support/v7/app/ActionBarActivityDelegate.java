@@ -60,6 +60,8 @@ abstract class ActionBarActivityDelegate {
     boolean mHasActionBar;
     // true if this activity's action bar overlays other activity content.
     boolean mOverlayActionBar;
+    // true if this any action modes should overlay the activity content
+    boolean mOverlayActionMode;
     // true if this activity is floating (e.g. Dialog)
     boolean mIsFloating;
 
@@ -104,6 +106,7 @@ abstract class ActionBarActivityDelegate {
 
         mHasActionBar = a.getBoolean(R.styleable.Theme_windowActionBar, false);
         mOverlayActionBar = a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false);
+        mOverlayActionMode = a.getBoolean(R.styleable.Theme_windowActionModeOverlay, false);
         mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
         a.recycle();
     }
