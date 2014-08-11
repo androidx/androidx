@@ -55,7 +55,8 @@ import android.view.Window;
  */
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback,
         TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider {
-    ActionBarActivityDelegate mImpl;
+
+    private ActionBarActivityDelegate mDelegate;
 
     /**
      * Support library version of {@link Activity#getActionBar}.
@@ -65,7 +66,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @return The Activity's ActionBar, or null if it does not have one.
      */
     public ActionBar getSupportActionBar() {
-        return mImpl.getSupportActionBar();
+        return getDelegate().getSupportActionBar();
     }
 
     /**
@@ -84,63 +85,62 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @param toolbar Toolbar to set as the Activity's action bar
      */
     public void setSupportActionBar(@Nullable Toolbar toolbar) {
-        mImpl.setSupportActionBar(toolbar);
+        getDelegate().setSupportActionBar(toolbar);
     }
 
     @Override
     public MenuInflater getMenuInflater() {
-        return mImpl.getMenuInflater();
+        return getDelegate().getMenuInflater();
     }
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        mImpl.setContentView(layoutResID);
+        getDelegate().setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(View view) {
-        mImpl.setContentView(view);
+        getDelegate().setContentView(view);
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        mImpl.setContentView(view, params);
+        getDelegate().setContentView(view, params);
     }
 
     @Override
     public void addContentView(View view, ViewGroup.LayoutParams params) {
-        mImpl.addContentView(view, params);
+        getDelegate().addContentView(view, params);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mImpl = ActionBarActivityDelegate.createDelegate(this);
         super.onCreate(savedInstanceState);
-        mImpl.onCreate(savedInstanceState);
+        getDelegate().onCreate(savedInstanceState);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mImpl.onConfigurationChanged(newConfig);
+        getDelegate().onConfigurationChanged(newConfig);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mImpl.onStop();
+        getDelegate().onStop();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        mImpl.onPostResume();
+        getDelegate().onPostResume();
     }
 
     @Override
     public View onCreatePanelView(int featureId) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            return mImpl.onCreatePanelView(featureId);
+            return getDelegate().onCreatePanelView(featureId);
         } else {
             return super.onCreatePanelView(featureId);
         }
@@ -163,7 +163,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     @Override
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
-        mImpl.onTitleChanged(title);
+        getDelegate().onTitleChanged(title);
     }
 
     /**
@@ -181,7 +181,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @see android.view.Window#requestFeature
      */
     public boolean supportRequestWindowFeature(int featureId) {
-        return mImpl.supportRequestWindowFeature(featureId);
+        return getDelegate().supportRequestWindowFeature(featureId);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             super.supportInvalidateOptionsMenu();
         }
-        mImpl.supportInvalidateOptionsMenu();
+        getDelegate().supportInvalidateOptionsMenu();
     }
 
     /**
@@ -212,17 +212,17 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     public ActionMode startSupportActionMode(ActionMode.Callback callback) {
-        return mImpl.startSupportActionMode(callback);
+        return getDelegate().startSupportActionMode(callback);
     }
 
     @Override
     public boolean onCreatePanelMenu(int featureId, Menu menu) {
-        return mImpl.onCreatePanelMenu(featureId, menu);
+        return getDelegate().onCreatePanelMenu(featureId, menu);
     }
 
     @Override
     public boolean onPreparePanel(int featureId, View view, Menu menu) {
-        return mImpl.onPreparePanel(featureId, view, menu);
+        return getDelegate().onPreparePanel(featureId, view, menu);
     }
 
     /**
@@ -230,7 +230,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      */
     @Override
     protected boolean onPrepareOptionsPanel(View view, Menu menu) {
-        return mImpl.onPrepareOptionsPanel(view, menu);
+        return getDelegate().onPrepareOptionsPanel(view, menu);
     }
 
     void superSetContentView(int resId) {
@@ -263,7 +263,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public void onBackPressed() {
-        if (!mImpl.onBackPressed()) {
+        if (!getDelegate().onBackPressed()) {
             super.onBackPressed();
         }
     }
@@ -279,7 +279,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @param visible Whether to show the progress bars in the title.
      */
     public void setSupportProgressBarVisibility(boolean visible) {
-        mImpl.setSupportProgressBarVisibility(visible);
+        getDelegate().setSupportProgressBarVisibility(visible);
     }
 
     /**
@@ -293,7 +293,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @param visible Whether to show the progress bars in the title.
      */
     public void setSupportProgressBarIndeterminateVisibility(boolean visible) {
-        mImpl.setSupportProgressBarIndeterminateVisibility(visible);
+        getDelegate().setSupportProgressBarIndeterminateVisibility(visible);
     }
 
     /**
@@ -308,7 +308,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @param indeterminate Whether the horizontal progress bar should be indeterminate.
      */
     public void setSupportProgressBarIndeterminate(boolean indeterminate) {
-        mImpl.setSupportProgressBarIndeterminate(indeterminate);
+        getDelegate().setSupportProgressBarIndeterminate(indeterminate);
     }
 
     /**
@@ -324,7 +324,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      *            bar will be completely filled and will fade out.
      */
     public void setSupportProgress(int progress) {
-        mImpl.setSupportProgress(progress);
+        getDelegate().setSupportProgress(progress);
     }
 
     /**
@@ -470,14 +470,14 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
-        return mImpl.getDrawerToggleDelegate();
+        return getDelegate().getDrawerToggleDelegate();
     }
 
     /**
      * Use {@link #onSupportContentChanged()} instead.
      */
     public final void onContentChanged() {
-        mImpl.onContentChanged();
+        getDelegate().onContentChanged();
     }
 
     /**
@@ -485,5 +485,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @see android.app.Activity#onContentChanged()
      */
     public void onSupportContentChanged() {
+    }
+
+    private ActionBarActivityDelegate getDelegate() {
+        if (mDelegate == null) {
+            mDelegate = ActionBarActivityDelegate.createDelegate(this);
+        }
+        return mDelegate;
     }
 }
