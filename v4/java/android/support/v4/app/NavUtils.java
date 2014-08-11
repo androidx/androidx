@@ -147,7 +147,7 @@ public class NavUtils {
      *
      * <p>If this method returns false the app can trivially call
      * {@link #navigateUpTo(Activity, Intent)} using the same parameters to correctly perform
-     * up navigation. If this method returns false, the app should synthesize a new task stack
+     * up navigation. If this method returns true, the app should synthesize a new task stack
      * by using {@link TaskStackBuilder} or another similar mechanism to perform up navigation.</p>
      *
      * @param sourceActivity The current activity from which the user is attempting to navigate up
