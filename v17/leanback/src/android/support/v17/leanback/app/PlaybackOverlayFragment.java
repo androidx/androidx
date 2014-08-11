@@ -121,8 +121,10 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                     mFadeCompleteListener.onFadeInComplete();
                 }
             } else {
-                // Reset focus to the controls row
-                getVerticalGridView().setSelectedPosition(0);
+                if (getVerticalGridView() != null) {
+                    // Reset focus to the controls row
+                    getVerticalGridView().setSelectedPosition(0);
+                }
                 if (mFadeCompleteListener != null) {
                     mFadeCompleteListener.onFadeOutComplete();
                 }
@@ -163,10 +165,15 @@ public class PlaybackOverlayFragment extends DetailsFragment {
 
     private void setBgAlpha(int alpha) {
         mBgAlpha = alpha;
-        mRootView.getBackground().setAlpha(alpha);
+        if (mRootView != null) {
+            mRootView.getBackground().setAlpha(alpha);
+        }
     }
 
     private void enableVerticalGridAnimations(boolean enable) {
+        if (getVerticalGridView() == null) {
+            return;
+        }
         if (enable && mItemAnimator != null) {
             getVerticalGridView().setItemAnimator(mItemAnimator);
         } else if (!enable) {
@@ -259,8 +266,10 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     }
 
     private void startFadeTimer() {
-        mHandler.removeMessages(START_FADE_OUT);
-        mHandler.sendEmptyMessageDelayed(START_FADE_OUT, mShowTimeMs);
+        if (mHandler != null) {
+            mHandler.removeMessages(START_FADE_OUT);
+            mHandler.sendEmptyMessageDelayed(START_FADE_OUT, mShowTimeMs);
+        }
     }
 
     private static ValueAnimator loadAnimator(Context context, int resId) {
@@ -293,6 +302,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         AnimatorUpdateListener listener = new AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator arg0) {
+                if (getVerticalGridView() == null) {
+                    return;
+                }
                 RecyclerView.ViewHolder vh = getVerticalGridView().findViewHolderForPosition(0);
                 if (vh != null) {
                     final float fraction = (Float) arg0.getAnimatedValue();
@@ -320,6 +332,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         AnimatorUpdateListener listener = new AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator arg0) {
+                if (getVerticalGridView() == null) {
+                    return;
+                }
                 final float fraction = (Float) arg0.getAnimatedValue();
                 final int count = getVerticalGridView().getChildCount();
                 for (int i = 0; i < count; i++) {
@@ -509,6 +524,12 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         updateBackground();
         getRowsFragment().setExternalAdapterListener(mAdapterListener);
         return mRootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        mRootView = null;
+        super.onDestroyView();
     }
 
     private final DataObserver mObserver = new DataObserver() {
