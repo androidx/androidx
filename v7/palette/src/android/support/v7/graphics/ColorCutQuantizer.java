@@ -179,21 +179,23 @@ final class ColorCutQuantizer {
      * Represents a tightly fitting box around a color space.
      */
     private class Vbox {
-        private int lowerIndex;
-        private int upperIndex;
+        // lower and upper index are inclusive
+        private int mLowerIndex;
+        private int mUpperIndex;
 
-        private int minRed, maxRed;
-        private int minGreen, maxGreen;
-        private int minBlue, maxBlue;
+        private int mMinRed, mMaxRed;
+        private int mMinGreen, mMaxGreen;
+        private int mMinBlue, mMaxBlue;
 
         Vbox(int lowerIndex, int upperIndex) {
-            this.lowerIndex = lowerIndex;
-            this.upperIndex = upperIndex;
+            mLowerIndex = lowerIndex;
+            mUpperIndex = upperIndex;
             fitBox();
         }
 
         int getVolume() {
-            return (maxRed - minRed + 1) * (maxGreen - minGreen + 1) * (maxBlue - minBlue + 1);
+            return (mMaxRed - mMinRed + 1) * (mMaxGreen - mMinGreen + 1) *
+                    (mMaxBlue - mMinBlue + 1);
         }
 
         boolean canSplit() {
@@ -201,7 +203,7 @@ final class ColorCutQuantizer {
         }
 
         int getColorCount() {
-            return upperIndex - lowerIndex;
+            return mUpperIndex - mLowerIndex + 1;
         }
 
         /**
@@ -209,31 +211,31 @@ final class ColorCutQuantizer {
          */
         void fitBox() {
             // Reset the min and max to opposite values
-            minRed = minGreen = minBlue = 0xFF;
-            maxRed = maxGreen = maxBlue = 0x0;
+            mMinRed = mMinGreen = mMinBlue = 0xFF;
+            mMaxRed = mMaxGreen = mMaxBlue = 0x0;
 
-            for (int i = lowerIndex; i <= upperIndex; i++) {
+            for (int i = mLowerIndex; i <= mUpperIndex; i++) {
                 final int color = mColors[i];
-                int r = Color.red(color);
-                int g = Color.green(color);
-                int b = Color.blue(color);
-                if (r > maxRed) {
-                    maxRed = r;
+                final int r = Color.red(color);
+                final int g = Color.green(color);
+                final int b = Color.blue(color);
+                if (r > mMaxRed) {
+                    mMaxRed = r;
                 }
-                if (r < minRed) {
-                    minRed = r;
+                if (r < mMinRed) {
+                    mMinRed = r;
                 }
-                if (g > maxGreen) {
-                    maxGreen = g;
+                if (g > mMaxGreen) {
+                    mMaxGreen = g;
                 }
-                if (g < minGreen) {
-                    minGreen = g;
+                if (g < mMinGreen) {
+                    mMinGreen = g;
                 }
-                if (b > maxBlue) {
-                    maxBlue = b;
+                if (b > mMaxBlue) {
+                    mMaxBlue = b;
                 }
-                if (b < minBlue) {
-                    minBlue = b;
+                if (b < mMinBlue) {
+                    mMinBlue = b;
                 }
             }
         }
@@ -251,10 +253,10 @@ final class ColorCutQuantizer {
             // find median along the longest dimension
             final int splitPoint = findSplitPoint();
 
-            Vbox newBox = new Vbox(splitPoint + 1, upperIndex);
+            Vbox newBox = new Vbox(splitPoint + 1, mUpperIndex);
 
             // Now change this box's upperIndex and recompute the color boundaries
-            upperIndex = splitPoint;
+            mUpperIndex = splitPoint;
             fitBox();
 
             return newBox;
@@ -264,9 +266,9 @@ final class ColorCutQuantizer {
          * @return the dimension which this box is largest in
          */
         int getLongestColorDimension() {
-            final int redLength = maxRed - minRed;
-            final int greenLength = maxGreen - minGreen;
-            final int blueLength = maxBlue - minBlue;
+            final int redLength = mMaxRed - mMinRed;
+            final int greenLength = mMaxGreen - mMinGreen;
+            final int blueLength = mMaxBlue - mMinBlue;
 
             if (redLength >= greenLength && redLength >= blueLength) {
                 return COMPONENT_RED;
@@ -292,17 +294,17 @@ final class ColorCutQuantizer {
             // We need to sort the colors in this box based on the longest color dimension.
             // As we can't use a Comparator to define the sort logic, we modify each color so that
             // it's most significant is the desired dimension
-            modifySignificantOctet(longestDimension, lowerIndex, upperIndex);
+            modifySignificantOctet(longestDimension, mLowerIndex, mUpperIndex);
 
-            // Now sort...
-            Arrays.sort(mColors, lowerIndex, upperIndex + 1);
+            // Now sort... Arrays.sort uses a exclusive toIndex so we need to add 1
+            Arrays.sort(mColors, mLowerIndex, mUpperIndex + 1);
 
             // Now revert all of the colors so that they are packed as RGB again
-            modifySignificantOctet(longestDimension, lowerIndex, upperIndex);
+            modifySignificantOctet(longestDimension, mLowerIndex, mUpperIndex);
 
             final int dimensionMidPoint = midPoint(longestDimension);
 
-            for (int i = lowerIndex; i < upperIndex; i++)  {
+            for (int i = mLowerIndex; i <= mUpperIndex; i++)  {
                 final int color = mColors[i];
 
                 switch (longestDimension) {
@@ -324,7 +326,7 @@ final class ColorCutQuantizer {
                 }
             }
 
-            return lowerIndex;
+            return mLowerIndex;
         }
 
         /**
@@ -336,7 +338,7 @@ final class ColorCutQuantizer {
             int blueSum = 0;
             int totalPopulation = 0;
 
-            for (int i = lowerIndex; i <= upperIndex; i++) {
+            for (int i = mLowerIndex; i <= mUpperIndex; i++) {
                 final int color = mColors[i];
                 final int colorPopulation = mColorPopulations.get(color);
 
@@ -360,11 +362,11 @@ final class ColorCutQuantizer {
             switch (dimension) {
                 case COMPONENT_RED:
                 default:
-                    return (minRed + maxRed) / 2;
+                    return (mMinRed + mMaxRed) / 2;
                 case COMPONENT_GREEN:
-                    return (minGreen + maxGreen) / 2;
+                    return (mMinGreen + mMaxGreen) / 2;
                 case COMPONENT_BLUE:
-                    return (minBlue + maxBlue) / 2;
+                    return (mMinBlue + mMaxBlue) / 2;
             }
         }
     }
@@ -375,21 +377,21 @@ final class ColorCutQuantizer {
      *
      * @see Vbox#findSplitPoint()
      */
-    private void modifySignificantOctet(final int dimension, int lowIndex, int highIndex) {
+    private void modifySignificantOctet(final int dimension, int lowerIndex, int upperIndex) {
         switch (dimension) {
             case COMPONENT_RED:
                 // Already in RGB, no need to do anything
                 break;
             case COMPONENT_GREEN:
                 // We need to do a RGB to GRB swap, or vice-versa
-                for (int i = lowIndex; i <= highIndex; i++) {
+                for (int i = lowerIndex; i <= upperIndex; i++) {
                     final int color = mColors[i];
                     mColors[i] = Color.rgb((color >> 8) & 0xFF, (color >> 16) & 0xFF, color & 0xFF);
                 }
                 break;
             case COMPONENT_BLUE:
                 // We need to do a RGB to BGR swap, or vice-versa
-                for (int i = lowIndex; i <= highIndex; i++) {
+                for (int i = lowerIndex; i <= upperIndex; i++) {
                     final int color = mColors[i];
                     mColors[i] = Color.rgb(color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF);
                 }
