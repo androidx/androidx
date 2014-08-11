@@ -26,13 +26,6 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
-        <!--
-            A native Action Mode could be displayed (for text selection, etc) so we need to ensure
-            that it is positioned correctly, so we request windowActionModeOverlay so that it
-            displays over the compat Action Bar.
-        -->
-        <item name="android:windowActionModeOverlay">true</item>
-
         <!-- Window colors -->
         <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
         <item name="android:colorForegroundInverse">@color/bright_foreground_material_light</item>
@@ -69,13 +62,6 @@
     <style name="Platform.AppCompat.Light" parent="android:Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
-
-        <!--
-            A native Action Mode could be displayed (for text selection, etc) so we need to ensure
-            that it is positioned correctly, so we request windowActionModeOverlay so that it
-            displays over the compat Action Bar.
-        -->
-        <item name="android:windowActionModeOverlay">true</item>
 
         <!-- Window colors -->
         <item name="android:colorForeground">@color/bright_foreground_material_light</item>

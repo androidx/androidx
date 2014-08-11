@@ -47,6 +47,10 @@
              have an Action Bar. -->
         <attr name="windowActionBarOverlay" format="boolean" />
 
+        <!-- Flag indicating whether action modes should overlay window content
+             when there is not reserved space for their UI (such as an Action Bar). -->
+        <attr name="windowActionModeOverlay" format="boolean" />
+
         <!-- A fixed width for the window along the major axis of the screen,
              that is, when in landscape. Can be either an absolute dimension
              or a fraction of the screen size in that dimension. -->
