@@ -70,7 +70,7 @@ public class HorizontalGridView extends BaseGridView {
         setRowHeight(a);
         setNumRows(a.getInt(R.styleable.lbHorizontalGridView_numberOfRows, 1));
         a.recycle();
-        setWillNotDraw(false);
+        updateLayerType();
         mTempPaint = new Paint();
         mTempPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
     }
@@ -376,8 +376,10 @@ public class HorizontalGridView extends BaseGridView {
     private void updateLayerType() {
         if (mFadingLowEdge || mFadingHighEdge) {
             setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            setWillNotDraw(false);
         } else {
             setLayerType(View.LAYER_TYPE_NONE, null);
+            setWillNotDraw(true);
         }
     }
 }
