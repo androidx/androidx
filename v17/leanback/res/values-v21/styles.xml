@@ -15,8 +15,9 @@
      limitations under the License.
 -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners android:radius="2dp" />
-    <solid android:color="@color/lb_action_bg_color" />
-</shape>
+<resources>
+    <style name="Widget.Leanback.DetailsActionButtonStyleBase" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:background">@drawable/lb_action_bg</item>
+    </style>
+
+</resources>

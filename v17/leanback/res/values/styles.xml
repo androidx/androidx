@@ -221,7 +221,10 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="Widget.Leanback.DetailsActionButtonStyle" parent="android:Widget.Material.Button.Borderless">
+    <style name="Widget.Leanback.DetailsActionButtonStyleBase" parent="android:Widget.Holo.Button.Borderless">
+    </style>
+
+    <style name="Widget.Leanback.DetailsActionButtonStyle" parent="Widget.Leanback.DetailsActionButtonStyleBase">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsActionButton</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:drawablePadding">@dimen/lb_action_icon_margin</item>
