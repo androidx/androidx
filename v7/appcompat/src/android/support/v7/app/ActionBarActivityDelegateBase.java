@@ -235,6 +235,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                 if (mFeatureIndeterminateProgress) {
                     mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
                 }
+            } else if (mOverlayActionMode) {
+                mActivity.superSetContentView(R.layout.abc_screen_simple_overlay_action_mode);
             } else {
                 mActivity.superSetContentView(R.layout.abc_screen_simple);
             }
@@ -333,6 +335,9 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                 return true;
             case WindowCompat.FEATURE_ACTION_BAR_OVERLAY:
                 mOverlayActionBar = true;
+                return true;
+            case WindowCompat.FEATURE_ACTION_MODE_OVERLAY:
+                mOverlayActionMode = true;
                 return true;
             case Window.FEATURE_PROGRESS:
                 mFeatureProgress = true;
