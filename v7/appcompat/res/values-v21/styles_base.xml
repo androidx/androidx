@@ -136,11 +136,17 @@
     <style name="Base.Widget.AppCompat.Light.DropDownItem.Spinner"
            parent="android:Widget.Material.Light.DropDownItem.Spinner"/>
 
-    <style name="Base.Widget.AppCompat.Spinner"
-           parent="android:Widget.Material.Spinner" />
+    <style name="Base.Widget.AppCompat.Spinner" parent="android:Widget.Material.Spinner">
+        <item name="spinnerMode">dropdown</item>
+        <item name="disableChildrenWhenDisabled">true</item>
+        <item name="popupPromptView">@layout/abc_simple_dropdown_hint</item>
+    </style>
 
-    <style name="Base.Widget.AppCompat.Light.Spinner"
-           parent="android:Widget.Material.Light.Spinner"/>
+    <style name="Base.Widget.AppCompat.Light.Spinner" parent="android:Widget.Material.Light.Spinner">
+        <item name="spinnerMode">dropdown</item>
+        <item name="disableChildrenWhenDisabled">true</item>
+        <item name="popupPromptView">@layout/abc_simple_dropdown_hint</item>
+    </style>
 
     <style name="Base.Widget.AppCompat.ListView.Menu"
            parent="android:Widget.ListView.Menu" />
