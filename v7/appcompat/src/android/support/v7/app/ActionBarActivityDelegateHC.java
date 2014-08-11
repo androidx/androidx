@@ -51,7 +51,15 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegateBase
     @Override
     public ActionMode startActionModeForChild(View originalView, ActionMode.Callback callback) {
         Context context = originalView.getContext();
-        return new SupportActionModeWrapper(mActivity, startSupportActionMode(
-                        new SupportActionModeWrapper.CallbackWrapper(context, callback)));
+
+        // Try and start a support action mode, wrapping the callback
+        final android.support.v7.view.ActionMode supportActionMode = startSupportActionMode(
+                new SupportActionModeWrapper.CallbackWrapper(context, callback));
+
+        if (supportActionMode != null) {
+            // If we received a support action mode, wrap and return it
+            return new SupportActionModeWrapper(mActivity, supportActionMode);
+        }
+        return null;
     }
 }
