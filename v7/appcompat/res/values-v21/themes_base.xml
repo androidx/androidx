@@ -26,25 +26,11 @@
     <style name="Platform.AppCompat" parent="android:Theme.Material">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
-
-        <!--
-            A native Action Mode could be displayed (for text selection, etc) so we need to ensure
-            that it is positioned correctly, so we request windowActionModeOverlay so that it
-            displays over the compat Action Bar.
-        -->
-        <item name="android:windowActionModeOverlay">true</item>
     </style>
 
     <style name="Platform.AppCompat.Light" parent="android:Theme.Material.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
-
-        <!--
-            A native Action Mode could be displayed (for text selection, etc) so we need to ensure
-            that it is positioned correctly, so we request windowActionModeOverlay so that it
-            displays over the compat Action Bar.
-        -->
-        <item name="android:windowActionModeOverlay">true</item>
     </style>
 
     <style name="Platform.AppCompat.DialogWhenLarge"
