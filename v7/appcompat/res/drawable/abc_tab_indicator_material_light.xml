@@ -15,8 +15,6 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true">
-        <nine-patch android:src="@drawable/abc_tab_indicator_material_selected" />
-    </item>
+    <item android:state_selected="true" android:drawable="@drawable/abc_tab_indicator_selected_material_light" />
     <item android:drawable="@android:color/transparent" />
 </selector>
