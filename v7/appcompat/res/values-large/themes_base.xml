@@ -20,6 +20,6 @@
            parent="Base.Theme.AppCompat.Dialog.FixedSize" />
 
     <style name="Base.Theme.AppCompat.Light.DialogWhenLarge"
-           parent="Base.Theme.AppCompat.Dialog.Light.FixedSize" />
+           parent="Base.Theme.AppCompat.Light.Dialog.FixedSize" />
 
 </resources>
