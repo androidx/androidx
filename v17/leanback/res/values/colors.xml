@@ -37,7 +37,6 @@
     <color name="lb_error_message_color_on_translucent">#80555555</color>
 
     <color name="lb_action_text_color">#EEEEEE</color>
-    <color name="lb_action_bg_color">#3D3D3D</color>
 
     <color name="lb_search_bar_text_color">#FFEEEEEE</color>
     <color name="lb_search_bar_text_speech_color">#FF444444</color>
