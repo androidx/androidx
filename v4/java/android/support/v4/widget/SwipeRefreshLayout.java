@@ -138,7 +138,6 @@ public class SwipeRefreshLayout extends ViewGroup {
         @Override
         public void onAnimationEnd(Animation animation) {
             if (mRefreshing) {
-                mProgress.showArrow(false);
                 mProgress.start();
                 if (mNotify) {
                     if (mListener != null) {
@@ -601,7 +600,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                         }
                         if (mScale || mCurrentTargetOffsetTop > -mCircleHeight / 2) {
                             // start showing the arrow
-                            float pullPercent = yDiff / mDistanceToTriggerSync * DRAG_RATE;
+                            float pullPercent = yDiff / mDistanceToTriggerSync;
                             mProgress.setProgressRotation((float) (Math.PI / 4 * pullPercent));
                             mProgress.setArrowScale(1f);
                         }
@@ -612,6 +611,8 @@ public class SwipeRefreshLayout extends ViewGroup {
                         mProgress.showArrow(true);
                         if (mScale) {
                             setAnimationProgress(yDiff / mDistanceToTriggerSync);
+                        } else {
+                            setColorViewAlpha((int) (MAX_ALPHA));
                         }
                         // Just track the user's movement
                         setTargetOffsetTopAndBottom((int) ((y - mLastY) * DRAG_RATE),
@@ -645,7 +646,6 @@ public class SwipeRefreshLayout extends ViewGroup {
                 mIsBeingDragged = false;
                 if (mCurrentTargetOffsetTop >= mTargetCirclePosition) {
                     setRefreshing(true, true /* notify */);
-                    mProgress.showArrow(false);
                 } else {
                     // cancel refresh
                     mRefreshing = false;

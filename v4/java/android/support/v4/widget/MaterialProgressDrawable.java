@@ -329,6 +329,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
                 final float rotation = ring.getStartingRotation()
                         + ((targetRotation - ring.getStartingRotation()) * interpolatedTime);
                 ring.setRotation(rotation);
+                ring.setArrowScale(1 - interpolatedTime);
             }
         };
         finishRingAnimation.setInterpolator(LINEAR_INTERPOLATOR);
@@ -345,6 +346,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
                 ring.setColorIndex(mColorIndex);
                 ring.resetOriginals();
                 mParent.startAnimation(mAnimation);
+                ring.setShowArrow(false);
             }
 
             @Override
