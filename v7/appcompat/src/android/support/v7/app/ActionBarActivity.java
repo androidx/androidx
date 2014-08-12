@@ -186,10 +186,13 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public void supportInvalidateOptionsMenu() {
-        // Only call up to super on ICS+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            super.supportInvalidateOptionsMenu();
-        }
+        getDelegate().supportInvalidateOptionsMenu();
+    }
+
+    /**
+     * @hide
+     */
+    public void invalidateOptionsMenu() {
         getDelegate().supportInvalidateOptionsMenu();
     }
 
@@ -223,6 +226,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     @Override
     public boolean onPreparePanel(int featureId, View view, Menu menu) {
         return getDelegate().onPreparePanel(featureId, view, menu);
+    }
+
+    @Override
+    public void onPanelClosed(int featureId, Menu menu) {
+        super.onPanelClosed(featureId, menu);
+        getDelegate().onPanelClosed(featureId, menu);
     }
 
     /**

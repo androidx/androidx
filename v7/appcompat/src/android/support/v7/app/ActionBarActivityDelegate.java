@@ -136,6 +136,8 @@ abstract class ActionBarActivityDelegate {
 
     abstract boolean onPreparePanel(int featureId, View view, Menu menu);
 
+    abstract void onPanelClosed(int featureId, Menu menu);
+
     boolean onPrepareOptionsPanel(View view, Menu menu) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             // Call straight through to onPrepareOptionsMenu, bypassing super.onPreparePanel().

@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
@@ -53,15 +54,14 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 
-class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
-        MenuPresenter.Callback, MenuBuilder.Callback {
+class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
+        implements MenuBuilder.Callback {
     private static final String TAG = "ActionBarActivityDelegateBase";
 
-    private static final int[] ACTION_BAR_DRAWABLE_TOGGLE_ATTRS = new int[] {
-            R.attr.homeAsUpIndicator
-    };
-
     private DecorContentParent mDecorContentParent;
+    private ActionMenuPresenterCallback mActionMenuPresenterCallback;
+    private PanelMenuPresenterCallback mPanelMenuPresenterCallback;
+
     private ListMenuPresenter mListMenuPresenter;
     private MenuBuilder mMenu;
 
@@ -72,6 +72,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
+    private ViewGroup mWindowDecor;
 
     private CharSequence mTitleToSet;
 
@@ -81,8 +82,16 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     // Used for emulating PanelFeatureState
     private boolean mClosingActionMenu;
     private boolean mPanelIsPrepared;
-    private boolean mPanelRefreshContent;
+    private boolean mPanelRefreshMenuContent;
     private Bundle mPanelFrozenActionViewState;
+
+    private boolean mInvalidatePanelMenuPosted;
+    private final Runnable mInvalidatePanelMenuRunnable = new Runnable() {
+        @Override
+        public void run() {
+            supportInvalidateOptionsMenu();
+        }
+    };
 
     private boolean mEnableDefaultActionBarUp;
 
@@ -93,6 +102,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     @Override
     void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mWindowDecor = (ViewGroup) mActivity.getWindow().getDecorView();
 
         if (NavUtils.getParentActivityName(mActivity) != null) {
             ActionBar ab = getSupportActionBar();
@@ -220,7 +231,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                             .inflate(R.layout.abc_screen_toolbar_include, root, true);
                 }
 
-                mDecorContentParent = (DecorContentParent) mActivity.findViewById(R.id.decor_content_parent);
+                mDecorContentParent = (DecorContentParent) mActivity
+                        .findViewById(R.id.decor_content_parent);
                 mDecorContentParent.setWindowCallback(mWindowMenuCallback);
 
                 /**
@@ -260,13 +272,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
             mSubDecorInstalled = true;
 
-            // Post supportInvalidateOptionsMenu() so that the menu is invalidated post-onCreate()
-            mActivity.getWindow().getDecorView().post(new Runnable() {
-                @Override
-                public void run() {
-                    supportInvalidateOptionsMenu();
-                }
-            });
+            invalidatePanelMenu();
         }
     }
 
@@ -366,7 +372,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         View createdPanelView = null;
 
         if (featureId == Window.FEATURE_OPTIONS_PANEL && preparePanel()) {
-            createdPanelView = (View) getListMenuView(mActivity, this);
+            createdPanelView = (View) getListMenuView(mActivity);
         }
 
         return createdPanelView;
@@ -389,6 +395,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     }
 
     @Override
+    public void onPanelClosed(int featureId, Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            mPanelIsPrepared = false;
+        }
+    }
+
+    @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
         return mActivity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
     }
@@ -396,22 +409,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
     @Override
     public void onMenuModeChange(MenuBuilder menu) {
         reopenMenu(menu, true);
-    }
-
-    @Override
-    public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
-        if (mClosingActionMenu) {
-            return;
-        }
-        mClosingActionMenu = true;
-        mActivity.closeOptionsMenu();
-        mDecorContentParent.dismissPopups();
-        mClosingActionMenu = false;
-    }
-
-    @Override
-    public boolean onOpenSubMenu(MenuBuilder subMenu) {
-        return false;
     }
 
     @Override
@@ -457,7 +454,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             mMenu.stopDispatchingItemsChanged();
             mMenu.clear();
         }
-        mPanelRefreshContent = true;
+        mPanelRefreshMenuContent = true;
 
         // Prepare the options panel if we have an action bar
         if (mDecorContentParent != null) {
@@ -533,19 +530,32 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                 (!ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mActivity)) ||
                         mDecorContentParent.isOverflowMenuShowPending())) {
             if (!mDecorContentParent.isOverflowMenuShowing() || !toggleMenuMode) {
-                mDecorContentParent.showOverflowMenu();
+
+                // If we have a menu invalidation pending, do it now.
+                if (mInvalidatePanelMenuPosted) {
+                    mWindowDecor.removeCallbacks(mInvalidatePanelMenuRunnable);
+                    mInvalidatePanelMenuRunnable.run();
+                }
+
+                // If we don't have a menu or we're waiting for a full content refresh,
+                // forget it. This is a lingering event that no longer matters.
+                if (mMenu != null && !mPanelRefreshMenuContent && preparePanel()) {
+                    mDecorContentParent.showOverflowMenu();
+                }
             } else {
                 mDecorContentParent.hideOverflowMenu();
             }
             return;
         }
-
-        menu.close();
     }
 
-    private MenuView getListMenuView(Context context, MenuPresenter.Callback cb) {
+    private MenuView getListMenuView(Context context) {
         if (mMenu == null) {
             return null;
+        }
+
+        if (mPanelMenuPresenterCallback == null) {
+            mPanelMenuPresenterCallback = new PanelMenuPresenterCallback();
         }
 
         if (mListMenuPresenter == null) {
@@ -557,14 +567,14 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
             mListMenuPresenter = new ListMenuPresenter(
                     R.layout.abc_list_menu_item_layout, listPresenterTheme);
-            mListMenuPresenter.setCallback(cb);
+            mListMenuPresenter.setCallback(mPanelMenuPresenterCallback);
             mMenu.addMenuPresenter(mListMenuPresenter);
         } else {
             // Make sure we update the ListView
             mListMenuPresenter.updateMenuView(false);
         }
 
-        return mListMenuPresenter.getMenuView(new FrameLayout(context));
+        return mListMenuPresenter.getMenuView(mWindowDecor);
     }
 
     @Override
@@ -744,7 +754,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         }
 
         // Init the panel state's menu--return false if init failed
-        if (mMenu == null || mPanelRefreshContent) {
+        if (mMenu == null || mPanelRefreshMenuContent) {
             if (mMenu == null) {
                 if (!initializePanelMenu() || (mMenu == null)) {
                     return false;
@@ -752,7 +762,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             }
 
             if (mDecorContentParent != null) {
-                mDecorContentParent.setMenu(mMenu, this);
+                if (mActionMenuPresenterCallback == null) {
+                    mActionMenuPresenterCallback = new ActionMenuPresenterCallback();
+                }
+                mDecorContentParent.setMenu(mMenu, mActionMenuPresenterCallback);
             }
 
             // Creating the panel menu will involve a lot of manipulation;
@@ -766,13 +779,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
 
                 if (mDecorContentParent != null) {
                     // Don't show it in the action bar either
-                    mDecorContentParent.setMenu(null, this);
+                    mDecorContentParent.setMenu(null, mActionMenuPresenterCallback);
                 }
 
                 return false;
             }
 
-            mPanelRefreshContent = false;
+            mPanelRefreshMenuContent = false;
         }
 
         // Preparing the panel menu can involve a lot of manipulation;
@@ -791,7 +804,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
             if (mDecorContentParent != null) {
                 // The app didn't want to show the menu for now but it still exists.
                 // Clear it out of the action bar.
-                mDecorContentParent.setMenu(null, this);
+                mDecorContentParent.setMenu(null, mActionMenuPresenterCallback);
             }
             mMenu.startDispatchingItemsChanged();
             return false;
@@ -803,6 +816,34 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
         mPanelIsPrepared = true;
 
         return true;
+    }
+
+    private void checkCloseActionMenu() {
+        if (mClosingActionMenu) {
+            return;
+        }
+
+        mClosingActionMenu = true;
+        mDecorContentParent.dismissPopups();
+        mClosingActionMenu = false;
+    }
+
+    private void closePanel(int featureId) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL && mDecorContentParent != null &&
+                mDecorContentParent.canShowOverflowMenu() &&
+                !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mActivity))) {
+            mDecorContentParent.hideOverflowMenu();
+        } else {
+            mActivity.closeOptionsMenu();
+            mPanelIsPrepared = false;
+        }
+    }
+
+    private void invalidatePanelMenu() {
+        if (!mInvalidatePanelMenuPosted && mWindowDecor != null) {
+            ViewCompat.postOnAnimation(mWindowDecor, mInvalidatePanelMenuRunnable);
+            mInvalidatePanelMenuPosted = true;
+        }
     }
 
     /**
@@ -846,6 +887,30 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate implements
                 }
             }
             mActionMode = null;
+        }
+    }
+
+    private final class PanelMenuPresenterCallback implements MenuPresenter.Callback {
+        @Override
+        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+            return false;
+        }
+
+        @Override
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+            closePanel(Window.FEATURE_OPTIONS_PANEL);
+        }
+    }
+
+    private final class ActionMenuPresenterCallback implements MenuPresenter.Callback {
+        @Override
+        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+            return false;
+        }
+
+        @Override
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+            checkCloseActionMenu();
         }
     }
 
