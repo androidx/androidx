@@ -22,9 +22,11 @@
     <integer name="lb_playback_bg_fade_in_ms">325</integer>
     <integer name="lb_playback_bg_fade_out_ms">500</integer>
     <integer name="lb_playback_controls_fade_in_ms">250</integer>
-    <integer name="lb_playback_controls_fade_out_ms">400</integer>
+    <integer name="lb_playback_controls_fade_out_ms">325</integer>
+    <integer name="lb_playback_description_fade_in_ms">250</integer>
+    <integer name="lb_playback_description_fade_out_ms">200</integer>
     <integer name="lb_playback_rows_fade_in_ms">150</integer>
-    <integer name="lb_playback_rows_fade_out_ms">325</integer>
+    <integer name="lb_playback_rows_fade_out_ms">250</integer>
     <integer name="lb_playback_rows_fade_delay_ms">100</integer>
     <integer name="lb_playback_controls_show_time_ms">3000</integer>
 </resources>
