@@ -568,10 +568,14 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             mListMenuPresenter = new ListMenuPresenter(
                     R.layout.abc_list_menu_item_layout, listPresenterTheme);
             mListMenuPresenter.setCallback(mPanelMenuPresenterCallback);
-            mMenu.addMenuPresenter(mListMenuPresenter);
+            mMenu.addMenuPresenter(mListMenuPresenter, mActivity);
         } else {
             // Make sure we update the ListView
             mListMenuPresenter.updateMenuView(false);
+        }
+
+        if (mListMenuPresenter.getAdapter().isEmpty()) {
+            return null;
         }
 
         return mListMenuPresenter.getMenuView(mWindowDecor);
