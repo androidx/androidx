@@ -106,7 +106,8 @@
     <dimen name="lb_action_button_corner_radius">2dp</dimen>
 
     <dimen name="lb_playback_controls_align_bottom">48dp</dimen>
-    <dimen name="lb_playback_fade_translate_y">384dp</dimen>
+    <dimen name="lb_playback_major_fade_translate_y">200dp</dimen>
+    <dimen name="lb_playback_minor_fade_translate_y">16dp</dimen>
     <dimen name="lb_playback_controls_card_height">176dp</dimen>
     <dimen name="lb_playback_controls_margin_left">132dp</dimen>
     <dimen name="lb_playback_controls_margin_right">132dp</dimen>

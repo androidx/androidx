@@ -19,6 +19,7 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.view.animation.AccelerateInterpolator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.os.Bundle;
@@ -28,10 +29,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -88,13 +91,15 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private int mBgDarkColor;
     private int mBgLightColor;
     private int mShowTimeMs;
-    private int mFadeTranslateY;
+    private int mMajorFadeTranslateY, mMinorFadeTranslateY;
+    private int mAnimationTranslateY;
     private OnFadeCompleteListener mFadeCompleteListener;
     private boolean mFadingEnabled = true;
     private int mFadingStatus = IDLE;
     private int mBgAlpha;
     private ValueAnimator mBgFadeInAnimator, mBgFadeOutAnimator;
     private ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
+    private ValueAnimator mDescriptionFadeInAnimator, mDescriptionFadeOutAnimator;
     private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
     private boolean mTranslateAnimationEnabled;
     private RecyclerView.ItemAnimator mItemAnimator;
@@ -310,9 +315,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                     final float fraction = (Float) arg0.getAnimatedValue();
                     if (DEBUG) Log.v(TAG, "fraction " + fraction);
                     vh.itemView.setAlpha(fraction);
-                    if (mTranslateAnimationEnabled) {
-                        vh.itemView.setTranslationY((float) mFadeTranslateY * (1f - fraction));
-                    }
+                    vh.itemView.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
                 }
             }
         };
@@ -341,9 +344,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                     View view = getVerticalGridView().getChildAt(i);
                     if (getVerticalGridView().getChildPosition(view) > 0) {
                         view.setAlpha(fraction);
-                        if (mTranslateAnimationEnabled) {
-                            view.setTranslationY((float) mFadeTranslateY * (1f - fraction));
-                        }
+                        view.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
                     }
                 }
             }
@@ -357,7 +358,35 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         mOtherRowFadeOutAnimator = loadAnimator(
                 getActivity(), R.animator.lb_playback_controls_fade_out);
         mOtherRowFadeOutAnimator.addUpdateListener(listener);
-        mOtherRowFadeOutAnimator.setInterpolator(mLogDecelerateInterpolator);
+        mOtherRowFadeOutAnimator.setInterpolator(new AccelerateInterpolator());
+    }
+
+    private void loadDescriptionAnimator() {
+        AnimatorUpdateListener listener = new AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator arg0) {
+                if (getVerticalGridView() == null) {
+                    return;
+                }
+                ItemBridgeAdapter.ViewHolder adapterVh = (ItemBridgeAdapter.ViewHolder)
+                        getVerticalGridView().findViewHolderForPosition(0);
+                if (adapterVh != null && adapterVh.getViewHolder()
+                        instanceof PlaybackControlsRowPresenter.ViewHolder) {
+                    final Presenter.ViewHolder vh = ((PlaybackControlsRowPresenter.ViewHolder)
+                            adapterVh.getViewHolder()).mDescriptionViewHolder;
+                    vh.view.setAlpha((Float) arg0.getAnimatedValue());
+                }
+            }
+        };
+
+        mDescriptionFadeInAnimator = loadAnimator(
+                getActivity(), R.animator.lb_playback_description_fade_in);
+        mDescriptionFadeInAnimator.addUpdateListener(listener);
+        mDescriptionFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
+
+        mDescriptionFadeOutAnimator = loadAnimator(
+                getActivity(), R.animator.lb_playback_description_fade_out);
+        mDescriptionFadeOutAnimator.addUpdateListener(listener);
     }
 
     private void fade(boolean fadeIn) {
@@ -374,36 +403,41 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             return;
         }
 
-        mTranslateAnimationEnabled = getVerticalGridView().getSelectedPosition() == 0;
+        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0 ?
+                mMajorFadeTranslateY : mMinorFadeTranslateY;
 
         if (mFadingStatus == IDLE) {
             if (fadeIn) {
                 mBgFadeInAnimator.start();
                 mControlRowFadeInAnimator.start();
                 mOtherRowFadeInAnimator.start();
+                mDescriptionFadeInAnimator.start();
             } else {
                 mBgFadeOutAnimator.start();
                 mControlRowFadeOutAnimator.start();
                 mOtherRowFadeOutAnimator.start();
+                mDescriptionFadeOutAnimator.start();
             }
         } else {
             if (fadeIn) {
                 mBgFadeOutAnimator.reverse();
                 mControlRowFadeOutAnimator.reverse();
                 mOtherRowFadeOutAnimator.reverse();
+                mDescriptionFadeOutAnimator.reverse();
             } else {
                 mBgFadeInAnimator.reverse();
                 mControlRowFadeInAnimator.reverse();
                 mOtherRowFadeInAnimator.reverse();
+                mDescriptionFadeInAnimator.reverse();
             }
         }
 
         // If fading in while control row is focused, set initial translationY so
         // views slide in from below.
-        if (fadeIn && mFadingStatus == IDLE && mTranslateAnimationEnabled) {
+        if (fadeIn && mFadingStatus == IDLE) {
             final int count = getVerticalGridView().getChildCount();
             for (int i = 0; i < count; i++) {
-                getVerticalGridView().getChildAt(i).setTranslationY(mFadeTranslateY);
+                getVerticalGridView().getChildAt(i).setTranslationY(mAnimationTranslateY);
             }
         }
 
@@ -450,12 +484,15 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                 getResources().getColor(R.color.lb_playback_controls_background_light);
         mShowTimeMs =
                 getResources().getInteger(R.integer.lb_playback_controls_show_time_ms);
-        mFadeTranslateY =
-                getResources().getDimensionPixelSize(R.dimen.lb_playback_fade_translate_y);
+        mMajorFadeTranslateY =
+                getResources().getDimensionPixelSize(R.dimen.lb_playback_major_fade_translate_y);
+        mMinorFadeTranslateY =
+                getResources().getDimensionPixelSize(R.dimen.lb_playback_minor_fade_translate_y);
 
         loadBgAnimator();
         loadControlRowAnimator();
         loadOtherRowAnimator();
+        loadDescriptionAnimator();
     }
 
     /**
@@ -513,6 +550,10 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             // Reset animation state
             vh.getViewHolder().view.setAlpha(1f);
             vh.getViewHolder().view.setTranslationY(0);
+            if (vh.getViewHolder() instanceof PlaybackControlsRowPresenter.ViewHolder) {
+                ((PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder())
+                        .mDescriptionViewHolder.view.setAlpha(1f);
+            }
         }
     };
 
