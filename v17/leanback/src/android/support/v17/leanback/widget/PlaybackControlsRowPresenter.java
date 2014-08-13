@@ -43,6 +43,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         final ViewGroup mControlsDock;
         final ViewGroup mSecondaryControlsDock;
         final View mSpacer;
+        final View mBottomSpacer;
         int mCardHeight;
         int mControlsDockMarginStart;
         int mControlsDockMarginEnd;
@@ -83,6 +84,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             mSecondaryControlsDock =
                     (ViewGroup) rootView.findViewById(R.id.secondary_controls_dock);
             mSpacer = rootView.findViewById(R.id.spacer);
+            mBottomSpacer = rootView.findViewById(R.id.bottom_spacer);
             mDescriptionViewHolder = descriptionPresenter == null ? null :
                     descriptionPresenter.onCreateViewHolder(mDescriptionDock);
             if (mDescriptionViewHolder != null) {
@@ -196,6 +198,15 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
      */
     public boolean areSecondaryActionsHidden() {
         return mSecondaryActionsHidden;
+    }
+
+    /**
+     * Shows or hides space at the bottom of the playback controls row.
+     * This allows the row to hug the bottom of the display when no
+     * other rows are present.
+     */
+    public void showBottomSpace(ViewHolder vh, boolean show) {
+        vh.mBottomSpacer.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private int getDefaultBackgroundColor(Context context) {
