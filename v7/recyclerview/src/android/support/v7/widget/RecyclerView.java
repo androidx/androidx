@@ -7691,7 +7691,7 @@ public class RecyclerView extends ViewGroup {
          * ItemAnimator. This is used internally and is not intended for developers to
          * create directly.
          */
-        private interface ItemAnimatorListener {
+        interface ItemAnimatorListener {
             void onRemoveFinished(ViewHolder item);
             void onAddFinished(ViewHolder item);
             void onMoveFinished(ViewHolder item);
