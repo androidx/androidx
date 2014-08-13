@@ -375,9 +375,11 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             layoutParams.topMargin = layoutParams.bottomMargin = verticalMargin;
             applyBackground(vh.mOverviewView);
             vh.mRightPanel.setBackground(null);
+            vh.mImageView.setBackground(null);
         } else {
             layoutParams.leftMargin = layoutParams.topMargin = layoutParams.bottomMargin = 0;
             applyBackground(vh.mRightPanel);
+            applyBackground(vh.mImageView);
             vh.mOverviewView.setBackground(null);
         }
         if (scaleImage) {
