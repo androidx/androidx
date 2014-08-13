@@ -48,8 +48,7 @@ public class ActionBarPolicy {
     }
 
     public boolean showsOverflowMenuButton() {
-        // TODO: Add backwards compatible way to check for UI_MODE_TYPE_TELEVISION
-        return !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mContext));
+        return true;
     }
 
     public int getEmbeddedMenuWidthLimit() {
@@ -84,7 +83,8 @@ public class ActionBarPolicy {
     public boolean enableHomeButtonByDefault() {
         // Older apps get the home button interaction enabled by default.
         // Newer apps need to enable it explicitly.
-        return mContext.getApplicationInfo().targetSdkVersion < 14; // ICE_CREAM_SANDWICH
+        return mContext.getApplicationInfo().targetSdkVersion <
+                Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
     public int getStackedTabMaxWidth() {
