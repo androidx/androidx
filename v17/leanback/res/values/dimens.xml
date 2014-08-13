@@ -104,7 +104,8 @@
     <dimen name="lb_action_icon_margin">12dp</dimen>
     <dimen name="lb_action_text_size">16sp</dimen>
 
-    <dimen name="lb_playback_controls_align_bottom">48dp</dimen>
+    <dimen name="lb_playback_controls_align_bottom">58dp</dimen>
+    <dimen name="lb_playback_controls_padding_bottom">28dp</dimen>
     <dimen name="lb_playback_major_fade_translate_y">200dp</dimen>
     <dimen name="lb_playback_minor_fade_translate_y">16dp</dimen>
     <dimen name="lb_playback_controls_card_height">176dp</dimen>
@@ -118,7 +119,6 @@
     <dimen name="lb_playback_current_time_margin_start">16dp</dimen>
     <dimen name="lb_playback_total_time_margin_end">16dp</dimen>
     <dimen name="lb_playback_time_padding_top">8dp</dimen>
-    <dimen name="lb_secondary_controls_margin_top">12dp</dimen>
     <dimen name="lb_playback_controls_child_margin_default">48dp</dimen>
     <dimen name="lb_playback_controls_child_margin_bigger">64dp</dimen>
     <dimen name="lb_playback_controls_child_margin_biggest">88dp</dimen>
