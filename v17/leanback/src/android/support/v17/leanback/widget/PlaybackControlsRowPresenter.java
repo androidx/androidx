@@ -36,6 +36,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
      * A ViewHolder for the PlaybackControlsRow.
      */
     public class ViewHolder extends RowPresenter.ViewHolder {
+        public final Presenter.ViewHolder mDescriptionViewHolder;
         final ViewGroup mCard;
         final ImageView mImageView;
         final ViewGroup mDescriptionDock;
@@ -45,7 +46,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         int mCardHeight;
         int mControlsDockMarginStart;
         int mControlsDockMarginEnd;
-        Presenter.ViewHolder mDescriptionVh;
         PlaybackControlsPresenter.ViewHolder mControlsVh;
         Presenter.ViewHolder mSecondaryControlsVh;
         PlaybackControlsPresenter.BoundData mControlsBoundData =
@@ -74,7 +74,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             }
         };
 
-        ViewHolder(View rootView) {
+        ViewHolder(View rootView, Presenter descriptionPresenter) {
             super(rootView);
             mCard = (ViewGroup) rootView.findViewById(R.id.controls_card);
             mImageView = (ImageView) rootView.findViewById(R.id.image);
@@ -83,6 +83,11 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             mSecondaryControlsDock =
                     (ViewGroup) rootView.findViewById(R.id.secondary_controls_dock);
             mSpacer = rootView.findViewById(R.id.spacer);
+            mDescriptionViewHolder = descriptionPresenter == null ? null :
+                    descriptionPresenter.onCreateViewHolder(mDescriptionDock);
+            if (mDescriptionViewHolder != null) {
+                mDescriptionDock.addView(mDescriptionViewHolder.view);
+            }
         }
 
         Presenter getPresenter(Object item, boolean primary) {
@@ -209,7 +214,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
         View v = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.lb_playback_controls_row, parent, false);
-        ViewHolder vh = new ViewHolder(v);
+        ViewHolder vh = new ViewHolder(v, mDescriptionPresenter);
         initRow(vh);
         return vh;
     }
@@ -220,11 +225,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         MarginLayoutParams lp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
         vh.mControlsDockMarginStart = lp.getMarginStart();
         vh.mControlsDockMarginEnd = lp.getMarginEnd();
-
-        if (mDescriptionPresenter != null) {
-            vh.mDescriptionVh = mDescriptionPresenter.onCreateViewHolder(vh.mDescriptionDock);
-            vh.mDescriptionDock.addView(vh.mDescriptionVh.view);
-        }
 
         vh.mControlsVh = (PlaybackControlsPresenter.ViewHolder)
                 mPlaybackControlsPresenter.onCreateViewHolder(vh.mControlsDock);
@@ -268,8 +268,8 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             lp.height = vh.mCardHeight;
             vh.mCard.setLayoutParams(lp);
             vh.mDescriptionDock.setVisibility(View.VISIBLE);
-            if (vh.mDescriptionVh != null) {
-                mDescriptionPresenter.onBindViewHolder(vh.mDescriptionVh, row.getItem());
+            if (vh.mDescriptionViewHolder != null) {
+                mDescriptionPresenter.onBindViewHolder(vh.mDescriptionViewHolder, row.getItem());
             }
             vh.mSpacer.setVisibility(View.VISIBLE);
         }
@@ -314,8 +314,8 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         ViewHolder vh = (ViewHolder) holder;
         PlaybackControlsRow row = (PlaybackControlsRow) vh.getRow();
 
-        if (vh.mDescriptionVh != null) {
-            mDescriptionPresenter.onUnbindViewHolder(vh.mDescriptionVh);
+        if (vh.mDescriptionViewHolder != null) {
+            mDescriptionPresenter.onUnbindViewHolder(vh.mDescriptionViewHolder);
         }
         mPlaybackControlsPresenter.onUnbindViewHolder(vh.mControlsVh);
         mSecondaryControlsPresenter.onUnbindViewHolder(vh.mSecondaryControlsVh);
