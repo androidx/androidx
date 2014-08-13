@@ -18,7 +18,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/lb_playback_controls_margin_bottom"
     android:paddingLeft="@dimen/lb_playback_controls_margin_left"
     android:paddingRight="@dimen/lb_playback_controls_margin_right" >
 
@@ -28,6 +27,7 @@
         android:id="@+id/controls_card"
         android:layout_width="match_parent"
         android:layout_height="@dimen/lb_playback_controls_card_height"
+        android:layout_marginBottom="@dimen/lb_playback_controls_margin_bottom"
         android:orientation="horizontal" >
 
         <ImageView
@@ -65,7 +65,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/lb_playback_description_margin_end"
                 android:layout_marginStart="@dimen/lb_playback_description_margin_start" />
-
         </LinearLayout>
     </LinearLayout>
 
@@ -73,7 +72,11 @@
         android:id="@+id/secondary_controls_dock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/lb_secondary_controls_margin_top" />
+        android:layout_gravity="center_horizontal" />
+
+    <Space
+        android:id="@+id/bottom_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/lb_playback_controls_margin_bottom" />
 
 </LinearLayout>
