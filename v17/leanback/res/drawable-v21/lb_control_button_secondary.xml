@@ -16,7 +16,7 @@
 -->
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?android:attr/colorControlHighlight" >
+    android:color="@color/lb_control_button_color" >
 
     <item android:id="@android:id/mask">
         <selector android:constantSize="true" >
@@ -24,7 +24,7 @@
                 <shape android:shape="oval" >
 
                     <!-- Color not used since this is a ripple mask -->
-                    <solid android:color="@color/lb_control_button_color" />
+                    <solid android:color="#000000" />
 
                     <size
                         android:height="@dimen/lb_control_button_secondary_diameter"
