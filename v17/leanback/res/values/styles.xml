@@ -33,7 +33,6 @@
     </style>
 
     <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback.Header">
-        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="TextAppearance.Leanback.SearchTextEdit" parent="TextAppearance.Leanback">
