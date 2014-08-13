@@ -41,6 +41,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
@@ -86,6 +87,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private static final int OUT = 2;
 
     private int mAlignPosition;
+    private int mPaddingBottom;
     private View mRootView;
     private int mBackgroundType = BG_DARK;
     private int mBgDarkColor;
@@ -456,20 +458,30 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         if (adapter != null) {
             adapter.registerObserver(mObserver);
         }
-        setVerticalGridViewLayout(getVerticalGridView());
     }
 
     @Override
     void setVerticalGridViewLayout(VerticalGridView listview) {
-        if (listview == null || getAdapter() == null) {
+        if (listview == null) {
             return;
         }
-        final int alignPosition = getAdapter().size() > 1 ? mAlignPosition : 0;
-        listview.setItemAlignmentOffset(alignPosition);
+        // Padding affects alignment when last row is focused
+        // (last is first when there's only one row).
+        setBottomPadding(listview, mPaddingBottom);
+
+        // Item alignment affects focused row that isn't the last.
+        listview.setItemAlignmentOffset(mAlignPosition);
         listview.setItemAlignmentOffsetPercent(100);
+
+        // Push rows to the bottom.
         listview.setWindowAlignmentOffset(0);
         listview.setWindowAlignmentOffsetPercent(100);
         listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE);
+    }
+
+    private static void setBottomPadding(View view, int padding) {
+        view.setPadding(view.getPaddingLeft(), view.getPaddingTop(),
+                view.getPaddingRight(), padding);
     }
 
     @Override
@@ -477,7 +489,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         super.onCreate(savedInstanceState);
 
         mAlignPosition =
-            getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_align_bottom);
+                getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_align_bottom);
+        mPaddingBottom =
+                getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_padding_bottom);
         mBgDarkColor =
                 getResources().getColor(R.color.lb_playback_controls_background_dark);
         mBgLightColor =
@@ -534,6 +548,20 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     }
 
+    private void updateControlsBottomSpace(ItemBridgeAdapter.ViewHolder vh) {
+        // Add extra space between rows 0 and 1
+        if (vh == null && getVerticalGridView() != null) {
+            vh = (ItemBridgeAdapter.ViewHolder)
+                    getVerticalGridView().findViewHolderForPosition(0);
+        }
+        if (vh != null && vh.getPresenter() instanceof PlaybackControlsRowPresenter) {
+            final int adapterSize = getAdapter() == null ? 0 : getAdapter().size();
+            ((PlaybackControlsRowPresenter) vh.getPresenter()).showBottomSpace(
+                    (PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder(),
+                    adapterSize > 1);
+        }
+    }
+
     private final ItemBridgeAdapter.AdapterListener mAdapterListener =
             new ItemBridgeAdapter.AdapterListener() {
         @Override
@@ -553,6 +581,12 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             if (vh.getViewHolder() instanceof PlaybackControlsRowPresenter.ViewHolder) {
                 ((PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder())
                         .mDescriptionViewHolder.view.setAlpha(1f);
+            }
+        }
+        @Override
+        public void onBind(ItemBridgeAdapter.ViewHolder vh) {
+            if (vh.getPosition() == 0) {
+                updateControlsBottomSpace(vh);
             }
         }
     };
@@ -575,7 +609,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
 
     private final DataObserver mObserver = new DataObserver() {
         public void onChanged() {
-            setVerticalGridViewLayout(getVerticalGridView());
+            updateControlsBottomSpace(null);
         }
     };
 }
