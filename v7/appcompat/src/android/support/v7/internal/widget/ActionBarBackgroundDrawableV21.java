@@ -12,9 +12,15 @@ class ActionBarBackgroundDrawableV21 extends ActionBarBackgroundDrawable {
 
     @Override
     public void getOutline(@NonNull Outline outline) {
-        final Drawable drawable = getDrawable();
-        if (drawable != null) {
-            drawable.getOutline(outline);
+        if (mContainer.mIsSplit) {
+            if (mContainer.mSplitBackground != null) {
+                mContainer.mSplitBackground.getOutline(outline);
+            }
+        } else {
+            // ignore the stacked background for shadow casting
+            if (mContainer.mBackground != null) {
+                mContainer.mBackground.getOutline(outline);
+            }
         }
     }
 }
