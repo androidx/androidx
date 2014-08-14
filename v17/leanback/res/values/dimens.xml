@@ -74,7 +74,7 @@
     <dimen name="lb_details_overview_description_margin_bottom">12dp</dimen>
     <dimen name="lb_details_overview_image_margin_horizontal">24dp</dimen>
     <dimen name="lb_details_overview_image_margin_vertical">24dp</dimen>
-    <dimen name="lb_details_overview_action_items_margin">0dp</dimen>
+    <dimen name="lb_details_overview_action_items_margin">16dp</dimen>
     <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
     <dimen name="lb_details_overview_actions_padding_left">294dp</dimen>
     <dimen name="lb_details_overview_actions_padding_right">132dp</dimen>
@@ -98,7 +98,7 @@
 
     <dimen name="lb_action_1_line_height">36dp</dimen>
     <dimen name="lb_action_2_lines_height">56dp</dimen>
-    <dimen name="lb_action_padding_horizontal">34dp</dimen>
+    <dimen name="lb_action_padding_horizontal">24dp</dimen>
     <dimen name="lb_action_with_icon_padding_left">14dp</dimen>
     <dimen name="lb_action_with_icon_padding_right">20dp</dimen>
     <dimen name="lb_action_icon_margin">12dp</dimen>
