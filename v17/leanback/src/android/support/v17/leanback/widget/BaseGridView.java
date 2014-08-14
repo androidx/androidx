@@ -153,6 +153,8 @@ abstract class BaseGridView extends RecyclerView {
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setHasFixedSize(true);
         setChildrenDrawingOrderEnabled(true);
+        setWillNotDraw(true);
+        setOverScrollMode(View.OVER_SCROLL_NEVER);
     }
 
     protected void initBaseGridViewAttributes(Context context, AttributeSet attrs) {

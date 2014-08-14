@@ -52,7 +52,6 @@ public class ListRowPresenter extends RowPresenter {
         final HorizontalGridView mGridView;
         final ItemBridgeAdapter mItemBridgeAdapter = new ItemBridgeAdapter();
         final HorizontalHoverCardSwitcher mHoverCardViewSwitcher = new HorizontalHoverCardSwitcher();
-        final ColorOverlayDimmer mColorDimmer;
         final int mPaddingTop;
         final int mPaddingBottom;
         final int mPaddingLeft;
@@ -62,7 +61,6 @@ public class ListRowPresenter extends RowPresenter {
             super(rootView);
             mGridView = gridView;
             mListRowPresenter = p;
-            mColorDimmer = ColorOverlayDimmer.createDefault(rootView.getContext());
             mPaddingTop = mGridView.getPaddingTop();
             mPaddingBottom = mGridView.getPaddingBottom();
             mPaddingLeft = mGridView.getPaddingLeft();
@@ -494,7 +492,6 @@ public class ListRowPresenter extends RowPresenter {
         super.onSelectLevelChanged(holder);
         if (needsDefaultListSelectEffect()) {
             ViewHolder vh = (ViewHolder) holder;
-            vh.mColorDimmer.setActiveLevel(holder.mSelectLevel);
             int dimmedColor = vh.mColorDimmer.getPaint().getColor();
             for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
                 ShadowOverlayContainer wrapper = (ShadowOverlayContainer) vh.mGridView.getChildAt(i);

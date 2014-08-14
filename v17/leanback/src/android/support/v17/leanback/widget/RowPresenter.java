@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.app.HeadersFragment;
+import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -99,6 +100,7 @@ public abstract class RowPresenter extends Presenter {
         boolean mExpanded;
         boolean mInitialzed;
         float mSelectLevel = 0f; // initially unselected
+        protected final ColorOverlayDimmer mColorDimmer;
 
         /**
          * Constructor for ViewHolder.
@@ -107,6 +109,7 @@ public abstract class RowPresenter extends Presenter {
          */
         public ViewHolder(View view) {
             super(view);
+            mColorDimmer = ColorOverlayDimmer.createDefault(view.getContext());
         }
 
         /**
@@ -314,8 +317,15 @@ public abstract class RowPresenter extends Presenter {
      * the default dimming effect applied by the library.
      */
     protected void onSelectLevelChanged(ViewHolder vh) {
-        if (getSelectEffectEnabled() && vh.mHeaderViewHolder != null) {
-            mHeaderPresenter.setSelectLevel(vh.mHeaderViewHolder, vh.mSelectLevel);
+        if (getSelectEffectEnabled()) {
+            vh.mColorDimmer.setActiveLevel(vh.mSelectLevel);
+            if (vh.mHeaderViewHolder != null) {
+                mHeaderPresenter.setSelectLevel(vh.mHeaderViewHolder, vh.mSelectLevel);
+            }
+            if (isUsingDefaultSelectEffect()) {
+                ((RowContainerView) vh.mContainerViewHolder.view).setForegroundColor(
+                        vh.mColorDimmer.getPaint().getColor());
+            }
         }
     }
 
@@ -351,7 +361,7 @@ public abstract class RowPresenter extends Presenter {
     }
 
     final boolean needsRowContainerView() {
-        return mHeaderPresenter != null;
+        return mHeaderPresenter != null || needsDefaultSelectEffect();
     }
 
     /**
