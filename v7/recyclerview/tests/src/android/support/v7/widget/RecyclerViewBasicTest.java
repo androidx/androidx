@@ -173,8 +173,6 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         assertNotSame("stateless parameter should not be preserved", mlm.mLayoutCount,
                 mlmRestored.mLayoutCount);
         layout();
-
-
     }
 
     static class MockLayoutManager extends RecyclerView.LayoutManager {

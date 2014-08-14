@@ -425,6 +425,45 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    public void testFindIgnoredByPosition() throws Throwable {
+        final TestAdapter adapter = new TestAdapter(10);
+        final TestLayoutManager lm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, 5);
+                layoutLatch.countDown();
+            }
+        };
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        lm.waitForLayout(2);
+        Thread.sleep(5000);
+        final int pos = 1;
+        final View[] ignored = new View[1];
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View child = lm.findViewByPosition(pos);
+                lm.ignoreView(child);
+                ignored[0] = child;
+            }
+        });
+        assertNotNull("ignored child should not be null", ignored[0]);
+        assertNull("find view by position should not return ignored child",
+                lm.findViewByPosition(pos));
+        lm.expectLayouts(1);
+        requestLayoutOnUIThread(mRecyclerView);
+        lm.waitForLayout(1);
+        assertEquals("child count should be ", 6, lm.getChildCount());
+        View replacement = lm.findViewByPosition(pos);
+        assertNotNull("re-layout should replace ignored child w/ another one", replacement);
+        assertNotSame("replacement should be a different view", replacement, ignored[0]);
+    }
+
     public void testInvalidateAllDecorOffsets() throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         final RecyclerView recyclerView = new RecyclerView(getActivity());
