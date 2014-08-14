@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 
 class ActionBarBackgroundDrawable extends Drawable {
 
-    private final ActionBarContainer mContainer;
+    final ActionBarContainer mContainer;
 
     public ActionBarBackgroundDrawable(ActionBarContainer container) {
         mContainer = container;
@@ -14,9 +14,17 @@ class ActionBarBackgroundDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        final Drawable drawable = getDrawable();
-        if (drawable != null) {
-            drawable.draw(canvas);
+        if (mContainer.mIsSplit) {
+            if (mContainer.mSplitBackground != null) {
+                mContainer.mSplitBackground.draw(canvas);
+            }
+        } else {
+            if (mContainer.mBackground != null) {
+                mContainer.mBackground.draw(canvas);
+            }
+            if (mContainer.mStackedBackground != null && mContainer.mIsStacked) {
+                mContainer.mStackedBackground.draw(canvas);
+            }
         }
     }
 
@@ -33,19 +41,4 @@ class ActionBarBackgroundDrawable extends Drawable {
         return 0;
     }
 
-    protected final Drawable getDrawable() {
-        if (mContainer.mIsSplit) {
-            if (mContainer.mSplitBackground != null) {
-                return mContainer.mSplitBackground;
-            }
-        } else {
-            if (mContainer.mBackground != null) {
-                return mContainer.mBackground;
-            }
-            if (mContainer.mStackedBackground != null && mContainer.mIsStacked) {
-                return mContainer.mStackedBackground;
-            }
-        }
-        return null;
-    }
 }
