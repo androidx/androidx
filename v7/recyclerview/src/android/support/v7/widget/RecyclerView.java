@@ -4746,10 +4746,14 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * <p>Finds the view which represents the given adapter position.</p>
-         * <p>This method traverses each child since it has no information about child order.
+         * <p>
+         * Finds the view which represents the given adapter position.
+         * <p>
+         * This method traverses each child since it has no information about child order.
          * Override this method to improve performance if your LayoutManager keeps data about
-         * child views.</p>
+         * child views.
+         * <p>
+         * If a view is ignored via {@link #ignoreView(View)}, it is also ignored by this method.
          *
          * @param position Position of the item in adapter
          * @return The child view that represents the given position or null if the position is not
@@ -4763,7 +4767,7 @@ public class RecyclerView extends ViewGroup {
                 if (vh == null) {
                     continue;
                 }
-                if (vh.getPosition() == position &&
+                if (vh.getPosition() == position && !vh.shouldIgnore() &&
                         (mRecyclerView.mState.isPreLayout() || !vh.isRemoved())) {
                     return child;
                 }
@@ -5106,13 +5110,15 @@ public class RecyclerView extends ViewGroup {
         /**
          * Flags a view so that it will not be scrapped or recycled.
          * <p>
-         * Scope of ignoring a child is strictly restricted to scrapping and recyling. Methods like
-         * {@link #removeAndRecycleAllViews(Recycler)} will ignore the child whereas
-         * {@link #removeAllViews()} or {@link #offsetChildrenHorizontal(int)} will not ignore the
-         * child.
+         * Scope of ignoring a child is strictly restricted to position tracking, scrapping and
+         * recyling. Methods like {@link #removeAndRecycleAllViews(Recycler)} will ignore the child
+         * whereas {@link #removeAllViews()} or {@link #offsetChildrenHorizontal(int)} will not
+         * ignore the child.
          * <p>
          * Before this child can be recycled again, you have to call
          * {@link #stopIgnoringView(View)}.
+         * <p>
+         * You can call this method only if your LayoutManger is in onLayout or onScroll callback.
          *
          * @param view View to ignore.
          * @see #stopIgnoringView(View)
@@ -5132,6 +5138,8 @@ public class RecyclerView extends ViewGroup {
          * View can be scrapped and recycled again.
          * <p>
          * Note that calling this method removes all information in the view holder.
+         * <p>
+         * You can call this method only if your LayoutManger is in onLayout or onScroll callback.
          *
          * @param view View to ignore.
          */
