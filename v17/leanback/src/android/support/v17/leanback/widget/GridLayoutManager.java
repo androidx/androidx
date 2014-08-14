@@ -1816,9 +1816,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             RecyclerView.State state, Action action) {
                         if (hasFocus()) {
                             targetView.requestFocus();
-                        } else {
-                            dispatchChildSelected();
                         }
+                        dispatchChildSelected();
                         if (getScrollPosition(targetView, mTempDeltas)) {
                             int dx, dy;
                             if (mOrientation == HORIZONTAL) {
@@ -2236,28 +2235,56 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             RecyclerView.State state) {
         if (DEBUG) Log.v(getTag(), "onFocusSearchFailed direction " + direction);
 
-        saveContext(recycler, state);
         View view = null;
         int movement = getMovement(direction);
-        final FocusFinder ff = FocusFinder.getInstance();
-        if (movement == NEXT_ITEM) {
-            while (view == null && !appendOneVisibleItem()) {
-                view = ff.findNextFocus(mBaseGridView, focused, direction);
+        if (mNumRows == 1) {
+            // for simple row, use LinearSmoothScroller to smooth animation.
+            // It will stay at a fixed cap speed in continuous scroll.
+            if (movement == NEXT_ITEM) {
+                int newPos = mFocusPosition + mNumRows;
+                if (newPos < getItemCount()) {
+                    setSelectionSmooth(mBaseGridView, newPos);
+                    view = focused;
+                } else {
+                    if (!mFocusOutEnd) {
+                        view = focused;
+                    }
+                }
+            } else if (movement == PREV_ITEM){
+                int newPos = mFocusPosition - mNumRows;
+                if (newPos >= 0) {
+                    setSelectionSmooth(mBaseGridView, newPos);
+                    view = focused;
+                } else {
+                    if (!mFocusOutFront) {
+                        view = focused;
+                    }
+                }
             }
-        } else if (movement == PREV_ITEM){
-            while (view == null && !prependOneVisibleItem()) {
-                view = ff.findNextFocus(mBaseGridView, focused, direction);
+        } else if (mNumRows > 1) {
+            // for possible staggered grid,  we need guarantee focus to same row/column.
+            // TODO: we may also use LinearSmoothScroller.
+            saveContext(recycler, state);
+            final FocusFinder ff = FocusFinder.getInstance();
+            if (movement == NEXT_ITEM) {
+                while (view == null && !appendOneVisibleItem()) {
+                    view = ff.findNextFocus(mBaseGridView, focused, direction);
+                }
+            } else if (movement == PREV_ITEM){
+                while (view == null && !prependOneVisibleItem()) {
+                    view = ff.findNextFocus(mBaseGridView, focused, direction);
+                }
             }
+            if (view == null) {
+                // returning the same view to prevent focus lost when scrolling past the end of the list
+                if (movement == PREV_ITEM) {
+                    view = mFocusOutFront ? null : focused;
+                } else if (movement == NEXT_ITEM){
+                    view = mFocusOutEnd ? null : focused;
+                }
+            }
+            leaveContext();
         }
-        if (view == null) {
-            // returning the same view to prevent focus lost when scrolling past the end of the list
-            if (movement == PREV_ITEM) {
-                view = mFocusOutFront ? null : focused;
-            } else if (movement == NEXT_ITEM){
-                view = mFocusOutEnd ? null : focused;
-            }
-        }
-        leaveContext();
         if (DEBUG) Log.v(getTag(), "returning view " + view);
         return view;
     }
