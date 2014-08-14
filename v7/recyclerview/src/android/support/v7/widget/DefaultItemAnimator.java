@@ -492,6 +492,9 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     @Override
     public boolean isRunning() {
         return (!mPendingAdditions.isEmpty() ||
+                !mPendingChanges.isEmpty() ||
+                !mPendingMoves.isEmpty() ||
+                !mPendingRemovals.isEmpty() ||
                 !mMoveAnimations.isEmpty() ||
                 !mRemoveAnimations.isEmpty() ||
                 !mAddAnimations.isEmpty() ||
