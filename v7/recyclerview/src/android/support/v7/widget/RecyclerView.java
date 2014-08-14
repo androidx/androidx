@@ -1583,7 +1583,9 @@ public class RecyclerView extends ViewGroup {
     }
 
     private void cancelTouch() {
-        mVelocityTracker.clear();
+        if (mVelocityTracker != null) {
+            mVelocityTracker.clear();
+        }
         releaseGlows();
         setScrollState(SCROLL_STATE_IDLE);
     }
