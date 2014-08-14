@@ -485,11 +485,9 @@
         <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_dark</item>-->
     </style>
 
-    <style name="Base.V7.Theme.AppCompat.Light.Dialog" parent="Base.V7.Theme.AppCompat.Light.Dialog" />
-
     <style name="Base.Theme.AppCompat.Dialog" parent="Base.V7.Theme.AppCompat.Dialog" />
 
-    <style name="Base.Theme.AppCompat.Light.Dialog" parent="Base.V7.Theme.AppCompat.Light.Dialog" />
+    <style name="Base.Theme.AppCompat.Light.Dialog" parent="Base.Theme.AppCompat.Dialog" />
 
     <style name="Base.Theme.AppCompat.Dialog.FixedSize">
         <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
