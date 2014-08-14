@@ -22,6 +22,7 @@ import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuView;
+import android.support.v7.internal.widget.ViewUtils;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -31,7 +32,6 @@ import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.LinearLayout;
 
 /**
  * ActionMenuView is a presentation of a series of menu options as a View. It provides
@@ -443,6 +443,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         int nonOverflowCount = 0;
         int widthRemaining = right - left - getPaddingRight() - getPaddingLeft();
         boolean hasOverflow = false;
+        final boolean isLayoutRtl = ViewUtils.isLayoutRtl(this);
         for (int i = 0; i < childCount; i++) {
             final View v = getChildAt(i);
             if (v.getVisibility() == GONE) {
@@ -456,8 +457,15 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
                     overflowWidth += dividerWidth;
                 }
                 int height = v.getMeasuredHeight();
-                int r = getWidth() - getPaddingRight() - p.rightMargin;
-                int l = r - overflowWidth;
+                int r;
+                int l;
+                if (isLayoutRtl) {
+                    l = getPaddingLeft() + p.leftMargin;
+                    r = l + overflowWidth;
+                } else {
+                    r = getWidth() - getPaddingRight() - p.rightMargin;
+                    l = r - overflowWidth;
+                }
                 int t = midVertical - (height / 2);
                 int b = t + height;
                 v.layout(l, t, r, b);
@@ -490,20 +498,38 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         final int spacerCount = nonOverflowCount - (hasOverflow ? 0 : 1);
         final int spacerSize = Math.max(0, spacerCount > 0 ? widthRemaining / spacerCount : 0);
 
-        int startLeft = getPaddingLeft();
-        for (int i = 0; i < childCount; i++) {
-            final View v = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) v.getLayoutParams();
-            if (v.getVisibility() == GONE || lp.isOverflowButton) {
-                continue;
-            }
+        if (isLayoutRtl) {
+            int startRight = getWidth() - getPaddingRight();
+            for (int i = 0; i < childCount; i++) {
+                final View v = getChildAt(i);
+                final LayoutParams lp = (LayoutParams) v.getLayoutParams();
+                if (v.getVisibility() == GONE || lp.isOverflowButton) {
+                    continue;
+                }
 
-            startLeft += lp.leftMargin;
-            int width = v.getMeasuredWidth();
-            int height = v.getMeasuredHeight();
-            int t = midVertical - height / 2;
-            v.layout(startLeft, t, startLeft + width, t + height);
-            startLeft += width + lp.rightMargin + spacerSize;
+                startRight -= lp.rightMargin;
+                int width = v.getMeasuredWidth();
+                int height = v.getMeasuredHeight();
+                int t = midVertical - height / 2;
+                v.layout(startRight - width, t, startRight, t + height);
+                startRight -= width + lp.leftMargin + spacerSize;
+            }
+        } else {
+            int startLeft = getPaddingLeft();
+            for (int i = 0; i < childCount; i++) {
+                final View v = getChildAt(i);
+                final LayoutParams lp = (LayoutParams) v.getLayoutParams();
+                if (v.getVisibility() == GONE || lp.isOverflowButton) {
+                    continue;
+                }
+
+                startLeft += lp.leftMargin;
+                int width = v.getMeasuredWidth();
+                int height = v.getMeasuredHeight();
+                int t = midVertical - height / 2;
+                v.layout(startLeft, t, startLeft + width, t + height);
+                startLeft += width + lp.rightMargin + spacerSize;
+            }
         }
     }
 
@@ -649,6 +675,9 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         }
     }
 
+    /**
+     * @hide Private LinearLayout (superclass) API. Un-hide if LinearLayout API is made public.
+     */
     protected boolean hasSupportDividerBeforeChildAt(int childIndex) {
         if (childIndex == 0) {
             return false;

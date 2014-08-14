@@ -723,10 +723,10 @@ public class Toolbar extends ViewGroup {
      * will make the navigation button visible.</p>
      *
      * <p>If you use a navigation icon you should also set a description for its action using
-     * {@link #setNavigationContentDescription(int)}. This is used for accessibility
-     * andtooltips.</p>
+     * {@link #setNavigationContentDescription(int)}. This is used for accessibility and
+     * tooltips.</p>
      *
-     * @param icon Drawable to set
+     * @param icon Drawable to set, may be null to clear the icon
      */
     public void setNavigationIcon(@Nullable Drawable icon) {
         if (icon != null) {
@@ -1137,6 +1137,22 @@ public class Toolbar extends ViewGroup {
                     ViewCompat.getMeasuredState(mLogoView));
         }
 
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if (lp.mViewType != LayoutParams.CUSTOM || !shouldLayout(child)) {
+                // We already got all system views above. Skip them and GONE views.
+                continue;
+            }
+
+            width += measureChildCollapseMargins(child, widthMeasureSpec, width,
+                    heightMeasureSpec, 0, collapsingMargins);
+            height = Math.max(height, child.getMeasuredHeight() + getVerticalMargins(child));
+            childState = ViewUtils.combineMeasuredStates(childState,
+                    ViewCompat.getMeasuredState(child));
+        }
+
         int titleWidth = 0;
         int titleHeight = 0;
         final int titleVertMargins = mTitleMarginTop + mTitleMarginBottom;
@@ -1163,22 +1179,6 @@ public class Toolbar extends ViewGroup {
 
         width += titleWidth;
         height = Math.max(height, titleHeight);
-
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (lp.mViewType != LayoutParams.CUSTOM || !shouldLayout(child)) {
-                // We already got all system views above. Skip them and GONE views.
-                continue;
-            }
-
-            width += measureChildCollapseMargins(child, widthMeasureSpec, width,
-                    heightMeasureSpec, 0, collapsingMargins);
-            height = Math.max(height, child.getMeasuredHeight() + getVerticalMargins(child));
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(child));
-        }
 
         // Measurement already took padding into account for available space for the children,
         // add it in for the final size.
@@ -1323,7 +1323,7 @@ public class Toolbar extends ViewGroup {
                     subtitleRight = subtitleRight - mTitleMarginEnd;
                     titleTop = subtitleBottom + lp.bottomMargin;
                 }
-                right = Math.max(titleRight, subtitleRight);
+                right = Math.min(titleRight, subtitleRight);
             } else {
                 final int ld = mTitleMarginStart - collapsingMargins[0];
                 left += Math.max(0, ld);
@@ -1574,7 +1574,7 @@ public class Toolbar extends ViewGroup {
     /** @hide */
     public DecorToolbar getWrapper() {
         if (mWrapper == null) {
-            mWrapper = new ToolbarWidgetWrapper(this);
+            mWrapper = new ToolbarWidgetWrapper(this, true);
         }
         return mWrapper;
     }
