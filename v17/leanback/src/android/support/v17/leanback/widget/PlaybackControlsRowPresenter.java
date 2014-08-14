@@ -209,6 +209,13 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         vh.mBottomSpacer.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Display the primary actions.
+     */
+    public void showPrimaryActions(ViewHolder vh) {
+        mPlaybackControlsPresenter.showPrimaryActions(vh.mControlsVh);
+    }
+
     private int getDefaultBackgroundColor(Context context) {
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
