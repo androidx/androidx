@@ -11,16 +11,18 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.transition;
 
 import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 /**
  * Helper for view transitions.
+ * @hide
  */
-final class TransitionHelper {
+public final class TransitionHelper {
 
     public static final int FADE_IN = 0x1;
     public static final int FADE_OUT = 0x2;
@@ -50,6 +52,22 @@ final class TransitionHelper {
      * Interface implemented by classes that support Transition animations.
      */
     static interface TransitionHelperVersionImpl {
+
+        public Object getSharedElementEnterTransition(Window window);
+
+        public Object getSharedElementReturnTransition(Window window);
+
+        public Object getSharedElementExitTransition(Window window);
+
+        public Object getSharedElementReenterTransition(Window window);
+
+        public Object getEnterTransition(Window window);
+
+        public Object getReturnTransition(Window window);
+
+        public Object getExitTransition(Window window);
+
+        public Object getReenterTransition(Window window);
 
         public Object createScene(ViewGroup sceneRoot, Runnable r);
 
@@ -105,6 +123,46 @@ final class TransitionHelper {
 
         private static class TransitionStub {
             TransitionListener mTransitionListener;
+        }
+
+        @Override
+        public Object getSharedElementEnterTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getSharedElementReturnTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getSharedElementExitTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getSharedElementReenterTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getEnterTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getReturnTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getExitTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getReenterTransition(Window window) {
+            return null;
         }
 
         @Override
@@ -218,11 +276,51 @@ final class TransitionHelper {
     /**
      * Implementation used on KitKat (and above).
      */
-    private static final class TransitionHelperKitkatImpl implements TransitionHelperVersionImpl {
+    private static class TransitionHelperKitkatImpl implements TransitionHelperVersionImpl {
         private final TransitionHelperKitkat mTransitionHelper;
 
         TransitionHelperKitkatImpl() {
             mTransitionHelper = new TransitionHelperKitkat();
+        }
+
+        @Override
+        public Object getSharedElementEnterTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getSharedElementReturnTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getSharedElementExitTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getSharedElementReenterTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getEnterTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getReturnTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getExitTransition(Window window) {
+            return null;
+        }
+
+        @Override
+        public Object getReenterTransition(Window window) {
+            return null;
         }
 
         @Override
@@ -337,6 +435,54 @@ final class TransitionHelper {
         }
     }
 
+    private static final class TransitionHelperApi21Impl extends TransitionHelperKitkatImpl {
+        private final TransitionHelperApi21 mTransitionHelper;
+
+        TransitionHelperApi21Impl() {
+            mTransitionHelper = new TransitionHelperApi21();
+        }
+
+        @Override
+        public Object getSharedElementEnterTransition(Window window) {
+            return mTransitionHelper.getSharedElementEnterTransition(window);
+        }
+
+        @Override
+        public Object getSharedElementReturnTransition(Window window) {
+            return mTransitionHelper.getSharedElementReturnTransition(window);
+        }
+
+        @Override
+        public Object getSharedElementExitTransition(Window window) {
+            return mTransitionHelper.getSharedElementExitTransition(window);
+        }
+
+        @Override
+        public Object getSharedElementReenterTransition(Window window) {
+            return mTransitionHelper.getSharedElementReenterTransition(window);
+        }
+
+        @Override
+        public Object getEnterTransition(Window window) {
+            return mTransitionHelper.getEnterTransition(window);
+        }
+
+        @Override
+        public Object getReturnTransition(Window window) {
+            return mTransitionHelper.getReturnTransition(window);
+        }
+
+        @Override
+        public Object getExitTransition(Window window) {
+            return mTransitionHelper.getExitTransition(window);
+        }
+
+        @Override
+        public Object getReenterTransition(Window window) {
+            return mTransitionHelper.getReenterTransition(window);
+        }
+    }
+
     /**
      * Returns the TransitionHelper that can be used to perform Transition
      * animations.
@@ -346,11 +492,45 @@ final class TransitionHelper {
     }
 
     private TransitionHelper() {
-        if (systemSupportsTransitions()) {
+        if ("L".equals(Build.VERSION.RELEASE)) {
+            mImpl = new TransitionHelperApi21Impl();
+        } else  if (systemSupportsTransitions()) {
             mImpl = new TransitionHelperKitkatImpl();
         } else {
             mImpl = new TransitionHelperStubImpl();
         }
+    }
+
+    public Object getSharedElementEnterTransition(Window window) {
+        return mImpl.getSharedElementEnterTransition(window);
+    }
+
+    public Object getSharedElementReturnTransition(Window window) {
+        return mImpl.getSharedElementReturnTransition(window);
+    }
+
+    public Object getSharedElementExitTransition(Window window) {
+        return mImpl.getSharedElementExitTransition(window);
+    }
+
+    public Object getSharedElementReenterTransition(Window window) {
+        return mImpl.getSharedElementReenterTransition(window);
+    }
+
+    public Object getEnterTransition(Window window) {
+        return mImpl.getEnterTransition(window);
+    }
+
+    public Object getReturnTransition(Window window) {
+        return mImpl.getReturnTransition(window);
+    }
+
+    public Object getExitTransition(Window window) {
+        return mImpl.getExitTransition(window);
+    }
+
+    public Object getReenterTransition(Window window) {
+        return mImpl.getReenterTransition(window);
     }
 
     public Object createScene(ViewGroup sceneRoot, Runnable r) {

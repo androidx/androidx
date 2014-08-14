@@ -13,14 +13,17 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.SharedElementListener;
 import android.support.v4.view.ViewCompat;
+import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
-
 import android.app.Activity;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
 
 import java.util.List;
@@ -72,7 +75,10 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
         if (mViewHolder == null || mViewHolder.mOverviewView != overviewView) {
             return;
         }
+        // temporary let action row take focus so we defer button background animation
+        mViewHolder.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
         mViewHolder.mActionsRow.setVisibility(View.VISIBLE);
+        mViewHolder.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         mViewHolder.mDetailsDescriptionFrame.setVisibility(View.VISIBLE);
     }
 
@@ -93,6 +99,20 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
         if (mActivityToRunTransition != null) {
             ActivityCompat.setEnterSharedElementListener(mActivityToRunTransition, this);
             ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
+            TransitionHelper transitionHelper = TransitionHelper.getInstance();
+            Object transition = transitionHelper.getSharedElementEnterTransition(
+                    mActivityToRunTransition.getWindow());
+            if (transition != null) {
+                transitionHelper.setTransitionListener(transition, new TransitionListener() {
+                    public void onTransitionEnd(Object transition) {
+                        // after transition if the action row still focused, transfer
+                        // focus to its children
+                        if (mViewHolder.mActionsRow.isFocused()) {
+                            mViewHolder.mActionsRow.requestFocus();
+                        }
+                    }
+                });
+            }
         }
     }
 
