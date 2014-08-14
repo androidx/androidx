@@ -93,6 +93,9 @@ public class RowsFragment extends BaseRowFragment {
             float level =  mSelectLevelAnimStart + fraction * mSelectLevelAnimDelta;
             if (mColorDimmer != null) {
                 mColorDimmer.setActiveLevel(level);
+                if (getVerticalGridView() != null) {
+                    getVerticalGridView().invalidate();
+                }
             }
             mRowPresenter.setSelectLevel(mRowViewHolder, level);
         }
