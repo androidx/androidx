@@ -289,6 +289,9 @@ class ChildHelper {
         if (offset < 0) {
             throw new IllegalArgumentException("view is not a child, cannot hide " + view);
         }
+        if (DEBUG && mBucket.get(offset)) {
+            throw new RuntimeException("trying to hide same view twice, how come ? " + view);
+        }
         mBucket.set(offset);
         mHiddenViews.add(view);
         if (DEBUG) {
