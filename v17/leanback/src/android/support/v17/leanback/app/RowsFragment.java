@@ -363,7 +363,7 @@ public class RowsFragment extends BaseRowFragment {
             if (listView != null && ((RowPresenter) vh.getPresenter()).canDrawOutOfBounds()) {
                 listView.setClipChildren(false);
             }
-            setupSharedViewPool(vh.getViewHolder());
+            setupSharedViewPool(vh);
             mViewsCreated = true;
             vh.setExtraObject(new RowViewHolderExtra(vh));
             // selected state is initialized to false, then driven by grid view onChildSelected
@@ -411,9 +411,12 @@ public class RowsFragment extends BaseRowFragment {
         }
     };
 
-    private void setupSharedViewPool(Presenter.ViewHolder viewHolder) {
-        if (viewHolder instanceof ListRowPresenter.ViewHolder) {
-            HorizontalGridView view = ((ListRowPresenter.ViewHolder) viewHolder).getGridView();
+    private void setupSharedViewPool(ItemBridgeAdapter.ViewHolder bridgeVh) {
+        RowPresenter rowPresenter = (RowPresenter) bridgeVh.getPresenter();
+        RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(bridgeVh.getViewHolder());
+
+        if (rowVh instanceof ListRowPresenter.ViewHolder) {
+            HorizontalGridView view = ((ListRowPresenter.ViewHolder) rowVh).getGridView();
             // Recycled view pool is shared between all list rows
             if (mRecycledViewPool == null) {
                 mRecycledViewPool = view.getRecycledViewPool();
@@ -422,7 +425,7 @@ public class RowsFragment extends BaseRowFragment {
             }
 
             ItemBridgeAdapter bridgeAdapter =
-                    ((ListRowPresenter.ViewHolder) viewHolder).getBridgeAdapter();
+                    ((ListRowPresenter.ViewHolder) rowVh).getBridgeAdapter();
             if (mPresenterMapper == null) {
                 mPresenterMapper = bridgeAdapter.getPresenterMapper();
             } else {
