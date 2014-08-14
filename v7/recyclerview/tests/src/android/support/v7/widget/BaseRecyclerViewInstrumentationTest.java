@@ -306,8 +306,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             return (RecyclerView.LayoutParams) v.getLayoutParams();
         }
 
-        void layoutRange(RecyclerView.Recycler recycler, int start,
-                int end) {
+        void layoutRange(RecyclerView.Recycler recycler, int start, int end) {
             assertScrap(recycler);
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
