@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.app;
 
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.TitleView;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.DecelerateInterpolator;
