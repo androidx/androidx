@@ -512,6 +512,20 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Enable or disable scrolling.  Disable is useful during transition.
+     */
+    public void setScrollEnabled(boolean scrollEnabled) {
+        mLayoutManager.setScrollEnabled(scrollEnabled);
+    }
+
+    /**
+     * Returns true if scrolling is enabled.
+     */
+    public boolean isScrollEnabled() {
+        return mLayoutManager.isScrollEnabled();
+    }
+
+    /**
      * Returns true if the view at the given position has a same row sibling
      * in front of it.
      *
