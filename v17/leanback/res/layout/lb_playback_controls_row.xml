@@ -14,20 +14,26 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+
+<!-- Note: clipChildren/clipToPadding false are needed to apply shadows to child
+     views with no padding of their own. -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:paddingLeft="@dimen/lb_playback_controls_margin_left"
     android:paddingRight="@dimen/lb_playback_controls_margin_right" >
-
-    <!-- Background is applied to this inner layout -->
 
     <LinearLayout
         android:id="@+id/controls_card"
         android:layout_width="match_parent"
         android:layout_height="@dimen/lb_playback_controls_card_height"
         android:layout_marginBottom="@dimen/lb_playback_controls_margin_bottom"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="horizontal" >
 
         <ImageView
@@ -40,6 +46,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical" >
 
             <FrameLayout

@@ -44,6 +44,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         final ViewGroup mSecondaryControlsDock;
         final View mSpacer;
         final View mBottomSpacer;
+        View mBgView;
         int mCardHeight;
         int mControlsDockMarginStart;
         int mControlsDockMarginEnd;
@@ -103,6 +104,17 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
                     selector.getSecondaryPresenter();
             }
             return adapter.getPresenter(item);
+        }
+
+        void setBackground(View view) {
+            if (mBgView != null) {
+                mBgView.setBackgroundColor(Color.TRANSPARENT);
+                ShadowHelper.getInstance().clearZ(mBgView);
+            }
+            mBgView = view;
+            view.setBackgroundColor(mBackgroundColorSet ?
+                    mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
+            ShadowHelper.getInstance().setZ(view, 0f);
         }
     }
 
@@ -260,12 +272,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         mSecondaryControlsPresenter.setOnItemViewSelectedListener(vh.mOnItemViewSelectedListener);
     }
 
-    private void setBackground(View view) {
-        view.setBackgroundColor(mBackgroundColorSet ?
-                mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
-        ShadowHelper.getInstance().setZ(view, 0f);
-    }
-
     @Override
     protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
         super.onBindRowViewHolder(holder, item);
@@ -294,15 +300,13 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
 
         MarginLayoutParams lp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
         if (row.getImageDrawable() == null || row.getItem() == null) {
-            setBackground(vh.mControlsDock);
-            vh.mCard.setBackgroundColor(Color.TRANSPARENT);
+            vh.setBackground(vh.mControlsDock);
             lp.setMarginStart(0);
             lp.setMarginEnd(0);
             mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, true);
         } else {
             vh.mImageView.setImageDrawable(row.getImageDrawable());
-            setBackground(vh.mCard);
-            vh.mControlsDock.setBackgroundColor(Color.TRANSPARENT);
+            vh.setBackground(vh.mCard);
             lp.setMarginStart(vh.mControlsDockMarginStart);
             lp.setMarginEnd(vh.mControlsDockMarginEnd);
             mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, false);

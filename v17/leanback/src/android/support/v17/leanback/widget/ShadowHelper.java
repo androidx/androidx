@@ -39,6 +39,8 @@ final class ShadowHelper {
 
         public void setZ(View view, float focusLevel);
 
+        public void clearZ(View view);
+
         public void setShadowFocusLevel(Object impl, float level);
 
     }
@@ -69,6 +71,11 @@ final class ShadowHelper {
             // do nothing
         }
 
+        @Override
+        public void clearZ(View view) {
+            // do nothing
+        }
+
     }
 
     /**
@@ -93,6 +100,11 @@ final class ShadowHelper {
 
         @Override
         public void setZ(View view, float focusLevel) {
+            // Not supported
+        }
+
+        @Override
+        public void clearZ(View view) {
             // Not supported
         }
 
@@ -121,6 +133,11 @@ final class ShadowHelper {
         @Override
         public void setZ(View view, float focusLevel) {
             ShadowHelperApi21.setZ(view, focusLevel);
+        }
+
+        @Override
+        public void clearZ(View view) {
+            ShadowHelperApi21.clearZ(view);
         }
 
     }
@@ -172,5 +189,9 @@ final class ShadowHelper {
      */
     public void setZ(View view, float focusLevel) {
         mImpl.setZ(view, focusLevel);
+    }
+
+    public void clearZ(View view) {
+        mImpl.clearZ(view);
     }
 }
