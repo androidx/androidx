@@ -145,7 +145,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                             + visibleChildCount);
                 }
                 removeAndRecycleAllViews(recycler);
-                layoutRange(recycler, start, start + visibleChildCount);
+                layoutRange(recycler, start,
+                        Math.max(state.getItemCount(), start + visibleChildCount));
                 return dy;
             }
 
