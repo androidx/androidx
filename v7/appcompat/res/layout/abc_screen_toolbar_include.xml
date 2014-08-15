@@ -30,6 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 style="?attr/actionBarStyle"
+                android:touchscreenBlocksFocus="true"
                 android:gravity="top">
 
             <android.support.v7.widget.Toolbar
