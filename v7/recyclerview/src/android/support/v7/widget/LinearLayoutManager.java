@@ -957,65 +957,30 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int computeScrollOffset(RecyclerView.State state) {
-        if (getChildCount() == 0 || state.getItemCount() == 0) {
+        if (getChildCount() == 0) {
             return 0;
         }
-        final View startChild = getChildClosestToStart();
-        final int itemsBefore = mShouldReverseLayout
-                ? Math.max(0, state.getItemCount() - getPosition(startChild) - 1)
-                : Math.max(0, getPosition(startChild) - 1);
-        if (!mSmoothScrollbarEnabled) {
-            return itemsBefore;
-        }
-        final View endChild = getChildClosestToEnd();
-        final int laidOutArea = mOrientationHelper.getDecoratedEnd(endChild) -
-                mOrientationHelper.getDecoratedStart(startChild);
-        final int laidOutRange = Math.abs(getPosition(startChild) - getPosition(endChild)) + 1;
-        final float avgSizePerRow = (float) laidOutArea / laidOutRange;
-
-        return Math.round(itemsBefore * avgSizePerRow + (mOrientationHelper.getStartAfterPadding()
-                - mOrientationHelper.getDecoratedStart(startChild)));
+        return ScrollbarHelper.computeScrollOffset(state, mOrientationHelper,
+                getChildClosestToStart(), getChildClosestToEnd(), this,
+                mSmoothScrollbarEnabled, mShouldReverseLayout);
     }
 
     private int computeScrollExtent(RecyclerView.State state) {
-        if (state.getItemCount() == 0 || getChildCount() == 0) {
-            return 1;
+        if (getChildCount() == 0) {
+            return 0;
         }
-        if (!mSmoothScrollbarEnabled) {
-            return findLastVisibleItemPosition() - findFirstVisibleItemPosition() + 1;
-        }
-        final View firstVisible = findOneVisibleChild(0, getChildCount(), false);
-        final View lastVisible = findOneVisibleChild(getChildCount() - 1, -1, false);
-        if (firstVisible == null || lastVisible == null) {
-            return 1;
-        }
-        final int extend;
-        if (mShouldReverseLayout) {
-            // first visible is below
-            extend = mOrientationHelper.getDecoratedEnd(firstVisible) -
-                    mOrientationHelper.getDecoratedStart(lastVisible);
-        } else {
-            extend = mOrientationHelper.getDecoratedEnd(lastVisible) -
-                    mOrientationHelper.getDecoratedStart(firstVisible);
-        }
-        return Math.min(mOrientationHelper.getTotalSpace(), extend);
+        return ScrollbarHelper.computeScrollExtent(state, mOrientationHelper,
+                getChildClosestToStart(), getChildClosestToEnd(), this,
+                mSmoothScrollbarEnabled);
     }
 
     private int computeScrollRange(RecyclerView.State state) {
-        if (state.getItemCount() == 0 || getChildCount() == 0) {
+        if (getChildCount() == 0) {
             return 0;
         }
-        if (!mSmoothScrollbarEnabled) {
-            return state.getItemCount();
-        }
-        // smooth scrollbar enabled. try to estimate better.
-        final View startChild = getChildClosestToStart();
-        final View endChild = getChildClosestToEnd();
-        final int laidOutArea = mOrientationHelper.getDecoratedEnd(endChild) -
-                mOrientationHelper.getDecoratedStart(startChild);
-        final int laidOutRange = Math.abs(getPosition(startChild) - getPosition(endChild)) + 1;
-        // estimate a size for full list.
-        return (int) ((float)laidOutArea / laidOutRange * state.getItemCount());
+        return ScrollbarHelper.computeScrollRange(state, mOrientationHelper,
+                getChildClosestToStart(), getChildClosestToEnd(), this,
+                mSmoothScrollbarEnabled);
     }
 
     /**
