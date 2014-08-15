@@ -135,18 +135,9 @@ public class GridLayoutManager extends LinearLayoutManager {
         super.onAnchorReady(anchorInfo);
         updateMeasurements();
         int span = mSpanSizeLookup.getSpanIndex(anchorInfo.mPosition, mSpanCount);
-        if (span != 0) { //this is not affected by RTL
-            if (DEBUG) {
-                Log.d(TAG, "Correcting span for position " + anchorInfo.mPosition);
-            }
-            int prev = anchorInfo.mPosition - 1;
-            while (span > 0) {
-                span -= mSpanSizeLookup.getSpanSize(prev);
-            }
-            anchorInfo.mPosition = prev;
-            if (DEBUG) {
-                Log.d(TAG, "corrected anchor position to " + anchorInfo.mPosition);
-            }
+        while (span > 0 && anchorInfo.mPosition > 0) {
+            anchorInfo.mPosition --;
+            span -= mSpanSizeLookup.getSpanSize(anchorInfo.mPosition);
         }
         if (mSet == null || mSet.length != mSpanCount) {
             mSet = new View[mSpanCount];
@@ -161,6 +152,11 @@ public class GridLayoutManager extends LinearLayoutManager {
         while (count < mSpanCount && layoutState.hasMore(state) && remainingSpan > 0) {
             int pos = layoutState.mCurrentPosition;
             final int spanSize = mSpanSizeLookup.getSpanSize(pos);
+            if (spanSize > mSpanCount) {
+                throw new IllegalArgumentException("Item at position " + pos + " requires " +
+                        spanSize + " spans but GridLayoutManager has only " + mSpanCount
+                        + " spans.");
+            }
             remainingSpan -= spanSize;
             if (remainingSpan < 0) {
                 break; // item did not fit into this row or column
@@ -367,13 +363,13 @@ public class GridLayoutManager extends LinearLayoutManager {
          * <code>spanCount</code>(exclusive)
          */
         public int getSpanIndex(int position, int spanCount) {
-            int span = 0;
             int positionSpanSize = getSpanSize(position);
             if (positionSpanSize == spanCount) {
                 return 0; // quick return for full-span items
             }
+            int span = 0;
             for (int i = 0; i < position; i++) {
-                int size = getSpanSize(position);
+                int size = getSpanSize(i);
                 span += size;
                 if (span == spanCount) {
                     span = 0;
