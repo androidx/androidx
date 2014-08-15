@@ -76,7 +76,7 @@ class ControlBarPresenter extends Presenter {
                     for (int position = 0; position < mViewHolders.size(); position++) {
                         if (mViewHolders.get(position).view == child) {
                             mOnItemViewSelectedListener.onItemSelected(
-                                    mViewHolders.get(position), getAdapter().get(position),
+                                    mViewHolders.get(position), getDisplayedAdapter().get(position),
                                             null, null);
                             break;
                         }
@@ -86,12 +86,16 @@ class ControlBarPresenter extends Presenter {
             mDataObserver = new ObjectAdapter.DataObserver() {
                 @Override
                 public void onChanged() {
-                    showControls(mAdapter, mPresenter);
+                    if (mAdapter == getDisplayedAdapter()) {
+                        showControls(mPresenter);
+                    }
                 }
                 @Override
                 public void onItemRangeChanged(int positionStart, int itemCount) {
-                    for (int i = 0; i < itemCount; i++) {
-                        bindControlToAction(positionStart + i, mAdapter, mPresenter);
+                    if (mAdapter == getDisplayedAdapter()) {
+                        for (int i = 0; i < itemCount; i++) {
+                            bindControlToAction(positionStart + i, mPresenter);
+                        }
                     }
                 }
             };
@@ -102,8 +106,9 @@ class ControlBarPresenter extends Presenter {
             return getChildMarginDefault(context) + getControlIconWidth(context);
         }
 
-        void showControls(ObjectAdapter adapter, Presenter presenter) {
+        void showControls(Presenter presenter) {
             View focusedChild = mControlBar.getFocusedChild();
+            ObjectAdapter adapter = getDisplayedAdapter();
             mControlBar.removeAllViews();
             for (int position = 0; position < adapter.size() && position < MAX_CONTROLS;
                     position++) {
@@ -116,7 +121,12 @@ class ControlBarPresenter extends Presenter {
                     getChildMarginFromCenter(mControlBar.getContext(), adapter.size()));
         }
 
-        void bindControlToAction(final int position, ObjectAdapter adapter, Presenter presenter) {
+        void bindControlToAction(int position, Presenter presenter) {
+            bindControlToAction(position, getDisplayedAdapter(), presenter);
+        }
+
+        private void bindControlToAction(final int position,
+                ObjectAdapter adapter, Presenter presenter) {
             Presenter.ViewHolder vh = mViewHolders.get(position);
             Object item = adapter.get(position);
             if (vh == null) {
@@ -125,7 +135,7 @@ class ControlBarPresenter extends Presenter {
                 presenter.setOnClickListener(vh, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Object item = getAdapter().get(position);
+                        Object item = getDisplayedAdapter().get(position);
                         if (mOnActionClickedListener != null && item instanceof Action) {
                             mOnActionClickedListener.onActionClicked((Action) item);
                         }
@@ -138,7 +148,11 @@ class ControlBarPresenter extends Presenter {
             presenter.onBindViewHolder(vh, item);
         }
 
-        ObjectAdapter getAdapter() {
+        /**
+         * Returns the adapter currently bound to the displayed controls.
+         * May be overridden in a subclass.
+         */
+        ObjectAdapter getDisplayedAdapter() {
             return mAdapter;
         }
     }
@@ -210,7 +224,7 @@ class ControlBarPresenter extends Presenter {
             vh.mAdapter.registerObserver(vh.mDataObserver);
         }
         vh.mPresenter = data.presenter;
-        vh.showControls(vh.mAdapter, vh.mPresenter);
+        vh.showControls(vh.mPresenter);
     }
 
     @Override
