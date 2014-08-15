@@ -506,4 +506,10 @@ public class ListRowPresenter extends RowPresenter {
         }
     }
 
+    @Override
+    public void freeze(RowPresenter.ViewHolder holder, boolean freeze) {
+        ViewHolder vh = (ViewHolder) holder;
+        vh.mGridView.setScrollEnabled(!freeze);
+    }
+
 }
