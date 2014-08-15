@@ -714,7 +714,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         mCircleView.offsetTopAndBottom(offset);
         mCurrentTargetOffsetTop = mCircleView.getTop();
         if (requiresUpdate && android.os.Build.VERSION.SDK_INT <= 10) {
-            mCircleView.invalidate();
+            invalidate();
         }
     }
 
