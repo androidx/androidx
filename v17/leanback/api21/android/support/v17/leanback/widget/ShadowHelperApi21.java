@@ -60,4 +60,8 @@ class ShadowHelperApi21 {
         initializeResources(view.getResources());
         view.setZ(sNormalZ + level * (sFocusedZ - sNormalZ));
     }
+
+    public static void clearZ(View view) {
+        view.setZ(0);
+    }
 }
