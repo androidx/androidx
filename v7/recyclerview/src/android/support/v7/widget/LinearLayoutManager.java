@@ -485,6 +485,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int endOffset;
         onAnchorReady(mAnchorInfo);
         detachAndScrapAttachedViews(recycler);
+        mLayoutState.mIsPreLayout = state.isPreLayout();
         if (mAnchorInfo.mLayoutFromEnd) {
             // fill towards start
             updateLayoutStateToFillStart(mAnchorInfo);
@@ -1727,6 +1728,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int mExtra = 0;
 
         /**
+         * Equal to {@link RecyclerView.State#isPreLayout()}. When consuming scrap, if this value
+         * is set to true, we skip removed views since they should not be laid out in post layout
+         * step.
+         */
+        boolean mIsPreLayout = false;
+
+        /**
          * When LLM needs to layout particular views, it sets this list in which case, LayoutState
          * will only return views from this list and return null if it cannot find an item.
          */
@@ -1767,6 +1775,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             int closestDistance = Integer.MAX_VALUE;
             for (int i = 0; i < size; i++) {
                 RecyclerView.ViewHolder viewHolder = mScrapList.get(i);
+                if (!mIsPreLayout && viewHolder.isRemoved()) {
+                    continue;
+                }
                 final int distance = (viewHolder.getPosition() - mCurrentPosition) * mItemDirection;
                 if (distance < 0) {
                     continue; // item is not in current direction
