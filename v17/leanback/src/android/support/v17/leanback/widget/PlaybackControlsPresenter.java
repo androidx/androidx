@@ -73,15 +73,14 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
                 @Override
                 public void onChanged() {
                     if (mMoreActionsShowing) {
-                        showControls(mMoreActionsAdapter, mPresenter);
+                        showControls(mPresenter);
                     }
                 }
                 @Override
                 public void onItemRangeChanged(int positionStart, int itemCount) {
                     if (mMoreActionsShowing) {
                         for (int i = 0; i < itemCount; i++) {
-                            bindControlToAction(positionStart + i,
-                                    mMoreActionsAdapter, mPresenter);
+                            bindControlToAction(positionStart + i, mPresenter);
                         }
                     }
                 }
@@ -92,28 +91,35 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
                     ((MarginLayoutParams) mTotalTime.getLayoutParams()).getMarginEnd();
         }
 
-        void showMoreActions() {
-            if (mMoreActionsViewHolder == null) {
-                Action action = new PlaybackControlsRow.MoreActions(mMoreActionsDock.getContext());
-                mMoreActionsViewHolder = mPresenter.onCreateViewHolder(mMoreActionsDock);
-                mPresenter.onBindViewHolder(mMoreActionsViewHolder, action);
-                mPresenter.setOnClickListener(mMoreActionsViewHolder, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        toggleMoreActions();
-                    }
-                });
+        void showMoreActions(boolean show) {
+            if (show) {
+                if (mMoreActionsViewHolder == null) {
+                    Action action = new PlaybackControlsRow.MoreActions(mMoreActionsDock.getContext());
+                    mMoreActionsViewHolder = mPresenter.onCreateViewHolder(mMoreActionsDock);
+                    mPresenter.onBindViewHolder(mMoreActionsViewHolder, action);
+                    mPresenter.setOnClickListener(mMoreActionsViewHolder, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            toggleMoreActions();
+                        }
+                    });
+                }
+                if (mMoreActionsViewHolder.view.getParent() == null) {
+                    mMoreActionsDock.addView(mMoreActionsViewHolder.view);
+                }
+            } else if (mMoreActionsViewHolder != null &&
+                    mMoreActionsViewHolder.view.getParent() != null) {
+                mMoreActionsDock.removeView(mMoreActionsViewHolder.view);
             }
-            mMoreActionsDock.addView(mMoreActionsViewHolder.view);
         }
 
         void toggleMoreActions() {
             mMoreActionsShowing = !mMoreActionsShowing;
-            showControls(getAdapter(), mPresenter);
+            showControls(mPresenter);
         }
 
         @Override
-        ObjectAdapter getAdapter() {
+        ObjectAdapter getDisplayedAdapter() {
             return mMoreActionsShowing ? mMoreActionsAdapter : mAdapter;
         }
 
@@ -250,6 +256,12 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         return vh.getSecondaryProgress();
     }
 
+    public void showPrimaryActions(ViewHolder vh) {
+        if (vh.mMoreActionsShowing) {
+            vh.toggleMoreActions();
+        }
+    }
+
     public void enableTimeMargins(ViewHolder vh, boolean enable) {
         MarginLayoutParams lp;
         lp = (MarginLayoutParams) vh.mCurrentTime.getLayoutParams();
@@ -270,17 +282,18 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder holder, Object item) {
-        super.onBindViewHolder(holder, item);
-
         ViewHolder vh = (ViewHolder) holder;
         BoundData data = (BoundData) item;
+
+        // If binding to a new adapter, display primary actions.
         if (vh.mMoreActionsAdapter != data.secondaryActionsAdapter) {
             vh.mMoreActionsAdapter = data.secondaryActionsAdapter;
             vh.mMoreActionsAdapter.registerObserver(vh.mMoreActionsObserver);
+            vh.mMoreActionsShowing = false;
         }
-        if (mMoreActionsEnabled) {
-            vh.showMoreActions();
-        }
+
+        super.onBindViewHolder(holder, item);
+        vh.showMoreActions(mMoreActionsEnabled);
     }
 
     @Override

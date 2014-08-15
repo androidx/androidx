@@ -104,6 +104,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private ValueAnimator mDescriptionFadeInAnimator, mDescriptionFadeOutAnimator;
     private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
     private boolean mTranslateAnimationEnabled;
+    private boolean mResetControlsToPrimaryActionsPending;
     private RecyclerView.ItemAnimator mItemAnimator;
 
     private final Animator.AnimatorListener mFadeListener =
@@ -131,6 +132,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                 if (getVerticalGridView() != null) {
                     // Reset focus to the controls row
                     getVerticalGridView().setSelectedPosition(0);
+                    resetControlsToPrimaryActions(null);
                 }
                 if (mFadeCompleteListener != null) {
                     mFadeCompleteListener.onFadeOutComplete();
@@ -178,14 +180,21 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     }
 
     private void enableVerticalGridAnimations(boolean enable) {
-        if (getVerticalGridView() == null) {
-            return;
+        if (getVerticalGridView() != null) {
+            getVerticalGridView().setAnimateChildLayout(enable);
         }
-        if (enable && mItemAnimator != null) {
-            getVerticalGridView().setItemAnimator(mItemAnimator);
-        } else if (!enable) {
-            mItemAnimator = getVerticalGridView().getItemAnimator();
-            getVerticalGridView().setItemAnimator(null);
+    }
+
+    private void resetControlsToPrimaryActions(ItemBridgeAdapter.ViewHolder vh) {
+        if (vh == null && getVerticalGridView() != null) {
+            vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView().findViewHolderForPosition(0);
+        }
+        if (vh == null) {
+            mResetControlsToPrimaryActionsPending = true;
+        } else if (vh.getPresenter() instanceof PlaybackControlsRowPresenter) {
+            mResetControlsToPrimaryActionsPending = false;
+            ((PlaybackControlsRowPresenter) vh.getPresenter()).showPrimaryActions(
+                    (PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder());
         }
     }
 
@@ -570,6 +579,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             if ((mFadingStatus == IDLE && mBgAlpha == 0) || mFadingStatus == OUT) {
                 if (DEBUG) Log.v(TAG, "setting alpha to 0");
                 vh.getViewHolder().view.setAlpha(0);
+            }
+            if (vh.getPosition() == 0 && mResetControlsToPrimaryActionsPending) {
+                resetControlsToPrimaryActions(vh);
             }
         }
         @Override
