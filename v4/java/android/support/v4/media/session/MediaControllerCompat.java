@@ -234,6 +234,13 @@ public final class MediaControllerCompat {
         }
 
         /**
+         * Override to handle the session being destroyed. The session is no
+         * longer valid after this call and calls to it will be ignored.
+         */
+        public void onSessionDestroyed() {
+        }
+
+        /**
          * Override to handle custom events sent by the session owner without a
          * specified interface. Controllers should only handle these for
          * sessions they own.
@@ -262,6 +269,11 @@ public final class MediaControllerCompat {
         }
 
         private class StubApi21 implements MediaControllerCompatApi21.Callback {
+            @Override
+            public void onSessionDestroyed() {
+                Callback.this.onSessionDestroyed();
+            }
+
             @Override
             public void onSessionEvent(String event, Bundle extras) {
                 Callback.this.onSessionEvent(event, extras);

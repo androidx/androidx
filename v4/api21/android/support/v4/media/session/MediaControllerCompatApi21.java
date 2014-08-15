@@ -187,6 +187,7 @@ class MediaControllerCompatApi21 {
     }
 
     public static interface Callback {
+        public void onSessionDestroyed();
         public void onSessionEvent(String event, Bundle extras);
         public void onPlaybackStateChanged(Object stateObj);
         public void onMetadataChanged(Object metadataObj);
@@ -197,6 +198,11 @@ class MediaControllerCompatApi21 {
 
         public CallbackProxy(T callback) {
             mCallback = callback;
+        }
+
+        @Override
+        public void onSessionDestroyed() {
+            mCallback.onSessionDestroyed();
         }
 
         @Override
