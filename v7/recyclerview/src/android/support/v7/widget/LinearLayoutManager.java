@@ -24,6 +24,7 @@ import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 import java.util.List;
 
@@ -110,7 +111,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * When LayoutManager needs to scroll to a position, it sets this variable and requests a
      * layout which will check this variable and re-layout accordingly.
      */
-    int mPendingScrollPosition = RecyclerView.NO_POSITION;
+    int mPendingScrollPosition = NO_POSITION;
 
     /**
      * Used to keep the offset value when {@link #scrollToPositionWithOffset(int, int)} is
@@ -428,6 +429,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
 
         ensureLayoutState();
+        mLayoutState.mRecycle = false;
         // resolve layout direction
         resolveShouldLayoutReverse();
 
@@ -438,8 +440,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (DEBUG) {
             Log.d(TAG, "Anchor info:" + mAnchorInfo);
         }
-
-        detachAndScrapAttachedViews(recycler);
 
         // LLM may decide to layout items for "extra" pixels to account for scrolling target,
         // caching or predictive animations.
@@ -456,9 +456,35 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         extraForStart += mOrientationHelper.getStartAfterPadding();
         extraForEnd += mOrientationHelper.getEndPadding();
+        if (state.isPreLayout() && mPendingScrollPosition != NO_POSITION &&
+                mPendingScrollPositionOffset != INVALID_OFFSET) {
+            // if the child is visible and we are going to move it around, we should layout
+            // extra items in the opposite direction to make sure new items animate nicely
+            // instead of just fading in
+            final View existing = findViewByPosition(mPendingScrollPosition);
+            if (existing != null) {
+                final int current;
+                final int upcomingOffset;
+                if (mShouldReverseLayout) {
+                    current = mOrientationHelper.getEndAfterPadding() -
+                            mOrientationHelper.getDecoratedEnd(existing);
+                    upcomingOffset = current - mPendingScrollPositionOffset;
+                } else {
+                    current = mOrientationHelper.getDecoratedStart(existing)
+                            - mOrientationHelper.getStartAfterPadding();
+                    upcomingOffset = mPendingScrollPositionOffset - current;
+                }
+                if (upcomingOffset > 0) {
+                    extraForStart += upcomingOffset;
+                } else {
+                    extraForEnd -= upcomingOffset;
+                }
+            }
+        }
         int startOffset;
         int endOffset;
         onAnchorReady(mAnchorInfo);
+        detachAndScrapAttachedViews(recycler);
         if (mAnchorInfo.mLayoutFromEnd) {
             // fill towards start
             updateLayoutStateToFillStart(mAnchorInfo);
@@ -516,7 +542,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
         if (!state.isPreLayout()) {
-            mPendingScrollPosition = RecyclerView.NO_POSITION;
+            mPendingScrollPosition = NO_POSITION;
             mPendingScrollPositionOffset = INVALID_OFFSET;
             mOrientationHelper.onLayoutComplete();
         }
@@ -650,12 +676,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * data and returns true
      */
     private boolean updateAnchorFromPendingData(RecyclerView.State state, AnchorInfo anchorInfo) {
-        if (state.isPreLayout() || mPendingScrollPosition == RecyclerView.NO_POSITION) {
+        if (state.isPreLayout() || mPendingScrollPosition == NO_POSITION) {
             return false;
         }
         // validate scroll position
         if (mPendingScrollPosition < 0 || mPendingScrollPosition >= state.getItemCount()) {
-            mPendingScrollPosition = RecyclerView.NO_POSITION;
+            mPendingScrollPosition = NO_POSITION;
             mPendingScrollPositionOffset = INVALID_OFFSET;
             if (DEBUG) {
                 Log.e(TAG, "ignoring invalid scroll position " + mPendingScrollPosition);
@@ -720,7 +746,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         // override layout from end values for consistency
         anchorInfo.mLayoutFromEnd = mShouldReverseLayout;
-        anchorInfo.mCoordinate = mPendingScrollPositionOffset;
+        if (mShouldReverseLayout) {
+            anchorInfo.mCoordinate = mOrientationHelper.getEndAfterPadding() -
+                    mPendingScrollPositionOffset;
+        } else {
+            anchorInfo.mCoordinate = mOrientationHelper.getStartAfterPadding() +
+                    mPendingScrollPositionOffset;
+        }
         return true;
     }
 
@@ -841,12 +873,18 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * <p>Scroll to the specified adapter position with the given offset from layout start.</p>
+     * Scroll to the specified adapter position with the given offset from resolved layout
+     * start. Resolved layout start depends on {@link #getReverseLayout()},
+     * {@link ViewCompat#getLayoutDirection(android.view.View)} and {@link #getStackFromEnd()}.
+     * <p>
+     * For example, if layout is {@link #VERTICAL} and {@link #getStackFromEnd()} is true, calling
+     * <code>scrollToPositionWithOffset(10, 20)</code> will layout such that
+     * <code>item[10]</code>'s bottom is 20 pixels above the RecyclerView's bottom.
+     * <p>
+     * Note that scroll position change will not be reflected until the next layout call.
      *
-     * <p>Note that scroll position change will not be reflected until the next layout call.</p>
-     *
-     * <p>If you are just trying to make a position visible, use {@link
-     * #scrollToPosition(int)}.</p>
+     * <p>
+     * If you are just trying to make a position visible, use {@link #scrollToPosition(int)}.
      *
      * @param position Index (starting at 0) of the reference item.
      * @param offset   The distance (in pixels) between the start edge of the item view and
@@ -1051,6 +1089,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0 || dy == 0) {
             return 0;
         }
+        mLayoutState.mRecycle = true;
         ensureLayoutState();
         final int layoutDirection = dy > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
         final int absDy = Math.abs(dy);
@@ -1192,6 +1231,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see android.support.v7.widget.LinearLayoutManager.LayoutState#mLayoutDirection
      */
     private void recycleByLayoutState(RecyclerView.Recycler recycler, LayoutState layoutState) {
+        if (!layoutState.mRecycle) {
+            return;
+        }
         if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
             recycleViewsFromEnd(recycler, layoutState.mScrollingOffset);
         } else {
@@ -1463,7 +1505,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     public int findFirstVisibleItemPosition() {
         final View child = findOneVisibleChild(0, getChildCount(), false);
-        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
+        return child == null ? NO_POSITION : getPosition(child);
     }
 
     /**
@@ -1479,7 +1521,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     public int findFirstCompletelyVisibleItemPosition() {
         final View child = findOneVisibleChild(0, getChildCount(), true);
-        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
+        return child == null ? NO_POSITION : getPosition(child);
     }
 
     /**
@@ -1501,7 +1543,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     public int findLastVisibleItemPosition() {
         final View child = findOneVisibleChild(getChildCount() - 1, -1, false);
-        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
+        return child == null ? NO_POSITION : getPosition(child);
     }
 
     /**
@@ -1517,7 +1559,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      */
     public int findLastCompletelyVisibleItemPosition() {
         final View child = findOneVisibleChild(getChildCount() - 1, -1, true);
-        return child == null ? RecyclerView.NO_POSITION : getPosition(child);
+        return child == null ? NO_POSITION : getPosition(child);
     }
 
     View findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {
@@ -1570,6 +1612,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         final int maxScroll = (int) (MAX_SCROLL_FACTOR * mOrientationHelper.getTotalSpace());
         updateLayoutState(layoutDir, maxScroll, false, state);
         mLayoutState.mScrollingOffset = LayoutState.SCOLLING_OFFSET_NaN;
+        mLayoutState.mRecycle = false;
         fill(recycler, mLayoutState, state, true);
         final View nextFocus;
         if (layoutDir == LayoutState.LAYOUT_START) {
@@ -1671,6 +1714,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         final static int ITEM_DIRECTION_TAIL = 1;
 
         final static int SCOLLING_OFFSET_NaN = Integer.MIN_VALUE;
+
+        /**
+         * We may not want to recycle children in some cases (e.g. layout)
+         */
+        boolean mRecycle = true;
 
         /**
          * Pixel offset where layout should start
@@ -1811,7 +1859,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
 
         void invalidateAnchor() {
-            mAnchorPosition = RecyclerView.NO_POSITION;
+            mAnchorPosition = NO_POSITION;
         }
 
         @Override
@@ -1848,7 +1896,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int mCoordinate;
         boolean mLayoutFromEnd;
         void reset() {
-            mPosition = RecyclerView.NO_POSITION;
+            mPosition = NO_POSITION;
             mCoordinate = INVALID_OFFSET;
             mLayoutFromEnd = false;
         }

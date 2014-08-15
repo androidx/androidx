@@ -25,6 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import static android.support.v7.widget.LayoutState.LAYOUT_END;
+import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import java.lang.reflect.Field;
@@ -132,6 +134,126 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             stackFromEndTest(config);
             removeRecyclerView();
         }
+    }
+
+    public void testScrollToPositionWithOffset() throws Throwable {
+        for (Config config : mBaseVariations) {
+            scrollToPositionWithOffsetTest(config.itemCount(300));
+            removeRecyclerView();
+        }
+    }
+
+    public void scrollToPositionWithOffsetTest(Config config) throws Throwable {
+        setupByConfig(config, true);
+        OrientationHelper orientationHelper = OrientationHelper
+                .createOrientationHelper(mLayoutManager, config.mOrientation);
+        Rect layoutBounds = getDecoratedRecyclerViewBounds();
+        // try scrolling towards head, should not affect anything
+        Map<Item, Rect> before = mLayoutManager.collectChildCoordinates();
+        if (config.mStackFromEnd) {
+            scrollToPositionWithOffset(mTestAdapter.getItemCount() - 1,
+                    mLayoutManager.mOrientationHelper.getEnd() - 500);
+        } else {
+            scrollToPositionWithOffset(0, 20);
+        }
+        assertRectSetsEqual(config + " trying to over scroll with offset should be no-op",
+                before, mLayoutManager.collectChildCoordinates());
+        // try offsetting some visible children
+        int testCount = 10;
+        while (testCount-- > 0) {
+            // get middle child
+            final View child = mLayoutManager.getChildAt(mLayoutManager.getChildCount() / 2);
+            final int position = mRecyclerView.getChildPosition(child);
+            final int startOffset = config.mReverseLayout ?
+                    orientationHelper.getEndAfterPadding() - orientationHelper
+                            .getDecoratedEnd(child)
+                    : orientationHelper.getDecoratedStart(child) - orientationHelper
+                            .getStartAfterPadding();
+            final int scrollOffset = config.mStackFromEnd ? startOffset + startOffset / 2
+                    : startOffset / 2;
+            mLayoutManager.expectLayouts(1);
+            scrollToPositionWithOffset(position, scrollOffset);
+            mLayoutManager.waitForLayout(2);
+            final int finalOffset = config.mReverseLayout ?
+                    orientationHelper.getEndAfterPadding() - orientationHelper
+                            .getDecoratedEnd(child)
+                    : orientationHelper.getDecoratedStart(child) - orientationHelper
+                            .getStartAfterPadding();
+            assertEquals(config + " scroll with offset on a visible child should work fine " +
+                    " offset:" + finalOffset + " , existing offset:" + startOffset + ", "
+                            + "child " + position,
+                    scrollOffset, finalOffset);
+        }
+
+        // try scrolling to invisible children
+        testCount = 10;
+        // we test above and below, one by one
+        int offsetMultiplier = -1;
+        while (testCount-- > 0) {
+            final TargetTuple target = findInvisibleTarget(config);
+            final String logPrefix = config + " " + target;
+            mLayoutManager.expectLayouts(1);
+            final int offset = offsetMultiplier
+                    * orientationHelper.getDecoratedMeasurement(mLayoutManager.getChildAt(0)) / 3;
+            scrollToPositionWithOffset(target.mPosition, offset);
+            mLayoutManager.waitForLayout(2);
+            final View child = mLayoutManager.findViewByPosition(target.mPosition);
+            assertNotNull(logPrefix + " scrolling to a mPosition with offset " + offset
+                    + " should layout it", child);
+            final Rect bounds = mLayoutManager.getViewBounds(child);
+            if (DEBUG) {
+                Log.d(TAG, logPrefix + " post scroll to invisible mPosition " + bounds + " in "
+                        + layoutBounds + " with offset " + offset);
+            }
+
+            if (config.mReverseLayout) {
+                assertEquals(logPrefix + " when scrolling with offset to an invisible in reverse "
+                                + "layout, its end should align with recycler view's end - offset",
+                        orientationHelper.getEndAfterPadding() - offset,
+                        orientationHelper.getDecoratedEnd(child)
+                );
+            } else {
+                assertEquals(logPrefix + " when scrolling with offset to an invisible child in normal"
+                                + " layout its start should align with recycler view's start + "
+                                + "offset",
+                        orientationHelper.getStartAfterPadding() + offset,
+                        orientationHelper.getDecoratedStart(child)
+                );
+            }
+            offsetMultiplier *= -1;
+        }
+    }
+
+    private TargetTuple findInvisibleTarget(Config config) {
+        int minPosition = Integer.MAX_VALUE, maxPosition = Integer.MIN_VALUE;
+        for (int i = 0; i < mLayoutManager.getChildCount(); i++) {
+            View child = mLayoutManager.getChildAt(i);
+            int position = mRecyclerView.getChildPosition(child);
+            if (position < minPosition) {
+                minPosition = position;
+            }
+            if (position > maxPosition) {
+                maxPosition = position;
+            }
+        }
+        final int tailTarget = maxPosition +
+                (mRecyclerView.getAdapter().getItemCount() - maxPosition) / 2;
+        final int headTarget = minPosition / 2;
+        final int target;
+        // where will the child come from ?
+        final int itemLayoutDirection;
+        if (Math.abs(tailTarget - maxPosition) > Math.abs(headTarget - minPosition)) {
+            target = tailTarget;
+            itemLayoutDirection = config.mReverseLayout ? LAYOUT_START : LAYOUT_END;
+        } else {
+            target = headTarget;
+            itemLayoutDirection = config.mReverseLayout ? LAYOUT_END : LAYOUT_START;
+        }
+        if (DEBUG) {
+            Log.d(TAG,
+                    config + " target:" + target + " min:" + minPosition + ", max:" + maxPosition);
+        }
+        return new TargetTuple(target, itemLayoutDirection);
     }
 
     public void stackFromEndTest(final Config config) throws Throwable {
