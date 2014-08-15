@@ -506,8 +506,8 @@ public class AdapterHelperTest extends AndroidTestCase {
         preProcess();
     }
 
-    public void testScenario27() throws InterruptedException {
-        setupBasic(10, 0, 3);
+    public void testScenario27() {
+        setupBasic(10,0,3);
         mv(9,4);
         mv(8,4);
         add(7,6);
