@@ -476,4 +476,11 @@ public abstract class RowPresenter extends Presenter {
     public final OnItemViewClickedListener getOnItemViewClickedListener() {
         return mOnItemViewClickedListener;
     }
+
+    /**
+     * Freeze/Unfreeze the row, typically used when transition starts/ends.
+     */
+    public void freeze(ViewHolder holder, boolean freeze) {
+    }
+
 }

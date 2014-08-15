@@ -321,6 +321,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private boolean mPruneChild = true;
 
+    /**
+     * True if scroll content,  might be disabled during transition.
+     */
+    private boolean mScrollEnabled = true;
+
     private int[] mTempDeltas = new int[2];
 
     private boolean mUseDeltaInPreLayout;
@@ -1953,6 +1958,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // by setSelection())
             view.requestFocus();
         }
+        if (!mScrollEnabled) {
+            return;
+        }
         if (getScrollPosition(view, mTempDeltas)) {
             scrollGrid(mTempDeltas[0], mTempDeltas[1], smooth);
         }
@@ -2095,6 +2103,23 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public boolean getPruneChild() {
         return mPruneChild;
+    }
+
+    public void setScrollEnabled(boolean scrollEnabled) {
+        if (mScrollEnabled != scrollEnabled) {
+            mScrollEnabled = scrollEnabled;
+            if (mScrollEnabled && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+                View focusView = findViewByPosition(mFocusPosition == NO_POSITION ? 0 :
+                    mFocusPosition);
+                if (focusView != null) {
+                    scrollToView(focusView, true);
+                }
+            }
+        }
+    }
+
+    public boolean isScrollEnabled() {
+        return mScrollEnabled;
     }
 
     private int findImmediateChildIndex(View view) {
