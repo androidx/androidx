@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import android.graphics.Rect;
 import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -115,6 +116,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             throwable.printStackTrace();
         }
         super.tearDown();
+    }
+
+    public Rect getDecoratedRecyclerViewBounds() {
+        return new Rect(
+                mRecyclerView.getPaddingLeft(),
+                mRecyclerView.getPaddingTop(),
+                mRecyclerView.getPaddingLeft() + mRecyclerView.getWidth(),
+                mRecyclerView.getPaddingTop() + mRecyclerView.getHeight()
+        );
     }
 
     public void removeRecyclerView() throws Throwable {
@@ -569,6 +579,26 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             r.run();
         } else {
             super.runTestOnUiThread(r);
+        }
+    }
+
+    static class TargetTuple {
+
+        final int mPosition;
+
+        final int mLayoutDirection;
+
+        TargetTuple(int position, int layoutDirection) {
+            this.mPosition = position;
+            this.mLayoutDirection = layoutDirection;
+        }
+
+        @Override
+        public String toString() {
+            return "TargetTuple{" +
+                    "mPosition=" + mPosition +
+                    ", mLayoutDirection=" + mLayoutDirection +
+                    '}';
         }
     }
 }

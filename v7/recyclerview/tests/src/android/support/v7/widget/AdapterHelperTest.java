@@ -110,17 +110,13 @@ public class AdapterHelperTest extends AndroidTestCase {
                 if (DEBUG) {
                     Log.d(TAG, "first pass:" + updateOp.toString());
                 }
-                // item should be outside the bounds of our view holders
-                int min = Integer.MAX_VALUE;
-                int max = Integer.MIN_VALUE;
                 for (ViewHolder viewHolder : mViewHolders) {
-                    min = Math.min(viewHolder.getPosition(), min);
-                    max = Math.max(viewHolder.getPosition(), max);
+                    for (int i = 0; i < updateOp.itemCount; i ++) {
+                        assertFalse("update op should not match any existing view holders",
+                                viewHolder.getPosition() == updateOp.positionStart + i);
+                    }
                 }
-                final boolean after = max < updateOp.positionStart;
-                final boolean before = min >= updateOp.positionStart + updateOp.itemCount;
-                assertTrue("update op should be out of bounds " + updateOp + " , min:" + min + ", "
-                        + "max:" + max, after || before);
+
                 mFirstPassUpdates.add(updateOp);
             }
 
