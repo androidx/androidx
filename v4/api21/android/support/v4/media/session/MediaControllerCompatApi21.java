@@ -63,8 +63,8 @@ class MediaControllerCompatApi21 {
         return ((MediaController)controllerObj).getRatingType();
     }
 
-    public static Object getVolumeInfo(Object controllerObj) {
-        return ((MediaController)controllerObj).getVolumeInfo();
+    public static Object getAudioInfo(Object controllerObj) {
+        return ((MediaController)controllerObj).getAudioInfo();
     }
 
     public static boolean dispatchMediaButtonEvent(Object controllerObj, KeyEvent event) {
@@ -114,13 +114,13 @@ class MediaControllerCompatApi21 {
         }
     }
 
-    public static class VolumeInfo {
+    public static class AudioInfo {
         public static int getVolumeType(Object volumeInfoObj) {
-            return ((MediaController.VolumeInfo)volumeInfoObj).getVolumeType();
+            return ((MediaController.AudioInfo)volumeInfoObj).getVolumeType();
         }
 
         public static AudioAttributes getAudioAttributes(Object volumeInfoObj) {
-            return ((MediaController.VolumeInfo) volumeInfoObj).getAudioAttributes();
+            return ((MediaController.AudioInfo) volumeInfoObj).getAudioAttributes();
         }
 
         public static int getLegacyAudioStream(Object volumeInfoObj) {
@@ -129,15 +129,15 @@ class MediaControllerCompatApi21 {
         }
 
         public static int getVolumeControl(Object volumeInfoObj) {
-            return ((MediaController.VolumeInfo)volumeInfoObj).getVolumeControl();
+            return ((MediaController.AudioInfo)volumeInfoObj).getVolumeControl();
         }
 
         public static int getMaxVolume(Object volumeInfoObj) {
-            return ((MediaController.VolumeInfo)volumeInfoObj).getMaxVolume();
+            return ((MediaController.AudioInfo)volumeInfoObj).getMaxVolume();
         }
 
         public static int getCurrentVolume(Object volumeInfoObj) {
-            return ((MediaController.VolumeInfo)volumeInfoObj).getCurrentVolume();
+            return ((MediaController.AudioInfo)volumeInfoObj).getCurrentVolume();
         }
 
         // This is copied from AudioAttributes.toLegacyStreamType. TODO This
