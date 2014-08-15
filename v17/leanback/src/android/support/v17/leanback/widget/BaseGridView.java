@@ -456,12 +456,6 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     @Override
-    public void setDescendantFocusability (int focusability) {
-        // enforce FOCUS_AFTER_DESCENDANTS
-        super.setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
-    }
-
-    @Override
     public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
         return mLayoutManager.gridOnRequestFocusInDescendants(this, direction,
                 previouslyFocusedRect);

@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.transition;
 
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
@@ -32,7 +32,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class TransitionHelperKitkat {
+final class TransitionHelperKitkat {
 
     TransitionHelperKitkat() {
     }
@@ -72,7 +72,7 @@ class TransitionHelperKitkat {
     /**
      * change bounds that support customized start delay.
      */
-    static class CustomChangeBounds extends ChangeBoundsKitKat {
+    static class CustomChangeBounds extends ChangeBounds {
 
         int mDefaultStartDelay;
         // View -> delay
