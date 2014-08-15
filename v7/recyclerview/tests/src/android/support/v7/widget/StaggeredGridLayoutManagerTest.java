@@ -691,15 +691,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         }
     }
 
-    public Rect getDecoratedRecyclerViewBounds() {
-        return new Rect(
-                mRecyclerView.getPaddingLeft(),
-                mRecyclerView.getPaddingTop(),
-                mRecyclerView.getPaddingLeft() + mRecyclerView.getWidth(),
-                mRecyclerView.getPaddingTop() + mRecyclerView.getHeight()
-        );
-    }
-
     private TargetTuple findInvisibleTarget(Config config) {
         int minPosition = Integer.MAX_VALUE, maxPosition = Integer.MIN_VALUE;
         for (int i = 0; i < mLayoutManager.getChildCount(); i++) {
@@ -1425,18 +1416,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         @Override
         public Object clone() throws CloneNotSupportedException {
             return super.clone();
-        }
-    }
-
-    private static class TargetTuple {
-
-        final int mPosition;
-
-        final int mLayoutDirection;
-
-        TargetTuple(int position, int layoutDirection) {
-            this.mPosition = position;
-            this.mLayoutDirection = layoutDirection;
         }
     }
 
