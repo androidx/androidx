@@ -34,19 +34,19 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         };
         glm.setSpanSizeLookup(spanSizeLookup);
         glm.mAnchorInfo.mPosition = 11;
-        glm.onAnchorReady(glm.mAnchorInfo);
+        glm.onAnchorReady(state, glm.mAnchorInfo);
         assertEquals("gm should keep anchor in first span", 11, glm.mAnchorInfo.mPosition);
 
         glm.mAnchorInfo.mPosition = 13;
-        glm.onAnchorReady(glm.mAnchorInfo);
+        glm.onAnchorReady(state, glm.mAnchorInfo);
         assertEquals("gm should move anchor to first span", 11, glm.mAnchorInfo.mPosition);
 
         glm.mAnchorInfo.mPosition = 23;
-        glm.onAnchorReady(glm.mAnchorInfo);
+        glm.onAnchorReady(state, glm.mAnchorInfo);
         assertEquals("gm should move anchor to first span", 21, glm.mAnchorInfo.mPosition);
 
         glm.mAnchorInfo.mPosition = 35;
-        glm.onAnchorReady(glm.mAnchorInfo);
+        glm.onAnchorReady(state, glm.mAnchorInfo);
         assertEquals("gm should move anchor to first span", 31, glm.mAnchorInfo.mPosition);
     }
 
