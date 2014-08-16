@@ -864,7 +864,7 @@ public class ViewDragHelper {
         if (mDragState != state) {
             mDragState = state;
             mCallback.onViewDragStateChanged(state);
-            if (state == STATE_IDLE) {
+            if (mDragState == STATE_IDLE) {
                 mCapturedView = null;
             }
         }
