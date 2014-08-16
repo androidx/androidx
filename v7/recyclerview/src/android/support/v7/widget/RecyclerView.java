@@ -34,6 +34,7 @@ import android.support.v4.widget.EdgeEffectCompat;
 import android.support.v4.widget.ScrollerCompat;
 import static android.support.v7.widget.AdapterHelper.UpdateOp;
 import static android.support.v7.widget.AdapterHelper.Callback;
+
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -111,6 +112,7 @@ public class RecyclerView extends ViewGroup {
 
     ChildHelper mChildHelper;
 
+    // we use this like a set
     final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
 
     /**
@@ -4617,14 +4619,14 @@ public class RecyclerView extends ViewGroup {
             final ViewHolder holder = getChildViewHolderInt(child);
             if (disappearing || holder.isRemoved()) {
                 // these views will be hidden at the end of the layout pass.
-                mRecyclerView.mDisappearingViewsInLayoutPass.add(child);
+                mRecyclerView.addToDisappearingList(child);
             } else {
                 // This may look like unnecessary but may happen if layout manager supports
                 // predictive layouts and adapter removed then re-added the same item.
                 // In this case, added version will be visible in the post layout (because add is
                 // deferred) but RV will still bind it to the same View.
                 // So if a View re-appears in post layout pass, remove it from disappearing list.
-                mRecyclerView.mDisappearingViewsInLayoutPass.remove(child);
+                mRecyclerView.removeFromDisappearingList(child);
             }
 
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
@@ -4831,9 +4833,9 @@ public class RecyclerView extends ViewGroup {
         public void attachView(View child, int index, LayoutParams lp) {
             ViewHolder vh = getChildViewHolderInt(child);
             if (vh.isRemoved()) {
-                mRecyclerView.mDisappearingViewsInLayoutPass.add(child);
+                mRecyclerView.addToDisappearingList(child);
             } else {
-                mRecyclerView.mDisappearingViewsInLayoutPass.remove(child);
+                mRecyclerView.removeFromDisappearingList(child);
             }
             mChildHelper.attachViewToParent(child, index, lp, vh.isRemoved());
             if (DISPATCH_TEMP_DETACH)  {
@@ -5972,6 +5974,16 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    private void removeFromDisappearingList(View child) {
+        mDisappearingViewsInLayoutPass.remove(child);
+    }
+
+    private void addToDisappearingList(View child) {
+        if (!mDisappearingViewsInLayoutPass.contains(child)) {
+            mDisappearingViewsInLayoutPass.add(child);
+        }
+    }
+
     /**
      * An ItemDecoration allows the application to add a special drawing and layout offset
      * to specific item views from the adapter's data set. This can be useful for drawing dividers
@@ -6391,8 +6403,12 @@ public class RecyclerView extends ViewGroup {
             mIsRecyclableCount = recyclable ? mIsRecyclableCount - 1 : mIsRecyclableCount + 1;
             if (mIsRecyclableCount < 0) {
                 mIsRecyclableCount = 0;
+                if (DEBUG) {
+                    throw new RuntimeException("isRecyclable decremented below 0: " +
+                            "unmatched pair of setIsRecyable() calls for " + this);
+                }
                 Log.e(VIEW_LOG_TAG, "isRecyclable decremented below 0: " +
-                        "unmatched pair of setIsRecyable() calls");
+                        "unmatched pair of setIsRecyable() calls for " + this);
             } else if (!recyclable && mIsRecyclableCount == 1) {
                 mFlags |= FLAG_NOT_RECYCLABLE;
             } else if (recyclable && mIsRecyclableCount == 0) {
