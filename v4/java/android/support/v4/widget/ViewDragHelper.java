@@ -539,7 +539,14 @@ public class ViewDragHelper {
         mCapturedView = child;
         mActivePointerId = INVALID_POINTER;
 
-        return forceSettleCapturedViewAt(finalLeft, finalTop, 0, 0);
+        boolean continueSliding = forceSettleCapturedViewAt(finalLeft, finalTop, 0, 0);
+        if (!continueSliding && mDragState == STATE_IDLE && mCapturedView != null) {
+            // If we're in an IDLE state to begin with and aren't moving anywhere, we
+            // end up having a non-null capturedView with an IDLE dragState
+            mCapturedView = null;
+        }
+
+        return continueSliding;
     }
 
     /**
