@@ -88,14 +88,6 @@ public class PlaybackControlsRow extends Row {
         }
 
         /**
-         * @deprecated Use nextIndex instead
-         */
-        @Deprecated
-        public void toggle() {
-            nextIndex();
-        }
-
-        /**
          * Sets the current index.
          */
         public void setIndex(int index) {
@@ -137,15 +129,6 @@ public class PlaybackControlsRow extends Row {
             drawables[PAUSE] = getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_pause);
             setDrawables(drawables);
-        }
-
-        /**
-         * Returns true if the current icon is play.
-         * @deprecated Use getIndex instead
-         */
-        @Deprecated
-        public boolean isPlayIconShown() {
-            return getIndex() == PLAY;
         }
     }
 
@@ -328,15 +311,6 @@ public class PlaybackControlsRow extends Row {
             drawables[ONE] = new BitmapDrawable(context.getResources(),
                     createBitmap(repeatOneDrawable.getBitmap(), repeatOneColor));
             setDrawables(drawables);
-        }
-
-        /**
-         * Display the next icon in the series.
-         * @deprecated Use nextIndex instead
-         */
-        @Deprecated
-        public void next() {
-            nextIndex();
         }
     }
 
