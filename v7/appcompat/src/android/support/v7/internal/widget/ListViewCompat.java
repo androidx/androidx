@@ -104,17 +104,13 @@ public class ListViewCompat extends ListView {
 
     protected void updateSelectorStateCompat() {
         Drawable selector = getSelector();
-        if (selector != null) {
-            if (shouldShowSelectorCompat()) {
-                selector.setState(getDrawableState());
-            } else {
-                selector.setState(STATE_SET_NOTHING);
-            }
+        if (selector != null && shouldShowSelectorCompat()) {
+            selector.setState(getDrawableState());
         }
     }
 
     protected boolean shouldShowSelectorCompat() {
-        return !isInTouchMode() || (touchModeDrawsInPressedStateCompat() && isPressed());
+        return touchModeDrawsInPressedStateCompat() && isPressed();
     }
 
     protected boolean touchModeDrawsInPressedStateCompat() {

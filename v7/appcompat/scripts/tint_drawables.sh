@@ -50,7 +50,8 @@ NORMAL_NO_PREFIX=" \
     abc_ic_voice_search_api_mtrl_alpha.png \
     abc_textfield_search_default_mtrl_alpha.9.png \
     abc_textfield_default_mtrl_alpha.9.png \
-    abc_list_divider_mtrl_alpha.9.png"
+    abc_list_divider_mtrl_alpha.9.png \
+    abc_ic_cab_done_mtrl_alpha.png"
 
 NORMAL_PREFIX_DEFAULT="abc_spinner_mtrl_am_alpha.9.png"
 

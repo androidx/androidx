@@ -116,24 +116,12 @@
     <style name="Widget.AppCompat.ActionMode" parent="Base.Widget.AppCompat.ActionMode">
     </style>
 
-    <style name="Widget.AppCompat.Light.ActionMode.Inverse"
-           parent="Base.Widget.AppCompat.Light.ActionMode.Inverse">
-    </style>
-
     <style name="TextAppearance.AppCompat.Widget.ActionMode.Title"
            parent="Base.TextAppearance.AppCompat.Widget.ActionMode.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.ActionMode.Subtitle"
            parent="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse"
-           parent="Base.TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse"
-           parent="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse">
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.DropDownItem"
@@ -223,14 +211,6 @@
            parent="Base.TextAppearance.AppCompat.SearchResult.Subtitle">
     </style>
 
-    <style name="TextAppearance.AppCompat.Light.SearchResult.Title"
-           parent="Base.TextAppearance.AppCompat.Light.SearchResult.Title">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Light.SearchResult.Subtitle"
-           parent="Base.TextAppearance.AppCompat.Light.SearchResult.Subtitle">
-    </style>
-
     <style name="Widget.AppCompat.AutoCompleteTextView"
            parent="Base.Widget.AppCompat.AutoCompleteTextView">
     </style>
@@ -316,12 +296,15 @@
 
 
     <!--
-         The following themes are deprecated and now resolve to their parent.
+         The following themes are deprecated.
     -->
     <style name="Widget.AppCompat.Light.ActionBar.Solid.Inverse" />
-
     <style name="Widget.AppCompat.Light.ActionBar.TabBar.Inverse" />
-
     <style name="Widget.AppCompat.Light.ActionBar.TabView.Inverse" />
+    <style name="TextAppearance.AppCompat.Light.SearchResult.Title" parent="TextAppearance.AppCompat.SearchResult.Title" />
+    <style name="TextAppearance.AppCompat.Light.SearchResult.Subtitle" parent="TextAppearance.AppCompat.SearchResult.Subtitle" />
+    <style name="Widget.AppCompat.Light.ActionMode.Inverse" parent="Widget.AppCompat.ActionMode" />
+    <style name="TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse" parent="TextAppearance.AppCompat.Widget.ActionMode.Title" />
+    <style name="TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse" parent="TextAppearance.AppCompat.Widget.ActionMode.Subtitle" />
 
 </resources>

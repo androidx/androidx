@@ -146,24 +146,11 @@
         </item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionMode.Inverse" parent="Base.Widget.AppCompat.ActionMode">
-        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse</item>
-    </style>
-
     <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle" parent="TextAppearance.AppCompat.Small">
-        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
-    </style>
-
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse" parent="TextAppearance.AppCompat.Medium.Inverse">
-        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
-    </style>
-
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse" parent="TextAppearance.AppCompat.Small.Inverse">
         <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
     </style>
 
@@ -313,33 +300,16 @@
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Light.SearchResult"
-           parent="Base.TextAppearance.AppCompat.SearchResult">
-        <item name="android:textColor">?android:textColorPrimary</item>
-        <item name="android:textColorHint">?android:textColorHint</item>
-    </style>
-
-    <style name="Base.TextAppearance.AppCompat.Light.SearchResult.Title">
-        <item name="android:textSize">18sp</item>
-    </style>
-
-    <style name="Base.TextAppearance.AppCompat.Light.SearchResult.Subtitle">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">?android:textColorSecondary</item>
-    </style>
-
-    <style name="Base.Widget.AppCompat.AutoCompleteTextView"
-           parent="android:Widget.AutoCompleteTextView">
+    <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.AutoCompleteTextView">
         <item name="android:textColor">?attr/actionMenuTextColor</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
-        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
+        <item name="android:popupBackground">@drawable/abc_popup_background_material_light</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.AutoCompleteTextView"
-           parent="android:Widget.AutoCompleteTextView">
+    <style name="Base.Widget.AppCompat.Light.AutoCompleteTextView" parent="android:Widget.AutoCompleteTextView">
         <item name="android:textColor">?attr/actionMenuTextColor</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
-        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_light</item>
+        <item name="android:popupBackground">@drawable/abc_popup_background_material_light</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActivityChooserView" parent="">
