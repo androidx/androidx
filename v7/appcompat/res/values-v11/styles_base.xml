@@ -31,14 +31,4 @@
            parent="android:Widget.Holo.ProgressBar">
     </style>
 
-    <!-- AutoCompleteTextView styles (for SearchView) -->
-
-    <style name="Base.Widget.AppCompat.AutoCompleteTextView"
-           parent="android:Widget.Holo.AutoCompleteTextView">
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.AutoCompleteTextView"
-           parent="android:Widget.Holo.Light.AutoCompleteTextView">
-    </style>
-
 </resources>
