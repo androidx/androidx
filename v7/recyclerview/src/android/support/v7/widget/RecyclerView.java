@@ -3777,9 +3777,8 @@ public class RecyclerView extends ViewGroup {
                 final int pos = holder.getPosition();
                 if (pos >= positionStart && pos < positionEnd) {
                     holder.addFlags(ViewHolder.FLAG_UPDATE);
-                    if (supportsChangeAnimations()) {
-                        holder.addFlags(ViewHolder.FLAG_CHANGED);
-                    }
+                    // cached views should not be flagged as changed because this will cause them
+                    // to animate when they are returned from cache.
                 }
             }
         }
