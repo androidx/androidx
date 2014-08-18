@@ -667,6 +667,21 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 : findReferenceChildClosestToStart(state);
         if (referenceChild != null) {
             anchorInfo.assignFromView(referenceChild);
+            // If all visible views are removed in 1 pass, reference child might be out of bounds.
+            // If that is the case, offset it back to 0 so that we use these pre-layout children.
+            if (!state.isPreLayout() && supportsPredictiveItemAnimations()) {
+                // validate this child is at least partially visible. if not, offset it to start
+                final boolean notVisible =
+                        mOrientationHelper.getDecoratedStart(referenceChild) >= mOrientationHelper
+                                .getEndAfterPadding()
+                                || mOrientationHelper.getDecoratedStart(referenceChild)
+                                < mOrientationHelper.getStartAfterPadding();
+                if (notVisible) {
+                    anchorInfo.mCoordinate = mShouldReverseLayout
+                            ? mOrientationHelper.getEndAfterPadding()
+                            : mOrientationHelper.getStartAfterPadding();
+                }
+            }
             return true;
         }
         return false;
