@@ -17,10 +17,8 @@ import java.util.ArrayList;
 
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
@@ -53,7 +51,6 @@ public class RowsFragment extends BaseRowFragment {
         final Presenter.ViewHolder mRowViewHolder;
 
         final TimeAnimator mSelectAnimator = new TimeAnimator();
-        final ColorOverlayDimmer mColorDimmer;
 
         int mSelectAnimatorDurationInUse;
         Interpolator mSelectAnimatorInterpolatorInUse;
@@ -64,12 +61,6 @@ public class RowsFragment extends BaseRowFragment {
             mRowPresenter = (RowPresenter) ibvh.getPresenter();
             mRowViewHolder = ibvh.getViewHolder();
             mSelectAnimator.setTimeListener(this);
-            if (mRowPresenter.getSelectEffectEnabled()
-                    && mRowPresenter.isUsingDefaultSelectEffect()) {
-                mColorDimmer = ColorOverlayDimmer.createDefault(ibvh.itemView.getContext());
-            } else {
-                mColorDimmer = null;
-            }
         }
 
         @Override
@@ -91,12 +82,6 @@ public class RowsFragment extends BaseRowFragment {
                 fraction = mSelectAnimatorInterpolatorInUse.getInterpolation(fraction);
             }
             float level =  mSelectLevelAnimStart + fraction * mSelectLevelAnimDelta;
-            if (mColorDimmer != null) {
-                mColorDimmer.setActiveLevel(level);
-                if (getVerticalGridView() != null) {
-                    getVerticalGridView().invalidate();
-                }
-            }
             mRowPresenter.setSelectLevel(mRowViewHolder, level);
         }
 
@@ -105,9 +90,6 @@ public class RowsFragment extends BaseRowFragment {
             final float end = select ? 1 : 0;
             if (immediate) {
                 mRowPresenter.setSelectLevel(mRowViewHolder, end);
-                if (mColorDimmer != null) {
-                    mColorDimmer.setActiveLevel(end);
-                }
             } else if (mRowPresenter.getSelectLevel(mRowViewHolder) != end) {
                 mSelectAnimatorDurationInUse = mSelectAnimatorDuration;
                 mSelectAnimatorInterpolatorInUse = mSelectAnimatorInterpolator;
@@ -125,11 +107,6 @@ public class RowsFragment extends BaseRowFragment {
             mSelectAnimator.end();
         }
 
-        void drawDimForSelection(Canvas c) {
-            if (mColorDimmer != null) {
-                mColorDimmer.drawColorOverlay(c, mRowViewHolder.view, false);
-            }
-        }
     }
 
     private static final String TAG = "RowsFragment";
@@ -298,7 +275,6 @@ public class RowsFragment extends BaseRowFragment {
         // Align the top edge of child with id row_content.
         // Need set this for directly using RowsFragment.
         getVerticalGridView().setItemAlignmentViewId(R.id.row_content);
-        getVerticalGridView().addItemDecoration(mItemDecoration);
 
         mRecycledViewPool = null;
         mPresenterMapper = null;
@@ -315,19 +291,6 @@ public class RowsFragment extends BaseRowFragment {
     void setExternalAdapterListener(ItemBridgeAdapter.AdapterListener listener) {
         mExternalAdapterListener = listener;
     }
-
-    private RecyclerView.ItemDecoration mItemDecoration = new RecyclerView.ItemDecoration() {
-        @Override
-        public void onDrawOver(Canvas c, RecyclerView parent) {
-            final int count = parent.getChildCount();
-            for (int i = 0; i < count; i++) {
-                ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
-                        parent.getChildViewHolder(parent.getChildAt(i));
-                RowViewHolderExtra extra = (RowViewHolderExtra) ibvh.getExtraObject();
-                extra.drawDimForSelection(c);
-            }
-        }
-    };
 
     private static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
         ((RowPresenter) vh.getPresenter()).setRowViewExpanded(vh.getViewHolder(), expanded);
