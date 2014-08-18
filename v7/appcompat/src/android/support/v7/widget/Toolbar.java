@@ -174,7 +174,7 @@ public class Toolbar extends ViewGroup {
     }
 
     public Toolbar(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(themifyContext(context, attrs, defStyleAttr), attrs, defStyleAttr);
 
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Toolbar,
                 defStyleAttr, 0);
@@ -1826,5 +1826,19 @@ public class Toolbar extends ViewGroup {
         @Override
         public void onRestoreInstanceState(Parcelable state) {
         }
+    }
+
+    /**
+     * Allows us to emulate the {@code android:theme} attribute for devices before L.
+     */
+    private static Context themifyContext(Context context, AttributeSet attrs, int defStyleAttr) {
+        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Toolbar,
+                defStyleAttr, 0);
+        final int themeId = a.getResourceId(R.styleable.Toolbar_theme, 0);
+        if (themeId != 0) {
+            context = new ContextThemeWrapper(context, themeId);
+        }
+        a.recycle();
+        return context;
     }
 }

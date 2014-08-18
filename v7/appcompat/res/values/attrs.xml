@@ -708,8 +708,11 @@
         <attr name="contentInsetRight" />
         <attr name="maxButtonHeight" format="dimension" />
 
-        <!-- Use Theme toolbarNavigationButtonStyle instead -->
-        <!-- <attr name="navigationButtonStyle" format="reference" /> -->
+        <!-- Specifies a theme override for a view. When a theme override is set, the
+             view will be inflated using a {@link android.content.Context} themed with
+             the specified resource. During XML inflation, any child views under the
+             view with a theme override will inherit the themed context. -->
+        <attr name="theme" format="reference" />
 
         <attr name="buttonGravity">
             <!-- Push object to the top of its container, not changing its size. -->

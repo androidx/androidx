@@ -55,6 +55,8 @@
         <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
         <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
         <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
+        <item name="actionModeCloseDrawable">?android:attr/actionModeCloseDrawable</item>
+        <item name="actionModeShareDrawable">?android:attr/actionModeShareDrawable</item>
         <item name="actionOverflowButtonStyle">?android:attr/actionOverflowButtonStyle</item>
         <item name="homeAsUpIndicator">?android:attr/homeAsUpIndicator</item>
 
@@ -79,8 +81,6 @@
         <item name="android:colorControlActivated">?attr/colorControlActivated</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
         <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
-
-
     </style>
 
     <style name="Base.V21.Theme.AppCompat.Light" parent="Base.V7.Theme.AppCompat.Light">
@@ -91,6 +91,8 @@
         <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
         <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
         <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
+        <item name="actionModeCloseDrawable">?android:attr/actionModeCloseDrawable</item>
+        <item name="actionModeShareDrawable">?android:attr/actionModeShareDrawable</item>
         <item name="actionOverflowButtonStyle">?android:attr/actionOverflowButtonStyle</item>
         <item name="homeAsUpIndicator">?android:attr/homeAsUpIndicator</item>
 
@@ -190,23 +192,21 @@
     <style name="Base.Theme.AppCompat.Light.Dialog" parent="Base.V21.Theme.AppCompat.Light.Dialog" />
 
     <style name="Base.ThemeOverlay.AppCompat" parent="android:ThemeOverlay.Material">
-        <!-- TODO: Need to check if we need to modify anything here -->
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Dark" parent="android:ThemeOverlay.Material.Dark">
-        <!-- TODO: Need to check if we need to modify anything here -->
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Light" parent="android:ThemeOverlay.Material.Light">
-        <!-- TODO: Need to check if we need to modify anything here -->
+        <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.ActionBar" parent="android:ThemeOverlay.Material.ActionBar">
-        <!-- TODO: Need to check if we need to modify anything here -->
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Dark.ActionBar" parent="android:ThemeOverlay.Material.Dark.ActionBar">
-        <!-- TODO: Need to check if we need to modify anything here -->
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
     </style>
 
 </resources>
