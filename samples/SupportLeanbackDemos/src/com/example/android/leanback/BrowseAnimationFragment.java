@@ -93,7 +93,7 @@ public class BrowseAnimationFragment extends
                     int index = adapter.indexOf(item);
                     if (index >= 0) {
                         if (index > 0)
-                            index = 0;
+                            index--;
                         adapter.removeItems(index, 1);
                     }
                 }
@@ -247,7 +247,7 @@ public class BrowseAnimationFragment extends
 
     ListRow createRandomRow(HeaderItem header) {
         ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(
-                new CardPresenter());
+                new StringPresenter());
         for (int i = 0; i < 8; i++) {
             listRowAdapter.add(createRandomItem());
         }
