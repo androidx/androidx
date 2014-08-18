@@ -1406,7 +1406,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * <p>
      * Due to ambiguous adapter updates or children being removed, some children's positions may be
      * invalid. This method is a best effort to find a position within adapter bounds if possible.
-     *
+     * <p>
+     * It also prioritizes children that are within the visible bounds.
      * @return A View that can be used an an anchor View.
      */
     private View findReferenceChildClosestToEnd(RecyclerView.State state) {
@@ -1420,6 +1421,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * <p>
      * Due to ambiguous adapter updates or children being removed, some children's positions may be
      * invalid. This method is a best effort to find a position within adapter bounds if possible.
+     * <p>
+     * It also prioritizes children that are within the visible bounds.
      *
      * @return A View that can be used an an anchor View.
      */
@@ -1428,28 +1431,39 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 findFirstReferenceChild(state.getItemCount());
     }
 
-
     private View findFirstReferenceChild(int itemCount) {
-        final int limit = getChildCount();
-        for (int i = 0; i < limit; i++) {
-            final View view = getChildAt(i);
-            final int position = getPosition(view);
-            if (position >= 0 && position < itemCount) {
-                return view;
-            }
-        }
-        return null;
+        return findReferenceChild(0, getChildCount(), itemCount);
     }
 
     private View findLastReferenceChild(int itemCount) {
-        for (int i = getChildCount() - 1; i >= 0; i--) {
+        return findReferenceChild(getChildCount() - 1, -1, itemCount);
+    }
+
+    private View findReferenceChild(int start, int end, int itemCount) {
+        View invalidMatch = null;
+        View outOfBoundsMatch = null;
+        final int boundsStart = mOrientationHelper.getStartAfterPadding();
+        final int boundsEnd = mOrientationHelper.getEndAfterPadding();
+        final int diff = end > start ? 1 : -1;
+        for (int i = start; i != end; i += diff) {
             final View view = getChildAt(i);
             final int position = getPosition(view);
             if (position >= 0 && position < itemCount) {
-                return view;
+                if (((RecyclerView.LayoutParams) view.getLayoutParams()).isItemRemoved()) {
+                    if (invalidMatch == null) {
+                        invalidMatch = view; // removed item, least preferred
+                    }
+                } else if (mOrientationHelper.getDecoratedStart(view) >= boundsEnd ||
+                        mOrientationHelper.getDecoratedEnd(view) < boundsStart) {
+                    if (outOfBoundsMatch == null) {
+                        outOfBoundsMatch = view; // item is not visible, less preferred
+                    }
+                } else {
+                    return view;
+                }
             }
         }
-        return null;
+        return outOfBoundsMatch != null ? outOfBoundsMatch : invalidMatch;
     }
 
     /**
