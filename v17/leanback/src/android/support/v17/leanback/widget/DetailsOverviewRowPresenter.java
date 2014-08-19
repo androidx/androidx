@@ -224,11 +224,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         return mActionPresenterSelector.getOnActionClickedListener();
     }
 
-    private void applyBackground(View view) {
-        view.setBackgroundColor(mBackgroundColorSet ?
-                mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
-    }
-
     /**
      * Sets the background color.  If not set, a default from the theme will be used.
      */
@@ -303,7 +298,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     private void initDetailsOverview(ViewHolder vh) {
-        View overview = vh.view.findViewById(R.id.details_overview);
+        final View overview = vh.mOverviewView;
         ViewGroup.LayoutParams lp = overview.getLayoutParams();
         lp.height = getCardHeight(overview.getContext());
         overview.setLayoutParams(lp);
@@ -370,17 +365,21 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             }
         }
 
+        final int bgColor = mBackgroundColorSet ? mBackgroundColor :
+            getDefaultBackgroundColor(vh.mOverviewView.getContext());
+
         if (useMargin) {
             layoutParams.leftMargin = horizontalMargin;
             layoutParams.topMargin = layoutParams.bottomMargin = verticalMargin;
-            applyBackground(vh.mOverviewView);
+            RoundedRectHelper.getInstance().setRoundedRectBackground(vh.mOverviewView, bgColor);
             vh.mRightPanel.setBackground(null);
             vh.mImageView.setBackground(null);
         } else {
             layoutParams.leftMargin = layoutParams.topMargin = layoutParams.bottomMargin = 0;
-            applyBackground(vh.mRightPanel);
-            applyBackground(vh.mImageView);
-            vh.mOverviewView.setBackground(null);
+            vh.mRightPanel.setBackgroundColor(bgColor);
+            vh.mImageView.setBackgroundColor(bgColor);
+            RoundedRectHelper.getInstance().setRoundedRectBackground(vh.mOverviewView,
+                    Color.TRANSPARENT);
         }
         if (scaleImage) {
             vh.mImageView.setScaleType(ImageView.ScaleType.FIT_START);

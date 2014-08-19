@@ -86,6 +86,7 @@ public class ListRowPresenter extends RowPresenter {
     private int mZoomFactor;
     private boolean mShadowEnabled = true;
     private int mBrowseRowsFadingEdgeLength = -1;
+    private boolean mRoundedCornersEnabled = true;
 
     private static int sSelectedRowTopPadding;
     private static int sExpandedSelectedRowTopPadding;
@@ -162,7 +163,9 @@ public class ListRowPresenter extends RowPresenter {
             ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
             wrapper.setLayoutParams(
                     new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            wrapper.initialize(needsDefaultShadow(), needsDefaultListSelectEffect());
+            wrapper.initialize(needsDefaultShadow(),
+                    needsDefaultListSelectEffect(),
+                    areChildRoundedCornersEnabled());
             return wrapper;
         }
         @Override
@@ -175,7 +178,8 @@ public class ListRowPresenter extends RowPresenter {
     protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
         super.initializeRowViewHolder(holder);
         final ViewHolder rowViewHolder = (ViewHolder) holder;
-        if (needsDefaultListSelectEffect() || needsDefaultShadow()) {
+        if (needsDefaultListSelectEffect() || needsDefaultShadow()
+                || areChildRoundedCornersEnabled()) {
             rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
         }
         if (needsDefaultListSelectEffect()) {
@@ -464,6 +468,21 @@ public class ListRowPresenter extends RowPresenter {
      */
     public final boolean getShadowEnabled() {
         return mShadowEnabled;
+    }
+
+    /**
+     * Enables or disabled rounded corners on children of this row.
+     * Supported on Android SDK >= L.
+     */
+    public final void enableChildRoundedCorners(boolean enable) {
+        mRoundedCornersEnabled = enable;
+    }
+
+    /**
+     * Returns true if rounded corners are enabled for children of this row.
+     */
+    public final boolean areChildRoundedCornersEnabled() {
+        return mRoundedCornersEnabled;
     }
 
     final boolean needsDefaultShadow() {

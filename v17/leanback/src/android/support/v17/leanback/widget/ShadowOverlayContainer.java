@@ -81,15 +81,18 @@ public class ShadowOverlayContainer extends ViewGroup {
     }
 
     /**
-     * Initialize shadows and/or color overlay.  Both are optional.
+     * Initialize shadows, color overlay, and rounded corners.  All are optional.
      */
-    public void initialize(boolean hasShadow, boolean hasColorDimOverlay) {
+    public void initialize(boolean hasShadow, boolean hasColorDimOverlay, boolean roundedCorners) {
         if (mInitialized) {
             throw new IllegalStateException();
         }
         mInitialized = true;
         if (hasShadow) {
-            mShadowImpl = ShadowHelper.getInstance().addShadow(this);
+            mShadowImpl = ShadowHelper.getInstance().addShadow(this, roundedCorners);
+        } else if (roundedCorners) {
+            RoundedRectHelper.getInstance().setRoundedRectBackground(this,
+                    android.graphics.Color.TRANSPARENT);
         }
         if (hasColorDimOverlay) {
             mColorDimOverlay = LayoutInflater.from(getContext())
