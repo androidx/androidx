@@ -140,12 +140,12 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the current volume info for this session.
+     * Get the current audio info for this session.
      *
-     * @return The current volume info or null.
+     * @return The current audio info or null.
      */
-    public VolumeInfo getVolumeInfo() {
-        return mImpl.getVolumeInfo();
+    public AudioInfo getAudioInfo() {
+        return mImpl.getAudioInfo();
     }
 
     /**
@@ -360,7 +360,7 @@ public final class MediaControllerCompat {
     /**
      * Holds information about the way volume is handled for this session.
      */
-    public static final class VolumeInfo {
+    public static final class AudioInfo {
         private final int mVolumeType;
         // TODO update audio stream with AudioAttributes support version
         private final int mAudioStream;
@@ -368,7 +368,7 @@ public final class MediaControllerCompat {
         private final int mMaxVolume;
         private final int mCurrentVolume;
 
-        VolumeInfo(int type, int stream, int control, int max, int current) {
+        AudioInfo(int type, int stream, int control, int max, int current) {
             mVolumeType = type;
             mAudioStream = stream;
             mVolumeControl = control;
@@ -442,7 +442,7 @@ public final class MediaControllerCompat {
         PlaybackStateCompat getPlaybackState();
         MediaMetadataCompat getMetadata();
         int getRatingType();
-        VolumeInfo getVolumeInfo();
+        AudioInfo getAudioInfo();
         void sendCommand(String command, Bundle params, ResultReceiver cb);
         Object getMediaController();
     }
@@ -483,7 +483,7 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public VolumeInfo getVolumeInfo() {
+        public AudioInfo getAudioInfo() {
             return null;
         }
 
@@ -552,14 +552,14 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public VolumeInfo getVolumeInfo() {
-            Object volumeInfoObj = MediaControllerCompatApi21.getVolumeInfo(mControllerObj);
-            return volumeInfoObj != null ? new VolumeInfo(
-                    MediaControllerCompatApi21.VolumeInfo.getVolumeType(volumeInfoObj),
-                    MediaControllerCompatApi21.VolumeInfo.getLegacyAudioStream(volumeInfoObj),
-                    MediaControllerCompatApi21.VolumeInfo.getVolumeControl(volumeInfoObj),
-                    MediaControllerCompatApi21.VolumeInfo.getMaxVolume(volumeInfoObj),
-                    MediaControllerCompatApi21.VolumeInfo.getCurrentVolume(volumeInfoObj)) : null;
+        public AudioInfo getAudioInfo() {
+            Object volumeInfoObj = MediaControllerCompatApi21.getAudioInfo(mControllerObj);
+            return volumeInfoObj != null ? new AudioInfo(
+                    MediaControllerCompatApi21.AudioInfo.getVolumeType(volumeInfoObj),
+                    MediaControllerCompatApi21.AudioInfo.getLegacyAudioStream(volumeInfoObj),
+                    MediaControllerCompatApi21.AudioInfo.getVolumeControl(volumeInfoObj),
+                    MediaControllerCompatApi21.AudioInfo.getMaxVolume(volumeInfoObj),
+                    MediaControllerCompatApi21.AudioInfo.getCurrentVolume(volumeInfoObj)) : null;
         }
 
         @Override
