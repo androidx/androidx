@@ -50,6 +50,7 @@ public class VerticalGridPresenter extends Presenter {
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
+    private boolean mRoundedCornersEnabled = true;
 
     public VerticalGridPresenter() {
         this(FocusHighlight.ZOOM_FACTOR_MEDIUM);
@@ -106,6 +107,21 @@ public class VerticalGridPresenter extends Presenter {
     }
 
     /**
+     * Enables or disabled rounded corners on children of this row.
+     * Supported on Android SDK >= L.
+     */
+    public final void enableChildRoundedCorners(boolean enable) {
+        mRoundedCornersEnabled = enable;
+    }
+
+    /**
+     * Returns true if rounded corners are enabled for children of this row.
+     */
+    public final boolean areChildRoundedCornersEnabled() {
+        return mRoundedCornersEnabled;
+    }
+
+    /**
      * Returns true if SDK >= L, where Z shadow is enabled so that Z order is enabled
      * on each child of vertical grid.   If subclass returns false in isUsingDefaultShadow()
      * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
@@ -144,7 +160,7 @@ public class VerticalGridPresenter extends Presenter {
             ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
             wrapper.setLayoutParams(
                     new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            wrapper.initialize(needsDefaultShadow(), false);
+            wrapper.initialize(needsDefaultShadow(), false, areChildRoundedCornersEnabled());
             return wrapper;
         }
         @Override
@@ -168,7 +184,7 @@ public class VerticalGridPresenter extends Presenter {
         vh.getGridView().setNumColumns(mNumColumns);
         vh.mInitialized = true;
 
-        if (needsDefaultShadow()) {
+        if (needsDefaultShadow() || areChildRoundedCornersEnabled()) {
             vh.mItemBridgeAdapter.setWrapper(mWrapper);
             ShadowOverlayContainer.prepareParentForShadow(vh.getGridView());
             ((ViewGroup) vh.view).setClipChildren(false);
