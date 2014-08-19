@@ -43,9 +43,14 @@ class ShadowHelperApi21 {
     }
 
     /* add shadows and return a implementation detail object */
-    public static Object addShadow(ViewGroup shadowContainer) {
+    public static Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
         initializeResources(shadowContainer.getResources());
-        shadowContainer.setOutlineProvider(sOutlineProvider);
+        if (roundedCorners) {
+            RoundedRectHelperApi21.setRoundedRectBackground(shadowContainer,
+                    Color.TRANSPARENT);
+        } else {
+            shadowContainer.setOutlineProvider(sOutlineProvider);
+        }
         shadowContainer.setZ(sNormalZ);
         return shadowContainer;
     }
