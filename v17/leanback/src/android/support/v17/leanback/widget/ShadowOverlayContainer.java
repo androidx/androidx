@@ -82,7 +82,7 @@ public class ShadowOverlayContainer extends ViewGroup {
 
     /**
      * Initialize shadows, color overlay.
-     * @deprecated
+     * @deprecated use {@link #initialize(boolean, boolean, boolean)} instead.
      */
     @Deprecated
     public void initialize(boolean hasShadow, boolean hasColorDimOverlay) {
