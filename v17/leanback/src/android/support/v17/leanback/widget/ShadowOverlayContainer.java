@@ -81,6 +81,15 @@ public class ShadowOverlayContainer extends ViewGroup {
     }
 
     /**
+     * Initialize shadows, color overlay.
+     * @deprecated
+     */
+    @Deprecated
+    public void initialize(boolean hasShadow, boolean hasColorDimOverlay) {
+        initialize(hasShadow, hasColorDimOverlay, true);
+    }
+
+    /**
      * Initialize shadows, color overlay, and rounded corners.  All are optional.
      */
     public void initialize(boolean hasShadow, boolean hasColorDimOverlay, boolean roundedCorners) {
