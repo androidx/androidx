@@ -190,6 +190,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private int mFocusPosition = NO_POSITION;
 
     /**
+     * The offset to be applied to mFocusPosition, due to adapter change, on the next
+     * layout.  Set to Integer.MIN_VALUE means item was removed.
+     * TODO:  This is somewhat duplication of RecyclerView getOldPosition() which is
+     * unfortunately cleared after prelayout.
+     */
+    private int mFocusPositionOffset = 0;
+
+    /**
      * Force a full layout under certain situations.
      */
     private boolean mForceFullLayout;
@@ -327,10 +335,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private boolean mScrollEnabled = true;
 
     private int[] mTempDeltas = new int[2];
-
-    private boolean mUseDeltaInPreLayout;
-
-    private int mDeltaInPreLayout, mDeltaSecondaryInPreLayout;
 
     /**
      * Temporaries used for measuring.
@@ -1420,31 +1424,26 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mInLayout = true;
 
+        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+            mFocusPosition = mFocusPosition + mFocusPositionOffset;
+            mFocusPositionOffset = 0;
+        }
         saveContext(recycler, state);
         // Track the old focus view so we can adjust our system scroll position
         // so that any scroll animations happening now will remain valid.
         // We must use same delta in Pre Layout (if prelayout exists) and second layout.
         // So we cache the deltas in PreLayout and use it in second layout.
         int delta = 0, deltaSecondary = 0;
-        if (!state.isPreLayout() && mUseDeltaInPreLayout) {
-            delta = mDeltaInPreLayout;
-            deltaSecondary = mDeltaSecondaryInPreLayout;
-        } else {
-            if (mFocusPosition != NO_POSITION
-                    && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
-                // FIXME: we should get the remaining scroll animation offset from RecyclerView
-                View focusView = findViewByPosition(mFocusPosition);
-                if (focusView != null) {
-                    delta = mWindowAlignment.mainAxis().getSystemScrollPos(mScrollOffsetPrimary
-                            + getViewCenter(focusView), false, false) - mScrollOffsetPrimary;
-                    deltaSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(
-                            mScrollOffsetSecondary + getViewCenterSecondary(focusView),
-                            false, false) - mScrollOffsetSecondary;
-                    if (mUseDeltaInPreLayout = state.isPreLayout()) {
-                        mDeltaInPreLayout = delta;
-                        mDeltaSecondaryInPreLayout = deltaSecondary;
-                    }
-                }
+        if (mFocusPosition != NO_POSITION
+                && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            // FIXME: we should get the remaining scroll animation offset from RecyclerView
+            View focusView = findViewByPosition(mFocusPosition);
+            if (focusView != null) {
+                delta = mWindowAlignment.mainAxis().getSystemScrollPos(mScrollOffsetPrimary
+                        + getViewCenter(focusView), false, false) - mScrollOffsetPrimary;
+                deltaSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(
+                        mScrollOffsetSecondary + getViewCenterSecondary(focusView),
+                        false, false) - mScrollOffsetSecondary;
             }
         }
 
@@ -1531,11 +1530,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             updateRowSecondarySizeRefresh();
         }
 
-        if (!state.isPreLayout()) {
-            mUseDeltaInPreLayout = false;
-            if (!fastRelayout || mFocusPosition != savedFocusPos) {
-                dispatchChildSelected();
-            }
+        if (!fastRelayout || mFocusPosition != savedFocusPos) {
+            dispatchChildSelected();
         }
         mInLayout = false;
         leaveContext();
@@ -1792,6 +1788,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             scrollToView(view, smooth);
         } else {
             mFocusPosition = position;
+            mFocusPositionOffset = 0;
             if (!mLayoutEnabled) {
                 return;
             }
@@ -1849,17 +1846,48 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
-        boolean needsLayout = false;
-        if (itemCount != 0) {
-            if (mFirstVisiblePos < 0) {
-                needsLayout = true;
-            } else if (!(positionStart > mLastVisiblePos + 1 ||
-                    positionStart + itemCount < mFirstVisiblePos - 1)) {
-                needsLayout = true;
+        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+            int pos = mFocusPosition + mFocusPositionOffset;
+            if (positionStart <= pos) {
+                mFocusPositionOffset += itemCount;
             }
         }
-        if (needsLayout) {
-            recyclerView.requestLayout();
+    }
+
+    @Override
+    public void onItemsChanged(RecyclerView recyclerView) {
+        mFocusPositionOffset = 0;
+    }
+
+    @Override
+    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
+        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+            int pos = mFocusPosition + mFocusPositionOffset;
+            if (positionStart <= pos) {
+                if (positionStart + itemCount > pos) {
+                    // stop updating offset after the focus item was removed
+                    mFocusPositionOffset = Integer.MIN_VALUE;
+                } else {
+                    mFocusPositionOffset -= itemCount;
+                }
+            }
+        }
+    }
+
+    public void onItemsMoved(RecyclerView recyclerView, int fromPosition, int toPosition,
+            int itemCount) {
+        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+            int pos = mFocusPosition + mFocusPositionOffset;
+            if (fromPosition <= pos && pos < fromPosition + itemCount) {
+                // moved items include focused position
+                mFocusPositionOffset += toPosition - fromPosition;
+            } else if (fromPosition < pos && toPosition > pos - itemCount) {
+                // move items before focus position to after focused position
+                mFocusPositionOffset -= itemCount;
+            } else if (fromPosition > pos && toPosition < pos) {
+                // move items after focus position to before focused position
+                mFocusPositionOffset += itemCount;
+            }
         }
     }
 
@@ -1942,6 +1970,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int newFocusPosition = getPositionByView(view);
         if (newFocusPosition != mFocusPosition) {
             mFocusPosition = newFocusPosition;
+            mFocusPositionOffset = 0;
             if (!mInLayout) {
                 dispatchChildSelected();
             }
@@ -2437,6 +2466,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             RecyclerView.Adapter newAdapter) {
         discardLayoutInfo();
         mFocusPosition = NO_POSITION;
+        mFocusPositionOffset = 0;
         super.onAdapterChanged(oldAdapter, newAdapter);
     }
 
