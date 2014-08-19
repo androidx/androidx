@@ -202,10 +202,10 @@ public class VerticalGridPresenter extends Presenter {
 
         vh.mItemBridgeAdapter.setAdapterListener(new ItemBridgeAdapter.AdapterListener() {
             @Override
-            public void onCreate(final ItemBridgeAdapter.ViewHolder itemViewHolder) {
+            public void onBind(final ItemBridgeAdapter.ViewHolder itemViewHolder) {
                 // Only when having an OnItemClickListner, we attach the OnClickListener.
                 if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
-                    final View itemView = itemViewHolder.getViewHolder().view;
+                    final View itemView = itemViewHolder.mHolder.view;
                     itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -221,6 +221,13 @@ public class VerticalGridPresenter extends Presenter {
                             }
                         }
                     });
+                }
+            }
+
+            @Override
+            public void onUnbind(ItemBridgeAdapter.ViewHolder viewHolder) {
+                if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
+                    viewHolder.mHolder.view.setOnClickListener(null);
                 }
             }
 

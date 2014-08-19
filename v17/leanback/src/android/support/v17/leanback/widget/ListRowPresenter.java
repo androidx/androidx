@@ -201,7 +201,7 @@ public class ListRowPresenter extends RowPresenter {
         rowViewHolder.mItemBridgeAdapter.setAdapterListener(
                 new ItemBridgeAdapter.AdapterListener() {
             @Override
-            public void onCreate(final ItemBridgeAdapter.ViewHolder viewHolder) {
+            public void onBind(final ItemBridgeAdapter.ViewHolder viewHolder) {
                 // Only when having an OnItemClickListner, we will attach the OnClickListener.
                 if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
                     viewHolder.mHolder.view.setOnClickListener(new View.OnClickListener() {
@@ -220,6 +220,13 @@ public class ListRowPresenter extends RowPresenter {
                             }
                         }
                     });
+                }
+            }
+
+            @Override
+            public void onUnbind(ItemBridgeAdapter.ViewHolder viewHolder) {
+                if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
+                    viewHolder.mHolder.view.setOnClickListener(null);
                 }
             }
 
