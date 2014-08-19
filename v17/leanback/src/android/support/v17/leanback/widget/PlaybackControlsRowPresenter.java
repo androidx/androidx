@@ -108,11 +108,11 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
 
         void setBackground(View view) {
             if (mBgView != null) {
-                mBgView.setBackgroundColor(Color.TRANSPARENT);
+                RoundedRectHelper.getInstance().clearBackground(mBgView);
                 ShadowHelper.getInstance().clearZ(mBgView);
             }
             mBgView = view;
-            view.setBackgroundColor(mBackgroundColorSet ?
+            RoundedRectHelper.getInstance().setRoundedRectBackground(view, mBackgroundColorSet ?
                     mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
             ShadowHelper.getInstance().setZ(view, 0f);
         }
