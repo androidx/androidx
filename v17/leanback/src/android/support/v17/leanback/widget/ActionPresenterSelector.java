@@ -24,7 +24,6 @@ class ActionPresenterSelector extends PresenterSelector {
 
     private final Presenter mOneLineActionPresenter = new OneLineActionPresenter();
     private final Presenter mTwoLineActionPresenter = new TwoLineActionPresenter();
-    private OnActionClickedListener mOnActionClickedListener;
 
     @Override
     public Presenter getPresenter(Object item) {
@@ -34,14 +33,6 @@ class ActionPresenterSelector extends PresenterSelector {
         } else {
             return mTwoLineActionPresenter;
         }
-    }
-
-    public final void setOnActionClickedListener(OnActionClickedListener listener) {
-        mOnActionClickedListener = listener;
-    }
-
-    public final OnActionClickedListener getOnActionClickedListener() {
-        return mOnActionClickedListener;
     }
 
     static class ActionViewHolder extends Presenter.ViewHolder {
@@ -59,17 +50,7 @@ class ActionPresenterSelector extends PresenterSelector {
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.lb_action_1_line, parent, false);
-            final ActionViewHolder vh = new ActionViewHolder(v);
-            v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (ActionPresenterSelector.this.mOnActionClickedListener != null &&
-                            vh.mAction != null) {
-                            ActionPresenterSelector.this.mOnActionClickedListener.onActionClicked(vh.mAction);
-                        }
-                    }
-            });
-            return vh;
+            return new ActionViewHolder(v);
         }
 
         @Override
@@ -91,17 +72,7 @@ class ActionPresenterSelector extends PresenterSelector {
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.lb_action_2_lines, parent, false);
-            final ActionViewHolder vh = new ActionViewHolder(v);
-            v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (ActionPresenterSelector.this.mOnActionClickedListener != null &&
-                            vh.mAction != null) {
-                            ActionPresenterSelector.this.mOnActionClickedListener.onActionClicked(vh.mAction);
-                        }
-                    }
-            });
-            return vh;
+            return new ActionViewHolder(v);
         }
 
         @Override
