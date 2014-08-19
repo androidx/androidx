@@ -1493,6 +1493,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             int oldFirstVisible;
             int oldLastVisible;
             do {
+                updateScrollMin();
+                updateScrollMax();
                 oldFirstVisible = mFirstVisiblePos;
                 oldLastVisible = mLastVisiblePos;
                 View focusView = findViewByPosition(newFocusPosition);
