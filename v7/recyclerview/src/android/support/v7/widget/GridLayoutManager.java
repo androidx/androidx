@@ -17,10 +17,9 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -47,6 +46,8 @@ public class GridLayoutManager extends LinearLayoutManager {
      */
     View[] mSet;
 
+    final SparseIntArray mPreLayoutSpanSizeCache = new SparseIntArray();
+
     /**
      * The measure spec for the perpendicular orientation to {@link #getOrientation()}.
      */
@@ -70,9 +71,21 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        if (state.isPreLayout()) {
+            cacheSpanCounts();
+        }
         super.onLayoutChildren(recycler, state);
         if (DEBUG) {
             validateChildOrder();
+        }
+        mPreLayoutSpanSizeCache.clear();
+    }
+
+    private void cacheSpanCounts() {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i ++) {
+            final LayoutParams lp = (LayoutParams) getChildAt(i).getLayoutParams();
+            mPreLayoutSpanSizeCache.put(lp.getViewPosition(), lp.getSpanSize());
         }
     }
 
@@ -131,17 +144,44 @@ public class GridLayoutManager extends LinearLayoutManager {
     }
 
     @Override
-    void onAnchorReady(LinearLayoutManager.AnchorInfo anchorInfo) {
-        super.onAnchorReady(anchorInfo);
+    void onAnchorReady(RecyclerView.State state, AnchorInfo anchorInfo) {
+        super.onAnchorReady(state, anchorInfo);
         updateMeasurements();
+        if (!state.isPreLayout()) {
+            ensureAnchorIsInFirstSpan(anchorInfo);
+        }
+        if (mSet == null || mSet.length != mSpanCount) {
+            mSet = new View[mSpanCount];
+        }
+    }
+
+    private void ensureAnchorIsInFirstSpan(AnchorInfo anchorInfo) {
         int span = mSpanSizeLookup.getSpanIndex(anchorInfo.mPosition, mSpanCount);
         while (span > 0 && anchorInfo.mPosition > 0) {
             anchorInfo.mPosition --;
             span -= mSpanSizeLookup.getSpanSize(anchorInfo.mPosition);
         }
-        if (mSet == null || mSet.length != mSpanCount) {
-            mSet = new View[mSpanCount];
+    }
+
+    private int getSpanSize(RecyclerView.Recycler recycler, RecyclerView.State state, int pos) {
+        if (!state.isPreLayout()) {
+            return mSpanSizeLookup.getSpanSize(pos);
         }
+        final int cached = mPreLayoutSpanSizeCache.get(pos, -1);
+        if (cached != -1) {
+            return cached;
+        }
+        final int adapterPosition = recycler.convertPreLayoutPositionToPostLayout(pos);
+        if (adapterPosition == -1) {
+            if (DEBUG) {
+                throw new RuntimeException("Cannot find span size for pre layout position. It is"
+                        + " not cached, not in the adapter. Pos:" + pos);
+            }
+            Log.w(TAG, "Cannot find span size for pre layout position. It is"
+                    + " not cached, not in the adapter. Pos:" + pos);
+            return 1;
+        }
+        return mSpanSizeLookup.getSpanSize(adapterPosition);
     }
 
     @Override
@@ -151,7 +191,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         int remainingSpan = mSpanCount;
         while (count < mSpanCount && layoutState.hasMore(state) && remainingSpan > 0) {
             int pos = layoutState.mCurrentPosition;
-            final int spanSize = mSpanSizeLookup.getSpanSize(pos);
+            final int spanSize = getSpanSize(recycler, state, pos);
             if (spanSize > mSpanCount) {
                 throw new IllegalArgumentException("Item at position " + pos + " requires " +
                         spanSize + " spans but GridLayoutManager has only " + mSpanCount
@@ -178,15 +218,24 @@ public class GridLayoutManager extends LinearLayoutManager {
         final boolean layingOutInPrimaryDirection = mShouldReverseLayout ==
                 (layoutState.mLayoutDirection == LayoutState.LAYOUT_START);
         // we should assign spans before item decor offsets are calculated
-        assignSpans(count, layingOutInPrimaryDirection);
+        assignSpans(recycler, state, count, layingOutInPrimaryDirection);
         for (int i = 0; i < count; i ++) {
             View view = mSet[i];
-            if (layingOutInPrimaryDirection) {
-                addView(view);
+            if (layoutState.mScrapList == null) {
+                if (layingOutInPrimaryDirection) {
+                    addView(view);
+                } else {
+                    addView(view, 0);
+                }
             } else {
-                addView(view, 0);
+                if (layingOutInPrimaryDirection) {
+                    addDisappearingView(view);
+                } else {
+                    addDisappearingView(view, 0);
+                }
             }
-            int spanSize = mSpanSizeLookup.getSpanSize(getPosition(view));
+
+            int spanSize = getSpanSize(recycler, state, getPosition(view));
             final int spec = View.MeasureSpec.makeMeasureSpec(mSizePerSpan * spanSize,
                     View.MeasureSpec.EXACTLY);
             if (mOrientation == VERTICAL) {
@@ -270,7 +319,8 @@ public class GridLayoutManager extends LinearLayoutManager {
         return spec;
     }
 
-    private void assignSpans(int count, boolean layingOutInPrimaryDirection) {
+    private void assignSpans(RecyclerView.Recycler recycler, RecyclerView.State state, int count,
+            boolean layingOutInPrimaryDirection) {
         int span, spanDiff, start, end, diff;
         // make sure we traverse from min position to max position
         if (layingOutInPrimaryDirection) {
@@ -292,7 +342,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         for (int i = start; i != end; i += diff) {
             View view = mSet[i];
             LayoutParams params = (LayoutParams) view.getLayoutParams();
-            params.mSpanSize = mSpanSizeLookup.getSpanSize(getPosition(view));
+            params.mSpanSize = getSpanSize(recycler, state, getPosition(view));
             if (spanDiff == -1 && params.mSpanSize > 1) {
                 params.mSpanIndex = span - (params.mSpanSize - 1);
             } else {
@@ -387,7 +437,7 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     public boolean supportsPredictiveItemAnimations() {
-        return false;
+        return mPendingSavedState == null;
     }
 
     /**
