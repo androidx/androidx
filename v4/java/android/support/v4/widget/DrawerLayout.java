@@ -1607,7 +1607,7 @@ public class DrawerLayout extends ViewGroup {
 
         @Override
         public int getViewHorizontalDragRange(View child) {
-            return child.getWidth();
+            return isDrawerView(child) ? child.getWidth() : 0;
         }
 
         @Override
