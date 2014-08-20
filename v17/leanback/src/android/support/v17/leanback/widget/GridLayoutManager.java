@@ -1757,6 +1757,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void initScrollController() {
+        // mScrollOffsetPrimary and mScrollOffsetSecondary includes the padding.
+        // e.g. when topPadding is 16 for horizontal grid view,  the initial
+        // mScrollOffsetSecondary is -16.  fastLayout() put views based on offsets(not padding),
+        // when padding changes to 20,  we also need update mScrollOffsetSecondary to -20 before
+        // fastLayout() is performed
+        int paddingPrimaryDiff, paddingSecondaryDiff;
+        if (mOrientation == HORIZONTAL) {
+            paddingPrimaryDiff = getPaddingLeft() - mWindowAlignment.horizontal.getPaddingLow();
+            paddingSecondaryDiff = getPaddingTop() - mWindowAlignment.vertical.getPaddingLow();
+        } else {
+            paddingPrimaryDiff = getPaddingTop() - mWindowAlignment.vertical.getPaddingLow();
+            paddingSecondaryDiff = getPaddingLeft() - mWindowAlignment.horizontal.getPaddingLow();
+        }
+        mScrollOffsetPrimary -= paddingPrimaryDiff;
+        mScrollOffsetSecondary -= paddingSecondaryDiff;
+
         mWindowAlignment.horizontal.setSize(getWidth());
         mWindowAlignment.horizontal.setPadding(getPaddingLeft(), getPaddingRight());
         mWindowAlignment.vertical.setSize(getHeight());
