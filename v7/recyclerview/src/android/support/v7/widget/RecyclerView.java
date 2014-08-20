@@ -285,6 +285,7 @@ public class RecyclerView extends ViewGroup {
             @Override
             public void addView(View child, int index) {
                 RecyclerView.this.addView(child, index);
+                dispatchChildAttached(child);
             }
 
             @Override
@@ -294,6 +295,10 @@ public class RecyclerView extends ViewGroup {
 
             @Override
             public void removeViewAt(int index) {
+                final View child = RecyclerView.this.getChildAt(index);
+                if (child != null) {
+                    dispatchChildDetached(child);
+                }
                 RecyclerView.this.removeViewAt(index);
             }
 
@@ -304,6 +309,10 @@ public class RecyclerView extends ViewGroup {
 
             @Override
             public void removeAllViews() {
+                final int count = getChildCount();
+                for (int i = 0; i < count; i ++) {
+                    dispatchChildDetached(getChildAt(i));
+                }
                 RecyclerView.this.removeAllViews();
             }
 
@@ -4175,6 +4184,20 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    private void dispatchChildDetached(View child) {
+        if (mAdapter != null) {
+            mAdapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
+        }
+        onChildDetachedFromWindow(child);
+    }
+
+    private void dispatchChildAttached(View child) {
+        if (mAdapter != null) {
+            mAdapter.onViewAttachedToWindow(getChildViewHolderInt(child));
+        }
+        onChildAttachedToWindow(child);
+    }
+
     /**
      * A <code>LayoutManager</code> is responsible for measuring and positioning item views
      * within a <code>RecyclerView</code> as well as determining the policy for when to recycle
@@ -4660,11 +4683,6 @@ public class RecyclerView extends ViewGroup {
                 mChildHelper.addView(child, index, false);
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 lp.mInsetsDirty = true;
-                final Adapter adapter = mRecyclerView.getAdapter();
-                if (adapter != null) {
-                    adapter.onViewAttachedToWindow(getChildViewHolderInt(child));
-                }
-                mRecyclerView.onChildAttachedToWindow(child);
                 if (mSmoothScroller != null && mSmoothScroller.isRunning()) {
                     mSmoothScroller.onChildAttachedToWindow(child);
                 }
@@ -4680,11 +4698,6 @@ public class RecyclerView extends ViewGroup {
          * @param child View to remove
          */
         public void removeView(View child) {
-            final Adapter adapter = mRecyclerView.getAdapter();
-            if (adapter != null) {
-                adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
-            }
-            mRecyclerView.onChildDetachedFromWindow(child);
             mChildHelper.removeView(child);
         }
 
@@ -4699,11 +4712,6 @@ public class RecyclerView extends ViewGroup {
         public void removeViewAt(int index) {
             final View child = getChildAt(index);
             if (child != null) {
-                final Adapter adapter = mRecyclerView.getAdapter();
-                if (adapter != null) {
-                    adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
-                }
-                mRecyclerView.onChildDetachedFromWindow(child);
                 mChildHelper.removeViewAt(index);
             }
         }
@@ -4713,19 +4721,10 @@ public class RecyclerView extends ViewGroup {
          * any of the affected views; the LayoutManager is responsible for doing so if desired.
          */
         public void removeAllViews() {
-            final Adapter adapter = mRecyclerView.getAdapter();
             // Only remove non-animating views
             final int childCount = getChildCount();
-
-            for (int i = 0; i < childCount; i++) {
-                final View child = getChildAt(i);
-                if (adapter != null) {
-                    adapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
-                }
-                mRecyclerView.onChildDetachedFromWindow(child);
-            }
-
             for (int i = childCount - 1; i >= 0; i--) {
+                final View child = getChildAt(i);
                 mChildHelper.removeViewAt(i);
             }
         }
