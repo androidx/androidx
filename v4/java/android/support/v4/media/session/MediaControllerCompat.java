@@ -140,12 +140,12 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the current audio info for this session.
+     * Get the current playback info for this session.
      *
-     * @return The current audio info or null.
+     * @return The current playback info or null.
      */
-    public AudioInfo getAudioInfo() {
-        return mImpl.getAudioInfo();
+    public PlaybackInfo getPlaybackInfo() {
+        return mImpl.getPlaybackInfo();
     }
 
     /**
@@ -360,16 +360,25 @@ public final class MediaControllerCompat {
     /**
      * Holds information about the way volume is handled for this session.
      */
-    public static final class AudioInfo {
-        private final int mVolumeType;
+    public static final class PlaybackInfo {
+        /**
+         * The session uses local playback.
+         */
+        public static final int PLAYBACK_TYPE_LOCAL = 1;
+        /**
+         * The session uses remote playback.
+         */
+        public static final int PLAYBACK_TYPE_REMOTE = 2;
+
+        private final int mPlaybackType;
         // TODO update audio stream with AudioAttributes support version
         private final int mAudioStream;
         private final int mVolumeControl;
         private final int mMaxVolume;
         private final int mCurrentVolume;
 
-        AudioInfo(int type, int stream, int control, int max, int current) {
-            mVolumeType = type;
+        PlaybackInfo(int type, int stream, int control, int max, int current) {
+            mPlaybackType = type;
             mAudioStream = stream;
             mVolumeControl = control;
             mMaxVolume = max;
@@ -379,19 +388,19 @@ public final class MediaControllerCompat {
         /**
          * Get the type of volume handling, either local or remote. One of:
          * <ul>
-         * <li>{@link MediaSessionCompat#VOLUME_TYPE_LOCAL}</li>
-         * <li>{@link MediaSessionCompat#VOLUME_TYPE_REMOTE}</li>
+         * <li>{@link PlaybackInfo#PLAYBACK_TYPE_LOCAL}</li>
+         * <li>{@link PlaybackInfo#PLAYBACK_TYPE_REMOTE}</li>
          * </ul>
          *
          * @return The type of volume handling this session is using.
          */
-        public int getVolumeType() {
-            return mVolumeType;
+        public int getPlaybackType() {
+            return mPlaybackType;
         }
 
         /**
          * Get the stream this is currently controlling volume on. When the volume
-         * type is {@link MediaSessionCompat#VOLUME_TYPE_REMOTE} this value does not
+         * type is {@link PlaybackInfo#PLAYBACK_TYPE_REMOTE} this value does not
          * have meaning and should be ignored.
          *
          * @return The stream this session is playing on.
@@ -442,7 +451,7 @@ public final class MediaControllerCompat {
         PlaybackStateCompat getPlaybackState();
         MediaMetadataCompat getMetadata();
         int getRatingType();
-        AudioInfo getAudioInfo();
+        PlaybackInfo getPlaybackInfo();
         void sendCommand(String command, Bundle params, ResultReceiver cb);
         Object getMediaController();
     }
@@ -483,7 +492,7 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public AudioInfo getAudioInfo() {
+        public PlaybackInfo getPlaybackInfo() {
             return null;
         }
 
@@ -552,14 +561,14 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public AudioInfo getAudioInfo() {
-            Object volumeInfoObj = MediaControllerCompatApi21.getAudioInfo(mControllerObj);
-            return volumeInfoObj != null ? new AudioInfo(
-                    MediaControllerCompatApi21.AudioInfo.getVolumeType(volumeInfoObj),
-                    MediaControllerCompatApi21.AudioInfo.getLegacyAudioStream(volumeInfoObj),
-                    MediaControllerCompatApi21.AudioInfo.getVolumeControl(volumeInfoObj),
-                    MediaControllerCompatApi21.AudioInfo.getMaxVolume(volumeInfoObj),
-                    MediaControllerCompatApi21.AudioInfo.getCurrentVolume(volumeInfoObj)) : null;
+        public PlaybackInfo getPlaybackInfo() {
+            Object volumeInfoObj = MediaControllerCompatApi21.getPlaybackInfo(mControllerObj);
+            return volumeInfoObj != null ? new PlaybackInfo(
+                    MediaControllerCompatApi21.PlaybackInfo.getPlaybackType(volumeInfoObj),
+                    MediaControllerCompatApi21.PlaybackInfo.getLegacyAudioStream(volumeInfoObj),
+                    MediaControllerCompatApi21.PlaybackInfo.getVolumeControl(volumeInfoObj),
+                    MediaControllerCompatApi21.PlaybackInfo.getMaxVolume(volumeInfoObj),
+                    MediaControllerCompatApi21.PlaybackInfo.getCurrentVolume(volumeInfoObj)) : null;
         }
 
         @Override

@@ -28,8 +28,8 @@ class PlaybackStateCompatApi21 {
         return ((PlaybackState)stateObj).getPosition();
     }
 
-    public static long getBufferPosition(Object stateObj) {
-        return ((PlaybackState)stateObj).getBufferPosition();
+    public static long getBufferedPosition(Object stateObj) {
+        return ((PlaybackState)stateObj).getBufferedPosition();
     }
 
     public static float getPlaybackSpeed(Object stateObj) {
@@ -48,11 +48,11 @@ class PlaybackStateCompatApi21 {
         return ((PlaybackState)stateObj).getLastPositionUpdateTime();
     }
 
-    public static Object newInstance(int state, long position, long bufferPosition,
+    public static Object newInstance(int state, long position, long bufferedPosition,
             float speed, long actions, CharSequence errorMessage, long updateTime) {
         PlaybackState.Builder stateObj = new PlaybackState.Builder();
         stateObj.setState(state, position, speed, updateTime);
-        stateObj.setBufferPosition(bufferPosition);
+        stateObj.setBufferedPosition(bufferedPosition);
         stateObj.setActions(actions);
         stateObj.setErrorMessage(errorMessage);
         return stateObj.build();
