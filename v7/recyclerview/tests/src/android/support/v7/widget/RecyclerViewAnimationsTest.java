@@ -90,6 +90,95 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         return recyclerView;
     }
 
+    public void testAddRemoveSamePass() throws Throwable {
+        final List<RecyclerView.ViewHolder> mRecycledViews
+                = new ArrayList<RecyclerView.ViewHolder>();
+        TestAdapter adapter = new TestAdapter(50) {
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                super.onViewRecycled(holder);
+                mRecycledViews.add(holder);
+            }
+        };
+        adapter.setHasStableIds(true);
+        setupBasic(50, 3, 5, adapter);
+        mRecyclerView.setItemViewCacheSize(0);
+        final ArrayList<RecyclerView.ViewHolder> addVH
+                = new ArrayList<RecyclerView.ViewHolder>();
+        final ArrayList<RecyclerView.ViewHolder> removeVH
+                = new ArrayList<RecyclerView.ViewHolder>();
+
+        final ArrayList<RecyclerView.ViewHolder> moveVH
+                = new ArrayList<RecyclerView.ViewHolder>();
+
+        final View[] testView = new View[1];
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public boolean animateAdd(RecyclerView.ViewHolder holder) {
+                addVH.add(holder);
+                return true;
+            }
+
+            @Override
+            public boolean animateRemove(RecyclerView.ViewHolder holder) {
+                removeVH.add(holder);
+                return true;
+            }
+
+            @Override
+            public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY,
+                    int toX, int toY) {
+                moveVH.add(holder);
+                return true;
+            }
+        });
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void afterPreLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager layoutManager,
+                    RecyclerView.State state) {
+                super.afterPreLayout(recycler, layoutManager, state);
+                testView[0] = recycler.getViewForPosition(45);
+                testView[0].measure(View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.AT_MOST),
+                        View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.AT_MOST));
+                testView[0].layout(10, 10, 10 + testView[0].getMeasuredWidth(),
+                        10 + testView[0].getMeasuredHeight());
+                layoutManager.addView(testView[0], 4);
+            }
+
+            @Override
+            void afterPostLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager layoutManager,
+                    RecyclerView.State state) {
+                super.afterPostLayout(recycler, layoutManager, state);
+                testView[0].layout(50, 50, 50 + testView[0].getMeasuredWidth(),
+                        50 + testView[0].getMeasuredHeight());
+                layoutManager.addDisappearingView(testView[0], 4);
+            }
+        };
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 3;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 5;
+        mRecycledViews.clear();
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.deleteAndNotify(3, 1);
+        mLayoutManager.waitForLayout(2);
+
+        for (RecyclerView.ViewHolder vh : addVH) {
+            assertNotSame("add-remove item should not animate add", testView[0], vh.itemView);
+        }
+        for (RecyclerView.ViewHolder vh : moveVH) {
+            assertNotSame("add-remove item should not animate move", testView[0], vh.itemView);
+        }
+        for (RecyclerView.ViewHolder vh : removeVH) {
+            assertNotSame("add-remove item should not animate remove", testView[0], vh.itemView);
+        }
+        boolean found = false;
+        for (RecyclerView.ViewHolder vh : mRecycledViews) {
+            found |= vh.itemView == testView[0];
+        }
+        assertTrue("added-removed view should be recycled", found);
+    }
+
     public void testChangeAnimations()  throws Throwable {
         final boolean[] booleans = {true, false};
         for (boolean supportsChange : booleans) {
