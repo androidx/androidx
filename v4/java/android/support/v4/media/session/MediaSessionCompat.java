@@ -71,16 +71,6 @@ public class MediaSessionCompat {
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
 
     /**
-     * The session uses local playback.
-     */
-    public static final int VOLUME_TYPE_LOCAL = 1;
-
-    /**
-     * The session uses remote playback.
-     */
-    public static final int VOLUME_TYPE_REMOTE = 2;
-
-    /**
      * Creates a new session.
      *
      * @param context The context.
