@@ -385,7 +385,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                         instanceof PlaybackControlsRowPresenter.ViewHolder) {
                     final Presenter.ViewHolder vh = ((PlaybackControlsRowPresenter.ViewHolder)
                             adapterVh.getViewHolder()).mDescriptionViewHolder;
-                    vh.view.setAlpha((Float) arg0.getAnimatedValue());
+                    if (vh != null) {
+                        vh.view.setAlpha((Float) arg0.getAnimatedValue());
+                    }
                 }
             }
         };
@@ -591,8 +593,11 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             vh.getViewHolder().view.setAlpha(1f);
             vh.getViewHolder().view.setTranslationY(0);
             if (vh.getViewHolder() instanceof PlaybackControlsRowPresenter.ViewHolder) {
-                ((PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder())
-                        .mDescriptionViewHolder.view.setAlpha(1f);
+                Presenter.ViewHolder descriptionVh = ((PlaybackControlsRowPresenter.ViewHolder)
+                        vh.getViewHolder()).mDescriptionViewHolder;
+                if (descriptionVh != null) {
+                    descriptionVh.view.setAlpha(1f);
+                }
             }
         }
         @Override
