@@ -25,7 +25,6 @@
     <color name="lb_background_protection">#99000000</color>
 
     <color name="lb_view_dim_mask_color">#000000</color>
-    <item name="lb_view_dimmed_level" type="dimen">60%</item>
 
     <color name="lb_details_overview_bg_color">#1B1B1B</color>
     <color name="lb_details_description_color">#EEEEEE</color>
