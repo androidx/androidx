@@ -249,6 +249,14 @@ public class BaseCardView extends FrameLayout {
         return mCardType;
     }
 
+    /**
+     * Sets the visibility of the info region of the card.
+     *
+     * @param visibility The region visibility to use for the info region. Must
+     *     be one of {@link #CARD_REGION_VISIBLE_ALWAYS},
+     *     {@link #CARD_REGION_VISIBLE_SELECTED}, or
+     *     {@link #CARD_REGION_VISIBLE_ACTIVATED}.
+     */
     public void setInfoVisibility(int visibility) {
         if (mInfoVisibility != visibility) {
             mInfoVisibility = visibility;
@@ -261,10 +269,21 @@ public class BaseCardView extends FrameLayout {
         }
     }
 
+    /**
+     * Returns the visibility of the info region of the card.
+     */
     public int getInfoVisibility() {
         return mInfoVisibility;
     }
 
+    /**
+     * Sets the visibility of the extra region of the card.
+     *
+     * @param visibility The region visibility to use for the extra region. Must
+     *     be one of {@link #CARD_REGION_VISIBLE_ALWAYS},
+     *     {@link #CARD_REGION_VISIBLE_SELECTED}, or
+     *     {@link #CARD_REGION_VISIBLE_ACTIVATED}.
+     */
     public void setExtraVisibility(int visibility) {
         if (mExtraVisibility != visibility) {
             mExtraVisibility = visibility;
@@ -272,6 +291,9 @@ public class BaseCardView extends FrameLayout {
         }
     }
 
+    /**
+     * Returns the visibility of the extra region of the card.
+     */
     public int getExtraVisibility() {
         return mExtraVisibility;
     }
