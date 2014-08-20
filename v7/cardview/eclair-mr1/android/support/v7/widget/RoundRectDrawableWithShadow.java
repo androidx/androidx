@@ -138,11 +138,18 @@ class RoundRectDrawableWithShadow extends Drawable {
 
     @Override
     public boolean getPadding(Rect padding) {
-        int verticalOffset = (int) Math
-                .round(mRawMaxShadowSize * SHADOW_MULTIPLIER + (1 - COS_45) * mCornerRadius);
-        int horizontalOffset = (int) Math.round(mRawMaxShadowSize + (1 - COS_45) * mCornerRadius);
-        padding.set(horizontalOffset, verticalOffset, horizontalOffset, verticalOffset);
+        int vOffset = (int) Math.ceil(calculateVerticalPadding(mRawMaxShadowSize, mCornerRadius));
+        int hOffset = (int) Math.ceil(calculateHorizontalPadding(mRawMaxShadowSize, mCornerRadius));
+        padding.set(hOffset, vOffset, hOffset, vOffset);
         return true;
+    }
+
+    static float calculateVerticalPadding(float maxShadowSize, float cornerRadius) {
+        return (float) (maxShadowSize * SHADOW_MULTIPLIER + (1 - COS_45) * cornerRadius);
+    }
+
+    static float calculateHorizontalPadding(float maxShadowSize, float cornerRadius) {
+        return (float) (maxShadowSize + (1 - COS_45) * cornerRadius);
     }
 
     @Override
