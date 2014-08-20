@@ -483,7 +483,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         int startOffset;
         int endOffset;
-        onAnchorReady(mAnchorInfo);
+        onAnchorReady(state, mAnchorInfo);
         detachAndScrapAttachedViews(recycler);
         mLayoutState.mIsPreLayout = state.isPreLayout();
         if (mAnchorInfo.mLayoutFromEnd) {
@@ -558,10 +558,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * Method called when Anchor position is decided. Extending class can setup accordingly or
      * even update anchor info if necessary.
      *
+     * @param state
      * @param anchorInfo Simple data structure to keep anchor point information for the next layout
-     *                   pass
      */
-    void onAnchorReady(AnchorInfo anchorInfo) {
+    void onAnchorReady(RecyclerView.State state, AnchorInfo anchorInfo) {
     }
 
     /**
