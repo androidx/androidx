@@ -861,8 +861,10 @@ public class RecyclerView extends ViewGroup {
 
     /**
      * Does not perform bounds checking. Used by internal methods that have already validated input.
+     *
+     * @return Whether any scroll was consumed in either direction.
      */
-    void scrollByInternal(int x, int y) {
+    boolean scrollByInternal(int x, int y) {
         int overscrollX = 0, overscrollY = 0;
         int hresult = 0, vresult = 0;
         consumePendingUpdateOperations();
@@ -914,6 +916,7 @@ public class RecyclerView extends ViewGroup {
         if (!awakenScrollBars()) {
             invalidate();
         }
+        return hresult != 0 || vresult != 0;
     }
 
     /**
@@ -1479,7 +1482,6 @@ public class RecyclerView extends ViewGroup {
                         startScroll = true;
                     }
                     if (startScroll) {
-                        getParent().requestDisallowInterceptTouchEvent(true);
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
@@ -1554,15 +1556,16 @@ public class RecyclerView extends ViewGroup {
                         startScroll = true;
                     }
                     if (startScroll) {
-                        getParent().requestDisallowInterceptTouchEvent(true);
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
                     final int dx = x - mLastTouchX;
                     final int dy = y - mLastTouchY;
-                    scrollByInternal(canScrollHorizontally ? -dx : 0,
-                            canScrollVertically ? -dy : 0);
+                    if (scrollByInternal(
+                            canScrollHorizontally ? -dx : 0, canScrollVertically ? -dy : 0)) {
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                    }
                 }
                 mLastTouchX = x;
                 mLastTouchY = y;
