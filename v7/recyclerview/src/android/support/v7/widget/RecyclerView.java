@@ -1881,7 +1881,7 @@ public class RecyclerView extends ViewGroup {
                             view.getLeft(), view.getTop(), view.getRight(), view.getBottom()));
                 }
             }
-            processDisappearingList();
+            processDisappearingList(appearingViewInitialBounds);
             // Step 4: Animate DISAPPEARING and REMOVED items
             int preLayoutCount = mState.mPreLayoutHolderMap.size();
             for (int i = preLayoutCount - 1; i >= 0; i--) {
@@ -1979,7 +1979,7 @@ public class RecyclerView extends ViewGroup {
      * A LayoutManager may want to layout a view just to animate disappearance.
      * This method handles those views and triggers remove animation on them.
      */
-    private void processDisappearingList() {
+    private void processDisappearingList(ArrayMap<View, Rect> appearingViews) {
         final int count = mDisappearingViewsInLayoutPass.size();
         for (int i = 0; i < count; i ++) {
             View view = mDisappearingViewsInLayoutPass.get(i);
@@ -1987,6 +1987,10 @@ public class RecyclerView extends ViewGroup {
             final ItemHolderInfo info = mState.mPreLayoutHolderMap.remove(vh);
             if (!mState.isPreLayout()) {
                 mState.mPostLayoutHolderMap.remove(vh);
+            }
+            if (appearingViews.remove(view) != null) {
+                mLayout.removeAndRecycleView(view, mRecycler);
+                continue;
             }
             if (info != null) {
                 animateDisappearance(info);
