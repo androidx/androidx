@@ -1329,7 +1329,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     // Fast layout when there is no structure change, adapter change, etc.
-    protected void fastRelayout() {
+    protected void fastRelayout(boolean scrollToFocus) {
         initScrollController();
 
         List<Integer>[] rows = mGrid.getItemPositionsInRows(mFirstVisiblePos, mLastVisiblePos);
@@ -1383,7 +1383,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         updateScrollMax();
         updateScrollSecondAxis();
 
-        if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+        if (scrollToFocus) {
             View focusView = findViewByPosition(mFocusPosition == NO_POSITION ? 0 : mFocusPosition);
             scrollToView(focusView, false);
         }
@@ -1424,6 +1424,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mInLayout = true;
 
+        final boolean scrollToFocus = !isSmoothScrolling()
+                && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED;
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
             mFocusPositionOffset = 0;
@@ -1434,8 +1436,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // We must use same delta in Pre Layout (if prelayout exists) and second layout.
         // So we cache the deltas in PreLayout and use it in second layout.
         int delta = 0, deltaSecondary = 0;
-        if (mFocusPosition != NO_POSITION
-                && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+        if (mFocusPosition != NO_POSITION && scrollToFocus) {
             // FIXME: we should get the remaining scroll animation offset from RecyclerView
             View focusView = findViewByPosition(mFocusPosition);
             if (focusView != null) {
@@ -1452,7 +1453,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         boolean fastRelayout = false;
         if (!mState.didStructureChange() && !mForceFullLayout && hasDoneFirstLayout) {
             fastRelayout = true;
-            fastRelayout();
+            fastRelayout(scrollToFocus);
         } else {
             boolean hadFocus = mBaseGridView.hasFocus();
 
@@ -1510,7 +1511,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mForceFullLayout = false;
 
-        if (mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+        if (scrollToFocus) {
             scrollDirectionPrimary(-delta);
             scrollDirectionSecondary(-deltaSecondary);
         }
