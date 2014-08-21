@@ -14,6 +14,7 @@
 package android.support.v17.leanback.graphics;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -38,9 +39,16 @@ public final class ColorOverlayDimmer {
      * Creates a default ColorOverlayDimmer.
      */
     public static ColorOverlayDimmer createDefault(Context context) {
-        return new ColorOverlayDimmer(
-                context.getResources().getColor(R.color.lb_view_dim_mask_color), 0,
-                context.getResources().getFraction(R.dimen.lb_view_dimmed_level, 1, 1));
+        TypedArray a = context.obtainStyledAttributes(R.styleable.LeanbackTheme);
+
+        int dimColor = a.getColor(R.styleable.LeanbackTheme_overlayDimMaskColor,
+                context.getResources().getColor(R.color.lb_view_dim_mask_color));
+        float activeLevel = a.getFraction(R.styleable.LeanbackTheme_overlayDimActiveLevel, 1, 1,
+                context.getResources().getFraction(R.fraction.lb_view_active_level, 1, 0));
+        float dimmedLevel = a.getFraction(R.styleable.LeanbackTheme_overlayDimDimmedLevel, 1, 1,
+                context.getResources().getFraction(R.fraction.lb_view_dimmed_level, 1, 1));
+        a.recycle();
+        return new ColorOverlayDimmer(dimColor, activeLevel, dimmedLevel);
     }
 
     /**
