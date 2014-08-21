@@ -179,6 +179,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private RecyclerView.Recycler mRecycler;
 
     private boolean mInLayout = false;
+    private boolean mInSelection = false;
 
     private OnChildSelectedListener mChildSelectedListener = null;
 
@@ -1803,7 +1804,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         View view = findViewByPosition(position);
         if (view != null) {
+            mInSelection = true;
             scrollToView(view, smooth);
+            mInSelection = false;
         } else {
             mFocusPosition = position;
             mFocusPositionOffset = 0;
@@ -1914,7 +1917,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (mFocusSearchDisabled) {
             return true;
         }
-        if (!mInLayout) {
+        if (!mInLayout && !mInSelection) {
             scrollToView(child, true);
         }
         return true;
