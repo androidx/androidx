@@ -323,6 +323,7 @@ public class ListRowPresenter extends RowPresenter {
 
     private void setVerticalPadding(ListRowPresenter.ViewHolder vh) {
         int paddingTop, paddingBottom;
+        // Note: sufficient bottom padding needed for card shadows.
         if (vh.isExpanded()) {
             int headerSpaceUnderBaseline = getSpaceUnderBaseline(vh);
             if (DEBUG) Log.v(TAG, "headerSpaceUnderBaseline " + headerSpaceUnderBaseline);
@@ -331,11 +332,11 @@ public class ListRowPresenter extends RowPresenter {
             paddingBottom = mHoverCardPresenterSelector == null ?
                     sExpandedRowNoHovercardBottomPadding : vh.mPaddingBottom;
         } else if (vh.isSelected()) {
-            paddingTop = sSelectedRowTopPadding;
-            paddingBottom = sSelectedRowTopPadding - vh.mPaddingTop;
+            paddingTop = sSelectedRowTopPadding - vh.mPaddingBottom;
+            paddingBottom = sSelectedRowTopPadding;
         } else {
-            paddingTop = vh.mPaddingTop;
-            paddingBottom = 0;
+            paddingTop = 0;
+            paddingBottom = vh.mPaddingBottom;
         }
         vh.getGridView().setPadding(vh.mPaddingLeft, paddingTop, vh.mPaddingRight,
                 paddingBottom);
