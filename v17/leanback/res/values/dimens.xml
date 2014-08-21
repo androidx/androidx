@@ -138,6 +138,9 @@
     <dimen name="lb_error_under_image_baseline_margin">36dp</dimen>
     <dimen name="lb_error_under_message_baseline_margin">24dp</dimen>
 
+    <item name="lb_view_active_level" type="fraction">0%</item>
+    <item name="lb_view_dimmed_level" type="fraction">60%</item>
+
     <!-- Search bar -->
     <dimen name="lb_search_bar_height">60dp</dimen>
     <dimen name="lb_search_bar_padding_left">56dp</dimen>
