@@ -63,8 +63,8 @@ class MediaControllerCompatApi21 {
         return ((MediaController)controllerObj).getRatingType();
     }
 
-    public static Object getAudioInfo(Object controllerObj) {
-        return ((MediaController)controllerObj).getAudioInfo();
+    public static Object getPlaybackInfo(Object controllerObj) {
+        return ((MediaController)controllerObj).getPlaybackInfo();
     }
 
     public static boolean dispatchMediaButtonEvent(Object controllerObj, KeyEvent event) {
@@ -114,13 +114,13 @@ class MediaControllerCompatApi21 {
         }
     }
 
-    public static class AudioInfo {
-        public static int getVolumeType(Object volumeInfoObj) {
-            return ((MediaController.AudioInfo)volumeInfoObj).getVolumeType();
+    public static class PlaybackInfo {
+        public static int getPlaybackType(Object volumeInfoObj) {
+            return ((MediaController.PlaybackInfo)volumeInfoObj).getPlaybackType();
         }
 
         public static AudioAttributes getAudioAttributes(Object volumeInfoObj) {
-            return ((MediaController.AudioInfo) volumeInfoObj).getAudioAttributes();
+            return ((MediaController.PlaybackInfo) volumeInfoObj).getAudioAttributes();
         }
 
         public static int getLegacyAudioStream(Object volumeInfoObj) {
@@ -129,15 +129,15 @@ class MediaControllerCompatApi21 {
         }
 
         public static int getVolumeControl(Object volumeInfoObj) {
-            return ((MediaController.AudioInfo)volumeInfoObj).getVolumeControl();
+            return ((MediaController.PlaybackInfo)volumeInfoObj).getVolumeControl();
         }
 
         public static int getMaxVolume(Object volumeInfoObj) {
-            return ((MediaController.AudioInfo)volumeInfoObj).getMaxVolume();
+            return ((MediaController.PlaybackInfo)volumeInfoObj).getMaxVolume();
         }
 
         public static int getCurrentVolume(Object volumeInfoObj) {
-            return ((MediaController.AudioInfo)volumeInfoObj).getCurrentVolume();
+            return ((MediaController.PlaybackInfo)volumeInfoObj).getCurrentVolume();
         }
 
         // This is copied from AudioAttributes.toLegacyStreamType. TODO This
