@@ -336,13 +336,13 @@ public class VerticalGridFragment extends Fragment {
         mSceneWithTitle = sTransitionHelper.createScene(root, new Runnable() {
             @Override
             public void run() {
-                TitleTransitionHelper.showTitle(mTitleView, true);
+                mTitleView.setVisibility(View.VISIBLE);
             }
         });
         mSceneWithoutTitle = sTransitionHelper.createScene(root, new Runnable() {
             @Override
             public void run() {
-                TitleTransitionHelper.showTitle(mTitleView, false);
+                mTitleView.setVisibility(View.INVISIBLE);
             }
         });
         mTitleUpTransition = TitleTransitionHelper.createTransitionTitleUp(sTransitionHelper);
