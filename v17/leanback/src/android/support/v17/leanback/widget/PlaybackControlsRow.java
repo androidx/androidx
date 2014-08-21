@@ -130,6 +130,11 @@ public class PlaybackControlsRow extends Row {
                     R.styleable.lbPlaybackControlsActionIcons_pause);
             setDrawables(drawables);
         }
+
+        @Override
+        public String toString() {
+            return "PlayPauseAction";
+        }
     }
 
     /**
@@ -144,6 +149,11 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_fast_forward);
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_fast_forward));
+        }
+
+        @Override
+        public String toString() {
+            return "FastForwardAction";
         }
     }
 
@@ -160,6 +170,11 @@ public class PlaybackControlsRow extends Row {
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_rewind));
         }
+
+        @Override
+        public String toString() {
+            return "RewindAction";
+        }
     }
 
     /**
@@ -174,6 +189,11 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_skip_next);
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_skip_next));
+        }
+
+        @Override
+        public String toString() {
+            return "SkipNextAction";
         }
     }
 
@@ -190,6 +210,11 @@ public class PlaybackControlsRow extends Row {
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_skip_previous));
         }
+
+        @Override
+        public String toString() {
+            return "SkipPreviousAction";
+        }
     }
 
     /**
@@ -203,6 +228,11 @@ public class PlaybackControlsRow extends Row {
         public MoreActions(Context context) {
             super(R.id.lb_control_more_actions);
             setIcon(context.getResources().getDrawable(R.drawable.lb_ic_more));
+        }
+
+        @Override
+        public String toString() {
+            return "MoreActions";
         }
     }
 
@@ -242,6 +272,11 @@ public class PlaybackControlsRow extends Row {
                     R.styleable.lbPlaybackControlsActionIcons_thumb_up,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_up_outline);
         }
+
+        @Override
+        public String toString() {
+            return "ThumbsUpAction";
+        }
     }
 
     /**
@@ -253,9 +288,14 @@ public class PlaybackControlsRow extends Row {
                     R.styleable.lbPlaybackControlsActionIcons_thumb_down,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_down_outline);
         }
+
+        @Override
+        public String toString() {
+            return "ThumbsDownAction";
+        }
     }
 
-     /**
+    /**
      * An action for displaying three repeat states: none, one, or all.
      */
     public static class RepeatAction extends MultiAction {
@@ -312,6 +352,11 @@ public class PlaybackControlsRow extends Row {
                     createBitmap(repeatOneDrawable.getBitmap(), repeatOneColor));
             setDrawables(drawables);
         }
+
+        @Override
+        public String toString() {
+            return "RepeatAction";
+        }
     }
 
     /**
@@ -344,6 +389,11 @@ public class PlaybackControlsRow extends Row {
             drawables[ON] = new BitmapDrawable(context.getResources(),
                     createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
             setDrawables(drawables);
+        }
+
+        @Override
+        public String toString() {
+            return "ShuffleAction";
         }
     }
 
@@ -378,6 +428,11 @@ public class PlaybackControlsRow extends Row {
                     createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
             setDrawables(drawables);
         }
+
+        @Override
+        public String toString() {
+            return "HighQualityAction";
+        }
     }
 
     /**
@@ -410,6 +465,11 @@ public class PlaybackControlsRow extends Row {
             drawables[ON] = new BitmapDrawable(context.getResources(),
                     createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
             setDrawables(drawables);
+        }
+
+        @Override
+        public String toString() {
+            return "ClosedCaptioningAction";
         }
     }
 

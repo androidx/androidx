@@ -66,7 +66,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     /**
      * A ViewHolder for the DetailsOverviewRow.
      */
-    public final static class ViewHolder extends RowPresenter.ViewHolder {
+    public final class ViewHolder extends RowPresenter.ViewHolder {
         final ViewGroup mOverviewView;
         final ImageView mImageView;
         final ViewGroup mRightPanel;
@@ -76,10 +76,11 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         int mNumItems;
         boolean mShowMoreRight;
         boolean mShowMoreLeft;
+        final ItemBridgeAdapter mActionBridgeAdapter = new ItemBridgeAdapter();
 
-        void bind(ItemBridgeAdapter bridgeAdapter) {
-            mNumItems = bridgeAdapter.getItemCount();
-            bridgeAdapter.setAdapterListener(mAdapterListener);
+        void bind(ObjectAdapter adapter) {
+            mActionBridgeAdapter.setAdapter(adapter);
+            mNumItems = mActionBridgeAdapter.getItemCount();
 
             mShowMoreRight = false;
             mShowMoreLeft = true;
@@ -97,9 +98,68 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             }
         };
 
+        final OnChildSelectedListener mChildSelectedListener = new OnChildSelectedListener() {
+            @Override
+            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+                dispatchItemSelection(view);
+            }
+        };
+
+        void dispatchItemSelection(View view) {
+            if (!isSelected()) {
+                return;
+            }
+            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) (view != null ?
+                    mActionsRow.getChildViewHolder(view) :
+                    mActionsRow.findViewHolderForPosition(mActionsRow.getSelectedPosition()));
+            if (ibvh == null) {
+                if (getOnItemSelectedListener() != null) {
+                    getOnItemSelectedListener().onItemSelected(null, getRow());
+                }
+                if (getOnItemViewSelectedListener() != null) {
+                    getOnItemViewSelectedListener().onItemSelected(null, null,
+                            ViewHolder.this, getRow());
+                }
+            } else {
+                if (getOnItemSelectedListener() != null) {
+                    getOnItemSelectedListener().onItemSelected(ibvh.getItem(), getRow());
+                }
+                if (getOnItemViewSelectedListener() != null) {
+                    getOnItemViewSelectedListener().onItemSelected(ibvh.getViewHolder(), ibvh.getItem(),
+                            ViewHolder.this, getRow());
+                }
+            }
+        };
+
         final ItemBridgeAdapter.AdapterListener mAdapterListener =
                 new ItemBridgeAdapter.AdapterListener() {
 
+            @Override
+            public void onBind(final ItemBridgeAdapter.ViewHolder ibvh) {
+                if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
+                        || mActionClickedListener != null) {
+                    ibvh.getPresenter().setOnClickListener(
+                            ibvh.getViewHolder(), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (getOnItemViewClickedListener() != null) {
+                                        getOnItemViewClickedListener().onItemClicked(ibvh.getViewHolder(),
+                                                ibvh.getItem(), ViewHolder.this, getRow());
+                                    }
+                                    if (mActionClickedListener != null) {
+                                        mActionClickedListener.onActionClicked((Action) ibvh.getItem());
+                                    }
+                                }
+                            });
+                }
+            }
+            @Override
+            public void onUnbind(final ItemBridgeAdapter.ViewHolder ibvh) {
+                if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
+                        || mActionClickedListener != null) {
+                    ibvh.getPresenter().setOnClickListener(ibvh.getViewHolder(), null);
+                }
+            }
             @Override
             public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
                 // Remove first to ensure we don't add ourselves more than once.
@@ -176,6 +236,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             mActionsRow =
                     (HorizontalGridView) mRightPanel.findViewById(R.id.details_overview_actions);
             mActionsRow.setOnScrollListener(mScrollListener);
+            mActionsRow.setAdapter(mActionBridgeAdapter);
+            mActionsRow.setOnChildSelectedListener(mChildSelectedListener);
 
             final int fadeLength = rootView.getResources().getDimensionPixelSize(
                     R.dimen.lb_details_overview_actions_fade_size);
@@ -184,12 +246,15 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             mDetailsDescriptionViewHolder =
                     detailsPresenter.onCreateViewHolder(mDetailsDescriptionFrame);
             mDetailsDescriptionFrame.addView(mDetailsDescriptionViewHolder.view);
+
+            mActionBridgeAdapter.setAdapterListener(mAdapterListener);
         }
     }
 
     private final Presenter mDetailsPresenter;
     private final ActionPresenterSelector mActionPresenterSelector;
-    private final ItemBridgeAdapter mActionBridgeAdapter;
+    private OnActionClickedListener mActionClickedListener;
+
     private int mBackgroundColor = Color.TRANSPARENT;
     private boolean mBackgroundColorSet;
     private boolean mIsStyleLarge = true;
@@ -207,21 +272,20 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         setSelectEffectEnabled(false);
         mDetailsPresenter = detailsPresenter;
         mActionPresenterSelector = new ActionPresenterSelector();
-        mActionBridgeAdapter = new ItemBridgeAdapter();
     }
 
     /**
      * Sets the listener for Action click events.
      */
     public void setOnActionClickedListener(OnActionClickedListener listener) {
-        mActionPresenterSelector.setOnActionClickedListener(listener);
+        mActionClickedListener = listener;
     }
 
     /**
      * Gets the listener for Action click events.
      */
     public OnActionClickedListener getOnActionClickedListener() {
-        return mActionPresenterSelector.getOnActionClickedListener();
+        return mActionClickedListener;
     }
 
     /**
@@ -278,6 +342,13 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
         return context.getResources().getColor(outValue.resourceId);
+    }
+
+    protected void onRowViewSelected(RowPresenter.ViewHolder vh, boolean selected) {
+        super.onRowViewSelected(vh, selected);
+        if (selected) {
+            ((ViewHolder) vh).dispatchItemSelection(null);
+        }
     }
 
     @Override
@@ -399,14 +470,9 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         mDetailsPresenter.onBindViewHolder(vh.mDetailsDescriptionViewHolder, row.getItem());
 
-        mActionBridgeAdapter.clear();
         ArrayObjectAdapter aoa = new ArrayObjectAdapter(mActionPresenterSelector);
         aoa.addAll(0, (Collection)row.getActions());
-
-        mActionBridgeAdapter.setAdapter(aoa);
-        vh.mActionsRow.setAdapter(mActionBridgeAdapter);
-
-        vh.bind(mActionBridgeAdapter);
+        vh.bind(aoa);
 
         if (row.getImageDrawable() != null && mSharedElementHelper != null) {
             mSharedElementHelper.onBindToDrawable(vh);
@@ -421,7 +487,5 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         if (vh.mDetailsDescriptionViewHolder != null) {
             mDetailsPresenter.onUnbindViewHolder(vh.mDetailsDescriptionViewHolder);
         }
-
-        vh.mActionsRow.setAdapter(null);
     }
 }

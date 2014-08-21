@@ -14,6 +14,8 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.ControlBarPresenter.OnControlClickedListener;
+import android.support.v17.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.TypedValue;
@@ -31,6 +33,10 @@ import android.widget.ImageView;
  * PlaybackControlsFragment}.
  */
 public class PlaybackControlsRowPresenter extends RowPresenter {
+
+    static class BoundData extends PlaybackControlsPresenter.BoundData {
+        ViewHolder mRowViewHolder;
+    }
 
     /**
      * A ViewHolder for the PlaybackControlsRow.
@@ -50,9 +56,10 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         int mControlsDockMarginEnd;
         PlaybackControlsPresenter.ViewHolder mControlsVh;
         Presenter.ViewHolder mSecondaryControlsVh;
-        PlaybackControlsPresenter.BoundData mControlsBoundData =
-                new PlaybackControlsPresenter.BoundData();
-        ControlBarPresenter.BoundData mSecondaryBoundData = new ControlBarPresenter.BoundData();
+        BoundData mControlsBoundData = new BoundData();
+        BoundData mSecondaryBoundData = new BoundData();
+        Presenter.ViewHolder mSelectedViewHolder;
+        Object mSelectedItem;
         final PlaybackControlsRow.OnPlaybackStateChangedListener mListener =
                 new PlaybackControlsRow.OnPlaybackStateChangedListener() {
             @Override
@@ -62,17 +69,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             @Override
             public void onBufferedProgressChanged(int ms) {
                 mPlaybackControlsPresenter.setSecondaryProgress(mControlsVh, ms);
-            }
-        };
-        final OnItemViewSelectedListener mOnItemViewSelectedListener =
-                new OnItemViewSelectedListener() {
-            @Override
-            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
-                if (getOnItemViewSelectedListener() != null) {
-                    getOnItemViewSelectedListener().onItemSelected(itemViewHolder, item,
-                            ViewHolder.this, getRow());
-                }
             }
         };
 
@@ -93,7 +89,30 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             }
         }
 
-        Presenter getPresenter(Object item, boolean primary) {
+        void dispatchItemSelection() {
+            if (!isSelected()) {
+                return;
+            }
+            if (mSelectedViewHolder == null) {
+                if (getOnItemSelectedListener() != null) {
+                    getOnItemSelectedListener().onItemSelected(null, getRow());
+                }
+                if (getOnItemViewSelectedListener() != null) {
+                    getOnItemViewSelectedListener().onItemSelected(null, null,
+                            ViewHolder.this, getRow());
+                }
+            } else {
+                if (getOnItemSelectedListener() != null) {
+                    getOnItemSelectedListener().onItemSelected(mSelectedItem, getRow());
+                }
+                if (getOnItemViewSelectedListener() != null) {
+                    getOnItemViewSelectedListener().onItemSelected(mSelectedViewHolder, mSelectedItem,
+                            ViewHolder.this, getRow());
+                }
+            }
+        };
+
+        Presenter getPresenter(boolean primary) {
             ObjectAdapter adapter = primary ?
                     ((PlaybackControlsRow) getRow()).getPrimaryActionsAdapter() :
                             ((PlaybackControlsRow) getRow()).getSecondaryActionsAdapter();
@@ -103,7 +122,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
                 return primary ? selector.getPrimaryPresenter() :
                     selector.getSecondaryPresenter();
             }
-            return adapter.getPresenter(item);
+            return adapter.getPresenter(adapter.size() > 0 ? adapter.get(0) : null);
         }
 
         void setBackground(View view) {
@@ -126,6 +145,40 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     private Presenter mDescriptionPresenter;
     private PlaybackControlsPresenter mPlaybackControlsPresenter;
     private ControlBarPresenter mSecondaryControlsPresenter;
+    private OnActionClickedListener mOnActionClickedListener;
+
+    private final OnControlSelectedListener mOnControlSelectedListener =
+            new OnControlSelectedListener() {
+        @Override
+        public void onControlSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                ControlBarPresenter.BoundData data) {
+            ViewHolder vh = ((BoundData) data).mRowViewHolder;
+            if (vh.mSelectedViewHolder != itemViewHolder || vh.mSelectedItem != item) {
+                vh.mSelectedViewHolder = itemViewHolder;
+                vh.mSelectedItem = item;
+                vh.dispatchItemSelection();
+            }
+        }
+    };
+
+    private final OnControlClickedListener mOnControlClickedListener =
+            new OnControlClickedListener() {
+        @Override
+        public void onControlClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                ControlBarPresenter.BoundData data) {
+            ViewHolder vh = ((BoundData) data).mRowViewHolder;
+            if (getOnItemClickedListener() != null) {
+                getOnItemClickedListener().onItemClicked(item, vh.getRow());
+            }
+            if (getOnItemViewClickedListener() != null) {
+                getOnItemViewClickedListener().onItemClicked(itemViewHolder, item,
+                        vh, vh.getRow());
+            }
+            if (mOnActionClickedListener != null && item instanceof Action) {
+                mOnActionClickedListener.onActionClicked((Action) item);
+            }
+        }
+    };
 
     /**
      * Constructor for a PlaybackControlsRowPresenter.
@@ -139,6 +192,11 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         mDescriptionPresenter = descriptionPresenter;
         mPlaybackControlsPresenter = new PlaybackControlsPresenter(R.layout.lb_playback_controls);
         mSecondaryControlsPresenter = new ControlBarPresenter(R.layout.lb_control_bar);
+
+        mPlaybackControlsPresenter.setOnControlSelectedListener(mOnControlSelectedListener);
+        mSecondaryControlsPresenter.setOnControlSelectedListener(mOnControlSelectedListener);
+        mPlaybackControlsPresenter.setOnControlClickedListener(mOnControlClickedListener);
+        mSecondaryControlsPresenter.setOnControlClickedListener(mOnControlClickedListener);
     }
 
     /**
@@ -152,15 +210,14 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
      * Sets the listener for {@link Action} click events.
      */
     public void setOnActionClickedListener(OnActionClickedListener listener) {
-        mPlaybackControlsPresenter.setOnActionClickedListener(listener);
-        mSecondaryControlsPresenter.setOnActionClickedListener(listener);
+        mOnActionClickedListener = listener;
     }
 
     /**
      * Gets the listener for {@link Action} click events.
      */
     public OnActionClickedListener getOnActionClickedListener() {
-        return mPlaybackControlsPresenter.getOnActionClickedListener();
+        return mOnActionClickedListener;
     }
 
     /**
@@ -261,7 +318,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         mPlaybackControlsPresenter.setProgressColor(vh.mControlsVh,
                 mProgressColorSet ? mProgressColor :
                         getDefaultProgressColor(vh.mControlsDock.getContext()));
-        mPlaybackControlsPresenter.setOnItemViewSelectedListener(vh.mOnItemViewSelectedListener);
         vh.mControlsDock.addView(vh.mControlsVh.view);
 
         vh.mSecondaryControlsVh =
@@ -269,7 +325,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         if (!mSecondaryActionsHidden) {
             vh.mSecondaryControlsDock.addView(vh.mSecondaryControlsVh.view);
         }
-        mSecondaryControlsPresenter.setOnItemViewSelectedListener(vh.mOnItemViewSelectedListener);
     }
 
     @Override
@@ -315,13 +370,13 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
 
         vh.mControlsBoundData.adapter = row.getPrimaryActionsAdapter();
         vh.mControlsBoundData.secondaryActionsAdapter = row.getSecondaryActionsAdapter();
-        vh.mControlsBoundData.presenter = vh.getPresenter(
-                row.getPrimaryActionsAdapter().get(0), true);
+        vh.mControlsBoundData.presenter = vh.getPresenter(true);
+        vh.mControlsBoundData.mRowViewHolder = vh;
         mPlaybackControlsPresenter.onBindViewHolder(vh.mControlsVh, vh.mControlsBoundData);
 
         vh.mSecondaryBoundData.adapter = row.getSecondaryActionsAdapter();
-        vh.mSecondaryBoundData.presenter = vh.getPresenter(
-                row.getSecondaryActionsAdapter().get(0), false);
+        vh.mSecondaryBoundData.presenter = vh.getPresenter(false);
+        vh.mSecondaryBoundData.mRowViewHolder = vh;
         mSecondaryControlsPresenter.onBindViewHolder(vh.mSecondaryControlsVh,
                 vh.mSecondaryBoundData);
 
@@ -344,5 +399,12 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         row.setOnPlaybackStateChangedListener(null);
 
         super.onUnbindRowViewHolder(holder);
+    }
+
+    protected void onRowViewSelected(RowPresenter.ViewHolder vh, boolean selected) {
+        super.onRowViewSelected(vh, selected);
+        if (selected) {
+            ((ViewHolder) vh).dispatchItemSelection();
+        }
     }
 }
