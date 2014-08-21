@@ -226,6 +226,13 @@
         <attr name="playbackControlsIconHighlightColor" format="reference|color" />
         <attr name="playbackControlsActionIcons" format="reference" />
 
+        <!-- Default color for dimmed views. -->
+        <attr name="overlayDimMaskColor" format="color" />
+        <!-- Default level of dimming for active views. -->
+        <attr name="overlayDimActiveLevel" format="fraction" />
+        <!-- Default level of dimming for dimmed views. -->
+        <attr name="overlayDimDimmedLevel" format="fraction" />
+
     </declare-styleable>
 
 
