@@ -134,25 +134,12 @@ public class DetailsFragment extends Fragment {
                     .replace(R.id.fragment_dock, mRowsFragment).commit();
         }
         mRowsFragment.setAdapter(mAdapter);
-        mRowsFragment.setOnItemViewSelectedListener(mRowSelectedListener);
+        mRowsFragment.setOnItemSelectedListener(mExternalOnItemSelectedListener);
+        mRowsFragment.setOnItemViewSelectedListener(mExternalOnItemViewSelectedListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
         return view;
     }
-
-    private OnItemViewSelectedListener mRowSelectedListener = new OnItemViewSelectedListener() {
-        @Override
-        public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                RowPresenter.ViewHolder rowViewHolder, Row row) {
-            if (mExternalOnItemSelectedListener != null) {
-                mExternalOnItemSelectedListener.onItemSelected(item, row);
-            }
-            if (mExternalOnItemViewSelectedListener != null) {
-                mExternalOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
-                        rowViewHolder, row);
-            }
-        }
-    };
 
     void setVerticalGridViewLayout(VerticalGridView listview) {
         // align the top edge of item to a fixed position
