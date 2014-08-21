@@ -61,12 +61,7 @@ class ShadowHelperApi21 {
         shadowContainer.setZ(sNormalZ + level * (sFocusedZ - sNormalZ));
     }
 
-    public static void setZ(View view, float level) {
-        initializeResources(view.getResources());
-        view.setZ(sNormalZ + level * (sFocusedZ - sNormalZ));
-    }
-
-    public static void clearZ(View view) {
-        view.setZ(0);
+    public static void setZ(View view, float z) {
+        view.setZ(z);
     }
 }

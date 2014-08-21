@@ -191,6 +191,11 @@
     <!-- z based shadow -->
     <dimen name="lb_material_shadow_normal_z">2dp</dimen>
     <dimen name="lb_material_shadow_focused_z">8dp</dimen>
+    <dimen name="lb_search_orb_unfocused_z">@dimen/lb_material_shadow_normal_z</dimen>
+    <dimen name="lb_search_orb_focused_z">@dimen/lb_material_shadow_focused_z</dimen>
+    <dimen name="lb_details_overview_z">@dimen/lb_material_shadow_normal_z</dimen>
+    <dimen name="lb_playback_controls_z">@dimen/lb_material_shadow_normal_z</dimen>
+    <dimen name="lb_browse_headers_z">@dimen/lb_material_shadow_focused_z</dimen>
 
     <dimen name="lb_rounded_rect_corner_radius">2dp</dimen>
 
