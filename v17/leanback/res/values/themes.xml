@@ -75,6 +75,10 @@
         <item name="android:windowEnterTransition">@transition/lb_enter_transition</item>
         <item name="android:windowSharedElementReturnTransition">@transition/lb_shared_element_return_transition</item>
         <item name="android:windowReturnTransition">@transition/lb_return_transition</item>
-        </style>
+
+        <item name="overlayDimMaskColor">@color/lb_view_dim_mask_color</item>
+        <item name="overlayDimActiveLevel">@fraction/lb_view_active_level</item>
+        <item name="overlayDimDimmedLevel">@fraction/lb_view_dimmed_level</item>
+    </style>
 
 </resources>
