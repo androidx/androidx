@@ -186,7 +186,7 @@ public final class PlaybackStateCompat implements Parcelable {
 
     private final int mState;
     private final long mPosition;
-    private final long mBufferPosition;
+    private final long mBufferedPosition;
     private final float mSpeed;
     private final long mActions;
     private final CharSequence mErrorMessage;
@@ -194,11 +194,11 @@ public final class PlaybackStateCompat implements Parcelable {
 
     private Object mStateObj;
 
-    private PlaybackStateCompat(int state, long position, long bufferPosition,
+    private PlaybackStateCompat(int state, long position, long bufferedPosition,
             float rate, long actions, CharSequence errorMessage, long updateTime) {
         mState = state;
         mPosition = position;
-        mBufferPosition = bufferPosition;
+        mBufferedPosition = bufferedPosition;
         mSpeed = rate;
         mActions = actions;
         mErrorMessage = errorMessage;
@@ -210,7 +210,7 @@ public final class PlaybackStateCompat implements Parcelable {
         mPosition = in.readLong();
         mSpeed = in.readFloat();
         mUpdateTime = in.readLong();
-        mBufferPosition = in.readLong();
+        mBufferedPosition = in.readLong();
         mActions = in.readLong();
         mErrorMessage = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
     }
@@ -220,7 +220,7 @@ public final class PlaybackStateCompat implements Parcelable {
         StringBuilder bob = new StringBuilder("PlaybackState {");
         bob.append("state=").append(mState);
         bob.append(", position=").append(mPosition);
-        bob.append(", buffered position=").append(mBufferPosition);
+        bob.append(", buffered position=").append(mBufferedPosition);
         bob.append(", speed=").append(mSpeed);
         bob.append(", updated=").append(mUpdateTime);
         bob.append(", actions=").append(mActions);
@@ -240,7 +240,7 @@ public final class PlaybackStateCompat implements Parcelable {
         dest.writeLong(mPosition);
         dest.writeFloat(mSpeed);
         dest.writeLong(mUpdateTime);
-        dest.writeLong(mBufferPosition);
+        dest.writeLong(mBufferedPosition);
         dest.writeLong(mActions);
         TextUtils.writeToParcel(mErrorMessage, dest, flags);
     }
@@ -269,12 +269,12 @@ public final class PlaybackStateCompat implements Parcelable {
     }
 
     /**
-     * Get the current buffer position in ms. This is the farthest playback
+     * Get the current buffered position in ms. This is the farthest playback
      * point that can be reached from the current position using only buffered
      * content.
      */
-    public long getBufferPosition() {
-        return mBufferPosition;
+    public long getBufferedPosition() {
+        return mBufferedPosition;
     }
 
     /**
@@ -342,7 +342,7 @@ public final class PlaybackStateCompat implements Parcelable {
         PlaybackStateCompat state = new PlaybackStateCompat(
                 PlaybackStateCompatApi21.getState(stateObj),
                 PlaybackStateCompatApi21.getPosition(stateObj),
-                PlaybackStateCompatApi21.getBufferPosition(stateObj),
+                PlaybackStateCompatApi21.getBufferedPosition(stateObj),
                 PlaybackStateCompatApi21.getPlaybackSpeed(stateObj),
                 PlaybackStateCompatApi21.getActions(stateObj),
                 PlaybackStateCompatApi21.getErrorMessage(stateObj),
@@ -364,7 +364,7 @@ public final class PlaybackStateCompat implements Parcelable {
             return mStateObj;
         }
 
-        mStateObj = PlaybackStateCompatApi21.newInstance(mState, mPosition, mBufferPosition,
+        mStateObj = PlaybackStateCompatApi21.newInstance(mState, mPosition, mBufferedPosition,
                 mSpeed, mActions, mErrorMessage, mUpdateTime);
         return mStateObj;
     }
@@ -388,7 +388,7 @@ public final class PlaybackStateCompat implements Parcelable {
     public static final class Builder {
         private int mState;
         private long mPosition;
-        private long mBufferPosition;
+        private long mBufferedPosition;
         private float mRate;
         private long mActions;
         private CharSequence mErrorMessage;
@@ -411,7 +411,7 @@ public final class PlaybackStateCompat implements Parcelable {
             mPosition = source.mPosition;
             mRate = source.mSpeed;
             mUpdateTime = source.mUpdateTime;
-            mBufferPosition = source.mBufferPosition;
+            mBufferedPosition = source.mBufferedPosition;
             mActions = source.mActions;
             mErrorMessage = source.mErrorMessage;
         }
@@ -451,12 +451,12 @@ public final class PlaybackStateCompat implements Parcelable {
         }
 
         /**
-         * Set the current buffer position in ms. This is the farthest playback
-         * point that can be reached from the current position using only buffered
-         * content.
+         * Set the current buffered position in ms. This is the farthest
+         * playback point that can be reached from the current position using
+         * only buffered content.
          */
-        public void setBufferPosition(long bufferPosition) {
-            mBufferPosition = bufferPosition;
+        public void setBufferedPosition(long bufferPosition) {
+            mBufferedPosition = bufferPosition;
         }
 
         /**
@@ -490,7 +490,7 @@ public final class PlaybackStateCompat implements Parcelable {
          * Creates the playback state object.
          */
         public PlaybackStateCompat build() {
-            return new PlaybackStateCompat(mState, mPosition, mBufferPosition,
+            return new PlaybackStateCompat(mState, mPosition, mBufferedPosition,
                     mRate, mActions, mErrorMessage, mUpdateTime);
         }
     }
