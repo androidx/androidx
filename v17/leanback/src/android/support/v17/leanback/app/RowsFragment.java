@@ -357,6 +357,10 @@ public class RowsFragment extends BaseRowFragment {
         }
         @Override
         public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder vh) {
+            if (mSelectedViewHolder == vh) {
+                setRowViewSelected(mSelectedViewHolder, false, true);
+                mSelectedViewHolder = null;
+            }
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onDetachedFromWindow(vh);
             }
