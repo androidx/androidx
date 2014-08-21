@@ -48,10 +48,24 @@ class ControlBarPresenter extends Presenter {
     }
 
     /**
-     * A ViewHolder for an actions bar.
+     * Listener for control selected events.
      */
+    interface OnControlSelectedListener {
+        void onControlSelected(Presenter.ViewHolder controlViewHolder, Object item,
+                BoundData data);
+    }
+
+    /**
+     * Listener for control clicked events.
+     */
+    interface OnControlClickedListener {
+        void onControlClicked(Presenter.ViewHolder controlViewHolder, Object item,
+                BoundData data);
+    }
+
     class ViewHolder extends Presenter.ViewHolder {
         ObjectAdapter mAdapter;
+        BoundData mData;
         Presenter mPresenter;
         ControlBar mControlBar;
         SparseArray<Presenter.ViewHolder> mViewHolders =
@@ -70,14 +84,14 @@ class ControlBarPresenter extends Presenter {
             mControlBar.setOnChildFocusedListener(new ControlBar.OnChildFocusedListener() {
                 @Override
                 public void onChildFocusedListener(View child, View focused) {
-                    if (mOnItemViewSelectedListener == null) {
+                    if (mOnControlSelectedListener == null) {
                         return;
                     }
                     for (int position = 0; position < mViewHolders.size(); position++) {
                         if (mViewHolders.get(position).view == child) {
-                            mOnItemViewSelectedListener.onItemSelected(
-                                    mViewHolders.get(position), getDisplayedAdapter().get(position),
-                                            null, null);
+                            mOnControlSelectedListener.onControlSelected(
+                                    mViewHolders.get(position),
+                                    getDisplayedAdapter().get(position), mData);
                             break;
                         }
                     }
@@ -107,15 +121,19 @@ class ControlBarPresenter extends Presenter {
         }
 
         void showControls(Presenter presenter) {
-            View focusedChild = mControlBar.getFocusedChild();
             ObjectAdapter adapter = getDisplayedAdapter();
-            mControlBar.removeAllViews();
+            // Shrink the number of attached views
+            View focusedView = mControlBar.getFocusedChild();
+            if (focusedView != null && adapter.size() > 0 &&
+                    mControlBar.indexOfChild(focusedView) >= adapter.size()) {
+                mControlBar.getChildAt(adapter.size() - 1).requestFocus();
+            }
+            for (int i = mControlBar.getChildCount() - 1; i >= adapter.size(); i--) {
+                mControlBar.removeViewAt(i);
+            }
             for (int position = 0; position < adapter.size() && position < MAX_CONTROLS;
                     position++) {
                 bindControlToAction(position, adapter, presenter);
-            }
-            if (focusedChild != null) {
-                focusedChild.requestFocus();
             }
             mControlBar.setChildMarginFromCenter(
                     getChildMarginFromCenter(mControlBar.getContext(), adapter.size()));
@@ -132,12 +150,15 @@ class ControlBarPresenter extends Presenter {
             if (vh == null) {
                 vh = presenter.onCreateViewHolder(mControlBar);
                 mViewHolders.put(position, vh);
+
+                final Presenter.ViewHolder itemViewHolder = vh;
                 presenter.setOnClickListener(vh, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Object item = getDisplayedAdapter().get(position);
-                        if (mOnActionClickedListener != null && item instanceof Action) {
-                            mOnActionClickedListener.onActionClicked((Action) item);
+                        if (mOnControlClickedListener != null) {
+                            mOnControlClickedListener.onControlClicked(itemViewHolder, item,
+                                    mData);
                         }
                     }
                 });
@@ -157,8 +178,8 @@ class ControlBarPresenter extends Presenter {
         }
     }
 
-    private OnActionClickedListener mOnActionClickedListener;
-    private OnItemViewSelectedListener mOnItemViewSelectedListener;
+    private OnControlClickedListener mOnControlClickedListener;
+    private OnControlSelectedListener mOnControlSelectedListener;
     private int mLayoutResourceId;
     private static int sChildMarginDefault;
     private static int sControlIconWidth;
@@ -180,32 +201,31 @@ class ControlBarPresenter extends Presenter {
     }
 
     /**
-     * Sets the listener for {@link Action} click events.
+     * Sets the listener for control clicked events.
      */
-    public void setOnActionClickedListener(OnActionClickedListener listener) {
-        mOnActionClickedListener = listener;
+    public void setOnControlClickedListener(OnControlClickedListener listener) {
+        mOnControlClickedListener = listener;
     }
 
     /**
-     * Gets the listener for {@link Action} click events.
+     * Returns the listener for control clicked events.
      */
-    public OnActionClickedListener getOnActionClickedListener() {
-        return mOnActionClickedListener;
+    public OnControlClickedListener getOnItemViewClickedListener() {
+        return mOnControlClickedListener;
     }
 
     /**
-     * Sets the listener for item selection.  When this listener is invoked,
-     *  the rowViewHolder and row are always null.
+     * Sets the listener for control selection.
      */
-    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
-        mOnItemViewSelectedListener = listener;
+    public void setOnControlSelectedListener(OnControlSelectedListener listener) {
+        mOnControlSelectedListener = listener;
     }
 
     /**
-     * Gets the listener for item selection.
+     * Returns the listener for control selection.
      */
-    public OnItemViewSelectedListener getOnItemViewSelectedListener() {
-        return mOnItemViewSelectedListener;
+    public OnControlSelectedListener getOnItemControlListener() {
+        return mOnControlSelectedListener;
     }
 
     @Override
@@ -224,6 +244,7 @@ class ControlBarPresenter extends Presenter {
             vh.mAdapter.registerObserver(vh.mDataObserver);
         }
         vh.mPresenter = data.presenter;
+        vh.mData = data;
         vh.showControls(vh.mPresenter);
     }
 
@@ -232,6 +253,7 @@ class ControlBarPresenter extends Presenter {
         ViewHolder vh = (ViewHolder) holder;
         vh.mAdapter.unregisterObserver(vh.mDataObserver);
         vh.mAdapter = null;
+        vh.mData = null;
     }
 
     int getChildMarginDefault(Context context) {
