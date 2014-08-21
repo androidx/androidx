@@ -26,6 +26,10 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnActionClickedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,7 +40,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class DetailsFragment extends android.support.v17.leanback.app.DetailsFragment {
-    private static final String TAG = "leanback.BrowseFragment";
+    private static final String TAG = "leanback.DetailsFragment";
     private static final String ITEM = "item";
 
     private static final int NUM_ROWS = 3;
@@ -58,8 +62,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         });
 
         ps.addClassPresenter(DetailsOverviewRow.class, dorPresenter);
-        ps.addClassPresenter(ListRow.class,
-                new ListRowPresenter());
+        ps.addClassPresenter(ListRow.class, new ListRowPresenter());
 
         mRowsAdapter = new ArrayObjectAdapter(ps);
 
@@ -70,6 +73,21 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         }
         dorPresenter.setSharedElementEnterTransition(getActivity(),
                 DetailsActivity.SHARED_ELEMENT_NAME);
+
+        setOnItemViewClickedListener(new OnItemViewClickedListener() {
+            @Override
+            public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                Log.i(TAG, "onItemClicked: " + item + " row " + row);
+            }
+        });
+        setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
+            @Override
+            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                Log.i(TAG, "onItemSelected: " + item + " row " + row);
+            }
+        });
     }
 
     @Override

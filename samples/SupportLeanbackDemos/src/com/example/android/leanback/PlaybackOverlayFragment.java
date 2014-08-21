@@ -35,9 +35,14 @@ import android.support.v17.leanback.widget.PlaybackControlsRow.SkipPreviousActio
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnActionClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.util.Log;
 import android.widget.Toast;
@@ -79,6 +84,21 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         setFadingEnabled(false);
 
         setupRows();
+
+        setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
+            @Override
+            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                Log.i(TAG, "onItemSelected: " + item + " row " + row);
+            }
+        });
+        setOnItemViewClickedListener(new OnItemViewClickedListener() {
+            @Override
+            public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                Log.i(TAG, "onItemClicked: " + item + " row " + row);
+            }
+        });
     }
 
 
@@ -256,6 +276,12 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         if (mHandler != null && mRunnable != null) {
             mHandler.removeCallbacks(mRunnable);
         }
+    }
+
+    @Override
+    public void onStop() {
+        stopProgressAutomation();
+        super.onStop();
     }
 
     static class MediaItem {

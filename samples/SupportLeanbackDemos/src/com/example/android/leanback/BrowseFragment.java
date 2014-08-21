@@ -22,6 +22,7 @@ import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
@@ -54,6 +55,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         setupRows();
         setOnItemViewClickedListener(new ItemViewClickedListener());
+        setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
+            @Override
+            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                Log.i(TAG, "onItemSelected: " + item + " row " + row);
+            }
+        });
     }
 
     private void setupRows() {

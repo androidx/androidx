@@ -14,22 +14,19 @@
 package com.example.android.leanback;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.OnItemClickedListener;
-import android.support.v17.leanback.widget.OnItemSelectedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.util.Random;
 
 public class VerticalGridFragment extends android.support.v17.leanback.app.VerticalGridFragment {
     private static final String TAG = "leanback.VerticalGridFragment";
@@ -39,14 +36,11 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
     private static final int HEIGHT = 200;
 
     private ArrayObjectAdapter mAdapter;
-    private Random mRandom;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-
-        mRandom = new Random();
 
         setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
         setTitle("Leanback Vertical Grid Demo");
@@ -59,23 +53,25 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
         gridPresenter.setNumberOfColumns(NUM_COLUMNS);
         setGridPresenter(gridPresenter);
 
-        mAdapter = new ArrayObjectAdapter(new CardPresenter());
+        mAdapter = new ArrayObjectAdapter(new StringPresenter());
         for (int i = 0; i < NUM_ITEMS; i++) {
             mAdapter.add(Integer.toString(i));
         }
         setAdapter(mAdapter);
 
-        setOnItemSelectedListener(new OnItemSelectedListener() {
+        setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
             @Override
-            public void onItemSelected(Object item, Row row) {
-                Log.i(TAG, "item selected: " + item);
+            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                Log.i(TAG, "onItemSelected: " + item + " row " + row);
             }
         });
 
-        setOnItemClickedListener(new OnItemClickedListener() {
+        setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
-            public void onItemClicked(Object item, Row row) {
-                Log.i(TAG, "item clicked: " + item);
+            public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                Log.i(TAG, "onItemClicked: " + item + " row " + row);
             }
         });
         setOnSearchClickedListener(new View.OnClickListener() {

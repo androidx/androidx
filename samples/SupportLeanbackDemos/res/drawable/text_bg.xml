@@ -19,7 +19,7 @@
     android:shape="rectangle">
     <gradient
         android:startColor="#FFFF0000"
-        android:endColor="#80FF00FF"
+        android:endColor="#FFFF00FF"
         android:angle="45" />
     <padding
         android:left="7dp"
