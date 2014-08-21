@@ -741,7 +741,7 @@ public class ViewDragHelper {
                 // Close enough. The interpolator/scroller might think we're still moving
                 // but the user sure doesn't.
                 mScroller.abortAnimation();
-                keepGoing = mScroller.isFinished();
+                keepGoing = false;
             }
 
             if (!keepGoing) {
