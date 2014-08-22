@@ -37,9 +37,7 @@ final class ShadowHelper {
 
         public Object addShadow(ViewGroup shadowContainer, boolean roundedCorners);
 
-        public void setZ(View view, float focusLevel);
-
-        public void clearZ(View view);
+        public void setZ(View view, float z);
 
         public void setShadowFocusLevel(Object impl, float level);
 
@@ -67,12 +65,7 @@ final class ShadowHelper {
         }
 
         @Override
-        public void setZ(View view, float focusLevel) {
-            // do nothing
-        }
-
-        @Override
-        public void clearZ(View view) {
+        public void setZ(View view, float z) {
             // do nothing
         }
 
@@ -100,12 +93,7 @@ final class ShadowHelper {
         }
 
         @Override
-        public void setZ(View view, float focusLevel) {
-            // Not supported
-        }
-
-        @Override
-        public void clearZ(View view) {
+        public void setZ(View view, float z) {
             // Not supported
         }
 
@@ -132,13 +120,8 @@ final class ShadowHelper {
         }
 
         @Override
-        public void setZ(View view, float focusLevel) {
-            ShadowHelperApi21.setZ(view, focusLevel);
-        }
-
-        @Override
-        public void clearZ(View view) {
-            ShadowHelperApi21.clearZ(view);
+        public void setZ(View view, float z) {
+            ShadowHelperApi21.setZ(view, z);
         }
 
     }
@@ -186,13 +169,10 @@ final class ShadowHelper {
     }
 
     /**
-     * Set the view z coordinate with the given focus level from 0..1.
+     * Set the view z coordinate.
      */
-    public void setZ(View view, float focusLevel) {
-        mImpl.setZ(view, focusLevel);
+    public void setZ(View view, float z) {
+        mImpl.setZ(view, z);
     }
 
-    public void clearZ(View view) {
-        mImpl.clearZ(view);
-    }
 }

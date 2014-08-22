@@ -33,10 +33,13 @@
             android:id="@+id/browse_container_dock"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <!-- Padding needed for shadow -->
         <FrameLayout
             android:id="@+id/browse_headers_dock"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:paddingEnd="50dp" />
         <include layout="@layout/lb_browse_title" />
     </android.support.v17.leanback.app.BrowseFrameLayout>
 </FrameLayout>

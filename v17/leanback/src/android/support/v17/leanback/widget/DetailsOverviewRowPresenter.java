@@ -251,6 +251,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         }
     }
 
+    private static float sShadowZ;
+
     private final Presenter mDetailsPresenter;
     private final ActionPresenterSelector mActionPresenterSelector;
     private OnActionClickedListener mActionClickedListener;
@@ -374,7 +376,11 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         lp.height = getCardHeight(overview.getContext());
         overview.setLayoutParams(lp);
 
-        ShadowHelper.getInstance().setZ(overview, 0f);
+        if (sShadowZ == 0) {
+            sShadowZ = overview.getResources().getDimensionPixelSize(
+                    R.dimen.lb_details_overview_z);
+        }
+        ShadowHelper.getInstance().setZ(overview, sShadowZ);
     }
 
     private static int getNonNegativeWidth(Drawable drawable) {
