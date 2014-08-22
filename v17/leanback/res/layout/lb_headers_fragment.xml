@@ -20,4 +20,5 @@
     android:id="@+id/browse_headers"
     android:layout_width="@dimen/lb_browse_headers_width"
     android:layout_height="match_parent"
+    android:elevation="@dimen/lb_browse_headers_z"
     style="?attr/headersVerticalGridStyle"/>

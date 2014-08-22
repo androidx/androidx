@@ -128,12 +128,17 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         void setBackground(View view) {
             if (mBgView != null) {
                 RoundedRectHelper.getInstance().clearBackground(mBgView);
-                ShadowHelper.getInstance().clearZ(mBgView);
+                ShadowHelper.getInstance().setZ(mBgView, 0);
             }
             mBgView = view;
             RoundedRectHelper.getInstance().setRoundedRectBackground(view, mBackgroundColorSet ?
                     mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
-            ShadowHelper.getInstance().setZ(view, 0f);
+
+            if (sShadowZ == 0) {
+                sShadowZ = view.getResources().getDimensionPixelSize(
+                        R.dimen.lb_playback_controls_z);
+            }
+            ShadowHelper.getInstance().setZ(view, sShadowZ);
         }
     }
 
@@ -146,6 +151,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     private PlaybackControlsPresenter mPlaybackControlsPresenter;
     private ControlBarPresenter mSecondaryControlsPresenter;
     private OnActionClickedListener mOnActionClickedListener;
+    private static float sShadowZ;
 
     private final OnControlSelectedListener mOnControlSelectedListener =
             new OnControlSelectedListener() {
