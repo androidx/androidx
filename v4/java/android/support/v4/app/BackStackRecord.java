@@ -530,42 +530,20 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction setSharedElement(View sharedElement, String name) {
+    public FragmentTransaction addSharedElement(View sharedElement, String name) {
         if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
             String transitionName = FragmentTransitionCompat21.getTransitionName(sharedElement);
             if (transitionName == null) {
                 throw new IllegalArgumentException("Unique transitionNames are required for all" +
                         " sharedElements");
             }
-            mSharedElementSourceNames = new ArrayList<String>(1);
-            mSharedElementSourceNames.add(transitionName);
-
-            mSharedElementTargetNames = new ArrayList<String>(1);
-            mSharedElementTargetNames.add(name);
-        }
-        return this;
-    }
-
-    @Override
-    public FragmentTransaction setSharedElements(Pair<View, String>... sharedElements) {
-        if (sharedElements == null || sharedElements.length == 0) {
-            mSharedElementSourceNames = null;
-            mSharedElementTargetNames = null;
-        } else if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
-            ArrayList<String> sourceNames = new ArrayList<String>(sharedElements.length);
-            ArrayList<String> targetNames = new ArrayList<String>(sharedElements.length);
-            for (int i = 0; i < sharedElements.length; i++) {
-                String transitionName =
-                        FragmentTransitionCompat21.getTransitionName(sharedElements[i].first);
-                if (transitionName == null) {
-                    throw new IllegalArgumentException("Unique transitionNames are required for all"
-                            + " sharedElements");
-                }
-                sourceNames.add(transitionName);
-                targetNames.add(sharedElements[i].second);
+            if (mSharedElementSourceNames == null) {
+                mSharedElementSourceNames = new ArrayList<String>();
+                mSharedElementTargetNames = new ArrayList<String>();
             }
-            mSharedElementSourceNames = sourceNames;
-            mSharedElementTargetNames = targetNames;
+
+            mSharedElementSourceNames.add(transitionName);
+            mSharedElementTargetNames.add(name);
         }
         return this;
     }
