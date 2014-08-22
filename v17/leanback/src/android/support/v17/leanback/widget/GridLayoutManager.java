@@ -16,6 +16,9 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
@@ -341,6 +344,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Temporaries used for measuring.
      */
     private int[] mMeasuredDimension = new int[2];
+
+    SavedState mLoadingState;
+    final ViewsStateBundle mChildrenStates = new ViewsStateBundle(
+            ViewsStateBundle.SAVE_LIMITED_CHILD, ViewsStateBundle.DEFAULT_LIMIT);
 
     public GridLayoutManager(BaseGridView baseGridView) {
         mBaseGridView = baseGridView;
@@ -1107,6 +1114,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (index == mLastVisiblePos) {
                 updateScrollMax();
             }
+            mChildrenStates.loadView(v, index);
         }
     };
 
@@ -1263,6 +1271,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (DEBUG) {
                 Log.d(getTag(), "removeAndRecycleViewAt " + position);
             }
+            mChildrenStates.saveOffscreenView(v, position);
             removeAndRecycleView(v, mRecycler);
         }
     }
@@ -1425,6 +1434,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mInLayout = true;
 
+        if (mLoadingState != null) {
+            mFocusPosition = mLoadingState.index;
+            mFocusPositionOffset = 0;
+            mChildrenStates.getChildStates().putAll(mLoadingState.childStates);
+            mLoadingState = null;
+        }
         final boolean scrollToFocus = !isSmoothScrolling()
                 && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED;
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
@@ -2489,6 +2504,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         discardLayoutInfo();
         mFocusPosition = NO_POSITION;
         mFocusPositionOffset = 0;
+        mLoadingState = null;
+        mChildrenStates.clear();
         super.onAdapterChanged(oldAdapter, newAdapter);
     }
 
@@ -2506,5 +2523,70 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mLayoutEnabled = layoutEnabled;
             requestLayout();
         }
+    }
+
+    final static class SavedState implements Parcelable {
+
+        int index; // index inside adapter of the current view
+        Bundle childStates = Bundle.EMPTY;
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            out.writeInt(index);
+            out.writeBundle(childStates);
+        }
+
+        @SuppressWarnings("hiding")
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        SavedState(Parcel in) {
+            index = in.readInt();
+            childStates = in.readBundle(GridLayoutManager.class.getClassLoader());
+        }
+
+        SavedState() {
+        }
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        SavedState ss = new SavedState();
+        for (int i = 0, count = getChildCount(); i < count; i++) {
+            View view = getChildAt(i);
+            int position = getPositionByView(view);
+            if (position != NO_POSITION) {
+                mChildrenStates.saveOnScreenView(view, position);
+            }
+        }
+        ss.index = getSelection();
+        ss.childStates = mChildrenStates.getChildStates();
+        return ss;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            return;
+        }
+        SavedState ss = (SavedState)state;
+        mLoadingState = ss;
+        mForceFullLayout = true;
+        requestLayout();
     }
 }
