@@ -47,6 +47,8 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private final float mFocusedZoom;
     private final int mPulseDurationMs;
     private final int mScaleDurationMs;
+    private final float mUnfocusedZ;
+    private final float mFocusedZ;
     private ValueAnimator mColorAnimator;
 
     /**
@@ -134,9 +136,14 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
             new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-            ShadowHelper.getInstance().setZ(mSearchOrbView, animation.getAnimatedFraction());
+            setSearchOrbZ(animation.getAnimatedFraction());
         }
     };
+
+    private void setSearchOrbZ(float fraction) {
+        ShadowHelper.getInstance().setZ(mSearchOrbView,
+                mUnfocusedZ + fraction * (mFocusedZ - mUnfocusedZ));
+    }
 
     public SearchOrbView(Context context) {
         this(context, null);
@@ -163,6 +170,10 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
                 R.integer.lb_search_orb_pulse_duration_ms);
         mScaleDurationMs = context.getResources().getInteger(
                 R.integer.lb_search_orb_scale_duration_ms);
+        mFocusedZ = context.getResources().getDimensionPixelSize(
+                R.dimen.lb_search_orb_focused_z);
+        mUnfocusedZ = context.getResources().getDimensionPixelSize(
+                R.dimen.lb_search_orb_unfocused_z);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView,
                 defStyleAttr, 0);
@@ -185,9 +196,10 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         setClipChildren(false);
         setOnClickListener(this);
 
-        ShadowHelper.getInstance().setZ(mSearchOrbView, 0f);
+        setSearchOrbZ(0);
+
         // Icon has no background, but must be on top of the search orb view
-        ShadowHelper.getInstance().setZ(mIcon, 1f);
+        ShadowHelper.getInstance().setZ(mIcon, mFocusedZ);
     }
 
     @Override
