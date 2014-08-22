@@ -25,6 +25,9 @@
     <style name="Platform.AppCompat" parent="android:Theme">
         <item name="android:windowNoTitle">true</item>
 
+        <item name="buttonBarStyle">@android:style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
+
         <!-- Window colors -->
         <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
         <item name="android:colorForegroundInverse">@color/bright_foreground_material_light</item>
@@ -60,6 +63,9 @@
 
     <style name="Platform.AppCompat.Light" parent="android:Theme.Light">
         <item name="android:windowNoTitle">true</item>
+
+        <item name="buttonBarStyle">@android:style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
 
         <!-- Window colors -->
         <item name="android:colorForeground">@color/bright_foreground_material_light</item>
@@ -97,6 +103,9 @@
 
     <style name="Platform.AppCompat.Dialog" parent="android:Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
+
+        <item name="buttonBarStyle">@android:style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
 
         <!-- Window colors -->
         <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
@@ -147,8 +156,6 @@
         <item name="windowActionBarOverlay">false</item>
         <item name="isLightTheme">false</item>
 
-        <item name="buttonBarStyle">@android:style/ButtonBar</item>
-        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_dark</item>
@@ -247,8 +254,6 @@
         <item name="windowActionBarOverlay">false</item>
         <item name="isLightTheme">true</item>
 
-        <item name="buttonBarStyle">@android:style/ButtonBar</item>
-        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_light</item>
@@ -370,8 +375,6 @@
         <item name="windowActionBarOverlay">false</item>
         <item name="isLightTheme">false</item>
 
-        <item name="buttonBarStyle">@android:style/ButtonBar</item>
-        <item name="buttonBarButtonStyle">@android:style/Widget.Button</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_dark</item>
