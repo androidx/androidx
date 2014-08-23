@@ -34,6 +34,7 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         };
         glm.setSpanSizeLookup(spanSizeLookup);
         glm.mAnchorInfo.mPosition = 11;
+        RecyclerView.State state = new RecyclerView.State();
         glm.onAnchorReady(state, glm.mAnchorInfo);
         assertEquals("gm should keep anchor in first span", 11, glm.mAnchorInfo.mPosition);
 
