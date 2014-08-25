@@ -18,8 +18,9 @@ import android.view.View;
 /**
  * Used by Slide to determine the slide edge and distance when it is about to
  * create animator.
+ * @hide
  */
-interface SlideCallback {
+public interface SlideCallback {
 
     /**
      * Called when Slide is about to create animator for an appearing/disappearing view.
