@@ -31,6 +31,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.transition.Visibility;
 import android.transition.Transition;
 import android.transition.TransitionValues;
+import android.support.v17.leanback.R;
 
 /**
  * Slide distance toward/from a edge.  The direction and distance are determined by
@@ -158,14 +159,17 @@ class Slide extends Visibility {
     }
 
     private Animator createAnimation(final View view, Property<View, Float> property,
-            float start, float end, float terminalValue, TimeInterpolator interpolator) {
-        view.setTranslationY(start);
-        if (start == end) {
-            return null;
+            float start, float end, float terminalValue, TimeInterpolator interpolator,
+            int finalVisibility) {
+        float[] startPosition = (float[]) view.getTag(R.id.lb_slide_transition_value);
+        if (startPosition != null) {
+            start = View.TRANSLATION_Y == property ? startPosition[1] : startPosition[0];
+            view.setTag(R.id.lb_slide_transition_value, null);
         }
         final ObjectAnimator anim = ObjectAnimator.ofFloat(view, property, start, end);
 
-        SlideAnimatorListener listener = new SlideAnimatorListener(view, terminalValue, end);
+        SlideAnimatorListener listener = new SlideAnimatorListener(view, property, terminalValue, end,
+                finalVisibility);
         anim.addListener(listener);
         anim.addPauseListener(listener);
         anim.setInterpolator(interpolator);
@@ -186,7 +190,8 @@ class Slide extends Visibility {
         final CalculateSlide slideCalculator = getSlideEdge(mTempEdge[0]);
         float end = slideCalculator.getHere(view);
         float start = slideCalculator.getGone(mTempDistance[0], view);
-        return createAnimation(view, slideCalculator.getProperty(), start, end, end, sDecelerate);
+        return createAnimation(view, slideCalculator.getProperty(), start, end, end, sDecelerate,
+                View.VISIBLE);
     }
 
     @Override
@@ -205,44 +210,57 @@ class Slide extends Visibility {
         float end = slideCalculator.getGone(mTempDistance[0], view);
 
         return createAnimation(view, slideCalculator.getProperty(), start, end, start,
-                sAccelerate);
+                sAccelerate, View.INVISIBLE);
     }
 
     private static class SlideAnimatorListener extends AnimatorListenerAdapter {
         private boolean mCanceled = false;
-        private float mPausedY;
+        private float mPausedValue;
         private final View mView;
-        private final float mEndY;
-        private final float mTerminalY;
+        private final float mEndValue;
+        private final float mTerminalValue;
+        private final int mFinalVisibility;
+        private final Property<View, Float> mProp;
 
-        public SlideAnimatorListener(View view, float terminalY, float endY) {
+        public SlideAnimatorListener(View view, Property<View, Float> prop,
+                float terminalValue, float endValue, int finalVisibility) {
+            mProp = prop;
             mView = view;
-            mTerminalY = terminalY;
-            mEndY = endY;
+            mTerminalValue = terminalValue;
+            mEndValue = endValue;
+            mFinalVisibility = finalVisibility;
+            view.setVisibility(View.VISIBLE);
         }
 
         @Override
         public void onAnimationCancel(Animator animator) {
-            mView.setTranslationY(mTerminalY);
+            float[] transitionPosition = new float[2];
+            transitionPosition[0] = mView.getTranslationX();
+            transitionPosition[1] = mView.getTranslationY();
+            mView.setTag(R.id.lb_slide_transition_value, transitionPosition);
+            mProp.set(mView, mTerminalValue);
             mCanceled = true;
         }
 
         @Override
         public void onAnimationEnd(Animator animator) {
             if (!mCanceled) {
-                mView.setTranslationY(mTerminalY);
+                mProp.set(mView, mTerminalValue);
             }
+            mView.setVisibility(mFinalVisibility);
         }
 
         @Override
         public void onAnimationPause(Animator animator) {
-            mPausedY = mView.getTranslationY();
-            mView.setTranslationY(mEndY);
+            mPausedValue = mProp.get(mView);
+            mProp.set(mView, mEndValue);
+            mView.setVisibility(mFinalVisibility);
         }
 
         @Override
         public void onAnimationResume(Animator animator) {
-            mView.setTranslationY(mPausedY);
+            mProp.set(mView, mPausedValue);
+            mView.setVisibility(View.VISIBLE);
         }
     }
 }

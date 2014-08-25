@@ -16,7 +16,7 @@
 -->
  <resources>
      <item type="id" name="lb_focus_animator" />
-     <item type="id" name="lb_header_transition_position" />
+     <item type="id" name="lb_slide_transition_value" />
 
      <item type="id" name="lb_control_play_pause" />
      <item type="id" name="lb_control_fast_forward" />
