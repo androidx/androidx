@@ -25,12 +25,12 @@ import android.view.animation.Interpolator;
 import java.util.ArrayList;
 
 /**
- * A very naive implementation of AnimatorSet for ViewPropertyAnimatorCompat. This should be
- * improved and moved to support-v4.
+ * A very naive implementation of a set of
+ * {@link android.support.v4.view.ViewPropertyAnimatorCompat}.
  *
  * @hide
  */
-public class AnimatorSetCompat {
+public class ViewPropertyAnimatorCompatSet {
 
     private final ArrayList<ViewPropertyAnimatorCompat> mAnimators;
 
@@ -40,11 +40,11 @@ public class AnimatorSetCompat {
 
     private boolean mIsStarted;
 
-    public AnimatorSetCompat() {
+    public ViewPropertyAnimatorCompatSet() {
         mAnimators = new ArrayList<ViewPropertyAnimatorCompat>();
     }
 
-    public AnimatorSetCompat play(ViewPropertyAnimatorCompat animator) {
+    public ViewPropertyAnimatorCompatSet play(ViewPropertyAnimatorCompat animator) {
         if (!mIsStarted) {
             mAnimators.add(animator);
         }
@@ -77,21 +77,21 @@ public class AnimatorSetCompat {
         }
     }
 
-    public AnimatorSetCompat setDuration(long duration) {
+    public ViewPropertyAnimatorCompatSet setDuration(long duration) {
         if (!mIsStarted) {
             mDuration = duration;
         }
         return this;
     }
 
-    public AnimatorSetCompat setInterpolator(Interpolator interpolator) {
+    public ViewPropertyAnimatorCompatSet setInterpolator(Interpolator interpolator) {
         if (!mIsStarted) {
             mInterpolator = interpolator;
         }
         return this;
     }
 
-    public AnimatorSetCompat setListener(ViewPropertyAnimatorListener listener) {
+    public ViewPropertyAnimatorCompatSet setListener(ViewPropertyAnimatorListener listener) {
         if (!mIsStarted) {
             mListener = listener;
         }
