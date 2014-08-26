@@ -35,7 +35,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ActionBarPolicy;
-import android.support.v7.internal.view.AnimatorSetCompat;
+import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
@@ -126,7 +126,7 @@ public class WindowDecorActionBar extends ActionBar implements
 
     private boolean mNowShowing = true;
 
-    private AnimatorSetCompat mCurrentShowAnim;
+    private ViewPropertyAnimatorCompatSet mCurrentShowAnim;
     private boolean mShowHideAnimationEnabled;
     boolean mHideOnContentScroll;
 
@@ -772,7 +772,7 @@ public class WindowDecorActionBar extends ActionBar implements
                 startingY -= topLeft[1];
             }
             ViewCompat.setTranslationY(mContainerView, startingY);
-            AnimatorSetCompat anim = new AnimatorSetCompat();
+            ViewPropertyAnimatorCompatSet anim = new ViewPropertyAnimatorCompatSet();
             ViewPropertyAnimatorCompat a = ViewCompat.animate(mContainerView).translationY(0f);
             a.setUpdateListener(mUpdateListener);
             anim.play(a);
@@ -825,7 +825,7 @@ public class WindowDecorActionBar extends ActionBar implements
                 (mShowHideAnimationEnabled || fromSystem)) {
             ViewCompat.setAlpha(mContainerView, 1f);
             mContainerView.setTransitioning(true);
-            AnimatorSetCompat anim = new AnimatorSetCompat();
+            ViewPropertyAnimatorCompatSet anim = new ViewPropertyAnimatorCompatSet();
             float endingY = -mContainerView.getHeight();
             if (fromSystem) {
                 int topLeft[] = {0, 0};
