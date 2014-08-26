@@ -68,6 +68,13 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  */
 public class BrowseFragment extends Fragment {
 
+    // BUNDLE attribute for saving header show/hide status when backstack is used:
+    static final String HEADER_STACK_INDEX = "headerStackIndex";
+    // BUNDLE attribute for saving header show/hide status when backstack is not used:
+    static final String HEADER_SHOW = "headerShow";
+    // BUNDLE attribute for title is showing
+    static final String TITLE_SHOW = "titleShow";
+
     final class BackStackListener implements FragmentManager.OnBackStackChangedListener {
         int mLastEntryCount;
         int mIndexOfHeadersBackStack;
@@ -76,6 +83,23 @@ public class BrowseFragment extends Fragment {
             mLastEntryCount = getFragmentManager().getBackStackEntryCount();
             mIndexOfHeadersBackStack = -1;
         }
+
+        void load(Bundle savedInstanceState) {
+            if (savedInstanceState != null) {
+                mIndexOfHeadersBackStack = savedInstanceState.getInt(HEADER_STACK_INDEX, -1);
+                mShowingHeaders = mIndexOfHeadersBackStack == -1;
+            } else {
+                if (!mShowingHeaders) {
+                    getFragmentManager().beginTransaction()
+                            .addToBackStack(mWithHeadersBackStackName).commit();
+                }
+            }
+        }
+
+        void save(Bundle outState) {
+            outState.putInt(HEADER_STACK_INDEX, mIndexOfHeadersBackStack);
+        }
+
 
         @Override
         public void onBackStackChanged() {
@@ -94,6 +118,7 @@ public class BrowseFragment extends Fragment {
             } else if (count < mLastEntryCount) {
                 // if popped "headers" backstack, initiate the show header transition if needed
                 if (mIndexOfHeadersBackStack >= count) {
+                    mIndexOfHeadersBackStack = -1;
                     if (!mShowingHeaders) {
                         startHeadersTransitionInternal(true);
                     }
@@ -456,12 +481,11 @@ public class BrowseFragment extends Fragment {
                 getFragmentManager().beginTransaction()
                         .addToBackStack(mWithHeadersBackStackName).commit();
             } else {
-                int count = getFragmentManager().getBackStackEntryCount();
-                if (count > 0) {
-                    BackStackEntry entry = getFragmentManager().getBackStackEntryAt(count - 1);
-                    if (mWithHeadersBackStackName.equals(entry.getName())) {
-                        getFragmentManager().popBackStack();
-                    }
+                int index = mBackStackChangedListener.mIndexOfHeadersBackStack;
+                if (index >= 0) {
+                    BackStackEntry entry = getFragmentManager().getBackStackEntryAt(index);
+                    getFragmentManager().popBackStackImmediate(entry.getId(),
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
             }
         }
@@ -540,6 +564,16 @@ public class BrowseFragment extends Fragment {
     };
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mBackStackChangedListener != null) {
+            mBackStackChangedListener.save(outState);
+        } else {
+            outState.putBoolean(HEADER_SHOW, mShowingHeaders);
+        }
+        outState.putBoolean(TITLE_SHOW, mShowingTitle);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TypedArray ta = getActivity().obtainStyledAttributes(R.styleable.LeanbackTheme);
@@ -555,16 +589,6 @@ public class BrowseFragment extends Fragment {
                 .getInteger(R.integer.lb_browse_headers_transition_duration);
 
         readArguments(getArguments());
-
-        if (mCanShowHeaders && mHeadersBackStackEnabled) {
-            mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
-            mBackStackChangedListener = new BackStackListener();
-            getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
-            if (!mShowingHeaders) {
-                getFragmentManager().beginTransaction()
-                        .addToBackStack(mWithHeadersBackStackName).commit();
-            }
-        }
 
     }
 
@@ -630,13 +654,13 @@ public class BrowseFragment extends Fragment {
         mSceneWithTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
-                TitleTransitionHelper.showTitle(mTitleView, true);
+                mTitleView.setVisibility(View.VISIBLE);
             }
         });
         mSceneWithoutTitle = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
-                TitleTransitionHelper.showTitle(mTitleView, false);
+                mTitleView.setVisibility(View.INVISIBLE);
             }
         });
         mSceneWithHeaders = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
@@ -658,6 +682,23 @@ public class BrowseFragment extends Fragment {
         sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.browse_headers, true);
         sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.container_list, true);
         sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.container_list, true);
+
+        if (mCanShowHeaders) {
+            if (mHeadersBackStackEnabled) {
+                mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
+                mBackStackChangedListener = new BackStackListener();
+                getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
+                mBackStackChangedListener.load(savedInstanceState);
+            } else {
+                if (savedInstanceState != null) {
+                    mShowingHeaders = savedInstanceState.getBoolean(HEADER_SHOW);
+                }
+            }
+        }
+        if (savedInstanceState != null) {
+            mShowingTitle = savedInstanceState.getBoolean(TITLE_SHOW);
+        }
+        mTitleView.setVisibility(mShowingTitle ? View.VISIBLE: View.INVISIBLE);
 
         return root;
     }
