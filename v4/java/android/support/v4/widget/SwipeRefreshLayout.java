@@ -520,8 +520,10 @@ public class SwipeRefreshLayout extends ViewGroup {
         final int childWidth = width - getPaddingLeft() - getPaddingRight();
         final int childHeight = height - getPaddingTop() - getPaddingBottom();
         child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
-        mCircleView.layout((width / 2 - mCircleWidth / 2), mCurrentTargetOffsetTop,
-                (width / 2 + mCircleWidth / 2), mCurrentTargetOffsetTop + mCircleHeight);
+        int circleWidth = mCircleView.getMeasuredWidth();
+        int circleHeight = mCircleView.getMeasuredHeight();
+        mCircleView.layout((width / 2 - circleWidth / 2), mCurrentTargetOffsetTop,
+                (width / 2 + circleWidth / 2), mCurrentTargetOffsetTop + circleHeight);
     }
 
     @Override
