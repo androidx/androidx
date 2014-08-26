@@ -16,8 +16,9 @@
 -->
 <resources>
 
-    <!-- Default height of an action bar. -->
     <dimen name="abc_action_bar_default_height_material">56dp</dimen>
+    <dimen name="abc_text_size_title_material_toolbar">20dp</dimen>
+    <dimen name="abc_text_size_subtitle_material_toolbar">16dp</dimen>
 
     <dimen name="abc_action_button_min_width_material">48dp</dimen>
     <dimen name="abc_action_button_min_height_material">48dp</dimen>
@@ -39,10 +40,5 @@
     <dimen name="text_size_large_material">22sp</dimen>
     <dimen name="text_size_medium_material">18sp</dimen>
     <dimen name="text_size_small_material">14sp</dimen>
-
-    <!-- Text size for action bar titles -->
-    <dimen name="abc_action_bar_title_text_size_material">20sp</dimen>
-    <!-- Text size for action bar subtitles -->
-    <dimen name="abc_action_bar_subtitle_text_size_material">16sp</dimen>
 
 </resources>
