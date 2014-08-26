@@ -147,11 +147,11 @@
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_title_material_toolbar</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle" parent="TextAppearance.AppCompat.Small">
-        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_subtitle_material_toolbar</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Menu" parent="android:TextAppearance.Small">
@@ -161,20 +161,20 @@
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_title_material_toolbar</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle" parent="TextAppearance.AppCompat.Small">
-        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_subtitle_material_toolbar</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse" parent="TextAppearance.AppCompat.Medium.Inverse">
-        <item name="android:textSize">@dimen/abc_action_bar_title_text_size_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_title_material_toolbar</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse" parent="TextAppearance.AppCompat.Small.Inverse">
-        <item name="android:textSize">@dimen/abc_action_bar_subtitle_text_size_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_subtitle_material_toolbar</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ProgressBar.Horizontal" parent="android:Widget.ProgressBar.Horizontal">
