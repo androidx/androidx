@@ -25,7 +25,6 @@
         <item name="displayOptions">showTitle</item>
         <item name="divider">?attr/dividerVertical</item>
         <item name="height">?attr/actionBarSize</item>
-        <item name="homeLayout">@layout/abc_action_bar_home</item>
 
         <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Title</item>
         <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle</item>
