@@ -223,11 +223,12 @@
 
     <style name="Base.Widget.AppCompat.ListView.DropDown" parent="android:Widget.ListView">
         <item name="android:listSelector">@drawable/abc_list_selector_holo_dark</item>
+        <item name="android:divider">@null</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ListView.DropDown"
-           parent="android:Widget.ListView">
+    <style name="Base.Widget.AppCompat.Light.ListView.DropDown" parent="android:Widget.ListView">
         <item name="android:listSelector">@drawable/abc_list_selector_holo_light</item>
+        <item name="android:divider">@null</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.DropDownItem"
