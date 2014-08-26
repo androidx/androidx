@@ -505,7 +505,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
 
                 // Adjust the position of the triangle so that it is inset as
                 // much as the arc, but also centered on the arc.
-                float inset = (int) (mStrokeInset / 2 * mArrowScale - 2.25f);
+                float inset = (int) mStrokeInset / 2 * mArrowScale;
                 float x = (float) (mRingCenterRadius * Math.cos(0) + bounds.exactCenterX());
                 float y = (float) (mRingCenterRadius * Math.sin(0) + bounds.exactCenterY());
 
