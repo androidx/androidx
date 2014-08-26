@@ -290,6 +290,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     private void createProgressView() {
         mCircleView = new CircleImageView(getContext(), CIRCLE_BG_LIGHT, CIRCLE_DIAMETER/2);
         mProgress = new MaterialProgressDrawable(getContext(), this);
+        mProgress.setBackgroundColor(CIRCLE_BG_LIGHT);
         mCircleView.setImageDrawable(mProgress);
         addView(mCircleView);
         mCurrentTargetOffsetTop = mOriginalOffsetTop = -mCircleHeight;
@@ -430,6 +431,7 @@ public class SwipeRefreshLayout extends ViewGroup {
      */
     public void setProgressBackgroundColor(int colorRes) {
         mCircleView.setBackgroundColor(colorRes);
+        mProgress.setBackgroundColor(getResources().getColor(colorRes));
     }
 
     /**
