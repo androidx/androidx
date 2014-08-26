@@ -744,4 +744,25 @@
         <attr name="android:dropDownHorizontalOffset" />
     </declare-styleable>
 
+    <declare-styleable name="DrawerArrowToggle">
+        <!-- The drawing color for the bars -->
+        <attr name="color" format="color"/>
+        <!-- Whether bars should rotate or not during transition -->
+        <attr name="spinBars" format="boolean"/>
+        <!-- The total size of the drawable -->
+        <attr name="drawableSize" format="dimension"/>
+        <!-- The max gap between the bars when they are parallel to each other -->
+        <attr name="gapBetweenBars" format="dimension"/>
+        <!-- The size of the top and bottom bars when they merge to the middle bar to form an arrow -->
+        <attr name="topBottomBarArrowSize" format="dimension"/>
+        <!-- The size of the middle bar when top and bottom bars merge into middle bar to form an arrow -->
+        <attr name="middleBarArrowSize" format="dimension"/>
+        <!-- The size of the bars when they are parallel to each other -->
+        <attr name="barSize" format="dimension"/>
+        <!-- The thickness (stroke size) for the bar paint -->
+        <attr name="thickness" format="dimension"/>
+    </declare-styleable>
+
+    <attr name="drawerArrowStyle" format="reference" />
+
 </resources>
