@@ -28,6 +28,7 @@ import android.support.v7.internal.widget.DecorToolbar;
 import android.support.v7.internal.widget.ToolbarWidgetWrapper;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.WindowCallbackWrapper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 public class ToolbarActionBar extends ActionBar {
     private Toolbar mToolbar;
     private DecorToolbar mDecorToolbar;
+    private boolean mToolbarMenuPrepared;
     private WindowCallback mWindowCallback;
 
     private boolean mLastMenuVisibility;
@@ -65,14 +67,17 @@ public class ToolbarActionBar extends ActionBar {
                 }
             };
 
-    public ToolbarActionBar(Toolbar toolbar, CharSequence title,
-            WindowCallback windowCallback) {
+    public ToolbarActionBar(Toolbar toolbar, CharSequence title, WindowCallback windowCallback) {
         mToolbar = toolbar;
         mDecorToolbar = new ToolbarWidgetWrapper(toolbar, false);
-        mWindowCallback = windowCallback;
+        mWindowCallback = new ToolbarCallbackWrapper(windowCallback);
         mDecorToolbar.setWindowCallback(mWindowCallback);
         toolbar.setOnMenuItemClickListener(mMenuClicker);
         mDecorToolbar.setWindowTitle(title);
+    }
+
+    public WindowCallback getWrappedWindowCallback() {
+        return mWindowCallback;
     }
 
     @Override
@@ -468,6 +473,22 @@ public class ToolbarActionBar extends ActionBar {
         final int count = mMenuVisibilityListeners.size();
         for (int i = 0; i < count; i++) {
             mMenuVisibilityListeners.get(i).onMenuVisibilityChanged(isVisible);
+        }
+    }
+
+    private class ToolbarCallbackWrapper extends WindowCallbackWrapper {
+        public ToolbarCallbackWrapper(WindowCallback wrapped) {
+            super(wrapped);
+        }
+
+        @Override
+        public boolean onPreparePanel(int featureId, View view, Menu menu) {
+            final boolean result = super.onPreparePanel(featureId, view, menu);
+            if (result && !mToolbarMenuPrepared) {
+                mDecorToolbar.setMenuPrepared();
+                mToolbarMenuPrepared = true;
+            }
+            return result;
         }
     }
 }
