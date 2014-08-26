@@ -23,7 +23,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.view.AnimatorSetCompat;
+import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
 import android.support.v7.widget.ActionMenuPresenter;
 import android.support.v7.widget.ActionMenuView;
 import android.util.AttributeSet;
@@ -145,7 +145,7 @@ abstract class AbsActionBarView extends ViewGroup {
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
             if (mSplitView != null && mMenuView != null) {
-                AnimatorSetCompat set = new AnimatorSetCompat();
+                ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
                 ViewPropertyAnimatorCompat splitAnim = ViewCompat.animate(mMenuView).alpha(1f);
                 splitAnim.setDuration(FADE_DURATION);
                 set.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
@@ -160,7 +160,7 @@ abstract class AbsActionBarView extends ViewGroup {
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
             if (mSplitView != null && mMenuView != null) {
-                AnimatorSetCompat set = new AnimatorSetCompat();
+                ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
                 ViewPropertyAnimatorCompat splitAnim = ViewCompat.animate(mMenuView).alpha(0f);
                 splitAnim.setDuration(FADE_DURATION);
                 set.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
