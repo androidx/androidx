@@ -23,6 +23,7 @@
         android:id="@+id/browse_frame"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:descendantFocusability="afterDescendants"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
