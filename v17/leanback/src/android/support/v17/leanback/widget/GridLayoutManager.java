@@ -1065,31 +1065,51 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
             int length = mOrientation == HORIZONTAL ? v.getMeasuredWidth() : v.getMeasuredHeight();
             int start, end;
+            final boolean rowIsEmpty = mRows[rowIndex].high == mRows[rowIndex].low;
             if (append) {
-                start = mRows[rowIndex].high;
-                if (start != mRows[rowIndex].low) {
+                if (!rowIsEmpty) {
                     // if there are existing item in the row,  add margin between
-                    start += mMarginPrimary;
+                    start = mRows[rowIndex].high + mMarginPrimary;
                 } else {
-                    final int lastRow = mRows.length - 1;
-                    if (lastRow != rowIndex && mRows[lastRow].high != mRows[lastRow].low) {
-                        // if there are existing item in the last row, insert
-                        // the new item after the last item of last row.
-                        start = mRows[lastRow].high + mMarginPrimary;
+                    if (mLastVisiblePos >= 0) {
+                        int lastRow = mGrid.getLocation(mLastVisiblePos).row;
+                        // if the last visible item is not last row,  align to beginning,
+                        // otherwise start a new column after.
+                        if (lastRow < mNumRows - 1) {
+                            start = mRows[lastRow].low;
+                        } else {
+                            start = mRows[lastRow].high + mMarginPrimary;
+                        }
+                    } else {
+                        start = 0;
                     }
+                    mRows[rowIndex].low = start;
                 }
                 end = start + length;
                 mRows[rowIndex].high = end;
             } else {
-                end = mRows[rowIndex].low;
-                if (end != mRows[rowIndex].high) {
-                    end -= mMarginPrimary;
-                } else if (0 != rowIndex && mRows[0].high != mRows[0].low) {
-                    // if there are existing item in the first row, insert
-                    // the new item before the first item of first row.
-                    end = mRows[0].low - mMarginPrimary;
+                if (!rowIsEmpty) {
+                    // if there are existing item in the row,  add margin between
+                    end = mRows[rowIndex].low - mMarginPrimary;
+                    start = end - length;
+                } else {
+                    if (mFirstVisiblePos >= 0) {
+                        int firstRow = mGrid.getLocation(mFirstVisiblePos).row;
+                        // if the first visible item is not first row,  align to beginning,
+                        // otherwise start a new column before.
+                        if (firstRow > 0) {
+                            start = mRows[firstRow].low;
+                            end = start + length;
+                        } else {
+                            end = mRows[firstRow].low - mMarginPrimary;
+                            start = end - length;
+                        }
+                    } else {
+                        start = 0;
+                        end = length;
+                    }
+                    mRows[rowIndex].high = end;
                 }
-                start = end - length;
                 mRows[rowIndex].low = start;
             }
             if (mFirstVisiblePos < 0) {
