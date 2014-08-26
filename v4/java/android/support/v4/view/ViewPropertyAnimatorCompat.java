@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.animation.Interpolator;
 
 import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
 
 public class ViewPropertyAnimatorCompat {
     private static final String TAG = "ViewAnimatorCompat";
@@ -65,7 +66,10 @@ public class ViewPropertyAnimatorCompat {
     };
 
     static class BaseViewPropertyAnimatorCompatImpl implements ViewPropertyAnimatorCompatImpl {
-        private ViewPropertyAnimatorListener mListener;
+        WeakHashMap<View, Runnable> mStarterMap = null;
+        WeakHashMap<View, Runnable> mEndActionMap = null;
+        WeakHashMap<View, Runnable> mStartActionMap = null;
+        WeakHashMap<View, ViewPropertyAnimatorListener> mListenerMap = null;
 
         @Override
         public void setDuration(View view, long value) {
@@ -75,22 +79,28 @@ public class ViewPropertyAnimatorCompat {
         @Override
         public void alpha(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void translationX(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void translationY(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void withEndAction(View view, Runnable runnable) {
             // Other VPA calls are noops pre-ICS; just run the runnable immediately
-            runnable.run();
+            if (mEndActionMap == null) {
+                mEndActionMap = new WeakHashMap<View, Runnable>();
+            }
+            mEndActionMap.put(view, runnable);
         }
 
         @Override
@@ -121,100 +131,115 @@ public class ViewPropertyAnimatorCompat {
         @Override
         public void alphaBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void rotation(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void rotationBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void rotationX(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void rotationXBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void rotationY(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void rotationYBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void scaleX(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void scaleXBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void scaleY(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void scaleYBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void cancel(View view) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void x(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void xBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void y(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void yBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void translationXBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void translationYBy(View view, float value) {
             // noop on versions prior to ICS
+            postStartMessage(view);
         }
 
         @Override
         public void start(View view) {
-            if (mListener != null) {
-                // If a listener has been set, start and then end it immediately
-                mListener.onAnimationStart(view);
-                mListener.onAnimationEnd(view);
-            }
+            removeStartMessage(view);
+            startAnimation(view);
         }
 
         @Override
@@ -224,22 +249,90 @@ public class ViewPropertyAnimatorCompat {
 
         @Override
         public void withStartAction(View view, Runnable runnable) {
-            // Other VPA calls are noops pre-ICS; just run the runnable immediately
-            runnable.run();
+            if (mStartActionMap == null) {
+                mStartActionMap = new WeakHashMap<View, Runnable>();
+            }
+            mStartActionMap.put(view, runnable);
         }
 
         @Override
         public void setListener(View view, ViewPropertyAnimatorListener listener) {
-            mListener = listener;
+            if (mListenerMap == null) {
+                mListenerMap = new WeakHashMap<View, ViewPropertyAnimatorListener>();
+            }
+            mListenerMap.put(view, listener);
         }
 
         @Override
         public void setUpdateListener(View view, ViewPropertyAnimatorUpdateListener listener) {
             // noop
         }
+
+        private void startAnimation(View view) {
+            ViewPropertyAnimatorListener listener = mListenerMap != null ?
+                    mListenerMap.get(view) : null;
+            Runnable startAction = mStartActionMap != null ? mStartActionMap.get(view) : null;
+            Runnable endAction = mEndActionMap != null ? mEndActionMap.get(view) : null;
+            if (startAction != null) {
+                startAction.run();
+                mStartActionMap.remove(view);
+            }
+            if (listener != null) {
+                listener.onAnimationStart(view);
+                listener.onAnimationEnd(view);
+            }
+            if (endAction != null) {
+                endAction.run();
+                mEndActionMap.remove(view);
+            }
+            if (mStarterMap != null) {
+                mStarterMap.remove(view);
+            }
+        }
+
+        class Starter implements Runnable {
+            WeakReference<View> mViewRef;
+
+            private Starter(View view) {
+                mViewRef = new WeakReference<View>(view);
+            }
+
+            @Override
+            public void run() {
+                startAnimation(mViewRef.get());
+            }
+        };
+
+        private void removeStartMessage(View view) {
+            Runnable starter = null;
+            if (mStarterMap != null) {
+                starter = mStarterMap.get(view);
+                if (starter != null) {
+                    view.removeCallbacks(starter);
+                }
+            }
+        }
+
+        private void postStartMessage(View view) {
+            Runnable starter = null;
+            if (mStarterMap != null) {
+                starter = mStarterMap.get(view);
+            }
+            if (starter == null) {
+                starter = new Starter(view);
+                if (mStarterMap == null) {
+                    mStarterMap = new WeakHashMap<View, Runnable>();
+                }
+                mStarterMap.put(view, starter);
+            }
+            view.removeCallbacks(starter);
+            view.post(starter);
+        }
+
     }
 
     static class ICSViewPropertyAnimatorCompatImpl extends BaseViewPropertyAnimatorCompatImpl {
+        WeakHashMap<View, Integer> mLayerMap = null;
 
         @Override
         public void setDuration(View view, long value) {
@@ -378,66 +471,86 @@ public class ViewPropertyAnimatorCompat {
 
         @Override
         public void setListener(View view, ViewPropertyAnimatorListener listener) {
-            ViewPropertyAnimatorCompatICS.setListener(view, listener);
+            if (mListenerMap == null) {
+                mListenerMap = new WeakHashMap<View, ViewPropertyAnimatorListener>();
+            }
+            mListenerMap.put(view, listener);
+            ViewPropertyAnimatorCompatICS.setListener(view, mListener);
         }
 
         @Override
         public void withEndAction(View view, final Runnable runnable) {
-            setListener(view, new ViewPropertyAnimatorListener() {
-                @Override
-                public void onAnimationStart(View view) {
-                }
-
-                @Override
-                public void onAnimationEnd(View view) {
-                    runnable.run();
-                    setListener(view, null);
-                }
-
-                @Override
-                public void onAnimationCancel(View view) {
-                }
-            });
+            if (mEndActionMap == null) {
+                mEndActionMap = new WeakHashMap<View, Runnable>();
+            }
+            mEndActionMap.put(view, runnable);
+            ViewPropertyAnimatorCompatICS.setListener(view, mListener);
         }
 
         @Override
         public void withStartAction(View view, final Runnable runnable) {
-            setListener(view, new ViewPropertyAnimatorListener() {
-                @Override
-                public void onAnimationStart(View view) {
-                    runnable.run();
-                    setListener(view, null);
-                }
-
-                @Override
-                public void onAnimationEnd(View view) {
-                }
-
-                @Override
-                public void onAnimationCancel(View view) {
-                }
-            });
+            if (mStartActionMap == null) {
+                mStartActionMap = new WeakHashMap<View, Runnable>();
+            }
+            mStartActionMap.put(view, runnable);
+            ViewPropertyAnimatorCompatICS.setListener(view, mListener);
         }
 
         @Override
         public void withLayer(View view) {
-            final int currentLayerType = ViewCompat.getLayerType(view);
-            setListener(view, new ViewPropertyAnimatorListener() {
-                @Override
-                public void onAnimationStart(View view) {
+            if (mLayerMap == null) {
+                mLayerMap = new WeakHashMap<View, Integer>();
+            }
+            mLayerMap.put(view, ViewCompat.getLayerType(view));
+            ViewPropertyAnimatorCompatICS.setListener(view, mListener);
+        }
+
+        ViewPropertyAnimatorListener mListener = new ViewPropertyAnimatorListener() {
+            @Override
+            public void onAnimationStart(View view) {
+                Integer layerType = mLayerMap != null ? mLayerMap.get(view) : null;
+                if (layerType != null) {
                     ViewCompat.setLayerType(view, ViewCompat.LAYER_TYPE_HARDWARE, null);
                 }
-                @Override
-                public void onAnimationEnd(View view) {
-                    ViewCompat.setLayerType(view, currentLayerType, null);
-                    setListener(view, null);
+                Runnable startAction = mStartActionMap != null ? mStartActionMap.get(view) : null;
+                if (startAction != null) {
+                    startAction.run();
+                    mStartActionMap.remove(view);
                 }
+                ViewPropertyAnimatorListener listener = mListenerMap != null ?
+                        mListenerMap.get(view) : null;
+                if (listener != null) {
+                    listener.onAnimationStart(view);
+                }
+            }
+            @Override
+            public void onAnimationEnd(View view) {
+                Integer layerType = mLayerMap != null ? mLayerMap.get(view) : null;
+                if (layerType != null) {
+                    ViewCompat.setLayerType(view, layerType, null);
+                    mLayerMap.remove(view);
+                }
+                ViewPropertyAnimatorListener listener = mListenerMap != null ?
+                        mListenerMap.get(view) : null;
+                if (listener != null) {
+                    listener.onAnimationEnd(view);
+                }
+                Runnable endAction = mEndActionMap != null ? mEndActionMap.get(view) : null;
+                if (endAction != null) {
+                    endAction.run();
+                    mEndActionMap.remove(view);
+                }
+            }
 
-                @Override
-                public void onAnimationCancel(View view) {
+            @Override
+            public void onAnimationCancel(View view) {
+                ViewPropertyAnimatorListener listener = mListenerMap != null ?
+                        mListenerMap.get(view) : null;
+                if (listener != null) {
+                    listener.onAnimationCancel(view);
                 }
-            });
-        }
+            }
+        };
     }
 
     static class JBViewPropertyAnimatorCompatImpl extends ICSViewPropertyAnimatorCompatImpl {
