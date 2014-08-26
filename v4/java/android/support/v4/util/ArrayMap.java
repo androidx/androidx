@@ -83,7 +83,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
                 @Override
                 protected int colIndexOfKey(Object key) {
-                    return key == null ? indexOfNull() : indexOf(key, key.hashCode());
+                    return indexOfKey(key);
                 }
 
                 @Override
