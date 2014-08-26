@@ -97,7 +97,6 @@ public class SwipeRefreshLayout extends ViewGroup {
     private float mTotalDragDistance = -1;
     private int mMediumAnimationDuration;
     private int mCurrentTargetOffsetTop;
-    private float mDragRate;
 
     private float mInitialMotionY;
     private boolean mIsBeingDragged;
@@ -198,7 +197,6 @@ public class SwipeRefreshLayout extends ViewGroup {
         mCircleView.setVisibility(View.GONE);
         mOriginalOffsetTop = mCurrentTargetOffsetTop = start;
         mSpinnerFinalOffset = end;
-        mDragRate = (mSpinnerFinalOffset - mOriginalOffsetTop) / mTotalDragDistance;
         mCircleView.invalidate();
     }
 
@@ -216,7 +214,7 @@ public class SwipeRefreshLayout extends ViewGroup {
      */
     public void setProgressViewEndTarget(boolean scale, int end) {
         mSpinnerFinalOffset = end;
-        mDragRate = (mSpinnerFinalOffset - mOriginalOffsetTop) / mTotalDragDistance;
+        mScale = scale;
         mCircleView.invalidate();
     }
 
@@ -233,7 +231,12 @@ public class SwipeRefreshLayout extends ViewGroup {
         } else {
             mCircleHeight = mCircleWidth = (int) (CIRCLE_DIAMETER * metrics.density);
         }
+        // force the bounds of the progress circle inside the circle view to
+        // update by setting it to null before updating its size and then
+        // re-setting it
+        mCircleView.setImageDrawable(null);
         mProgress.updateSizes(size);
+        mCircleView.setImageDrawable(mProgress);
     }
 
     /**
@@ -270,13 +273,11 @@ public class SwipeRefreshLayout extends ViewGroup {
         mCircleWidth = (int) (CIRCLE_DIAMETER * metrics.density);
         mCircleHeight = (int) (CIRCLE_DIAMETER * metrics.density);
 
-        mSpinnerFinalOffset = DEFAULT_CIRCLE_TARGET * metrics.density;
-        // Since the circle moves at 1/2 rate of drag, and we want the circle to
-        // end at 64, and its starts -Diameter offscreen, it needs to move overall this
-        mDragRate = DRAG_RATE;
-        mTotalDragDistance = (mSpinnerFinalOffset + mCircleHeight);
         createProgressView();
         ViewCompat.setChildrenDrawingOrderEnabled(this, true);
+        // the absolute offset has to take into account that the circle starts at an offset
+        mSpinnerFinalOffset = DEFAULT_CIRCLE_TARGET * metrics.density;
+        mTotalDragDistance = mSpinnerFinalOffset;
     }
 
     protected int getChildDrawingOrder (int childCount, int i) {
@@ -319,7 +320,8 @@ public class SwipeRefreshLayout extends ViewGroup {
         if (refreshing && mRefreshing != refreshing) {
             // scale and show
             mRefreshing = refreshing;
-            setTargetOffsetTopAndBottom((int) (mSpinnerFinalOffset - mCircleView.getTop()),
+            setTargetOffsetTopAndBottom(
+                    (int) ((mSpinnerFinalOffset + mOriginalOffsetTop) - mCurrentTargetOffsetTop),
                     true /* requires update */);
             mNotify = false;
             startScaleUpAnimation(mRefreshListener);
@@ -649,7 +651,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                 mIsBeingDragged = false;
                 break;
 
-            case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_MOVE: {
                 final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
                 if (pointerIndex < 0) {
                     Log.e(LOG_TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
@@ -657,20 +659,22 @@ public class SwipeRefreshLayout extends ViewGroup {
                 }
 
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
-                final float overscrollTop = (y - mInitialMotionY) * mDragRate;
-
+                final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 if (mIsBeingDragged) {
                     mProgress.showArrow(true);
-                    float dragPercent = Math.min(1f, Math.abs(overscrollTop / mTotalDragDistance));
+                    float originalDragPercent = overscrollTop / mTotalDragDistance;
+                    if (originalDragPercent < 0) {
+                        return false;
+                    }
+                    float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
                     float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
                     float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
-                    float slingshotDist = mSpinnerFinalOffset - mOriginalOffsetTop;
-                    float tensionSlingshotDist = mSpinnerFinalOffset;
+                    float slingshotDist = mSpinnerFinalOffset;
                     float tensionSlingshotPercent = Math.max(0,
-                            Math.min(extraOS, tensionSlingshotDist) / tensionSlingshotDist / 2);
-                    float tensionPercent = (float) (tensionSlingshotPercent - Math.pow(
-                            tensionSlingshotPercent, 2)) * 4f;
-                    float extraMove = tensionSlingshotDist * tensionPercent;
+                            Math.min(extraOS, slingshotDist * 2) / slingshotDist);
+                    float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(
+                            (tensionSlingshotPercent / 4), 2)) * 2f;
+                    float extraMove = (slingshotDist) * tensionPercent * 2;
 
                     int targetY = mOriginalOffsetTop
                             + (int) ((slingshotDist * dragPercent) + extraMove);
@@ -697,13 +701,13 @@ public class SwipeRefreshLayout extends ViewGroup {
                             startProgressAlphaMaxAnimation();
                         }
                     }
-                    float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent) * .5f;
+                    float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
                     mProgress.setProgressRotation(rotation);
                     setTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop,
                             true /* requires update */);
                 }
                 break;
-
+            }
             case MotionEventCompat.ACTION_POINTER_DOWN: {
                 final int index = MotionEventCompat.getActionIndex(ev);
                 mActivePointerId = MotionEventCompat.getPointerId(ev, index);
@@ -715,9 +719,12 @@ public class SwipeRefreshLayout extends ViewGroup {
                 break;
 
             case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_CANCEL: {
+                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 mIsBeingDragged = false;
-                if (mCurrentTargetOffsetTop >= mSpinnerFinalOffset) {
+                if (overscrollTop > mTotalDragDistance) {
                     setRefreshing(true, true /* notify */);
                 } else {
                     // cancel refresh
@@ -728,6 +735,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                 }
                 mActivePointerId = INVALID_POINTER;
                 return false;
+            }
         }
 
         return true;
@@ -761,7 +769,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             int targetTop = 0;
-            int endTarget = (int) (mSpinnerFinalOffset);
+            int endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
             targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
             int offset = targetTop - mCircleView.getTop();
             setTargetOffsetTopAndBottom(offset, false /* requires update */);
