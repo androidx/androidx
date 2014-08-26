@@ -14,12 +14,21 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.transition.TransitionHelper;
-import android.support.v17.leanback.widget.TitleView;
-import android.view.ViewGroup.MarginLayoutParams;
+import android.support.v17.leanback.transition.SlideCallback;
+import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 class TitleTransitionHelper {
+
+    final static SlideCallback sSlideCallback = new SlideCallback() {
+        @Override
+        public boolean getSlide(View view, boolean appear, int[] edge, float[] distance) {
+            edge[0] = TransitionHelper.SLIDE_TOP;
+            distance[0] = view.getHeight();
+            return true;
+        }
+    };
 
     private static Interpolator createTransitionInterpolatorUp() {
         return new DecelerateInterpolator(4);
@@ -30,21 +39,15 @@ class TitleTransitionHelper {
     }
 
     static public Object createTransitionTitleUp(TransitionHelper helper) {
-        Object transition = helper.createChangeBounds(false);
+        Object transition = helper.createSlide(sSlideCallback);
         helper.setInterpolator(transition, createTransitionInterpolatorUp());
         return transition;
     }
 
     static public Object createTransitionTitleDown(TransitionHelper helper) {
-        Object transition = helper.createChangeBounds(false);
+        Object transition = helper.createSlide(sSlideCallback);
         helper.setInterpolator(transition, createTransitionInterpolatorDown());
         return transition;
-    }
-
-    static public void showTitle(TitleView view, boolean show) {
-        MarginLayoutParams lp = (MarginLayoutParams) view.getLayoutParams();
-        lp.topMargin = show ? 0 : -view.getHeight();
-        view.setLayoutParams(lp);
     }
 
 }
