@@ -90,6 +90,32 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         return recyclerView;
     }
 
+    public void testPreLayoutPositionCleanup() throws Throwable {
+        setupBasic(4, 0, 4);
+        mLayoutManager.expectLayouts(2);
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void beforePreLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager lm, RecyclerView.State state) {
+                mLayoutMin = 0;
+                mLayoutItemCount = 3;
+            }
+
+            @Override
+            void beforePostLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager layoutManager,
+                    RecyclerView.State state) {
+                mLayoutMin = 0;
+                mLayoutItemCount = 4;
+            }
+        };
+        mTestAdapter.addAndNotify(0, 1);
+        mLayoutManager.waitForLayout(2);
+
+
+
+    }
+
     public void testAddRemoveSamePass() throws Throwable {
         final List<RecyclerView.ViewHolder> mRecycledViews
                 = new ArrayList<RecyclerView.ViewHolder>();
@@ -962,6 +988,27 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             lm.assertVisibleItemPositions();
         }
 
+        private void assertNoPreLayoutPosition(RecyclerView.Recycler recycler) {
+            for (RecyclerView.ViewHolder vh : recycler.mAttachedScrap) {
+                assertPreLayoutPosition(vh);
+            }
+        }
+
+        private void assertNoPreLayoutPosition(RecyclerView.LayoutManager lm) {
+            for (int i = 0; i < lm.getChildCount(); i ++) {
+                final RecyclerView.ViewHolder vh = mRecyclerView
+                        .getChildViewHolder(lm.getChildAt(i));
+                assertPreLayoutPosition(vh);
+            }
+        }
+
+        private void assertPreLayoutPosition(RecyclerView.ViewHolder vh) {
+            assertEquals("in post layout, there should not be a view holder w/ a pre "
+                    + "layout position", RecyclerView.NO_POSITION, vh.mPreLayoutPosition);
+            assertEquals("in post layout, there should not be a view holder w/ an old "
+                    + "layout position", RecyclerView.NO_POSITION, vh.mOldPosition);
+        }
+
         void onLayoutChildren(RecyclerView.Recycler recycler, AnimationLayoutManager lm,
                 RecyclerView.State state) {
 
@@ -978,11 +1025,15 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 }
                 beforePostLayout(recycler, lm, state);
             }
+            if (!state.isPreLayout()) {
+                assertNoPreLayoutPosition(recycler);
+            }
             doLayout(recycler, lm, state);
             if (state.isPreLayout()) {
                 afterPreLayout(recycler, lm, state);
             } else {
                 afterPostLayout(recycler, lm, state);
+                assertNoPreLayoutPosition(lm);
             }
             mLayoutCount++;
         }
