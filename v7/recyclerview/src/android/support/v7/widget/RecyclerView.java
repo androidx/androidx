@@ -3025,7 +3025,7 @@ public class RecyclerView extends ViewGroup {
      * may be repositioned by a LayoutManager without remeasurement.</p>
      */
     public final class Recycler {
-        private final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
+        final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
         private ArrayList<ViewHolder> mChangedScrap = null;
 
         final ArrayList<ViewHolder> mCachedViews = new ArrayList<ViewHolder>();
@@ -3827,6 +3827,16 @@ public class RecyclerView extends ViewGroup {
             for (int i = 0; i < cachedCount; i++) {
                 final ViewHolder holder = mCachedViews.get(i);
                 holder.clearOldPosition();
+            }
+            final int scrapCount = mAttachedScrap.size();
+            for (int i = 0; i < scrapCount; i++) {
+                mAttachedScrap.get(i).clearOldPosition();
+            }
+            if (mChangedScrap != null) {
+                final int changedScrapCount = mChangedScrap.size();
+                for (int i = 0; i < changedScrapCount; i++) {
+                    mChangedScrap.get(i).clearOldPosition();
+                }
             }
         }
 
