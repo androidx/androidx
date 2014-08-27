@@ -363,7 +363,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         if (mDecorContentParent != null) {
             mDecorContentParent.setWindowTitle(title);
         } else if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(title);
+            getSupportActionBar().setWindowTitle(title);
         } else {
             mTitleToSet = title;
         }
