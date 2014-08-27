@@ -21,7 +21,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.View;
-import android.view.ViewGroup;
 
 class CardViewEclairMr1 implements CardViewImpl {
 
@@ -81,13 +80,19 @@ class CardViewEclairMr1 implements CardViewImpl {
                 elevation, maxElevation);
     }
 
-    private void updatePadding(CardViewDelegate cardView) {
+    @Override
+    public void updatePadding(CardViewDelegate cardView) {
         Rect shadowPadding = new Rect();
         getShadowBackground(cardView).getMaxShadowAndCornerPadding(shadowPadding);
-        ((View)cardView).setPadding(shadowPadding.left, shadowPadding.top, shadowPadding.right,
-                shadowPadding.bottom);
         ((View)cardView).setMinimumHeight((int) Math.ceil(getMinHeight(cardView)));
         ((View)cardView).setMinimumWidth((int) Math.ceil(getMinWidth(cardView)));
+        cardView.setShadowPadding(shadowPadding.left, shadowPadding.top,
+                shadowPadding.right, shadowPadding.bottom);
+    }
+
+    @Override
+    public void onCompatPaddingChanged(CardViewDelegate cardView) {
+        // NO OP
     }
 
     @Override

@@ -24,6 +24,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 
+import static android.support.v7.widget.RoundRectDrawableWithShadow.calculateVerticalPadding;
+import static android.support.v7.widget.RoundRectDrawableWithShadow.calculateHorizontalPadding;
+
 /**
  * Very simple drawable that draws a rounded rectangle background with arbitrary corners and also
  * reports proper outline for L.
@@ -31,38 +34,71 @@ import android.graphics.drawable.Drawable;
  * Simpler and uses less resources compared to GradientDrawable or ShapeDrawable.
  */
 class RoundRectDrawable extends Drawable {
-    float mRadius;
-    final Paint mPaint;
-    final RectF mBounds;
+    private float mRadius;
+    private final Paint mPaint;
+    private final RectF mBoundsF;
+    private final Rect mBoundsI;
+    private float mPadding;
+    private boolean mInsetForPadding = false;
 
-    public RoundRectDrawable(int backgroundColor, float radius) {
+    RoundRectDrawable(int backgroundColor, float radius) {
         mRadius = radius;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mPaint.setColor(backgroundColor);
-        mBounds = new RectF();
+        mBoundsF = new RectF();
+        mBoundsI = new Rect();
+    }
+
+    void setPadding(float padding, boolean insetForPadding) {
+        if (padding == mPadding && mInsetForPadding == insetForPadding) {
+            return;
+        }
+        mPadding = padding;
+        mInsetForPadding = insetForPadding;
+        updateBounds(null);
+        invalidateSelf();
+    }
+
+    float getPadding() {
+        return mPadding;
     }
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawRoundRect(mBounds, mRadius, mRadius, mPaint);
+        canvas.drawRoundRect(mBoundsF, mRadius, mRadius, mPaint);
+    }
+
+    private void updateBounds(Rect bounds) {
+        if (bounds == null) {
+            bounds = getBounds();
+        }
+        mBoundsF.set(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        mBoundsI.set(bounds);
+        if (mInsetForPadding) {
+            float vInset = calculateVerticalPadding(mPadding, mRadius);
+            float hInset = calculateHorizontalPadding(mPadding, mRadius);
+            mBoundsF.inset(hInset, vInset);
+            mBoundsI.inset((int) Math.ceil(hInset), (int) Math.ceil(vInset));
+        }
     }
 
     @Override
     protected void onBoundsChange(Rect bounds) {
         super.onBoundsChange(bounds);
-        mBounds.set(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        updateBounds(bounds);
     }
 
     @Override
     public void getOutline(Outline outline) {
-        outline.setRoundRect(getBounds(), mRadius);
+        outline.setRoundRect(mBoundsI, mRadius);
     }
 
-    public void setRadius(float radius) {
+    void setRadius(float radius) {
         if (radius == mRadius) {
             return;
         }
         mRadius = radius;
+        updateBounds(null);
         invalidateSelf();
     }
 

@@ -15,6 +15,7 @@
  */
 package android.support.v7.widget;
 
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 /**
@@ -25,4 +26,7 @@ import android.graphics.drawable.Drawable;
 interface CardViewDelegate {
     void setBackgroundDrawable(Drawable paramDrawable);
     Drawable getBackground();
+    boolean useCompatPadding();
+    float getRadius();
+    void setShadowPadding(int left, int top, int right, int bottom);
 }
