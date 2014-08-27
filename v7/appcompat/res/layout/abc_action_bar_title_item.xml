@@ -17,10 +17,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_gravity="center_vertical|left"
               android:orientation="vertical"
-              android:paddingRight="8dp"
-              android:paddingEnd="8dp">
+              style="@style/RtlOverlay.Widget.AppCompat.ActionBar.TitleItem">
     <TextView android:id="@+id/action_bar_title"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"

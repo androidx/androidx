@@ -17,8 +17,7 @@
  */
 
 -->
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -63,10 +62,9 @@
                 android:layout_width="@dimen/abc_dropdownitem_icon_width"
                 android:layout_height="wrap_content"
                 android:scaleType="centerInside"
-                android:layout_marginStart="@dimen/abc_dropdownitem_text_padding_left"
-                android:layout_marginLeft="@dimen/abc_dropdownitem_text_padding_left"
                 android:layout_gravity="center_vertical"
-                android:visibility="gone" />
+                android:visibility="gone"
+                style="@style/RtlOverlay.Widget.AppCompat.SearchView.MagIcon" />
 
         <!-- Inner layout contains the app icon, button(s) and EditText -->
         <LinearLayout
@@ -103,7 +101,7 @@
                     android:paddingLeft="8dip"
                     android:paddingRight="8dip"
                     android:layout_gravity="center_vertical"
-                    android:background="?attr/selectableItemBackground"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:focusable="true"
                     android:contentDescription="@string/abc_searchview_description_clear" />
 
@@ -120,9 +118,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:paddingStart="16dip"
-                    android:paddingEnd="16dip"
-                    android:background="?attr/selectableItemBackground"
+                    android:paddingLeft="16dip"
+                    android:paddingRight="16dip"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:visibility="gone"
                     android:focusable="true"
                     android:contentDescription="@string/abc_searchview_description_submit" />
@@ -132,9 +130,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:paddingStart="16dip"
-                    android:paddingEnd="16dip"
-                    android:background="?attr/selectableItemBackground"
+                    android:paddingLeft="16dip"
+                    android:paddingRight="16dip"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:visibility="gone"
                     android:focusable="true"
                     android:contentDescription="@string/abc_searchview_description_voice" />
