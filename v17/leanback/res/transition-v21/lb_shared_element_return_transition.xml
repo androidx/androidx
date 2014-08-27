@@ -21,12 +21,12 @@
       android:duration="75"/>
   <changeBounds
       android:interpolator="@android:interpolator/linear_out_slow_in"
-      android:duration="450">
+      android:duration="325">
   </changeBounds>
   <changeTransform
       android:interpolator="@android:interpolator/linear_out_slow_in" 
-      android:duration="450"/>
+      android:duration="325"/>
   <changeImageTransform
       android:interpolator="@android:interpolator/linear_out_slow_in"
-      android:duration="450"/>
+      android:duration="325"/>
 </transitionSet>
