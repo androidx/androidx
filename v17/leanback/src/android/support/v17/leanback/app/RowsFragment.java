@@ -275,6 +275,7 @@ public class RowsFragment extends BaseRowFragment {
         // Align the top edge of child with id row_content.
         // Need set this for directly using RowsFragment.
         getVerticalGridView().setItemAlignmentViewId(R.id.row_content);
+        getVerticalGridView().setSaveChildrenPolicy(VerticalGridView.SAVE_LIMITED_CHILD);
 
         mRecycledViewPool = null;
         mPresenterMapper = null;

@@ -15,8 +15,18 @@ package android.support.v17.leanback.widget;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.util.LruCache;
 import android.util.SparseArray;
 import android.view.View;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static android.support.v17.leanback.widget.BaseGridView.SAVE_NO_CHILD;
+import static android.support.v17.leanback.widget.BaseGridView.SAVE_ON_SCREEN_CHILD;
+import static android.support.v17.leanback.widget.BaseGridView.SAVE_LIMITED_CHILD;
+import static android.support.v17.leanback.widget.BaseGridView.SAVE_ALL_CHILD;
 
 /**
  * Maintains a bundle of states for a group of views. Each view must have a unique id to identify
@@ -32,37 +42,27 @@ import android.view.View;
  */
 class ViewsStateBundle {
 
-    /** dont save states of any child views */
-    public static final int SAVE_NO_CHILD = 0;
-    /** only save on screen child views, the states are lost when they become off screen */
-    public static final int SAVE_ON_SCREEN_CHILD = 1;
-    /** save on screen views plus save off screen child views states up to {@link #getLimitNumber()} */
-    public static final int SAVE_LIMITED_CHILD = 2;
-    /**
-     * save on screen views plus save off screen child views without any limitation. This might cause out
-     * of memory, only use it when you are dealing with limited data
-     */
-    public static final int SAVE_ALL_CHILD = 3;
-
-    public static final int DEFAULT_LIMIT = 100;
+    public static final int LIMIT_DEFAULT = 100;
+    public static final int UNLIMITED = Integer.MAX_VALUE;
 
     private int mSavePolicy;
     private int mLimitNumber;
 
-    private final Bundle mChildStates;
+    private LruCache<String, SparseArray<Parcelable>> mChildStates;
 
-    public ViewsStateBundle(int policy, int limit) {
-        mSavePolicy = policy;
-        mLimitNumber = limit;
-        mChildStates = new Bundle();
+    public ViewsStateBundle() {
+        mSavePolicy = SAVE_NO_CHILD;
+        mLimitNumber = LIMIT_DEFAULT;
     }
 
     public void clear() {
-        mChildStates.clear();
+        if (mChildStates != null) {
+            mChildStates.evictAll();
+        }
     }
 
     public void remove(int id) {
-        if (!mChildStates.isEmpty()) {
+        if (mChildStates != null && mChildStates.size() != 0) {
             mChildStates.remove(getSaveStatesKey(id));
         }
     }
@@ -70,8 +70,28 @@ class ViewsStateBundle {
     /**
      * @return the saved views states
      */
-    public final Bundle getChildStates() {
-        return mChildStates;
+    public final Bundle saveAsBundle() {
+        if (mChildStates == null || mChildStates.size() == 0) {
+            return null;
+        }
+        Map<String, SparseArray<Parcelable>> snapshot = mChildStates.snapshot();
+        Bundle bundle = new Bundle();
+        for (Iterator<Entry<String, SparseArray<Parcelable>>> i =
+                snapshot.entrySet().iterator(); i.hasNext(); ) {
+            Entry<String, SparseArray<Parcelable>> e = i.next();
+            bundle.putSparseParcelableArray(e.getKey(), e.getValue());
+        }
+        return bundle;
+    }
+
+    public final void loadFromBundle(Bundle savedBundle) {
+        if (mChildStates != null && savedBundle != null) {
+            mChildStates.evictAll();
+            for (Iterator<String> i = savedBundle.keySet().iterator(); i.hasNext(); ) {
+                String key = i.next();
+                mChildStates.put(key, savedBundle.getSparseParcelableArray(key));
+            }
+        }
     }
 
     /**
@@ -95,6 +115,7 @@ class ViewsStateBundle {
      */
     public final void setSavePolicy(int savePolicy) {
         this.mSavePolicy = savePolicy;
+        applyPolicyChanges();
     }
 
     /**
@@ -102,6 +123,24 @@ class ViewsStateBundle {
      */
     public final void setLimitNumber(int limitNumber) {
         this.mLimitNumber = limitNumber;
+        applyPolicyChanges();
+    }
+
+    protected void applyPolicyChanges() {
+        if (mSavePolicy == SAVE_LIMITED_CHILD) {
+            if (mLimitNumber <= 0) {
+                throw new IllegalArgumentException();
+            }
+            if (mChildStates == null || mChildStates.maxSize() != mLimitNumber) {
+                mChildStates = new LruCache<String, SparseArray<Parcelable>>(mLimitNumber);
+            }
+        } else if (mSavePolicy == SAVE_ALL_CHILD || mSavePolicy == SAVE_ON_SCREEN_CHILD) {
+            if (mChildStates == null || mChildStates.maxSize() != UNLIMITED) {
+                mChildStates = new LruCache<String, SparseArray<Parcelable>>(UNLIMITED);
+            }
+        } else {
+            mChildStates = null;
+        }
     }
 
     /**
@@ -111,10 +150,12 @@ class ViewsStateBundle {
      * @param id unique id for the view within this ViewsStateBundle
      */
     public final void loadView(View view, int id) {
-        String key = getSaveStatesKey(id);
-        SparseArray<Parcelable> container = mChildStates.getSparseParcelableArray(key);
-        if (container != null) {
-            view.restoreHierarchyState(container);
+        if (mChildStates != null) {
+            String key = getSaveStatesKey(id);
+            SparseArray<Parcelable> container = mChildStates.get(key);
+            if (container != null) {
+                view.restoreHierarchyState(container);
+            }
         }
     }
 
@@ -125,10 +166,12 @@ class ViewsStateBundle {
      * @param id unique id for the view within this ViewsStateBundle
      */
     protected final void saveViewUnchecked(View view, int id) {
-        String key = getSaveStatesKey(id);
-        SparseArray<Parcelable> container = new SparseArray<Parcelable>();
-        view.saveHierarchyState(container);
-        mChildStates.putSparseParcelableArray(key, container);
+        if (mChildStates != null) {
+            String key = getSaveStatesKey(id);
+            SparseArray<Parcelable> container = new SparseArray<Parcelable>();
+            view.saveHierarchyState(container);
+            mChildStates.put(key, container);
+        }
     }
 
     /**
@@ -152,12 +195,11 @@ class ViewsStateBundle {
     public final void saveOffscreenView(View view, int id) {
         switch (mSavePolicy) {
             case SAVE_LIMITED_CHILD:
-                if (mChildStates.size() > mLimitNumber) {
-                    // TODO prune the Bundle to be under limit
-                }
-                // slip through next case section to save view
             case SAVE_ALL_CHILD:
                 saveViewUnchecked(view, id);
+                break;
+            case SAVE_ON_SCREEN_CHILD:
+                remove(id);
                 break;
             default:
                 break;
