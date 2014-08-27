@@ -64,9 +64,12 @@ abstract class ActionBarActivityDelegate {
     boolean mOverlayActionMode;
     // true if this activity is floating (e.g. Dialog)
     boolean mIsFloating;
+    // The fake window callback we're currently using
+    WindowCallback mWindowMenuCallback;
 
     ActionBarActivityDelegate(ActionBarActivity activity) {
         mActivity = activity;
+        mWindowMenuCallback = new DefaultWindowCallback();
     }
 
     abstract ActionBar createSupportActionBar();
@@ -229,7 +232,14 @@ abstract class ActionBarActivityDelegate {
 
     abstract ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback);
 
-    final WindowCallback mWindowMenuCallback = new WindowCallback() {
+    void setWindowCallback(WindowCallback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException("callback can not be null");
+        }
+        mWindowMenuCallback = callback;
+    }
+
+    private class DefaultWindowCallback implements WindowCallback {
         @Override
         public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
             return mActivity.onMenuItemSelected(featureId, menuItem);
@@ -249,5 +259,5 @@ abstract class ActionBarActivityDelegate {
         public ActionMode startActionMode(ActionMode.Callback callback) {
             return startSupportActionModeFromWindow(callback);
         }
-    };
+    }
 }
