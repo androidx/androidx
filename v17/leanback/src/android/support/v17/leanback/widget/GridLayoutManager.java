@@ -1914,6 +1914,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onItemsChanged(RecyclerView recyclerView) {
         mFocusPositionOffset = 0;
+        mChildrenStates.clear();
     }
 
     @Override
@@ -1928,6 +1929,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     mFocusPositionOffset -= itemCount;
                 }
             }
+        }
+        for (int i = 0; i < itemCount; i++) {
+            mChildrenStates.remove(positionStart + i);
         }
     }
 
