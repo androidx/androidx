@@ -1064,6 +1064,10 @@ public abstract class ActionBar {
         return false;
     }
 
+    /** @hide */
+    public void setWindowTitle(CharSequence title) {
+    }
+
     /**
      * Listener interface for ActionBar navigation events.
      *
