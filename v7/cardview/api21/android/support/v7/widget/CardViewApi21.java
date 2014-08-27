@@ -16,19 +16,19 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.view.View;
-import android.support.v7.cardview.R;
 
 class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void initialize(CardViewDelegate cardView, Context context, int backgroundColor,
-            float radius, float elevation, float maxElevation/*ignored*/) {
-        cardView.setBackgroundDrawable(new RoundRectDrawable(backgroundColor, radius));
+            float radius, float elevation, float maxElevation) {
+        final RoundRectDrawable backgroundDrawable = new RoundRectDrawable(backgroundColor, radius);
+        cardView.setBackgroundDrawable(backgroundDrawable);
         View view = (View) cardView;
         view.setClipToOutline(true);
         view.setElevation(elevation);
+        setMaxElevation(cardView, maxElevation);
     }
 
     @Override
@@ -42,12 +42,14 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void setMaxElevation(CardViewDelegate cardView, float maxElevation) {
-        // no op
+        ((RoundRectDrawable) (cardView.getBackground())).setPadding(maxElevation,
+                cardView.useCompatPadding());
+        updatePadding(cardView);
     }
 
     @Override
     public float getMaxElevation(CardViewDelegate cardView) {
-        return 0;
+        return ((RoundRectDrawable) (cardView.getBackground())).getPadding();
     }
 
     @Override
@@ -73,6 +75,26 @@ class CardViewApi21 implements CardViewImpl {
     @Override
     public float getElevation(CardViewDelegate cardView) {
         return ((View) cardView).getElevation();
+    }
+
+    @Override
+    public void updatePadding(CardViewDelegate cardView) {
+        if (!cardView.useCompatPadding()) {
+            cardView.setShadowPadding(0, 0, 0, 0);
+            return;
+        }
+        float elevation = getMaxElevation(cardView);
+        final float radius = getRadius(cardView);
+        int hPadding = (int) Math.ceil(RoundRectDrawableWithShadow
+                .calculateHorizontalPadding(elevation, radius));
+        int vPadding = (int) Math.ceil(RoundRectDrawableWithShadow
+                .calculateVerticalPadding(elevation, radius));
+        cardView.setShadowPadding(hPadding, vPadding, hPadding, vPadding);
+    }
+
+    @Override
+    public void onCompatPaddingChanged(CardViewDelegate cardView) {
+        setMaxElevation(cardView, getMaxElevation(cardView));
     }
 
 }
