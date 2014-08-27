@@ -16,8 +16,6 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.graphics.Rect;
-
 /**
  * Interface for platform specific CardView implementations.
  */
@@ -42,4 +40,8 @@ interface CardViewImpl {
     float getMinWidth(CardViewDelegate cardView);
 
     float getMinHeight(CardViewDelegate cardView);
+
+    void updatePadding(CardViewDelegate cardView);
+
+    void onCompatPaddingChanged(CardViewDelegate cardView);
 }
