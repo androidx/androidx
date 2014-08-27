@@ -176,6 +176,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.ActionBarWithDrawerLayout"
+                  android:label="@string/action_bar_with_navigation_drawer"
+                  android:theme="@style/Theme.AppCompat"
+                  >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <!-- RecyclerView samples -->
         <activity android:name=".widget.RecyclerViewActivity"
                   android:label="@string/recycler_view"
