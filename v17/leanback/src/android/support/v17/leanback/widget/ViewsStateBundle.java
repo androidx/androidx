@@ -61,6 +61,12 @@ class ViewsStateBundle {
         mChildStates.clear();
     }
 
+    public void remove(int id) {
+        if (!mChildStates.isEmpty()) {
+            mChildStates.remove(getSaveStatesKey(id));
+        }
+    }
+
     /**
      * @return the saved views states
      */
