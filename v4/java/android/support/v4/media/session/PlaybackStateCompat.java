@@ -27,75 +27,97 @@ import android.text.TextUtils;
  * and the current control capabilities.
  */
 public final class PlaybackStateCompat implements Parcelable {
+
     /**
-     * Indicates this performer supports the stop command.
+     * Indicates this session supports the stop command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_STOP = 1 << 0;
 
     /**
-     * Indicates this performer supports the pause command.
+     * Indicates this session supports the pause command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_PAUSE = 1 << 1;
 
     /**
-     * Indicates this performer supports the play command.
+     * Indicates this session supports the play command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_PLAY = 1 << 2;
 
     /**
-     * Indicates this performer supports the rewind command.
+     * Indicates this session supports the rewind command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_REWIND = 1 << 3;
 
     /**
-     * Indicates this performer supports the previous command.
+     * Indicates this session supports the previous command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_SKIP_TO_PREVIOUS = 1 << 4;
 
     /**
-     * Indicates this performer supports the next command.
+     * Indicates this session supports the next command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_SKIP_TO_NEXT = 1 << 5;
 
     /**
-     * Indicates this performer supports the fast forward command.
+     * Indicates this session supports the fast forward command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_FAST_FORWARD = 1 << 6;
 
     /**
-     * Indicates this performer supports the set rating command.
+     * Indicates this session supports the set rating command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_SET_RATING = 1 << 7;
 
     /**
-     * Indicates this performer supports the seek to command.
+     * Indicates this session supports the seek to command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_SEEK_TO = 1 << 8;
 
     /**
-     * Indicates this performer supports the play/pause toggle command.
+     * Indicates this session supports the play/pause toggle command.
      *
-     * @see Builder#setActions
+     * @see Builder#setActions(long)
      */
     public static final long ACTION_PLAY_PAUSE = 1 << 9;
+
+    /**
+     * Indicates this session supports the play from media id command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_PLAY_FROM_MEDIA_ID = 1 << 10;
+
+    /**
+     * Indicates this session supports the play from search command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_PLAY_FROM_SEARCH = 1 << 11;
+
+    /**
+     * Indicates this session supports the skip to queue item command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_SKIP_TO_QUEUE_ITEM = 1 << 12;
 
     /**
      * This is the default playback state and indicates that no media has been
