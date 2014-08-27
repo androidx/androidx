@@ -130,9 +130,11 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                     "by the window decor. Do not request Window.FEATURE_ACTION_BAR and set " +
                     "windowActionBar to false in your theme to use a Toolbar instead.");
         }
-        ActionBar ab = new ToolbarActionBar(toolbar, mActivity.getTitle(), mWindowMenuCallback);
-        ab.invalidateOptionsMenu();
-        setSupportActionBar(ab);
+        ToolbarActionBar tbab = new ToolbarActionBar(toolbar, mActivity.getTitle(),
+                mWindowMenuCallback);
+        setSupportActionBar(tbab);
+        setWindowCallback(tbab.getWrappedWindowCallback());
+        tbab.invalidateOptionsMenu();
     }
 
     @Override
@@ -381,7 +383,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     @Override
     public boolean onCreatePanelMenu(int featureId, Menu menu) {
         if (featureId != Window.FEATURE_OPTIONS_PANEL) {
-            return mActivity.superOnCreatePanelMenu(featureId, menu);
+            return mWindowMenuCallback.onCreatePanelMenu(featureId, menu);
         }
         return false;
     }
@@ -389,7 +391,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     @Override
     public boolean onPreparePanel(int featureId, View view, Menu menu) {
         if (featureId != Window.FEATURE_OPTIONS_PANEL) {
-            return mActivity.superOnPreparePanel(featureId, view, menu);
+            return mWindowMenuCallback.onPreparePanel(featureId, view, menu);
         }
         return false;
     }
@@ -777,7 +779,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             mMenu.stopDispatchingItemsChanged();
 
             // Call callback, and return if it doesn't want to display menu.
-            if (!mActivity.superOnCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, mMenu)) {
+            if (!mWindowMenuCallback.onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, mMenu)) {
                 // Ditch the menu created above
                 mMenu = null;
 
@@ -804,7 +806,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         }
 
         // Callback and return if the callback does not want to show the menu
-        if (!mActivity.superOnPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, mMenu)) {
+        if (!mWindowMenuCallback.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, mMenu)) {
             if (mDecorContentParent != null) {
                 // The app didn't want to show the menu for now but it still exists.
                 // Clear it out of the action bar.
