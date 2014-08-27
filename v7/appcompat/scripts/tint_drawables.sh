@@ -60,6 +60,8 @@ NORMAL_DISABLED="abc_textfield_default_mtrl_alpha.9.png"
 ACTIVATED_NO_PREFIX="abc_textfield_search_activated_mtrl_alpha.9.png \
     abc_textfield_activated_mtrl_alpha.9.png"
 
+ACTIVATED_PREFIX_TINTED="abc_cab_background_top_mtrl_alpha.9.png"
+
 ACTIVATED_PREFIX_CHECKED="abc_spinner_mtrl_am_alpha.9.png"
 
 ACTIVATED_PREFIX_SELECTED="abc_tab_indicator_mtrl_alpha.9.png"
@@ -143,4 +145,5 @@ tintDrawables "Src-In" "$ACTIVATED_NO_PREFIX" $COLOR_ACCENT_LIGHT $COLOR_ACCENT_
 tintDrawables "Src-In" "$ACTIVATED_PREFIX_CHECKED" $COLOR_ACCENT_LIGHT $COLOR_ACCENT_DARK "_checked"
 tintDrawables "Src-In" "$ACTIVATED_PREFIX_PRESSED" $COLOR_ACCENT_LIGHT $COLOR_ACCENT_DARK "_pressed"
 tintDrawables "Src-In" "$ACTIVATED_PREFIX_SELECTED" $COLOR_ACCENT_LIGHT $COLOR_ACCENT_DARK "_selected"
+tintDrawables "Src-In" "$ACTIVATED_PREFIX_TINTED" $COLOR_ACCENT_LIGHT $COLOR_ACCENT_DARK "_tinted"
 tintDrawables "Multiply" "$BACKGROUND_MULTIPLY" $COLOR_BACKGROUND_LIGHT $COLOR_BACKGROUND_DARK
