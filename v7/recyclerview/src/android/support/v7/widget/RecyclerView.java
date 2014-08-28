@@ -1299,6 +1299,9 @@ public class RecyclerView extends ViewGroup {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        if (mItemAnimator != null) {
+            mItemAnimator.endAnimations();
+        }
         mFirstLayoutComplete = false;
 
         stopScroll();
