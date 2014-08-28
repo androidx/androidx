@@ -210,28 +210,25 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     final void ensureSubDecor() {
         if (!mSubDecorInstalled) {
             if (mHasActionBar) {
-                mActivity.superSetContentView(R.layout.abc_screen_toolbar);
+                /**
+                 * This needs some explanation. As we can not use the android:theme attribute
+                 * pre-L, we emulate it by manually creating a LayoutInflater using a
+                 * ContextThemeWrapper pointing to actionBarTheme.
+                 */
+                TypedValue outValue = new TypedValue();
+                mActivity.getTheme().resolveAttribute(R.attr.actionBarTheme, outValue, true);
 
-                ViewGroup root = (ViewGroup) mActivity.findViewById(R.id.action_bar_root);
-                if (root != null && root.getChildCount() == 0) {
-                    /**
-                     * This needs some explanation. As we can not use the android:theme attribute
-                     * pre-L, we emulate it by manually creating a LayoutInflater using a
-                     * ContextThemeWrapper pointing to actionBarTheme.
-                     */
-                    TypedValue outValue = new TypedValue();
-                    mActivity.getTheme().resolveAttribute(R.attr.actionBarTheme, outValue, true);
-
-                    Context themedContext;
-                    if (outValue.resourceId != 0) {
-                        themedContext = new ContextThemeWrapper(mActivity, outValue.resourceId);
-                    } else {
-                        themedContext = mActivity;
-                    }
-
-                    LayoutInflater.from(themedContext)
-                            .inflate(R.layout.abc_screen_toolbar_include, root, true);
+                Context themedContext;
+                if (outValue.resourceId != 0) {
+                    themedContext = new ContextThemeWrapper(mActivity, outValue.resourceId);
+                } else {
+                    themedContext = mActivity;
                 }
+
+                // Now inflate the view using the themed context and set it as the content view
+                View decor = LayoutInflater.from(themedContext)
+                        .inflate(R.layout.abc_screen_toolbar, null);
+                mActivity.superSetContentView(decor);
 
                 mDecorContentParent = (DecorContentParent) mActivity
                         .findViewById(R.id.decor_content_parent);
@@ -257,10 +254,16 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
             // Change our content FrameLayout to use the android.R.id.content id.
             // Useful for fragments.
-            View content = mActivity.findViewById(android.R.id.content);
-            content.setId(View.NO_ID);
+            final View decorContent = mActivity.findViewById(android.R.id.content);
+            decorContent.setId(View.NO_ID);
             View abcContent = mActivity.findViewById(R.id.action_bar_activity_content);
             abcContent.setId(android.R.id.content);
+
+            // The decorContent may have a foreground drawable set (windowContentOverlay).
+            // Remove this as we handle it ourselves
+            if (decorContent instanceof FrameLayout) {
+                ((FrameLayout) decorContent).setForeground(null);
+            }
 
             // A title was set before we've install the decor so set it now.
             if (mTitleToSet != null && mDecorContentParent != null) {
