@@ -154,6 +154,8 @@
     <style name="Base.V7.Theme.AppCompat" parent="Platform.AppCompat">
         <item name="windowActionBar">true</item>
         <item name="windowActionBarOverlay">false</item>
+
+        <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>
 
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
@@ -252,6 +254,8 @@
     <style name="Base.V7.Theme.AppCompat.Light" parent="Platform.AppCompat.Light">
         <item name="windowActionBar">true</item>
         <item name="windowActionBarOverlay">false</item>
+
+        <!-- Used by MediaRouter -->
         <item name="isLightTheme">true</item>
 
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
@@ -537,6 +541,9 @@
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
         <!--<item name="colorButtonNormal">@color/btn_default_material_light</item>-->
+
+        <!-- Used by MediaRouter -->
+        <item name="isLightTheme">true</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Dark">
@@ -583,6 +590,9 @@
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
         <!--<item name="colorButtonNormal">@color/btn_default_material_dark</item>-->
+
+        <!-- Used by MediaRouter -->
+        <item name="isLightTheme">false</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.ActionBar">
