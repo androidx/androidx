@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
@@ -88,6 +89,26 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         assertEquals("all expected children should be laid out", firstLayoutItemCount,
                 mLayoutManager.getChildCount());
         return recyclerView;
+    }
+
+    public void testDetachBeforeAnimations() throws Throwable {
+        setupBasic(10, 0, 5);
+        final RecyclerView rv = mRecyclerView;
+        waitForAnimations(2);
+        final DefaultItemAnimator animator = new DefaultItemAnimator() {
+            @Override
+            public void runPendingAnimations() {
+                super.runPendingAnimations();
+            }
+        };
+        rv.setItemAnimator(animator);
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.deleteAndNotify(3, 4);
+        mLayoutManager.waitForLayout(2);
+        removeRecyclerView();
+        assertNull("test sanity check RV should be removed", rv.getParent());
+        assertEquals("no views should be hidden", 0, rv.mChildHelper.mHiddenViews.size());
+        assertFalse("there should not be any animations running", animator.isRunning());
     }
 
     public void testPreLayoutPositionCleanup() throws Throwable {
