@@ -223,7 +223,7 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_material_light</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_material_light</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode</item>
