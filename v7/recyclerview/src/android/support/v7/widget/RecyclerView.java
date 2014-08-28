@@ -3143,16 +3143,21 @@ public class RecyclerView extends ViewGroup {
                 holder.mPreLayoutPosition = position;
             }
 
-            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            final ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            final LayoutParams rvLayoutParams;
             if (lp == null) {
-                lp = generateDefaultLayoutParams();
-                holder.itemView.setLayoutParams(lp);
+                rvLayoutParams = (LayoutParams) generateDefaultLayoutParams();
+                holder.itemView.setLayoutParams(rvLayoutParams);
             } else if (!checkLayoutParams(lp)) {
-                lp = generateLayoutParams(lp);
-                holder.itemView.setLayoutParams(lp);
+                rvLayoutParams = (LayoutParams) generateLayoutParams(lp);
+                holder.itemView.setLayoutParams(rvLayoutParams);
+            } else {
+                rvLayoutParams = (LayoutParams) lp;
             }
-            ((LayoutParams) lp).mInsetsDirty = true;
-            ((LayoutParams) lp).mViewHolder = holder;
+
+            rvLayoutParams.mInsetsDirty = true;
+            rvLayoutParams.mViewHolder = holder;
+            rvLayoutParams.mPendingInvalidate = holder.itemView.getParent() == null;
         }
 
         /**
@@ -3207,10 +3212,12 @@ public class RecyclerView extends ViewGroup {
                 throw new IndexOutOfBoundsException("Invalid item position " + position
                         + "(" + position + "). Item count:" + mState.getItemCount());
             }
+            boolean fromScrap = false;
             ViewHolder holder = null;
             // 0) If there is a changed scrap, try to find from there
             if (mState.isPreLayout()) {
                 holder = getChangedScrapViewForPosition(position);
+                fromScrap = holder != null;
             }
             // 1) Find from scrap by position
             if (holder == null) {
@@ -3231,6 +3238,8 @@ public class RecyclerView extends ViewGroup {
                             recycleViewHolderInternal(holder);
                         }
                         holder = null;
+                    } else {
+                        fromScrap = true;
                     }
                 }
             }
@@ -3249,6 +3258,7 @@ public class RecyclerView extends ViewGroup {
                     if (holder != null) {
                         // update position
                         holder.mPosition = offsetPosition;
+                        fromScrap = true;
                     }
                 }
                 if (holder == null && mViewCacheExtension != null) {
@@ -3292,7 +3302,7 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
             }
-
+            boolean bound = false;
             if (mState.isPreLayout() && holder.isBound()) {
                 // do not update unless we absolutely have to.
                 holder.mPreLayoutPosition = position;
@@ -3303,21 +3313,25 @@ public class RecyclerView extends ViewGroup {
                 }
                 final int offsetPosition = mAdapterHelper.findPositionOffset(position);
                 mAdapter.bindViewHolder(holder, offsetPosition);
+                bound = true;
                 if (mState.isPreLayout()) {
                     holder.mPreLayoutPosition = position;
                 }
             }
 
-            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            final ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            final LayoutParams rvLayoutParams;
             if (lp == null) {
-                lp = generateDefaultLayoutParams();
-                holder.itemView.setLayoutParams(lp);
+                rvLayoutParams = (LayoutParams) generateDefaultLayoutParams();
+                holder.itemView.setLayoutParams(rvLayoutParams);
             } else if (!checkLayoutParams(lp)) {
-                lp = generateLayoutParams(lp);
-                holder.itemView.setLayoutParams(lp);
+                rvLayoutParams = (LayoutParams) generateLayoutParams(lp);
+                holder.itemView.setLayoutParams(rvLayoutParams);
+            } else {
+                rvLayoutParams = (LayoutParams) lp;
             }
-            ((LayoutParams) lp).mViewHolder = holder;
-
+            rvLayoutParams.mViewHolder = holder;
+            rvLayoutParams.mPendingInvalidate = fromScrap && bound;
             return holder.itemView;
         }
 
@@ -4670,7 +4684,7 @@ public class RecyclerView extends ViewGroup {
                 // So if a View re-appears in post layout pass, remove it from disappearing list.
                 mRecyclerView.removeFromDisappearingList(child);
             }
-
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
                 if (holder.isScrap()) {
                     holder.unScrap();
@@ -4697,11 +4711,17 @@ public class RecyclerView extends ViewGroup {
                 }
             } else {
                 mChildHelper.addView(child, index, false);
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 lp.mInsetsDirty = true;
                 if (mSmoothScroller != null && mSmoothScroller.isRunning()) {
                     mSmoothScroller.onChildAttachedToWindow(child);
                 }
+            }
+            if (lp.mPendingInvalidate) {
+                if (DEBUG) {
+                    Log.d(TAG, "consuming pending invalidate on child " + lp.mViewHolder);
+                }
+                holder.itemView.invalidate();
+                lp.mPendingInvalidate = false;
             }
         }
 
@@ -6458,6 +6478,10 @@ public class RecyclerView extends ViewGroup {
         ViewHolder mViewHolder;
         final Rect mDecorInsets = new Rect();
         boolean mInsetsDirty = true;
+        // Flag is set to true if the view is bound while it is detached from RV.
+        // In this case, we need to manually call invalidate after view is added to guarantee that
+        // invalidation is populated through the View hierarchy
+        boolean mPendingInvalidate = false;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
