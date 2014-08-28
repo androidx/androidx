@@ -345,9 +345,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private int[] mMeasuredDimension = new int[2];
 
-    SavedState mLoadingState;
-    final ViewsStateBundle mChildrenStates = new ViewsStateBundle(
-            ViewsStateBundle.SAVE_LIMITED_CHILD, ViewsStateBundle.DEFAULT_LIMIT);
+    final ViewsStateBundle mChildrenStates = new ViewsStateBundle();
 
     public GridLayoutManager(BaseGridView baseGridView) {
         mBaseGridView = baseGridView;
@@ -1123,6 +1121,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             if (DEBUG) Log.v(getTag(), "start " + start + " end " + end);
             int startSecondary = getRowStartSecondary(rowIndex) - mScrollOffsetSecondary;
+            mChildrenStates.loadView(v, index);
             layoutChild(rowIndex, v, start - mScrollOffsetPrimary, end - mScrollOffsetPrimary,
                     startSecondary);
             if (DEBUG) {
@@ -1134,7 +1133,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (index == mLastVisiblePos) {
                 updateScrollMax();
             }
-            mChildrenStates.loadView(v, index);
         }
     };
 
@@ -1454,12 +1452,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mInLayout = true;
 
-        if (mLoadingState != null) {
-            mFocusPosition = mLoadingState.index;
-            mFocusPositionOffset = 0;
-            mChildrenStates.getChildStates().putAll(mLoadingState.childStates);
-            mLoadingState = null;
-        }
         final boolean scrollToFocus = !isSmoothScrolling()
                 && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED;
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
@@ -1911,6 +1903,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mFocusPositionOffset += itemCount;
             }
         }
+        mChildrenStates.clear();
     }
 
     @Override
@@ -1932,11 +1925,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
-        for (int i = 0; i < itemCount; i++) {
-            mChildrenStates.remove(positionStart + i);
-        }
+        mChildrenStates.clear();
     }
 
+    @Override
     public void onItemsMoved(RecyclerView recyclerView, int fromPosition, int toPosition,
             int itemCount) {
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
@@ -1951,6 +1943,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 // move items after focus position to before focused position
                 mFocusPositionOffset += itemCount;
             }
+        }
+        mChildrenStates.clear();
+    }
+
+    @Override
+    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
+        for (int i = positionStart, end = positionStart + itemCount; i < end; i++) {
+            mChildrenStates.remove(i);
         }
     }
 
@@ -2530,7 +2530,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         discardLayoutInfo();
         mFocusPosition = NO_POSITION;
         mFocusPositionOffset = 0;
-        mLoadingState = null;
         mChildrenStates.clear();
         super.onAdapterChanged(oldAdapter, newAdapter);
     }
@@ -2601,7 +2600,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         ss.index = getSelection();
-        ss.childStates = mChildrenStates.getChildStates();
+        ss.childStates = mChildrenStates.saveAsBundle();
         return ss;
     }
 
@@ -2610,8 +2609,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (!(state instanceof SavedState)) {
             return;
         }
-        SavedState ss = (SavedState)state;
-        mLoadingState = ss;
+        SavedState loadingState = (SavedState)state;
+        mFocusPosition = loadingState.index;
+        mFocusPositionOffset = 0;
+        mChildrenStates.loadFromBundle(loadingState.childStates);
         mForceFullLayout = true;
         requestLayout();
     }

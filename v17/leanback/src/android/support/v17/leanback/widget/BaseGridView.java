@@ -104,6 +104,28 @@ abstract class BaseGridView extends RecyclerView {
     public final static float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1;
 
     /**
+     * Dont save states of any child views.
+     */
+    public static final int SAVE_NO_CHILD = 0;
+
+    /**
+     * Only save on screen child views, the states are lost when they become off screen.
+     */
+    public static final int SAVE_ON_SCREEN_CHILD = 1;
+
+    /**
+     * Save on screen views plus save off screen child views states up to
+     * {@link #getSaveChildrenLimitNumber()}.
+     */
+    public static final int SAVE_LIMITED_CHILD = 2;
+
+    /**
+     * Save on screen views plus save off screen child views without any limitation.
+     * This might cause out of memory, only use it when you are dealing with limited data.
+     */
+    public static final int SAVE_ALL_CHILD = 3;
+
+    /**
      * Listener for intercepting touch dispatch events.
      */
     public interface OnTouchInterceptListener {
@@ -601,4 +623,37 @@ abstract class BaseGridView extends RecyclerView {
         }
         return super.dispatchGenericFocusedEvent(event);
     }
+
+    /**
+     * @return policy for saving children.  One of {@link #SAVE_NO_CHILD}
+     * {@link #SAVE_ON_SCREEN_CHILD} {@link #SAVE_LIMITED_CHILD} {@link #SAVE_ALL_CHILD}.
+     */
+    public final int getSaveChildrenPolicy() {
+        return mLayoutManager.mChildrenStates.getSavePolicy();
+    }
+
+    /**
+     * @return The limit number when {@link #getSaveChildrenPolicy()} is
+     *         {@link #SAVE_LIMITED_CHILD}
+     */
+    public final int getSaveChildrenLimitNumber() {
+        return mLayoutManager.mChildrenStates.getLimitNumber();
+    }
+
+    /**
+     * Set policy for saving children.
+     * @param savePolicy One of {@link #SAVE_NO_CHILD} {@link #SAVE_ON_SCREEN_CHILD}
+     * {@link #SAVE_LIMITED_CHILD} {@link #SAVE_ALL_CHILD}.
+     */
+    public final void setSaveChildrenPolicy(int savePolicy) {
+        mLayoutManager.mChildrenStates.setSavePolicy(savePolicy);
+    }
+
+    /**
+     * Set limit number when {@link #getSaveChildrenPolicy()} is {@link #SAVE_LIMITED_CHILD}.
+     */
+    public final void setSaveChildrenLimitNumber(int limitNumber) {
+        mLayoutManager.mChildrenStates.setLimitNumber(limitNumber);
+    }
+
 }
