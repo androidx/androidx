@@ -667,27 +667,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if (super.dispatchKeyEvent(event)) {
-            return true;
-        }
-
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-            final int action = event.getAction();
-
-            // Collapse any expanded action views.
-            if (mDecorToolbar != null && mDecorToolbar.hasExpandedActionView()) {
-                if (action == KeyEvent.ACTION_UP) {
-                    mDecorToolbar.collapseActionView();
-                }
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
     public void setWindowCallback(WindowCallback cb) {
         pullChildren();
         mDecorToolbar.setWindowCallback(cb);
