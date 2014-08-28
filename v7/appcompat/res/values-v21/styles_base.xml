@@ -125,9 +125,6 @@
     <style name="Base.Widget.AppCompat.DropDownItem.Spinner"
            parent="android:Widget.Material.DropDownItem.Spinner"/>
 
-    <style name="Base.Widget.AppCompat.Light.DropDownItem.Spinner"
-           parent="android:Widget.Material.Light.DropDownItem.Spinner"/>
-
     <style name="Base.Widget.AppCompat.Spinner" parent="android:Widget.Material.Spinner">
         <item name="spinnerMode">dropdown</item>
         <item name="disableChildrenWhenDisabled">true</item>
