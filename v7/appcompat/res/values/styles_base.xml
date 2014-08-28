@@ -216,10 +216,6 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.DropDownItem.Spinner"
-           parent="Base.Widget.AppCompat.DropDownItem.Spinner">
-    </style>
-
     <style name="Base.Widget.AppCompat.ListView.DropDown" parent="android:Widget.ListView">
         <item name="android:listSelector">@drawable/abc_list_selector_holo_dark</item>
         <item name="android:divider">@null</item>
