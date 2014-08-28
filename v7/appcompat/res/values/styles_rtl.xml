@@ -47,18 +47,18 @@
         <item name="android:paddingRight">8dp</item>
     </style>
 
-    <style name="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode" parent="Widget.AppCompat.ActionButton.CloseMode">
+    <style name="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode" parent="Base.Widget.AppCompat.ActionButton.CloseMode">
         <item name="android:paddingLeft">8dp</item>
         <item name="android:layout_marginRight">16dp</item>
     </style>
 
-    <style name="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode.Text" parent="Widget.AppCompat.ActionButton.CloseMode">
+    <style name="RtlOverlay.Widget.AppCompat.Light.ActionButton.CloseMode" parent="Base.Widget.AppCompat.Light.ActionButton.CloseMode">
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+    </style>
+
+    <style name="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode.Text" parent="android:Widget">
         <item name="android:layout_marginLeft">4dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-    </style>
-
-    <style name="RtlOverlay.Widget.AppCompat.Light.ActionButton.CloseMode" parent="Widget.AppCompat.Light.ActionButton.CloseMode">
-        <item name="android:paddingLeft">8dp</item>
         <item name="android:layout_marginRight">16dp</item>
     </style>
 

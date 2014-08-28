@@ -76,11 +76,9 @@
     <style name="Base.Widget.AppCompat.Light.ActionButton" parent="Base.Widget.AppCompat.ActionButton">
     </style>
 
-    <style name="Base.Widget.AppCompat.ActionButton.CloseMode" parent="Base.Widget.AppCompat.ActionButton">
-    </style>
+    <style name="Base.Widget.AppCompat.ActionButton.CloseMode" />
 
-    <style name="Base.Widget.AppCompat.Light.ActionButton.CloseMode" parent="Base.Widget.AppCompat.Light.ActionButton">
-    </style>
+    <style name="Base.Widget.AppCompat.Light.ActionButton.CloseMode" />
 
     <style name="Base.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton">
         <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_dark</item>
@@ -145,11 +143,11 @@
         </item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Medium">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Title">
         <item name="android:textSize">@dimen/abc_text_size_title_material_toolbar</item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle" parent="TextAppearance.AppCompat.Small">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Subtitle" parent="TextAppearance.AppCompat.Subhead">
         <item name="android:textSize">@dimen/abc_text_size_subtitle_material_toolbar</item>
     </style>
 
@@ -159,20 +157,19 @@
         <item name="android:textColor">?attr/actionMenuTextColor</item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title" parent="TextAppearance.AppCompat.Medium">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title" parent="TextAppearance.AppCompat.Title">
         <item name="android:textSize">@dimen/abc_text_size_title_material_toolbar</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle" parent="TextAppearance.AppCompat.Small">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle" parent="TextAppearance.AppCompat.Subhead">
         <item name="android:textSize">@dimen/abc_text_size_subtitle_material_toolbar</item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse" parent="TextAppearance.AppCompat.Medium.Inverse">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse" parent="TextAppearance.AppCompat.Title.Inverse">
         <item name="android:textSize">@dimen/abc_text_size_title_material_toolbar</item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse" parent="TextAppearance.AppCompat.Small.Inverse">
+    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse" parent="TextAppearance.AppCompat.Subhead.Inverse">
         <item name="android:textSize">@dimen/abc_text_size_subtitle_material_toolbar</item>
     </style>
 
