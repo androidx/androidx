@@ -97,6 +97,8 @@ public class SwipeRefreshLayout extends ViewGroup {
     private float mTotalDragDistance = -1;
     private int mMediumAnimationDuration;
     private int mCurrentTargetOffsetTop;
+    // Whether or not the starting offset has been determined.
+    private boolean mOriginalOffsetCalculated = false;
 
     private float mInitialMotionY;
     private boolean mIsBeingDragged;
@@ -135,6 +137,9 @@ public class SwipeRefreshLayout extends ViewGroup {
     private int mCircleWidth;
 
     private int mCircleHeight;
+
+    // Whether the client has set a custom starting position;
+    private boolean mUsingCustomStart;
 
     private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
         @Override
@@ -197,6 +202,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         mCircleView.setVisibility(View.GONE);
         mOriginalOffsetTop = mCurrentTargetOffsetTop = start;
         mSpinnerFinalOffset = end;
+        mUsingCustomStart = true;
         mCircleView.invalidate();
     }
 
@@ -293,7 +299,6 @@ public class SwipeRefreshLayout extends ViewGroup {
         mProgress.setBackgroundColor(CIRCLE_BG_LIGHT);
         mCircleView.setImageDrawable(mProgress);
         addView(mCircleView);
-        mCurrentTargetOffsetTop = mOriginalOffsetTop = -mCircleHeight;
     }
 
     /**
@@ -541,6 +546,10 @@ public class SwipeRefreshLayout extends ViewGroup {
                 getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY));
         mCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleWidth, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(mCircleHeight, MeasureSpec.EXACTLY));
+        if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
+            mOriginalOffsetCalculated = true;
+            mCurrentTargetOffsetTop = mOriginalOffsetTop = -mCircleView.getMeasuredHeight();
+        }
     }
 
     /**
@@ -784,9 +793,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             int targetTop = 0;
-            if (mFrom != mOriginalOffsetTop) {
-                targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
-            }
+            targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
             int offset = targetTop - mCircleView.getTop();
             setTargetOffsetTopAndBottom(offset, false /* requires update */);
         }
