@@ -53,7 +53,7 @@ public class VerticalGridPresenter extends Presenter {
     private boolean mRoundedCornersEnabled = true;
 
     public VerticalGridPresenter() {
-        this(FocusHighlight.ZOOM_FACTOR_MEDIUM);
+        this(FocusHighlight.ZOOM_FACTOR_LARGE);
     }
 
     public VerticalGridPresenter(int zoomFactor) {
