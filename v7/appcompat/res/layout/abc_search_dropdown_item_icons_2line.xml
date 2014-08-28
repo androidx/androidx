@@ -18,12 +18,9 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:paddingStart="@dimen/abc_dropdownitem_text_padding_left"
-                android:paddingEnd="4dip"
-                android:paddingLeft="@dimen/abc_dropdownitem_text_padding_left"
-                android:paddingRight="4dip"
                 android:layout_width="match_parent"
-                android:layout_height="58dip" >
+                android:layout_height="58dip"
+                style="@style/RtlOverlay.Widget.AppCompat.Search.DropDown">
 
     <!-- Icons come first in the layout, since their placement doesn't depend on
          the placement of the text views. -->
@@ -31,33 +28,30 @@
                android:layout_width="@dimen/abc_dropdownitem_icon_width"
                android:layout_height="48dip"
                android:scaleType="centerInside"
-               android:layout_alignParentStart="true"
-               android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"
                android:layout_alignParentBottom="true"
-               android:visibility="invisible" />
+               android:visibility="invisible"
+               style="@style/RtlOverlay.Widget.AppCompat.Search.DropDown.Icon1" />
 
     <ImageView android:id="@+id/edit_query"
                android:layout_width="48dip"
                android:layout_height="48dip"
                android:scaleType="centerInside"
-               android:layout_alignParentEnd="true"
-               android:layout_alignParentRight="true"
                android:layout_alignParentTop="true"
                android:layout_alignParentBottom="true"
                android:background="?attr/selectableItemBackground"
-               android:visibility="gone" />
+               android:visibility="gone"
+               style="@style/RtlOverlay.Widget.AppCompat.Search.DropDown.Query" />
 
     <ImageView android:id="@id/android:icon2"
                android:layout_width="48dip"
                android:layout_height="48dip"
                android:scaleType="centerInside"
                android:layout_alignWithParentIfMissing="true"
-               android:layout_toStartOf="@id/edit_query"
-               android:layout_toLeftOf="@id/edit_query"
                android:layout_alignParentTop="true"
                android:layout_alignParentBottom="true"
-               android:visibility="gone" />
+               android:visibility="gone"
+               style="@style/RtlOverlay.Widget.AppCompat.Search.DropDown.Icon2" />
 
 
     <!-- The subtitle comes before the title, since the height of the title depends on whether the
@@ -70,10 +64,6 @@
               android:layout_height="29dip"
               android:paddingBottom="4dip"
               android:gravity="top"
-              android:layout_toEndOf="@android:id/icon1"
-              android:layout_toStartOf="@android:id/icon2"
-              android:layout_toRightOf="@android:id/icon1"
-              android:layout_toLeftOf="@android:id/icon2"
               android:layout_alignWithParentIfMissing="true"
               android:layout_alignParentBottom="true"
               android:visibility="gone" />
@@ -87,10 +77,6 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_centerVertical="true"
-              android:layout_toEndOf="@android:id/icon1"
-              android:layout_toStartOf="@android:id/icon2"
-              android:layout_toRightOf="@android:id/icon1"
-              android:layout_toLeftOf="@android:id/icon2"
               android:layout_above="@android:id/text2" />
 
 </RelativeLayout>

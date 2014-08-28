@@ -65,13 +65,11 @@
            parent="Base.Widget.AppCompat.Light.ActionButton">
     </style>
 
-    <style name="Widget.AppCompat.ActionButton.CloseMode"
-           parent="Base.Widget.AppCompat.ActionButton.CloseMode">
-    </style>
+    <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
+    <style name="Widget.AppCompat.ActionButton.CloseMode" parent="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode" />
 
-    <style name="Widget.AppCompat.Light.ActionButton.CloseMode"
-           parent="Base.Widget.AppCompat.Light.ActionButton.CloseMode">
-    </style>
+    <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
+    <style name="Widget.AppCompat.Light.ActionButton.CloseMode" parent="RtlOverlay.Widget.AppCompat.Light.ActionButton.CloseMode" />
 
     <style name="Widget.AppCompat.ActionButton.Overflow"
            parent="Base.Widget.AppCompat.ActionButton.Overflow">
@@ -139,13 +137,8 @@
            parent="Base.Widget.AppCompat.Light.Spinner">
     </style>
 
-    <style name="Widget.AppCompat.DropDownItem.Spinner"
-           parent="Base.Widget.AppCompat.DropDownItem.Spinner">
-    </style>
-
-    <style name="Widget.AppCompat.Light.DropDownItem.Spinner"
-           parent="Base.Widget.AppCompat.Light.DropDownItem.Spinner">
-    </style>
+    <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
+    <style name="Widget.AppCompat.DropDownItem.Spinner" parent="RtlOverlay.Widget.AppCompat.Search.DropDown.Text" />
 
     <style name="Widget.AppCompat.ListView.DropDown"
            parent="Base.Widget.AppCompat.ListView.DropDown">
@@ -306,5 +299,6 @@
     <style name="Widget.AppCompat.Light.ActionMode.Inverse" parent="Widget.AppCompat.ActionMode" />
     <style name="TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse" parent="TextAppearance.AppCompat.Widget.ActionMode.Title" />
     <style name="TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse" parent="TextAppearance.AppCompat.Widget.ActionMode.Subtitle" />
+    <style name="Widget.AppCompat.Light.DropDownItem.Spinner" parent="Widget.AppCompat.DropDownItem.Spinner" />
 
 </resources>

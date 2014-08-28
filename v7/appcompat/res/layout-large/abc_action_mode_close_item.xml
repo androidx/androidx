@@ -15,27 +15,27 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:appcompat="http://schemas.android.com/apk/res-auto"
               android:id="@+id/action_mode_close_button"
               android:focusable="true"
               android:clickable="true"
-              android:paddingStart="8dip"
               style="?attr/actionModeCloseButtonStyle"
               android:layout_width="wrap_content"
-              android:layout_height="match_parent"
-              android:layout_marginEnd="16dip">
+              android:layout_height="match_parent">
     <ImageView android:layout_width="48dip"
                android:layout_height="wrap_content"
                android:layout_gravity="center"
                android:scaleType="center"
                android:src="?attr/actionModeCloseDrawable" />
-    <TextView android:layout_width="wrap_content"
+    <android.support.v7.internal.widget.CompatTextView
+              android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_gravity="center"
-              android:layout_marginStart="4dip"
-              android:layout_marginEnd="16dip"
               android:textAppearance="?android:attr/textAppearanceSmall"
               android:textColor="?attr/actionMenuTextColor"
               android:textSize="12sp"
-              android:textAllCaps="true"
-              android:text="@string/abc_action_mode_done" />
+              android:text="@string/abc_action_mode_done"
+              appcompat:textAllCaps="true"
+              style="@style/RtlOverlay.Widget.AppCompat.ActionButton.CloseMode.Text" />
 </LinearLayout>
+
