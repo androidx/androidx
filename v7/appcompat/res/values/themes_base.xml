@@ -186,7 +186,7 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_material_dark</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_material_dark</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
@@ -281,7 +281,7 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_material_light</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_material_light</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode</item>
@@ -405,7 +405,7 @@
 
         <!-- Action Mode -->
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
-        <item name="actionModeBackground">?attr/colorPrimaryDark</item>
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_material_dark</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_material_dark</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
@@ -524,6 +524,7 @@
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
 
         <!-- Action Mode styles -->
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_material_light</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_material_light</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode</item>
         <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_light</item>
@@ -569,6 +570,7 @@
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
 
         <!-- Action Mode styles -->
+        <item name="actionModeBackground">@drawable/abc_cab_background_top_material_dark</item>
         <item name="actionModeCloseDrawable">@drawable/abc_ic_cab_done_material_dark</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
         <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
