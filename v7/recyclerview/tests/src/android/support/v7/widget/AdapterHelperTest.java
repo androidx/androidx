@@ -16,6 +16,9 @@
 
 package android.support.v7.widget;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.TestResult;
+
 import android.test.AndroidTestCase;
 import android.util.Log;
 import android.widget.TextView;
@@ -33,6 +36,8 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     private static final boolean DEBUG = false;
 
+    private boolean mCollectLogs = false;
+
     private static final String TAG = "AHT";
 
     List<ViewHolder> mViewHolders;
@@ -47,12 +52,23 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     private List<TestAdapter.Item> mPreLayoutItems;
 
+    private StringBuilder mLog = new StringBuilder();
+
     @Override
     protected void setUp() throws Exception {
         cleanState();
     }
 
+    @Override
+    public void run(TestResult result) {
+        super.run(result);
+        if (!result.wasSuccessful()) {
+            result.addFailure(this, new AssertionFailedError(mLog.toString()));
+        }
+    }
+
     private void cleanState() {
+        mLog.setLength(0);
         mPreLayoutItems = new ArrayList<TestAdapter.Item>();
         mViewHolders = new ArrayList<ViewHolder>();
         mFirstPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
@@ -108,7 +124,7 @@ public class AdapterHelperTest extends AndroidTestCase {
             @Override
             public void onDispatchFirstPass(AdapterHelper.UpdateOp updateOp) {
                 if (DEBUG) {
-                    Log.d(TAG, "first pass:" + updateOp.toString());
+                    log("first pass:" + updateOp.toString());
                 }
                 for (ViewHolder viewHolder : mViewHolders) {
                     for (int i = 0; i < updateOp.itemCount; i ++) {
@@ -123,7 +139,7 @@ public class AdapterHelperTest extends AndroidTestCase {
             @Override
             public void onDispatchSecondPass(AdapterHelper.UpdateOp updateOp) {
                 if (DEBUG) {
-                    Log.d(TAG, "second pass:" + updateOp.toString());
+                    log("second pass:" + updateOp.toString());
                 }
                 mSecondPassUpdates.add(updateOp);
             }
@@ -172,9 +188,17 @@ public class AdapterHelperTest extends AndroidTestCase {
         };
     }
 
+    void log(String msg) {
+        if (mCollectLogs) {
+            mLog.append(msg).append("\n");
+        } else {
+            Log.d(TAG, msg);
+        }
+    }
+
     void setupBasic(int count, int visibleStart, int visibleCount) {
         if (DEBUG) {
-            Log.d(TAG, "setupBasic(" + count + "," + visibleStart + "," + visibleCount + ");");
+            log("setupBasic(" + count + "," + visibleStart + "," + visibleCount + ");");
         }
         mTestAdapter = new TestAdapter(count, mAdapterHelper);
         for (int i = 0; i < visibleCount; i++) {
@@ -515,6 +539,16 @@ public class AdapterHelperTest extends AndroidTestCase {
         preProcess();
     }
 
+    public void testScenerio28() {
+        setupBasic(10,4,1);
+        mv(8,6);
+        rm(8,1);
+        mv(7,5);
+        rm(3,3);
+        rm(1,4);
+        preProcess();
+    }
+
     public void testMoveAdded() {
         setupBasic(10, 2, 2);
         add(3, 5);
@@ -522,17 +556,22 @@ public class AdapterHelperTest extends AndroidTestCase {
         preProcess();
     }
 
-    public void testRandom() {
+    public void testRandom() throws Throwable {
+        mCollectLogs = true;
         Random random = new Random(System.nanoTime());
-        for (int i = 0; i < 100; i++) {
-            randomTest(random, i + 10);
+        for (int i = 0; i < 1000; i++) {
+            try {
+                randomTest(random, i + 10);
+            } catch (Throwable t) {
+                throw new Throwable(t.getMessage() + "\n" + mLog.toString(), t);
+            }
         }
     }
 
     public void randomTest(Random random, int opCount) {
         cleanState();
         if (DEBUG) {
-            Log.d(TAG, "randomTest");
+            log("randomTest");
         }
         final int count = 10;// + random.nextInt(100);
         final int start = random.nextInt(count - 1);
@@ -629,7 +668,7 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     void add(int start, int count) {
         if (DEBUG) {
-            Log.d(TAG, "add(" + start + "," + count + ");");
+            log("add(" + start + "," + count + ");");
         }
         mTestAdapter.add(start, count);
     }
@@ -645,14 +684,14 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     private void mv(int from, int to) {
         if (DEBUG) {
-            Log.d(TAG, "mv(" + from + "," + to + ");");
+            log("mv(" + from + "," + to + ");");
         }
         mTestAdapter.move(from, to);
     }
 
     void rm(int start, int count) {
         if (DEBUG) {
-            Log.d(TAG, "rm(" + start + "," + count + ");");
+            log("rm(" + start + "," + count + ");");
         }
         for (int i = start; i < start + count; i++) {
             if (!isItemLaidOut(i)) {
