@@ -279,7 +279,7 @@ class AdapterHelper {
                 type = POSITION_TYPE_NEW_OR_LAID_OUT;
             } else { // applied
                 if (type == POSITION_TYPE_NEW_OR_LAID_OUT) {
-                    UpdateOp newOp = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
+                    UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
                     mCallback.markViewHoldersUpdated(newOp.positionStart, newOp.itemCount);
                     postpone(newOp);
                     // both type-new and type-laid-out are deferred. This is why we are
