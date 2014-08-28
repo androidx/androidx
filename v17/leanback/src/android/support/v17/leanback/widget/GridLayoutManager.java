@@ -1499,6 +1499,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     + newFocusPosition);
             }
 
+            mWindowAlignment.mainAxis().invalidateScrollMin();
+            mWindowAlignment.mainAxis().invalidateScrollMax();
             // depending on result of init(), either recreating everything
             // or try to reuse the row start positions near mFocusPosition
             if (mGrid.getSize() == 0) {
