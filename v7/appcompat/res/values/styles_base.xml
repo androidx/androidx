@@ -82,12 +82,20 @@
 
     <style name="Base.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton">
         <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_dark</item>
+        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:contentDescription">@string/abc_action_menu_overflow_description</item>
         <item name="android:minWidth">@dimen/abc_action_overflow_min_width_material</item>
+        <item name="android:minHeight">@dimen/abc_action_button_min_height_material</item>
+        <item name="android:scaleType">center</item>
     </style>
 
     <style name="Base.Widget.AppCompat.Light.ActionButton.Overflow" parent="Base.Widget.AppCompat.Light.ActionButton">
         <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_light</item>
+        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:contentDescription">@string/abc_action_menu_overflow_description</item>
         <item name="android:minWidth">@dimen/abc_action_overflow_min_width_material</item>
+        <item name="android:minHeight">@dimen/abc_action_button_min_height_material</item>
+        <item name="android:scaleType">center</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActionBar.TabBar" parent="">
