@@ -1897,7 +1897,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
-        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
+                && getChildAt(mFocusPosition) != null) {
             int pos = mFocusPosition + mFocusPositionOffset;
             if (positionStart <= pos) {
                 mFocusPositionOffset += itemCount;
@@ -1914,7 +1915,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
-        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
+                && getChildAt(mFocusPosition) != null) {
             int pos = mFocusPosition + mFocusPositionOffset;
             if (positionStart <= pos) {
                 if (positionStart + itemCount > pos) {
@@ -1931,7 +1933,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onItemsMoved(RecyclerView recyclerView, int fromPosition, int toPosition,
             int itemCount) {
-        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
+                && getChildAt(mFocusPosition) != null) {
             int pos = mFocusPosition + mFocusPositionOffset;
             if (fromPosition <= pos && pos < fromPosition + itemCount) {
                 // moved items include focused position
