@@ -80,6 +80,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         void bind(ObjectAdapter adapter) {
             mActionBridgeAdapter.setAdapter(adapter);
+            mActionsRow.setAdapter(mActionBridgeAdapter);
             mNumItems = mActionBridgeAdapter.getItemCount();
 
             mShowMoreRight = false;
