@@ -314,8 +314,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     Boolean mAllowReturnTransitionOverlap;
     Boolean mAllowEnterTransitionOverlap;
 
-    SharedElementListener mEnterTransitionListener = null;
-    SharedElementListener mExitTransitionListener = null;
+    SharedElementCallback mEnterTransitionCallback = null;
+    SharedElementCallback mExitTransitionCallback = null;
 
     /**
      * State information that has been retrieved from a fragment instance
@@ -1385,25 +1385,25 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * When custom transitions are used with Fragments, the enter transition listener
+     * When custom transitions are used with Fragments, the enter transition callback
      * is called when this Fragment is attached or detached when not popping the back stack.
      *
-     * @param listener Used to manipulate the shared element transitions on this Fragment
+     * @param callback Used to manipulate the shared element transitions on this Fragment
      *                 when added not as a pop from the back stack.
      */
-    public void setEnterSharedElementTransitionListener(SharedElementListener listener) {
-        mEnterTransitionListener = listener;
+    public void setEnterSharedElementTransitionCallback(SharedElementCallback callback) {
+        mEnterTransitionCallback = callback;
     }
 
     /**
-     * When custom transitions are used with Fragments, the exit transition listener
+     * When custom transitions are used with Fragments, the exit transition callback
      * is called when this Fragment is attached or detached when popping the back stack.
      *
-     * @param listener Used to manipulate the shared element transitions on this Fragment
+     * @param callback Used to manipulate the shared element transitions on this Fragment
      *                 when added as a pop from the back stack.
      */
-    public void setExitSharedElementTransitionListener(SharedElementListener listener) {
-        mExitTransitionListener = listener;
+    public void setExitSharedElementTransitionCallback(SharedElementCallback callback) {
+        mExitTransitionCallback = callback;
     }
 
     /**
