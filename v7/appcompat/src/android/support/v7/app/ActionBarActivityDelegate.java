@@ -205,7 +205,7 @@ abstract class ActionBarActivityDelegate {
     private class ActionBarDrawableToggleImpl implements ActionBarDrawerToggle.Delegate {
         @Override
         public Drawable getThemeUpIndicator() {
-            final TypedArray a = mActivity
+            final TypedArray a = mActionBar.getThemedContext()
                     .obtainStyledAttributes(new int[]{ getHomeAsUpIndicatorAttrId() });
             final Drawable result = a.getDrawable(0);
             a.recycle();
