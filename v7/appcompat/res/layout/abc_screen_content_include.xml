@@ -19,6 +19,8 @@
     <android.support.v7.internal.widget.ContentFrameLayout
             android:id="@id/action_bar_activity_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:foregroundGravity="fill_horizontal|top"
+            android:foreground="?android:attr/windowContentOverlay" />
 
 </merge>

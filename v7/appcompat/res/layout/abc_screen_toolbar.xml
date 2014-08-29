@@ -14,17 +14,37 @@
      limitations under the License.
 -->
 
-<!--
-    This is an optimized layout for a screen with a toolbar enabled.
--->
+<android.support.v7.internal.widget.ActionBarOverlayLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/decor_content_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/action_bar_root"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:orientation="vertical"
-             android:fitsSystemWindows="true">
+    <include layout="@layout/abc_screen_content_include"/>
 
-    <!-- @layout/abc_screen_toolbar_include will be inflated and merged in code -->
+    <android.support.v7.internal.widget.ActionBarContainer
+            android:id="@+id/action_bar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            style="?attr/actionBarStyle"
+            android:touchscreenBlocksFocus="true"
+            android:gravity="top">
 
-</LinearLayout>
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/action_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="?attr/toolbarStyle"/>
+
+        <android.support.v7.internal.widget.ActionBarContextView
+                android:id="@+id/action_context_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                style="?attr/actionModeStyle"/>
+
+    </android.support.v7.internal.widget.ActionBarContainer>
+
+</android.support.v7.internal.widget.ActionBarOverlayLayout>
