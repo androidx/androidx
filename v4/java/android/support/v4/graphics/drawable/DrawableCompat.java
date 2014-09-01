@@ -32,6 +32,7 @@ public class DrawableCompat {
         void setAutoMirrored(Drawable drawable, boolean mirrored);
         boolean isAutoMirrored(Drawable drawable);
         void setHotspot(Drawable drawable, float x, float y);
+        void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom);
     }
 
     /**
@@ -53,6 +54,10 @@ public class DrawableCompat {
 
         @Override
         public void setHotspot(Drawable drawable, float x, float y) {
+        }
+
+        @Override
+        public void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom) {
         }
     }
 
@@ -88,6 +93,11 @@ public class DrawableCompat {
         @Override
         public void setHotspot(Drawable drawable, float x, float y) {
             DrawableCompatL.setHotspot(drawable, x, y);
+        }
+
+        @Override
+        public void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom) {
+            DrawableCompatL.setHotspotBounds(drawable, left, top, right, bottom);
         }
     }
 
@@ -154,10 +164,22 @@ public class DrawableCompat {
     /**
      * Specifies the hotspot's location within the drawable.
      *
+     * @param drawable The Drawable against which to invoke the method.
      * @param x The X coordinate of the center of the hotspot
      * @param y The Y coordinate of the center of the hotspot
      */
     public static void setHotspot(Drawable drawable, float x, float y) {
         IMPL.setHotspot(drawable, x, y);
+    }
+
+    /**
+     * Sets the bounds to which the hotspot is constrained, if they should be
+     * different from the drawable bounds.
+     *
+     * @param drawable The Drawable against which to invoke the method.
+     */
+    public static void setHotspotBounds(Drawable drawable, int left, int top,
+            int right, int bottom) {
+        IMPL.setHotspotBounds(drawable, left, top, right, bottom);
     }
 }

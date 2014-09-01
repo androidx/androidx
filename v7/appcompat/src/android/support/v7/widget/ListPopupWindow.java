@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -47,7 +48,10 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Locale;
 
 /**
@@ -69,6 +73,17 @@ public class ListPopupWindow {
      * the autocomplete dropdown list to cover the IME.
      */
     private static final int EXPAND_LIST_TIMEOUT = 250;
+
+    private static Method sClipToWindowEnabledMethod;
+
+    static {
+        try {
+            sClipToWindowEnabledMethod = PopupWindow.class.getDeclaredMethod(
+                    "setClipToScreenEnabled", boolean.class);
+        } catch (NoSuchMethodException e) {
+            Log.i(TAG, "Could not find method setClipToScreenEnabled() on PopupWindow. Oh well.");
+        }
+    }
 
     private Context mContext;
     private PopupWindow mPopup;
@@ -199,6 +214,18 @@ public class ListPopupWindow {
      */
     public ListPopupWindow(Context context, AttributeSet attrs, int defStyleAttr) {
         mContext = context;
+
+        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ListPopupWindow,
+                defStyleAttr, 0);
+        mDropDownHorizontalOffset = a.getDimensionPixelOffset(
+                R.styleable.ListPopupWindow_android_dropDownHorizontalOffset, 0);
+        mDropDownVerticalOffset = a.getDimensionPixelOffset(
+                R.styleable.ListPopupWindow_android_dropDownVerticalOffset, 0);
+        if (mDropDownVerticalOffset != 0) {
+            mDropDownVerticalOffsetSet = true;
+        }
+        a.recycle();
+
         mPopup = new PopupWindow(context, attrs, defStyleAttr);
         mPopup.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
         // Set the default layout direction to match the default locale one
@@ -605,7 +632,7 @@ public class ListPopupWindow {
             }
 
             mPopup.setWindowLayoutMode(widthSpec, heightSpec);
-            // mPopup.setClipToScreenEnabled(true);
+            setPopupClipToScreenEnabled(true);
 
             // use outside touchable to dismiss drop down when touching outside of it, so
             // only set this if the dropdown is not always visible
@@ -1161,9 +1188,7 @@ public class ListPopupWindow {
                 0, DropDownListView.NO_POSITION, maxHeight - otherHeights, -1);
         // add padding only if the list has items in it, that way we don't show
         // the popup if it is not needed
-        if (listContent > 0) {
-            otherHeights += padding;
-        }
+        if (listContent > 0) otherHeights += padding;
 
         return listContent + otherHeights;
     }
@@ -1721,6 +1746,16 @@ public class ListPopupWindow {
 
     private static boolean isConfirmKey(int keyCode) {
         return keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
+    }
+
+    private void setPopupClipToScreenEnabled(boolean clip) {
+        if (sClipToWindowEnabledMethod != null) {
+            try {
+                sClipToWindowEnabledMethod.invoke(mPopup, clip);
+            } catch (Exception e) {
+                Log.i(TAG, "Could not call setClipToScreenEnabled() on PopupWindow. Oh well.");
+            }
+        }
     }
 
 }
