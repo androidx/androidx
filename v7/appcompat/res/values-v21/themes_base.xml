@@ -204,10 +204,16 @@
 
     <style name="Base.ThemeOverlay.AppCompat.Dark" parent="android:ThemeOverlay.Material.Dark">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
+
+        <!-- Used by MediaRouter -->
+        <item name="isLightTheme">false</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Light" parent="android:ThemeOverlay.Material.Light">
         <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
+
+        <!-- Used by MediaRouter -->
+        <item name="isLightTheme">true</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.ActionBar" parent="android:ThemeOverlay.Material.ActionBar">
@@ -215,6 +221,9 @@
 
     <style name="Base.ThemeOverlay.AppCompat.Dark.ActionBar" parent="android:ThemeOverlay.Material.Dark.ActionBar">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
+
+        <!-- Used by MediaRouter -->
+        <item name="isLightTheme">false</item>
     </style>
 
 </resources>
