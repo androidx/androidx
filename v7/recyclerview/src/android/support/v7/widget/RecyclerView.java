@@ -7064,7 +7064,7 @@ public class RecyclerView extends ViewGroup {
         /**
          * Number of items adapter has.
          */
-        private int mItemCount = 0;
+        int mItemCount = 0;
 
         /**
          * Number of items adapter had in the previous layout.
