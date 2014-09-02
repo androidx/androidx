@@ -196,23 +196,16 @@ public abstract class FragmentTransaction {
             @AnimRes int exit, @AnimRes int popEnter, @AnimRes int popExit);
 
     /**
-     * Set a {@link android.transition.Transition} resource id to use with this transaction.
-     * <var>transitionId</var> will be played for fragments when going forward and when popping
-     * the back stack.
-     * @param sceneRootId The ID of the element acting as the scene root for the transition.
-     *                    This should be a ViewGroup containing all Fragments in the transaction.
-     * @param transitionId The resource ID for the Transition used during the Fragment transaction.
-     */
-    public abstract FragmentTransaction setCustomTransition(int sceneRootId, int transitionId);
-
-    /**
-     * Used with {@link #setCustomTransition(int, int)} to map a View from a removed or hidden
+     * Used with custom Transitions to map a View from a removed or hidden
      * Fragment to a View from a shown or added Fragment.
      * <var>sharedElement</var> must have a unique transitionName in the View hierarchy.
+     *
      * @param sharedElement A View in a disappearing Fragment to match with a View in an
      *                      appearing Fragment.
      * @param name The transitionName for a View in an appearing Fragment to match to the shared
      *             element.
+     * @see Fragment#setSharedElementReturnTransition(Object)
+     * @see Fragment#setSharedElementEnterTransition(Object)
      */
     public abstract FragmentTransaction addSharedElement(View sharedElement, String name);
 
