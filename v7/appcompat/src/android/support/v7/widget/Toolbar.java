@@ -176,7 +176,8 @@ public class Toolbar extends ViewGroup {
     public Toolbar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(themifyContext(context, attrs, defStyleAttr), attrs, defStyleAttr);
 
-        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Toolbar,
+        // Need to use getContext() here so that we use the themed context
+        final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.Toolbar,
                 defStyleAttr, 0);
 
         mTitleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
@@ -242,7 +243,6 @@ public class Toolbar extends ViewGroup {
         mPopupContext = getContext();
         setPopupTheme(a.getResourceId(R.styleable.Toolbar_popupTheme, 0));
         a.recycle();
-
     }
 
     /**
