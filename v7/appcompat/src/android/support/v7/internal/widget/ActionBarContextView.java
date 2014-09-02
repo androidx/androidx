@@ -78,7 +78,8 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
     public ActionBarContextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ActionMode, defStyle, 0);
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
+                R.styleable.ActionMode, defStyle, 0);
         setBackgroundDrawable(a.getDrawable(
                 R.styleable.ActionMode_background));
         mTitleStyleRes = a.getResourceId(

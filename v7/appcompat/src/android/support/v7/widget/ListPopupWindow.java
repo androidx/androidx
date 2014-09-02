@@ -49,9 +49,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
 
@@ -229,6 +227,7 @@ public class ListPopupWindow {
 
         mPopup = new AppCompatPopupWindow(context, attrs, defStyleAttr);
         mPopup.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+
         // Set the default layout direction to match the default locale one
         final Locale locale = mContext.getResources().getConfiguration().locale;
         mLayoutDirection = TextUtilsCompat.getLayoutDirectionFromLocale(locale);

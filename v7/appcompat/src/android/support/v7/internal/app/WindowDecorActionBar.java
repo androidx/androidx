@@ -25,7 +25,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -44,6 +43,7 @@ import android.support.v7.internal.widget.ActionBarContainer;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarOverlayLayout;
 import android.support.v7.internal.widget.DecorToolbar;
+import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.ScrollingTabContainerView;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
@@ -129,6 +129,8 @@ public class WindowDecorActionBar extends ActionBar implements
     private ViewPropertyAnimatorCompatSet mCurrentShowAnim;
     private boolean mShowHideAnimationEnabled;
     boolean mHideOnContentScroll;
+
+    private TintManager mTintManager;
 
     final ViewPropertyAnimatorListener mHideListener = new ViewPropertyAnimatorListenerAdapter() {
         @Override
@@ -1191,7 +1193,7 @@ public class WindowDecorActionBar extends ActionBar implements
 
         @Override
         public Tab setIcon(int resId) {
-            return setIcon(ContextCompat.getDrawable(mContext, resId));
+            return setIcon(getTintManager().getDrawable(resId));
         }
 
         @Override
@@ -1346,6 +1348,13 @@ public class WindowDecorActionBar extends ActionBar implements
         if (!mDisplayHomeAsUpSet) {
             setDisplayHomeAsUpEnabled(enable);
         }
+    }
+
+    TintManager getTintManager() {
+        if (mTintManager == null) {
+            mTintManager = new TintManager(mContext);
+        }
+        return mTintManager;
     }
 
 }

@@ -160,7 +160,7 @@
 
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_dark</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
 
         <item name="android:listDivider">@drawable/abc_list_divider_material_dark</item>
         <item name="dividerVertical">?android:attr/listDivider</item>
@@ -190,9 +190,9 @@
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
         <item name="actionModeBackground">@drawable/abc_cab_background_top_material_dark</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
-        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material_dark</item>
+        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_mtrl_alpha</item>
 
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
@@ -235,7 +235,7 @@
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
         <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
-        <item name="editTextBackground">@drawable/abc_edit_text_material_dark</item>
+        <item name="editTextBackground">@drawable/abc_edit_text_material</item>
         <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
@@ -260,7 +260,7 @@
 
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_light</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
 
         <item name="android:listDivider">@drawable/abc_list_divider_material_light</item>
         <item name="dividerVertical">?android:attr/listDivider</item>
@@ -287,9 +287,9 @@
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
         <item name="actionModeBackground">@drawable/abc_cab_background_top_material_light</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
-        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material_light</item>
+        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode</item>
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_light</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_mtrl_alpha</item>
 
         <!-- Dropdown Spinner Attributes -->
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
@@ -335,7 +335,7 @@
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
         <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
-        <item name="editTextBackground">@drawable/abc_edit_text_material_light</item>
+        <item name="editTextBackground">@drawable/abc_edit_text_material</item>
         <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
@@ -382,7 +382,7 @@
 
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_dark</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
 
         <item name="android:listDivider">@drawable/abc_list_divider_material_dark</item>
         <item name="dividerVertical">?android:attr/listDivider</item>
@@ -412,9 +412,9 @@
         <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
         <item name="actionModeBackground">@drawable/abc_cab_background_top_material_dark</item>
         <item name="actionModeSplitBackground">?attr/colorPrimaryDark</item>
-        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material_dark</item>
+        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_mtrl_alpha</item>
 
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
@@ -457,7 +457,7 @@
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
         <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
-        <item name="editTextBackground">@drawable/abc_edit_text_material_dark</item>
+        <item name="editTextBackground">@drawable/abc_edit_text_material</item>
         <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
@@ -521,23 +521,16 @@
         <item name="android:listDivider">@drawable/abc_list_divider_material_light</item>
 
         <item name="actionBarItemBackground">@drawable/abc_item_background_holo_light</item>
-        <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView</item>
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
-        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.Light.ActionButton.Overflow</item>
-        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_light</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
 
         <!-- Action Mode styles -->
         <item name="actionModeBackground">@drawable/abc_cab_background_top_material_light</item>
-        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material_light</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.Light.ActionButton.CloseMode</item>
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_light</item>
 
         <!-- SearchView attributes -->
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
-        <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
@@ -570,23 +563,16 @@
 
         <!-- Action Bar styles -->
         <item name="actionBarItemBackground">@drawable/abc_item_background_holo_dark</item>
-        <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
-        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
-        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.PopupMenu.Overflow</item>
-        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material_dark</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
 
         <!-- Action Mode styles -->
         <item name="actionModeBackground">@drawable/abc_cab_background_top_material_dark</item>
-        <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material_dark</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material_dark</item>
 
         <!-- SearchView styles -->
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
-        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>

@@ -19,10 +19,8 @@ package android.support.v7.internal.widget;
 
 import android.app.ActionBar;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v7.appcompat.R;
@@ -81,6 +79,8 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     private int mNavigationMode = ActionBar.NAVIGATION_MODE_STANDARD;
 
+    private final TintManager mTintManager;
+
     public ToolbarWidgetWrapper(Toolbar toolbar, boolean style) {
         mToolbar = toolbar;
 
@@ -89,8 +89,8 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         mTitleSet = !TextUtils.isEmpty(mTitle);
 
         if (style) {
-            final TypedArray a = toolbar.getContext().obtainStyledAttributes(null,
-                    R.styleable.ActionBar, R.attr.actionBarStyle, 0);
+            final TintTypedArray a = TintTypedArray.obtainStyledAttributes(toolbar.getContext(),
+                    null, R.styleable.ActionBar, R.attr.actionBarStyle, 0);
 
             final CharSequence title = a.getText(R.styleable.ActionBar_title);
             if (!TextUtils.isEmpty(title)) {
@@ -160,8 +160,12 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             }
 
             a.recycle();
+            // Keep the TintManager in case we need it later
+            mTintManager = a.getTintManager();
         } else {
             mDisplayOpts = detectDisplayOptions();
+            // Create a TintManager in case we need it later
+            mTintManager = new TintManager(toolbar.getContext());
         }
 
         if (TextUtils.isEmpty(mToolbar.getNavigationContentDescription())) {
@@ -302,7 +306,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setIcon(int resId) {
-        setIcon(resId != 0 ? ContextCompat.getDrawable(getContext(), resId) : null);
+        setIcon(resId != 0 ? mTintManager.getDrawable(resId) : null);
     }
 
     @Override
@@ -313,7 +317,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setLogo(int resId) {
-        setLogo(resId != 0 ? ContextCompat.getDrawable(getContext(), resId) : null);
+        setLogo(resId != 0 ? mTintManager.getDrawable(resId) : null);
     }
 
     @Override
@@ -596,7 +600,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     @Override
     public void setNavigationIcon(int resId) {
         setNavigationIcon(resId != 0
-                ? ContextCompat.getDrawable(mToolbar.getContext(), resId)
+                ? mTintManager.getDrawable(resId)
                 : null);
     }
 

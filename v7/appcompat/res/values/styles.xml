@@ -58,24 +58,13 @@
            parent="Base.Widget.AppCompat.ProgressBar">
     </style>
 
-    <style name="Widget.AppCompat.ActionButton" parent="Base.Widget.AppCompat.ActionButton">
-    </style>
-
-    <style name="Widget.AppCompat.Light.ActionButton"
-           parent="Base.Widget.AppCompat.Light.ActionButton">
-    </style>
+    <style name="Widget.AppCompat.ActionButton" parent="Base.Widget.AppCompat.ActionButton" />
 
     <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
     <style name="Widget.AppCompat.ActionButton.CloseMode" parent="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode" />
 
-    <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
-    <style name="Widget.AppCompat.Light.ActionButton.CloseMode" parent="RtlOverlay.Widget.AppCompat.Light.ActionButton.CloseMode" />
-
     <style name="Widget.AppCompat.ActionButton.Overflow"
            parent="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" />
-
-    <style name="Widget.AppCompat.Light.ActionButton.Overflow"
-           parent="RtlOverlay.Widget.AppCompat.Light.ActionButton.Overflow" />
 
     <style name="Widget.AppCompat.ActionBar.TabBar"
            parent="Base.Widget.AppCompat.ActionBar.TabBar">
@@ -223,11 +212,7 @@
            parent="Base.Widget.AppCompat.Light.ActivityChooserView">
     </style>
 
-    <style name="Widget.AppCompat.SearchView" parent="Base.Widget.AppCompat.SearchView">
-    </style>
-
-    <style name="Widget.AppCompat.Light.SearchView" parent="Base.Widget.AppCompat.Light.SearchView">
-    </style>
+    <style name="Widget.AppCompat.SearchView" parent="Base.Widget.AppCompat.SearchView" />
 
     <style name="Widget.AppCompat.EditText"
            parent="Base.Widget.AppCompat.EditText">
@@ -307,5 +292,9 @@
     <style name="TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse" parent="TextAppearance.AppCompat.Widget.ActionMode.Title" />
     <style name="TextAppearance.AppCompat.Widget.ActionMode.Subtitle.Inverse" parent="TextAppearance.AppCompat.Widget.ActionMode.Subtitle" />
     <style name="Widget.AppCompat.Light.DropDownItem.Spinner" parent="Widget.AppCompat.DropDownItem.Spinner" />
+    <style name="Widget.AppCompat.Light.SearchView" parent="Widget.AppCompat.SearchView" />
+    <style name="Widget.AppCompat.Light.ActionButton" parent="Widget.AppCompat.ActionButton" />
+    <style name="Widget.AppCompat.Light.ActionButton.Overflow" parent="Widget.AppCompat.ActionButton.Overflow" />
+    <style name="Widget.AppCompat.Light.ActionButton.CloseMode" parent="Widget.AppCompat.ActionButton.CloseMode" />
 
 </resources>

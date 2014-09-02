@@ -76,24 +76,12 @@
            parent="android:Widget.Material.ActionButton">
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionButton"
-           parent="android:Widget.Material.Light.ActionButton">
-    </style>
-
     <style name="Base.Widget.AppCompat.ActionButton.CloseMode"
            parent="android:Widget.Material.ActionButton.CloseMode">
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionButton.CloseMode"
-           parent="android:Widget.Material.Light.ActionButton.CloseMode">
-    </style>
-
     <style name="Base.Widget.AppCompat.ActionButton.Overflow"
            parent="android:Widget.Material.ActionButton.Overflow">
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.ActionButton.Overflow"
-           parent="android:Widget.Material.Light.ActionButton.Overflow">
     </style>
 
     <!--

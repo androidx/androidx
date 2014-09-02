@@ -19,14 +19,12 @@ package android.support.v7.internal.widget;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -89,6 +87,8 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
     private boolean mDisableChildrenWhenDisabled;
 
     private Rect mTempRect = new Rect();
+
+    private final TintManager mTintManager;
 
     /**
      * Construct a new spinner with the given context's theme.
@@ -160,8 +160,11 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
     SpinnerCompat(Context context, AttributeSet attrs, int defStyle, int mode) {
         super(context, attrs, defStyle);
 
-        TypedArray a = context.obtainStyledAttributes(attrs,
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.Spinner, defStyle, 0);
+
+        // Need to reset this for tinting purposes
+        setBackgroundDrawable(a.getDrawable(R.styleable.Spinner_android_background));
 
         if (mode == MODE_THEME) {
             mode = a.getInt(R.styleable.Spinner_spinnerMode, MODE_DIALOG);
@@ -216,6 +219,9 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
             mPopup.setAdapter(mTempAdapter);
             mTempAdapter = null;
         }
+
+        // Keep the TintManager in case we need it later
+        mTintManager = a.getTintManager();
     }
 
     /**
@@ -239,7 +245,7 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
      * @param resId Resource ID of a background drawable
      */
     public void setPopupBackgroundResource(int resId) {
-        setPopupBackgroundDrawable(ContextCompat.getDrawable(getContext(), resId));
+        setPopupBackgroundDrawable(mTintManager.getDrawable(resId));
     }
 
     /**
