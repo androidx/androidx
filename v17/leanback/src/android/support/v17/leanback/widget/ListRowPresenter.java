@@ -412,14 +412,15 @@ public class ListRowPresenter extends RowPresenter {
         super.onBindRowViewHolder(holder, item);
         ViewHolder vh = (ViewHolder) holder;
         ListRow rowItem = (ListRow) item;
-        vh.mItemBridgeAdapter.clear();
         vh.mItemBridgeAdapter.setAdapter(rowItem.getAdapter());
         vh.mGridView.setAdapter(vh.mItemBridgeAdapter);
     }
 
     @Override
     protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
-        ((ViewHolder) holder).mGridView.setAdapter(null);
+        ViewHolder vh = (ViewHolder) holder;
+        vh.mGridView.setAdapter(null);
+        vh.mItemBridgeAdapter.clear();
         super.onUnbindRowViewHolder(holder);
     }
 

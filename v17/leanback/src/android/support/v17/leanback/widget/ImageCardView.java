@@ -234,4 +234,11 @@ public class ImageCardView extends BaseCardView {
             mTitleView.setMaxLines(1);
         }
     }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        mImageView.animate().cancel();
+        mImageView.setAlpha(1f);
+        super.onDetachedFromWindow();
+    }
 }
