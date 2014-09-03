@@ -169,7 +169,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                     setAnimationProgress(0 /* animation complete and view is hidden */);
                 } else {
                     setAnimationProgress(1 /* animation complete and view is showing */);
-                    setTargetOffsetTopAndBottom(-mCircleHeight - mCurrentTargetOffsetTop,
+                    setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCurrentTargetOffsetTop,
                             true /* requires update */);
                     mCircleView.setVisibility(View.VISIBLE);
                 }
