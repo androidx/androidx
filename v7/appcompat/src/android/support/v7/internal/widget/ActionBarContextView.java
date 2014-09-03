@@ -24,6 +24,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ActionMenuPresenter;
 import android.support.v7.widget.ActionMenuView;
@@ -57,7 +58,7 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
     private Drawable mSplitBackground;
     private boolean mTitleOptional;
 
-    //private ViewPropertyAnimatorCompat mCurrentAnimation;
+    private ViewPropertyAnimatorCompatSet mCurrentAnimation;
     private boolean mAnimateInOnLayout;
     private int mAnimationMode;
 
@@ -257,11 +258,22 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
             return;
         }
 
+        finishAnimation();
         mAnimationMode = ANIMATE_OUT;
-        startOutAnimation();
+        mCurrentAnimation = makeOutAnimation();
+        mCurrentAnimation.start();
+    }
+
+    private void finishAnimation() {
+        final ViewPropertyAnimatorCompatSet a = mCurrentAnimation;
+        if (a != null) {
+            mCurrentAnimation = null;
+            a.cancel();
+        }
     }
 
     public void killMode() {
+        finishAnimation();
         removeAllViews();
         if (mSplitView != null) {
             mSplitView.removeView(mMenuView);
@@ -387,49 +399,58 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
         }
     }
 
-    private void startInAnimation() {
-        int leftMargin = ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin;
-        ViewCompat.setTranslationX(mClose, -mClose.getWidth() - leftMargin);
-
-        ViewPropertyAnimatorCompat buttonAnimator = ViewCompat.animate(mClose).translationX(0f);
+    private ViewPropertyAnimatorCompatSet makeInAnimation() {
+        ViewCompat.setTranslationX(mClose, -mClose.getWidth() -
+                ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin);
+        ViewPropertyAnimatorCompat buttonAnimator = ViewCompat.animate(mClose).translationX(0);
         buttonAnimator.setDuration(200);
         buttonAnimator.setListener(this);
         buttonAnimator.setInterpolator(new DecelerateInterpolator());
+
+        ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
+        set.play(buttonAnimator);
 
         if (mMenuView != null) {
             final int count = mMenuView.getChildCount();
             if (count > 0) {
                 for (int i = count - 1, j = 0; i >= 0; i--, j++) {
                     View child = mMenuView.getChildAt(i);
-                    ViewCompat.setScaleY(child, 0f);
-                    ViewCompat.animate(child).scaleY(1f).setDuration(300).start();
+                    ViewCompat.setScaleY(child, 0);
+                    ViewPropertyAnimatorCompat a = ViewCompat.animate(child).scaleY(1);
+                    a.setDuration(300);
+                    set.play(a);
                 }
             }
         }
 
-        buttonAnimator.start();
+        return set;
     }
 
-    private void startOutAnimation() {
-        int leftMargin = ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin;
+    private ViewPropertyAnimatorCompatSet makeOutAnimation() {
         ViewPropertyAnimatorCompat buttonAnimator = ViewCompat.animate(mClose)
-                .translationX(-mClose.getWidth() - leftMargin);
+                .translationX(-mClose.getWidth() -
+                        ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin);
         buttonAnimator.setDuration(200);
         buttonAnimator.setListener(this);
         buttonAnimator.setInterpolator(new DecelerateInterpolator());
 
+        ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
+        set.play(buttonAnimator);
+
         if (mMenuView != null) {
             final int count = mMenuView.getChildCount();
             if (count > 0) {
-                for (int i = count - 1, j = 0; i >= 0; i--, j++) {
+                for (int i = 0; i < 0; i++) {
                     View child = mMenuView.getChildAt(i);
-                    ViewCompat.setScaleY(child, 1f);
-                    ViewCompat.animate(child).scaleY(0f).setDuration(300).start();
+                    ViewCompat.setScaleY(child, 1);
+                    ViewPropertyAnimatorCompat a = ViewCompat.animate(child).scaleY(0);
+                    a.setDuration(300);
+                    set.play(a);
                 }
             }
         }
 
-        buttonAnimator.start();
+        return set;
     }
 
     @Override
@@ -449,7 +470,8 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
 
             if (mAnimateInOnLayout) {
                 mAnimationMode = ANIMATE_IN;
-                startInAnimation();
+                mCurrentAnimation = makeInAnimation();
+                mCurrentAnimation.start();
                 mAnimateInOnLayout = false;
             }
         }

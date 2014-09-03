@@ -158,10 +158,12 @@
     </style>
 
     <style name="Base.Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:dropDownHorizontalOffset">-4dip</item>
         <item name="android:overlapAnchor">true</item>
     </style>
 
     <style name="Base.Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="android:dropDownHorizontalOffset">-4dip</item>
         <item name="android:overlapAnchor">true</item>
     </style>
 
