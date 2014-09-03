@@ -35,7 +35,6 @@ import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -311,38 +310,38 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         return changed;
     }
 
-// TODO
-//    @Override
-//    public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-//        pullChildren();
-//
-//        final int vis = getWindowSystemUiVisibility();
-//        final boolean stable = (vis & SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;
-//        final Rect systemInsets = insets.getSystemWindowInsets();
-//
-//        // The top and bottom action bars are always within the content area.
-//        boolean changed = applyInsets(mActionBarTop, systemInsets, true, true, false, true);
-//        if (mActionBarBottom != null) {
-//            changed |= applyInsets(mActionBarBottom, systemInsets, true, false, true, true);
-//        }
-//
-//        mBaseInnerInsets.set(systemInsets);
-//        computeFitSystemWindows(mBaseInnerInsets, mBaseContentInsets);
-//        if (!mLastBaseContentInsets.equals(mBaseContentInsets)) {
-//            changed = true;
-//            mLastBaseContentInsets.set(mBaseContentInsets);
-//        }
-//
-//        if (changed) {
-//            requestLayout();
-//        }
-//
-//        // We don't do any more at this point.  To correctly compute the content/inner
-//        // insets in all cases, we need to know the measured size of the various action
-//        // bar elements.  onApplyWindowInsets() happens before the measure pass, so we can't
-//        // do that here.  Instead we will take this up in onMeasure().
-//        return WindowInsets.CONSUMED;
-//    }
+    @Override
+    protected boolean fitSystemWindows(Rect insets) {
+        pullChildren();
+
+        final int vis = ViewCompat.getWindowSystemUiVisibility(this);
+        final boolean stable = (vis & SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;
+        final Rect systemInsets = insets;
+
+        // The top and bottom action bars are always within the content area.
+        boolean changed = applyInsets(mActionBarTop, systemInsets, true, true, false, true);
+        if (mActionBarBottom != null) {
+            changed |= applyInsets(mActionBarBottom, systemInsets, true, false, true, true);
+        }
+
+        mBaseInnerInsets.set(systemInsets);
+        // TODO: check if this is needed
+        // computeFitSystemWindows(mBaseInnerInsets, mBaseContentInsets);
+        if (!mLastBaseContentInsets.equals(mBaseContentInsets)) {
+            changed = true;
+            mLastBaseContentInsets.set(mBaseContentInsets);
+        }
+
+        if (changed) {
+            requestLayout();
+        }
+
+        // We don't do any more at this point.  To correctly compute the content/inner
+        // insets in all cases, we need to know the measured size of the various action
+        // bar elements. fitSystemWindows() happens before the measure pass, so we can't
+        // do that here. Instead we will take this up in onMeasure().
+        return true;
+    }
 
     @Override
     protected LayoutParams generateDefaultLayoutParams() {
