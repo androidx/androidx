@@ -111,7 +111,7 @@ public class ActionMenuItem implements SupportMenuItem {
     }
 
     public CharSequence getTitleCondensed() {
-        return mTitleCondensed;
+        return mTitleCondensed != null ? mTitleCondensed : mTitle;
     }
 
     public boolean hasSubMenu() {

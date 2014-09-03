@@ -724,11 +724,24 @@
         <!-- Reference to a theme that should be used to inflate popups
              shown by widgets in the toolbar. -->
         <attr name="popupTheme" />
+        <!-- Icon drawable to use for the navigation button located at
+             the start of the toolbar. -->
+        <attr name="navigationIcon" format="reference" />
+        <!-- Text to set as the content description for the navigation button
+             located at the start of the toolbar. -->
+        <attr name="navigationContentDescription" format="string" />
     </declare-styleable>
 
     <declare-styleable name="PopupWindowBackgroundState">
         <!-- State identifier indicating the popup will be above the anchor. -->
         <attr name="state_above_anchor" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ListPopupWindow">
+        <!-- Amount of pixels by which the drop down should be offset vertically. -->
+        <attr name="android:dropDownVerticalOffset" />
+        <!-- Amount of pixels by which the drop down should be offset horizontally. -->
+        <attr name="android:dropDownHorizontalOffset" />
     </declare-styleable>
 
 </resources>

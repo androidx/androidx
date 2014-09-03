@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
@@ -165,6 +166,12 @@ public class Toolbar extends ViewGroup {
 
     private boolean mCollapsible;
 
+    private final Runnable mShowOverflowMenuRunnable = new Runnable() {
+        @Override public void run() {
+            showOverflowMenu();
+        }
+    };
+
     public Toolbar(Context context) {
         this(context, null);
     }
@@ -242,6 +249,15 @@ public class Toolbar extends ViewGroup {
         // Set the default context, since setPopupTheme() may be a no-op.
         mPopupContext = getContext();
         setPopupTheme(a.getResourceId(R.styleable.Toolbar_popupTheme, 0));
+
+        final Drawable navIcon = a.getDrawable(R.styleable.Toolbar_navigationIcon);
+        if (navIcon != null) {
+            setNavigationIcon(navIcon);
+        }
+        final CharSequence navDesc = a.getText(R.styleable.Toolbar_navigationContentDescription);
+        if (!TextUtils.isEmpty(navDesc)) {
+            setNavigationContentDescription(navDesc);
+        }
         a.recycle();
     }
 
@@ -276,7 +292,7 @@ public class Toolbar extends ViewGroup {
         if (Build.VERSION.SDK_INT >= 17) {
             super.onRtlPropertiesChanged(layoutDirection);
         }
-        mContentInsets.setDirection(layoutDirection ==  ViewCompat.LAYOUT_DIRECTION_RTL);
+        mContentInsets.setDirection(layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL);
     }
 
     /**
@@ -409,6 +425,7 @@ public class Toolbar extends ViewGroup {
             ensureLogoView();
             if (mLogoView.getParent() == null) {
                 addSystemView(mLogoView);
+                updateChildVisibilityForExpandedActionView(mLogoView);
             }
         } else if (mLogoView != null && mLogoView.getParent() != null) {
             removeView(mLogoView);
@@ -550,6 +567,7 @@ public class Toolbar extends ViewGroup {
             }
             if (mTitleTextView.getParent() == null) {
                 addSystemView(mTitleTextView);
+                updateChildVisibilityForExpandedActionView(mTitleTextView);
             }
         } else if (mTitleTextView != null && mTitleTextView.getParent() != null) {
             removeView(mTitleTextView);
@@ -603,6 +621,7 @@ public class Toolbar extends ViewGroup {
             }
             if (mSubtitleTextView.getParent() == null) {
                 addSystemView(mSubtitleTextView);
+                updateChildVisibilityForExpandedActionView(mSubtitleTextView);
             }
         } else if (mSubtitleTextView != null && mSubtitleTextView.getParent() != null) {
             removeView(mSubtitleTextView);
@@ -733,6 +752,7 @@ public class Toolbar extends ViewGroup {
             ensureNavButtonView();
             if (mNavButtonView.getParent() == null) {
                 addSystemView(mNavButtonView);
+                updateChildVisibilityForExpandedActionView(mNavButtonView);
             }
         } else if (mNavButtonView != null && mNavButtonView.getParent() != null) {
             removeView(mNavButtonView);
@@ -986,6 +1006,12 @@ public class Toolbar extends ViewGroup {
     @Override
     protected Parcelable onSaveInstanceState() {
         SavedState state = new SavedState(super.onSaveInstanceState());
+
+        if (mExpandedMenuPresenter != null && mExpandedMenuPresenter.mCurrentExpandedItem != null) {
+            state.expandedMenuItemId = mExpandedMenuPresenter.mCurrentExpandedItem.getItemId();
+        }
+
+        state.isOverflowOpen = isOverflowMenuShowing();
         return state;
     }
 
@@ -993,6 +1019,29 @@ public class Toolbar extends ViewGroup {
     protected void onRestoreInstanceState(Parcelable state) {
         final SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
+
+        final Menu menu = mMenuView != null ? mMenuView.peekMenu() : null;
+        if (ss.expandedMenuItemId != 0 && mExpandedMenuPresenter != null && menu != null) {
+            final MenuItem item = menu.findItem(ss.expandedMenuItemId);
+            if (item != null) {
+                MenuItemCompat.expandActionView(item);
+            }
+        }
+
+        if (ss.isOverflowOpen) {
+            postShowOverflowMenu();
+        }
+    }
+
+    private void postShowOverflowMenu() {
+        removeCallbacks(mShowOverflowMenuRunnable);
+        post(mShowOverflowMenuRunnable);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        removeCallbacks(mShowOverflowMenuRunnable);
     }
 
     private void measureChildConstrained(View child, int parentWidthSpec, int widthUsed,
@@ -1273,6 +1322,8 @@ public class Toolbar extends ViewGroup {
             final View bottomChild = layoutSubtitle ? mSubtitleTextView : mTitleTextView;
             final LayoutParams toplp = (LayoutParams) topChild.getLayoutParams();
             final LayoutParams bottomlp = (LayoutParams) bottomChild.getLayoutParams();
+            final boolean titleHasWidth = layoutTitle && mTitleTextView.getMeasuredWidth() > 0
+                    || layoutSubtitle && mSubtitleTextView.getMeasuredWidth() > 0;
 
             switch (mGravity & Gravity.VERTICAL_GRAVITY_MASK) {
                 case Gravity.TOP:
@@ -1300,7 +1351,7 @@ public class Toolbar extends ViewGroup {
                     break;
             }
             if (isRtl) {
-                final int rd = mTitleMarginStart - collapsingMargins[1];
+                final int rd = (titleHasWidth ? mTitleMarginStart : 0) - collapsingMargins[1];
                 right -= Math.max(0, rd);
                 collapsingMargins[1] = Math.max(0, -rd);
                 int titleRight = right;
@@ -1323,9 +1374,11 @@ public class Toolbar extends ViewGroup {
                     subtitleRight = subtitleRight - mTitleMarginEnd;
                     titleTop = subtitleBottom + lp.bottomMargin;
                 }
-                right = Math.min(titleRight, subtitleRight);
+                if (titleHasWidth) {
+                    right = Math.min(titleRight, subtitleRight);
+                }
             } else {
-                final int ld = mTitleMarginStart - collapsingMargins[0];
+                final int ld = (titleHasWidth ? mTitleMarginStart : 0) - collapsingMargins[0];
                 left += Math.max(0, ld);
                 collapsingMargins[0] = Math.max(0, -ld);
                 int titleLeft = left;
@@ -1348,7 +1401,9 @@ public class Toolbar extends ViewGroup {
                     subtitleLeft = subtitleRight + mTitleMarginEnd;
                     titleTop = subtitleBottom + lp.bottomMargin;
                 }
-                left = Math.max(titleLeft, subtitleLeft);
+                if (titleHasWidth) {
+                    left = Math.max(titleLeft, subtitleLeft);
+                }
             }
         }
 
@@ -1590,6 +1645,13 @@ public class Toolbar extends ViewGroup {
         }
     }
 
+    private void updateChildVisibilityForExpandedActionView(View child) {
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        if (lp.mViewType != LayoutParams.EXPANDED && child != mMenuView) {
+            child.setVisibility(mExpandedActionView != null ? GONE : VISIBLE);
+        }
+    }
+
     /**
      * Force the toolbar to collapse to zero-height during measurement if
      * it could be considered "empty" (no visible elements with nonzero measured size)
@@ -1679,8 +1741,13 @@ public class Toolbar extends ViewGroup {
     }
 
     static class SavedState extends BaseSavedState {
+        public int expandedMenuItemId;
+        public boolean isOverflowOpen;
+
         public SavedState(Parcel source) {
             super(source);
+            expandedMenuItemId = source.readInt();
+            isOverflowOpen = source.readInt() != 0;
         }
 
         public SavedState(Parcelable superState) {
@@ -1690,6 +1757,8 @@ public class Toolbar extends ViewGroup {
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
+            out.writeInt(expandedMenuItemId);
+            out.writeInt(isOverflowOpen ? 1 : 0);
         }
 
         public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {

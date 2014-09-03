@@ -27,4 +27,9 @@ class DrawableCompatL {
         drawable.setHotspot(x, y);
     }
 
+    public static void setHotspotBounds(Drawable drawable, int left, int top,
+            int right, int bottom) {
+        drawable.setHotspotBounds( left, top, right, bottom);
+    }
+
 }
