@@ -16,6 +16,7 @@
 
 <android.support.v7.internal.widget.ActionBarOverlayLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/decor_content_parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -36,7 +37,7 @@
                 android:id="@+id/action_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:navigationContentDescription="@string/abc_action_bar_up_description"
+                app:navigationContentDescription="@string/abc_action_bar_up_description"
                 style="?attr/toolbarStyle"/>
 
         <android.support.v7.internal.widget.ActionBarContextView
