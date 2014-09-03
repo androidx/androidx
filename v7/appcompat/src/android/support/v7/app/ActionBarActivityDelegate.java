@@ -64,12 +64,34 @@ abstract class ActionBarActivityDelegate {
     boolean mOverlayActionMode;
     // true if this activity is floating (e.g. Dialog)
     boolean mIsFloating;
+    // The default window callback
+    final WindowCallback mDefaultWindowCallback = new WindowCallback() {
+        @Override
+        public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
+            return mActivity.onMenuItemSelected(featureId, menuItem);
+        }
+
+        @Override
+        public boolean onCreatePanelMenu(int featureId, Menu menu) {
+            return mActivity.superOnCreatePanelMenu(featureId, menu);
+        }
+
+        @Override
+        public boolean onPreparePanel(int featureId, View menuView, Menu menu) {
+            return mActivity.superOnPreparePanel(featureId, menuView, menu);
+        }
+
+        @Override
+        public ActionMode startActionMode(ActionMode.Callback callback) {
+            return startSupportActionModeFromWindow(callback);
+        }
+    };
     // The fake window callback we're currently using
-    WindowCallback mWindowMenuCallback;
+    private WindowCallback mWindowCallback;
 
     ActionBarActivityDelegate(ActionBarActivity activity) {
         mActivity = activity;
-        mWindowMenuCallback = new DefaultWindowCallback();
+        mWindowCallback = mDefaultWindowCallback;
     }
 
     abstract ActionBar createSupportActionBar();
@@ -232,32 +254,14 @@ abstract class ActionBarActivityDelegate {
 
     abstract ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback);
 
-    void setWindowCallback(WindowCallback callback) {
+    final void setWindowCallback(WindowCallback callback) {
         if (callback == null) {
             throw new IllegalArgumentException("callback can not be null");
         }
-        mWindowMenuCallback = callback;
+        mWindowCallback = callback;
     }
 
-    private class DefaultWindowCallback implements WindowCallback {
-        @Override
-        public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
-            return mActivity.onMenuItemSelected(featureId, menuItem);
-        }
-
-        @Override
-        public boolean onCreatePanelMenu(int featureId, Menu menu) {
-            return mActivity.superOnCreatePanelMenu(featureId, menu);
-        }
-
-        @Override
-        public boolean onPreparePanel(int featureId, View menuView, Menu menu) {
-            return mActivity.superOnPreparePanel(featureId, menuView, menu);
-        }
-
-        @Override
-        public ActionMode startActionMode(ActionMode.Callback callback) {
-            return startSupportActionModeFromWindow(callback);
-        }
+    final WindowCallback getWindowCallback() {
+        return mWindowCallback;
     }
 }
