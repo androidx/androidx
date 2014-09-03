@@ -103,9 +103,29 @@ public abstract class Presenter {
      * the consumer of an presenter's views may choose to cache views offscreen while they
      * are not visible, attaching an detaching them as appropriate.</p>
      *
+     * Any view property animations should be cancelled here or the view may fail
+     * to be recycled.
+     *
      * @param holder Holder of the view being detached
      */
     public void onViewDetachedFromWindow(ViewHolder holder) {
+        // If there are view property animations running then RecyclerView won't recycle.
+        cancelAnimationsRecursive(holder.view);
+    }
+
+    /**
+     * Utility method for removing all running animations on a view.
+     */
+    protected static void cancelAnimationsRecursive(View view) {
+        if (view.hasTransientState()) {
+            view.animate().cancel();
+            if (view instanceof ViewGroup) {
+                final int count = ((ViewGroup) view).getChildCount();
+                for (int i = 0; view.hasTransientState() && i < count; i++) {
+                    cancelAnimationsRecursive(((ViewGroup) view).getChildAt(i));
+                }
+            }
+        }
     }
 
     /**
