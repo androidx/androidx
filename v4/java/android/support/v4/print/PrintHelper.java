@@ -57,6 +57,19 @@ public final class PrintHelper {
      */
     public static final int ORIENTATION_PORTRAIT = 2;
 
+    /**
+     * Callback for observing when a print operation is completed.
+     * When print is finished either the system acquired the
+     * document to print or printing was cancelled.
+     */
+    public interface OnPrintFinishCallback {
+
+        /**
+         * Called when a print operation is finished.
+         */
+        public void onFinish();
+    }
+
     PrintHelperVersionImpl mImpl;
 
     /**
@@ -89,9 +102,9 @@ public final class PrintHelper {
 
         public int getOrientation();
 
-        public void printBitmap(String jobName, Bitmap bitmap);
+        public void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback);
 
-        public void printBitmap(String jobName, Uri imageFile)
+        public void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback)
                 throws FileNotFoundException;
     }
 
@@ -129,11 +142,11 @@ public final class PrintHelper {
         }
 
         @Override
-        public void printBitmap(String jobName, Bitmap bitmap) {
+        public void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback) {
         }
 
         @Override
-        public void printBitmap(String jobName, Uri imageFile) {
+        public void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback) {
         }
     }
 
@@ -178,13 +191,27 @@ public final class PrintHelper {
         }
 
         @Override
-        public void printBitmap(String jobName, Bitmap bitmap) {
-            mPrintHelper.printBitmap(jobName, bitmap);
+        public void printBitmap(String jobName, Bitmap bitmap,
+                final OnPrintFinishCallback callback) {
+            mPrintHelper.printBitmap(jobName, bitmap,
+                    new PrintHelperKitkat.OnPrintFinishCallback() {
+                        @Override
+                        public void onFinish() {
+                            callback.onFinish();
+                        }
+                    });
         }
 
         @Override
-        public void printBitmap(String jobName, Uri imageFile) throws FileNotFoundException {
-            mPrintHelper.printBitmap(jobName, imageFile);
+        public void printBitmap(String jobName, Uri imageFile,
+                final OnPrintFinishCallback callback) throws FileNotFoundException {
+            mPrintHelper.printBitmap(jobName, imageFile,
+                    new PrintHelperKitkat.OnPrintFinishCallback() {
+                        @Override
+                        public void onFinish() {
+                            callback.onFinish();
+                        }
+                    });
         }
     }
 
@@ -268,6 +295,7 @@ public final class PrintHelper {
         return mImpl.getOrientation();
     }
 
+
     /**
      * Prints a bitmap.
      *
@@ -275,7 +303,18 @@ public final class PrintHelper {
      * @param bitmap  The bitmap to print.
      */
     public void printBitmap(String jobName, Bitmap bitmap) {
-        mImpl.printBitmap(jobName, bitmap);
+        mImpl.printBitmap(jobName, bitmap, null);
+    }
+
+    /**
+     * Prints a bitmap.
+     *
+     * @param jobName The print job name.
+     * @param bitmap  The bitmap to print.
+     * @param callback Optional callback to observe when printing is finished.
+     */
+    public void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback) {
+        mImpl.printBitmap(jobName, bitmap, callback);
     }
 
     /**
@@ -288,6 +327,21 @@ public final class PrintHelper {
      * @throws FileNotFoundException if <code>Uri</code> is not pointing to a valid image.
      */
     public void printBitmap(String jobName, Uri imageFile) throws FileNotFoundException {
-        mImpl.printBitmap(jobName, imageFile);
+        mImpl.printBitmap(jobName, imageFile, null);
+    }
+
+    /**
+     * Prints an image located at the Uri. Image types supported are those of
+     * {@link android.graphics.BitmapFactory#decodeStream(java.io.InputStream)
+     * android.graphics.BitmapFactory.decodeStream(java.io.InputStream)}
+     *
+     * @param jobName   The print job name.
+     * @param imageFile The <code>Uri</code> pointing to an image to print.
+     * @throws FileNotFoundException if <code>Uri</code> is not pointing to a valid image.
+     * @param callback Optional callback to observe when printing is finished.
+     */
+    public void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback)
+            throws FileNotFoundException {
+        mImpl.printBitmap(jobName, imageFile, callback);
     }
 }
