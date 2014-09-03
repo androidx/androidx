@@ -280,6 +280,16 @@ class ChildHelper {
     }
 
     /**
+     * Returns whether a View is visible to LayoutManager or not.
+     *
+     * @param view The child view to check. Should be a child of the Callback.
+     * @return True if the View is not visible to LayoutManager
+     */
+    boolean isHidden(View view) {
+        return mHiddenViews.contains(view);
+    }
+
+    /**
      * Marks a child view as hidden.
      *
      * @param view The view to hide.
