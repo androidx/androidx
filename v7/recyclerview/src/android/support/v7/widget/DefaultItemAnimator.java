@@ -191,14 +191,16 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     private void animateRemoveImpl(final ViewHolder holder) {
         final View view = holder.itemView;
-        ViewCompat.animate(view).setDuration(getRemoveDuration()).
-                alpha(0).setListener(new VpaListenerAdapter() {
+        final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
+        animation.setDuration(getRemoveDuration())
+                .alpha(0).setListener(new VpaListenerAdapter() {
             @Override
             public void onAnimationStart(View view) {
                 dispatchRemoveStarting(holder);
             }
             @Override
             public void onAnimationEnd(View view) {
+                animation.setListener(null);
                 ViewCompat.setAlpha(view, 1);
                 dispatchRemoveFinished(holder);
                 mRemoveAnimations.remove(holder);
@@ -219,7 +221,8 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     private void animateAddImpl(final ViewHolder holder) {
         final View view = holder.itemView;
         mAddAnimations.add(holder);
-        ViewCompat.animate(view).alpha(1).setDuration(getAddDuration()).
+        final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
+        animation.alpha(1).setDuration(getAddDuration()).
                 setListener(new VpaListenerAdapter() {
                     @Override
                     public void onAnimationStart(View view) {
@@ -232,6 +235,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
                     @Override
                     public void onAnimationEnd(View view) {
+                        animation.setListener(null);
                         dispatchAddFinished(holder);
                         mAddAnimations.remove(holder);
                         dispatchFinishedWhenDone();
@@ -276,7 +280,8 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         // vpas are canceled (and can't end them. why?)
         // need listener functionality in VPACompat for this. Ick.
         mMoveAnimations.add(holder);
-        ViewCompat.animate(view).setDuration(getMoveDuration()).setListener(new VpaListenerAdapter() {
+        final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
+        animation.setDuration(getMoveDuration()).setListener(new VpaListenerAdapter() {
             @Override
             public void onAnimationStart(View view) {
                 dispatchMoveStarting(holder);
@@ -292,6 +297,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             }
             @Override
             public void onAnimationEnd(View view) {
+                animation.setListener(null);
                 dispatchMoveFinished(holder);
                 mMoveAnimations.remove(holder);
                 dispatchFinishedWhenDone();
@@ -330,7 +336,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         final View newView = newHolder != null ? newHolder.itemView : null;
         mChangeAnimations.add(changeInfo.oldHolder);
 
-        ViewPropertyAnimatorCompat oldViewAnim = ViewCompat.animate(view).setDuration(
+        final ViewPropertyAnimatorCompat oldViewAnim = ViewCompat.animate(view).setDuration(
                 getChangeDuration());
         oldViewAnim.translationX(changeInfo.toX - changeInfo.fromX);
         oldViewAnim.translationY(changeInfo.toY - changeInfo.fromY);
@@ -341,6 +347,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             }
             @Override
             public void onAnimationEnd(View view) {
+                oldViewAnim.setListener(null);
                 ViewCompat.setAlpha(view, 1);
                 ViewCompat.setTranslationX(view, 0);
                 ViewCompat.setTranslationY(view, 0);
@@ -351,7 +358,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         }).start();
         if (newView != null) {
             mChangeAnimations.add(changeInfo.newHolder);
-            ViewPropertyAnimatorCompat newViewAnimation = ViewCompat.animate(newView);
+            final ViewPropertyAnimatorCompat newViewAnimation = ViewCompat.animate(newView);
             newViewAnimation.translationX(0).translationY(0).setDuration(getChangeDuration()).
                     alpha(1).setListener(new VpaListenerAdapter() {
                 @Override
@@ -360,6 +367,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 }
                 @Override
                 public void onAnimationEnd(View view) {
+                    newViewAnimation.setListener(null);
                     ViewCompat.setAlpha(newView, 1);
                     ViewCompat.setTranslationX(newView, 0);
                     ViewCompat.setTranslationY(newView, 0);
