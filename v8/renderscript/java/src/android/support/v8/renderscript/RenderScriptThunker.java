@@ -16,6 +16,9 @@
 
 package android.support.v8.renderscript;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -52,11 +55,17 @@ class RenderScriptThunker extends RenderScript {
     public static RenderScript create(Context ctx, int sdkVersion) {
         try {
             RenderScriptThunker rs = new RenderScriptThunker(ctx);
-            rs.mN = android.renderscript.RenderScript.create(ctx, sdkVersion);
+            Class<?> javaRS = Class.forName("android.renderscript.RenderScript");
+            Class[] signature = {Context.class, Integer.TYPE};
+            Object[] args = {ctx, new Integer(sdkVersion)};
+            Method create = javaRS.getDeclaredMethod("create", signature);
+            rs.mN = (android.renderscript.RenderScript)create.invoke(null, args);
             return rs;
         }
         catch(android.renderscript.RSRuntimeException e) {
             throw ExceptionThunker.convertException(e);
+        } catch (Exception e) {
+            throw new RSRuntimeException("Failure to create platform RenderScript context");
         }
     }
 
