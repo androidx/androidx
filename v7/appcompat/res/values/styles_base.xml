@@ -386,4 +386,15 @@
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
     </style>
 
+    <style name="Base.Widget.AppCompat.DrawerArrowToggle" parent="">
+        <item name="color">?android:attr/textColorPrimary</item>
+        <item name="thickness">2dp</item>
+        <item name="barSize">18dp</item>
+        <item name="gapBetweenBars">3dp</item>
+        <item name="topBottomBarArrowSize">11.31dp</item>
+        <item name="middleBarArrowSize">16dp</item>
+        <item name="drawableSize">24dp</item>
+        <item name="spinBars">true</item>
+    </style>
+
 </resources>
