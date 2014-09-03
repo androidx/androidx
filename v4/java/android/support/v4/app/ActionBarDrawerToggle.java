@@ -36,6 +36,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 /**
+ * @deprecated Please use ActionBarDrawerToggle in support-v7-appcompat.
+ *
+ * <p>
  * This class provides a handy way to tie together the functionality of
  * {@link DrawerLayout} and the framework <code>ActionBar</code> to implement the recommended
  * design for navigation drawers.
@@ -56,7 +59,9 @@ import android.view.View;
  * <p><code>ActionBarDrawerToggle</code> can be used directly as a
  * {@link DrawerLayout.DrawerListener}, or if you are already providing your own listener,
  * call through to each of the listener methods from your own.</p>
+ *
  */
+@Deprecated
 public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
     /**

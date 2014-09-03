@@ -99,6 +99,11 @@
            parent="Base.Widget.AppCompat.ActionBar.TabText">
     </style>
 
+    <style name="Widget.AppCompat.DrawerArrowToggle"
+           parent="Base.Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">?attr/colorControlNormal</item>
+    </style>
+
     <style name="Widget.AppCompat.Light.ActionBar.TabText"
            parent="Base.Widget.AppCompat.Light.ActionBar.TabText">
     </style>

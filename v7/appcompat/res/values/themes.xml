@@ -28,11 +28,13 @@
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat"
            parent="Base.Theme.AppCompat">
+        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
     </style>
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
     <style name="Theme.AppCompat.Light"
            parent="Base.Theme.AppCompat.Light">
+        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
     </style>
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
