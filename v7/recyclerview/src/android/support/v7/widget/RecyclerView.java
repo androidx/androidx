@@ -5097,15 +5097,15 @@ public class RecyclerView extends ViewGroup {
          *
          * @return A direct child of RecyclerView which has focus or contains the focused child.
          */
-        public View findItemWhichHasFocus() {
+        public View getFocusedChild() {
             if (mRecyclerView == null) {
                 return null;
             }
-            View focused = mRecyclerView.findFocus();
-            if (focused != null && focused.getParent() == mRecyclerView) {
-                return focused;
+            final View focused = mRecyclerView.getFocusedChild();
+            if (focused == null || mChildHelper.isHidden(focused)) {
+                return null;
             }
-            return null;
+            return focused;
         }
 
         /**

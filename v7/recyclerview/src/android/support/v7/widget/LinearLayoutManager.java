@@ -651,7 +651,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0) {
             return false;
         }
-        View focused = findItemWhichHasFocus();
+        View focused = getFocusedChild();
         if (focused != null && anchorInfo.assignFromViewIfValid(focused, state)) {
             if (DEBUG) {
                 Log.d(TAG, "decided anchor child from focused view");
