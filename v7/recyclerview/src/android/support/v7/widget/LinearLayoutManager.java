@@ -1066,7 +1066,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         mLayoutState.mScrollingOffset = fastScrollSpace;
     }
 
-    private int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
+    int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (getChildCount() == 0 || dy == 0) {
             return 0;
         }
