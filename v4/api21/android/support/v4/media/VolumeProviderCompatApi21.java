@@ -19,14 +19,9 @@ package android.support.v4.media;
 import android.media.VolumeProvider;
 
 class VolumeProviderCompatApi21 {
-    public static Object createVolumeProvider(int volumeControl, int maxVolume,
+    public static Object createVolumeProvider(int volumeControl, int maxVolume, int currentVolume,
             final Delegate delegate) {
-        return new VolumeProvider(volumeControl, maxVolume) {
-            @Override
-            public int onGetCurrentVolume() {
-                return delegate.onGetCurrentVolume();
-            }
-
+        return new VolumeProvider(volumeControl, maxVolume, currentVolume) {
             @Override
             public void onSetVolumeTo(int volume) {
                 delegate.onSetVolumeTo(volume);
@@ -39,12 +34,11 @@ class VolumeProviderCompatApi21 {
         };
     }
 
-    public static void notifyVolumeChanged(Object volumeProviderObj) {
-        ((VolumeProvider)volumeProviderObj).notifyVolumeChanged();
+    public static void setCurrentVolume(Object volumeProviderObj, int currentVolume) {
+        ((VolumeProvider) volumeProviderObj).setCurrentVolume(currentVolume);
     }
 
     public interface Delegate {
-        int onGetCurrentVolume();
         void onSetVolumeTo(int volume);
         void onAdjustVolume(int delta);
     }
