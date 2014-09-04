@@ -48,6 +48,7 @@ public abstract class VolumeProviderCompat {
 
     private final int mControlType;
     private final int mMaxVolume;
+    private int mCurrentVolume;
     private Callback mCallback;
 
     private Object mVolumeProviderObj;
@@ -59,18 +60,22 @@ public abstract class VolumeProviderCompat {
      * @param volumeControl The method for controlling volume that is used by
      *            this provider.
      * @param maxVolume The maximum allowed volume.
+     * @param currentVolume The current volume.
      */
-    public VolumeProviderCompat(int volumeControl, int maxVolume) {
+    public VolumeProviderCompat(int volumeControl, int maxVolume, int currentVolume) {
         mControlType = volumeControl;
         mMaxVolume = maxVolume;
+        mCurrentVolume = currentVolume;
     }
 
     /**
-     * Get the current volume of the remote playback.
+     * Get the current volume of the provider.
      *
      * @return The current volume.
      */
-    public abstract int onGetCurrentVolume();
+    public final int getCurrentVolume() {
+        return mCurrentVolume;
+    }
 
     /**
      * Get the volume control type that this volume provider uses.
@@ -91,9 +96,12 @@ public abstract class VolumeProviderCompat {
     }
 
     /**
-     * Notify the callback that the remote playback's volume has been changed.
+     * Set the current volume and notify the system that the volume has been
+     * changed.
+     *
+     * @param currentVolume The current volume of the output.
      */
-    public final void notifyVolumeChanged() {
+    public final void setCurrentVolume(int currentVolume) {
         if (mCallback != null) {
             mCallback.onVolumeChanged(this);
         }
@@ -139,11 +147,7 @@ public abstract class VolumeProviderCompat {
         }
 
         mVolumeProviderObj = VolumeProviderCompatApi21.createVolumeProvider(
-                mControlType, mMaxVolume, new VolumeProviderCompatApi21.Delegate() {
-            @Override
-            public int onGetCurrentVolume() {
-                return VolumeProviderCompat.this.onGetCurrentVolume();
-            }
+                mControlType, mMaxVolume, mCurrentVolume, new VolumeProviderCompatApi21.Delegate() {
 
             @Override
             public void onSetVolumeTo(int volume) {
