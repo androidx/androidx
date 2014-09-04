@@ -58,9 +58,9 @@
     <dimen name="lb_browse_expanded_selected_row_top_padding">16dp</dimen>
     <dimen name="lb_browse_expanded_row_no_hovercard_bottom_padding">28dp</dimen>
 
-    <item name="lb_focus_zoom_factor_small" type="fraction">106%</item>
-    <item name="lb_focus_zoom_factor_medium" type="fraction">110%</item>
-    <item name="lb_focus_zoom_factor_large" type="fraction">114%</item>
+    <item name="lb_focus_zoom_factor_small" type="fraction">110%</item>
+    <item name="lb_focus_zoom_factor_medium" type="fraction">114%</item>
+    <item name="lb_focus_zoom_factor_large" type="fraction">118%</item>
 
     <dimen name="lb_details_overview_height_large">274dp</dimen>
     <dimen name="lb_details_overview_height_small">159dp</dimen>
