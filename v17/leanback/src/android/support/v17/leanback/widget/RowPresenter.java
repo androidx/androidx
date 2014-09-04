@@ -415,6 +415,7 @@ public abstract class RowPresenter extends Presenter {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onViewDetachedFromWindow(vh.mHeaderViewHolder);
         }
+        cancelAnimationsRecursive(vh.view);
     }
 
     /**
