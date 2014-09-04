@@ -22,36 +22,36 @@
         <item name="android:textColorHint">?android:textColorHint</item>
         <item name="android:textColorHighlight">?android:textColorHighlight</item>
         <item name="android:textColorLink">?android:textColorLink</item>
-        <item name="android:textSize">@dimen/text_size_body_1_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_body_1_material</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Display4">
-        <item name="android:textSize">@dimen/text_size_display_4_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_display_4_material</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Display3">
-        <item name="android:textSize">@dimen/text_size_display_3_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_display_3_material</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Display2">
-        <item name="android:textSize">@dimen/text_size_display_2_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_display_2_material</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Display1">
-        <item name="android:textSize">@dimen/text_size_display_1_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_display_1_material</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Headline">
-        <item name="android:textSize">@dimen/text_size_headline_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_headline_material</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Title">
-        <item name="android:textSize">@dimen/text_size_title_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_title_material</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
@@ -63,7 +63,7 @@
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Subhead">
-        <item name="android:textSize">@dimen/text_size_subhead_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_subhead_material</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
@@ -75,27 +75,27 @@
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Body2">
-        <item name="android:textSize">@dimen/text_size_body_2_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_body_2_material</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Body1">
-        <item name="android:textSize">@dimen/text_size_body_1_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_body_1_material</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Caption">
-        <item name="android:textSize">@dimen/text_size_caption_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_caption_material</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Menu">
-        <item name="android:textSize">@dimen/text_size_menu_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_menu_material</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Button">
-        <item name="android:textSize">@dimen/text_size_button_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_button_material</item>
         <item name="textAllCaps">true</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
@@ -108,7 +108,7 @@
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Large">
-        <item name="android:textSize">@dimen/text_size_large_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_large_material</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
@@ -118,7 +118,7 @@
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Medium">
-        <item name="android:textSize">@dimen/text_size_medium_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
@@ -128,7 +128,7 @@
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Small">
-        <item name="android:textSize">@dimen/text_size_small_material</item>
+        <item name="android:textSize">@dimen/abc_text_size_small_material</item>
         <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
 
