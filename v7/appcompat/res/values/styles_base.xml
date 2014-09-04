@@ -387,7 +387,7 @@
     </style>
 
     <style name="Base.Widget.AppCompat.DrawerArrowToggle" parent="">
-        <item name="color">?android:attr/textColorPrimary</item>
+        <item name="color">?android:attr/textColorSecondary</item>
         <item name="thickness">2dp</item>
         <item name="barSize">18dp</item>
         <item name="gapBetweenBars">3dp</item>

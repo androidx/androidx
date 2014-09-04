@@ -191,6 +191,10 @@ abstract class ActionBarActivityDelegate {
         return new ActionBarDrawableToggleImpl();
     }
 
+    final android.support.v7.app.ActionBarDrawerToggle.Delegate getV7DrawerToggleDelegate() {
+        return new ActionBarDrawableToggleImpl();
+    }
+
     abstract int getHomeAsUpIndicatorAttrId();
 
     abstract void onContentChanged();
@@ -224,14 +228,21 @@ abstract class ActionBarActivityDelegate {
         return context;
     }
 
-    private class ActionBarDrawableToggleImpl implements ActionBarDrawerToggle.Delegate {
+    private class ActionBarDrawableToggleImpl implements
+            android.support.v7.app.ActionBarDrawerToggle.Delegate,
+            ActionBarDrawerToggle.Delegate {
         @Override
         public Drawable getThemeUpIndicator() {
-            final TypedArray a = getActionBarThemedContext()
+            final TypedArray a = ActionBarActivityDelegate.this.getActionBarThemedContext()
                     .obtainStyledAttributes(new int[]{ getHomeAsUpIndicatorAttrId() });
             final Drawable result = a.getDrawable(0);
             a.recycle();
             return result;
+        }
+
+        @Override
+        public Context getActionBarThemedContext() {
+            return ActionBarActivityDelegate.this.getActionBarThemedContext();
         }
 
         @Override
