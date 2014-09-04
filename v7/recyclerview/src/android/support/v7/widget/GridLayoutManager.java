@@ -531,7 +531,7 @@ public class GridLayoutManager extends LinearLayoutManager {
          * value before the <code>position</code>.
          * <p>
          * If you override this method, you need to make sure it is consistent with
-         * {@link #getCachedSpanIndex(int, int)}. GridLayoutManager does not call this method for
+         * {@link #getSpanIndex(int, int)}. GridLayoutManager does not call this method for
          * each item. It is called only for the reference item and rest of the items
          * are assigned to spans based on the reference item. For example, you cannot assign a
          * position to span 2 while span 1 is empty.
