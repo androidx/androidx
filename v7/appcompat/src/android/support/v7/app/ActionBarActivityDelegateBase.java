@@ -41,8 +41,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -633,6 +634,20 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         return R.attr.homeAsUpIndicator;
     }
 
+    @Override
+    boolean onKeyShortcut(int keyCode, KeyEvent event) {
+        // If the panel is already prepared, then perform the shortcut using it.
+        return performPanelShortcut(Window.FEATURE_OPTIONS_PANEL, event.getKeyCode(), event,
+                Menu.FLAG_PERFORM_NO_CLOSE);
+    }
+
+    @Override
+    boolean onKeyDown(int keyCode, KeyEvent event) {
+        // On API v7-10 we need to manually call onKeyShortcut() as this is not called
+        // from the Activity
+        return onKeyShortcut(keyCode, event);
+    }
+
     /**
      * Progress Bar function. Mostly extracted from PhoneWindow.java
      */
@@ -855,6 +870,30 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             ViewCompat.postOnAnimation(mWindowDecor, mInvalidatePanelMenuRunnable);
             mInvalidatePanelMenuPosted = true;
         }
+    }
+
+    final boolean performPanelShortcut(int featureId, int keyCode, KeyEvent event, int flags) {
+        if (event.isSystem()) {
+            return false;
+        }
+
+        boolean handled = false;
+
+        // Only try to perform menu shortcuts if preparePanel returned true (possible false
+        // return value from application not wanting to show the menu).
+        if ((mPanelIsPrepared || preparePanel()) && mMenu != null) {
+            // The menu is prepared now, perform the shortcut on it
+            handled = mMenu.performShortcut(keyCode, event, flags);
+        }
+
+        if (handled) {
+            // Only close down the menu if we don't have an action bar keeping it open.
+            if ((flags & Menu.FLAG_PERFORM_NO_CLOSE) == 0 && mDecorContentParent == null) {
+                closePanel(featureId);
+            }
+        }
+
+        return handled;
     }
 
     /**
