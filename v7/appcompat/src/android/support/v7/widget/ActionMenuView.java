@@ -21,6 +21,7 @@ import android.os.Build;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuItemImpl;
+import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ViewUtils;
 import android.util.AttributeSet;
@@ -59,6 +60,8 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     private boolean mReserveOverflow;
     private ActionMenuPresenter mPresenter;
+    private MenuPresenter.Callback mActionMenuPresenterCallback;
+    private MenuBuilder.Callback mMenuBuilderCallback;
     private boolean mFormatItems;
     private int mFormatItemsWidth;
     private int mMinCellSize;
@@ -617,12 +620,22 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
             mMenu = new MenuBuilder(context);
             mMenu.setCallback(new MenuBuilderCallback());
             mPresenter = new ActionMenuPresenter(context);
-            mPresenter.setCallback(new ActionMenuPresenterCallback());
+            mPresenter.setCallback(mActionMenuPresenterCallback != null
+                    ? mActionMenuPresenterCallback : new ActionMenuPresenterCallback());
             mMenu.addMenuPresenter(mPresenter, mPopupContext);
             mPresenter.setMenuView(this);
         }
 
         return mMenu;
+    }
+
+    /**
+     * Must be called before the first call to getMenu()
+     * @hide
+     */
+    public void setMenuCallbacks(MenuPresenter.Callback pcb, MenuBuilder.Callback mcb) {
+        mActionMenuPresenterCallback = pcb;
+        mMenuBuilderCallback = mcb;
     }
 
     /**
@@ -727,6 +740,9 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
         @Override
         public void onMenuModeChange(MenuBuilder menu) {
+            if (mMenuBuilderCallback != null) {
+                mMenuBuilderCallback.onMenuModeChange(menu);
+            }
         }
     }
 

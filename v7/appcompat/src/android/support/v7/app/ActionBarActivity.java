@@ -231,8 +231,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     public void onPanelClosed(int featureId, Menu menu) {
-        super.onPanelClosed(featureId, menu);
         getDelegate().onPanelClosed(featureId, menu);
+    }
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        return getDelegate().onMenuOpened(featureId, menu);
     }
 
     /**
@@ -269,6 +273,14 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     boolean superOnPrepareOptionsPanel(View view, Menu menu) {
         return super.onPrepareOptionsPanel(view, menu);
+    }
+
+    void superOnPanelClosed(int featureId, Menu menu) {
+        super.onPanelClosed(featureId, menu);
+    }
+
+    boolean superOnMenuOpened(int featureId, Menu menu) {
+        return super.onMenuOpened(featureId, menu);
     }
 
     @Override

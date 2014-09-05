@@ -407,6 +407,19 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             mPanelIsPrepared = false;
         }
+        // Only pass it through to the Activity's super impl if it's not ACTION_BAR. This is
+        // because ICS+ will try and create a framework action bar due to this call
+        if (featureId != WindowCompat.FEATURE_ACTION_BAR) {
+            mActivity.superOnPanelClosed(featureId, menu);
+        }
+    }
+
+    @Override
+    boolean onMenuOpened(int featureId, Menu menu) {
+        if (featureId != WindowCompat.FEATURE_ACTION_BAR) {
+            return mActivity.superOnMenuOpened(featureId, menu);
+        }
+        return true;
     }
 
     @Override

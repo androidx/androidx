@@ -55,6 +55,16 @@ public class WindowCallbackWrapper implements WindowCallback {
     }
 
     @Override
+    public void onPanelClosed(int featureId, Menu menu) {
+        mWrapped.onPanelClosed(featureId, menu);
+    }
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        return mWrapped.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public ActionMode startActionMode(ActionMode.Callback callback) {
         return mWrapped.startActionMode(callback);
     }
