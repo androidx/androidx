@@ -57,6 +57,7 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
     private int mSubtitleStyleRes;
     private Drawable mSplitBackground;
     private boolean mTitleOptional;
+    private int mCloseItemLayout;
 
     private ViewPropertyAnimatorCompatSet mCurrentAnimation;
     private boolean mAnimateInOnLayout;
@@ -77,7 +78,7 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
     public ActionBarContextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ActionMode, defStyle, 0);
+        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ActionMode, defStyle, 0);
         setBackgroundDrawable(a.getDrawable(
                 R.styleable.ActionMode_background));
         mTitleStyleRes = a.getResourceId(
@@ -90,6 +91,10 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
 
         mSplitBackground = a.getDrawable(
                 R.styleable.ActionMode_backgroundSplit);
+
+        mCloseItemLayout = a.getResourceId(
+                R.styleable.ActionMode_closeItemLayout,
+                R.layout.abc_action_mode_close_item_material);
 
         a.recycle();
     }
@@ -203,7 +208,7 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
     public void initForMode(final ActionMode mode) {
         if (mClose == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            mClose = inflater.inflate(R.layout.abc_action_mode_close_item, this, false);
+            mClose = inflater.inflate(mCloseItemLayout, this, false);
             addView(mClose);
         } else if (mClose.getParent() == null) {
             addView(mClose);
