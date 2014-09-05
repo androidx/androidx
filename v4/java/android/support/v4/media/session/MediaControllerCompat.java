@@ -154,8 +154,8 @@ public final class MediaControllerCompat {
      *
      * @param callback The callback object, must not be null.
      */
-    public void addCallback(Callback callback) {
-        addCallback(callback, null);
+    public void registerCallback(Callback callback) {
+        registerCallback(callback, null);
     }
 
     /**
@@ -166,14 +166,14 @@ public final class MediaControllerCompat {
      * @param handler The handler to post updates on. If null the callers thread
      *            will be used.
      */
-    public void addCallback(Callback callback, Handler handler) {
+    public void registerCallback(Callback callback, Handler handler) {
         if (callback == null) {
             throw new IllegalArgumentException("callback cannot be null");
         }
         if (handler == null) {
             handler = new Handler();
         }
-        mImpl.addCallback(callback, handler);
+        mImpl.registerCallback(callback, handler);
     }
 
     /**
@@ -182,11 +182,11 @@ public final class MediaControllerCompat {
      *
      * @param callback The callback to remove
      */
-    public void removeCallback(Callback callback) {
+    public void unregisterCallback(Callback callback) {
         if (callback == null) {
             throw new IllegalArgumentException("callback cannot be null");
         }
-        mImpl.removeCallback(callback);
+        mImpl.unregisterCallback(callback);
     }
 
     /**
@@ -220,7 +220,7 @@ public final class MediaControllerCompat {
 
     /**
      * Callback for receiving updates on from the session. A Callback can be
-     * registered using {@link #addCallback}
+     * registered using {@link #registerCallback}
      */
     public static abstract class Callback {
         final Object mCallbackObj;
@@ -444,8 +444,9 @@ public final class MediaControllerCompat {
     }
 
     interface MediaControllerImpl {
-        void addCallback(Callback callback, Handler handler);
-        void removeCallback(Callback callback);
+        void registerCallback(Callback callback, Handler handler);
+
+        void unregisterCallback(Callback callback);
         boolean dispatchMediaButtonEvent(KeyEvent keyEvent);
         TransportControls getTransportControls();
         PlaybackStateCompat getPlaybackState();
@@ -459,11 +460,11 @@ public final class MediaControllerCompat {
     // TODO: compatibility implementation
     static class MediaControllerImplBase implements MediaControllerImpl {
         @Override
-        public void addCallback(Callback callback, Handler handler) {
+        public void registerCallback(Callback callback, Handler handler) {
         }
 
         @Override
-        public void removeCallback(Callback callback) {
+        public void unregisterCallback(Callback callback) {
         }
 
         @Override
@@ -523,13 +524,13 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public void addCallback(Callback callback, Handler handler) {
-            MediaControllerCompatApi21.addCallback(mControllerObj, callback.mCallbackObj, handler);
+        public void registerCallback(Callback callback, Handler handler) {
+            MediaControllerCompatApi21.registerCallback(mControllerObj, callback.mCallbackObj, handler);
         }
 
         @Override
-        public void removeCallback(Callback callback) {
-            MediaControllerCompatApi21.removeCallback(mControllerObj, callback.mCallbackObj);
+        public void unregisterCallback(Callback callback) {
+            MediaControllerCompatApi21.unregisterCallback(mControllerObj, callback.mCallbackObj);
         }
 
         @Override
