@@ -54,7 +54,8 @@ import android.view.Window;
  * </div>
  */
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback,
-        TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider {
+        TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider,
+        android.support.v7.app.ActionBarDrawerToggle.TmpDelegateProvider {
 
     private ActionBarActivityDelegate mDelegate;
 
@@ -480,6 +481,15 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     @Override
     public final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
         return getDelegate().getDrawerToggleDelegate();
+    }
+
+    @Nullable
+    @Override
+    /**
+     * Temporary method until ActionBarDrawerToggle transition from v4 to v7 is complete.
+     */
+    public android.support.v7.app.ActionBarDrawerToggle.Delegate getV7DrawerToggleDelegate() {
+        return getDelegate().getV7DrawerToggleDelegate();
     }
 
     /**
