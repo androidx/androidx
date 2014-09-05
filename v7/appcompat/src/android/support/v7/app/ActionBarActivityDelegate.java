@@ -83,6 +83,16 @@ abstract class ActionBarActivityDelegate {
         }
 
         @Override
+        public void onPanelClosed(int featureId, Menu menu) {
+            mActivity.onPanelClosed(featureId, menu);
+        }
+
+        @Override
+        public boolean onMenuOpened(int featureId, Menu menu) {
+            return mActivity.onMenuOpened(featureId, menu);
+        }
+
+        @Override
         public ActionMode startActionMode(ActionMode.Callback callback) {
             return startSupportActionModeFromWindow(callback);
         }
@@ -163,6 +173,8 @@ abstract class ActionBarActivityDelegate {
     abstract boolean onPreparePanel(int featureId, View view, Menu menu);
 
     abstract void onPanelClosed(int featureId, Menu menu);
+
+    abstract boolean onMenuOpened(int featureId, Menu menu);
 
     boolean onPrepareOptionsPanel(View view, Menu menu) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
