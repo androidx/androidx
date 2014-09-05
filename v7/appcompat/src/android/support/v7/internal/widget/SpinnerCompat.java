@@ -182,18 +182,6 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
                 popup.setBackgroundDrawable(
                         a.getDrawable(R.styleable.Spinner_android_popupBackground));
 
-                final int verticalOffset = a.getDimensionPixelOffset(
-                        R.styleable.Spinner_android_dropDownVerticalOffset, 0);
-                if (verticalOffset != 0) {
-                    popup.setVerticalOffset(verticalOffset);
-                }
-
-                final int horizontalOffset = a.getDimensionPixelOffset(
-                        R.styleable.Spinner_android_dropDownHorizontalOffset, 0);
-                if (horizontalOffset != 0) {
-                    popup.setHorizontalOffset(horizontalOffset);
-                }
-
                 mPopup = popup;
                 mForwardingListener = new ListPopupWindow.ForwardingListener(this) {
                     @Override
