@@ -19,10 +19,10 @@ package android.support.v7.app;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.SupportActionModeWrapper;
 import android.support.v7.internal.widget.NativeActionModeAwareLayout;
 import android.view.ActionMode;
+import android.view.KeyEvent;
 import android.view.View;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -45,6 +45,12 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegateBase
         if (mNativeActionModeAwareLayout != null) {
             mNativeActionModeAwareLayout.setActionModeForChildListener(this);
         }
+    }
+
+    @Override
+    boolean onKeyDown(int keyCode, KeyEvent event) {
+        // On HC+ we do not need to do anything from onKeyDown
+        return false;
     }
 
     // From NativeActionModeAwareLayout.OnActionModeForChildListener

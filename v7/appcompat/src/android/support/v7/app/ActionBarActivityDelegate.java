@@ -31,6 +31,7 @@ import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -186,6 +187,12 @@ abstract class ActionBarActivityDelegate {
     abstract void setSupportProgressBarIndeterminate(boolean indeterminate);
 
     abstract void setSupportProgress(int progress);
+
+    boolean onKeyDown(int keyCode, KeyEvent event) {
+        return false;
+    }
+
+    abstract boolean onKeyShortcut(int keyCode, KeyEvent event);
 
     final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
         return new ActionBarDrawableToggleImpl();
