@@ -128,7 +128,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                 mLayoutManager.mOrientationHelper.getDecoratedStart(postVH.itemView));
     }
 
-    public void testStackFromEnd() throws Throwable {
+    public void testResize() throws Throwable {
         for(Config config : addConfigVariation(mBaseVariations, "mItemCount", 5
                 , Config.DEFAULT_ITEM_COUNT)) {
             stackFromEndTest(config);
@@ -270,7 +270,6 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
         int lastCompletelyVisibleItemPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
         int firstCompletelyVisibleItemPosition = mLayoutManager.findFirstCompletelyVisibleItemPosition();
-
         mLayoutManager.expectLayouts(1);
         // resize the recycler view to half
         runTestOnUiThread(new Runnable() {
