@@ -677,7 +677,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                                 || mOrientationHelper.getDecoratedEnd(referenceChild)
                                 < mOrientationHelper.getStartAfterPadding();
                 if (notVisible) {
-                    anchorInfo.mCoordinate = mShouldReverseLayout
+                    anchorInfo.mCoordinate = anchorInfo.mLayoutFromEnd
                             ? mOrientationHelper.getEndAfterPadding()
                             : mOrientationHelper.getStartAfterPadding();
                 }
