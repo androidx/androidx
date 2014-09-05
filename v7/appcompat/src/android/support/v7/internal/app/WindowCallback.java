@@ -35,6 +35,10 @@ public interface WindowCallback {
 
     boolean onPreparePanel(int featureId, View menuView, Menu menu);
 
+    void onPanelClosed(int featureId, Menu menu);
+
+    boolean onMenuOpened(int featureId, Menu menu);
+
     ActionMode startActionMode(ActionMode.Callback callback);
 
 }
