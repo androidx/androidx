@@ -17,9 +17,13 @@
 package android.support.v4.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -160,32 +164,32 @@ public class ActivityCompat extends ContextCompat {
 
     /**
      * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
-     * android.view.View, String)} was used to start an Activity, <var>listener</var>
+     * android.view.View, String)} was used to start an Activity, <var>callback</var>
      * will be called to handle shared elements on the <i>launched</i> Activity. This requires
      * {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS}.
      *
-     * @param listener Used to manipulate shared element transitions on the launched Activity.
+     * @param callback Used to manipulate shared element transitions on the launched Activity.
      */
-    public static void setEnterSharedElementListener(Activity activity,
-            SharedElementListener listener) {
+    public static void setEnterSharedElementCallback(Activity activity,
+            SharedElementCallback callback) {
         if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
-            ActivityCompat21.setEnterSharedElementListener(activity, createListener(listener));
+            ActivityCompat21.setEnterSharedElementCallback(activity, createCallback(callback));
         }
     }
 
     /**
      * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
-     * android.view.View, String)} was used to start an Activity, <var>listener</var>
+     * android.view.View, String)} was used to start an Activity, <var>callback</var>
      * will be called to handle shared elements on the <i>launching</i> Activity. Most
      * calls will only come when returning from the started Activity.
      * This requires {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS}.
      *
-     * @param listener Used to manipulate shared element transitions on the launching Activity.
+     * @param callback Used to manipulate shared element transitions on the launching Activity.
      */
-    public static void setExitSharedElementListener(Activity activity,
-            SharedElementListener listener) {
+    public static void setExitSharedElementCallback(Activity activity,
+            SharedElementCallback callback) {
         if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
-            ActivityCompat21.setExitSharedElementListener(activity, createListener(listener));
+            ActivityCompat21.setExitSharedElementCallback(activity, createCallback(callback));
         }
     }
 
@@ -201,45 +205,58 @@ public class ActivityCompat extends ContextCompat {
         }
     }
 
-    private static ActivityCompat21.SharedElementListener21 createListener(
-            SharedElementListener listener) {
-        ActivityCompat21.SharedElementListener21 newListener = null;
-        if (listener != null) {
-            newListener = new SharedElementListener21Impl(listener);
+    private static ActivityCompat21.SharedElementCallback21 createCallback(
+            SharedElementCallback callback) {
+        ActivityCompat21.SharedElementCallback21 newCallback = null;
+        if (callback != null) {
+            newCallback = new ActivityCompat.SharedElementCallback21Impl(callback);
         }
-        return newListener;
+        return newCallback;
     }
 
-    private static class SharedElementListener21Impl
-            extends ActivityCompat21.SharedElementListener21 {
-        private SharedElementListener mListener;
+    private static class SharedElementCallback21Impl
+            extends ActivityCompat21.SharedElementCallback21 {
 
-        public SharedElementListener21Impl(SharedElementListener listener) {
-            mListener = listener;
+        private SharedElementCallback mCallback;
+
+        public SharedElementCallback21Impl(SharedElementCallback callback) {
+            mCallback = callback;
         }
 
         @Override
-        public void setSharedElementStart(List<String> sharedElementNames,
+        public void onSharedElementStart(List<String> sharedElementNames,
                 List<View> sharedElements, List<View> sharedElementSnapshots) {
-            mListener.setSharedElementStart(sharedElementNames, sharedElements,
+            mCallback.onSharedElementStart(sharedElementNames, sharedElements,
                     sharedElementSnapshots);
         }
 
         @Override
-        public void setSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements,
+        public void onSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements,
                 List<View> sharedElementSnapshots) {
-            mListener.setSharedElementEnd(sharedElementNames, sharedElements,
+            mCallback.onSharedElementEnd(sharedElementNames, sharedElements,
                     sharedElementSnapshots);
         }
 
         @Override
-        public void handleRejectedSharedElements(List<View> rejectedSharedElements) {
-            mListener.handleRejectedSharedElements(rejectedSharedElements);
+        public void onRejectSharedElements(List<View> rejectedSharedElements) {
+            mCallback.onRejectSharedElements(rejectedSharedElements);
         }
 
         @Override
-        public void remapSharedElements(List<String> names, Map<String, View> sharedElements) {
-            mListener.remapSharedElements(names, sharedElements);
+        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            mCallback.onMapSharedElements(names, sharedElements);
+        }
+
+        @Override
+        public Parcelable onCaptureSharedElementSnapshot(View sharedElement,
+                Matrix viewToGlobalMatrix, RectF screenBounds) {
+            return mCallback.onCaptureSharedElementSnapshot(sharedElement, viewToGlobalMatrix,
+                    screenBounds);
+        }
+
+        @Override
+        public View onCreateSnapshotView(Context context, Parcelable snapshot) {
+            return mCallback.onCreateSnapshotView(context, snapshot);
         }
     }
 }

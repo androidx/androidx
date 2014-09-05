@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -188,14 +187,14 @@ public class FragmentActivity extends Activity {
 
     /**
      * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
-     * android.view.View, String)} was used to start an Activity, <var>listener</var>
+     * android.view.View, String)} was used to start an Activity, <var>callback</var>
      * will be called to handle shared elements on the <i>launched</i> Activity. This requires
      * {@link Window#FEATURE_CONTENT_TRANSITIONS}.
      *
-     * @param listener Used to manipulate shared element transitions on the launched Activity.
+     * @param callback Used to manipulate shared element transitions on the launched Activity.
      */
-    public void setEnterSharedElementListener(SharedElementListener listener) {
-        ActivityCompat.setEnterSharedElementListener(this, listener);
+    public void setEnterSharedElementCallback(SharedElementCallback callback) {
+        ActivityCompat.setEnterSharedElementCallback(this, callback);
     }
 
     /**
@@ -207,8 +206,8 @@ public class FragmentActivity extends Activity {
      *
      * @param listener Used to manipulate shared element transitions on the launching Activity.
      */
-    public void setExitSharedElementListener(SharedElementListener listener) {
-        ActivityCompat.setExitSharedElementListener(this, listener);
+    public void setExitSharedElementCallback(SharedElementCallback listener) {
+        ActivityCompat.setExitSharedElementCallback(this, listener);
     }
 
     /**
