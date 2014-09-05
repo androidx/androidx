@@ -38,13 +38,14 @@ class MediaControllerCompatApi21 {
         return new CallbackProxy<Callback>(callback);
     }
 
-    public static void addCallback(Object controllerObj, Object callbackObj, Handler handler) {
-        ((MediaController)controllerObj).addCallback(
+    public static void registerCallback(Object controllerObj, Object callbackObj, Handler handler) {
+        ((MediaController) controllerObj).registerCallback(
                 (MediaController.Callback)callbackObj, handler);
     }
 
-    public static void removeCallback(Object controllerObj, Object callbackObj) {
-        ((MediaController)controllerObj).removeCallback((MediaController.Callback)callbackObj);
+    public static void unregisterCallback(Object controllerObj, Object callbackObj) {
+        ((MediaController) controllerObj)
+                .unregisterCallback((MediaController.Callback) callbackObj);
     }
 
     public static Object getTransportControls(Object controllerObj) {
