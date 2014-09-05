@@ -449,7 +449,6 @@ class ActionBarImplICS extends ActionBar {
     class TabWrapper extends ActionBar.Tab implements android.app.ActionBar.TabListener {
         final android.app.ActionBar.Tab mWrappedTab;
         private Object mTag;
-        private CharSequence mContentDescription;
         private TabListener mTabListener;
 
         public TabWrapper(android.app.ActionBar.Tab tab) {
@@ -537,19 +536,19 @@ class ActionBarImplICS extends ActionBar {
 
         @Override
         public Tab setContentDescription(int resId) {
-            mContentDescription = mActivity.getText(resId);
+            mWrappedTab.setContentDescription(resId);
             return this;
         }
 
         @Override
         public Tab setContentDescription(CharSequence contentDesc) {
-            mContentDescription = contentDesc;
+            mWrappedTab.setContentDescription(contentDesc);
             return this;
         }
 
         @Override
         public CharSequence getContentDescription() {
-            return mContentDescription;
+            return mWrappedTab.getContentDescription();
         }
 
         @Override
