@@ -379,7 +379,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     public View onCreatePanelView(int featureId) {
         View createdPanelView = null;
 
-        if (featureId == Window.FEATURE_OPTIONS_PANEL && preparePanel()) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL && mActionMode == null && preparePanel()) {
             createdPanelView = (View) getListMenuView(mActivity);
         }
 
