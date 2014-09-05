@@ -29,7 +29,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.R;
 import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.DebugUtils;
 import android.util.AttributeSet;
