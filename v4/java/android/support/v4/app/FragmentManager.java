@@ -1534,7 +1534,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 return false;
             }
             final BackStackRecord bss = mBackStack.remove(last);
-            bss.popFromBackStack(true, null);
+            SparseArray<Fragment> firstOutFragments = new SparseArray<Fragment>();
+            SparseArray<Fragment> lastInFragments = new SparseArray<Fragment>();
+            bss.calculateBackFragments(firstOutFragments, lastInFragments);
+            bss.popFromBackStack(true, null, firstOutFragments, lastInFragments);
             reportBackStackChanged();
         } else {
             int index = -1;
@@ -1578,10 +1581,16 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 states.add(mBackStack.remove(i));
             }
             final int LAST = states.size()-1;
-            Object transitionState = null;
+            SparseArray<Fragment> firstOutFragments = new SparseArray<Fragment>();
+            SparseArray<Fragment> lastInFragments = new SparseArray<Fragment>();
+            for (int i=0; i<=LAST; i++) {
+                states.get(i).calculateBackFragments(firstOutFragments, lastInFragments);
+            }
+            BackStackRecord.TransitionState state = null;
             for (int i=0; i<=LAST; i++) {
                 if (DEBUG) Log.v(TAG, "Popping back stack state: " + states.get(i));
-                transitionState = states.get(i).popFromBackStack(i == LAST, transitionState);
+                state = states.get(i).popFromBackStack(i == LAST, state,
+                        firstOutFragments, lastInFragments);
             }
             reportBackStackChanged();
         }
