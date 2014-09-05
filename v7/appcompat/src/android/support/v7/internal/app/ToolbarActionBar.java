@@ -22,9 +22,11 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.menu.MenuBuilder;
+import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.widget.DecorToolbar;
 import android.support.v7.internal.widget.ToolbarWidgetWrapper;
 import android.support.v7.view.ActionMode;
@@ -49,6 +51,7 @@ public class ToolbarActionBar extends ActionBar {
     private DecorToolbar mDecorToolbar;
     private boolean mToolbarMenuPrepared;
     private WindowCallback mWindowCallback;
+    private boolean mMenuCallbackSet;
 
     private CharSequence mHomeDescription;
 
@@ -457,6 +460,10 @@ public class ToolbarActionBar extends ActionBar {
     }
 
     void populateOptionsMenu() {
+        if (!mMenuCallbackSet) {
+            mToolbar.setMenuCallbacks(new ActionMenuPresenterCallback(), new MenuBuilderCallback());
+            mMenuCallbackSet = true;
+        }
         final Menu menu = mToolbar.getMenu();
         final MenuBuilder mb = menu instanceof MenuBuilder ? (MenuBuilder) menu : null;
         if (mb != null) {
@@ -516,6 +523,53 @@ public class ToolbarActionBar extends ActionBar {
                 mToolbarMenuPrepared = true;
             }
             return result;
+        }
+    }
+
+    private final class ActionMenuPresenterCallback implements MenuPresenter.Callback {
+        private boolean mClosingActionMenu;
+
+        @Override
+        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+            if (mWindowCallback != null) {
+                mWindowCallback.onMenuOpened(WindowCompat.FEATURE_ACTION_BAR, subMenu);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+            if (mClosingActionMenu) {
+                return;
+            }
+
+            mClosingActionMenu = true;
+            mToolbar.dismissPopupMenus();
+            if (mWindowCallback != null) {
+                mWindowCallback.onPanelClosed(WindowCompat.FEATURE_ACTION_BAR, menu);
+            }
+            mClosingActionMenu = false;
+        }
+    }
+
+    private final class MenuBuilderCallback implements MenuBuilder.Callback {
+
+        @Override
+        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+            return false;
+        }
+
+        @Override
+        public void onMenuModeChange(MenuBuilder menu) {
+            if (mWindowCallback != null) {
+                if (mToolbar.isOverflowMenuShowing()) {
+                    mWindowCallback.onPanelClosed(WindowCompat.FEATURE_ACTION_BAR, menu);
+                } else if (mWindowCallback.onPreparePanel(Window.FEATURE_OPTIONS_PANEL,
+                        null, menu)) {
+                    mWindowCallback.onMenuOpened(WindowCompat.FEATURE_ACTION_BAR, menu);
+                }
+            }
         }
     }
 }
