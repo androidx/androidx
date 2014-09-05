@@ -332,4 +332,10 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         }
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        // Must stop infinite animation to prevent activity leak
+        enableOrbColorAnimation(false);
+        super.onDetachedFromWindow();
+    }
 }
