@@ -13,9 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.SharedElementListener;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewCompat;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.transition.TransitionHelper;
@@ -28,7 +27,7 @@ import android.view.View.MeasureSpec;
 
 import java.util.List;
 
-final class DetailsOverviewSharedElementHelper extends SharedElementListener {
+final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
 
     private ViewHolder mViewHolder;
     private Activity mActivityToRunTransition;
@@ -37,7 +36,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
     private int mRightPanelHeight;
 
     @Override
-    public void setSharedElementStart(List<String> sharedElementNames,
+    public void onSharedElementStart(List<String> sharedElementNames,
             List<View> sharedElements, List<View> sharedElementSnapshots) {
         if (sharedElements.size() < 1) {
             return;
@@ -66,7 +65,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
     }
 
     @Override
-    public void setSharedElementEnd(List<String> sharedElementNames,
+    public void onSharedElementEnd(List<String> sharedElementNames,
             List<View> sharedElements, List<View> sharedElementSnapshots) {
         if (sharedElements.size() < 1) {
             return;
@@ -92,12 +91,12 @@ final class DetailsOverviewSharedElementHelper extends SharedElementListener {
             return;
         }
         if (mActivityToRunTransition != null) {
-            ActivityCompat.setEnterSharedElementListener(mActivityToRunTransition, null);
+            ActivityCompat.setEnterSharedElementCallback(mActivityToRunTransition, null);
         }
         mActivityToRunTransition = activity;
         mSharedElementName = sharedElementName;
         if (mActivityToRunTransition != null) {
-            ActivityCompat.setEnterSharedElementListener(mActivityToRunTransition, this);
+            ActivityCompat.setEnterSharedElementCallback(mActivityToRunTransition, this);
             ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
             TransitionHelper transitionHelper = TransitionHelper.getInstance();
             Object transition = transitionHelper.getSharedElementEnterTransition(
