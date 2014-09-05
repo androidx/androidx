@@ -14,11 +14,16 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.animation.TimeAnimator;
 import android.content.res.Resources;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_SMALL;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_MEDIUM;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LARGE;
 
 /**
  * Setup the behavior how to highlight when a item gains focus.
@@ -35,6 +40,7 @@ public class FocusHighlightHelper {
         private float mFocusLevelDelta;
         private final TimeAnimator mAnimator = new TimeAnimator();
         private final Interpolator mInterpolator = new AccelerateDecelerateInterpolator();
+        private final ColorOverlayDimmer mDimmer;
 
         void animateFocus(boolean select, boolean immediate) {
             endAnimation();
@@ -48,7 +54,7 @@ public class FocusHighlightHelper {
             }
         }
 
-        FocusAnimator(View view, float scale, int duration) {
+        FocusAnimator(View view, float scale, boolean useDimmer, int duration) {
             mView = view;
             mDuration = duration;
             mScaleDiff = scale - 1f;
@@ -58,6 +64,11 @@ public class FocusHighlightHelper {
                 mWrapper = null;
             }
             mAnimator.setTimeListener(this);
+            if (mWrapper != null && useDimmer) {
+                mDimmer = ColorOverlayDimmer.createDefault(view.getContext());
+            } else {
+                mDimmer = null;
+            }
         }
 
         void setFocusLevel(float level) {
@@ -67,6 +78,10 @@ public class FocusHighlightHelper {
             mView.setScaleY(scale);
             if (mWrapper != null) {
                 mWrapper.setShadowFocusLevel(level);
+                if (mDimmer != null) {
+                    mDimmer.setActiveLevel(level);
+                    mWrapper.setOverlayColor(mDimmer.getPaint().getColor());
+                }
             }
         }
 
@@ -94,16 +109,18 @@ public class FocusHighlightHelper {
         }
     }
 
-    static class BrowseItemFocusHighlight implements FocusHighlight {
+    static class BrowseItemFocusHighlight implements FocusHighlightHandler {
         private static final int DURATION_MS = 150;
 
         private static float[] sScaleFactor = new float[4];
 
         private int mScaleIndex;
+        private final boolean mUseDimmer;
 
-        BrowseItemFocusHighlight(int zoomIndex) {
+        BrowseItemFocusHighlight(int zoomIndex, boolean useDimmer) {
             mScaleIndex = (zoomIndex >= 0 && zoomIndex < sScaleFactor.length) ?
                     zoomIndex : ZOOM_FACTOR_MEDIUM;
+            mUseDimmer = useDimmer;
         }
 
         private static void lazyInit(Resources resources) {
@@ -123,28 +140,38 @@ public class FocusHighlightHelper {
             return sScaleFactor[mScaleIndex];
         }
 
-        private void viewFocused(View view, boolean hasFocus) {
+        @Override
+        public void onItemFocused(View view, boolean hasFocus) {
             view.setSelected(hasFocus);
-            FocusAnimator animator = (FocusAnimator) view.getTag(R.id.lb_focus_animator);
-            if (animator == null) {
-                animator = new FocusAnimator(view, getScale(view), DURATION_MS);
-                view.setTag(R.id.lb_focus_animator, animator);
-            }
-            animator.animateFocus(hasFocus, false);
+            getOrCreateAnimator(view).animateFocus(hasFocus, false);
         }
 
         @Override
-        public void onItemFocused(View view, boolean hasFocus) {
-            viewFocused(view, hasFocus);
+        public void onInitializeView(View view) {
+            getOrCreateAnimator(view).animateFocus(false, true);
         }
+
+        private FocusAnimator getOrCreateAnimator(View view) {
+            FocusAnimator animator = (FocusAnimator) view.getTag(R.id.lb_focus_animator);
+            if (animator == null) {
+                animator = new FocusAnimator(view, getScale(view), mUseDimmer, DURATION_MS);
+                view.setTag(R.id.lb_focus_animator, animator);
+            }
+            return animator;
+        }
+
     }
 
     /**
      * Setup the focus highlight behavior of a focused item in browse list row.
+     * @param zoomIndex One of {@link FocusHighlight#ZOOM_FACTOR_SMALL} {@link FocusHighlight#ZOOM_FACTOR_MEDIUM}
+     * {@link FocusHighlight#ZOOM_FACTOR_LARGE} {@link FocusHighlight#ZOOM_FACTOR_NONE}.
+     * @param useDimmer Allow dimming browse item when unselected.
      * @param adapter  adapter of the list row.
      */
-    public static void setupBrowseItemFocusHighlight(ItemBridgeAdapter adapter, int zoomIndex) {
-        adapter.setFocusHighlight(new BrowseItemFocusHighlight(zoomIndex));
+    public static void setupBrowseItemFocusHighlight(ItemBridgeAdapter adapter, int zoomIndex,
+            boolean useDimmer) {
+        adapter.setFocusHighlight(new BrowseItemFocusHighlight(zoomIndex, useDimmer));
     }
 
     /**
@@ -158,7 +185,7 @@ public class FocusHighlightHelper {
         }
     }
 
-    static class HeaderItemFocusHighlight implements FocusHighlight {
+    static class HeaderItemFocusHighlight implements FocusHighlightHandler {
         private static boolean sInitialized;
         private static float sSelectScale;
         private static int sDuration;
@@ -183,7 +210,7 @@ public class FocusHighlightHelper {
 
             ItemBridgeAdapter.ViewHolder mViewHolder;
             HeaderFocusAnimator(View view, float scale, int duration) {
-                super(view, scale, duration);
+                super(view, scale, false, duration);
                 mViewHolder = (ItemBridgeAdapter.ViewHolder) mGridView.getChildViewHolder(view);
             }
 
@@ -213,5 +240,10 @@ public class FocusHighlightHelper {
         public void onItemFocused(View view, boolean hasFocus) {
             viewFocused(view, hasFocus);
         }
+
+        @Override
+        public void onInitializeView(View view) {
+        }
+
     }
 }
