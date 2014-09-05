@@ -30,6 +30,7 @@ import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.widget.ListViewAutoScrollHelper;
 import android.support.v4.widget.PopupWindowCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.AppCompatPopupWindow;
 import android.support.v7.internal.widget.ListViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -226,7 +227,7 @@ public class ListPopupWindow {
         }
         a.recycle();
 
-        mPopup = new PopupWindow(context, attrs, defStyleAttr);
+        mPopup = new AppCompatPopupWindow(context, attrs, defStyleAttr);
         mPopup.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
         // Set the default layout direction to match the default locale one
         final Locale locale = mContext.getResources().getConfiguration().locale;
