@@ -118,6 +118,8 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     protected int mFrom;
 
+    private float mStartingScale;
+
     protected int mOriginalOffsetTop;
 
     private MaterialProgressDrawable mProgress;
@@ -129,6 +131,8 @@ public class SwipeRefreshLayout extends ViewGroup {
     private Animation mAlphaStartAnimation;
 
     private Animation mAlphaMaxAnimation;
+
+    private Animation mScaleDownToStartAnimation;
 
     private float mSpinnerFinalOffset;
 
@@ -326,8 +330,13 @@ public class SwipeRefreshLayout extends ViewGroup {
         if (refreshing && mRefreshing != refreshing) {
             // scale and show
             mRefreshing = refreshing;
-            setTargetOffsetTopAndBottom(
-                    (int) ((mSpinnerFinalOffset + mOriginalOffsetTop) - mCurrentTargetOffsetTop),
+            int endTarget = 0;
+            if (!mUsingCustomStart) {
+                endTarget = (int) (mSpinnerFinalOffset + mOriginalOffsetTop);
+            } else {
+                endTarget = (int) mSpinnerFinalOffset;
+            }
+            setTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop,
                     true /* requires update */);
             mNotify = false;
             startScaleUpAnimation(mRefreshListener);
@@ -767,37 +776,75 @@ public class SwipeRefreshLayout extends ViewGroup {
     }
 
     private void animateOffsetToStartPosition(int from, AnimationListener listener) {
-        mFrom = from;
-        mAnimateToStartPosition.reset();
-        mAnimateToStartPosition.setDuration(ANIMATE_TO_START_DURATION);
-        mAnimateToStartPosition.setInterpolator(mDecelerateInterpolator);
-        if (listener != null) {
-            mCircleView.setAnimationListener(listener);
+        if (mScale) {
+            // Scale the item back down
+            startScaleDownReturnToStartAnimation(from, listener);
+        } else {
+            mFrom = from;
+            mAnimateToStartPosition.reset();
+            mAnimateToStartPosition.setDuration(ANIMATE_TO_START_DURATION);
+            mAnimateToStartPosition.setInterpolator(mDecelerateInterpolator);
+            if (listener != null) {
+                mCircleView.setAnimationListener(listener);
+            }
+            mCircleView.clearAnimation();
+            mCircleView.startAnimation(mAnimateToStartPosition);
         }
-        mCircleView.clearAnimation();
-        mCircleView.startAnimation(mAnimateToStartPosition);
     }
 
     private final Animation mAnimateToCorrectPosition = new Animation() {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             int targetTop = 0;
-            int endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
+            int endTarget = 0;
+            if (!mUsingCustomStart) {
+                endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
+            } else {
+                endTarget = (int) mSpinnerFinalOffset;
+            }
             targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
             int offset = targetTop - mCircleView.getTop();
             setTargetOffsetTopAndBottom(offset, false /* requires update */);
         }
     };
 
+    private void moveToStart(float interpolatedTime) {
+        int targetTop = 0;
+        targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
+        int offset = targetTop - mCircleView.getTop();
+        setTargetOffsetTopAndBottom(offset, false /* requires update */);
+    }
+
     private final Animation mAnimateToStartPosition = new Animation() {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
-            int targetTop = 0;
-            targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
-            int offset = targetTop - mCircleView.getTop();
-            setTargetOffsetTopAndBottom(offset, false /* requires update */);
+            moveToStart(interpolatedTime);
         }
     };
+
+    private void startScaleDownReturnToStartAnimation(int from,
+            Animation.AnimationListener listener) {
+        mFrom = from;
+        if (isAlphaUsedForScale()) {
+            mStartingScale = mProgress.getAlpha();
+        } else {
+            mStartingScale = ViewCompat.getScaleX(mCircleView);
+        }
+        mScaleDownToStartAnimation = new Animation() {
+            @Override
+            public void applyTransformation(float interpolatedTime, Transformation t) {
+                float targetScale = (mStartingScale + (-mStartingScale  * interpolatedTime));
+                setAnimationProgress(targetScale);
+                moveToStart(interpolatedTime);
+            }
+        };
+        mScaleDownToStartAnimation.setDuration(SCALE_DOWN_DURATION);
+        if (listener != null) {
+            mCircleView.setAnimationListener(listener);
+        }
+        mCircleView.clearAnimation();
+        mCircleView.startAnimation(mScaleDownToStartAnimation);
+    }
 
     private void setTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
         mCircleView.bringToFront();
