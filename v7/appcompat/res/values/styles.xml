@@ -72,12 +72,10 @@
     <style name="Widget.AppCompat.Light.ActionButton.CloseMode" parent="RtlOverlay.Widget.AppCompat.Light.ActionButton.CloseMode" />
 
     <style name="Widget.AppCompat.ActionButton.Overflow"
-           parent="Base.Widget.AppCompat.ActionButton.Overflow">
-    </style>
+           parent="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" />
 
     <style name="Widget.AppCompat.Light.ActionButton.Overflow"
-           parent="Base.Widget.AppCompat.Light.ActionButton.Overflow">
-    </style>
+           parent="RtlOverlay.Widget.AppCompat.Light.ActionButton.Overflow" />
 
     <style name="Widget.AppCompat.ActionBar.TabBar"
            parent="Base.Widget.AppCompat.ActionBar.TabBar">
