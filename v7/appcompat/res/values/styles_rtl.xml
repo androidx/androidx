@@ -62,6 +62,14 @@
         <item name="android:layout_marginRight">16dp</item>
     </style>
 
+    <style name="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:paddingRight">12dp</item>
+    </style>
+
+    <style name="RtlOverlay.Widget.AppCompat.Light.ActionButton.Overflow" parent="Base.Widget.AppCompat.Light.ActionButton.Overflow">
+        <item name="android:paddingRight">12dp</item>
+    </style>
+
     <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem" parent="android:Widget">
         <item name="android:paddingRight">16dp</item>
     </style>
