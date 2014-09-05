@@ -102,11 +102,9 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private static final float MAX_PROGRESS_ARC = .8f;
 
     private Resources mResources;
-    private int mColorIndex;
     private View mParent;
     private Animation mAnimation;
     private float mRotationCount;
-    private int[] mColors;
     private double mWidth;
     private double mHeight;
     private Animation mFinishAnimation;
@@ -116,8 +114,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         mResources = context.getResources();
 
         mRing = new Ring(mCallback);
-        mColors = COLORS;
-        mRing.setColors(mColors);
+        mRing.setColors(COLORS);
 
         updateSizes(DEFAULT);
         setupAnimators();
@@ -204,8 +201,8 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
      * @param colors
      */
     public void setColorSchemeColors(int... colors) {
-        mColors = colors;
-        mRing.setColors(mColors);
+        mRing.setColors(colors);
+        mRing.setColorIndex(0);
     }
 
     @Override
@@ -278,8 +275,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         if (mRing.getEndTrim() != mRing.getStartTrim()) {
             mParent.startAnimation(mFinishAnimation);
         } else {
-            mColorIndex = 0;
-            mRing.setColorIndex(mColorIndex);
+            mRing.setColorIndex(0);
             mRing.resetOriginals();
             mParent.startAnimation(mAnimation);
         }
@@ -289,9 +285,8 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     public void stop() {
         mParent.clearAnimation();
         setRotation(0);
-        mColorIndex = 0;
         mRing.setShowArrow(false);
-        mRing.setColorIndex(mColorIndex);
+        mRing.setColorIndex(0);
         mRing.resetOriginals();
     }
 
@@ -323,8 +318,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                mColorIndex = (mColorIndex + 1) % (mColors.length);
-                ring.setColorIndex(mColorIndex);
+                ring.goToNextColor();
                 ring.storeOriginals();
                 ring.setShowArrow(false);
                 mParent.startAnimation(mAnimation);
@@ -382,9 +376,8 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
 
             @Override
             public void onAnimationRepeat(Animation animation) {
-                mColorIndex = (mColorIndex + 1) % (mColors.length);
                 ring.storeOriginals();
-                ring.setColorIndex(mColorIndex);
+                ring.goToNextColor();
                 ring.setStartTrim(ring.getEndTrim());
                 mRotationCount = (mRotationCount + 1) % (NUM_POINTS);
             }
@@ -435,10 +428,8 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         private Path mArrow;
         private float mArrowScale;
         private double mRingCenterRadius;
-        private Path mArrowCopy;
         private int mArrowWidth;
         private int mArrowHeight;
-        private Matrix mArrowScaleMatrix;
         private int mAlpha;
         private final Paint mCirclePaint = new Paint();
         private int mBackgroundColor;
@@ -534,6 +525,8 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
          */
         public void setColors(@NonNull int[] colors) {
             mColors = colors;
+            // if colors are reset, make sure to reset the color index as well
+            setColorIndex(0);
         }
 
         /**
@@ -542,6 +535,14 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
          */
         public void setColorIndex(int index) {
             mColorIndex = index;
+        }
+
+        /**
+         * Proceed to the next available ring color. This will automatically
+         * wrap back to the beginning of colors.
+         */
+        public void goToNextColor() {
+            mColorIndex = (mColorIndex + 1) % (mColors.length);
         }
 
         public void setColorFilter(ColorFilter filter) {
