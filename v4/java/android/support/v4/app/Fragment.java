@@ -22,11 +22,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.R;
 import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.DebugUtils;
 import android.util.AttributeSet;
@@ -165,7 +168,9 @@ final class FragmentState implements Parcelable {
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener {
     private static final SimpleArrayMap<String, Class<?>> sClassMap =
             new SimpleArrayMap<String, Class<?>>();
-    
+
+    static final Object USE_DEFAULT_TRANSITION = new Object();
+
     static final int INITIALIZING = 0;     // Not yet created.
     static final int CREATED = 1;          // Created.
     static final int ACTIVITY_CREATED = 2; // The activity has finished its creation.
@@ -299,7 +304,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     LoaderManagerImpl mLoaderManager;
     boolean mLoadersStarted;
     boolean mCheckedForLoaderManager;
-    
+
+    Object mEnterTransition = null;
+    Object mReturnTransition = USE_DEFAULT_TRANSITION;
+    Object mExitTransition = null;
+    Object mReenterTransition = USE_DEFAULT_TRANSITION;
+    Object mSharedElementEnterTransition = null;
+    Object mSharedElementReturnTransition = USE_DEFAULT_TRANSITION;
+    Boolean mAllowReturnTransitionOverlap;
+    Boolean mAllowEnterTransitionOverlap;
+
+    SharedElementListener mEnterTransitionListener = null;
+    SharedElementListener mExitTransitionListener = null;
+
     /**
      * State information that has been retrieved from a fragment instance
      * through {@link FragmentManager#saveFragmentInstanceState(Fragment)
@@ -965,7 +982,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
         mCalled = true;
     }
-    
+
     /**
      * Called when a fragment is first attached to its activity.
      * {@link #onCreate(Bundle)} will be called after this.
@@ -1365,6 +1382,264 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public boolean onContextItemSelected(MenuItem item) {
         return false;
+    }
+
+    /**
+     * When custom transitions are used with Fragments, the enter transition listener
+     * is called when this Fragment is attached or detached when not popping the back stack.
+     *
+     * @param listener Used to manipulate the shared element transitions on this Fragment
+     *                 when added not as a pop from the back stack.
+     */
+    public void setEnterSharedElementTransitionListener(SharedElementListener listener) {
+        mEnterTransitionListener = listener;
+    }
+
+    /**
+     * When custom transitions are used with Fragments, the exit transition listener
+     * is called when this Fragment is attached or detached when popping the back stack.
+     *
+     * @param listener Used to manipulate the shared element transitions on this Fragment
+     *                 when added as a pop from the back stack.
+     */
+    public void setExitSharedElementTransitionListener(SharedElementListener listener) {
+        mExitTransitionListener = listener;
+    }
+
+    /**
+     * Sets the Transition that will be used to move Views into the initial scene. The entering
+     * Views will be those that are regular Views or ViewGroups that have
+     * {@link ViewGroup#isTransitionGroup} return true. Typical Transitions will extend
+     * {@link android.transition.Visibility} as entering is governed by changing visibility from
+     * {@link View#INVISIBLE} to {@link View#VISIBLE}. If <code>transition</code> is null,
+     * entering Views will remain unaffected.
+     *
+     * @param transition The Transition to use to move Views into the initial Scene.
+     */
+    public void setEnterTransition(Object transition) {
+        mEnterTransition = transition;
+    }
+
+    /**
+     * Returns the Transition that will be used to move Views into the initial scene. The entering
+     * Views will be those that are regular Views or ViewGroups that have
+     * {@link ViewGroup#isTransitionGroup} return true. Typical Transitions will extend
+     * {@link android.transition.Visibility} as entering is governed by changing visibility from
+     * {@link View#INVISIBLE} to {@link View#VISIBLE}.
+     *
+     * @return the Transition to use to move Views into the initial Scene.
+     */
+    public Object getEnterTransition() {
+        return mEnterTransition;
+    }
+
+    /**
+     * Sets the Transition that will be used to move Views out of the scene when the Fragment is
+     * preparing to be removed, hidden, or detached because of popping the back stack. The exiting
+     * Views will be those that are regular Views or ViewGroups that have
+     * {@link ViewGroup#isTransitionGroup} return true. Typical Transitions will extend
+     * {@link android.transition.Visibility} as entering is governed by changing visibility from
+     * {@link View#VISIBLE} to {@link View#INVISIBLE}. If <code>transition</code> is null,
+     * entering Views will remain unaffected. If nothing is set, the default will be to
+     * use the same value as set in {@link #setEnterTransition(Object)}.
+     *
+     * @param transition The Transition to use to move Views out of the Scene when the Fragment
+     *                   is preparing to close. <code>transition</code> must be an
+     *                   android.transition.Transition.
+     */
+    public void setReturnTransition(Object transition) {
+        mReturnTransition = transition;
+    }
+
+    /**
+     * Returns the Transition that will be used to move Views out of the scene when the Fragment is
+     * preparing to be removed, hidden, or detached because of popping the back stack. The exiting
+     * Views will be those that are regular Views or ViewGroups that have
+     * {@link ViewGroup#isTransitionGroup} return true. Typical Transitions will extend
+     * {@link android.transition.Visibility} as entering is governed by changing visibility from
+     * {@link View#VISIBLE} to {@link View#INVISIBLE}. If <code>transition</code> is null,
+     * entering Views will remain unaffected.
+     *
+     * @return the Transition to use to move Views out of the Scene when the Fragment
+     *         is preparing to close.
+     */
+    public Object getReturnTransition() {
+        return mReturnTransition == USE_DEFAULT_TRANSITION ? getEnterTransition()
+                : mReturnTransition;
+    }
+
+    /**
+     * Sets the Transition that will be used to move Views out of the scene when the
+     * fragment is removed, hidden, or detached when not popping the back stack.
+     * The exiting Views will be those that are regular Views or ViewGroups that
+     * have {@link ViewGroup#isTransitionGroup} return true. Typical Transitions will extend
+     * {@link android.transition.Visibility} as exiting is governed by changing visibility
+     * from {@link View#VISIBLE} to {@link View#INVISIBLE}. If transition is null, the views will
+     * remain unaffected.
+     *
+     * @param transition The Transition to use to move Views out of the Scene when the Fragment
+     *                   is being closed not due to popping the back stack. <code>transition</code>
+     *                   must be an android.transition.Transition.
+     */
+    public void setExitTransition(Object transition) {
+        mExitTransition = transition;
+    }
+
+    /**
+     * Returns the Transition that will be used to move Views out of the scene when the
+     * fragment is removed, hidden, or detached when not popping the back stack.
+     * The exiting Views will be those that are regular Views or ViewGroups that
+     * have {@link ViewGroup#isTransitionGroup} return true. Typical Transitions will extend
+     * {@link android.transition.Visibility} as exiting is governed by changing visibility
+     * from {@link View#VISIBLE} to {@link View#INVISIBLE}. If transition is null, the views will
+     * remain unaffected.
+     *
+     * @return the Transition to use to move Views out of the Scene when the Fragment
+     *         is being closed not due to popping the back stack.
+     */
+    public Object getExitTransition() {
+        return mExitTransition;
+    }
+
+    /**
+     * Sets the Transition that will be used to move Views in to the scene when returning due
+     * to popping a back stack. The entering Views will be those that are regular Views
+     * or ViewGroups that have {@link ViewGroup#isTransitionGroup} return true. Typical Transitions
+     * will extend {@link android.transition.Visibility} as exiting is governed by changing
+     * visibility from {@link View#VISIBLE} to {@link View#INVISIBLE}. If transition is null,
+     * the views will remain unaffected. If nothing is set, the default will be to use the same
+     * transition as {@link #setExitTransition(Object)}.
+     *
+     * @param transition The Transition to use to move Views into the scene when reentering from a
+     *                   previously-started Activity. <code>transition</code>
+     *                   must be an android.transition.Transition.
+     */
+    public void setReenterTransition(Object transition) {
+        mReenterTransition = transition;
+    }
+
+    /**
+     * Returns the Transition that will be used to move Views in to the scene when returning due
+     * to popping a back stack. The entering Views will be those that are regular Views
+     * or ViewGroups that have {@link ViewGroup#isTransitionGroup} return true. Typical Transitions
+     * will extend {@link android.transition.Visibility} as exiting is governed by changing
+     * visibility from {@link View#VISIBLE} to {@link View#INVISIBLE}. If transition is null,
+     * the views will remain unaffected. If nothing is set, the default will be to use the same
+     * transition as {@link #setExitTransition(Object)}.
+     *
+     * @return the Transition to use to move Views into the scene when reentering from a
+     *                   previously-started Activity.
+     */
+    public Object getReenterTransition() {
+        return mReenterTransition == USE_DEFAULT_TRANSITION ? getExitTransition()
+                : mReenterTransition;
+    }
+
+    /**
+     * Sets the Transition that will be used for shared elements transferred into the content
+     * Scene. Typical Transitions will affect size and location, such as
+     * {@link android.transition.ChangeBounds}. A null
+     * value will cause transferred shared elements to blink to the final position.
+     *
+     * @param transition The Transition to use for shared elements transferred into the content
+     *                   Scene.  <code>transition</code> must be an android.transition.Transition.
+     */
+    public void setSharedElementEnterTransition(Object transition) {
+        mSharedElementEnterTransition = transition;
+    }
+
+    /**
+     * Returns the Transition that will be used for shared elements transferred into the content
+     * Scene. Typical Transitions will affect size and location, such as
+     * {@link android.transition.ChangeBounds}. A null
+     * value will cause transferred shared elements to blink to the final position.
+     *
+     * @return The Transition to use for shared elements transferred into the content
+     *                   Scene.
+     */
+    public Object getSharedElementEnterTransition() {
+        return mSharedElementEnterTransition;
+    }
+
+    /**
+     * Sets the Transition that will be used for shared elements transferred back during a
+     * pop of the back stack. This Transition acts in the leaving Fragment.
+     * Typical Transitions will affect size and location, such as
+     * {@link android.transition.ChangeBounds}. A null
+     * value will cause transferred shared elements to blink to the final position.
+     * If no value is set, the default will be to use the same value as
+     * {@link #setSharedElementEnterTransition(Object)}.
+     *
+     * @param transition The Transition to use for shared elements transferred out of the content
+     *                   Scene. <code>transition</code> must be an android.transition.Transition.
+     */
+    public void setSharedElementReturnTransition(Object transition) {
+        mSharedElementReturnTransition = transition;
+    }
+
+    /**
+     * Return the Transition that will be used for shared elements transferred back during a
+     * pop of the back stack. This Transition acts in the leaving Fragment.
+     * Typical Transitions will affect size and location, such as
+     * {@link android.transition.ChangeBounds}. A null
+     * value will cause transferred shared elements to blink to the final position.
+     * If no value is set, the default will be to use the same value as
+     * {@link #setSharedElementEnterTransition(Object)}.
+     *
+     * @return The Transition to use for shared elements transferred out of the content
+     *                   Scene.
+     */
+    public Object getSharedElementReturnTransition() {
+        return mSharedElementReturnTransition == USE_DEFAULT_TRANSITION ?
+                getSharedElementEnterTransition() : mSharedElementReturnTransition;
+    }
+
+    /**
+     * Sets whether the the exit transition and enter transition overlap or not.
+     * When true, the enter transition will start as soon as possible. When false, the
+     * enter transition will wait until the exit transition completes before starting.
+     *
+     * @param allow true to start the enter transition when possible or false to
+     *              wait until the exiting transition completes.
+     */
+    public void setAllowEnterTransitionOverlap(boolean allow) {
+        mAllowEnterTransitionOverlap = allow;
+    }
+
+    /**
+     * Returns whether the the exit transition and enter transition overlap or not.
+     * When true, the enter transition will start as soon as possible. When false, the
+     * enter transition will wait until the exit transition completes before starting.
+     *
+     * @return true when the enter transition should start as soon as possible or false to
+     * when it should wait until the exiting transition completes.
+     */
+    public boolean getAllowEnterTransitionOverlap() {
+        return (mAllowEnterTransitionOverlap == null) ? true : mAllowEnterTransitionOverlap;
+    }
+
+    /**
+     * Sets whether the the return transition and reenter transition overlap or not.
+     * When true, the reenter transition will start as soon as possible. When false, the
+     * reenter transition will wait until the return transition completes before starting.
+     *
+     * @param allow true to start the reenter transition when possible or false to wait until the
+     *              return transition completes.
+     */
+    public void setAllowReturnTransitionOverlap(boolean allow) {
+        mAllowReturnTransitionOverlap = allow;
+    }
+
+    /**
+     * Returns whether the the return transition and reenter transition overlap or not.
+     * When true, the reenter transition will start as soon as possible. When false, the
+     * reenter transition will wait until the return transition completes before starting.
+     *
+     * @return true to start the reenter transition when possible or false to wait until the
+     *         return transition completes.
+     */
+    public boolean getAllowReturnTransitionOverlap() {
+        return (mAllowReturnTransitionOverlap == null) ? true : mAllowReturnTransitionOverlap;
     }
 
     /**
