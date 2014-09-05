@@ -17,7 +17,11 @@
 package android.support.v4.app;
 
 import android.app.Activity;
-import android.app.SharedElementListener;
+import android.app.SharedElementCallback;
+import android.content.Context;
+import android.graphics.Matrix;
+import android.graphics.RectF;
+import android.os.Parcelable;
 import android.view.View;
 
 import java.lang.Override;
@@ -31,14 +35,14 @@ class ActivityCompat21 {
         activity.finishAfterTransition();
     }
 
-    public static void setEnterSharedElementListener(Activity activity,
-            SharedElementListener21 listener) {
-        activity.setEnterSharedElementListener(createListener(listener));
+    public static void setEnterSharedElementCallback(Activity activity,
+            SharedElementCallback21 callback) {
+        activity.setEnterSharedElementCallback(createCallback(callback));
     }
 
-    public static void setExitSharedElementListener(Activity activity,
-            SharedElementListener21 listener) {
-        activity.setExitSharedElementListener(createListener(listener));
+    public static void setExitSharedElementCallback(Activity activity,
+            SharedElementCallback21 callback) {
+        activity.setExitSharedElementCallback(createCallback(callback));
     }
 
     public static void postponeEnterTransition(Activity activity) {
@@ -49,56 +53,72 @@ class ActivityCompat21 {
         activity.startPostponedEnterTransition();
     }
 
-    public abstract static class SharedElementListener21 {
-        public abstract void setSharedElementStart(List<String> sharedElementNames,
+    public abstract static class SharedElementCallback21 {
+        public abstract void onSharedElementStart(List<String> sharedElementNames,
                 List<View> sharedElements, List<View> sharedElementSnapshots);
 
-        public abstract void setSharedElementEnd(List<String> sharedElementNames,
+        public abstract void onSharedElementEnd(List<String> sharedElementNames,
                 List<View> sharedElements, List<View> sharedElementSnapshots);
 
-        public abstract void handleRejectedSharedElements(List<View> rejectedSharedElements);
+        public abstract void onRejectSharedElements(List<View> rejectedSharedElements);
 
-        public abstract void remapSharedElements(List<String> names,
+        public abstract void onMapSharedElements(List<String> names,
                 Map<String, View> sharedElements);
+        public abstract Parcelable onCaptureSharedElementSnapshot(View sharedElement,
+                Matrix viewToGlobalMatrix, RectF screenBounds);
+        public abstract View onCreateSnapshotView(Context context, Parcelable snapshot);
     }
 
-    private static SharedElementListener createListener(SharedElementListener21 listener) {
-        SharedElementListener newListener = null;
-        if (listener != null) {
-            newListener = new SharedElementListenerImpl(listener);
+    private static SharedElementCallback createCallback(SharedElementCallback21 callback) {
+        SharedElementCallback newListener = null;
+        if (callback != null) {
+            newListener = new SharedElementCallbackImpl(callback);
         }
         return newListener;
     }
 
-    private static class SharedElementListenerImpl extends SharedElementListener {
-        private SharedElementListener21 mListener;
+    private static class SharedElementCallbackImpl extends SharedElementCallback {
+        private SharedElementCallback21 mCallback;
 
-        public SharedElementListenerImpl(SharedElementListener21 listener) {
-            mListener = listener;
+        public SharedElementCallbackImpl(SharedElementCallback21 callback) {
+            mCallback = callback;
         }
 
         @Override
-        public void setSharedElementStart(List<String> sharedElementNames,
+        public void onSharedElementStart(List<String> sharedElementNames,
                 List<View> sharedElements, List<View> sharedElementSnapshots) {
-            mListener.setSharedElementStart(sharedElementNames, sharedElements,
+            mCallback.onSharedElementStart(sharedElementNames, sharedElements,
                     sharedElementSnapshots);
         }
 
         @Override
-        public void setSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements,
+        public void onSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements,
                 List<View> sharedElementSnapshots) {
-            mListener.setSharedElementEnd(sharedElementNames, sharedElements,
+            mCallback.onSharedElementEnd(sharedElementNames, sharedElements,
                     sharedElementSnapshots);
         }
 
         @Override
-        public void handleRejectedSharedElements(List<View> rejectedSharedElements) {
-            mListener.handleRejectedSharedElements(rejectedSharedElements);
+        public void onRejectSharedElements(List<View> rejectedSharedElements) {
+            mCallback.onRejectSharedElements(rejectedSharedElements);
         }
 
         @Override
-        public void remapSharedElements(List<String> names, Map<String, View> sharedElements) {
-            mListener.remapSharedElements(names, sharedElements);
+        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            mCallback.onMapSharedElements(names, sharedElements);
+        }
+
+        @Override
+        public Parcelable onCaptureSharedElementSnapshot(View sharedElement,
+                Matrix viewToGlobalMatrix,
+                RectF screenBounds) {
+            return mCallback.onCaptureSharedElementSnapshot(sharedElement, viewToGlobalMatrix,
+                            screenBounds);
+        }
+
+        @Override
+        public View onCreateSnapshotView(Context context, Parcelable snapshot) {
+            return mCallback.onCreateSnapshotView(context, snapshot);
         }
     }
 }
