@@ -16,164 +16,119 @@
 
 package android.support.v4.app;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Rect;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
+import android.util.ArrayMap;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
-import java.lang.Override;
-import java.lang.String;
 import java.util.ArrayList;
-import java.util.Collection;
-import android.transition.Transition;
-import android.transition.TransitionSet;
-import android.transition.TransitionManager;
-import android.graphics.Rect;
-import android.util.ArrayMap;
-import android.transition.TransitionInflater;
+import java.util.Map;
 
 class FragmentTransitionCompat21 {
-
     public static String getTransitionName(View view) {
         return view.getTransitionName();
     }
 
-    public static Object beginTransition(Activity activity, int transitionId, ViewGroup sceneRoot,
-            ArrayList<View> hiddenFragmentViews, ArrayList<String> sourceNames,
-            ArrayList<String> targetNames) {
-        if (transitionId <= 0 || sceneRoot == null) {
-            return null;
-        }
-        TransitionState state = new TransitionState();
-        // get Transition scene root and create Transitions
-        state.sceneRoot = sceneRoot;
-        captureTransitioningViews(state.transitioningViews, state.sceneRoot);
-
-        state.exitTransition = TransitionInflater.from(activity)
-                .inflateTransition(transitionId);
-        state.sharedElementTransition = TransitionInflater.from(activity)
-                .inflateTransition(transitionId);
-        state.enterTransition = TransitionInflater.from(activity)
-                .inflateTransition(transitionId);
-        // Adding a non-existent target view makes sure that the transitions don't target
-        // any views by default. They'll only target the views we tell add. If we don't
-        // add any, then no views will be targeted.
-        View nonExistentView = new View(activity);
-        state.enterTransition.addTarget(nonExistentView);
-        state.exitTransition.addTarget(nonExistentView);
-        state.sharedElementTransition.addTarget(nonExistentView);
-
-        setSharedElementEpicenter(state.enterTransition, state);
-
-        state.excludingTransition = new TransitionSet()
-                .addTransition(state.exitTransition)
-                .addTransition(state.enterTransition);
-        state.excludingTransition.addListener(new ResetNamesListener(state.namedViews));
-
-        if (sourceNames != null) {
-            // Map shared elements.
-            findNamedViews(state.namedViews, state.sceneRoot);
-            state.namedViews.retainAll(sourceNames);
-            View epicenterView = state.namedViews.get(sourceNames.get(0));
-            if (epicenterView != null) {
-                // The epicenter is only the first shared element.
-                setEpicenter(state.exitTransition, epicenterView);
-                setEpicenter(state.sharedElementTransition, epicenterView);
-            }
-            state.transitioningViews.removeAll(state.namedViews.values());
-            state.excludingTransition.addTransition(state.sharedElementTransition);
-            addTransitioningViews(state.sharedElementTransition, state.namedViews.values());
-        }
-
-        // Adds the (maybe) exiting views, not including the shared element.
-        // If some stay, that's ok.
-        addTransitioningViews(state.exitTransition, state.transitioningViews);
-
-        setNameOverrides(state, sourceNames, targetNames);
-
-        // Don't include any subtree in the views that are hidden when capturing the
-        // view hierarchy transitions. They should be as if not there.
-        excludeHiddenFragments(activity, hiddenFragmentViews, state, true);
-
-        TransitionManager.beginDelayedTransition(state.sceneRoot, state.excludingTransition);
-        return state;
-    }
-
-    public static void updateTransitionEndState(Activity activity,
-            ArrayList<View> shownFragmentViews, ArrayList<View> hiddenFragmentViews,
-            Object stateObj, ArrayList<String> names) {
-        if (!(stateObj instanceof TransitionState)) {
-            return;
-        }
-        TransitionState state = (TransitionState) stateObj;
-        // Find all views that are entering.
-        ArrayList<View> enteringViews = new ArrayList<View>();
-        captureTransitioningViews(enteringViews, state.sceneRoot);
-        enteringViews.removeAll(state.transitioningViews);
-
-        state.namedViews.clear();
-
-        if (names != null) {
-            // find all shared elements.
-            findNamedViews(state.namedViews, state.sceneRoot);
-            state.namedViews.retainAll(names);
-            if (!state.namedViews.isEmpty()) {
-                enteringViews.removeAll(state.namedViews.values());
-                addTransitioningViews(state.sharedElementTransition, state.namedViews.values());
-                // now we know the epicenter of the entering transition.
-                state.enteringEpicenterView = state.namedViews.get(names.get(0));
-
-                // Change the names of the shared elements temporarily so that the shared element
-                // names can match.
-                int count = state.nameOverrides.size();
-                for (int i = 0; i < count; i++) {
-                    String toName = state.nameOverrides.valueAt(i);
-                    View view = state.namedViews.get(toName);
-                    if (view != null) {
-                        view.setTransitionName(state.nameOverrides.keyAt(i));
-                    }
-                }
-            }
-        }
-
-        // Add all entering views to the enter transition.
-        addTransitioningViews(state.enterTransition, enteringViews);
-
-        // Don't allow capturing state for the newly-hidden fragments.
-        excludeHiddenFragments(activity, hiddenFragmentViews, state, false);
-
-        // Allow capturing state for the newly-shown fragments
-        includeVisibleFragments(shownFragmentViews, state.excludingTransition);
-    }
-
-    private static void addTransitioningViews(Transition transition, Collection<View> views) {
-        for (View view : views) {
+    private static void addTransitioningViews(Object transitionObject, final ArrayList<View> views) {
+        Transition transition = (Transition) transitionObject;
+        int numViews = views.size();
+        for (int i = 0; i < numViews; i++) {
+            View view = views.get(i);
             transition.addTarget(view);
         }
+
+        transition.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+                transition.removeListener(this);
+                int numViews = views.size();
+                for (int i = 0; i < numViews; i++) {
+                    View view = views.get(i);
+                    transition.removeTarget(view);
+                }
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+        });
     }
 
-    private static void excludeHiddenFragments(Activity activity,
-            ArrayList<View> hiddenFragmentViews, TransitionState state, boolean forceExclude) {
-        for (int i = hiddenFragmentViews.size() - 1; i >= 0; i--) {
-            View view = hiddenFragmentViews.get(i);
-            if (forceExclude || !state.hiddenViews.contains(view)) {
-                state.excludingTransition.excludeTarget(view, true);
-                state.hiddenViews.add(view);
+    public static Object captureExitingViews(Object exitTransition, View root) {
+        if (exitTransition != null) {
+            ArrayList<View> viewList = new ArrayList<>();
+            captureTransitioningViews(viewList, root);
+            if (viewList.isEmpty()) {
+                exitTransition = null;
+            } else {
+                addTransitioningViews(exitTransition, viewList);
             }
         }
-        if (forceExclude && state.hiddenViews.isEmpty()) {
-            state.excludingTransition.excludeTarget(new View(activity), true);
-        }
+        return exitTransition;
     }
 
-    private static void includeVisibleFragments(ArrayList<View> shownFragmentViews,
-            Transition transition) {
-        for (int i = shownFragmentViews.size() - 1; i >= 0; i--) {
-            View view = shownFragmentViews.get(i);
-            transition.excludeTarget(view, false);
-        }
+    public static void cleanupHiddenFragments(Object transitionObject,
+            final ArrayList<View> hiddenViews) {
+        Transition transition = (Transition) transitionObject;
+        transition.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+                transition.removeListener(this);
+                int numViews = hiddenViews.size();
+                for (int i = 0; i < numViews; i++) {
+                    transition.excludeTarget(hiddenViews.get(i), false);
+                }
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+        });
     }
 
-    private static void setEpicenter(Transition transition, View view) {
+    public static void excludeTarget(Object transitionObject, View view, boolean exclude) {
+        Transition transition = (Transition) transitionObject;
+        transition.excludeTarget(view, exclude);
+    }
+
+    public static void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject) {
+        Transition transition = (Transition) transitionObject;
+        TransitionManager.beginDelayedTransition(sceneRoot, transition);
+    }
+
+    public static void setEpicenter(Object transitionObject, View view) {
+        Transition transition = (Transition) transitionObject;
         final Rect epicenter = getBoundsOnScreen(view);
 
         transition.setEpicenterCallback(new Transition.EpicenterCallback() {
@@ -184,15 +139,63 @@ class FragmentTransitionCompat21 {
         });
     }
 
+    /**
+     * Prepares the enter transition by adding a non-existent view to the transition's target list
+     * and setting it epicenter callback. By adding a non-existent view to the target list,
+     * we can prevent any view from being targeted at the beginning of the transition.
+     * We will add to the views before the end state of the transition is captured so that the
+     * views will appear. At the start of the transition, we clear the list of targets so that
+     * we can restore the state of the transition and use it again.
+     */
+    public static void prepareEnterTransition(Object enterTransitionObject,
+            final View container, final ViewRetriever inFragment, final View nonExistentView,
+            EpicenterView epicenterView, Map<String, String> nameOverrides) {
+        if (enterTransitionObject != null) {
+            final Transition enterTransition = (Transition) enterTransitionObject;
+            SetupEnterTransition setup = new SetupEnterTransition(enterTransition, container,
+                    inFragment, nameOverrides, nonExistentView);
+            enterTransition.addListener(setup);
+            setSharedElementEpicenter(enterTransition, epicenterView);
+        }
+    }
+
+    public static Object mergeTransitions(Object enterTransitionObject,
+            Object exitTransitionObject, Object sharedElementTransitionObject,
+            boolean allowOverlap) {
+        boolean overlap = true;
+        Transition enterTransition = (Transition) enterTransitionObject;
+        Transition exitTransition = (Transition) exitTransitionObject;
+        Transition sharedElementTransition = (Transition) sharedElementTransitionObject;
+
+        if (enterTransition != null && exitTransition != null) {
+            overlap = allowOverlap;
+        }
+
+        Transition transition;
+        if (overlap) {
+            transition = mergeTransitions(enterTransition, exitTransition,
+                    sharedElementTransition);
+        } else {
+            TransitionSet staggered = new TransitionSet()
+                    .addTransition(exitTransition)
+                    .addTransition(enterTransition)
+                    .setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+            transition = mergeTransitions(staggered, sharedElementTransition);
+        }
+        return transition;
+    }
+
+
+
     private static void setSharedElementEpicenter(Transition transition,
-            final TransitionState state) {
+            final EpicenterView epicenterView) {
         transition.setEpicenterCallback(new Transition.EpicenterCallback() {
             private Rect mEpicenter;
 
             @Override
             public Rect onGetEpicenter(Transition transition) {
-                if (mEpicenter == null && state.enteringEpicenterView != null) {
-                    mEpicenter = getBoundsOnScreen(state.enteringEpicenterView);
+                if (mEpicenter == null && epicenterView.epicenter != null) {
+                    mEpicenter = getBoundsOnScreen(epicenterView.epicenter);
                 }
                 return mEpicenter;
             }
@@ -206,29 +209,6 @@ class FragmentTransitionCompat21 {
         // not as good as View.getBoundsOnScreen, but that's not public
         epicenter.set(loc[0], loc[1], loc[0] + view.getWidth(), loc[1] + view.getHeight());
         return epicenter;
-    }
-
-    private static void setNameOverride(ArrayMap<String, String> overrides, String source,
-            String target) {
-        for (int index = 0; index < overrides.size(); index++) {
-            if (source.equals(overrides.valueAt(index))) {
-                overrides.setValueAt(index, target);
-                return;
-            }
-        }
-        overrides.put(source, target);
-    }
-
-    public static void setNameOverrides(Object stateObj, ArrayList<String> sourceNames,
-            ArrayList<String> targetNames) {
-        if (sourceNames != null && stateObj instanceof TransitionState) {
-            TransitionState state = (TransitionState) stateObj;
-            for (int i = 0; i < sourceNames.size(); i++) {
-                String source = sourceNames.get(i);
-                String target = targetNames.get(i);
-                setNameOverride(state.nameOverrides, source, target);
-            }
-        }
     }
 
     private static void captureTransitioningViews(ArrayList<View> transitioningViews, View view) {
@@ -250,7 +230,7 @@ class FragmentTransitionCompat21 {
         }
     }
 
-    private static void findNamedViews(ArrayMap<String, View> namedViews, View view) {
+    public static void findNamedViews(Map<String, View> namedViews, View view) {
         if (view.getVisibility() == View.VISIBLE) {
             String transitionName = view.getTransitionName();
             if (transitionName != null) {
@@ -267,29 +247,41 @@ class FragmentTransitionCompat21 {
         }
     }
 
-    private static class TransitionState {
-        public ArrayList<View> hiddenViews = new ArrayList<View>();
-        public ArrayList<View> transitioningViews = new ArrayList<View>();
-        public ArrayMap<String, View> namedViews = new ArrayMap<String, View>();
-        public Transition exitTransition;
-        public Transition sharedElementTransition;
-        public Transition enterTransition;
-        public TransitionSet excludingTransition;
-        public ViewGroup sceneRoot;
-        public View enteringEpicenterView;
-        public ArrayMap<String, String> nameOverrides = new ArrayMap<String, String>();
-    }
+    /**
+     * Handles the renaming of views to handle name overrides and setting the targets for
+     * the enter transition.
+     */
+    public static class SetupEnterTransition implements Transition.TransitionListener,
+            ViewTreeObserver.OnPreDrawListener {
+        final private ArrayMap<String, View> mRenamedViews = new ArrayMap<>();
+        final private ArrayList<View> mEnteringViews = new ArrayList<View>();
+        private Map<String, String> mNameOverrides;
+        private ViewRetriever mFragmentView;
+        private View mSceneRoot;
+        private View mNonExistentView;
+        private Transition mEnterTransition;
 
-    private static class ResetNamesListener implements Transition.TransitionListener {
-        private ArrayMap<String, View> mRenamedViews;
-
-        public ResetNamesListener(ArrayMap<String, View> renamedViews) {
-            mRenamedViews = renamedViews;
+        public SetupEnterTransition(Transition enterTransition, View sceneRoot,
+                ViewRetriever fragmentView, Map<String, String> nameOverrides,
+                View nonExistentView) {
+            mSceneRoot = sceneRoot;
+            mNameOverrides = nameOverrides;
+            mFragmentView = fragmentView;
+            mNonExistentView = nonExistentView;
+            mEnterTransition = enterTransition;
+            mEnterTransition.addTarget(nonExistentView);
+            mSceneRoot.getViewTreeObserver().addOnPreDrawListener(this);
         }
 
         @Override
         public void onTransitionStart(Transition transition) {
             transition.removeListener(this);
+            transition.removeTarget(mNonExistentView);
+            int numViews = mEnteringViews.size();
+            for (int i = 0; i < numViews; i++) {
+                transition.removeTarget(mEnteringViews.get(i));
+            }
+            transition.removeTarget(mNonExistentView);
             int count = mRenamedViews.size();
             for (int i = 0; i < count; i++) {
                 View view = mRenamedViews.valueAt(i);
@@ -313,5 +305,66 @@ class FragmentTransitionCompat21 {
         @Override
         public void onTransitionResume(Transition transition) {
         }
+
+        @Override
+        public boolean onPreDraw() {
+            mSceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
+            View fragmentView = mFragmentView.getView();
+            if (fragmentView != null) {
+                captureTransitioningViews(mEnteringViews, fragmentView);
+                int numEnteringViews = mEnteringViews.size();
+                for (int i = 0; i < numEnteringViews; i++) {
+                    mEnterTransition.addTarget(mEnteringViews.get(i));
+                }
+                if (!mNameOverrides.isEmpty()) {
+                    findNamedViews(mRenamedViews, fragmentView);
+                    mRenamedViews.retainAll(mNameOverrides.values());
+                    for (Map.Entry<String, String> entry : mNameOverrides.entrySet()) {
+                        String to = entry.getValue();
+                        View view = mRenamedViews.get(to);
+                        if (view != null) {
+                            String from = entry.getKey();
+                            view.setTransitionName(from);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    public interface ViewRetriever {
+        View getView();
+    }
+
+    public static class EpicenterView {
+        public View epicenter;
+    }
+
+    public static Transition mergeTransitions(Transition... transitions) {
+        int count = 0;
+        int nonNullIndex = -1;
+        for (int i = 0; i < transitions.length; i++) {
+            if (transitions[i] != null) {
+                count++;
+                nonNullIndex = i;
+            }
+        }
+
+        if (count == 0) {
+            return null;
+        }
+
+        if (count == 1) {
+            return transitions[nonNullIndex];
+        }
+
+        TransitionSet transitionSet = new TransitionSet();
+        for (int i = 0; i < transitions.length; i++) {
+            if (transitions[i] != null) {
+                transitionSet.addTransition(transitions[i]);
+            }
+        }
+        return transitionSet;
     }
 }
