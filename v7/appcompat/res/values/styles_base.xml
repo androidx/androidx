@@ -76,9 +76,13 @@
     <style name="Base.Widget.AppCompat.Light.ActionButton" parent="Base.Widget.AppCompat.ActionButton">
     </style>
 
-    <style name="Base.Widget.AppCompat.ActionButton.CloseMode" />
+    <style name="Base.Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionButton.CloseMode" />
+    <style name="Base.Widget.AppCompat.Light.ActionButton.CloseMode">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
 
     <style name="Base.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton">
         <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_dark</item>
@@ -138,8 +142,8 @@
         <item name="backgroundSplit">?attr/actionModeSplitBackground</item>
         <item name="height">?attr/actionBarSize</item>
         <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle
-        </item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle</item>
+        <item name="closeItemLayout">@layout/abc_action_mode_close_item_material</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Title">
