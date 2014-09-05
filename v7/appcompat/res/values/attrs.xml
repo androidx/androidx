@@ -745,6 +745,11 @@
         <attr name="android:dropDownHorizontalOffset" />
     </declare-styleable>
 
+    <declare-styleable name="PopupWindow">
+        <!-- Whether the popup window should overlap its anchor view. -->
+        <attr name="overlapAnchor" format="boolean" />
+    </declare-styleable>
+
     <declare-styleable name="DrawerArrowToggle">
         <!-- The drawing color for the bars -->
         <attr name="color" format="color"/>
