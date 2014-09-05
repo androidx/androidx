@@ -189,7 +189,8 @@ public class ListRowPresenter extends RowPresenter {
                 ((ViewGroup) rowViewHolder.mContainerViewHolder.view).setClipChildren(false);
             }
         }
-        FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter, mZoomFactor);
+        FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
+                mZoomFactor, false);
         rowViewHolder.mGridView.setFocusDrawingOrderEnabled(!isUsingZOrder());
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {

@@ -160,7 +160,7 @@ public class VerticalGridPresenter extends Presenter {
             ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
             wrapper.setLayoutParams(
                     new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            wrapper.initialize(needsDefaultShadow(), false, areChildRoundedCornersEnabled());
+            wrapper.initialize(needsDefaultShadow(), true, areChildRoundedCornersEnabled());
             return wrapper;
         }
         @Override
@@ -184,13 +184,14 @@ public class VerticalGridPresenter extends Presenter {
         vh.getGridView().setNumColumns(mNumColumns);
         vh.mInitialized = true;
 
+        vh.mItemBridgeAdapter.setWrapper(mWrapper);
         if (needsDefaultShadow() || areChildRoundedCornersEnabled()) {
-            vh.mItemBridgeAdapter.setWrapper(mWrapper);
             ShadowOverlayContainer.prepareParentForShadow(vh.getGridView());
             ((ViewGroup) vh.view).setClipChildren(false);
         }
         vh.getGridView().setFocusDrawingOrderEnabled(!isUsingZOrder());
-        FocusHighlightHelper.setupBrowseItemFocusHighlight(vh.mItemBridgeAdapter, mZoomFactor);
+        FocusHighlightHelper.setupBrowseItemFocusHighlight(vh.mItemBridgeAdapter,
+                mZoomFactor, true);
 
         final ViewHolder gridViewHolder = vh;
         vh.getGridView().setOnChildSelectedListener(new OnChildSelectedListener() {
