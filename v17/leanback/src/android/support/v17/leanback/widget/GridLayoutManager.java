@@ -1058,6 +1058,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 } else {
                     addView(v, 0);
                 }
+
+                // View is added first or it won't be found by dispatchChildSelected.
+                if (mInLayout && index == mFocusPosition) {
+                    dispatchChildSelected();
+                }
+
                 measureChild(v);
             }
 
@@ -1485,10 +1491,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             boolean hadFocus = mBaseGridView.hasFocus();
 
-            int newFocusPosition = init(mFocusPosition);
-            if (DEBUG) {
-                Log.v(getTag(), "mFocusPosition " + mFocusPosition + " newFocusPosition "
-                    + newFocusPosition);
+            mFocusPosition = init(mFocusPosition);
+            if (mFocusPosition != savedFocusPos) {
+                if (DEBUG) Log.v(getTag(), "savedFocusPos " + savedFocusPos +
+                        " mFocusPosition " + mFocusPosition);
             }
 
             mWindowAlignment.mainAxis().invalidateScrollMin();
@@ -1498,7 +1504,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (mGrid.getSize() == 0) {
                 // this is a fresh creating all items, starting from
                 // mFocusPosition with a estimated row index.
-                mGrid.setStart(newFocusPosition, StaggeredGrid.START_DEFAULT);
+                mGrid.setStart(mFocusPosition, StaggeredGrid.START_DEFAULT);
 
                 // Can't track the old focus view
                 delta = deltaSecondary = 0;
@@ -1514,6 +1520,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     mGridProvider.createItem(i, mGrid.getLocation(i).row, true);
                 }
             }
+
             // add visible views at end until reach the end of window
             appendVisibleItems();
             // add visible views at front until reach the start of window
@@ -1527,7 +1534,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 updateScrollMax();
                 oldFirstVisible = mFirstVisiblePos;
                 oldLastVisible = mLastVisiblePos;
-                View focusView = findViewByPosition(newFocusPosition);
+                View focusView = findViewByPosition(mFocusPosition);
                 // we need force to initialize the child view's position
                 scrollToView(focusView, false);
                 if (focusView != null && hadFocus) {
@@ -1563,7 +1570,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             updateRowSecondarySizeRefresh();
         }
 
-        if (!fastRelayout || mFocusPosition != savedFocusPos) {
+        if (fastRelayout && mFocusPosition != savedFocusPos) {
             dispatchChildSelected();
         }
         mInLayout = false;

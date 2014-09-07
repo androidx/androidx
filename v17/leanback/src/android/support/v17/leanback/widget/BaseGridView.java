@@ -414,7 +414,11 @@ abstract class BaseGridView extends RecyclerView {
 
     /**
      * Register a callback to be invoked when an item in BaseGridView has
-     * been selected.
+     * been selected.  Note that the listener may be invoked when there is a
+     * layout pending on the view, affording the listener an opportunity to
+     * adjust the upcoming layout based on the selection state.
+     *
+     * @param listener The listener to be invoked.
      */
     public void setOnChildSelectedListener(OnChildSelectedListener listener) {
         mLayoutManager.setOnChildSelectedListener(listener);
