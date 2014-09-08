@@ -529,6 +529,13 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Change and override children's visibility.
+     */
+    public void setChildrenVisibility(int visibility) {
+        mLayoutManager.setChildrenVisibility(visibility);
+    }
+
+    /**
      * Enable or disable pruning child.  Disable is useful during transition.
      */
     public void setPruneChild(boolean pruneChild) {
