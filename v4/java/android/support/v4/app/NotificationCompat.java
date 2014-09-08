@@ -786,6 +786,14 @@ public class NotificationCompat {
      *
      */
     public static class Builder {
+        /**
+         * Maximum length of CharSequences accepted by Builder and friends.
+         *
+         * <p>
+         * Avoids spamming the system with overly large strings such as full e-mails.
+         */
+        private static final int MAX_CHARSEQUENCE_LENGTH = 5 * 1024;
+
         Context mContext;
 
         CharSequence mContentTitle;
@@ -895,7 +903,7 @@ public class NotificationCompat {
          * Set the title (first row) of the notification, in a standard notification.
          */
         public Builder setContentTitle(CharSequence title) {
-            mContentTitle = title;
+            mContentTitle = limitCharSequenceLength(title);
             return this;
         }
 
@@ -903,7 +911,7 @@ public class NotificationCompat {
          * Set the text (second row) of the notification, in a standard notification.
          */
         public Builder setContentText(CharSequence text) {
-            mContentText = text;
+            mContentText = limitCharSequenceLength(text);
             return this;
         }
 
@@ -917,7 +925,7 @@ public class NotificationCompat {
          * <br>
          */
         public Builder setSubText(CharSequence text) {
-            mSubText = text;
+            mSubText = limitCharSequenceLength(text);
             return this;
         }
 
@@ -935,7 +943,7 @@ public class NotificationCompat {
          * Set the large text at the right-hand side of the notification.
          */
         public Builder setContentInfo(CharSequence info) {
-            mContentInfo = info;
+            mContentInfo = limitCharSequenceLength(info);
             return this;
         }
 
@@ -1012,7 +1020,7 @@ public class NotificationCompat {
          * arrives.
          */
         public Builder setTicker(CharSequence tickerText) {
-            mNotification.tickerText = tickerText;
+            mNotification.tickerText = limitCharSequenceLength(tickerText);
             return this;
         }
 
@@ -1022,7 +1030,7 @@ public class NotificationCompat {
          * devices.
          */
         public Builder setTicker(CharSequence tickerText, RemoteViews views) {
-            mNotification.tickerText = tickerText;
+            mNotification.tickerText = limitCharSequenceLength(tickerText);
             mTickerView = views;
             return this;
         }
@@ -1430,6 +1438,14 @@ public class NotificationCompat {
         public Notification build() {
             return IMPL.build(this);
         }
+
+        protected static CharSequence limitCharSequenceLength(CharSequence cs) {
+            if (cs == null) return cs;
+            if (cs.length() > MAX_CHARSEQUENCE_LENGTH) {
+                cs = cs.subSequence(0, MAX_CHARSEQUENCE_LENGTH);
+            }
+            return cs;
+        }
     }
 
     /**
@@ -1500,7 +1516,7 @@ public class NotificationCompat {
          * This defaults to the value passed to setContentTitle().
          */
         public BigPictureStyle setBigContentTitle(CharSequence title) {
-            mBigContentTitle = title;
+            mBigContentTitle = Builder.limitCharSequenceLength(title);
             return this;
         }
 
@@ -1508,7 +1524,7 @@ public class NotificationCompat {
          * Set the first line of text after the detail section in the big form of the template.
          */
         public BigPictureStyle setSummaryText(CharSequence cs) {
-            mSummaryText = cs;
+            mSummaryText = Builder.limitCharSequenceLength(cs);
             mSummaryTextSet = true;
             return this;
         }
@@ -1567,7 +1583,7 @@ public class NotificationCompat {
          * This defaults to the value passed to setContentTitle().
          */
         public BigTextStyle setBigContentTitle(CharSequence title) {
-            mBigContentTitle = title;
+            mBigContentTitle = Builder.limitCharSequenceLength(title);
             return this;
         }
 
@@ -1575,7 +1591,7 @@ public class NotificationCompat {
          * Set the first line of text after the detail section in the big form of the template.
          */
         public BigTextStyle setSummaryText(CharSequence cs) {
-            mSummaryText = cs;
+            mSummaryText = Builder.limitCharSequenceLength(cs);
             mSummaryTextSet = true;
             return this;
         }
@@ -1585,7 +1601,7 @@ public class NotificationCompat {
          * template in place of the content text.
          */
         public BigTextStyle bigText(CharSequence cs) {
-            mBigText = cs;
+            mBigText = Builder.limitCharSequenceLength(cs);
             return this;
         }
     }
@@ -1629,7 +1645,7 @@ public class NotificationCompat {
          * This defaults to the value passed to setContentTitle().
          */
         public InboxStyle setBigContentTitle(CharSequence title) {
-            mBigContentTitle = title;
+            mBigContentTitle = Builder.limitCharSequenceLength(title);
             return this;
         }
 
@@ -1637,7 +1653,7 @@ public class NotificationCompat {
          * Set the first line of text after the detail section in the big form of the template.
          */
         public InboxStyle setSummaryText(CharSequence cs) {
-            mSummaryText = cs;
+            mSummaryText = Builder.limitCharSequenceLength(cs);
             mSummaryTextSet = true;
             return this;
         }
@@ -1646,7 +1662,7 @@ public class NotificationCompat {
          * Append a line to the digest section of the Inbox notification.
          */
         public InboxStyle addLine(CharSequence cs) {
-            mTexts.add(cs);
+            mTexts.add(Builder.limitCharSequenceLength(cs));
             return this;
         }
     }
@@ -1685,7 +1701,7 @@ public class NotificationCompat {
         private Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                 RemoteInput[] remoteInputs) {
             this.icon = icon;
-            this.title = title;
+            this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
             this.actionIntent = intent;
             this.mExtras = extras != null ? extras : new Bundle();
             this.mRemoteInputs = remoteInputs;
@@ -1752,7 +1768,7 @@ public class NotificationCompat {
 
             private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
                 mIcon = icon;
-                mTitle = title;
+                mTitle = NotificationCompat.Builder.limitCharSequenceLength(title);
                 mIntent = intent;
                 mExtras = extras;
             }
