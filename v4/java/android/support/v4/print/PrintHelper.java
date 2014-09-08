@@ -193,25 +193,31 @@ public final class PrintHelper {
         @Override
         public void printBitmap(String jobName, Bitmap bitmap,
                 final OnPrintFinishCallback callback) {
-            mPrintHelper.printBitmap(jobName, bitmap,
-                    new PrintHelperKitkat.OnPrintFinishCallback() {
-                        @Override
-                        public void onFinish() {
-                            callback.onFinish();
-                        }
-                    });
+            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
+            if (callback != null) {
+                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
+                    @Override
+                    public void onFinish() {
+                        callback.onFinish();
+                    }
+                };
+            }
+            mPrintHelper.printBitmap(jobName, bitmap, delegateCallback);
         }
 
         @Override
         public void printBitmap(String jobName, Uri imageFile,
                 final OnPrintFinishCallback callback) throws FileNotFoundException {
-            mPrintHelper.printBitmap(jobName, imageFile,
-                    new PrintHelperKitkat.OnPrintFinishCallback() {
-                        @Override
-                        public void onFinish() {
-                            callback.onFinish();
-                        }
-                    });
+            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
+            if (callback != null) {
+                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
+                    @Override
+                    public void onFinish() {
+                        callback.onFinish();
+                    }
+                };
+            }
+            mPrintHelper.printBitmap(jobName, imageFile, delegateCallback);
         }
     }
 
