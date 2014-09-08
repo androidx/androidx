@@ -30,6 +30,7 @@ import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.widget.ScrollerCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.VersionUtils;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.widget.Toolbar;
@@ -600,7 +601,9 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         if (hideOnContentScroll != mHideOnContentScroll) {
             mHideOnContentScroll = hideOnContentScroll;
             if (!hideOnContentScroll) {
-                stopNestedScroll();
+                if (VersionUtils.isAtLeastL()) {
+                    stopNestedScroll();
+                }
                 haltActionBarHideOffsetAnimations();
                 setActionBarHideOffset(0);
             }
