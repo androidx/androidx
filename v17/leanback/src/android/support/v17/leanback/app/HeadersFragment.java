@@ -122,24 +122,31 @@ public class HeadersFragment extends BaseRowFragment {
             FocusHighlightHelper.setupHeaderItemFocusHighlight(listView);
         }
         listView.setBackgroundColor(getBackgroundColor());
-        listView.setVisibility(mHeadersGone ? View.GONE : View.VISIBLE);
-        listView.setLayoutEnabled(mHeadersEnabled);
+        updateListViewVisibility();
+    }
+
+    private void updateListViewVisibility() {
+        final VerticalGridView listView = getVerticalGridView();
+        if (listView != null) {
+            listView.setVisibility(mHeadersGone ? View.GONE : View.VISIBLE);
+            if (!mHeadersGone) {
+                if (mHeadersEnabled) {
+                    listView.setChildrenVisibility(View.VISIBLE);
+                } else {
+                    listView.setChildrenVisibility(View.INVISIBLE);
+                }
+            }
+        }
     }
 
     void setHeadersEnabled(boolean enabled) {
         mHeadersEnabled = enabled;
-        final VerticalGridView listView = getVerticalGridView();
-        if (listView != null) {
-            listView.setLayoutEnabled(mHeadersEnabled);
-        }
+        updateListViewVisibility();
     }
 
     void setHeadersGone(boolean gone) {
         mHeadersGone = gone;
-        final VerticalGridView listView = getVerticalGridView();
-        if (listView != null) {
-            listView.setVisibility(mHeadersGone ? View.GONE : View.VISIBLE);
-        }
+        updateListViewVisibility();
     }
 
     // Wrapper needed because of conflict between RecyclerView's use of alpha
