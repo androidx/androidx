@@ -212,6 +212,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private boolean mLayoutEnabled = true;
 
     /**
+     * override child visibility
+     */
+    private int mChildVisibility = -1;
+
+    /**
      * The scroll offsets of the viewport relative to the entire view.
      */
     private int mScrollOffsetPrimary;
@@ -1057,6 +1062,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     addView(v);
                 } else {
                     addView(v, 0);
+                }
+                if (mChildVisibility != -1) {
+                    v.setVisibility(mChildVisibility);
                 }
                 measureChild(v);
             }
@@ -2550,6 +2558,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (mLayoutEnabled != layoutEnabled) {
             mLayoutEnabled = layoutEnabled;
             requestLayout();
+        }
+    }
+
+    void setChildrenVisibility(int visiblity) {
+        mChildVisibility = visiblity;
+        if (mChildVisibility != -1) {
+            int count = getChildCount();
+            for (int i= 0; i < count; i++) {
+                getChildAt(i).setVisibility(mChildVisibility);
+            }
         }
     }
 
