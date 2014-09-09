@@ -18,6 +18,7 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
     private final float mSoundLevelMaxZoom;
     private final int mNotRecordingColor;
     private final int mRecordingColor;
+    private final int mNotRecordingIconColor;
     private ImageView mIcon;
 
     private int mCurrentLevel = 0;
@@ -50,6 +51,7 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
                 resources.getFraction(R.fraction.lb_search_bar_speech_orb_max_level_zoom, 1, 1);
         mNotRecordingColor = resources.getColor(R.color.lb_speech_orb_not_recording);
         mRecordingColor = resources.getColor(R.color.lb_speech_orb_recording);
+        mNotRecordingIconColor = resources.getColor(R.color.lb_speech_orb_not_recording_icon);
 
         setOnClickListener(this);
         showNotListening();
@@ -67,11 +69,6 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         final float zoom = gainFocus ? mFocusedZoom : 1f;
         mSpeechOrbView.animate().scaleX(zoom).scaleY(zoom).setDuration(200).start();
-        if (gainFocus) {
-            mIcon.setImageResource(R.drawable.lb_ic_search_mic);
-        } else {
-            mIcon.setImageResource(R.drawable.lb_ic_search_mic_out);
-        }
     }
 
     /**
@@ -84,6 +81,8 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
 
     public void showListening() {
         setOrbColor(mRecordingColor);
+        mIcon.setImageResource(R.drawable.lb_ic_search_mic);
+        mIcon.setColorFilter(android.graphics.Color.TRANSPARENT);
         mSpeechOrbView.setScaleX(1f);
         mSpeechOrbView.setScaleY(1f);
         mListening = true;
@@ -91,6 +90,8 @@ public class SpeechOrbView extends FrameLayout implements View.OnClickListener {
 
     public void showNotListening() {
         setOrbColor(mNotRecordingColor);
+        mIcon.setImageResource(R.drawable.lb_ic_search_mic_out);
+        mIcon.setColorFilter(mNotRecordingIconColor);
         mSpeechOrbView.setScaleX(1f);
         mSpeechOrbView.setScaleY(1f);
         mListening = false;
