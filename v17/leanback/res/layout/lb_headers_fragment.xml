@@ -14,11 +14,23 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<android.support.v17.leanback.widget.VerticalGridView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:lb="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/browse_headers"
     android:layout_width="@dimen/lb_browse_headers_width"
     android:layout_height="match_parent"
+    android:paddingRight="@dimen/lb_browse_header_padding_right"
     android:elevation="@dimen/lb_browse_headers_z"
-    style="?attr/headersVerticalGridStyle"/>
+    >
+    <android.support.v17.leanback.widget.VerticalGridView
+        android:id="@+id/browse_headers"
+        android:layout_width="@dimen/lb_browse_headers_width"
+        android:layout_height="match_parent"
+        style="?attr/headersVerticalGridStyle"/>
+    <View
+        android:id="@+id/fade_out_edge"
+        android:layout_alignParentRight="true"
+        android:layout_width="@dimen/lb_browse_header_fading_length"
+        android:layout_height="match_parent"
+        android:background="@drawable/lb_headers_right_fading" >
+    </View>
+</RelativeLayout>
