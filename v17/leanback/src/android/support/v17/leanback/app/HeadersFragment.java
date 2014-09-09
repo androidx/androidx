@@ -139,7 +139,7 @@ public class HeadersFragment extends BaseRowFragment {
     private void updateListViewVisibility() {
         final VerticalGridView listView = getVerticalGridView();
         if (listView != null) {
-            listView.setVisibility(mHeadersGone ? View.GONE : View.VISIBLE);
+            getView().setVisibility(mHeadersGone ? View.GONE : View.VISIBLE);
             if (!mHeadersGone) {
                 if (mHeadersEnabled) {
                     listView.setChildrenVisibility(View.VISIBLE);
