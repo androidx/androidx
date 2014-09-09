@@ -16,13 +16,42 @@
 
 package android.support.v7.internal.widget;
 
+import android.graphics.Rect;
+import android.os.Build;
 import android.support.v4.view.ViewCompat;
+import android.util.Log;
 import android.view.View;
+
+import java.lang.reflect.Method;
 
 /**
  * @hide
  */
 public class ViewUtils {
+    private static final String TAG = "ViewUtils";
+
+    private static Method sComputeFitSystemWindowsMethod;
+    private static Method sMakeOptionalFitsSystemWindowsMethod;
+
+    static {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            try {
+                sComputeFitSystemWindowsMethod = View.class.getDeclaredMethod(
+                        "computeFitSystemWindows", Rect.class, Rect.class);
+            } catch (NoSuchMethodException e) {
+                Log.i(TAG, "Could not find method computeFitSystemWindows. Oh well.");
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            try {
+                sMakeOptionalFitsSystemWindowsMethod = View.class.getDeclaredMethod(
+                        "makeOptionalFitsSystemWindows");
+            } catch (NoSuchMethodException e) {
+                Log.i(TAG, "Could not find method makeOptionalFitsSystemWindows. Oh well.");
+            }
+        }
+    }
 
     private ViewUtils() {}
 
@@ -40,5 +69,33 @@ public class ViewUtils {
      */
     public static int combineMeasuredStates(int curState, int newState) {
         return curState | newState;
+    }
+
+    /**
+     * Allow calling the hidden method {@code computeFitSystemWindows(Rect, Rect)} through
+     * reflection on {@code view}.
+     */
+    public static void computeFitSystemWindows(View view, Rect inoutInsets, Rect outLocalInsets) {
+        if (sComputeFitSystemWindowsMethod != null) {
+            try {
+                sComputeFitSystemWindowsMethod.invoke(view, inoutInsets, outLocalInsets);
+            } catch (Exception e) {
+                Log.i(TAG, "Could not invoke computeFitSystemWindows", e);
+            }
+        }
+    }
+
+    /**
+     * Allow calling the hidden method {@code makeOptionalFitsSystem()} through reflection on
+     * {@code view}.
+     */
+    public static void makeOptionalFitsSystemWindows(View view) {
+        if (sMakeOptionalFitsSystemWindowsMethod != null) {
+            try {
+                sMakeOptionalFitsSystemWindowsMethod.invoke(view);
+            } catch (Exception e) {
+                Log.i(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
+            }
+        }
     }
 }
