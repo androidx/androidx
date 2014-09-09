@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.SpeechRecognizer;
 import android.support.v17.leanback.widget.ObjectAdapter;
+import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -93,6 +94,12 @@ public class SearchFragment extends Fragment {
         public boolean onQueryTextSubmit(String query);
     }
 
+    private final DataObserver mAdapterObserver = new DataObserver() {
+        public void onChanged() {
+            resultsChanged();
+        }
+    };
+
     private RowsFragment mRowsFragment;
     private final Handler mHandler = new Handler();
 
@@ -110,6 +117,11 @@ public class SearchFragment extends Fragment {
     private Drawable mBadgeDrawable;
 
     private SpeechRecognizer mSpeechRecognizer;
+
+    private final int RESULTS_CHANGED = 0x1;
+    private final int QUERY_COMPLETE = 0x2;
+
+    private int mStatus;
 
     /**
      * @param args Bundle to use for the arguments, if null a new Bundle will be created.
@@ -169,8 +181,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onSearchQuerySubmit(String query) {
                 if (DEBUG) Log.v(TAG, String.format("onSearchQuerySubmit %s", query));
-                mRowsFragment.setSelectedPosition(0);
-                mRowsFragment.getVerticalGridView().requestFocus();
+                queryComplete();
                 if (null != mProvider) {
                     mProvider.onQueryTextSubmit(query);
                 }
@@ -179,8 +190,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onKeyboardDismiss(String query) {
                 if (DEBUG) Log.v(TAG, String.format("onKeyboardDismiss %s", query));
-                mRowsFragment.setSelectedPosition(0);
-                mRowsFragment.getVerticalGridView().requestFocus();
+                queryComplete();
             }
         });
 
@@ -270,6 +280,12 @@ public class SearchFragment extends Fragment {
             mSpeechRecognizer = null;
         }
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        releaseAdapter();
+        super.onDestroy();
     }
 
     /**
@@ -380,6 +396,32 @@ public class SearchFragment extends Fragment {
     private void retrieveResults(String searchQuery) {
         if (DEBUG) Log.v(TAG, String.format("retrieveResults %s", searchQuery));
         mProvider.onQueryTextChange(searchQuery);
+        mStatus &= ~QUERY_COMPLETE;
+    }
+
+    private void queryComplete() {
+        mStatus |= QUERY_COMPLETE;
+        focusOnResults();
+    }
+
+    private void resultsChanged() {
+        if (DEBUG) Log.v(TAG, "adapter size " + mResultAdapter.size());
+        mStatus |= RESULTS_CHANGED;
+        if ((mStatus & QUERY_COMPLETE) != 0) {
+            focusOnResults();
+        }
+    }
+
+    private void focusOnResults() {
+        if (mRowsFragment == null ||
+                mRowsFragment.getVerticalGridView() == null ||
+                mResultAdapter.size() == 0) {
+            return;
+        }
+        mRowsFragment.setSelectedPosition(0);
+        if (mRowsFragment.getVerticalGridView().requestFocus()) {
+            mStatus &= ~RESULTS_CHANGED;
+        }
     }
 
     private void onSetSearchResultProvider() {
@@ -387,13 +429,27 @@ public class SearchFragment extends Fragment {
             @Override
             public void run() {
                 // Retrieve the result adapter
-                mResultAdapter = mProvider.getResultsAdapter();
+                ObjectAdapter adapter = mProvider.getResultsAdapter();
+                if (adapter != mResultAdapter) {
+                    releaseAdapter();
+                    mResultAdapter = adapter;
+                    if (mResultAdapter != null) {
+                        mResultAdapter.registerObserver(mAdapterObserver);
+                    }
+                }
                 if (null != mRowsFragment) {
                     mRowsFragment.setAdapter(mResultAdapter);
                     executePendingQuery();
                 }
             }
         });
+    }
+
+    private void releaseAdapter() {
+        if (mResultAdapter != null) {
+            mResultAdapter.unregisterObserver(mAdapterObserver);
+            mResultAdapter = null;
+        }
     }
 
     private void executePendingQuery() {
