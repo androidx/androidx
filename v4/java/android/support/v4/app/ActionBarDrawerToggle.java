@@ -232,7 +232,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
     private static boolean assumeMaterial(Context context) {
         return context.getApplicationInfo().targetSdkVersion >= 21 &&
-                (Build.VERSION.SDK_INT >= 21 || "L".equals(Build.VERSION.CODENAME));
+                (Build.VERSION.SDK_INT >= 21);
     }
 
     /**

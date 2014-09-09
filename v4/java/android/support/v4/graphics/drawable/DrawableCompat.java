@@ -107,7 +107,7 @@ public class DrawableCompat {
     static final DrawableImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (version >= 21) {
             IMPL = new LDrawableImpl();
         } else if (version >= 19) {
             IMPL = new KitKatDrawableImpl();

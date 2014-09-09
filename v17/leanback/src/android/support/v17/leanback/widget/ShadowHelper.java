@@ -130,8 +130,7 @@ final class ShadowHelper {
      * Returns the ShadowHelper.
      */
     private ShadowHelper() {
-     // TODO: we should use version number once "L" is published
-        if ("L".equals(Build.VERSION.RELEASE)) {
+        if (Build.VERSION.SDK_INT >= 21) {
             mSupportsShadow = true;
             mUsesZShadow = true;
             mImpl = new ShadowHelperApi21Impl();

@@ -516,7 +516,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     @Override
     public FragmentTransaction addSharedElement(View sharedElement, String name) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             String transitionName = FragmentTransitionCompat21.getTransitionName(sharedElement);
             if (transitionName == null) {
                 throw new IllegalArgumentException("Unique transitionNames are required for all" +
@@ -650,7 +650,7 @@ final class BackStackRecord extends FragmentTransaction implements
         TransitionState state = null;
         SparseArray<Fragment> firstOutFragments = null;
         SparseArray<Fragment> lastInFragments = null;
-        if (Build.VERSION.SDK_INT >= 21 || "L".equals(Build.VERSION.CODENAME)) {
+        if (Build.VERSION.SDK_INT >= 21) {
             firstOutFragments = new SparseArray<Fragment>();
             lastInFragments = new SparseArray<Fragment>();
 
