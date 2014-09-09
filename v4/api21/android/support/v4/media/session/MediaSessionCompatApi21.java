@@ -34,6 +34,13 @@ class MediaSessionCompatApi21 {
         return new MediaSession(context, tag);
     }
 
+    public static Object verifySession(Object mediaSession) {
+        if (mediaSession instanceof MediaSession) {
+            return mediaSession;
+        }
+        throw new IllegalArgumentException("mediaSession is not a valid MediaSession object");
+    }
+
     public static Object createCallback(Callback callback) {
         return new CallbackProxy<Callback>(callback);
     }
