@@ -151,7 +151,7 @@
     <dimen name="lb_search_bar_items_layout_margin_top">27dp</dimen>
     <dimen name="lb_search_bar_items_width">600dp</dimen>
     <dimen name="lb_search_bar_items_height">56dp</dimen>
-    <dimen name="lb_search_bar_items_margin_left">56dp</dimen>
+    <dimen name="lb_search_bar_items_margin_left">70dp</dimen>
     <dimen name="lb_search_bar_icon_height">32dp</dimen>
     <dimen name="lb_search_bar_icon_width">32dp</dimen>
     <dimen name="lb_search_bar_icon_margin_left">16dp</dimen>
