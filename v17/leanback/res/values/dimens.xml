@@ -42,8 +42,9 @@
     <!-- Derived from the ux spec of 48dp baseline to baseline -->
     <dimen name="lb_browse_headers_vertical_margin">21dp</dimen>
     <dimen name="lb_browse_header_text_size">20sp</dimen>
-    <dimen name="lb_browse_header_padding_right">24dp</dimen>
     <dimen name="lb_browse_header_height">24dp</dimen>
+    <dimen name="lb_browse_header_fading_length">12dp</dimen>
+    <dimen name="lb_browse_header_padding_right">8dp</dimen>
 
     <item name="lb_browse_header_select_duration" format="integer" type="dimen">150</item>
     <item name="lb_browse_header_unselect_alpha" type="fraction">50%</item>
