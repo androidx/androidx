@@ -37,12 +37,13 @@ class NotificationCompatApi20 {
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
                 RemoteViews tickerView, int number,
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
-                int progressMax, int progress, boolean progressIndeterminate,
+                int progressMax, int progress, boolean progressIndeterminate, boolean showWhen,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
                 String sortKey) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
+                .setShowWhen(showWhen)
                 .setSmallIcon(n.icon, n.iconLevel)
                 .setContent(n.contentView)
                 .setTicker(n.tickerText, tickerView)
