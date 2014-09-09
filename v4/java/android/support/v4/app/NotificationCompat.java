@@ -229,6 +229,13 @@ public class NotificationCompat {
     public static final String EXTRA_SUMMARY_TEXT = "android.summaryText";
 
     /**
+     * Notification extras key: this is the longer text shown in the big form of a
+     * {@link BigTextStyle} notification, as supplied to
+     * {@link BigTextStyle#bigText(CharSequence)}.
+     */
+    public static final String EXTRA_BIG_TEXT = "android.bigText";
+
+    /**
      * Notification extras key: this is the resource ID of the notification's main small icon, as
      * supplied to {@link Builder#setSmallIcon(int)}.
      */
@@ -273,6 +280,12 @@ public class NotificationCompat {
      * of a timestamp, as supplied to {@link Builder#setUsesChronometer(boolean)}.
      */
     public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
+
+    /**
+     * Notification extras key: whether the when field set using {@link Builder#setWhen} should
+     * be shown, as supplied to {@link Builder#setShowWhen(boolean)}.
+     */
+    public static final String EXTRA_SHOW_WHEN = "android.showWhen";
 
     /**
      * Notification extras key: this is a bitmap to be shown in {@link BigPictureStyle} expanded
@@ -587,9 +600,9 @@ public class NotificationCompat {
             NotificationCompatKitKat.Builder builder = new NotificationCompatKitKat.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly,
+                    b.mPeople, b.mExtras, b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return builder.build();
@@ -638,7 +651,7 @@ public class NotificationCompat {
             NotificationCompatApi20.Builder builder = new NotificationCompatApi20.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
@@ -692,7 +705,7 @@ public class NotificationCompat {
             NotificationCompatApi21.Builder builder = new NotificationCompatApi21.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
@@ -805,6 +818,7 @@ public class NotificationCompat {
         CharSequence mContentInfo;
         int mNumber;
         int mPriority;
+        boolean mShowWhen;
         boolean mUseChronometer;
         Style mStyle;
         CharSequence mSubText;
@@ -852,6 +866,15 @@ public class NotificationCompat {
          */
         public Builder setWhen(long when) {
             mNotification.when = when;
+            return this;
+        }
+
+        /**
+         * Control whether the timestamp set with {@link #setWhen(long) setWhen} is shown
+         * in the content view.
+         */
+        public Builder setShowWhen(boolean show) {
+            mShowWhen = show;
             return this;
         }
 
