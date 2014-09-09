@@ -51,9 +51,15 @@ abstract class BaseRowFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mVerticalGridView = (VerticalGridView) inflater.inflate(getLayoutResourceId(), container, false);
-        return mVerticalGridView;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View view = inflater.inflate(getLayoutResourceId(), container, false);
+        mVerticalGridView = findGridViewFromRoot(view);
+        return view;
+    }
+
+    protected VerticalGridView findGridViewFromRoot(View view) {
+        return (VerticalGridView) view;
     }
 
     @Override

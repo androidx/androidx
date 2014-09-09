@@ -14,6 +14,9 @@
 
 package android.support.v17.leanback.app;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.FocusHighlightHelper;
@@ -59,6 +62,11 @@ public class HeadersFragment extends BaseRowFragment {
 
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         mOnItemSelectedListener = listener;
+    }
+
+    @Override
+    protected VerticalGridView findGridViewFromRoot(View view) {
+        return (VerticalGridView) view.findViewById(R.id.browse_headers);
     }
 
     @Override
@@ -121,7 +129,10 @@ public class HeadersFragment extends BaseRowFragment {
         if (getBridgeAdapter() != null) {
             FocusHighlightHelper.setupHeaderItemFocusHighlight(listView);
         }
-        listView.setBackgroundColor(getBackgroundColor());
+        view.setBackgroundColor(getBackgroundColor());
+        if (mBackgroundColorSet) {
+            updateFadingEdgeToBrandColor();
+        }
         updateListViewVisibility();
     }
 
@@ -179,8 +190,19 @@ public class HeadersFragment extends BaseRowFragment {
         mBackgroundColor = color;
         mBackgroundColorSet = true;
 
-        if (getVerticalGridView() != null) {
-            getVerticalGridView().setBackgroundColor(mBackgroundColor);
+        if (getView() != null) {
+            getView().setBackgroundColor(mBackgroundColor);
+            updateFadingEdgeToBrandColor();
+        }
+    }
+
+    private void updateFadingEdgeToBrandColor() {
+        View fadingView = getView().findViewById(R.id.fade_out_edge);
+        Drawable background = fadingView.getBackground();
+        if (background instanceof GradientDrawable) {
+            background.mutate();
+            ((GradientDrawable) background).setColors(
+                    new int[]{Color.TRANSPARENT,mBackgroundColor});
         }
     }
 
