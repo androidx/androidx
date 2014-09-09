@@ -22,9 +22,13 @@ import android.graphics.Rect;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.view.AccessibilityDelegateCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static android.support.v7.widget.LayoutState.*;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager.*;
 
 public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
@@ -1198,6 +1203,31 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             }
         }
         assertViewPositions(config);
+    }
+
+    public void testAccessibilityPositions() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_NONE));
+        waitFirstLayout();
+        final AccessibilityDelegateCompat delegateCompat = mRecyclerView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityEvent event = AccessibilityEvent.obtain();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityEvent(mRecyclerView, event);
+            }
+        });
+        final AccessibilityRecordCompat record = AccessibilityEventCompat
+                .asRecord(event);
+        final int start = mRecyclerView
+                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToStart(false));
+        final int end = mRecyclerView
+                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToEnd(false));
+        assertEquals("first item position should match",
+                Math.min(start, end), record.getFromIndex());
+        assertEquals("last item position should match",
+                Math.max(start, end), record.getToIndex());
+
     }
 
     public void testConsistentRelayout() throws Throwable {

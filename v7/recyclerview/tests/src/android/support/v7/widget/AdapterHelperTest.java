@@ -77,7 +77,7 @@ public class AdapterHelperTest extends AndroidTestCase {
             @Override
             public RecyclerView.ViewHolder findViewHolder(int position) {
                 for (ViewHolder vh : mViewHolders) {
-                    if (vh.mPosition == position) {
+                    if (vh.mPosition == position && !vh.isRemoved()) {
                         return vh;
                     }
                 }

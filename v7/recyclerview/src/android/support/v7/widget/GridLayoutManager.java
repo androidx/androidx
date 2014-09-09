@@ -17,6 +17,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -72,6 +73,53 @@ public class GridLayoutManager extends LinearLayoutManager {
     public void setStackFromEnd(boolean stackFromEnd) {
         throw new UnsupportedOperationException("GridLayoutManager does not support stack from end."
                 + " Consider using reverse layout");
+    }
+
+    @Override
+    public int getRowCountForAccessibility(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        if (mOrientation == HORIZONTAL) {
+            return mSpanCount;
+        }
+        if (state.getItemCount() < 1) {
+            return 0;
+        }
+        return getSpanGroupIndex(recycler, state, state.getItemCount() - 1);
+    }
+
+    @Override
+    public int getColumnCountForAccessibility(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        if (mOrientation == VERTICAL) {
+            return mSpanCount;
+        }
+        if (state.getItemCount() < 1) {
+            return 0;
+        }
+        return getSpanGroupIndex(recycler, state, state.getItemCount() - 1);
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfoForItem(RecyclerView.Recycler recycler,
+            RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {
+        ViewGroup.LayoutParams lp = host.getLayoutParams();
+        if (!(lp instanceof LayoutParams)) {
+            super.onInitializeAccessibilityNodeInfoForItem(host, info);
+            return;
+        }
+        LayoutParams glp = (LayoutParams) lp;
+        int spanGroupIndex = getSpanGroupIndex(recycler, state, glp.getViewPosition());
+        if (mOrientation == HORIZONTAL) {
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    glp.getSpanIndex(), glp.getSpanSize(),
+                    spanGroupIndex, 1,
+                    mSpanCount > 1 && glp.getSpanSize() == mSpanCount, false));
+        } else { // VERTICAL
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    spanGroupIndex , 1,
+                    glp.getSpanIndex(), glp.getSpanSize(),
+                    mSpanCount > 1 && glp.getSpanSize() == mSpanCount, false));
+        }
     }
 
     @Override
@@ -198,6 +246,23 @@ public class GridLayoutManager extends LinearLayoutManager {
             anchorInfo.mPosition--;
             span = mSpanSizeLookup.getCachedSpanIndex(anchorInfo.mPosition, mSpanCount);
         }
+    }
+
+    private int getSpanGroupIndex(RecyclerView.Recycler recycler, RecyclerView.State state,
+            int viewPosition) {
+        if (!state.isPreLayout()) {
+            return mSpanSizeLookup.getSpanGroupIndex(viewPosition, mSpanCount);
+        }
+        final int adapterPosition = recycler.convertPreLayoutPositionToPostLayout(viewPosition);
+        if (adapterPosition == -1) {
+            if (DEBUG) {
+                throw new RuntimeException("Cannot find span group index for position "
+                        + viewPosition);
+            }
+            Log.w(TAG, "Cannot find span size for pre layout position. " + viewPosition);
+            return 0;
+        }
+        return mSpanSizeLookup.getSpanGroupIndex(adapterPosition, mSpanCount);
     }
 
     private int getSpanIndex(RecyclerView.Recycler recycler, RecyclerView.State state, int pos) {
@@ -531,7 +596,7 @@ public class GridLayoutManager extends LinearLayoutManager {
          * value before the <code>position</code>.
          * <p>
          * If you override this method, you need to make sure it is consistent with
-         * {@link #getSpanIndex(int, int)}. GridLayoutManager does not call this method for
+         * {@link #getSpanSize(int)}. GridLayoutManager does not call this method for
          * each item. It is called only for the reference item and rest of the items
          * are assigned to spans based on the reference item. For example, you cannot assign a
          * position to span 2 while span 1 is empty.
@@ -592,6 +657,38 @@ public class GridLayoutManager extends LinearLayoutManager {
                 return mSpanIndexCache.keyAt(index);
             }
             return -1;
+        }
+
+        /**
+         * Returns the index of the group this position belongs.
+         * <p>
+         * For example, if grid has 3 columns and each item occupies 1 span, span group index
+         * for item 1 will be 0, item 5 will be 1.
+         *
+         * @param adapterPosition The position in adapter
+         * @param spanCount The total number of spans in the grid
+         * @return The index of the span group including the item at the given adapter position
+         */
+        public int getSpanGroupIndex(int adapterPosition, int spanCount) {
+            int span = 0;
+            int group = 0;
+            int positionSpanSize = getSpanSize(adapterPosition);
+            for (int i = 0; i < adapterPosition; i++) {
+                int size = getSpanSize(i);
+                span += size;
+                if (span == spanCount) {
+                    span = 0;
+                    group++;
+                } else if (span > spanCount) {
+                    // did not fit, moving to next row / column
+                    span = size;
+                    group++;
+                }
+            }
+            if (span + positionSpanSize > spanCount) {
+                group++;
+            }
+            return group;
         }
     }
 

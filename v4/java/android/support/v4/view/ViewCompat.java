@@ -33,6 +33,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
 
@@ -260,6 +261,7 @@ public class ViewCompat {
         public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate);
+        public boolean hasAccessibilityDelegate(View v);
         public boolean hasTransientState(View view);
         public void setHasTransientState(View view, boolean hasTransientState);
         public void postInvalidateOnAnimation(View view);
@@ -350,6 +352,12 @@ public class ViewCompat {
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
             // Do nothing; API doesn't exist
         }
+
+        @Override
+        public boolean hasAccessibilityDelegate(View v) {
+            return false;
+        }
+
         public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
             // Do nothing; API doesn't exist
         }
@@ -864,6 +872,8 @@ public class ViewCompat {
     }
 
     static class ICSViewCompatImpl extends HCViewCompatImpl {
+        static Field mAccessibilityDelegateField;
+        static boolean accessibilityDelegateCheckFailed = false;
         @Override
         public boolean canScrollHorizontally(View v, int direction) {
             return ViewCompatICS.canScrollHorizontally(v, direction);
@@ -888,6 +898,30 @@ public class ViewCompat {
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
             ViewCompatICS.setAccessibilityDelegate(v, delegate.getBridge());
         }
+
+        @Override
+        public boolean hasAccessibilityDelegate(View v) {
+            if (accessibilityDelegateCheckFailed) {
+                return false; // View implementation might have changed.
+            }
+            if (mAccessibilityDelegateField == null) {
+                try {
+                    mAccessibilityDelegateField = View.class
+                            .getDeclaredField("mAccessibilityDelegate");
+                    mAccessibilityDelegateField.setAccessible(true);
+                } catch (Throwable t) {
+                    accessibilityDelegateCheckFailed = true;
+                    return false;
+                }
+            }
+            try {
+                return mAccessibilityDelegateField.get(v) != null;
+            } catch (Throwable t) {
+                accessibilityDelegateCheckFailed = true;
+                return false;
+            }
+        }
+
         @Override
         public ViewPropertyAnimatorCompat animate(View view) {
             if (mViewPropertyAnimatorCompatMap == null) {
@@ -1273,6 +1307,16 @@ public class ViewCompat {
      */
     public static void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
         IMPL.setAccessibilityDelegate(v, delegate);
+    }
+
+    /**
+     * Checks whether provided View has an accessibility delegate attached to it.
+     *
+     * @param v The View instance to check
+     * @return True if the View has an accessibility delegate
+     */
+    public static boolean hasAccessibilityDelegate(View v) {
+        return IMPL.hasAccessibilityDelegate(v);
     }
 
     /**
