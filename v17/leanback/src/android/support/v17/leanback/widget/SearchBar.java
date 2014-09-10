@@ -642,5 +642,10 @@ public class SearchBar extends RelativeLayout {
         play(R.raw.lb_voice_success);
     }
 
+    @Override
+    public void setNextFocusDownId(int viewId) {
+        mSpeechOrbView.setNextFocusDownId(viewId);
+        mSearchTextEditor.setNextFocusDownId(viewId);
+    }
 
 }
