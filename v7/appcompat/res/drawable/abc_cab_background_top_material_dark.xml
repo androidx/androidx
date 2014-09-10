@@ -21,7 +21,5 @@
             <solid android:color="@color/background_material_dark" />
         </shape>
     </item>
-    <item>
-        <nine-patch android:src="@drawable/abc_cab_background_top_tinted_material_dark" />
-    </item>
+    <item android:drawable="@drawable/abc_cab_background_top_mtrl_alpha" />
 </layer-list>

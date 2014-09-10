@@ -73,24 +73,14 @@
         <item name="textAllCaps">@bool/abc_config_actionMenuItemAllCaps</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionButton" parent="Base.Widget.AppCompat.ActionButton">
-    </style>
-
     <style name="Base.Widget.AppCompat.ActionButton.CloseMode">
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ActionButton.CloseMode">
-        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
-    </style>
-
-    <style name="Base.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton">
-        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_dark</item>
+    <style name="Base.Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_mtrl_alpha</item>
+        <item name="android:background">?attr/actionBarItemBackground</item>
         <item name="android:contentDescription">@string/abc_action_menu_overflow_description</item>
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton.Overflow">
-        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_material_light</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActionBar.TabBar" parent="">
@@ -104,7 +94,7 @@
     </style>
 
     <style name="Base.Widget.AppCompat.ActionBar.TabView" parent="">
-        <item name="android:background">@drawable/abc_tab_indicator_material_dark</item>
+        <item name="android:background">@drawable/abc_tab_indicator_material</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
@@ -114,7 +104,7 @@
     </style>
 
     <style name="Base.Widget.AppCompat.Light.ActionBar.TabView" parent="Base.Widget.AppCompat.ActionBar.TabView">
-        <item name="android:background">@drawable/abc_tab_indicator_material_light</item>
+        <item name="android:background">@drawable/abc_tab_indicator_material</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActionBar.TabText" parent="">
@@ -192,9 +182,9 @@
         <item name="spinnerMode">dropdown</item>
 
         <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/abc_spinner_background_material_dark</item>
+        <item name="android:background">@drawable/abc_spinner_mtrl_am_alpha</item>
         <item name="android:dropDownSelector">?attr/listChoiceBackgroundIndicator</item>
-        <item name="android:popupBackground">@drawable/abc_popup_background_material_dark</item>
+        <item name="android:popupBackground">@drawable/abc_popup_background_mtrl_mult</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="overlapAnchor">true</item>
@@ -204,10 +194,8 @@
         <item name="disableChildrenWhenDisabled">true</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.Spinner" parent="Base.Widget.AppCompat.Spinner">
+    <style name="Base.Widget.AppCompat.Light.Spinner" parent="Widget.AppCompat.Spinner">
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
-        <item name="android:popupBackground">@drawable/abc_popup_background_material_light</item>
-        <item name="android:background">@drawable/abc_spinner_background_material_light</item>
     </style>
 
     <style name="Base.Widget.AppCompat.DropDownItem.Spinner" parent="">
@@ -244,18 +232,14 @@
 
     <style name="Base.Widget.AppCompat.ListPopupWindow" parent="">
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
-        <item name="android:popupBackground">@drawable/abc_popup_background_material_dark</item>
+        <item name="android:popupBackground">@drawable/abc_popup_background_mtrl_mult</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.ListPopupWindow" parent="">
+    <style name="Base.Widget.AppCompat.Light.ListPopupWindow" parent="Widget.AppCompat.ListPopupWindow">
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
-        <item name="android:popupBackground">@drawable/abc_popup_background_material_light</item>
-        <item name="android:dropDownVerticalOffset">0dip</item>
-        <item name="android:dropDownHorizontalOffset">0dip</item>
-        <item name="android:dropDownWidth">wrap_content</item>
     </style>
 
     <style name="Base.Widget.AppCompat.PopupMenu.Overflow">
@@ -304,13 +288,11 @@
     <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.AutoCompleteTextView">
         <item name="android:textColor">?attr/actionMenuTextColor</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
-        <item name="android:popupBackground">@drawable/abc_popup_background_material_dark</item>
+        <item name="android:popupBackground">@drawable/abc_popup_background_mtrl_mult</item>
     </style>
 
     <style name="Base.Widget.AppCompat.Light.AutoCompleteTextView" parent="android:Widget.AutoCompleteTextView">
-        <item name="android:textColor">?attr/actionMenuTextColor</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
-        <item name="android:popupBackground">@drawable/abc_popup_background_material_light</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActivityChooserView" parent="">
@@ -356,25 +338,13 @@
 
     <style name="Base.Widget.AppCompat.SearchView" parent="android:Widget">
         <item name="layout">@layout/abc_search_view</item>
-        <item name="queryBackground">@drawable/abc_textfield_search_material_dark</item>
-        <item name="submitBackground">@drawable/abc_textfield_search_material_dark</item>
-        <item name="closeIcon">@drawable/abc_ic_clear_material_dark</item>
-        <item name="searchIcon">@drawable/abc_ic_search_api_material_dark</item>
-        <item name="goIcon">@drawable/abc_ic_go_search_api_material_dark</item>
-        <item name="voiceIcon">@drawable/abc_ic_voice_search_api_material_dark</item>
-        <item name="commitIcon">@drawable/abc_ic_commit_search_api_material_dark</item>
-        <item name="suggestionRowLayout">@layout/abc_search_dropdown_item_icons_2line</item>
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.SearchView" parent="android:Widget">
-        <item name="layout">@layout/abc_search_view</item>
-        <item name="queryBackground">@drawable/abc_textfield_search_material_light</item>
-        <item name="submitBackground">@drawable/abc_textfield_search_material_light</item>
-        <item name="closeIcon">@drawable/abc_ic_clear_material_light</item>
-        <item name="searchIcon">@drawable/abc_ic_search_api_material_light</item>
-        <item name="goIcon">@drawable/abc_ic_go_search_api_material_light</item>
-        <item name="voiceIcon">@drawable/abc_ic_voice_search_api_material_light</item>
-        <item name="commitIcon">@drawable/abc_ic_commit_search_api_material_light</item>
+        <item name="queryBackground">@drawable/abc_textfield_search_material</item>
+        <item name="submitBackground">@drawable/abc_textfield_search_material</item>
+        <item name="closeIcon">@drawable/abc_ic_clear_mtrl_alpha</item>
+        <item name="searchIcon">@drawable/abc_ic_search_api_mtrl_alpha</item>
+        <item name="goIcon">@drawable/abc_ic_go_search_api_mtrl_alpha</item>
+        <item name="voiceIcon">@drawable/abc_ic_voice_search_api_mtrl_alpha</item>
+        <item name="commitIcon">@drawable/abc_ic_commit_search_api_mtrl_alpha</item>
         <item name="suggestionRowLayout">@layout/abc_search_dropdown_item_icons_2line</item>
     </style>
 

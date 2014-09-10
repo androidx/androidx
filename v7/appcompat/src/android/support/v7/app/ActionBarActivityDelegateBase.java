@@ -20,9 +20,11 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
@@ -39,10 +41,11 @@ import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.ProgressBarCompat;
+import android.support.v7.internal.widget.TintEditText;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -60,7 +63,9 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 
-import static android.support.v4.view.WindowCompat.*;
+import static android.support.v4.view.WindowCompat.FEATURE_ACTION_BAR;
+import static android.support.v4.view.WindowCompat.FEATURE_ACTION_BAR_OVERLAY;
+import static android.support.v4.view.WindowCompat.FEATURE_ACTION_MODE_OVERLAY;
 import static android.view.Window.FEATURE_OPTIONS_PANEL;
 
 class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
@@ -253,7 +258,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                  * Propagate features to DecorContentParent
                  */
                 if (mOverlayActionBar) {
-                    mDecorContentParent.initFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+                    mDecorContentParent.initFeature(FEATURE_ACTION_BAR_OVERLAY);
                 }
                 if (mFeatureProgress) {
                     mDecorContentParent.initFeature(Window.FEATURE_PROGRESS);
@@ -641,6 +646,19 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
         // from the Activity
         return onKeyShortcut(keyCode, event);
+    }
+
+    @Override
+    View createView(final String name, @NonNull AttributeSet attrs) {
+        if (Build.VERSION.SDK_INT < 21) {
+            // If we're running pre-L, we need to 'inject' our tint aware Views in place of the
+            // standard framework versions
+            switch (name) {
+                case "EditText":
+                    return new TintEditText(mActivity, attrs);
+            }
+        }
+        return null;
     }
 
     /**

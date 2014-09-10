@@ -17,10 +17,12 @@
 package android.support.v7.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.ActivityCompat;
@@ -30,6 +32,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -530,6 +533,17 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
      * @see android.app.Activity#onContentChanged()
      */
     public void onSupportContentChanged() {
+    }
+
+    @Override
+    public View onCreateView(String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+        // Allow super (FragmentActivity) to try and create a view first
+        final View result = super.onCreateView(name, context, attrs);
+        if (result != null) {
+            return result;
+        }
+        // If we reach here super didn't create a View, so let our delegate attempt it
+        return getDelegate().createView(name, attrs);
     }
 
     private ActionBarActivityDelegate getDelegate() {
