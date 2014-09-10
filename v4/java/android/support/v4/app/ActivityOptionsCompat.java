@@ -130,7 +130,7 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
             View sharedElement, String sharedElementName) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             return new ActivityOptionsCompat.ActivityOptionsImpl21(
                     ActivityOptionsCompat21.makeSceneTransitionAnimation(activity,
                             sharedElement, sharedElementName));
@@ -157,7 +157,7 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
             Pair<View, String>... sharedElements) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             View[] views = null;
             String[] names = null;
             if (sharedElements != null) {

@@ -492,7 +492,7 @@ public final class TransitionHelper {
     }
 
     private TransitionHelper() {
-        if ("L".equals(Build.VERSION.RELEASE)) {
+        if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new TransitionHelperApi21Impl();
         } else  if (systemSupportsTransitions()) {
             mImpl = new TransitionHelperKitkatImpl();

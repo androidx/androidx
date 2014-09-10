@@ -10,7 +10,7 @@ public class VersionUtils {
     private VersionUtils() {}
 
     public static boolean isAtLeastL() {
-        return Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L");
+        return Build.VERSION.SDK_INT >= 21;
     }
 
 }
