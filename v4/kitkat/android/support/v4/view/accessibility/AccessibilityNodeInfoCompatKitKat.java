@@ -38,8 +38,29 @@ class AccessibilityNodeInfoCompatKitKat {
         return ((AccessibilityNodeInfo) info).getCollectionItemInfo();
     }
 
+    public static void setCollectionInfo(Object info, Object collectionInfo) {
+        ((AccessibilityNodeInfo) info).setCollectionInfo(
+                (AccessibilityNodeInfo.CollectionInfo)collectionInfo);
+    }
+
+    public static void setCollectionItemInfo(Object info, Object collectionItemInfo) {
+        ((AccessibilityNodeInfo) info).setCollectionItemInfo(
+                (AccessibilityNodeInfo.CollectionItemInfo) collectionItemInfo);
+    }
+
     static Object getRangeInfo(Object info) {
         return ((AccessibilityNodeInfo) info).getRangeInfo();
+    }
+
+    public static Object obtainCollectionInfo(int rowCount, int columnCount,
+            boolean hierarchical, int selectionMode) {
+        return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical);
+    }
+
+    public static Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
+            int columnSpan, boolean heading) {
+        return AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
+                columnSpan, heading);
     }
 
     static class CollectionInfo {

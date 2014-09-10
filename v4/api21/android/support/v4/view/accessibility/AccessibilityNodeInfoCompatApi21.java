@@ -36,6 +36,24 @@ class AccessibilityNodeInfoCompatApi21 {
         ((AccessibilityNodeInfo) info).addAction(aa);
     }
 
+    public static Object obtainCollectionInfo(int rowCount, int columnCount,
+            boolean hierarchical, int selectionMode) {
+        return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical,
+                selectionMode);
+    }
+
+    public static Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
+            int columnSpan, boolean heading, boolean selected) {
+        return AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
+                columnSpan, heading, selected);
+    }
+
+    static class CollectionItemInfo {
+        public static boolean isSelected(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).isSelected();
+        }
+    }
+
     static class AccessibilityAction {
         static int getId(Object action) {
             return ((AccessibilityNodeInfo.AccessibilityAction) action).getId();

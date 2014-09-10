@@ -17,6 +17,8 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.support.v4.view.AccessibilityDelegateCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,6 +84,43 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         layoutParamsTest(GridLayoutManager.HORIZONTAL);
         removeRecyclerView();
         layoutParamsTest(GridLayoutManager.VERTICAL);
+    }
+
+    public void testHorizontalAccessibilitySpanIndices() throws Throwable {
+        accessibilitySpanIndicesTest(HORIZONTAL);
+    }
+
+    public void testVerticalAccessibilitySpanIndices() throws Throwable {
+        accessibilitySpanIndicesTest(VERTICAL);
+    }
+
+    public void accessibilitySpanIndicesTest(int orientation) throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, orientation, false));
+        waitForFirstLayout(recyclerView);
+        final AccessibilityDelegateCompat delegateCompat = mRecyclerView
+                .getCompatAccessibilityDelegate().getItemDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        final View chosen = recyclerView.getChildAt(recyclerView.getChildCount() - 2);
+        final int position = recyclerView.getChildPosition(chosen);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(chosen, info);
+            }
+        });
+        GridLayoutManager.SpanSizeLookup ssl = mGlm.mSpanSizeLookup;
+        AccessibilityNodeInfoCompat.CollectionItemInfoCompat itemInfo = info
+                .getCollectionItemInfo();
+        assertNotNull(itemInfo);
+        assertEquals("result should have span group position",
+                ssl.getSpanGroupIndex(position, mGlm.getSpanCount()),
+                orientation == HORIZONTAL ? itemInfo.getColumnIndex() : itemInfo.getRowIndex());
+        assertEquals("result should have span index",
+                ssl.getSpanIndex(position, mGlm.getSpanCount()),
+                orientation == HORIZONTAL ? itemInfo.getRowIndex() :  itemInfo.getColumnIndex());
+        assertEquals("result should have span size",
+                ssl.getSpanSize(position),
+                orientation == HORIZONTAL ? itemInfo.getRowSpan() :  itemInfo.getColumnSpan());
     }
 
     public void layoutParamsTest(final int orientation) throws Throwable {
@@ -251,6 +290,29 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals(2, ssl.getCachedSpanIndex(7, 5));
         assertEquals(2, ssl.getCachedSpanIndex(9, 5));
         assertEquals(0, ssl.getCachedSpanIndex(8, 5));
+    }
+
+    public void testSpanGroupIndex() {
+        final GridLayoutManager.SpanSizeLookup ssl
+                = new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position > 200) {
+                    return 100;
+                }
+                if (position > 6) {
+                    return 2;
+                }
+                return 1;
+            }
+        };
+        assertEquals(0, ssl.getSpanGroupIndex(0, 5));
+        assertEquals(0, ssl.getSpanGroupIndex(4, 5));
+        assertEquals(1, ssl.getSpanGroupIndex(5, 5));
+        assertEquals(1, ssl.getSpanGroupIndex(6, 5));
+        assertEquals(1, ssl.getSpanGroupIndex(7, 5));
+        assertEquals(2, ssl.getSpanGroupIndex(9, 5));
+        assertEquals(2, ssl.getSpanGroupIndex(8, 5));
     }
 
     public void testNotifyDataSetChange() throws Throwable {

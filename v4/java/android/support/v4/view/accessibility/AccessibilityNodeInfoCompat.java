@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,50 +61,86 @@ public class AccessibilityNodeInfoCompat {
     }
 
     public static class CollectionInfoCompat {
-        private final Object mInfo;
+        /** Selection mode where items are not selectable. */
+        public static final int SELECTION_MODE_NONE = 0;
+
+        /** Selection mode where a single item may be selected. */
+        public static final int SELECTION_MODE_SINGLE = 1;
+
+        /** Selection mode where multiple items may be selected. */
+        public static final int SELECTION_MODE_MULTIPLE = 2;
+
+        final Object mInfo;
+
+        /**
+         * Returns a cached instance if such is available otherwise a new one.
+         *
+         * @return An instance.
+         */
+        public static CollectionInfoCompat obtain(int rowCount, int columnCount,
+                boolean hierarchical, int selectionMode) {
+            return new CollectionInfoCompat(IMPL.obtainCollectionInfo(rowCount, columnCount,
+                    hierarchical, selectionMode));
+        }
 
         private CollectionInfoCompat(Object info) {
             mInfo = info;
         }
 
         public int getColumnCount() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.getColumnCount(mInfo);
+            return IMPL.getCollectionInfoColumnCount(mInfo);
         }
 
         public int getRowCount() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.getRowCount(mInfo);
+            return IMPL.getCollectionInfoRowCount(mInfo);
         }
 
         public boolean isHierarchical() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.isHierarchical(mInfo);
+            return IMPL.isCollectionInfoHierarchical(mInfo);
         }
     }
 
     public static class CollectionItemInfoCompat {
+
         private final Object mInfo;
+
+        /**
+         * Returns a cached instance if such is available otherwise a new one.
+         *
+         * @return An instance.
+         */
+        public static CollectionItemInfoCompat obtain(int rowIndex, int rowSpan,
+                int columnIndex, int columnSpan, boolean heading, boolean selected) {
+            return new CollectionItemInfoCompat(IMPL.obtainCollectionItemInfo(rowIndex, rowSpan,
+                    columnIndex, columnSpan, heading, selected));
+        }
 
         private CollectionItemInfoCompat(Object info) {
             mInfo = info;
         }
 
         public int getColumnIndex() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getColumnIndex(mInfo);
+            return IMPL.getCollectionItemColumnIndex(mInfo);
         }
 
         public int getColumnSpan() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getColumnSpan(mInfo);
+            return IMPL.getCollectionItemColumnSpan(mInfo);
         }
 
         public int getRowIndex() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getRowIndex(mInfo);
+            return IMPL.getCollectionItemRowIndex(mInfo);
         }
 
         public int getRowSpan() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getRowSpan(mInfo);
+            return IMPL.getCollectionItemRowSpan(mInfo);
         }
 
         public boolean isHeading() {
-            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.isHeading(mInfo);
+            return IMPL.isCollectionItemHeading(mInfo);
+        }
+
+        public boolean isSelected() {
+            return IMPL.isCollectionItemSelected(mInfo);
         }
     }
 
@@ -204,10 +241,25 @@ public class AccessibilityNodeInfoCompat {
         public int getLiveRegion(Object info);
         public void setLiveRegion(Object info, int mode);
         public Object getCollectionInfo(Object info);
+        public void setCollectionInfo(Object info, Object collectionInfo);
         public Object getCollectionItemInfo(Object info);
+        public void setCollectionItemInfo(Object info, Object collectionItemInfo);
         public Object getRangeInfo(Object info);
         public List<Object> getActionList(Object info);
         public void addAction(Object info, int id, CharSequence label);
+        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical,
+                int selectionMode);
+        public int getCollectionInfoColumnCount(Object info);
+        public int getCollectionInfoRowCount(Object info);
+        public boolean isCollectionInfoHierarchical(Object info);
+        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
+                int columnSpan, boolean heading, boolean selected);
+        public int getCollectionItemColumnIndex(Object info);
+        public int getCollectionItemColumnSpan(Object info);
+        public int getCollectionItemRowIndex(Object info);
+        public int getCollectionItemRowSpan(Object info);
+        public boolean isCollectionItemHeading(Object info);
+        public boolean isCollectionItemSelected(Object info);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -537,8 +589,16 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
+        public void setCollectionInfo(Object info, Object collectionInfo) {
+        }
+
+        @Override
         public Object getCollectionItemInfo(Object info) {
             return null;
+        }
+
+        @Override
+        public void setCollectionItemInfo(Object info, Object collectionItemInfo) {
         }
 
         @Override
@@ -555,6 +615,62 @@ public class AccessibilityNodeInfoCompat {
         public void addAction(Object info, int id, CharSequence label) {
         }
 
+        @Override
+        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical,
+                int selectionMode) {
+            return null;
+        }
+
+        @Override
+        public int getCollectionInfoColumnCount(Object info) {
+            return 0;
+        }
+
+        @Override
+        public int getCollectionInfoRowCount(Object info) {
+            return 0;
+        }
+
+        @Override
+        public boolean isCollectionInfoHierarchical(Object info) {
+            return false;
+        }
+
+        @Override
+        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
+                int columnSpan, boolean heading, boolean selected) {
+            return null;
+        }
+
+        @Override
+        public int getCollectionItemColumnIndex(Object info) {
+            return 0;
+        }
+
+        @Override
+        public int getCollectionItemColumnSpan(Object info) {
+            return 0;
+        }
+
+        @Override
+        public int getCollectionItemRowIndex(Object info) {
+            return 0;
+        }
+
+        @Override
+        public int getCollectionItemRowSpan(Object info) {
+            return 0;
+        }
+
+        @Override
+        public boolean isCollectionItemHeading(Object info) {
+            return false;
+        }
+
+        @Override
+        public boolean isCollectionItemSelected(Object info) {
+            return false;
+        }
     }
 
     static class AccessibilityNodeInfoIcsImpl extends AccessibilityNodeInfoStubImpl {
@@ -898,6 +1014,40 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
+        public void setCollectionInfo(Object info, Object collectionInfo) {
+            AccessibilityNodeInfoCompatKitKat.setCollectionInfo(info, collectionInfo);
+        }
+
+        @Override
+        public Object obtainCollectionInfo(int rowCount, int columnCount,
+                boolean hierarchical, int selectionMode) {
+            return AccessibilityNodeInfoCompatKitKat.obtainCollectionInfo(rowCount, columnCount,
+                    hierarchical, selectionMode);
+        }
+
+        @Override
+        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
+                int columnSpan, boolean heading, boolean selected) {
+            return AccessibilityNodeInfoCompatKitKat
+                    .obtainCollectionItemInfo(rowIndex, rowSpan, columnIndex, columnSpan, heading);
+        }
+
+        @Override
+        public int getCollectionInfoColumnCount(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.getColumnCount(info);
+        }
+
+        @Override
+        public int getCollectionInfoRowCount(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.getRowCount(info);
+        }
+
+        @Override
+        public boolean isCollectionInfoHierarchical(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionInfo.isHierarchical(info);
+        }
+
+        @Override
         public Object getCollectionItemInfo(Object info) {
             return AccessibilityNodeInfoCompatKitKat.getCollectionItemInfo(info);
         }
@@ -905,6 +1055,36 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public Object getRangeInfo(Object info) {
             return AccessibilityNodeInfoCompatKitKat.getRangeInfo(info);
+        }
+
+        @Override
+        public int getCollectionItemColumnIndex(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getColumnIndex(info);
+        }
+
+        @Override
+        public int getCollectionItemColumnSpan(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getColumnSpan(info);
+        }
+
+        @Override
+        public int getCollectionItemRowIndex(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getRowIndex(info);
+        }
+
+        @Override
+        public int getCollectionItemRowSpan(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getRowSpan(info);
+        }
+
+        @Override
+        public boolean isCollectionItemHeading(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.isHeading(info);
+        }
+
+        @Override
+        public void setCollectionItemInfo(Object info, Object collectionItemInfo) {
+            AccessibilityNodeInfoCompatKitKat.setCollectionItemInfo(info, collectionItemInfo);
         }
     }
 
@@ -915,8 +1095,27 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
+        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical,
+                int selectionMode) {
+            return AccessibilityNodeInfoCompatApi21.obtainCollectionInfo(rowCount, columnCount,
+                    hierarchical, selectionMode);
+        }
+
+        @Override
         public void addAction(Object info, int id, CharSequence label) {
             AccessibilityNodeInfoCompatApi21.addAction(info, id, label);
+        }
+
+        @Override
+        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
+                int columnSpan, boolean heading, boolean selected) {
+            return AccessibilityNodeInfoCompatApi21.obtainCollectionItemInfo(rowIndex, rowSpan,
+                    columnIndex, columnSpan, heading, selected);
+        }
+
+        @Override
+        public boolean isCollectionItemSelected(Object info) {
+            return AccessibilityNodeInfoCompatApi21.CollectionItemInfo.isSelected(info);
         }
     }
 
@@ -2151,6 +2350,14 @@ public class AccessibilityNodeInfoCompat {
         Object info = IMPL.getCollectionInfo(mInfo);
         if (info == null) return null;
         return new CollectionInfoCompat(info);
+    }
+
+    public void setCollectionInfo(Object collectionInfo) {
+        IMPL.setCollectionInfo(mInfo, ((CollectionInfoCompat) collectionInfo).mInfo);
+    }
+
+    public void setCollectionItemInfo(Object collectionItemInfo) {
+        IMPL.setCollectionItemInfo(mInfo, ((CollectionItemInfoCompat) collectionItemInfo).mInfo);
     }
 
     /**
