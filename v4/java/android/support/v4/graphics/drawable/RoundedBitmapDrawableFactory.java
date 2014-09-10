@@ -64,7 +64,7 @@ public class RoundedBitmapDrawableFactory {
      * the display metrics of the resources.
      */
     public static RoundedBitmapDrawable create(Resources res, Bitmap bitmap) {
-        if ("L".equals(Build.VERSION.CODENAME) || Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             return new RoundedBitmapDrawable21(res, bitmap);
         }
         return new DefaultRoundedBitmapDrawable(res, bitmap);

@@ -70,7 +70,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
     private static final CardViewImpl IMPL;
 
     static {
-        if ("L".equals(Build.VERSION.CODENAME) || Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new CardViewApi21();
         } else if (Build.VERSION.SDK_INT >= 17) {
             IMPL = new CardViewJellybeanMr1();

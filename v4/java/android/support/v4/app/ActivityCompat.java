@@ -155,7 +155,7 @@ public class ActivityCompat extends ContextCompat {
      * special exit transition.</p>
      */
     public static void finishAfterTransition(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.finishAfterTransition(activity);
         } else {
             activity.finish();
@@ -172,7 +172,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void setEnterSharedElementCallback(Activity activity,
             SharedElementCallback callback) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.setEnterSharedElementCallback(activity, createCallback(callback));
         }
     }
@@ -188,19 +188,19 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void setExitSharedElementCallback(Activity activity,
             SharedElementCallback callback) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.setExitSharedElementCallback(activity, createCallback(callback));
         }
     }
 
     public static void postponeEnterTransition(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.postponeEnterTransition(activity);
         }
     }
 
     public static void startPostponedEnterTransition(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 21 || Build.VERSION.CODENAME.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.startPostponedEnterTransition(activity);
         }
     }
