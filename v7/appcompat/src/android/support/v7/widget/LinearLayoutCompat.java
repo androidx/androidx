@@ -50,8 +50,7 @@ import java.lang.annotation.RetentionPolicy;
  * guide.</p>
  *
  * <p>
- * Also see {@link LinearLayoutCompat.LayoutParams android.widget.LinearLayoutCompat.LayoutParams}
- * for layout attributes </p>
+ * Also see {@link LinearLayoutCompat.LayoutParams} for layout attributes </p>
  */
 public class LinearLayoutCompat extends ViewGroup {
     /** @hide */

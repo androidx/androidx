@@ -27,6 +27,8 @@ import android.view.Menu;
 /**
  * Implemented by the top-level decor layout for a window. DecorContentParent offers
  * entry points for a number of title/window decor features.
+ *
+ * @hide
  */
 public interface DecorContentParent {
     void setWindowCallback(WindowCallback cb);

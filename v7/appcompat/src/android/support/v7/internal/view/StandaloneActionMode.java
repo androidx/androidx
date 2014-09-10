@@ -31,6 +31,9 @@ import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * @hide
+ */
 public class StandaloneActionMode extends ActionMode implements MenuBuilder.Callback {
     private Context mContext;
     private ActionBarContextView mContextView;
