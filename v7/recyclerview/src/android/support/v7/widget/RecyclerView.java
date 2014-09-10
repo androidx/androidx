@@ -249,6 +249,8 @@ public class RecyclerView extends ViewGroup {
      * @param adapter The new adapter to set, or null to set no adapter.
      */
     public void setAdapter(Adapter adapter) {
+        extraCleanup();
+
         if (mAdapter != null) {
             mAdapter.unregisterAdapterDataObserver(mObserver);
         }
@@ -264,6 +266,24 @@ public class RecyclerView extends ViewGroup {
         mState.mStructureChanged = true;
         markKnownViewsInvalid();
         requestLayout();
+    }
+
+    // Run extra cleanup to ensure that objects from the old adapter don't survive.
+    // All of these cleanup activities are backported from lmp to klp. They are better
+    // structured in lmp. I expect that this function will exist only on klp patch branches.
+    private void extraCleanup() {
+        // end all running animations
+        if (mItemAnimator != null) {
+            mItemAnimator.endAnimations();
+        }
+
+        if (mLayout != null) {
+            // call remove and recycle for all children of layout manager
+            mLayout.removeAllViews();
+            mLayout.removeAndRecycleScrapInt(mRecycler);
+        }
+        mRecycler.clear();
+        getRecycledViewPool().clear();
     }
 
     /**
