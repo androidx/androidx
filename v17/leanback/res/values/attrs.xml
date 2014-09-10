@@ -212,8 +212,14 @@
         <!-- for messages in the error fragment -->
         <attr name="errorMessageStyle" format="reference" />
 
-        <!-- Default colors -->
+        <!-- Default brand color used for the background of certain leanback visual elements
+             such as the headers fragment. If your app runs on:
+             a) SDK 21+: set colorPrimary, used by the leanback launcher and elsewhere, and defaultBrandColor will inherit it.
+             b) SDK < 21: set the brand color explicitly via defaultBrandColor, or programatically.
+         -->
         <attr name="defaultBrandColor" format="reference|color" />
+
+        <!-- Default colors -->
         <attr name="defaultSearchColor" format="reference|color" />
         <!-- Default color that search orb pulses to.  If not set, this color is determined programatically based on the defaultSearchColor -->
         <attr name="defaultSearchBrightColor" format="reference|color" />
