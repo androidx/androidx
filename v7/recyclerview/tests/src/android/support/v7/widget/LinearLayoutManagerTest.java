@@ -20,9 +20,13 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.view.AccessibilityDelegateCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
@@ -828,6 +832,27 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             assertEquals(message + ":\nItem should be laid out at the same coordinates",
                     entry.getValue(), afterRect);
         }
+    }
+
+    public void testAccessibilityPositions() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false), true);
+        final AccessibilityDelegateCompat delegateCompat = mRecyclerView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityEvent event = AccessibilityEvent.obtain();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityEvent(mRecyclerView, event);
+            }
+        });
+        final AccessibilityRecordCompat record = AccessibilityEventCompat
+                .asRecord(event);
+        assertEquals("result should have first position",
+                record.getFromIndex(),
+                mLayoutManager.findFirstVisibleItemPosition());
+        assertEquals("result should have last position",
+                record.getToIndex(),
+                mLayoutManager.findLastVisibleItemPosition());
     }
 
     static class VisibleChildren {

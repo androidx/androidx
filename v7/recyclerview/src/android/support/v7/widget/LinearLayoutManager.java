@@ -21,9 +21,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.graphics.PointF;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 import java.util.List;
@@ -193,6 +197,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (mRecycleChildrenOnDetach) {
             removeAndRecycleAllViews(recycler);
             recycler.clear();
+        }
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+        super.onInitializeAccessibilityEvent(event);
+        if (getChildCount() > 0) {
+            final AccessibilityRecordCompat record = AccessibilityEventCompat
+                    .asRecord(event);
+            record.setFromIndex(findFirstVisibleItemPosition());
+            record.setToIndex(findLastVisibleItemPosition());
         }
     }
 

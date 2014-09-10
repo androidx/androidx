@@ -22,10 +22,14 @@ import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1055,6 +1059,51 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         return state;
     }
 
+    @Override
+    public void onInitializeAccessibilityNodeInfoForItem(RecyclerView.Recycler recycler,
+            RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {
+        ViewGroup.LayoutParams lp = host.getLayoutParams();
+        if (!(lp instanceof LayoutParams)) {
+            super.onInitializeAccessibilityNodeInfoForItem(host, info);
+            return;
+        }
+        LayoutParams sglp = (LayoutParams) lp;
+        if (mOrientation == HORIZONTAL) {
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1,
+                    -1, -1,
+                    sglp.mFullSpan, false));
+        } else { // VERTICAL
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    -1, -1,
+                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1,
+                    sglp.mFullSpan, false));
+        }
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+        super.onInitializeAccessibilityEvent(event);
+        if (getChildCount() > 0) {
+            final AccessibilityRecordCompat record = AccessibilityEventCompat
+                    .asRecord(event);
+            final View start = findFirstVisibleItemClosestToStart(false);
+            final View end = findFirstVisibleItemClosestToEnd(false);
+            if (start == null || end == null) {
+                return;
+            }
+            final int startPos = getPosition(start);
+            final int endPos = getPosition(end);
+            if (startPos < endPos) {
+                record.setFromIndex(startPos);
+                record.setToIndex(endPos);
+            } else {
+                record.setFromIndex(endPos);
+                record.setToIndex(startPos);
+            }
+        }
+    }
+
     /**
      * Finds the first fully visible child to be used as an anchor child if span count changes when
      * state is restored.
@@ -1063,6 +1112,24 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true) :
                 findFirstVisibleItemClosestToStart(true);
         return first == null ? NO_POSITION : getPosition(first);
+    }
+
+    @Override
+    public int getRowCountForAccessibility(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        if (mOrientation == HORIZONTAL) {
+            return mSpanCount;
+        }
+        return super.getRowCountForAccessibility(recycler, state);
+    }
+
+    @Override
+    public int getColumnCountForAccessibility(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        if (mOrientation == VERTICAL) {
+            return mSpanCount;
+        }
+        return super.getColumnCountForAccessibility(recycler, state);
     }
 
     View findFirstVisibleItemClosestToStart(boolean fullyVisible) {
