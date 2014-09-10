@@ -34,7 +34,8 @@
             android:layout_toRightOf="@+id/lb_search_bar_speech_orb"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/lb_search_bar_items_margin_left"
-            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/lb_search_bar_inner_margin_top"
+            android:layout_marginBottom="@dimen/lb_search_bar_inner_margin_bottom"
             android:background="@drawable/lb_in_app_search_bg"
             >
 
@@ -66,8 +67,8 @@
                     android:imeOptions="normal|flagNoExtractUi|actionSearch"
                     android:inputType="text|textAutoComplete"
                     android:singleLine="true"
-                    android:textColor="@color/lb_search_bar_text_color"
-                    android:textColorHint="@color/lb_search_bar_hint_color"
+                    android:textColor="@color/lb_search_bar_text"
+                    android:textColorHint="@color/lb_search_bar_hint"
                     android:textCursorDrawable="@null"
                     android:hint="@string/lb_search_bar_hint"
                     android:textSize="@dimen/lb_search_bar_text_size"/>
