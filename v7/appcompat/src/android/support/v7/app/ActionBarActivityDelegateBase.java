@@ -500,6 +500,9 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     @Override
     public void supportInvalidateOptionsMenu() {
+        final ActionBar ab = getSupportActionBar();
+        if (ab != null && ab.invalidateOptionsMenu()) return;
+
         invalidatePanelMenu(FEATURE_OPTIONS_PANEL);
     }
 
