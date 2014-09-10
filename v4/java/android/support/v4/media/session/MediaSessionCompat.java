@@ -91,6 +91,10 @@ public class MediaSessionCompat {
         }
     }
 
+    private MediaSessionCompat(MediaSessionImpl impl) {
+        mImpl = impl;
+    }
+
     /**
      * Add a callback to receive updates on for the MediaSession. This includes
      * media button and volume events. The caller's thread will be used to post
@@ -241,6 +245,17 @@ public class MediaSessionCompat {
      */
     public Object getMediaSession() {
         return mImpl.getMediaSession();
+    }
+
+    /**
+     * Obtain a compat wrapper for an existing MediaSession.
+     *
+     * @param mediaSession The {@link android.media.session.MediaSession} to
+     *            wrap.
+     * @return A compat wrapper for the provided session.
+     */
+    public static MediaSessionCompat obtain(Object mediaSession) {
+        return new MediaSessionCompat(new MediaSessionImplApi21(mediaSession));
     }
 
     /**
@@ -521,6 +536,11 @@ public class MediaSessionCompat {
 
         public MediaSessionImplApi21(Context context, String tag) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
+            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj));
+        }
+
+        public MediaSessionImplApi21(Object mediaSession) {
+            mSessionObj = MediaSessionCompatApi21.verifySession(mediaSession);
             mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj));
         }
 
