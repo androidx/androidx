@@ -216,24 +216,17 @@ public class DrawableCompat {
     }
 
     /**
-     * Specifies a tint for this drawable.
-     * <p>
-     * Setting a color filter via {@link #setColorFilter(ColorFilter)} overrides
-     * tint.
+     * Specifies a tint for {@code drawable}.
      *
      * @param drawable The Drawable against which to invoke the method.
      * @param tint Color to use for tinting this drawable
-     * @see #setTintMode(PorterDuff.Mode)
      */
     public static void setTint(Drawable drawable, int tint) {
         IMPL.setTint(drawable, tint);
     }
 
     /**
-     * Specifies a tint for this drawable as a color state list.
-     * <p>
-     * Setting a color filter via {@link #setColorFilter(ColorFilter)} overrides
-     * tint.
+     * Specifies a tint for {@code drawable} as a color state list.
      *
      * @param drawable The Drawable against which to invoke the method.
      * @param tint Color state list to use for tinting this drawable, or null to
@@ -244,10 +237,7 @@ public class DrawableCompat {
     }
 
     /**
-     * Specifies a tint blending mode for this drawable.
-     * <p>
-     * Setting a color filter via {@link #setColorFilter(ColorFilter)} overrides
-     * tint.
+     * Specifies a tint blending mode for {@code drawable}.
      *
      * @param drawable The Drawable against which to invoke the method.
      * @param tintMode Color state list to use for tinting this drawable, or null to
