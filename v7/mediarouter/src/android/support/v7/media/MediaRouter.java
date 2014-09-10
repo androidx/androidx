@@ -33,6 +33,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityManagerCompat;
 import android.support.v4.hardware.display.DisplayManagerCompat;
+import android.support.v4.media.VolumeProviderCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.media.MediaRouteProvider.ProviderMetadata;
 import android.util.Log;
 import android.view.Display;
@@ -637,7 +639,8 @@ public final class MediaRouter {
     /**
      * Removes a remote control client.
      *
-     * @param remoteControlClient The {@link android.media.RemoteControlClient} to register.
+     * @param remoteControlClient The {@link android.media.RemoteControlClient}
+     *            to unregister.
      */
     public void removeRemoteControlClient(@NonNull Object remoteControlClient) {
         if (remoteControlClient == null) {
@@ -648,6 +651,22 @@ public final class MediaRouter {
             Log.d(TAG, "removeRemoteControlClient: " + remoteControlClient);
         }
         sGlobal.removeRemoteControlClient(remoteControlClient);
+    }
+
+    /**
+     * Sets the media session to enable remote control of the volume of the
+     * selected route. This should be used instead of
+     * {@link #addRemoteControlClient} when using media sessions. Set the
+     * session to null to clear it.
+     *
+     * @param mediaSession The {@link android.media.session.MediaSession} to
+     *            use.
+     */
+    public void setMediaSession(Object mediaSession) {
+        if (DEBUG) {
+            Log.d(TAG, "addMediaSession: " + mediaSession);
+        }
+        sGlobal.setMediaSession(mediaSession);
     }
 
     /**
@@ -1501,6 +1520,7 @@ public final class MediaRouter {
         private RouteInfo mSelectedRoute;
         private MediaRouteProvider.RouteController mSelectedRouteController;
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
+        private MediaSessionRecord mMediaSession;
 
         GlobalMediaRouter(Context applicationContext) {
             mApplicationContext = applicationContext;
@@ -2039,6 +2059,18 @@ public final class MediaRouter {
             }
         }
 
+        public void setMediaSession(Object session) {
+            if (mMediaSession != null) {
+                mMediaSession.clearVolumeHandling();
+            }
+            if (session == null) {
+                mMediaSession = null;
+            } else {
+                mMediaSession = new MediaSessionRecord(session);
+                updatePlaybackInfoFromSelectedRoute();
+            }
+        }
+
         private int findRemoteControlClientRecord(Object rcc) {
             final int count = mRemoteControlClients.size();
             for (int i = 0; i < count; i++) {
@@ -2063,6 +2095,15 @@ public final class MediaRouter {
                     RemoteControlClientRecord record = mRemoteControlClients.get(i);
                     record.updatePlaybackInfo();
                 }
+                if (mMediaSession != null) {
+                    int controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
+                    if (mPlaybackInfo.volumeHandling
+                            == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+                        controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+                    }
+                    mMediaSession.configureVolume(controlType, mPlaybackInfo.volumeMax,
+                            mPlaybackInfo.volume);
+                }
             }
         }
 
@@ -2072,6 +2113,50 @@ public final class MediaRouter {
                     MediaRouteProviderDescriptor descriptor) {
                 updateProviderDescriptor(provider, descriptor);
             }
+        }
+
+        private final class MediaSessionRecord {
+            private final MediaSessionCompat mMsCompat;
+
+            private int mControlType;
+            private int mMaxVolume;
+            private VolumeProviderCompat mVpCompat;
+
+            public MediaSessionRecord(Object mediaSession) {
+                mMsCompat = MediaSessionCompat.obtain(mediaSession);
+            }
+
+            public void configureVolume(int controlType, int max, int current) {
+                if (mVpCompat != null && controlType == mControlType && max == mMaxVolume) {
+                    // If we haven't changed control type or max just set the
+                    // new current volume
+                    mVpCompat.setCurrentVolume(current);
+                } else {
+                    // Otherwise create a new provider and update
+                    mVpCompat = new VolumeProviderCompat(controlType, max, current) {
+                        @Override
+                        public void onSetVolumeTo(int volume) {
+                            if (mSelectedRoute != null) {
+                                mSelectedRoute.requestSetVolume(volume);
+                            }
+                        }
+
+                        @Override
+                        public void onAdjustVolume(int direction) {
+                            if (mSelectedRoute != null) {
+                                mSelectedRoute.requestUpdateVolume(direction);
+                            }
+                        }
+                    };
+                    mMsCompat.setPlaybackToRemote(mVpCompat);
+                }
+            }
+
+            public void clearVolumeHandling() {
+                mMsCompat.setPlaybackToLocal(mPlaybackInfo.playbackStream);
+                mVpCompat = null;
+            }
+
         }
 
         private final class RemoteControlClientRecord
