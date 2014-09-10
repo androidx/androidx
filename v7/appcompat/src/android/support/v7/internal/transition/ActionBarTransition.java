@@ -19,6 +19,9 @@ package android.support.v7.internal.transition;
 
 import android.view.ViewGroup;
 
+/**
+ * @hide
+ */
 public class ActionBarTransition {
 
     private static final boolean TRANSITIONS_ENABLED = false;
