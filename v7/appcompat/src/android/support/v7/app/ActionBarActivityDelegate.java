@@ -24,12 +24,14 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -246,6 +248,9 @@ abstract class ActionBarActivityDelegate {
         }
         return context;
     }
+
+    abstract View createView(String name, @NonNull AttributeSet attrs);
+
 
     private class ActionBarDrawableToggleImpl implements
             android.support.v7.app.ActionBarDrawerToggle.Delegate,
