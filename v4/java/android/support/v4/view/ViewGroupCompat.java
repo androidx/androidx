@@ -126,7 +126,7 @@ public class ViewGroupCompat {
     static final ViewGroupCompatImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= 21 || android.os.Build.VERSION.CODENAME.equals("L")) {
+        if (version >= 21) {
             IMPL = new ViewGroupCompatApi21Impl();
         } else if (version >= 18) {
             IMPL = new ViewGroupCompatJellybeanMR2Impl();

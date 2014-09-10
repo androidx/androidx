@@ -758,8 +758,7 @@ public class NotificationCompat {
     }
 
     static {
-        // TODO: Replace this if clause when SDK_INT is incremented to 21.
-        if (Build.VERSION.RELEASE.equals("L")) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new NotificationCompatImplApi21();
         } else if (Build.VERSION.SDK_INT >= 20) {
             IMPL = new NotificationCompatImplApi20();

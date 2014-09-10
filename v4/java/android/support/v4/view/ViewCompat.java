@@ -1081,7 +1081,7 @@ public class ViewCompat {
     static final ViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 21 || android.os.Build.VERSION.CODENAME.equals("L")) {
+        if (version >= 21) {
             IMPL = new Api21ViewCompatImpl();
         } else if (version >= 19) {
             IMPL = new KitKatViewCompatImpl();

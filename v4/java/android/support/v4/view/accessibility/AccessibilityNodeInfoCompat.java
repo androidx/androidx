@@ -921,7 +921,7 @@ public class AccessibilityNodeInfoCompat {
     }
 
     static {
-        if (Build.VERSION.CODENAME.equals("L")) { // b/15469684 filed to change to API 21
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new AccessibilityNodeInfoApi21Impl();
         } else if (Build.VERSION.SDK_INT >= 19) { // KitKat
             IMPL = new AccessibilityNodeInfoKitKatImpl();

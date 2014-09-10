@@ -93,8 +93,7 @@ final class RoundedRectHelper {
     }
 
     private RoundedRectHelper() {
-        // TODO: we should use version number once "L" is published
-        if ("L".equals(Build.VERSION.RELEASE)) {
+        if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new Api21Impl();
         } else {
             mImpl = new StubImpl();
