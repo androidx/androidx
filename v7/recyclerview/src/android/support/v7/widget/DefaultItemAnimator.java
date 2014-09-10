@@ -169,7 +169,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                     mAdditionsList.remove(additions);
                 }
             };
-            if (removalsPending || movesPending) {
+            if (removalsPending || movesPending || changesPending) {
                 long removeDuration = removalsPending ? getRemoveDuration() : 0;
                 long moveDuration = movesPending ? getMoveDuration() : 0;
                 long changeDuration = changesPending ? getChangeDuration() : 0;
