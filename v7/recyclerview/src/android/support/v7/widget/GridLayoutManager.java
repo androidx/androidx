@@ -58,21 +58,42 @@ public class GridLayoutManager extends LinearLayoutManager {
     // re-used variable to acquire decor insets from RecyclerView
     final Rect mDecorInsets = new Rect();
 
+    /**
+     * Creates a vertical GridLayoutManager
+     *
+     * @param context Current context, will be used to access resources.
+     * @param spanCount The number of columns in the grid
+     */
     public GridLayoutManager(Context context, int spanCount) {
         super(context);
         setSpanCount(spanCount);
     }
 
+    /**
+     * @param context Current context, will be used to access resources.
+     * @param spanCount The number of columns or rows in the grid
+     * @param orientation Layout orientation. Should be {@link #HORIZONTAL} or {@link
+     *                      #VERTICAL}.
+     * @param reverseLayout When set to true, layouts from end to start.
+     */
     public GridLayoutManager(Context context, int spanCount, int orientation,
             boolean reverseLayout) {
         super(context, orientation, reverseLayout);
         setSpanCount(spanCount);
     }
 
+    /**
+     * stackFromEnd is not supported by GridLayoutManager. Consider using
+     * {@link #setReverseLayout(boolean)}.
+     */
     @Override
     public void setStackFromEnd(boolean stackFromEnd) {
-        throw new UnsupportedOperationException("GridLayoutManager does not support stack from end."
-                + " Consider using reverse layout");
+        if (stackFromEnd) {
+            throw new UnsupportedOperationException(
+                    "GridLayoutManager does not support stack from end."
+                            + " Consider using reverse layout");
+        }
+        super.setStackFromEnd(false);
     }
 
     @Override
