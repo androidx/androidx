@@ -34,6 +34,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
@@ -421,6 +422,40 @@ public class RowsFragment extends BaseRowFragment {
     void onTransitionStart() {
         super.onTransitionStart();
         freezeRows(true);
+    }
+
+    void onExpandTransitionStart(boolean expand, final Runnable callback) {
+        onTransitionStart();
+        if (expand) {
+            callback.run();
+            return;
+        }
+        final View verticalView = getVerticalGridView();
+        // Run a "pre" layout when we go non-expand, in order to get the initial
+        // positions of added rows.
+        verticalView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            boolean mFirstPass = true;
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+                    int oldTop, int oldRight, int oldBottom) {
+                if (mFirstPass) {
+                    setExpand(true);
+                    mFirstPass = false;
+                } else {
+                    verticalView.removeOnLayoutChangeListener(this);
+                    verticalView.getViewTreeObserver().addOnPreDrawListener(new
+                            ViewTreeObserver.OnPreDrawListener() {
+                            @Override
+                        public boolean onPreDraw() {
+                            callback.run();
+                            verticalView.getViewTreeObserver().removeOnPreDrawListener(this);
+                            return false;
+                        }
+                    });
+                }
+            }
+        });
+        setExpand(false);
     }
 
     @Override
