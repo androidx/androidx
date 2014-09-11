@@ -244,9 +244,9 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
-
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
-        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_dark</item>-->
+
+        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
@@ -343,9 +343,9 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
-
         <item name="colorControlHighlight">@color/ripple_material_light</item>
-        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_light</item>-->
+
+        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
     </style>
 
     <style name="Base.Theme.AppCompat" parent="Base.V7.Theme.AppCompat">
@@ -464,9 +464,7 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
-
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
-        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_dark</item>-->
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog" parent="Base.V7.Theme.AppCompat.Dialog" />
@@ -529,7 +527,6 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
-        <!--<item name="colorButtonNormal">@color/btn_default_material_light</item>-->
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">true</item>
@@ -569,7 +566,6 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
-        <!--<item name="colorButtonNormal">@color/btn_default_material_dark</item>-->
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>
