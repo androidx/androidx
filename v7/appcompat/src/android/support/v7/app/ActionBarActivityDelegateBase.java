@@ -1203,6 +1203,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 } else {
                     // Close the panel and only do the callback if the menu is being
                     // closed completely, not if opening a sub menu
+                    mActivity.closeOptionsMenu();
                     closePanel(panel, allMenusAreClosing);
                 }
             }
