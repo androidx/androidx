@@ -162,9 +162,8 @@
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
 
-        <item name="android:listDivider">@drawable/abc_list_divider_material_dark</item>
-        <item name="dividerVertical">?android:attr/listDivider</item>
-        <item name="dividerHorizontal">?android:attr/listDivider</item>
+        <item name="dividerVertical">@drawable/abc_list_divider_mtrl_alpha</item>
+        <item name="dividerHorizontal">@drawable/abc_list_divider_mtrl_alpha</item>
 
         <!-- Action Bar Styles -->
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
@@ -262,9 +261,8 @@
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
 
-        <item name="android:listDivider">@drawable/abc_list_divider_material_light</item>
-        <item name="dividerVertical">?android:attr/listDivider</item>
-        <item name="dividerHorizontal">?android:attr/listDivider</item>
+        <item name="dividerVertical">@drawable/abc_list_divider_mtrl_alpha</item>
+        <item name="dividerHorizontal">@drawable/abc_list_divider_mtrl_alpha</item>
 
         <!-- Action Bar Styles -->
         <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView</item>
@@ -384,9 +382,8 @@
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
 
-        <item name="android:listDivider">@drawable/abc_list_divider_material_dark</item>
-        <item name="dividerVertical">?android:attr/listDivider</item>
-        <item name="dividerHorizontal">?android:attr/listDivider</item>
+        <item name="dividerVertical">@drawable/abc_list_divider_mtrl_alpha</item>
+        <item name="dividerHorizontal">@drawable/abc_list_divider_mtrl_alpha</item>
 
         <!-- Action Bar Styles -->
         <item name="actionBarTabStyle">@style/Widget.AppCompat.ActionBar.TabView</item>
@@ -518,8 +515,6 @@
         <item name="android:textColorHighlight">@color/highlighted_text_material_light</item>
         <item name="android:textColorLink">@color/link_text_material_light</item>
 
-        <item name="android:listDivider">@drawable/abc_list_divider_material_light</item>
-
         <item name="actionBarItemBackground">@drawable/abc_item_background_holo_light</item>
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
@@ -558,8 +553,6 @@
         <item name="android:textColorHintInverse">@color/hint_foreground_material_light</item>
         <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>m>
         <item name="android:textColorLink">@color/link_text_material_dark</item>
-
-        <item name="android:listDivider">@drawable/abc_list_divider_material_dark</item>
 
         <!-- Action Bar styles -->
         <item name="actionBarItemBackground">@drawable/abc_item_background_holo_dark</item>

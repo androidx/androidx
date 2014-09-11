@@ -55,7 +55,8 @@ public class TintManager {
             R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
             R.drawable.abc_ic_voice_search_api_mtrl_alpha,
             R.drawable.abc_textfield_search_default_mtrl_alpha,
-            R.drawable.abc_textfield_default_mtrl_alpha
+            R.drawable.abc_textfield_default_mtrl_alpha,
+            R.drawable.abc_list_divider_mtrl_alpha
     };
 
     /**
@@ -197,34 +198,34 @@ public class TintManager {
             final int[] colors = new int[7];
             int i = 0;
 
-            states[i] = new int[] { android.R.attr.state_enabled, android.R.attr.state_focused };
+            // Disabled state
+            states[i] = new int[] { -android.R.attr.state_enabled };
+            colors[i] = getDisabledThemeAttrColor(R.attr.colorControlNormal);
+            i++;
+
+            states[i] = new int[] { android.R.attr.state_focused };
             colors[i] = colorControlActivated;
             i++;
 
-            states[i] = new int[] { android.R.attr.state_enabled, android.R.attr.state_activated };
+            states[i] = new int[] { android.R.attr.state_activated };
             colors[i] = colorControlActivated;
             i++;
 
-            states[i] = new int[] { android.R.attr.state_enabled, android.R.attr.state_pressed };
+            states[i] = new int[] { android.R.attr.state_pressed };
             colors[i] = colorControlActivated;
             i++;
 
-            states[i] = new int[] { android.R.attr.state_enabled, android.R.attr.state_checked };
+            states[i] = new int[] { android.R.attr.state_checked };
             colors[i] = colorControlActivated;
             i++;
 
-            states[i] = new int[] { android.R.attr.state_enabled, android.R.attr.state_selected };
+            states[i] = new int[] { android.R.attr.state_selected };
             colors[i] = colorControlActivated;
             i++;
 
-            // Enabled state
-            states[i] = new int[] { android.R.attr.state_enabled };
-            colors[i] = colorControlNormal;
-            i++;
-
-            // Default (empty) state. Needs to be the last item
+            // Default enabled state
             states[i] = new int[0];
-            colors[i] = Color.TRANSPARENT;
+            colors[i] = colorControlNormal;
             i++;
 
             mDefaultColorStateList = new ColorStateList(states, colors);
@@ -235,6 +236,19 @@ public class TintManager {
     int getThemeAttrColor(int attr) {
         mContext.getTheme().resolveAttribute(attr, mTypedValue, true);
         return mResources.getColor(mTypedValue.resourceId);
+    }
+
+    int getDisabledThemeAttrColor(int attr) {
+        mContext.getTheme().resolveAttribute(attr, mTypedValue, true);
+        final int color = mResources.getColor(mTypedValue.resourceId);
+        final int originalAlpha = Color.alpha(color);
+
+        // Now retrieve the disabledAlpha value from the theme
+        mContext.getTheme().resolveAttribute(android.R.attr.disabledAlpha, mTypedValue, true);
+        final float disabledAlpha = mTypedValue.getFloat();
+
+        // Return the color, multiplying the original alpha by the disabled value
+        return (color & 0x00ffffff) | (Math.round(originalAlpha * disabledAlpha) << 24);
     }
 
     private static class ColorFilterLruCache extends LruCache<Integer, PorterDuffColorFilter> {

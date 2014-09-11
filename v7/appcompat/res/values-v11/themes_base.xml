@@ -212,9 +212,8 @@
         <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
         <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
 
-        <item name="android:listDivider">@drawable/abc_list_divider_material_light</item>
-        <item name="dividerVertical">?android:attr/listDivider</item>
-        <item name="dividerHorizontal">?android:attr/listDivider</item>
+        <item name="dividerVertical">@drawable/abc_list_divider_mtrl_alpha</item>
+        <item name="dividerHorizontal">@drawable/abc_list_divider_mtrl_alpha</item>
 
         <!-- Action Bar Styles -->
         <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView</item>
