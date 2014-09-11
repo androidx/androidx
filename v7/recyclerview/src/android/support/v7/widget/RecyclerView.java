@@ -18,18 +18,25 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityManagerCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.support.v4.widget.ScrollerCompat;
 import static android.support.v7.widget.AdapterHelper.UpdateOp;
@@ -46,6 +53,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
@@ -166,6 +175,7 @@ public class RecyclerView extends ViewGroup {
     private boolean mLayoutRequestEaten;
     private boolean mAdapterUpdateDuringMeasure;
     private final boolean mPostUpdatesOnAnimation;
+    private final AccessibilityManager mAccessibilityManager;
 
     /**
      * Set to true when an adapter data set changed notification is received.
@@ -233,6 +243,7 @@ public class RecyclerView extends ViewGroup {
     private ItemAnimator.ItemAnimatorListener mItemAnimatorListener =
             new ItemAnimatorRestoreListener();
     private boolean mPostedAnimatorRunner = false;
+    private RecyclerViewAccessibilityDelegate mAccessibilityDelegate;
     private Runnable mItemAnimatorRunner = new Runnable() {
         @Override
         public void run() {
@@ -273,6 +284,33 @@ public class RecyclerView extends ViewGroup {
         mItemAnimator.setListener(mItemAnimatorListener);
         initAdapterManager();
         initChildrenHelper();
+        // If not explicitly specified this view is important for accessibility.
+        if (ViewCompat.getImportantForAccessibility(this)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(this,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
+        mAccessibilityManager = (AccessibilityManager) getContext()
+                .getSystemService(Context.ACCESSIBILITY_SERVICE);
+        setAccessibilityDelegateCompat(new RecyclerViewAccessibilityDelegate(this));
+    }
+
+    /**
+     * Returns the accessibility delegate compatibility implementation used by the RecyclerView.
+     * @return An instance of AccessibilityDelegateCompat used by RecyclerView
+     */
+    public RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate() {
+        return mAccessibilityDelegate;
+    }
+
+    /**
+     * Sets the accessibility delegate compatibility implementation used by RecyclerView.
+     * @param accessibilityDelegate The accessibility delegate to be used by RecyclerView.
+     */
+    public void setAccessibilityDelegateCompat(
+            RecyclerViewAccessibilityDelegate accessibilityDelegate) {
+        mAccessibilityDelegate = accessibilityDelegate;
+        ViewCompat.setAccessibilityDelegate(this, mAccessibilityDelegate);
     }
 
     private void initChildrenHelper() {
@@ -910,8 +948,11 @@ public class RecyclerView extends ViewGroup {
             considerReleasingGlowsOnScroll(x, y);
             pullGlows(overscrollX, overscrollY);
         }
-        if (mScrollListener != null && (hresult != 0 || vresult != 0)) {
-            mScrollListener.onScrolled(this, hresult, vresult);
+        if (hresult != 0 || vresult != 0) {
+            onScrollChanged(0, 0, 0, 0); // dummy values, View's implementation does not use these.
+            if (mScrollListener != null) {
+                mScrollListener.onScrolled(this, hresult, vresult);
+            }
         }
         if (!awakenScrollBars()) {
             invalidate();
@@ -2737,8 +2778,12 @@ public class RecyclerView extends ViewGroup {
                         scroller.abortAnimation();
                     }
                 }
-                if (mScrollListener != null && (hresult != 0 || vresult != 0)) {
-                    mScrollListener.onScrolled(RecyclerView.this, hresult, vresult);
+                if (hresult != 0 || vresult != 0) {
+                    // dummy values, View's implementation does not use these.
+                    onScrollChanged(0, 0, 0, 0);
+                    if (mScrollListener != null) {
+                        mScrollListener.onScrolled(RecyclerView.this, hresult, vresult);
+                    }
                 }
 
                 if (!awakenScrollBars()) {
@@ -3139,6 +3184,7 @@ public class RecyclerView extends ViewGroup {
                         + "state:" + mState.getItemCount());
             }
             mAdapter.bindViewHolder(holder, offsetPosition);
+            attachAccessibilityDelegate(view);
             if (mState.isPreLayout()) {
                 holder.mPreLayoutPosition = position;
             }
@@ -3313,6 +3359,7 @@ public class RecyclerView extends ViewGroup {
                 }
                 final int offsetPosition = mAdapterHelper.findPositionOffset(position);
                 mAdapter.bindViewHolder(holder, offsetPosition);
+                attachAccessibilityDelegate(holder.itemView);
                 bound = true;
                 if (mState.isPreLayout()) {
                     holder.mPreLayoutPosition = position;
@@ -3333,6 +3380,20 @@ public class RecyclerView extends ViewGroup {
             rvLayoutParams.mViewHolder = holder;
             rvLayoutParams.mPendingInvalidate = fromScrap && bound;
             return holder.itemView;
+        }
+
+        private void attachAccessibilityDelegate(View itemView) {
+            if (mAccessibilityManager != null && mAccessibilityManager.isEnabled()) {
+                if (ViewCompat.getImportantForAccessibility(itemView) ==
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+                    ViewCompat.setImportantForAccessibility(itemView,
+                            ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                }
+                if (!ViewCompat.hasAccessibilityDelegate(itemView)) {
+                    ViewCompat.setAccessibilityDelegate(itemView,
+                            mAccessibilityDelegate.getItemDelegate());
+                }
+            }
         }
 
         private void invalidateDisplayListInt(ViewHolder holder) {
@@ -5997,6 +6058,120 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
+        // called by accessibility delegate
+        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
+            onInitializeAccessibilityNodeInfo(mRecyclerView.mRecycler, mRecyclerView.mState,
+                    info);
+        }
+
+        /**
+         * Called by the AccessibilityDelegate when the information about the current layout should
+         * be populated.
+         * <p>
+         * Default implementation adds a {@link
+         * android.support.v4.view.accessibility.AccessibilityNodeInfoCompatKitKat.CollectionInfo}.
+         * <p>
+         * You should override
+         * {@link #getRowCountForAccessibility(RecyclerView.Recycler, RecyclerView.State)},
+         * {@link #getColumnCountForAccessibility(RecyclerView.Recycler, RecyclerView.State)},
+         * {@link #isLayoutHierarchical(RecyclerView.Recycler, RecyclerView.State)} and
+         * {@link #getSelectionModeForAccessibility(RecyclerView.Recycler, RecyclerView.State)} for
+         * more accurate accessibility information.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @param info     The info that should be filled by the LayoutManager
+         * @see View#onInitializeAccessibilityNodeInfo(
+         *android.view.accessibility.AccessibilityNodeInfo)
+         * @see #getRowCountForAccessibility(RecyclerView.Recycler, RecyclerView.State)
+         * @see #getColumnCountForAccessibility(RecyclerView.Recycler, RecyclerView.State)
+         * @see #isLayoutHierarchical(RecyclerView.Recycler, RecyclerView.State)
+         * @see #getSelectionModeForAccessibility(RecyclerView.Recycler, RecyclerView.State)
+         */
+        public void onInitializeAccessibilityNodeInfo(Recycler recycler, State state,
+                AccessibilityNodeInfoCompat info) {
+            info.setClassName(RecyclerView.class.getName());
+            if (ViewCompat.canScrollVertically(mRecyclerView, -1) ||
+                    ViewCompat.canScrollHorizontally(mRecyclerView, -1)) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+                info.setScrollable(true);
+            }
+            if (ViewCompat.canScrollVertically(mRecyclerView, 1) ||
+                    ViewCompat.canScrollHorizontally(mRecyclerView, 1)) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+                info.setScrollable(true);
+            }
+            final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo
+                    = AccessibilityNodeInfoCompat.CollectionInfoCompat
+                    .obtain(getRowCountForAccessibility(recycler, state),
+                            getColumnCountForAccessibility(recycler, state),
+                            isLayoutHierarchical(recycler, state),
+                            getSelectionModeForAccessibility(recycler, state));
+            info.setCollectionInfo(collectionInfo);
+        }
+
+        // called by accessibility delegate
+        public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+            onInitializeAccessibilityEvent(mRecyclerView.mRecycler, mRecyclerView.mState, event);
+        }
+
+        /**
+         * Called by the accessibility delegate to initialize an accessibility event.
+         * <p>
+         * Default implementation adds item count and scroll information to the event.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @param event    The event instance to initialize
+         * @see View#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent)
+         */
+        public void onInitializeAccessibilityEvent(Recycler recycler, State state,
+                AccessibilityEvent event) {
+            final AccessibilityRecordCompat record = AccessibilityEventCompat
+                    .asRecord(event);
+            if (mRecyclerView == null || record == null) {
+                return;
+            }
+            record.setScrollable(ViewCompat.canScrollVertically(mRecyclerView, 1)
+                    || ViewCompat.canScrollVertically(mRecyclerView, -1)
+                    || ViewCompat.canScrollHorizontally(mRecyclerView, -1)
+                    || ViewCompat.canScrollHorizontally(mRecyclerView, 1));
+            record.setItemCount(mRecyclerView.mAdapter.getItemCount());
+        }
+
+        // called by accessibility delegate
+        void onInitializeAccessibilityNodeInfoForItem(View host,
+                AccessibilityNodeInfoCompat info) {
+            onInitializeAccessibilityNodeInfoForItem(mRecyclerView.mRecycler, mRecyclerView.mState,
+                    host, info);
+        }
+
+        /**
+         * Called by the AccessibilityDelegate when the accessibility information for a specific
+         * item should be populated.
+         * <p>
+         * Default implementation adds basic positioning information about the item.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @param host     The child for which accessibility node info should be populated
+         * @param info     The info to fill out about the item
+         * @see android.widget.AbsListView#onInitializeAccessibilityNodeInfoForItem(View, int,
+         * android.view.accessibility.AccessibilityNodeInfo)
+         */
+        public void onInitializeAccessibilityNodeInfoForItem(Recycler recycler, State state,
+                View host, AccessibilityNodeInfoCompat info) {
+            int rowIndexGuess = canScrollVertically() ? getPosition(host) : 0;
+            int columnIndexGuess = canScrollHorizontally() ? getPosition(host) : 0;
+            final AccessibilityNodeInfoCompat.CollectionItemInfoCompat itemInfo
+                    = AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(rowIndexGuess, 1,
+                    columnIndexGuess, 1, false, false);
+            info.setCollectionItemInfo(itemInfo);
+        }
+
         /**
          * A LayoutManager can call this method to force RecyclerView to run simple animations in
          * the next layout pass, even if there is not any trigger to do so. (e.g. adapter data
@@ -6009,6 +6184,150 @@ public class RecyclerView extends ViewGroup {
          */
         public void requestSimpleAnimationsInNextLayout() {
             mRequestedSimpleAnimations = true;
+        }
+
+        /**
+         * Returns the selection mode for accessibility. Should be
+         * {@link AccessibilityNodeInfoCompat.CollectionInfoCompat#SELECTION_MODE_NONE},
+         * {@link AccessibilityNodeInfoCompat.CollectionInfoCompat#SELECTION_MODE_SINGLE} or
+         * {@link AccessibilityNodeInfoCompat.CollectionInfoCompat#SELECTION_MODE_MULTIPLE}.
+         * <p>
+         * Default implementation returns
+         * {@link AccessibilityNodeInfoCompat.CollectionInfoCompat#SELECTION_MODE_NONE}.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @return Selection mode for accessibility. Default implementation returns
+         * {@link AccessibilityNodeInfoCompat.CollectionInfoCompat#SELECTION_MODE_NONE}.
+         */
+        public int getSelectionModeForAccessibility(Recycler recycler, State state) {
+            return AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE;
+        }
+
+        /**
+         * Returns the number of rows for accessibility.
+         * <p>
+         * Default implementation returns the number of items in the adapter if LayoutManager
+         * supports vertical scrolling or 1 if LayoutManager does not support vertical
+         * scrolling.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @return The number of rows in LayoutManager for accessibility.
+         */
+        public int getRowCountForAccessibility(Recycler recycler, State state) {
+            if (mRecyclerView == null || mRecyclerView.mAdapter == null) {
+                return 1;
+            }
+            return canScrollVertically() ? mRecyclerView.mAdapter.getItemCount() : 1;
+        }
+
+        /**
+         * Returns the number of columns for accessibility.
+         * <p>
+         * Default implementation returns the number of items in the adapter if LayoutManager
+         * supports horizontal scrolling or 1 if LayoutManager does not support horizontal
+         * scrolling.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @return The number of rows in LayoutManager for accessibility.
+         */
+        public int getColumnCountForAccessibility(Recycler recycler, State state) {
+            if (mRecyclerView == null || mRecyclerView.mAdapter == null) {
+                return 1;
+            }
+            return canScrollHorizontally() ? mRecyclerView.mAdapter.getItemCount() : 1;
+        }
+
+        /**
+         * Returns whether layout is hierarchical or not to be used for accessibility.
+         * <p>
+         * Default implementation returns false.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @return True if layout is hierarchical.
+         */
+        public boolean isLayoutHierarchical(Recycler recycler, State state) {
+            return false;
+        }
+
+        // called by accessibility delegate
+        boolean performAccessibilityAction(int action, Bundle args) {
+            return performAccessibilityAction(mRecyclerView.mRecycler, mRecyclerView.mState,
+                    action, args);
+        }
+
+        /**
+         * Called by AccessibilityDelegate when an action is requested from the RecyclerView.
+         *
+         * @param recycler  The Recycler that can be used to convert view positions into adapter
+         *                  positions
+         * @param state     The current state of RecyclerView
+         * @param action    The action to perform
+         * @param args      Optional action arguments
+         * @see View#performAccessibilityAction(int, android.os.Bundle)
+         */
+        public boolean performAccessibilityAction(Recycler recycler, State state, int action,
+                Bundle args) {
+            if (mRecyclerView == null) {
+                return false;
+            }
+            int vScroll = 0, hScroll = 0;
+            switch (action) {
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                    if (ViewCompat.canScrollVertically(mRecyclerView, -1)) {
+                        vScroll = -(getHeight() - getPaddingTop() - getPaddingBottom());
+                    }
+                    if (ViewCompat.canScrollHorizontally(mRecyclerView, -1)) {
+                        hScroll = -(getWidth() - getPaddingLeft() - getPaddingRight());
+                    }
+                    break;
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                    if (ViewCompat.canScrollVertically(mRecyclerView, 1)) {
+                        vScroll = getHeight() - getPaddingTop() - getPaddingBottom();
+                    }
+                    if (ViewCompat.canScrollHorizontally(mRecyclerView, 1)) {
+                        hScroll = getWidth() - getPaddingLeft() - getPaddingRight();
+                    }
+                    break;
+            }
+            if (vScroll == 0 && hScroll == 0) {
+                return false;
+            }
+            mRecyclerView.scrollBy(hScroll, vScroll);
+            return true;
+        }
+
+        // called by accessibility delegate
+        boolean performAccessibilityActionForItem(View view, int action, Bundle args) {
+            return performAccessibilityActionForItem(mRecyclerView.mRecycler, mRecyclerView.mState,
+                    view, action, args);
+        }
+
+        /**
+         * Called by AccessibilityDelegate when an accessibility action is requested on one of the
+         * chidren of LayoutManager.
+         * <p>
+         * Default implementation does not do anything.
+         *
+         * @param recycler The Recycler that can be used to convert view positions into adapter
+         *                 positions
+         * @param state    The current state of RecyclerView
+         * @param view     The child view on which the action is performed
+         * @param action   The action to perform
+         * @param args     Optional action arguments
+         * @return true if action is handled
+         * @see View#performAccessibilityAction(int, android.os.Bundle)
+         */
+        public boolean performAccessibilityActionForItem(Recycler recycler, State state, View view,
+                int action, Bundle args) {
+            return false;
         }
     }
 
