@@ -25,6 +25,7 @@ import android.support.annotation.IntDef;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ViewUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -148,8 +149,8 @@ public class LinearLayoutCompat extends ViewGroup {
     public LinearLayoutCompat(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        final TypedArray a = context.obtainStyledAttributes(
-                attrs, R.styleable.LinearLayoutCompat, defStyleAttr, 0);
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
+                R.styleable.LinearLayoutCompat, defStyleAttr, 0);
 
         int index = a.getInt(R.styleable.LinearLayoutCompat_android_orientation, -1);
         if (index >= 0) {
