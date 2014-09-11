@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.transition;
 
+import android.transition.ChangeTransform;
 import android.view.Window;
 
 final class TransitionHelperApi21 {
@@ -50,5 +51,9 @@ final class TransitionHelperApi21 {
 
     public Object getReenterTransition(Window window) {
         return window.getReenterTransition();
+    }
+
+    public Object createScale() {
+        return new ChangeTransform();
     }
 }
