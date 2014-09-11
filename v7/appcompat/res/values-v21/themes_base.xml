@@ -81,7 +81,6 @@
         <item name="android:colorControlNormal">?attr/colorControlNormal</item>
         <item name="android:colorControlActivated">?attr/colorControlActivated</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
-        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
     <style name="Base.V21.Theme.AppCompat.Light" parent="Base.V7.Theme.AppCompat.Light">
@@ -118,7 +117,6 @@
         <item name="android:colorControlNormal">?attr/colorControlNormal</item>
         <item name="android:colorControlActivated">?attr/colorControlActivated</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
-        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
     <style name="Base.V21.Theme.AppCompat.Dialog" parent="Base.V11.Theme.AppCompat.Dialog">
@@ -155,7 +153,6 @@
         <item name="android:colorControlNormal">?attr/colorControlNormal</item>
         <item name="android:colorControlActivated">?attr/colorControlActivated</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
-        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
     <style name="Base.V21.Theme.AppCompat.Light.Dialog" parent="Base.V11.Theme.AppCompat.Light.Dialog">
@@ -192,7 +189,6 @@
         <item name="android:colorControlNormal">?attr/colorControlNormal</item>
         <item name="android:colorControlActivated">?attr/colorControlActivated</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
-        <!-- TODO: <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>-->
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog" parent="Base.V21.Theme.AppCompat.Dialog" />
@@ -205,6 +201,10 @@
     <style name="Base.ThemeOverlay.AppCompat.Dark" parent="android:ThemeOverlay.Material.Dark">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
 
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>
     </style>
@@ -212,15 +212,26 @@
     <style name="Base.ThemeOverlay.AppCompat.Light" parent="android:ThemeOverlay.Material.Light">
         <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
 
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">true</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.ActionBar" parent="android:ThemeOverlay.Material.ActionBar">
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Dark.ActionBar" parent="android:ThemeOverlay.Material.Dark.ActionBar">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
+
+        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
+        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
+        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>

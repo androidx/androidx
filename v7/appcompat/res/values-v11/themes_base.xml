@@ -297,7 +297,6 @@
         <item name="colorControlActivated">?attr/colorAccent</item>
 
         <item name="colorControlHighlight">@color/ripple_material_light</item>
-        <!-- TODO: <item name="colorButtonNormal">@color/btn_default_material_light</item>-->
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog" parent="Base.V11.Theme.AppCompat.Dialog" />
