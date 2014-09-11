@@ -246,6 +246,7 @@ public class SearchFragment extends Fragment {
         if (null != mProvider) {
             onSetSearchResultProvider();
         }
+        updateSearchBar();
         return root;
     }
 
@@ -410,6 +411,17 @@ public class SearchFragment extends Fragment {
         if ((mStatus & QUERY_COMPLETE) != 0) {
             focusOnResults();
         }
+        updateSearchBar();
+    }
+
+    private void updateSearchBar() {
+        if (mSearchBar == null || mResultAdapter == null) {
+            return;
+        }
+        final int viewId = (mResultAdapter.size() == 0 || mRowsFragment == null ||
+                mRowsFragment.getVerticalGridView() == null) ? 0 :
+                mRowsFragment.getVerticalGridView().getId();
+        mSearchBar.setNextFocusDownId(viewId);
     }
 
     private void focusOnResults() {
@@ -441,6 +453,7 @@ public class SearchFragment extends Fragment {
                     mRowsFragment.setAdapter(mResultAdapter);
                     executePendingQuery();
                 }
+                updateSearchBar();
             }
         });
     }
