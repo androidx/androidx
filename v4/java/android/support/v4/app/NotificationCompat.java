@@ -300,10 +300,34 @@ public class NotificationCompat {
     public static final String EXTRA_TEXT_LINES = "android.textLines";
 
     /**
+     * Notification extras key: A string representing the name of the specific
+     * {@link android.app.Notification.Style} used to create this notification.
+     */
+    public static final String EXTRA_TEMPLATE = "android.template";
+
+    /**
      * Notification extras key: An array of people that this notification relates to, specified
      * by contacts provider contact URI.
      */
     public static final String EXTRA_PEOPLE = "android.people";
+
+    /**
+     * Notification extras key: A
+     * {@link android.content.ContentUris content URI} pointing to an image that can be displayed
+     * in the background when the notification is selected. The URI must point to an image stream
+     * suitable for passing into
+     * {@link android.graphics.BitmapFactory#decodeStream(java.io.InputStream)
+     * BitmapFactory.decodeStream}; all other content types will be ignored. The content provider
+     * URI used for this purpose must require no permissions to read the image data.
+     */
+    public static final String EXTRA_BACKGROUND_IMAGE_URI = "android.backgroundImageUri";
+
+    /**
+     * Notification key: A
+     * {@link android.media.session.MediaSession.Token} associated with a
+     * {@link android.app.Notification.MediaStyle} notification.
+     */
+    public static final String EXTRA_MEDIA_SESSION = "android.mediaSession";
 
     /**
      * Notification extras key: the indices of actions to be shown in the compact view,
