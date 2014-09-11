@@ -16,7 +16,6 @@
 
 package android.support.v8.renderscript;
 
-import android.os.SystemProperties;
 import android.support.v8.renderscript.RenderScript;
 
 /**
