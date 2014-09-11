@@ -286,7 +286,6 @@
     </style>
 
     <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.AutoCompleteTextView">
-        <item name="android:textColor">?attr/actionMenuTextColor</item>
         <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
         <item name="android:popupBackground">@drawable/abc_popup_background_mtrl_mult</item>
     </style>
