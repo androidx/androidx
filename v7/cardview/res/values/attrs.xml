@@ -26,6 +26,8 @@
         <attr name="cardMaxElevation" format="dimension" />
         <!-- Add padding in API v21+ as well to have the same measurements with previous versions. -->
         <attr name="cardUseCompatPadding" format="boolean" />
+        <!-- Add padding to CardView on v20 and before to prevent intersections between the Card content and rounded corners. -->
+        <attr name="cardPreventCornerOverlap" format="boolean" />
         <!-- Inner padding between the edges of the Card and children of the CardView. -->
         <attr name="contentPadding" format="dimension" />
         <!-- Inner padding between the left edge of the Card and children of the CardView. -->

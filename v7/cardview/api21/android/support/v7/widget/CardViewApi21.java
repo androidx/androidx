@@ -43,7 +43,7 @@ class CardViewApi21 implements CardViewImpl {
     @Override
     public void setMaxElevation(CardViewDelegate cardView, float maxElevation) {
         ((RoundRectDrawable) (cardView.getBackground())).setPadding(maxElevation,
-                cardView.useCompatPadding());
+                cardView.getUseCompatPadding(), cardView.getPreventCornerOverlap());
         updatePadding(cardView);
     }
 
@@ -79,16 +79,16 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void updatePadding(CardViewDelegate cardView) {
-        if (!cardView.useCompatPadding()) {
+        if (!cardView.getUseCompatPadding()) {
             cardView.setShadowPadding(0, 0, 0, 0);
             return;
         }
         float elevation = getMaxElevation(cardView);
         final float radius = getRadius(cardView);
         int hPadding = (int) Math.ceil(RoundRectDrawableWithShadow
-                .calculateHorizontalPadding(elevation, radius));
+                .calculateHorizontalPadding(elevation, radius, cardView.getPreventCornerOverlap()));
         int vPadding = (int) Math.ceil(RoundRectDrawableWithShadow
-                .calculateVerticalPadding(elevation, radius));
+                .calculateVerticalPadding(elevation, radius, cardView.getPreventCornerOverlap()));
         cardView.setShadowPadding(hPadding, vPadding, hPadding, vPadding);
     }
 
@@ -97,4 +97,8 @@ class CardViewApi21 implements CardViewImpl {
         setMaxElevation(cardView, getMaxElevation(cardView));
     }
 
+    @Override
+    public void onPreventCornerOverlapChanged(CardViewDelegate cardView) {
+        setMaxElevation(cardView, getMaxElevation(cardView));
+    }
 }

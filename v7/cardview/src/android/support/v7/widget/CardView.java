@@ -32,13 +32,14 @@ import android.widget.FrameLayout;
  * <p>
  * Due to expensive nature of rounded corner clipping, on platforms before L, CardView does not
  * clip its children that intersect with rounded corners. Instead, it adds padding to avoid such
- * intersection.
+ * intersection (See {@link #setPreventCornerOverlap(boolean)} to change this behavior).
  * <p>
  * Before L, CardView adds padding to its content and draws shadows to that area. This padding
  * amount is equal to <code>maxCardElevation + (1 - cos45) * cornerRadius</code> on the sides and
  * <code>maxCardElevation * 1.5 + (1 - cos45) * cornerRadius</code> on top and bottom.
  * <p>
- * Since padding is used to offset content for shadows, you cannot set padding on CardView. Instead,
+ * Since padding is used to offset content for shadows, you cannot set padding on CardView.
+ * Instead,
  * you can use content padding attributes in XML or {@link #setContentPadding(int, int, int, int)}
  * in code to set the padding between the edges of the Card and children of CardView.
  * <p>
@@ -59,6 +60,7 @@ import android.widget.FrameLayout;
  * @attr ref android.support.v7.cardview.R.styleable#CardView_cardElevation
  * @attr ref android.support.v7.cardview.R.styleable#CardView_cardMaxElevation
  * @attr ref android.support.v7.cardview.R.styleable#CardView_cardUseCompatPadding
+ * @attr ref android.support.v7.cardview.R.styleable#CardView_cardPreventCornerOverlap
  * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPadding
  * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingLeft
  * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingTop
@@ -81,6 +83,8 @@ public class CardView extends FrameLayout implements CardViewDelegate {
     }
 
     private boolean mCompatPadding;
+
+    private boolean mPreventCornerOverlap;
 
     private final Rect mContentPadding = new Rect();
 
@@ -117,6 +121,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @return True CardView adds inner padding on platforms L and after to have same dimensions
      * with platforms before L.
      */
+    @Override
     public boolean getUseCompatPadding() {
         return mCompatPadding;
     }
@@ -133,9 +138,9 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * Since setting this flag to true adds unnecessary gaps in the UI, default value is
      * <code>false</code>.
      *
-     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardUseCompatPadding
      * @param useCompatPadding True if CardView should add padding for the shadows on platforms L
      *                         and above.
+     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardUseCompatPadding
      */
     public void setUseCompatPadding(boolean useCompatPadding) {
         if (mCompatPadding == useCompatPadding) {
@@ -151,15 +156,15 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * Depending on platform version or {@link #getUseCompatPadding()} settings, CardView may
      * update these values before calling {@link android.view.View#setPadding(int, int, int, int)}.
      *
+     * @param left   The left padding in pixels
+     * @param top    The top padding in pixels
+     * @param right  The right padding in pixels
+     * @param bottom The bottom padding in pixels
      * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPadding
      * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingLeft
      * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingTop
      * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingRight
      * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingBottom
-     * @param left The left padding in pixels
-     * @param top the top padding in pixels
-     * @param right the right padding in pixels
-     * @param bottom the bottom padding in pixels
      */
     public void setContentPadding(int left, int top, int right, int bottom) {
         mContentPadding.set(left, top, right, bottom);
@@ -202,6 +207,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
         float elevation = a.getDimension(R.styleable.CardView_cardElevation, 0);
         float maxElevation = a.getDimension(R.styleable.CardView_cardMaxElevation, 0);
         mCompatPadding = a.getBoolean(R.styleable.CardView_cardUseCompatPadding, false);
+        mPreventCornerOverlap = a.getBoolean(R.styleable.CardView_cardPreventCornerOverlap, true);
         int defaultPadding = a.getDimensionPixelSize(R.styleable.CardView_contentPadding, 0);
         mContentPadding.left = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingLeft,
                 defaultPadding);
@@ -277,6 +283,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
 
     /**
      * Internal method used by CardView implementations to update the padding.
+     *
      * @hide
      */
     @Override
@@ -335,8 +342,36 @@ public class CardView extends FrameLayout implements CardViewDelegate {
         return IMPL.getMaxElevation(this);
     }
 
+    /**
+     * Returns whether CardView should add extra padding to content to avoid overlaps with rounded
+     * corners on API versions 20 and below.
+     *
+     * @return True if CardView prevents overlaps with rounded corners on platforms before L.
+     *         Default value is <code>true</code>.
+     */
     @Override
-    public boolean useCompatPadding() {
-        return mCompatPadding;
+    public boolean getPreventCornerOverlap() {
+        return mPreventCornerOverlap;
+    }
+
+    /**
+     * On API 20 and before, CardView does not clip the bounds of the Card for the rounded corners.
+     * Instead, it adds padding to content so that it won't overlap with the rounded corners.
+     * You can disable this behavior by setting this field to <code>false</code>.
+     * <p>
+     * Setting this value on API 21 and above does not have any effect unless you have enabled
+     * compatibility padding.
+     *
+     * @param preventCornerOverlap Whether CardView should add extra padding to content to avoid
+     *                             overlaps with the CardView corners.
+     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardPreventCornerOverlap
+     * @see #setUseCompatPadding(boolean)
+     */
+    public void setPreventCornerOverlap(boolean preventCornerOverlap) {
+        if (preventCornerOverlap == mPreventCornerOverlap) {
+            return;
+        }
+        mPreventCornerOverlap = preventCornerOverlap;
+        IMPL.onPreventCornerOverlapChanged(this);
     }
 }
