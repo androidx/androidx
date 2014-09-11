@@ -271,10 +271,8 @@ class AdapterHelper {
                     dispatch(newOp);
                     mCallback.markViewHoldersUpdated(newOp.positionStart, newOp.itemCount);
 
-                    // tmpStart is still same since dispatch already shifts elements
-                    position -= newOp.itemCount; // also equal to tmpStart
-                    tmpEnd -= newOp.itemCount;
                     tmpCount = 0;
+                    tmpStart = position;
                 }
                 type = POSITION_TYPE_NEW_OR_LAID_OUT;
             } else { // applied
@@ -282,11 +280,8 @@ class AdapterHelper {
                     UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
                     mCallback.markViewHoldersUpdated(newOp.positionStart, newOp.itemCount);
                     postpone(newOp);
-                    // both type-new and type-laid-out are deferred. This is why we are
-                    // resetting out position to here.
-                    position -= newOp.itemCount; // also equal to tmpStart
-                    tmpEnd -= newOp.itemCount;
                     tmpCount = 0;
+                    tmpStart = position;
                 }
                 type = POSITION_TYPE_INVISIBLE;
             }
@@ -294,7 +289,7 @@ class AdapterHelper {
         }
         if (tmpCount != op.itemCount) { // all 1 effect
             recycleUpdateOp(op);
-            op = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
+            op = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
         }
         if (type == POSITION_TYPE_INVISIBLE) {
             dispatch(op);

@@ -73,6 +73,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         mViewHolders = new ArrayList<ViewHolder>();
         mFirstPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
         mSecondPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
+        mPreProcessClone = null;
         mAdapterHelper = new AdapterHelper(new AdapterHelper.Callback() {
             @Override
             public RecyclerView.ViewHolder findViewHolder(int position) {
@@ -212,6 +213,16 @@ public class AdapterHelperTest extends AndroidTestCase {
                 new TextView(getContext()));
         viewHolder.mPosition = posiiton;
         mViewHolders.add(viewHolder);
+    }
+
+    public void testChangeAll() throws Exception {
+        try {
+            setupBasic(5, 0, 3);
+            up(0, 5);
+            mAdapterHelper.preProcess();
+        } catch (Throwable t) {
+            throw new Exception(mLog.toString());
+        }
     }
 
     public void testFindPositionOffsetInPreLayout() {
@@ -465,9 +476,9 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     public void testScenario19() {
-        setupBasic(10,8,1);
-        mv(9,7);
-        mv(9,3);
+        setupBasic(10, 8, 1);
+        mv(9, 7);
+        mv(9, 3);
         rm(5,4);
         preProcess();
     }
@@ -490,7 +501,7 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     public void testScenario22() {
         setupBasic(10,7,2);
-        add(2,16);
+        add(2, 16);
         mv(20,9);
         rm(17,6);
         preProcess();
@@ -498,23 +509,23 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     public void testScenario23() {
         setupBasic(10,5,3);
-        mv(9,6);
-        add(4,15);
+        mv(9, 6);
+        add(4, 15);
         rm(21,3);
         preProcess();
     }
 
     public void testScenario24() {
         setupBasic(10,1,6);
-        add(6,5);
-        mv(14,6);
+        add(6, 5);
+        mv(14, 6);
         rm(7,6);
         preProcess();
     }
 
     public void testScenario25() {
         setupBasic(10,3,4);
-        mv(3,9);
+        mv(3, 9);
         mv(2,9);
         rm(5,4);
         preProcess();
@@ -523,29 +534,44 @@ public class AdapterHelperTest extends AndroidTestCase {
     public void testScenario26() {
         setupBasic(10,4,4);
         rm(3,5);
-        mv(2,0);
+        mv(2, 0);
         mv(1,0);
-        rm(1,1);
-        mv(0,2);
+        rm(1, 1);
+        mv(0, 2);
         preProcess();
     }
 
     public void testScenario27() {
-        setupBasic(10,0,3);
+        setupBasic(10, 0, 3);
         mv(9,4);
         mv(8,4);
-        add(7,6);
-        rm(5,5);
+        add(7, 6);
+        rm(5, 5);
         preProcess();
     }
 
     public void testScenerio28() {
         setupBasic(10,4,1);
-        mv(8,6);
-        rm(8,1);
+        mv(8, 6);
+        rm(8, 1);
         mv(7,5);
-        rm(3,3);
+        rm(3, 3);
         rm(1,4);
+        preProcess();
+    }
+
+    public void testScenerio29() {
+        setupBasic(10, 6, 3);
+        mv(3, 6);
+        up(6,2);
+        add(5, 5);
+    }
+
+    public void testScenerio30() {
+        mCollectLogs = true;
+        setupBasic(10,3,1);
+        rm(3,2);
+        rm(2,5);
         preProcess();
     }
 
@@ -573,38 +599,53 @@ public class AdapterHelperTest extends AndroidTestCase {
         if (DEBUG) {
             log("randomTest");
         }
-        final int count = 10;// + random.nextInt(100);
-        final int start = random.nextInt(count - 1);
-        final int layoutCount = Math.max(1, random.nextInt(count - start));
+        final int count = 10;// + nextInt(random,100);
+        final int start = nextInt(random, count - 1);
+        final int layoutCount = Math.max(1, nextInt(random, count - start));
         setupBasic(count, start, layoutCount);
 
         while (opCount-- > 0) {
-            final int op = random.nextInt(3);
+            final int op = nextInt(random, 4);
             switch (op) {
                 case 0:
                     if (mTestAdapter.mItems.size() > 1) {
-                        int s = random.nextInt(mTestAdapter.mItems.size() - 1);
-                        int len = Math.max(1, random.nextInt(mTestAdapter.mItems.size() - s));
+                        int s = nextInt(random, mTestAdapter.mItems.size() - 1);
+                        int len = Math.max(1, nextInt(random, mTestAdapter.mItems.size() - s));
                         rm(s, len);
                     }
                     break;
                 case 1:
                     int s = mTestAdapter.mItems.size() == 0 ? 0 :
-                            random.nextInt(mTestAdapter.mItems.size());
-                    add(s, random.nextInt(50));
+                            nextInt(random, mTestAdapter.mItems.size());
+                        add(s, nextInt(random, 50));
                     break;
                 case 2:
                     if (mTestAdapter.mItems.size() >= 2) {
-                        int from = random.nextInt(mTestAdapter.mItems.size());
+                        int from = nextInt(random, mTestAdapter.mItems.size());
                         int to;
                         do {
-                            to = random.nextInt(mTestAdapter.mItems.size());
+                            to = nextInt(random, mTestAdapter.mItems.size());
                         } while (to == from);
                         mv(from, to);
                     }
+                    break;
+                case 3:
+                    if (mTestAdapter.mItems.size() > 1) {
+                        s = nextInt(random, mTestAdapter.mItems.size() - 1);
+                        int len = Math.max(1, nextInt(random, mTestAdapter.mItems.size() - s));
+                        up(s, len);
+                    }
+                    break;
             }
         }
         preProcess();
+    }
+
+    int nextInt(Random random, int n) {
+        if (n == 0) {
+            return 0;
+        }
+        return random.nextInt(n);
     }
 
     public void assertOps(List<AdapterHelper.UpdateOp> actual,
@@ -703,6 +744,9 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     void up(int start, int count) {
+        if (DEBUG) {
+            log("up(" + start + "," + count + ");");
+        }
         mTestAdapter.update(start, count);
     }
 
