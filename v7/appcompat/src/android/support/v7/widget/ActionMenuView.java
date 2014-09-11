@@ -620,6 +620,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
             mMenu = new MenuBuilder(context);
             mMenu.setCallback(new MenuBuilderCallback());
             mPresenter = new ActionMenuPresenter(context);
+            mPresenter.setReserveOverflow(true);
             mPresenter.setCallback(mActionMenuPresenterCallback != null
                     ? mActionMenuPresenterCallback : new ActionMenuPresenterCallback());
             mMenu.addMenuPresenter(mPresenter, mPopupContext);
