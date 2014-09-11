@@ -463,32 +463,36 @@ public class BrowseFragment extends Fragment {
         mBrowseTransitionListener = listener;
     }
 
-    private void startHeadersTransitionInternal(boolean withHeaders) {
+    private void startHeadersTransitionInternal(final boolean withHeaders) {
         if (getFragmentManager().isDestroyed()) {
             return;
         }
         mShowingHeaders = withHeaders;
-        mRowsFragment.onTransitionStart();
-        mHeadersFragment.onTransitionStart();
-        createHeadersTransition();
-        if (mBrowseTransitionListener != null) {
-            mBrowseTransitionListener.onHeadersTransitionStart(withHeaders);
-        }
-        sTransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
-                mHeadersTransition);
-        if (mHeadersBackStackEnabled) {
-            if (!withHeaders) {
-                getFragmentManager().beginTransaction()
-                        .addToBackStack(mWithHeadersBackStackName).commit();
-            } else {
-                int index = mBackStackChangedListener.mIndexOfHeadersBackStack;
-                if (index >= 0) {
-                    BackStackEntry entry = getFragmentManager().getBackStackEntryAt(index);
-                    getFragmentManager().popBackStackImmediate(entry.getId(),
-                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        mRowsFragment.onExpandTransitionStart(!withHeaders, new Runnable() {
+            @Override
+            public void run() {
+                mHeadersFragment.onTransitionStart();
+                createHeadersTransition();
+                if (mBrowseTransitionListener != null) {
+                    mBrowseTransitionListener.onHeadersTransitionStart(withHeaders);
+                }
+                sTransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
+                        mHeadersTransition);
+                if (mHeadersBackStackEnabled) {
+                    if (!withHeaders) {
+                        getFragmentManager().beginTransaction()
+                                .addToBackStack(mWithHeadersBackStackName).commit();
+                    } else {
+                        int index = mBackStackChangedListener.mIndexOfHeadersBackStack;
+                        if (index >= 0) {
+                            BackStackEntry entry = getFragmentManager().getBackStackEntryAt(index);
+                            getFragmentManager().popBackStackImmediate(entry.getId(),
+                                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        }
+                    }
                 }
             }
-        }
+        });
     }
 
     private boolean isVerticalScrolling() {
