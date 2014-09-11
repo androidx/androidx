@@ -31,8 +31,6 @@ import android.os.Process;
 import android.util.Log;
 import android.view.Surface;
 
-import android.os.SystemProperties;
-
 /**
  * This class provides access to a RenderScript context, which controls RenderScript
  * initialization, resource management, and teardown. An instance of the RenderScript
@@ -95,12 +93,25 @@ public class RenderScript {
      */
     static private boolean setupThunk(int sdkVersion, Context ctx) {
         if (sThunk == -1) {
+
+            // get the value of the debug.rs.forcecompat property
+            int forcecompat = 0;
+            try {
+                Class<?> sysprop = Class.forName("android.os.SystemProperties");
+                Class[] signature = {String.class, Integer.TYPE};
+                Method getint = sysprop.getDeclaredMethod("getInt", signature);
+                Object[] args = {"debug.rs.forcecompat", new Integer(0)};
+                forcecompat = ((java.lang.Integer)getint.invoke(null, args)).intValue();
+            } catch (Exception e) {
+
+            }
+
             // use compat on Jelly Bean MR2 if we're requesting SDK 19+
             if (android.os.Build.VERSION.SDK_INT == 18 && sdkVersion >= 19) {
                 sThunk = 0;
             }
             else if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
-                && (SystemProperties.getInt("debug.rs.forcecompat", 0) == 0)) {
+                     && forcecompat == 0) {
                 sThunk = 1;
             } else {
                 sThunk = 0;
