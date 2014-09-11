@@ -72,6 +72,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     private boolean mTitleSet;
     private CharSequence mTitle;
     private CharSequence mSubtitle;
+    private CharSequence mHomeDescription;
 
     private WindowCallback mWindowCallback;
     private boolean mMenuPrepared;
@@ -80,10 +81,15 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     private int mNavigationMode = ActionBar.NAVIGATION_MODE_STANDARD;
 
     private final TintManager mTintManager;
+    private int mDefaultNavigationContentDescription = 0;
 
     public ToolbarWidgetWrapper(Toolbar toolbar, boolean style) {
-        mToolbar = toolbar;
+        this(toolbar, style, R.string.abc_action_bar_up_description);
+    }
 
+    public ToolbarWidgetWrapper(Toolbar toolbar, boolean style,
+            int defaultNavigationContentDescription) {
+        mToolbar = toolbar;
         mTitle = toolbar.getTitle();
         mSubtitle = toolbar.getSubtitle();
         mTitleSet = !TextUtils.isEmpty(mTitle);
@@ -168,10 +174,8 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             mTintManager = new TintManager(toolbar.getContext());
         }
 
-        if (TextUtils.isEmpty(mToolbar.getNavigationContentDescription())) {
-            mToolbar.setNavigationContentDescription(
-                    getContext().getResources().getText(R.string.abc_action_bar_up_description));
-        }
+        setDefaultNavigationContentDescription(defaultNavigationContentDescription);
+        mHomeDescription = mToolbar.getNavigationContentDescription();
 
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             final ActionMenuItem mNavItem = new ActionMenuItem(mToolbar.getContext(),
@@ -183,6 +187,26 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
                 }
             }
         });
+    }
+
+    /**
+     * Sets the default content description for the navigation button.
+     * <p>
+     * It changes the current content description if and only if the provided resource id is
+     * different than the current default resource id and the current content description is empty.
+     *
+     * @param defaultNavigationContentDescription The resource id for the default content
+     *                                            description
+     */
+    @Override
+    public void setDefaultNavigationContentDescription(int defaultNavigationContentDescription) {
+        if (defaultNavigationContentDescription == mDefaultNavigationContentDescription) {
+            return;
+        }
+        mDefaultNavigationContentDescription = defaultNavigationContentDescription;
+        if (TextUtils.isEmpty(mToolbar.getNavigationContentDescription())) {
+            setNavigationContentDescription(mDefaultNavigationContentDescription);
+        }
     }
 
     private int detectDisplayOptions() {
@@ -397,6 +421,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             if ((changed & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
                 if ((newOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
                     mToolbar.setNavigationIcon(mNavIcon);
+                    updateHomeAccessibility();
                 } else {
                     mToolbar.setNavigationIcon(null);
                 }
@@ -606,12 +631,23 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setNavigationContentDescription(CharSequence description) {
-        mToolbar.setNavigationContentDescription(description);
+        mHomeDescription = description;
+        updateHomeAccessibility();
     }
 
     @Override
     public void setNavigationContentDescription(int resId) {
-        mToolbar.setNavigationContentDescription(resId);
+        setNavigationContentDescription(resId == 0 ? null : getContext().getString(resId));
+    }
+
+    private void updateHomeAccessibility() {
+        if ((mDisplayOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+            if (TextUtils.isEmpty(mHomeDescription)) {
+                mToolbar.setNavigationContentDescription(mDefaultNavigationContentDescription);
+            } else {
+                mToolbar.setNavigationContentDescription(mHomeDescription);
+            }
+        }
     }
 
     @Override
