@@ -26,21 +26,13 @@
          "Theme.Base" theme. -->
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat"
-           parent="Base.Theme.AppCompat">
-        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
-    </style>
+    <style name="Theme.AppCompat" parent="Base.Theme.AppCompat" />
 
     <!-- Platform-independent theme providing an action bar in a light-themed activity. -->
-    <style name="Theme.AppCompat.Light"
-           parent="Base.Theme.AppCompat.Light">
-        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
-    </style>
+    <style name="Theme.AppCompat.Light" parent="Base.Theme.AppCompat.Light" />
 
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
-    <style name="Theme.AppCompat.Light.DarkActionBar"
-           parent="Base.Theme.AppCompat.Light.DarkActionBar">
-    </style>
+    <style name="Theme.AppCompat.Light.DarkActionBar" parent="Base.Theme.AppCompat.Light.DarkActionBar" />
 
     <style name="Theme.AppCompat.NoActionBar">
         <item name="windowActionBar">false</item>
