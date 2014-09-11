@@ -106,8 +106,10 @@ public class SearchBar extends RelativeLayout {
     private boolean mAutoStartRecognition = false;
     private Drawable mBarBackground;
 
-    private int mTextColor;
-    private int mTextSpeechColor;
+    private final int mTextColor;
+    private final int mTextColorSpeechMode;
+    private final int mTextHintColor;
+    private final int mTextHintColorSpeechMode;
     private int mBackgroundAlpha;
     private int mBackgroundSpeechAlpha;
     private int mBarHeight;
@@ -148,12 +150,14 @@ public class SearchBar extends RelativeLayout {
         mInputMethodManager =
                 (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        mTextSpeechColor = r.getColor(R.color.lb_search_bar_text_speech_color);
-        mBackgroundSpeechAlpha = r.getInteger(R.integer.lb_search_bar_speech_mode_background_alpha);
+        mTextColorSpeechMode = r.getColor(R.color.lb_search_bar_text_speech_mode);
+        mTextColor = r.getColor(R.color.lb_search_bar_text);
 
-        mTextColor = r.getColor(R.color.lb_search_bar_text_color);
+        mBackgroundSpeechAlpha = r.getInteger(R.integer.lb_search_bar_speech_mode_background_alpha);
         mBackgroundAlpha = r.getInteger(R.integer.lb_search_bar_text_mode_background_alpha);
 
+        mTextHintColorSpeechMode = r.getColor(R.color.lb_search_bar_hint_speech_mode);
+        mTextHintColor = r.getColor(R.color.lb_search_bar_hint);
     }
 
     @Override
@@ -576,10 +580,12 @@ public class SearchBar extends RelativeLayout {
                 hasFocus() ? "Focused" : "Unfocused"));
         if (isVoiceMode()) {
             mBarBackground.setAlpha(mBackgroundSpeechAlpha);
-            mSearchTextEditor.setTextColor(mTextSpeechColor);
+            mSearchTextEditor.setTextColor(mTextColorSpeechMode);
+            mSearchTextEditor.setHintTextColor(mTextHintColorSpeechMode);
         } else {
             mBarBackground.setAlpha(mBackgroundAlpha);
             mSearchTextEditor.setTextColor(mTextColor);
+            mSearchTextEditor.setHintTextColor(mTextHintColor);
         }
 
         updateHint();
