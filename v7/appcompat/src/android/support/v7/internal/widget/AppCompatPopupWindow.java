@@ -19,6 +19,7 @@ package android.support.v7.internal.widget;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
@@ -35,9 +36,11 @@ public class AppCompatPopupWindow extends PopupWindow {
     public AppCompatPopupWindow(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PopupWindow,
-                defStyleAttr, 0);
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
+                R.styleable.PopupWindow, defStyleAttr, 0);
         mOverlapAnchor = a.getBoolean(R.styleable.PopupWindow_overlapAnchor, false);
+        // We re-set this for tinting purposes
+        setBackgroundDrawable(a.getDrawable(R.styleable.PopupWindow_android_popupBackground));
         a.recycle();
     }
 

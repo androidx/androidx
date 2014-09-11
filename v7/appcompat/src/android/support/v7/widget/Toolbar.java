@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -37,7 +36,9 @@ import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
 import android.support.v7.internal.widget.DecorToolbar;
+import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.RtlSpacingHelper;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ToolbarWidgetWrapper;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.CollapsibleActionView;
@@ -174,6 +175,8 @@ public class Toolbar extends ViewGroup {
         }
     };
 
+    private final TintManager mTintManager;
+
     public Toolbar(Context context) {
         this(context, null);
     }
@@ -186,8 +189,8 @@ public class Toolbar extends ViewGroup {
         super(themifyContext(context, attrs, defStyleAttr), attrs, defStyleAttr);
 
         // Need to use getContext() here so that we use the themed context
-        final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.Toolbar,
-                defStyleAttr, 0);
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                R.styleable.Toolbar, defStyleAttr, 0);
 
         mTitleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
         mSubtitleTextAppearance = a.getResourceId(R.styleable.Toolbar_subtitleTextAppearance, 0);
@@ -261,6 +264,9 @@ public class Toolbar extends ViewGroup {
             setNavigationContentDescription(navDesc);
         }
         a.recycle();
+
+        // Keep the TintManager in case we need it later
+        mTintManager = a.getTintManager();
     }
 
     /**
@@ -307,7 +313,7 @@ public class Toolbar extends ViewGroup {
      * @param resId ID of a drawable resource
      */
     public void setLogo(int resId) {
-        setLogo(ContextCompat.getDrawable(getContext(), resId));
+        setLogo(mTintManager.getDrawable(resId));
     }
 
     /** @hide */
@@ -734,7 +740,7 @@ public class Toolbar extends ViewGroup {
      * @param resId Resource ID of a drawable to set
      */
     public void setNavigationIcon(int resId) {
-        setNavigationIcon(ContextCompat.getDrawable(getContext(), resId));
+        setNavigationIcon(mTintManager.getDrawable(resId));
     }
 
     /**

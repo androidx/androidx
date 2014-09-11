@@ -369,6 +369,10 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private class TabView extends LinearLayoutCompat implements OnLongClickListener {
+        private final int[] BG_ATTRS = {
+                android.R.attr.background
+        };
+
         private ActionBar.Tab mTab;
         private TextView mTextView;
         private ImageView mIconView;
@@ -377,6 +381,13 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         public TabView(Context context, ActionBar.Tab tab, boolean forList) {
             super(context, null, R.attr.actionBarTabStyle);
             mTab = tab;
+
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, null, BG_ATTRS,
+                    R.attr.actionBarTabStyle, 0);
+            if (a.hasValue(0)) {
+                setBackgroundDrawable(a.getDrawable(0));
+            }
+            a.recycle();
 
             if (forList) {
                 setGravity(GravityCompat.START | Gravity.CENTER_VERTICAL);

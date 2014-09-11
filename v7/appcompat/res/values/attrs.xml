@@ -597,6 +597,7 @@
         <!-- Whether this spinner should mark child views as enabled/disabled when
              the spinner itself is enabled/disabled. -->
         <attr name="disableChildrenWhenDisabled" format="boolean" />
+        <attr name="android:background" />
     </declare-styleable>
 
     <declare-styleable name="SearchView">
@@ -750,6 +751,7 @@
     <declare-styleable name="PopupWindow">
         <!-- Whether the popup window should overlap its anchor view. -->
         <attr name="overlapAnchor" format="boolean" />
+        <attr name="android:popupBackground" />
     </declare-styleable>
 
     <declare-styleable name="DrawerArrowToggle">
