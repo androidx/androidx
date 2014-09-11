@@ -23,6 +23,11 @@ android {
         androidTest.java.srcDir 'tests/src'
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
     lintOptions {
         // TODO: fix errors and reenable.
         abortOnError false
