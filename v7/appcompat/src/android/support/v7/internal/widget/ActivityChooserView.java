@@ -26,6 +26,7 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.ActionProvider;
 import android.support.v7.appcompat.R;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.ListPopupWindow;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -80,7 +81,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * The content of this view.
      */
-    private final LinearLayout mActivityChooserContent;
+    private final LinearLayoutCompat mActivityChooserContent;
 
     /**
      * Stores the background drawable to allow hiding and latter showing.
@@ -226,7 +227,7 @@ public class ActivityChooserView extends ViewGroup implements
 
         mCallbacks = new Callbacks();
 
-        mActivityChooserContent = (LinearLayout) findViewById(R.id.activity_chooser_view_content);
+        mActivityChooserContent = (LinearLayoutCompat) findViewById(R.id.activity_chooser_view_content);
         mActivityChooserContentBackground = mActivityChooserContent.getBackground();
 
         mDefaultActivityButton = (FrameLayout) findViewById(R.id.default_activity_button);
