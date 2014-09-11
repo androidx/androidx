@@ -16,10 +16,8 @@
 -->
 
 <resources>
-    <style name="Theme.LeanbackBase" parent="android:Theme.Material.NoActionBar">
-        <item name="playbackProgressPrimaryColor">?android:attr/colorAccent</item>
-        <item name="playbackControlsIconHighlightColor">?android:attr/colorAccent</item>
-        <item name="defaultBrandColor">?android:attr/colorPrimary</item>
-        <item name="android:colorPrimary">@color/lb_default_brand_color</item>
+    <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar.TranslucentDecor">
+        <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
+        <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
     </style>
 </resources>

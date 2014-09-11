@@ -21,6 +21,7 @@
     <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
         <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
         <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
+        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
     </style>
 
     <style name="Theme.Leanback" parent="Theme.LeanbackBase">
@@ -66,7 +67,6 @@
         <item name="errorMessageStyle">@style/Widget.Leanback.ErrorMessageStyle</item>
 
         <!-- TODO should be null, and set programatically to avoid dependence on leanback theme -->
-        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
         <item name="defaultSearchColor">@null</item>
         <item name="defaultSearchBrightColor">@null</item>
         <item name="defaultSearchIcon">@null</item>
