@@ -64,7 +64,8 @@ public class TintManager {
      */
     private static final int[] TINT_COLOR_CONTROL_ACTIVATED = {
             R.drawable.abc_textfield_activated_mtrl_alpha,
-            R.drawable.abc_cab_background_top_mtrl_alpha,
+            R.drawable.abc_textfield_search_activated_mtrl_alpha,
+            R.drawable.abc_cab_background_top_mtrl_alpha
     };
 
     /**
