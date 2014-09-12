@@ -26,7 +26,8 @@ import android.graphics.drawable.Drawable;
 interface CardViewDelegate {
     void setBackgroundDrawable(Drawable paramDrawable);
     Drawable getBackground();
-    boolean useCompatPadding();
+    boolean getUseCompatPadding();
+    boolean getPreventCornerOverlap();
     float getRadius();
     void setShadowPadding(int left, int top, int right, int bottom);
 }
