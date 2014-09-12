@@ -817,7 +817,7 @@ public class NotificationCompat {
         CharSequence mContentInfo;
         int mNumber;
         int mPriority;
-        boolean mShowWhen;
+        boolean mShowWhen = true;
         boolean mUseChronometer;
         Style mStyle;
         CharSequence mSubText;
