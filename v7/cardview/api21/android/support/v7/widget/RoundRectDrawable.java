@@ -40,8 +40,9 @@ class RoundRectDrawable extends Drawable {
     private final Rect mBoundsI;
     private float mPadding;
     private boolean mInsetForPadding = false;
+    private boolean mInsetForRadius = true;
 
-    RoundRectDrawable(int backgroundColor, float radius) {
+    public RoundRectDrawable(int backgroundColor, float radius) {
         mRadius = radius;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mPaint.setColor(backgroundColor);
@@ -49,12 +50,14 @@ class RoundRectDrawable extends Drawable {
         mBoundsI = new Rect();
     }
 
-    void setPadding(float padding, boolean insetForPadding) {
-        if (padding == mPadding && mInsetForPadding == insetForPadding) {
+    void setPadding(float padding, boolean insetForPadding, boolean insetForRadius) {
+        if (padding == mPadding && mInsetForPadding == insetForPadding &&
+                mInsetForRadius == insetForRadius) {
             return;
         }
         mPadding = padding;
         mInsetForPadding = insetForPadding;
+        mInsetForRadius = insetForRadius;
         updateBounds(null);
         invalidateSelf();
     }
@@ -75,10 +78,11 @@ class RoundRectDrawable extends Drawable {
         mBoundsF.set(bounds.left, bounds.top, bounds.right, bounds.bottom);
         mBoundsI.set(bounds);
         if (mInsetForPadding) {
-            float vInset = calculateVerticalPadding(mPadding, mRadius);
-            float hInset = calculateHorizontalPadding(mPadding, mRadius);
-            mBoundsF.inset(hInset, vInset);
+            float vInset = calculateVerticalPadding(mPadding, mRadius, mInsetForRadius);
+            float hInset = calculateHorizontalPadding(mPadding, mRadius, mInsetForRadius);
             mBoundsI.inset((int) Math.ceil(hInset), (int) Math.ceil(vInset));
+            // to make sure they have same bounds.
+            mBoundsF.set(mBoundsI);
         }
     }
 
