@@ -424,38 +424,50 @@ public class RowsFragment extends BaseRowFragment {
         freezeRows(true);
     }
 
+    class ExpandPreLayout implements ViewTreeObserver.OnPreDrawListener {
+
+        final View mVerticalView;
+        final Runnable mCallback;
+        int mState;
+
+        final static int STATE_INIT = 0;
+        final static int STATE_FIRST_DRAW = 1;
+        final static int STATE_SECOND_DRAW = 2;
+
+        ExpandPreLayout(Runnable callback) {
+            mVerticalView = getVerticalGridView();
+            mCallback = callback;
+        }
+
+        void execute() {
+            mVerticalView.getViewTreeObserver().addOnPreDrawListener(this);
+            setExpand(false);
+            mState = STATE_INIT;
+        }
+
+        @Override
+        public boolean onPreDraw() {
+            if (mState == STATE_INIT) {
+                setExpand(true);
+                mState = STATE_FIRST_DRAW;
+            } else if (mState == STATE_FIRST_DRAW) {
+                mCallback.run();
+                mVerticalView.getViewTreeObserver().removeOnPreDrawListener(this);
+                mState = STATE_SECOND_DRAW;
+            }
+            return false;
+        }
+    }
+
     void onExpandTransitionStart(boolean expand, final Runnable callback) {
         onTransitionStart();
         if (expand) {
             callback.run();
             return;
         }
-        final View verticalView = getVerticalGridView();
         // Run a "pre" layout when we go non-expand, in order to get the initial
         // positions of added rows.
-        verticalView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            boolean mFirstPass = true;
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-                    int oldTop, int oldRight, int oldBottom) {
-                if (mFirstPass) {
-                    setExpand(true);
-                    mFirstPass = false;
-                } else {
-                    verticalView.removeOnLayoutChangeListener(this);
-                    verticalView.getViewTreeObserver().addOnPreDrawListener(new
-                            ViewTreeObserver.OnPreDrawListener() {
-                            @Override
-                        public boolean onPreDraw() {
-                            callback.run();
-                            verticalView.getViewTreeObserver().removeOnPreDrawListener(this);
-                            return false;
-                        }
-                    });
-                }
-            }
-        });
-        setExpand(false);
+        new ExpandPreLayout(callback).execute();
     }
 
     @Override
