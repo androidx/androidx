@@ -15,18 +15,10 @@
 -->
 
 <resources>
+
     <!-- The maximum number of action buttons that should be permitted within
          an action bar/action mode. This will be used to determine how many
          showAsAction="ifRoom" items can fit. "always" items can override this. -->
     <integer name="abc_max_action_buttons">5</integer>
-    <!-- Vertical padding around action bar icons. -->
-    <dimen name="abc_action_bar_icon_vertical_padding">4dip</dimen>
-    <!-- Text size for action bar titles -->
-    <dimen name="abc_action_bar_title_text_size">18dp</dimen>
-    <!-- Text size for action bar subtitles -->
-    <dimen name="abc_action_bar_subtitle_text_size">14dp</dimen>
-    <!-- Top margin for action bar subtitles -->
-    <dimen name="abc_action_bar_subtitle_top_margin">-3dp</dimen>
-    <!-- Bottom margin for action bar subtitles -->
-    <dimen name="abc_action_bar_subtitle_bottom_margin">9dip</dimen>
+
 </resources>
