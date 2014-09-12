@@ -27,7 +27,7 @@
     <TextView android:id="@+id/action_bar_subtitle"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginTop="@dimen/abc_action_bar_subtitle_top_margin"
+              android:layout_marginTop="@dimen/abc_action_bar_subtitle_top_margin_material"
               android:singleLine="true"
               android:ellipsize="end"
               android:visibility="gone" />

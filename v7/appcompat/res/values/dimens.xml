@@ -26,18 +26,6 @@
          a few are present. -->
     <dimen name="abc_action_bar_stacked_tab_max_width">180dp</dimen>
 
-    <!-- Vertical padding around action bar icons. -->
-    <dimen name="abc_action_bar_icon_vertical_padding">8dip</dimen>
-    <!-- Text size for action bar titles -->
-    <dimen name="abc_action_bar_title_text_size">18dp</dimen>
-    <!-- Text size for action bar subtitles -->
-    <dimen name="abc_action_bar_subtitle_text_size">14dp</dimen>
-    <!-- Top margin for action bar subtitles -->
-    <dimen name="abc_action_bar_subtitle_top_margin">-3dp</dimen>
-    <!-- Bottom margin for action bar subtitles -->
-    <dimen name="abc_action_bar_subtitle_bottom_margin">5dip</dimen>
-    <!-- Minimum width for an action button in the menu area of an action bar -->
-    <dimen name="abc_action_button_min_width">56dip</dimen>
     <!-- Maximum height for a stacked tab bar as part of an action bar -->
     <dimen name="abc_action_bar_stacked_max_height">48dp</dimen>
     <!-- Size of the indeterminate Progress Bar -->
