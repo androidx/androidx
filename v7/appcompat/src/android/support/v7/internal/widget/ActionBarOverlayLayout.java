@@ -326,8 +326,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         }
 
         mBaseInnerInsets.set(systemInsets);
-        // TODO: check if this is needed
-        // computeFitSystemWindows(mBaseInnerInsets, mBaseContentInsets);
+        ViewUtils.computeFitSystemWindows(this, mBaseInnerInsets, mBaseContentInsets);
         if (!mLastBaseContentInsets.equals(mBaseContentInsets)) {
             changed = true;
             mLastBaseContentInsets.set(mBaseContentInsets);
