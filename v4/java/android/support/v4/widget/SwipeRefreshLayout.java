@@ -172,10 +172,8 @@ public class SwipeRefreshLayout extends ViewGroup {
                 if (mScale) {
                     setAnimationProgress(0 /* animation complete and view is hidden */);
                 } else {
-                    setAnimationProgress(1 /* animation complete and view is showing */);
                     setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCurrentTargetOffsetTop,
                             true /* requires update */);
-                    mCircleView.setVisibility(View.VISIBLE);
                 }
             }
             mCurrentTargetOffsetTop = mCircleView.getTop();
@@ -302,6 +300,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         mProgress = new MaterialProgressDrawable(getContext(), this);
         mProgress.setBackgroundColor(CIRCLE_BG_LIGHT);
         mCircleView.setImageDrawable(mProgress);
+        mCircleView.setVisibility(View.GONE);
         addView(mCircleView);
     }
 
@@ -401,9 +400,7 @@ public class SwipeRefreshLayout extends ViewGroup {
             }
         };
         mScaleDownAnimation.setDuration(SCALE_DOWN_DURATION);
-        if (listener != null) {
-            mCircleView.setAnimationListener(listener);
-        }
+        mCircleView.setAnimationListener(listener);
         mCircleView.clearAnimation();
         mCircleView.startAnimation(mScaleDownAnimation);
     }
@@ -704,6 +701,10 @@ public class SwipeRefreshLayout extends ViewGroup {
                     if (mCircleView.getVisibility() != View.VISIBLE) {
                         mCircleView.setVisibility(View.VISIBLE);
                     }
+                    if (!mScale) {
+                        ViewCompat.setScaleX(mCircleView, 1f);
+                        ViewCompat.setScaleY(mCircleView, 1f);
+                    }
                     if (overscrollTop < mTotalDragDistance) {
                         if (mScale) {
                             setAnimationProgress(overscrollTop / mTotalDragDistance);
@@ -752,7 +753,28 @@ public class SwipeRefreshLayout extends ViewGroup {
                     // cancel refresh
                     mRefreshing = false;
                     mProgress.setStartEndTrim(0f, 0f);
-                    animateOffsetToStartPosition(mCurrentTargetOffsetTop, null);
+                    Animation.AnimationListener listener = null;
+                    if (!mScale) {
+                        listener = new Animation.AnimationListener() {
+
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                if (!mScale) {
+                                    startScaleDownAnimation(null);
+                                }
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+                            }
+
+                        };
+                    }
+                    animateOffsetToStartPosition(mCurrentTargetOffsetTop, listener);
                     mProgress.showArrow(false);
                 }
                 mActivePointerId = INVALID_POINTER;
