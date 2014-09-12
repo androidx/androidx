@@ -6069,7 +6069,7 @@ public class RecyclerView extends ViewGroup {
          * be populated.
          * <p>
          * Default implementation adds a {@link
-         * android.support.v4.view.accessibility.AccessibilityNodeInfoCompatKitKat.CollectionInfo}.
+         * android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat}.
          * <p>
          * You should override
          * {@link #getRowCountForAccessibility(RecyclerView.Recycler, RecyclerView.State)},
