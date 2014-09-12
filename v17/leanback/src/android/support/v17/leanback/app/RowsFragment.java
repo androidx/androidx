@@ -116,6 +116,8 @@ public class RowsFragment extends BaseRowFragment {
     private ItemBridgeAdapter.ViewHolder mSelectedViewHolder;
     private boolean mExpand = true;
     private boolean mViewsCreated;
+    private float mRowScaleFactor;
+    private boolean mRowScaleEnabled;
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
@@ -184,6 +186,7 @@ public class RowsFragment extends BaseRowFragment {
         mExpand = expand;
         VerticalGridView listView = getVerticalGridView();
         if (listView != null) {
+            updateRowScaling(!expand);
             final int count = listView.getChildCount();
             if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
             for (int i = 0; i < count; i++) {
@@ -236,6 +239,15 @@ public class RowsFragment extends BaseRowFragment {
         return mOnItemViewSelectedListener;
     }
 
+    /**
+     * Enables scaling of rows.
+     *
+     * @param enable true to enable row scaling
+     */
+    public void enableRowScaling(boolean enable) {
+        mRowScaleEnabled = enable;
+    }
+
     @Override
     protected void onRowSelected(ViewGroup parent, View view, int position, long id) {
         VerticalGridView listView = getVerticalGridView();
@@ -266,7 +278,10 @@ public class RowsFragment extends BaseRowFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSelectAnimatorDuration = getResources().getInteger(R.integer.lb_browse_rows_anim_duration);
+        mSelectAnimatorDuration = getResources().getInteger(
+                R.integer.lb_browse_rows_anim_duration);
+        mRowScaleFactor = getResources().getFraction(
+                R.fraction.lb_browse_rows_scale, 1, 1);
     }
 
     @Override
@@ -468,6 +483,16 @@ public class RowsFragment extends BaseRowFragment {
         // Run a "pre" layout when we go non-expand, in order to get the initial
         // positions of added rows.
         new ExpandPreLayout(callback).execute();
+    }
+
+    private void updateRowScaling(boolean scale) {
+        VerticalGridView view = getVerticalGridView();
+        view.setClipChildren(!mRowScaleEnabled && scale);
+        view.setPrimaryOverReach((mRowScaleEnabled && scale) ? 1f / mRowScaleFactor : 1f);
+
+        final float scaleFactor = (mRowScaleEnabled && scale) ? mRowScaleFactor : 1f;
+        view.setScaleX(scaleFactor);
+        view.setScaleY(scaleFactor);
     }
 
     @Override
