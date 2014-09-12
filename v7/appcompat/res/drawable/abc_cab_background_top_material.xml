@@ -16,10 +16,6 @@
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
             android:paddingMode="stack">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="@color/background_material_light" />
-        </shape>
-    </item>
+    <item android:drawable="@drawable/abc_cab_background_internal_bg" />
     <item android:drawable="@drawable/abc_cab_background_top_mtrl_alpha" />
 </layer-list>
