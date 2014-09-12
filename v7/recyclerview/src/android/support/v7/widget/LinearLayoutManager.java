@@ -50,9 +50,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
 
 
     /**
-     * While trying to find next view to focus, LinearLayoutManager will not try to scroll more
-     * than
-     * this factor times the total space of the list. If layout is vertical, total space is the
+     * While trying to find next view to focus, LayoutManager will not try to scroll more
+     * than this factor times the total space of the list. If layout is vertical, total space is the
      * height minus padding, if layout is horizontal, total space is the width minus padding.
      */
     private static final float MAX_SCROLL_FACTOR = 0.33f;
@@ -164,10 +163,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * Returns whether LinearLayoutManager will recycle its children when it is detached from
+     * Returns whether LayoutManager will recycle its children when it is detached from
      * RecyclerView.
      *
-     * @return true if LinearLayoutManager will recycle its children when it is detached from
+     * @return true if LayoutManager will recycle its children when it is detached from
      * RecyclerView.
      */
     public boolean getRecycleChildrenOnDetach() {
@@ -175,7 +174,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * Set whether LinearLayoutManager will recycle its children when it is detached from
+     * Set whether LayoutManager will recycle its children when it is detached from
      * RecyclerView.
      * <p>
      * If you are using a {@link RecyclerView.RecycledViewPool}, it might be a good idea to set
@@ -377,7 +376,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * <p>Returns the amount of extra space that should be laid out by LinearLayoutManager.
+     * <p>Returns the amount of extra space that should be laid out by LayoutManager.
      * By default, {@link android.support.v7.widget.LinearLayoutManager} lays out 1 extra page of
      * items while smooth scrolling and 0 otherwise. You can override this method to implement your
      * custom layout pre-cache logic.</p>
@@ -1505,7 +1504,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * <p>
      * If RecyclerView has item decorators, they will be considered in calculations as well.
      * <p>
-     * LinearLayoutManager may pre-cache some views that are not necessarily visible. Those views
+     * LayoutManager may pre-cache some views that are not necessarily visible. Those views
      * are ignored in this method.
      *
      * @return The adapter position of the first visible item or {@link RecyclerView#NO_POSITION} if
@@ -1522,7 +1521,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * Returns the adapter position of the first fully visible view.
      * <p>
      * Note that bounds check is only performed in the current orientation. That means, if
-     * LinearLayoutManager is horizontal, it will only check the view's left and right edges.
+     * LayoutManager is horizontal, it will only check the view's left and right edges.
      *
      * @return The adapter position of the first fully visible item or
      * {@link RecyclerView#NO_POSITION} if there aren't any visible items.
@@ -1543,7 +1542,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * <p>
      * If RecyclerView has item decorators, they will be considered in calculations as well.
      * <p>
-     * LinearLayoutManager may pre-cache some views that are not necessarily visible. Those views
+     * LayoutManager may pre-cache some views that are not necessarily visible. Those views
      * are ignored in this method.
      *
      * @return The adapter position of the last visible view or {@link RecyclerView#NO_POSITION} if
@@ -1560,7 +1559,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * Returns the adapter position of the last fully visible view.
      * <p>
      * Note that bounds check is only performed in the current orientation. That means, if
-     * LinearLayoutManager is horizontal, it will only check the view's left and right edges.
+     * LayoutManager is horizontal, it will only check the view's left and right edges.
      *
      * @return The adapter position of the last fully visible view or
      * {@link RecyclerView#NO_POSITION} if there aren't any visible items.
