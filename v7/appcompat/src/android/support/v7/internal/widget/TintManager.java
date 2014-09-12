@@ -27,7 +27,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.TypedValue;
 
 /**
@@ -149,12 +148,11 @@ public class TintManager {
             tintMode = PorterDuff.Mode.MULTIPLY;
         }
 
-        if (colorAttrSet && mContext.getTheme().resolveAttribute(colorAttr, mTypedValue, true)) {
+        if (colorAttrSet) {
             if (tintMode == null) {
                 tintMode = DEFAULT_MODE;
             }
-
-            final int color = mResources.getColor(mTypedValue.resourceId);
+            final int color = getThemeAttrColor(colorAttr);
 
             // First, lets see if the cache already contains the color filter
             PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, tintMode);
@@ -234,13 +232,19 @@ public class TintManager {
     }
 
     int getThemeAttrColor(int attr) {
-        mContext.getTheme().resolveAttribute(attr, mTypedValue, true);
-        return mResources.getColor(mTypedValue.resourceId);
+        if (mContext.getTheme().resolveAttribute(attr, mTypedValue, true)) {
+            if (mTypedValue.type >= TypedValue.TYPE_FIRST_INT
+                    && mTypedValue.type <= TypedValue.TYPE_LAST_INT) {
+                return mTypedValue.data;
+            } else if (mTypedValue.type == TypedValue.TYPE_STRING) {
+                return mResources.getColor(mTypedValue.resourceId);
+            }
+        }
+        return 0;
     }
 
     int getDisabledThemeAttrColor(int attr) {
-        mContext.getTheme().resolveAttribute(attr, mTypedValue, true);
-        final int color = mResources.getColor(mTypedValue.resourceId);
+        final int color = getThemeAttrColor(attr);
         final int originalAlpha = Color.alpha(color);
 
         // Now retrieve the disabledAlpha value from the theme
