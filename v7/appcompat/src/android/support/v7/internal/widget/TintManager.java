@@ -72,7 +72,8 @@ public class TintManager {
      * using the {@link android.graphics.PorterDuff.Mode#MULTIPLY} mode.
      */
     private static final int[] TINT_COLOR_BACKGROUND_MULTIPLY = {
-            R.drawable.abc_popup_background_mtrl_mult
+            R.drawable.abc_popup_background_mtrl_mult,
+            R.drawable.abc_cab_background_internal_bg
     };
 
     /**
@@ -91,8 +92,7 @@ public class TintManager {
      * should be defined in one of the arrays above.
      */
     private static final int[] CONTAINERS_WITH_TINT_CHILDREN = {
-            R.drawable.abc_cab_background_top_material_dark,
-            R.drawable.abc_cab_background_top_material_light
+            R.drawable.abc_cab_background_top_material
     };
 
     private final Context mContext;
