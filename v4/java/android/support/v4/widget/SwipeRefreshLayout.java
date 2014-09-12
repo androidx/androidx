@@ -688,7 +688,8 @@ public class SwipeRefreshLayout extends ViewGroup {
                     float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
                     float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
                     float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
-                    float slingshotDist = mSpinnerFinalOffset;
+                    float slingshotDist = mUsingCustomStart ? mSpinnerFinalOffset
+                            - mOriginalOffsetTop : mSpinnerFinalOffset;
                     float tensionSlingshotPercent = Math.max(0,
                             Math.min(extraOS, slingshotDist * 2) / slingshotDist);
                     float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(
@@ -700,6 +701,10 @@ public class SwipeRefreshLayout extends ViewGroup {
                     // where 1.0f is a full circle
                     if (mCircleView.getVisibility() != View.VISIBLE) {
                         mCircleView.setVisibility(View.VISIBLE);
+                    }
+                    if (!mScale) {
+                        ViewCompat.setScaleX(mCircleView, 1f);
+                        ViewCompat.setScaleY(mCircleView, 1f);
                     }
                     if (!mScale) {
                         ViewCompat.setScaleX(mCircleView, 1f);
