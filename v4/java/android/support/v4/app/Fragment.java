@@ -1390,7 +1390,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param callback Used to manipulate the shared element transitions on this Fragment
      *                 when added not as a pop from the back stack.
      */
-    public void setEnterSharedElementTransitionCallback(SharedElementCallback callback) {
+    public void setEnterSharedElementCallback(SharedElementCallback callback) {
         mEnterTransitionCallback = callback;
     }
 
@@ -1401,7 +1401,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param callback Used to manipulate the shared element transitions on this Fragment
      *                 when added as a pop from the back stack.
      */
-    public void setExitSharedElementTransitionCallback(SharedElementCallback callback) {
+    public void setExitSharedElementCallback(SharedElementCallback callback) {
         mExitTransitionCallback = callback;
     }
 
