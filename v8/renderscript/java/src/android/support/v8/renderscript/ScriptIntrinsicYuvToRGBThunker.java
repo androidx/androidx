@@ -17,7 +17,7 @@
 package android.support.v8.renderscript;
 
 
-public class ScriptIntrinsicYuvToRGBThunker extends ScriptIntrinsicYuvToRGB {
+class ScriptIntrinsicYuvToRGBThunker extends ScriptIntrinsicYuvToRGB {
     android.renderscript.ScriptIntrinsicYuvToRGB mN;
 
     android.renderscript.ScriptIntrinsicYuvToRGB getNObj() {
