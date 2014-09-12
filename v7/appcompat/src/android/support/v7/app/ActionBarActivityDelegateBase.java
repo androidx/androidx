@@ -42,6 +42,7 @@ import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.ProgressBarCompat;
 import android.support.v7.internal.widget.TintEditText;
+import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -229,6 +230,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     final void ensureSubDecor() {
         if (!mSubDecorInstalled) {
+            View decor;
+
             if (mHasActionBar) {
                 /**
                  * This needs some explanation. As we can not use the android:theme attribute
@@ -246,11 +249,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 }
 
                 // Now inflate the view using the themed context and set it as the content view
-                View decor = LayoutInflater.from(themedContext)
+                decor = LayoutInflater.from(themedContext)
                         .inflate(R.layout.abc_screen_toolbar, null);
-                mActivity.superSetContentView(decor);
 
-                mDecorContentParent = (DecorContentParent) mActivity
+                mDecorContentParent = (DecorContentParent) decor
                         .findViewById(R.id.decor_content_parent);
                 mDecorContentParent.setWindowCallback(getWindowCallback());
 
@@ -267,10 +269,17 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                     mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
                 }
             } else if (mOverlayActionMode) {
-                mActivity.superSetContentView(R.layout.abc_screen_simple_overlay_action_mode);
+                decor = LayoutInflater.from(mActivity)
+                        .inflate(R.layout.abc_screen_simple_overlay_action_mode, null);
             } else {
-                mActivity.superSetContentView(R.layout.abc_screen_simple);
+                decor = LayoutInflater.from(mActivity).inflate(R.layout.abc_screen_simple, null);
             }
+
+            // Make the decor optionally fit system windows, like the window's decor
+            ViewUtils.makeOptionalFitsSystemWindows(decor);
+
+            // Now set the Activity's content view witht the decor
+            mActivity.superSetContentView(decor);
 
             // Change our content FrameLayout to use the android.R.id.content id.
             // Useful for fragments.
