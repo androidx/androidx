@@ -14,6 +14,7 @@
 
 package android.support.v17.leanback.app;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -160,6 +161,21 @@ public class HeadersFragment extends BaseRowFragment {
         updateListViewVisibility();
     }
 
+    static class NoOverlappingFrameLayout extends FrameLayout {
+
+        public NoOverlappingFrameLayout(Context context) {
+            super(context);
+        }
+
+        /**
+         * Avoid creating hardware layer for header dock.
+         */
+        @Override
+        public boolean hasOverlappingRendering() {
+            return false;
+        }
+    }
+
     // Wrapper needed because of conflict between RecyclerView's use of alpha
     // for ADD animations, and RowHeaderPresnter's use of alpha for selected level.
     private final ItemBridgeAdapter.Wrapper mWrapper = new ItemBridgeAdapter.Wrapper() {
@@ -170,7 +186,7 @@ public class HeadersFragment extends BaseRowFragment {
 
         @Override
         public View createWrapper(View root) {
-            return new FrameLayout(root.getContext());
+            return new NoOverlappingFrameLayout(root.getContext());
         }
     };
     @Override
