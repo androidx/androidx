@@ -343,6 +343,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private boolean mScrollEnabled = true;
 
+    /**
+     * Percent of overreach.
+     */
+    private float mPrimaryOverReach = 1f;
+
     private int[] mTempDeltas = new int[2];
 
     /**
@@ -497,6 +502,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public void setOnChildSelectedListener(OnChildSelectedListener listener) {
         mChildSelectedListener = listener;
+    }
+
+    public void setPrimaryOverReach(float fraction) {
+        if (fraction != mPrimaryOverReach) {
+            if (DEBUG) Log.v(getTag(), "setPrimaryOverReach " + fraction);
+            mPrimaryOverReach = fraction;
+            requestLayout();
+        }
     }
 
     private int getPositionByView(View view) {
@@ -1301,7 +1314,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         View v = findViewByPosition(position);
         if (v != null) {
             if (DEBUG) {
-                Log.d(getTag(), "removeAndRecycleViewAt " + position);
+                Log.d(getTag(), "removeAndRecycleViewAt " + position + " " + v);
             }
             mChildrenStates.saveOffscreenView(v, position);
             removeAndRecycleView(v, mRecycler);
@@ -1819,9 +1832,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mScrollOffsetPrimary -= paddingPrimaryDiff;
         mScrollOffsetSecondary -= paddingSecondaryDiff;
 
-        mWindowAlignment.horizontal.setSize(getWidth());
+        if (mOrientation == HORIZONTAL) {
+            mWindowAlignment.horizontal.setSize((int)(getWidth() * mPrimaryOverReach + 0.5f));
+            mWindowAlignment.vertical.setSize(getHeight());
+        } else {
+            mWindowAlignment.horizontal.setSize(getWidth());
+            mWindowAlignment.vertical.setSize((int) (getHeight() * mPrimaryOverReach + 0.5f));
+        }
         mWindowAlignment.horizontal.setPadding(getPaddingLeft(), getPaddingRight());
-        mWindowAlignment.vertical.setSize(getHeight());
         mWindowAlignment.vertical.setPadding(getPaddingTop(), getPaddingBottom());
         mSizePrimary = mWindowAlignment.mainAxis().getSize();
 

@@ -667,4 +667,13 @@ abstract class BaseGridView extends RecyclerView {
         mLayoutManager.mChildrenStates.setLimitNumber(limitNumber);
     }
 
+    /**
+     * Set the factor by which children should be laid out beyond the view bounds
+     * in the direction of orientation.  1.0 disables over reach.
+     *
+     * @param fraction fraction of over reach
+     */
+    public final void setPrimaryOverReach(float fraction) {
+        mLayoutManager.setPrimaryOverReach(fraction);
+    }
 }

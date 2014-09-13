@@ -36,8 +36,8 @@
     <dimen name="lb_browse_headers_width">270dp</dimen>
     <integer name="lb_browse_headers_transition_delay">150</integer>
     <integer name="lb_browse_headers_transition_duration">250</integer>
-
     <integer name="lb_browse_rows_anim_duration">250</integer>
+    <item name="lb_browse_rows_scale" type="fraction">80%</item>
 
     <!-- Derived from the ux spec of 48dp baseline to baseline -->
     <dimen name="lb_browse_headers_vertical_margin">21dp</dimen>

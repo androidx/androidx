@@ -75,6 +75,8 @@ public final class TransitionHelper {
 
         public Object createSlide(SlideCallback callback);
 
+        public Object createScale();
+
         public Object createFadeTransition(int fadingMode);
 
         public Object createChangeBounds(boolean reparent);
@@ -114,6 +116,7 @@ public final class TransitionHelper {
 
         public void setInterpolator(Object transition, Object timeInterpolator);
 
+        public void addTarget(Object transition, View view);
     }
 
     /**
@@ -187,6 +190,11 @@ public final class TransitionHelper {
 
         @Override
         public Object createSlide(SlideCallback callback) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public Object createScale() {
             return new TransitionStub();
         }
 
@@ -271,6 +279,10 @@ public final class TransitionHelper {
         @Override
         public void setInterpolator(Object transition, Object timeInterpolator) {
         }
+
+        @Override
+        public void addTarget(Object transition, View view) {
+        }
     }
 
     /**
@@ -346,6 +358,11 @@ public final class TransitionHelper {
         @Override
         public Object createSlide(SlideCallback callback) {
             return mTransitionHelper.createSlide(callback);
+        }
+
+        @Override
+        public Object createScale() {
+            return mTransitionHelper.createScale();
         }
 
         @Override
@@ -433,6 +450,11 @@ public final class TransitionHelper {
         public void setInterpolator(Object transition, Object timeInterpolator) {
             mTransitionHelper.setInterpolator(transition, timeInterpolator);
         }
+
+        @Override
+        public void addTarget(Object transition, View view) {
+            mTransitionHelper.addTarget(transition, view);
+        }
     }
 
     private static final class TransitionHelperApi21Impl extends TransitionHelperKitkatImpl {
@@ -480,6 +502,11 @@ public final class TransitionHelper {
         @Override
         public Object getReenterTransition(Window window) {
             return mTransitionHelper.getReenterTransition(window);
+        }
+
+        @Override
+        public Object createScale() {
+            return mTransitionHelper.createScale();
         }
     }
 
@@ -565,6 +592,10 @@ public final class TransitionHelper {
         return mImpl.createSlide(callback);
     }
 
+    public Object createScale() {
+        return mImpl.createScale();
+    }
+
     public void addTransition(Object transitionSet, Object transition) {
         mImpl.addTransition(transitionSet, transition);
     }
@@ -619,5 +650,9 @@ public final class TransitionHelper {
 
     public void setInterpolator(Object transition, Object timeInterpolator) {
         mImpl.setInterpolator(transition, timeInterpolator);
+    }
+
+    public void addTarget(Object transition, View view) {
+        mImpl.addTarget(transition, view);
     }
 }
