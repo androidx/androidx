@@ -187,6 +187,7 @@ public class BrowseFragment extends Fragment {
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginLeft;
     private int mContainerListAlignTop;
+    private boolean mRowScaleEnabled = true;
     private SearchOrbView.Colors mSearchAffordanceColors;
     private boolean mSearchAffordanceColorSet;
     private OnItemSelectedListener mExternalOnItemSelectedListener;
@@ -463,6 +464,19 @@ public class BrowseFragment extends Fragment {
         mBrowseTransitionListener = listener;
     }
 
+    /**
+     * Enables scaling of rows when headers are present.
+     * By default enabled to increase density.
+     *
+     * @param enable true to enable row scaling
+     */
+    public void enableRowScaling(boolean enable) {
+        mRowScaleEnabled = enable;
+        if (mRowsFragment != null) {
+            mRowsFragment.enableRowScaling(mRowScaleEnabled);
+        }
+    }
+
     private void startHeadersTransitionInternal(final boolean withHeaders) {
         if (getFragmentManager().isDestroyed()) {
             return;
@@ -628,6 +642,7 @@ public class BrowseFragment extends Fragment {
         }
         mHeadersFragment.setAdapter(mAdapter);
 
+        mRowsFragment.enableRowScaling(mRowScaleEnabled);
         mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
         mRowsFragment.setOnItemViewSelectedListener(mRowViewSelectedListener);
         mHeadersFragment.setOnItemSelectedListener(mHeaderSelectedListener);
@@ -713,14 +728,21 @@ public class BrowseFragment extends Fragment {
         Object changeBounds = sTransitionHelper.createChangeBounds(false);
         Object fadeIn = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
         Object fadeOut = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
+        Object scale = sTransitionHelper.createScale();
 
         sTransitionHelper.setDuration(fadeOut, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, fadeOut);
+
         if (mShowingHeaders) {
             sTransitionHelper.setStartDelay(changeBounds, mHeadersTransitionStartDelay);
+            sTransitionHelper.setStartDelay(scale, mHeadersTransitionStartDelay);
         }
         sTransitionHelper.setDuration(changeBounds, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, changeBounds);
+        sTransitionHelper.addTarget(scale, mRowsFragment.getVerticalGridView());
+        sTransitionHelper.setDuration(scale, mHeadersTransitionDuration);
+        sTransitionHelper.addTransition(mHeadersTransition, scale);
+
         sTransitionHelper.setDuration(fadeIn, mHeadersTransitionDuration);
         sTransitionHelper.setStartDelay(fadeIn, mHeadersTransitionStartDelay);
         sTransitionHelper.addTransition(mHeadersTransition, fadeIn);
@@ -870,6 +892,9 @@ public class BrowseFragment extends Fragment {
         mHeadersFragment.setItemAlignment();
         mRowsFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
         mRowsFragment.setItemAlignment();
+
+        mRowsFragment.getVerticalGridView().setPivotX(0);
+        mRowsFragment.getVerticalGridView().setPivotY(mContainerListAlignTop);
 
         if (mCanShowHeaders && mShowingHeaders && mHeadersFragment.getView() != null) {
             mHeadersFragment.getView().requestFocus();

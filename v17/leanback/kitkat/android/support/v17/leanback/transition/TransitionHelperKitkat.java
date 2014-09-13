@@ -64,6 +64,11 @@ final class TransitionHelperKitkat {
         return slide;
     }
 
+    Object createScale() {
+        Scale scale = new Scale();
+        return scale;
+    }
+
     Object createFadeTransition(int fadingMode) {
         Fade fade = new Fade(fadingMode);
         return fade;
@@ -213,5 +218,9 @@ final class TransitionHelperKitkat {
 
     void setInterpolator(Object transition, Object timeInterpolator) {
         ((Transition) transition).setInterpolator((TimeInterpolator) timeInterpolator);
+    }
+
+    void addTarget(Object transition, View view) {
+        ((Transition) transition).addTarget(view);
     }
 }
