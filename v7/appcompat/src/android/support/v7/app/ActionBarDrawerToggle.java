@@ -55,6 +55,11 @@ import android.support.v7.appcompat.R;
  * <p><code>ActionBarDrawerToggle</code> can be used directly as a
  * {@link android.support.v4.widget.DrawerLayout.DrawerListener}, or if you are already providing
  * your own listener, call through to each of the listener methods from your own.</p>
+ *
+ * <p>
+ * You can customize the the animated toggle by defining the
+ * {@link android.support.v7.appcompat.R.styleable#DrawerArrowToggle drawerArrowStyle} in your
+ * ActionBar theme.
  */
 public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
