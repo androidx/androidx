@@ -404,7 +404,6 @@ public class ListRowPresenter extends RowPresenter {
             vh.getGridView().setRowHeight(newHeight);
         }
         setVerticalPadding(vh);
-        vh.getGridView().setFadingLeftEdge(!expanded);
         updateFooterViewSwitcher(vh);
     }
 
