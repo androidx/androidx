@@ -27,7 +27,7 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:contentDescription="@null" />
-    <FrameLayout
+    <android.support.v17.leanback.widget.ImageCardViewInfo
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         lb:layout_viewType="info" >
@@ -82,5 +82,5 @@
                 android:visibility="gone"
                 android:contentDescription="@null" />
         </RelativeLayout>
-    </FrameLayout>
+    </android.support.v17.leanback.widget.ImageCardViewInfo>
 </merge>
