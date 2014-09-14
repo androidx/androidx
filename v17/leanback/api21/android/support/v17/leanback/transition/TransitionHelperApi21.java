@@ -13,47 +13,54 @@
  */
 package android.support.v17.leanback.transition;
 
+import android.R;
+import android.content.Context;
 import android.transition.ChangeTransform;
 import android.view.Window;
+import android.view.animation.AnimationUtils;
 
 final class TransitionHelperApi21 {
 
     TransitionHelperApi21() {
     }
 
-    public Object getSharedElementEnterTransition(Window window) {
+    public static Object getSharedElementEnterTransition(Window window) {
         return window.getSharedElementEnterTransition();
     }
 
-    public Object getSharedElementReturnTransition(Window window) {
+    public static Object getSharedElementReturnTransition(Window window) {
         return window.getSharedElementReturnTransition();
     }
 
-    public Object getSharedElementExitTransition(Window window) {
+    public static Object getSharedElementExitTransition(Window window) {
         return window.getSharedElementExitTransition();
     }
 
-    public Object getSharedElementReenterTransition(Window window) {
+    public static Object getSharedElementReenterTransition(Window window) {
         return window.getSharedElementReenterTransition();
     }
 
-    public Object getEnterTransition(Window window) {
+    public static Object getEnterTransition(Window window) {
         return window.getEnterTransition();
     }
 
-    public Object getReturnTransition(Window window) {
+    public static Object getReturnTransition(Window window) {
         return window.getReturnTransition();
     }
 
-    public Object getExitTransition(Window window) {
+    public static Object getExitTransition(Window window) {
         return window.getExitTransition();
     }
 
-    public Object getReenterTransition(Window window) {
+    public static Object getReenterTransition(Window window) {
         return window.getReenterTransition();
     }
 
-    public Object createScale() {
+    public static Object createScale() {
         return new ChangeTransform();
+    }
+
+    public static Object createDefaultInterpolator(Context context) {
+        return AnimationUtils.loadInterpolator(context, R.interpolator.fast_out_linear_in);
     }
 }
