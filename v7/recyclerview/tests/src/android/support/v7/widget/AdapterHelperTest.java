@@ -92,8 +92,7 @@ public class AdapterHelperTest extends AndroidTestCase {
                     if (holder.mPosition >= positionEnd) {
                         holder.offsetPosition(-itemCount, true);
                     } else if (holder.mPosition >= positionStart) {
-                        holder.addFlags(ViewHolder.FLAG_REMOVED);
-                        holder.offsetPosition(-itemCount, true);
+                        holder.flagRemovedAndOffsetPosition(positionStart - 1, -itemCount, true);
                     }
                 }
             }
@@ -106,8 +105,7 @@ public class AdapterHelperTest extends AndroidTestCase {
                     if (holder.mPosition >= positionEnd) {
                         holder.offsetPosition(-itemCount, false);
                     } else if (holder.mPosition >= positionStart) {
-                        holder.addFlags(ViewHolder.FLAG_REMOVED);
-                        holder.offsetPosition(-itemCount, false);
+                        holder.flagRemovedAndOffsetPosition(positionStart - 1, -itemCount, false);
                     }
                 }
             }
@@ -129,6 +127,7 @@ public class AdapterHelperTest extends AndroidTestCase {
                 }
                 for (ViewHolder viewHolder : mViewHolders) {
                     for (int i = 0; i < updateOp.itemCount; i ++) {
+                        // events are dispatched before view holders are updated for consistency
                         assertFalse("update op should not match any existing view holders",
                                 viewHolder.getPosition() == updateOp.positionStart + i);
                     }
@@ -170,23 +169,14 @@ public class AdapterHelperTest extends AndroidTestCase {
                     if (holder == null || holder.mPosition < start || holder.mPosition > end) {
                         continue;
                     }
-                    holder.offsetPosition(inBetweenOffset, false);
-                }
-            }
-        }, true) {
-            @Override
-            void createFakeAddForRemovedMove(int adapterIndex, int pendingUpdateIndex) {
-                int addsBefore = 0;
-                for (int i = 0; i < pendingUpdateIndex; i ++) {
-                    final UpdateOp updateOp = mPendingUpdates.get(i);
-                    if (updateOp.cmd == UpdateOp.ADD) {
-                        addsBefore += updateOp.itemCount;
+                    if (holder.mPosition == from) {
+                        holder.offsetPosition(to - from, false);
+                    } else {
+                        holder.offsetPosition(inBetweenOffset, false);
                     }
                 }
-                mTestAdapter.createFakeItemAt(addsBefore);
-                super.createFakeAddForRemovedMove(adapterIndex, pendingUpdateIndex);
             }
-        };
+        }, true);
     }
 
     void log(String msg) {
@@ -525,9 +515,15 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     public void testScenario25() {
         setupBasic(10,3,4);
-        mv(3, 9);
-        mv(2,9);
+        mv(3,9);
         rm(5,4);
+        preProcess();
+    }
+
+    public void testScenario25a() {
+        setupBasic(10,3,4);
+        rm(6,4);
+        mv(3,5);
         preProcess();
     }
 
@@ -567,11 +563,186 @@ public class AdapterHelperTest extends AndroidTestCase {
         add(5, 5);
     }
 
-    public void testScenerio30() {
+    public void testScenerio30() throws InterruptedException {
         mCollectLogs = true;
         setupBasic(10,3,1);
         rm(3,2);
         rm(2,5);
+        preProcess();
+    }
+
+    public void testScenerio31() throws InterruptedException {
+        mCollectLogs = true;
+        setupBasic(10,3,1);
+        rm(3,1);
+        rm(2,3);
+        preProcess();
+    }
+
+    public void testScenerio32() {
+        setupBasic(10,8,1);
+        add(9,2);
+        add(7,39);
+        up(0,39);
+        mv(36,20);
+        add(1,48);
+        mv(22,98);
+        mv(96,29);
+        up(36,29);
+        add(60,36);
+        add(127,34);
+        rm(142,22);
+        up(12,69);
+        up(116,13);
+        up(118,19);
+        mv(94,69);
+        up(98,21);
+        add(89,18);
+        rm(94,70);
+        up(71,8);
+        rm(54,26);
+        add(2,20);
+        mv(78,84);
+        mv(56,2);
+        mv(1,79);
+        rm(76,7);
+        rm(57,12);
+        rm(30,27);
+        add(24,13);
+        add(21,5);
+        rm(11,27);
+        rm(32,1);
+        up(0,5);
+        mv(14,9);
+        rm(15,12);
+        up(19,1);
+        rm(7,1);
+        mv(10,4);
+        up(4,3);
+        rm(16,1);
+        up(13,5);
+        up(2,8);
+        add(10,19);
+        add(15,42);
+        preProcess();
+    }
+
+    public void testScenerio33() throws Throwable {
+        try {
+            mCollectLogs = true;
+            setupBasic(10, 7, 1);
+            mv(0, 6);
+            up(0, 7);
+            preProcess();
+        } catch (Throwable t) {
+            throw new Throwable(t.getMessage() + "\n" + mLog.toString());
+        }
+    }
+
+    public void testScenerio34() {
+        setupBasic(10,6,1);
+        mv(9,7);
+        rm(5,2);
+        up(4,3);
+        preProcess();
+    }
+
+    public void testScenerio35() {
+        setupBasic(10,4,4);
+        mv(1,4);
+        up(2,7);
+        up(0,1);
+        preProcess();
+    }
+
+    public void testScenerio36() {
+        setupBasic(10,7,2);
+        rm(4,1);
+        mv(1,6);
+        up(4,4);
+        preProcess();
+    }
+
+    public void testScenerio37() throws Throwable {
+        try {
+            mCollectLogs = true;
+            setupBasic(10, 5, 2);
+            mv(3, 6);
+            rm(4, 4);
+            rm(3, 2);
+            preProcess();
+        } catch (Throwable t) {
+            throw new Throwable(t.getMessage() + "\n" + mLog.toString());
+        }
+    }
+
+    public void testScenerio38() {
+        setupBasic(10,2,2);
+        add(0,24);
+        rm(26,4);
+        rm(1,24);
+        preProcess();
+    }
+
+    public void testScenerio39() {
+        setupBasic(10,7,1);
+        mv(0,2);
+        rm(8,1);
+        rm(2,6);
+        preProcess();
+    }
+
+    public void testScenerio40() {
+        setupBasic(10,5,3);
+        rm(5,4);
+        mv(0,5);
+        rm(2,3);
+        preProcess();
+    }
+
+    public void testScenerio41() {
+        setupBasic(10,7,2);
+        mv(4,9);
+        rm(0,6);
+        rm(0,1);
+        preProcess();
+    }
+
+    public void testScenerio42() {
+        setupBasic(10,6,2);
+        mv(5,9);
+        rm(5,1);
+        rm(2,6);
+        preProcess();
+    }
+
+    public void testScenerio43() {
+        setupBasic(10,1,6);
+        mv(6,8);
+        rm(3,5);
+        up(3, 1);
+        preProcess();
+    }
+
+    public void testScenerio44() {
+        setupBasic(10,5,2);
+        mv(6,4);
+        mv(4,1);
+        rm(5,3);
+        preProcess();
+    }
+
+    public void testScenerio45() {
+        setupBasic(10,4,2);
+        rm(1, 4);
+        preProcess();
+    }
+
+    public void testScenerio46() {
+        setupBasic(10,4,3);
+        up(6,1);
+        mv(8,0);
+        rm(2,7);
         preProcess();
     }
 
@@ -585,11 +756,13 @@ public class AdapterHelperTest extends AndroidTestCase {
     public void testRandom() throws Throwable {
         mCollectLogs = true;
         Random random = new Random(System.nanoTime());
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 250; i++) {
             try {
-                randomTest(random, i + 10);
+                Log.d(TAG, "running random test " + i);
+                randomTest(random, Math.max(40, 10 + nextInt(random, i)));
             } catch (Throwable t) {
-                throw new Throwable(t.getMessage() + "\n" + mLog.toString(), t);
+                throw new Throwable("failure at random test " + i + "\n" + t.getMessage()
+                        + "\n" + mLog.toString(), t);
             }
         }
     }
@@ -671,6 +844,19 @@ public class AdapterHelperTest extends AndroidTestCase {
                 assertEquals("find position offset should work properly for existing elements" + i
                         + " at pre layout position " + preLayoutIndex + " and post layout position "
                         + endIndex, endIndex, mAdapterHelper.findPositionOffset(preLayoutIndex));
+            }
+        }
+        // make sure visible view holders still have continuous positions
+        final StringBuilder vhLogBuilder = new StringBuilder();
+        for (ViewHolder vh : mViewHolders) {
+            vhLogBuilder.append("\n").append(vh.toString());
+        }
+        if (mViewHolders.size() > 0) {
+            final String vhLog = vhLogBuilder.toString();
+            final int start = mViewHolders.get(0).getPosition();
+            for (int i = 1; i < mViewHolders.size(); i++) {
+                assertEquals("view holder positions should be continious in pre-layout" + vhLog,
+                        start + i, mViewHolders.get(i).getPosition());
             }
         }
         mAdapterHelper.consumePostponedUpdates();
@@ -871,5 +1057,9 @@ public class AdapterHelperTest extends AndroidTestCase {
                 return mUpdateCount;
             }
         }
+    }
+
+    void waitForDebugger() {
+        android.os.Debug.waitForDebugger();
     }
 }
