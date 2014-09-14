@@ -35,6 +35,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentManager.BackStackEntry;
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -45,7 +46,6 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
@@ -729,6 +729,17 @@ public class BrowseFragment extends Fragment {
         Object fadeIn = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
         Object fadeOut = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
         Object scale = sTransitionHelper.createScale();
+        if (TransitionHelper.systemSupportsTransitions()) {
+            Context context = getView().getContext();
+            sTransitionHelper.setInterpolator(changeBounds,
+                    sTransitionHelper.createDefaultInterpolator(context));
+            sTransitionHelper.setInterpolator(fadeIn,
+                    sTransitionHelper.createDefaultInterpolator(context));
+            sTransitionHelper.setInterpolator(fadeOut,
+                    sTransitionHelper.createDefaultInterpolator(context));
+            sTransitionHelper.setInterpolator(scale,
+                    sTransitionHelper.createDefaultInterpolator(context));
+        }
 
         sTransitionHelper.setDuration(fadeOut, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, fadeOut);
