@@ -37,39 +37,39 @@ final class TransitionHelperKitkat {
     TransitionHelperKitkat() {
     }
 
-    Object createScene(ViewGroup sceneRoot, Runnable enterAction) {
+    static Object createScene(ViewGroup sceneRoot, Runnable enterAction) {
         Scene scene = new Scene(sceneRoot);
         scene.setEnterAction(enterAction);
         return scene;
     }
 
-    Object createTransitionSet(boolean sequential) {
+    static Object createTransitionSet(boolean sequential) {
         TransitionSet set = new TransitionSet();
         set.setOrdering(sequential ? TransitionSet.ORDERING_SEQUENTIAL :
             TransitionSet.ORDERING_TOGETHER);
         return set;
     }
 
-    void addTransition(Object transitionSet, Object transition) {
+    static void addTransition(Object transitionSet, Object transition) {
         ((TransitionSet) transitionSet).addTransition((Transition) transition);
     }
 
-    Object createAutoTransition() {
+    static Object createAutoTransition() {
         return new AutoTransition();
     }
 
-    Object createSlide(SlideCallback callback) {
+    static Object createSlide(SlideCallback callback) {
         Slide slide = new Slide();
         slide.setCallback(callback);
         return slide;
     }
 
-    Object createScale() {
+    static Object createScale() {
         Scale scale = new Scale();
         return scale;
     }
 
-    Object createFadeTransition(int fadingMode) {
+    static Object createFadeTransition(int fadingMode) {
         Fade fade = new Fade(fadingMode);
         return fade;
     }
@@ -130,61 +130,61 @@ final class TransitionHelperKitkat {
         }
     }
 
-    Object createChangeBounds(boolean reparent) {
+    static Object createChangeBounds(boolean reparent) {
         CustomChangeBounds changeBounds = new CustomChangeBounds();
         changeBounds.setReparent(reparent);
         return changeBounds;
     }
 
-    void setChangeBoundsStartDelay(Object changeBounds, int viewId, int startDelay) {
+    static void setChangeBoundsStartDelay(Object changeBounds, int viewId, int startDelay) {
         ((CustomChangeBounds) changeBounds).setStartDelay(viewId, startDelay);
     }
 
-    void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay) {
+    static void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay) {
         ((CustomChangeBounds) changeBounds).setStartDelay(view, startDelay);
     }
 
-    void setChangeBoundsStartDelay(Object changeBounds, String className, int startDelay) {
+    static void setChangeBoundsStartDelay(Object changeBounds, String className, int startDelay) {
         ((CustomChangeBounds) changeBounds).setStartDelay(className, startDelay);
     }
 
-    void setChangeBoundsDefaultStartDelay(Object changeBounds, int startDelay) {
+    static void setChangeBoundsDefaultStartDelay(Object changeBounds, int startDelay) {
         ((CustomChangeBounds) changeBounds).setDefaultStartDelay(startDelay);
     }
 
-    void setStartDelay(Object transition, long startDelay) {
+    static void setStartDelay(Object transition, long startDelay) {
         ((Transition)transition).setStartDelay(startDelay);
     }
 
-    void setDuration(Object transition, long duration) {
+    static void setDuration(Object transition, long duration) {
         ((Transition)transition).setDuration(duration);
     }
 
-    void exclude(Object transition, int targetId, boolean exclude) {
+    static void exclude(Object transition, int targetId, boolean exclude) {
         ((Transition) transition).excludeTarget(targetId, exclude);
     }
 
-    void exclude(Object transition, View targetView, boolean exclude) {
+    static void exclude(Object transition, View targetView, boolean exclude) {
         ((Transition) transition).excludeTarget(targetView, exclude);
     }
 
-    void excludeChildren(Object transition, int targetId, boolean exclude) {
+    static void excludeChildren(Object transition, int targetId, boolean exclude) {
         ((Transition) transition).excludeChildren(targetId, exclude);
     }
 
-    void excludeChildren(Object transition, View targetView, boolean exclude) {
+    static void excludeChildren(Object transition, View targetView, boolean exclude) {
         ((Transition) transition).excludeChildren(targetView, exclude);
     }
 
-    void include(Object transition, int targetId) {
+    static void include(Object transition, int targetId) {
         ((Transition) transition).addTarget(targetId);
     }
 
-    void include(Object transition, View targetView) {
+    static void include(Object transition, View targetView) {
         ((Transition) transition).addTarget(targetView);
     }
 
-    public void setTransitionListener(Object transition, final TransitionListener listener) {
+    static void setTransitionListener(Object transition, final TransitionListener listener) {
         Transition t = (Transition) transition;
         t.addListener(new Transition.TransitionListener() {
 
@@ -212,15 +212,15 @@ final class TransitionHelperKitkat {
         });
     }
 
-    void runTransition(Object scene, Object transition) {
+    static void runTransition(Object scene, Object transition) {
         TransitionManager.go((Scene) scene, (Transition) transition);
     }
 
-    void setInterpolator(Object transition, Object timeInterpolator) {
+    static void setInterpolator(Object transition, Object timeInterpolator) {
         ((Transition) transition).setInterpolator((TimeInterpolator) timeInterpolator);
     }
 
-    void addTarget(Object transition, View view) {
+    static void addTarget(Object transition, View view) {
         ((Transition) transition).addTarget(view);
     }
 }
