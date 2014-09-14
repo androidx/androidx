@@ -2366,9 +2366,9 @@ public class RecyclerView extends ViewGroup {
                         Log.d(TAG, "offsetPositionRecordsForRemove attached child " + i +
                                 " holder " + holder + " now REMOVED");
                     }
-                    holder.addFlags(ViewHolder.FLAG_REMOVED);
+                    holder.flagRemovedAndOffsetPosition(positionStart - 1, -itemCount,
+                            applyToPreLayout);
                     mState.mStructureChanged = true;
-                    holder.offsetPosition(-itemCount, applyToPreLayout);
                 }
             }
         }
@@ -6595,6 +6595,12 @@ public class RecyclerView extends ViewGroup {
                 throw new IllegalArgumentException("itemView may not be null");
             }
             this.itemView = itemView;
+        }
+
+        void flagRemovedAndOffsetPosition(int mNewPosition, int offset, boolean applyToPreLayout) {
+            addFlags(ViewHolder.FLAG_REMOVED);
+            offsetPosition(offset, applyToPreLayout);
+            mPosition = mNewPosition;
         }
 
         void offsetPosition(int offset, boolean applyToPreLayout) {
