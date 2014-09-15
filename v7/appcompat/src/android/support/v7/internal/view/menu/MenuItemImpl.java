@@ -24,6 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.internal.widget.TintManager;
 import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -407,7 +408,7 @@ public final class MenuItemImpl implements SupportMenuItem {
         }
 
         if (mIconResId != NO_ICON) {
-            Drawable icon =  ContextCompat.getDrawable(mMenu.getContext(), mIconResId);
+            Drawable icon = TintManager.getDrawable(mMenu.getContext(), mIconResId);
             mIconResId = NO_ICON;
             mIconDrawable = icon;
             return icon;
