@@ -160,7 +160,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mRootView = inflater.inflate(R.layout.lb_search_orb, this, true);
+        mRootView = inflater.inflate(getLayoutResourceId(), this, true);
         mSearchOrbView = mRootView.findViewById(R.id.search_orb);
         mIcon = (ImageView) mRootView.findViewById(R.id.icon);
 
@@ -202,6 +202,19 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         ShadowHelper.getInstance().setZ(mIcon, mFocusedZ);
     }
 
+    int getLayoutResourceId() {
+        return R.layout.lb_search_orb;
+    }
+
+    void scaleOrbViewOnly(float scale) {
+        mSearchOrbView.setScaleX(scale);
+        mSearchOrbView.setScaleY(scale);
+    }
+
+    float getFocusedZoom() {
+        return mFocusedZoom;
+    }
+
     @Override
     public void onClick(View view) {
         if (null != mListener) {
@@ -225,10 +238,14 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-        final float zoom = gainFocus ? mFocusedZoom : 1f;
+        animateOnFocus(gainFocus);
+    }
+
+    void animateOnFocus(boolean hasFocus) {
+        final float zoom = hasFocus ? mFocusedZoom : 1f;
         mRootView.animate().scaleX(zoom).scaleY(zoom).setDuration(mScaleDurationMs).start();
-        startShadowFocusAnimation(gainFocus, mScaleDurationMs);
-        enableOrbColorAnimation(gainFocus);
+        startShadowFocusAnimation(hasFocus, mScaleDurationMs);
+        enableOrbColorAnimation(hasFocus);
     }
 
     /**
