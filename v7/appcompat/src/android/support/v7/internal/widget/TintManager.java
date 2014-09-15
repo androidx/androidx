@@ -51,6 +51,10 @@ public class TintManager {
             R.drawable.abc_ic_commit_search_api_mtrl_alpha,
             R.drawable.abc_ic_clear_mtrl_alpha,
             R.drawable.abc_ic_menu_share_mtrl_alpha,
+            R.drawable.abc_ic_menu_copy_mtrl_am_alpha,
+            R.drawable.abc_ic_menu_cut_mtrl_alpha,
+            R.drawable.abc_ic_menu_selectall_mtrl_alpha,
+            R.drawable.abc_ic_menu_paste_mtrl_am_alpha,
             R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
             R.drawable.abc_ic_voice_search_api_mtrl_alpha,
             R.drawable.abc_textfield_search_default_mtrl_alpha,
@@ -107,8 +111,11 @@ public class TintManager {
      * This method should not be used routinely.
      */
     public static Drawable getDrawable(Context context, int resId) {
-        TintManager tintManager = new TintManager(context);
-        return tintManager.getDrawable(resId);
+        if (isInTintList(resId)) {
+            return new TintManager(context).getDrawable(resId);
+        } else {
+            return ContextCompat.getDrawable(context, resId);
+        }
     }
 
     public TintManager(Context context) {
@@ -181,6 +188,14 @@ public class TintManager {
             }
         }
         return false;
+    }
+
+    private static boolean isInTintList(int drawableId) {
+        return arrayContains(TINT_COLOR_BACKGROUND_MULTIPLY, drawableId) ||
+                arrayContains(TINT_COLOR_CONTROL_NORMAL, drawableId) ||
+                arrayContains(TINT_COLOR_CONTROL_ACTIVATED, drawableId) ||
+                arrayContains(TINT_COLOR_CONTROL_STATE_LIST, drawableId) ||
+                arrayContains(CONTAINERS_WITH_TINT_CHILDREN, drawableId);
     }
 
     private ColorStateList getDefaultColorStateList() {
