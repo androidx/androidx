@@ -29,6 +29,7 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SearchBar;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Presenter.ViewHolder;
+import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -112,6 +113,7 @@ public class SearchFragment extends Fragment {
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private ObjectAdapter mResultAdapter;
+    private SpeechRecognitionCallback mSpeechRecognitionCallback;
 
     private String mTitle;
     private Drawable mBadgeDrawable;
@@ -193,6 +195,7 @@ public class SearchFragment extends Fragment {
                 queryComplete();
             }
         });
+        mSearchBar.setSpeechRecognitionCallback(mSpeechRecognitionCallback);
 
         readArguments(getArguments());
         if (null != mBadgeDrawable) {
@@ -267,7 +270,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (null == mSpeechRecognizer) {
+        if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer) {
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
@@ -275,11 +278,7 @@ public class SearchFragment extends Fragment {
 
     @Override
     public void onPause() {
-        if (null != mSpeechRecognizer) {
-            mSearchBar.setSpeechRecognizer(null);
-            mSpeechRecognizer.destroy();
-            mSpeechRecognizer = null;
-        }
+        releaseRecognizer();
         super.onPause();
     }
 
@@ -287,6 +286,14 @@ public class SearchFragment extends Fragment {
     public void onDestroy() {
         releaseAdapter();
         super.onDestroy();
+    }
+
+    private void releaseRecognizer() {
+        if (null != mSpeechRecognizer) {
+            mSearchBar.setSpeechRecognizer(null);
+            mSpeechRecognizer.destroy();
+            mSpeechRecognizer = null;
+        }
     }
 
     /**
@@ -392,6 +399,38 @@ public class SearchFragment extends Fragment {
      */
     public void displayCompletions(List<String> completions) {
         mSearchBar.displayCompletions(completions);
+    }
+
+    /**
+     * Set this callback to have the fragment pass speech recognition requests
+     * to the activity rather than using an internal recognizer.  When results
+     * are available, call {@link #setSearchQuery(String, boolean)}.
+     */
+    public void setSpeechRecognitionCallback(SpeechRecognitionCallback callback) {
+        mSpeechRecognitionCallback = callback;
+        if (mSearchBar != null) {
+            mSearchBar.setSpeechRecognitionCallback(mSpeechRecognitionCallback);
+        }
+        if (callback != null) {
+            releaseRecognizer();
+        }
+    }
+
+    /**
+     * Set the text of the search query and optionally submit the query. Either
+     * {@link SearchResultProvider#onQueryTextChange onQueryTextChange} or
+     * {@link SearchResultProvider#onQueryTextSubmit onQueryTextSubmit} will be
+     * called on the provider if it is set.
+     *
+     * @param query The search query to set.
+     * @param submit Whether to submit the query.
+     */
+    public void setSearchQuery(String query, boolean submit) {
+        // setSearchQuery will call onQueryTextChange
+        mSearchBar.setSearchQuery(query);
+        if (submit) {
+            mProvider.onQueryTextSubmit(query);
+        }
     }
 
     private void retrieveResults(String searchQuery) {
