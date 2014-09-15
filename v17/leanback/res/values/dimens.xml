@@ -177,7 +177,6 @@
     <dimen name="lb_search_orb_margin_right">4dp</dimen>
 
     <dimen name="lb_search_bar_speech_orb_size">52dp</dimen>
-    <item name="lb_search_bar_speech_orb_focused_zoom" type="fraction">120%</item>
     <item name="lb_search_bar_speech_orb_max_level_zoom" type="fraction">144%</item>
     <dimen name="lb_search_bar_speech_orb_margin_left">56dp</dimen>
 
