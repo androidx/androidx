@@ -19,5 +19,6 @@
     <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar.TranslucentDecor">
         <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
         <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
+        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
     </style>
 </resources>
