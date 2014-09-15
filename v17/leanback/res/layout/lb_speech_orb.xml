@@ -18,13 +18,13 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <View
-            android:id="@+id/lb_speech_orb"
+            android:id="@+id/search_orb"
             android:layout_width="@dimen/lb_search_bar_speech_orb_size"
             android:layout_height="@dimen/lb_search_bar_speech_orb_size"
             android:background="@drawable/lb_speech_orb" />
 
     <ImageView
-            android:id="@+id/lb_speech_icon"
+            android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
