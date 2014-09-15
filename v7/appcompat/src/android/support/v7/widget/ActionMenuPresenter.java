@@ -19,7 +19,6 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -43,7 +42,6 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import java.util.ArrayList;
 
@@ -584,6 +582,8 @@ public class ActionMenuPresenter extends BaseMenuPresenter
     }
 
     private class OverflowMenuButton extends TintImageView implements ActionMenuView.ActionMenuChildView {
+        private final float[] mTempPts = new float[2];
+
         public OverflowMenuButton(Context context) {
             super(context, null, R.attr.actionOverflowButtonStyle);
 
@@ -591,6 +591,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
             setFocusable(true);
             setVisibility(VISIBLE);
             setEnabled(true);
+
             setOnTouchListener(new ListPopupWindow.ForwardingListener(this) {
                 @Override
                 public ListPopupWindow getPopup() {
@@ -644,20 +645,21 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         }
 
         @Override
-        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            super.onLayout(changed, left, top, right, bottom);
+        protected boolean setFrame(int l, int t, int r, int b) {
+            final boolean changed = super.setFrame(l, t, r, b);
 
             // Set up the hotspot bounds to be centered on the image.
             final Drawable d = getDrawable();
             final Drawable bg = getBackground();
             if (d != null && bg != null) {
-                final Rect bounds = d.getBounds();
-                final int height = bottom - top;
-                final int offset = (height - bounds.width()) / 2;
-                final int hotspotLeft = bounds.left - offset;
-                final int hotspotRight = bounds.right + offset;
-                DrawableCompat.setHotspotBounds(bg, hotspotLeft, 0, hotspotRight, height);
+                final float[] pts = mTempPts;
+                pts[0] = d.getBounds().centerX();
+                getImageMatrix().mapPoints(pts);
+                final int offset =  (int) pts[0] - getWidth() / 2;
+                DrawableCompat.setHotspotBounds(bg, offset, 0, getWidth() + offset, getHeight());
             }
+
+            return changed;
         }
     }
 
