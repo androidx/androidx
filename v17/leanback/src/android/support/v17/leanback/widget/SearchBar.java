@@ -56,7 +56,7 @@ import java.util.List;
  */
 public class SearchBar extends RelativeLayout {
     private static final String TAG = SearchBar.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final float FULL_LEFT_VOLUME = 1.0f;
     private static final float FULL_RIGHT_VOLUME = 1.0f;
@@ -114,6 +114,7 @@ public class SearchBar extends RelativeLayout {
     private int mBackgroundSpeechAlpha;
     private int mBarHeight;
     private SpeechRecognizer mSpeechRecognizer;
+    private SpeechRecognitionCallback mSpeechRecognitionCallback;
     private boolean mListening;
     private SoundPool mSoundPool;
     private SparseIntArray mSoundMap = new SparseIntArray();
@@ -131,7 +132,6 @@ public class SearchBar extends RelativeLayout {
     public SearchBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mContext = context;
-        enforceAudioRecordPermission();
 
         Resources r = getResources();
 
@@ -192,7 +192,7 @@ public class SearchBar extends RelativeLayout {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
                 if (mSearchTextEditor.hasFocus()) {
-                    setSearchQuery(charSequence.toString());
+                    setSearchQueryInternal(charSequence.toString());
                 }
             }
 
@@ -282,6 +282,7 @@ public class SearchBar extends RelativeLayout {
             }
         });
 
+        updateUi();
         updateHint();
     }
 
@@ -321,10 +322,17 @@ public class SearchBar extends RelativeLayout {
      * @param query the search query to use
      */
     public void setSearchQuery(String query) {
+        mSearchTextEditor.setText(mSearchQuery);
+        setSearchQueryInternal(query);
+    }
+
+    private void setSearchQueryInternal(String query) {
+        if (DEBUG) Log.v(TAG, "setSearchQuery " + query);
         if (query.equals(mSearchQuery)) {
             return;
         }
         mSearchQuery = query;
+
         if (null != mSearchBarListener) {
             mSearchBarListener.onSearchQueryChange(mSearchQuery);
         }
@@ -401,6 +409,19 @@ public class SearchBar extends RelativeLayout {
             }
         }
         mSpeechRecognizer = recognizer;
+        if (mSpeechRecognizer != null) {
+            enforceAudioRecordPermission();
+        }
+        if (mSpeechRecognitionCallback != null && mSpeechRecognizer != null) {
+            throw new IllegalStateException("Can't have speech recognizer and request");
+        }
+    }
+
+    public void setSpeechRecognitionCallback(SpeechRecognitionCallback request) {
+        mSpeechRecognitionCallback = request;
+        if (mSpeechRecognitionCallback != null && mSpeechRecognizer != null) {
+            throw new IllegalStateException("Can't have speech recognizer and request");
+        }
     }
 
     private void hideNativeKeyboard() {
@@ -451,6 +472,9 @@ public class SearchBar extends RelativeLayout {
     }
 
     private void stopRecognition() {
+        if (mSpeechRecognitionCallback != null) {
+            return;
+        }
         if (null == mSpeechRecognizer) return;
         if (!mRecognizing) return;
         mRecognizing = false;
@@ -464,6 +488,11 @@ public class SearchBar extends RelativeLayout {
     }
 
     private void startRecognition() {
+        if (mSpeechRecognitionCallback != null) {
+            mSearchTextEditor.setText("");
+            mSpeechRecognitionCallback.recognizeSpeech();
+            return;
+        }
         if (null == mSpeechRecognizer) return;
         if (mRecognizing) return;
         mRecognizing = true;
