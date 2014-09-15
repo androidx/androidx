@@ -58,8 +58,7 @@ public class TintManager {
             R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
             R.drawable.abc_ic_voice_search_api_mtrl_alpha,
             R.drawable.abc_textfield_search_default_mtrl_alpha,
-            R.drawable.abc_textfield_default_mtrl_alpha,
-            R.drawable.abc_list_divider_mtrl_alpha
+            R.drawable.abc_textfield_default_mtrl_alpha
     };
 
     /**
@@ -139,10 +138,11 @@ public class TintManager {
         return drawable;
     }
 
-    void tintDrawable(int resId, Drawable drawable) {
+    void tintDrawable(final int resId, final Drawable drawable) {
         PorterDuff.Mode tintMode = null;
         boolean colorAttrSet = false;
         int colorAttr = 0;
+        int alpha = -1;
 
         if (arrayContains(TINT_COLOR_CONTROL_NORMAL, resId)) {
             colorAttr = R.attr.colorControlNormal;
@@ -154,6 +154,10 @@ public class TintManager {
             colorAttr = android.R.attr.colorBackground;
             colorAttrSet = true;
             tintMode = PorterDuff.Mode.MULTIPLY;
+        } else if (resId == R.drawable.abc_list_divider_mtrl_alpha) {
+            colorAttr = android.R.attr.colorForeground;
+            colorAttrSet = true;
+            alpha = Math.round(0.16f * 255);
         }
 
         if (colorAttrSet) {
@@ -173,6 +177,10 @@ public class TintManager {
 
             // Finally set the color filter
             drawable.setColorFilter(filter);
+
+            if (alpha != -1) {
+                drawable.setAlpha(alpha);
+            }
 
             if (DEBUG) {
                 Log.d(TAG, "Tinted Drawable ID: " + mResources.getResourceName(resId) +
