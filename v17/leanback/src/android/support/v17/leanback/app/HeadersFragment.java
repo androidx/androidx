@@ -131,9 +131,7 @@ public class HeadersFragment extends BaseRowFragment {
             FocusHighlightHelper.setupHeaderItemFocusHighlight(listView);
         }
         view.setBackgroundColor(getBackgroundColor());
-        if (mBackgroundColorSet) {
-            updateFadingEdgeToBrandColor();
-        }
+        updateFadingEdgeToBrandColor(getBackgroundColor());
         updateListViewVisibility();
     }
 
@@ -208,17 +206,17 @@ public class HeadersFragment extends BaseRowFragment {
 
         if (getView() != null) {
             getView().setBackgroundColor(mBackgroundColor);
-            updateFadingEdgeToBrandColor();
+            updateFadingEdgeToBrandColor(mBackgroundColor);
         }
     }
 
-    private void updateFadingEdgeToBrandColor() {
+    private void updateFadingEdgeToBrandColor(int backgroundColor) {
         View fadingView = getView().findViewById(R.id.fade_out_edge);
         Drawable background = fadingView.getBackground();
         if (background instanceof GradientDrawable) {
             background.mutate();
             ((GradientDrawable) background).setColors(
-                    new int[]{Color.TRANSPARENT,mBackgroundColor});
+                    new int[] {Color.TRANSPARENT, backgroundColor});
         }
     }
 
