@@ -401,6 +401,23 @@ public class GridLayoutManager extends LinearLayoutManager {
                 maxSize = size;
             }
         }
+
+        // views that did not measure the maxSize has to be re-measured
+        final int maxMeasureSpec = getMainDirSpec(maxSize);
+        for (int i = 0; i < count; i ++) {
+            final View view = mSet[i];
+            if (mOrientationHelper.getDecoratedMeasurement(view) != maxSize) {
+                int spanSize = getSpanSize(recycler, state, getPosition(view));
+                final int spec = View.MeasureSpec.makeMeasureSpec(mSizePerSpan * spanSize,
+                        View.MeasureSpec.EXACTLY);
+                if (mOrientation == VERTICAL) {
+                    measureChildWithDecorationsAndMargin(view, spec, maxMeasureSpec);
+                } else {
+                    measureChildWithDecorationsAndMargin(view, maxMeasureSpec, spec);
+                }
+            }
+        }
+
         result.mConsumed = maxSize;
 
         int left = 0, right = 0, top = 0, bottom = 0;
