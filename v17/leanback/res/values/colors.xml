@@ -42,7 +42,8 @@
     <color name="lb_search_bar_hint">#FF888888</color>
     <color name="lb_search_bar_hint_speech_mode">#66222222</color>
 
-    <color name="lb_speech_orb_not_recording">#EEEEEE</color>
+    <color name="lb_speech_orb_not_recording">#CCCCCC</color>
+    <color name="lb_speech_orb_not_recording_pulsed">#EEEEEE</color>
     <color name="lb_speech_orb_recording">#ff4343</color>
     <color name="lb_speech_orb_not_recording_icon">#555555</color>
 
