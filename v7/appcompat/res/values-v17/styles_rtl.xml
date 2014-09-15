@@ -53,6 +53,7 @@
     </style>
 
     <style name="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">12dp</item>
     </style>
 
