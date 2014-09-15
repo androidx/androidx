@@ -17,10 +17,11 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     implements android.support.v17.leanback.app.SearchFragment.SearchResultProvider {
     private static final String TAG = "leanback.SearchFragment";
     private static final int NUM_ROWS = 3;
-    private static final int SEARCH_DELAY_MS = 300;
+    private static final int SEARCH_DELAY_MS = 1000;
 
     private ArrayObjectAdapter mRowsAdapter;
     private Handler mHandler = new Handler();
+    private String mQuery;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,10 +44,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     public boolean onQueryTextChange(String newQuery) {
         Log.i(TAG, String.format("Search Query Text Change %s", newQuery));
         mRowsAdapter.clear();
-        if (!TextUtils.isEmpty(newQuery)) {
-            mHandler.removeCallbacks(mDelayedLoad);
-            mHandler.postDelayed(mDelayedLoad, SEARCH_DELAY_MS);
-        }
+        loadQuery(newQuery);
         return true;
     }
 
@@ -54,11 +52,16 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     public boolean onQueryTextSubmit(String query) {
         Log.i(TAG, String.format("Search Query Text Submit %s", query));
         mRowsAdapter.clear();
-        if (!TextUtils.isEmpty(query)) {
-            mHandler.removeCallbacks(mDelayedLoad);
+        loadQuery(query);
+        return true;
+    }
+
+    private void loadQuery(String query) {
+        mQuery = query;
+        mHandler.removeCallbacks(mDelayedLoad);
+        if (!TextUtils.isEmpty(query) && !query.equals("nil")) {
             mHandler.postDelayed(mDelayedLoad, SEARCH_DELAY_MS);
         }
-        return true;
     }
 
     private void loadRows() {
@@ -66,7 +69,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new StringPresenter());
             listRowAdapter.add("Hello world");
             listRowAdapter.add("This is a test");
-            HeaderItem header = new HeaderItem(i, "Row " + i, null);
+            HeaderItem header = new HeaderItem(i, mQuery + " results row " + i, null);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
     }
