@@ -115,6 +115,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     };
 
     private CircleImageView mCircleView;
+    private int mCircleViewIndex = -1;
 
     protected int mFrom;
 
@@ -288,11 +289,19 @@ public class SwipeRefreshLayout extends ViewGroup {
         mTotalDragDistance = mSpinnerFinalOffset;
     }
 
-    protected int getChildDrawingOrder (int childCount, int i) {
-        if (getChildAt(i).equals(mCircleView)) {
-            return childCount - 1;
+    protected int getChildDrawingOrder(int childCount, int i) {
+        if (mCircleViewIndex < 0) {
+            return i;
+        } else if (i == childCount - 1) {
+            // Draw the selected child last
+            return mCircleViewIndex;
+        } else if (i >= mCircleViewIndex) {
+            // Move the children after the selected child earlier one
+            return i + 1;
+        } else {
+            // Keep the children before the selected child the same
+            return i;
         }
-        return i;
     }
 
     private void createProgressView() {
@@ -556,6 +565,14 @@ public class SwipeRefreshLayout extends ViewGroup {
             mOriginalOffsetCalculated = true;
             mCurrentTargetOffsetTop = mOriginalOffsetTop = -mCircleView.getMeasuredHeight();
         }
+        mCircleViewIndex = -1;
+        // Get the index of the circleview.
+        for (int index = 0; index < getChildCount(); index++) {
+            if (getChildAt(index) == mCircleView) {
+                mCircleViewIndex = index;
+                break;
+            }
+        }
     }
 
     /**
@@ -701,10 +718,6 @@ public class SwipeRefreshLayout extends ViewGroup {
                     // where 1.0f is a full circle
                     if (mCircleView.getVisibility() != View.VISIBLE) {
                         mCircleView.setVisibility(View.VISIBLE);
-                    }
-                    if (!mScale) {
-                        ViewCompat.setScaleX(mCircleView, 1f);
-                        ViewCompat.setScaleY(mCircleView, 1f);
                     }
                     if (!mScale) {
                         ViewCompat.setScaleX(mCircleView, 1f);
