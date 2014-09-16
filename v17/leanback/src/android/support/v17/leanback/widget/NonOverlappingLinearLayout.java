@@ -17,17 +17,17 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
-class RowContainerViewHeaderDock extends LinearLayout {
+class NonOverlappingLinearLayout extends LinearLayout {
 
-    public RowContainerViewHeaderDock(Context context) {
+    public NonOverlappingLinearLayout(Context context) {
         this(context, null);
     }
 
-    public RowContainerViewHeaderDock(Context context, AttributeSet attrs) {
+    public NonOverlappingLinearLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public RowContainerViewHeaderDock(Context context, AttributeSet attrs, int defStyle) {
+    public NonOverlappingLinearLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
