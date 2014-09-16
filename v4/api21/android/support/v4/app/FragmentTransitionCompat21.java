@@ -44,9 +44,12 @@ class FragmentTransitionCompat21 {
     }
 
     public static Object captureExitingViews(Object exitTransition, View root,
-            ArrayList<View> viewList) {
+            ArrayList<View> viewList, Map<String, View> namedViews) {
         if (exitTransition != null) {
             captureTransitioningViews(viewList, root);
+            if (namedViews != null) {
+                viewList.removeAll(namedViews.values());
+            }
             if (viewList.isEmpty()) {
                 exitTransition = null;
             } else {
@@ -96,7 +99,9 @@ class FragmentTransitionCompat21 {
             final ArrayList<View> enteringViews, final Map<String, View> renamedViews) {
         if (enterTransitionObject != null || sharedElementTransitionObject != null) {
             final Transition enterTransition = (Transition) enterTransitionObject;
-            enterTransition.addTarget(nonExistentView);
+            if (enterTransition != null) {
+                enterTransition.addTarget(nonExistentView);
+            }
             if (inFragment != null) {
                 container.getViewTreeObserver().addOnPreDrawListener(
                         new ViewTreeObserver.OnPreDrawListener() {
@@ -104,10 +109,6 @@ class FragmentTransitionCompat21 {
                                 container.getViewTreeObserver().removeOnPreDrawListener(this);
                                 View fragmentView = inFragment.getView();
                                 if (fragmentView != null) {
-                                    if (enterTransition != null) {
-                                        captureTransitioningViews(enteringViews, fragmentView);
-                                        addTargets(enterTransition, enteringViews);
-                                    }
                                     if (!nameOverrides.isEmpty()) {
                                         findNamedViews(renamedViews, fragmentView);
                                         renamedViews.keySet().retainAll(nameOverrides.values());
@@ -119,6 +120,11 @@ class FragmentTransitionCompat21 {
                                                 view.setTransitionName(from);
                                             }
                                         }
+                                    }
+                                    if (enterTransition != null) {
+                                        captureTransitioningViews(enteringViews, fragmentView);
+                                        enteringViews.removeAll(renamedViews.values());
+                                        addTargets(enterTransition, enteringViews);
                                     }
                                 }
                                 return true;
@@ -141,16 +147,42 @@ class FragmentTransitionCompat21 {
             overlap = allowOverlap;
         }
 
+        // Wrap the transitions. Explicit targets like in enter and exit will cause the
+        // views to be targeted regardless of excluded views. If that happens, then the
+        // excluded fragments views (hidden fragments) will still be in the transition.
+
         Transition transition;
         if (overlap) {
+            // Regular transition -- do it all together
             transition = mergeTransitions(enterTransition, exitTransition,
                     sharedElementTransition);
+            if (!(transition instanceof TransitionSet)) {
+                transition = new TransitionSet().addTransition(transition);
+            }
         } else {
-            TransitionSet staggered = new TransitionSet()
-                    .addTransition(exitTransition)
-                    .addTransition(enterTransition)
-                    .setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
-            transition = mergeTransitions(staggered, sharedElementTransition);
+            // First do exit, then enter, but allow shared element transition to happen
+            // during both.
+            Transition staggered = null;
+            if (exitTransition != null && enterTransition != null) {
+                staggered = new TransitionSet()
+                        .addTransition(exitTransition)
+                        .addTransition(enterTransition)
+                        .setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+            } else if (exitTransition != null) {
+                staggered = exitTransition;
+            } else if (enterTransition != null) {
+                staggered = enterTransition;
+            }
+            if (sharedElementTransition != null) {
+                TransitionSet together = new TransitionSet();
+                if (staggered != null) {
+                    together.addTransition(staggered);
+                }
+                together.addTransition(sharedElementTransition);
+                transition = together;
+            } else {
+                transition = staggered;
+            }
         }
         return transition;
     }
