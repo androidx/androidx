@@ -26,8 +26,10 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -123,6 +125,22 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
                 orientation == HORIZONTAL ? itemInfo.getRowSpan() :  itemInfo.getColumnSpan());
     }
 
+    public GridLayoutManager.LayoutParams ensureGridLp(View view) {
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        GridLayoutManager.LayoutParams glp;
+        if (lp instanceof GridLayoutManager.LayoutParams) {
+            glp = (GridLayoutManager.LayoutParams) lp;
+        } else if (lp == null) {
+            glp = (GridLayoutManager.LayoutParams) mGlm
+                    .generateDefaultLayoutParams();
+            view.setLayoutParams(glp);
+        } else {
+            glp = (GridLayoutManager.LayoutParams) mGlm.generateLayoutParams(lp);
+            view.setLayoutParams(glp);
+        }
+        return glp;
+    }
+
     public void layoutParamsTest(final int orientation) throws Throwable {
         final RecyclerView rv = setupBasic(new Config(3, 100).orientation(orientation),
                 new GridTestAdapter(100) {
@@ -130,14 +148,7 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
                     public void onBindViewHolder(TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
-                        ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
-                        GridLayoutManager.LayoutParams glp = null;
-                        if (lp == null) {
-                            glp = (GridLayoutManager.LayoutParams) mGlm
-                                    .generateDefaultLayoutParams();
-                        } else {
-                            glp = (GridLayoutManager.LayoutParams) mGlm.generateLayoutParams(lp);
-                        }
+                        GridLayoutManager.LayoutParams glp = ensureGridLp(holder.itemView);
                         int val = 0;
                         switch (position % 5) {
                             case 0:
@@ -167,14 +178,17 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         waitForFirstLayout(rv);
         final OrientationHelper helper = mGlm.mOrientationHelper;
         final int firstRowSize = Math.max(30, getSize(mGlm.findViewByPosition(2)));
-        assertEquals(10, helper.getDecoratedMeasurement(mGlm.findViewByPosition(0)));
-        assertEquals(30, helper.getDecoratedMeasurement(mGlm.findViewByPosition(1)));
+        assertEquals(firstRowSize, helper.getDecoratedMeasurement(mGlm.findViewByPosition(0)));
+        assertEquals(firstRowSize, helper.getDecoratedMeasurement(mGlm.findViewByPosition(1)));
+        assertEquals(firstRowSize, helper.getDecoratedMeasurement(mGlm.findViewByPosition(2)));
         assertEquals(firstRowSize, getSize(mGlm.findViewByPosition(0)));
         assertEquals(firstRowSize, getSize(mGlm.findViewByPosition(1)));
         assertEquals(firstRowSize, getSize(mGlm.findViewByPosition(2)));
 
         final int secondRowSize = Math.max(200, getSize(mGlm.findViewByPosition(3)));
-        assertEquals(200, helper.getDecoratedMeasurement(mGlm.findViewByPosition(4)));
+        assertEquals(secondRowSize, helper.getDecoratedMeasurement(mGlm.findViewByPosition(3)));
+        assertEquals(secondRowSize, helper.getDecoratedMeasurement(mGlm.findViewByPosition(4)));
+        assertEquals(secondRowSize, helper.getDecoratedMeasurement(mGlm.findViewByPosition(5)));
         assertEquals(secondRowSize, getSize(mGlm.findViewByPosition(3)));
         assertEquals(secondRowSize, getSize(mGlm.findViewByPosition(4)));
         assertEquals(secondRowSize, getSize(mGlm.findViewByPosition(5)));
@@ -341,6 +355,57 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         mAdapter.deleteAndNotify(2, 3);
         mGlm.waitForLayout(2);
         checkForMainThreadException();
+    }
+
+    public void testUnevenHeights() throws Throwable {
+        final Map<Integer, RecyclerView.ViewHolder> viewHolderMap =
+                new HashMap<Integer, RecyclerView.ViewHolder>();
+        RecyclerView recyclerView = setupBasic(new Config(3, 3), new GridTestAdapter(3) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                final GridLayoutManager.LayoutParams glp = ensureGridLp(holder.itemView);
+                glp.height = 50 + position * 50;
+                viewHolderMap.put(position, holder);
+            }
+        });
+        waitForFirstLayout(recyclerView);
+        for (RecyclerView.ViewHolder vh : viewHolderMap.values()) {
+            assertEquals("all items should get max height", 150,
+                    vh.itemView.getHeight());
+        }
+
+        for (RecyclerView.ViewHolder vh : viewHolderMap.values()) {
+            assertEquals("all items should have measured the max height", 150,
+                    vh.itemView.getMeasuredHeight());
+        }
+    }
+
+    public void testUnevenWidths() throws Throwable {
+        final Map<Integer, RecyclerView.ViewHolder> viewHolderMap =
+                new HashMap<Integer, RecyclerView.ViewHolder>();
+        RecyclerView recyclerView = setupBasic(new Config(3, HORIZONTAL, false),
+                new GridTestAdapter(3) {
+                    @Override
+                    public void onBindViewHolder(TestViewHolder holder,
+                            int position) {
+                        super.onBindViewHolder(holder, position);
+                        final GridLayoutManager.LayoutParams glp = ensureGridLp(holder.itemView);
+                        glp.width = 50 + position * 50;
+                        viewHolderMap.put(position, holder);
+                    }
+                });
+        waitForFirstLayout(recyclerView);
+        for (RecyclerView.ViewHolder vh : viewHolderMap.values()) {
+            assertEquals("all items should get max width", 150,
+                    vh.itemView.getWidth());
+        }
+
+        for (RecyclerView.ViewHolder vh : viewHolderMap.values()) {
+            assertEquals("all items should have measured the max width", 150,
+                    vh.itemView.getMeasuredWidth());
+        }
     }
 
     public void testScrollBackAndPreservePositions() throws Throwable {
