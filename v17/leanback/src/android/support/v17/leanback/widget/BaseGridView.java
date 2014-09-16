@@ -162,6 +162,8 @@ abstract class BaseGridView extends RecyclerView {
      */
     private boolean mAnimateChildLayout = true;
 
+    private boolean mHasOverlappingRendering = true;
+
     private RecyclerView.ItemAnimator mSavedItemAnimator;
 
     private OnTouchInterceptListener mOnTouchInterceptListener;
@@ -675,5 +677,14 @@ abstract class BaseGridView extends RecyclerView {
      */
     public final void setPrimaryOverReach(float fraction) {
         mLayoutManager.setPrimaryOverReach(fraction);
+    }
+
+    @Override
+    public boolean hasOverlappingRendering() {
+        return mHasOverlappingRendering;
+    }
+
+    public void setHasOverlappingRendering(boolean hasOverlapping) {
+        mHasOverlappingRendering = hasOverlapping;
     }
 }

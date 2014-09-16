@@ -236,6 +236,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                     (FrameLayout) mRightPanel.findViewById(R.id.details_overview_description);
             mActionsRow =
                     (HorizontalGridView) mRightPanel.findViewById(R.id.details_overview_actions);
+            mActionsRow.setHasOverlappingRendering(false);
             mActionsRow.setOnScrollListener(mScrollListener);
             mActionsRow.setAdapter(mActionBridgeAdapter);
             mActionsRow.setOnChildSelectedListener(mChildSelectedListener);
