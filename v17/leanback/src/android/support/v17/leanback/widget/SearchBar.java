@@ -56,7 +56,7 @@ import java.util.List;
  */
 public class SearchBar extends RelativeLayout {
     private static final String TAG = SearchBar.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final float FULL_LEFT_VOLUME = 1.0f;
     private static final float FULL_RIGHT_VOLUME = 1.0f;
@@ -322,12 +322,12 @@ public class SearchBar extends RelativeLayout {
      * @param query the search query to use
      */
     public void setSearchQuery(String query) {
-        mSearchTextEditor.setText(mSearchQuery);
+        mSearchTextEditor.setText(query);
         setSearchQueryInternal(query);
     }
 
     private void setSearchQueryInternal(String query) {
-        if (DEBUG) Log.v(TAG, "setSearchQuery " + query);
+        if (DEBUG) Log.v(TAG, "setSearchQueryInternal " + query);
         if (query.equals(mSearchQuery)) {
             return;
         }
@@ -352,6 +352,13 @@ public class SearchBar extends RelativeLayout {
      */
     public String getTitle() {
         return mTitle;
+    }
+
+    /**
+     * Returns the current search bar hint text.
+     */
+    public CharSequence getHint() {
+        return (mSearchTextEditor == null) ? null : mSearchTextEditor.getHint();
     }
 
     /**
