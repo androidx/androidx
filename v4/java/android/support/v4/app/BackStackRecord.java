@@ -1062,10 +1062,10 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     private static Object captureExitingViews(Object exitTransition, Fragment outFragment,
-            ArrayList<View> exitingViews) {
+            ArrayList<View> exitingViews, ArrayMap<String, View> namedViews) {
         if (exitTransition != null) {
             exitTransition = FragmentTransitionCompat21.captureExitingViews(exitTransition,
-                    outFragment.getView(), exitingViews);
+                    outFragment.getView(), exitingViews, namedViews);
         }
         return exitTransition;
     }
@@ -1127,9 +1127,6 @@ final class BackStackRecord extends FragmentTransaction implements
                     exitTransition == null) {
                 return; // no transitions!
             }
-            ArrayList<View> exitingViews = new ArrayList<View>();
-            exitTransition = captureExitingViews(exitTransition, outFragment, exitingViews);
-
             ArrayMap<String, View> namedViews = null;
             if (sharedElementTransition != null) {
                 namedViews = remapSharedElements(state, outFragment, isBack);
@@ -1145,11 +1142,21 @@ final class BackStackRecord extends FragmentTransaction implements
                 }
             }
 
+            ArrayList<View> exitingViews = new ArrayList<View>();
+            exitTransition = captureExitingViews(exitTransition, outFragment, exitingViews,
+                    namedViews);
+
             // Set the epicenter of the exit transition
-            if (mSharedElementTargetNames != null && exitTransition != null && namedViews != null) {
+            if (mSharedElementTargetNames != null && namedViews != null) {
                 View epicenterView = namedViews.get(mSharedElementTargetNames.get(0));
                 if (epicenterView != null) {
-                    FragmentTransitionCompat21.setEpicenter(exitTransition, epicenterView);
+                    if (exitTransition != null) {
+                        FragmentTransitionCompat21.setEpicenter(exitTransition, epicenterView);
+                    }
+                    if (sharedElementTransition != null) {
+                        FragmentTransitionCompat21.setEpicenter(sharedElementTransition,
+                                epicenterView);
+                    }
                 }
             }
 
@@ -1377,7 +1384,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     private void setBackNameOverrides(TransitionState state, ArrayMap<String, View> namedViews,
             boolean isEnd) {
-        int count = mSharedElementTargetNames.size();
+        int count = mSharedElementTargetNames == null ? 0 : mSharedElementTargetNames.size();
         for (int i = 0; i < count; i++) {
             String source = mSharedElementSourceNames.get(i);
             String originalTarget = mSharedElementTargetNames.get(i);
