@@ -22,6 +22,7 @@ import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -31,24 +32,17 @@ public class ViewUtils {
     private static final String TAG = "ViewUtils";
 
     private static Method sComputeFitSystemWindowsMethod;
-    private static Method sMakeOptionalFitsSystemWindowsMethod;
 
     static {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             try {
                 sComputeFitSystemWindowsMethod = View.class.getDeclaredMethod(
                         "computeFitSystemWindows", Rect.class, Rect.class);
+                if (!sComputeFitSystemWindowsMethod.isAccessible()) {
+                    sComputeFitSystemWindowsMethod.setAccessible(true);
+                }
             } catch (NoSuchMethodException e) {
-                Log.i(TAG, "Could not find method computeFitSystemWindows. Oh well.");
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            try {
-                sMakeOptionalFitsSystemWindowsMethod = View.class.getDeclaredMethod(
-                        "makeOptionalFitsSystemWindows");
-            } catch (NoSuchMethodException e) {
-                Log.i(TAG, "Could not find method makeOptionalFitsSystemWindows. Oh well.");
+                Log.d(TAG, "Could not find method computeFitSystemWindows. Oh well.");
             }
         }
     }
@@ -80,7 +74,7 @@ public class ViewUtils {
             try {
                 sComputeFitSystemWindowsMethod.invoke(view, inoutInsets, outLocalInsets);
             } catch (Exception e) {
-                Log.i(TAG, "Could not invoke computeFitSystemWindows", e);
+                Log.d(TAG, "Could not invoke computeFitSystemWindows", e);
             }
         }
     }
@@ -90,11 +84,21 @@ public class ViewUtils {
      * {@code view}.
      */
     public static void makeOptionalFitsSystemWindows(View view) {
-        if (sMakeOptionalFitsSystemWindowsMethod != null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             try {
-                sMakeOptionalFitsSystemWindowsMethod.invoke(view);
-            } catch (Exception e) {
-                Log.i(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
+                // We need to use getMethod() for makeOptionalFitsSystemWindows since both View
+                // and ViewGroup implement the method
+                Method method = view.getClass().getMethod("makeOptionalFitsSystemWindows");
+                if (!method.isAccessible()) {
+                    method.setAccessible(true);
+                }
+                method.invoke(view);
+            } catch (NoSuchMethodException e) {
+                Log.d(TAG, "Could not find method makeOptionalFitsSystemWindows. Oh well...");
+            } catch (InvocationTargetException e) {
+                Log.d(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
+            } catch (IllegalAccessException e) {
+                Log.d(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
             }
         }
     }
