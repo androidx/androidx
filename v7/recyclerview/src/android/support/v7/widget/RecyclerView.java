@@ -6138,7 +6138,10 @@ public class RecyclerView extends ViewGroup {
                     || ViewCompat.canScrollVertically(mRecyclerView, -1)
                     || ViewCompat.canScrollHorizontally(mRecyclerView, -1)
                     || ViewCompat.canScrollHorizontally(mRecyclerView, 1));
-            record.setItemCount(mRecyclerView.mAdapter.getItemCount());
+
+            if (mRecyclerView.mAdapter != null) {
+                record.setItemCount(mRecyclerView.mAdapter.getItemCount());
+            }
         }
 
         // called by accessibility delegate
