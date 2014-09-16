@@ -45,6 +45,7 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
+import java.util.ArrayList;
 
 /**
  * A fragment for displaying playback controls and related content.
@@ -314,45 +315,74 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private TimeInterpolator mLogDecelerateInterpolator = new LogDecelerateInterpolator(100,0);
     private TimeInterpolator mLogAccelerateInterpolator = new LogAccelerateInterpolator(100,0);
 
+    private View getControlRowView() {
+        if (getVerticalGridView() == null) {
+            return null;
+        }
+        RecyclerView.ViewHolder vh = getVerticalGridView().findViewHolderForPosition(0);
+        if (vh == null) {
+            return null;
+        }
+        return vh.itemView;
+    }
+
     private void loadControlRowAnimator() {
-        AnimatorUpdateListener listener = new AnimatorUpdateListener() {
+        final AnimatorListener listener = new AnimatorListener() {
+            @Override
+            void getViews(ArrayList<View> views) {
+                View view = getControlRowView();
+                if (view != null) {
+                    views.add(view);
+                }
+            }
+        };
+        final AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator arg0) {
-                if (getVerticalGridView() == null) {
-                    return;
-                }
-                RecyclerView.ViewHolder vh = getVerticalGridView().findViewHolderForPosition(0);
-                if (vh != null) {
+                View view = getControlRowView();
+                if (view != null) {
                     final float fraction = (Float) arg0.getAnimatedValue();
                     if (DEBUG) Log.v(TAG, "fraction " + fraction);
-                    vh.itemView.setAlpha(fraction);
-                    vh.itemView.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
+                    view.setAlpha(fraction);
+                    view.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
                 }
             }
         };
 
         mControlRowFadeInAnimator = loadAnimator(
                 getActivity(), R.animator.lb_playback_controls_fade_in);
-        mControlRowFadeInAnimator.addUpdateListener(listener);
+        mControlRowFadeInAnimator.addUpdateListener(updateListener);
+        mControlRowFadeInAnimator.addListener(listener);
         mControlRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
         mControlRowFadeOutAnimator = loadAnimator(
                 getActivity(), R.animator.lb_playback_controls_fade_out);
-        mControlRowFadeOutAnimator.addUpdateListener(listener);
+        mControlRowFadeOutAnimator.addUpdateListener(updateListener);
+        mControlRowFadeOutAnimator.addListener(listener);
         mControlRowFadeOutAnimator.setInterpolator(mLogAccelerateInterpolator);
     }
 
     private void loadOtherRowAnimator() {
-        AnimatorUpdateListener listener = new AnimatorUpdateListener() {
+        final AnimatorListener listener = new AnimatorListener() {
             @Override
-            public void onAnimationUpdate(ValueAnimator arg0) {
+            void getViews(ArrayList<View> views) {
                 if (getVerticalGridView() == null) {
                     return;
                 }
-                final float fraction = (Float) arg0.getAnimatedValue();
                 final int count = getVerticalGridView().getChildCount();
                 for (int i = 0; i < count; i++) {
                     View view = getVerticalGridView().getChildAt(i);
+                    if (view != null) {
+                        views.add(view);
+                    }
+                }
+            }
+        };
+        final AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator arg0) {
+                final float fraction = (Float) arg0.getAnimatedValue();
+                for (View view : listener.mViews) {
                     if (getVerticalGridView().getChildPosition(view) > 0) {
                         view.setAlpha(fraction);
                         view.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
@@ -363,12 +393,14 @@ public class PlaybackOverlayFragment extends DetailsFragment {
 
         mOtherRowFadeInAnimator = loadAnimator(
                 getActivity(), R.animator.lb_playback_controls_fade_in);
-        mOtherRowFadeInAnimator.addUpdateListener(listener);
+        mOtherRowFadeInAnimator.addListener(listener);
+        mOtherRowFadeInAnimator.addUpdateListener(updateListener);
         mOtherRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
         mOtherRowFadeOutAnimator = loadAnimator(
                 getActivity(), R.animator.lb_playback_controls_fade_out);
-        mOtherRowFadeOutAnimator.addUpdateListener(listener);
+        mOtherRowFadeOutAnimator.addListener(listener);
+        mOtherRowFadeOutAnimator.addUpdateListener(updateListener);
         mOtherRowFadeOutAnimator.setInterpolator(new AccelerateInterpolator());
     }
 
@@ -628,5 +660,30 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         public void onChanged() {
             updateControlsBottomSpace(null);
         }
+    };
+
+    static abstract class AnimatorListener implements Animator.AnimatorListener {
+        ArrayList<View> mViews = new ArrayList<View>();
+        ArrayList<Integer> mLayerType = new ArrayList<Integer>();
+
+        public void onAnimationCancel(Animator animation) {
+        }
+        public void onAnimationRepeat(Animator animation) {
+        }
+        public void onAnimationStart(Animator animation) {
+            getViews(mViews);
+            for (View view : mViews) {
+                mLayerType.add(view.getLayerType());
+                view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            }
+        }
+        public void onAnimationEnd(Animator animation) {
+            for (int i = 0; i < mViews.size(); i++) {
+                mViews.get(i).setLayerType(mLayerType.get(i), null);
+            }
+            mLayerType.clear();
+            mViews.clear();
+        }
+        abstract void getViews(ArrayList<View> views);
     };
 }
