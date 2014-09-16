@@ -222,6 +222,11 @@ public class ImageCardView extends BaseCardView {
                 android.R.integer.config_shortAnimTime)).start();
     }
 
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
+    }
+
     private void setTextMaxLines() {
         if (TextUtils.isEmpty(getTitleText())) {
             mContentView.setMaxLines(2);
