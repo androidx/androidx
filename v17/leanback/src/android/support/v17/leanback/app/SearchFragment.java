@@ -14,10 +14,12 @@
 package android.support.v17.leanback.app;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.SpeechRecognizer;
+import android.speech.RecognizerIntent;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
 import android.support.v17.leanback.widget.OnItemClickedListener;
@@ -37,6 +39,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.support.v17.leanback.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,7 +49,10 @@ import java.util.List;
  * into a {@link RowsFragment}, in the same way that they are in a {@link
  * BrowseFragment}.
  *
- * <p>Note: Your application will need to request android.permission.RECORD_AUDIO.
+ * <p>If you do not supply a callback via
+ * {@link #setSpeechRecognitionCallback(SpeechRecognitionCallback)}, an internal speech
+ * recognizer will be used for which your application will need to request
+ * android.permission.RECORD_AUDIO.
  */
 public class SearchFragment extends Fragment {
     private static final String TAG = SearchFragment.class.getSimpleName();
@@ -403,8 +409,7 @@ public class SearchFragment extends Fragment {
 
     /**
      * Set this callback to have the fragment pass speech recognition requests
-     * to the activity rather than using an internal recognizer.  When results
-     * are available, call {@link #setSearchQuery(String, boolean)}.
+     * to the activity rather than using an internal recognizer.
      */
     public void setSpeechRecognitionCallback(SpeechRecognitionCallback callback) {
         mSpeechRecognitionCallback = callback;
@@ -417,7 +422,7 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * Set the text of the search query and optionally submit the query. Either
+     * Sets the text of the search query and optionally submits the query. Either
      * {@link SearchResultProvider#onQueryTextChange onQueryTextChange} or
      * {@link SearchResultProvider#onQueryTextSubmit onQueryTextSubmit} will be
      * called on the provider if it is set.
@@ -431,6 +436,47 @@ public class SearchFragment extends Fragment {
         if (submit) {
             mProvider.onQueryTextSubmit(query);
         }
+    }
+
+    /**
+     * Sets the text of the search query based on the {@link RecognizerIntent#EXTRA_RESULTS} in
+     * the given intent, and optionally submit the query.  If more than one result is present
+     * in the results list, the first will be used.
+     *
+     * @param intent Intent received from a speech recognition service.
+     * @param submit Whether to submit the query.
+     */
+    public void setSearchQuery(Intent intent, boolean submit) {
+        ArrayList<String> matches = intent.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        if (matches != null && matches.size() > 0) {
+            setSearchQuery(matches.get(0), submit);
+        }
+    }
+
+    /**
+     * Returns an intent that can be used to request speech recognition.
+     * Built from the base {@link RecognizerIntent#ACTION_RECOGNIZE_SPEECH} plus
+     * extras:
+     *
+     * <ul>
+     * <li>{@link RecognizerIntent#EXTRA_LANGUAGE_MODEL} set to
+     * {@link RecognizerIntent#LANGUAGE_MODEL_FREE_FORM}</li>
+     * <li>{@link RecognizerIntent#EXTRA_PARTIAL_RESULTS} set to true</li>
+     * <li>{@link RecognizerIntent#EXTRA_PROMPT} set to the search bar hint text</li>
+     * </ul>
+     *
+     * For handling the intent returned from the service, see
+     * {@link #setSearchQuery(Intent, boolean)}.
+     */
+    public Intent getRecognizerIntent() {
+        Intent recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        if (mSearchBar != null && mSearchBar.getHint() != null) {
+            recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, mSearchBar.getHint());
+        }
+        return recognizerIntent;
     }
 
     private void retrieveResults(String searchQuery) {
