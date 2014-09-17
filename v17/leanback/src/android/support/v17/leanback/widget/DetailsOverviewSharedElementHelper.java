@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewCompat;
+import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
@@ -103,6 +104,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                     mActivityToRunTransition.getWindow());
             if (transition != null) {
                 transitionHelper.setTransitionListener(transition, new TransitionListener() {
+                    @Override
                     public void onTransitionEnd(Object transition) {
                         // after transition if the action row still focused, transfer
                         // focus to its children
