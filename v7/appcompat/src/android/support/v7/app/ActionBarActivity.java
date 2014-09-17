@@ -165,6 +165,12 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getDelegate().destroy();
+    }
+
+    @Override
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
         getDelegate().onTitleChanged(title);
