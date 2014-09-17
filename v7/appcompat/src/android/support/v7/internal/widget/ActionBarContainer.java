@@ -38,6 +38,7 @@ public class ActionBarContainer extends FrameLayout {
     private boolean mIsTransitioning;
     private View mTabContainer;
     private View mActionBarView;
+    private View mContextView;
 
     Drawable mBackground;
     Drawable mStackedBackground;
@@ -80,6 +81,7 @@ public class ActionBarContainer extends FrameLayout {
     public void onFinishInflate() {
         super.onFinishInflate();
         mActionBarView = findViewById(R.id.action_bar);
+        mContextView = findViewById(R.id.action_context_bar);
     }
 
     public void setPrimaryBackground(Drawable bg) {
@@ -233,6 +235,11 @@ public class ActionBarContainer extends FrameLayout {
         return view == null || view.getVisibility() == GONE || view.getMeasuredHeight() == 0;
     }
 
+    private int getMeasuredHeightWithMargins(View view) {
+        final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+        return view.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
+    }
+
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (mActionBarView == null &&
@@ -244,18 +251,22 @@ public class ActionBarContainer extends FrameLayout {
 
         if (mActionBarView == null) return;
 
-        final LayoutParams lp = (LayoutParams) mActionBarView.getLayoutParams();
-        final int actionBarViewHeight = isCollapsed(mActionBarView) ? 0 :
-                mActionBarView.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
-
-        if (mTabContainer != null && mTabContainer.getVisibility() != GONE) {
-            final int mode = MeasureSpec.getMode(heightMeasureSpec);
-            if (mode == MeasureSpec.AT_MOST) {
-                final int maxHeight = MeasureSpec.getSize(heightMeasureSpec);
-                setMeasuredDimension(getMeasuredWidth(),
-                        Math.min(actionBarViewHeight + mTabContainer.getMeasuredHeight(),
-                                maxHeight));
+        final int mode = MeasureSpec.getMode(heightMeasureSpec);
+        if (mTabContainer != null && mTabContainer.getVisibility() != GONE
+                && mode != MeasureSpec.EXACTLY) {
+            final int topMarginForTabs;
+            if (!isCollapsed(mActionBarView)) {
+                topMarginForTabs = getMeasuredHeightWithMargins(mActionBarView);
+            } else if (!isCollapsed(mContextView)) {
+                topMarginForTabs = getMeasuredHeightWithMargins(mContextView);
+            } else {
+                topMarginForTabs = 0;
             }
+            final int maxHeight = mode == MeasureSpec.AT_MOST ?
+                    MeasureSpec.getSize(heightMeasureSpec) : Integer.MAX_VALUE;
+            setMeasuredDimension(getMeasuredWidth(),
+                    Math.min(topMarginForTabs + getMeasuredHeightWithMargins(mTabContainer),
+                            maxHeight));
         }
     }
 
@@ -268,8 +279,10 @@ public class ActionBarContainer extends FrameLayout {
 
         if (tabContainer != null && tabContainer.getVisibility() != GONE) {
             final int containerHeight = getMeasuredHeight();
+            final LayoutParams lp = (LayoutParams) tabContainer.getLayoutParams();
             final int tabHeight = tabContainer.getMeasuredHeight();
-            tabContainer.layout(l, containerHeight - tabHeight, r, containerHeight);
+            tabContainer.layout(l, containerHeight - tabHeight - lp.bottomMargin, r,
+                    containerHeight - lp.bottomMargin);
         }
 
         boolean needsInvalidate = false;
