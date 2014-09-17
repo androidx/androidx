@@ -16,6 +16,11 @@
 -->
 
 <resources>
+
+    <style name="TextAppearance.LeanbackBase" parent="android:TextAppearance.Material" />
+
+    <style name="Widget.LeanbackBase" parent="android:Widget.Material" />
+
     <style name="Widget.Leanback.DetailsActionButtonStyleBase" parent="android:Widget.Material.Button.Borderless">
         <item name="android:background">@drawable/lb_action_bg</item>
     </style>
