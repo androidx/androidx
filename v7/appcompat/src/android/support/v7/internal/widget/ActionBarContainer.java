@@ -293,8 +293,16 @@ public class ActionBarContainer extends FrameLayout {
             }
         } else {
             if (mBackground != null) {
-                mBackground.setBounds(mActionBarView.getLeft(), mActionBarView.getTop(),
-                        mActionBarView.getRight(), mActionBarView.getBottom());
+                if (mActionBarView.getVisibility() == View.VISIBLE) {
+                    mBackground.setBounds(mActionBarView.getLeft(), mActionBarView.getTop(),
+                            mActionBarView.getRight(), mActionBarView.getBottom());
+                } else if (mContextView != null &&
+                        mContextView.getVisibility() == View.VISIBLE) {
+                    mBackground.setBounds(mContextView.getLeft(), mContextView.getTop(),
+                            mContextView.getRight(), mContextView.getBottom());
+                } else {
+                    mBackground.setBounds(0, 0, 0, 0);
+                }
                 needsInvalidate = true;
             }
             mIsStacked = hasTabs;
