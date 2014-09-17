@@ -169,6 +169,7 @@ public class SwipeRefreshLayout extends ViewGroup {
             } else {
                 mProgress.stop();
                 mCircleView.setVisibility(View.GONE);
+                setColorViewAlpha(MAX_ALPHA);
                 // Return the circle to its start position
                 if (mScale) {
                     setAnimationProgress(0 /* animation complete and view is hidden */);
