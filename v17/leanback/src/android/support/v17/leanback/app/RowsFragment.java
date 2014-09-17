@@ -503,13 +503,15 @@ public class RowsFragment extends BaseRowFragment {
 
     private void freezeRows(boolean freeze) {
         VerticalGridView verticalView = getVerticalGridView();
-        final int count = verticalView.getChildCount();
-        for (int i = 0; i < count; i++) {
-            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
+        if (verticalView != null) {
+            final int count = verticalView.getChildCount();
+            for (int i = 0; i < count; i++) {
+                ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
                     verticalView.getChildViewHolder(verticalView.getChildAt(i));
-            RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
-            RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
-            rowPresenter.freeze(vh, freeze);
+                RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
+                RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
+                rowPresenter.freeze(vh, freeze);
+            }
         }
     }
 }
