@@ -28,7 +28,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
-import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowCallback;
@@ -43,6 +42,7 @@ import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.ProgressBarCompat;
 import android.support.v7.internal.widget.TintEditText;
 import android.support.v7.internal.widget.ViewUtils;
+import android.support.v7.internal.widget.ViewStubCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -58,7 +58,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.view.Window;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
@@ -522,12 +521,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         }
 
         final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
-        ActionMode mode = null;
+        final Context context = getActionBarThemedContext();
 
         if (mActionModeView == null) {
             if (mIsFloating) {
-                mActionModeView = new ActionBarContextView(mActivity);
-                mActionModePopup = new PopupWindow(mActivity, null,
+                mActionModeView = new ActionBarContextView(context);
+                mActionModePopup = new PopupWindow(context, null,
                         R.attr.actionModePopupWindowStyle);
                 mActionModePopup.setContentView(mActionModeView);
                 mActionModePopup.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
@@ -546,8 +545,11 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                     }
                 };
             } else {
-                ViewStub stub = (ViewStub) mActivity.findViewById(R.id.action_mode_bar_stub);
+                ViewStubCompat stub = (ViewStubCompat) mActivity
+                        .findViewById(R.id.action_mode_bar_stub);
                 if (stub != null) {
+                    // Set the layout inflater so that it is inflated with the action bar's context
+                    stub.setLayoutInflater(LayoutInflater.from(context));
                     mActionModeView = (ActionBarContextView) stub.inflate();
                 }
             }
@@ -555,7 +557,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
         if (mActionModeView != null) {
             mActionModeView.killMode();
-            mode = new StandaloneActionMode(mActivity, mActionModeView, wrappedCallback,
+            ActionMode mode = new StandaloneActionMode(context, mActionModeView, wrappedCallback,
                     mActionModePopup == null);
             if (callback.onCreateActionMode(mode, mode.getMenu())) {
                 mode.invalidate();

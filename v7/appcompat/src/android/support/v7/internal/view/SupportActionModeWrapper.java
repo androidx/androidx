@@ -165,22 +165,14 @@ public class SupportActionModeWrapper extends ActionMode {
             mWrappedCallback.onDestroyActionMode(getActionModeWrapper(mode));
         }
 
-        public void setLastStartedActionMode(SupportActionModeWrapper modeWrapper) {
-            mLastStartedActionMode = modeWrapper;
-        }
-
         private ActionMode getActionModeWrapper(android.support.v7.view.ActionMode mode) {
             if (mLastStartedActionMode != null && mLastStartedActionMode.mWrappedObject == mode) {
                 // If the given mode equals our wrapped mode, just return it
                 return mLastStartedActionMode;
             } else {
-                return createActionModeWrapper(mContext, mode);
+                mLastStartedActionMode = new SupportActionModeWrapper(mContext, mode);
+                return mLastStartedActionMode;
             }
-        }
-
-        protected SupportActionModeWrapper createActionModeWrapper(Context context,
-                android.support.v7.view.ActionMode mode) {
-            return new SupportActionModeWrapper(context, mode);
         }
     }
 }
