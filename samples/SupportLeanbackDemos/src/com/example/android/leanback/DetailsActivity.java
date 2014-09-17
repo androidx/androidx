@@ -27,8 +27,12 @@ public class DetailsActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.details);
-        ((DetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
-                .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+        if (savedInstanceState == null) {
+            // Only pass object to fragment when activity is first time created,
+            // later object is modified and persisted with fragment state.
+            ((DetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
+                    .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+        }
     }
 
 }
