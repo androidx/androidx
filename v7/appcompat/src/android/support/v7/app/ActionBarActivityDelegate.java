@@ -101,6 +101,7 @@ abstract class ActionBarActivityDelegate {
     };
     // The fake window callback we're currently using
     private WindowCallback mWindowCallback;
+    private boolean mIsDestroyed;
 
     ActionBarActivityDelegate(ActionBarActivity activity) {
         mActivity = activity;
@@ -302,5 +303,13 @@ abstract class ActionBarActivityDelegate {
 
     final WindowCallback getWindowCallback() {
         return mWindowCallback;
+    }
+
+    final void destroy() {
+        mIsDestroyed = true;
+    }
+
+    final boolean isDestroyed() {
+        return mIsDestroyed;
     }
 }
