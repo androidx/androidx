@@ -43,7 +43,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -1134,6 +1133,14 @@ public class DrawerLayout extends ViewGroup {
             final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
             lp.onScreen = 1.f;
             lp.knownOpen = true;
+
+            View content = getChildAt(0);
+            if (content != null) {
+                ViewCompat.setImportantForAccessibility(content,
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+            }
+            ViewCompat.setImportantForAccessibility(drawerView,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         } else {
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
                 mLeftDragger.smoothSlideViewTo(drawerView, 0, drawerView.getTop());
@@ -1411,7 +1418,7 @@ public class DrawerLayout extends ViewGroup {
         super.addView(child, index, params);
     }
 
-    private static boolean includeChildForAccessibilitiy(View child) {
+    private static boolean includeChildForAccessibility(View child) {
         // If the child is not important for accessibility we make
         // sure this hides the entire subtree rooted at it as the
         // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDATS is not
@@ -1720,7 +1727,7 @@ public class DrawerLayout extends ViewGroup {
             final int childCount = v.getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = v.getChildAt(i);
-                if (includeChildForAccessibilitiy(child)) {
+                if (includeChildForAccessibility(child)) {
                     info.addChild(child);
                 }
             }
@@ -1729,7 +1736,7 @@ public class DrawerLayout extends ViewGroup {
         @Override
         public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
                 AccessibilityEvent event) {
-            if (includeChildForAccessibilitiy(child)) {
+            if (includeChildForAccessibility(child)) {
                 return super.onRequestSendAccessibilityEvent(host, child, event);
             }
             return false;
@@ -1772,10 +1779,10 @@ public class DrawerLayout extends ViewGroup {
         public void onInitializeAccessibilityNodeInfo(View child,
                 AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(child, info);
-            if (!includeChildForAccessibilitiy(child)) {
+            if (!includeChildForAccessibility(child)) {
                 // If we are ignoring the sub-tree rooted at the child,
                 // break the connection to the rest of the node tree.
-                // For details refer to includeChildForAccessibilitiy.
+                // For details refer to includeChildForAccessibility.
                 info.setParent(null);
             }
         }
