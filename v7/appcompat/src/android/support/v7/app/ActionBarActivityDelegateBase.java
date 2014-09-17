@@ -311,7 +311,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             // A pending invalidation will typically be resolved before the posted message
             // would run normally in order to satisfy instance state restoration.
             PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, false);
-            if (st == null || st.menu == null) {
+            if (!isDestroyed() && (st == null || st.menu == null)) {
                 invalidatePanelMenu(FEATURE_ACTION_BAR);
             }
         }
@@ -448,7 +448,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             if (ab != null) {
                 ab.dispatchMenuVisibilityChanged(false);
             }
-        } else {
+        } else if (!isDestroyed()) {
             // Only pass it through to the Activity's super impl if it's not ACTION_BAR. This is
             // because ICS+ will try and create a framework action bar due to this call
             mActivity.superOnPanelClosed(featureId, menu);
@@ -470,7 +470,14 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-        return mActivity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item);
+        final WindowCallback cb = getWindowCallback();
+        if (cb != null && !isDestroyed()) {
+            final PanelFeatureState panel = findMenuPanel(menu.getRootMenu());
+            if (panel != null) {
+                return cb.onMenuItemSelected(panel.featureId, item);
+            }
+        }
+        return false;
     }
 
     @Override
@@ -729,7 +736,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     private void openPanel(final PanelFeatureState st, KeyEvent event) {
         // Already open, return
-        if (st.isOpen) {
+        if (st.isOpen || isDestroyed()) {
             return;
         }
 
@@ -782,27 +789,34 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         if (mDecorContentParent != null && mDecorContentParent.canShowOverflowMenu() &&
                 (!ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mActivity)) ||
                         mDecorContentParent.isOverflowMenuShowPending())) {
+
+            WindowCallback cb = getWindowCallback();
+
             if (!mDecorContentParent.isOverflowMenuShowing() || !toggleMenuMode) {
-                // If we have a menu invalidation pending, do it now.
-                if (mInvalidatePanelMenuPosted &&
-                        (mInvalidatePanelMenuFeatures & (1 << FEATURE_OPTIONS_PANEL)) != 0) {
-                    mWindowDecor.removeCallbacks(mInvalidatePanelMenuRunnable);
-                    mInvalidatePanelMenuRunnable.run();
-                }
+                if (cb != null && !isDestroyed()) {
+                    // If we have a menu invalidation pending, do it now.
+                    if (mInvalidatePanelMenuPosted &&
+                            (mInvalidatePanelMenuFeatures & (1 << FEATURE_OPTIONS_PANEL)) != 0) {
+                        mWindowDecor.removeCallbacks(mInvalidatePanelMenuRunnable);
+                        mInvalidatePanelMenuRunnable.run();
+                    }
 
-                final PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, true);
+                    final PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, true);
 
-                // If we don't have a menu or we're waiting for a full content refresh,
-                // forget it. This is a lingering event that no longer matters.
-                if (st.menu != null && !st.refreshMenuContent &&
-                        getWindowCallback().onPreparePanel(FEATURE_OPTIONS_PANEL, null, st.menu)) {
-                    getWindowCallback().onMenuOpened(FEATURE_ACTION_BAR, st.menu);
-                    mDecorContentParent.showOverflowMenu();
+                    // If we don't have a menu or we're waiting for a full content refresh,
+                    // forget it. This is a lingering event that no longer matters.
+                    if (st.menu != null && !st.refreshMenuContent &&
+                            cb.onPreparePanel(FEATURE_OPTIONS_PANEL, null, st.menu)) {
+                        cb.onMenuOpened(FEATURE_ACTION_BAR, st.menu);
+                        mDecorContentParent.showOverflowMenu();
+                    }
                 }
             } else {
                 mDecorContentParent.hideOverflowMenu();
-                final PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, true);
-                mActivity.onPanelClosed(FEATURE_ACTION_BAR, st.menu);
+                if (!isDestroyed()) {
+                    final PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, true);
+                    mActivity.onPanelClosed(FEATURE_ACTION_BAR, st.menu);
+                }
             }
             return;
         }
@@ -912,6 +926,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     private boolean preparePanel(PanelFeatureState st, KeyEvent event) {
+        if (isDestroyed()) {
+            return false;
+        }
+
         // Already prepared (isPrepared will be reset to false later)
         if (st.isPrepared) {
             return true;
@@ -1009,7 +1027,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         mClosingActionMenu = true;
         mDecorContentParent.dismissPopups();
         WindowCallback cb = getWindowCallback();
-        if (cb != null) {
+        if (cb != null && !isDestroyed()) {
             cb.onPanelClosed(FEATURE_ACTION_BAR, menu);
         }
         mClosingActionMenu = false;
@@ -1224,7 +1242,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             if (subMenu == null && mHasActionBar) {
                 WindowCallback cb = getWindowCallback();
-                if (cb != null) {
+                if (cb != null && !isDestroyed()) {
                     cb.onMenuOpened(FEATURE_ACTION_BAR, subMenu);
                 }
             }
@@ -1249,6 +1267,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     private static final class PanelFeatureState {
+
         /** Feature ID for this panel. */
         int featureId;
 
@@ -1268,7 +1287,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
         /**
          * Whether the panel has been prepared (see
-         * {@link PhoneWindow#preparePanel}).
+         * {@link #preparePanel}).
          */
         boolean isPrepared;
 
