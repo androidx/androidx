@@ -239,12 +239,16 @@ abstract class ActionBarActivityDelegate {
     }
 
     protected final Context getActionBarThemedContext() {
-        Context context = mActivity;
+        Context context = null;
 
-        // If we have an action bar, initialize the menu with a context themed from it.
+        // If we have an action bar, let it return a themed context
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             context = ab.getThemedContext();
+        }
+
+        if (context == null) {
+            context = mActivity;
         }
         return context;
     }
