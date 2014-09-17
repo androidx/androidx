@@ -437,7 +437,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         public Ring(Callback callback) {
             mCallback = callback;
 
-            mPaint.setStrokeCap(Paint.Cap.BUTT);
+            mPaint.setStrokeCap(Paint.Cap.SQUARE);
             mPaint.setAntiAlias(true);
             mPaint.setStyle(Style.STROKE);
 
