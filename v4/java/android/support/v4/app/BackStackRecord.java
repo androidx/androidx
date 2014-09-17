@@ -773,6 +773,9 @@ final class BackStackRecord extends FragmentTransaction implements
      */
     private void calculateFragments(SparseArray<Fragment> firstOutFragments,
             SparseArray<Fragment> lastInFragments) {
+        if (!mManager.mContainer.hasView()) {
+            return; // nothing to see, so no transitions
+        }
         Op op = mHead;
         while (op != null) {
             switch (op.cmd) {
@@ -828,6 +831,9 @@ final class BackStackRecord extends FragmentTransaction implements
      */
     public void calculateBackFragments(SparseArray<Fragment> firstOutFragments,
             SparseArray<Fragment> lastInFragments) {
+        if (!mManager.mContainer.hasView()) {
+            return; // nothing to see, so no transitions
+        }
         Op op = mHead;
         while (op != null) {
             switch (op.cmd) {
