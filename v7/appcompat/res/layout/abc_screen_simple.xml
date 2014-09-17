@@ -21,7 +21,7 @@
     android:orientation="vertical"
     android:fitsSystemWindows="true">
 
-    <ViewStub
+    <android.support.v7.internal.widget.ViewStubCompat
         android:id="@+id/action_mode_bar_stub"
         android:inflatedId="@+id/action_mode_bar"
         android:layout="@layout/abc_action_mode_bar"
