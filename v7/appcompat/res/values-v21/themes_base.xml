@@ -199,39 +199,26 @@
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Dark" parent="android:ThemeOverlay.Material.Dark">
-        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
-
-        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
-        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
-        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+        <item name="colorControlHighlight">@color/ripple_material_dark</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Light" parent="android:ThemeOverlay.Material.Light">
-        <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
-
-        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
-        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
-        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+        <item name="colorControlHighlight">@color/ripple_material_light</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">true</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.ActionBar" parent="android:ThemeOverlay.Material.ActionBar">
-        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
-        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
-        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+        <item name="colorControlNormal">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Dark.ActionBar" parent="android:ThemeOverlay.Material.Dark.ActionBar">
-        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
-
-        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
-        <item name="colorControlActivated">?android:attr/colorControlActivated</item>
-        <item name="colorControlHighlight">?android:attr/colorControlHighlight</item>
+        <item name="colorControlNormal">?android:attr/textColorPrimary</item>
+        <item name="colorControlHighlight">@color/ripple_material_dark</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>
