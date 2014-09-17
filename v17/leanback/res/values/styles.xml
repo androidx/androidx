@@ -16,7 +16,9 @@
 -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="TextAppearance.Leanback" parent="android:TextAppearance.Holo">
+    <style name="TextAppearance.LeanbackBase" parent="android:TextAppearance.Holo">
+    </style>
+    <style name="TextAppearance.Leanback" parent="TextAppearance.LeanbackBase">
         <!-- Any text appearance overrides go here. -->
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
@@ -75,7 +77,8 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
-    <style name="Widget.Leanback" parent="android:Widget.Holo" />
+    <style name="Widget.LeanbackBase" parent="android:Widget.Holo" />
+    <style name="Widget.Leanback" parent="Widget.LeanbackBase" />
 
     <style name="Widget.Leanback.BaseCardViewStyle">
         <item name="android:foreground">@drawable/lb_card_foreground</item>
