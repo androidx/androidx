@@ -197,4 +197,14 @@ class DrawableWrapper extends Drawable implements Drawable.Callback {
     public void setTintMode(PorterDuff.Mode tintMode) {
         DrawableCompat.setTintMode(mDrawable, tintMode);
     }
+
+    @Override
+    public void setHotspot(float x, float y) {
+        DrawableCompat.setHotspot(mDrawable, x, y);
+    }
+
+    @Override
+    public void setHotspotBounds(int left, int top, int right, int bottom) {
+        DrawableCompat.setHotspotBounds(mDrawable, left, top, right, bottom);
+    }
 }
