@@ -1016,20 +1016,28 @@ final class BackStackRecord extends FragmentTransaction implements
         // add any, then no views will be targeted.
         state.nonExistentView = new View(mManager.mActivity);
 
+        boolean anyTransitionStarted = false;
         // Go over all leaving fragments.
         for (int i = 0; i < firstOutFragments.size(); i++) {
             int containerId = firstOutFragments.keyAt(i);
-            configureTransitions(containerId, state, isBack, firstOutFragments,
-                    lastInFragments);
+            if (configureTransitions(containerId, state, isBack, firstOutFragments,
+                    lastInFragments)) {
+                anyTransitionStarted = true;
+            }
         }
 
         // Now go over all entering fragments that didn't have a leaving fragment.
         for (int i = 0; i < lastInFragments.size(); i++) {
             int containerId = lastInFragments.keyAt(i);
-            if (firstOutFragments.get(containerId) == null) {
+            if (firstOutFragments.get(containerId) == null &&
                 configureTransitions(containerId, state, isBack, firstOutFragments,
-                        lastInFragments);
+                        lastInFragments)) {
+                anyTransitionStarted = true;
             }
+        }
+
+        if (!anyTransitionStarted) {
+            state = null;
         }
 
         return state;
@@ -1112,95 +1120,97 @@ final class BackStackRecord extends FragmentTransaction implements
      * @param isBack true if this is popping the back stack or false if this is a
      *               forward operation.
      */
-    private void configureTransitions(int containerId, TransitionState state, boolean isBack,
+    private boolean configureTransitions(int containerId, TransitionState state, boolean isBack,
             SparseArray<Fragment> firstOutFragments, SparseArray<Fragment> lastInFragments) {
         ViewGroup sceneRoot = (ViewGroup) mManager.mContainer.findViewById(containerId);
-        if (sceneRoot != null) {
-            final Fragment inFragment = lastInFragments.get(containerId);
-            Fragment outFragment = firstOutFragments.get(containerId);
+        if (sceneRoot == null) {
+            return false;
+        }
+        final Fragment inFragment = lastInFragments.get(containerId);
+        Fragment outFragment = firstOutFragments.get(containerId);
 
-            Object enterTransition = getEnterTransition(inFragment, isBack);
-            Object sharedElementTransition = getSharedElementTransition(inFragment, outFragment,
-                    isBack);
-            Object exitTransition = getExitTransition(outFragment, isBack);
-            if (enterTransition == null && sharedElementTransition == null &&
-                    exitTransition == null) {
-                return; // no transitions!
-            }
-            ArrayMap<String, View> namedViews = null;
-            if (sharedElementTransition != null) {
-                namedViews = remapSharedElements(state, outFragment, isBack);
+        Object enterTransition = getEnterTransition(inFragment, isBack);
+        Object sharedElementTransition = getSharedElementTransition(inFragment, outFragment,
+                isBack);
+        Object exitTransition = getExitTransition(outFragment, isBack);
+        if (enterTransition == null && sharedElementTransition == null &&
+                exitTransition == null) {
+            return false; // no transitions!
+        }
+        ArrayMap<String, View> namedViews = null;
+        if (sharedElementTransition != null) {
+            namedViews = remapSharedElements(state, outFragment, isBack);
 
-                // Notify the start of the transition.
-                SharedElementCallback callback = isBack ?
-                        outFragment.mEnterTransitionCallback :
-                        inFragment.mEnterTransitionCallback;
-                if (callback != null) {
-                    ArrayList<String> names = new ArrayList<String>(namedViews.keySet());
-                    ArrayList<View> views = new ArrayList<View>(namedViews.values());
-                    callback.onSharedElementStart(names, views, null);
-                }
-            }
-
-            ArrayList<View> exitingViews = new ArrayList<View>();
-            exitTransition = captureExitingViews(exitTransition, outFragment, exitingViews,
-                    namedViews);
-
-            // Set the epicenter of the exit transition
-            if (mSharedElementTargetNames != null && namedViews != null) {
-                View epicenterView = namedViews.get(mSharedElementTargetNames.get(0));
-                if (epicenterView != null) {
-                    if (exitTransition != null) {
-                        FragmentTransitionCompat21.setEpicenter(exitTransition, epicenterView);
-                    }
-                    if (sharedElementTransition != null) {
-                        FragmentTransitionCompat21.setEpicenter(sharedElementTransition,
-                                epicenterView);
-                    }
-                }
-            }
-
-            FragmentTransitionCompat21.ViewRetriever viewRetriever =
-                    new FragmentTransitionCompat21.ViewRetriever() {
-                        @Override
-                        public View getView() {
-                            return inFragment.getView();
-                        }
-                    };
-
-            if (sharedElementTransition != null) {
-                prepareSharedElementTransition(state, sceneRoot, sharedElementTransition,
-                        inFragment, outFragment, isBack);
-            }
-
-            ArrayList<View> enteringViews = new ArrayList<View>();
-            ArrayMap<String, View> renamedViews = new ArrayMap<String, View>();
-
-            boolean allowOverlap = isBack ? inFragment.getAllowReturnTransitionOverlap() :
-                    inFragment.getAllowEnterTransitionOverlap();
-            Object transition = FragmentTransitionCompat21.mergeTransitions(enterTransition,
-                    exitTransition, sharedElementTransition, allowOverlap);
-
-            if (transition != null) {
-                FragmentTransitionCompat21.addTransitionTargets(enterTransition,
-                        sharedElementTransition, sceneRoot, viewRetriever, state.nonExistentView,
-                        state.enteringEpicenterView, state.nameOverrides, enteringViews,
-                        renamedViews);
-                excludeHiddenFragmentsAfterEnter(sceneRoot, state, containerId, transition);
-
-                // We want to exclude hidden views later, so we need a non-null list in the
-                // transition now.
-                FragmentTransitionCompat21.excludeTarget(transition, state.nonExistentView, true);
-                // Now exclude all currently hidden fragments.
-                excludeHiddenFragments(state, containerId, transition);
-
-                FragmentTransitionCompat21.beginDelayedTransition(sceneRoot, transition);
-
-                FragmentTransitionCompat21.cleanupTransitions(sceneRoot, state.nonExistentView,
-                        enterTransition, enteringViews, exitTransition, exitingViews,
-                        transition, state.hiddenFragmentViews, renamedViews);
+            // Notify the start of the transition.
+            SharedElementCallback callback = isBack ?
+                    outFragment.mEnterTransitionCallback :
+                    inFragment.mEnterTransitionCallback;
+            if (callback != null) {
+                ArrayList<String> names = new ArrayList<String>(namedViews.keySet());
+                ArrayList<View> views = new ArrayList<View>(namedViews.values());
+                callback.onSharedElementStart(names, views, null);
             }
         }
+
+        ArrayList<View> exitingViews = new ArrayList<View>();
+        exitTransition = captureExitingViews(exitTransition, outFragment, exitingViews,
+                namedViews);
+
+        // Set the epicenter of the exit transition
+        if (mSharedElementTargetNames != null && namedViews != null) {
+            View epicenterView = namedViews.get(mSharedElementTargetNames.get(0));
+            if (epicenterView != null) {
+                if (exitTransition != null) {
+                    FragmentTransitionCompat21.setEpicenter(exitTransition, epicenterView);
+                }
+                if (sharedElementTransition != null) {
+                    FragmentTransitionCompat21.setEpicenter(sharedElementTransition,
+                            epicenterView);
+                }
+            }
+        }
+
+        FragmentTransitionCompat21.ViewRetriever viewRetriever =
+                new FragmentTransitionCompat21.ViewRetriever() {
+                    @Override
+                    public View getView() {
+                        return inFragment.getView();
+                    }
+                };
+
+        if (sharedElementTransition != null) {
+            prepareSharedElementTransition(state, sceneRoot, sharedElementTransition,
+                    inFragment, outFragment, isBack);
+        }
+
+        ArrayList<View> enteringViews = new ArrayList<View>();
+        ArrayMap<String, View> renamedViews = new ArrayMap<String, View>();
+
+        boolean allowOverlap = isBack ? inFragment.getAllowReturnTransitionOverlap() :
+                inFragment.getAllowEnterTransitionOverlap();
+        Object transition = FragmentTransitionCompat21.mergeTransitions(enterTransition,
+                exitTransition, sharedElementTransition, allowOverlap);
+
+        if (transition != null) {
+            FragmentTransitionCompat21.addTransitionTargets(enterTransition,
+                    sharedElementTransition, sceneRoot, viewRetriever, state.nonExistentView,
+                    state.enteringEpicenterView, state.nameOverrides, enteringViews,
+                    renamedViews);
+            excludeHiddenFragmentsAfterEnter(sceneRoot, state, containerId, transition);
+
+            // We want to exclude hidden views later, so we need a non-null list in the
+            // transition now.
+            FragmentTransitionCompat21.excludeTarget(transition, state.nonExistentView, true);
+            // Now exclude all currently hidden fragments.
+            excludeHiddenFragments(state, containerId, transition);
+
+            FragmentTransitionCompat21.beginDelayedTransition(sceneRoot, transition);
+
+            FragmentTransitionCompat21.cleanupTransitions(sceneRoot, state.nonExistentView,
+                    enterTransition, enteringViews, exitTransition, exitingViews,
+                    transition, state.hiddenFragmentViews, renamedViews);
+        }
+        return transition != null;
     }
 
     private void prepareSharedElementTransition(final TransitionState state, final View sceneRoot,
