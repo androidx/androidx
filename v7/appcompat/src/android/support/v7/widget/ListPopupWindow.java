@@ -1526,7 +1526,6 @@ public class ListPopupWindow {
         /** Helper for drag-to-open auto scrolling. */
         private ListViewAutoScrollHelper mScrollHelper;
 
-
         /**
          * <p>Creates a new list view wrapper.</p>
          *
@@ -1632,6 +1631,11 @@ public class ListPopupWindow {
             // Ensure that keyboard focus starts from the last touched position.
             setSelection(position);
             positionSelectorLikeTouchCompat(position, child, x, y);
+
+            // This needs some explanation. We need to disable the selector for this next call
+            // due to the way that ListViewCompat works. Otherwise both ListView and ListViewCompat
+            // will draw the selector and bad things happen.
+            setSelectorEnabled(false);
 
             // Refresh the drawable state to reflect the new pressed state,
             // which will also update the selector state.
