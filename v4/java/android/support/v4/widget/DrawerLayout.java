@@ -343,7 +343,9 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
         ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
         ViewGroupCompat.setMotionEventSplittingEnabled(this, false);
-        IMPL.configureApplyInsets(this);
+        if (ViewCompat.getFitsSystemWindows(this)) {
+            IMPL.configureApplyInsets(this);
+        }
     }
 
     /**
