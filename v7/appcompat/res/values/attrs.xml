@@ -734,6 +734,9 @@
         <!-- Text to set as the content description for the navigation button
              located at the start of the toolbar. -->
         <attr name="navigationContentDescription" format="string" />
+
+        <!-- Allows us to read in the minHeight attr pre-v16 -->
+        <attr name="android:minHeight" />
     </declare-styleable>
 
     <declare-styleable name="PopupWindowBackgroundState">
