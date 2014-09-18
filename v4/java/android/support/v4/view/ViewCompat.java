@@ -328,6 +328,7 @@ public class ViewCompat {
         public int getWindowSystemUiVisibility(View view);
         public void requestApplyInsets(View view);
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
+        public boolean getFitsSystemWindows(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -704,6 +705,11 @@ public class ViewCompat {
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
             // noop
         }
+
+        @Override
+        public boolean getFitsSystemWindows(View view) {
+            return false;
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1007,6 +1013,11 @@ public class ViewCompat {
         @Override
         public void requestApplyInsets(View view) {
             ViewCompatJB.requestApplyInsets(view);
+        }
+
+        @Override
+        public boolean getFitsSystemWindows(View view) {
+            return ViewCompatJB.getFitsSystemWindows(view);
         }
     }
 
@@ -2198,6 +2209,14 @@ public class ViewCompat {
      */
     public static void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
        IMPL.setChildrenDrawingOrderEnabled(viewGroup, enabled);
+    }
+
+    /**
+     * Returns true if this view should adapt to fit system window insets. This method will always
+     * return false before API 16 (Jellybean).
+     */
+    public static boolean getFitsSystemWindows(View v) {
+        return IMPL.getFitsSystemWindows(v);
     }
 
     // TODO: getters for various view properties (rotation, etc)
