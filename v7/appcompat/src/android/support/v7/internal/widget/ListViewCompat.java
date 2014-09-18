@@ -51,6 +51,8 @@ public class ListViewCompat extends ListView {
 
     private Field mIsChildViewEnabled;
 
+    private GateKeeperDrawable mSelector;
+
     public ListViewCompat(Context context) {
         this(context, null);
     }
@@ -72,7 +74,8 @@ public class ListViewCompat extends ListView {
 
     @Override
     public void setSelector(Drawable sel) {
-        super.setSelector(sel);
+        mSelector = new GateKeeperDrawable(sel);
+        super.setSelector(mSelector);
 
         Rect padding = new Rect();
         sel.getPadding(padding);
@@ -85,6 +88,7 @@ public class ListViewCompat extends ListView {
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
+        mSelector.setEnabled(true);
         updateSelectorStateCompat();
     }
 
@@ -96,10 +100,6 @@ public class ListViewCompat extends ListView {
         }
 
         super.dispatchDraw(canvas);
-
-        if (drawSelectorOnTop) {
-            drawSelectorCompat(canvas);
-        }
     }
 
     protected void updateSelectorStateCompat() {
@@ -320,5 +320,60 @@ public class ListViewCompat extends ListView {
         // completely fit, so return the returnedHeight
         return returnedHeight;
     }
+
+    protected void setSelectorEnabled(boolean enabled) {
+        mSelector.setEnabled(enabled);
+    }
+
+    private static class GateKeeperDrawable extends DrawableWrapper {
+        private boolean mEnabled;
+
+        public GateKeeperDrawable(Drawable drawable) {
+            super(drawable);
+            mEnabled = true;
+        }
+
+        void setEnabled(boolean enabled) {
+            mEnabled = enabled;
+        }
+
+        @Override
+        public boolean setState(int[] stateSet) {
+            if (mEnabled) {
+                return super.setState(stateSet);
+            }
+            return false;
+        }
+
+        @Override
+        public void draw(Canvas canvas) {
+            if (mEnabled) {
+                super.draw(canvas);
+            }
+        }
+
+        @Override
+        public void setHotspot(float x, float y) {
+            if (mEnabled) {
+                super.setHotspot(x, y);
+            }
+        }
+
+        @Override
+        public void setHotspotBounds(int left, int top, int right, int bottom) {
+            if (mEnabled) {
+                super.setHotspotBounds(left, top, right, bottom);
+            }
+        }
+
+        @Override
+        public boolean setVisible(boolean visible, boolean restart) {
+            if (mEnabled) {
+                return super.setVisible(visible, restart);
+            }
+            return false;
+        }
+    }
+
 
 }
