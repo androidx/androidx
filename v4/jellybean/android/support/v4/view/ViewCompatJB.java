@@ -81,4 +81,8 @@ class ViewCompatJB {
     public static void requestApplyInsets(View view) {
         view.requestFitSystemWindows();
     }
+
+    public static boolean getFitsSystemWindows(View view) {
+        return view.getFitsSystemWindows();
+    }
 }
