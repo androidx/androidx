@@ -443,7 +443,7 @@
         <!-- Default disabled icon alpha for each menu item that shows an icon. -->
         <attr name="android:itemIconDisabledAlpha"/>
         <!-- Whether space should be reserved in layout when an icon is missing. -->
-        <attr name="android:preserveIconSpacing"/>
+        <attr name="preserveIconSpacing" format="boolean" />
     </declare-styleable>
     <declare-styleable name="ActionMenuView">
         <!-- Size of padding on either end of a divider. -->
