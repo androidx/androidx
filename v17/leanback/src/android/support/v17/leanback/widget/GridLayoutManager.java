@@ -1395,30 +1395,37 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             final int startSecondary = getRowStartSecondary(i) - mScrollOffsetSecondary;
             for (int j = 0, size = row.size(); j < size; j++) {
                 final int position = row.get(j);
-                final View view = findViewByPosition(position);
-                int primaryDelta, start, end;
+                View view = findViewByPosition(position);
+                int primaryDelta, end;
+
+                int start = getViewMin(view);
+                int oldPrimarySize = (mOrientation == HORIZONTAL) ?
+                        view.getMeasuredWidth() :
+                        view.getMeasuredHeight();
+
+                LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                if (lp.viewNeedsUpdate()) {
+                    int index = mBaseGridView.indexOfChild(view);
+                    detachAndScrapViewAt(position, mRecycler);
+                    view = getViewForPosition(position);
+                    addView(view, index);
+                }
+
+                if (view.isLayoutRequested()) {
+                    measureChild(view);
+                }
 
                 if (mOrientation == HORIZONTAL) {
-                    final int primarySize = view.getMeasuredWidth();
-                    if (view.isLayoutRequested()) {
-                        measureChild(view);
-                    }
-                    start = getViewMin(view);
                     end = start + view.getMeasuredWidth();
-                    primaryDelta = view.getMeasuredWidth() - primarySize;
+                    primaryDelta = view.getMeasuredWidth() - oldPrimarySize;
                     if (primaryDelta != 0) {
                         for (int k = j + 1; k < size; k++) {
                             findViewByPosition(row.get(k)).offsetLeftAndRight(primaryDelta);
                         }
                     }
                 } else {
-                    final int primarySize = view.getMeasuredHeight();
-                    if (view.isLayoutRequested()) {
-                        measureChild(view);
-                    }
-                    start = getViewMin(view);
                     end = start + view.getMeasuredHeight();
-                    primaryDelta = view.getMeasuredHeight() - primarySize;
+                    primaryDelta = view.getMeasuredHeight() - oldPrimarySize;
                     if (primaryDelta != 0) {
                         for (int k = j + 1; k < size; k++) {
                             findViewByPosition(row.get(k)).offsetTopAndBottom(primaryDelta);
@@ -2335,7 +2342,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     int position = getPositionByIndex(index);
                     StaggeredGrid.Location loc = mGrid.getLocation(position);
                     if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
-                        if (focusedPos == NO_POSITION || 
+                        if (focusedPos == NO_POSITION ||
                                 (movement == NEXT_ITEM && position > focusedPos)
                                 || (movement == PREV_ITEM && position < focusedPos)) {
                             child.addFocusables(views,  direction, focusableMode);
