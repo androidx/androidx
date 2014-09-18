@@ -58,7 +58,9 @@ public class TintTypedArray {
     public Drawable getDrawable(int index) {
         if (mWrapped.hasValue(index)) {
             final int resourceId = mWrapped.getResourceId(index, 0);
-            return getTintManager().getDrawable(resourceId);
+            if (resourceId != 0) {
+                return getTintManager().getDrawable(resourceId);
+            }
         }
         return mWrapped.getDrawable(index);
     }
