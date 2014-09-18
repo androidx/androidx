@@ -70,7 +70,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         mTextAppearance = a.getResourceId(R.styleable.
                 MenuView_android_itemTextAppearance, -1);
         mPreserveIconSpacing = a.getBoolean(
-                R.styleable.MenuView_android_preserveIconSpacing, false);
+                R.styleable.MenuView_preserveIconSpacing, false);
         mTextAppearanceContext = context;
 
         a.recycle();
