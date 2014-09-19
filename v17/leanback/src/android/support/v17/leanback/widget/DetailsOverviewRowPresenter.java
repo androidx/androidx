@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -68,6 +69,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
      * A ViewHolder for the DetailsOverviewRow.
      */
     public final class ViewHolder extends RowPresenter.ViewHolder {
+        final FrameLayout mOverviewFrame;
         final ViewGroup mOverviewView;
         final ImageView mImageView;
         final ViewGroup mRightPanel;
@@ -230,6 +232,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
          */
         public ViewHolder(View rootView, Presenter detailsPresenter) {
             super(rootView);
+            mOverviewFrame = (FrameLayout) rootView.findViewById(R.id.details_frame);
             mOverviewView = (ViewGroup) rootView.findViewById(R.id.details_overview);
             mImageView = (ImageView) rootView.findViewById(R.id.details_overview_image);
             mRightPanel = (ViewGroup) rootView.findViewById(R.id.details_overview_right_panel);
@@ -403,6 +406,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                     R.dimen.lb_details_overview_z);
         }
         ShadowHelper.getInstance().setZ(overview, sShadowZ);
+
+        if (!getSelectEffectEnabled()) {
+            vh.mOverviewFrame.setForeground(null);
+        }
     }
 
     private static int getNonNegativeWidth(Drawable drawable) {
@@ -514,6 +521,21 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         ViewHolder vh = (ViewHolder) holder;
         if (vh.mDetailsDescriptionViewHolder != null) {
             mDetailsPresenter.onUnbindViewHolder(vh.mDetailsDescriptionViewHolder);
+        }
+    }
+
+    @Override
+    public final boolean isUsingDefaultSelectEffect() {
+        return false;
+    }
+
+    @Override
+    protected void onSelectLevelChanged(RowPresenter.ViewHolder holder) {
+        super.onSelectLevelChanged(holder);
+        if (getSelectEffectEnabled()) {
+            ViewHolder vh = (ViewHolder) holder;
+            int dimmedColor = vh.mColorDimmer.getPaint().getColor();
+            ((ColorDrawable) vh.mOverviewFrame.getForeground().mutate()).setColor(dimmedColor);
         }
     }
 }
