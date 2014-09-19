@@ -126,7 +126,7 @@
     </style>
 
     <style name="Base.Widget.AppCompat.ListView.Menu"
-           parent="android:Widget.ListView.Menu" />
+           parent="android:Widget.Material.ListView" />
 
     <!-- Popup Menu -->
 

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuBuilder.ItemInvoker;
 import android.support.v7.internal.view.menu.MenuView;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,14 +35,34 @@ import android.widget.ListView;
  */
 public final class ExpandedMenuView extends ListView
         implements ItemInvoker, MenuView, OnItemClickListener {
+
+    private static final int[] TINT_ATTRS = {
+            android.R.attr.background,
+            android.R.attr.divider
+    };
+
     private MenuBuilder mMenu;
 
     /** Default animations for this menu */
     private int mAnimations;
 
     public ExpandedMenuView(Context context, AttributeSet attrs) {
+        this(context, attrs, android.R.attr.listViewStyle);
+    }
+
+    public ExpandedMenuView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs);
         setOnItemClickListener(this);
+
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
+                defStyleAttr, 0);
+        if (a.hasValue(0)) {
+            setBackgroundDrawable(a.getDrawable(0));
+        }
+        if (a.hasValue(1)) {
+            setDivider(a.getDrawable(1));
+        }
+        a.recycle();
     }
 
     @Override
