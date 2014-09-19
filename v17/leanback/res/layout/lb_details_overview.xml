@@ -25,6 +25,13 @@
     android:clipToPadding="false"
     >
 
+    <!--  Used for dimming -->
+    <FrameLayout
+        android:id="@+id/details_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:foreground="#ffffff"
+        >
     <!-- Background is applied to this inner layout -->
     <LinearLayout
         android:id="@+id/details_overview"
@@ -75,5 +82,5 @@
 
         </LinearLayout>
     </LinearLayout>
-
+    </FrameLayout>
 </FrameLayout>
