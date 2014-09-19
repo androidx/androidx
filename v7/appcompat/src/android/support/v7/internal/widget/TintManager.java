@@ -77,7 +77,8 @@ public class TintManager {
      */
     private static final int[] TINT_COLOR_BACKGROUND_MULTIPLY = {
             R.drawable.abc_popup_background_mtrl_mult,
-            R.drawable.abc_cab_background_internal_bg
+            R.drawable.abc_cab_background_internal_bg,
+            R.drawable.abc_menu_hardkey_panel_mtrl_mult
     };
 
     /**

@@ -98,6 +98,11 @@ abstract class ActionBarActivityDelegate {
         public ActionMode startActionMode(ActionMode.Callback callback) {
             return startSupportActionModeFromWindow(callback);
         }
+
+        @Override
+        public View onCreatePanelView(int featureId) {
+            return null;
+        }
     };
     // The fake window callback we're currently using
     private WindowCallback mWindowCallback;
