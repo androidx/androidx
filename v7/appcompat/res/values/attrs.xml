@@ -260,12 +260,12 @@
         <!-- ============ -->
         <eat-comment />
 
+        <!-- The background of a panel when it is inset from the left and right edges of the screen. -->
+        <attr name="panelBackground" format="reference" />
         <!-- Default Panel Menu width. -->
         <attr name="panelMenuListWidth" format="dimension" />
-
         <!-- Default Panel Menu style. -->
         <attr name="panelMenuListTheme" format="reference" />
-
         <!-- Drawable used as a background for selected list items. -->
         <attr name="listChoiceBackgroundIndicator" format="reference" />
 
