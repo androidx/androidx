@@ -343,11 +343,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private boolean mScrollEnabled = true;
 
-    /**
-     * Percent of overreach.
-     */
-    private float mPrimaryOverReach = 1f;
-
     private int[] mTempDeltas = new int[2];
 
     /**
@@ -502,14 +497,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public void setOnChildSelectedListener(OnChildSelectedListener listener) {
         mChildSelectedListener = listener;
-    }
-
-    public void setPrimaryOverReach(float fraction) {
-        if (fraction != mPrimaryOverReach) {
-            if (DEBUG) Log.v(getTag(), "setPrimaryOverReach " + fraction);
-            mPrimaryOverReach = fraction;
-            requestLayout();
-        }
     }
 
     private int getPositionByView(View view) {
@@ -1507,7 +1494,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // We must use same delta in Pre Layout (if prelayout exists) and second layout.
         // So we cache the deltas in PreLayout and use it in second layout.
         int delta = 0, deltaSecondary = 0;
-        if (mFocusPosition != NO_POSITION && scrollToFocus) {
+        if (mFocusPosition != NO_POSITION && scrollToFocus
+                && mBaseGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
             // FIXME: we should get the remaining scroll animation offset from RecyclerView
             View focusView = findViewByPosition(mFocusPosition);
             if (focusView != null) {
@@ -1848,13 +1836,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mScrollOffsetPrimary -= paddingPrimaryDiff;
         mScrollOffsetSecondary -= paddingSecondaryDiff;
 
-        if (mOrientation == HORIZONTAL) {
-            mWindowAlignment.horizontal.setSize((int)(getWidth() * mPrimaryOverReach + 0.5f));
-            mWindowAlignment.vertical.setSize(getHeight());
-        } else {
-            mWindowAlignment.horizontal.setSize(getWidth());
-            mWindowAlignment.vertical.setSize((int) (getHeight() * mPrimaryOverReach + 0.5f));
-        }
+        mWindowAlignment.horizontal.setSize(getWidth());
+        mWindowAlignment.vertical.setSize(getHeight());
         mWindowAlignment.horizontal.setPadding(getPaddingLeft(), getPaddingRight());
         mWindowAlignment.vertical.setPadding(getPaddingTop(), getPaddingBottom());
         mSizePrimary = mWindowAlignment.mainAxis().getSize();
