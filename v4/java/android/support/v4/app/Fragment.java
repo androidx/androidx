@@ -1747,6 +1747,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
                 return mView.findViewById(id);
             }
+
+            @Override
+            public boolean hasView() {
+                return (mView != null);
+            }
         }, this);
     }
 
