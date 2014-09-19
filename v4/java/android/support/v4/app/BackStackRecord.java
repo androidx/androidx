@@ -1144,8 +1144,14 @@ final class BackStackRecord extends FragmentTransaction implements
             return false; // no transitions!
         }
         ArrayMap<String, View> namedViews = null;
+        ArrayList<View> sharedElementTargets = new ArrayList<View>();
         if (sharedElementTransition != null) {
             namedViews = remapSharedElements(state, outFragment, isBack);
+            if (namedViews.isEmpty()) {
+                sharedElementTargets.add(state.nonExistentView);
+            } else {
+                sharedElementTargets.addAll(namedViews.values());
+            }
 
             // Notify the start of the transition.
             SharedElementCallback callback = isBack ?
@@ -1186,7 +1192,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
         if (sharedElementTransition != null) {
             prepareSharedElementTransition(state, sceneRoot, sharedElementTransition,
-                    inFragment, outFragment, isBack);
+                    inFragment, outFragment, isBack, sharedElementTargets);
         }
 
         ArrayList<View> enteringViews = new ArrayList<View>();
@@ -1201,7 +1207,7 @@ final class BackStackRecord extends FragmentTransaction implements
             FragmentTransitionCompat21.addTransitionTargets(enterTransition,
                     sharedElementTransition, sceneRoot, viewRetriever, state.nonExistentView,
                     state.enteringEpicenterView, state.nameOverrides, enteringViews,
-                    renamedViews);
+                    renamedViews, sharedElementTargets);
             excludeHiddenFragmentsAfterEnter(sceneRoot, state, containerId, transition);
 
             // We want to exclude hidden views later, so we need a non-null list in the
@@ -1214,6 +1220,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
             FragmentTransitionCompat21.cleanupTransitions(sceneRoot, state.nonExistentView,
                     enterTransition, enteringViews, exitTransition, exitingViews,
+                    sharedElementTransition, sharedElementTargets,
                     transition, state.hiddenFragmentViews, renamedViews);
         }
         return transition != null;
@@ -1221,7 +1228,8 @@ final class BackStackRecord extends FragmentTransaction implements
 
     private void prepareSharedElementTransition(final TransitionState state, final View sceneRoot,
             final Object sharedElementTransition, final Fragment inFragment,
-            final Fragment outFragment, final boolean isBack) {
+            final Fragment outFragment, final boolean isBack,
+            final ArrayList<View> sharedElementTargets) {
         sceneRoot.getViewTreeObserver().addOnPreDrawListener(
                 new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -1229,8 +1237,19 @@ final class BackStackRecord extends FragmentTransaction implements
                 sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
 
                 if (sharedElementTransition != null) {
+                    FragmentTransitionCompat21.removeTargets(sharedElementTransition,
+                            sharedElementTargets);
+                    sharedElementTargets.clear();
+
                     ArrayMap<String, View> namedViews = mapSharedElementsIn(
                             state, isBack, inFragment);
+                    if (namedViews.isEmpty()) {
+                        sharedElementTargets.add(state.nonExistentView);
+                    } else {
+                        sharedElementTargets.addAll(namedViews.values());
+                    }
+                    FragmentTransitionCompat21.addTargets(sharedElementTransition,
+                            sharedElementTargets);
 
                     setEpicenterIn(namedViews, state);
 
