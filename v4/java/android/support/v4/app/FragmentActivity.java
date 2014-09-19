@@ -108,6 +108,12 @@ public class FragmentActivity extends Activity {
         public View findViewById(int id) {
             return FragmentActivity.this.findViewById(id);
         }
+
+        @Override
+        public boolean hasView() {
+            Window window = FragmentActivity.this.getWindow();
+            return (window != null && window.peekDecorView() != null);
+        }
     };
     
     boolean mCreated;
