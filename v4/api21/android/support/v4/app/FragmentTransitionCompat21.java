@@ -96,12 +96,18 @@ class FragmentTransitionCompat21 {
             Object sharedElementTransitionObject, final View container,
             final ViewRetriever inFragment, final View nonExistentView,
             EpicenterView epicenterView, final Map<String, String> nameOverrides,
-            final ArrayList<View> enteringViews, final Map<String, View> renamedViews) {
+            final ArrayList<View> enteringViews, final Map<String, View> renamedViews,
+            final ArrayList<View> sharedElementTargets) {
         if (enterTransitionObject != null || sharedElementTransitionObject != null) {
             final Transition enterTransition = (Transition) enterTransitionObject;
             if (enterTransition != null) {
                 enterTransition.addTarget(nonExistentView);
             }
+            if (sharedElementTransitionObject != null) {
+                Transition sharedElementTransition = (Transition) sharedElementTransitionObject;
+                addTargets(sharedElementTransition, sharedElementTargets);
+            }
+
             if (inFragment != null) {
                 container.getViewTreeObserver().addOnPreDrawListener(
                         new ViewTreeObserver.OnPreDrawListener() {
@@ -154,11 +160,17 @@ class FragmentTransitionCompat21 {
         Transition transition;
         if (overlap) {
             // Regular transition -- do it all together
-            transition = mergeTransitions(enterTransition, exitTransition,
-                    sharedElementTransition);
-            if (!(transition instanceof TransitionSet)) {
-                transition = new TransitionSet().addTransition(transition);
+            TransitionSet transitionSet = new TransitionSet();
+            if (enterTransition != null) {
+                transitionSet.addTransition(enterTransition);
             }
+            if (exitTransition != null) {
+                transitionSet.addTransition(exitTransition);
+            }
+            if (sharedElementTransition != null) {
+                transitionSet.addTransition(sharedElementTransition);
+            }
+            transition = transitionSet;
         } else {
             // First do exit, then enter, but allow shared element transition to happen
             // during both.
@@ -254,10 +266,12 @@ class FragmentTransitionCompat21 {
     public static void cleanupTransitions(final View sceneRoot, final View nonExistentView,
             Object enterTransitionObject, final ArrayList<View> enteringViews,
             Object exitTransitionObject, final ArrayList<View> exitingViews,
+            Object sharedElementTransitionObject, final ArrayList<View> sharedElementTargets,
             Object overallTransitionObject, final ArrayList<View> hiddenViews,
             final Map<String, View> renamedViews) {
         final Transition enterTransition = (Transition) enterTransitionObject;
         final Transition exitTransition = (Transition) exitTransitionObject;
+        final Transition sharedElementTransition = (Transition) sharedElementTransitionObject;
         final Transition overallTransition = (Transition) overallTransitionObject;
         if (overallTransition != null) {
             sceneRoot.getViewTreeObserver().addOnPreDrawListener(
@@ -270,6 +284,9 @@ class FragmentTransitionCompat21 {
                     }
                     if (exitTransition != null) {
                         removeTargets(exitTransition, exitingViews);
+                    }
+                    if (sharedElementTransition != null) {
+                        removeTargets(sharedElementTransition, sharedElementTargets);
                     }
                     for (Map.Entry<String, View> entry : renamedViews.entrySet()) {
                         View view = entry.getValue();
@@ -287,14 +304,16 @@ class FragmentTransitionCompat21 {
         }
     }
 
-    private static void removeTargets(Transition transition, ArrayList<View> views) {
+    public static void removeTargets(Object transitionObject, ArrayList<View> views) {
+        Transition transition = (Transition) transitionObject;
         int numViews = views.size();
         for (int i = 0; i < numViews; i++) {
             transition.removeTarget(views.get(i));
         }
     }
 
-    private static void addTargets(Transition transition, ArrayList<View> views) {
+    public static void addTargets(Object transitionObject, ArrayList<View> views) {
+        Transition transition = (Transition) transitionObject;
         int numViews = views.size();
         for (int i = 0; i < numViews; i++) {
             transition.addTarget(views.get(i));
@@ -307,32 +326,5 @@ class FragmentTransitionCompat21 {
 
     public static class EpicenterView {
         public View epicenter;
-    }
-
-    public static Transition mergeTransitions(Transition... transitions) {
-        int count = 0;
-        int nonNullIndex = -1;
-        for (int i = 0; i < transitions.length; i++) {
-            if (transitions[i] != null) {
-                count++;
-                nonNullIndex = i;
-            }
-        }
-
-        if (count == 0) {
-            return null;
-        }
-
-        if (count == 1) {
-            return transitions[nonNullIndex];
-        }
-
-        TransitionSet transitionSet = new TransitionSet();
-        for (int i = 0; i < transitions.length; i++) {
-            if (transitions[i] != null) {
-                transitionSet.addTransition(transitions[i]);
-            }
-        }
-        return transitionSet;
     }
 }
