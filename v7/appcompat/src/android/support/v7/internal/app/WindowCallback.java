@@ -41,4 +41,6 @@ public interface WindowCallback {
 
     ActionMode startActionMode(ActionMode.Callback callback);
 
+    View onCreatePanelView(int featureId);
+
 }

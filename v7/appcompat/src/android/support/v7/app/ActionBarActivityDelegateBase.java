@@ -410,13 +410,26 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     @Override
     public View onCreatePanelView(int featureId) {
+        View panelView = null;
+
+        // If there isn't an action mode currently being displayed
         if (mActionMode == null) {
-            // If there isn't an action mode currently being displayed, try and show a list menu
-            PanelFeatureState st = getPanelState(featureId, true);
-            openPanel(st, null);
-            return st.isOpen ? st.shownPanelView : null;
+            // Let our window callback try first
+            WindowCallback callback = getWindowCallback();
+            if (callback != null) {
+                panelView = callback.onCreatePanelView(featureId);
+            }
+
+            if (panelView == null) {
+                // If the callback didn't return a view, check our panels
+                PanelFeatureState st = getPanelState(featureId, true);
+                openPanel(st, null);
+                if (st.isOpen) {
+                    panelView = st.shownPanelView;
+                }
+            }
         }
-        return null;
+        return panelView;
     }
 
     @Override
@@ -782,7 +795,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     private void initializePanelDecor(PanelFeatureState st) {
         st.decorView = mWindowDecor;
-        st.setStyle(mActivity);
+        st.setStyle(getActionBarThemedContext());
     }
 
     private void reopenMenu(MenuBuilder menu, boolean toggleMenuMode) {
@@ -918,7 +931,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             mPanelMenuPresenterCallback = new PanelMenuPresenterCallback();
         }
 
-        MenuView menuView = st.getListMenuView(mActivity, mPanelMenuPresenterCallback);
+        MenuView menuView = st.getListMenuView(mPanelMenuPresenterCallback);
 
         st.shownPanelView = (View) menuView;
 
@@ -1282,8 +1295,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
         ListMenuPresenter listMenuPresenter;
 
-        /** Theme resource ID for list elements of the panel menu */
-        int listPresenterTheme;
+        Context listPresenterContext;
 
         /**
          * Whether the panel has been prepared (see
@@ -1342,11 +1354,28 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         }
 
         void setStyle(Context context) {
-            TypedArray a = context.obtainStyledAttributes(R.styleable.Theme);
-            listPresenterTheme = a.getResourceId(
-                    R.styleable.Theme_panelMenuListTheme,
-                    R.style.Theme_AppCompat_CompactMenu);
-            a.recycle();
+            final TypedValue outValue = new TypedValue();
+            final Resources.Theme widgetTheme = context.getResources().newTheme();
+            widgetTheme.setTo(context.getTheme());
+
+            // First apply the actionBarPopupTheme
+            widgetTheme.resolveAttribute(R.attr.actionBarPopupTheme, outValue, true);
+            if (outValue.resourceId != 0) {
+                widgetTheme.applyStyle(outValue.resourceId, true);
+            }
+
+            // Now apply the panelMenuListTheme
+            widgetTheme.resolveAttribute(R.attr.panelMenuListTheme, outValue, true);
+            if (outValue.resourceId != 0) {
+                widgetTheme.applyStyle(outValue.resourceId, true);
+            } else {
+                widgetTheme.applyStyle(R.style.Theme_AppCompat_CompactMenu, true);
+            }
+
+            context = new ContextThemeWrapper(context, 0);
+            context.getTheme().setTo(widgetTheme);
+
+            listPresenterContext = context;
         }
 
         void setMenu(MenuBuilder menu) {
@@ -1361,12 +1390,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             }
         }
 
-        MenuView getListMenuView(Context context, MenuPresenter.Callback cb) {
+        MenuView getListMenuView(MenuPresenter.Callback cb) {
             if (menu == null) return null;
 
             if (listMenuPresenter == null) {
-                listMenuPresenter = new ListMenuPresenter(
-                        R.layout.abc_list_menu_item_layout, listPresenterTheme);
+                listMenuPresenter = new ListMenuPresenter(listPresenterContext,
+                        R.layout.abc_list_menu_item_layout);
                 listMenuPresenter.setCallback(cb);
                 menu.addMenuPresenter(listMenuPresenter);
             }
