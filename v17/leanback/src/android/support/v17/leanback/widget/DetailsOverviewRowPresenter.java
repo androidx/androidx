@@ -62,6 +62,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     private static final boolean DEBUG = false;
 
     private static final int MORE_ACTIONS_FADE_MS = 100;
+    private static final long DEFAULT_TIMEOUT = 5000;
 
     /**
      * A ViewHolder for the DetailsOverviewRow.
@@ -325,7 +326,29 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
     /**
      * Set enter transition of target activity (typically a DetailActivity) to be
-     * transiting into overview row created by this presenter.
+     * transiting into overview row created by this presenter.  The transition will
+     * be cancelled if overview image is not loaded in the timeout period.
+     * <p>
+     * It assumes shared element passed from calling activity is an ImageView;
+     * the shared element transits to overview image on the left of detail
+     * overview row, while bounds of overview row grows and reveals text
+     * and buttons on the right.
+     * <p>
+     * The method must be invoked in target Activity's onCreate().
+     */
+    public final void setSharedElementEnterTransition(Activity activity,
+            String sharedElementName, long timeoutMs) {
+        if (mSharedElementHelper == null) {
+            mSharedElementHelper = new DetailsOverviewSharedElementHelper();
+        }
+        mSharedElementHelper.setSharedElementEnterTransition(activity, sharedElementName,
+                timeoutMs);
+    }
+
+    /**
+     * Set enter transition of target activity (typically a DetailActivity) to be
+     * transiting into overview row created by this presenter.  The transition will
+     * be cancelled if overview image is not loaded in a default timeout period.
      * <p>
      * It assumes shared element passed from calling activity is an ImageView;
      * the shared element transits to overview image on the left of detail
@@ -336,10 +359,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
      */
     public final void setSharedElementEnterTransition(Activity activity,
             String sharedElementName) {
-        if (mSharedElementHelper == null) {
-            mSharedElementHelper = new DetailsOverviewSharedElementHelper();
-        }
-        mSharedElementHelper.setSharedElementEnterTransition(activity, sharedElementName);
+        setSharedElementEnterTransition(activity, sharedElementName, DEFAULT_TIMEOUT);
     }
 
     private int getDefaultBackgroundColor(Context context) {
