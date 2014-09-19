@@ -26,9 +26,9 @@ import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.menu.ActionMenuItem;
-import android.support.v7.widget.ActionMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
+import android.support.v7.widget.ActionMenuPresenter;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -82,13 +82,15 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     private final TintManager mTintManager;
     private int mDefaultNavigationContentDescription = 0;
+    private Drawable mDefaultNavigationIcon;
 
     public ToolbarWidgetWrapper(Toolbar toolbar, boolean style) {
-        this(toolbar, style, R.string.abc_action_bar_up_description);
+        this(toolbar, style, R.string.abc_action_bar_up_description,
+                R.drawable.abc_ic_ab_back_mtrl_am_alpha);
     }
 
     public ToolbarWidgetWrapper(Toolbar toolbar, boolean style,
-            int defaultNavigationContentDescription) {
+            int defaultNavigationContentDescription, int defaultNavigationIcon) {
         mToolbar = toolbar;
         mTitle = toolbar.getTitle();
         mSubtitle = toolbar.getSubtitle();
@@ -177,6 +179,8 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         setDefaultNavigationContentDescription(defaultNavigationContentDescription);
         mHomeDescription = mToolbar.getNavigationContentDescription();
 
+        setDefaultNavigationIcon(mTintManager.getDrawable(defaultNavigationIcon));
+
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             final ActionMenuItem mNavItem = new ActionMenuItem(mToolbar.getContext(),
                     0, android.R.id.home, 0, 0, mTitle);
@@ -206,6 +210,14 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         mDefaultNavigationContentDescription = defaultNavigationContentDescription;
         if (TextUtils.isEmpty(mToolbar.getNavigationContentDescription())) {
             setNavigationContentDescription(mDefaultNavigationContentDescription);
+        }
+    }
+
+    @Override
+    public void setDefaultNavigationIcon(Drawable defaultNavigationIcon) {
+        if (mDefaultNavigationIcon != defaultNavigationIcon) {
+            mDefaultNavigationIcon = defaultNavigationIcon;
+            updateNavigationIcon();
         }
     }
 
@@ -420,7 +432,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         if (changed != 0) {
             if ((changed & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
                 if ((newOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
-                    mToolbar.setNavigationIcon(mNavIcon);
+                    updateNavigationIcon();
                     updateHomeAccessibility();
                 } else {
                     mToolbar.setNavigationIcon(null);
@@ -617,9 +629,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     @Override
     public void setNavigationIcon(Drawable icon) {
         mNavIcon = icon;
-        if ((mDisplayOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
-            mToolbar.setNavigationIcon(icon);
-        }
+        updateNavigationIcon();
     }
 
     @Override
@@ -647,6 +657,12 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             } else {
                 mToolbar.setNavigationContentDescription(mHomeDescription);
             }
+        }
+    }
+
+    private void updateNavigationIcon() {
+        if ((mDisplayOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+            mToolbar.setNavigationIcon(mNavIcon != null ? mNavIcon : mDefaultNavigationIcon);
         }
     }
 
