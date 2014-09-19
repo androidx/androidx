@@ -19,12 +19,15 @@ package android.support.v7.internal.app;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.widget.DecorToolbar;
@@ -32,6 +35,8 @@ import android.support.v7.internal.widget.ToolbarWidgetWrapper;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.WindowCallbackWrapper;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,6 +46,8 @@ import android.view.Window;
 import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
+
+import static android.support.v4.view.WindowCompat.FEATURE_ACTION_BAR;
 
 /**
  * @hide
@@ -55,6 +62,8 @@ public class ToolbarActionBar extends ActionBar {
     private boolean mLastMenuVisibility;
     private ArrayList<OnMenuVisibilityListener> mMenuVisibilityListeners =
             new ArrayList<OnMenuVisibilityListener>();
+
+    private ListMenuPresenter mListMenuPresenter;
 
     private final Runnable mMenuInvalidator = new Runnable() {
         @Override
@@ -489,6 +498,53 @@ public class ToolbarActionBar extends ActionBar {
         }
     }
 
+    private View getListMenuView(Menu menu) {
+        if (menu == null) {
+            return null;
+        }
+
+        ensureListMenuPresenter(menu);
+
+        if (mListMenuPresenter.getAdapter().getCount() > 0) {
+            return (View) mListMenuPresenter.getMenuView(mToolbar);
+        }
+        return null;
+    }
+
+    private void ensureListMenuPresenter(Menu menu) {
+        if (mListMenuPresenter == null && (menu instanceof MenuBuilder)) {
+            MenuBuilder mb = (MenuBuilder) menu;
+
+            Context context = mToolbar.getContext();
+            final TypedValue outValue = new TypedValue();
+            final Resources.Theme widgetTheme = context.getResources().newTheme();
+            widgetTheme.setTo(context.getTheme());
+
+            // First apply the Toolbar popup theme
+            final int popupTheme = mToolbar.getPopupTheme();
+            if (popupTheme != 0) {
+                widgetTheme.applyStyle(popupTheme, true);
+            }
+
+            // Now apply the panelMenuListTheme
+            widgetTheme.resolveAttribute(R.attr.panelMenuListTheme, outValue, true);
+            if (outValue.resourceId != 0) {
+                widgetTheme.applyStyle(outValue.resourceId, true);
+            } else {
+                widgetTheme.applyStyle(R.style.Theme_AppCompat_CompactMenu, true);
+            }
+
+            context = new ContextThemeWrapper(context, 0);
+            context.getTheme().setTo(widgetTheme);
+
+            // Finally create the list menu presenter
+            mListMenuPresenter = new ListMenuPresenter(context,
+                    R.layout.abc_list_menu_item_layout);
+            mListMenuPresenter.setCallback(new PanelMenuPresenterCallback());
+            mb.addMenuPresenter(mListMenuPresenter);
+        }
+    }
+
     private class ToolbarCallbackWrapper extends WindowCallbackWrapper {
         public ToolbarCallbackWrapper(WindowCallback wrapped) {
             super(wrapped);
@@ -502,6 +558,21 @@ public class ToolbarActionBar extends ActionBar {
                 mToolbarMenuPrepared = true;
             }
             return result;
+        }
+
+        @Override
+        public View onCreatePanelView(int featureId) {
+            switch (featureId) {
+                case Window.FEATURE_OPTIONS_PANEL:
+                    final Menu menu = mToolbar.getMenu();
+                    if (mWindowCallback != null &&
+                            mWindowCallback.onPreparePanel(featureId, null, menu) &&
+                            mWindowCallback.onMenuOpened(featureId, menu)) {
+                        return getListMenuView(menu);
+                    }
+                    break;
+            }
+            return super.onCreatePanelView(featureId);
         }
     }
 
@@ -529,6 +600,23 @@ public class ToolbarActionBar extends ActionBar {
                 mWindowCallback.onPanelClosed(WindowCompat.FEATURE_ACTION_BAR, menu);
             }
             mClosingActionMenu = false;
+        }
+    }
+
+    private final class PanelMenuPresenterCallback implements MenuPresenter.Callback {
+        @Override
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+            if (mWindowCallback != null) {
+                mWindowCallback.onPanelClosed(Window.FEATURE_OPTIONS_PANEL, menu);
+            }
+        }
+
+        @Override
+        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+            if (subMenu == null && mWindowCallback != null) {
+                mWindowCallback.onMenuOpened(Window.FEATURE_OPTIONS_PANEL, subMenu);
+            }
+            return true;
         }
     }
 

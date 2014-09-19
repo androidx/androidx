@@ -68,4 +68,9 @@ public class WindowCallbackWrapper implements WindowCallback {
     public ActionMode startActionMode(ActionMode.Callback callback) {
         return mWrapped.startActionMode(callback);
     }
+
+    @Override
+    public View onCreatePanelView(int featureId) {
+        return mWrapped.onCreatePanelView(featureId);
+    }
 }
