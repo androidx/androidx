@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewCompat;
@@ -82,7 +83,8 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         mViewHolder.mDetailsDescriptionFrame.setVisibility(View.VISIBLE);
     }
 
-    void setSharedElementEnterTransition(Activity activity, String sharedElementName) {
+    void setSharedElementEnterTransition(Activity activity, String sharedElementName,
+            long timeoutMs) {
         if (activity == null && !TextUtils.isEmpty(sharedElementName) ||
                 activity != null && TextUtils.isEmpty(sharedElementName)) {
             throw new IllegalArgumentException();
@@ -99,20 +101,17 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         if (mActivityToRunTransition != null) {
             ActivityCompat.setEnterSharedElementCallback(mActivityToRunTransition, this);
             ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
-            TransitionHelper transitionHelper = TransitionHelper.getInstance();
-            Object transition = transitionHelper.getSharedElementEnterTransition(
-                    mActivityToRunTransition.getWindow());
-            if (transition != null) {
-                transitionHelper.setTransitionListener(transition, new TransitionListener() {
+            if (timeoutMs > 0) {
+                new Handler().postDelayed(new Runnable() {
                     @Override
-                    public void onTransitionEnd(Object transition) {
-                        // after transition if the action row still focused, transfer
-                        // focus to its children
-                        if (mViewHolder.mActionsRow.isFocused()) {
-                            mViewHolder.mActionsRow.requestFocus();
+                    public void run() {
+                        if (mActivityToRunTransition == null) {
+                            return;
                         }
+                        ActivityCompat.startPostponedEnterTransition(mActivityToRunTransition);
+                        mActivityToRunTransition = null;
                     }
-                });
+                }, timeoutMs);
             }
         }
     }
@@ -137,6 +136,22 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                 public void run() {
                     if (mActivityToRunTransition == null) {
                         return;
+                    }
+                    final TransitionHelper transitionHelper = TransitionHelper.getInstance();
+                    Object transition = transitionHelper.getSharedElementEnterTransition(
+                            mActivityToRunTransition.getWindow());
+                    if (transition != null) {
+                        transitionHelper.setTransitionListener(transition, new TransitionListener() {
+                            @Override
+                            public void onTransitionEnd(Object transition) {
+                                // after transition if the action row still focused, transfer
+                                // focus to its children
+                                if (mViewHolder.mActionsRow.isFocused()) {
+                                    mViewHolder.mActionsRow.requestFocus();
+                                }
+                                transitionHelper.setTransitionListener(transition, null);
+                            }
+                        });
                     }
                     ViewCompat.setTransitionName(mViewHolder.mOverviewView, mSharedElementName);
                     ActivityCompat.startPostponedEnterTransition(mActivityToRunTransition);
