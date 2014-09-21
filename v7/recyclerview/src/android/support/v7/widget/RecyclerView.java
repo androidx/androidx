@@ -1875,7 +1875,7 @@ public class RecyclerView extends ViewGroup {
                     ViewHolder holder = mState.mPreLayoutHolderMap.keyAt(j);
                     if (holder.itemView == child) {
                         found = true;
-                        continue;
+                        break;
                     }
                 }
                 if (!found) {
