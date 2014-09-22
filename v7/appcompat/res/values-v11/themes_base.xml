@@ -64,6 +64,12 @@
         <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
         <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
         <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
+
+        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_check_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_radio_material</item>
     </style>
 
     <style name="Platform.AppCompat.Light" parent="android:Theme.Holo.Light">
@@ -109,6 +115,12 @@
         <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
         <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
         <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
+
+        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_check_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_radio_material</item>
     </style>
 
     <style name="Platform.AppCompat.Dialog" parent="android:Theme.Holo.Dialog">
@@ -153,6 +165,12 @@
         <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
         <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
         <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
+
+        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_check_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_radio_material</item>
     </style>
 
     <style name="Platform.AppCompat.Light.Dialog" parent="android:Theme.Holo.Light.Dialog">
@@ -198,6 +216,12 @@
         <item name="android:textAppearanceMediumInverse">@style/TextAppearance.AppCompat.Medium.Inverse</item>
         <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
         <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
+
+        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_check_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_radio_material</item>
     </style>
 
     <style name="Base.V11.Theme.AppCompat" parent="Base.V7.Theme.AppCompat" />
@@ -273,8 +297,8 @@
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu</item>
         <item name="textAppearanceLargePopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large</item>
         <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small</item>
-        <item name="listPopupWindowStyle">@style/Widget.AppCompat.Light.ListPopupWindow</item>
-        <item name="dropDownListViewStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
+        <item name="listPopupWindowStyle">@style/Widget.AppCompat.ListPopupWindow</item>
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
         <!-- SearchView attributes -->
         <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
@@ -301,8 +325,10 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
-
         <item name="colorControlHighlight">@color/ripple_material_light</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_light</item>
+
+        <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
     </style>
 
     <style name="Base.Theme.AppCompat" parent="Base.V11.Theme.AppCompat">
