@@ -21,6 +21,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.support.v4.internal.view.SupportMenu;
@@ -88,7 +89,6 @@ public class SupportMenuInflater extends MenuInflater {
     public SupportMenuInflater(Context context) {
         super(context);
         mContext = context;
-        mRealOwner = context;
         mActionViewConstructorArguments = new Object[] {context};
         mActionProviderConstructorArguments = mActionViewConstructorArguments;
     }
@@ -207,6 +207,23 @@ public class SupportMenuInflater extends MenuInflater {
 
             eventType = parser.next();
         }
+    }
+
+    private Object getRealOwner() {
+        if (mRealOwner == null) {
+            mRealOwner = findRealOwner(mContext);
+        }
+        return mRealOwner;
+    }
+
+    private Object findRealOwner(Object owner) {
+        if (owner instanceof Activity) {
+            return owner;
+        }
+        if (owner instanceof ContextWrapper) {
+            return findRealOwner(((ContextWrapper) owner).getBaseContext());
+        }
+        return owner;
     }
 
     private static class InflatedOnMenuItemClickListener
@@ -424,7 +441,7 @@ public class SupportMenuInflater extends MenuInflater {
                             + "be used within a restricted context");
                 }
                 item.setOnMenuItemClickListener(
-                        new InflatedOnMenuItemClickListener(mRealOwner, itemListenerMethodName));
+                        new InflatedOnMenuItemClickListener(getRealOwner(), itemListenerMethodName));
             }
 
             final MenuItemImpl impl = item instanceof MenuItemImpl ? (MenuItemImpl) item : null;
