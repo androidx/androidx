@@ -144,4 +144,8 @@ class ViewCompatHC {
     public static float getPivotY(View view) {
         return view.getPivotY();
     }
+
+    public static void jumpDrawablesToCurrentState(View view) {
+        view.jumpDrawablesToCurrentState();
+    }
 }
