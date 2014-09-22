@@ -329,6 +329,7 @@ public class ViewCompat {
         public void requestApplyInsets(View view);
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
         public boolean getFitsSystemWindows(View view);
+        void jumpDrawablesToCurrentState(View v);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -710,6 +711,11 @@ public class ViewCompat {
         public boolean getFitsSystemWindows(View view) {
             return false;
         }
+
+        @Override
+        public void jumpDrawablesToCurrentState(View view) {
+            // Do nothing; API didn't exist.
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -874,6 +880,10 @@ public class ViewCompat {
         @Override
         public float getPivotY(View view) {
             return ViewCompatHC.getPivotY(view);
+        }
+        @Override
+        public void jumpDrawablesToCurrentState(View view) {
+            ViewCompatHC.jumpDrawablesToCurrentState(view);
         }
     }
 
@@ -2217,6 +2227,17 @@ public class ViewCompat {
      */
     public static boolean getFitsSystemWindows(View v) {
         return IMPL.getFitsSystemWindows(v);
+    }
+
+    /**
+     * On API 11 devices and above, call <code>Drawable.jumpToCurrentState()</code>
+     * on all Drawable objects associated with this view.
+     * <p>
+     * On API 21 and above, also calls <code>StateListAnimator#jumpToCurrentState()</code>
+     * if there is a StateListAnimator attached to this view.
+     */
+    public static void jumpDrawablesToCurrentState(View v) {
+        IMPL.jumpDrawablesToCurrentState(v);
     }
 
     // TODO: getters for various view properties (rotation, etc)
