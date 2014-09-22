@@ -53,7 +53,6 @@ public class ViewPropertyAnimatorCompatSet {
 
     public void start() {
         if (mIsStarted) return;
-
         for (ViewPropertyAnimatorCompat animator : mAnimators) {
             if (mDuration >= 0) {
                 animator.setDuration(mDuration);
@@ -70,11 +69,18 @@ public class ViewPropertyAnimatorCompatSet {
         mIsStarted = true;
     }
 
+    private void onAnimationsEnded() {
+        mIsStarted = false;
+    }
+
     public void cancel() {
-        if (mIsStarted) return;
+        if (!mIsStarted) {
+            return;
+        }
         for (ViewPropertyAnimatorCompat animator : mAnimators) {
             animator.cancel();
         }
+        mIsStarted = false;
     }
 
     public ViewPropertyAnimatorCompatSet setDuration(long duration) {
@@ -100,21 +106,33 @@ public class ViewPropertyAnimatorCompatSet {
 
     private final ViewPropertyAnimatorListenerAdapter mProxyListener
             = new ViewPropertyAnimatorListenerAdapter() {
-        private boolean mIsStarted = false;
-        private int mEnded = 0;
+        private boolean mProxyStarted = false;
+        private int mProxyEndCount = 0;
 
         @Override
         public void onAnimationStart(View view) {
-            if (mListener != null && !mIsStarted) {
-                mIsStarted = true;
+            if (mProxyStarted) {
+                return;
+            }
+            mProxyStarted = true;
+            if (mListener != null) {
                 mListener.onAnimationStart(null);
             }
         }
 
+        void onEnd() {
+            mProxyEndCount = 0;
+            mProxyStarted = false;
+            onAnimationsEnded();
+        }
+
         @Override
         public void onAnimationEnd(View view) {
-            if (mListener != null && ++mEnded == mAnimators.size()) {
-                mListener.onAnimationEnd(null);
+            if (++mProxyEndCount == mAnimators.size()) {
+                if (mListener != null) {
+                    mListener.onAnimationEnd(null);
+                }
+                onEnd();
             }
         }
     };
