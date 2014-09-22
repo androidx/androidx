@@ -20,11 +20,12 @@ This is an optimized layout for a screen, with the minimum set of features
 enabled.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/action_bar_root"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:fitsSystemWindows="true">
+<android.support.v7.internal.widget.FitWindowsFrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/action_bar_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
     <include layout="@layout/abc_screen_content_include" />
 
@@ -34,4 +35,5 @@ enabled.
             android:layout="@layout/abc_action_mode_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-</FrameLayout>
+
+</android.support.v7.internal.widget.FitWindowsFrameLayout>
