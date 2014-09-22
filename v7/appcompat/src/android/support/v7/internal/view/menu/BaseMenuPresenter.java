@@ -17,6 +17,7 @@
 package android.support.v7.internal.view.menu;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,8 +101,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
                     if (item != oldItem) {
                         // Don't let old states linger with new data.
                         itemView.setPressed(false);
-                        // itemView.jumpDrawablesToCurrentState();
-                        // Animation API: Not available on API < 11
+                        ViewCompat.jumpDrawablesToCurrentState(itemView);
                     }
                     if (itemView != convertView) {
                         addItemView(itemView, childIndex);
