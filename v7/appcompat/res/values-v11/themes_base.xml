@@ -295,9 +295,9 @@
         <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
-        <item name="colorPrimaryDark">@color/material_blue_grey_100</item>
-        <item name="colorPrimary">@color/material_blue_grey_50</item>
-        <item name="colorAccent">@color/material_deep_teal_500</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_light</item>
+        <item name="colorPrimary">@color/primary_material_light</item>
+        <item name="colorAccent">@color/accent_material_light</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>

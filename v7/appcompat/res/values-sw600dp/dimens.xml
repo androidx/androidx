@@ -22,9 +22,9 @@
     <integer name="abc_max_action_buttons">5</integer>
 
     <!-- Use the default title sizes on tablets. -->
-    <dimen name="abc_text_size_title_material_toolbar">@dimen/abc_text_size_title_material</dimen>
+    <dimen name="abc_text_size_title_material_toolbar">20dp</dimen>
     <!-- Use the default subtitle sizes on tablets. -->
-    <dimen name="abc_text_size_subtitle_material_toolbar">@dimen/abc_text_size_subhead_material</dimen>
+    <dimen name="abc_text_size_subtitle_material_toolbar">16dp</dimen>
     <!-- Default height of an action bar. -->
     <dimen name="abc_action_bar_default_height_material">64dp</dimen>
     <!-- Default padding of an action bar. -->
