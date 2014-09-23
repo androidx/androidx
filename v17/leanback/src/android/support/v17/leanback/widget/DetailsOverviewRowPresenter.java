@@ -257,8 +257,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         }
     }
 
-    private static float sShadowZ;
-
     private final Presenter mDetailsPresenter;
     private final ActionPresenterSelector mActionPresenterSelector;
     private OnActionClickedListener mActionClickedListener;
@@ -396,16 +394,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     private void initDetailsOverview(ViewHolder vh) {
-        final View overview = vh.mOverviewView;
+        final View overview = vh.mOverviewFrame;
         ViewGroup.LayoutParams lp = overview.getLayoutParams();
         lp.height = getCardHeight(overview.getContext());
         overview.setLayoutParams(lp);
-
-        if (sShadowZ == 0) {
-            sShadowZ = overview.getResources().getDimensionPixelSize(
-                    R.dimen.lb_details_overview_z);
-        }
-        ShadowHelper.getInstance().setZ(overview, sShadowZ);
 
         if (!getSelectEffectEnabled()) {
             vh.mOverviewFrame.setForeground(null);
@@ -477,14 +469,14 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         if (useMargin) {
             layoutParams.leftMargin = horizontalMargin;
             layoutParams.topMargin = layoutParams.bottomMargin = verticalMargin;
-            RoundedRectHelper.getInstance().setRoundedRectBackground(vh.mOverviewView, bgColor);
+            RoundedRectHelper.getInstance().setRoundedRectBackground(vh.mOverviewFrame, bgColor);
             vh.mRightPanel.setBackground(null);
             vh.mImageView.setBackground(null);
         } else {
             layoutParams.leftMargin = layoutParams.topMargin = layoutParams.bottomMargin = 0;
             vh.mRightPanel.setBackgroundColor(bgColor);
             vh.mImageView.setBackgroundColor(bgColor);
-            RoundedRectHelper.getInstance().setRoundedRectBackground(vh.mOverviewView,
+            RoundedRectHelper.getInstance().setRoundedRectBackground(vh.mOverviewFrame,
                     Color.TRANSPARENT);
         }
         if (scaleImage) {
