@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -39,10 +40,12 @@ import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
+import android.support.v7.internal.widget.FitWindowsFrameLayout;
+import android.support.v7.internal.widget.FitWindowsLinearLayout;
 import android.support.v7.internal.widget.ProgressBarCompat;
 import android.support.v7.internal.widget.TintEditText;
-import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.internal.widget.ViewStubCompat;
+import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -84,6 +87,9 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
     private ViewGroup mWindowDecor;
+    private ViewGroup mSubDecor;
+
+    private View mStatusGuard;
 
     private CharSequence mTitleToSet;
 
@@ -229,8 +235,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     final void ensureSubDecor() {
         if (!mSubDecorInstalled) {
-            View decor;
-
             if (mHasActionBar) {
                 /**
                  * This needs some explanation. As we can not use the android:theme attribute
@@ -248,10 +252,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 }
 
                 // Now inflate the view using the themed context and set it as the content view
-                decor = LayoutInflater.from(themedContext)
+                mSubDecor = (ViewGroup) LayoutInflater.from(themedContext)
                         .inflate(R.layout.abc_screen_toolbar, null);
 
-                mDecorContentParent = (DecorContentParent) decor
+                mDecorContentParent = (DecorContentParent) mSubDecor
                         .findViewById(R.id.decor_content_parent);
                 mDecorContentParent.setWindowCallback(getWindowCallback());
 
@@ -268,17 +272,36 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                     mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
                 }
             } else if (mOverlayActionMode) {
-                decor = LayoutInflater.from(mActivity)
+                mSubDecor = (ViewGroup) LayoutInflater.from(mActivity)
                         .inflate(R.layout.abc_screen_simple_overlay_action_mode, null);
+
+                final FitWindowsFrameLayout fwf = (FitWindowsFrameLayout) mSubDecor;
+                fwf.setOnFitSystemWindowsListener(
+                        new FitWindowsFrameLayout.OnFitSystemWindowsListener() {
+                            @Override
+                            public boolean onFitSystemWindows(Rect insets) {
+                                return updateStatusGuard(insets);
+                            }
+                        });
             } else {
-                decor = LayoutInflater.from(mActivity).inflate(R.layout.abc_screen_simple, null);
+                mSubDecor = (ViewGroup) LayoutInflater.from(mActivity)
+                        .inflate(R.layout.abc_screen_simple, null);
+
+                final FitWindowsLinearLayout fwl = (FitWindowsLinearLayout) mSubDecor;
+                fwl.setOnFitSystemWindowsListener(
+                        new FitWindowsLinearLayout.OnFitSystemWindowsListener() {
+                            @Override
+                            public boolean onFitSystemWindows(Rect insets) {
+                                return updateStatusGuard(insets);
+                            }
+                        });
             }
 
             // Make the decor optionally fit system windows, like the window's decor
-            ViewUtils.makeOptionalFitsSystemWindows(decor);
+            ViewUtils.makeOptionalFitsSystemWindows(mSubDecor);
 
-            // Now set the Activity's content view witht the decor
-            mActivity.superSetContentView(decor);
+            // Now set the Activity's content view with the decor
+            mActivity.superSetContentView(mSubDecor);
 
             // Change our content FrameLayout to use the android.R.id.content id.
             // Useful for fragments.
@@ -589,6 +612,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 }
                 mActionModeView.sendAccessibilityEvent(
                         AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+
+                if (mActionModeView.getParent() != null) {
+                    ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                }
             } else {
                 mActionMode = null;
             }
@@ -1188,6 +1215,66 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         }
     }
 
+    private boolean updateStatusGuard(Rect insets) {
+        boolean showStatusGuard = false;
+        // Show the status guard when the non-overlay contextual action bar is showing
+        if (mActionModeView != null) {
+            if (mActionModeView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams)
+                        mActionModeView.getLayoutParams();
+                boolean mlpChanged = false;
+                final int insetTop = insets.top;
+
+                if (mActionModeView.isShown()) {
+                    if (mOverlayActionMode) {
+                        // If we have an overlay action mode, update it's margin so that it is
+                        // displayed below the status bar
+                        if (mlp.topMargin != insetTop) {
+                            mlpChanged = true;
+                            mlp.topMargin = insetTop;
+                        }
+                    } else if (insetTop > 0) {
+                        // If we have an inline action mode and we should inset, add a status
+                        // guard view which protects the status bar and pushes the action mode down
+                        if (mStatusGuard == null) {
+                            mStatusGuard = new View(mActivity);
+                            mStatusGuard.setBackgroundColor(mActivity.getResources()
+                                    .getColor(R.color.abc_input_method_navigation_guard));
+                            mSubDecor.addView(mStatusGuard, 0,
+                                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                            insetTop));
+                        } else {
+                            ViewGroup.LayoutParams lp = mStatusGuard.getLayoutParams();
+                            if (lp.height != insetTop) {
+                                lp.height = insetTop;
+                                mStatusGuard.setLayoutParams(lp);
+                            }
+                        }
+                        showStatusGuard = true;
+                    }
+
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        // If we're running on JB or newer, consume the top inset
+                        insets.top = 0;
+                    }
+                } else {
+                    // reset top margin
+                    if (mlp.topMargin != 0) {
+                        mlpChanged = true;
+                        mlp.topMargin = 0;
+                    }
+                }
+                if (mlpChanged) {
+                    mActionModeView.setLayoutParams(mlp);
+                }
+            }
+        }
+        if (mStatusGuard != null) {
+            mStatusGuard.setVisibility(showStatusGuard ? View.VISIBLE : View.GONE);
+        }
+        return true;
+    }
+
     /**
      * Clears out internal reference when the action mode is destroyed.
      */
@@ -1217,6 +1304,9 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 mActionModePopup.dismiss();
             } else if (mActionModeView != null) {
                 mActionModeView.setVisibility(View.GONE);
+                if (mActionModeView.getParent() != null) {
+                    ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                }
             }
             if (mActionModeView != null) {
                 mActionModeView.removeAllViews();

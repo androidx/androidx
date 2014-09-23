@@ -14,7 +14,8 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.internal.widget.FitWindowsLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/action_bar_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -30,4 +31,4 @@
 
     <include layout="@layout/abc_screen_content_include" />
 
-</LinearLayout>
+</android.support.v7.internal.widget.FitWindowsLinearLayout>
