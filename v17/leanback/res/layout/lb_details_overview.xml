@@ -28,15 +28,17 @@
     <!--  Used for dimming -->
     <FrameLayout
         android:id="@+id/details_frame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/lb_details_overview_height_large"
         android:foreground="#ffffff"
+        android:elevation="@dimen/lb_details_overview_z"
         >
+
     <!-- Background is applied to this inner layout -->
     <LinearLayout
         android:id="@+id/details_overview"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/lb_details_overview_height_large"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
          >
 
