@@ -262,9 +262,9 @@
         <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
-        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
-        <item name="colorPrimary">@color/material_blue_grey_800</item>
-        <item name="colorAccent">@color/material_deep_teal_200</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
+        <item name="colorPrimary">@color/primary_material_dark</item>
+        <item name="colorAccent">@color/accent_material_dark</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
@@ -370,9 +370,9 @@
         <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
-        <item name="colorPrimaryDark">@color/material_blue_grey_100</item>
-        <item name="colorPrimary">@color/material_blue_grey_50</item>
-        <item name="colorAccent">@color/material_deep_teal_500</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_light</item>
+        <item name="colorPrimary">@color/primary_material_light</item>
+        <item name="colorAccent">@color/accent_material_light</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
@@ -398,8 +398,8 @@
         <!-- Panel attributes -->
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_dark</item>
 
-        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
-        <item name="colorPrimary">@color/material_blue_grey_800</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
+        <item name="colorPrimary">@color/primary_material_dark</item>
     </style>
 
     <!-- Menu/item attributes -->
@@ -499,9 +499,9 @@
         <item name="editTextColor">?android:attr/textColorPrimary</item>
 
         <!-- Color palette -->
-        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
-        <item name="colorPrimary">@color/material_blue_grey_800</item>
-        <item name="colorAccent">@color/material_deep_teal_200</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
+        <item name="colorPrimary">@color/primary_material_dark</item>
+        <item name="colorAccent">@color/accent_material_dark</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
