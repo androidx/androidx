@@ -233,4 +233,31 @@ public class HeadersFragment extends BaseRowFragment {
         getActivity().getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
         return getResources().getColor(outValue.resourceId);
     }
+
+    @Override
+    void onTransitionStart() {
+        super.onTransitionStart();
+        final VerticalGridView listView = getVerticalGridView();
+        if (listView != null) {
+            // Workaround accessibility event is not sent when view.isShown() is false:
+            // Prevent focus to a child view during transition and put focus on it after
+            // transition is done.
+            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+            if (listView.hasFocus()) {
+                listView.requestFocus();
+            }
+        }
+    }
+
+    @Override
+    void onTransitionEnd() {
+        final VerticalGridView listView = getVerticalGridView();
+        if (listView != null) {
+            listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+            if (listView.hasFocus()) {
+                listView.requestFocus();
+            }
+        }
+        super.onTransitionEnd();
+    }
 }
