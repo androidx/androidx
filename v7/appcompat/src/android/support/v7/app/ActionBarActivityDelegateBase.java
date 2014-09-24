@@ -123,6 +123,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     private boolean mEnableDefaultActionBarUp;
 
+    private ListMenuPresenter mToolbarListMenuPresenter;
+
     ActionBarActivityDelegateBase(ActionBarActivity activity) {
         super(activity);
     }
@@ -153,15 +155,22 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     @Override
     void setSupportActionBar(Toolbar toolbar) {
-        if (getSupportActionBar() instanceof WindowDecorActionBar) {
+        final ActionBar ab = getSupportActionBar();
+        if (ab instanceof WindowDecorActionBar) {
             throw new IllegalStateException("This Activity already has an action bar supplied " +
                     "by the window decor. Do not request Window.FEATURE_ACTION_BAR and set " +
                     "windowActionBar to false in your theme to use a Toolbar instead.");
+        } else if (ab instanceof ToolbarActionBar) {
+            // Make sure we reset the old toolbar AB's list menu presenter
+            ((ToolbarActionBar) ab).setListMenuPresenter(null);
         }
+
         // Need to make sure we give the action bar the default window callback. Otherwise multiple
         // setSupportActionBar() calls lead to memory leaks
         ToolbarActionBar tbab = new ToolbarActionBar(toolbar, mActivity.getTitle(),
-                mDefaultWindowCallback);
+                mActivity.getWindow(), mDefaultWindowCallback);
+        ensureToolbarListMenuPresenter();
+        tbab.setListMenuPresenter(mToolbarListMenuPresenter);
         setSupportActionBar(tbab);
         setWindowCallback(tbab.getWrappedWindowCallback());
         tbab.invalidateOptionsMenu();
@@ -1285,6 +1294,22 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             mStatusGuard.setVisibility(showStatusGuard ? View.VISIBLE : View.GONE);
         }
         return true;
+    }
+
+    private void ensureToolbarListMenuPresenter() {
+        if (mToolbarListMenuPresenter == null) {
+            // First resolve panelMenuListTheme
+            TypedValue outValue = new TypedValue();
+            mActivity.getTheme().resolveAttribute(R.attr.panelMenuListTheme, outValue, true);
+
+            Context context = new ContextThemeWrapper(mActivity,
+                    outValue.resourceId != 0
+                            ? outValue.resourceId
+                            : R.style.Theme_AppCompat_CompactMenu);
+
+            mToolbarListMenuPresenter = new ListMenuPresenter(context,
+                    R.layout.abc_list_menu_item_layout);
+        }
     }
 
     /**
