@@ -178,9 +178,15 @@
         <item name="android:maxHeight">@dimen/abc_action_bar_progress_bar_size</item>
     </style>
 
-    <!-- Action Bar Spinner Widgets -->
+    <!-- Spinner Widgets -->
 
-    <style name="Base.Widget.AppCompat.Spinner" parent="">
+    <style name="Base.Widget.AppCompat.Spinner" parent="android:Widget.Spinner">
+        <item name="android:background">@drawable/abc_spinner_mtrl_am_alpha</item>
+        <item name="android:dropDownSelector">?attr/listChoiceBackgroundIndicator</item>
+        <item name="android:dropDownVerticalOffset">0dip</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.Spinner.DropDown.ActionBar" parent="android:Widget">
         <item name="spinnerMode">dropdown</item>
 
         <item name="android:clickable">true</item>
@@ -196,10 +202,6 @@
         <item name="disableChildrenWhenDisabled">true</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.Spinner" parent="Widget.AppCompat.Spinner">
-        <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
-    </style>
-
     <style name="Base.Widget.AppCompat.DropDownItem.Spinner" parent="">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.DropDownItem</item>
         <item name="android:paddingLeft">8dp</item>
@@ -208,12 +210,7 @@
     </style>
 
     <style name="Base.Widget.AppCompat.ListView.DropDown" parent="android:Widget.ListView">
-        <item name="android:listSelector">@drawable/abc_list_selector_holo_dark</item>
-        <item name="android:divider">@null</item>
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.ListView.DropDown" parent="android:Widget.ListView">
-        <item name="android:listSelector">@drawable/abc_list_selector_holo_light</item>
+        <item name="android:listSelector">?attr/listChoiceBackgroundIndicator</item>
         <item name="android:divider">@null</item>
     </style>
 
@@ -233,15 +230,11 @@
     </style>
 
     <style name="Base.Widget.AppCompat.ListPopupWindow" parent="">
-        <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_dark</item>
+        <item name="android:dropDownSelector">?attr/listChoiceBackgroundIndicator</item>
         <item name="android:popupBackground">@drawable/abc_popup_background_mtrl_mult</item>
         <item name="android:dropDownVerticalOffset">0dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.ListPopupWindow" parent="Widget.AppCompat.ListPopupWindow">
-        <item name="android:dropDownSelector">@drawable/abc_list_selector_holo_light</item>
     </style>
 
     <style name="Base.Widget.AppCompat.PopupMenu.Overflow">
@@ -257,7 +250,7 @@
     <style name="Base.Widget.AppCompat.PopupMenu" parent="@style/Widget.AppCompat.ListPopupWindow">
     </style>
 
-    <style name="Base.Widget.AppCompat.Light.PopupMenu" parent="@style/Widget.AppCompat.Light.ListPopupWindow">
+    <style name="Base.Widget.AppCompat.Light.PopupMenu" parent="@style/Widget.AppCompat.ListPopupWindow">
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.PopupMenu.Large" parent="TextAppearance.AppCompat.Menu">
@@ -366,5 +359,15 @@
         <item name="drawableSize">24dp</item>
         <item name="spinBars">true</item>
     </style>
+
+    <style name="Base.Widget.AppCompat.CompoundButton.Switch" parent="android:Widget.CompoundButton">
+        <item name="track">@drawable/abc_switch_track_mtrl_alpha</item>
+        <item name="android:thumb">@drawable/abc_switch_thumb_material</item>
+        <item name="switchTextAppearance">@style/TextAppearance.AppCompat.Widget.Switch</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="showText">false</item>
+    </style>
+
+    <style name="Base.TextAppearance.AppCompat.Widget.Switch" parent="TextAppearance.AppCompat.Button" />
 
 </resources>
