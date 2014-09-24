@@ -44,6 +44,7 @@ import java.util.WeakHashMap;
 public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
+
     /** @hide */
     @IntDef({OVER_SCROLL_ALWAYS, OVER_SCROLL_IF_CONTENT_SCROLLS, OVER_SCROLL_IF_CONTENT_SCROLLS})
     @Retention(RetentionPolicy.SOURCE)
@@ -330,6 +331,7 @@ public class ViewCompat {
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
         public boolean getFitsSystemWindows(View view);
         void jumpDrawablesToCurrentState(View v);
+        void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -715,6 +717,12 @@ public class ViewCompat {
         @Override
         public void jumpDrawablesToCurrentState(View view) {
             // Do nothing; API didn't exist.
+        }
+
+        @Override
+        public void setOnApplyWindowInsetsListener(View view,
+                OnApplyWindowInsetsListener listener) {
+            // noop
         }
     }
 
@@ -1130,6 +1138,11 @@ public class ViewCompat {
         @Override
         public float getTranslationZ(View view) {
             return ViewCompatApi21.getTranslationZ(view);
+        }
+
+        @Override
+        public void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener) {
+            ViewCompatApi21.setOnApplyWindowInsetsListener(view, listener);
         }
     }
 
@@ -2238,6 +2251,15 @@ public class ViewCompat {
      */
     public static void jumpDrawablesToCurrentState(View v) {
         IMPL.jumpDrawablesToCurrentState(v);
+    }
+
+    /**
+     * Set an {@link OnApplyWindowInsetsListener} to take over the policy for applying
+     * window insets to this view. This will only take effect on devices with API 21 or above.
+     */
+    public static void setOnApplyWindowInsetsListener(View v,
+            OnApplyWindowInsetsListener listener) {
+        IMPL.setOnApplyWindowInsetsListener(v, listener);
     }
 
     // TODO: getters for various view properties (rotation, etc)
