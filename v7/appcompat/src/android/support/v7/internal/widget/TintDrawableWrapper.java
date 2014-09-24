@@ -28,12 +28,19 @@ import android.graphics.drawable.Drawable;
 class TintDrawableWrapper extends DrawableWrapper {
 
     private final ColorStateList mTintStateList;
+    private final PorterDuff.Mode mTintMode;
 
     private int mCurrentColor;
 
     public TintDrawableWrapper(Drawable drawable, ColorStateList tintStateList) {
+        this(drawable, tintStateList, TintManager.DEFAULT_MODE);
+    }
+
+    public TintDrawableWrapper(Drawable drawable, ColorStateList tintStateList,
+            PorterDuff.Mode tintMode) {
         super(drawable);
         mTintStateList = tintStateList;
+        mTintMode = tintMode;
     }
 
     @Override
@@ -53,7 +60,7 @@ class TintDrawableWrapper extends DrawableWrapper {
             final int color = mTintStateList.getColorForState(state, mCurrentColor);
             if (color != mCurrentColor) {
                 if (color != Color.TRANSPARENT) {
-                    setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                    setColorFilter(color, mTintMode);
                 } else {
                     clearColorFilter();
                 }
