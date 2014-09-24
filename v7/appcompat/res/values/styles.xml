@@ -118,16 +118,11 @@
            parent="Base.TextAppearance.AppCompat.Widget.DropDownItem">
     </style>
 
-    <style name="Widget.AppCompat.Spinner"
-           parent="Base.Widget.AppCompat.Spinner" />
+    <style name="Widget.AppCompat.Spinner" parent="Base.Widget.AppCompat.Spinner" />
 
     <style name="Widget.AppCompat.Spinner.DropDown" />
 
-    <style name="Widget.AppCompat.Spinner.DropDown.ActionBar" />
-
-    <style name="Widget.AppCompat.Light.Spinner.DropDown.ActionBar"
-           parent="Base.Widget.AppCompat.Light.Spinner">
-    </style>
+    <style name="Widget.AppCompat.Spinner.DropDown.ActionBar" parent="Base.Widget.AppCompat.Spinner.DropDown.ActionBar" />
 
     <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
     <style name="Widget.AppCompat.DropDownItem.Spinner" parent="RtlOverlay.Widget.AppCompat.Search.DropDown.Text" />
@@ -136,19 +131,11 @@
            parent="Base.Widget.AppCompat.ListView.DropDown">
     </style>
 
-    <style name="Widget.AppCompat.Light.ListView.DropDown"
-           parent="Base.Widget.AppCompat.Light.ListView.DropDown">
-    </style>
-
     <style name="TextAppearance.Widget.AppCompat.ExpandedMenu.Item"
            parent="Base.TextAppearance.Widget.AppCompat.ExpandedMenu.Item">
     </style>
 
     <style name="Widget.AppCompat.ListPopupWindow" parent="Base.Widget.AppCompat.ListPopupWindow">
-    </style>
-
-    <style name="Widget.AppCompat.Light.ListPopupWindow"
-           parent="Base.Widget.AppCompat.Light.ListPopupWindow">
     </style>
 
     <style name="Widget.AppCompat.PopupMenu.Overflow"
@@ -218,6 +205,8 @@
            parent="Base.Widget.AppCompat.EditText">
     </style>
 
+    <style name="Widget.AppCompat.CompoundButton.Switch" parent="Base.Widget.AppCompat.CompoundButton.Switch" />
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
@@ -279,6 +268,9 @@
 
     <style name="TextAppearance.AppCompat.Small.Inverse" parent="Base.TextAppearance.AppCompat.Small.Inverse" />
 
+    <style name="TextAppearance.AppCompat.Button" parent="Base.TextAppearance.AppCompat.Button" />
+
+    <style name="TextAppearance.AppCompat.Widget.Switch" parent="Base.TextAppearance.AppCompat.Widget.Switch" />
 
     <!--
          The following themes are deprecated.
@@ -296,5 +288,8 @@
     <style name="Widget.AppCompat.Light.ActionButton" parent="Widget.AppCompat.ActionButton" />
     <style name="Widget.AppCompat.Light.ActionButton.Overflow" parent="Widget.AppCompat.ActionButton.Overflow" />
     <style name="Widget.AppCompat.Light.ActionButton.CloseMode" parent="Widget.AppCompat.ActionButton.CloseMode" />
+    <style name="Widget.AppCompat.Light.Spinner.DropDown.ActionBar" parent="Widget.AppCompat.Spinner.DropDown.ActionBar" />
+    <style name="Widget.AppCompat.Light.ListView.DropDown" parent="Widget.AppCompat.ListView.DropDown" />
+    <style name="Widget.AppCompat.Light.ListPopupWindow" parent="Widget.AppCompat.ListPopupWindow" />
 
 </resources>

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.text.AllCapsTransformationMethod;
 import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.view.View;
@@ -55,28 +56,6 @@ public class CompatTextView extends TextView {
 
         if (allCaps) {
             setTransformationMethod(new AllCapsTransformationMethod(context));
-        }
-    }
-
-    /**
-     * Transforms source text into an ALL CAPS string, locale-aware.
-     */
-    private static class AllCapsTransformationMethod implements TransformationMethod {
-
-        private final Locale mLocale;
-
-        public AllCapsTransformationMethod(Context context) {
-            mLocale = context.getResources().getConfiguration().locale;
-        }
-
-        @Override
-        public CharSequence getTransformation(CharSequence source, View view) {
-            return source != null ? source.toString().toUpperCase(mLocale) : null;
-        }
-
-        @Override
-        public void onFocusChanged(View view, CharSequence charSequence, boolean b, int i,
-                Rect rect) {
         }
     }
 }
