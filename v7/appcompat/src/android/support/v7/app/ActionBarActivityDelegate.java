@@ -116,9 +116,9 @@ abstract class ActionBarActivityDelegate {
     abstract ActionBar createSupportActionBar();
 
     final ActionBar getSupportActionBar() {
-        // The Action Bar should be lazily created as mHasActionBar or mOverlayActionBar
+        // The Action Bar should be lazily created as hasActionBar
         // could change after onCreate
-        if (mHasActionBar || mOverlayActionBar) {
+        if (mHasActionBar) {
             if (mActionBar == null) {
                 mActionBar = createSupportActionBar();
             }
