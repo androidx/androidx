@@ -24,11 +24,7 @@ import android.widget.FrameLayout;
 /**
  * @hide
  */
-public class FitWindowsFrameLayout extends FrameLayout {
-
-    public interface OnFitSystemWindowsListener {
-        boolean onFitSystemWindows(Rect insets);
-    }
+public class FitWindowsFrameLayout extends FrameLayout implements FitWindowsViewGroup {
 
     private OnFitSystemWindowsListener mListener;
 
@@ -40,14 +36,15 @@ public class FitWindowsFrameLayout extends FrameLayout {
         super(context, attrs);
     }
 
+    @Override
     public void setOnFitSystemWindowsListener(OnFitSystemWindowsListener listener) {
         mListener = listener;
     }
 
     @Override
     protected boolean fitSystemWindows(Rect insets) {
-        if (mListener != null && mListener.onFitSystemWindows(insets)) {
-            return true;
+        if (mListener != null) {
+            mListener.onFitSystemWindows(insets);
         }
         return super.fitSystemWindows(insets);
     }
