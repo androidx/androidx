@@ -27,9 +27,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.VersionUtils;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.app.WindowDecorActionBar;
@@ -40,8 +43,7 @@ import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
-import android.support.v7.internal.widget.FitWindowsFrameLayout;
-import android.support.v7.internal.widget.FitWindowsLinearLayout;
+import android.support.v7.internal.widget.FitWindowsViewGroup;
 import android.support.v7.internal.widget.ProgressBarCompat;
 import android.support.v7.internal.widget.TintCheckBox;
 import android.support.v7.internal.widget.TintCheckedTextView;
@@ -275,30 +277,47 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 if (mFeatureIndeterminateProgress) {
                     mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
                 }
-            } else if (mOverlayActionMode) {
-                mSubDecor = (ViewGroup) LayoutInflater.from(mActivity)
-                        .inflate(R.layout.abc_screen_simple_overlay_action_mode, null);
-
-                final FitWindowsFrameLayout fwf = (FitWindowsFrameLayout) mSubDecor;
-                fwf.setOnFitSystemWindowsListener(
-                        new FitWindowsFrameLayout.OnFitSystemWindowsListener() {
-                            @Override
-                            public boolean onFitSystemWindows(Rect insets) {
-                                return updateStatusGuard(insets);
-                            }
-                        });
             } else {
-                mSubDecor = (ViewGroup) LayoutInflater.from(mActivity)
-                        .inflate(R.layout.abc_screen_simple, null);
+                if (mOverlayActionMode) {
+                    mSubDecor = (ViewGroup) LayoutInflater.from(mActivity)
+                            .inflate(R.layout.abc_screen_simple_overlay_action_mode, null);
+                } else {
+                    mSubDecor = (ViewGroup) LayoutInflater.from(mActivity)
+                            .inflate(R.layout.abc_screen_simple, null);
+                }
 
-                final FitWindowsLinearLayout fwl = (FitWindowsLinearLayout) mSubDecor;
-                fwl.setOnFitSystemWindowsListener(
-                        new FitWindowsLinearLayout.OnFitSystemWindowsListener() {
-                            @Override
-                            public boolean onFitSystemWindows(Rect insets) {
-                                return updateStatusGuard(insets);
-                            }
-                        });
+                if (Build.VERSION.SDK_INT >= 21) {
+                    // If we're running on L or above, we can rely on ViewCompat's
+                    // setOnApplyWindowInsetsListener
+                    ViewCompat.setOnApplyWindowInsetsListener(mSubDecor,
+                            new OnApplyWindowInsetsListener() {
+                                @Override
+                                public WindowInsetsCompat onApplyWindowInsets(View v,
+                                        WindowInsetsCompat insets) {
+                                    final int top = insets.getSystemWindowInsetTop();
+                                    final int newTop = updateStatusGuard(top);
+
+                                    if (top != newTop) {
+                                        return insets.replaceSystemWindowInsets(
+                                                insets.getSystemWindowInsetLeft(),
+                                                newTop,
+                                                insets.getSystemWindowInsetRight(),
+                                                insets.getSystemWindowInsetBottom());
+                                    } else {
+                                        return insets;
+                                    }
+                                }
+                            });
+                } else {
+                    // Else, we need to use our own FitWindowsViewGroup handling
+                    ((FitWindowsViewGroup) mSubDecor).setOnFitSystemWindowsListener(
+                            new FitWindowsViewGroup.OnFitSystemWindowsListener() {
+                                @Override
+                                public void onFitSystemWindows(Rect insets) {
+                                    insets.top = updateStatusGuard(insets.top);
+                                }
+                            });
+                }
             }
 
             // Make the decor optionally fit system windows, like the window's decor
@@ -1227,7 +1246,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         }
     }
 
-    private boolean updateStatusGuard(Rect insets) {
+    /**
+     * Updates the status bar guard
+     *
+     * @param insetTop the current top system window inset
+     * @return the new top system window inset
+     */
+    private int updateStatusGuard(int insetTop) {
         boolean showStatusGuard = false;
         // Show the status guard when the non-overlay contextual action bar is showing
         if (mActionModeView != null) {
@@ -1235,7 +1260,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams)
                         mActionModeView.getLayoutParams();
                 boolean mlpChanged = false;
-                final int insetTop = insets.top;
 
                 if (mActionModeView.isShown()) {
                     if (mOverlayActionMode) {
@@ -1265,10 +1289,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                         showStatusGuard = true;
                     }
 
-                    if (Build.VERSION.SDK_INT >= 16) {
-                        // If we're running on JB or newer, consume the top inset
-                        insets.top = 0;
-                    }
+                    // Now consume the inset
+                    insetTop = 0;
                 } else {
                     // reset top margin
                     if (mlp.topMargin != 0) {
@@ -1284,7 +1306,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         if (mStatusGuard != null) {
             mStatusGuard.setVisibility(showStatusGuard ? View.VISIBLE : View.GONE);
         }
-        return true;
+
+        return insetTop;
     }
 
     /**

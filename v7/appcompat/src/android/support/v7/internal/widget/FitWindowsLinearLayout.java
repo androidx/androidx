@@ -24,11 +24,7 @@ import android.widget.LinearLayout;
 /**
  * @hide
  */
-public class FitWindowsLinearLayout extends LinearLayout {
-
-    public interface OnFitSystemWindowsListener {
-        boolean onFitSystemWindows(Rect insets);
-    }
+public class FitWindowsLinearLayout extends LinearLayout implements FitWindowsViewGroup {
 
     private OnFitSystemWindowsListener mListener;
 
@@ -46,8 +42,8 @@ public class FitWindowsLinearLayout extends LinearLayout {
 
     @Override
     protected boolean fitSystemWindows(Rect insets) {
-        if (mListener != null && mListener.onFitSystemWindows(insets)) {
-            return true;
+        if (mListener != null) {
+            mListener.onFitSystemWindows(insets);
         }
         return super.fitSystemWindows(insets);
     }

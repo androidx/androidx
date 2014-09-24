@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.view.View;
+import android.view.WindowInsets;
 
 class ViewCompatApi21 {
 
@@ -46,5 +47,20 @@ class ViewCompatApi21 {
 
     public static float getTranslationZ(View view) {
         return view.getTranslationZ();
+    }
+
+    public static void setOnApplyWindowInsetsListener(View view,
+            final OnApplyWindowInsetsListener listener) {
+        view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+                // Wrap the framework insets in our wrapper
+                WindowInsetsCompatApi21 insets = new WindowInsetsCompatApi21(windowInsets);
+                // Give the listener a chance to use the wrapped insets
+                insets = (WindowInsetsCompatApi21) listener.onApplyWindowInsets(view, insets);
+                // Return the unwrapped insets
+                return insets.unwrap();
+            }
+        });
     }
 }
