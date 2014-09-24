@@ -26,6 +26,7 @@ import android.os.Build;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.text.AllCapsTransformationMethod;
 import android.support.v7.internal.widget.CompatTextView;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.ListPopupWindow;
@@ -88,7 +89,7 @@ public class ActionMenuItemView extends CompatTextView
         setOnClickListener(this);
         setOnLongClickListener(this);
 
-        setTransformationMethod(new AllCapsTransformationMethod());
+        setTransformationMethod(new AllCapsTransformationMethod(context));
 
         mSavedPaddingLeft = -1;
     }
@@ -326,24 +327,6 @@ public class ActionMenuItemView extends CompatTextView
                 return true;
             }
             return false;
-        }
-    }
-
-    private class AllCapsTransformationMethod implements TransformationMethod {
-        private Locale mLocale;
-
-        public AllCapsTransformationMethod() {
-            mLocale = getContext().getResources().getConfiguration().locale;
-        }
-
-        @Override
-        public CharSequence getTransformation(CharSequence source, View view) {
-            return source != null ? source.toString().toUpperCase(mLocale) : null;
-        }
-
-        @Override
-        public void onFocusChanged(View view, CharSequence sourceText, boolean focused,
-                int direction, Rect previouslyFocusedRect) {
         }
     }
 

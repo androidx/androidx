@@ -43,7 +43,11 @@ import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.FitWindowsFrameLayout;
 import android.support.v7.internal.widget.FitWindowsLinearLayout;
 import android.support.v7.internal.widget.ProgressBarCompat;
+import android.support.v7.internal.widget.TintCheckBox;
+import android.support.v7.internal.widget.TintCheckedTextView;
 import android.support.v7.internal.widget.TintEditText;
+import android.support.v7.internal.widget.TintRadioButton;
+import android.support.v7.internal.widget.TintSpinner;
 import android.support.v7.internal.widget.ViewStubCompat;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.ActionMode;
@@ -717,6 +721,14 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             switch (name) {
                 case "EditText":
                     return new TintEditText(mActivity, attrs);
+                case "Spinner":
+                    return new TintSpinner(mActivity, attrs);
+                case "CheckBox":
+                    return new TintCheckBox(mActivity, attrs);
+                case "RadioButton":
+                    return new TintRadioButton(mActivity, attrs);
+                case "CheckedTextView":
+                    return new TintCheckedTextView(mActivity, attrs);
             }
         }
         return null;

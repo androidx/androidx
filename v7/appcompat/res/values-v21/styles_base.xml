@@ -107,19 +107,12 @@
     <style name="Base.Widget.AppCompat.ListView.DropDown"
            parent="android:Widget.Material.ListView.DropDown"/>
 
-    <style name="Base.Widget.AppCompat.Light.ListView.DropDown"
-           parent="android:Widget.Material.ListView.DropDown"/>
-
     <style name="Base.Widget.AppCompat.DropDownItem.Spinner"
            parent="android:Widget.Material.DropDownItem.Spinner"/>
 
-    <style name="Base.Widget.AppCompat.Spinner" parent="android:Widget.Material.Spinner">
-        <item name="spinnerMode">dropdown</item>
-        <item name="disableChildrenWhenDisabled">true</item>
-        <item name="popupPromptView">@layout/abc_simple_dropdown_hint</item>
-    </style>
+    <style name="Base.Widget.AppCompat.Spinner" parent="android:Widget.Material.Spinner" />
 
-    <style name="Base.Widget.AppCompat.Light.Spinner" parent="android:Widget.Material.Light.Spinner">
+    <style name="Base.Widget.AppCompat.Spinner.DropDown.ActionBar" parent="android:Widget.Material.Spinner">
         <item name="spinnerMode">dropdown</item>
         <item name="disableChildrenWhenDisabled">true</item>
         <item name="popupPromptView">@layout/abc_simple_dropdown_hint</item>
@@ -130,12 +123,7 @@
 
     <!-- Popup Menu -->
 
-    <style name="Base.Widget.AppCompat.ListPopupWindow"
-           parent="android:Widget.Material.ListPopupWindow">
-    </style>
-
-    <style name="Base.Widget.AppCompat.Light.ListPopupWindow"
-           parent="android:Widget.Material.Light.ListPopupWindow">
+    <style name="Base.Widget.AppCompat.ListPopupWindow" parent="android:Widget.Material.ListPopupWindow">
     </style>
 
     <style name="Base.Widget.AppCompat.PopupMenu" parent="android:Widget.Material.PopupMenu">
