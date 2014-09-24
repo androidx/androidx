@@ -215,6 +215,9 @@
         <!-- EditText background drawable. -->
         <attr name="editTextBackground" format="reference" />
 
+        <!-- Default style for the Switch widget. -->
+        <attr name="switchStyle" format="reference" />
+
         <!-- ============================ -->
         <!-- SearchView styles and assets -->
         <!-- ============================ -->
@@ -297,6 +300,9 @@
 
         <!-- The color applied to framework buttons in their normal state. -->
         <attr name="colorButtonNormal" format="color" />
+
+        <!-- The color applied to framework switch thumbs in their normal state. -->
+        <attr name="colorSwitchThumbNormal" format="color" />
 
     </declare-styleable>
 
@@ -786,6 +792,29 @@
         <!-- Overrides the id of the inflated View with this value. -->
         <attr name="android:inflatedId" />
         <attr name="android:id" />
+    </declare-styleable>
+
+    <declare-styleable name="SwitchCompat">
+        <!-- Drawable to use as the "thumb" that switches back and forth. -->
+        <attr name="android:thumb" />
+        <!-- Drawable to use as the "track" that the switch thumb slides within. -->
+        <attr name="track" format="reference" />
+        <!-- Text to use when the switch is in the checked/"on" state. -->
+        <attr name="android:textOn" />
+        <!-- Text to use when the switch is in the unchecked/"off" state. -->
+        <attr name="android:textOff" />
+        <!-- Amount of padding on either side of text within the switch thumb. -->
+        <attr name="thumbTextPadding" format="dimension" />
+        <!-- TextAppearance style for text displayed on the switch thumb. -->
+        <attr name="switchTextAppearance" format="reference" />
+        <!-- Minimum width for the switch component -->
+        <attr name="switchMinWidth" format="dimension" />
+        <!-- Minimum space between the switch and caption text -->
+        <attr name="switchPadding" format="dimension" />
+        <!-- Whether to split the track and leave a gap for the thumb drawable. -->
+        <attr name="splitTrack" format="boolean" />
+        <!-- Whether to draw on/off text. -->
+        <attr name="showText" format="boolean" />
     </declare-styleable>
 
 </resources>
