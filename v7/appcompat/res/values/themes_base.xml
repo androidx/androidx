@@ -63,8 +63,8 @@
         <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
-        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_check_material</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_radio_material</item>
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
     </style>
 
     <style name="Platform.AppCompat.Light" parent="android:Theme.Light">
@@ -109,8 +109,8 @@
         <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
-        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_check_material</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_radio_material</item>
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
     </style>
 
     <style name="Platform.AppCompat.Dialog" parent="android:Theme.Dialog">
@@ -154,8 +154,8 @@
         <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
 
-        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_check_material</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_radio_material</item>
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
     </style>
 
     <style name="Platform.AppCompat.Light.Dialog" parent="Platform.AppCompat.Dialog" />
