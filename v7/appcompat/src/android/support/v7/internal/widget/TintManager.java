@@ -36,7 +36,8 @@ public class TintManager {
 
     private static final String TAG = TintManager.class.getSimpleName();
     private static final boolean DEBUG = false;
-    private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
+
+    static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
 
     private static final ColorFilterLruCache COLOR_FILTER_CACHE = new ColorFilterLruCache(6);
 
@@ -89,7 +90,9 @@ public class TintManager {
             R.drawable.abc_edit_text_material,
             R.drawable.abc_tab_indicator_material,
             R.drawable.abc_textfield_search_material,
-            R.drawable.abc_spinner_mtrl_am_alpha
+            R.drawable.abc_spinner_mtrl_am_alpha,
+            R.drawable.abc_btn_check_material,
+            R.drawable.abc_btn_radio_material
     };
 
     /**
@@ -105,6 +108,8 @@ public class TintManager {
     private final TypedValue mTypedValue;
 
     private ColorStateList mDefaultColorStateList;
+    private ColorStateList mSwitchThumbStateList;
+    private ColorStateList mSwitchTrackStateList;
 
     /**
      * A helper method to instantiate a {@link TintManager} and then call {@link #getDrawable(int)}.
@@ -130,6 +135,11 @@ public class TintManager {
         if (drawable != null) {
             if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
                 drawable = new TintDrawableWrapper(drawable, getDefaultColorStateList());
+            } else if (resId == R.drawable.abc_switch_track_mtrl_alpha) {
+                drawable = new TintDrawableWrapper(drawable, getSwitchTrackColorStateList());
+            } else if (resId == R.drawable.abc_switch_thumb_material) {
+                drawable = new TintDrawableWrapper(drawable, getSwitchThumbColorStateList(),
+                        PorterDuff.Mode.MULTIPLY);
             } else if (arrayContains(CONTAINERS_WITH_TINT_CHILDREN, resId)) {
                 drawable = mResources.getDrawable(resId);
             } else {
@@ -256,6 +266,56 @@ public class TintManager {
         return mDefaultColorStateList;
     }
 
+    private ColorStateList getSwitchTrackColorStateList() {
+        if (mSwitchTrackStateList == null) {
+            final int[][] states = new int[3][];
+            final int[] colors = new int[3];
+            int i = 0;
+
+            // Disabled state
+            states[i] = new int[] { -android.R.attr.state_enabled };
+            colors[i] = getThemeAttrColor(android.R.attr.colorForeground, 0.1f);
+            i++;
+
+            states[i] = new int[] { android.R.attr.state_checked };
+            colors[i] = getThemeAttrColor(R.attr.colorControlActivated, 0.3f);
+            i++;
+
+            // Default enabled state
+            states[i] = new int[0];
+            colors[i] = getThemeAttrColor(android.R.attr.colorForeground, 0.3f);
+            i++;
+
+            mSwitchTrackStateList = new ColorStateList(states, colors);
+        }
+        return mSwitchTrackStateList;
+    }
+
+    private ColorStateList getSwitchThumbColorStateList() {
+        if (mSwitchThumbStateList == null) {
+            final int[][] states = new int[3][];
+            final int[] colors = new int[3];
+            int i = 0;
+
+            // Disabled state
+            states[i] = new int[] { -android.R.attr.state_enabled };
+            colors[i] = getDisabledThemeAttrColor(R.attr.colorSwitchThumbNormal);
+            i++;
+
+            states[i] = new int[] { android.R.attr.state_checked };
+            colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
+            i++;
+
+            // Default enabled state
+            states[i] = new int[0];
+            colors[i] = getThemeAttrColor(R.attr.colorSwitchThumbNormal);
+            i++;
+
+            mSwitchThumbStateList = new ColorStateList(states, colors);
+        }
+        return mSwitchThumbStateList;
+    }
+
     int getThemeAttrColor(int attr) {
         if (mContext.getTheme().resolveAttribute(attr, mTypedValue, true)) {
             if (mTypedValue.type >= TypedValue.TYPE_FIRST_INT
@@ -268,16 +328,20 @@ public class TintManager {
         return 0;
     }
 
-    int getDisabledThemeAttrColor(int attr) {
+    int getThemeAttrColor(int attr, float alpha) {
         final int color = getThemeAttrColor(attr);
         final int originalAlpha = Color.alpha(color);
 
+        // Return the color, multiplying the original alpha by the disabled value
+        return (color & 0x00ffffff) | (Math.round(originalAlpha * alpha) << 24);
+    }
+
+    int getDisabledThemeAttrColor(int attr) {
         // Now retrieve the disabledAlpha value from the theme
         mContext.getTheme().resolveAttribute(android.R.attr.disabledAlpha, mTypedValue, true);
         final float disabledAlpha = mTypedValue.getFloat();
 
-        // Return the color, multiplying the original alpha by the disabled value
-        return (color & 0x00ffffff) | (Math.round(originalAlpha * disabledAlpha) << 24);
+        return getThemeAttrColor(attr, disabledAlpha);
     }
 
     private static class ColorFilterLruCache extends LruCache<Integer, PorterDuffColorFilter> {
