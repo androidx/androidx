@@ -1937,6 +1937,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
+        if (DEBUG) Log.v(getTag(), "onItemsAdded positionStart "
+                + positionStart + " itemCount " + itemCount);
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
                 && getChildAt(mFocusPosition) != null) {
             int pos = mFocusPosition + mFocusPositionOffset;
@@ -1949,12 +1951,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onItemsChanged(RecyclerView recyclerView) {
+        if (DEBUG) Log.v(getTag(), "onItemsChanged");
         mFocusPositionOffset = 0;
         mChildrenStates.clear();
     }
 
     @Override
     public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
+        if (DEBUG) Log.v(getTag(), "onItemsAdded positionStart "
+                + positionStart + " itemCount " + itemCount);
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
                 && getChildAt(mFocusPosition) != null) {
             int pos = mFocusPosition + mFocusPositionOffset;
@@ -1973,6 +1978,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onItemsMoved(RecyclerView recyclerView, int fromPosition, int toPosition,
             int itemCount) {
+        if (DEBUG) Log.v(getTag(), "onItemsAdded fromPosition "
+                + fromPosition + " toPosition " + toPosition);
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
                 && getChildAt(mFocusPosition) != null) {
             int pos = mFocusPosition + mFocusPositionOffset;
@@ -2570,10 +2577,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter,
             RecyclerView.Adapter newAdapter) {
-        discardLayoutInfo();
-        mFocusPosition = NO_POSITION;
-        mFocusPositionOffset = 0;
-        mChildrenStates.clear();
+        if (DEBUG) Log.v(getTag(), "onAdapterChanged to " + newAdapter);
+        if (oldAdapter != null) {
+            discardLayoutInfo();
+            mFocusPosition = NO_POSITION;
+            mFocusPositionOffset = 0;
+            mChildrenStates.clear();
+        }
         super.onAdapterChanged(oldAdapter, newAdapter);
     }
 
@@ -2644,6 +2654,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public Parcelable onSaveInstanceState() {
+        if (DEBUG) Log.v(getTag(), "onSaveInstanceState getSelection() " + getSelection());
         SavedState ss = new SavedState();
         for (int i = 0, count = getChildCount(); i < count; i++) {
             View view = getChildAt(i);
@@ -2668,5 +2679,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mChildrenStates.loadFromBundle(loadingState.childStates);
         mForceFullLayout = true;
         requestLayout();
+        if (DEBUG) Log.v(getTag(), "onRestoreInstanceState mFocusPosition " + mFocusPosition);
     }
 }
