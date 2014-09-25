@@ -18,9 +18,15 @@
 package android.support.v7.widget;
 
 import android.graphics.PointF;
+import android.os.Debug;
+import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
+import android.test.TouchUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -32,6 +38,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 
 public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest {
 
@@ -42,6 +51,208 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
     }
+
+    public void testScrollStateForSmoothScroll() throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        TestLayoutManager tlm = new TestLayoutManager();
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(tlm);
+        setRecyclerView(recyclerView);
+        getInstrumentation().waitForIdleSync();
+        assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
+        final int[] stateCnts = new int[10];
+        final CountDownLatch latch = new CountDownLatch(2);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                stateCnts[newState] = stateCnts[newState] + 1;
+                latch.countDown();
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.smoothScrollBy(0, 500);
+            }
+        });
+        latch.await(5, TimeUnit.SECONDS);
+        assertEquals(1, stateCnts[SCROLL_STATE_SETTLING]);
+        assertEquals(1, stateCnts[SCROLL_STATE_IDLE]);
+        assertEquals(0, stateCnts[SCROLL_STATE_DRAGGING]);
+    }
+
+    public void testScrollStateForSmoothScrollWithStop() throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        TestLayoutManager tlm = new TestLayoutManager();
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(tlm);
+        setRecyclerView(recyclerView);
+        getInstrumentation().waitForIdleSync();
+        assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
+        final int[] stateCnts = new int[10];
+        final CountDownLatch latch = new CountDownLatch(1);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                stateCnts[newState] = stateCnts[newState] + 1;
+                latch.countDown();
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.smoothScrollBy(0, 500);
+            }
+        });
+        latch.await(5, TimeUnit.SECONDS);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.stopScroll();
+            }
+        });
+        assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
+        assertEquals(1, stateCnts[SCROLL_STATE_SETTLING]);
+        assertEquals(1, stateCnts[SCROLL_STATE_IDLE]);
+        assertEquals(0, stateCnts[SCROLL_STATE_DRAGGING]);
+    }
+
+    public void testScrollStateForFling() throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        TestLayoutManager tlm = new TestLayoutManager();
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(tlm);
+        setRecyclerView(recyclerView);
+        getInstrumentation().waitForIdleSync();
+        assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
+        final int[] stateCnts = new int[10];
+        final CountDownLatch latch = new CountDownLatch(2);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                stateCnts[newState] = stateCnts[newState] + 1;
+                latch.countDown();
+            }
+        });
+        final ViewConfiguration vc = ViewConfiguration.get(getActivity());
+        final float fling = vc.getScaledMinimumFlingVelocity()
+                + (vc.getScaledMaximumFlingVelocity() - vc.getScaledMinimumFlingVelocity()) * .1f;
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.fling(0, Math.round(fling));
+            }
+        });
+        latch.await(5, TimeUnit.SECONDS);
+        assertEquals(1, stateCnts[SCROLL_STATE_SETTLING]);
+        assertEquals(1, stateCnts[SCROLL_STATE_IDLE]);
+        assertEquals(0, stateCnts[SCROLL_STATE_DRAGGING]);
+    }
+
+    public void testScrollStateForFlingWithStop() throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        TestLayoutManager tlm = new TestLayoutManager();
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(tlm);
+        setRecyclerView(recyclerView);
+        getInstrumentation().waitForIdleSync();
+        assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
+        final int[] stateCnts = new int[10];
+        final CountDownLatch latch = new CountDownLatch(1);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                stateCnts[newState] = stateCnts[newState] + 1;
+                latch.countDown();
+            }
+        });
+        final ViewConfiguration vc = ViewConfiguration.get(getActivity());
+        final float fling = vc.getScaledMinimumFlingVelocity()
+                + (vc.getScaledMaximumFlingVelocity() - vc.getScaledMinimumFlingVelocity()) * .8f;
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.fling(0, Math.round(fling));
+            }
+        });
+        latch.await(5, TimeUnit.SECONDS);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.stopScroll();
+            }
+        });
+        assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
+        assertEquals(1, stateCnts[SCROLL_STATE_SETTLING]);
+        assertEquals(1, stateCnts[SCROLL_STATE_IDLE]);
+        assertEquals(0, stateCnts[SCROLL_STATE_DRAGGING]);
+    }
+
+    public void testScrollStateDrag() throws Throwable {
+        TestAdapter testAdapter = new TestAdapter(10);
+        TestLayoutManager tlm = new TestLayoutManager();
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(tlm);
+        setRecyclerView(recyclerView);
+        getInstrumentation().waitForIdleSync();
+        assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
+        final int[] stateCnts = new int[10];
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                stateCnts[newState] = stateCnts[newState] + 1;
+            }
+        });
+        drag(mRecyclerView, 0, 0, 0, 500, 5);
+        assertEquals(0, stateCnts[SCROLL_STATE_SETTLING]);
+        assertEquals(1, stateCnts[SCROLL_STATE_IDLE]);
+        assertEquals(1, stateCnts[SCROLL_STATE_DRAGGING]);
+    }
+
+    public void drag(ViewGroup view, float fromX, float toX, float fromY, float toY,
+            int stepCount) throws Throwable {
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+
+        float y = fromY;
+        float x = fromX;
+
+        float yStep = (toY - fromY) / stepCount;
+        float xStep = (toX - fromX) / stepCount;
+
+        MotionEvent event = MotionEvent.obtain(downTime, eventTime,
+                MotionEvent.ACTION_DOWN, x, y, 0);
+        sendTouch(view, event);
+        for (int i = 0; i < stepCount; ++i) {
+            y += yStep;
+            x += xStep;
+            eventTime = SystemClock.uptimeMillis();
+            event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_MOVE, x, y, 0);
+            sendTouch(view, event);
+        }
+
+        eventTime = SystemClock.uptimeMillis();
+        event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, x, y, 0);
+        sendTouch(view, event);
+        getInstrumentation().waitForIdleSync();
+    }
+
+    private void sendTouch(final ViewGroup view, final MotionEvent event) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (view.onInterceptTouchEvent(event)) {
+                    view.onTouchEvent(event);
+                }
+            }
+        });
+    }
+
     public void testRecycleScrap() throws Throwable {
         recycleScrapTest(false);
         removeRecyclerView();

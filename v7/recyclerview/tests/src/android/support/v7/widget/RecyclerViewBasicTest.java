@@ -233,6 +233,28 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
             assertPrevNextAdapters("Adapters from onAdapterChanged callback should match",
                     prevAdapter, nextAdapter);
         }
+
+        @Override
+        public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                RecyclerView.State state) {
+            return dx;
+        }
+
+        @Override
+        public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                RecyclerView.State state) {
+            return dy;
+        }
+
+        @Override
+        public boolean canScrollHorizontally() {
+            return true;
+        }
+
+        @Override
+        public boolean canScrollVertically() {
+            return true;
+        }
     }
 
     static class LayoutManagerSavedState implements Parcelable {
