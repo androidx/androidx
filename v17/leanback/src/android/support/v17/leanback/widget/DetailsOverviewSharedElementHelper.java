@@ -44,7 +44,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
             return;
         }
         View overviewView = sharedElements.get(0);
-        if (mViewHolder == null || mViewHolder.mOverviewView != overviewView) {
+        if (mViewHolder == null || mViewHolder.mOverviewFrame != overviewView) {
             return;
         }
         View imageView = mViewHolder.mImageView;
@@ -73,7 +73,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
             return;
         }
         View overviewView = sharedElements.get(0);
-        if (mViewHolder == null || mViewHolder.mOverviewView != overviewView) {
+        if (mViewHolder == null || mViewHolder.mOverviewFrame != overviewView) {
             return;
         }
         // temporary let action row take focus so we defer button background animation
@@ -153,7 +153,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                             }
                         });
                     }
-                    ViewCompat.setTransitionName(mViewHolder.mOverviewView, mSharedElementName);
+                    ViewCompat.setTransitionName(mViewHolder.mOverviewFrame, mSharedElementName);
                     ActivityCompat.startPostponedEnterTransition(mActivityToRunTransition);
                     mActivityToRunTransition = null;
                     mSharedElementName = null;
