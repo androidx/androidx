@@ -18,7 +18,6 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.PointF;
@@ -29,12 +28,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
-import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
-import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.widget.EdgeEffectCompat;
@@ -743,9 +740,12 @@ public class RecyclerView extends ViewGroup {
         if (state == mScrollState) {
             return;
         }
+        if (DEBUG) {
+            Log.d(TAG, "setting scroll state to " + state + " from " + mScrollState, new Exception());
+        }
         mScrollState = state;
         if (state != SCROLL_STATE_SETTLING) {
-            stopScroll();
+            stopScrollersInternal();
         }
         if (mScrollListener != null) {
             mScrollListener.onScrollStateChanged(this, state);
@@ -1147,6 +1147,14 @@ public class RecyclerView extends ViewGroup {
      * {@link #smoothScrollBy(int, int)}, {@link #fling(int, int)} or a touch-initiated fling.
      */
     public void stopScroll() {
+        setScrollState(SCROLL_STATE_IDLE);
+        stopScrollersInternal();
+    }
+
+    /**
+     * Similar to {@link #stopScroll()} but does not set the state.
+     */
+    private void stopScrollersInternal() {
         mViewFlinger.stop();
         mLayout.stopSmoothScroller();
     }
