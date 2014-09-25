@@ -55,7 +55,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="@dimen/lb_details_overview_description_margin_bottom"
-            android:paddingTop="@dimen/lb_details_overview_description_margin_top"
             android:orientation="vertical" >
 
         <android.support.v17.leanback.widget.NonOverlappingFrameLayout
@@ -66,6 +65,9 @@
             android:gravity="top"
             android:layout_marginLeft="@dimen/lb_details_overview_description_margin_left"
             android:layout_marginRight="@dimen/lb_details_overview_description_margin_right"
+            android:paddingTop="@dimen/lb_details_overview_description_margin_top"
+            android:clipToPadding="false"
+            android:clipChildren="false"
             />
 
         <android.support.v17.leanback.widget.HorizontalGridView
