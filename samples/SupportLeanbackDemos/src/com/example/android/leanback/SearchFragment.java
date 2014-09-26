@@ -3,13 +3,17 @@ package com.example.android.leanback;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.OnItemClickedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,7 +36,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
         setTitle("Leanback Sample App");
         setSearchResultProvider(this);
-        setOnItemClickedListener(new ItemClickedListener());
+        setOnItemViewClickedListener(new ItemViewClickedListener());
     }
 
     @Override
@@ -66,9 +70,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     private void loadRows() {
         for (int i = 0; i < NUM_ROWS; ++i) {
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new StringPresenter());
-            listRowAdapter.add("Hello world");
-            listRowAdapter.add("This is a test");
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
+            listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
             HeaderItem header = new HeaderItem(i, mQuery + " results row " + i, null);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
@@ -80,12 +84,19 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             loadRows();
         }
     };
-    private final class ItemClickedListener implements OnItemClickedListener {
-        public void onItemClicked(Object item, Row row) {
-            // TODO: use a fragment transaction instead of launching a new
-            // activity
+
+    private final class ItemViewClickedListener implements OnItemViewClickedListener {
+        @Override
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                RowPresenter.ViewHolder rowViewHolder, Row row) {
             Intent intent = new Intent(getActivity(), DetailsActivity.class);
-            startActivity(intent);
+            intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
+
+            Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    getActivity(),
+                    ((ImageCardView)itemViewHolder.view).getMainImageView(),
+                    DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+            getActivity().startActivity(intent, bundle);
         }
     }
 }
