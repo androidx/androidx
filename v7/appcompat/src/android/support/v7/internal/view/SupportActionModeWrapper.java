@@ -19,6 +19,7 @@ package android.support.v7.internal.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.v4.util.SimpleArrayMap;
 import android.support.v7.internal.view.menu.MenuWrapperFactory;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -35,9 +36,11 @@ import android.view.View;
 public class SupportActionModeWrapper extends ActionMode {
 
     final MenuInflater mInflater;
+
     final android.support.v7.view.ActionMode mWrappedObject;
 
-    public SupportActionModeWrapper(Context context, android.support.v7.view.ActionMode supportActionMode) {
+    public SupportActionModeWrapper(Context context,
+            android.support.v7.view.ActionMode supportActionMode) {
         mWrappedObject = supportActionMode;
         mInflater = new SupportMenuInflater(context);
     }
@@ -134,11 +137,13 @@ public class SupportActionModeWrapper extends ActionMode {
         final Callback mWrappedCallback;
         final Context mContext;
 
-        private SupportActionModeWrapper mLastStartedActionMode;
+        final SimpleArrayMap<android.support.v7.view.ActionMode, SupportActionModeWrapper>
+                mActionModes;
 
         public CallbackWrapper(Context context, Callback supportCallback) {
             mContext = context;
             mWrappedCallback = supportCallback;
+            mActionModes = new SimpleArrayMap<>();
         }
 
         @Override
@@ -166,13 +171,17 @@ public class SupportActionModeWrapper extends ActionMode {
         }
 
         private ActionMode getActionModeWrapper(android.support.v7.view.ActionMode mode) {
-            if (mLastStartedActionMode != null && mLastStartedActionMode.mWrappedObject == mode) {
-                // If the given mode equals our wrapped mode, just return it
-                return mLastStartedActionMode;
-            } else {
-                mLastStartedActionMode = new SupportActionModeWrapper(mContext, mode);
-                return mLastStartedActionMode;
+            // First see if we already have a wrapper for this mode
+            SupportActionModeWrapper wrapper = mActionModes.get(mode);
+            if (wrapper != null) {
+                return wrapper;
             }
+
+            // If we reach here then we haven't seen this mode before. Create a new wrapper and
+            // add it to our collection
+            wrapper = new SupportActionModeWrapper(mContext, mode);
+            mActionModes.put(mode, wrapper);
+            return wrapper;
         }
     }
 }
