@@ -124,4 +124,9 @@ class RoundRectDrawable extends Drawable {
     public float getRadius() {
         return mRadius;
     }
+
+    public void setColor(int color) {
+        mPaint.setColor(color);
+        invalidateSelf();
+    }
 }

@@ -103,6 +103,11 @@ class CardViewEclairMr1 implements CardViewImpl {
     }
 
     @Override
+    public void setBackgroundColor(CardViewDelegate cardView, int color) {
+        getShadowBackground(cardView).setColor(color);
+    }
+
+    @Override
     public void setRadius(CardViewDelegate cardView, float radius) {
         getShadowBackground(cardView).setCornerRadius(radius);
         updatePadding(cardView);
