@@ -127,6 +127,9 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     private ListMenuPresenter mToolbarListMenuPresenter;
 
+    private Rect mTempRect1;
+    private Rect mTempRect2;
+
     ActionBarActivityDelegateBase(ActionBarActivity activity) {
         super(activity);
     }
@@ -1271,21 +1274,25 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 boolean mlpChanged = false;
 
                 if (mActionModeView.isShown()) {
-                    if (mOverlayActionMode) {
-                        // If we have an overlay action mode, update it's margin so that it is
-                        // displayed below the status bar
-                        if (mlp.topMargin != insetTop) {
-                            mlpChanged = true;
-                            mlp.topMargin = insetTop;
-                        }
-                    } else if (insetTop > 0) {
-                        // If we have an inline action mode and we should inset, add a status
-                        // guard view which protects the status bar and pushes the action mode down
+                    if (mTempRect1 == null) {
+                        mTempRect1 = new Rect();
+                        mTempRect2 = new Rect();
+                    }
+                    final Rect insets = mTempRect1;
+                    final Rect localInsets = mTempRect2;
+                    insets.set(0, insetTop, 0, 0);
+
+                    ViewUtils.computeFitSystemWindows(mSubDecor, insets, localInsets);
+                    final int newMargin = localInsets.top == 0 ? insetTop : 0;
+                    if (mlp.topMargin != newMargin) {
+                        mlpChanged = true;
+                        mlp.topMargin = insetTop;
+
                         if (mStatusGuard == null) {
                             mStatusGuard = new View(mActivity);
                             mStatusGuard.setBackgroundColor(mActivity.getResources()
                                     .getColor(R.color.abc_input_method_navigation_guard));
-                            mSubDecor.addView(mStatusGuard, 0,
+                            mSubDecor.addView(mStatusGuard, -1,
                                     new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                             insetTop));
                         } else {
@@ -1295,11 +1302,19 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                                 mStatusGuard.setLayoutParams(lp);
                             }
                         }
-                        showStatusGuard = true;
                     }
 
-                    // Now consume the inset
-                    insetTop = 0;
+                    // We only need to consume the insets if the action
+                    // mode is overlaid on the app content (e.g. it's
+                    // sitting in a FrameLayout, see
+                    // screen_simple_overlay_action_mode.xml).
+                    if (!mOverlayActionMode) {
+                        insetTop = 0;
+                    }
+
+                    // The action mode's theme may differ from the app, so
+                    // always show the status guard above it.
+                    showStatusGuard = true;
                 } else {
                     // reset top margin
                     if (mlp.topMargin != 0) {
