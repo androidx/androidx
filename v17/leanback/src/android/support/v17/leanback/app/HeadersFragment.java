@@ -233,4 +233,37 @@ public class HeadersFragment extends BaseRowFragment {
         getActivity().getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
         return getResources().getColor(outValue.resourceId);
     }
+
+    @Override
+    void onTransitionStart() {
+        super.onTransitionStart();
+        if (!mHeadersEnabled) {
+            // When enabling headers fragment,  the RowHeaderView gets a focus but
+            // isShown() is still false because its parent is INVSIBILE, accessibility
+            // event is not sent.
+            // Workaround is: prevent focus to a child view during transition and put
+            // focus on it after transition is done.
+            final VerticalGridView listView = getVerticalGridView();
+            if (listView != null) {
+                listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+                if (listView.hasFocus()) {
+                    listView.requestFocus();
+                }
+            }
+        }
+    }
+
+    @Override
+    void onTransitionEnd() {
+        if (mHeadersEnabled) {
+            final VerticalGridView listView = getVerticalGridView();
+            if (listView != null) {
+                listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+                if (listView.hasFocus()) {
+                    listView.requestFocus();
+                }
+            }
+        }
+        super.onTransitionEnd();
+    }
 }
