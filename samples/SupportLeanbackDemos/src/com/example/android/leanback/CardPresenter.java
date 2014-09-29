@@ -23,11 +23,14 @@ import android.view.View.MeasureSpec;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
+import java.util.Random;
+
 public class CardPresenter extends Presenter {
     private static final String TAG = "CardPresenter";
 
     private static final int IMAGE_HEIGHT_DP = 120;
 
+    private static Random sRand = new Random();
     private static int sRowHeight = 0;
     private static int sExpandedRowHeight = 0;
 
@@ -62,8 +65,17 @@ public class CardPresenter extends Presenter {
         ImageCardView v = new ImageCardView(parent.getContext());
         v.setFocusable(true);
         v.setFocusableInTouchMode(true);
-        v.setMainImageAdjustViewBounds(true);
-        v.setMainImageDimensions(LayoutParams.WRAP_CONTENT, getRowHeight(parent.getContext()));
+        // Randomly makes image view crop as a square or just stretch to original
+        // aspect ratio.
+        if (sRand.nextBoolean()) {
+            v.setMainImageAdjustViewBounds(false);
+            v.setMainImageDimensions(getRowHeight(parent.getContext()),
+                    getRowHeight(parent.getContext()));
+        } else {
+            v.setMainImageAdjustViewBounds(true);
+            v.setMainImageDimensions(LayoutParams.WRAP_CONTENT,
+                    getRowHeight(parent.getContext()));
+        }
         return new ViewHolder(v);
     }
 
