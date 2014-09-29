@@ -1892,9 +1892,20 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
          * have full height.
          *
          * @param fullSpan True if this item should traverse all spans.
+         * @see #isFullSpan()
          */
         public void setFullSpan(boolean fullSpan) {
             mFullSpan = fullSpan;
+        }
+
+        /**
+         * Returns whether this View occupies all available spans or just one.
+         *
+         * @return True if the View occupies all spans or false otherwise.
+         * @see #setFullSpan(boolean)
+         */
+        public boolean isFullSpan() {
+            return mFullSpan;
         }
 
         /**
