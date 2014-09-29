@@ -449,11 +449,7 @@ public class ToolbarActionBar extends ActionBar {
     }
 
     void populateOptionsMenu() {
-        if (!mMenuCallbackSet) {
-            mToolbar.setMenuCallbacks(new ActionMenuPresenterCallback(), new MenuBuilderCallback());
-            mMenuCallbackSet = true;
-        }
-        final Menu menu = mToolbar.getMenu();
+        final Menu menu = getMenu();
         final MenuBuilder mb = menu instanceof MenuBuilder ? (MenuBuilder) menu : null;
         if (mb != null) {
             mb.stopDispatchingItemsChanged();
@@ -537,7 +533,7 @@ public class ToolbarActionBar extends ActionBar {
 
                     if (mToolbarMenuPrepared && mWindowCallback != null) {
                         // If we are prepared, check to see if the callback wants a menu opened
-                        final Menu menu = mToolbar.getMenu();
+                        final Menu menu = getMenu();
 
                         if (mWindowCallback.onPreparePanel(featureId, null, menu) &&
                                 mWindowCallback.onMenuOpened(featureId, menu)) {
@@ -550,8 +546,16 @@ public class ToolbarActionBar extends ActionBar {
         }
     }
 
+    private Menu getMenu() {
+        if (!mMenuCallbackSet) {
+            mToolbar.setMenuCallbacks(new ActionMenuPresenterCallback(), new MenuBuilderCallback());
+            mMenuCallbackSet = true;
+        }
+        return mToolbar.getMenu();
+    }
+
     public void setListMenuPresenter(ListMenuPresenter listMenuPresenter) {
-        Menu menu = mToolbar.getMenu();
+        final Menu menu = getMenu();
 
         if (menu instanceof MenuBuilder) {
             MenuBuilder mb = (MenuBuilder) menu;
