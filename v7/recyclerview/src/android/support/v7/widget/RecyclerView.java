@@ -3982,15 +3982,67 @@ public class RecyclerView extends ViewGroup {
         private final AdapterDataObservable mObservable = new AdapterDataObservable();
         private boolean mHasStableIds = false;
 
+        /**
+         * Called when RecyclerView needs a new {@link ViewHolder} of the given type to represent
+         * an item.
+         * <p>
+         * This new ViewHolder should be constructed with a new View that can represent the items
+         * of the given type. You can either create a new View manually or inflate it from an XML
+         * layout file.
+         * <p>
+         * The new ViewHolder will be used to display items of the adapter using
+         * {@link #onBindViewHolder(ViewHolder, int)}. Since it will be re-used to display different
+         * items in the data set, it is a good idea to cache references to sub views of the View to
+         * avoid unnecessary {@link View#findViewById(int)} calls.
+         *
+         * @param parent The ViewGroup into which the new View will be added after it is bound to
+         *               an adapter position.
+         * @param viewType The view type of the new View.
+         *
+         * @return A new ViewHolder that holds a View of the given view type.
+         * @see #getItemViewType(int)
+         * @see #onBindViewHolder(ViewHolder, int)
+         */
         public abstract VH onCreateViewHolder(ViewGroup parent, int viewType);
+
+        /**
+         * Called by RecyclerView to display the data at the specified position. This method
+         * should update the contents of the {@link ViewHolder#itemView} to reflect the item at
+         * the given position.
+         * <p>
+         * Note that unlike {@link android.widget.ListView}, RecyclerView will not call this
+         * method again if the position of the item changes in the data set unless the item itself
+         * is invalidated or the new position cannot be determined. For this reason, you should only
+         * use the <code>position</code> parameter while acquiring the related data item inside this
+         * method and should not keep a copy of it. If you need the position of an item later on
+         * (e.g. in a click listener), use {@link ViewHolder#getPosition()} which will have the
+         * updated position.
+         *
+         * @param holder The ViewHolder which should be updated to represent the contents of the
+         *               item at the given position in the data set.
+         * @param position The position of the item within the adapter's data set.
+         */
         public abstract void onBindViewHolder(VH holder, int position);
 
+        /**
+         * This method calls {@link #onCreateViewHolder(ViewGroup, int)} to create a new
+         * {@link ViewHolder} and initializes some private fields to be used by RecyclerView.
+         *
+         * @see #onCreateViewHolder(ViewGroup, int)
+         */
         public final VH createViewHolder(ViewGroup parent, int viewType) {
             final VH holder = onCreateViewHolder(parent, viewType);
             holder.mItemViewType = viewType;
             return holder;
         }
 
+        /**
+         * This method internally calls {@link #onBindViewHolder(ViewHolder, int)} to update the
+         * {@link ViewHolder} contents with the item at the given position and also sets up some
+         * private fields to be used by RecyclerView.
+         *
+         * @see #onBindViewHolder(ViewHolder, int)
+         */
         public final void bindViewHolder(VH holder, int position) {
             holder.mPosition = position;
             if (hasStableIds()) {
@@ -4017,6 +4069,14 @@ public class RecyclerView extends ViewGroup {
             return 0;
         }
 
+        /**
+         * Indicates whether each item in the data set can be represented with a unique identifier
+         * of type {@link java.lang.Long}.
+         *
+         * @param hasStableIds Whether items in data set have unique identifiers or not.
+         * @see #hasStableIds()
+         * @see #getItemId(int)
+         */
         public void setHasStableIds(boolean hasStableIds) {
             if (hasObservers()) {
                 throw new IllegalStateException("Cannot change whether this adapter has " +
@@ -4037,6 +4097,11 @@ public class RecyclerView extends ViewGroup {
             return NO_ID;
         }
 
+        /**
+         * Returns the total number of items in the data set hold by the adapter.
+         *
+         * @return The total number of items in this adapter.
+         */
         public abstract int getItemCount();
 
         /**
@@ -4092,6 +4157,7 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * Returns true if one or more observers are attached to this adapter.
+         *
          * @return true if this adapter has observers
          */
         public final boolean hasObservers() {
@@ -4107,12 +4173,12 @@ public class RecyclerView extends ViewGroup {
          * "something changed"} event if more specific data is not available.</p>
          *
          * <p>Components registering observers with an adapter are responsible for
-         * {@link #unregisterAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver)
+         * {@link #unregisterAdapterDataObserver(RecyclerView.AdapterDataObserver)
          * unregistering} those observers when finished.</p>
          *
          * @param observer Observer to register
          *
-         * @see #unregisterAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver)
+         * @see #unregisterAdapterDataObserver(RecyclerView.AdapterDataObserver)
          */
         public void registerAdapterDataObserver(AdapterDataObserver observer) {
             mObservable.registerObserver(observer);
@@ -4126,7 +4192,7 @@ public class RecyclerView extends ViewGroup {
          *
          * @param observer Observer to unregister
          *
-         * @see #registerAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver)
+         * @see #registerAdapterDataObserver(RecyclerView.AdapterDataObserver)
          */
         public void unregisterAdapterDataObserver(AdapterDataObserver observer) {
             mObservable.unregisterObserver(observer);
