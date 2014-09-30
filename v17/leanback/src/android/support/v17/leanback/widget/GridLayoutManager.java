@@ -1406,7 +1406,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 LayoutParams lp = (LayoutParams) view.getLayoutParams();
                 if (lp.viewNeedsUpdate()) {
                     int index = mBaseGridView.indexOfChild(view);
-                    detachAndScrapViewAt(position, mRecycler);
+                    detachAndScrapView(view, mRecycler);
                     view = getViewForPosition(position);
                     addView(view, index);
                 }
