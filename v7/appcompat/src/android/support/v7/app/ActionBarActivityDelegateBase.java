@@ -478,8 +478,11 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 panelView = callback.onCreatePanelView(featureId);
             }
 
-            if (panelView == null) {
-                // If the callback didn't return a view, check our panels
+            if (panelView == null && mToolbarListMenuPresenter == null) {
+                // Only check our panels if the callback didn't return a view and we do not have
+                // a ListMenuPresenter for Toolbars. We check for the ListMenuPresenter because
+                // once created, Toolbar needs to control the panel view regardless of whether it
+                // has any non-action items to display.
                 PanelFeatureState st = getPanelState(featureId, true);
                 openPanel(st, null);
                 if (st.isOpen) {
