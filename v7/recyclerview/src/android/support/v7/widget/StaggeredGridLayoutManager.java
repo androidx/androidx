@@ -1332,13 +1332,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         while (layoutState.hasMore(state) && !mRemainingSpans.isEmpty()) {
             View view = layoutState.next(recycler);
             LayoutParams lp = ((LayoutParams) view.getLayoutParams());
-            if (layoutState.mLayoutDirection == LAYOUT_END) {
-                addView(view);
-            } else {
-                addView(view, 0);
-            }
-            measureChildWithDecorationsAndMargin(view, lp);
-
             final int position = lp.getViewPosition();
             final int spanIndex = mLazySpanLookup.getSpan(position);
             Span currentSpan;
@@ -1355,9 +1348,17 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 }
                 currentSpan = mSpans[spanIndex];
             }
+            // assign span before measuring so that item decorators can get updated span index
+            lp.mSpan = currentSpan;
+            if (layoutState.mLayoutDirection == LAYOUT_END) {
+                addView(view);
+            } else {
+                addView(view, 0);
+            }
+            measureChildWithDecorationsAndMargin(view, lp);
+
             final int start;
             final int end;
-
             if (layoutState.mLayoutDirection == LAYOUT_END) {
                 start = lp.mFullSpan ? getMaxEnd(defaultNewViewLine)
                         : currentSpan.getEndLine(defaultNewViewLine);
@@ -1386,8 +1387,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             if (lp.mFullSpan && layoutState.mItemDirection == ITEM_DIRECTION_HEAD && assignSpan) {
                 mLaidOutInvalidFullSpan = true;
             }
-
-            lp.mSpan = currentSpan;
             attachViewToSpans(view, lp, layoutState);
             final int otherStart = lp.mFullSpan ? mSecondaryOrientation.getStartAfterPadding()
                     : currentSpan.mIndex * mSizePerSpan +
