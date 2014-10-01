@@ -108,14 +108,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
         }
         getInstrumentation().waitForIdleSync();
+        super.tearDown();
+
         try {
             checkForMainThreadException();
         } catch (Exception e) {
             throw e;
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            throw new Exception(throwable);
         }
-        super.tearDown();
     }
 
     public Rect getDecoratedRecyclerViewBounds() {
