@@ -183,17 +183,22 @@ public class SearchBar extends RelativeLayout {
                 updateUi();
             }
         });
+        final Runnable mOnTextChangedRunnable = new Runnable() {
+            @Override
+            public void run() {
+                setSearchQueryInternal(mSearchTextEditor.getText().toString());
+            }
+        };
         mSearchTextEditor.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-                if (mSearchTextEditor.hasFocus()) {
-                    setSearchQueryInternal(charSequence.toString());
-                }
+                // while IME opens,  text editor becomes "" then restores to current value
+                mHandler.removeCallbacks(mOnTextChangedRunnable);
+                mHandler.post(mOnTextChangedRunnable);
             }
 
             @Override
@@ -292,13 +297,6 @@ public class SearchBar extends RelativeLayout {
         if (DEBUG) Log.v(TAG, "Loading soundPool");
         mSoundPool = new SoundPool(2, AudioManager.STREAM_SYSTEM, 0);
         loadSounds(mContext);
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startRecognition();
-            }
-        }, 300);
     }
 
     @Override
@@ -478,7 +476,10 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
-    private void stopRecognition() {
+    /**
+     * Stop the recognition if already started
+     */
+    public void stopRecognition() {
         if (mSpeechRecognitionCallback != null) {
             return;
         }
@@ -494,7 +495,10 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
-    private void startRecognition() {
+    /**
+     * Start the voice recognition
+     */
+    public void startRecognition() {
         if (mSpeechRecognitionCallback != null) {
             mSearchTextEditor.setText("");
             mSpeechRecognitionCallback.recognizeSpeech();
