@@ -1307,17 +1307,17 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                         }
                     }
 
+                    // The action mode's theme may differ from the app, so
+                    // always show the status guard above it.
+                    showStatusGuard = mStatusGuard != null;
+
                     // We only need to consume the insets if the action
                     // mode is overlaid on the app content (e.g. it's
                     // sitting in a FrameLayout, see
                     // screen_simple_overlay_action_mode.xml).
-                    if (!mOverlayActionMode) {
+                    if (!mOverlayActionMode && showStatusGuard) {
                         insetTop = 0;
                     }
-
-                    // The action mode's theme may differ from the app, so
-                    // always show the status guard above it.
-                    showStatusGuard = true;
                 } else {
                     // reset top margin
                     if (mlp.topMargin != 0) {
