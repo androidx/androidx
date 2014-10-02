@@ -460,8 +460,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int extraForStart;
         int extraForEnd;
         final int extra = getExtraLayoutSpace(state);
-        boolean before = state.getTargetScrollPosition() < mAnchorInfo.mPosition;
-        if (before == mShouldReverseLayout) {
+        // default extra space to the tail of the list.
+        boolean before = state.hasTargetScrollPosition() &&
+                state.getTargetScrollPosition() < mAnchorInfo.mPosition;
+        if (before == mAnchorInfo.mLayoutFromEnd) {
             extraForEnd = extra;
             extraForStart = 0;
         } else {
