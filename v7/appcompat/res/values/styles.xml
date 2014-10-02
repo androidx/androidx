@@ -120,6 +120,8 @@
 
     <style name="Widget.AppCompat.Spinner" parent="Base.Widget.AppCompat.Spinner" />
 
+    <style name="Widget.AppCompat.Spinner.Underlined" parent="Base.Widget.AppCompat.Spinner.Underlined" />
+
     <style name="Widget.AppCompat.Spinner.DropDown" />
 
     <style name="Widget.AppCompat.Spinner.DropDown.ActionBar" parent="Base.Widget.AppCompat.Spinner.DropDown.ActionBar" />
