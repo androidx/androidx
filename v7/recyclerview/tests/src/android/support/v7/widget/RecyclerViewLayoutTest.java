@@ -415,6 +415,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         if (removeItem) {
             final int newTarget = targetPosition - 10;
             testAdapter.deleteAndNotify(newTarget + 1, testAdapter.getItemCount() - newTarget - 1);
+            final CountDownLatch targetCheck = new CountDownLatch(1);
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -427,10 +428,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                             } catch (Throwable t) {
                                 postExceptionToInstrumentation(t);
                             }
+                            targetCheck.countDown();
                         }
-                    }, 200);
+                    }, 50);
                 }
             });
+            assertTrue("target position should be checked on time ",
+                    targetCheck.await(10, TimeUnit.SECONDS));
             checkForMainThreadException();
             assertTrue("on stop should be called", calledOnStop.await(30, TimeUnit.SECONDS));
             checkForMainThreadException();
@@ -524,7 +528,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         TestLayoutManager lm = new TestLayoutManager() {
             @Override
             public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-                super.onLayoutChildren(recycler, state);
                 try {
                     layoutRange(recycler, 0, state.getItemCount());
                     layoutLatch.countDown();
@@ -538,7 +541,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         RecyclerView recyclerView = new RecyclerView(getActivity());
         recyclerView.setLayoutManager(lm);
         recyclerView.setAdapter(testAdapter);
-        recyclerView.setLayoutManager(lm);
         recyclerView.setRecyclerListener(new RecyclerView.RecyclerListener() {
             @Override
             public void onViewRecycled(RecyclerView.ViewHolder holder) {
@@ -1214,10 +1216,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     adapter.addAndNotify(4, 5);
                     removeRecyclerView();
                 } catch (Throwable throwable) {
-                    throwable.printStackTrace();
+                    postExceptionToInstrumentation(throwable);
                 }
             }
         });
+        checkForMainThreadException();
 
         lm.assertNoLayout("When RV is not attached, layout should not happen", 1);
         assertEquals("No extra layout should happen when detached", prevLayoutCount,
