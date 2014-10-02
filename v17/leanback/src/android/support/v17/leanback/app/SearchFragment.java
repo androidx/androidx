@@ -64,6 +64,7 @@ public class SearchFragment extends Fragment {
     private static final String ARG_TITLE = ARG_PREFIX  + ".title";
 
     private static final int MSG_DESTROY_RECOGNIZER = 1;
+    private static final long SPEECH_RECOGNITION_DELAY_MS = 300;
 
     /**
      * Search API to be provided by the application.
@@ -105,12 +106,15 @@ public class SearchFragment extends Fragment {
     }
 
     private final DataObserver mAdapterObserver = new DataObserver() {
+        @Override
         public void onChanged() {
-            resultsChanged();
+            // onChanged() may be called multiple times e.g. the provider add
+            // rows to ArrayObjectAdapter one by one.
+            mHandler.removeCallbacks(mResultsChangedCallback);
+            mHandler.post(mResultsChangedCallback);
         }
     };
 
-    private RowsFragment mRowsFragment;
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage (Message msg) {
@@ -125,6 +129,50 @@ public class SearchFragment extends Fragment {
         }
     };
 
+    private final Runnable mResultsChangedCallback = new Runnable() {
+        @Override
+        public void run() {
+            if (DEBUG) Log.v(TAG, "adapter size " + mResultAdapter.size());
+            if (mRowsFragment != null
+                    && mRowsFragment.getAdapter() != mResultAdapter) {
+                if (!(mRowsFragment.getAdapter() == null && mResultAdapter.size() == 0)) {
+                    mRowsFragment.setAdapter(mResultAdapter);
+                }
+            }
+            mStatus |= RESULTS_CHANGED;
+            if ((mStatus & QUERY_COMPLETE) != 0) {
+                focusOnResults();
+            }
+            updateSearchBarNextFocusId();
+        }
+    };
+
+    private final Runnable mSetSearchResultProvider = new Runnable() {
+        @Override
+        public void run() {
+            // Retrieve the result adapter
+            ObjectAdapter adapter = mProvider.getResultsAdapter();
+            if (adapter != mResultAdapter) {
+                boolean firstTime = mResultAdapter == null;
+                releaseAdapter();
+                mResultAdapter = adapter;
+                if (mResultAdapter != null) {
+                    mResultAdapter.registerObserver(mAdapterObserver);
+                }
+                if (null != mRowsFragment) {
+                    // delay the first time to avoid setting a empty result adapter
+                    // until we got first onChange() from the provider
+                    if (!(firstTime && (mResultAdapter == null || mResultAdapter.size() == 0))) {
+                        mRowsFragment.setAdapter(mResultAdapter);
+                    }
+                    executePendingQuery();
+                }
+                updateSearchBarNextFocusId();
+            }
+        }
+    };
+
+    private RowsFragment mRowsFragment;
     private SearchBar mSearchBar;
     private SearchResultProvider mProvider;
     private String mPendingQuery = null;
@@ -193,7 +241,8 @@ public class SearchFragment extends Fragment {
         mSearchBar.setSearchBarListener(new SearchBar.SearchBarListener() {
             @Override
             public void onSearchQueryChange(String query) {
-                if (DEBUG) Log.v(TAG, String.format("onSearchQueryChange %s", query));
+                if (DEBUG) Log.v(TAG, String.format("onSearchQueryChange %s %s", query,
+                        null == mProvider ? "(null)" : mProvider));
                 if (null != mProvider) {
                     retrieveResults(query);
                 } else {
@@ -227,13 +276,13 @@ public class SearchFragment extends Fragment {
         }
 
         // Inject the RowsFragment in the results container
-        if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
+        if (getChildFragmentManager().findFragmentById(R.id.lb_results_frame) == null) {
             mRowsFragment = new RowsFragment();
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.lb_results_frame, mRowsFragment).commit();
         } else {
             mRowsFragment = (RowsFragment) getChildFragmentManager()
-                    .findFragmentById(R.id.browse_container_dock);
+                    .findFragmentById(R.id.lb_results_frame);
         }
         mRowsFragment.setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
             @Override
@@ -270,7 +319,15 @@ public class SearchFragment extends Fragment {
         if (null != mProvider) {
             onSetSearchResultProvider();
         }
-        updateSearchBar();
+        if (savedInstanceState == null) {
+            // auto start recognition if this is the first time create fragment
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mSearchBar.startRecognition();
+                }
+            }, SPEECH_RECOGNITION_DELAY_MS);
+        }
         return root;
     }
 
@@ -324,8 +381,10 @@ public class SearchFragment extends Fragment {
      * search query.
      */
     public void setSearchResultProvider(SearchResultProvider searchResultProvider) {
-        mProvider = searchResultProvider;
-        onSetSearchResultProvider();
+        if (mProvider != searchResultProvider) {
+            mProvider = searchResultProvider;
+            onSetSearchResultProvider();
+        }
     }
 
     /**
@@ -507,16 +566,7 @@ public class SearchFragment extends Fragment {
         focusOnResults();
     }
 
-    private void resultsChanged() {
-        if (DEBUG) Log.v(TAG, "adapter size " + mResultAdapter.size());
-        mStatus |= RESULTS_CHANGED;
-        if ((mStatus & QUERY_COMPLETE) != 0) {
-            focusOnResults();
-        }
-        updateSearchBar();
-    }
-
-    private void updateSearchBar() {
+    private void updateSearchBarNextFocusId() {
         if (mSearchBar == null || mResultAdapter == null) {
             return;
         }
@@ -539,25 +589,8 @@ public class SearchFragment extends Fragment {
     }
 
     private void onSetSearchResultProvider() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                // Retrieve the result adapter
-                ObjectAdapter adapter = mProvider.getResultsAdapter();
-                if (adapter != mResultAdapter) {
-                    releaseAdapter();
-                    mResultAdapter = adapter;
-                    if (mResultAdapter != null) {
-                        mResultAdapter.registerObserver(mAdapterObserver);
-                    }
-                }
-                if (null != mRowsFragment) {
-                    mRowsFragment.setAdapter(mResultAdapter);
-                    executePendingQuery();
-                }
-                updateSearchBar();
-            }
-        });
+        mHandler.removeCallbacks(mSetSearchResultProvider);
+        mHandler.post(mSetSearchResultProvider);
     }
 
     private void releaseAdapter() {
