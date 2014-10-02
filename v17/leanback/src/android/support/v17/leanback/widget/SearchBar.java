@@ -328,7 +328,7 @@ public class SearchBar extends RelativeLayout {
 
     private void setSearchQueryInternal(String query) {
         if (DEBUG) Log.v(TAG, "setSearchQueryInternal " + query);
-        if (query.equals(mSearchQuery)) {
+        if (TextUtils.equals(mSearchQuery, query)) {
             return;
         }
         mSearchQuery = query;
