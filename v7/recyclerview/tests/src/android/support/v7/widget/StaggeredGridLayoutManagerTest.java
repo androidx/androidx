@@ -84,6 +84,20 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mLayoutManager.setGapStrategy(config.mGapStrategy);
         mLayoutManager.setReverseLayout(config.mReverseLayout);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                    RecyclerView.State state) {
+                try {
+                    LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                    assertNotNull("view should have layout params assigned", lp);
+                    assertNotNull("when item offsets are requested, view should have a valid span",
+                            lp.mSpan);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+            }
+        });
     }
 
     public void testRTL() throws Throwable {
