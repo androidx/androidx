@@ -112,6 +112,8 @@
 
     <style name="Base.Widget.AppCompat.Spinner" parent="android:Widget.Material.Spinner" />
 
+    <style name="Base.Widget.AppCompat.Spinner.Underlined" parent="android:Widget.Material.Spinner.Underlined" />
+
     <style name="Base.Widget.AppCompat.Spinner.DropDown.ActionBar" parent="android:Widget.Material.Spinner">
         <item name="spinnerMode">dropdown</item>
         <item name="disableChildrenWhenDisabled">true</item>

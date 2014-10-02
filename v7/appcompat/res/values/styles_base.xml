@@ -186,6 +186,10 @@
         <item name="android:dropDownVerticalOffset">0dip</item>
     </style>
 
+    <style name="Base.Widget.AppCompat.Spinner.Underlined">
+        <item name="android:background">@drawable/abc_spinner_textfield_background_material</item>
+    </style>
+
     <style name="Base.Widget.AppCompat.Spinner.DropDown.ActionBar" parent="android:Widget">
         <item name="spinnerMode">dropdown</item>
 
