@@ -92,7 +92,8 @@ public class TintManager {
             R.drawable.abc_textfield_search_material,
             R.drawable.abc_spinner_mtrl_am_alpha,
             R.drawable.abc_btn_check_material,
-            R.drawable.abc_btn_radio_material
+            R.drawable.abc_btn_radio_material,
+            R.drawable.abc_spinner_textfield_background_material
     };
 
     /**
