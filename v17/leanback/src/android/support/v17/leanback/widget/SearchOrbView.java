@@ -327,7 +327,16 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         return mColors;
     }
 
-    private void enableOrbColorAnimation(boolean enable) {
+    /**
+     * Enables or disables the orb color animation.
+     * 
+     * <p>
+     * Orb color animation is handled automatically when the orb is focused/unfocused,
+     * however, an app may choose to override the current animation state, for example
+     * when an activity is paused.
+     * </p>
+     */
+    public void enableOrbColorAnimation(boolean enable) {
         if (mColorAnimator != null) {
             mColorAnimator.end();
             mColorAnimator = null;
