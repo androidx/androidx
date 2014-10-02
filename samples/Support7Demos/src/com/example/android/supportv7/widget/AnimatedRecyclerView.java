@@ -219,9 +219,7 @@ public class AnimatedRecyclerView extends Activity {
                 View v = recycler.getViewForPosition(mFirstPosition + i);
 
                 RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) v.getLayoutParams();
-                if (!mPredictiveAnimationsEnabled || !params.isItemRemoved()) {
-                    addView(v);
-                }
+                addView(v);
                 measureChild(v, 0, 0);
                 bottom = top + v.getMeasuredHeight();
                 v.layout(left, top, right, bottom);
@@ -230,7 +228,7 @@ public class AnimatedRecyclerView extends Activity {
                 }
             }
 
-            if (mAnimationsEnabled && mPredictiveAnimationsEnabled) {
+            if (mAnimationsEnabled && mPredictiveAnimationsEnabled && !state.isPreLayout()) {
                 // Now that we've run a full layout, figure out which views were not used
                 // (cached in previousViews). For each of these views, position it where
                 // it would go, according to its position relative to the visible
@@ -249,6 +247,9 @@ public class AnimatedRecyclerView extends Activity {
                         View view = previousViews.get(i).itemView;
                         RecyclerView.LayoutParams params =
                                 (RecyclerView.LayoutParams) view.getLayoutParams();
+                        if (params.isItemRemoved()) {
+                            continue;
+                        }
                         int position = params.getViewPosition();
                         int newTop;
                         if (position < mFirstPosition) {
