@@ -4966,10 +4966,10 @@ public class RecyclerView extends ViewGroup {
          * @param child Child to detach
          */
         public void detachView(View child) {
-            if (DISPATCH_TEMP_DETACH) {
-                ViewCompat.dispatchStartTemporaryDetach(child);
+            final int ind = mChildHelper.indexOfChild(child);
+            if (ind >= 0) {
+                detachViewInternal(ind, child);
             }
-            mRecyclerView.detachViewFromParent(child);
         }
 
         /**
@@ -4988,8 +4988,12 @@ public class RecyclerView extends ViewGroup {
          * @param index Index of the child to detach
          */
         public void detachViewAt(int index) {
+            detachViewInternal(index, getChildAt(index));
+        }
+
+        private void detachViewInternal(int index, View view) {
             if (DISPATCH_TEMP_DETACH) {
-                ViewCompat.dispatchStartTemporaryDetach(getChildAt(index));
+                ViewCompat.dispatchStartTemporaryDetach(view);
             }
             mChildHelper.detachViewFromParent(index);
         }
