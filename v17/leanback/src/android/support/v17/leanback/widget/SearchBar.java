@@ -599,7 +599,25 @@ public class SearchBar extends RelativeLayout {
 
             @Override
             public void onPartialResults(Bundle bundle) {
+                ArrayList<String> results = bundle.getStringArrayList(
+                        SpeechRecognizer.RESULTS_RECOGNITION);
+                if (DEBUG) Log.v(TAG, "onPartialResults " + bundle + " results " +
+                        (results == null ? results : results.size()));
+                if (results == null || results.size() == 0) {
+                    return;
+                }
 
+                // stableText: high confidence text from PartialResults, if any.
+                // Otherwise, existing stable text.
+                final String stableText = results.get(0);
+                if (DEBUG) Log.v(TAG, "onPartialResults stableText " + stableText);
+
+                // pendingText: low confidence text from PartialResults, if any.
+                // Otherwise, empty string.
+                final String pendingText = results.size() > 1 ? results.get(1) : null;
+                if (DEBUG) Log.v(TAG, "onPartialResults pendingText " + pendingText);
+
+                mSearchTextEditor.updateRecognizedText(stableText, pendingText);
             }
 
             @Override

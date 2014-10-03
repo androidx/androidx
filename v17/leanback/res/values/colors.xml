@@ -64,4 +64,5 @@
     <color name="lb_playback_controls_background_dark">#c0000000</color>
     <color name="lb_playback_controls_time_text_color">#B2EEEEEE</color>
 
+    <color name="lb_search_plate_hint_text_color">#FFCCCCCC</color>
 </resources>
