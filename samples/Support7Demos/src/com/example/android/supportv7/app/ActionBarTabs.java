@@ -36,7 +36,6 @@ public class ActionBarTabs extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.action_bar_tabs);
     }
 
@@ -61,10 +60,8 @@ public class ActionBarTabs extends ActionBarActivity {
 
         if (bar.getNavigationMode() == ActionBar.NAVIGATION_MODE_TABS) {
             bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            bar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
         } else {
             bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-            bar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         }
     }
 

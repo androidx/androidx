@@ -16,9 +16,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_search"
-          android:icon="@android:drawable/ic_menu_search"
           android:title="@string/action_bar_search"
-          app:showAsAction="ifRoom"
+          android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+          app:showAsAction="ifRoom|collapseActionView"
           app:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/action_add"
           android:icon="@android:drawable/ic_menu_add"
@@ -30,6 +30,7 @@
     <item android:id="@+id/action_share"
           android:icon="@android:drawable/ic_menu_share"
           android:title="@string/action_bar_share"
+          android:enabled="false"
           app:showAsAction="ifRoom" />
     <item android:id="@+id/action_sort"
           android:icon="@android:drawable/ic_menu_sort_by_size"
@@ -38,12 +39,10 @@
         <menu>
             <item android:id="@+id/action_sort_size"
                   android:icon="@android:drawable/ic_menu_sort_by_size"
-                  android:title="@string/action_bar_sort_size"
-                  android:onClick="onSort" />
+                  android:title="@string/action_bar_sort_size" />
             <item android:id="@+id/action_sort_alpha"
                   android:icon="@android:drawable/ic_menu_sort_alphabetically"
-                  android:title="@string/action_bar_sort_alpha"
-                  android:onClick="onSort" />
+                  android:title="@string/action_bar_sort_alpha" />
         </menu>
     </item>
 </menu>
