@@ -26,7 +26,7 @@
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"Søgeforespørgsel"</string>
     <string name="abc_searchview_description_clear" msgid="3691816814315814921">"Ryd forespørgslen"</string>
     <string name="abc_searchview_description_submit" msgid="8928215447528550784">"Indsend forespørgslen"</string>
-    <string name="abc_searchview_description_voice" msgid="893419373245838918">"Stemmesøgning"</string>
+    <string name="abc_searchview_description_voice" msgid="893419373245838918">"Talesøgning"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"Vælg en app"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Se alle"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"Del med %s"</string>
