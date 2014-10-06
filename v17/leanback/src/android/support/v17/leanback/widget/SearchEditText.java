@@ -23,7 +23,7 @@ import android.widget.EditText;
 /**
  * EditText widget that monitors keyboard changes.
  */
-public class SearchEditText extends EditText {
+public class SearchEditText extends StreamingTextView {
     private static final String TAG = SearchEditText.class.getSimpleName();
     private static final boolean DEBUG = false;
 
