@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.speech.SpeechRecognizer;
 import android.speech.RecognizerIntent;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -69,7 +68,6 @@ public class SearchFragment extends Fragment {
     private static final String ARG_QUERY =  ARG_PREFIX + ".query";
     private static final String ARG_TITLE = ARG_PREFIX  + ".title";
 
-    private static final int MSG_DESTROY_RECOGNIZER = 1;
     private static final long SPEECH_RECOGNITION_DELAY_MS = 300;
 
     /**
@@ -121,19 +119,7 @@ public class SearchFragment extends Fragment {
         }
     };
 
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage (Message msg) {
-            switch (msg.what) {
-                case MSG_DESTROY_RECOGNIZER:
-                    if (null != mSpeechRecognizer) {
-                        if (DEBUG) Log.v(TAG, "Destroy recognizer");
-                        mSpeechRecognizer.destroy();
-                        mSpeechRecognizer = null;
-                    }
-            }
-        }
-    };
+    private final Handler mHandler = new Handler();
 
     private final Runnable mResultsChangedCallback = new Runnable() {
         @Override
@@ -355,7 +341,6 @@ public class SearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer) {
-            mHandler.removeMessages(MSG_DESTROY_RECOGNIZER);
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
@@ -376,9 +361,8 @@ public class SearchFragment extends Fragment {
     private void releaseRecognizer() {
         if (null != mSpeechRecognizer) {
             mSearchBar.setSpeechRecognizer(null);
-            mSpeechRecognizer.stopListening();
-            mSpeechRecognizer.cancel();
-            mHandler.sendEmptyMessageDelayed(MSG_DESTROY_RECOGNIZER, 1000);
+            mSpeechRecognizer.destroy();
+            mSpeechRecognizer = null;
         }
     }
 
