@@ -54,6 +54,12 @@ import java.util.List;
  * {@link #setSpeechRecognitionCallback(SpeechRecognitionCallback)}, an internal speech
  * recognizer will be used for which your application will need to request
  * android.permission.RECORD_AUDIO.
+ * </p>
+ * <p>
+ * Speech recognition is automatically started when fragment is created, but
+ * not when fragment is restored from an instance state.  Activity may manually
+ * call {@link #startRecognition()}, typically in onNewIntent().
+ * </p>
  */
 public class SearchFragment extends Fragment {
     private static final String TAG = SearchFragment.class.getSimpleName();
@@ -623,5 +629,16 @@ public class SearchFragment extends Fragment {
 
     private void setSearchQuery(String query) {
         mSearchBar.setSearchQuery(query);
+    }
+
+    /**
+     * Starts speech recognition.  Typical use case is that
+     * activity receives onNewIntent() call when user clicks a MIC button.
+     * Note that SearchFragment automatically starts speech recognition
+     * at first time created, there is no need to call startRecognition()
+     * when fragment is created.
+     */
+    public void startRecognition() {
+        mSearchBar.startRecognition();
     }
 }
