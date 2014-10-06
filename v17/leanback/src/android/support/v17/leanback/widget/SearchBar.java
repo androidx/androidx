@@ -196,6 +196,10 @@ public class SearchBar extends RelativeLayout {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                // don't propagate event during speech recognition.
+                if (mRecognizing) {
+                    return;
+                }
                 // while IME opens,  text editor becomes "" then restores to current value
                 mHandler.removeCallbacks(mOnTextChangedRunnable);
                 mHandler.post(mOnTextChangedRunnable);
@@ -480,12 +484,12 @@ public class SearchBar extends RelativeLayout {
      * Stop the recognition if already started
      */
     public void stopRecognition() {
+        if (!mRecognizing) return;
+        mRecognizing = false;
         if (mSpeechRecognitionCallback != null) {
             return;
         }
         if (null == mSpeechRecognizer) return;
-        if (!mRecognizing) return;
-        mRecognizing = false;
 
         if (DEBUG) Log.v(TAG, "stopRecognition " + mListening);
         mSpeechOrbView.showNotListening();
@@ -499,14 +503,17 @@ public class SearchBar extends RelativeLayout {
      * Start the voice recognition
      */
     public void startRecognition() {
+        if (mRecognizing) return;
+        mRecognizing = true;
+        if (!hasFocus()) {
+            requestFocus();
+        }
         if (mSpeechRecognitionCallback != null) {
             mSearchTextEditor.setText("");
             mSpeechRecognitionCallback.recognizeSpeech();
             return;
         }
         if (null == mSpeechRecognizer) return;
-        if (mRecognizing) return;
-        mRecognizing = true;
 
         if (DEBUG) Log.v(TAG, "startRecognition " + mListening);
 
