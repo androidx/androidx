@@ -332,6 +332,7 @@ public class ViewCompat {
         public boolean getFitsSystemWindows(View view);
         void jumpDrawablesToCurrentState(View v);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
+        void setSaveFromParentEnabled(View view, boolean enabled);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -724,6 +725,11 @@ public class ViewCompat {
                 OnApplyWindowInsetsListener listener) {
             // noop
         }
+
+        @Override
+        public void setSaveFromParentEnabled(View v, boolean enabled) {
+            // noop
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -892,6 +898,11 @@ public class ViewCompat {
         @Override
         public void jumpDrawablesToCurrentState(View view) {
             ViewCompatHC.jumpDrawablesToCurrentState(view);
+        }
+
+        @Override
+        public void setSaveFromParentEnabled(View view, boolean enabled) {
+            ViewCompatHC.setSaveFromParentEnabled(view, enabled);
         }
     }
 
@@ -2260,6 +2271,17 @@ public class ViewCompat {
     public static void setOnApplyWindowInsetsListener(View v,
             OnApplyWindowInsetsListener listener) {
         IMPL.setOnApplyWindowInsetsListener(v, listener);
+    }
+
+    /**
+     * Controls whether the entire hierarchy under this view will save its
+     * state when a state saving traversal occurs from its parent.
+     *
+     * @param enabled Set to false to <em>disable</em> state saving, or true
+     * (the default) to allow it.
+     */
+    public static void setSaveFromParentEnabled(View v, boolean enabled) {
+        IMPL.setSaveFromParentEnabled(v, enabled);
     }
 
     // TODO: getters for various view properties (rotation, etc)
