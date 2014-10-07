@@ -94,6 +94,14 @@ public class SearchBar extends RelativeLayout {
         public void onKeyboardDismiss(String query);
     }
 
+    private AudioManager.OnAudioFocusChangeListener mAudioFocusChangeListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                @Override
+                public void onAudioFocusChange(int focusChange) {
+                    // Do nothing.
+                }
+            };
+
     private SearchBarListener mSearchBarListener;
     private SearchEditText mSearchTextEditor;
     private SpeechOrbView mSpeechOrbView;
@@ -120,6 +128,7 @@ public class SearchBar extends RelativeLayout {
     private SparseIntArray mSoundMap = new SparseIntArray();
     private boolean mRecognizing = false;
     private final Context mContext;
+    private AudioManager mAudioManager;
 
     public SearchBar(Context context) {
         this(context, null);
@@ -158,6 +167,8 @@ public class SearchBar extends RelativeLayout {
 
         mTextHintColorSpeechMode = r.getColor(R.color.lb_search_bar_hint_speech_mode);
         mTextHintColor = r.getColor(R.color.lb_search_bar_hint);
+
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
     @Override
@@ -307,7 +318,6 @@ public class SearchBar extends RelativeLayout {
     protected void onDetachedFromWindow() {
         if (DEBUG) Log.v(TAG, "Releasing SoundPool");
         mSoundPool.release();
-
         super.onDetachedFromWindow();
     }
 
@@ -414,7 +424,7 @@ public class SearchBar extends RelativeLayout {
         if (null != mSpeechRecognizer) {
             mSpeechRecognizer.setRecognitionListener(null);
             if (mListening) {
-                mSpeechRecognizer.stopListening();
+                mSpeechRecognizer.cancel();
                 mListening = false;
             }
         }
@@ -485,25 +495,32 @@ public class SearchBar extends RelativeLayout {
      * Stop the recognition if already started
      */
     public void stopRecognition() {
+        if (DEBUG) Log.v(TAG, String.format("stopRecognition (listening: %s, recognizing: %s)",
+                mListening, mRecognizing));
+
         if (!mRecognizing) return;
         mRecognizing = false;
-        if (mSpeechRecognitionCallback != null) {
-            return;
-        }
-        if (null == mSpeechRecognizer) return;
 
-        if (DEBUG) Log.v(TAG, "stopRecognition " + mListening);
+        if (mSpeechRecognitionCallback != null || null == mSpeechRecognizer) return;
+
         mSpeechOrbView.showNotListening();
 
         if (mListening) {
             mSpeechRecognizer.cancel();
+            mListening = false;
+            mAudioManager.abandonAudioFocus(mAudioFocusChangeListener);
         }
+
+        mSpeechRecognizer.setRecognitionListener(null);
     }
 
     /**
      * Start the voice recognition
      */
     public void startRecognition() {
+        if (DEBUG) Log.v(TAG, String.format("startRecognition (listening: %s, recognizing: %s)",
+                mListening, mRecognizing));
+
         if (mRecognizing) return;
         mRecognizing = true;
         if (!hasFocus()) {
@@ -516,7 +533,17 @@ public class SearchBar extends RelativeLayout {
         }
         if (null == mSpeechRecognizer) return;
 
-        if (DEBUG) Log.v(TAG, "startRecognition " + mListening);
+        // Request audio focus
+        int result = mAudioManager.requestAudioFocus(mAudioFocusChangeListener,
+                // Use the music stream.
+                AudioManager.STREAM_MUSIC,
+                // Request exclusive transient focus.
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+
+
+        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            Log.w(TAG, "Could not get audio focus");
+        }
 
         mSearchTextEditor.setText("");
 
@@ -535,7 +562,6 @@ public class SearchBar extends RelativeLayout {
             @Override
             public void onBeginningOfSpeech() {
                 if (DEBUG) Log.v(TAG, "onBeginningOfSpeech");
-                mListening = true;
             }
 
             @Override
@@ -553,33 +579,44 @@ public class SearchBar extends RelativeLayout {
             @Override
             public void onEndOfSpeech() {
                 if (DEBUG) Log.v(TAG, "onEndOfSpeech");
-                mListening = false;
             }
 
             @Override
             public void onError(int error) {
                 if (DEBUG) Log.v(TAG, "onError " + error);
                 switch (error) {
-                    case SpeechRecognizer.ERROR_NO_MATCH:
-                        Log.d(TAG, "recognizer error no match");
+                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                        Log.w(TAG, "recognizer network timeout");
+                        break;
+                    case SpeechRecognizer.ERROR_NETWORK:
+                        Log.w(TAG, "recognizer network error");
+                        break;
+                    case SpeechRecognizer.ERROR_AUDIO:
+                        Log.w(TAG, "recognizer audio error");
                         break;
                     case SpeechRecognizer.ERROR_SERVER:
-                        Log.d(TAG, "recognizer error server error");
-                        break;
-                    case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-                        Log.d(TAG, "recognizer error speech timeout");
+                        Log.w(TAG, "recognizer server error");
                         break;
                     case SpeechRecognizer.ERROR_CLIENT:
-                        Log.d(TAG, "recognizer error client error");
+                        Log.w(TAG, "recognizer client error");
+                        break;
+                    case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                        Log.w(TAG, "recognizer speech timeout");
+                        break;
+                    case SpeechRecognizer.ERROR_NO_MATCH:
+                        Log.w(TAG, "recognizer no match");
+                        break;
+                    case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                        Log.w(TAG, "recognizer busy");
+                        break;
+                    case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                        Log.w(TAG, "recognizer insufficient permissions");
                         break;
                     default:
                         Log.d(TAG, "recognizer other error");
                         break;
                 }
 
-                mSpeechRecognizer.stopListening();
-                mListening = false;
-                mSpeechRecognizer.setRecognitionListener(null);
                 stopRecognition();
                 playSearchFailure();
             }
@@ -590,17 +627,13 @@ public class SearchBar extends RelativeLayout {
                 final ArrayList<String> matches =
                         bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null) {
-                    Log.v(TAG, "Got results" + matches);
+                    if (DEBUG) Log.v(TAG, "Got results" + matches);
 
                     mSearchQuery = matches.get(0);
                     mSearchTextEditor.setText(mSearchQuery);
                     submitQuery();
-
-                    if (mListening) {
-                        mSpeechRecognizer.stopListening();
-                    }
                 }
-                mSpeechRecognizer.setRecognitionListener(null);
+
                 stopRecognition();
                 playSearchSuccess();
             }
@@ -634,10 +667,10 @@ public class SearchBar extends RelativeLayout {
             }
         });
 
+        mListening = true;
         mSpeechOrbView.showListening();
         playSearchOpen();
         mSpeechRecognizer.startListening(recognizerIntent);
-        mListening = true;
     }
 
     private void updateUi() {
