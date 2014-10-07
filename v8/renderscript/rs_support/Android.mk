@@ -133,6 +133,8 @@ LOCAL_SRC_FILES:= \
 ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
 LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP -DARCH_ARM_USE_INTRINSICS
 LOCAL_ASFLAGS_arm := -mfpu=neon
+# frameworks/rs/cpu_ref/rsCpuIntrinsics_neon_3DLUT.S does not compile.
+LOCAL_CLANG_ASFLAGS_arm += -no-integrated-as
 LOCAL_SRC_FILES_arm := \
         cpu_ref/rsCpuIntrinsics_neon_3DLUT.S \
 	cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S \
