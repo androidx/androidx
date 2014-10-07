@@ -2,15 +2,9 @@ package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Rect;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.Color;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 public class SpeechOrbView extends SearchOrbView {
     private final float mSoundLevelMaxZoom;
@@ -55,6 +49,7 @@ public class SpeechOrbView extends SearchOrbView {
         setOrbIcon(getResources().getDrawable(R.drawable.lb_ic_search_mic));
         // Assume focused
         animateOnFocus(true);
+        enableOrbColorAnimation(false);
         scaleOrbViewOnly(1f);
         mListening = true;
     }
@@ -73,13 +68,14 @@ public class SpeechOrbView extends SearchOrbView {
         // Either ease towards the target level, or decay away from it depending on whether
         // its higher or lower than the current.
         if (level > mCurrentLevel) {
-            mCurrentLevel = mCurrentLevel + ((level - mCurrentLevel) / 4);
+            mCurrentLevel = mCurrentLevel + ((level - mCurrentLevel) / 2);
         } else {
-            mCurrentLevel = (int) (mCurrentLevel * 0.95f);
+            mCurrentLevel = (int) (mCurrentLevel * 0.7f);
         }
 
         float zoom = getFocusedZoom() +
                 ((mSoundLevelMaxZoom - getFocusedZoom()) * mCurrentLevel) / 100;
+
         scaleOrbViewOnly(zoom);
     }
 }
