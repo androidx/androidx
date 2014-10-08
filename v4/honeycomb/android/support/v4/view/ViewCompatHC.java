@@ -148,4 +148,8 @@ class ViewCompatHC {
     public static void jumpDrawablesToCurrentState(View view) {
         view.jumpDrawablesToCurrentState();
     }
+
+    public static void setSaveFromParentEnabled(View view, boolean enabled) {
+        view.setSaveFromParentEnabled(enabled);
+    }
 }
