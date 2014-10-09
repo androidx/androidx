@@ -51,6 +51,7 @@ public class SpeechOrbView extends SearchOrbView {
         animateOnFocus(true);
         enableOrbColorAnimation(false);
         scaleOrbViewOnly(1f);
+        mCurrentLevel = 0;
         mListening = true;
     }
 
@@ -73,8 +74,7 @@ public class SpeechOrbView extends SearchOrbView {
             mCurrentLevel = (int) (mCurrentLevel * 0.7f);
         }
 
-        float zoom = getFocusedZoom() +
-                ((mSoundLevelMaxZoom - getFocusedZoom()) * mCurrentLevel) / 100;
+        float zoom = 1f + (mSoundLevelMaxZoom - getFocusedZoom()) * mCurrentLevel / 100;
 
         scaleOrbViewOnly(zoom);
     }
