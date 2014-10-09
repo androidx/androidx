@@ -150,6 +150,7 @@
     <string name="card_view_radius">Radius</string>
     <string name="card_view_width">Width</string>
     <string name="card_view_height">Height</string>
+    <string name="card_view_bg_color">Background</string>
     <string name="card_view_elevation">Elevation</string>
     <string name="card_view_max_elevation">Max Elevation</string>
     <string name="card_view_alpha">Alpha</string>

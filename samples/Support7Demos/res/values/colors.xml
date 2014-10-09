@@ -16,4 +16,9 @@
 
 <resources>
     <drawable name="blue">#770000ff</drawable>
+    <color name="card_yellow">#FCF0AD</color>
+    <color name="card_aquatic">#FCF0AD</color>
+    <color name="card_classic">#BAB7A9</color>
+    <color name="card_sunbrite">#F9D6AC</color>
+    <color name="card_tropical">#56C4E8</color>
 </resources>

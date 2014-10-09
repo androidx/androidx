@@ -480,7 +480,7 @@ public class AnimatedRecyclerView extends Activity {
         }
 
         public void selectItem(MyViewHolder holder, boolean selected) {
-            mSelected.put((String) holder.textView.getText(), selected);
+            mSelected.put((String) holder.textView.getText().toString(), selected);
         }
 
         public void toggleExpanded(MyViewHolder holder) {
