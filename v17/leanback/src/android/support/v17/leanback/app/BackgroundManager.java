@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.app;
 
+import java.lang.ref.WeakReference;
+
 import android.support.v17.leanback.R;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -38,6 +40,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.support.v4.content.ContextCompat;
 
 /**
  * Supports background image continuity between multiple Activities.
@@ -263,6 +266,10 @@ public final class BackgroundManager {
         private Drawable mDrawable;
         private int mCount;
 
+        /** Single cache of theme drawable */
+        private int mLastThemeDrawableId;
+        private WeakReference<Drawable> mLastThemeDrawable;
+
         private BackgroundContinuityService() {
             reset();
         }
@@ -297,12 +304,24 @@ public final class BackgroundManager {
         public void setDrawable(Drawable drawable) {
             mDrawable = drawable;
         }
+        public Drawable getThemeDrawable(Context context, int themeDrawableId) {
+            Drawable drawable = null;
+            if (mLastThemeDrawable != null && mLastThemeDrawableId == themeDrawableId) {
+                drawable = mLastThemeDrawable.get();
+            }
+            if (drawable == null) {
+                drawable = ContextCompat.getDrawable(context, themeDrawableId);
+                mLastThemeDrawable = new WeakReference<Drawable>(drawable);
+                mLastThemeDrawableId = themeDrawableId;
+            }
+            return drawable.getConstantState().newDrawable(context.getResources()).mutate();
+        }
     }
 
     private Drawable getThemeDrawable() {
         Drawable drawable = null;
         if (mThemeDrawableResourceId != -1) {
-            drawable = mContext.getResources().getDrawable(mThemeDrawableResourceId).mutate();
+            drawable = mService.getThemeDrawable(mContext, mThemeDrawableResourceId);
         }
         if (drawable == null) {
             drawable = createEmptyDrawable();
@@ -403,7 +422,7 @@ public final class BackgroundManager {
             return;
         }
 
-        mLayerDrawable = (LayerDrawable) mContext.getResources().getDrawable(
+        mLayerDrawable = (LayerDrawable) ContextCompat.getDrawable(mContext,
                 R.drawable.lb_background).mutate();
         mBgView.setBackground(mLayerDrawable);
 
