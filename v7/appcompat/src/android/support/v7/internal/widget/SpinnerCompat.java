@@ -362,7 +362,7 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
         mRecycler.clear();
 
         final int targetSdkVersion = getContext().getApplicationInfo().targetSdkVersion;
-        if (targetSdkVersion >= Build.VERSION_CODES.L
+        if (targetSdkVersion >= Build.VERSION_CODES.LOLLIPOP
                 && adapter != null && adapter.getViewTypeCount() != 1) {
             throw new IllegalArgumentException("Spinner adapter view type count must be 1");
         }
