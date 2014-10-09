@@ -16,6 +16,7 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.accessibility.AccessibilityEvent;
@@ -34,7 +35,7 @@ class ViewCompatICS {
         return v.canScrollVertically(direction);
     }
 
-    public static void setAccessibilityDelegate(View v, Object delegate) {
+    public static void setAccessibilityDelegate(View v, @Nullable Object delegate) {
         v.setAccessibilityDelegate((AccessibilityDelegate) delegate);
     }
 
