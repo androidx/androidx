@@ -118,7 +118,7 @@ public abstract class DocumentFile {
     /**
      * Create a {@link DocumentFile} representing the document tree rooted at
      * the given {@link Uri}. This is only useful on devices running
-     * {@link android.os.Build.VERSION_CODES#L} or later, and will return
+     * {@link android.os.Build.VERSION_CODES#LOLLIPOP} or later, and will return
      * {@code null} when called on earlier platform versions.
      *
      * @param treeUri the {@link Intent#getData()} from a successful
