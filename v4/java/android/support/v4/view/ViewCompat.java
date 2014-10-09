@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.util.Log;
@@ -261,7 +262,7 @@ public class ViewCompat {
         public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event);
         public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
-        public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate);
+        public void setAccessibilityDelegate(View v, @Nullable AccessibilityDelegateCompat delegate);
         public boolean hasAccessibilityDelegate(View v);
         public boolean hasTransientState(View view);
         public void setHasTransientState(View view, boolean hasTransientState);
@@ -930,8 +931,10 @@ public class ViewCompat {
             ViewCompatICS.onInitializeAccessibilityNodeInfo(v, info.getInfo());
         }
         @Override
-        public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
-            ViewCompatICS.setAccessibilityDelegate(v, delegate.getBridge());
+        public void setAccessibilityDelegate(View v,
+                @Nullable AccessibilityDelegateCompat delegate) {
+            ViewCompatICS.setAccessibilityDelegate(v,
+                    delegate == null ? null : delegate.getBridge());
         }
 
         @Override
