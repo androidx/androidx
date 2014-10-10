@@ -557,6 +557,8 @@ public class SearchBar extends RelativeLayout {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
                 if (DEBUG) Log.v(TAG, "onReadyForSpeech");
+                mSpeechOrbView.showListening();
+                playSearchOpen();
             }
 
             @Override
@@ -668,8 +670,6 @@ public class SearchBar extends RelativeLayout {
         });
 
         mListening = true;
-        mSpeechOrbView.showListening();
-        playSearchOpen();
         mSpeechRecognizer.startListening(recognizerIntent);
     }
 
