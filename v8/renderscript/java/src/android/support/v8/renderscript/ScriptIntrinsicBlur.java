@@ -46,10 +46,6 @@ public class ScriptIntrinsicBlur extends ScriptIntrinsic {
      * @return ScriptIntrinsicBlur
      */
     public static ScriptIntrinsicBlur create(RenderScript rs, Element e) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) rs;
-            return ScriptIntrinsicBlurThunker.create(rs, e);
-        }
         if ((!e.isCompatible(Element.U8_4(rs))) && (!e.isCompatible(Element.U8(rs)))) {
             throw new RSIllegalArgumentException("Unsuported element type.");
         }

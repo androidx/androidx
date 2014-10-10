@@ -35,10 +35,6 @@ public class ScriptIntrinsicBlend extends ScriptIntrinsic {
      * @return ScriptIntrinsicBlend
      */
     public static ScriptIntrinsicBlend create(RenderScript rs, Element e) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) rs;
-            return ScriptIntrinsicBlendThunker.create(rs, e);
-        }
         // 7 comes from RS_SCRIPT_INTRINSIC_ID_BLEND in rsDefines.h
         int id = rs.nScriptIntrinsicCreate(7, e.getID(rs));
         return new ScriptIntrinsicBlend(id, rs);
