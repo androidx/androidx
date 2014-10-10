@@ -7773,7 +7773,7 @@ public class RecyclerView extends ViewGroup {
         private long mMoveDuration = 250;
         private long mChangeDuration = 250;
 
-        private boolean mSupportsChangeAnimations = false;
+        private boolean mSupportsChangeAnimations = true;
 
         /**
          * Gets the current duration for which all move animations will run.
@@ -7858,12 +7858,11 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * Sets whether this ItemAnimator supports animations of item change events.
-         * By default, ItemAnimator only supports animations when items are added or removed.
-         * By setting this property to true, actions on the data set which change the
-         * contents of items may also be animated. What those animations are is left
+         * If you set this property to false, actions on the data set which change the
+         * contents of items will not be animated. What those animations are is left
          * up to the discretion of the ItemAnimator subclass, in its
          * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} implementation.
-         * The value of this property is false by default.
+         * The value of this property is true by default.
          *
          * @see Adapter#notifyItemChanged(int)
          * @see Adapter#notifyItemRangeChanged(int, int)
