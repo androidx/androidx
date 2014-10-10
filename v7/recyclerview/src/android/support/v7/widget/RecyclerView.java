@@ -3486,8 +3486,7 @@ public class RecyclerView extends ViewGroup {
                 Log.d(TAG, "CachedViewHolder to be recycled(if recycleable): " + viewHolder);
             }
             if (viewHolder.isRecyclable()) {
-                getRecycledViewPool().putRecycledView(viewHolder);
-                dispatchViewRecycled(viewHolder);
+                addViewHolderToRecycledViewPool(viewHolder);
                 mCachedViews.remove(cachedViewIndex);
                 return true;
             }
@@ -3511,6 +3510,7 @@ public class RecyclerView extends ViewGroup {
                 throw new IllegalArgumentException("Trying to recycle an ignored view holder. You"
                         + " should first call stopIgnoringView(view) before calling recycle.");
             }
+
             if (holder.isRecyclable()) {
                 boolean cached = false;
                 if (!holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved()) &&
@@ -3529,8 +3529,7 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
                 if (!cached) {
-                    getRecycledViewPool().putRecycledView(holder);
-                    dispatchViewRecycled(holder);
+                    addViewHolderToRecycledViewPool(holder);
                 }
             } else if (DEBUG) {
                 Log.d(TAG, "trying to recycle a non-recycleable holder. Hopefully, it will "
@@ -3539,6 +3538,12 @@ public class RecyclerView extends ViewGroup {
             // even if the holder is not removed, we still call this method so that it is removed
             // from view holder lists.
             mState.onViewRecycled(holder);
+        }
+
+        void addViewHolderToRecycledViewPool(ViewHolder holder) {
+            ViewCompat.setAccessibilityDelegate(holder.itemView, null);
+            getRecycledViewPool().putRecycledView(holder);
+            dispatchViewRecycled(holder);
         }
 
         /**

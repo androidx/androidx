@@ -55,6 +55,7 @@ def setupDependencies(String configName, SourceSet previousSourceSet) {
 
 dependencies {
     compile project(':support-annotations')
+    donutCompile project(':support-annotations')
 
     // add the internal implementation as a dependency.
     // this is not enough to make the regular compileJava task
