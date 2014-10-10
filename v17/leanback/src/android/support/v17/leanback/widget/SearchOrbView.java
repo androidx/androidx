@@ -60,7 +60,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         /**
          * Constructs a color set using the given color for the search orb.
          * Other colors are provided by the framework.
-         * 
+         *
          * @param color The main search orb color.
          */
         public Colors(int color) {
@@ -70,7 +70,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         /**
          * Constructs a color set using the given colors for the search orb.
          * Other colors are provided by the framework.
-         * 
+         *
          * @param color The main search orb color.
          * @param brightColor A brighter version of the search orb used for animation.
          */
@@ -195,7 +195,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         setFocusable(true);
         setClipChildren(false);
         setOnClickListener(this);
-
+        setSoundEffectsEnabled(false);
         setSearchOrbZ(0);
 
         // Icon has no background, but must be on top of the search orb view
@@ -281,7 +281,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     /**
      * Sets the background color of the search orb.
      * Other colors will be provided by the framework.
-     * 
+     *
      * @param color the RGBA color
      */
     public void setOrbColor(int color) {
@@ -329,7 +329,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
     /**
      * Enables or disables the orb color animation.
-     * 
+     *
      * <p>
      * Orb color animation is handled automatically when the orb is focused/unfocused,
      * however, an app may choose to override the current animation state, for example
