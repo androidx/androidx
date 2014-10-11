@@ -189,10 +189,6 @@
            parent="Base.Widget.AppCompat.AutoCompleteTextView">
     </style>
 
-    <style name="Widget.AppCompat.Light.AutoCompleteTextView"
-           parent="Base.Widget.AppCompat.Light.AutoCompleteTextView">
-    </style>
-
     <style name="Widget.AppCompat.ActivityChooserView"
            parent="Base.Widget.AppCompat.ActivityChooserView">
     </style>
@@ -293,5 +289,6 @@
     <style name="Widget.AppCompat.Light.Spinner.DropDown.ActionBar" parent="Widget.AppCompat.Spinner.DropDown.ActionBar" />
     <style name="Widget.AppCompat.Light.ListView.DropDown" parent="Widget.AppCompat.ListView.DropDown" />
     <style name="Widget.AppCompat.Light.ListPopupWindow" parent="Widget.AppCompat.ListPopupWindow" />
+    <style name="Widget.AppCompat.Light.AutoCompleteTextView" parent="Widget.AppCompat.AutoCompleteTextView" />
 
 </resources>
