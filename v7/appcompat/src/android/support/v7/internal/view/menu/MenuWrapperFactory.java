@@ -16,12 +16,14 @@
 
 package android.support.v7.internal.view.menu;
 
+import android.content.Context;
 import android.os.Build;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.internal.view.SupportSubMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 
 /**
  * @hide
@@ -30,43 +32,25 @@ public final class MenuWrapperFactory {
     private MenuWrapperFactory() {
     }
 
-    public static Menu createMenuWrapper(android.view.Menu frameworkMenu) {
+    public static Menu wrapSupportMenu(Context context, SupportMenu supportMenu) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return new MenuWrapperICS(frameworkMenu);
-        }
-        return frameworkMenu;
-    }
-
-    public static MenuItem createMenuItemWrapper(android.view.MenuItem frameworkMenuItem) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return new MenuItemWrapperJB(frameworkMenuItem);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return new MenuItemWrapperICS(frameworkMenuItem);
-        }
-        return frameworkMenuItem;
-    }
-
-    public static SupportMenu createSupportMenuWrapper(android.view.Menu frameworkMenu) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return new MenuWrapperICS(frameworkMenu);
+            return new MenuWrapperICS(context, supportMenu);
         }
         throw new UnsupportedOperationException();
     }
 
-    public static SupportSubMenu createSupportSubMenuWrapper(
-            android.view.SubMenu frameworkSubMenu) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return new SubMenuWrapperICS(frameworkSubMenu);
+    public static MenuItem wrapSupportMenuItem(Context context, SupportMenuItem supportMenuItem) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return new MenuItemWrapperJB(context, supportMenuItem);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new MenuItemWrapperICS(context, supportMenuItem);
         }
         throw new UnsupportedOperationException();
     }
 
-    public static SupportMenuItem createSupportMenuItemWrapper(
-            android.view.MenuItem frameworkMenuItem) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return new MenuItemWrapperJB(frameworkMenuItem);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return new MenuItemWrapperICS(frameworkMenuItem);
+    public static SubMenu wrapSupportSubMenu(Context context, SupportSubMenu supportSubMenu) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new SubMenuWrapperICS(context, supportSubMenu);
         }
         throw new UnsupportedOperationException();
     }

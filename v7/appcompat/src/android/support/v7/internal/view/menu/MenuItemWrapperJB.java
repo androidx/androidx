@@ -16,27 +16,36 @@
 
 package android.support.v7.internal.view.menu;
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.os.Build;
+import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.view.MenuItem;
 import android.view.View;
 
+/**
+ * Wraps a support {@link SupportMenuItem} as a framework {@link android.view.MenuItem}
+ * @hide
+ */
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class MenuItemWrapperJB extends MenuItemWrapperICS {
-    MenuItemWrapperJB(android.view.MenuItem object) {
-        // We do not want to use the emulation of Action Provider visibility override
-        super(object, false);
+
+    MenuItemWrapperJB(Context context, SupportMenuItem object) {
+        super(context, object);
     }
 
     @Override
-    ActionProviderWrapper createActionProviderWrapper(ActionProvider provider) {
-        return new ActionProviderWrapperJB(provider);
+    ActionProviderWrapper createActionProviderWrapper(android.view.ActionProvider provider) {
+        return new ActionProviderWrapperJB(mContext, provider);
     }
 
     class ActionProviderWrapperJB extends ActionProviderWrapper
-            implements ActionProvider.VisibilityListener {
-        android.view.ActionProvider.VisibilityListener mListener;
+            implements android.view.ActionProvider.VisibilityListener {
+        ActionProvider.VisibilityListener mListener;
 
-        public ActionProviderWrapperJB(ActionProvider inner) {
-            super(inner);
+        public ActionProviderWrapperJB(Context context, android.view.ActionProvider inner) {
+            super(context, inner);
         }
 
         @Override
@@ -60,8 +69,7 @@ class MenuItemWrapperJB extends MenuItemWrapperICS {
         }
 
         @Override
-        public void setVisibilityListener(
-                android.view.ActionProvider.VisibilityListener listener) {
+        public void setVisibilityListener(ActionProvider.VisibilityListener listener) {
             mListener = listener;
             mInner.setVisibilityListener(listener != null ? this : null);
         }
