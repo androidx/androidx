@@ -26,7 +26,6 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
@@ -108,6 +107,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private double mWidth;
     private double mHeight;
     private Animation mFinishAnimation;
+    private boolean mStopped = true;
 
     public MaterialProgressDrawable(Context context, View parent) {
         mParent = parent;
@@ -269,6 +269,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
 
     @Override
     public void start() {
+        mStopped = false;
         mAnimation.reset();
         mRing.storeOriginals();
         // Already showing some part of the ring
@@ -283,6 +284,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
 
     @Override
     public void stop() {
+        mStopped = true;
         mParent.clearAnimation();
         setRotation(0);
         mRing.setShowArrow(false);
@@ -321,7 +323,9 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
                 ring.goToNextColor();
                 ring.storeOriginals();
                 ring.setShowArrow(false);
-                mParent.startAnimation(mAnimation);
+                if (!mStopped) {
+                    mParent.startAnimation(mAnimation);
+                }
             }
 
             @Override
