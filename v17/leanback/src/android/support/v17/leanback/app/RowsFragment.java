@@ -487,7 +487,7 @@ public class RowsFragment extends BaseRowFragment {
 
     private void updateRowScaling(boolean scale) {
         VerticalGridView view = getVerticalGridView();
-        view.setClipChildren(!mRowScaleEnabled && scale);
+        ((ViewGroup) view.getParent()).setClipChildren(!mRowScaleEnabled && scale);
         view.setPrimaryOverReach((mRowScaleEnabled && scale) ? 1f / mRowScaleFactor : 1f);
 
         final float scaleFactor = (mRowScaleEnabled && scale) ? mRowScaleFactor : 1f;

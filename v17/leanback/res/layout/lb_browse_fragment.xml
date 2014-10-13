@@ -21,7 +21,7 @@
 
     <!-- BrowseFrameLayout serves as root of transition and manages switch between
          left and right-->
-    <android.support.v17.leanback.app.BrowseFrameLayout
+    <android.support.v17.leanback.widget.BrowseFrameLayout
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:descendantFocusability="afterDescendants"
@@ -29,11 +29,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-        <android.support.v17.leanback.app.BrowseRowsFrameLayout
+        <android.support.v17.leanback.widget.BrowseRowsFrameLayout
             android:id="@+id/browse_container_dock"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipChildren="false" />
+            android:layout_height="match_parent" />
 
         <!-- Padding needed for shadow -->
         <FrameLayout
@@ -43,5 +42,5 @@
             android:clipToPadding="false"
             android:paddingEnd="50dp" />
         <include layout="@layout/lb_browse_title" />
-    </android.support.v17.leanback.app.BrowseFrameLayout>
+    </android.support.v17.leanback.widget.BrowseFrameLayout>
 </FrameLayout>
