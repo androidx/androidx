@@ -73,9 +73,14 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mRecyclerView.swapAdapter(adapter, removeAndRecycleExistingViews);
+                try {
+                    mRecyclerView.swapAdapter(adapter, removeAndRecycleExistingViews);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
             }
         });
+        checkForMainThreadException();
     }
 
     void postExceptionToInstrumentation(Throwable t) {
