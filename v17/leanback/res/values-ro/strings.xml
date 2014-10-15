@@ -21,5 +21,5 @@ limitations under the License.
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Căutați"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Rostiți pentru a căuta"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Căutați <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Vorbiți pentru a căuta <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Vorbiți pentru a căuta în <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
 </resources>
