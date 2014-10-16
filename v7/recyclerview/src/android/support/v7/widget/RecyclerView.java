@@ -528,6 +528,8 @@ public class RecyclerView extends ViewGroup {
                 mLayout.removeAndRecycleAllViews(mRecycler);
                 mLayout.removeAndRecycleScrapInt(mRecycler, true);
             }
+            // we should clear it here before adapters are swapped to ensure correct callbacks.
+            mRecycler.clear();
         }
         mAdapterHelper.reset();
         final Adapter oldAdapter = mAdapter;
