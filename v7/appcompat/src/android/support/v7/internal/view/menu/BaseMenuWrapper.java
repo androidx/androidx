@@ -16,58 +16,69 @@
 
 package android.support.v7.internal.view.menu;
 
+import android.content.Context;
 import android.support.v4.internal.view.SupportMenuItem;
+import android.support.v4.internal.view.SupportSubMenu;
+import android.support.v4.util.ArrayMap;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
 
-    private HashMap<MenuItem, SupportMenuItem> mMenuItems;
+    final Context mContext;
 
-    private HashMap<SubMenu, SubMenu> mSubMenus;
+    private Map<SupportMenuItem, MenuItem> mMenuItems;
+    private Map<SupportSubMenu, SubMenu> mSubMenus;
 
-    BaseMenuWrapper(T object) {
+    BaseMenuWrapper(Context context, T object) {
         super(object);
+        mContext = context;
     }
 
-    final SupportMenuItem getMenuItemWrapper(android.view.MenuItem frameworkItem) {
-        if (frameworkItem != null) {
-            // Instantiate HashMap if null
+    final MenuItem getMenuItemWrapper(final MenuItem menuItem) {
+        if (menuItem instanceof SupportMenuItem) {
+            final SupportMenuItem supportMenuItem = (SupportMenuItem) menuItem;
+
+            // Instantiate Map if null
             if (mMenuItems == null) {
-                mMenuItems = new HashMap<MenuItem, SupportMenuItem>();
+                mMenuItems = new ArrayMap<>();
             }
 
-            SupportMenuItem compatItem = mMenuItems.get(frameworkItem);
+            // First check if we already have a wrapper for this item
+            MenuItem wrappedItem = mMenuItems.get(menuItem);
 
-            if (null == compatItem) {
-                compatItem = MenuWrapperFactory.createSupportMenuItemWrapper(frameworkItem);
-                mMenuItems.put(frameworkItem, compatItem);
+            if (null == wrappedItem) {
+                // ... if not, create one and add it to our map
+                wrappedItem = MenuWrapperFactory.wrapSupportMenuItem(mContext, supportMenuItem);
+                mMenuItems.put(supportMenuItem, wrappedItem);
             }
 
-            return compatItem;
+            return wrappedItem;
         }
-        return null;
+        return menuItem;
     }
 
-    final SubMenu getSubMenuWrapper(android.view.SubMenu frameworkSubMenu) {
-        if (frameworkSubMenu != null) {
-            // Instantiate HashMap if null
+    final SubMenu getSubMenuWrapper(final SubMenu subMenu) {
+        if (subMenu instanceof SupportSubMenu) {
+            final SupportSubMenu supportSubMenu = (SupportSubMenu) subMenu;
+
+            // Instantiate Map if null
             if (mSubMenus == null) {
-                mSubMenus = new HashMap<android.view.SubMenu, SubMenu>();
+                mSubMenus = new ArrayMap<>();
             }
 
-            SubMenu compatSubMenu = mSubMenus.get(frameworkSubMenu);
+            SubMenu wrappedMenu = mSubMenus.get(supportSubMenu);
 
-            if (null == compatSubMenu) {
-                compatSubMenu = MenuWrapperFactory.createSupportSubMenuWrapper(frameworkSubMenu);
-                mSubMenus.put(frameworkSubMenu, compatSubMenu);
+            if (null == wrappedMenu) {
+                wrappedMenu = MenuWrapperFactory.wrapSupportSubMenu(mContext, supportSubMenu);
+                mSubMenus.put(supportSubMenu, wrappedMenu);
             }
-            return compatSubMenu;
+            return wrappedMenu;
         }
-        return null;
+        return subMenu;
     }
 
 
@@ -85,7 +96,7 @@ abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
             return;
         }
 
-        Iterator<android.view.MenuItem> iterator = mMenuItems.keySet().iterator();
+        Iterator<SupportMenuItem> iterator = mMenuItems.keySet().iterator();
         android.view.MenuItem menuItem;
 
         while (iterator.hasNext()) {
@@ -101,7 +112,7 @@ abstract class BaseMenuWrapper<T> extends BaseWrapper<T> {
             return;
         }
 
-        Iterator<android.view.MenuItem> iterator = mMenuItems.keySet().iterator();
+        Iterator<SupportMenuItem> iterator = mMenuItems.keySet().iterator();
         android.view.MenuItem menuItem;
 
         while (iterator.hasNext()) {
