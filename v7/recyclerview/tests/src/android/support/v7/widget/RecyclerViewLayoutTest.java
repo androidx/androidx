@@ -18,12 +18,9 @@
 package android.support.v7.widget;
 
 import android.graphics.PointF;
-import android.os.Debug;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
-import android.test.TouchUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -38,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
@@ -478,7 +476,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     }
                     assertEquals(state.toString(),
                             expectedOnMeasureStateCount.get(), state.getItemCount());
-                } catch(Throwable t) {
+                } catch (Throwable t) {
                     postExceptionToInstrumentation(t);
                 }
                 super.onMeasure(recycler, state, widthSpec, heightSpec);
@@ -689,7 +687,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
                 try {
                     // test
-                    for (int i = 0; i < getChildCount(); i ++) {
+                    for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
                         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams)
                                 child.getLayoutParams();
@@ -788,7 +786,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     public void addItemDecoration(final RecyclerView recyclerView, final
-            RecyclerView.ItemDecoration itemDecoration) throws Throwable {
+    RecyclerView.ItemDecoration itemDecoration) throws Throwable {
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -830,7 +828,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 try {
                     if (changes.size() > 0) {
                         // test
-                        for (int i = 0; i < getChildCount(); i ++) {
+                        for (int i = 0; i < getChildCount(); i++) {
                             View child = getChildAt(i);
                             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams)
                                     child.getLayoutParams();
@@ -876,10 +874,10 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         changes.clear();
         int[] changedItems = new int[]{3, 5, 6};
-        for (int i = 0; i < adapter.getItemCount(); i ++) {
+        for (int i = 0; i < adapter.getItemCount(); i++) {
             changes.put(mRecyclerView.findViewHolderForPosition(i).getItemId(), false);
         }
-        for (int i = 0; i < changedItems.length; i ++) {
+        for (int i = 0; i < changedItems.length; i++) {
             changes.put(mRecyclerView.findViewHolderForPosition(changedItems[i]).getItemId(), true);
         }
         testLayoutManager.expectLayouts(1);
@@ -887,7 +885,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         testLayoutManager.waitForLayout(2);
         checkForMainThreadException();
 
-        for (int i = 0; i < adapter.getItemCount(); i ++) {
+        for (int i = 0; i < adapter.getItemCount(); i++) {
             changes.put(mRecyclerView.findViewHolderForPosition(i).getItemId(), true);
         }
         testLayoutManager.expectLayouts(1);
@@ -1335,6 +1333,92 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         checkForMainThreadException();
     }
 
+    public void testCallbacksDuringAdapterSwap() throws Throwable {
+        callbacksDuringAdapterChange(true);
+    }
+
+    public void testCallbacksDuringAdapterSet() throws Throwable {
+        callbacksDuringAdapterChange(false);
+    }
+
+    public void callbacksDuringAdapterChange(boolean swap) throws Throwable {
+        final TestAdapter2 adapter1 = swap ? createBinderCheckingAdapter()
+                : createOwnerCheckingAdapter();
+        final TestAdapter2 adapter2 = swap ? createBinderCheckingAdapter()
+                : createOwnerCheckingAdapter();
+
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    layoutRange(recycler, 0, state.getItemCount());
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+                layoutLatch.countDown();
+            }
+        };
+        RecyclerView rv = new RecyclerView(getActivity());
+        rv.setAdapter(adapter1);
+        rv.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(1);
+        checkForMainThreadException();
+        tlm.expectLayouts(1);
+        if (swap) {
+            swapAdapter(adapter2, true);
+        } else {
+            setAdapter(adapter2);
+        }
+        checkForMainThreadException();
+        tlm.waitForLayout(1);
+        checkForMainThreadException();
+    }
+
+    private TestAdapter2 createOwnerCheckingAdapter() {
+        return new TestAdapter2(10) {
+            @Override
+            public void onViewRecycled(TestViewHolder2 holder) {
+                assertSame("on recycled should be called w/ the creator adapter", this,
+                        holder.mData);
+                super.onViewRecycled(holder);
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder2 holder, int position) {
+                super.onBindViewHolder(holder, position);
+                assertSame("on bind should be called w/ the creator adapter", this, holder.mData);
+            }
+
+            @Override
+            public TestViewHolder2 onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                final TestViewHolder2 vh = super.onCreateViewHolder(parent, viewType);
+                vh.mData = this;
+                return vh;
+            }
+        };
+    }
+
+    private TestAdapter2 createBinderCheckingAdapter() {
+        return new TestAdapter2(10) {
+            @Override
+            public void onViewRecycled(TestViewHolder2 holder) {
+                assertSame("on recycled should be called w/ the creator adapter", this,
+                        holder.mData);
+                holder.mData = null;
+                super.onViewRecycled(holder);
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder2 holder, int position) {
+                super.onBindViewHolder(holder, position);
+                holder.mData = this;
+            }
+        };
+    }
+
     public void testFindViewById() throws Throwable {
         findViewByIdTest(false);
         removeRecyclerView();
@@ -1591,12 +1675,16 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     private static class TestViewHolder2 extends RecyclerView.ViewHolder {
+
+        Object mData;
+
         public TestViewHolder2(View itemView) {
             super(itemView);
         }
     }
 
     private static class TestAdapter2 extends RecyclerView.Adapter<TestViewHolder2> {
+
         List<Item> mItems;
 
         private TestAdapter2(int count) {
