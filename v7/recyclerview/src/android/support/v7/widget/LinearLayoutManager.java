@@ -217,6 +217,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         SavedState state = new SavedState();
         if (getChildCount() > 0) {
+            ensureLayoutState();
             boolean didLayoutFromEnd = mLastStackFromEnd ^ mShouldReverseLayout;
             state.mAnchorLayoutFromEnd = didLayoutFromEnd;
             if (didLayoutFromEnd) {
@@ -992,6 +993,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0) {
             return 0;
         }
+        ensureLayoutState();
         return ScrollbarHelper.computeScrollOffset(state, mOrientationHelper,
                 getChildClosestToStart(), getChildClosestToEnd(), this,
                 mSmoothScrollbarEnabled, mShouldReverseLayout);
@@ -1001,6 +1003,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0) {
             return 0;
         }
+        ensureLayoutState();
         return ScrollbarHelper.computeScrollExtent(state, mOrientationHelper,
                 getChildClosestToStart(), getChildClosestToEnd(), this,
                 mSmoothScrollbarEnabled);
@@ -1010,6 +1013,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0) {
             return 0;
         }
+        ensureLayoutState();
         return ScrollbarHelper.computeScrollRange(state, mOrientationHelper,
                 getChildClosestToStart(), getChildClosestToEnd(), this,
                 mSmoothScrollbarEnabled);
@@ -1471,6 +1475,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private View findReferenceChild(int start, int end, int itemCount) {
+        ensureLayoutState();
         View invalidMatch = null;
         View outOfBoundsMatch = null;
         final int boundsStart = mOrientationHelper.getStartAfterPadding();
@@ -1574,6 +1579,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     View findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {
+        ensureLayoutState();
         final int start = mOrientationHelper.getStartAfterPadding();
         final int end = mOrientationHelper.getEndAfterPadding();
         final int next = toIndex > fromIndex ? 1 : -1;
@@ -1606,6 +1612,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (layoutDir == LayoutState.INVALID_LAYOUT) {
             return null;
         }
+        ensureLayoutState();
         final View referenceChild;
         if (layoutDir == LayoutState.LAYOUT_START) {
             referenceChild = findReferenceChildClosestToStart(state);
