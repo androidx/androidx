@@ -14,9 +14,11 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.R;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 
 /**
@@ -83,12 +85,20 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mIcon.setImageDrawable(action.getIcon());
+            CharSequence contentDescription = !TextUtils.isEmpty(action.getLabel1()) ?
+                action.getLabel1() : action.getLabel2();
+            if (!TextUtils.equals(vh.mFocusableView.getContentDescription(), contentDescription)) {
+                vh.mFocusableView.setContentDescription(contentDescription);
+                vh.mFocusableView.sendAccessibilityEvent(
+                        AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED);
+            }
         }
 
         @Override
         public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mIcon.setImageDrawable(null);
+            vh.mFocusableView.setContentDescription(null);
         }
 
         @Override
