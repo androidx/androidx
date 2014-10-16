@@ -25,4 +25,46 @@ limitations under the License.
     <string name="lb_search_bar_hint_with_title">Search <xliff:g id="search context">%1$s</xliff:g></string>
     <!-- Hint showing in the empty search bar using a provided context (usually the application name) while in voice input mode [CHAR LIMIT=40] -->
     <string name="lb_search_bar_hint_with_title_speech">Speak to search <xliff:g id="search context">%1$s</xliff:g></string>
+
+    <!-- Talkback label for the control button to start media playback -->
+    <string name="lb_playback_controls_play">Play</string>
+    <!-- Talkback label for the control button to pause media playback -->
+    <string name="lb_playback_controls_pause">Pause</string>
+    <!-- Talkback label for the control button to fast forward media playback -->
+    <string name="lb_playback_controls_fast_forward">Fast Forward</string>
+    <!-- Talkback label for the control button to start rewind playback -->
+    <string name="lb_playback_controls_rewind">Rewind</string>
+    <!-- Talkback label for the control button to skip to the next media item -->
+    <string name="lb_playback_controls_skip_next">Skip Next</string>
+    <!-- Talkback label for the control button to skip to the previous media item -->
+    <string name="lb_playback_controls_skip_previous">Skip Previous</string>
+    <!-- Talkback label for the control button to display more actions -->
+    <string name="lb_playback_controls_more_actions">More Actions</string>
+    <!-- Talkback label for the control button to deselect the thumb up rating for the current media item -->
+    <string name="lb_playback_controls_thumb_up">Deselect Thumb Up</string>
+    <!-- Talkback label for the control button to select the thumb up rating for the current media item -->
+    <string name="lb_playback_controls_thumb_up_outline">Select Thumb Up</string>
+    <!-- Talkback label for the control button to deselect the thumb down rating for the current media item -->
+    <string name="lb_playback_controls_thumb_down">Deselect Thumb Down</string>
+    <!-- Talkback label for the control button to select the thumb down rating for the current media item -->
+    <string name="lb_playback_controls_thumb_down_outline">Select Thumb Down</string>
+    <!-- Talkback label for the control button to switch to a media playback mode where item playback does not repeat -->
+    <string name="lb_playback_controls_repeat_none">Repeat None</string>
+    <!-- Talkback label for the control button to switch to a media playback mode where a set of media items will be repeated -->
+    <string name="lb_playback_controls_repeat_all">Repeat All</string>
+    <!-- Talkback label for the control button to switch to a media playback mode where a single media item will be repeated -->
+    <string name="lb_playback_controls_repeat_one">Repeat One</string>
+    <!-- Talkback label for the control button to enable random selection of the next media item -->
+    <string name="lb_playback_controls_shuffle_enable">Enable Shuffle</string>
+    <!-- Talkback label for the control button to play media items in sequential order -->
+    <string name="lb_playback_controls_shuffle_disable">Disable Shuffle</string>
+    <!-- Talkback label for the control button to enable playback of media items of high quality -->
+    <string name="lb_playback_controls_high_quality_enable">Enable High Quality</string>
+    <!-- Talkback label for the control button to disable playback of media items of high quality -->
+    <string name="lb_playback_controls_high_quality_disable">Disable High Quality</string>
+    <!-- Talkback label for the control button to enable closed captioning -->
+    <string name="lb_playback_controls_closed_captioning_enable">Enable Closed Captioning</string>
+    <!-- Talkback label for the control button to disable closed captioning -->
+    <string name="lb_playback_controls_closed_captioning_disable">Disable Closed Captioning</string>
+
 </resources>
