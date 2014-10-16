@@ -45,11 +45,13 @@ import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.FitWindowsViewGroup;
 import android.support.v7.internal.widget.TintAutoCompleteTextView;
+import android.support.v7.internal.widget.TintButton;
 import android.support.v7.internal.widget.TintCheckBox;
 import android.support.v7.internal.widget.TintCheckedTextView;
 import android.support.v7.internal.widget.TintEditText;
 import android.support.v7.internal.widget.TintMultiAutoCompleteTextView;
 import android.support.v7.internal.widget.TintRadioButton;
+import android.support.v7.internal.widget.TintRatingBar;
 import android.support.v7.internal.widget.TintSpinner;
 import android.support.v7.internal.widget.ViewStubCompat;
 import android.support.v7.internal.widget.ViewUtils;
@@ -775,6 +777,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                     return new TintAutoCompleteTextView(context, attrs);
                 case "MultiAutoCompleteTextView":
                     return new TintMultiAutoCompleteTextView(context, attrs);
+                case "RatingBar":
+                    return new TintRatingBar(context, attrs);
+                case "Button":
+                    return new TintButton(context, attrs);
             }
         }
         return null;
