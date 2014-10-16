@@ -48,6 +48,7 @@ public class PlaybackControlsRow extends Row {
     public static abstract class MultiAction extends Action {
         private int mIndex;
         private Drawable[] mDrawables;
+        private String[] mLabels;
 
         /**
          * Constructor
@@ -66,6 +67,11 @@ public class PlaybackControlsRow extends Row {
             setIndex(0);
         }
 
+        public void setLabels(String[] labels) {
+            mLabels = labels;
+            setIndex(0);
+        }
+
         /**
          * Returns the number of drawables.
          */
@@ -81,6 +87,13 @@ public class PlaybackControlsRow extends Row {
         }
 
         /**
+         * Returns the label at the given index.
+         */
+        public String getLabel(int index) {
+            return mLabels[index];
+        }
+
+        /**
          * Increments the index, wrapping to zero once the end is reached.
          */
         public void nextIndex() {
@@ -93,6 +106,9 @@ public class PlaybackControlsRow extends Row {
         public void setIndex(int index) {
             mIndex = index;
             setIcon(mDrawables[mIndex]);
+            if (mLabels != null) {
+                setLabel1(mLabels[mIndex]);
+            }
         }
 
         /**
@@ -129,11 +145,11 @@ public class PlaybackControlsRow extends Row {
             drawables[PAUSE] = getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_pause);
             setDrawables(drawables);
-        }
 
-        @Override
-        public String toString() {
-            return "PlayPauseAction";
+            String[] labels = new String[drawables.length];
+            labels[PLAY] = context.getString(R.string.lb_playback_controls_play);
+            labels[PAUSE] = context.getString(R.string.lb_playback_controls_pause);
+            setLabels(labels);
         }
     }
 
@@ -149,11 +165,7 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_fast_forward);
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_fast_forward));
-        }
-
-        @Override
-        public String toString() {
-            return "FastForwardAction";
+            setLabel1(context.getString(R.string.lb_playback_controls_fast_forward));
         }
     }
 
@@ -169,11 +181,7 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_fast_rewind);
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_rewind));
-        }
-
-        @Override
-        public String toString() {
-            return "RewindAction";
+            setLabel1(context.getString(R.string.lb_playback_controls_rewind));
         }
     }
 
@@ -189,11 +197,7 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_skip_next);
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_skip_next));
-        }
-
-        @Override
-        public String toString() {
-            return "SkipNextAction";
+            setLabel1(context.getString(R.string.lb_playback_controls_skip_next));
         }
     }
 
@@ -209,11 +213,7 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_skip_previous);
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_skip_previous));
-        }
-
-        @Override
-        public String toString() {
-            return "SkipPreviousAction";
+            setLabel1(context.getString(R.string.lb_playback_controls_skip_previous));
         }
     }
 
@@ -228,11 +228,7 @@ public class PlaybackControlsRow extends Row {
         public MoreActions(Context context) {
             super(R.id.lb_control_more_actions);
             setIcon(context.getResources().getDrawable(R.drawable.lb_ic_more));
-        }
-
-        @Override
-        public String toString() {
-            return "MoreActions";
+            setLabel1(context.getString(R.string.lb_playback_controls_more_actions));
         }
     }
 
@@ -271,11 +267,10 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_thumbs_up, context,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_up,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_up_outline);
-        }
-
-        @Override
-        public String toString() {
-            return "ThumbsUpAction";
+            String[] labels = new String[getNumberOfDrawables()];
+            labels[SOLID] = context.getString(R.string.lb_playback_controls_thumb_up);
+            labels[OUTLINE] = context.getString(R.string.lb_playback_controls_thumb_up_outline);
+            setLabels(labels);
         }
     }
 
@@ -287,11 +282,10 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_thumbs_down, context,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_down,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_down_outline);
-        }
-
-        @Override
-        public String toString() {
-            return "ThumbsDownAction";
+            String[] labels = new String[getNumberOfDrawables()];
+            labels[SOLID] = context.getString(R.string.lb_playback_controls_thumb_down);
+            labels[OUTLINE] = context.getString(R.string.lb_playback_controls_thumb_down_outline);
+            setLabels(labels);
         }
     }
 
@@ -351,11 +345,13 @@ public class PlaybackControlsRow extends Row {
             drawables[ONE] = new BitmapDrawable(context.getResources(),
                     createBitmap(repeatOneDrawable.getBitmap(), repeatOneColor));
             setDrawables(drawables);
-        }
 
-        @Override
-        public String toString() {
-            return "RepeatAction";
+            String[] labels = new String[drawables.length];
+            // Note, labels denote the action taken when clicked
+            labels[NONE] = context.getString(R.string.lb_playback_controls_repeat_all);
+            labels[ALL] = context.getString(R.string.lb_playback_controls_repeat_one);
+            labels[ONE] = context.getString(R.string.lb_playback_controls_repeat_none);
+            setLabels(labels);
         }
     }
 
@@ -389,11 +385,11 @@ public class PlaybackControlsRow extends Row {
             drawables[ON] = new BitmapDrawable(context.getResources(),
                     createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
             setDrawables(drawables);
-        }
 
-        @Override
-        public String toString() {
-            return "ShuffleAction";
+            String[] labels = new String[drawables.length];
+            labels[OFF] = context.getString(R.string.lb_playback_controls_shuffle_enable);
+            labels[ON] = context.getString(R.string.lb_playback_controls_shuffle_disable);
+            setLabels(labels);
         }
     }
 
@@ -427,11 +423,11 @@ public class PlaybackControlsRow extends Row {
             drawables[ON] = new BitmapDrawable(context.getResources(),
                     createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
             setDrawables(drawables);
-        }
 
-        @Override
-        public String toString() {
-            return "HighQualityAction";
+            String[] labels = new String[drawables.length];
+            labels[OFF] = context.getString(R.string.lb_playback_controls_high_quality_enable);
+            labels[ON] = context.getString(R.string.lb_playback_controls_high_quality_disable);
+            setLabels(labels);
         }
     }
 
@@ -465,11 +461,11 @@ public class PlaybackControlsRow extends Row {
             drawables[ON] = new BitmapDrawable(context.getResources(),
                     createBitmap(uncoloredDrawable.getBitmap(), highlightColor));
             setDrawables(drawables);
-        }
 
-        @Override
-        public String toString() {
-            return "ClosedCaptioningAction";
+            String[] labels = new String[drawables.length];
+            labels[OFF] = context.getString(R.string.lb_playback_controls_closed_captioning_enable);
+            labels[ON] = context.getString(R.string.lb_playback_controls_closed_captioning_disable);
+            setLabels(labels);
         }
     }
 
