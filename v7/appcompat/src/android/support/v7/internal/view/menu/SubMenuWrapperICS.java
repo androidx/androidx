@@ -16,71 +16,77 @@
 
 package android.support.v7.internal.view.menu;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.internal.view.SupportSubMenu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
-class SubMenuWrapperICS extends MenuWrapperICS implements SupportSubMenu {
-    SubMenuWrapperICS(android.view.SubMenu subMenu) {
-        super(subMenu);
+/**
+ * Wraps a support {@link SupportSubMenu} as a framework {@link android.view.SubMenu}
+ * @hide
+ */
+class SubMenuWrapperICS extends MenuWrapperICS implements SubMenu {
+
+    SubMenuWrapperICS(Context context, SupportSubMenu subMenu) {
+        super(context, subMenu);
     }
 
     @Override
-    public android.view.SubMenu getWrappedObject() {
-        return (android.view.SubMenu) mWrappedObject;
+    public SupportSubMenu getWrappedObject() {
+        return (SupportSubMenu) mWrappedObject;
     }
 
     @Override
     public SubMenu setHeaderTitle(int titleRes) {
-        ((android.view.SubMenu) mWrappedObject).setHeaderTitle(titleRes);
+        getWrappedObject().setHeaderTitle(titleRes);
         return this;
     }
 
     @Override
     public SubMenu setHeaderTitle(CharSequence title) {
-        ((android.view.SubMenu) mWrappedObject).setHeaderTitle(title);
+        getWrappedObject().setHeaderTitle(title);
         return this;
     }
 
     @Override
     public SubMenu setHeaderIcon(int iconRes) {
-        ((android.view.SubMenu) mWrappedObject).setHeaderIcon(iconRes);
+        getWrappedObject().setHeaderIcon(iconRes);
         return this;
     }
 
     @Override
     public SubMenu setHeaderIcon(Drawable icon) {
-        ((android.view.SubMenu) mWrappedObject).setHeaderIcon(icon);
+        getWrappedObject().setHeaderIcon(icon);
         return this;
     }
 
     @Override
     public SubMenu setHeaderView(View view) {
-        ((android.view.SubMenu) mWrappedObject).setHeaderView(view);
+        getWrappedObject().setHeaderView(view);
         return this;
     }
 
     @Override
     public void clearHeader() {
-        ((android.view.SubMenu) mWrappedObject).clearHeader();
+        getWrappedObject().clearHeader();
     }
 
     @Override
     public SubMenu setIcon(int iconRes) {
-        ((android.view.SubMenu) mWrappedObject).setIcon(iconRes);
+        getWrappedObject().setIcon(iconRes);
         return this;
     }
 
     @Override
     public SubMenu setIcon(Drawable icon) {
-        ((android.view.SubMenu) mWrappedObject).setIcon(icon);
+        getWrappedObject().setIcon(icon);
         return this;
     }
 
     @Override
     public MenuItem getItem() {
-        return getMenuItemWrapper(((android.view.SubMenu) mWrappedObject).getItem());
+        return getMenuItemWrapper(getWrappedObject().getItem());
     }
 }

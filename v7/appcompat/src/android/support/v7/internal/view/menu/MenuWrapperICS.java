@@ -17,17 +17,23 @@
 package android.support.v7.internal.view.menu;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-class MenuWrapperICS extends BaseMenuWrapper<android.view.Menu> implements SupportMenu {
+/**
+ * Wraps a support {@link SupportMenu} as a framework {@link android.view.Menu}
+ * @hide
+ */
+class MenuWrapperICS extends BaseMenuWrapper<SupportMenu> implements Menu {
 
-    MenuWrapperICS(android.view.Menu object) {
-        super(object);
+    MenuWrapperICS(Context context, SupportMenu object) {
+        super(context, object);
     }
 
     @Override
