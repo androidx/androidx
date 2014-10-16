@@ -16,8 +16,11 @@
 
 package android.support.v7.internal.view.menu;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
@@ -32,26 +35,18 @@ import android.widget.FrameLayout;
 import java.lang.reflect.Method;
 
 /**
+ * Wraps a support {@link SupportMenuItem} as a framework {@link android.view.MenuItem}
  * @hide
  */
-public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> implements SupportMenuItem {
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> implements MenuItem {
     static final String LOG_TAG = "MenuItemWrapper";
-
-    private final boolean mEmulateProviderVisibilityOverride;
-    // Tracks the last requested visibility
-    private boolean mLastRequestVisible;
 
     // Reflection Method to call setExclusiveCheckable
     private Method mSetExclusiveCheckableMethod;
 
-    MenuItemWrapperICS(android.view.MenuItem object, boolean emulateProviderVisibilityOverride) {
-        super(object);
-        mLastRequestVisible = object.isVisible();
-        mEmulateProviderVisibilityOverride = emulateProviderVisibilityOverride;
-    }
-
-    MenuItemWrapperICS(android.view.MenuItem object) {
-        this(object, true);
+    MenuItemWrapperICS(Context context, SupportMenuItem object) {
+        super(context, object);
     }
 
     @Override
@@ -177,14 +172,7 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
 
     @Override
     public MenuItem setVisible(boolean visible) {
-        if (mEmulateProviderVisibilityOverride) {
-            mLastRequestVisible = visible;
-            // If we need to be visible, we need to check whether the ActionProvider overrides it
-            if (checkActionProviderOverrideVisibility()) {
-                return this;
-            }
-        }
-        return wrappedSetVisible(visible);
+        return mWrappedObject.setVisible(visible);
     }
 
     @Override
@@ -238,7 +226,7 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
 
     @Override
     public MenuItem setActionView(View view) {
-        if (view instanceof CollapsibleActionView) {
+        if (view instanceof android.view.CollapsibleActionView) {
             view = new CollapsibleActionViewWrapper(view);
         }
         mWrappedObject.setActionView(view);
@@ -251,7 +239,7 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
         mWrappedObject.setActionView(resId);
 
         View actionView = mWrappedObject.getActionView();
-        if (actionView instanceof CollapsibleActionView) {
+        if (actionView instanceof android.view.CollapsibleActionView) {
             // If the inflated Action View is support-collapsible, wrap it
             mWrappedObject.setActionView(new CollapsibleActionViewWrapper(actionView));
         }
@@ -269,16 +257,18 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
 
     @Override
     public MenuItem setActionProvider(android.view.ActionProvider provider) {
-        mWrappedObject.setActionProvider(provider);
-        if (provider != null && mEmulateProviderVisibilityOverride) {
-            checkActionProviderOverrideVisibility();
-        }
+        mWrappedObject.setSupportActionProvider(
+                provider != null ? createActionProviderWrapper(provider) : null);
         return this;
     }
 
     @Override
     public android.view.ActionProvider getActionProvider() {
-        return mWrappedObject.getActionProvider();
+        ActionProvider provider = mWrappedObject.getSupportActionProvider();
+        if (provider instanceof ActionProviderWrapper) {
+            return ((ActionProviderWrapper) provider).mInner;
+        }
+        return null;
     }
 
     @Override
@@ -298,30 +288,9 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
 
     @Override
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
-        mWrappedObject.setOnActionExpandListener(listener);
-        return this;
-    }
-
-    @Override
-    public SupportMenuItem setSupportOnActionExpandListener(
-            MenuItemCompat.OnActionExpandListener listener) {
-        mWrappedObject.setOnActionExpandListener(listener != null ?
+        mWrappedObject.setSupportOnActionExpandListener(listener != null ?
                 new OnActionExpandListenerWrapper(listener) : null);
-        return null;
-    }
-
-    @Override
-    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
-        mWrappedObject.setActionProvider(actionProvider != null ?
-                createActionProviderWrapper(actionProvider) : null);
         return this;
-    }
-
-    @Override
-    public ActionProvider getSupportActionProvider() {
-        ActionProviderWrapper providerWrapper =
-                (ActionProviderWrapper) mWrappedObject.getActionProvider();
-        return providerWrapper != null ? providerWrapper.mInner : null;
     }
 
     public void setExclusiveCheckable(boolean checkable) {
@@ -336,26 +305,8 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
         }
     }
 
-    ActionProviderWrapper createActionProviderWrapper(ActionProvider provider) {
-        return new ActionProviderWrapper(provider);
-    }
-
-    /**
-     * @return true if the ActionProvider has overriden the visibility
-     */
-    final boolean checkActionProviderOverrideVisibility() {
-        if (mLastRequestVisible) {
-            ActionProvider provider = getSupportActionProvider();
-            if (provider != null && provider.overridesItemVisibility() && !provider.isVisible()) {
-                wrappedSetVisible(false);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    final MenuItem wrappedSetVisible(boolean visible) {
-        return mWrappedObject.setVisible(visible);
+    ActionProviderWrapper createActionProviderWrapper(android.view.ActionProvider provider) {
+        return new ActionProviderWrapper(mContext, provider);
     }
 
     private class OnMenuItemClickListenerWrapper extends BaseWrapper<OnMenuItemClickListener>
@@ -371,10 +322,10 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
         }
     }
 
-    private class OnActionExpandListenerWrapper extends BaseWrapper<MenuItemCompat.OnActionExpandListener>
-            implements android.view.MenuItem.OnActionExpandListener {
+    private class OnActionExpandListenerWrapper extends BaseWrapper<MenuItem.OnActionExpandListener>
+            implements MenuItemCompat.OnActionExpandListener {
 
-        OnActionExpandListenerWrapper(MenuItemCompat.OnActionExpandListener object) {
+        OnActionExpandListenerWrapper(MenuItem.OnActionExpandListener object) {
             super(object);
         }
 
@@ -389,32 +340,16 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
         }
     }
 
-    class ActionProviderWrapper extends android.view.ActionProvider {
-        final ActionProvider mInner;
+    class ActionProviderWrapper extends android.support.v4.view.ActionProvider {
+        final android.view.ActionProvider mInner;
 
-        public ActionProviderWrapper(ActionProvider inner) {
-            super(inner.getContext());
+        public ActionProviderWrapper(Context context, android.view.ActionProvider inner) {
+            super(context);
             mInner = inner;
-
-            if (mEmulateProviderVisibilityOverride) {
-                mInner.setVisibilityListener(new ActionProvider.VisibilityListener() {
-                    @Override
-                    public void onActionProviderVisibilityChanged(boolean isVisible) {
-                        if (mInner.overridesItemVisibility() && mLastRequestVisible) {
-                            wrappedSetVisible(isVisible);
-                        }
-                    }
-                });
-            }
         }
 
         @Override
         public View onCreateActionView() {
-            if (mEmulateProviderVisibilityOverride) {
-                // This is a convenient place to hook in and check if we need to override the
-                // visibility after being created.
-                checkActionProviderOverrideVisibility();
-            }
             return mInner.onCreateActionView();
         }
 
@@ -434,13 +369,18 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<android.view.MenuItem> i
         }
     }
 
+    /**
+     * Wrap a support {@link android.support.v7.view.CollapsibleActionView} into a framework
+     * {@link android.view.CollapsibleActionView}.
+     */
     static class CollapsibleActionViewWrapper extends FrameLayout
-            implements android.view.CollapsibleActionView {
-        final CollapsibleActionView mWrappedView;
+            implements CollapsibleActionView {
+
+        final android.view.CollapsibleActionView mWrappedView;
 
         CollapsibleActionViewWrapper(View actionView) {
             super(actionView.getContext());
-            mWrappedView = (CollapsibleActionView) actionView;
+            mWrappedView = (android.view.CollapsibleActionView) actionView;
             addView(actionView);
         }
 
