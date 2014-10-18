@@ -22,8 +22,8 @@ ext.buildToolsVersion = '19.0.3'
  * The build server will copy the contents of DIST_DIR to somewhere and make it available.
  */
 if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
-    buildDir = file(System.env.OUT_DIR + '/gradle/frameworks/support/build')
-    project.ext.distDir = file(System.env.DIST_DIR)
+    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile()
+    project.ext.distDir = new File(System.env.DIST_DIR).getCanonicalFile()
 } else {
     buildDir = file('../../out/host/gradle/frameworks/support/build')
     project.ext.distDir = file('../../out/dist')
