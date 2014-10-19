@@ -22,4 +22,24 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Énoncer la recherche"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Rechercher \"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>\""</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Énoncer la recherche \"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>\""</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Lecture"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Interrompre"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Avance rapide"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Retour arrière"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Ignorer l\'élément suivant"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Ignorer l\'élément précédent"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Autres actions"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Désélectionner \"J\'aime\""</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Sélectionner \"J\'aime\""</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Désélectionner \"Je n\'aime pas\""</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Sélectionner \"Je n\'aime pas\""</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Ne rien lire en boucle"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Tout lire en boucle"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Lire en boucle un élément"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Désactiver la lecture en mode aléatoire"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Désactiver la lecture en mode aléatoire"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Activer la haute qualité"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Désactiver la haute qualité"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Activer les sous-titres"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Désactiver les sous-titres"</string>
 </resources>
