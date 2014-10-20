@@ -22,4 +22,24 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"דבר כדי לחפש"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"חפש את <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"דבר כדי לחפש את <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"הפעל"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"השהה"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"הרץ קדימה"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"הרץ אחורה"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"דלג אל הפריט הבא"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"דלג אל הפריט הקודם"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"עוד פעולות"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"בטל בחירה באגודל כלפי מעלה"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"בחר באגודל כלפי מעלה"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"בטל בחירה באגודל כלפי מטה"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"בחר באגודל כלפי מטה"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"אל תחזור על כלום"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"חזור על הכל"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"חזור על פריט אחד"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"הפעל ערבוב"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"השבת ערבוב"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"הפעל איכות גבוהה"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"השבת איכות גבוהה"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"הפעל כתוביות"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"השבת כתוביות"</string>
 </resources>
