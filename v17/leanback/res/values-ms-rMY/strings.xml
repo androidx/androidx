@@ -22,4 +22,44 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Tutur untuk membuat carian"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Cari <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Sebut untuk mencari <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <!-- no translation found for lb_playback_controls_play (731953341987346903) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_pause (6189521112079849518) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_fast_forward (8569951318244687220) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_rewind (2227196334132350684) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_skip_next (2946499493161095772) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_skip_previous (2326801832933178348) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_more_actions (2330770008796987655) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_thumb_up (6530420347129222601) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_thumb_up_outline (1577637924003500946) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_thumb_down (4498041193172964797) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_thumb_down_outline (2936020280629424365) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_repeat_none (87476947476529036) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_repeat_all (6730354406289599000) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_repeat_one (3285202316452203619) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_shuffle_enable (1099874107835264529) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_shuffle_disable (8388150597335115226) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_high_quality_enable (202415780019335254) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_high_quality_disable (8637371582779057866) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_closed_captioning_enable (2429655367176440226) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_closed_captioning_disable (6133362019475930048) -->
+    <skip />
 </resources>

@@ -22,4 +22,24 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"使用語音搜尋"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"搜尋「<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>」"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"使用語音搜尋「<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>」"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"播放"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"暫停"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"向前快轉"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"倒轉"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"跳至下一個媒體項目"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"跳至上一個媒體項目"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"更多動作"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"取消選取喜歡"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"選取喜歡"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"取消選取不喜歡"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"選取不喜歡"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"不重複播放"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"重複播放所有媒體項目"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"重複播放單一媒體項目"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"啟用隨機播放"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"停用隨機播放"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"啟用高品質播放"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"停用高品質播放"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"啟用字幕"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"停用字幕"</string>
 </resources>
