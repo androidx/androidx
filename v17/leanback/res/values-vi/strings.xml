@@ -22,4 +22,24 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Nói để tìm kiếm"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Tìm kiếm <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Nói để tìm kiếm <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Phát"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Tạm dừng"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Tua nhanh"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Tua lại"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Chuyển đến mục tiếp theo"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Chuyển về mục trước"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Tác vụ khác"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Bỏ chọn thích"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Chọn thích"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Bỏ chọn không thích"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Chọn không thích"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Không lặp lại"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Lặp lại tất cả"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Lặp lại một mục"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Bật phát ngẫu nhiên"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Tắt phát ngẫu nhiên"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Bật chế độ chất lượng cao"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Tắt chế độ chất lượng cao"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Bật phụ đề"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Tắt phụ đề"</string>
 </resources>

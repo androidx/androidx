@@ -21,5 +21,25 @@ limitations under the License.
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Keresés"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Beszéljen a keresés indításához"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Keresés itt: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Mondjon valamit, hogy itt keressen: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Mondj valamit a kereséshez: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Lejátszás"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Szünet"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Gyors előretekerés"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Visszatekerés"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"A következő átugrása"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Az előző átugrása"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"További műveletek"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"„Tetszik” értékelés visszavonása"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"„Tetszik” értékelés kiválasztása"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"„Nem tetszik” értékelés visszavonása"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"„Nem tetszik” értékelés kiválasztása"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Nincs ismétlés"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Összes ismétlése"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Egy ismétlése"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Véletlenszerű lejátszás engedélyezése"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Véletlenszerű lejátszás letiltása"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Jó minőségű lejátszás engedélyezése"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Jó minőségű lejátszás letiltása"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Feliratok engedélyezése"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Feliratok letiltása"</string>
 </resources>

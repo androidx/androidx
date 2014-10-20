@@ -21,5 +21,25 @@ limitations under the License.
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Hľadať"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Hovorením spustíte vyhľadávanie"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Vyhľadať výraz <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Vyslovením výrazu <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> spustíte jeho vyhľad."</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Hovorte na vyhľadávanie v kontexte <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Prehrať"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Pozastaviť"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Pretočiť dopredu"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Pretočiť späť"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Prejsť na ďalšiu položku"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Prejsť na predchádzajúcu položku"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Viac akcií"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Zrušiť Páči sa mi"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Vybrať Páči sa mi"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Zrušiť Nepáči sa mi"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Vybrať Nepáči sa mi"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Neopakovať"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Opakovať všetko"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Opakovať jednu položku"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Zapnúť náhodné prehrávanie"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Vypnúť náhodné prehrávanie"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Povoliť médiá vo vysokej kvalite"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Zakázať médiá vo vysokej kvalite"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Zapnúť skryté titulky"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Vypnúť skryté titulky"</string>
 </resources>

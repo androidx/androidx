@@ -22,4 +22,24 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"พูดเพื่อค้นหา"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"ค้นหา <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"พูดเพื่อค้นหา <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"เล่น"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"หยุดชั่วคราว"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"กรอไปข้างหน้า"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"กรอกลับ"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"ข้ามไปรายการถัดไป"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"ข้ามไปรายการก่อนหน้า"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"การทำงานเพิ่มเติม"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"ยกเลิกการเลือกว่าชอบ"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"เลือกว่าชอบ"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"ยกเลิกการเลือกว่าไม่ชอบ"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"เลือกว่าไม่ชอบ"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"ไม่เล่นซ้ำ"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"เล่นซ้ำทั้งหมด"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"เล่นซ้ำรายการเดียว"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"เปิดใช้การสุ่มเพลง"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"ปิดใช้การสุ่มเพลง"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"เปิดใช้คุณภาพสูง"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ปิดใช้คุณภาพสูง"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"เปิดใช้คำบรรยาย"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"ปิดใช้คำบรรยาย"</string>
 </resources>
