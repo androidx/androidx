@@ -258,6 +258,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         void dispatchChildInsets(View child, Object insets, int drawerGravity);
         void applyMarginInsets(MarginLayoutParams lp, Object insets, int drawerGravity);
         int getTopInset(Object lastInsets);
+        Drawable getDefaultStatusBarBackground(Context context);
     }
 
     static class DrawerLayoutCompatImplBase implements DrawerLayoutCompatImpl {
@@ -276,6 +277,11 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         public int getTopInset(Object insets) {
             return 0;
         }
+
+        @Override
+        public Drawable getDefaultStatusBarBackground(Context context) {
+            return null;
+        }
     }
 
     static class DrawerLayoutCompatImplApi21 implements DrawerLayoutCompatImpl {
@@ -293,6 +299,11 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
         public int getTopInset(Object insets) {
             return DrawerLayoutCompatApi21.getTopInset(insets);
+        }
+
+        @Override
+        public Drawable getDefaultStatusBarBackground(Context context) {
+            return DrawerLayoutCompatApi21.getDefaultStatusBarBackground(context);
         }
     }
 
@@ -345,6 +356,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         ViewGroupCompat.setMotionEventSplittingEnabled(this, false);
         if (ViewCompat.getFitsSystemWindows(this)) {
             IMPL.configureApplyInsets(this);
+            mStatusBarBackground = IMPL.getDefaultStatusBarBackground(context);
         }
     }
 
