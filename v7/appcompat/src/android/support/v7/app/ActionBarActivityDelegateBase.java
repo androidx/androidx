@@ -32,7 +32,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.VersionUtils;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.app.WindowDecorActionBar;
@@ -56,6 +55,7 @@ import android.support.v7.internal.widget.ViewStubCompat;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -143,7 +143,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         mWindowDecor = (ViewGroup) mActivity.getWindow().getDecorView();
 
         if (NavUtils.getParentActivityName(mActivity) != null) {
-            ActionBar ab = getSupportActionBar();
+            // Peek at the Action Bar and update it if it already exists
+            ActionBar ab = peekSupportActionBar();
             if (ab == null) {
                 mEnableDefaultActionBarUp = true;
             } else {
@@ -438,23 +439,28 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     public boolean supportRequestWindowFeature(int featureId) {
         switch (featureId) {
             case FEATURE_ACTION_BAR:
+                throwFeatureRequestIfSubDecorInstalled();
                 mHasActionBar = true;
                 return true;
             case FEATURE_ACTION_BAR_OVERLAY:
+                throwFeatureRequestIfSubDecorInstalled();
                 mOverlayActionBar = true;
                 return true;
             case FEATURE_ACTION_MODE_OVERLAY:
+                throwFeatureRequestIfSubDecorInstalled();
                 mOverlayActionMode = true;
                 return true;
             case Window.FEATURE_PROGRESS:
+                throwFeatureRequestIfSubDecorInstalled();
                 mFeatureProgress = true;
                 return true;
             case Window.FEATURE_INDETERMINATE_PROGRESS:
+                throwFeatureRequestIfSubDecorInstalled();
                 mFeatureIndeterminateProgress = true;
                 return true;
-            default:
-                return mActivity.requestWindowFeature(featureId);
         }
+
+        return mActivity.requestWindowFeature(featureId);
     }
 
     @Override
@@ -1356,6 +1362,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
             mToolbarListMenuPresenter = new ListMenuPresenter(context,
                     R.layout.abc_list_menu_item_layout);
+        }
+    }
+
+    private void throwFeatureRequestIfSubDecorInstalled() {
+        if (mSubDecorInstalled) {
+            throw new AndroidRuntimeException(
+                    "supportRequestWindowFeature() must be called before adding content");
         }
     }
 
