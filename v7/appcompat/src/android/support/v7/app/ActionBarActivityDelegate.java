@@ -126,6 +126,10 @@ abstract class ActionBarActivityDelegate {
         return mActionBar;
     }
 
+    final ActionBar peekSupportActionBar() {
+        return mActionBar;
+    }
+
     protected final void setSupportActionBar(ActionBar actionBar) {
         mActionBar = actionBar;
     }
@@ -148,9 +152,15 @@ abstract class ActionBarActivityDelegate {
                     "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
         }
 
-        mHasActionBar = a.getBoolean(R.styleable.Theme_windowActionBar, false);
-        mOverlayActionBar = a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false);
-        mOverlayActionMode = a.getBoolean(R.styleable.Theme_windowActionModeOverlay, false);
+        if (a.getBoolean(R.styleable.Theme_windowActionBar, false)) {
+            mHasActionBar = true;
+        }
+        if (a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false)) {
+            mOverlayActionBar = true;
+        }
+        if (a.getBoolean(R.styleable.Theme_windowActionModeOverlay, false)) {
+            mOverlayActionMode = true;
+        }
         mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
         a.recycle();
     }
