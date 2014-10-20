@@ -22,4 +22,24 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Säg det du söker efter"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Sök i <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Tala för att söka i <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Spela upp"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Pausa"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Snabbspola framåt"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Spola tillbaka"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Hoppa till nästa"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Hoppa till föregående"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Fler åtgärder"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Avmarkera tummen upp"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Markera tummen upp"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Avmarkera tummen ned"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Markera tummen ned"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Upprepa inga"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Upprepa alla"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Upprepa en"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Blanda spår"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Blanda inte spår"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Aktivera hög kvalitet"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Inaktivera hög kvalitet"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Aktivera textning"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Inaktivera textning"</string>
 </resources>
