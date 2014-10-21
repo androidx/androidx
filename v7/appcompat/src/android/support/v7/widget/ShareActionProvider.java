@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
+import android.os.Build;
 import android.support.v4.view.ActionProvider;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.widget.ActivityChooserModel;
@@ -179,9 +179,11 @@ public class ShareActionProvider extends ActionProvider {
     @Override
     public View onCreateActionView() {
         // Create the view and set its data model.
-        ActivityChooserModel dataModel = ActivityChooserModel.get(mContext, mShareHistoryFileName);
         ActivityChooserView activityChooserView = new ActivityChooserView(mContext);
-        activityChooserView.setActivityChooserModel(dataModel);
+        if (!activityChooserView.isInEditMode()) {
+            ActivityChooserModel dataModel = ActivityChooserModel.get(mContext, mShareHistoryFileName);
+            activityChooserView.setActivityChooserModel(dataModel);
+        }
 
         // Lookup and set the expand action icon.
         TypedValue outTypedValue = new TypedValue();
@@ -299,6 +301,12 @@ public class ShareActionProvider extends ActionProvider {
      * @see Intent#ACTION_SEND_MULTIPLE
      */
     public void setShareIntent(Intent shareIntent) {
+        if (shareIntent != null) {
+            final String action = shareIntent.getAction();
+            if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+                updateIntent(shareIntent);
+            }
+        }
         ActivityChooserModel dataModel = ActivityChooserModel.get(mContext,
                 mShareHistoryFileName);
         dataModel.setIntent(shareIntent);
@@ -315,7 +323,11 @@ public class ShareActionProvider extends ActionProvider {
             final int itemId = item.getItemId();
             Intent launchIntent = dataModel.chooseActivity(itemId);
             if (launchIntent != null) {
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                final String action = launchIntent.getAction();
+                if (Intent.ACTION_SEND.equals(action) ||
+                        Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+                    updateIntent(launchIntent);
+                }
                 mContext.startActivity(launchIntent);
             }
             return true;
@@ -348,6 +360,17 @@ public class ShareActionProvider extends ActionProvider {
                         ShareActionProvider.this, intent);
             }
             return false;
+        }
+    }
+
+    private void updateIntent(Intent intent) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            // If we're on Lollipop, we can open the intent as a document
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        } else {
+            // Else, we will use the old CLEAR_WHEN_TASK_RESET flag
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }
     }
 }

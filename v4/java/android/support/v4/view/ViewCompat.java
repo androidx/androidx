@@ -334,6 +334,7 @@ public class ViewCompat {
         void jumpDrawablesToCurrentState(View v);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
         void setSaveFromParentEnabled(View view, boolean enabled);
+        void setActivated(View view, boolean activated);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -731,6 +732,11 @@ public class ViewCompat {
         public void setSaveFromParentEnabled(View v, boolean enabled) {
             // noop
         }
+
+        @Override
+        public void setActivated(View view, boolean activated) {
+            // noop
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -904,6 +910,11 @@ public class ViewCompat {
         @Override
         public void setSaveFromParentEnabled(View view, boolean enabled) {
             ViewCompatHC.setSaveFromParentEnabled(view, enabled);
+        }
+
+        @Override
+        public void setActivated(View view, boolean activated) {
+            ViewCompatHC.setActivated(view, activated);
         }
     }
 
@@ -2285,6 +2296,19 @@ public class ViewCompat {
      */
     public static void setSaveFromParentEnabled(View v, boolean enabled) {
         IMPL.setSaveFromParentEnabled(v, enabled);
+    }
+
+    /**
+     * Changes the activated state of this view. A view can be activated or not.
+     * Note that activation is not the same as selection.  Selection is
+     * a transient property, representing the view (hierarchy) the user is
+     * currently interacting with.  Activation is a longer-term state that the
+     * user can move views in and out of.
+     *
+     * @param activated true if the view must be activated, false otherwise
+     */
+    public static void setActivated(View view, boolean activated) {
+        IMPL.setActivated(view, activated);
     }
 
     // TODO: getters for various view properties (rotation, etc)

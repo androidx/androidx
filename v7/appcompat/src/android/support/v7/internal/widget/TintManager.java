@@ -59,7 +59,8 @@ public class TintManager {
             R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
             R.drawable.abc_ic_voice_search_api_mtrl_alpha,
             R.drawable.abc_textfield_search_default_mtrl_alpha,
-            R.drawable.abc_textfield_default_mtrl_alpha
+            R.drawable.abc_textfield_default_mtrl_alpha,
+            R.drawable.abc_ab_share_pack_mtrl_alpha
     };
 
     /**
