@@ -756,25 +756,25 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    View createView(final String name, @NonNull AttributeSet attrs) {
+    View createView(final String name, @NonNull Context context, @NonNull AttributeSet attrs) {
         if (Build.VERSION.SDK_INT < 21) {
             // If we're running pre-L, we need to 'inject' our tint aware Views in place of the
             // standard framework versions
             switch (name) {
                 case "EditText":
-                    return new TintEditText(mActivity, attrs);
+                    return new TintEditText(context, attrs);
                 case "Spinner":
-                    return new TintSpinner(mActivity, attrs);
+                    return new TintSpinner(context, attrs);
                 case "CheckBox":
-                    return new TintCheckBox(mActivity, attrs);
+                    return new TintCheckBox(context, attrs);
                 case "RadioButton":
-                    return new TintRadioButton(mActivity, attrs);
+                    return new TintRadioButton(context, attrs);
                 case "CheckedTextView":
-                    return new TintCheckedTextView(mActivity, attrs);
+                    return new TintCheckedTextView(context, attrs);
                 case "AutoCompleteTextView":
-                    return new TintAutoCompleteTextView(mActivity, attrs);
+                    return new TintAutoCompleteTextView(context, attrs);
                 case "MultiAutoCompleteTextView":
-                    return new TintMultiAutoCompleteTextView(mActivity, attrs);
+                    return new TintMultiAutoCompleteTextView(context, attrs);
             }
         }
         return null;

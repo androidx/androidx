@@ -549,7 +549,7 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
             return result;
         }
         // If we reach here super didn't create a View, so let our delegate attempt it
-        return getDelegate().createView(name, attrs);
+        return getDelegate().createView(name, context, attrs);
     }
 
     private ActionBarActivityDelegate getDelegate() {
