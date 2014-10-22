@@ -40,6 +40,6 @@ limitations under the License.
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"I-disable ang Shuffle"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"I-enable ang Mataas na Kalidad"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"I-disable ang Mataas na Kalidad"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"I-enable ang Paglalagay ng Nakasarang Caption"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"I-disable ang Paglalagay ng Nakasarang Caption"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"I-enable ang Paglalagay ng Subtitle"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"I-disable ang Paglalagay ng Subtitle"</string>
 </resources>

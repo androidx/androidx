@@ -40,6 +40,6 @@ limitations under the License.
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"شفل کو غیر فعال کریں"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"اعلی معیار کو فعال کریں"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"اعلی معیار کو غیر فعال کریں"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ذیلی سرخیاں لگانے کو فعال کریں"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"ذیلی سرخیاں لگانے کو غیر فعال کریں"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"سب ٹائٹلز کو فعال کریں"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"سب ٹائٹلز کو غیر فعال کریں"</string>
 </resources>

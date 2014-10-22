@@ -26,8 +26,8 @@ limitations under the License.
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Szünet"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Gyors előretekerés"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Visszatekerés"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"A következő átugrása"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Az előző átugrása"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Ugrás a következőre"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Ugrás az előzőre"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"További műveletek"</string>
     <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"„Tetszik” értékelés visszavonása"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"„Tetszik” értékelés kiválasztása"</string>
