@@ -40,6 +40,6 @@ limitations under the License.
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"​ປິດ​ນຳ​ໃຊ້​ການ​ສະຫຼັບ"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"​ເປີດນຳ​ໃຊ້​ການຫຼິ້ນ​ດ້ວຍຄຸນ​ນະ​ພາບ​ສູງ"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"​ປິດ​ນຳ​ໃຊ້​ການຫຼິ້ນ​ດ້ວຍຄຸນ​ນະ​ພາບ​ສູງ"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"​ເປີດ​ນຳ​ໃຊ້​ຄຳ​ອະ​ທິ​ບາຍ​ລະ​ອຽດ"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"​ປິດ​ນຳ​ໃຊ້​ຄຳ​ອະ​ທິ​ບາຍ​ລະ​ອຽດ"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"​ເປີດ​ນຳ​ໃຊ້​​ຄຳ​ບັນ​ຍາຍ​ແບບ​ປິດ"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"​ປິດ​ນຳ​ໃຊ້​ຄຳ​ບັນ​ຍາຍ​ແບບ​ປິດ"</string>
 </resources>
