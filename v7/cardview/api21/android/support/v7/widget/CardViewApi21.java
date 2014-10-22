@@ -101,4 +101,9 @@ class CardViewApi21 implements CardViewImpl {
     public void onPreventCornerOverlapChanged(CardViewDelegate cardView) {
         setMaxElevation(cardView, getMaxElevation(cardView));
     }
+
+    @Override
+    public void setBackgroundColor(CardViewDelegate cardView, int color) {
+        ((RoundRectDrawable) (cardView.getBackground())).setColor(color);
+    }
 }

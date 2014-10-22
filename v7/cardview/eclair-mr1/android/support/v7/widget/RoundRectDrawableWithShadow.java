@@ -332,6 +332,11 @@ class RoundRectDrawableWithShadow extends Drawable {
         return content + (mRawMaxShadowSize * SHADOW_MULTIPLIER + mInsetShadow) * 2;
     }
 
+    public void setColor(int color) {
+        mPaint.setColor(color);
+        invalidateSelf();
+    }
+
     static interface RoundRectHelper {
         void drawRoundRect(Canvas canvas, RectF bounds, float cornerRadius, Paint paint);
     }
