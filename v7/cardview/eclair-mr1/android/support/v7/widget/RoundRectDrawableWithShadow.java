@@ -290,9 +290,9 @@ class RoundRectDrawableWithShadow extends Drawable {
         // Card is offset SHADOW_MULTIPLIER * maxShadowSize to account for the shadow shift.
         // We could have different top-bottom offsets to avoid extra gap above but in that case
         // center aligning Views inside the CardView would be problematic.
-        final float verticalOffset = mMaxShadowSize * SHADOW_MULTIPLIER;
-        mCardBounds.set(bounds.left + mMaxShadowSize, bounds.top + verticalOffset,
-                bounds.right - mMaxShadowSize, bounds.bottom - verticalOffset);
+        final float verticalOffset = mRawMaxShadowSize * SHADOW_MULTIPLIER;
+        mCardBounds.set(bounds.left + mRawMaxShadowSize, bounds.top + verticalOffset,
+                bounds.right - mRawMaxShadowSize, bounds.bottom - verticalOffset);
         buildShadowCorners();
     }
 
