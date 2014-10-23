@@ -50,4 +50,8 @@ class ViewCompatICS {
     public static void onInitializeAccessibilityNodeInfo(View v, Object info) {
         v.onInitializeAccessibilityNodeInfo((AccessibilityNodeInfo) info);
     }
+
+    public static void setFitsSystemWindows(View view, boolean fitSystemWindows) {
+        view.setFitsSystemWindows(fitSystemWindows);
+    }
 }
