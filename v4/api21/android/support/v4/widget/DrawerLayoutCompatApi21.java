@@ -17,6 +17,9 @@
 
 package android.support.v4.widget;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +29,11 @@ import android.view.WindowInsets;
  * Provides functionality for DrawerLayout unique to API 21
  */
 class DrawerLayoutCompatApi21 {
+
+    private static final int[] THEME_ATTRS = {
+            android.R.attr.colorPrimaryDark
+    };
+
     public static void configureApplyInsets(View drawerLayout) {
         if (drawerLayout instanceof DrawerLayoutImpl) {
             drawerLayout.setOnApplyWindowInsetsListener(new InsetsListener());
@@ -64,6 +72,15 @@ class DrawerLayoutCompatApi21 {
 
     public static int getTopInset(Object insets) {
         return insets != null ? ((WindowInsets) insets).getSystemWindowInsetTop() : 0;
+    }
+
+    public static Drawable getDefaultStatusBarBackground(Context context) {
+        final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
+        try {
+            return a.getDrawable(0);
+        } finally {
+            a.recycle();
+        }
     }
 
     static class InsetsListener implements View.OnApplyWindowInsetsListener {
