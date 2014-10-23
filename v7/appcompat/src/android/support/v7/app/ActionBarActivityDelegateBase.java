@@ -32,6 +32,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.VersionUtils;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.app.WindowDecorActionBar;
@@ -129,8 +130,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     private Rect mTempRect1;
     private Rect mTempRect2;
-
-    private Context mWidgetsContext;
 
     ActionBarActivityDelegateBase(ActionBarActivity activity) {
         super(activity);
@@ -761,34 +760,21 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         if (Build.VERSION.SDK_INT < 21) {
             // If we're running pre-L, we need to 'inject' our tint aware Views in place of the
             // standard framework versions
-
-            Context context = mActivity;
-
-            if (mCompatibleWidgetStylingEnabled) {
-                // If our compatible widget styles (tinting) are enabled, update our context to
-                // to make them the default styles
-                if (mWidgetsContext == null) {
-                    mWidgetsContext = new ContextThemeWrapper(context,
-                            R.style.Internal_ThemeOverlay_AppCompat_Widgets);
-                }
-                context = mWidgetsContext;
-            }
-
             switch (name) {
                 case "EditText":
-                    return new TintEditText(context, attrs);
+                    return new TintEditText(mActivity, attrs);
                 case "Spinner":
-                    return new TintSpinner(context, attrs);
+                    return new TintSpinner(mActivity, attrs);
                 case "CheckBox":
-                    return new TintCheckBox(context, attrs);
+                    return new TintCheckBox(mActivity, attrs);
                 case "RadioButton":
-                    return new TintRadioButton(context, attrs);
+                    return new TintRadioButton(mActivity, attrs);
                 case "CheckedTextView":
-                    return new TintCheckedTextView(context, attrs);
+                    return new TintCheckedTextView(mActivity, attrs);
                 case "AutoCompleteTextView":
-                    return new TintAutoCompleteTextView(context, attrs);
+                    return new TintAutoCompleteTextView(mActivity, attrs);
                 case "MultiAutoCompleteTextView":
-                    return new TintMultiAutoCompleteTextView(context, attrs);
+                    return new TintMultiAutoCompleteTextView(mActivity, attrs);
             }
         }
         return null;
