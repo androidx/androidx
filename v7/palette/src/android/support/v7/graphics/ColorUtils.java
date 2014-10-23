@@ -123,25 +123,15 @@ final class ColorUtils {
         return maxAlpha;
     }
 
-    static int getTextColorForBackground(int backgroundColor, float minContrastRatio) {
-        // First we will check white as most colors will be dark
-        final int whiteMinAlpha = ColorUtils
-                .findMinimumAlpha(Color.WHITE, backgroundColor, minContrastRatio);
+    static int getTextColorForBackground(int backgroundColor, int textColor, float minContrastRatio) {
+        final int minAlpha = ColorUtils
+                .findMinimumAlpha(textColor, backgroundColor, minContrastRatio);
 
-        if (whiteMinAlpha >= 0) {
-            return ColorUtils.modifyAlpha(Color.WHITE, whiteMinAlpha);
+        if (minAlpha >= 0) {
+            return ColorUtils.modifyAlpha(textColor, minAlpha);
         }
 
-        // If we hit here then there is not an translucent white which provides enough contrast,
-        // so check black
-        final int blackMinAlpha = ColorUtils
-                .findMinimumAlpha(Color.BLACK, backgroundColor, minContrastRatio);
-
-        if (blackMinAlpha >= 0) {
-            return ColorUtils.modifyAlpha(Color.BLACK, blackMinAlpha);
-        }
-
-        // This should not happen!
+        // Didn't find an opacity which provided enough contrast
         return -1;
     }
 

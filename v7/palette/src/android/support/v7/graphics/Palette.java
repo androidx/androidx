@@ -605,10 +605,37 @@ public final class Palette {
 
         private void ensureTextColorsGenerated() {
             if (!mGeneratedTextColors) {
-                mTitleTextColor = ColorUtils.getTextColorForBackground(mRgb,
-                        MIN_CONTRAST_TITLE_TEXT);
-                mBodyTextColor = ColorUtils.getTextColorForBackground(mRgb,
-                        MIN_CONTRAST_BODY_TEXT);
+                // First check white, as most colors will be dark
+                final int lightBody = ColorUtils.getTextColorForBackground(
+                        mRgb, Color.WHITE,  MIN_CONTRAST_BODY_TEXT);
+                final int lightTitle = ColorUtils.getTextColorForBackground(
+                        mRgb, Color.WHITE, MIN_CONTRAST_TITLE_TEXT);
+
+                if (lightBody != -1 && lightTitle != -1) {
+                    // If we found valid light values, use them and return
+                    mBodyTextColor = lightBody;
+                    mTitleTextColor = lightTitle;
+                    mGeneratedTextColors = true;
+                    return;
+                }
+
+                final int darkBody = ColorUtils.getTextColorForBackground(
+                        mRgb, Color.BLACK, MIN_CONTRAST_BODY_TEXT);
+                final int darkTitle = ColorUtils.getTextColorForBackground(
+                        mRgb, Color.BLACK, MIN_CONTRAST_TITLE_TEXT);
+
+                if (darkBody != -1 && darkBody != -1) {
+                    // If we found valid dark values, use them and return
+                    mBodyTextColor = darkBody;
+                    mTitleTextColor = darkTitle;
+                    mGeneratedTextColors = true;
+                    return;
+                }
+
+                // If we reach here then we can not find title and body values which use the same
+                // lightness, we need to use mismatched values
+                mBodyTextColor = lightBody != -1 ? lightBody : darkBody;
+                mTitleTextColor = lightTitle != -1 ? lightTitle : darkTitle;
                 mGeneratedTextColors = true;
             }
         }
