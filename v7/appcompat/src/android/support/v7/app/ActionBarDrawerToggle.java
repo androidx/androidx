@@ -600,29 +600,33 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     static class ToolbarCompatDelegate implements Delegate {
 
         final Toolbar mToolbar;
+        final Drawable mDefaultUpIndicator;
+        final CharSequence mDefaultContentDescription;
 
         ToolbarCompatDelegate(Toolbar toolbar) {
             mToolbar = toolbar;
+            mDefaultUpIndicator = toolbar.getNavigationIcon();
+            mDefaultContentDescription = toolbar.getNavigationContentDescription();
         }
 
         @Override
         public void setActionBarUpIndicator(Drawable upDrawable, @StringRes int contentDescRes) {
             mToolbar.setNavigationIcon(upDrawable);
-            mToolbar.setNavigationContentDescription(contentDescRes);
+            setActionBarDescription(contentDescRes);
         }
 
         @Override
         public void setActionBarDescription(@StringRes int contentDescRes) {
-            mToolbar.setNavigationContentDescription(contentDescRes);
+            if (contentDescRes == 0) {
+                mToolbar.setNavigationContentDescription(mDefaultContentDescription);
+            } else {
+                mToolbar.setNavigationContentDescription(contentDescRes);
+            }
         }
 
         @Override
         public Drawable getThemeUpIndicator() {
-            final TypedArray a = mToolbar.getContext()
-                    .obtainStyledAttributes(new int[]{android.R.id.home});
-            final Drawable result = a.getDrawable(0);
-            a.recycle();
-            return result;
+            return mDefaultUpIndicator;
         }
 
         @Override
