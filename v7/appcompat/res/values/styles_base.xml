@@ -36,9 +36,6 @@
         <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
         <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.ActionButton.Overflow</item>
 
-        <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
-        <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar</item>
-
         <item name="android:gravity">center_vertical</item>
         <item name="elevation">8dp</item>
         <item name="popupTheme">?attr/actionBarPopupTheme</item>
