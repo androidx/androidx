@@ -304,6 +304,11 @@
         <!-- The color applied to framework switch thumbs in their normal state. -->
         <attr name="colorSwitchThumbNormal" format="color" />
 
+        <!-- Whether appcompat should use its styled widgets on pre-Lollipop devices.
+             If this is disabled then widgets will be styled using the platform-default style
+             for the device. This flag has no effect on Android 5.0 or newer. -->
+        <attr name="compatibleWidgetStylingEnabled" format="boolean" />
+
     </declare-styleable>
 
 
