@@ -558,18 +558,4 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
         }
         return mDelegate;
     }
-
-    /**
-     * Sets whether AppCompat's compatibly styled widgets are used on devices running Android
-     * {@link android.os.Build.VERSION_CODES#KITKAT KITKAT} and before.
-     * <p>
-     * You can also set this via the {@code compatibleStyledWidgetsEnabled} theme attribute. If
-     * this is disabled, then widgets will be styled using the default platform styles.
-     * Please note, this only takes effect for any layout inflation which happens after this point.
-     * This also no effect when running on {@link android.os.Build.VERSION_CODES#LOLLIPOP LOLLIPOP}
-     * or newer.
-     */
-    public void setCompatibleWidgetStylingEnabled(boolean enabled) {
-        getDelegate().setCompatibleWidgetStylingEnabled(enabled);
-    }
 }
