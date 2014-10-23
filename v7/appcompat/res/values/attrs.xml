@@ -729,12 +729,6 @@
              view with a theme override will inherit the themed context. -->
         <attr name="theme" format="reference" />
 
-        <attr name="buttonGravity">
-            <!-- Push object to the top of its container, not changing its size. -->
-            <flag name="top" value="0x30" />
-            <!-- Push object to the bottom of its container, not changing its size. -->
-            <flag name="bottom" value="0x50" />
-        </attr>
         <attr name="collapseIcon" format="reference" />
         <!-- Reference to a theme that should be used to inflate popups
              shown by widgets in the toolbar. -->
