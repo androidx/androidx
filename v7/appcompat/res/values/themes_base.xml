@@ -60,11 +60,7 @@
         <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
         <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
 
-        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
-
-        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
     </style>
 
     <style name="Platform.AppCompat.Light" parent="android:Theme.Light">
@@ -106,11 +102,7 @@
         <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
         <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
 
-        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
-
-        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
     </style>
 
     <style name="Platform.AppCompat.Dialog" parent="android:Theme.Dialog">
@@ -151,11 +143,7 @@
         <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
         <item name="android:textAppearanceSmallInverse">@style/TextAppearance.AppCompat.Small.Inverse</item>
 
-        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
-
-        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
     </style>
 
     <style name="Platform.AppCompat.Light.Dialog" parent="Platform.AppCompat.Dialog" />
@@ -256,11 +244,6 @@
         <!-- Toolbar styles -->
         <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
-
-        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
-        <item name="editTextBackground">@drawable/abc_edit_text_material</item>
-        <item name="editTextColor">?android:attr/textColorPrimary</item>
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
@@ -365,11 +348,6 @@
         <!-- Toolbar styles -->
         <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
-
-        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
-        <item name="editTextBackground">@drawable/abc_edit_text_material</item>
-        <item name="editTextColor">?android:attr/textColorPrimary</item>
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/primary_dark_material_light</item>
@@ -496,11 +474,6 @@
         <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
-        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
-        <item name="editTextBackground">@drawable/abc_edit_text_material</item>
-        <item name="editTextColor">?android:attr/textColorPrimary</item>
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
-
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
         <item name="colorPrimary">@color/primary_material_dark</item>
@@ -565,7 +538,6 @@
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
 
         <!-- SearchView attributes -->
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
@@ -601,7 +573,6 @@
         <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
 
         <!-- SearchView styles -->
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
@@ -618,6 +589,18 @@
 
     <style name="Base.ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="colorControlNormal">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="Internal.ThemeOverlay.AppCompat.Widgets" parent="">
+        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
+        <item name="editTextBackground">@drawable/abc_edit_text_material</item>
+        <item name="editTextColor">?android:attr/textColorPrimary</item>
+        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
+
+        <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
+
+        <item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item>
     </style>
 
 </resources>
