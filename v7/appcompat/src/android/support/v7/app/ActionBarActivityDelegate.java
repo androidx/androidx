@@ -60,16 +60,13 @@ abstract class ActionBarActivityDelegate {
     private MenuInflater mMenuInflater;
 
     // true if this activity has an action bar.
-    protected boolean mHasActionBar;
+    boolean mHasActionBar;
     // true if this activity's action bar overlays other activity content.
-    protected boolean mOverlayActionBar;
+    boolean mOverlayActionBar;
     // true if this any action modes should overlay the activity content
-    protected boolean mOverlayActionMode;
+    boolean mOverlayActionMode;
     // true if this activity is floating (e.g. Dialog)
-    protected boolean mIsFloating;
-    // true if the compact tinted widgets are enabled
-    protected boolean mCompatibleWidgetStylingEnabled;
-
+    boolean mIsFloating;
     // The default window callback
     final WindowCallback mDefaultWindowCallback = new WindowCallback() {
         @Override
@@ -165,8 +162,6 @@ abstract class ActionBarActivityDelegate {
             mOverlayActionMode = true;
         }
         mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
-        mCompatibleWidgetStylingEnabled = a.getBoolean(
-                R.styleable.Theme_compatibleWidgetStylingEnabled, true);
         a.recycle();
     }
 
@@ -331,9 +326,5 @@ abstract class ActionBarActivityDelegate {
 
     final boolean isDestroyed() {
         return mIsDestroyed;
-    }
-
-    final void setCompatibleWidgetStylingEnabled(boolean enabled) {
-        mCompatibleWidgetStylingEnabled = enabled;
     }
 }
