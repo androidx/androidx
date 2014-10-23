@@ -331,6 +331,7 @@ public class ViewCompat {
         public void requestApplyInsets(View view);
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
         public boolean getFitsSystemWindows(View view);
+        void setFitsSystemWindows(View view, boolean fitSystemWindows);
         void jumpDrawablesToCurrentState(View v);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
         void setSaveFromParentEnabled(View view, boolean enabled);
@@ -717,6 +718,11 @@ public class ViewCompat {
         }
 
         @Override
+        public void setFitsSystemWindows(View view, boolean fitSystemWindows) {
+            // noop
+        }
+
+        @Override
         public void jumpDrawablesToCurrentState(View view) {
             // Do nothing; API didn't exist.
         }
@@ -972,6 +978,11 @@ public class ViewCompat {
                 mViewPropertyAnimatorCompatMap.put(view, vpa);
             }
             return vpa;
+        }
+
+        @Override
+        public void setFitsSystemWindows(View view, boolean fitSystemWindows) {
+            ViewCompatICS.setFitsSystemWindows(view, fitSystemWindows);
         }
     }
 
@@ -2254,6 +2265,16 @@ public class ViewCompat {
      */
     public static boolean getFitsSystemWindows(View v) {
         return IMPL.getFitsSystemWindows(v);
+    }
+
+    /**
+     * Sets whether or not this view should account for system screen decorations
+     * such as the status bar and inset its content; that is, controlling whether
+     * the default implementation of {@link View#fitSystemWindows(Rect)} will be
+     * executed. See that method for more details.
+     */
+    public static void setFitsSystemWindows(View view, boolean fitSystemWindows) {
+        IMPL.setFitsSystemWindows(view, fitSystemWindows);
     }
 
     /**
