@@ -44,7 +44,7 @@ public class ResourcesCompat {
      * @throws NotFoundException Throws NotFoundException if the given ID does
      *         not exist.
      */
-    public Drawable getDrawable(Resources res, int id, Theme theme)
+    public static Drawable getDrawable(Resources res, int id, Theme theme)
             throws NotFoundException {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
