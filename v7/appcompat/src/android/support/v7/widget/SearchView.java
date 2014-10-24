@@ -39,6 +39,7 @@ import android.speech.RecognizerIntent;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintAutoCompleteTextView;
 import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ViewUtils;
@@ -1605,16 +1606,10 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * Local subclass for AutoCompleteTextView.
      * @hide
      */
-    public static class SearchAutoComplete extends AutoCompleteTextView {
-
-        private final int[] POPUP_WINDOW_ATTRS = {
-                android.R.attr.popupBackground
-        };
+    public static class SearchAutoComplete extends TintAutoCompleteTextView {
 
         private int mThreshold;
         private SearchView mSearchView;
-
-        private final TintManager mTintManager;
 
         public SearchAutoComplete(Context context) {
             this(context, null);
@@ -1627,16 +1622,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         public SearchAutoComplete(Context context, AttributeSet attrs, int defStyle) {
             super(context, attrs, defStyle);
             mThreshold = getThreshold();
-
-            TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
-                    POPUP_WINDOW_ATTRS, defStyle, 0);
-            if (a.hasValue(0)) {
-                setDropDownBackgroundDrawable(a.getDrawable(0));
-            }
-            a.recycle();
-
-            // Keep the TintManager in case we need it later
-            mTintManager = a.getTintManager();
         }
 
         void setSearchView(SearchView searchView) {
@@ -1647,11 +1632,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         public void setThreshold(int threshold) {
             super.setThreshold(threshold);
             mThreshold = threshold;
-        }
-
-        @Override
-        public void setDropDownBackgroundResource(int id) {
-            setDropDownBackgroundDrawable(mTintManager.getDrawable(id));
         }
 
         /**
