@@ -205,6 +205,12 @@
 
     <style name="Widget.AppCompat.CompoundButton.Switch" parent="Base.Widget.AppCompat.CompoundButton.Switch" />
 
+    <style name="Widget.AppCompat.RatingBar" parent="Base.Widget.AppCompat.RatingBar" />
+
+    <style name="Widget.AppCompat.Button" parent="Base.Widget.AppCompat.Button" />
+
+    <style name="Widget.AppCompat.Button.Small" parent="Base.Widget.AppCompat.Button.Small" />
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
