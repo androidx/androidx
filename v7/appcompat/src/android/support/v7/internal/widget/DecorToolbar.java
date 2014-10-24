@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.support.v7.internal.app.WindowCallback;
+import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.util.SparseArray;
 import android.view.Menu;
@@ -92,4 +93,11 @@ public interface DecorToolbar {
     void setDefaultNavigationIcon(Drawable icon);
     void saveHierarchyState(SparseArray<Parcelable> toolbarStates);
     void restoreHierarchyState(SparseArray<Parcelable> toolbarStates);
+    void setBackgroundDrawable(Drawable d);
+    int getHeight();
+    void setVisibility(int visible);
+    int getVisibility();
+    void setMenuCallbacks(MenuPresenter.Callback presenterCallback,
+            MenuBuilder.Callback menuBuilderCallback);
+    Menu getMenu();
 }

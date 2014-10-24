@@ -289,6 +289,12 @@ abstract class ActionBarActivityDelegate {
         }
 
         @Override
+        public boolean isNavigationVisible() {
+            final ActionBar ab = getSupportActionBar();
+            return ab != null && (ab.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0;
+        }
+
+        @Override
         public void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {

@@ -28,6 +28,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.appcompat.R;
@@ -112,6 +113,12 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
          * Returns the context of ActionBar
          */
         Context getActionBarThemedContext();
+
+        /**
+         * Returns whether navigation icon is visible or not.
+         * Used to print warning messages in case developer forgets to set displayHomeAsUp to true
+         */
+        boolean isNavigationVisible();
     }
 
     private final Delegate mActivityImpl;
@@ -125,6 +132,9 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     private final int mCloseDrawerContentDescRes;
     // used in toolbar mode when DrawerToggle is disabled
     private View.OnClickListener mToolbarNavigationClickListener;
+    // If developer does not set displayHomeAsUp, DrawerToggle won't show up.
+    // DrawerToggle logs a warning if this case is detected
+    private boolean mWarnedForDisplayHomeAsUp = false;
 
     /**
      * Construct a new ActionBarDrawerToggle.
@@ -449,6 +459,12 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes) {
+        if (!mWarnedForDisplayHomeAsUp && !mActivityImpl.isNavigationVisible()) {
+            Log.w("ActionBarDrawerToggle", "DrawerToggle may not show up because NavigationIcon"
+                    + " is not visible. You may need to call "
+                    + "actionbar.setDisplayHomeAsUpEnabled(true);");
+            mWarnedForDisplayHomeAsUp = true;
+        }
         mActivityImpl.setActionBarUpIndicator(upDrawable, contentDescRes);
     }
 
@@ -530,6 +546,13 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
 
         @Override
+        public boolean isNavigationVisible() {
+            final ActionBar actionBar = mActivity.getActionBar();
+            return actionBar != null
+                    && (actionBar.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0;
+        }
+
+        @Override
         public void setActionBarUpIndicator(Drawable themeImage, int contentDescRes) {
             mActivity.getActionBar().setDisplayShowHomeEnabled(true);
             mSetIndicatorInfo = ActionBarDrawerToggleHoneycomb.setActionBarUpIndicator(
@@ -574,6 +597,13 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
                 context = mActivity;
             }
             return context;
+        }
+
+        @Override
+        public boolean isNavigationVisible() {
+            final ActionBar actionBar = mActivity.getActionBar();
+            return actionBar != null &&
+                    (actionBar.getDisplayOptions() & ActionBar.DISPLAY_HOME_AS_UP) != 0;
         }
 
         @Override
@@ -633,6 +663,11 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         public Context getActionBarThemedContext() {
             return mToolbar.getContext();
         }
+
+        @Override
+        public boolean isNavigationVisible() {
+            return true;
+        }
     }
 
     /**
@@ -663,6 +698,11 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         @Override
         public Context getActionBarThemedContext() {
             return mActivity;
+        }
+
+        @Override
+        public boolean isNavigationVisible() {
+            return true;
         }
     }
 }
