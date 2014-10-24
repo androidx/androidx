@@ -173,6 +173,12 @@
 
     <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.Material.AutoCompleteTextView" />
 
+    <style name="Base.Widget.AppCompat.RatingBar" parent="android:Widget.Material.RatingBar" />
+
+    <style name="Base.Widget.AppCompat.Button" parent="@android:Widget.Material.Button" />
+
+    <style name="Base.Widget.AppCompat.Button.Small" parent="Widget.AppCompat.Button.Small" />
+
     <!-- Progress Bar -->
 
     <style name="Base.Widget.AppCompat.ProgressBar.Horizontal"

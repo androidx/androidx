@@ -93,7 +93,8 @@ public class TintManager {
             R.drawable.abc_spinner_mtrl_am_alpha,
             R.drawable.abc_btn_check_material,
             R.drawable.abc_btn_radio_material,
-            R.drawable.abc_spinner_textfield_background_material
+            R.drawable.abc_spinner_textfield_background_material,
+            R.drawable.abc_ratingbar_full_material
     };
 
     /**
@@ -111,6 +112,7 @@ public class TintManager {
     private ColorStateList mDefaultColorStateList;
     private ColorStateList mSwitchThumbStateList;
     private ColorStateList mSwitchTrackStateList;
+    private ColorStateList mButtonStateList;
 
     /**
      * A helper method to instantiate a {@link TintManager} and then call {@link #getDrawable(int)}.
@@ -141,6 +143,8 @@ public class TintManager {
             } else if (resId == R.drawable.abc_switch_thumb_material) {
                 drawable = new TintDrawableWrapper(drawable, getSwitchThumbColorStateList(),
                         PorterDuff.Mode.MULTIPLY);
+            } else if (resId == R.drawable.abc_btn_default_mtrl_shape) {
+                drawable = new TintDrawableWrapper(drawable, getButtonColorStateList());
             } else if (arrayContains(CONTAINERS_WITH_TINT_CHILDREN, resId)) {
                 drawable = mResources.getDrawable(resId);
             } else {
@@ -315,6 +319,35 @@ public class TintManager {
             mSwitchThumbStateList = new ColorStateList(states, colors);
         }
         return mSwitchThumbStateList;
+    }
+
+    private ColorStateList getButtonColorStateList() {
+        if (mButtonStateList == null) {
+            final int[][] states = new int[4][];
+            final int[] colors = new int[4];
+            int i = 0;
+
+            // Disabled state
+            states[i] = new int[] { -android.R.attr.state_enabled };
+            colors[i] = getDisabledThemeAttrColor(R.attr.colorButtonNormal);
+            i++;
+
+            states[i] = new int[] { android.R.attr.state_pressed };
+            colors[i] = getThemeAttrColor(R.attr.colorControlHighlight);
+            i++;
+
+            states[i] = new int[] { android.R.attr.state_focused };
+            colors[i] = getThemeAttrColor(R.attr.colorControlHighlight);
+            i++;
+
+            // Default enabled state
+            states[i] = new int[0];
+            colors[i] = getThemeAttrColor(R.attr.colorButtonNormal);
+            i++;
+
+            mButtonStateList = new ColorStateList(states, colors);
+        }
+        return mButtonStateList;
     }
 
     int getThemeAttrColor(int attr) {
