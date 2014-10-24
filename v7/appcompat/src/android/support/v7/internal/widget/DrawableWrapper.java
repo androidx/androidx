@@ -35,11 +35,10 @@ import android.view.View;
  */
 class DrawableWrapper extends Drawable implements Drawable.Callback {
 
-    private final Drawable mDrawable;
+    private Drawable mDrawable;
 
     public DrawableWrapper(Drawable drawable) {
-        mDrawable = drawable;
-        mDrawable.setCallback(this);
+        setWrappedDrawable(drawable);
     }
 
     @Override
@@ -206,5 +205,21 @@ class DrawableWrapper extends Drawable implements Drawable.Callback {
     @Override
     public void setHotspotBounds(int left, int top, int right, int bottom) {
         DrawableCompat.setHotspotBounds(mDrawable, left, top, right, bottom);
+    }
+
+    public Drawable getWrappedDrawable() {
+        return mDrawable;
+    }
+
+    public void setWrappedDrawable(Drawable drawable) {
+        if (mDrawable != null) {
+            mDrawable.setCallback(null);
+        }
+
+        mDrawable = drawable;
+
+        if (drawable != null) {
+            drawable.setCallback(this);
+        }
     }
 }
