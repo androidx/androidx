@@ -33,6 +33,8 @@ public class TintMultiAutoCompleteTextView extends MultiAutoCompleteTextView {
             android.R.attr.popupBackground
     };
 
+    private final TintManager mTintManager;
+
     public TintMultiAutoCompleteTextView(Context context) {
         this(context, null);
     }
@@ -51,5 +53,13 @@ public class TintMultiAutoCompleteTextView extends MultiAutoCompleteTextView {
             setDropDownBackgroundDrawable(a.getDrawable(1));
         }
         a.recycle();
+
+        mTintManager = a.getTintManager();
     }
+
+    @Override
+    public void setDropDownBackgroundResource(int id) {
+        setDropDownBackgroundDrawable(mTintManager.getDrawable(id));
+    }
+
 }
