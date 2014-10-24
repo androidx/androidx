@@ -432,6 +432,15 @@
              always request focus regardless of this view.  It only impacts where
              focus navigation will try to move focus. -->
         <attr name="android:focusable" />
+
+        <!-- Deprecated. -->
+        <attr name="theme" format="reference" />
+
+        <!-- Specifies a theme override for a view. When a theme override is set, the
+             view will be inflated using a {@link android.content.Context} themed with
+             the specified resource. -->
+        <attr name="android:theme" />
+
     </declare-styleable>
 
     <declare-styleable name="MenuView">
@@ -719,12 +728,6 @@
         <attr name="contentInsetRight" />
         <attr name="maxButtonHeight" format="dimension" />
 
-        <!-- Specifies a theme override for a view. When a theme override is set, the
-             view will be inflated using a {@link android.content.Context} themed with
-             the specified resource. During XML inflation, any child views under the
-             view with a theme override will inherit the themed context. -->
-        <attr name="theme" format="reference" />
-        <!-- Icon drawable to use for the collapse button. -->
         <attr name="collapseIcon" format="reference" />
         <!-- Text to set as the content description for the collapse button. -->
         <attr name="collapseContentDescription" format="string" />

@@ -29,6 +29,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.view.LayoutInflaterCompat;
+import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
@@ -58,7 +60,7 @@ import android.view.Window;
  */
 public class ActionBarActivity extends FragmentActivity implements ActionBar.Callback,
         TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider,
-        android.support.v7.app.ActionBarDrawerToggle.TmpDelegateProvider {
+        android.support.v7.app.ActionBarDrawerToggle.TmpDelegateProvider, LayoutInflaterFactory {
 
     private ActionBarActivityDelegate mDelegate;
 
@@ -119,6 +121,10 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (getLayoutInflater().getFactory() == null) {
+            LayoutInflaterCompat.setFactory(getLayoutInflater(), this);
+        }
+
         super.onCreate(savedInstanceState);
         getDelegate().onCreate(savedInstanceState);
     }
@@ -538,14 +544,15 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
-    public View onCreateView(String name, @NonNull Context context, @NonNull AttributeSet attrs) {
-        // Allow super (FragmentActivity) to try and create a view first
-        final View result = super.onCreateView(name, context, attrs);
+    public View onCreateView(View parent, String name, @NonNull Context context,
+            @NonNull AttributeSet attrs) {
+        // Allow FragmentActivity to try and create a view first
+        final View result = onCreateView(name, context, attrs);
         if (result != null) {
             return result;
         }
         // If we reach here super didn't create a View, so let our delegate attempt it
-        return getDelegate().createView(name, context, attrs);
+        return getDelegate().createView(parent, name, context, attrs);
     }
 
     private ActionBarActivityDelegate getDelegate() {

@@ -35,8 +35,9 @@ import android.widget.RatingBar;
 
 /**
  * An tint aware {@link android.widget.RatingBar}.
- *
- * @hide
+ * <p>
+ * This will automatically be used when you use {@link android.widget.RatingBar} in your
+ * layouts. You should only need to manually use this class when writing custom views.
  */
 public class TintRatingBar extends RatingBar {
 
@@ -58,20 +59,22 @@ public class TintRatingBar extends RatingBar {
     public TintRatingBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
-                defStyleAttr, 0);
+        if (TintManager.SHOULD_BE_USED) {
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                    TINT_ATTRS, defStyleAttr, 0);
 
-        Drawable drawable = a.getDrawable(0);
-        if (drawable != null) {
-            setIndeterminateDrawable(tileifyIndeterminate(drawable));
+            Drawable drawable = a.getDrawable(0);
+            if (drawable != null) {
+                setIndeterminateDrawable(tileifyIndeterminate(drawable));
+            }
+
+            drawable = a.getDrawable(1);
+            if (drawable != null) {
+                setProgressDrawable(tileify(drawable, false));
+            }
+
+            a.recycle();
         }
-
-        drawable = a.getDrawable(1);
-        if (drawable != null) {
-            setProgressDrawable(tileify(drawable, false));
-        }
-
-        a.recycle();
     }
 
     /**

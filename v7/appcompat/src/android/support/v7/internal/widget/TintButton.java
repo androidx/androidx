@@ -21,9 +21,10 @@ import android.util.AttributeSet;
 import android.widget.Button;
 
 /**
- * An tint aware {@link android.widget.Button}
- *
- * @hide
+ * An tint aware {@link android.widget.Button}.
+ * <p>
+ * This will automatically be used when you use {@link android.widget.Button} in your layouts. You
+ * should only need to manually use this class when writing custom views.
  */
 public class TintButton extends Button {
 
@@ -32,7 +33,7 @@ public class TintButton extends Button {
             android.R.attr.textAppearance
     };
 
-    private final TintManager mTintManager;
+    private TintManager mTintManager;
 
     public TintButton(Context context) {
         this(context, null);
@@ -45,18 +46,24 @@ public class TintButton extends Button {
     public TintButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
-                defStyleAttr, 0);
-        if (a.hasValue(0)) {
-            setBackgroundDrawable(a.getDrawable(0));
-        }
+        if (TintManager.SHOULD_BE_USED) {
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                    TINT_ATTRS, defStyleAttr, 0);
+            if (a.hasValue(0)) {
+                setBackgroundDrawable(a.getDrawable(0));
+            }
 
-        // Keep the TintManager in case we need it later
-        mTintManager = a.getTintManager();
+            // Keep the TintManager in case we need it later
+            mTintManager = a.getTintManager();
+        }
     }
 
     @Override
     public void setBackgroundResource(int resid) {
-        setBackgroundDrawable(mTintManager.getDrawable(resid));
+        if (mTintManager != null) {
+            setBackgroundDrawable(mTintManager.getDrawable(resid));
+        } else {
+            super.setBackgroundResource(resid);
+        }
     }
 }
