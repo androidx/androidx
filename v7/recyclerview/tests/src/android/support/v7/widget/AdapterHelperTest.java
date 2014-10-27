@@ -756,7 +756,7 @@ public class AdapterHelperTest extends AndroidTestCase {
     public void testRandom() throws Throwable {
         mCollectLogs = true;
         Random random = new Random(System.nanoTime());
-        for (int i = 0; i < 250; i++) {
+        for (int i = 0; i < 100; i++) {
             try {
                 Log.d(TAG, "running random test " + i);
                 randomTest(random, Math.max(40, 10 + nextInt(random, i)));
