@@ -101,6 +101,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     private boolean mOriginalOffsetCalculated = false;
 
     private float mInitialMotionY;
+    private float mInitialDownY;
     private boolean mIsBeingDragged;
     private int mActivePointerId = INVALID_POINTER;
     // Whether this item is scaled up rather than clipped
@@ -615,11 +616,11 @@ public class SwipeRefreshLayout extends ViewGroup {
                 setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCircleView.getTop(), true);
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mIsBeingDragged = false;
-                final float initialMotionY = getMotionEventY(ev, mActivePointerId);
-                if (initialMotionY == -1) {
+                final float initialDownY = getMotionEventY(ev, mActivePointerId);
+                if (initialDownY == -1) {
                     return false;
                 }
-                mInitialMotionY = initialMotionY;
+                mInitialDownY = initialDownY;
 
             case MotionEvent.ACTION_MOVE:
                 if (mActivePointerId == INVALID_POINTER) {
@@ -631,8 +632,9 @@ public class SwipeRefreshLayout extends ViewGroup {
                 if (y == -1) {
                     return false;
                 }
-                final float yDiff = y - mInitialMotionY;
+                final float yDiff = y - mInitialDownY;
                 if (yDiff > mTouchSlop && !mIsBeingDragged) {
+                    mInitialMotionY = y;
                     mIsBeingDragged = true;
                     mProgress.setAlpha(STARTING_PROGRESS_ALPHA);
                 }
