@@ -33,7 +33,7 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"選取喜歡"</string>
     <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"取消選取不喜歡"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"選取不喜歡"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"不重複播放任何媒體項目"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"不重複播放"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"重複播放所有媒體項目"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"重複播放一個媒體項目"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"啟用隨機播放"</string>
