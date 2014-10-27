@@ -577,6 +577,17 @@ public class SwipeRefreshLayout extends ViewGroup {
     }
 
     /**
+     * Get the diameter of the progress circle that is displayed as part of the
+     * swipe to refresh layout. This is not valid until a measure pass has
+     * completed.
+     *
+     * @return Diameter in pixels of the progress circle view.
+     */
+    public int getProgressCircleDiameter() {
+        return mCircleView != null ?mCircleView.getMeasuredHeight() : 0;
+    }
+
+    /**
      * @return Whether it is possible for the child view of this layout to
      *         scroll up. Override this if the child view is a custom view.
      */
