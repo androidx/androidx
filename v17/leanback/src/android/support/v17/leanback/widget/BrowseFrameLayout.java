@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -22,9 +22,9 @@ import android.widget.FrameLayout;
 /**
  * Top level implementation viewgroup for browse to manage transitions between
  * browse sub fragments.
- *
+ * @hide
  */
-class BrowseFrameLayout extends FrameLayout {
+public class BrowseFrameLayout extends FrameLayout {
 
     public interface OnFocusSearchListener {
         public View onFocusSearch(View focused, int direction);
