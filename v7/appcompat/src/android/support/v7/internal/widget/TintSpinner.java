@@ -16,11 +16,15 @@
 
 package android.support.v7.internal.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.widget.EditText;
+import android.widget.ListPopupWindow;
 import android.widget.Spinner;
+
+import java.lang.reflect.Field;
 
 /**
  * An tint aware {@link android.widget.Spinner}.
@@ -49,11 +53,34 @@ public class TintSpinner extends Spinner {
                 defStyleAttr, 0);
         setBackgroundDrawable(a.getDrawable(0));
 
-        if (Build.VERSION.SDK_INT >= 16 && a.hasValue(1)) {
-            setPopupBackgroundDrawable(a.getDrawable(1));
+        if (a.hasValue(1)) {
+            final Drawable background = a.getDrawable(1);
+            if (Build.VERSION.SDK_INT >= 16) {
+                setPopupBackgroundDrawable(background);
+            } else if (Build.VERSION.SDK_INT >= 11) {
+                setPopupBackgroundDrawableV11(this, background);
+            }
         }
 
         a.recycle();
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private static void setPopupBackgroundDrawableV11(Spinner view, Drawable background) {
+        try {
+            Field popupField = Spinner.class.getDeclaredField("mPopup");
+            popupField.setAccessible(true);
+
+            Object popup = popupField.get(view);
+
+            if (popup instanceof ListPopupWindow) {
+                ((ListPopupWindow) popup).setBackgroundDrawable(background);
+            }
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
 }
