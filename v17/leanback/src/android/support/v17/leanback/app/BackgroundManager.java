@@ -40,6 +40,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 
 /**
@@ -337,6 +338,9 @@ public final class BackgroundManager {
      * for this Activity.
      */
     public static BackgroundManager getInstance(Activity activity) {
+        if (activity instanceof FragmentActivity) {
+            return getSupportInstance((FragmentActivity) activity);
+        }
         BackgroundFragment fragment = (BackgroundFragment) activity.getFragmentManager()
                 .findFragmentByTag(FRAGMENT_TAG);
         if (fragment != null) {
@@ -347,10 +351,24 @@ public final class BackgroundManager {
             // manager is null: this is a fragment restored by FragmentManager,
             // fall through to create a BackgroundManager attach to it.
         }
-        return new BackgroundManager(activity);
+        return new BackgroundManager(activity, false);
     }
 
-    private BackgroundManager(Activity activity) {
+    private static BackgroundManager getSupportInstance(FragmentActivity activity) {
+        BackgroundSupportFragment fragment = (BackgroundSupportFragment) activity
+                .getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (fragment != null) {
+            BackgroundManager manager = fragment.getBackgroundManager();
+            if (manager != null) {
+                return manager;
+            }
+            // manager is null: this is a fragment restored by FragmentManager,
+            // fall through to create a BackgroundManager attach to it.
+        }
+        return new BackgroundManager(activity, true);
+    }
+
+    private BackgroundManager(Activity activity, boolean isSupportFragmentActivity) {
         mContext = activity;
         mService = BackgroundContinuityService.getInstance();
         mHeightPx = mContext.getResources().getDisplayMetrics().heightPixels;
@@ -365,7 +383,11 @@ public final class BackgroundManager {
         }
         ta.recycle();
 
-        createFragment(activity);
+        if (isSupportFragmentActivity) {
+            createSupportFragment((FragmentActivity) activity);
+        } else {
+            createFragment(activity);
+        }
     }
 
     private void createFragment(Activity activity) {
@@ -379,6 +401,23 @@ public final class BackgroundManager {
             if (fragment.getBackgroundManager() != null) {
                 throw new IllegalStateException("Created duplicated BackgroundManager for same " +
                         "activity, please use getInstance() instead");
+            }
+        }
+        fragment.setBackgroundManager(this);
+    }
+
+    private void createSupportFragment(FragmentActivity activity) {
+        // Use a fragment to ensure the background manager gets detached properly.
+        BackgroundSupportFragment fragment = (BackgroundSupportFragment) activity
+                .getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (fragment == null) {
+            fragment = new BackgroundSupportFragment();
+            activity.getSupportFragmentManager().beginTransaction().add(fragment, FRAGMENT_TAG)
+                    .commit();
+        } else {
+            if (fragment.getBackgroundManager() != null) {
+                throw new IllegalStateException("Created duplicated BackgroundManager for same " +
+                    "activity, please use getInstance() instead");
             }
         }
         fragment.setBackgroundManager(this);
