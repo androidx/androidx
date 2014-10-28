@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Debug;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -500,6 +501,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         int targetItemCount = mTestAdapter.getItemCount();
         for (int i = 0; i < 100; i++) {
             mTestAdapter.deleteAndNotify(new int[]{0, 1}, new int[]{7, 1});
+            checkForMainThreadException();
             targetItemCount -= 2;
         }
         // wait until main thread runnables are consumed
@@ -648,6 +650,17 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
 
     public void testFindPositionOffset() throws Throwable {
         setupBasic(10);
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void beforePreLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager lm, RecyclerView.State state) {
+                super.beforePreLayout(recycler, lm, state);
+                // [0,2,4]
+                assertEquals("offset check", 0, mAdapterHelper.findPositionOffset(0));
+                assertEquals("offset check", 1, mAdapterHelper.findPositionOffset(2));
+                assertEquals("offset check", 2, mAdapterHelper.findPositionOffset(4));
+            }
+        };
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -656,14 +669,9 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 mTestAdapter.notifyItemRangeRemoved(1, 1);
                 // delete 3
                 mTestAdapter.notifyItemRangeRemoved(2, 1);
-                mAdapterHelper.preProcess();
-                // [0,2,4]
-                assertEquals("offset check", 0, mAdapterHelper.findPositionOffset(0));
-                assertEquals("offset check", 1, mAdapterHelper.findPositionOffset(2));
-                assertEquals("offset check", 2, mAdapterHelper.findPositionOffset(4));
-
             }
         });
+        mLayoutManager.waitForLayout(2);
     }
 
     private void setLayoutRange(int start, int count) {
