@@ -632,6 +632,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                     return false;
                 }
                 mInitialDownY = initialDownY;
+                break;
 
             case MotionEvent.ACTION_MOVE:
                 if (mActivePointerId == INVALID_POINTER) {
@@ -645,7 +646,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                 }
                 final float yDiff = y - mInitialDownY;
                 if (yDiff > mTouchSlop && !mIsBeingDragged) {
-                    mInitialMotionY = y;
+                    mInitialMotionY = mInitialDownY + mTouchSlop;
                     mIsBeingDragged = true;
                     mProgress.setAlpha(STARTING_PROGRESS_ALPHA);
                 }
