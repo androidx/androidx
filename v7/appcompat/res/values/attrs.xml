@@ -811,4 +811,10 @@
         <attr name="showText" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="SwitchCompatTextAppearance">
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="textAllCaps" />
+    </declare-styleable>
+
 </resources>
