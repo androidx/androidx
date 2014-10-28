@@ -2575,9 +2575,12 @@ public class RecyclerView extends ViewGroup {
 
     /**
      * Return the ViewHolder for the item in the given position of the data set.
+     * <p>
+     * This method checks only the children of RecyclerView. If the item at the given
+     * <code>position</code> is not laid out, it <em>will not</em> create a new one.
      *
      * @param position The position of the item in the data set of the adapter
-     * @return The ViewHolder at <code>position</code>
+     * @return The ViewHolder at <code>position</code> or null if there is no such item
      */
     public ViewHolder findViewHolderForPosition(int position) {
         return findViewHolderForPosition(position, false);
@@ -2607,10 +2610,12 @@ public class RecyclerView extends ViewGroup {
      * Return the ViewHolder for the item with the given id. The RecyclerView must
      * use an Adapter with {@link Adapter#setHasStableIds(boolean) stableIds} to
      * return a non-null value.
+     * <p>
+     * This method checks only the children of RecyclerView. If the item with the given
+     * <code>id</code> is not laid out, it <em>will not</em> create a new one.
      *
      * @param id The id for the requested item
-     * @return The ViewHolder with the given <code>id</code>, of null if there
-     * is no such item.
+     * @return The ViewHolder with the given <code>id</code> or null if there is no such item
      */
     public ViewHolder findViewHolderForItemId(long id) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
@@ -5002,7 +5007,6 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * <p>
          * Finds the view which represents the given adapter position.
          * <p>
          * This method traverses each child since it has no information about child order.
@@ -5013,7 +5017,7 @@ public class RecyclerView extends ViewGroup {
          *
          * @param position Position of the item in adapter
          * @return The child view that represents the given position or null if the position is not
-         * visible
+         * laid out
          */
         public View findViewByPosition(int position) {
             final int childCount = getChildCount();
