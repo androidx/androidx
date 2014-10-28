@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -22,8 +22,9 @@ import android.widget.FrameLayout;
  * Customized FrameLayout excludes margin of child from calculating the child size.
  * So we can change left margin of rows while keep the width of rows unchanged without
  * using hardcoded DIPS.
+ * @hide
  */
-class BrowseRowsFrameLayout extends FrameLayout {
+public class BrowseRowsFrameLayout extends FrameLayout {
 
     public BrowseRowsFrameLayout(Context context) {
         this(context ,null);
