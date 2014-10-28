@@ -44,6 +44,7 @@ import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
@@ -74,12 +75,6 @@ public class SwitchCompat extends CompoundButton {
     private static final int TOUCH_MODE_IDLE = 0;
     private static final int TOUCH_MODE_DOWN = 1;
     private static final int TOUCH_MODE_DRAGGING = 2;
-
-    private static final int[] TEXT_APPEARANCE_ATTRS = {
-            android.R.attr.textColor,
-            android.R.attr.textSize,
-            R.attr.textAllCaps
-    };
 
     // Enum for the "typeface" XML parameter.
     private static final int SANS = 1;
@@ -228,12 +223,14 @@ public class SwitchCompat extends CompoundButton {
      * from the specified TextAppearance resource.
      */
     public void setSwitchTextAppearance(Context context, int resid) {
-        TypedArray appearance = context.obtainStyledAttributes(resid, TEXT_APPEARANCE_ATTRS);
+        TypedArray appearance = context.obtainStyledAttributes(resid,
+                R.styleable.SwitchCompatTextAppearance);
 
         ColorStateList colors;
         int ts;
 
-        colors = appearance.getColorStateList(0);
+        colors = appearance.getColorStateList(
+                R.styleable.SwitchCompatTextAppearance_android_textColor);
         if (colors != null) {
             mTextColors = colors;
         } else {
@@ -241,7 +238,8 @@ public class SwitchCompat extends CompoundButton {
             mTextColors = getTextColors();
         }
 
-        ts = appearance.getDimensionPixelSize(1, 0);
+        ts = appearance.getDimensionPixelSize(
+                R.styleable.SwitchCompatTextAppearance_android_textSize, 0);
         if (ts != 0) {
             if (ts != mTextPaint.getTextSize()) {
                 mTextPaint.setTextSize(ts);
@@ -249,7 +247,8 @@ public class SwitchCompat extends CompoundButton {
             }
         }
 
-        boolean allCaps = appearance.getBoolean(2, false);
+        boolean allCaps = appearance.getBoolean(
+                R.styleable.SwitchCompatTextAppearance_textAllCaps, false);
         if (allCaps) {
             mSwitchTransformationMethod = new AllCapsTransformationMethod(getContext());
         } else {
@@ -685,6 +684,7 @@ public class SwitchCompat extends CompoundButton {
         // Commit the change if the event is up and not canceled and the switch
         // has not been disabled during the drag.
         final boolean commitChange = ev.getAction() == MotionEvent.ACTION_UP && isEnabled();
+        final boolean oldState = isChecked();
         final boolean newState;
         if (commitChange) {
             mVelocityTracker.computeCurrentVelocity(1000);
@@ -695,10 +695,13 @@ public class SwitchCompat extends CompoundButton {
                 newState = getTargetCheckedState();
             }
         } else {
-            newState = isChecked();
+            newState = oldState;
         }
 
-        setChecked(newState);
+        if (newState != oldState) {
+            playSoundEffect(SoundEffectConstants.CLICK);
+            setChecked(newState);
+        }
         cancelSuperTouch(ev);
     }
 
@@ -990,7 +993,9 @@ public class SwitchCompat extends CompoundButton {
 
     @Override
     public void drawableHotspotChanged(float x, float y) {
-        super.drawableHotspotChanged(x, y);
+        if (Build.VERSION.SDK_INT >= 21) {
+            super.drawableHotspotChanged(x, y);
+        }
 
         if (mThumbDrawable != null) {
             DrawableCompat.setHotspot(mThumbDrawable, x, y);
