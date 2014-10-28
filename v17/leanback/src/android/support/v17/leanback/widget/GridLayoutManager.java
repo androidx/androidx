@@ -845,9 +845,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
 
-            if (measure && rowSize < 0 && mState.getItemCount() > 0) {
+            final int itemCount = mState.getItemCount();
+            if (measure && rowSize < 0 && itemCount > 0) {
                 if (scrapChildWidth < 0 && scrapChildHeight < 0) {
-                    measureScrapChild(mFocusPosition == NO_POSITION ? 0 : mFocusPosition,
+                    int position;
+                    if (mFocusPosition == NO_POSITION) {
+                        position = 0;
+                    } else if (mFocusPosition >= itemCount) {
+                        position = itemCount - 1;
+                    } else {
+                        position = mFocusPosition;
+                    }
+                    measureScrapChild(position,
                             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                             mMeasuredDimension);
