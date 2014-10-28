@@ -723,8 +723,10 @@
              the specified resource. During XML inflation, any child views under the
              view with a theme override will inherit the themed context. -->
         <attr name="theme" format="reference" />
-
+        <!-- Icon drawable to use for the collapse button. -->
         <attr name="collapseIcon" format="reference" />
+        <!-- Text to set as the content description for the collapse button. -->
+        <attr name="collapseContentDescription" format="string" />
         <!-- Reference to a theme that should be used to inflate popups
              shown by widgets in the toolbar. -->
         <attr name="popupTheme" />
