@@ -25,6 +25,7 @@ import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.ActionProvider;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.ListPopupWindow;
@@ -38,7 +39,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -67,6 +67,8 @@ import android.widget.TextView;
  */
 public class ActivityChooserView extends ViewGroup implements
         ActivityChooserModel.ActivityChooserModelClient {
+
+    private static final String LOG_TAG = "ActivityChooserView";
 
     /**
      * An adapter for displaying the activities in an {@link android.widget.AdapterView}.
@@ -181,13 +183,13 @@ public class ActivityChooserView extends ViewGroup implements
      */
     private int mDefaultActionButtonContentDescription;
 
-        /**
-         * Create a new instance.
-         *
-         * @param context The application environment.
-         */
-        public ActivityChooserView(Context context) {
-            this(context, null);
+    /**
+     * Create a new instance.
+     *
+     * @param context The application environment.
+     */
+    public ActivityChooserView(Context context) {
+        this(context, null);
     }
 
     /**
@@ -235,10 +237,29 @@ public class ActivityChooserView extends ViewGroup implements
         mDefaultActivityButton.setOnLongClickListener(mCallbacks);
         mDefaultActivityButtonImage = (ImageView) mDefaultActivityButton.findViewById(R.id.image);
 
-        mExpandActivityOverflowButton = (FrameLayout) findViewById(R.id.expand_activities_button);
-        mExpandActivityOverflowButton.setOnClickListener(mCallbacks);
+        final FrameLayout expandButton = (FrameLayout) findViewById(R.id.expand_activities_button);
+        expandButton.setOnClickListener(mCallbacks);
+        expandButton.setOnTouchListener(new ListPopupWindow.ForwardingListener(expandButton) {
+            @Override
+            public ListPopupWindow getPopup() {
+                return getListPopupWindow();
+            }
+
+            @Override
+            protected boolean onForwardingStarted() {
+                showPopup();
+                return true;
+            }
+
+            @Override
+            protected boolean onForwardingStopped() {
+                dismissPopup();
+                return true;
+            }
+        });
+        mExpandActivityOverflowButton = expandButton;
         mExpandActivityOverflowButtonImage =
-                (ImageView) mExpandActivityOverflowButton.findViewById(R.id.image);
+            (ImageView) expandButton.findViewById(R.id.image);
         mExpandActivityOverflowButtonImage.setImageDrawable(expandActivityOverflowButtonDrawable);
 
         mAdapter = new ActivityChooserViewAdapter();
@@ -723,9 +744,9 @@ public class ActivityChooserView extends ViewGroup implements
                     titleView.setText(activity.loadLabel(packageManager));
                     // Highlight the default.
                     if (mShowDefaultActivity && position == 0 && mHighlightDefaultActivity) {
-                        //TODO convertView.setActivated(true);
+                        ViewCompat.setActivated(convertView, true);
                     } else {
-                        //TODO convertView.setActivated(false);
+                        ViewCompat.setActivated(convertView, false);
                     }
                     return convertView;
                 default:
@@ -783,10 +804,6 @@ public class ActivityChooserView extends ViewGroup implements
             return mDataModel.getHistorySize();
         }
 
-        public int getMaxActivityCount() {
-            return mMaxActivityCount;
-        }
-
         public ActivityChooserModel getDataModel() {
             return mDataModel;
         }
@@ -803,6 +820,24 @@ public class ActivityChooserView extends ViewGroup implements
 
         public boolean getShowDefaultActivity() {
             return mShowDefaultActivity;
+        }
+    }
+
+    /**
+     * Allows us to set the background using TintTypedArray
+     * @hide
+     */
+    public static class InnerLayout extends LinearLayoutCompat {
+
+        private static final int[] TINT_ATTRS = {
+                android.R.attr.background
+        };
+
+        public InnerLayout(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS);
+            setBackgroundDrawable(a.getDrawable(0));
+            a.recycle();
         }
     }
 }
