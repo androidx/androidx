@@ -82,7 +82,7 @@ public class BrowseAnimationFragment extends
     }
 
     Item createRandomItem() {
-        switch (sRand.nextInt(13)) {
+        switch (sRand.nextInt(14)) {
         default:
         case 0:
             return new Item("Remove Item before", new OnItemClickedListener() {
@@ -239,6 +239,20 @@ public class BrowseAnimationFragment extends
                     int index = mRowsAdapter.indexOf(row);
                     if (index < mRowsAdapter.size() - 1) {
                         mRowsAdapter.removeItems(index + 1, 1);
+                    }
+                }
+            });
+        case 13:
+            return new Item("Replace Item before", new OnItemClickedListener() {
+                    @Override
+                public void onItemClicked(Object item, Row row) {
+                    ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
+                            .getAdapter());
+                    int index = adapter.indexOf(item);
+                    if (index >= 0) {
+                        if (index > 0)
+                            index--;
+                        adapter.replace(index, createRandomItem());
                     }
                 }
             });
