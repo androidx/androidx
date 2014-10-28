@@ -331,31 +331,33 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     private void animateChangeImpl(final ChangeInfo changeInfo) {
         final ViewHolder holder = changeInfo.oldHolder;
-        final View view = holder.itemView;
+        final View view = holder == null ? null : holder.itemView;
         final ViewHolder newHolder = changeInfo.newHolder;
         final View newView = newHolder != null ? newHolder.itemView : null;
-        mChangeAnimations.add(changeInfo.oldHolder);
+        if (view != null) {
+            mChangeAnimations.add(changeInfo.oldHolder);
+            final ViewPropertyAnimatorCompat oldViewAnim = ViewCompat.animate(view).setDuration(
+                    getChangeDuration());
+            oldViewAnim.translationX(changeInfo.toX - changeInfo.fromX);
+            oldViewAnim.translationY(changeInfo.toY - changeInfo.fromY);
+            oldViewAnim.alpha(0).setListener(new VpaListenerAdapter() {
+                @Override
+                public void onAnimationStart(View view) {
+                    dispatchChangeStarting(changeInfo.oldHolder, true);
+                }
 
-        final ViewPropertyAnimatorCompat oldViewAnim = ViewCompat.animate(view).setDuration(
-                getChangeDuration());
-        oldViewAnim.translationX(changeInfo.toX - changeInfo.fromX);
-        oldViewAnim.translationY(changeInfo.toY - changeInfo.fromY);
-        oldViewAnim.alpha(0).setListener(new VpaListenerAdapter() {
-            @Override
-            public void onAnimationStart(View view) {
-                dispatchChangeStarting(changeInfo.oldHolder, true);
-            }
-            @Override
-            public void onAnimationEnd(View view) {
-                oldViewAnim.setListener(null);
-                ViewCompat.setAlpha(view, 1);
-                ViewCompat.setTranslationX(view, 0);
-                ViewCompat.setTranslationY(view, 0);
-                dispatchChangeFinished(changeInfo.oldHolder, true);
-                mChangeAnimations.remove(changeInfo.oldHolder);
-                dispatchFinishedWhenDone();
-            }
-        }).start();
+                @Override
+                public void onAnimationEnd(View view) {
+                    oldViewAnim.setListener(null);
+                    ViewCompat.setAlpha(view, 1);
+                    ViewCompat.setTranslationX(view, 0);
+                    ViewCompat.setTranslationY(view, 0);
+                    dispatchChangeFinished(changeInfo.oldHolder, true);
+                    mChangeAnimations.remove(changeInfo.oldHolder);
+                    dispatchFinishedWhenDone();
+                }
+            }).start();
+        }
         if (newView != null) {
             mChangeAnimations.add(changeInfo.newHolder);
             final ViewPropertyAnimatorCompat newViewAnimation = ViewCompat.animate(newView);

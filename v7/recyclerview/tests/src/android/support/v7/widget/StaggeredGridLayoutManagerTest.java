@@ -366,6 +366,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         while (mLayoutManager.isSmoothScrolling() ||
                 mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
             runTestOnUiThread(viewInBoundsTest);
+            checkForMainThreadException();
             Thread.sleep(400);
         }
         // delete all items
@@ -397,6 +398,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         });
         mLayoutManager.waitForLayout(2);
         runTestOnUiThread(viewInBoundsTest);
+        checkForMainThreadException();
     }
 
     public void testInnerGapHandling() throws Throwable {
