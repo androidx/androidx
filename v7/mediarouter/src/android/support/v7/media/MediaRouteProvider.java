@@ -331,6 +331,24 @@ public abstract class MediaRouteProvider {
         }
 
         /**
+         * Unselects the route and provides a reason. The default implementation
+         * calls {@link #onUnselect()}.
+         * <p>
+         * The reason provided will be one of the following:
+         * <ul>
+         * <li>{@link MediaRouter#UNSELECT_REASON_UNKNOWN}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_DISCONNECTED}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_STOPPED}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_ROUTE_CHANGED}</li>
+         * </ul>
+         *
+         * @param reason The reason for unselecting the route.
+         */
+        public void onUnselect(int reason) {
+            onUnselect();
+        }
+
+        /**
          * Requests to set the volume of the route.
          *
          * @param volume The new volume value between 0 and {@link MediaRouteDescriptor#getVolumeMax}.

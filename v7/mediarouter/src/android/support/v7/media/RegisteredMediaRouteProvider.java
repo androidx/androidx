@@ -344,9 +344,14 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
         @Override
         public void onUnselect() {
+            onUnselect(MediaRouter.UNSELECT_REASON_UNKNOWN);
+        }
+
+        @Override
+        public void onUnselect(int reason) {
             mSelected = false;
             if (mConnection != null) {
-                mConnection.unselectRoute(mControllerId);
+                mConnection.unselectRoute(mControllerId, reason);
             }
         }
 
@@ -525,9 +530,11 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                     mNextRequestId++, controllerId, null, null);
         }
 
-        public void unselectRoute(int controllerId) {
+        public void unselectRoute(int controllerId, int reason) {
+            Bundle extras = new Bundle();
+            extras.putInt(CLIENT_DATA_UNSELECT_REASON, reason);
             sendRequest(CLIENT_MSG_UNSELECT_ROUTE,
-                    mNextRequestId++, controllerId, null, null);
+                    mNextRequestId++, controllerId, null, extras);
         }
 
         public void setVolume(int controllerId, int volume) {

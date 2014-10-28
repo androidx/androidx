@@ -16,6 +16,7 @@
 package android.support.v7.media;
 
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -48,6 +49,8 @@ public final class MediaRouteDescriptor {
     private static final String KEY_VOLUME_HANDLING = "volumeHandling";
     private static final String KEY_PRESENTATION_DISPLAY_ID = "presentationDisplayId";
     private static final String KEY_EXTRAS = "extras";
+    private static final String KEY_CAN_DISCONNECT = "canDisconnect";
+    private static final String KEY_SETTINGS_INTENT = "settingsIntent";
 
     private final Bundle mBundle;
     private List<IntentFilter> mControlFilters;
@@ -103,6 +106,27 @@ public final class MediaRouteDescriptor {
      */
     public boolean isConnecting() {
         return mBundle.getBoolean(KEY_CONNECTING, false);
+    }
+
+    /**
+     * Gets whether the route can be disconnected without stopping playback. To
+     * specify that the route should disconnect without stopping use
+     * {@link MediaRouter#unselect(int)} with
+     * {@link MediaRouter#UNSELECT_REASON_DISCONNECTED}.
+     */
+    public boolean canDisconnectAndKeepPlaying() {
+        return mBundle.getBoolean(KEY_CAN_DISCONNECT, false);
+    }
+
+    /**
+     * Gets an {@link IntentSender} for starting a settings activity for this
+     * route. The activity may have specific route settings or general settings
+     * for the connected device or route provider.
+     *
+     * @return An {@link IntentSender} to start a settings activity.
+     */
+    public IntentSender getSettingsActivity() {
+        return mBundle.getParcelable(KEY_SETTINGS_INTENT);
     }
 
     /**
@@ -319,6 +343,23 @@ public final class MediaRouteDescriptor {
          */
         public Builder setConnecting(boolean connecting) {
             mBundle.putBoolean(KEY_CONNECTING, connecting);
+            return this;
+        }
+
+        /**
+         * Sets whether the route can be disconnected without stopping playback.
+         */
+        public Builder setCanDisconnect(boolean canDisconnect) {
+            mBundle.putBoolean(KEY_CAN_DISCONNECT, canDisconnect);
+            return this;
+        }
+
+        /**
+         * Sets an intent sender for launching the settings activity for this
+         * route.
+         */
+        public Builder setSettingsActivity(IntentSender is) {
+            mBundle.putParcelable(KEY_SETTINGS_INTENT, is);
             return this;
         }
 
