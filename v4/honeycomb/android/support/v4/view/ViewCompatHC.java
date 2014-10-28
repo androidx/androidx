@@ -152,4 +152,8 @@ class ViewCompatHC {
     public static void setSaveFromParentEnabled(View view, boolean enabled) {
         view.setSaveFromParentEnabled(enabled);
     }
+
+    public static void setActivated(View view, boolean activated) {
+        view.setActivated(activated);
+    }
 }
