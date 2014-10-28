@@ -20,6 +20,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.internal.view.SupportMenuItem;
@@ -384,7 +385,17 @@ public final class MenuItemImpl implements SupportMenuItem {
 
     @Override
     public CharSequence getTitleCondensed() {
-        return mTitleCondensed != null ? mTitleCondensed : mTitle;
+        final CharSequence ctitle = mTitleCondensed != null ? mTitleCondensed : mTitle;
+
+        if (Build.VERSION.SDK_INT < 18 && ctitle != null && !(ctitle instanceof String)) {
+            // For devices pre-JB-MR2, where we have a non-String CharSequence, we need to
+            // convert this to a String so that EventLog.writeEvent() does not throw an exception
+            // in Activity.onMenuItemSelected()
+            return ctitle.toString();
+        } else {
+            // Else, we just return the condensed title
+            return ctitle;
+        }
     }
 
     @Override
