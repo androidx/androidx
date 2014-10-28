@@ -22,20 +22,85 @@ import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Matrix;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 
 import java.util.List;
 
 final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
+
+    private static final String TAG = "DetailsOverviewSharedElementHelper";
+    private static final boolean DEBUG = false;
 
     private ViewHolder mViewHolder;
     private Activity mActivityToRunTransition;
     private String mSharedElementName;
     private int mRightPanelWidth;
     private int mRightPanelHeight;
+
+    private ScaleType mSavedScaleType;
+    private Matrix mSavedMatrix;
+
+    private boolean hasImageViewScaleChange(View snapshotView) {
+        return snapshotView instanceof ImageView;
+    }
+
+    private void saveImageViewScale() {
+        if (mSavedScaleType == null) {
+            // only save first time after initialize/restoreImageViewScale()
+            ImageView imageView = mViewHolder.mImageView;
+            mSavedScaleType = imageView.getScaleType();
+            mSavedMatrix = mSavedScaleType == ScaleType.MATRIX ? imageView.getMatrix() : null;
+            if (DEBUG) {
+                Log.d(TAG, "saveImageViewScale: "+mSavedScaleType);
+            }
+        }
+    }
+
+    private static void updateImageViewAfterScaleTypeChange(ImageView imageView) {
+        // enforcing imageView to update its internal bounds/matrix immediately
+        imageView.measure(
+                MeasureSpec.makeMeasureSpec(imageView.getMeasuredWidth(), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(imageView.getMeasuredHeight(), MeasureSpec.EXACTLY));
+        imageView.layout(imageView.getLeft(), imageView.getTop(),
+                imageView.getRight(), imageView.getBottom());
+    }
+
+    private void changeImageViewScale(View snapshotView) {
+        ImageView snapshotImageView = (ImageView) snapshotView;
+        ImageView imageView = mViewHolder.mImageView;
+        if (DEBUG) {
+            Log.d(TAG, "changeImageViewScale to "+snapshotImageView.getScaleType());
+        }
+        imageView.setScaleType(snapshotImageView.getScaleType());
+        if (snapshotImageView.getScaleType() == ScaleType.MATRIX) {
+            imageView.setImageMatrix(snapshotImageView.getImageMatrix());
+        }
+        updateImageViewAfterScaleTypeChange(imageView);
+    }
+
+    private void restoreImageViewScale() {
+        if (mSavedScaleType != null) {
+            if (DEBUG) {
+                Log.d(TAG, "restoreImageViewScale to "+mSavedScaleType);
+            }
+            ImageView imageView = mViewHolder.mImageView;
+            imageView.setScaleType(mSavedScaleType);
+            if (mSavedScaleType == ScaleType.MATRIX) {
+                imageView.setImageMatrix(mSavedMatrix);
+            }
+            // only restore once unless another save happens
+            mSavedScaleType = null;
+            updateImageViewAfterScaleTypeChange(imageView);
+        }
+    }
 
     @Override
     public void onSharedElementStart(List<String> sharedElementNames,
@@ -46,6 +111,11 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         View overviewView = sharedElements.get(0);
         if (mViewHolder == null || mViewHolder.mOverviewFrame != overviewView) {
             return;
+        }
+        View snapshot = sharedElementSnapshots.get(0);
+        if (hasImageViewScaleChange(snapshot)) {
+            saveImageViewScale();
+            changeImageViewScale(snapshot);
         }
         View imageView = mViewHolder.mImageView;
         final int width = overviewView.getWidth();
@@ -76,6 +146,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         if (mViewHolder == null || mViewHolder.mOverviewFrame != overviewView) {
             return;
         }
+        restoreImageViewScale();
         // temporary let action row take focus so we defer button background animation
         mViewHolder.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
         mViewHolder.mActionsRow.setVisibility(View.VISIBLE);
