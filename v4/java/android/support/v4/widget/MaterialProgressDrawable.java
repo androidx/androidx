@@ -107,7 +107,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private float mRotationCount;
     private double mWidth;
     private double mHeight;
-    private Animation mFinishAnimation;
+    boolean mFinishing;
 
     public MaterialProgressDrawable(Context context, View parent) {
         mParent = parent;
@@ -273,10 +273,13 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         mRing.storeOriginals();
         // Already showing some part of the ring
         if (mRing.getEndTrim() != mRing.getStartTrim()) {
-            mParent.startAnimation(mFinishAnimation);
+            mFinishing = true;
+            mAnimation.setDuration(ANIMATION_DURATION/2);
+            mParent.startAnimation(mAnimation);
         } else {
             mRing.setColorIndex(0);
             mRing.resetOriginals();
+            mAnimation.setDuration(ANIMATION_DURATION);
             mParent.startAnimation(mAnimation);
         }
     }
@@ -290,99 +293,88 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         mRing.resetOriginals();
     }
 
+    private void applyFinishTranslation(float interpolatedTime, Ring ring) {
+        // shrink back down and complete a full rotation before
+        // starting other circles
+        // Rotation goes between [0..1].
+        float targetRotation = (float) (Math.floor(ring.getStartingRotation() / MAX_PROGRESS_ARC)
+                + 1f);
+        final float startTrim = ring.getStartingStartTrim()
+                + (ring.getStartingEndTrim() - ring.getStartingStartTrim()) * interpolatedTime;
+        ring.setStartTrim(startTrim);
+        final float rotation = ring.getStartingRotation()
+                + ((targetRotation - ring.getStartingRotation()) * interpolatedTime);
+        ring.setRotation(rotation);
+    }
+
     private void setupAnimators() {
         final Ring ring = mRing;
-        final Animation finishRingAnimation = new Animation() {
-            public void applyTransformation(float interpolatedTime, Transformation t) {
-                // shrink back down and complete a full rotation before starting other circles
-                // Rotation goes between [0..1].
-                float targetRotation = (float) (Math.floor(ring.getStartingRotation()
-                        / MAX_PROGRESS_ARC) + 1f);
-                final float startTrim = ring.getStartingStartTrim()
-                        + (ring.getStartingEndTrim() - ring.getStartingStartTrim())
-                        * interpolatedTime;
-                ring.setStartTrim(startTrim);
-                final float rotation = ring.getStartingRotation()
-                        + ((targetRotation - ring.getStartingRotation()) * interpolatedTime);
-                ring.setRotation(rotation);
-                ring.setArrowScale(1 - interpolatedTime);
-            }
-        };
-        finishRingAnimation.setInterpolator(EASE_INTERPOLATOR);
-        finishRingAnimation.setDuration(ANIMATION_DURATION/2);
-        finishRingAnimation.setAnimationListener(new Animation.AnimationListener() {
-
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                ring.goToNextColor();
-                ring.storeOriginals();
-                ring.setShowArrow(false);
-                mParent.startAnimation(mAnimation);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
         final Animation animation = new Animation() {
-            @Override
+                @Override
             public void applyTransformation(float interpolatedTime, Transformation t) {
-                // The minProgressArc is calculated from 0 to create an angle that
-                // matches the stroke width.
-                final float minProgressArc = (float) Math.toRadians(ring.getStrokeWidth()
-                        / (2 * Math.PI * ring.getCenterRadius()));
-                final float startingEndTrim = ring.getStartingEndTrim();
-                final float startingTrim = ring.getStartingStartTrim();
-                final float startingRotation = ring.getStartingRotation();
+                if (mFinishing) {
+                    applyFinishTranslation(interpolatedTime, ring);
+                } else {
+                    // The minProgressArc is calculated from 0 to create an
+                    // angle that
+                    // matches the stroke width.
+                    final float minProgressArc = (float) Math.toRadians(
+                            ring.getStrokeWidth() / (2 * Math.PI * ring.getCenterRadius()));
+                    final float startingEndTrim = ring.getStartingEndTrim();
+                    final float startingTrim = ring.getStartingStartTrim();
+                    final float startingRotation = ring.getStartingRotation();
 
-                // Offset the minProgressArc to where the endTrim is located.
-                final float minArc = MAX_PROGRESS_ARC - minProgressArc;
-                final float endTrim = startingEndTrim
-                        + (minArc * START_CURVE_INTERPOLATOR.getInterpolation(interpolatedTime));
-                ring.setEndTrim(endTrim);
+                    // Offset the minProgressArc to where the endTrim is
+                    // located.
+                    final float minArc = MAX_PROGRESS_ARC - minProgressArc;
+                    final float endTrim = startingEndTrim + (minArc
+                            * START_CURVE_INTERPOLATOR.getInterpolation(interpolatedTime));
+                    ring.setEndTrim(endTrim);
 
-                final float startTrim = startingTrim
-                        + (MAX_PROGRESS_ARC * END_CURVE_INTERPOLATOR
-                                .getInterpolation(interpolatedTime));
-                ring.setStartTrim(startTrim);
+                    final float startTrim = startingTrim + (MAX_PROGRESS_ARC
+                            * END_CURVE_INTERPOLATOR.getInterpolation(interpolatedTime));
+                    ring.setStartTrim(startTrim);
 
-                final float rotation = startingRotation + (0.25f * interpolatedTime);
-                ring.setRotation(rotation);
+                    final float rotation = startingRotation + (0.25f * interpolatedTime);
+                    ring.setRotation(rotation);
 
-                float groupRotation = ((720.0f / NUM_POINTS) * interpolatedTime)
-                        + (720.0f * (mRotationCount / NUM_POINTS));
-                setRotation(groupRotation);
+                    float groupRotation = ((720.0f / NUM_POINTS) * interpolatedTime)
+                            + (720.0f * (mRotationCount / NUM_POINTS));
+                    setRotation(groupRotation);
+                }
             }
         };
         animation.setRepeatCount(Animation.INFINITE);
         animation.setRepeatMode(Animation.RESTART);
         animation.setInterpolator(LINEAR_INTERPOLATOR);
-        animation.setDuration(ANIMATION_DURATION);
         animation.setAnimationListener(new Animation.AnimationListener() {
 
-            @Override
+                @Override
             public void onAnimationStart(Animation animation) {
                 mRotationCount = 0;
             }
 
-            @Override
+                @Override
             public void onAnimationEnd(Animation animation) {
                 // do nothing
             }
 
-            @Override
+                @Override
             public void onAnimationRepeat(Animation animation) {
                 ring.storeOriginals();
                 ring.goToNextColor();
                 ring.setStartTrim(ring.getEndTrim());
-                mRotationCount = (mRotationCount + 1) % (NUM_POINTS);
+                if (mFinishing) {
+                    // finished closing the last ring from the swipe gesture; go
+                    // into progress mode
+                    mFinishing = false;
+                    animation.setDuration(ANIMATION_DURATION);
+                    ring.setShowArrow(false);
+                } else {
+                    mRotationCount = (mRotationCount + 1) % (NUM_POINTS);
+                }
             }
         });
-        mFinishAnimation = finishRingAnimation;
         mAnimation = animation;
     }
 
