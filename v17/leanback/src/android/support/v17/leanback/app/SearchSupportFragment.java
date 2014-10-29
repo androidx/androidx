@@ -1,3 +1,5 @@
+/* This file is auto-generated from SearchFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
