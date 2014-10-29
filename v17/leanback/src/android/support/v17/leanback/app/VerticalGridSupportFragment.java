@@ -1,3 +1,5 @@
+/* This file is auto-generated from VerticalGridFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
