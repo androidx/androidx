@@ -164,20 +164,20 @@
     <!-- Search View result styles -->
 
     <style name="Base.TextAppearance.AppCompat.SearchResult.Title"
-           parent="@android:TextAppearance.Material.SearchResult.Title">
+           parent="android:TextAppearance.Material.SearchResult.Title">
     </style>
 
     <style name="Base.TextAppearance.AppCompat.SearchResult.Subtitle"
-           parent="@android:TextAppearance.Material.SearchResult.Subtitle">
+           parent="android:TextAppearance.Material.SearchResult.Subtitle">
     </style>
 
     <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.Material.AutoCompleteTextView" />
 
     <style name="Base.Widget.AppCompat.RatingBar" parent="android:Widget.Material.RatingBar" />
 
-    <style name="Base.Widget.AppCompat.Button" parent="@android:Widget.Material.Button" />
+    <style name="Base.Widget.AppCompat.Button" parent="android:Widget.Material.Button" />
 
-    <style name="Base.Widget.AppCompat.Button.Small" parent="Widget.AppCompat.Button.Small" />
+    <style name="Base.Widget.AppCompat.Button.Small" parent="android:Widget.Material.Button.Small" />
 
     <!-- Progress Bar -->
 
@@ -188,5 +188,4 @@
     <style name="Base.Widget.AppCompat.ProgressBar"
            parent="android:Widget.Material.ProgressBar">
     </style>
-
 </resources>
