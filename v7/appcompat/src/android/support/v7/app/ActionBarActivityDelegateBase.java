@@ -728,6 +728,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     @Override
     boolean onKeyShortcut(int keyCode, KeyEvent ev) {
+        // Let the Action Bar have a chance at handling the shortcut
+        ActionBar ab = getSupportActionBar();
+        if (ab != null && ab.onKeyShortcut(keyCode, ev)) {
+            return true;
+        }
+
         // If the panel is already prepared, then perform the shortcut using it.
         boolean handled;
         if (mPreparedPanel != null) {
