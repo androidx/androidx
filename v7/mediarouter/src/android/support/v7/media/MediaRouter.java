@@ -2135,17 +2135,27 @@ public final class MediaRouter {
                     // Otherwise create a new provider and update
                     mVpCompat = new VolumeProviderCompat(controlType, max, current) {
                         @Override
-                        public void onSetVolumeTo(int volume) {
-                            if (mSelectedRoute != null) {
-                                mSelectedRoute.requestSetVolume(volume);
-                            }
+                        public void onSetVolumeTo(final int volume) {
+                            mCallbackHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mSelectedRoute != null) {
+                                        mSelectedRoute.requestSetVolume(volume);
+                                    }
+                                }
+                            });
                         }
 
                         @Override
-                        public void onAdjustVolume(int direction) {
-                            if (mSelectedRoute != null) {
-                                mSelectedRoute.requestUpdateVolume(direction);
-                            }
+                        public void onAdjustVolume(final int direction) {
+                            mCallbackHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mSelectedRoute != null) {
+                                        mSelectedRoute.requestUpdateVolume(direction);
+                                    }
+                                }
+                            });
                         }
                     };
                     mMsCompat.setPlaybackToRemote(mVpCompat);
