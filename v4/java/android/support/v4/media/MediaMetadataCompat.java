@@ -16,11 +16,13 @@
 package android.support.v4.media;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.Set;
@@ -184,6 +186,13 @@ public final class MediaMetadataCompat implements Parcelable {
     public static final String METADATA_KEY_DISPLAY_ICON_URI
             = "android.media.metadata.DISPLAY_ICON_URI";
 
+    /**
+     * A String key for identifying the content. This value is specific to the
+     * service providing the content. If used, this should be a persistent
+     * unique key for the underlying content.
+     */
+    public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
+
     private static final int METADATA_TYPE_LONG = 0;
     private static final int METADATA_TYPE_TEXT = 1;
     private static final int METADATA_TYPE_BITMAP = 2;
@@ -218,10 +227,34 @@ public final class MediaMetadataCompat implements Parcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_DESCRIPTION, METADATA_TYPE_TEXT);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON, METADATA_TYPE_BITMAP);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_ID, METADATA_TYPE_TEXT);
     }
+
+    private static final String[] PREFERRED_DESCRIPTION_ORDER = {
+            METADATA_KEY_TITLE,
+            METADATA_KEY_ARTIST,
+            METADATA_KEY_ALBUM,
+            METADATA_KEY_ALBUM_ARTIST,
+            METADATA_KEY_WRITER,
+            METADATA_KEY_AUTHOR,
+            METADATA_KEY_COMPOSER
+    };
+
+    private static final String[] PREFERRED_BITMAP_ORDER = {
+            METADATA_KEY_DISPLAY_ICON,
+            METADATA_KEY_ART,
+            METADATA_KEY_ALBUM_ART
+    };
+
+    private static final String[] PREFERRED_URI_ORDER = {
+            METADATA_KEY_DISPLAY_ICON_URI,
+            METADATA_KEY_ART_URI,
+            METADATA_KEY_ALBUM_ART_URI
+    };
 
     private final Bundle mBundle;
     private Object mMetadataObj;
+    private MediaDescriptionCompat mDescription;
 
     private MediaMetadataCompat(Bundle bundle) {
         mBundle = new Bundle(bundle);
@@ -316,6 +349,73 @@ public final class MediaMetadataCompat implements Parcelable {
         return bmp;
     }
 
+    /**
+     * Returns a simple description of this metadata for display purposes.
+     *
+     * @return A simple description of this metadata.
+     */
+    public MediaDescriptionCompat getDescription() {
+        if (mDescription != null) {
+            return mDescription;
+        }
+
+        String mediaId = getString(METADATA_KEY_MEDIA_ID);
+
+        CharSequence[] text = new CharSequence[3];
+        Bitmap icon = null;
+        Uri iconUri = null;
+
+        // First handle the case where display data is set already
+        CharSequence displayText = getText(METADATA_KEY_DISPLAY_TITLE);
+        if (!TextUtils.isEmpty(displayText)) {
+            // If they have a display title use only display data, otherwise use
+            // our best bets
+            text[0] = displayText;
+            text[1] = getText(METADATA_KEY_DISPLAY_SUBTITLE);
+            text[2] = getText(METADATA_KEY_DISPLAY_DESCRIPTION);
+        } else {
+            // Use whatever fields we can
+            int textIndex = 0;
+            int keyIndex = 0;
+            while (textIndex < text.length && keyIndex < PREFERRED_DESCRIPTION_ORDER.length) {
+                CharSequence next = getText(PREFERRED_DESCRIPTION_ORDER[keyIndex++]);
+                if (!TextUtils.isEmpty(next)) {
+                    // Fill in the next empty bit of text
+                    text[textIndex++] = next;
+                }
+            }
+        }
+
+        // Get the best art bitmap we can find
+        for (int i = 0; i < PREFERRED_BITMAP_ORDER.length; i++) {
+            Bitmap next = getBitmap(PREFERRED_BITMAP_ORDER[i]);
+            if (next != null) {
+                icon = next;
+                break;
+            }
+        }
+
+        // Get the best Uri we can find
+        for (int i = 0; i < PREFERRED_URI_ORDER.length; i++) {
+            String next = getString(PREFERRED_URI_ORDER[i]);
+            if (!TextUtils.isEmpty(next)) {
+                iconUri = Uri.parse(next);
+                break;
+            }
+        }
+
+        MediaDescriptionCompat.Builder bob = new MediaDescriptionCompat.Builder();
+        bob.setMediaId(mediaId);
+        bob.setTitle(text[0]);
+        bob.setSubtitle(text[1]);
+        bob.setDescription(text[2]);
+        bob.setIconBitmap(icon);
+        bob.setIconUri(iconUri);
+        mDescription = bob.build();
+
+        return mDescription;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -345,13 +445,17 @@ public final class MediaMetadataCompat implements Parcelable {
     }
 
     /**
-     * Creates an instance from a framework {@link android.media.MediaMetadata} object.
+     * Creates an instance from a framework {@link android.media.MediaMetadata}
+     * object.
      * <p>
-     * This method is only supported on API 21+.
+     * This method is only supported on
+     * {@link android.os.Build.VERSION_CODES#LOLLIPOP} and later.
      * </p>
      *
-     * @param metadataObj A {@link android.media.MediaMetadata} object, or null if none.
-     * @return An equivalent {@link MediaMetadataCompat} object, or null if none.
+     * @param metadataObj A {@link android.media.MediaMetadata} object, or null
+     *            if none.
+     * @return An equivalent {@link MediaMetadataCompat} object, or null if
+     *         none.
      */
     public static MediaMetadataCompat fromMediaMetadata(Object metadataObj) {
         if (metadataObj == null || Build.VERSION.SDK_INT < 21) {
@@ -390,10 +494,12 @@ public final class MediaMetadataCompat implements Parcelable {
     /**
      * Gets the underlying framework {@link android.media.MediaMetadata} object.
      * <p>
-     * This method is only supported on API 21+.
+     * This method is only supported on
+     * {@link android.os.Build.VERSION_CODES#LOLLIPOP} and later.
      * </p>
      *
-     * @return An equivalent {@link android.media.MediaMetadata} object, or null if none.
+     * @return An equivalent {@link android.media.MediaMetadata} object, or null
+     *         if none.
      */
     public Object getMediaMetadata() {
         if (mMetadataObj != null || Build.VERSION.SDK_INT < 21) {
