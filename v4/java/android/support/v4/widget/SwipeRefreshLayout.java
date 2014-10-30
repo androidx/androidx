@@ -866,6 +866,7 @@ public class SwipeRefreshLayout extends ViewGroup {
             targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
             int offset = targetTop - mCircleView.getTop();
             setTargetOffsetTopAndBottom(offset, false /* requires update */);
+            mProgress.setArrowScale(1 - interpolatedTime);
         }
     };
 
