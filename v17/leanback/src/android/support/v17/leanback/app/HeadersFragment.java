@@ -66,12 +66,12 @@ public class HeadersFragment extends BaseRowFragment {
     }
 
     @Override
-    protected VerticalGridView findGridViewFromRoot(View view) {
+    VerticalGridView findGridViewFromRoot(View view) {
         return (VerticalGridView) view.findViewById(R.id.browse_headers);
     }
 
     @Override
-    protected void onRowSelected(ViewGroup parent, View view, int position, long id) {
+    void onRowSelected(ViewGroup parent, View view, int position, long id) {
         if (mOnItemSelectedListener != null) {
             if (position >= 0) {
                 Row row = (Row) getAdapter().get(position);
@@ -116,7 +116,7 @@ public class HeadersFragment extends BaseRowFragment {
     };
 
     @Override
-    protected int getLayoutResourceId() {
+    int getLayoutResourceId() {
         return R.layout.lb_headers_fragment;
     }
 
@@ -188,7 +188,7 @@ public class HeadersFragment extends BaseRowFragment {
         }
     };
     @Override
-    protected void updateAdapter() {
+    void updateAdapter() {
         super.updateAdapter();
         ItemBridgeAdapter adapter = getBridgeAdapter();
         if (adapter != null) {

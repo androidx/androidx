@@ -249,7 +249,7 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     @Override
-    protected void onRowSelected(ViewGroup parent, View view, int position, long id) {
+    void onRowSelected(ViewGroup parent, View view, int position, long id) {
         VerticalGridView listView = getVerticalGridView();
         if (listView == null) {
             return;
@@ -271,7 +271,7 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     @Override
-    protected int getLayoutResourceId() {
+    int getLayoutResourceId() {
         return R.layout.lb_rows_fragment;
     }
 
@@ -422,7 +422,7 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     @Override
-    protected void updateAdapter() {
+    void updateAdapter() {
         super.updateAdapter();
         mSelectedViewHolder = null;
         mViewsCreated = false;
