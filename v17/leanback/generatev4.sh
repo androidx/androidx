@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (C) 2014 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +16,22 @@
 
 # Generate v4 fragment related code for leanback
 
-echo "remove leanback v4 fragment classes"
-rm -rf src/android/support/v17/leanback/v4/app
-echo "copy leanback v4 fragment classes from android.support.v17.leanback.app"
-mkdir -p src/android/support/v17/leanback/v4/app
-cp src/android/support/v17/leanback/app/*.java src/android/support/v17/leanback/v4/app/
-echo "replace package declaration"
-sed -i 's/android\.support\.v17\.leanback\.app/android\.support\.v17\.leanback\.v4\.app/g' src/android/support/v17/leanback/v4/app/*.java
-echo "replace with v4 Fragment and FragmentActivity"
-sed -i 's/android\.app\.Fragment/android\.support\.v4\.app\.Fragment/g' src/android/support/v17/leanback/v4/app/*.java
-sed -i 's/android\.app\.Activity/android\.support\.v4\.app\.FragmentActivity/g' src/android/support/v17/leanback/v4/app/*.java
-sed -i 's/Activity\ activity/FragmentActivity activity/g' src/android/support/v17/leanback/v4/app/BackgroundManager.java
-echo "replace getFragmentManager with getSupportFragmentManager"
-sed -i 's/activity\.getFragmentManager/activity\.getSupportFragmentManager/g' src/android/support/v17/leanback/v4/app/BackgroundManager.java
-echo "done"
+echo "Generate v4 fragment related code for leanback"
+
+declare -a arr=("Background" "BaseRow" "Browse" \
+    "Details" "Error" "Headers" "PlaybackOverlay" \
+    "Rows" "Search" "VerticalGrid")
+
+## now loop through the above array
+for i in "${arr[@]}"
+do
+   echo "copy ${i}Fragment to ${i}SupportFragment"
+   cp src/android/support/v17/leanback/app/${i}Fragment.java src/android/support/v17/leanback/app/${i}SupportFragment.java
+   echo "Modifying code to v4 fragment"
+   for j in "${arr[@]}"
+   do
+      sed -i "s/${j}Fragment/${j}SupportFragment/g" src/android/support/v17/leanback/app/${i}SupportFragment.java
+   done
+   sed -i 's/android\.app\.Fragment/android\.support\.v4\.app\.Fragment/g' src/android/support/v17/leanback/app/${i}SupportFragment.java
+   sed -i 's/android\.app\.Activity/android\.support\.v4\.app\.FragmentActivity/g' src/android/support/v17/leanback/app/${i}SupportFragment.java
+done
