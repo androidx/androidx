@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Sistem"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Peranti"</string>
-    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"Output media"</string>
+    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Barisan pelakon"</string>
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"Sambung kepada peranti"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Mencari peranti..."</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Putuskan sambungan"</string>
