@@ -16,6 +16,7 @@
 
 package android.support.v4.media.session;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
@@ -90,6 +91,10 @@ class MediaSessionCompatApi21 {
 
     public static void setMetadata(Object sessionObj, Object metadataObj) {
         ((MediaSession)sessionObj).setMetadata((MediaMetadata)metadataObj);
+    }
+
+    public static void setSessionActivity(Object sessionObj, PendingIntent pi) {
+        ((MediaSession) sessionObj).setSessionActivity(pi);
     }
 
     public static interface Callback {
