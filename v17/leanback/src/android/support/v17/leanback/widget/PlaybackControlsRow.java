@@ -49,6 +49,7 @@ public class PlaybackControlsRow extends Row {
         private int mIndex;
         private Drawable[] mDrawables;
         private String[] mLabels;
+        private String[] mLabels2;
 
         /**
          * Constructor
@@ -67,37 +68,64 @@ public class PlaybackControlsRow extends Row {
             setIndex(0);
         }
 
+        /**
+         * Sets the array of strings used as labels.  The size of the array defines the range
+         * of valid indices for this action.  The labels are used to define the accessibility
+         * content description unless secondary labels are provided.
+         */
         public void setLabels(String[] labels) {
             mLabels = labels;
             setIndex(0);
         }
 
         /**
-         * Returns the number of drawables.
+         * Sets the array of strings used as secondary labels.  These labels are used
+         * in place of the primary labels for accessibility content description only.
          */
-        public int getNumberOfDrawables() {
-            return mDrawables.length;
+        public void setSecondaryLabels(String[] labels) {
+            mLabels2 = labels;
+            setIndex(0);
+        }
+
+        /**
+         * Returns the number of actions.
+         */
+        public int getActionCount() {
+            if (mDrawables != null) {
+                return mDrawables.length;
+            }
+            if (mLabels != null) {
+                return mLabels.length;
+            }
+            return 0;
         }
 
         /**
          * Returns the drawable at the given index.
          */
         public Drawable getDrawable(int index) {
-            return mDrawables[index];
+            return mDrawables == null ? null : mDrawables[index];
         }
 
         /**
          * Returns the label at the given index.
          */
         public String getLabel(int index) {
-            return mLabels[index];
+            return mLabels == null ? null : mLabels[index];
+        }
+
+        /**
+         * Returns the secondary label at the given index.
+         */
+        public String getSecondaryLabel(int index) {
+            return mLabels2 == null ? null : mLabels2[index];
         }
 
         /**
          * Increments the index, wrapping to zero once the end is reached.
          */
         public void nextIndex() {
-            setIndex(mIndex < mDrawables.length - 1 ? mIndex + 1 : 0);
+            setIndex(mIndex < getActionCount() - 1 ? mIndex + 1 : 0);
         }
 
         /**
@@ -105,9 +133,14 @@ public class PlaybackControlsRow extends Row {
          */
         public void setIndex(int index) {
             mIndex = index;
-            setIcon(mDrawables[mIndex]);
+            if (mDrawables != null) {
+                setIcon(mDrawables[mIndex]);
+            }
             if (mLabels != null) {
                 setLabel1(mLabels[mIndex]);
+            }
+            if (mLabels2 != null) {
+                setLabel2(mLabels2[mIndex]);
             }
         }
 
@@ -156,32 +189,92 @@ public class PlaybackControlsRow extends Row {
     /**
      * An action displaying an icon for fast forward.
      */
-    public static class FastForwardAction extends Action {
+    public static class FastForwardAction extends MultiAction {
         /**
          * Constructor
          * @param context Context used for loading resources.
          */
         public FastForwardAction(Context context) {
+            this(context, 1);
+        }
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         * @param numSpeeds Number of supported fast forward speeds.
+         */
+        public FastForwardAction(Context context, int numSpeeds) {
             super(R.id.lb_control_fast_forward);
-            setIcon(getStyledDrawable(context,
-                    R.styleable.lbPlaybackControlsActionIcons_fast_forward));
-            setLabel1(context.getString(R.string.lb_playback_controls_fast_forward));
+
+            if (numSpeeds < 1) {
+                throw new IllegalArgumentException("numSpeeds must be > 0");
+            }
+            Drawable[] drawables = new Drawable[numSpeeds];
+            drawables[0] = getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_fast_forward);
+            setDrawables(drawables);
+
+            String[] labels = new String[getActionCount()];
+            labels[0] = context.getString(R.string.lb_playback_controls_fast_forward);
+
+            String[] labels2 = new String[getActionCount()];
+            labels2[0] = labels[0];
+
+            for (int i = 1; i < numSpeeds; i++) {
+                int multiplier = i + 1;
+                labels[i] = context.getResources().getString(
+                        R.string.lb_control_display_fast_forward_multiplier, multiplier);
+                labels2[i] = context.getResources().getString(
+                        R.string.lb_playback_controls_fast_forward_multiplier, multiplier);
+            }
+            setLabels(labels);
+            setSecondaryLabels(labels2);
         }
     }
 
     /**
      * An action displaying an icon for rewind.
      */
-    public static class RewindAction extends Action {
+    public static class RewindAction extends MultiAction {
         /**
          * Constructor
          * @param context Context used for loading resources.
          */
         public RewindAction(Context context) {
+            this(context, 1);
+        }
+
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         * @param numSpeeds Number of supported fast forward speeds.
+         */
+        public RewindAction(Context context, int numSpeeds) {
             super(R.id.lb_control_fast_rewind);
-            setIcon(getStyledDrawable(context,
-                    R.styleable.lbPlaybackControlsActionIcons_rewind));
-            setLabel1(context.getString(R.string.lb_playback_controls_rewind));
+
+            if (numSpeeds < 1) {
+                throw new IllegalArgumentException("numSpeeds must be > 0");
+            }
+            Drawable[] drawables = new Drawable[numSpeeds];
+            drawables[0] = getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_rewind);
+            setDrawables(drawables);
+
+            String[] labels = new String[getActionCount()];
+            labels[0] = context.getString(R.string.lb_playback_controls_rewind);
+
+            String[] labels2 = new String[getActionCount()];
+            labels2[0] = labels[0];
+
+            for (int i = 1; i < numSpeeds; i++) {
+                int multiplier = i + 1;
+                labels[i] = labels[i] = context.getResources().getString(
+                        R.string.lb_control_display_rewind_multiplier, multiplier);
+                labels2[i] = context.getResources().getString(
+                        R.string.lb_playback_controls_rewind_multiplier, multiplier);
+            }
+            setLabels(labels);
+            setSecondaryLabels(labels2);
         }
     }
 
@@ -267,7 +360,7 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_thumbs_up, context,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_up,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_up_outline);
-            String[] labels = new String[getNumberOfDrawables()];
+            String[] labels = new String[getActionCount()];
             labels[SOLID] = context.getString(R.string.lb_playback_controls_thumb_up);
             labels[OUTLINE] = context.getString(R.string.lb_playback_controls_thumb_up_outline);
             setLabels(labels);
@@ -282,7 +375,7 @@ public class PlaybackControlsRow extends Row {
             super(R.id.lb_control_thumbs_down, context,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_down,
                     R.styleable.lbPlaybackControlsActionIcons_thumb_down_outline);
-            String[] labels = new String[getNumberOfDrawables()];
+            String[] labels = new String[getActionCount()];
             labels[SOLID] = context.getString(R.string.lb_playback_controls_thumb_down);
             labels[OUTLINE] = context.getString(R.string.lb_playback_controls_thumb_down_outline);
             setLabels(labels);
@@ -600,6 +693,8 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Sets the current time in milliseconds for the playback controls row.
+     * If this row is bound to a view, the view will automatically
+     * be updated to reflect the new value.
      */
     public void setCurrentTime(int ms) {
         if (mCurrentTimeMs != ms) {
@@ -617,6 +712,8 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Sets the buffered progress for the playback controls row.
+     * If this row is bound to a view, the view will automatically
+     * be updated to reflect the new value.
      */
     public void setBufferedProgress(int ms) {
         if (mBufferedProgressMs != ms) {

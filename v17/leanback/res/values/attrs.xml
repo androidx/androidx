@@ -204,6 +204,7 @@
 
         <!-- for playback controls -->
         <attr name="playbackControlsButtonStyle" format="reference" />
+        <attr name="playbackControlButtonLabelStyle" format="reference" />
         <attr name="playbackControlsTimeStyle" format="reference" />
 
         <!-- style for a vertical grid of items -->
