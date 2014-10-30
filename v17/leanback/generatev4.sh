@@ -34,4 +34,5 @@ do
    done
    sed -i 's/android\.app\.Fragment/android\.support\.v4\.app\.Fragment/g' src/android/support/v17/leanback/app/${i}SupportFragment.java
    sed -i 's/android\.app\.Activity/android\.support\.v4\.app\.FragmentActivity/g' src/android/support/v17/leanback/app/${i}SupportFragment.java
+   sed -i "1s/^/\/* This file is auto-generated from ${i}Fragment.java.  DO NOT MODIFY. *\/\n\n/" src/android/support/v17/leanback/app/${i}SupportFragment.java
 done
