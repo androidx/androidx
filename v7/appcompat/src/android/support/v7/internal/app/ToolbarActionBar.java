@@ -473,6 +473,12 @@ public class ToolbarActionBar extends ActionBar {
         return true;
     }
 
+    @Override
+    public boolean onKeyShortcut(int keyCode, KeyEvent ev) {
+        Menu menu = getMenu();
+        return menu != null ? menu.performShortcut(keyCode, ev, 0) : false;
+    }
+
     public void addOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         mMenuVisibilityListeners.add(listener);
     }
