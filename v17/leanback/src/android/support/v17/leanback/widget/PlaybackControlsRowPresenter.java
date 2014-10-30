@@ -116,6 +116,9 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             ObjectAdapter adapter = primary ?
                     ((PlaybackControlsRow) getRow()).getPrimaryActionsAdapter() :
                             ((PlaybackControlsRow) getRow()).getSecondaryActionsAdapter();
+            if (adapter == null) {
+                return null;
+            }
             if (adapter.getPresenterSelector() instanceof ControlButtonPresenterSelector) {
                 ControlButtonPresenterSelector selector =
                         (ControlButtonPresenterSelector) adapter.getPresenterSelector();
@@ -361,6 +364,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
 
         MarginLayoutParams lp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
         if (row.getImageDrawable() == null || row.getItem() == null) {
+            vh.mImageView.setImageDrawable(null);
             vh.setBackground(vh.mControlsDock);
             lp.setMarginStart(0);
             lp.setMarginEnd(0);
