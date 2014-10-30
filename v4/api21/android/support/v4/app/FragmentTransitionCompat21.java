@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 class FragmentTransitionCompat21 {
@@ -44,7 +45,7 @@ class FragmentTransitionCompat21 {
     }
 
     public static Object captureExitingViews(Object exitTransition, View root,
-            ArrayList<View> viewList, Map<String, View> namedViews) {
+            ArrayList<View> viewList, Map<String, View> namedViews, View nonExistentView) {
         if (exitTransition != null) {
             captureTransitioningViews(viewList, root);
             if (namedViews != null) {
@@ -53,6 +54,7 @@ class FragmentTransitionCompat21 {
             if (viewList.isEmpty()) {
                 exitTransition = null;
             } else {
+                viewList.add(nonExistentView);
                 addTargets((Transition) exitTransition, viewList);
             }
         }
@@ -130,6 +132,8 @@ class FragmentTransitionCompat21 {
                                     if (enterTransition != null) {
                                         captureTransitioningViews(enteringViews, fragmentView);
                                         enteringViews.removeAll(renamedViews.values());
+                                        enteringViews.add(nonExistentView);
+                                        enterTransition.removeTarget(nonExistentView);
                                         addTargets(enterTransition, enteringViews);
                                     }
                                 }
@@ -304,20 +308,69 @@ class FragmentTransitionCompat21 {
         }
     }
 
+    /**
+     * This method removes the views from transitions that target ONLY those views.
+     * The views list should match those added in addTargets and should contain
+     * one view that is not in the view hierarchy (state.nonExistentView).
+     */
     public static void removeTargets(Object transitionObject, ArrayList<View> views) {
         Transition transition = (Transition) transitionObject;
-        int numViews = views.size();
-        for (int i = 0; i < numViews; i++) {
-            transition.removeTarget(views.get(i));
+        if (transition instanceof TransitionSet) {
+            TransitionSet set = (TransitionSet) transition;
+            int numTransitions = set.getTransitionCount();
+            for (int i = 0; i < numTransitions; i++) {
+                Transition child = set.getTransitionAt(i);
+                removeTargets(child, views);
+            }
+        } else if (!hasSimpleTarget(transition)) {
+            List<View> targets = transition.getTargets();
+            if (targets != null && targets.size() == views.size() &&
+                    targets.containsAll(views)) {
+                // We have an exact match. We must have added these earlier in addTargets
+                for (int i = views.size() - 1; i >= 0; i--) {
+                    transition.removeTarget(views.get(i));
+                }
+            }
         }
     }
 
+    /**
+     * This method adds views as targets to the transition, but only if the transition
+     * doesn't already have a target. It is best for views to contain one View object
+     * that does not exist in the view hierarchy (state.nonExistentView) so that
+     * when they are removed later, a list match will suffice to remove the targets.
+     * Otherwise, if you happened to have targeted the exact views for the transition,
+     * the removeTargets call will remove them unexpectedly.
+     */
     public static void addTargets(Object transitionObject, ArrayList<View> views) {
         Transition transition = (Transition) transitionObject;
-        int numViews = views.size();
-        for (int i = 0; i < numViews; i++) {
-            transition.addTarget(views.get(i));
+        if (transition instanceof TransitionSet) {
+            TransitionSet set = (TransitionSet) transition;
+            int numTransitions = set.getTransitionCount();
+            for (int i = 0; i < numTransitions; i++) {
+                Transition child = set.getTransitionAt(i);
+                addTargets(child, views);
+            }
+        } else if (!hasSimpleTarget(transition)) {
+            List<View> targets = transition.getTargets();
+            if (isNullOrEmpty(targets)) {
+                // We can just add the target views
+                int numViews = views.size();
+                for (int i = 0; i < numViews; i++) {
+                    transition.addTarget(views.get(i));
+                }
+            }
         }
+    }
+
+    private static boolean hasSimpleTarget(Transition transition) {
+        return !isNullOrEmpty(transition.getTargetIds()) ||
+                !isNullOrEmpty(transition.getTargetNames()) ||
+                !isNullOrEmpty(transition.getTargetTypes());
+    }
+
+    private static boolean isNullOrEmpty(List list) {
+        return list == null || list.isEmpty();
     }
 
     public interface ViewRetriever {
