@@ -21,5 +21,25 @@ limitations under the License.
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Suchen"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Zum Suchen sprechen"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"In <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> suchen"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Zum Suchen in <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> sprechen"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Zum Suchen in der Kategorie \"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>\" sprechen"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Wiedergabe"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Pausieren"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Vorspulen"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Zurückspulen"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Nächsten Titel überspringen"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Vorherigen Titel überspringen"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Weitere Aktionen"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"\"Mag ich\" deaktivieren"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"\"Mag ich\" aktivieren"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"\"Mag ich nicht\" deaktivieren"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"\"Mag ich nicht\" aktivieren"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Keinen Titel wiederholen"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Alle wiederholen"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Einen Titel wiederholen"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Zufallsmix aktivieren"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Zufallsmix deaktivieren"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Hohe Qualität aktivieren"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Hohe Qualität deaktivieren"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Untertitel aktivieren"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Untertitel deaktivieren"</string>
 </resources>

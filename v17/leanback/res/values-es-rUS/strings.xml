@@ -21,5 +21,25 @@ limitations under the License.
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Búsqueda"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Habla para buscar"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Buscar <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Habla para buscar <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>."</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Habla para buscar en <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>."</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Reproducir"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Pausar"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Avanzar"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Retroceder"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Ir al siguiente"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Ir al anterior"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Más acciones"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Desmarcar \"Me gusta\""</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Marcar \"Me gusta\""</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Desmarcar \"No me gusta\""</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Marcar \"No me gusta\""</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"No repetir"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Repetir todo"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Repetir uno"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Habilitar reproducción aleatoria"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Inhabilitar reproducción aleatoria"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Habilitar calidad alta"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Inhabilitar calidad alta"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Habilitar subtítulos"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Inhabilitar subtítulos"</string>
 </resources>
