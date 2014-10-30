@@ -78,12 +78,12 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
-            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
-            listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_3));
+            listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_2));
+            listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_3));
             listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_5));
-            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_6));
-            listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_7));
+            listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_6));
+            listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_7));
             listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i, null);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));

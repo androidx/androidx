@@ -17,6 +17,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
@@ -87,6 +88,9 @@ public class CardPresenter extends Presenter {
                 .getDrawable(photoItem.getImageResourceId());
         ((ImageCardView) viewHolder.view).setMainImage(drawable);
         ((ImageCardView) viewHolder.view).setTitleText(photoItem.getTitle());
+        if (!TextUtils.isEmpty(photoItem.getContent())) {
+            ((ImageCardView) viewHolder.view).setContentText(photoItem.getContent());
+        }
     }
 
     @Override

@@ -19,10 +19,16 @@ import android.os.Parcelable;
 public class PhotoItem implements Parcelable {
 
     private String mTitle;
+    private String mContent;
     private int mImageResourceId;
 
     public PhotoItem(String title, int imageResourceId) {
+        this(title, null, imageResourceId);
+    }
+
+    public PhotoItem(String title, String content, int imageResourceId) {
         mTitle = title;
+        mContent = content;
         mImageResourceId = imageResourceId;
     }
 
@@ -32,6 +38,10 @@ public class PhotoItem implements Parcelable {
 
     public String getTitle() {
         return mTitle;
+    }
+
+    public String getContent() {
+        return mContent;
     }
 
     @Override
