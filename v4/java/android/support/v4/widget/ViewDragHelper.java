@@ -868,6 +868,7 @@ public class ViewDragHelper {
     }
 
     void setDragState(int state) {
+        mParentView.removeCallbacks(mSetIdleRunnable);
         if (mDragState != state) {
             mDragState = state;
             mCallback.onViewDragStateChanged(state);
