@@ -17,6 +17,8 @@
 
 package android.support.v4.media.session;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -235,13 +237,26 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Gets the underlying framework {@link android.media.session.MediaSession} object.
+     * Set an intent for launching UI for this Session. This can be used as a
+     * quick link to an ongoing media screen. The intent should be for an
+     * activity that may be started using
+     * {@link Activity#startActivity(Intent)}.
+     *
+     * @param pi The intent to launch to show UI for this Session.
+     */
+    public void setSessionActivity(PendingIntent pi) {
+        mImpl.setSessionActivity(pi);
+    }
+
+    /**
+     * Gets the underlying framework {@link android.media.session.MediaSession}
+     * object.
      * <p>
      * This method is only supported on API 21+.
      * </p>
      *
      * @return The underlying {@link android.media.session.MediaSession} object,
-     * or null if none.
+     *         or null if none.
      */
     public Object getMediaSession() {
         return mImpl.getMediaSession();
@@ -473,6 +488,8 @@ public class MediaSessionCompat {
         Token getSessionToken();
         void setPlaybackState(PlaybackStateCompat state);
         void setMetadata(MediaMetadataCompat metadata);
+
+        void setSessionActivity(PendingIntent pi);
         Object getMediaSession();
     }
 
@@ -522,6 +539,10 @@ public class MediaSessionCompat {
 
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
+        }
+
+        @Override
+        public void setSessionActivity(PendingIntent pi) {
         }
 
         @Override
@@ -598,6 +619,11 @@ public class MediaSessionCompat {
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
             MediaSessionCompatApi21.setMetadata(mSessionObj, metadata.getMediaMetadata());
+        }
+
+        @Override
+        public void setSessionActivity(PendingIntent pi) {
+            MediaSessionCompatApi21.setSessionActivity(mSessionObj, pi);
         }
 
         @Override
