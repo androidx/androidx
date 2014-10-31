@@ -101,7 +101,7 @@ public abstract class Presenter {
      *
      * <p>Becoming detached from the window is not necessarily a permanent condition;
      * the consumer of an presenter's views may choose to cache views offscreen while they
-     * are not visible, attaching an detaching them as appropriate.</p>
+     * are not visible, attaching and detaching them as appropriate.</p>
      *
      * Any view property animations should be cancelled here or the view may fail
      * to be recycled.
