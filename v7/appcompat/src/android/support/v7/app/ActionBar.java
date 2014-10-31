@@ -1059,6 +1059,11 @@ public abstract class ActionBar {
         return false;
     }
 
+    /** @hide **/
+    public boolean onKeyShortcut(int keyCode, KeyEvent ev) {
+        return false;
+    }
+
     /** @hide */
     public boolean collapseActionView() {
         return false;
