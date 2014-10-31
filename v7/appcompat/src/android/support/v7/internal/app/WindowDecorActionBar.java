@@ -506,7 +506,7 @@ public class WindowDecorActionBar extends ActionBar implements
 
         mOverlayLayout.setHideOnContentScrollEnabled(false);
         mContextView.killMode();
-        ActionModeImpl mode = new ActionModeImpl(callback);
+        ActionModeImpl mode = new ActionModeImpl(mContextView.getContext(), callback);
         if (mode.dispatchOnCreate()) {
             mode.invalidate();
             mContextView.initForMode(mode);
@@ -944,20 +944,23 @@ public class WindowDecorActionBar extends ActionBar implements
      * @hide
      */
     public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
+        private final Context mActionModeContext;
+        private final MenuBuilder mMenu;
+
         private ActionMode.Callback mCallback;
-        private MenuBuilder mMenu;
         private WeakReference<View> mCustomView;
 
-        public ActionModeImpl(ActionMode.Callback callback) {
+        public ActionModeImpl(Context context, ActionMode.Callback callback) {
+            mActionModeContext = context;
             mCallback = callback;
-            mMenu = new MenuBuilder(getThemedContext())
+            mMenu = new MenuBuilder(context)
                     .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             mMenu.setCallback(this);
         }
 
         @Override
         public MenuInflater getMenuInflater() {
-            return new SupportMenuInflater(getThemedContext());
+            return new SupportMenuInflater(mActionModeContext);
         }
 
         @Override
