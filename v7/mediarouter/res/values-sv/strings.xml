@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"System"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Enheter"</string>
-    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"Medieuppspelning"</string>
+    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Casta"</string>
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"Anslut till enhet"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Söker efter enheter ..."</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Koppla från"</string>

@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"सिस्टम"</string>
-    <string name="mr_user_route_category_name" msgid="7498112907524977311">"उपकरण"</string>
-    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"मीडिया आउटपुट"</string>
-    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"उपकरण से कनेक्ट करें"</string>
-    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"उपकरणों की खोज हो रही है…"</string>
+    <string name="mr_user_route_category_name" msgid="7498112907524977311">"डिवाइस"</string>
+    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"कास्ट करें"</string>
+    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"डिवाइस से कनेक्ट करें"</string>
+    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"डिवाइस की खोज हो रही है…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"डिस्कनेक्ट करें"</string>
 </resources>
