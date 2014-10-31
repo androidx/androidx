@@ -50,7 +50,7 @@
     <color name="lb_basic_card_bg_color">#FF3B3B3B</color>
     <color name="lb_basic_card_info_bg_color">#FF3B3B3B</color>
     <color name="lb_basic_card_title_text_color">#FFEEEEEE</color>
-    <color name="lb_basic_card_content_text_color">#FF888888</color>
+    <color name="lb_basic_card_content_text_color">#99EEEEEE</color>
 
     <color name="lb_default_brand_color">#FF455A64</color>
     <color name="lb_default_search_color">#FFFFAA3F</color>
