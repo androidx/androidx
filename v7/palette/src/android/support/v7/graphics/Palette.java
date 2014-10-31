@@ -186,6 +186,18 @@ public final class Palette {
                 }, bitmap);
     }
 
+    /**
+     * Generate a {@link Palette} from the pre-generated list of {@link Palette.Swatch} swatches.
+     * This is useful for testing, or if you want to resurrect a {@link Palette} instance from a
+     * list of swatches. Will return null if the {@code swatches} is null.
+     */
+    public static Palette from(List<Swatch> swatches) {
+        if (swatches == null) {
+            return null;
+        }
+        return new Palette(swatches);
+    }
+
     private Palette(List<Swatch> swatches) {
         mSwatches = swatches;
         mHighestPopulation = findMaxPopulation();
@@ -540,11 +552,11 @@ public final class Palette {
 
         private float[] mHsl;
 
-        Swatch(int rgbColor, int population) {
-            mRed = Color.red(rgbColor);
-            mGreen = Color.green(rgbColor);
-            mBlue = Color.blue(rgbColor);
-            mRgb = rgbColor;
+        public Swatch(int color, int population) {
+            mRed = Color.red(color);
+            mGreen = Color.green(color);
+            mBlue = Color.blue(color);
+            mRgb = color;
             mPopulation = population;
         }
 
