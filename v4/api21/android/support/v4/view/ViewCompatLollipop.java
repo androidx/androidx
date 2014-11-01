@@ -21,7 +21,7 @@ import android.graphics.PorterDuff;
 import android.view.View;
 import android.view.WindowInsets;
 
-class ViewCompatApi21 {
+class ViewCompatLollipop {
 
     public static void setTransitionName(View view, String transitionName) {
         view.setTransitionName(transitionName);
@@ -114,5 +114,45 @@ class ViewCompatApi21 {
             }
         }
         return insets;
+    }
+
+    public static void setNestedScrollingEnabled(View view, boolean enabled) {
+        view.setNestedScrollingEnabled(enabled);
+    }
+
+    public static boolean isNestedScrollingEnabled(View view) {
+        return view.isNestedScrollingEnabled();
+    }
+
+    public static boolean startNestedScroll(View view, int axes) {
+        return view.startNestedScroll(axes);
+    }
+
+    public static void stopNestedScroll(View view) {
+        view.stopNestedScroll();
+    }
+
+    public static boolean hasNestedScrollingParent(View view) {
+        return view.hasNestedScrollingParent();
+    }
+
+    public static boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
+        return view.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow);
+    }
+
+    public static boolean dispatchNestedPreScroll(View view, int dx, int dy, int[] consumed,
+            int[] offsetInWindow) {
+        return view.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    public static boolean dispatchNestedFling(View view, float velocityX, float velocityY,
+            boolean consumed) {
+        return view.dispatchNestedFling(velocityX, velocityY, consumed);
+    }
+
+    public static boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
+        return view.dispatchNestedPreFling(velocityX, velocityY);
     }
 }
