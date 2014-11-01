@@ -427,7 +427,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 ViewCompat.setTranslationY(view, 0);
                 ViewCompat.setTranslationX(view, 0);
                 dispatchMoveFinished(item);
-                mPendingMoves.remove(item);
+                mPendingMoves.remove(i);
             }
         }
         endChangeAnimation(mPendingChanges, item);
@@ -444,7 +444,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             ArrayList<ChangeInfo> changes = mChangesList.get(i);
             endChangeAnimation(changes, item);
             if (changes.isEmpty()) {
-                mChangesList.remove(changes);
+                mChangesList.remove(i);
             }
         }
         for (int i = mMovesList.size() - 1; i >= 0; i--) {
@@ -457,7 +457,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                     dispatchMoveFinished(item);
                     moves.remove(j);
                     if (moves.isEmpty()) {
-                        mMovesList.remove(moves);
+                        mMovesList.remove(i);
                     }
                     break;
                 }
@@ -469,7 +469,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 ViewCompat.setAlpha(view, 1);
                 dispatchAddFinished(item);
                 if (additions.isEmpty()) {
-                    mAdditionsList.remove(additions);
+                    mAdditionsList.remove(i);
                 }
             }
         }
