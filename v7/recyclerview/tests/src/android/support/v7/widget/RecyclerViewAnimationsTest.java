@@ -593,6 +593,40 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         });
     }
 
+    public void testNotifyDataSetChangedDuringScroll() throws Throwable {
+        setupBasic(10);
+        final AtomicInteger onLayoutItemCount = new AtomicInteger(0);
+        final AtomicInteger onScrollItemCount = new AtomicInteger(0);
+
+        mLayoutManager.setOnLayoutCallbacks(new OnLayoutCallbacks() {
+            @Override
+            void onLayoutChildren(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager lm, RecyclerView.State state) {
+                onLayoutItemCount.set(state.getItemCount());
+                super.onLayoutChildren(recycler, lm, state);
+            }
+
+            @Override
+            public void onScroll(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
+                onScrollItemCount.set(state.getItemCount());
+                super.onScroll(dx, recycler, state);
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTestAdapter.mItems.remove(5);
+                mTestAdapter.notifyDataSetChanged();
+                mRecyclerView.scrollBy(0, 100);
+                assertTrue("scrolling while there are pending adapter updates should "
+                        + "trigger a layout", mLayoutManager.mOnLayoutCallbacks.mLayoutCount > 0);
+                assertEquals("scroll by should be called w/ updated adapter count",
+                        mTestAdapter.mItems.size(), onScrollItemCount.get());
+
+            }
+        });
+    }
+
     public void testAddInvisibleAndVisible() throws Throwable {
         setupBasic(10, 1, 7);
         mLayoutManager.expectLayouts(2);
