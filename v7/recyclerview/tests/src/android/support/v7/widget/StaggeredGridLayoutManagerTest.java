@@ -86,6 +86,20 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mRecyclerView.setLayoutManager(mLayoutManager);
     }
 
+    public void testGrowLookup() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));
+        waitFirstLayout();
+        mLayoutManager.expectLayouts(1);
+        mAdapter.mItems.clear();
+        mAdapter.dispatchDataSetChanged();
+        mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+        mLayoutManager.expectLayouts(2);
+        mAdapter.addAndNotify(0, 30);
+        mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
     public void testRTL() throws Throwable {
         for (boolean changeRtlAfter : new boolean[]{false, true}) {
             for (Config config : mBaseVariations) {
