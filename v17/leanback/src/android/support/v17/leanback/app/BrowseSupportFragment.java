@@ -760,7 +760,7 @@ public class BrowseSupportFragment extends Fragment {
         }
         sTransitionHelper.setDuration(changeBounds, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, changeBounds);
-        sTransitionHelper.addTarget(scale, mRowsSupportFragment.getVerticalGridView());
+        sTransitionHelper.addTarget(scale, mRowsSupportFragment.getView());
         sTransitionHelper.setDuration(scale, mHeadersTransitionDuration);
         sTransitionHelper.addTransition(mHeadersTransition, scale);
 
@@ -914,8 +914,8 @@ public class BrowseSupportFragment extends Fragment {
         mRowsSupportFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
         mRowsSupportFragment.setItemAlignment();
 
-        mRowsSupportFragment.getVerticalGridView().setPivotX(0);
-        mRowsSupportFragment.getVerticalGridView().setPivotY(mContainerListAlignTop);
+        mRowsSupportFragment.getView().setPivotX(0);
+        mRowsSupportFragment.getView().setPivotY(mContainerListAlignTop);
 
         if (mCanShowHeaders && mShowingHeaders && mHeadersSupportFragment.getView() != null) {
             mHeadersSupportFragment.getView().requestFocus();
