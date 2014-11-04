@@ -25,6 +25,7 @@ import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
+import android.support.v17.leanback.widget.ScaleFrameLayout;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
@@ -34,6 +35,7 @@ import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -119,7 +121,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     private boolean mExpand = true;
     private boolean mViewsCreated;
     private float mRowScaleFactor;
+    private int mAlignedTop;
     private boolean mRowScaleEnabled;
+    private ScaleFrameLayout mScaleFrameLayout;
+    private boolean mInTransition;
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
@@ -136,6 +141,11 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     private ArrayList<Presenter> mPresenterMapper;
 
     private ItemBridgeAdapter.AdapterListener mExternalAdapterListener;
+
+    @Override
+    protected VerticalGridView findGridViewFromRoot(View view) {
+        return (VerticalGridView) view.findViewById(R.id.container_list);
+    }
 
     /**
      * Sets an item clicked listener on the fragment.
@@ -188,7 +198,8 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
         mExpand = expand;
         VerticalGridView listView = getVerticalGridView();
         if (listView != null) {
-            updateRowScaling(!expand);
+            if (!mInTransition) ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!needsScale());
+            updateRowScaling();
             final int count = listView.getChildCount();
             if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
             for (int i = 0; i < count; i++) {
@@ -287,6 +298,14 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        mScaleFrameLayout = (ScaleFrameLayout) view.findViewById(R.id.scale_frame);
+        return view;
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
@@ -294,6 +313,8 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
         // Need set this for directly using RowsSupportFragment.
         getVerticalGridView().setItemAlignmentViewId(R.id.row_content);
         getVerticalGridView().setSaveChildrenPolicy(VerticalGridView.SAVE_LIMITED_CHILD);
+
+        ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!needsScale());
 
         mRecycledViewPool = null;
         mPresenterMapper = null;
@@ -438,6 +459,8 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     @Override
     void onTransitionStart() {
         super.onTransitionStart();
+        ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!mRowScaleEnabled);
+        mInTransition = true;
         freezeRows(true);
     }
 
@@ -487,19 +510,44 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
         new ExpandPreLayout(callback).execute();
     }
 
-    private void updateRowScaling(boolean scale) {
-        VerticalGridView view = getVerticalGridView();
-        ((ViewGroup) view.getParent()).setClipChildren(!mRowScaleEnabled && scale);
-        view.setPrimaryOverReach((mRowScaleEnabled && scale) ? 1f / mRowScaleFactor : 1f);
+    private boolean needsScale() {
+        return mRowScaleEnabled && !mExpand;
+    }
 
-        final float scaleFactor = (mRowScaleEnabled && scale) ? mRowScaleFactor : 1f;
-        view.setScaleX(scaleFactor);
-        view.setScaleY(scaleFactor);
+    private void updateRowScaling() {
+        final float scaleFactor = needsScale() ? mRowScaleFactor : 1f;
+        mScaleFrameLayout.setLayoutScaleY(scaleFactor);
+        mScaleFrameLayout.setScaleY(scaleFactor);
+        mScaleFrameLayout.setScaleX(scaleFactor);
+        updateWindowAlignOffset();
+    }
+
+    private void updateWindowAlignOffset() {
+        int alignOffset = mAlignedTop;
+        if (needsScale()) {
+            alignOffset = (int) (alignOffset / mRowScaleFactor + 0.5f);
+        }
+        getVerticalGridView().setWindowAlignmentOffset(alignOffset);
+    }
+
+    @Override
+    void setWindowAlignmentFromTop(int alignedTop) {
+        mAlignedTop = alignedTop;
+        final VerticalGridView gridView = getVerticalGridView();
+        if (gridView != null) {
+            updateWindowAlignOffset();
+            // align to a fixed position from top
+            gridView.setWindowAlignmentOffsetPercent(
+                    VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+            gridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+        }
     }
 
     @Override
     void onTransitionEnd() {
         super.onTransitionEnd();
+        mInTransition = false;
+        ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!needsScale());
         freezeRows(false);
     }
 
