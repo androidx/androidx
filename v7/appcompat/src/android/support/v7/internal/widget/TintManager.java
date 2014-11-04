@@ -137,6 +137,8 @@ public class TintManager {
         Drawable drawable = ContextCompat.getDrawable(mContext, resId);
 
         if (drawable != null) {
+            drawable = drawable.mutate();
+
             if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
                 drawable = new TintDrawableWrapper(drawable, getDefaultColorStateList());
             } else if (resId == R.drawable.abc_switch_track_mtrl_alpha) {
