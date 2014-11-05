@@ -338,17 +338,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 }
             }
 
-            // The DecorView's original content view
-            final View decorContent = mActivity.findViewById(android.R.id.content);
-
-            // Traverse up the hierarchy from the original content view, making each view
-            // ignore system window insets so that our sub-decor handles it
-            View view = decorContent;
-            while (view != mWindowDecor) {
-                ViewCompat.setFitsSystemWindows(view, false);
-                view = (View) view.getParent();
-            }
-
             // Make the decor optionally fit system windows, like the window's decor
             ViewUtils.makeOptionalFitsSystemWindows(mSubDecor);
 
@@ -357,6 +346,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
             // Change our content FrameLayout to use the android.R.id.content id.
             // Useful for fragments.
+            final View decorContent = mActivity.findViewById(android.R.id.content);
             decorContent.setId(View.NO_ID);
             View abcContent = mActivity.findViewById(R.id.action_bar_activity_content);
             abcContent.setId(android.R.id.content);
