@@ -19,6 +19,7 @@ package android.support.v7.widget;
 import android.graphics.Rect;
 import android.os.Debug;
 import android.os.Looper;
+import android.support.v4.view.ViewCompat;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.View;
@@ -60,6 +61,19 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     void checkForMainThreadException() throws Throwable {
         if (mainThreadException != null) {
             throw mainThreadException;
+        }
+    }
+
+    void setHasTransientState(final View view, final boolean value) {
+        try {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ViewCompat.setHasTransientState(view, value);
+                }
+            });
+        } catch (Throwable throwable) {
+            Log.e(TAG, "", throwable);
         }
     }
 
@@ -211,27 +225,35 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         return getActivity().mContainer;
     }
 
-    public void requestLayoutOnUIThread(final View view) throws Throwable {
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                view.requestLayout();
-            }
-        });
+    public void requestLayoutOnUIThread(final View view) {
+        try {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    view.requestLayout();
+                }
+            });
+        } catch (Throwable throwable) {
+            Log.e(TAG, "", throwable);
+        }
     }
 
-    public void scrollBy(final int dt) throws Throwable {
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
-                    mRecyclerView.scrollBy(dt, 0);
-                } else {
-                    mRecyclerView.scrollBy(0, dt);
-                }
+    public void scrollBy(final int dt) {
+        try {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
+                        mRecyclerView.scrollBy(dt, 0);
+                    } else {
+                        mRecyclerView.scrollBy(0, dt);
+                    }
 
-            }
-        });
+                }
+            });
+        } catch (Throwable throwable) {
+            Log.e(TAG, "", throwable);
+        }
     }
 
     void scrollToPosition(final int position) throws Throwable {
