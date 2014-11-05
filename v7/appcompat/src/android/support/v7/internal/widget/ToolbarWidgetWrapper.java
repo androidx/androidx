@@ -708,4 +708,9 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         return mToolbar.getMenu();
     }
 
+    @Override
+    public int getPopupTheme() {
+        return mToolbar.getPopupTheme();
+    }
+
 }
