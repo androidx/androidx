@@ -2441,14 +2441,18 @@ public class AccessibilityNodeInfoCompat {
      * @return A list of AccessibilityActions.
      */
     public List<AccessibilityActionCompat> getActionList() {
-        List<AccessibilityActionCompat> result = new ArrayList<AccessibilityActionCompat>();
         List<Object> actions = IMPL.getActionList(mInfo);
-        final int actionCount = actions.size();
-        for (int i = 0; i < actionCount; i++) {
-            Object action = actions.get(i);
-            result.add(new AccessibilityActionCompat(action));
+        if (actions != null) {
+            List<AccessibilityActionCompat> result = new ArrayList<AccessibilityActionCompat>();
+            final int actionCount = actions.size();
+            for (int i = 0; i < actionCount; i++) {
+                Object action = actions.get(i);
+                result.add(new AccessibilityActionCompat(action));
+            }
+            return result;
+        } else {
+            return Collections.<AccessibilityActionCompat>emptyList();
         }
-        return result;
     }
 
 
