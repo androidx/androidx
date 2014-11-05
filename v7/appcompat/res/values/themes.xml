@@ -57,9 +57,8 @@
     <style name="Theme.AppCompat.Light.Dialog" parent="Base.Theme.AppCompat.Light.Dialog" />
 
     <!-- Menu/item attributes -->
-    <style name="Theme.AppCompat.CompactMenu"
-           parent="Base.Theme.AppCompat.CompactMenu">
-    </style>
+    <style name="Theme.AppCompat.CompactMenu" parent="Base.Theme.AppCompat.CompactMenu" />
+    <style name="Animation.AppCompat.DropDownUp" parent="Base.Animation.AppCompat.DropDownUp" />
 
     <style name="ThemeOverlay.AppCompat" parent="Base.ThemeOverlay.AppCompat" />
 

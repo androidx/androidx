@@ -100,4 +100,5 @@ public interface DecorToolbar {
     void setMenuCallbacks(MenuPresenter.Callback presenterCallback,
             MenuBuilder.Callback menuBuilderCallback);
     Menu getMenu();
+    int getPopupTheme();
 }

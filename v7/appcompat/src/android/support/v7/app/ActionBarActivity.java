@@ -142,15 +142,6 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
-    public View onCreatePanelView(int featureId) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            return getDelegate().onCreatePanelView(featureId);
-        } else {
-            return super.onCreatePanelView(featureId);
-        }
-    }
-
-    @Override
     public final boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
         if (super.onMenuItemSelected(featureId, item)) {
             return true;
@@ -519,12 +510,11 @@ public class ActionBarActivity extends FragmentActivity implements ActionBar.Cal
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // First let the Activity try and handle it (for back, etc)
-        if (super.onKeyDown(keyCode, event)) {
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (getDelegate().dispatchKeyEvent(event)) {
             return true;
         }
-        return getDelegate().onKeyDown(keyCode, event);
+        return super.dispatchKeyEvent(event);
     }
 
     /**

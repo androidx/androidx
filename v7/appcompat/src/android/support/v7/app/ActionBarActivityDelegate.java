@@ -101,7 +101,7 @@ abstract class ActionBarActivityDelegate {
 
         @Override
         public View onCreatePanelView(int featureId) {
-            return null;
+            return mActivity.onCreatePanelView(featureId);
         }
     };
     // The fake window callback we're currently using
@@ -186,8 +186,6 @@ abstract class ActionBarActivityDelegate {
     abstract boolean supportRequestWindowFeature(int featureId);
 
     // Methods used to create and respond to options menu
-    abstract View onCreatePanelView(int featureId);
-
     abstract boolean onPreparePanel(int featureId, View view, Menu menu);
 
     abstract void onPanelClosed(int featureId, Menu menu);
@@ -218,9 +216,7 @@ abstract class ActionBarActivityDelegate {
 
     abstract void setSupportProgress(int progress);
 
-    boolean onKeyDown(int keyCode, KeyEvent event) {
-        return false;
-    }
+    abstract boolean dispatchKeyEvent(KeyEvent event);
 
     abstract boolean onKeyShortcut(int keyCode, KeyEvent event);
 
