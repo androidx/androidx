@@ -47,12 +47,6 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegateBase
         }
     }
 
-    @Override
-    boolean onKeyDown(int keyCode, KeyEvent event) {
-        // On HC+ we do not need to do anything from onKeyDown
-        return false;
-    }
-
     // From NativeActionModeAwareLayout.OnActionModeForChildListener
     @Override
     public ActionMode startActionModeForChild(View originalView, ActionMode.Callback callback) {

@@ -500,6 +500,8 @@ public class ToolbarActionBar extends ActionBar {
     }
 
     private View getListMenuView(Menu menu) {
+        ensureListMenuPresenter(menu);
+
         if (menu == null || mListMenuPresenter == null) {
             return null;
         }
@@ -508,6 +510,33 @@ public class ToolbarActionBar extends ActionBar {
             return (View) mListMenuPresenter.getMenuView(mDecorToolbar.getViewGroup());
         }
         return null;
+    }
+
+    private void ensureListMenuPresenter(Menu menu) {
+        if (mListMenuPresenter == null && (menu instanceof MenuBuilder)) {
+            MenuBuilder mb = (MenuBuilder) menu;
+
+            Context context = mDecorToolbar.getContext();
+            final TypedValue outValue = new TypedValue();
+            final Resources.Theme widgetTheme = context.getResources().newTheme();
+            widgetTheme.setTo(context.getTheme());
+
+            // Apply the panelMenuListTheme
+            widgetTheme.resolveAttribute(R.attr.panelMenuListTheme, outValue, true);
+            if (outValue.resourceId != 0) {
+                widgetTheme.applyStyle(outValue.resourceId, true);
+            } else {
+                widgetTheme.applyStyle(R.style.Theme_AppCompat_CompactMenu, true);
+            }
+
+            context = new ContextThemeWrapper(context, 0);
+            context.getTheme().setTo(widgetTheme);
+
+            // Finally create the list menu presenter
+            mListMenuPresenter = new ListMenuPresenter(context, R.layout.abc_list_menu_item_layout);
+            mListMenuPresenter.setCallback(new PanelMenuPresenterCallback());
+            mb.addMenuPresenter(mListMenuPresenter);
+        }
     }
 
     private class ToolbarCallbackWrapper extends WindowCallbackWrapper {
@@ -529,20 +558,11 @@ public class ToolbarActionBar extends ActionBar {
         public View onCreatePanelView(int featureId) {
             switch (featureId) {
                 case Window.FEATURE_OPTIONS_PANEL:
-                    if (!mToolbarMenuPrepared) {
-                        // If the options menu isn't populated yet, do it now
-                        populateOptionsMenu();
-                        mDecorToolbar.getViewGroup().removeCallbacks(mMenuInvalidator);
-                    }
-
-                    if (mToolbarMenuPrepared && mWindowCallback != null) {
-                        // If we are prepared, check to see if the callback wants a menu opened
-                        final Menu menu = getMenu();
-
-                        if (mWindowCallback.onPreparePanel(featureId, null, menu) &&
-                                mWindowCallback.onMenuOpened(featureId, menu)) {
-                            return getListMenuView(menu);
-                        }
+                    final Menu menu = mDecorToolbar.getMenu();
+                    if (mWindowCallback != null &&
+                            mWindowCallback.onPreparePanel(featureId, null, menu) &&
+                            mWindowCallback.onMenuOpened(featureId, menu)) {
+                        return getListMenuView(menu);
                     }
                     break;
             }
@@ -557,27 +577,6 @@ public class ToolbarActionBar extends ActionBar {
             mMenuCallbackSet = true;
         }
         return mDecorToolbar.getMenu();
-    }
-
-    public void setListMenuPresenter(ListMenuPresenter listMenuPresenter) {
-        final Menu menu = getMenu();
-
-        if (menu instanceof MenuBuilder) {
-            MenuBuilder mb = (MenuBuilder) menu;
-
-            if (mListMenuPresenter != null) {
-                // We currently have a list menu presenter, remove it as our menu's presenter
-                mListMenuPresenter.setCallback(null);
-                mb.removeMenuPresenter(mListMenuPresenter);
-            }
-
-            mListMenuPresenter = listMenuPresenter;
-
-            if (listMenuPresenter != null) {
-                listMenuPresenter.setCallback(new PanelMenuPresenterCallback());
-                mb.addMenuPresenter(listMenuPresenter);
-            }
-        }
     }
 
     private final class ActionMenuPresenterCallback implements MenuPresenter.Callback {
