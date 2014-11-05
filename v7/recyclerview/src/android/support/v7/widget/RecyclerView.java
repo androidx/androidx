@@ -6303,10 +6303,13 @@ public class RecyclerView extends ViewGroup {
         }
 
         // called by accessibility delegate
-        void onInitializeAccessibilityNodeInfoForItem(View host,
-                AccessibilityNodeInfoCompat info) {
-            onInitializeAccessibilityNodeInfoForItem(mRecyclerView.mRecycler, mRecyclerView.mState,
-                    host, info);
+        void onInitializeAccessibilityNodeInfoForItem(View host, AccessibilityNodeInfoCompat info) {
+            final ViewHolder vh = getChildViewHolderInt(host);
+            // avoid trying to create accessibility node info for removed children
+            if (vh != null && !vh.isRemoved()) {
+                onInitializeAccessibilityNodeInfoForItem(mRecyclerView.mRecycler,
+                        mRecyclerView.mState, host, info);
+            }
         }
 
         /**
