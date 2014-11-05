@@ -424,6 +424,12 @@
     <style name="Base.Theme.AppCompat.CompactMenu" parent="">
         <item name="android:itemTextAppearance">?android:attr/textAppearanceMedium</item>
         <item name="android:listViewStyle">@style/Widget.AppCompat.ListView.Menu</item>
+        <item name="android:windowAnimationStyle">@style/Animation.AppCompat.DropDownUp</item>
+    </style>
+
+    <style name="Base.Animation.AppCompat.DropDownUp" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/abc_grow_fade_in_from_bottom</item>
+        <item name="android:windowExitAnimation">@anim/abc_shrink_fade_out_from_bottom</item>
     </style>
 
     <style name="Base.V7.Theme.AppCompat.Dialog" parent="Platform.AppCompat.Dialog">

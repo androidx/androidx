@@ -70,6 +70,7 @@
         <attr name="windowFixedHeightMajor" format="dimension|fraction" />
 
         <attr name="android:windowIsFloating" />
+        <attr name="android:windowAnimationStyle" />
 
         <!-- =================== -->
         <!-- Action bar styles   -->
