@@ -1211,6 +1211,11 @@ public class Allocation extends BaseObj {
         if (type.getID(rs) == 0) {
             throw new RSInvalidStateException("Bad Type");
         }
+
+        if(!rs.usingIO() && (usage & (USAGE_IO_INPUT | USAGE_IO_INPUT)) != 0) {
+            throw new RSRuntimeException("USAGE_IO not supported, Allocation creation failed.");
+        }
+
         int id = rs.nAllocationCreateTyped(type.getID(rs), mips.mID, usage, 0);
         if (id == 0) {
             throw new RSRuntimeException("Allocation creation failed.");
@@ -1363,6 +1368,20 @@ public class Allocation extends BaseObj {
             throw new RSRuntimeException("Load failed.");
         }
         return new Allocation(id, rs, t, usage);
+    }
+
+    /**
+     * Associate a {@link android.view.Surface} with this Allocation. This
+     * operation is only valid for Allocations with {@link #USAGE_IO_OUTPUT}.
+     *
+     * @param sur Surface to associate with allocation
+     */
+    public void setSurface(Surface sur) {
+        mRS.validate();
+        if ((mUsage & USAGE_IO_OUTPUT) == 0) {
+            throw new RSInvalidStateException("Allocation is not USAGE_IO_OUTPUT.");
+        }
+        mRS.nAllocationSetSurface(getID(mRS), sur);
     }
 
     /**
