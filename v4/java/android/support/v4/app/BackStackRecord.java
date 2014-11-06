@@ -1076,10 +1076,10 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     private static Object captureExitingViews(Object exitTransition, Fragment outFragment,
-            ArrayList<View> exitingViews, ArrayMap<String, View> namedViews) {
+            ArrayList<View> exitingViews, ArrayMap<String, View> namedViews, View nonExistentView) {
         if (exitTransition != null) {
             exitTransition = FragmentTransitionCompat21.captureExitingViews(exitTransition,
-                    outFragment.getView(), exitingViews, namedViews);
+                    outFragment.getView(), exitingViews, namedViews, nonExistentView);
         }
         return exitTransition;
     }
@@ -1147,11 +1147,8 @@ final class BackStackRecord extends FragmentTransaction implements
         ArrayList<View> sharedElementTargets = new ArrayList<View>();
         if (sharedElementTransition != null) {
             namedViews = remapSharedElements(state, outFragment, isBack);
-            if (namedViews.isEmpty()) {
-                sharedElementTargets.add(state.nonExistentView);
-            } else {
-                sharedElementTargets.addAll(namedViews.values());
-            }
+            sharedElementTargets.add(state.nonExistentView);
+            sharedElementTargets.addAll(namedViews.values());
 
             // Notify the start of the transition.
             SharedElementCallback callback = isBack ?
@@ -1166,7 +1163,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
         ArrayList<View> exitingViews = new ArrayList<View>();
         exitTransition = captureExitingViews(exitTransition, outFragment, exitingViews,
-                namedViews);
+                namedViews, state.nonExistentView);
 
         // Set the epicenter of the exit transition
         if (mSharedElementTargetNames != null && namedViews != null) {
@@ -1243,11 +1240,8 @@ final class BackStackRecord extends FragmentTransaction implements
 
                     ArrayMap<String, View> namedViews = mapSharedElementsIn(
                             state, isBack, inFragment);
-                    if (namedViews.isEmpty()) {
-                        sharedElementTargets.add(state.nonExistentView);
-                    } else {
-                        sharedElementTargets.addAll(namedViews.values());
-                    }
+                    sharedElementTargets.add(state.nonExistentView);
+                    sharedElementTargets.addAll(namedViews.values());
                     FragmentTransitionCompat21.addTargets(sharedElementTransition,
                             sharedElementTargets);
 
