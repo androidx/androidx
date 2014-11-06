@@ -968,12 +968,28 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private void measureChildWithDecorationsAndMargin(View child, LayoutParams lp) {
         if (lp.mFullSpan) {
             if (mOrientation == VERTICAL) {
-                measureChildWithDecorationsAndMargin(child, mFullSizeSpec, mHeightSpec);
+                measureChildWithDecorationsAndMargin(child, mFullSizeSpec,
+                        getSpecForDimension(lp.height, mHeightSpec));
             } else {
-                measureChildWithDecorationsAndMargin(child, mWidthSpec, mFullSizeSpec);
+                measureChildWithDecorationsAndMargin(child,
+                        getSpecForDimension(lp.width, mWidthSpec), mFullSizeSpec);
             }
         } else {
-            measureChildWithDecorationsAndMargin(child, mWidthSpec, mHeightSpec);
+            if (mOrientation == VERTICAL) {
+                measureChildWithDecorationsAndMargin(child, mWidthSpec,
+                        getSpecForDimension(lp.height, mHeightSpec));
+            } else {
+                measureChildWithDecorationsAndMargin(child,
+                        getSpecForDimension(lp.width, mWidthSpec), mHeightSpec);
+            }
+        }
+    }
+
+    private int getSpecForDimension(int dim, int defaultSpec) {
+        if (dim < 0) {
+            return defaultSpec;
+        } else {
+            return View.MeasureSpec.makeMeasureSpec(dim, View.MeasureSpec.EXACTLY);
         }
     }
 
@@ -1139,7 +1155,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
         final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
         final int limit = getChildCount();
-        for (int i = 0; i < limit; i ++) {
+        for (int i = 0; i < limit; i++) {
             final View child = getChildAt(i);
             if ((!fullyVisible || mPrimaryOrientation.getDecoratedStart(child) >= boundsStart)
                     && mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd) {
@@ -1153,7 +1169,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         ensureOrientationHelper();
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
         final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
-        for (int i = getChildCount() - 1; i >= 0; i --) {
+        for (int i = getChildCount() - 1; i >= 0; i--) {
             final View child = getChildAt(i);
             if (mPrimaryOrientation.getDecoratedStart(child) >= boundsStart && (!fullyVisible
                     || mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd)) {
@@ -1856,6 +1872,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     /**
      * LayoutParams used by StaggeredGridLayoutManager.
+     * <p>
+     * Note that if the orientation is {@link #VERTICAL}, the width parameter is ignored and if the
+     * orientation is {@link #HORIZONTAL} the height parameter is ignored because child view is
+     * expected to fill all of the space given to it.
      */
     public static class LayoutParams extends RecyclerView.LayoutParams {
 
@@ -2045,7 +2065,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 return;
             }
             if ((reverseLayout && reference < mPrimaryOrientation.getEndAfterPadding()) ||
-                    (!reverseLayout && reference > mPrimaryOrientation.getStartAfterPadding()) ) {
+                    (!reverseLayout && reference > mPrimaryOrientation.getStartAfterPadding())) {
                 return;
             }
             if (offset != INVALID_OFFSET) {
@@ -2154,26 +2174,26 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         public int findFirstVisibleItemPosition() {
             return mReverseLayout
-                    ? findOneVisibleChild(mViews.size() -1, -1, false)
+                    ? findOneVisibleChild(mViews.size() - 1, -1, false)
                     : findOneVisibleChild(0, mViews.size(), false);
         }
 
         public int findFirstCompletelyVisibleItemPosition() {
             return mReverseLayout
-                    ? findOneVisibleChild(mViews.size() -1, -1, true)
+                    ? findOneVisibleChild(mViews.size() - 1, -1, true)
                     : findOneVisibleChild(0, mViews.size(), true);
         }
 
         public int findLastVisibleItemPosition() {
             return mReverseLayout
                     ? findOneVisibleChild(0, mViews.size(), false)
-                    : findOneVisibleChild(mViews.size() -1, -1, false);
+                    : findOneVisibleChild(mViews.size() - 1, -1, false);
         }
 
         public int findLastCompletelyVisibleItemPosition() {
             return mReverseLayout
                     ? findOneVisibleChild(0, mViews.size(), true)
-                    : findOneVisibleChild(mViews.size() -1, -1, true);
+                    : findOneVisibleChild(mViews.size() - 1, -1, true);
         }
 
         int findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {

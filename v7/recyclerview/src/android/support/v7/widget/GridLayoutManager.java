@@ -753,6 +753,10 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     /**
      * LayoutParams used by GridLayoutManager.
+     * <p>
+     * Note that if the orientation is {@link #VERTICAL}, the width parameter is ignored and if the
+     * orientation is {@link #HORIZONTAL} the height parameter is ignored because child view is
+     * expected to fill all of the space given to it.
      */
     public static class LayoutParams extends RecyclerView.LayoutParams {
 
