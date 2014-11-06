@@ -19,6 +19,7 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.view.InputEvent;
 import android.view.animation.AccelerateInterpolator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
@@ -41,9 +42,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
 
@@ -155,21 +153,21 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private final VerticalGridView.OnTouchInterceptListener mOnTouchInterceptListener =
             new VerticalGridView.OnTouchInterceptListener() {
         public boolean onInterceptTouchEvent(MotionEvent event) {
-            return onInterceptInputEvent();
+            return onInterceptInputEvent(event);
         }
     };
 
     private final VerticalGridView.OnMotionInterceptListener mOnMotionInterceptListener =
             new VerticalGridView.OnMotionInterceptListener() {
         public boolean onInterceptMotionEvent(MotionEvent event) {
-            return onInterceptInputEvent();
+            return onInterceptInputEvent(event);
         }
     };
 
     private final VerticalGridView.OnKeyInterceptListener mOnKeyInterceptListener =
             new VerticalGridView.OnKeyInterceptListener() {
         public boolean onInterceptKeyEvent(KeyEvent event) {
-            return onInterceptInputEvent();
+            return onInterceptInputEvent(event);
         }
     };
 
@@ -263,10 +261,28 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     }
 
-    private boolean onInterceptInputEvent() {
-        if (DEBUG) Log.v(TAG, "onInterceptInputEvent status " + mFadingStatus);
+    private static boolean isConsumableKey(KeyEvent keyEvent) {
+        if (keyEvent.isSystem()) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean onInterceptInputEvent(InputEvent event) {
+        if (DEBUG) Log.v(TAG, "onInterceptInputEvent status " + mFadingStatus + " event " + event);
         boolean consumeEvent = (mFadingStatus == IDLE && mBgAlpha == 0);
-        tickle();
+        if (event instanceof KeyEvent) {
+            if (consumeEvent) {
+                consumeEvent = isConsumableKey((KeyEvent) event);
+            }
+            int keyCode = ((KeyEvent) event).getKeyCode();
+            // Back key typically means we're leaving the fragment
+            if (keyCode != KeyEvent.KEYCODE_BACK) {
+                tickle();
+            }
+        } else {
+            tickle();
+        }
         return consumeEvent;
     }
 
