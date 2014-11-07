@@ -44,6 +44,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.ViewTreeObserver;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -208,13 +209,18 @@ public class BrowseFragment extends Fragment {
     private Object mSceneWithoutTitle;
     private Object mSceneWithHeaders;
     private Object mSceneWithoutHeaders;
+    private Object mSceneAfterEntranceTransition;
     private Object mTitleUpTransition;
     private Object mTitleDownTransition;
     private Object mHeadersTransition;
+    private Object mEntranceTransition;
     private int mHeadersTransitionStartDelay;
     private int mHeadersTransitionDuration;
     private BackStackListener mBackStackChangedListener;
     private BrowseTransitionListener mBrowseTransitionListener;
+
+    private boolean mEntranceTransitionEnabled = false;
+    private boolean mStartEntranceTransitionPending = false;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
     private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
@@ -702,6 +708,12 @@ public class BrowseFragment extends Fragment {
                 showHeaders(false);
             }
         });
+        mSceneAfterEntranceTransition = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+            @Override
+            public void run() {
+                setEntranceTransitionEndState();
+            }
+        });
         mTitleUpTransition = TitleTransitionHelper.createTransitionTitleUp(sTransitionHelper);
         mTitleDownTransition = TitleTransitionHelper.createTransitionTitleDown(sTransitionHelper);
 
@@ -728,6 +740,15 @@ public class BrowseFragment extends Fragment {
         mTitleView.setVisibility(mShowingTitle ? View.VISIBLE: View.INVISIBLE);
 
         return root;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (mStartEntranceTransitionPending) {
+            mStartEntranceTransitionPending = false;
+            startEntranceTransition();
+        }
     }
 
     private void createHeadersTransition() {
@@ -806,22 +827,29 @@ public class BrowseFragment extends Fragment {
         }
     }
 
+    private void setRowsAlignedLeft(boolean alignLeft) {
+        MarginLayoutParams lp;
+        View containerList;
+        containerList = mRowsFragment.getView();
+        lp = (MarginLayoutParams) containerList.getLayoutParams();
+        lp.leftMargin = alignLeft ? 0 : mContainerListMarginLeft;
+        containerList.setLayoutParams(lp);
+    }
+
+    private void setHeadersOnScreen(boolean onScreen) {
+        MarginLayoutParams lp;
+        View containerList;
+        containerList = mHeadersFragment.getView();
+        lp = (MarginLayoutParams) containerList.getLayoutParams();
+        lp.leftMargin = onScreen ? 0 : -mContainerListMarginLeft;
+        containerList.setLayoutParams(lp);
+    }
+
     private void showHeaders(boolean show) {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
         mHeadersFragment.setHeadersEnabled(show);
-        MarginLayoutParams lp;
-        View containerList;
-
-        containerList = mRowsFragment.getView();
-        lp = (MarginLayoutParams) containerList.getLayoutParams();
-        lp.leftMargin = show ? mContainerListMarginLeft : 0;
-        containerList.setLayoutParams(lp);
-
-        containerList = mHeadersFragment.getView();
-        lp = (MarginLayoutParams) containerList.getLayoutParams();
-        lp.leftMargin = show ? 0 : -mContainerListMarginLeft;
-        containerList.setLayoutParams(lp);
-
+        setHeadersOnScreen(show);
+        setRowsAlignedLeft(!show);
         mRowsFragment.setExpand(!show);
     }
 
@@ -923,6 +951,9 @@ public class BrowseFragment extends Fragment {
         }
         if (mCanShowHeaders) {
             showHeaders(mShowingHeaders);
+        }
+        if (mEntranceTransitionEnabled) {
+            setEntranceTransitionStartState();
         }
     }
 
@@ -1044,5 +1075,97 @@ public class BrowseFragment extends Fragment {
     public int getHeadersState() {
         return mHeadersState;
     }
+
+    /**
+     * Enable or disable entrance transition.  Typically this is set in onCreate()
+     * when savedInstance is null.  When the entrance transition is enabled, the
+     * fragment is initially having headers and content hidden.
+     * When data of rows are ready, you must call startEntranceTransition() to kick off
+     * the transition.
+     */
+    public void setEntranceTransitionEnabled(boolean runEntranceTransition) {
+        mEntranceTransitionEnabled = runEntranceTransition;
+    }
+
+    /**
+     * Return true if entrance transition is enabled and not started yet.
+     */
+    public boolean isEntranceTransitionEnabled() {
+        return mEntranceTransitionEnabled;
+    }
+
+    /**
+     * Starts entrance transition if setEntranceTransitionEnabled(true) is called
+     * and entrance transition is not started yet.
+     * When fragment finishes loading data of rows, it should call startEntranceTransition()
+     * to execute the entrance transition.  Calling startEntranceTransition() multiple
+     * times is safe.
+     */
+    public void startEntranceTransition() {
+        if (!mEntranceTransitionEnabled || mEntranceTransition != null) {
+            return;
+        }
+        // if view is not created yet, delay until onViewCreated()
+        if (getView() == null) {
+            mStartEntranceTransitionPending = true;
+            return;
+        }
+        // wait till views get their initial position before start transition
+        final View view = getView();
+        view.getViewTreeObserver().addOnPreDrawListener(
+                new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                view.getViewTreeObserver().removeOnPreDrawListener(this);
+                createEntranceTransition();
+                mEntranceTransitionEnabled = false;
+                sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
+                        mEntranceTransition);
+                return false;
+            }
+        });
+        view.invalidate();
+    }
+
+    void createEntranceTransition() {
+        mEntranceTransition = sTransitionHelper.loadTransition(getActivity(),
+                R.transition.lb_browse_entrance_transition);
+        if (mEntranceTransition == null) {
+            return;
+        }
+        sTransitionHelper.setTransitionListener(mEntranceTransition, new TransitionListener() {
+            @Override
+            public void onTransitionStart(Object transition) {
+                mHeadersFragment.onTransitionStart();
+                mRowsFragment.onTransitionStart();
+            }
+            @Override
+            public void onTransitionEnd(Object transition) {
+                mRowsFragment.onTransitionEnd();
+                mHeadersFragment.onTransitionEnd();
+                mEntranceTransition = null;
+            }
+        });
+    }
+
+    private void setSearchOrbViewOnScreen(boolean onScreen) {
+        View searchOrbView = mTitleView.getSearchAffordanceView();
+        MarginLayoutParams lp = (MarginLayoutParams) searchOrbView.getLayoutParams();
+        lp.leftMargin = onScreen ? 0 : -mContainerListMarginLeft;
+        searchOrbView.setLayoutParams(lp);
+    }
+
+    void setEntranceTransitionStartState() {
+        setHeadersOnScreen(false);
+        setSearchOrbViewOnScreen(false);
+        mRowsFragment.setViewsVisible(false);
+    }
+
+    void setEntranceTransitionEndState() {
+        setHeadersOnScreen(mShowingHeaders);
+        setSearchOrbViewOnScreen(true);
+        mRowsFragment.setViewsVisible(true);
+    }
+
 }
 

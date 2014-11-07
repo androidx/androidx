@@ -123,6 +123,7 @@ public class RowsFragment extends BaseRowFragment {
     private boolean mRowScaleEnabled;
     private ScaleFrameLayout mScaleFrameLayout;
     private boolean mInTransition;
+    private boolean mViewsVisible = true;
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
@@ -364,7 +365,8 @@ public class RowsFragment extends BaseRowFragment {
         @Override
         public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
             VerticalGridView listView = getVerticalGridView();
-            if (listView != null && ((RowPresenter) vh.getPresenter()).canDrawOutOfBounds()) {
+            if (listView != null) {
+                // set clip children false for slide animation
                 listView.setClipChildren(false);
             }
             setupSharedViewPool(vh);
@@ -389,6 +391,9 @@ public class RowsFragment extends BaseRowFragment {
             setRowViewExpanded(vh, mExpand);
             setOnItemSelectedListener(vh, mOnItemSelectedListener);
             setOnItemViewSelectedListener(vh, mOnItemViewSelectedListener);
+            RowPresenter rowPresenter = (RowPresenter) vh.getPresenter();
+            RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(vh.getViewHolder());
+            rowPresenter.setViewsVisible(rowVh, mViewsVisible);
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onAttachedToWindow(vh);
             }
@@ -559,6 +564,24 @@ public class RowsFragment extends BaseRowFragment {
                 RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
                 RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
                 rowPresenter.freeze(vh, freeze);
+            }
+        }
+    }
+
+    public void setViewsVisible(boolean visible) {
+        if (mViewsVisible == visible) {
+            return;
+        }
+        mViewsVisible = visible;
+        VerticalGridView verticalView = getVerticalGridView();
+        if (verticalView != null) {
+            final int count = verticalView.getChildCount();
+            for (int i = 0; i < count; i++) {
+                ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
+                    verticalView.getChildViewHolder(verticalView.getChildAt(i));
+                RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
+                RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
+                rowPresenter.setViewsVisible(vh, mViewsVisible);
             }
         }
     }
