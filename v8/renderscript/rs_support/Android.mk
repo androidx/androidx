@@ -28,6 +28,8 @@ LOCAL_SRC_FILES:= \
     spec.l \
     rsg_generator.c
 
+LOCAL_CXX_STL := none
+
 include $(BUILD_HOST_EXECUTABLE)
 
 # TODO: This should go into build/core/config.mk
