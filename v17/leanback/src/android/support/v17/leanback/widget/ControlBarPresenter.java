@@ -122,21 +122,22 @@ class ControlBarPresenter extends Presenter {
 
         void showControls(Presenter presenter) {
             ObjectAdapter adapter = getDisplayedAdapter();
+            int adapterSize = adapter == null ? 0 : adapter.size();
             // Shrink the number of attached views
             View focusedView = mControlBar.getFocusedChild();
-            if (focusedView != null && adapter.size() > 0 &&
-                    mControlBar.indexOfChild(focusedView) >= adapter.size()) {
+            if (focusedView != null && adapterSize > 0 &&
+                    mControlBar.indexOfChild(focusedView) >= adapterSize) {
                 mControlBar.getChildAt(adapter.size() - 1).requestFocus();
             }
-            for (int i = mControlBar.getChildCount() - 1; i >= adapter.size(); i--) {
+            for (int i = mControlBar.getChildCount() - 1; i >= adapterSize; i--) {
                 mControlBar.removeViewAt(i);
             }
-            for (int position = 0; position < adapter.size() && position < MAX_CONTROLS;
+            for (int position = 0; position < adapterSize && position < MAX_CONTROLS;
                     position++) {
                 bindControlToAction(position, adapter, presenter);
             }
             mControlBar.setChildMarginFromCenter(
-                    getChildMarginFromCenter(mControlBar.getContext(), adapter.size()));
+                    getChildMarginFromCenter(mControlBar.getContext(), adapterSize));
         }
 
         void bindControlToAction(int position, Presenter presenter) {
@@ -241,7 +242,9 @@ class ControlBarPresenter extends Presenter {
         BoundData data = (BoundData) item;
         if (vh.mAdapter != data.adapter) {
             vh.mAdapter = data.adapter;
-            vh.mAdapter.registerObserver(vh.mDataObserver);
+            if (vh.mAdapter != null) {
+                vh.mAdapter.registerObserver(vh.mDataObserver);
+            }
         }
         vh.mPresenter = data.presenter;
         vh.mData = data;
@@ -251,8 +254,10 @@ class ControlBarPresenter extends Presenter {
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
-        vh.mAdapter.unregisterObserver(vh.mDataObserver);
-        vh.mAdapter = null;
+        if (vh.mAdapter != null) {
+            vh.mAdapter.unregisterObserver(vh.mDataObserver);
+            vh.mAdapter = null;
+        }
         vh.mData = null;
     }
 
