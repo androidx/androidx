@@ -1010,6 +1010,15 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     /**
+     * Gets the drawable used to draw in the insets area for the status bar.
+     *
+     * @return The status bar background drawable, or null if none set
+     */
+    public Drawable getStatusBarBackgroundDrawable() {
+        return mStatusBarBackground;
+    }
+
+    /**
      * Set a drawable to draw in the insets area for the status bar.
      * Note that this will only be activated if this DrawerLayout fitsSystemWindows.
      *
