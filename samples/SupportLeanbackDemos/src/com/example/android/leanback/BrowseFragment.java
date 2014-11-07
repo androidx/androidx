@@ -15,6 +15,7 @@ package com.example.android.leanback;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -33,6 +34,7 @@ import android.view.ViewGroup;
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
     private static final String TAG = "leanback.BrowseFragment";
 
+    private static final boolean TEST_ENTRANCE_TRANSITION = true;
     private static final int NUM_ROWS = 10;
     private ArrayObjectAdapter mRowsAdapter;
 
@@ -62,6 +64,18 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
             }
         });
+        if (TEST_ENTRANCE_TRANSITION) {
+            // don't run entrance transition if Activity is restored.
+            if (savedInstanceState == null) {
+                setEntranceTransitionEnabled(true);
+            }
+            // simulate delay loading data
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    startEntranceTransition();
+                }
+            }, 2000);
+        }
     }
 
     private void setupRows() {
@@ -84,7 +98,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_5));
             listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_6));
             listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_7));
-            listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_8));
+            listRowAdapter.add(new PhotoItem("Leanback", "click to open MainActivity", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i, null);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
@@ -96,13 +110,21 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
-            Intent intent = new Intent(getActivity(), DetailsActivity.class);
-            intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
 
-            Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    getActivity(),
-                    ((ImageCardView)itemViewHolder.view).getMainImageView(),
-                    DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+            Intent intent;
+            Bundle bundle;
+            if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
+                intent = new Intent(getActivity(), MainActivity.class);
+                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
+                        .toBundle();
+            } else {
+                intent = new Intent(getActivity(), DetailsActivity.class);
+                intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
+                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        getActivity(),
+                        ((ImageCardView)itemViewHolder.view).getMainImageView(),
+                        DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+            }
             getActivity().startActivity(intent, bundle);
         }
     }

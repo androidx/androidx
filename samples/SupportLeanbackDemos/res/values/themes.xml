@@ -10,4 +10,8 @@
         <item name="android:windowContentTransitions">true</item>
  -->
     </style>
+    <style name="Theme.Example.Leanback.Browse" parent="Theme.Leanback.Browse">
+    </style>
+    <style name="Theme.Example.Leanback.Details" parent="Theme.Leanback.Details">
+    </style>
 </resources>
