@@ -23,6 +23,7 @@ import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
 import android.app.Activity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
@@ -30,6 +31,9 @@ import android.view.View.MeasureSpec;
 import java.util.List;
 
 final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
+
+    private static final String TAG = "DetailsOverviewSharedElementHelper";
+    private static final boolean DEBUG = false;
 
     private ViewHolder mViewHolder;
     private Activity mActivityToRunTransition;
