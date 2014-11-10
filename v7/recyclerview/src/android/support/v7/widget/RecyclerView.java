@@ -135,16 +135,13 @@ public class RecyclerView extends ViewGroup {
      */
     private final Runnable mUpdateChildViewsRunnable = new Runnable() {
         public void run() {
-            if (!mAdapterHelper.hasPendingUpdates()) {
-                return;
-            }
             if (!mFirstLayoutComplete) {
                 // a layout request will happen, we should not do layout here.
                 return;
             }
             if (mDataSetHasChangedAfterLayout) {
                 dispatchLayout();
-            } else {
+            } else if (mAdapterHelper.hasPendingUpdates()) {
                 eatRequestLayout();
                 mAdapterHelper.preProcess();
                 if (!mLayoutRequestEaten) {
@@ -926,9 +923,7 @@ public class RecyclerView extends ViewGroup {
      * This method consumes all deferred changes to avoid that case.
      */
     private void consumePendingUpdateOperations() {
-        if (mAdapterHelper.hasPendingUpdates()) {
-            mUpdateChildViewsRunnable.run();
-        }
+        mUpdateChildViewsRunnable.run();
     }
 
     /**
