@@ -28,7 +28,6 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.support.v7.cardview.R;
-import android.util.Log;
 
 /**
  * A rounded rectangle drawable which also includes a shadow around.
@@ -39,7 +38,7 @@ class RoundRectDrawableWithShadow extends Drawable {
 
     final static float SHADOW_MULTIPLIER = 1.5f;
 
-    final float mInsetShadow; // extra shadow to avoid gaps between card and shadow
+    final int mInsetShadow; // extra shadow to avoid gaps between card and shadow
 
     /*
     * This helper is set by CardView implementations.
@@ -90,16 +89,27 @@ class RoundRectDrawableWithShadow extends Drawable {
             float shadowSize, float maxShadowSize) {
         mShadowStartColor = resources.getColor(R.color.cardview_shadow_start_color);
         mShadowEndColor = resources.getColor(R.color.cardview_shadow_end_color);
-        mInsetShadow = resources.getDimension(R.dimen.cardview_compat_inset_shadow);
-        setShadowSize(shadowSize, maxShadowSize);
+        mInsetShadow = resources.getDimensionPixelSize(R.dimen.cardview_compat_inset_shadow);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mPaint.setColor(backgroundColor);
         mCornerShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mCornerShadowPaint.setStyle(Paint.Style.FILL);
-        mCornerShadowPaint.setDither(true);
-        mCornerRadius = radius;
+        mCornerRadius = (int) (radius + .5f);
         mCardBounds = new RectF();
         mEdgeShadowPaint = new Paint(mCornerShadowPaint);
+        mEdgeShadowPaint.setAntiAlias(false);
+        setShadowSize(shadowSize, maxShadowSize);
+    }
+
+    /**
+     * Casts the value to an even integer.
+     */
+    private int toEven(float value) {
+        int i = (int) (value + .5f);
+        if (i % 2 == 1) {
+            return i - 1;
+        }
+        return i;
     }
 
     public void setAddPaddingForCorners(boolean addPaddingForCorners) {
@@ -124,11 +134,11 @@ class RoundRectDrawableWithShadow extends Drawable {
         if (shadowSize < 0 || maxShadowSize < 0) {
             throw new IllegalArgumentException("invalid shadow size");
         }
+        shadowSize = toEven(shadowSize);
+        maxShadowSize = toEven(maxShadowSize);
         if (shadowSize > maxShadowSize) {
             shadowSize = maxShadowSize;
             if (!mPrintedShadowClipWarning) {
-                Log.w("CardView", "Shadow size is being clipped by the max shadow size. See "
-                        + "{CardView#setMaxCardElevation}.");
                 mPrintedShadowClipWarning = true;
             }
         }
@@ -137,7 +147,7 @@ class RoundRectDrawableWithShadow extends Drawable {
         }
         mRawShadowSize = shadowSize;
         mRawMaxShadowSize = maxShadowSize;
-        mShadowSize = shadowSize * SHADOW_MULTIPLIER + mInsetShadow;
+        mShadowSize = (int)(shadowSize * SHADOW_MULTIPLIER + mInsetShadow + .5f);
         mMaxShadowSize = maxShadowSize + mInsetShadow;
         mDirty = true;
         invalidateSelf();
@@ -184,6 +194,7 @@ class RoundRectDrawableWithShadow extends Drawable {
     }
 
     void setCornerRadius(float radius) {
+        radius = (int) (radius + .5f);
         if (mCornerRadius == radius) {
             return;
         }
@@ -270,7 +281,6 @@ class RoundRectDrawableWithShadow extends Drawable {
         // inner arc
         mCornerShadowPath.arcTo(innerBounds, 270f, -90f, false);
         mCornerShadowPath.close();
-
         float startRatio = mCornerRadius / (mCornerRadius + mShadowSize);
         mCornerShadowPaint.setShader(new RadialGradient(0, 0, mCornerRadius + mShadowSize,
                 new int[]{mShadowStartColor, mShadowStartColor, mShadowEndColor},
@@ -284,6 +294,7 @@ class RoundRectDrawableWithShadow extends Drawable {
                 -mCornerRadius - mShadowSize,
                 new int[]{mShadowStartColor, mShadowStartColor, mShadowEndColor},
                 new float[]{0f, .5f, 1f}, Shader.TileMode.CLAMP));
+        mEdgeShadowPaint.setAntiAlias(false);
     }
 
     private void buildComponents(Rect bounds) {

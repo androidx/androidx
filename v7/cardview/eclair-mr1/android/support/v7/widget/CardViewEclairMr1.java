@@ -37,30 +37,36 @@ class CardViewEclairMr1 implements CardViewImpl {
             public void drawRoundRect(Canvas canvas, RectF bounds, float cornerRadius,
                     Paint paint) {
                 final float twoRadius = cornerRadius * 2;
-                final float innerWidth = bounds.width() - twoRadius;
-                final float innerHeight = bounds.height() - twoRadius;
-                sCornerRect.set(bounds.left, bounds.top,
-                        bounds.left + cornerRadius * 2, bounds.top + cornerRadius * 2);
-
-                canvas.drawArc(sCornerRect, 180, 90, true, paint);
-                sCornerRect.offset(innerWidth, 0);
-                canvas.drawArc(sCornerRect, 270, 90, true, paint);
-                sCornerRect.offset(0, innerHeight);
-                canvas.drawArc(sCornerRect, 0, 90, true, paint);
-                sCornerRect.offset(-innerWidth, 0);
-                canvas.drawArc(sCornerRect, 90, 90, true, paint);
-
-                //draw top and bottom pieces
-                canvas.drawRect(bounds.left + cornerRadius, bounds.top,
-                        bounds.right - cornerRadius, bounds.top + cornerRadius,
-                        paint);
-                canvas.drawRect(bounds.left + cornerRadius,
-                        bounds.bottom - cornerRadius, bounds.right - cornerRadius,
-                        bounds.bottom, paint);
-
-                //center
-                canvas.drawRect(bounds.left, bounds.top + cornerRadius,
-                        bounds.right, bounds.bottom - cornerRadius, paint);
+                final float innerWidth = bounds.width() - twoRadius - 1;
+                final float innerHeight = bounds.height() - twoRadius - 1;
+                // increment it to account for half pixels.
+                if (cornerRadius >= 1f) {
+                    cornerRadius += .5f;
+                    sCornerRect.set(-cornerRadius, -cornerRadius, cornerRadius, cornerRadius);
+                    int saved = canvas.save();
+                    canvas.translate(bounds.left + cornerRadius, bounds.top + cornerRadius);
+                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.translate(innerWidth, 0);
+                    canvas.rotate(90);
+                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.translate(innerHeight, 0);
+                    canvas.rotate(90);
+                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.translate(innerWidth, 0);
+                    canvas.rotate(90);
+                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.restoreToCount(saved);
+                    //draw top and bottom pieces
+                    canvas.drawRect(bounds.left + cornerRadius - 1f, bounds.top,
+                            bounds.right - cornerRadius + 1f, bounds.top + cornerRadius,
+                            paint);
+                    canvas.drawRect(bounds.left + cornerRadius - 1f,
+                            bounds.bottom - cornerRadius + 1f, bounds.right - cornerRadius + 1f,
+                            bounds.bottom, paint);
+                }
+////                center
+                canvas.drawRect(bounds.left, bounds.top + Math.max(0, cornerRadius - 1f),
+                        bounds.right, bounds.bottom - cornerRadius + 1f, paint);
             }
         };
     }
@@ -85,8 +91,8 @@ class CardViewEclairMr1 implements CardViewImpl {
     public void updatePadding(CardViewDelegate cardView) {
         Rect shadowPadding = new Rect();
         getShadowBackground(cardView).getMaxShadowAndCornerPadding(shadowPadding);
-        ((View)cardView).setMinimumHeight((int) Math.ceil(getMinHeight(cardView)));
-        ((View)cardView).setMinimumWidth((int) Math.ceil(getMinWidth(cardView)));
+        ((View) cardView).setMinimumHeight((int) Math.ceil(getMinHeight(cardView)));
+        ((View) cardView).setMinimumWidth((int) Math.ceil(getMinWidth(cardView)));
         cardView.setShadowPadding(shadowPadding.left, shadowPadding.top,
                 shadowPadding.right, shadowPadding.bottom);
     }
