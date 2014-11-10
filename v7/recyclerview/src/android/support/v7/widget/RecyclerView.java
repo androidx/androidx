@@ -5816,8 +5816,8 @@ public class RecyclerView extends ViewGroup {
             final int parentBottom = getHeight() - getPaddingBottom();
             final int childLeft = child.getLeft() + rect.left;
             final int childTop = child.getTop() + rect.top;
-            final int childRight = childLeft + rect.right;
-            final int childBottom = childTop + rect.bottom;
+            final int childRight = childLeft + rect.width();
+            final int childBottom = childTop + rect.height();
 
             final int offScreenLeft = Math.min(0, childLeft - parentLeft);
             final int offScreenTop = Math.min(0, childTop - parentTop);
@@ -5852,7 +5852,8 @@ public class RecyclerView extends ViewGroup {
          */
         @Deprecated
         public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
-            return false;
+            // eat the request if we are in the middle of a scroll or layout
+            return isSmoothScrolling() || parent.mRunningLayoutOrScroll;
         }
 
         /**
