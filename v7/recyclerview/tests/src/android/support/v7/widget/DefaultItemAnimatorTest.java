@@ -16,29 +16,40 @@
 
 package android.support.v7.widget;
 
+import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<TestActivity> {
+
+    private static final String TAG = "DefaultItemAnimatorTest";
+    Throwable mainThreadException;
 
     DefaultItemAnimator mAnimator;
     Adapter mAdapter;
     ViewGroup mDummyParent;
-    CountDownLatch mExpectedItems;
+    List<RecyclerView.ViewHolder> mExpectedItems = new ArrayList<RecyclerView.ViewHolder>();
 
     Set<RecyclerView.ViewHolder> mRemoveFinished = new HashSet<RecyclerView.ViewHolder>();
     Set<RecyclerView.ViewHolder> mAddFinished = new HashSet<RecyclerView.ViewHolder>();
     Set<RecyclerView.ViewHolder> mMoveFinished = new HashSet<RecyclerView.ViewHolder>();
     Set<RecyclerView.ViewHolder> mChangeFinished = new HashSet<RecyclerView.ViewHolder>();
+
+    Semaphore mExpectedItemCount = new Semaphore(0);
 
     public DefaultItemAnimatorTest() {
         super("android.support.v7.recyclerview", TestActivity.class);
@@ -53,86 +64,254 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         mAnimator.setListener(new RecyclerView.ItemAnimator.ItemAnimatorListener() {
             @Override
             public void onRemoveFinished(RecyclerView.ViewHolder item) {
-                assertTrue(mRemoveFinished.add(item));
-                onFinished();
+                try {
+                    assertTrue(mRemoveFinished.add(item));
+                    onFinished(item);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
             }
 
             @Override
             public void onAddFinished(RecyclerView.ViewHolder item) {
-                assertTrue(mAddFinished.add(item));
-                onFinished();
+                try {
+                    assertTrue(mAddFinished.add(item));
+                    onFinished(item);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
             }
 
             @Override
             public void onMoveFinished(RecyclerView.ViewHolder item) {
-                assertTrue(mMoveFinished.add(item));
-                onFinished();
+                try {
+                    assertTrue(mMoveFinished.add(item));
+                    onFinished(item);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
             }
 
             @Override
             public void onChangeFinished(RecyclerView.ViewHolder item) {
-                assertTrue(mChangeFinished.add(item));
-                onFinished();
+                try {
+                    assertTrue(mChangeFinished.add(item));
+                    onFinished(item);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
             }
 
-            private void onFinished() {
-                if (mExpectedItems != null) {
-                    mExpectedItems.countDown();
-                }
+            private void onFinished(RecyclerView.ViewHolder item) {
+                assertNotNull(mExpectedItems.remove(item));
+                mExpectedItemCount.release(1);
             }
         });
     }
 
-    void expectItems(int count) {
-        mExpectedItems = new CountDownLatch(count);
+    void checkForMainThreadException() throws Throwable {
+        if (mainThreadException != null) {
+            throw mainThreadException;
+        }
     }
 
-    void runAndWait(int seconds) throws Throwable {
+    @Override
+    protected void tearDown() throws Exception {
+        getInstrumentation().waitForIdleSync();
+        super.tearDown();
+        try {
+            checkForMainThreadException();
+        } catch (Exception e) {
+            throw e;
+        } catch (Throwable throwable) {
+            throw new Exception(throwable);
+        }
+    }
+
+    void expectItems(RecyclerView.ViewHolder... viewHolders) {
+        mExpectedItems.addAll(Arrays.asList(viewHolders));
+    }
+
+    void runAndWait(int itemCount, int seconds) throws Throwable {
+        runAndWait(itemCount, seconds, null);
+    }
+
+    void runAndWait(int itemCount, int seconds, final ThrowingRunnable postRun) throws Throwable {
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAnimator.runPendingAnimations();
+                if (postRun != null) {
+                    try {
+                        postRun.run();
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }
         });
-        waitForItems(seconds);
+        waitForItems(itemCount, seconds);
+        checkForMainThreadException();
     }
 
-    void waitForItems(int seconds) throws InterruptedException {
-        mExpectedItems.await(seconds, TimeUnit.SECONDS);
-        assertEquals("all expected finish events should happen", 0, mExpectedItems.getCount());
+    void waitForItems(int itemCount, int seconds) throws InterruptedException {
+        assertTrue("all vh animations should end",
+                mExpectedItemCount.tryAcquire(itemCount, seconds, TimeUnit.SECONDS));
+        assertEquals("all expected finish events should happen", 0, mExpectedItems.size());
+        // wait one more second for unwanted
+        assertFalse("should not receive any more permits",
+                mExpectedItemCount.tryAcquire(1, 2, TimeUnit.SECONDS));
     }
 
     public void testAnimateAdd() throws Throwable {
         ViewHolder vh = createViewHolder(1);
-        expectItems(1);
+        expectItems(vh);
         assertTrue(animateAdd(vh));
         assertTrue(mAnimator.isRunning());
-        runAndWait(1);
+        runAndWait(1, 1);
     }
 
     public void testAnimateRemove() throws Throwable {
         ViewHolder vh = createViewHolder(1);
-        expectItems(1);
+        expectItems(vh);
         assertTrue(animateRemove(vh));
         assertTrue(mAnimator.isRunning());
-        runAndWait(1);
+        runAndWait(1, 1);
     }
 
     public void testAnimateMove() throws Throwable {
         ViewHolder vh = createViewHolder(1);
-        expectItems(1);
+        expectItems(vh);
         assertTrue(animateMove(vh, 0, 0, 100, 100));
         assertTrue(mAnimator.isRunning());
-        runAndWait(1);
+        runAndWait(1, 1);
     }
 
     public void testAnimateChange() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         ViewHolder vh2 = createViewHolder(2);
-        expectItems(2);
+        expectItems(vh, vh2);
         assertTrue(animateChange(vh, vh2, 0, 0, 100, 100));
         assertTrue(mAnimator.isRunning());
-        runAndWait(1);
+        runAndWait(2, 1);
+    }
+
+    public void cancelBefore(int count, final RecyclerView.ViewHolder... toCancel)
+            throws Throwable {
+        cancelTest(true, count, toCancel);
+    }
+
+    public void cancelAfter(int count, final RecyclerView.ViewHolder... toCancel)
+            throws Throwable {
+        cancelTest(false, count, toCancel);
+    }
+
+    public void cancelTest(boolean before, int count, final RecyclerView.ViewHolder... toCancel) throws Throwable {
+        if (before) {
+            endAnimations(toCancel);
+            runAndWait(count, 1);
+        } else {
+            runAndWait(count, 1, new ThrowingRunnable() {
+                @Override
+                public void run() throws Throwable {
+                    endAnimations(toCancel);
+                }
+            });
+        }
+    }
+
+    public void testCancelAddBefore() throws Throwable {
+        final ViewHolder vh = createViewHolder(1);
+        expectItems(vh);
+        assertTrue(animateAdd(vh));
+        cancelBefore(1, vh);
+    }
+
+    public void testCancelAddAfter() throws Throwable {
+        final ViewHolder vh = createViewHolder(1);
+        expectItems(vh);
+        assertTrue(animateAdd(vh));
+        cancelAfter(1, vh);
+    }
+
+    public void testCancelMoveBefore() throws Throwable {
+        ViewHolder vh = createViewHolder(1);
+        expectItems(vh);
+        assertTrue(animateMove(vh, 10, 10, 100, 100));
+        cancelBefore(1, vh);
+    }
+
+    public void testCancelMoveAfter() throws Throwable {
+        ViewHolder vh = createViewHolder(1);
+        expectItems(vh);
+        assertTrue(animateMove(vh, 10, 10, 100, 100));
+        cancelAfter(1, vh);
+    }
+
+    public void testCancelRemove() throws Throwable {
+        ViewHolder vh = createViewHolder(1);
+        expectItems(vh);
+        assertTrue(animateRemove(vh));
+        endAnimations(vh);
+        runAndWait(1, 1);
+    }
+
+    public void testCancelChangeOldBefore() throws Throwable {
+        cancelChangeOldTest(true);
+    }
+    public void testCancelChangeOldAfter() throws Throwable {
+        cancelChangeOldTest(false);
+    }
+
+    public void cancelChangeOldTest(boolean before) throws Throwable {
+        ViewHolder vh = createViewHolder(1);
+        ViewHolder vh2 = createViewHolder(1);
+        expectItems(vh, vh2);
+        assertTrue(animateChange(vh, vh2, 20, 20, 100, 100));
+        cancelTest(before, 2, vh);
+    }
+
+    public void testCancelChangeNewBefore() throws Throwable {
+        cancelChangeNewTest(true);
+    }
+
+    public void testCancelChangeNewAfter() throws Throwable {
+        cancelChangeNewTest(false);
+    }
+
+    public void cancelChangeNewTest(boolean before) throws Throwable {
+        ViewHolder vh = createViewHolder(1);
+        ViewHolder vh2 = createViewHolder(1);
+        expectItems(vh, vh2);
+        assertTrue(animateChange(vh, vh2, 20, 20, 100, 100));
+        cancelTest(before, 2, vh2);
+    }
+
+    public void testCancelChangeBothBefore() throws Throwable {
+        cancelChangeBothTest(true);
+    }
+
+    public void testCancelChangeBothAfter() throws Throwable {
+        cancelChangeBothTest(false);
+    }
+
+    public void cancelChangeBothTest(boolean before) throws Throwable {
+        ViewHolder vh = createViewHolder(1);
+        ViewHolder vh2 = createViewHolder(1);
+        expectItems(vh, vh2);
+        assertTrue(animateChange(vh, vh2, 20, 20, 100, 100));
+        cancelTest(before, 2, vh, vh2);
+    }
+
+    void endAnimations(final RecyclerView.ViewHolder... vhs) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (RecyclerView.ViewHolder vh : vhs) {
+                    mAnimator.endAnimation(vh);
+                }
+            }
+        });
     }
 
     boolean animateAdd(final RecyclerView.ViewHolder vh) throws Throwable {
@@ -195,6 +374,14 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         return vh;
     }
 
+    void postExceptionToInstrumentation(Throwable t) {
+        if (mainThreadException == null) {
+            mainThreadException = t;
+        } else {
+            Log.e(TAG, "skipping secondary main thread exception", t);
+        }
+    }
+
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
 
@@ -234,6 +421,19 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         public void bind(String text) {
             mBindedText = text;
             ((TextView) itemView).setText(text);
+        }
+    }
+
+    private interface ThrowingRunnable {
+        public void run() throws Throwable;
+    }
+
+    @Override
+    public void runTestOnUiThread(Runnable r) throws Throwable {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            r.run();
+        } else {
+            super.runTestOnUiThread(r);
         }
     }
 }
