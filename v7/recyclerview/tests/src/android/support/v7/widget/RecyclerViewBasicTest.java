@@ -360,7 +360,7 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
     }
 
     static class MockViewHolder extends RecyclerView.ViewHolder {
-
+        public Object mItem;
         public MockViewHolder(View itemView) {
             super(itemView);
         }

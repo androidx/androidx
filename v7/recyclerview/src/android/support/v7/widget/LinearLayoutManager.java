@@ -602,7 +602,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         final int firstChildPos = getPosition(getChildAt(0));
         for (int i = 0; i < scrapSize; i++) {
             RecyclerView.ViewHolder scrap = scrapList.get(i);
-            final int position = scrap.getPosition();
+            final int position = scrap.getLayoutPosition();
             final int direction = position < firstChildPos != mShouldReverseLayout
                     ? LayoutState.LAYOUT_START : LayoutState.LAYOUT_END;
             if (direction == LayoutState.LAYOUT_START) {
@@ -1542,7 +1542,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * Returns the adapter position of the first visible view.
+     * Returns the adapter position of the first visible view. This position does not include
+     * adapter changes that were dispatched after the last layout pass.
      * <p>
      * Note that, this value is not affected by layout orientation or item order traversal.
      * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
@@ -1564,7 +1565,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * Returns the adapter position of the first fully visible view.
+     * Returns the adapter position of the first fully visible view. This position does not include
+     * adapter changes that were dispatched after the last layout pass.
      * <p>
      * Note that bounds check is only performed in the current orientation. That means, if
      * LayoutManager is horizontal, it will only check the view's left and right edges.
@@ -1580,7 +1582,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * Returns the adapter position of the last visible view.
+     * Returns the adapter position of the last visible view. This position does not include
+     * adapter changes that were dispatched after the last layout pass.
      * <p>
      * Note that, this value is not affected by layout orientation or item order traversal.
      * ({@link #setReverseLayout(boolean)}). Views are sorted by their positions in the adapter,
@@ -1602,7 +1605,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * Returns the adapter position of the last fully visible view.
+     * Returns the adapter position of the last fully visible view. This position does not include
+     * adapter changes that were dispatched after the last layout pass.
      * <p>
      * Note that bounds check is only performed in the current orientation. That means, if
      * LayoutManager is horizontal, it will only check the view's left and right edges.
@@ -1873,7 +1877,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 if (!mIsPreLayout && viewHolder.isRemoved()) {
                     continue;
                 }
-                final int distance = (viewHolder.getPosition() - mCurrentPosition) * mItemDirection;
+                final int distance = (viewHolder.getLayoutPosition() - mCurrentPosition) *
+                        mItemDirection;
                 if (distance < 0) {
                     continue; // item is not in current direction
                 }
@@ -1889,7 +1894,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 Log.d(TAG, "layout from scrap. found view:?" + (closest != null));
             }
             if (closest != null) {
-                mCurrentPosition = closest.getPosition() + mItemDirection;
+                mCurrentPosition = closest.getLayoutPosition() + mItemDirection;
                 return closest.itemView;
             }
             return null;
@@ -1997,8 +2002,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
          */
         public boolean assignFromViewIfValid(View child, RecyclerView.State state) {
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-            if (!lp.isItemRemoved() && lp.getViewPosition() >= 0
-                    && lp.getViewPosition() < state.getItemCount()) {
+            if (!lp.isItemRemoved() && lp.getViewLayoutPosition() >= 0
+                    && lp.getViewLayoutPosition() < state.getItemCount()) {
                 assignFromView(child);
                 return true;
             }

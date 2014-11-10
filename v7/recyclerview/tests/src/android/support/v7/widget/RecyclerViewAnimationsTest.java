@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.Debug;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
@@ -279,13 +277,14 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mRecyclerView.getItemAnimator().setSupportsChangeAnimations(supportsChangeAnim);
 
         final RecyclerView.ViewHolder toBeChangedVH =
-                mRecyclerView.findViewHolderForPosition(changedIndex);
+                mRecyclerView.findViewHolderForLayoutPosition(changedIndex);
         mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
             @Override
             void afterPreLayout(RecyclerView.Recycler recycler,
                     AnimationLayoutManager layoutManager,
                     RecyclerView.State state) {
-                RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForPosition(changedIndex);
+                RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForLayoutPosition(
+                        changedIndex);
                 if (supportsChangeAnim) {
                     assertTrue(logPrefix + " changed view holder should have correct flag"
                             , vh.isChanged());
@@ -298,7 +297,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             @Override
             void afterPostLayout(RecyclerView.Recycler recycler,
                     AnimationLayoutManager layoutManager, RecyclerView.State state) {
-                RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForPosition(changedIndex);
+                RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForLayoutPosition(
+                        changedIndex);
                 assertFalse(logPrefix + "VH should not be marked as changed", vh.isChanged());
                 if (supportsChangeAnim) {
                     assertNotSame(logPrefix + "a new VH should be given if change is supported",
@@ -1178,7 +1178,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             for (int i = 0; i < childCount; i++) {
                 ViewHolder vh = getChildViewHolderInt(getChildAt(i));
                 TestViewHolder tvh = (TestViewHolder) vh;
-                log.append(tvh.mBindedItem).append(vh)
+                log.append(tvh.mBoundItem).append(vh)
                         .append(" hidden:")
                         .append(mChildHelper.mHiddenViews.contains(vh.itemView))
                         .append("\n");
@@ -1188,14 +1188,14 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 if (vh.isInvalid()) {
                     continue;
                 }
-                if (vh.getPosition() < 0) {
+                if (vh.getLayoutPosition() < 0) {
                     LayoutManager lm = getLayoutManager();
                     for (int j = 0; j < lm.getChildCount(); j ++) {
                         assertNotSame("removed view holder should not be in LM's child list",
                                 vh.itemView, lm.getChildAt(j));
                     }
                 } else if (!mChildHelper.mHiddenViews.contains(vh.itemView)) {
-                    if (!existingOffsets.add(vh.getPosition())) {
+                    if (!existingOffsets.add(vh.getLayoutPosition())) {
                         throw new IllegalStateException("view holder position conflict for "
                                 + "existing views " + vh + "\n" + log);
                     }
@@ -1386,7 +1386,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                         viewHolder.mPreLayoutPosition == -1 ? viewHolder.mPosition :
                         viewHolder.mPreLayoutPosition);
                 assertEquals(this + ": pre-layout getPosition should match\n" + log, mPreLayoutPos,
-                        viewHolder.getPosition());
+                        viewHolder.getLayoutPosition());
                 if (mType == Type.scrap) {
                     assertEquals(this + ": old position should match\n" + log, mOldPos,
                             result.scrapResult.getOldPosition());
@@ -1394,7 +1394,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             } else if (mType == Type.adapter || mType == Type.adapterScrap || !result.scrapResult
                     .isRemoved()) {
                 assertEquals(this + ": post-layout position should match\n" + log + "\n\n"
-                        + viewHolder, mPostLayoutPos, viewHolder.getPosition());
+                        + viewHolder, mPostLayoutPos, viewHolder.getLayoutPosition());
             }
         }
     }

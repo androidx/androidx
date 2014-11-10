@@ -19,6 +19,7 @@ package android.support.v7.widget;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestResult;
 
+import android.os.Debug;
 import android.test.AndroidTestCase;
 import android.util.Log;
 import android.widget.TextView;
@@ -40,7 +41,7 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     private static final String TAG = "AHT";
 
-    List<ViewHolder> mViewHolders;
+    List<RecyclerViewBasicTest.MockViewHolder> mViewHolders;
 
     AdapterHelper mAdapterHelper;
 
@@ -70,7 +71,7 @@ public class AdapterHelperTest extends AndroidTestCase {
     private void cleanState() {
         mLog.setLength(0);
         mPreLayoutItems = new ArrayList<TestAdapter.Item>();
-        mViewHolders = new ArrayList<ViewHolder>();
+        mViewHolders = new ArrayList<RecyclerViewBasicTest.MockViewHolder>();
         mFirstPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
         mSecondPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
         mPreProcessClone = null;
@@ -129,7 +130,7 @@ public class AdapterHelperTest extends AndroidTestCase {
                     for (int i = 0; i < updateOp.itemCount; i ++) {
                         // events are dispatched before view holders are updated for consistency
                         assertFalse("update op should not match any existing view holders",
-                                viewHolder.getPosition() == updateOp.positionStart + i);
+                                viewHolder.getLayoutPosition() == updateOp.positionStart + i);
                     }
                 }
 
@@ -198,10 +199,11 @@ public class AdapterHelperTest extends AndroidTestCase {
         mPreProcessClone = mTestAdapter.createCopy();
     }
 
-    private void addViewHolder(int posiiton) {
-        ViewHolder viewHolder = new RecyclerViewBasicTest.MockViewHolder(
+    private void addViewHolder(int position) {
+        RecyclerViewBasicTest.MockViewHolder viewHolder = new RecyclerViewBasicTest.MockViewHolder(
                 new TextView(getContext()));
-        viewHolder.mPosition = posiiton;
+        viewHolder.mPosition = position;
+        viewHolder.mItem = mTestAdapter.mItems.get(position);
         mViewHolders.add(viewHolder);
     }
 
@@ -835,6 +837,11 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     void preProcess() {
+        for (RecyclerViewBasicTest.MockViewHolder vh : mViewHolders) {
+            final int ind = mTestAdapter.mItems.indexOf(vh.mItem);
+            assertEquals("actual adapter position should match", ind,
+                    mAdapterHelper.applyPendingUpdatesToPosition(vh.mPosition));
+        }
         mAdapterHelper.preProcess();
         for (int i = 0; i < mPreProcessClone.mItems.size(); i++) {
             TestAdapter.Item item = mPreProcessClone.mItems.get(i);
@@ -853,10 +860,10 @@ public class AdapterHelperTest extends AndroidTestCase {
         }
         if (mViewHolders.size() > 0) {
             final String vhLog = vhLogBuilder.toString();
-            final int start = mViewHolders.get(0).getPosition();
+            final int start = mViewHolders.get(0).getLayoutPosition();
             for (int i = 1; i < mViewHolders.size(); i++) {
                 assertEquals("view holder positions should be continious in pre-layout" + vhLog,
-                        start + i, mViewHolders.get(i).getPosition());
+                        start + i, mViewHolders.get(i).getLayoutPosition());
             }
         }
         mAdapterHelper.consumePostponedUpdates();
