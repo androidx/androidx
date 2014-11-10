@@ -530,8 +530,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         ensureOrientationHelper();
-        // Update adapter size.
-        mLazySpanLookup.mAdapterSize = state.getItemCount();
 
         final AnchorInfo anchorInfo = mAnchorInfo;
         anchorInfo.reset();
@@ -2203,7 +2201,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         private static final int MIN_SIZE = 10;
         int[] mData;
-        int mAdapterSize; // we don't want to grow beyond that, unless it grows
         List<FullSpanItem> mFullSpanItems;
 
 
@@ -2260,9 +2257,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             int len = mData.length;
             while (len <= position) {
                 len *= 2;
-            }
-            if (len > mAdapterSize) {
-                len = mAdapterSize;
             }
             return len;
         }
