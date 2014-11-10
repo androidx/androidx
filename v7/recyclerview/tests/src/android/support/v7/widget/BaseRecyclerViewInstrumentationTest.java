@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.graphics.Rect;
+import android.os.Debug;
 import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -26,7 +27,10 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -79,12 +83,10 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     }
 
     void postExceptionToInstrumentation(Throwable t) {
-        if (mDebug) {
-            Log.e(TAG, "captured exception on main thread", t);
-        }
         if (mainThreadException != null) {
             Log.e(TAG, "receiving another main thread exception. dropping.", t);
         } else {
+            Log.e(TAG, "captured exception on main thread", t);
             mainThreadException = t;
         }
 
@@ -131,13 +133,21 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         if (mRecyclerView == null) {
             return;
         }
-        mRecyclerView = null;
+        if (!isMainThread()) {
+            getInstrumentation().waitForIdleSync();
+        }
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
+                final RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+                if (adapter instanceof AttachDetachCountingAdapter) {
+                    ((AttachDetachCountingAdapter) adapter).getCounter()
+                            .validateRemaining(mRecyclerView);
+                }
                 getActivity().mContainer.removeAllViews();
             }
         });
+        mRecyclerView = null;
     }
 
     void waitForAnimations(int seconds) throws InterruptedException {
@@ -407,8 +417,10 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 
-    class TestAdapter extends RecyclerView.Adapter<TestViewHolder> {
+    class TestAdapter extends RecyclerView.Adapter<TestViewHolder>
+            implements AttachDetachCountingAdapter {
 
+        ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
 
         TestAdapter(int count) {
@@ -416,6 +428,30 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             for (int i = 0; i < count; i++) {
                 mItems.add(new Item(i, "Item " + i));
             }
+        }
+
+        @Override
+        public void onViewAttachedToWindow(TestViewHolder holder) {
+            super.onViewAttachedToWindow(holder);
+            mAttachmentCounter.onViewAttached(holder);
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(TestViewHolder holder) {
+            super.onViewDetachedFromWindow(holder);
+            mAttachmentCounter.onViewDetached(holder);
+        }
+
+        @Override
+        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+            mAttachmentCounter.onAttached(recyclerView);
+        }
+
+        @Override
+        public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+            super.onDetachedFromRecyclerView(recyclerView);
+            mAttachmentCounter.onDetached(recyclerView);
         }
 
         @Override
@@ -551,6 +587,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             });
         }
 
+        @Override
+        public ViewAttachDetachCounter getCounter() {
+            return mAttachmentCounter;
+        }
+
 
         private class AddRemoveRunnable implements Runnable {
             final int[][] mStartCountTuples;
@@ -598,6 +639,10 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 
+    public boolean isMainThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
+    }
+
     @Override
     public void runTestOnUiThread(Runnable r) throws Throwable {
         if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -624,6 +669,60 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                     "mPosition=" + mPosition +
                     ", mLayoutDirection=" + mLayoutDirection +
                     '}';
+        }
+    }
+
+    public interface AttachDetachCountingAdapter {
+
+        ViewAttachDetachCounter getCounter();
+    }
+
+    public class ViewAttachDetachCounter {
+
+        Set<RecyclerView.ViewHolder> mAttachedSet = new HashSet<RecyclerView.ViewHolder>();
+
+        public void validateRemaining(RecyclerView recyclerView) {
+            final int childCount = recyclerView.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View view = recyclerView.getChildAt(i);
+                RecyclerView.ViewHolder vh = recyclerView.getChildViewHolder(view);
+                assertTrue("remaining view should be in attached set " + vh,
+                        mAttachedSet.contains(vh));
+            }
+            assertEquals("there should not be any views left in attached set",
+                    childCount, mAttachedSet.size());
+        }
+
+        public void onViewDetached(RecyclerView.ViewHolder viewHolder) {
+            try {
+                assertTrue("view holder should be in attached set",
+                        mAttachedSet.remove(viewHolder));
+            } catch (Throwable t) {
+                postExceptionToInstrumentation(t);
+            }
+        }
+
+        public void onViewAttached(RecyclerView.ViewHolder viewHolder) {
+            try {
+                assertTrue("view holder should not be in attached set",
+                        mAttachedSet.add(viewHolder));
+            } catch (Throwable t) {
+                postExceptionToInstrumentation(t);
+            }
+        }
+
+        public void onAttached(RecyclerView recyclerView) {
+            // when a new RV is attached, clear the set and add all view holders
+            mAttachedSet.clear();
+            final int childCount = recyclerView.getChildCount();
+            for (int i = 0; i < childCount; i ++) {
+                View view = recyclerView.getChildAt(i);
+                mAttachedSet.add(recyclerView.getChildViewHolder(view));
+            }
+        }
+
+        public void onDetached(RecyclerView recyclerView) {
+            validateRemaining(recyclerView);
         }
     }
 }

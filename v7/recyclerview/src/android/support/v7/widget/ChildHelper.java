@@ -207,6 +207,9 @@ class ChildHelper {
         }
         mCallback.attachViewToParent(child, offset, layoutParams);
         mBucket.insert(offset, hidden);
+        if (hidden) {
+            mHiddenViews.add(child);
+        }
         if (DEBUG) {
             Log.d(TAG, "attach view to parent index:" + index + ",off:" + offset + "," +
                     "h:" + hidden + ", " + this);
@@ -311,7 +314,7 @@ class ChildHelper {
 
     @Override
     public String toString() {
-        return mBucket.toString();
+        return mBucket.toString() + ", hidden list:" + mHiddenViews.size();
     }
 
     /**
