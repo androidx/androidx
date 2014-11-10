@@ -37,7 +37,7 @@ class ScrollbarHelper {
         final int maxPosition = Math.max(lm.getPosition(startChild), lm.getPosition(endChild));
         final int itemsBefore = reverseLayout
                 ? Math.max(0, state.getItemCount() - maxPosition - 1)
-                : Math.max(0, minPosition - 1);
+                : Math.max(0, minPosition);
         if (!smoothScrollbarEnabled) {
             return itemsBefore;
         }
