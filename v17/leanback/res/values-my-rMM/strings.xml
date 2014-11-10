@@ -33,13 +33,13 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"နှစ်ခြိုက်သော သင်္က​ေတအား ရွေးရန်"</string>
     <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"မနှစ်ခြိုက်သော သင်္က​ေတအား မရွေးရန်"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"မနှစ်ခြိုက်သော သင်္က​ေတအား ရွေးရန်"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"ထပ်တလဲလဲမဖွင့်ရန်"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"အားလုံး ထပ်တလဲလဲဖွင့်ရန်"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"တစ်ခုအား ထပ်တလဲလဲဖွင့်ရန်"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"ထပ်တလဲလဲမဖွင့်ရန်"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"အားလုံး ထပ်တလဲလဲဖွင့်ရန်"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"တစ်ခုအား ထပ်တလဲလဲဖွင့်ရန်"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"ရောသမမွှေခြင်း ပြုရန်"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"ရောသမမေွှခြင်း မပြုရန်"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"အရည်အသွေးကောင်းအား ဖွင့်ရန်"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"အရည်အသွေးကောင်းအား ဖွင့်ရန်"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"အရည်အသွေးကောင်းအား ပိတ်ထားရန်"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"စာတမ်းထိုး ဖွင့်ရန်"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"စာတမ်းထိုး ဖွင့်ရန်"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"စာတမ်းထိုးအား ပိတ်ထားရန်"</string>
 </resources>
