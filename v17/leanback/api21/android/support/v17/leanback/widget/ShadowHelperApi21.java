@@ -52,6 +52,7 @@ class ShadowHelperApi21 {
             shadowContainer.setOutlineProvider(sOutlineProvider);
         }
         shadowContainer.setZ(sNormalZ);
+        shadowContainer.setTransitionGroup(true);
         return shadowContainer;
     }
 
