@@ -34,4 +34,21 @@ class NotificationCompatBase {
             public Action[] newArray(int length);
         }
     }
+
+    public static abstract class UnreadConversation {
+        abstract String[] getParticipants();
+        abstract String getParticipant();
+        abstract String[] getMessages();
+        abstract RemoteInputCompatBase.RemoteInput getRemoteInput();
+        abstract PendingIntent getReplyPendingIntent();
+        abstract PendingIntent getReadPendingIntent();
+        abstract long getLatestTimestamp();
+
+        public interface Factory {
+            UnreadConversation build(String[] messages,
+                    RemoteInputCompatBase.RemoteInput remoteInput,
+                    PendingIntent replyPendingIntent, PendingIntent readPendingIntent,
+                    String[] participants, long latestTimestamp);
+        }
+    }
 }
