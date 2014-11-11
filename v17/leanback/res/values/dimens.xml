@@ -131,6 +131,7 @@
     <dimen name="lb_control_button_secondary_height">48dp</dimen>
     <dimen name="lb_control_icon_width">32dp</dimen>
     <dimen name="lb_control_icon_height">32dp</dimen>
+    <dimen name="lb_control_button_text_size">22sp</dimen>
 
     <dimen name="lb_error_image_max_height">120dp</dimen>
     <integer name="lb_error_message_max_lines">1</integer>

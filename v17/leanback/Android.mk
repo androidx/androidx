@@ -93,6 +93,7 @@ leanback.docs.src_files := \
     $(call all-java-files-under, src) \
     $(call all-html-files-under, src)
 leanback.docs.java_libraries := \
+    framework \
     android-support-v4 \
     android-support-v7-recyclerview \
     android-support-v17-leanback-res \
