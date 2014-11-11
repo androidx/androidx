@@ -225,6 +225,16 @@ public class CardView extends FrameLayout implements CardViewDelegate {
     }
 
     /**
+     * Updates the background color of the CardView
+     *
+     * @param color The new color to set for the card background
+     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardBackgroundColor
+     */
+    public void setCardBackgroundColor(int color) {
+        IMPL.setBackgroundColor(this, color);
+    }
+
+    /**
      * Returns the inner padding after the Card's left edge
      *
      * @return the inner padding after the Card's left edge
