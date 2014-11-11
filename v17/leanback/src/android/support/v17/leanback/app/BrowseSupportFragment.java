@@ -1,3 +1,5 @@
+/* This file is auto-generated from BrowseFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -63,7 +65,7 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  * <p>
  * By default the BrowseSupportFragment includes support for returning to the headers
  * when the user presses Back. For Activities that customize {@link
- * Activity#onBackPressed()}, you must disable this default Back key support by
+ * android.support.v4.app.FragmentActivity#onBackPressed()}, you must disable this default Back key support by
  * calling {@link #setHeadersTransitionOnBackEnabled(boolean)} with false and
  * use {@link BrowseSupportFragment.BrowseTransitionListener} and
  * {@link #startHeadersTransition(boolean)}.
