@@ -47,7 +47,7 @@
         <item name="android:textColorTertiaryInverse">@color/abc_secondary_text_material_light</item>
         <item name="android:textColorHint">@color/hint_foreground_material_dark</item>
         <item name="android:textColorHintInverse">@color/hint_foreground_material_light</item>
-        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>m>
+        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>
         <item name="android:textColorLink">@color/link_text_material_dark</item>
 
         <!-- Text styles -->
@@ -138,7 +138,7 @@
         <item name="android:textColorTertiaryInverse">@color/abc_secondary_text_material_light</item>
         <item name="android:textColorHint">@color/hint_foreground_material_dark</item>
         <item name="android:textColorHintInverse">@color/hint_foreground_material_light</item>
-        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>m>
+        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>
         <item name="android:textColorLink">@color/link_text_material_dark</item>
 
         <!-- Text styles -->
@@ -589,7 +589,7 @@
         <item name="android:textColorTertiaryInverse">@color/abc_secondary_text_material_light</item>
         <item name="android:textColorHint">@color/hint_foreground_material_dark</item>
         <item name="android:textColorHintInverse">@color/hint_foreground_material_light</item>
-        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>m>
+        <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>
         <item name="android:textColorLink">@color/link_text_material_dark</item>
 
         <!-- Action Bar styles -->
