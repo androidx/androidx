@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
+import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -184,10 +185,6 @@ public class ListRowPresenter extends RowPresenter {
         }
         if (needsDefaultListSelectEffect()) {
             ShadowOverlayContainer.prepareParentForShadow(rowViewHolder.mGridView);
-            ((ViewGroup) rowViewHolder.view).setClipChildren(false);
-            if (rowViewHolder.mContainerViewHolder != null) {
-                ((ViewGroup) rowViewHolder.mContainerViewHolder.view).setClipChildren(false);
-            }
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
                 mZoomFactor, false);
@@ -537,4 +534,10 @@ public class ListRowPresenter extends RowPresenter {
         vh.mGridView.setScrollEnabled(!freeze);
     }
 
+    @Override
+    public void setViewsVisible(RowPresenter.ViewHolder holder, boolean visible) {
+        super.setViewsVisible(holder, visible);
+        ((ViewHolder) holder).mGridView.setChildrenVisibility(
+                visible? View.VISIBLE : View.INVISIBLE);
+    }
 }

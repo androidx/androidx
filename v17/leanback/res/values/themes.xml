@@ -71,14 +71,31 @@
         <item name="defaultSearchBrightColor">@null</item>
         <item name="defaultSearchIcon">@null</item>
 
+        <!-- android:windowSharedElementEnterTransition is kept for backward compatibility for apps still refer
+        to Theme.Leanback, app should use Theme.Leanback.Details instead -->
         <item name="android:windowSharedElementEnterTransition">@transition/lb_shared_element_enter_transition</item>
-        <item name="android:windowEnterTransition">@transition/lb_enter_transition</item>
+        <!-- android:windowSharedElementReturnTransition is kept for backward compatibility for apps still refer
+        to Theme.Leanback, app should use Theme.Leanback.Details instead -->
         <item name="android:windowSharedElementReturnTransition">@transition/lb_shared_element_return_transition</item>
+        <item name="android:windowEnterTransition">@transition/lb_enter_transition</item>
         <item name="android:windowReturnTransition">@transition/lb_return_transition</item>
+        <item name="android:windowTransitionBackgroundFadeDuration">350</item>
 
         <item name="overlayDimMaskColor">@color/lb_view_dim_mask_color</item>
         <item name="overlayDimActiveLevel">@fraction/lb_view_active_level</item>
         <item name="overlayDimDimmedLevel">@fraction/lb_view_dimmed_level</item>
+    </style>
+
+    <style name="Theme.Leanback.Browse" parent="Theme.Leanback">
+        <item name="android:windowEnterTransition">@transition/lb_browse_enter_transition</item>
+        <item name="android:windowReturnTransition">@transition/lb_browse_return_transition</item>
+    </style>
+
+    <style name="Theme.Leanback.Details" parent="Theme.Leanback">
+        <item name="android:windowEnterTransition">@transition/lb_details_enter_transition</item>
+        <item name="android:windowReturnTransition">@transition/lb_details_return_transition</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/lb_shared_element_enter_transition</item>
+        <item name="android:windowSharedElementReturnTransition">@transition/lb_shared_element_return_transition</item>
     </style>
 
 </resources>
