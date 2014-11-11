@@ -37,6 +37,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
 
     private ViewHolder mViewHolder;
     private Activity mActivityToRunTransition;
+    private boolean mStartedPostpone;
     private String mSharedElementName;
     private int mRightPanelWidth;
     private int mRightPanelHeight;
@@ -44,6 +45,9 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
     @Override
     public void onSharedElementStart(List<String> sharedElementNames,
             List<View> sharedElements, List<View> sharedElementSnapshots) {
+        if (DEBUG) {
+            Log.d(TAG, "onSharedElementStart " + mActivityToRunTransition);
+        }
         if (sharedElements.size() < 1) {
             return;
         }
@@ -73,6 +77,9 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
     @Override
     public void onSharedElementEnd(List<String> sharedElementNames,
             List<View> sharedElements, List<View> sharedElementSnapshots) {
+        if (DEBUG) {
+            Log.d(TAG, "onSharedElementEnd " + mActivityToRunTransition);
+        }
         if (sharedElements.size() < 1) {
             return;
         }
@@ -102,25 +109,38 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         }
         mActivityToRunTransition = activity;
         mSharedElementName = sharedElementName;
-        if (mActivityToRunTransition != null) {
-            ActivityCompat.setEnterSharedElementCallback(mActivityToRunTransition, this);
-            ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
-            if (timeoutMs > 0) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mActivityToRunTransition == null) {
-                            return;
-                        }
-                        ActivityCompat.startPostponedEnterTransition(mActivityToRunTransition);
-                        mActivityToRunTransition = null;
+        if (DEBUG) {
+            Log.d(TAG, "postponeEnterTransition " + mActivityToRunTransition);
+        }
+        ActivityCompat.setEnterSharedElementCallback(mActivityToRunTransition, this);
+        ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
+        if (timeoutMs > 0) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (mStartedPostpone) {
+                        return;
                     }
-                }, timeoutMs);
-            }
+                    if (DEBUG) {
+                        Log.d(TAG, "timeout " + mActivityToRunTransition);
+                    }
+                    startPostponedEnterTransition();
+                }
+            }, timeoutMs);
         }
     }
 
     void onBindToDrawable(ViewHolder vh) {
+        if (DEBUG) {
+            Log.d(TAG, "onBindToDrawable, could start transition of " + mActivityToRunTransition);
+        }
+        if (mViewHolder != null) {
+            if (DEBUG) {
+                Log.d(TAG, "rebind? clear transitionName on current viewHolder "
+                        + mViewHolder.mOverviewFrame);
+            }
+            ViewCompat.setTransitionName(mViewHolder.mOverviewFrame, null);
+        }
         // After we got a image drawable,  we can determine size of right panel.
         // We want right panel to have fixed size so that the right panel don't change size
         // when the overview is layout as a small bounds in transition.
@@ -132,37 +152,50 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                 mViewHolder.mRightPanel.removeOnLayoutChangeListener(this);
                 mRightPanelWidth = mViewHolder.mRightPanel.getWidth();
                 mRightPanelHeight = mViewHolder.mRightPanel.getHeight();
+                if (DEBUG) {
+                    Log.d(TAG, "onLayoutChange records size of right panel as "
+                            + mRightPanelWidth + ", "+ mRightPanelHeight);
+                }
             }
         });
-        if (mActivityToRunTransition != null) {
-            mViewHolder.mRightPanel.postOnAnimation(new Runnable() {
-                @Override
-                public void run() {
-                    if (mActivityToRunTransition == null) {
-                        return;
-                    }
-                    final TransitionHelper transitionHelper = TransitionHelper.getInstance();
-                    Object transition = transitionHelper.getSharedElementEnterTransition(
-                            mActivityToRunTransition.getWindow());
-                    if (transition != null) {
-                        transitionHelper.setTransitionListener(transition, new TransitionListener() {
-                            @Override
-                            public void onTransitionEnd(Object transition) {
-                                // after transition if the action row still focused, transfer
-                                // focus to its children
-                                if (mViewHolder.mActionsRow.isFocused()) {
-                                    mViewHolder.mActionsRow.requestFocus();
-                                }
-                                transitionHelper.setTransitionListener(transition, null);
-                            }
-                        });
-                    }
-                    ViewCompat.setTransitionName(mViewHolder.mOverviewFrame, mSharedElementName);
-                    ActivityCompat.startPostponedEnterTransition(mActivityToRunTransition);
-                    mActivityToRunTransition = null;
-                    mSharedElementName = null;
+        mViewHolder.mRightPanel.postOnAnimation(new Runnable() {
+            @Override
+            public void run() {
+                if (DEBUG) {
+                    Log.d(TAG, "setTransitionName "+mViewHolder.mOverviewFrame);
                 }
-            });
+                ViewCompat.setTransitionName(mViewHolder.mOverviewFrame, mSharedElementName);
+                final TransitionHelper transitionHelper = TransitionHelper.getInstance();
+                Object transition = transitionHelper.getSharedElementEnterTransition(
+                        mActivityToRunTransition.getWindow());
+                if (transition != null) {
+                    transitionHelper.setTransitionListener(transition, new TransitionListener() {
+                        @Override
+                        public void onTransitionEnd(Object transition) {
+                            if (DEBUG) {
+                                Log.d(TAG, "onTransitionEnd " + mActivityToRunTransition);
+                            }
+                            // after transition if the action row still focused, transfer
+                            // focus to its children
+                            if (mViewHolder.mActionsRow.isFocused()) {
+                                mViewHolder.mActionsRow.requestFocus();
+                            }
+                            transitionHelper.setTransitionListener(transition, null);
+                        }
+                    });
+                }
+                startPostponedEnterTransition();
+            }
+        });
+    }
+
+    private void startPostponedEnterTransition() {
+        if (!mStartedPostpone) {
+            if (DEBUG) {
+                Log.d(TAG, "startPostponedEnterTransition " + mActivityToRunTransition);
+            }
+            ActivityCompat.startPostponedEnterTransition(mActivityToRunTransition);
+            mStartedPostpone = true;
         }
     }
 }
