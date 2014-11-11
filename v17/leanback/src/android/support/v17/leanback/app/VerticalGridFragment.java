@@ -15,6 +15,7 @@ package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;

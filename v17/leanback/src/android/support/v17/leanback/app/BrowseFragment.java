@@ -16,6 +16,7 @@ package android.support.v17.leanback.app;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -46,6 +47,7 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
