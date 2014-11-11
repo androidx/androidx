@@ -84,7 +84,10 @@ public class NotificationCompatWearableExtenderTest extends AndroidTestCase {
                 R.drawable.action_icon, "Test title", mPendingIntent)
                 .addRemoteInput(remoteInput.build())
                 .extend(new NotificationCompat.Action.WearableExtender()
-                        .setAvailableOffline(false));
+                        .setAvailableOffline(false)
+                        .setInProgressLabel("In Progress Label")
+                        .setConfirmLabel("Confirmation Label")
+                        .setCancelLabel("Cancelation Label"));
         // Add an arbitrary key/value.
         action2.getExtras().putFloat("action_float", 10.5f);
 
@@ -129,7 +132,10 @@ public class NotificationCompatWearableExtenderTest extends AndroidTestCase {
                 R.drawable.action_icon, "Test title", mPendingIntent)
                 .addRemoteInput(remoteInput.build())
                 .extend(new Notification.Action.WearableExtender()
-                        .setAvailableOffline(false));
+                        .setAvailableOffline(false)
+                        .setInProgressLabel("In Progress Label")
+                        .setConfirmLabel("Confirmation Label")
+                        .setCancelLabel("Cancelation Label"));
         // Add an arbitrary key/value.
         action2.getExtras().putFloat("action_float", 10.5f);
 
@@ -242,7 +248,13 @@ public class NotificationCompatWearableExtenderTest extends AndroidTestCase {
     private void assertBundlesEqual(Bundle bundle1, Bundle bundle2) {
         assertEquals(bundle1.size(), bundle2.size());
         for (String key : bundle1.keySet()) {
-            assertEquals(bundle1.get(key), bundle2.get(key));
+            Object value1 = bundle1.get(key);
+            Object value2 = bundle2.get(key);
+            if (value1 instanceof Bundle && value2 instanceof Bundle) {
+                assertBundlesEqual((Bundle) value1, (Bundle) value2);
+            } else {
+                assertEquals(value1, value2);
+            }
         }
     }
 }
