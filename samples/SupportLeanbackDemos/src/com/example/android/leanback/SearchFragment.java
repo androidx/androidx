@@ -73,7 +73,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
             listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
-            HeaderItem header = new HeaderItem(i, mQuery + " results row " + i, null);
+            HeaderItem header = new HeaderItem(i, mQuery + " results row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
     }

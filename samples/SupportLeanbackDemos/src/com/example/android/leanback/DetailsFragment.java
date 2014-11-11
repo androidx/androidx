@@ -140,7 +140,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
             listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
             listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_3));
             listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
-            HeaderItem header = new HeaderItem(i, "Row " + i, null);
+            HeaderItem header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
 
