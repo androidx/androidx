@@ -561,6 +561,9 @@ public class BrowseSupportFragment extends Fragment {
 
         @Override
         public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+            if (getChildFragmentManager().isDestroyed()) {
+                return true;
+            }
             // Make sure not changing focus when requestFocus() is called.
             if (mCanShowHeaders && mShowingHeaders) {
                 if (mHeadersSupportFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
@@ -575,8 +578,11 @@ public class BrowseSupportFragment extends Fragment {
 
         @Override
         public void onRequestChildFocus(View child, View focused) {
-            int childId = child.getId();
+            if (getChildFragmentManager().isDestroyed()) {
+                return;
+            }
             if (!mCanShowHeaders || isInHeadersTransition()) return;
+            int childId = child.getId();
             if (childId == R.id.browse_container_dock && mShowingHeaders) {
                 startHeadersTransitionInternal(false);
             } else if (childId == R.id.browse_headers_dock && !mShowingHeaders) {
