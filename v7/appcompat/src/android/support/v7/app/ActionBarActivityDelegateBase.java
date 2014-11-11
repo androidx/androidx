@@ -43,7 +43,6 @@ import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.FitWindowsViewGroup;
-import android.support.v7.internal.widget.ProgressBarCompat;
 import android.support.v7.internal.widget.TintCheckBox;
 import android.support.v7.internal.widget.TintCheckedTextView;
 import android.support.v7.internal.widget.TintEditText;
@@ -689,25 +688,22 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     @Override
     void setSupportProgressBarVisibility(boolean visible) {
-        updateProgressBars(visible ? Window.PROGRESS_VISIBILITY_ON :
-                Window.PROGRESS_VISIBILITY_OFF);
+        // noop
     }
 
     @Override
     void setSupportProgressBarIndeterminateVisibility(boolean visible) {
-        updateProgressBars(visible ? Window.PROGRESS_VISIBILITY_ON :
-                Window.PROGRESS_VISIBILITY_OFF);
+        // noop
     }
 
     @Override
     void setSupportProgressBarIndeterminate(boolean indeterminate) {
-        updateProgressBars(indeterminate ? Window.PROGRESS_INDETERMINATE_ON
-                : Window.PROGRESS_INDETERMINATE_OFF);
+        // noop
     }
 
     @Override
     void setSupportProgress(int progress) {
-        updateProgressBars(Window.PROGRESS_START + progress);
+        // noop
     }
 
     @Override
@@ -772,48 +768,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             }
         }
         return null;
-    }
-
-    /**
-     * Progress Bar function. Mostly extracted from PhoneWindow.java
-     */
-    private void updateProgressBars(int value) {
-        ProgressBarCompat circularProgressBar = getCircularProgressBar();
-        ProgressBarCompat horizontalProgressBar = getHorizontalProgressBar();
-
-        if (value == Window.PROGRESS_VISIBILITY_ON) {
-            if (mFeatureProgress) {
-                int level = horizontalProgressBar.getProgress();
-                int visibility = (horizontalProgressBar.isIndeterminate() || level < 10000) ?
-                        View.VISIBLE : View.INVISIBLE;
-                horizontalProgressBar.setVisibility(visibility);
-            }
-            if (mFeatureIndeterminateProgress) {
-                circularProgressBar.setVisibility(View.VISIBLE);
-            }
-        } else if (value == Window.PROGRESS_VISIBILITY_OFF) {
-            if (mFeatureProgress) {
-                horizontalProgressBar.setVisibility(View.GONE);
-            }
-            if (mFeatureIndeterminateProgress) {
-                circularProgressBar.setVisibility(View.GONE);
-            }
-        } else if (value == Window.PROGRESS_INDETERMINATE_ON) {
-            horizontalProgressBar.setIndeterminate(true);
-        } else if (value == Window.PROGRESS_INDETERMINATE_OFF) {
-            horizontalProgressBar.setIndeterminate(false);
-        } else if (Window.PROGRESS_START <= value && value <= Window.PROGRESS_END) {
-            // We want to set the progress value before testing for visibility
-            // so that when the progress bar becomes visible again, it has the
-            // correct level.
-            horizontalProgressBar.setProgress(value - Window.PROGRESS_START);
-
-            if (value < Window.PROGRESS_END) {
-                showProgressBars(horizontalProgressBar, circularProgressBar);
-            } else {
-                hideProgressBars(horizontalProgressBar, circularProgressBar);
-            }
-        }
     }
 
     private void openPanel(int featureId, KeyEvent event) {
@@ -919,43 +873,6 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         closePanel(st, false);
 
         openPanel(st, null);
-    }
-
-    private void showProgressBars(ProgressBarCompat horizontalProgressBar,
-            ProgressBarCompat spinnyProgressBar) {
-        if (mFeatureIndeterminateProgress && spinnyProgressBar.getVisibility() == View.INVISIBLE) {
-            spinnyProgressBar.setVisibility(View.VISIBLE);
-        }
-        // Only show the progress bars if the primary progress is not complete
-        if (mFeatureProgress && horizontalProgressBar.getProgress() < 10000) {
-            horizontalProgressBar.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideProgressBars(ProgressBarCompat horizontalProgressBar,
-            ProgressBarCompat spinnyProgressBar) {
-        if (mFeatureIndeterminateProgress && spinnyProgressBar.getVisibility() == View.VISIBLE) {
-            spinnyProgressBar.setVisibility(View.INVISIBLE);
-        }
-        if (mFeatureProgress && horizontalProgressBar.getVisibility() == View.VISIBLE) {
-            horizontalProgressBar.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private ProgressBarCompat getCircularProgressBar() {
-        ProgressBarCompat pb = (ProgressBarCompat) mActivity.findViewById(R.id.progress_circular);
-        if (pb != null) {
-            pb.setVisibility(View.INVISIBLE);
-        }
-        return pb;
-    }
-
-    private ProgressBarCompat getHorizontalProgressBar() {
-        ProgressBarCompat pb = (ProgressBarCompat) mActivity.findViewById(R.id.progress_horizontal);
-        if (pb != null) {
-            pb.setVisibility(View.INVISIBLE);
-        }
-        return pb;
     }
 
     private boolean initializePanelMenu(final PanelFeatureState st) {
