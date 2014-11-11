@@ -24,6 +24,9 @@
     <!-- Content description for the action menu overflow button. [CHAR LIMIT=NONE] -->
     <string name="abc_action_menu_overflow_description">More options</string>
 
+    <!-- Content description for the Toolbar icon used to collapse an expanded action mode. [CHAR LIMIT=NONE] -->
+    <string name="abc_toolbar_collapse_description">Collapse</string>
+
     <!-- Formatting string for describing the action bar's title/home/up affordance.
          This is a single tappable "button" that includes the app icon, the Up indicator
          (usually a "<" chevron) and the window title text.
