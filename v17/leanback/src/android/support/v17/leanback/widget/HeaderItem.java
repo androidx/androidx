@@ -26,26 +26,10 @@ public class HeaderItem {
 
     /**
      * Create a header item.  All fields are optional.
-     * @deprecated Use {@link #HeaderItem(long, String)} instead.
-     */
-    public HeaderItem(long id, String name, String imageUri) {
-        this(id, name);
-    }
-
-    /**
-     * Create a header item.  All fields are optional.
      */
     public HeaderItem(long id, String name) {
         mId = id;
         mName = name;
-    }
-
-    /**
-     * Create a header item.  All fields are optional.
-     * @deprecated Use {@link #HeaderItem(String)} instead.
-     */
-    public HeaderItem(String name, String imageUri) {
-        this(name);
     }
 
     /**
@@ -67,13 +51,5 @@ public class HeaderItem {
      */
     public final String getName() {
         return mName;
-    }
-
-    /**
-     * Returns the icon for this header item.
-     * @deprecated Returns null
-     */
-    public final String getImageUri() {
-        return null;
     }
 }
