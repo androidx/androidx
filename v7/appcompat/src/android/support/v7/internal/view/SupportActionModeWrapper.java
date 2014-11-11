@@ -19,6 +19,8 @@ package android.support.v7.internal.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.v4.internal.view.SupportMenu;
+import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.util.SimpleArrayMap;
 import android.support.v7.internal.view.menu.MenuWrapperFactory;
 import android.view.ActionMode;
@@ -35,14 +37,13 @@ import android.view.View;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SupportActionModeWrapper extends ActionMode {
 
-    final MenuInflater mInflater;
-
+    final Context mContext;
     final android.support.v7.view.ActionMode mWrappedObject;
 
     public SupportActionModeWrapper(Context context,
             android.support.v7.view.ActionMode supportActionMode) {
+        mContext = context;
         mWrappedObject = supportActionMode;
-        mInflater = new SupportMenuInflater(context);
     }
 
     @Override
@@ -77,7 +78,7 @@ public class SupportActionModeWrapper extends ActionMode {
 
     @Override
     public Menu getMenu() {
-        return MenuWrapperFactory.createMenuWrapper(mWrappedObject.getMenu());
+        return MenuWrapperFactory.wrapSupportMenu(mContext, (SupportMenu) mWrappedObject.getMenu());
     }
 
     @Override
@@ -112,7 +113,7 @@ public class SupportActionModeWrapper extends ActionMode {
 
     @Override
     public MenuInflater getMenuInflater() {
-        return mInflater;
+        return mWrappedObject.getMenuInflater();
     }
 
     @Override
@@ -139,35 +140,46 @@ public class SupportActionModeWrapper extends ActionMode {
 
         final SimpleArrayMap<android.support.v7.view.ActionMode, SupportActionModeWrapper>
                 mActionModes;
+        final SimpleArrayMap<Menu, Menu> mMenus;
 
         public CallbackWrapper(Context context, Callback supportCallback) {
             mContext = context;
             mWrappedCallback = supportCallback;
             mActionModes = new SimpleArrayMap<>();
+            mMenus = new SimpleArrayMap<>();
         }
 
         @Override
         public boolean onCreateActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
             return mWrappedCallback.onCreateActionMode(getActionModeWrapper(mode),
-                    MenuWrapperFactory.createMenuWrapper(menu));
+                    getMenuWrapper(menu));
         }
 
         @Override
         public boolean onPrepareActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
             return mWrappedCallback.onPrepareActionMode(getActionModeWrapper(mode),
-                    MenuWrapperFactory.createMenuWrapper(menu));
+                    getMenuWrapper(menu));
         }
 
         @Override
         public boolean onActionItemClicked(android.support.v7.view.ActionMode mode,
                 android.view.MenuItem item) {
             return mWrappedCallback.onActionItemClicked(getActionModeWrapper(mode),
-                    MenuWrapperFactory.createMenuItemWrapper(item));
+                    MenuWrapperFactory.wrapSupportMenuItem(mContext, (SupportMenuItem) item));
         }
 
         @Override
         public void onDestroyActionMode(android.support.v7.view.ActionMode mode) {
             mWrappedCallback.onDestroyActionMode(getActionModeWrapper(mode));
+        }
+
+        private Menu getMenuWrapper(Menu menu) {
+            Menu wrapper = mMenus.get(menu);
+            if (wrapper == null) {
+                wrapper = MenuWrapperFactory.wrapSupportMenu(mContext, (SupportMenu) menu);
+                mMenus.put(menu, wrapper);
+            }
+            return wrapper;
         }
 
         private ActionMode getActionModeWrapper(android.support.v7.view.ActionMode mode) {
