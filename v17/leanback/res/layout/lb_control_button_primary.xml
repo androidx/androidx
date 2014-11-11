@@ -33,4 +33,11 @@
         android:layout_height="@dimen/lb_control_icon_height"
         android:layout_gravity="center" />
 
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        style="?attr/playbackControlButtonLabelStyle" />
+
 </FrameLayout>

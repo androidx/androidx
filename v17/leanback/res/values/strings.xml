@@ -25,6 +25,10 @@ limitations under the License.
     <string name="lb_search_bar_hint_with_title">Search <xliff:g id="search context">%1$s</xliff:g></string>
     <!-- Hint showing in the empty search bar using a provided context (usually the application name) while in voice input mode [CHAR LIMIT=40] -->
     <string name="lb_search_bar_hint_with_title_speech">Speak to search <xliff:g id="search context">%1$s</xliff:g></string>
+    <!-- Onscreen label for the control button to fast forward media playback at a given speed multiplier -->
+    <string name="lb_control_display_fast_forward_multiplier">%1$dX</string>
+    <!-- Onscreen label for the control button to rewind media playback at a given speed multiplier -->
+    <string name="lb_control_display_rewind_multiplier">%1$dX</string>
 
     <!-- Talkback label for the control button to start media playback -->
     <string name="lb_playback_controls_play">Play</string>
@@ -32,8 +36,12 @@ limitations under the License.
     <string name="lb_playback_controls_pause">Pause</string>
     <!-- Talkback label for the control button to fast forward media playback -->
     <string name="lb_playback_controls_fast_forward">Fast Forward</string>
+    <!-- Talkback label for the control button to fast forward media playback at a given speed multiplier -->
+    <string name="lb_playback_controls_fast_forward_multiplier">Fast Forward %1$dX</string>
     <!-- Talkback label for the control button to start rewind playback -->
     <string name="lb_playback_controls_rewind">Rewind</string>
+    <!-- Talkback label for the control button to rewind media playback at a given speed multiplier -->
+    <string name="lb_playback_controls_rewind_multiplier">Rewind %1$dX</string>
     <!-- Talkback label for the control button to skip to the next media item -->
     <string name="lb_playback_controls_skip_next">Skip Next</string>
     <!-- Talkback label for the control button to skip to the previous media item -->
