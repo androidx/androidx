@@ -332,6 +332,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
         mExternalAdapterListener = listener;
     }
 
+    ScaleFrameLayout getScaleFrameLayout() {
+        return mScaleFrameLayout;
+    }
+
     private static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
         ((RowPresenter) vh.getPresenter()).setRowViewExpanded(vh.getViewHolder(), expanded);
     }
