@@ -197,7 +197,6 @@ public class RowsFragment extends BaseRowFragment {
         mExpand = expand;
         VerticalGridView listView = getVerticalGridView();
         if (listView != null) {
-            if (!mInTransition) ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!needsScale());
             updateRowScaling();
             final int count = listView.getChildCount();
             if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
@@ -313,8 +312,6 @@ public class RowsFragment extends BaseRowFragment {
         getVerticalGridView().setItemAlignmentViewId(R.id.row_content);
         getVerticalGridView().setSaveChildrenPolicy(VerticalGridView.SAVE_LIMITED_CHILD);
 
-        ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!needsScale());
-
         mRecycledViewPool = null;
         mPresenterMapper = null;
     }
@@ -331,8 +328,21 @@ public class RowsFragment extends BaseRowFragment {
         mExternalAdapterListener = listener;
     }
 
-    ScaleFrameLayout getScaleFrameLayout() {
-        return mScaleFrameLayout;
+    /**
+     * Get the view that will change scale.
+     */
+    View getScaleView() {
+        return getVerticalGridView();
+    }
+
+    /**
+     * Set pivots to scale rows fragment.
+     */
+    void setScalePivots(float pivotX, float pivotY) {
+        // set pivot on ScaleFrameLayout, it will be propagated to its child VerticalGridView
+        // where we actually change scale.
+        mScaleFrameLayout.setPivotX(pivotX);
+        mScaleFrameLayout.setPivotY(pivotY);
     }
 
     private static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
@@ -466,7 +476,6 @@ public class RowsFragment extends BaseRowFragment {
     @Override
     void onTransitionStart() {
         super.onTransitionStart();
-        ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!mRowScaleEnabled);
         mInTransition = true;
         freezeRows(true);
     }
@@ -524,8 +533,8 @@ public class RowsFragment extends BaseRowFragment {
     private void updateRowScaling() {
         final float scaleFactor = needsScale() ? mRowScaleFactor : 1f;
         mScaleFrameLayout.setLayoutScaleY(scaleFactor);
-        mScaleFrameLayout.setScaleY(scaleFactor);
-        mScaleFrameLayout.setScaleX(scaleFactor);
+        getScaleView().setScaleY(scaleFactor);
+        getScaleView().setScaleX(scaleFactor);
         updateWindowAlignOffset();
     }
 
@@ -554,7 +563,6 @@ public class RowsFragment extends BaseRowFragment {
     void onTransitionEnd() {
         super.onTransitionEnd();
         mInTransition = false;
-        ((ViewGroup) mScaleFrameLayout.getParent()).setClipChildren(!needsScale());
         freezeRows(false);
     }
 
