@@ -200,6 +200,11 @@ public abstract class RowPresenter extends Presenter {
      */
     protected void initializeRowViewHolder(ViewHolder vh) {
         vh.mInitialzed = true;
+        // set clip children to false for slide transition
+        ((ViewGroup) vh.view).setClipChildren(false);
+        if (vh.mContainerViewHolder != null) {
+            ((ViewGroup) vh.mContainerViewHolder.view).setClipChildren(false);
+        }
     }
 
     /**
@@ -494,4 +499,13 @@ public abstract class RowPresenter extends Presenter {
     public void freeze(ViewHolder holder, boolean freeze) {
     }
 
+    /**
+     * Change visibility of views, entrance transition will be run against the views.
+     * Subclass may override and must begin with calling super.setViewsVisible()
+     */
+    public void setViewsVisible(ViewHolder holder, boolean visible) {
+        if (holder.mHeaderViewHolder != null) {
+            holder.mHeaderViewHolder.view.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        }
+    }
 }
