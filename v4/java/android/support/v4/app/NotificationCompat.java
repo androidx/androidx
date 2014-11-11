@@ -453,6 +453,10 @@ public class NotificationCompat {
         public String getGroup(Notification n);
         public boolean isGroupSummary(Notification n);
         public String getSortKey(Notification n);
+        Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc);
+        NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
+                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
+                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
     }
 
     static class NotificationCompatImplBase implements NotificationCompatImpl {
@@ -516,6 +520,18 @@ public class NotificationCompat {
 
         @Override
         public String getSortKey(Notification n) {
+            return null;
+        }
+
+        @Override
+        public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
+            return null;
+        }
+
+        @Override
+        public NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
+                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
+                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
             return null;
         }
     }
@@ -742,6 +758,19 @@ public class NotificationCompat {
         @Override
         public String getCategory(Notification notif) {
             return NotificationCompatApi21.getCategory(notif);
+        }
+
+        @Override
+        public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
+            return NotificationCompatApi21.getBundleForUnreadConversation(uc);
+        }
+
+        @Override
+        public NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
+                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
+                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+            return NotificationCompatApi21.getUnreadConversationFromBundle(
+                    b, factory, remoteInputFactory);
         }
     }
 
@@ -1789,6 +1818,7 @@ public class NotificationCompat {
         /**
          * Get additional metadata carried around with this Action.
          */
+        @Override
         public Bundle getExtras() {
             return mExtras;
         }
@@ -1797,6 +1827,7 @@ public class NotificationCompat {
          * Get the list of inputs to be collected from the user when this action is sent.
          * May return null if no remote inputs were added.
          */
+        @Override
         public RemoteInput[] getRemoteInputs() {
             return mRemoteInputs;
         }
@@ -2773,6 +2804,360 @@ public class NotificationCompat {
             }
         }
     }
+
+    /**
+     * <p>Helper class to add Android Auto extensions to notifications. To create a notification
+     * with car extensions:
+     *
+     * <ol>
+     *  <li>Create an {@link NotificationCompat.Builder}, setting any desired
+     *  properties.
+     *  <li>Create a {@link CarExtender}.
+     *  <li>Set car-specific properties using the {@code add} and {@code set} methods of
+     *  {@link CarExtender}.
+     *  <li>Call {@link android.support.v4.app.NotificationCompat.Builder#extend(NotificationCompat.Extender)}
+     *  to apply the extensions to a notification.
+     *  <li>Post the notification to the notification system with the
+     *  {@code NotificationManagerCompat.notify(...)} methods and not the
+     *  {@code NotificationManager.notify(...)} methods.
+     * </ol>
+     *
+     * <pre class="prettyprint">
+     * Notification notification = new NotificationCompat.Builder(context)
+     *         ...
+     *         .extend(new CarExtender()
+     *                 .set*(...))
+     *         .build();
+     * </pre>
+     *
+     * <p>Car extensions can be accessed on an existing notification by using the
+     * {@code CarExtender(Notification)} constructor, and then using the {@code get} methods
+     * to access values.
+     */
+    public static final class CarExtender implements Extender {
+        private static final String TAG = "CarExtender";
+
+        private static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
+        private static final String EXTRA_LARGE_ICON = "large_icon";
+        private static final String EXTRA_CONVERSATION = "car_conversation";
+        private static final String EXTRA_COLOR = "app_color";
+
+        private Bitmap mLargeIcon;
+        private UnreadConversation mUnreadConversation;
+        private int mColor = NotificationCompat.COLOR_DEFAULT;
+
+        /**
+         * Create a {@link CarExtender} with default options.
+         */
+        public CarExtender() {
+        }
+
+        /**
+         * Create a {@link CarExtender} from the CarExtender options of an existing Notification.
+         *
+         * @param notif The notification from which to copy options.
+         */
+        public CarExtender(Notification notif) {
+            if (Build.VERSION.SDK_INT < 21) {
+                return;
+            }
+
+            Bundle carBundle = getExtras(notif)==null ?
+                    null : getExtras(notif).getBundle(EXTRA_CAR_EXTENDER);
+            if (carBundle != null) {
+                mLargeIcon = carBundle.getParcelable(EXTRA_LARGE_ICON);
+                mColor = carBundle.getInt(EXTRA_COLOR, NotificationCompat.COLOR_DEFAULT);
+
+                Bundle b = carBundle.getBundle(EXTRA_CONVERSATION);
+                mUnreadConversation = (UnreadConversation) IMPL.getUnreadConversationFromBundle(
+                        b, UnreadConversation.FACTORY, RemoteInput.FACTORY);
+            }
+        }
+
+        /**
+         * Apply car extensions to a notification that is being built. This is typically called by
+         * the {@link android.support.v4.app.NotificationCompat.Builder#extend(NotificationCompat.Extender)}
+         * method of {@link NotificationCompat.Builder}.
+         */
+        @Override
+        public NotificationCompat.Builder extend(NotificationCompat.Builder builder) {
+            if (Build.VERSION.SDK_INT < 21) {
+                return builder;
+            }
+
+            Bundle carExtensions = new Bundle();
+
+            if (mLargeIcon != null) {
+                carExtensions.putParcelable(EXTRA_LARGE_ICON, mLargeIcon);
+            }
+            if (mColor != NotificationCompat.COLOR_DEFAULT) {
+                carExtensions.putInt(EXTRA_COLOR, mColor);
+            }
+
+            if (mUnreadConversation != null) {
+                Bundle b = IMPL.getBundleForUnreadConversation(mUnreadConversation);
+                carExtensions.putBundle(EXTRA_CONVERSATION, b);
+            }
+
+            builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
+            return builder;
+        }
+
+        /**
+         * Sets the accent color to use when Android Auto presents the notification.
+         *
+         * Android Auto uses the color set with {@link android.support.v4.app.NotificationCompat.Builder#setColor(int)}
+         * to accent the displayed notification. However, not all colors are acceptable in an
+         * automotive setting. This method can be used to override the color provided in the
+         * notification in such a situation.
+         */
+        public CarExtender setColor(int color) {
+            mColor = color;
+            return this;
+        }
+
+        /**
+         * Gets the accent color.
+         *
+         * @see setColor
+         */
+        public int getColor() {
+            return mColor;
+        }
+
+        /**
+         * Sets the large icon of the car notification.
+         *
+         * If no large icon is set in the extender, Android Auto will display the icon
+         * specified by {@link android.support.v4.app.NotificationCompat.Builder#setLargeIcon(android.graphics.Bitmap)}
+         *
+         * @param largeIcon The large icon to use in the car notification.
+         * @return This object for method chaining.
+         */
+        public CarExtender setLargeIcon(Bitmap largeIcon) {
+            mLargeIcon = largeIcon;
+            return this;
+        }
+
+        /**
+         * Gets the large icon used in this car notification, or null if no icon has been set.
+         *
+         * @return The large icon for the car notification.
+         * @see CarExtender#setLargeIcon
+         */
+        public Bitmap getLargeIcon() {
+            return mLargeIcon;
+        }
+
+        /**
+         * Sets the unread conversation in a message notification.
+         *
+         * @param unreadConversation The unread part of the conversation this notification conveys.
+         * @return This object for method chaining.
+         */
+        public CarExtender setUnreadConversation(UnreadConversation unreadConversation) {
+            mUnreadConversation = unreadConversation;
+            return this;
+        }
+
+        /**
+         * Returns the unread conversation conveyed by this notification.
+         * @see #setUnreadConversation(UnreadConversation)
+         */
+        public UnreadConversation getUnreadConversation() {
+            return mUnreadConversation;
+        }
+
+        /**
+         * A class which holds the unread messages from a conversation.
+         */
+        public static class UnreadConversation extends NotificationCompatBase.UnreadConversation {
+            private final String[] mMessages;
+            private final RemoteInput mRemoteInput;
+            private final PendingIntent mReplyPendingIntent;
+            private final PendingIntent mReadPendingIntent;
+            private final String[] mParticipants;
+            private final long mLatestTimestamp;
+
+            UnreadConversation(String[] messages, RemoteInput remoteInput,
+                    PendingIntent replyPendingIntent, PendingIntent readPendingIntent,
+                    String[] participants, long latestTimestamp) {
+                mMessages = messages;
+                mRemoteInput = remoteInput;
+                mReadPendingIntent = readPendingIntent;
+                mReplyPendingIntent = replyPendingIntent;
+                mParticipants = participants;
+                mLatestTimestamp = latestTimestamp;
+            }
+
+            /**
+             * Gets the list of messages conveyed by this notification.
+             */
+            @Override
+            String[] getMessages() {
+                return mMessages;
+            }
+
+            /**
+             * Gets the remote input that will be used to convey the response to a message list, or
+             * null if no such remote input exists.
+             */
+            @Override
+            RemoteInput getRemoteInput() {
+                return mRemoteInput;
+            }
+
+            /**
+             * Gets the pending intent that will be triggered when the user replies to this
+             * notification.
+             */
+            @Override
+            PendingIntent getReplyPendingIntent() {
+                return mReplyPendingIntent;
+            }
+
+            /**
+             * Gets the pending intent that Android Auto will send after it reads aloud all messages
+             * in this object's message list.
+             */
+            @Override
+            PendingIntent getReadPendingIntent() {
+                return mReadPendingIntent;
+            }
+
+            /**
+             * Gets the participants in the conversation.
+             */
+            @Override
+            String[] getParticipants() {
+                return mParticipants;
+            }
+
+            /**
+             * Gets the firs participant in the conversation.
+             */
+            @Override
+            String getParticipant() {
+                return mParticipants.length > 0 ? mParticipants[0] : null;
+            }
+
+            /**
+             * Gets the timestamp of the conversation.
+             */
+            @Override
+            long getLatestTimestamp() {
+                return mLatestTimestamp;
+            }
+
+            /** @hide */
+            static final Factory FACTORY = new Factory() {
+                @Override
+                public UnreadConversation build(
+                        String[] messages, RemoteInputCompatBase.RemoteInput remoteInput,
+                        PendingIntent replyPendingIntent, PendingIntent readPendingIntent,
+                        String[] participants, long latestTimestamp) {
+                    return new UnreadConversation(
+                            messages, (RemoteInput) remoteInput, replyPendingIntent,
+                            readPendingIntent,
+                            participants, latestTimestamp);
+                }
+            };
+
+            /**
+             * Builder class for {@link CarExtender.UnreadConversation} objects.
+             */
+            public static class Builder {
+                private final List<String> mMessages = new ArrayList<String>();
+                private final String mParticipant;
+                private RemoteInput mRemoteInput;
+                private PendingIntent mReadPendingIntent;
+                private PendingIntent mReplyPendingIntent;
+                private long mLatestTimestamp;
+
+                /**
+                 * Constructs a new builder for {@link CarExtender.UnreadConversation}.
+                 *
+                 * @param name The name of the other participant in the conversation.
+                 */
+                public Builder(String name) {
+                    mParticipant = name;
+                }
+
+                /**
+                 * Appends a new unread message to the list of messages for this conversation.
+                 *
+                 * The messages should be added from oldest to newest.
+                 *
+                 * @param message The text of the new unread message.
+                 * @return This object for method chaining.
+                 */
+                public Builder addMessage(String message) {
+                    mMessages.add(message);
+                    return this;
+                }
+
+                /**
+                 * Sets the pending intent and remote input which will convey the reply to this
+                 * notification.
+                 *
+                 * @param pendingIntent The pending intent which will be triggered on a reply.
+                 * @param remoteInput The remote input parcelable which will carry the reply.
+                 * @return This object for method chaining.
+                 *
+                 * @see CarExtender.UnreadConversation#getRemoteInput
+                 * @see CarExtender.UnreadConversation#getReplyPendingIntent
+                 */
+                public Builder setReplyAction(
+                        PendingIntent pendingIntent, RemoteInput remoteInput) {
+                    mRemoteInput = remoteInput;
+                    mReplyPendingIntent = pendingIntent;
+
+                    return this;
+                }
+
+                /**
+                 * Sets the pending intent that will be sent once the messages in this notification
+                 * are read.
+                 *
+                 * @param pendingIntent The pending intent to use.
+                 * @return This object for method chaining.
+                 */
+                public Builder setReadPendingIntent(PendingIntent pendingIntent) {
+                    mReadPendingIntent = pendingIntent;
+                    return this;
+                }
+
+                /**
+                 * Sets the timestamp of the most recent message in an unread conversation.
+                 *
+                 * If a messaging notification has been posted by your application and has not
+                 * yet been cancelled, posting a later notification with the same id and tag
+                 * but without a newer timestamp may result in Android Auto not displaying a
+                 * heads up notification for the later notification.
+                 *
+                 * @param timestamp The timestamp of the most recent message in the conversation.
+                 * @return This object for method chaining.
+                 */
+                public Builder setLatestTimestamp(long timestamp) {
+                    mLatestTimestamp = timestamp;
+                    return this;
+                }
+
+                /**
+                 * Builds a new unread conversation object.
+                 *
+                 * @return The new unread conversation object.
+                 */
+                public UnreadConversation build() {
+                    String[] messages = mMessages.toArray(new String[mMessages.size()]);
+                    String[] participants = { mParticipant };
+                    return new UnreadConversation(messages, mRemoteInput, mReplyPendingIntent,
+                            mReadPendingIntent, participants, mLatestTimestamp);
+                }
+            }
+        }
+    }
+
 
     /**
      * Get an array of Notification objects from a parcelable array bundle field.
