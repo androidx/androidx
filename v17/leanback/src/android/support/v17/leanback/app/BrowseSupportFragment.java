@@ -618,6 +618,19 @@ public class BrowseSupportFragment extends Fragment {
 
         readArguments(getArguments());
 
+        if (mCanShowHeaders) {
+            if (mHeadersBackStackEnabled) {
+                mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
+                mBackStackChangedListener = new BackStackListener();
+                getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
+                mBackStackChangedListener.load(savedInstanceState);
+            } else {
+                if (savedInstanceState != null) {
+                    mShowingHeaders = savedInstanceState.getBoolean(HEADER_SHOW);
+                }
+            }
+        }
+
     }
 
     @Override
@@ -712,18 +725,6 @@ public class BrowseSupportFragment extends Fragment {
         sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.container_list, true);
         sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.container_list, true);
 
-        if (mCanShowHeaders) {
-            if (mHeadersBackStackEnabled) {
-                mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
-                mBackStackChangedListener = new BackStackListener();
-                getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
-                mBackStackChangedListener.load(savedInstanceState);
-            } else {
-                if (savedInstanceState != null) {
-                    mShowingHeaders = savedInstanceState.getBoolean(HEADER_SHOW);
-                }
-            }
-        }
         if (savedInstanceState != null) {
             mShowingTitle = savedInstanceState.getBoolean(TITLE_SHOW);
         }
