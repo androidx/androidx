@@ -140,6 +140,9 @@ public class RemotePlayer extends Player {
                 }
                 if (item.getState() == MediaItemStatus.PLAYBACK_STATE_PAUSED) {
                     pause();
+                    publishState(STATE_PAUSED);
+                } else {
+                    publishState(STATE_PLAYING);
                 }
                 if (mCallback != null) {
                     mCallback.onPlaylistChanged();
@@ -214,6 +217,7 @@ public class RemotePlayer extends Player {
                 if (mCallback != null) {
                     mCallback.onPlaylistChanged();
                 }
+                publishState(STATE_PAUSED);
             }
 
             @Override
@@ -239,6 +243,7 @@ public class RemotePlayer extends Player {
                 if (mCallback != null) {
                     mCallback.onPlaylistChanged();
                 }
+                publishState(STATE_PLAYING);
             }
 
             @Override
@@ -254,6 +259,7 @@ public class RemotePlayer extends Player {
             // ignore if no session
             return;
         }
+        publishState(STATE_IDLE);
         if (DEBUG) {
             Log.d(TAG, "stop");
         }

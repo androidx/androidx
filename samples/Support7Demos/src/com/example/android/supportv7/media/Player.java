@@ -16,11 +16,14 @@
 
 package com.example.android.supportv7.media;
 
-import android.net.Uri;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouter.RouteInfo;
+import android.util.Log;
 
 /**
  * Abstraction of common playback operations of media items, such as play,
@@ -28,7 +31,19 @@ import android.support.v7.media.MediaRouter.RouteInfo;
  * of media items.
  */
 public abstract class Player {
+    private static final String TAG = "SampleMediaRoutePlayer";
+    protected static final int STATE_IDLE = 0;
+    protected static final int STATE_PLAY_PENDING = 1;
+    protected static final int STATE_READY = 2;
+    protected static final int STATE_PLAYING = 3;
+    protected static final int STATE_PAUSED = 4;
+
+    private static final long PLAYBACK_ACTIONS = PlaybackStateCompat.ACTION_PAUSE
+            | PlaybackStateCompat.ACTION_PLAY;
+
     protected Callback mCallback;
+    protected MediaSessionCompat mMediaSession;
+    protected MediaSessionCallback mSessionCallback;
 
     public abstract boolean isRemotePlayback();
     public abstract boolean isQueuingSupported();
@@ -71,8 +86,69 @@ public abstract class Player {
         } else {
             player = new LocalPlayer.OverlayPlayer(context);
         }
+        player.initMediaSession(context);
         player.connect(route);
         return player;
+    }
+
+    public MediaSessionCompat getMediaSession() {
+        return mMediaSession;
+    }
+
+    protected void updateMetadata() {
+        MediaMetadataCompat.Builder bob = new MediaMetadataCompat.Builder();
+        bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, getDescription());
+        bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Subtitle of the thing");
+        bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION,
+                "Description of the thing");
+        bob.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, getSnapshot());
+        mMediaSession.setMetadata(bob.build());
+    }
+
+    protected void publishState(int state) {
+        PlaybackStateCompat.Builder bob = new PlaybackStateCompat.Builder();
+        bob.setActions(PLAYBACK_ACTIONS);
+        switch (state) {
+            case STATE_PLAYING:
+                bob.setState(PlaybackStateCompat.STATE_PLAYING, -1, 1);
+                break;
+            case STATE_READY:
+            case STATE_PAUSED:
+                bob.setState(PlaybackStateCompat.STATE_PAUSED, -1, 0);
+                break;
+            case STATE_IDLE:
+                bob.setState(PlaybackStateCompat.STATE_STOPPED, -1, 0);
+                break;
+        }
+        PlaybackStateCompat pbState = bob.build();
+        Log.d(TAG, "Setting state to " + pbState);
+        mMediaSession.setPlaybackState(pbState);
+        if (state != STATE_IDLE) {
+            mMediaSession.setActive(true);
+        } else {
+            mMediaSession.setActive(false);
+        }
+    }
+
+    private void initMediaSession(Context context) {
+        mSessionCallback = new MediaSessionCallback();
+        mMediaSession = new MediaSessionCompat(context, "Support7Demos");
+        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
+                | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mMediaSession.setCallback(mSessionCallback);
+        updateMetadata();
+    }
+
+    private final class MediaSessionCallback extends MediaSessionCompat.Callback {
+        @Override
+        public void onPlay() {
+            resume();
+        }
+
+        @Override
+        public void onPause() {
+            pause();
+        }
     }
 
     public interface Callback {

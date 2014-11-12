@@ -86,6 +86,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".media.SampleMediaRouteSettingsActivity"
+                android:label="@string/sample_media_route_settings_activity"
+                android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <service android:name=".media.SampleMediaRouteProviderService"
                 android:label="@string/sample_media_route_provider_service"
                 android:process=":mrp">

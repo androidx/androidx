@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.media.MediaRouter.RouteInfo;
 import android.support.v7.media.MediaItemStatus;
 import android.util.Log;
@@ -55,12 +56,6 @@ public abstract class LocalPlayer extends Player implements
         MediaPlayer.OnSeekCompleteListener {
     private static final String TAG = "LocalPlayer";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    private static final int STATE_IDLE = 0;
-    private static final int STATE_PLAY_PENDING = 1;
-    private static final int STATE_READY = 2;
-    private static final int STATE_PLAYING = 3;
-    private static final int STATE_PAUSED = 4;
 
     private final Context mContext;
     private final Handler mHandler = new Handler();
@@ -107,6 +102,11 @@ public abstract class LocalPlayer extends Player implements
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
+    }
+
+    @Override
+    public MediaSessionCompat getMediaSession() {
+        return mMediaSession;
     }
 
     // Player
