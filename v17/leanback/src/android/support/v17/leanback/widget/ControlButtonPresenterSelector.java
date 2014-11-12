@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * ControlButtonPresenterSelector displays primary and secondary
@@ -57,11 +58,13 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
 
     static class ActionViewHolder extends Presenter.ViewHolder {
         ImageView mIcon;
+        TextView mLabel;
         View mFocusableView;
 
         public ActionViewHolder(View view) {
             super(view);
             mIcon = (ImageView) view.findViewById(R.id.icon);
+            mLabel = (TextView) view.findViewById(R.id.label);
             mFocusableView = view.findViewById(R.id.button);
         }
     }
@@ -85,7 +88,14 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mIcon.setImageDrawable(action.getIcon());
-            CharSequence contentDescription = !TextUtils.isEmpty(action.getLabel1()) ?
+            if (vh.mLabel != null) {
+                if (action.getIcon() == null) {
+                    vh.mLabel.setText(action.getLabel1());
+                } else {
+                    vh.mLabel.setText(null);
+                }
+            }
+            CharSequence contentDescription = TextUtils.isEmpty(action.getLabel2()) ?
                 action.getLabel1() : action.getLabel2();
             if (!TextUtils.equals(vh.mFocusableView.getContentDescription(), contentDescription)) {
                 vh.mFocusableView.setContentDescription(contentDescription);
@@ -98,6 +108,9 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
         public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mIcon.setImageDrawable(null);
+            if (vh.mLabel != null) {
+                vh.mLabel.setText(null);
+            }
             vh.mFocusableView.setContentDescription(null);
         }
 
