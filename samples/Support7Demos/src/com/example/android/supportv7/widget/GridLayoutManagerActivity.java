@@ -119,11 +119,13 @@ public class GridLayoutManagerActivity extends BaseLayoutManagerActivity<GridLay
                 vh.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final int pos = vh.getPosition();
+                        final int pos = vh.getAdapterPosition();
+                        if (pos == RecyclerView.NO_POSITION) {
+                            return;
+                        }
                         if (pos + 1 < getItemCount()) {
                             swap(pos, pos + 1);
                         }
-                        notifyItemChanged(pos);
                     }
                 });
                 return vh;

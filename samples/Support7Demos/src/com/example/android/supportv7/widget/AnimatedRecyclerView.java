@@ -124,8 +124,12 @@ public class AnimatedRecyclerView extends Activity {
     public void itemClicked(View view) {
         ViewGroup parent = (ViewGroup) view;
         MyViewHolder holder = (MyViewHolder) mRecyclerView.getChildViewHolder(parent);
+        final int position = holder.getAdapterPosition();
+        if (position == RecyclerView.NO_POSITION) {
+            return;
+        }
         mAdapter.toggleExpanded(holder);
-        mAdapter.notifyItemChanged(holder.getPosition());
+        mAdapter.notifyItemChanged(position);
     }
 
     public void deleteItem(View view) {
@@ -240,7 +244,7 @@ public class AnimatedRecyclerView extends Activity {
                 if (lastVisibleView != null) {
                     RecyclerView.LayoutParams lastParams =
                             (RecyclerView.LayoutParams) lastVisibleView.getLayoutParams();
-                    int lastPosition = lastParams.getViewPosition();
+                    int lastPosition = lastParams.getViewLayoutPosition();
                     final List<RecyclerView.ViewHolder> previousViews = recycler.getScrapList();
                     count = previousViews.size();
                     for (int i = 0; i < count; ++i) {
@@ -250,7 +254,7 @@ public class AnimatedRecyclerView extends Activity {
                         if (params.isItemRemoved()) {
                             continue;
                         }
-                        int position = params.getViewPosition();
+                        int position = params.getViewLayoutPosition();
                         int newTop;
                         if (position < mFirstPosition) {
                             newTop = view.getHeight() * (position - mFirstPosition);

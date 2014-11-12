@@ -56,7 +56,10 @@ public class RecyclerViewActivity extends Activity {
                 vh.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final int pos = vh.getPosition();
+                        final int pos = vh.getAdapterPosition();
+                        if (pos == RecyclerView.NO_POSITION) {
+                            return;
+                        }
                         if (pos + 1 < getItemCount()) {
                             swap(pos, pos + 1);
                         }
