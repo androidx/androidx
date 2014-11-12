@@ -36,6 +36,7 @@
         android:id="@+id/browse_orb"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:transitionGroup="true"
         android:layout_gravity="center_vertical|left"
         android:visibility="invisible" />
 
