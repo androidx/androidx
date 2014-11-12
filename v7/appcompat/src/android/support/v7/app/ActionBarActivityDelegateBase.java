@@ -1421,6 +1421,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         }
     }
 
+    private void throwFeatureRequestIfSubDecorInstalled() {
+        if (mSubDecorInstalled) {
+            throw new AndroidRuntimeException(
+                    "supportRequestWindowFeature() must be called before adding content");
+        }
+    }
+
     /**
      * Clears out internal reference when the action mode is destroyed.
      */
