@@ -31,6 +31,7 @@ import android.support.v4.util.ArrayMap;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -105,6 +106,20 @@ public class RecyclerView extends ViewGroup {
     public static final int NO_POSITION = -1;
     public static final long NO_ID = -1;
     public static final int INVALID_TYPE = -1;
+
+    /**
+     * Constant for use with {@link #setScrollingTouchSlop(int)}. Indicates
+     * that the RecyclerView should use the standard touch slop for smooth,
+     * continuous scrolling.
+     */
+    public static final int TOUCH_SLOP_DEFAULT = 0;
+
+    /**
+     * Constant for use with {@link #setScrollingTouchSlop(int)}. Indicates
+     * that the RecyclerView should use the standard touch slop for scrolling
+     * widgets that snap to a page or other coarse-grained barrier.
+     */
+    public static final int TOUCH_SLOP_PAGING = 1;
 
     private static final int MAX_SCROLL_DURATION = 2000;
 
@@ -221,7 +236,7 @@ public class RecyclerView extends ViewGroup {
     private int mInitialTouchY;
     private int mLastTouchX;
     private int mLastTouchY;
-    private final int mTouchSlop;
+    private int mTouchSlop;
     private final int mMinFlingVelocity;
     private final int mMaxFlingVelocity;
 
@@ -487,6 +502,32 @@ public class RecyclerView extends ViewGroup {
         super.setClipToPadding(clipToPadding);
         if (mFirstLayoutComplete) {
             requestLayout();
+        }
+    }
+
+    /**
+     * Configure the scrolling touch slop for a specific use case.
+     *
+     * Set up the RecyclerView's scrolling motion threshold based on common usages.
+     * Valid arguments are {@link #TOUCH_SLOP_DEFAULT} and {@link #TOUCH_SLOP_PAGING}.
+     *
+     * @param slopConstant One of the <code>TOUCH_SLOP_</code> constants representing
+     *                     the intended usage of this RecyclerView
+     */
+    public void setScrollingTouchSlop(int slopConstant) {
+        final ViewConfiguration vc = ViewConfiguration.get(getContext());
+        switch (slopConstant) {
+            default:
+                Log.w(TAG, "setScrollingTouchSlop(): bad argument constant "
+                      + slopConstant + "; using default value");
+                // fall-through
+            case TOUCH_SLOP_DEFAULT:
+                mTouchSlop = vc.getScaledTouchSlop();
+                break;
+
+            case TOUCH_SLOP_PAGING:
+                mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(vc);
+                break;
         }
     }
 
