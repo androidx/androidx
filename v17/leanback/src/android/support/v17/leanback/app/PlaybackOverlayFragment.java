@@ -74,6 +74,16 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     }
 
+    public interface InputEventHandler {
+        /**
+         * Called when an {@link InputEvent} is received.
+         *
+         * @return If the event should be consumed, return true. To allow the event to
+         * continue on to the next handler, return false.
+         */
+        public boolean handleInputEvent(InputEvent event);
+    }
+
     private static final String TAG = "PlaybackOverlayFragment";
     private static final boolean DEBUG = false;
     private static final int ANIMATION_MULTIPLIER = 1;
@@ -95,6 +105,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private int mMajorFadeTranslateY, mMinorFadeTranslateY;
     private int mAnimationTranslateY;
     private OnFadeCompleteListener mFadeCompleteListener;
+    private InputEventHandler mInputEventHandler;
     private boolean mFadingEnabled = true;
     private int mFadingStatus = IDLE;
     private int mBgAlpha;
@@ -244,6 +255,20 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     }
 
     /**
+     * Sets the input event handler.
+     */
+    public final void setInputEventHandler(InputEventHandler handler) {
+        mInputEventHandler = handler;
+    }
+
+    /**
+     * Returns the input event handler.
+     */
+    public final InputEventHandler getInputEventListener() {
+        return mInputEventHandler;
+    }
+
+    /**
      * Tickles the playback controls.  Fades in the view if it was faded out,
      * otherwise resets the fade out timer.  Tickling on input events is handled
      * by the fragment.
@@ -283,6 +308,10 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         } else {
             tickle();
         }
+        if (!consumeEvent && mInputEventHandler != null) {
+            consumeEvent = mInputEventHandler.handleInputEvent(event);
+        }
+        tickle();
         return consumeEvent;
     }
 

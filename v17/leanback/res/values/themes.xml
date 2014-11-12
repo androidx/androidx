@@ -61,6 +61,7 @@
         <item name="detailsDescriptionBodyStyle">@style/Widget.Leanback.DetailsDescriptionBodyStyle</item>
         <item name="detailsActionButtonStyle">@style/Widget.Leanback.DetailsActionButtonStyle</item>
         <item name="playbackControlsButtonStyle">@style/Widget.Leanback.PlaybackControlsButtonStyle</item>
+        <item name="playbackControlButtonLabelStyle">@style/Widget.Leanback.PlaybackControlLabelStyle</item>
         <item name="playbackControlsTimeStyle">@style/Widget.Leanback.PlaybackControlsTimeStyle</item>
         <item name="playbackControlsActionIcons">@style/Widget.Leanback.PlaybackControlsActionIconsStyle</item>
 

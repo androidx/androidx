@@ -71,6 +71,7 @@
                 android:id="@+id/controls_dock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="@dimen/lb_control_button_height"
                 android:layout_marginEnd="@dimen/lb_playback_description_margin_end"
                 android:layout_marginStart="@dimen/lb_playback_description_margin_start" />
         </LinearLayout>

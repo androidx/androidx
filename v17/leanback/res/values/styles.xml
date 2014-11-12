@@ -71,6 +71,12 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <style name="TextAppearance.Leanback.PlaybackControlLabel">
+        <item name="android:textSize">@dimen/lb_control_button_text_size</item>
+        <item name="android:textColor">@color/lb_control_button_text</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="TextAppearance.Leanback.ErrorMessage">
         <item name="android:textSize">@dimen/lb_error_message_text_size</item>
         <item name="android:textColor">@color/lb_error_message_color_on_opaque</item>
@@ -237,6 +243,10 @@
     <style name="Widget.Leanback.PlaybackControlsButtonStyle" >
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="Widget.Leanback.PlaybackControlLabelStyle">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackControlLabel</item>
     </style>
 
     <style name="Widget.Leanback.PlaybackControlsTimeStyle">
