@@ -120,6 +120,8 @@ public final class TransitionHelper {
         public void addTarget(Object transition, View view);
 
         public Object createDefaultInterpolator(Context context);
+
+        public Object loadTransition(Context context, int resId);
     }
 
     /**
@@ -289,6 +291,11 @@ public final class TransitionHelper {
 
         @Override
         public Object createDefaultInterpolator(Context context) {
+            return null;
+        }
+
+        @Override
+        public Object loadTransition(Context context, int resId) {
             return null;
         }
     }
@@ -462,6 +469,11 @@ public final class TransitionHelper {
         @Override
         public Object createDefaultInterpolator(Context context) {
             return null;
+        }
+
+        @Override
+        public Object loadTransition(Context context, int resId) {
+            return TransitionHelperKitkat.loadTransition(context, resId);
         }
     }
 
@@ -666,5 +678,9 @@ public final class TransitionHelper {
 
     public Object createDefaultInterpolator(Context context) {
         return mImpl.createDefaultInterpolator(context);
+    }
+
+    public Object loadTransition(Context context, int resId) {
+        return mImpl.loadTransition(context, resId);
     }
 }

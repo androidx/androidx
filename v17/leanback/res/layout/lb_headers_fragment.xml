@@ -16,6 +16,8 @@
 -->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/browse_headers_root"
+    android:transitionGroup="true"
     android:layout_width="@dimen/lb_browse_headers_width"
     android:layout_height="match_parent"
     android:paddingRight="@dimen/lb_browse_header_padding_right"
