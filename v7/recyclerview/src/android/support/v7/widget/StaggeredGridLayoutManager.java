@@ -913,8 +913,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         ensureOrientationHelper();
         return ScrollbarHelper.computeScrollOffset(state, mPrimaryOrientation,
-                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled)
-                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled),
+                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled, true)
+                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled, true),
                 this, mSmoothScrollbarEnabled, mShouldReverseLayout);
     }
 
@@ -934,8 +934,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         ensureOrientationHelper();
         return ScrollbarHelper.computeScrollExtent(state, mPrimaryOrientation,
-                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled)
-                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled),
+                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled, true)
+                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled, true),
                 this, mSmoothScrollbarEnabled);
     }
 
@@ -955,8 +955,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         ensureOrientationHelper();
         return ScrollbarHelper.computeScrollRange(state, mPrimaryOrientation,
-                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled)
-                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled),
+                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled, true)
+                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled, true),
                 this, mSmoothScrollbarEnabled);
     }
 
@@ -1105,8 +1105,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() > 0) {
             final AccessibilityRecordCompat record = AccessibilityEventCompat
                     .asRecord(event);
-            final View start = findFirstVisibleItemClosestToStart(false);
-            final View end = findFirstVisibleItemClosestToEnd(false);
+            final View start = findFirstVisibleItemClosestToStart(false, true);
+            final View end = findFirstVisibleItemClosestToEnd(false, true);
             if (start == null || end == null) {
                 return;
             }
@@ -1124,11 +1124,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     /**
      * Finds the first fully visible child to be used as an anchor child if span count changes when
-     * state is restored.
+     * state is restored. If no children is fully visible, returns a partially visible child instead
+     * of returning null.
      */
     int findFirstVisibleItemPositionInt() {
-        final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true) :
-                findFirstVisibleItemClosestToStart(true);
+        final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true, true) :
+                findFirstVisibleItemClosestToStart(true, true);
         return first == null ? NO_POSITION : getPosition(first);
     }
 
@@ -1150,33 +1151,42 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         return super.getColumnCountForAccessibility(recycler, state);
     }
 
-    View findFirstVisibleItemClosestToStart(boolean fullyVisible) {
+    View findFirstVisibleItemClosestToStart(boolean fullyVisible, boolean acceptPartiallyVisible) {
         ensureOrientationHelper();
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
         final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
         final int limit = getChildCount();
+        View partiallyVisible = null;
         for (int i = 0; i < limit; i++) {
             final View child = getChildAt(i);
-            if ((!fullyVisible || mPrimaryOrientation.getDecoratedStart(child) >= boundsStart)
-                    && mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd) {
-                return child;
+            if (mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd) {
+                if ((!fullyVisible
+                        || mPrimaryOrientation.getDecoratedStart(child) >= boundsStart)) {
+                    return child;
+                } else if (acceptPartiallyVisible && partiallyVisible == null) {
+                    partiallyVisible = child;
+                }
             }
         }
-        return null;
+        return partiallyVisible;
     }
 
-    View findFirstVisibleItemClosestToEnd(boolean fullyVisible) {
+    View findFirstVisibleItemClosestToEnd(boolean fullyVisible, boolean acceptPartiallyVisible) {
         ensureOrientationHelper();
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
         final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
+        View partiallyVisible = null;
         for (int i = getChildCount() - 1; i >= 0; i--) {
             final View child = getChildAt(i);
-            if (mPrimaryOrientation.getDecoratedStart(child) >= boundsStart && (!fullyVisible
-                    || mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd)) {
-                return child;
+            if (mPrimaryOrientation.getDecoratedStart(child) >= boundsStart) {
+                if (!fullyVisible || mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd) {
+                    return child;
+                } else if (acceptPartiallyVisible && partiallyVisible == null) {
+                    partiallyVisible = child;
+                }
             }
         }
-        return null;
+        return partiallyVisible;
     }
 
     private void fixEndGap(RecyclerView.Recycler recycler, RecyclerView.State state,

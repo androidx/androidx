@@ -995,8 +995,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         ensureLayoutState();
         return ScrollbarHelper.computeScrollOffset(state, mOrientationHelper,
-                getChildClosestToStart(), getChildClosestToEnd(), this,
-                mSmoothScrollbarEnabled, mShouldReverseLayout);
+                findFirstVisibleChildClosestToStart(!mSmoothScrollbarEnabled, true),
+                findFirstVisibleChildClosestToEnd(!mSmoothScrollbarEnabled, true),
+                this, mSmoothScrollbarEnabled, mShouldReverseLayout);
     }
 
     private int computeScrollExtent(RecyclerView.State state) {
@@ -1005,8 +1006,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         ensureLayoutState();
         return ScrollbarHelper.computeScrollExtent(state, mOrientationHelper,
-                getChildClosestToStart(), getChildClosestToEnd(), this,
-                mSmoothScrollbarEnabled);
+                findFirstVisibleChildClosestToStart(!mSmoothScrollbarEnabled, true),
+                findFirstVisibleChildClosestToEnd(!mSmoothScrollbarEnabled, true),
+                this,  mSmoothScrollbarEnabled);
     }
 
     private int computeScrollRange(RecyclerView.State state) {
@@ -1015,8 +1017,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         ensureLayoutState();
         return ScrollbarHelper.computeScrollRange(state, mOrientationHelper,
-                getChildClosestToStart(), getChildClosestToEnd(), this,
-                mSmoothScrollbarEnabled);
+                findFirstVisibleChildClosestToStart(!mSmoothScrollbarEnabled, true),
+                findFirstVisibleChildClosestToEnd(!mSmoothScrollbarEnabled, true),
+                this, mSmoothScrollbarEnabled);
     }
 
     /**
@@ -1434,6 +1437,42 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         return getChildAt(mShouldReverseLayout ? 0 : getChildCount() - 1);
     }
 
+    /**
+     * Convenience method to find the visible child closes to start. Caller should check if it has
+     * enough children.
+     *
+     * @param completelyVisible Whether child should be completely visible or not
+     * @return The first visible child closest to start of the layout from user's perspective.
+     */
+    private View findFirstVisibleChildClosestToStart(boolean completelyVisible,
+            boolean acceptPartiallyVisible) {
+        if (mShouldReverseLayout) {
+            return findOneVisibleChild(getChildCount() - 1, -1, completelyVisible,
+                    acceptPartiallyVisible);
+        } else {
+            return findOneVisibleChild(0, getChildCount(), completelyVisible,
+                    acceptPartiallyVisible);
+        }
+    }
+
+    /**
+     * Convenience method to find the visible child closes to end. Caller should check if it has
+     * enough children.
+     *
+     * @param completelyVisible Whether child should be completely visible or not
+     * @return The first visible child closest to end of the layout from user's perspective.
+     */
+    private View findFirstVisibleChildClosestToEnd(boolean completelyVisible,
+            boolean acceptPartiallyVisible) {
+        if (mShouldReverseLayout) {
+            return findOneVisibleChild(0, getChildCount(), completelyVisible,
+                    acceptPartiallyVisible);
+        } else {
+            return findOneVisibleChild(getChildCount() - 1, -1, completelyVisible,
+                    acceptPartiallyVisible);
+        }
+    }
+
 
     /**
      * Among the children that are suitable to be considered as an anchor child, returns the one
@@ -1520,7 +1559,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findLastVisibleItemPosition()
      */
     public int findFirstVisibleItemPosition() {
-        final View child = findOneVisibleChild(0, getChildCount(), false);
+        final View child = findOneVisibleChild(0, getChildCount(), false, true);
         return child == null ? NO_POSITION : getPosition(child);
     }
 
@@ -1536,7 +1575,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findLastCompletelyVisibleItemPosition()
      */
     public int findFirstCompletelyVisibleItemPosition() {
-        final View child = findOneVisibleChild(0, getChildCount(), true);
+        final View child = findOneVisibleChild(0, getChildCount(), true, false);
         return child == null ? NO_POSITION : getPosition(child);
     }
 
@@ -1558,7 +1597,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findFirstVisibleItemPosition()
      */
     public int findLastVisibleItemPosition() {
-        final View child = findOneVisibleChild(getChildCount() - 1, -1, false);
+        final View child = findOneVisibleChild(getChildCount() - 1, -1, false, true);
         return child == null ? NO_POSITION : getPosition(child);
     }
 
@@ -1574,15 +1613,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @see #findFirstCompletelyVisibleItemPosition()
      */
     public int findLastCompletelyVisibleItemPosition() {
-        final View child = findOneVisibleChild(getChildCount() - 1, -1, true);
+        final View child = findOneVisibleChild(getChildCount() - 1, -1, true, false);
         return child == null ? NO_POSITION : getPosition(child);
     }
 
-    View findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible) {
+    View findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible,
+            boolean acceptPartiallyVisible) {
         ensureLayoutState();
         final int start = mOrientationHelper.getStartAfterPadding();
         final int end = mOrientationHelper.getEndAfterPadding();
         final int next = toIndex > fromIndex ? 1 : -1;
+        View partiallyVisible = null;
         for (int i = fromIndex; i != toIndex; i+=next) {
             final View child = getChildAt(i);
             final int childStart = mOrientationHelper.getDecoratedStart(child);
@@ -1591,13 +1632,15 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                 if (completelyVisible) {
                     if (childStart >= start && childEnd <= end) {
                         return child;
+                    } else if (acceptPartiallyVisible && partiallyVisible == null) {
+                        partiallyVisible = child;
                     }
                 } else {
                     return child;
                 }
             }
         }
-        return null;
+        return partiallyVisible;
     }
 
     @Override
