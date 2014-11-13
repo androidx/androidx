@@ -439,6 +439,24 @@ public class MediaSessionCompat {
             mInner = inner;
         }
 
+        /**
+         * Creates a compat Token from a framework
+         * {@link android.media.session.MediaSession.Token} object.
+         * <p>
+         * This method is only supported on
+         * {@link android.os.Build.VERSION_CODES#LOLLIPOP} and later.
+         * </p>
+         *
+         * @param token The framework token object.
+         * @return A compat Token for use with {@link MediaControllerCompat}.
+         */
+        public Token fromToken(Object token) {
+            if (token == null || android.os.Build.VERSION.SDK_INT < 21) {
+                return null;
+            }
+            return new Token((Parcelable) MediaSessionCompatApi21.verifyToken(token));
+        }
+
         @Override
         public int describeContents() {
             return mInner.describeContents();
