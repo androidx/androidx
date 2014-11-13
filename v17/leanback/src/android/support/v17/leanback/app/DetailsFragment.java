@@ -32,9 +32,18 @@ import android.view.ViewGroup;
 /**
  * Wrapper fragment for leanback details screens.
  */
-public class DetailsFragment extends Fragment {
+public class DetailsFragment extends BaseFragment {
     private static final String TAG = "DetailsFragment";
     private static boolean DEBUG = false;
+
+    private class SetSelectionRunnable implements Runnable {
+        int mPosition;
+        boolean mSmooth = true;
+        @Override
+        public void run() {
+            mRowsFragment.setSelectedPosition(mPosition, mSmooth);
+        }
+    }
 
     private RowsFragment mRowsFragment;
 
@@ -45,6 +54,10 @@ public class DetailsFragment extends Fragment {
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = -1;
+
+    private Object mSceneAfterEntranceTransition;
+
+    private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
     /**
      * Sets the list of rows for the fragment.
@@ -138,6 +151,13 @@ public class DetailsFragment extends Fragment {
         mRowsFragment.setOnItemViewSelectedListener(mExternalOnItemViewSelectedListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        mSceneAfterEntranceTransition = sTransitionHelper.createScene((ViewGroup) view,
+                new Runnable() {
+            @Override
+            public void run() {
+                mRowsFragment.setEntranceTransitionState(true);
+            }
+        });
         return view;
     }
 
@@ -166,10 +186,51 @@ public class DetailsFragment extends Fragment {
         setVerticalGridViewLayout(mRowsFragment.getVerticalGridView());
     }
 
+    /**
+     * Sets the selected row position with smooth animation.
+     */
+    public void setSelectedPosition(int position) {
+        setSelectedPosition(position, true);
+    }
+
+    /**
+     * Sets the selected row position.
+     */
+    public void setSelectedPosition(int position, boolean smooth) {
+        mSetSelectionRunnable.mPosition = position;
+        mSetSelectionRunnable.mSmooth = smooth;
+        if (getView() != null && getView().getHandler() != null) {
+            getView().getHandler().post(mSetSelectionRunnable);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         setupChildFragmentLayout();
         mRowsFragment.getView().requestFocus();
+        if (isEntranceTransitionEnabled()) {
+            // make sure recycler view animation is disabled
+            mRowsFragment.onTransitionStart();
+            mRowsFragment.setEntranceTransitionState(false);
+        }
     }
+
+    @Override
+    protected Object createEntranceTransition() {
+        return sTransitionHelper.loadTransition(getActivity(),
+                R.transition.lb_details_enter_transition);
+    }
+
+    @Override
+    protected void runEntranceTransition(Object entranceTransition) {
+        sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
+                entranceTransition);
+    }
+
+    @Override
+    protected void onEntranceTransitionEnd() {
+        mRowsFragment.onTransitionEnd();
+    }
+
 }

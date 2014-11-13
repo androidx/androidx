@@ -69,7 +69,7 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  * use {@link BrowseFragment.BrowseTransitionListener} and
  * {@link #startHeadersTransition(boolean)}.
  */
-public class BrowseFragment extends Fragment {
+public class BrowseFragment extends BaseFragment {
 
     // BUNDLE attribute for saving header show/hide status when backstack is used:
     static final String HEADER_STACK_INDEX = "headerStackIndex";
@@ -203,8 +203,6 @@ public class BrowseFragment extends Fragment {
     private PresenterSelector mHeaderPresenterSelector;
 
     // transition related:
-    private static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
-    private int mReparentHeaderId = View.generateViewId();
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
     private Object mSceneWithHeaders;
@@ -213,14 +211,10 @@ public class BrowseFragment extends Fragment {
     private Object mTitleUpTransition;
     private Object mTitleDownTransition;
     private Object mHeadersTransition;
-    private Object mEntranceTransition;
     private int mHeadersTransitionStartDelay;
     private int mHeadersTransitionDuration;
     private BackStackListener mBackStackChangedListener;
     private BrowseTransitionListener mBrowseTransitionListener;
-
-    private boolean mEntranceTransitionEnabled = false;
-    private boolean mStartEntranceTransitionPending = false;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
     private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
@@ -743,15 +737,6 @@ public class BrowseFragment extends Fragment {
         return root;
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (mStartEntranceTransitionPending) {
-            mStartEntranceTransitionPending = false;
-            startEntranceTransition();
-        }
-    }
-
     private void createHeadersTransition() {
         mHeadersTransition = sTransitionHelper.createTransitionSet(false);
         sTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
@@ -917,20 +902,37 @@ public class BrowseFragment extends Fragment {
 
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
+        boolean mSmooth = true;
         @Override
         public void run() {
-            setSelection(mPosition);
+            setSelection(mPosition, mSmooth);
         }
     }
 
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
-    private void setSelection(int position) {
+    private void setSelection(int position, boolean smooth) {
         if (position != NO_POSITION) {
-            mRowsFragment.setSelectedPosition(position);
-            mHeadersFragment.setSelectedPosition(position);
+            mRowsFragment.setSelectedPosition(position, smooth);
+            mHeadersFragment.setSelectedPosition(position, smooth);
         }
         mSelectedPosition = position;
+    }
+
+    /**
+     * Sets the selected row position with smooth animation.
+     */
+    public void setSelectedPosition(int position) {
+        setSelectedPosition(position, true);
+    }
+
+    /**
+     * Sets the selected row position.
+     */
+    public void setSelectedPosition(int position, boolean smooth) {
+        mSetSelectionRunnable.mPosition = position;
+        mSetSelectionRunnable.mSmooth = smooth;
+        mBrowseFrame.getHandler().post(mSetSelectionRunnable);
     }
 
     @Override
@@ -952,7 +954,7 @@ public class BrowseFragment extends Fragment {
         if (mCanShowHeaders) {
             showHeaders(mShowingHeaders);
         }
-        if (mEntranceTransitionEnabled) {
+        if (isEntranceTransitionEnabled()) {
             setEntranceTransitionStartState();
         }
     }
@@ -1076,79 +1078,31 @@ public class BrowseFragment extends Fragment {
         return mHeadersState;
     }
 
-    /**
-     * Enable or disable entrance transition.  Typically this is set in onCreate()
-     * when savedInstance is null.  When the entrance transition is enabled, the
-     * fragment is initially having headers and content hidden.
-     * When data of rows are ready, you must call startEntranceTransition() to kick off
-     * the transition.
-     */
-    public void setEntranceTransitionEnabled(boolean runEntranceTransition) {
-        mEntranceTransitionEnabled = runEntranceTransition;
-    }
-
-    /**
-     * Return true if entrance transition is enabled and not started yet.
-     */
-    public boolean isEntranceTransitionEnabled() {
-        return mEntranceTransitionEnabled;
-    }
-
-    /**
-     * Starts entrance transition if setEntranceTransitionEnabled(true) is called
-     * and entrance transition is not started yet.
-     * When fragment finishes loading data of rows, it should call startEntranceTransition()
-     * to execute the entrance transition.  Calling startEntranceTransition() multiple
-     * times is safe.
-     */
-    public void startEntranceTransition() {
-        if (!mEntranceTransitionEnabled || mEntranceTransition != null) {
-            return;
-        }
-        // if view is not created yet, delay until onViewCreated()
-        if (getView() == null) {
-            mStartEntranceTransitionPending = true;
-            return;
-        }
-        // wait till views get their initial position before start transition
-        final View view = getView();
-        view.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                view.getViewTreeObserver().removeOnPreDrawListener(this);
-                createEntranceTransition();
-                mEntranceTransitionEnabled = false;
-                sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
-                        mEntranceTransition);
-                return false;
-            }
-        });
-        view.invalidate();
-    }
-
-    void createEntranceTransition() {
-        mEntranceTransition = sTransitionHelper.loadTransition(getActivity(),
+    @Override
+    protected Object createEntranceTransition() {
+        return sTransitionHelper.loadTransition(getActivity(),
                 R.transition.lb_browse_entrance_transition);
-        if (mEntranceTransition == null) {
-            return;
-        }
-        sTransitionHelper.setTransitionListener(mEntranceTransition, new TransitionListener() {
-            @Override
-            public void onTransitionStart(Object transition) {
-                mHeadersFragment.onTransitionStart();
-                mRowsFragment.onTransitionStart();
-            }
-            @Override
-            public void onTransitionEnd(Object transition) {
-                mRowsFragment.onTransitionEnd();
-                mHeadersFragment.onTransitionEnd();
-                mEntranceTransition = null;
-            }
-        });
     }
 
-    private void setSearchOrbViewOnScreen(boolean onScreen) {
+    @Override
+    protected void runEntranceTransition(Object entranceTransition) {
+        sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
+                entranceTransition);
+    }
+
+    @Override
+    protected void onEntranceTransitionStart() {
+        mHeadersFragment.onTransitionStart();
+        mRowsFragment.onTransitionStart();
+    }
+
+    @Override
+    protected void onEntranceTransitionEnd() {
+        mRowsFragment.onTransitionEnd();
+        mHeadersFragment.onTransitionEnd();
+    }
+
+    void setSearchOrbViewOnScreen(boolean onScreen) {
         View searchOrbView = mTitleView.getSearchAffordanceView();
         MarginLayoutParams lp = (MarginLayoutParams) searchOrbView.getLayoutParams();
         lp.leftMargin = onScreen ? 0 : -mContainerListMarginLeft;
@@ -1158,13 +1112,13 @@ public class BrowseFragment extends Fragment {
     void setEntranceTransitionStartState() {
         setHeadersOnScreen(false);
         setSearchOrbViewOnScreen(false);
-        mRowsFragment.setViewsVisible(false);
+        mRowsFragment.setEntranceTransitionState(false);
     }
 
     void setEntranceTransitionEndState() {
         setHeadersOnScreen(mShowingHeaders);
         setSearchOrbViewOnScreen(true);
-        mRowsFragment.setViewsVisible(true);
+        mRowsFragment.setEntranceTransitionState(true);
     }
 
 }
