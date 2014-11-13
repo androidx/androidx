@@ -22,10 +22,18 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"និយាយ​​ដើម្បី​ស្វែងរក"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"ស្វែងរក <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"និយាយ​ដើម្បី​ស្វែងរក <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <!-- no translation found for lb_control_display_fast_forward_multiplier (4541442045214207774) -->
+    <skip />
+    <!-- no translation found for lb_control_display_rewind_multiplier (3097220783222910245) -->
+    <skip />
     <string name="lb_playback_controls_play" msgid="731953341987346903">"ចាក់"</string>
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"ផ្អាក"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"បញ្ជូន​បន្ត​រហ័ស"</string>
+    <!-- no translation found for lb_playback_controls_fast_forward_multiplier (1058753672110224526) -->
+    <skip />
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"ខា​ថយក្រោយ"</string>
+    <!-- no translation found for lb_playback_controls_rewind_multiplier (1640629531440849942) -->
+    <skip />
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"រំលង​បន្ទាប់"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"រំលង​មុន"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"សកម្មភាព​ច្រើន​ទៀត"</string>
@@ -33,7 +41,7 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"ជ្រើស​មេ​ដៃ​ឡើង​លើ"</string>
     <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"មិន​ជ្រើស​​មេដៃ​ចុះ​ក្រោម"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"ជ្រើស​​មេ​ដៃ​ចុះក្រោម"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"មិន​ធ្វើ​ឡើង​វិញ"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"មិន​ធ្វើ​ឡើង​វិញ​"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"ធ្វើ​ម្ដង​ទៀត​ទាំងអស់"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ធ្វើ​​ឡើងវិញ​ម្ដង"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"បើក​ការ​​ច្របល់"</string>
