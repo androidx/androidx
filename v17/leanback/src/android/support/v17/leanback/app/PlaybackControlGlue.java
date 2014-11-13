@@ -213,6 +213,36 @@ public abstract class PlaybackControlGlue {
                             result = (keyCode == KeyEvent.KEYCODE_BACK);
                         }
                         break;
+                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                        if (mPlayPauseAction != null) {
+                            handleActionClicked(mPlayPauseAction);
+                            result = true;
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+                        if (mFastForwardAction != null) {
+                            handleActionClicked(mFastForwardAction);
+                            result = true;
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_REWIND:
+                        if (mRewindAction != null) {
+                            handleActionClicked(mRewindAction);
+                            result = true;
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                        if (mSkipPreviousAction != null) {
+                            handleActionClicked(mSkipPreviousAction);
+                            result = true;
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_NEXT:
+                        if (mSkipNextAction != null) {
+                            handleActionClicked(mSkipNextAction);
+                            result = true;
+                        }
+                        break;
                 }
             }
             return result;
