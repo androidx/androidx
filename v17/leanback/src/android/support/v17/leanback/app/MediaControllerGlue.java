@@ -204,6 +204,7 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
 
     @Override
     protected void startPlayback(int speed) {
+        if (DEBUG) Log.v(TAG, "startPlayback speed " + speed);
         if (speed == PLAYBACK_SPEED_NORMAL) {
             mMediaController.getTransportControls().play();
         } else if (speed > 0) {
@@ -215,16 +216,19 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
 
     @Override
     protected void pausePlayback() {
+        if (DEBUG) Log.v(TAG, "pausePlayback");
         mMediaController.getTransportControls().pause();
     }
 
     @Override
     protected void skipToNext() {
+        if (DEBUG) Log.v(TAG, "skipToNext");
         mMediaController.getTransportControls().skipToNext();
     }
 
     @Override
     protected void skipToPrevious() {
+        if (DEBUG) Log.v(TAG, "skipToPrevious");
         mMediaController.getTransportControls().skipToPrevious();
     }
 }
