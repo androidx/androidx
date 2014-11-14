@@ -13,6 +13,7 @@ ext.supportVersion = '21.0.2'
 ext.extraVersion = 9
 ext.supportRepoOut = ''
 ext.buildToolsVersion = '19.0.3'
+ext.buildNumber = Integer.toString(ext.extraVersion)
 
 /*
  * With the build server you are given two env variables.
@@ -24,6 +25,9 @@ ext.buildToolsVersion = '19.0.3'
 if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
     buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile()
     project.ext.distDir = new File(System.env.DIST_DIR).getCanonicalFile()
+
+    // the build server does not pass the build number so we infer it from the last folder of the dist path.
+    ext.buildNumber = project.ext.distDir.getName()
 } else {
     buildDir = file('../../out/host/gradle/frameworks/support/build')
     project.ext.distDir = file('../../out/dist')
@@ -46,7 +50,7 @@ task createRepository(type: Zip, dependsOn: mainUpload) {
     from project.ext.supportRepoOut
     destinationDir project.ext.distDir
     into 'm2repository'
-    baseName = String.format("android_m2repository_r%02d", project.ext.extraVersion)
+    baseName = String.format("sdk-repo-linux-m2repository-%s", project.ext.buildNumber)
 }
 createArchive.dependsOn createRepository
 
