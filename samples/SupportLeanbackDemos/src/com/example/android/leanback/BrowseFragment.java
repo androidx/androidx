@@ -67,7 +67,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         if (TEST_ENTRANCE_TRANSITION) {
             // don't run entrance transition if Activity is restored.
             if (savedInstanceState == null) {
-                setEntranceTransitionEnabled(true);
+                prepareEntranceTransition();
             }
             // simulate delay loading data
             new Handler().postDelayed(new Runnable() {

@@ -16,6 +16,7 @@ package com.example.android.leanback;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -42,10 +43,17 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
     private static final int NUM_ROWS = 3;
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
+    final CardPresenter cardPresenter = new CardPresenter();
 
     private static final int ACTION_BUY = 1;
     private static final int ACTION_RENT = 2;
     private static final int ACTION_PLAY = 3;
+
+    private static final boolean TEST_SHARED_ELEMENT_TRANSITION = true;
+    private static final boolean TEST_ENTRANCE_TRANSITION = true;
+
+    private static final long TIME_TO_LOAD_OVERVIEW_ROW_MS = 1000;
+    private static final long TIME_TO_LOAD_RELATED_ROWS_MS = 2000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,8 +95,6 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         if (item != null) {
             setItem(item);
         }
-        dorPresenter.setSharedElementEnterTransition(getActivity(),
-                DetailsActivity.SHARED_ELEMENT_NAME);
 
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
@@ -114,6 +120,17 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
             }
         });
+
+        if (TEST_SHARED_ELEMENT_TRANSITION) {
+            dorPresenter.setSharedElementEnterTransition(getActivity(),
+                    DetailsActivity.SHARED_ELEMENT_NAME);
+        }
+        if (TEST_ENTRANCE_TRANSITION) {
+            // don't run entrance transition if Activity is restored.
+            if (savedInstanceState == null) {
+                prepareEntranceTransition();
+            }
+        }
     }
 
     @Override
@@ -126,24 +143,34 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         mPhotoItem = photoItem;
 
         mRowsAdapter.clear();
-        Resources res = getActivity().getResources();
-        DetailsOverviewRow dor = new DetailsOverviewRow(photoItem.getTitle());
-        dor.setImageDrawable(res.getDrawable(photoItem.getImageResourceId()));
-        dor.addAction(new Action(ACTION_BUY, "Buy $9.99"));
-        dor.addAction(new Action(ACTION_RENT, "Rent", "$3.99", res.getDrawable(R.drawable.ic_action_a)));
-        mRowsAdapter.add(dor);
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                Resources res = getActivity().getResources();
+                DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
+                dor.setImageDrawable(res.getDrawable(mPhotoItem.getImageResourceId()));
+                dor.addAction(new Action(ACTION_BUY, "Buy $9.99"));
+                dor.addAction(new Action(ACTION_RENT, "Rent", "$3.99", res.getDrawable(R.drawable.ic_action_a)));
+                mRowsAdapter.add(0, dor);
+                setSelectedPosition(0, false);
+            }
+        }, TIME_TO_LOAD_OVERVIEW_ROW_MS);
 
-        final CardPresenter cardPresenter = new CardPresenter();
-        for (int i = 0; i < NUM_ROWS; ++i) {
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-            listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
-            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
-            listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_3));
-            listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
-            HeaderItem header = new HeaderItem(i, "Row " + i);
-            mRowsAdapter.add(new ListRow(header, listRowAdapter));
-        }
-
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                for (int i = 0; i < NUM_ROWS; ++i) {
+                    ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+                    listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
+                    listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_3));
+                    listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
+                    HeaderItem header = new HeaderItem(i, "Row " + i, null);
+                    mRowsAdapter.add(new ListRow(header, listRowAdapter));
+                }
+                if (TEST_ENTRANCE_TRANSITION) {
+                    startEntranceTransition();
+                }
+            }
+        }, TIME_TO_LOAD_RELATED_ROWS_MS);
         setAdapter(mRowsAdapter);
     }
 
