@@ -572,14 +572,20 @@ public class BrowseSupportFragment extends Fragment {
             }
             // Make sure not changing focus when requestFocus() is called.
             if (mCanShowHeaders && mShowingHeaders) {
-                if (mHeadersSupportFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
+                if (mHeadersSupportFragment != null && mHeadersSupportFragment.getView() != null &&
+                        mHeadersSupportFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
                     return true;
                 }
             }
-            if (mRowsSupportFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
+            if (mRowsSupportFragment != null && mRowsSupportFragment.getView() != null &&
+                    mRowsSupportFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
                 return true;
             }
-            return mTitleView.requestFocus(direction, previouslyFocusedRect);
+            if (mTitleView != null &&
+                    mTitleView.requestFocus(direction, previouslyFocusedRect)) {
+                return true;
+            }
+            return false;
         };
 
         @Override
