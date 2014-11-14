@@ -50,6 +50,9 @@ public class BrowseErrorActivity extends Activity
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                if (getFragmentManager().isDestroyed()) {
+                    return;
+                }
                 getFragmentManager().beginTransaction().remove(mSpinnerFragment).commit();
                 mErrorFragment.setErrorContent(getResources());
             }
