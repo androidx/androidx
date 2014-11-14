@@ -17,7 +17,6 @@
 package android.support.v4.widget;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -68,7 +67,7 @@ class CircleImageView extends ImageView {
             ViewCompat.setLayerType(this, ViewCompat.LAYER_TYPE_SOFTWARE, circle.getPaint());
             circle.getPaint().setShadowLayer(mShadowRadius, shadowXOffset, shadowYOffset,
                     KEY_SHADOW_COLOR);
-            final int padding = (int) mShadowRadius;
+            final int padding = mShadowRadius;
             // set padding so the inner image sits correctly within the shadow.
             setPadding(padding, padding, padding, padding);
         }
@@ -111,17 +110,22 @@ class CircleImageView extends ImageView {
 
     /**
      * Update the background color of the circle image view.
+     *
+     * @param colorRes Id of a color resource.
      */
-    public void setBackgroundColor(int colorRes) {
+    public void setBackgroundColorRes(int colorRes) {
+        setBackgroundColor(getContext().getResources().getColor(colorRes));
+    }
+
+    @Override
+    public void setBackgroundColor(int color) {
         if (getBackground() instanceof ShapeDrawable) {
-            final Resources res = getResources();
-            ((ShapeDrawable) getBackground()).getPaint().setColor(res.getColor(colorRes));
+            ((ShapeDrawable) getBackground()).getPaint().setColor(color);
         }
     }
 
     private class OvalShadow extends OvalShape {
         private RadialGradient mRadialGradient;
-        private int mShadowRadius;
         private Paint mShadowPaint;
         private int mCircleDiameter;
 
