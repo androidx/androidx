@@ -101,17 +101,42 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         });
     }
 
-    public void testGrowLookup() throws Throwable {
-        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));
+    public void testFindLastInUnevenDistribution() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 2, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS)
+                .itemCount(5));
+        mAdapter.mOnBindHandler = new OnBindHandler() {
+            @Override
+            void onBoundItem(TestViewHolder vh, int position) {
+                LayoutParams lp = (LayoutParams) vh.itemView.getLayoutParams();
+                if (position == 1) {
+                    lp.height = mRecyclerView.getHeight() - 10;
+                } else {
+                    lp.height = 5;
+                }
+            }
+        };
         waitFirstLayout();
-        mLayoutManager.expectLayouts(1);
-        mAdapter.mItems.clear();
-        mAdapter.dispatchDataSetChanged();
-        mLayoutManager.waitForLayout(2);
-        checkForMainThreadException();
-        mLayoutManager.expectLayouts(2);
-        mAdapter.addAndNotify(0, 30);
-        mLayoutManager.waitForLayout(2);
+        int[] into = new int[2];
+        mLayoutManager.findFirstCompletelyVisibleItemPositions(into);
+        assertEquals("first completely visible item from span 0 should be 0", 0, into[0]);
+        assertEquals("first completely visible item from span 1 should be 1", 1, into[1]);
+        mLayoutManager.findLastCompletelyVisibleItemPositions(into);
+        assertEquals("last completely visible item from span 0 should be 4", 4, into[0]);
+        assertEquals("last completely visible item from span 1 should be 1", 1, into[1]);
+        assertEquals("first fully visible child should be at position",
+                0, mRecyclerView.getChildViewHolder(mLayoutManager.
+                        findFirstVisibleItemClosestToStart(true, true)).getPosition());
+        assertEquals("last fully visible child should be at position",
+                4, mRecyclerView.getChildViewHolder(mLayoutManager.
+                        findFirstVisibleItemClosestToEnd(true, true)).getPosition());
+
+        assertEquals("first visible child should be at position",
+                0, mRecyclerView.getChildViewHolder(mLayoutManager.
+                        findFirstVisibleItemClosestToStart(false, true)).getPosition());
+        assertEquals("last visible child should be at position",
+                4, mRecyclerView.getChildViewHolder(mLayoutManager.
+                        findFirstVisibleItemClosestToEnd(false, true)).getPosition());
+
     }
 
     public void testCustomWidthInHorizontal() throws Throwable {
@@ -856,33 +881,44 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         }
     }
 
-    private void saveRestore(Config config) throws Throwable {
-        Parcelable savedState = mRecyclerView.onSaveInstanceState();
-        // we append a suffix to the parcelable to test out of bounds
-        String parcelSuffix = UUID.randomUUID().toString();
-        Parcel parcel = Parcel.obtain();
-        savedState.writeToParcel(parcel, 0);
-        parcel.writeString(parcelSuffix);
-        removeRecyclerView();
-        // reset for reading
-        parcel.setDataPosition(0);
-        // re-create
-        savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
-        RecyclerView restored = new RecyclerView(getActivity());
-        mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
-        mLayoutManager.setGapStrategy(config.mGapStrategy);
-        restored.setLayoutManager(mLayoutManager);
-        // use the same adapter for Rect matching
-        restored.setAdapter(mAdapter);
-        restored.onRestoreInstanceState(savedState);
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            mLayoutManager.expectLayouts(1);
-            setRecyclerView(restored);
-        } else {
-            mLayoutManager.expectLayouts(1);
-            setRecyclerView(restored);
-            mLayoutManager.waitForLayout(2);
-        }
+    private void saveRestore(final Config config) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Parcelable savedState = mRecyclerView.onSaveInstanceState();
+                    // we append a suffix to the parcelable to test out of bounds
+                    String parcelSuffix = UUID.randomUUID().toString();
+                    Parcel parcel = Parcel.obtain();
+                    savedState.writeToParcel(parcel, 0);
+                    parcel.writeString(parcelSuffix);
+                    removeRecyclerView();
+                    // reset for reading
+                    parcel.setDataPosition(0);
+                    // re-create
+                    savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
+                    RecyclerView restored = new RecyclerView(getActivity());
+                    mLayoutManager = new WrappedLayoutManager(config.mSpanCount,
+                            config.mOrientation);
+                    mLayoutManager.setGapStrategy(config.mGapStrategy);
+                    restored.setLayoutManager(mLayoutManager);
+                    // use the same adapter for Rect matching
+                    restored.setAdapter(mAdapter);
+                    restored.onRestoreInstanceState(savedState);
+                    if (Looper.myLooper() == Looper.getMainLooper()) {
+                        mLayoutManager.expectLayouts(1);
+                        setRecyclerView(restored);
+                    } else {
+                        mLayoutManager.expectLayouts(1);
+                        setRecyclerView(restored);
+                        mLayoutManager.waitForLayout(2);
+                    }
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+            }
+        });
+        checkForMainThreadException();
     }
 
     public void savedStateTest(Config config, boolean waitForLayout,
@@ -1297,9 +1333,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         final AccessibilityRecordCompat record = AccessibilityEventCompat
                 .asRecord(event);
         final int start = mRecyclerView
-                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToStart(false));
+                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToStart(false, true));
         final int end = mRecyclerView
-                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToEnd(false));
+                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToEnd(false, true));
         assertEquals("first item position should match",
                 Math.min(start, end), record.getFromIndex());
         assertEquals("last item position should match",
