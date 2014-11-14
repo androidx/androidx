@@ -13,299 +13,395 @@
  */
 package com.example.android.leanback;
 
-import java.util.ArrayList;
-
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.media.session.MediaController;
+import android.media.session.MediaSessionManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.RemoteException;
+import android.support.v17.leanback.app.MediaControllerGlue;
+import android.support.v17.leanback.app.PlaybackControlGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ClassPresenterSelector;
-import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRow.PlayPauseAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.ThumbsUpAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.ThumbsDownAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.ShuffleAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.SkipNextAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.SkipPreviousAction;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.HeaderItem;
-import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 
-    private static final boolean SHOW_DETAIL = true;
-    private static final boolean HIDE_MORE_ACTIONS = false;
-    private static final int PRIMARY_CONTROLS = 5;
-    private static final boolean SHOW_IMAGE = PRIMARY_CONTROLS <= 5;
+    /**
+     * Change this to choose a different overlay background.
+     */
     private static final int BACKGROUND_TYPE = PlaybackOverlayFragment.BG_LIGHT;
-    private static final int MORE_ROWS = 3;
 
-    private ArrayObjectAdapter mRowsAdapter;
-    private ArrayObjectAdapter mPrimaryActionsAdapter;
-    private ArrayObjectAdapter mSecondaryActionsAdapter;
-    private PlayPauseAction mPlayPauseAction;
+    /**
+     * Change the number of related content rows.
+     */
+    private static final int RELATED_CONTENT_ROWS = 3;
+
+    /**
+     * Change the location of the thumbs up/down controls
+     */
+    private static final boolean THUMBS_PRIMARY = true;
+
+    /**
+     * Change this to select hidden
+     */
+    private static final boolean SECONDARY_HIDDEN = false;
+
+    private static final String FAUX_TITLE = "A short song of silence";
+    private static final String FAUX_SUBTITLE = "2014";
+    private static final int FAUX_DURATION = 33 * 1000;
+
+    private static final int ROW_CONTROLS = 0;
+
+    private PlaybackControlGlue mGlue;
+    private PlaybackControlsRowPresenter mPlaybackControlsRowPresenter;
+    private ListRowPresenter mListRowPresenter;
+
     private RepeatAction mRepeatAction;
     private ThumbsUpAction mThumbsUpAction;
     private ThumbsDownAction mThumbsDownAction;
-    private ShuffleAction mShuffleAction;
-    private SkipNextAction mSkipNextAction;
-    private SkipPreviousAction mSkipPreviousAction;
-    private PlaybackControlsRow mPlaybackControlsRow;
-    private ArrayList<MediaItem> mItems = new ArrayList<MediaItem>();
-    private int mCurrentItem;
     private Handler mHandler;
-    private Runnable mRunnable;
+
+    // These should match the playback service FF behavior
+    private int[] mFastForwardSpeeds = { 2, 3, 4, 5 };
+
+    private OnItemViewClickedListener mOnItemViewClickedListener = new OnItemViewClickedListener() {
+        @Override
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
+            if (item instanceof Action) {
+                onActionClicked((Action) item);
+            }
+        }
+    };
+
+    private OnItemViewSelectedListener mOnItemViewSelectedListener = new OnItemViewSelectedListener() {
+        @Override
+        public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
+            Log.i(TAG, "onItemSelected: " + item + " row " + row);
+        }
+    };
+
+    final Runnable mUpdateProgressRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mGlue.updateProgress();
+            mHandler.postDelayed(this, mGlue.getUpdatePeriod());
+        }
+    };
+
+    public SparseArrayObjectAdapter getAdapter() {
+        return (SparseArrayObjectAdapter) super.getAdapter();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        mHandler = new Handler();
-
         setBackgroundType(BACKGROUND_TYPE);
-        setFadingEnabled(false);
+        setOnItemViewSelectedListener(mOnItemViewSelectedListener);
 
-        setupRows();
-
-        setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
-            @Override
-            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
-                Log.i(TAG, "onItemSelected: " + item + " row " + row);
-            }
-        });
-        setOnItemViewClickedListener(new OnItemViewClickedListener() {
-            @Override
-            public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
-                Log.i(TAG, "onItemClicked: " + item + " row " + row);
-            }
-        });
+        createComponents(getActivity());
     }
 
+    private void createComponents(Context context) {
+        mHandler = new Handler();
+        mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
+        mThumbsUpAction.setIndex(ThumbsUpAction.OUTLINE);
+        mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(context);
+        mThumbsDownAction.setIndex(ThumbsDownAction.OUTLINE);
+        mRepeatAction = new PlaybackControlsRow.RepeatAction(context);
 
-    private void setupRows() {
-        ClassPresenterSelector ps = new ClassPresenterSelector();
+        mGlue = new PlaybackControlGlue(context, this, mFastForwardSpeeds) {
+            private boolean mIsPlaying;
+            private int mSpeed = PlaybackControlGlue.PLAYBACK_SPEED_PAUSED;
+            private long mStartTime;
+            private long mStartPosition = 0;
 
-        PlaybackControlsRowPresenter playbackControlsRowPresenter;
-        if (SHOW_DETAIL) {
-            playbackControlsRowPresenter = new PlaybackControlsRowPresenter(
-                    new DescriptionPresenter());
-        } else {
-            playbackControlsRowPresenter = new PlaybackControlsRowPresenter();
-        }
-        playbackControlsRowPresenter.setOnActionClickedListener(new OnActionClickedListener() {
-            public void onActionClicked(Action action) {
-                if (action.getId() == mPlayPauseAction.getId()) {
-                    if (mPlayPauseAction.getIndex() == PlayPauseAction.PLAY) {
-                        startProgressAutomation();
-                        setFadingEnabled(true);
-                    } else {
-                        stopProgressAutomation();
-                        setFadingEnabled(false);
+            @Override
+            protected SparseArrayObjectAdapter createPrimaryActionsAdapter(
+                    PresenterSelector presenterSelector) {
+                return PlaybackOverlayFragment.this.createPrimaryActionsAdapter(
+                        presenterSelector);
+            }
+
+            @Override
+            public boolean hasValidMedia() {
+                return true;
+            }
+
+            @Override
+            public boolean isMediaPlaying() {
+                return mIsPlaying;
+            }
+
+            @Override
+            public CharSequence getMediaTitle() {
+                return FAUX_TITLE;
+            }
+
+            @Override
+            public CharSequence getMediaSubtitle() {
+                return FAUX_SUBTITLE;
+            }
+
+            @Override
+            public int getMediaDuration() {
+                return FAUX_DURATION;
+            }
+
+            @Override
+            public Drawable getMediaArt() {
+                return null;
+            }
+
+            @Override
+            public long getSupportedActions() {
+                return PlaybackControlGlue.ACTION_PLAY_PAUSE |
+                        PlaybackControlGlue.ACTION_FAST_FORWARD |
+                        PlaybackControlGlue.ACTION_REWIND;
+            }
+
+            @Override
+            public int getCurrentSpeedId() {
+                return mSpeed;
+            }
+
+            @Override
+            public int getCurrentPosition() {
+                int speed;
+                if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_PAUSED) {
+                    speed = 0;
+                } else if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_NORMAL) {
+                    speed = 1;
+                } else if (mSpeed >= PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0) {
+                    int index = mSpeed - PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0;
+                    speed = getFastForwardSpeeds()[index];
+                } else if (mSpeed <= -PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0) {
+                    int index = -mSpeed - PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0;
+                    speed = -getRewindSpeeds()[index];
+                } else {
+                    return -1;
+                }
+                long position = mStartPosition +
+                        (System.currentTimeMillis() - mStartTime) * speed;
+                if (position > getMediaDuration()) {
+                    position = getMediaDuration();
+                    onPlaybackComplete(true);
+                } else if (position < 0) {
+                    position = 0;
+                    onPlaybackComplete(false);
+                }
+                return (int) position;
+            }
+
+            void onPlaybackComplete(final boolean ended) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mRepeatAction.getIndex() == RepeatAction.NONE) {
+                            pausePlayback();
+                        } else {
+                            startPlayback(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
+                        }
+                        mStartPosition = 0;
+                        onStateChanged();
                     }
-                } else if (action.getId() == mSkipNextAction.getId()) {
-                    next();
-                } else if (action.getId() == mSkipPreviousAction.getId()) {
-                    Toast.makeText(getActivity(), "TODO", Toast.LENGTH_SHORT).show();
-                }
-                if (action instanceof PlaybackControlsRow.MultiAction) {
-                    ((PlaybackControlsRow.MultiAction) action).nextIndex();
-                    notifyChanged(action);
-                }
+                });
             }
-        });
-        playbackControlsRowPresenter.setSecondaryActionsHidden(HIDE_MORE_ACTIONS);
 
-        ps.addClassPresenter(PlaybackControlsRow.class, playbackControlsRowPresenter);
-        ps.addClassPresenter(ListRow.class, new ListRowPresenter());
-        mRowsAdapter = new ArrayObjectAdapter(ps);
+            @Override
+            protected void startPlayback(int speed) {
+                if (speed == mSpeed) {
+                    return;
+                }
+                mStartPosition = getCurrentPosition();
+                mSpeed = speed;
+                mIsPlaying = true;
+                mStartTime = System.currentTimeMillis();
+            }
 
-        addPlaybackControlsRow();
-        addOtherRows();
+            @Override
+            protected void pausePlayback() {
+                if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_PAUSED) {
+                    return;
+                }
+                mStartPosition = getCurrentPosition();
+                mSpeed = PlaybackControlGlue.PLAYBACK_SPEED_PAUSED;
+                mIsPlaying = false;
+            }
 
-        setAdapter(mRowsAdapter);
-    }
+            @Override
+            protected void skipToNext() {
+                // Not supported
+            }
 
-    private void addPlaybackControlsRow() {
-        Context context = getActivity();
+            @Override
+            protected void skipToPrevious() {
+                // Not supported
+            }
 
-        if (SHOW_DETAIL) {
-            mPlaybackControlsRow = new PlaybackControlsRow(new MediaItem());
-        } else {
-            mPlaybackControlsRow = new PlaybackControlsRow();
+            @Override
+            protected void onRowChanged(PlaybackControlsRow row) {
+                PlaybackOverlayFragment.this.onRowChanged(row);
+            }
+
+            @Override
+            public void enableProgressUpdating(boolean enable) {
+                PlaybackOverlayFragment.this.enableProgressUpdating(enable);
+            }
+
+            @Override
+            public int getUpdatePeriod() {
+                return PlaybackOverlayFragment.this.getUpdatePeriod();
+            }
+        };
+
+        mGlue.setOnItemViewClickedListener(mOnItemViewClickedListener);
+
+        mPlaybackControlsRowPresenter = mGlue.createControlsRowAndPresenter();
+        mPlaybackControlsRowPresenter.setSecondaryActionsHidden(SECONDARY_HIDDEN);
+        mListRowPresenter = new ListRowPresenter();
+
+        setAdapter(new SparseArrayObjectAdapter(new PresenterSelector() {
+            @Override
+            public Presenter getPresenter(Object object) {
+                if (object instanceof PlaybackControlsRow) {
+                    return mPlaybackControlsRowPresenter;
+                } else if (object instanceof ListRow) {
+                    return mListRowPresenter;
+                }
+                throw new IllegalArgumentException("Unhandled object: " + object);
+            }
+        }));
+
+        // Set secondary control actions
+        PlaybackControlsRow controlsRow = mGlue.getControlsRow();
+        ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ControlButtonPresenterSelector());
+        controlsRow.setSecondaryActionsAdapter(adapter);
+        if (!THUMBS_PRIMARY) {
+            adapter.add(mThumbsDownAction);
         }
-        mRowsAdapter.add(mPlaybackControlsRow);
-
-        mItems = new ArrayList<MediaItem>();
-        mItems.add(new MediaItem("Awesome Tune", "The More Awesome Band", R.drawable.details_img, 15*1000));
-        mItems.add(new MediaItem("Pretty nice Tune", "The Nice Guys", R.drawable.details_img, 10*1000));
-        mCurrentItem = 1;
-        updatePlaybackRow(mCurrentItem);
-
-        ControlButtonPresenterSelector presenterSelector = new ControlButtonPresenterSelector();
-        mPrimaryActionsAdapter = new ArrayObjectAdapter(presenterSelector);
-        mSecondaryActionsAdapter = new ArrayObjectAdapter(presenterSelector);
-        mPlaybackControlsRow.setPrimaryActionsAdapter(mPrimaryActionsAdapter);
-        mPlaybackControlsRow.setSecondaryActionsAdapter(mSecondaryActionsAdapter);
-
-        mPlayPauseAction = new PlayPauseAction(context);
-        mRepeatAction = new RepeatAction(context);
-        mThumbsUpAction = new ThumbsUpAction(context);
-        mThumbsDownAction = new ThumbsDownAction(context);
-        mShuffleAction = new ShuffleAction(context);
-        mSkipNextAction = new PlaybackControlsRow.SkipNextAction(context);
-        mSkipPreviousAction = new PlaybackControlsRow.SkipPreviousAction(context);
-
-        if (PRIMARY_CONTROLS > 5) {
-            mPrimaryActionsAdapter.add(mThumbsUpAction);
-        } else {
-            mSecondaryActionsAdapter.add(mThumbsUpAction);
+        adapter.add(mRepeatAction);
+        if (!THUMBS_PRIMARY) {
+            adapter.add(mThumbsUpAction);
         }
-        mPrimaryActionsAdapter.add(mSkipPreviousAction);
-        if (PRIMARY_CONTROLS > 3) {
-            mPrimaryActionsAdapter.add(new PlaybackControlsRow.RewindAction(context));
-        }
-        mPrimaryActionsAdapter.add(mPlayPauseAction);
-        if (PRIMARY_CONTROLS > 3) {
-            mPrimaryActionsAdapter.add(new PlaybackControlsRow.FastForwardAction(context));
-        }
-        mPrimaryActionsAdapter.add(mSkipNextAction);
 
-        mSecondaryActionsAdapter.add(mRepeatAction);
-        mSecondaryActionsAdapter.add(mShuffleAction);
-        if (PRIMARY_CONTROLS > 5) {
-            mPrimaryActionsAdapter.add(mThumbsDownAction);
-        } else {
-            mSecondaryActionsAdapter.add(mThumbsDownAction);
-        }
-        mSecondaryActionsAdapter.add(new PlaybackControlsRow.HighQualityAction(context));
-        mSecondaryActionsAdapter.add(new PlaybackControlsRow.ClosedCaptioningAction(context));
-    }
+        // Add the controls row
+        getAdapter().set(ROW_CONTROLS, controlsRow);
 
-    private void notifyChanged(Action action) {
-        ArrayObjectAdapter adapter = mPrimaryActionsAdapter;
-        if (adapter.indexOf(action) >= 0) {
-            adapter.notifyArrayItemRangeChanged(adapter.indexOf(action), 1);
-            return;
-        }
-        adapter = mSecondaryActionsAdapter;
-        if (adapter.indexOf(action) >= 0) {
-            adapter.notifyArrayItemRangeChanged(adapter.indexOf(action), 1);
-            return;
-        }
-    }
-
-    private void updatePlaybackRow(int index) {
-        if (mPlaybackControlsRow.getItem() != null) {
-            MediaItem item = (MediaItem) mPlaybackControlsRow.getItem();
-            item.title = mItems.get(index).title;
-            item.subtitle = mItems.get(index).subtitle;
-        }
-        if (SHOW_IMAGE) {
-            mPlaybackControlsRow.setImageDrawable(getResources().getDrawable(
-                    mItems.get(mCurrentItem).imageResId));
-        }
-        mRowsAdapter.notifyArrayItemRangeChanged(0, 1);
-
-        mPlaybackControlsRow.setTotalTime(mItems.get(mCurrentItem).durationMs);
-        mPlaybackControlsRow.setCurrentTime(0);
-        mPlaybackControlsRow.setBufferedProgress(75 * 1000);
-    }
-
-    private void addOtherRows() {
-        for (int i = 0; i < MORE_ROWS; ++i) {
+        // Add related content rows
+        for (int i = 0; i < RELATED_CONTENT_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new StringPresenter());
             listRowAdapter.add("Some related content");
             listRowAdapter.add("Other related content");
             HeaderItem header = new HeaderItem(i, "Row " + i);
-            mRowsAdapter.add(new ListRow(header, listRowAdapter));
+            getAdapter().set(ROW_CONTROLS + 1 + i, new ListRow(header, listRowAdapter));
+        }
+    }
+
+    private SparseArrayObjectAdapter createPrimaryActionsAdapter(
+            PresenterSelector presenterSelector) {
+        SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter(presenterSelector);
+        if (THUMBS_PRIMARY) {
+            adapter.set(PlaybackControlGlue.ACTION_CUSTOM_LEFT_FIRST, mThumbsUpAction);
+            adapter.set(PlaybackControlGlue.ACTION_CUSTOM_RIGHT_FIRST, mThumbsDownAction);
+        }
+        return adapter;
+    }
+
+    private void onRowChanged(PlaybackControlsRow row) {
+        if (getAdapter() == null) {
+            return;
+        }
+        int index = getAdapter().indexOf(row);
+        if (index >= 0) {
+            getAdapter().notifyArrayItemRangeChanged(index, 1);
+        }
+    }
+
+    private void enableProgressUpdating(boolean enable) {
+        Log.v(TAG, "enableProgressUpdating " + enable + " this " + this);
+        mHandler.removeCallbacks(mUpdateProgressRunnable);
+        if (enable) {
+            mUpdateProgressRunnable.run();
         }
     }
 
     private int getUpdatePeriod() {
-        if (getView() == null || mPlaybackControlsRow.getTotalTime() <= 0) {
+        int totalTime = mGlue.getControlsRow().getTotalTime();
+        if (getView() == null || totalTime <= 0) {
             return 1000;
         }
-        return Math.max(16, mPlaybackControlsRow.getTotalTime() / getView().getWidth());
+        return Math.max(16, totalTime / getView().getWidth());
     }
 
-    private void startProgressAutomation() {
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                int updatePeriod = getUpdatePeriod();
-                int currentTime = mPlaybackControlsRow.getCurrentTime() + updatePeriod;
-                int totalTime = mPlaybackControlsRow.getTotalTime();
-                mPlaybackControlsRow.setCurrentTime(currentTime);
-                if (totalTime > 0 && totalTime <= currentTime) {
-                    next();
-                }
-                mHandler.postDelayed(this, updatePeriod);
-            }
-        };
-        mHandler.postDelayed(mRunnable, getUpdatePeriod());
-    }
-
-    private void next() {
-        if (++mCurrentItem >= mItems.size()) {
-            mCurrentItem = 0;
+    private void onActionClicked(Action action) {
+        Log.v(TAG, "onActionClicked " + action);
+        Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+        if (action instanceof PlaybackControlsRow.MultiAction) {
+            PlaybackControlsRow.MultiAction multiAction = (PlaybackControlsRow.MultiAction) action;
+            multiAction.nextIndex();
+            notifyActionChanged(multiAction);
         }
-        updatePlaybackRow(mCurrentItem);
     }
 
-    private void stopProgressAutomation() {
-        if (mHandler != null && mRunnable != null) {
-            mHandler.removeCallbacks(mRunnable);
+    private SparseArrayObjectAdapter getPrimaryActionsAdapter() {
+        return (SparseArrayObjectAdapter) mGlue.getControlsRow().getPrimaryActionsAdapter();
+    }
+
+    private ArrayObjectAdapter getSecondaryActionsAdapter() {
+        return (ArrayObjectAdapter) mGlue.getControlsRow().getSecondaryActionsAdapter();
+    }
+
+    private void notifyActionChanged(PlaybackControlsRow.MultiAction action) {
+        int index;
+        index = getPrimaryActionsAdapter().indexOf(action);
+        if (index >= 0) {
+            getPrimaryActionsAdapter().notifyArrayItemRangeChanged(index, 1);
+        } else {
+            index = getSecondaryActionsAdapter().indexOf(action);
+            if (index >= 0) {
+                getSecondaryActionsAdapter().notifyArrayItemRangeChanged(index, 1);
+            }
         }
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
+    }
+
+    @Override
     public void onStop() {
-        stopProgressAutomation();
+        mGlue.enableProgressUpdating(false);
         super.onStop();
-    }
-
-    static class MediaItem {
-        String title;
-        String subtitle;
-        int imageResId;
-        int durationMs;
-
-        MediaItem() {
-        }
-
-        MediaItem(String title, String subtitle, int imageResId, int durationMs) {
-            this.title = title;
-            this.subtitle = subtitle;
-            this.imageResId = imageResId;
-            this.durationMs = durationMs;
-        }
-    }
-
-    static class DescriptionPresenter extends AbstractDetailsDescriptionPresenter {
-        @Override
-        protected void onBindDescription(ViewHolder vh, Object item) {
-            vh.getTitle().setText(((MediaItem) item).title);
-            vh.getSubtitle().setText(((MediaItem) item).subtitle);
-        }
     }
 }
