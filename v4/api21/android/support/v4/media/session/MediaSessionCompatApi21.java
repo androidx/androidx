@@ -42,6 +42,13 @@ class MediaSessionCompatApi21 {
         throw new IllegalArgumentException("mediaSession is not a valid MediaSession object");
     }
 
+    public static Object verifyToken(Object token) {
+        if (token instanceof MediaSession.Token) {
+            return token;
+        }
+        throw new IllegalArgumentException("token is not a valid MediaSession.Token object");
+    }
+
     public static Object createCallback(Callback callback) {
         return new CallbackProxy<Callback>(callback);
     }
