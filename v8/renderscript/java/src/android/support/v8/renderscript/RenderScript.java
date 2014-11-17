@@ -64,6 +64,7 @@ public class RenderScript {
     static Object lock = new Object();
 
     // Non-threadsafe functions.
+    native boolean nLoadSO(boolean useNative);
     native int  nDeviceCreate();
     native void nDeviceDestroy(int dev);
     native void nDeviceSetConfig(int dev, int param, int value);
@@ -73,26 +74,15 @@ public class RenderScript {
     native void nContextInitToClient(int con);
     native void nContextDeinitToClient(int con);
 
-    static boolean isNative = false;
-
-    static private int sThunk = -1;
+    static private int sNative = -1;
     static private int sSdkVersion = -1;
-
-    static boolean shouldThunk() {
-        if (sThunk == -1) {
-            throw new RSRuntimeException("Can't use RS classes before setting up a RenderScript context");
-        } else if (sThunk == 1) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * Determines whether or not we should be thunking into the native
      * RenderScript layer or actually using the compatibility library.
      */
-    static private boolean setupThunk(int sdkVersion, Context ctx) {
-        if (sThunk == -1) {
+    static private boolean setupNative(int sdkVersion, Context ctx) {
+        if (sNative == -1) {
 
             // get the value of the debug.rs.forcecompat property
             int forcecompat = 0;
@@ -106,19 +96,15 @@ public class RenderScript {
 
             }
 
-            // use compat on Jelly Bean MR2 if we're requesting SDK 19+
-            if (android.os.Build.VERSION.SDK_INT == 18 && sdkVersion >= 19) {
-                sThunk = 0;
-            }
-            else if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
+            if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT)
                      && forcecompat == 0) {
-                sThunk = 1;
+                sNative = 1;
             } else {
-                sThunk = 0;
+                sNative = 0;
             }
 
 
-            if (sThunk == 1) {
+            if (sNative == 1) {
                 // Workarounds that may disable thunking go here
                 ApplicationInfo info;
                 try {
@@ -143,7 +129,7 @@ public class RenderScript {
                     // asynchronous teardown: minor version 1+
                     if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableAsyncTeardown") == true) {
                         if (minorVersion == 0) {
-                            sThunk = 0;
+                            sNative = 0;
                         }
                     }
 
@@ -151,7 +137,7 @@ public class RenderScript {
                     if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableBlurWorkaround") == true) {
                         if (android.os.Build.VERSION.SDK_INT <= 19) {
                             //android.util.Log.e("rs", "war on");
-                            sThunk = 0;
+                            sNative = 0;
                         }
                     }
                 }
@@ -159,7 +145,7 @@ public class RenderScript {
             }
         }
 
-        if (sThunk == 1) {
+        if (sNative == 1) {
             return true;
         }
         return false;
@@ -217,6 +203,7 @@ public class RenderScript {
 
     // Methods below are wrapped to protect the non-threadsafe
     // lockless fifo.
+
     native int  rsnContextCreate(int dev, int ver, int sdkVer, int contextType);
     synchronized int nContextCreate(int dev, int ver, int sdkVer, int contextType) {
         return rsnContextCreate(dev, ver, sdkVer, contextType);
@@ -784,10 +771,6 @@ public class RenderScript {
 
     public void setMessageHandler(RSMessageHandler msg) {
         mMessageCallback = msg;
-        if (isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) this;
-            rst.setMessageHandler(msg);
-        }
     }
     public RSMessageHandler getMessageHandler() {
         return mMessageCallback;
@@ -830,10 +813,6 @@ public class RenderScript {
 
     public void setErrorHandler(RSErrorHandler msg) {
         mErrorCallback = msg;
-        if (isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) this;
-            rst.setErrorHandler(msg);
-        }
     }
     public RSErrorHandler getErrorHandler() {
         return mErrorCallback;
@@ -991,11 +970,7 @@ public class RenderScript {
         } else if (sSdkVersion != sdkVersion) {
             throw new RSRuntimeException("Can't have two contexts with different SDK versions in support lib");
         }
-
-        if (setupThunk(sSdkVersion, ctx)) {
-            android.util.Log.v(LOG_TAG, "RS native mode");
-            return RenderScriptThunker.create(ctx, sSdkVersion);
-        }
+        boolean useNative = setupNative(sSdkVersion, ctx);
         synchronized(lock) {
             if (sInitialized == false) {
                 try {
@@ -1010,7 +985,6 @@ public class RenderScript {
                     sUseGCHooks = false;
                 }
                 try {
-                    System.loadLibrary("RSSupport");
                     System.loadLibrary("rsjni");
                     sInitialized = true;
                 } catch (UnsatisfiedLinkError e) {
@@ -1019,8 +993,20 @@ public class RenderScript {
                 }
             }
         }
+        if (useNative) {
+            android.util.Log.v(LOG_TAG, "RS native mode");
+        } else {
+            android.util.Log.v(LOG_TAG, "RS compat mode");
+        }
+        if (!rs.nLoadSO(useNative)) {
+            if (useNative) {
+                android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
+            }
+            if (!useNative || !rs.nLoadSO(false)) {
+                throw new RSRuntimeException("Error loading libRSSupport library");
+            }
+        }
 
-        android.util.Log.v(LOG_TAG, "RS compat mode");
         rs.mDev = rs.nDeviceCreate();
         rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID);
         if (rs.mContext == 0) {

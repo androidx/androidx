@@ -148,10 +148,6 @@ public class BaseObj {
             return false;
         }
 
-        if (mRS.isNative) {
-            return ((RenderScriptThunker)mRS).equals((Object)this, obj);
-        }
-
         BaseObj b = (BaseObj) obj;
         return mID == b.mID;
     }
