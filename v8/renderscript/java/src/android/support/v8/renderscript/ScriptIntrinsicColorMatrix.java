@@ -47,11 +47,6 @@ public class ScriptIntrinsicColorMatrix extends ScriptIntrinsic {
      * @return ScriptIntrinsicColorMatrix
      */
     public static ScriptIntrinsicColorMatrix create(RenderScript rs, Element e) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) rs;
-            return ScriptIntrinsicColorMatrixThunker.create(rs, e);
-        }
-
         if (!e.isCompatible(Element.U8_4(rs))) {
             throw new RSIllegalArgumentException("Unsuported element type.");
         }

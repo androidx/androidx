@@ -47,10 +47,6 @@ public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
      * @return ScriptIntrinsic3DLUT
      */
     public static ScriptIntrinsic3DLUT create(RenderScript rs, Element e) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) rs;
-            return ScriptIntrinsic3DLUTThunker.create(rs, e);
-        }
         int id = rs.nScriptIntrinsicCreate(8, e.getID(rs));
 
         if (!e.isCompatible(Element.U8_4(rs))) {

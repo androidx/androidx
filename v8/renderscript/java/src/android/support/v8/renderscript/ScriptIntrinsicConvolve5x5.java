@@ -48,10 +48,6 @@ public class ScriptIntrinsicConvolve5x5 extends ScriptIntrinsic {
      * @return ScriptIntrinsicConvolve5x5
      */
     public static ScriptIntrinsicConvolve5x5 create(RenderScript rs, Element e) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) rs;
-            return ScriptIntrinsicConvolve5x5Thunker.create(rs, e);
-        }
         int id = rs.nScriptIntrinsicCreate(4, e.getID(rs));
         return new ScriptIntrinsicConvolve5x5(id, rs);
 
