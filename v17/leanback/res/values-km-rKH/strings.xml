@@ -41,7 +41,7 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"ជ្រើស​មេ​ដៃ​ឡើង​លើ"</string>
     <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"មិន​ជ្រើស​​មេដៃ​ចុះ​ក្រោម"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"ជ្រើស​​មេ​ដៃ​ចុះក្រោម"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"មិន​ធ្វើ​ឡើង​វិញ​"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"មិន​ធ្វើ​ឡើង​វិញ"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"ធ្វើ​ម្ដង​ទៀត​ទាំងអស់"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ធ្វើ​​ឡើងវិញ​ម្ដង"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"បើក​ការ​​ច្របល់"</string>
