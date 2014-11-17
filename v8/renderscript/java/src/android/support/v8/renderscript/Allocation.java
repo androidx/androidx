@@ -1207,10 +1207,6 @@ public class Allocation extends BaseObj {
      *              utilized
      */
     static public Allocation createTyped(RenderScript rs, Type type, MipmapControl mips, int usage) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker)rs;
-            return AllocationThunker.createTyped(rst, type, mips, usage);
-        }
         rs.validate();
         if (type.getID(rs) == 0) {
             throw new RSInvalidStateException("Bad Type");
@@ -1263,10 +1259,6 @@ public class Allocation extends BaseObj {
      */
     static public Allocation createSized(RenderScript rs, Element e,
                                          int count, int usage) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker)rs;
-            return AllocationThunker.createSized(rs, e, count, usage);
-        }
         rs.validate();
         Type.Builder b = new Type.Builder(rs, e);
         b.setX(count);
@@ -1335,10 +1327,6 @@ public class Allocation extends BaseObj {
     static public Allocation createFromBitmap(RenderScript rs, Bitmap b,
                                               MipmapControl mips,
                                               int usage) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker)rs;
-            return AllocationThunker.createFromBitmap(rst, b, mips, usage);
-        }
         rs.validate();
 
         // WAR undocumented color formats

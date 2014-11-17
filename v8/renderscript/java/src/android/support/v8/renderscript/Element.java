@@ -755,10 +755,6 @@ public class Element extends BaseObj {
      * @return Element
      */
     static Element createUser(RenderScript rs, DataType dt) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker)rs;
-            return ElementThunker.create(rst, dt);
-        }
         DataKind dk = DataKind.USER;
         boolean norm = false;
         int vecSize = 1;
@@ -780,10 +776,6 @@ public class Element extends BaseObj {
      * @return Element
      */
     public static Element createVector(RenderScript rs, DataType dt, int size) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker)rs;
-            return ElementThunker.createVector(rst, dt, size);
-        }
         if (size < 2 || size > 4) {
             throw new RSIllegalArgumentException("Vector size out of range 2-4.");
         }
@@ -827,11 +819,6 @@ public class Element extends BaseObj {
      * @return Element
      */
     public static Element createPixel(RenderScript rs, DataType dt, DataKind dk) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker)rs;
-            return ElementThunker.createPixel(rst, dt, dk);
-        }
-
         if (!(dk == DataKind.PIXEL_L ||
               dk == DataKind.PIXEL_A ||
               dk == DataKind.PIXEL_LA ||
@@ -914,7 +901,6 @@ public class Element extends BaseObj {
      *
      */
     public static class Builder {
-        ElementThunker.BuilderThunker mT;
 
         RenderScript mRS;
         Element[] mElements;
@@ -929,10 +915,6 @@ public class Element extends BaseObj {
          * @param rs
          */
         public Builder(RenderScript rs) {
-            if (rs.isNative) {
-                RenderScriptThunker rst = (RenderScriptThunker)rs;
-                mT = new ElementThunker.BuilderThunker(rs);
-            }
             mRS = rs;
             mCount = 0;
             mElements = new Element[8];
@@ -948,11 +930,6 @@ public class Element extends BaseObj {
          * @param arraySize
          */
         public Builder add(Element element, String name, int arraySize) {
-            if (mT != null) {
-                mT.add(element, name, arraySize);
-                return this;
-            }
-
             if (arraySize < 1) {
                 throw new RSIllegalArgumentException("Array size cannot be less than 1.");
             }
@@ -1007,10 +984,6 @@ public class Element extends BaseObj {
          * @return Element
          */
         public Element create() {
-            if (mT != null) {
-                return mT.create(mRS);
-            }
-
             mRS.validate();
             Element[] ein = new Element[mCount];
             String[] sin = new String[mCount];

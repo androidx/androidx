@@ -45,11 +45,6 @@ public class ScriptIntrinsicLUT extends ScriptIntrinsic {
      * @return ScriptIntrinsicLUT
      */
     public static ScriptIntrinsicLUT create(RenderScript rs, Element e) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) rs;
-            return ScriptIntrinsicLUTThunker.create(rs, e);
-        }
-
         int id = rs.nScriptIntrinsicCreate(3, e.getID(rs));
 
         ScriptIntrinsicLUT si = new ScriptIntrinsicLUT(id, rs);
