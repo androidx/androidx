@@ -11,7 +11,8 @@ LOCAL_SHARED_LIBRARIES := \
         libjnigraphics
 
 LOCAL_STATIC_LIBRARIES := \
-        libcutils
+        libcutils \
+        libRSDispatch
 
 rs_generated_include_dir := $(call generated-sources-dir-for,SHARED_LIBRARIES,libRSSupport,,)
 
