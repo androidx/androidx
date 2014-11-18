@@ -535,9 +535,10 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     @Override
-    public void setViewsVisible(RowPresenter.ViewHolder holder, boolean visible) {
-        super.setViewsVisible(holder, visible);
+    public void setEntranceTransitionState(RowPresenter.ViewHolder holder,
+            boolean afterEntrance) {
+        super.setEntranceTransitionState(holder, afterEntrance);
         ((ViewHolder) holder).mGridView.setChildrenVisibility(
-                visible? View.VISIBLE : View.INVISIBLE);
+                afterEntrance? View.VISIBLE : View.INVISIBLE);
     }
 }

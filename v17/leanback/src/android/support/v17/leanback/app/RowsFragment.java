@@ -123,7 +123,7 @@ public class RowsFragment extends BaseRowFragment {
     private boolean mRowScaleEnabled;
     private ScaleFrameLayout mScaleFrameLayout;
     private boolean mInTransition;
-    private boolean mViewsVisible = true;
+    private boolean mAfterEntranceTransition = true;
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
@@ -407,7 +407,7 @@ public class RowsFragment extends BaseRowFragment {
             setOnItemViewSelectedListener(vh, mOnItemViewSelectedListener);
             RowPresenter rowPresenter = (RowPresenter) vh.getPresenter();
             RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(vh.getViewHolder());
-            rowPresenter.setViewsVisible(rowVh, mViewsVisible);
+            rowPresenter.setEntranceTransitionState(rowVh, mAfterEntranceTransition);
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onAttachedToWindow(vh);
             }
@@ -580,11 +580,12 @@ public class RowsFragment extends BaseRowFragment {
         }
     }
 
-    public void setViewsVisible(boolean visible) {
-        if (mViewsVisible == visible) {
-            return;
-        }
-        mViewsVisible = visible;
+    /**
+     * For rows that willing to participate entrance transition,  this function
+     * hide views if afterTransition is true,  show views if afterTransition is false.
+     */
+    void setEntranceTransitionState(boolean afterTransition) {
+        mAfterEntranceTransition = afterTransition;
         VerticalGridView verticalView = getVerticalGridView();
         if (verticalView != null) {
             final int count = verticalView.getChildCount();
@@ -593,7 +594,7 @@ public class RowsFragment extends BaseRowFragment {
                     verticalView.getChildViewHolder(verticalView.getChildAt(i));
                 RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
                 RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
-                rowPresenter.setViewsVisible(vh, mViewsVisible);
+                rowPresenter.setEntranceTransitionState(vh, mAfterEntranceTransition);
             }
         }
     }
