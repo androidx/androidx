@@ -118,4 +118,11 @@ public class TitleView extends FrameLayout {
     public SearchOrbView.Colors getSearchAffordanceColors() {
         return mSearchOrbView.getOrbColors();
     }
+
+    /**
+     * Enables or disables any view animations.
+     */
+    public void enableAnimation(boolean enable) {
+        mSearchOrbView.enableOrbColorAnimation(enable && mSearchOrbView.hasFocus());
+    }
 }
