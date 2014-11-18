@@ -43,7 +43,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 #  A helper sub-library that makes direct use of API 21.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback-api21
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
 include $(BUILD_STATIC_JAVA_LIBRARY)

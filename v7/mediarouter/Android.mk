@@ -48,7 +48,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of JellyBean MR2 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-jellybean-mr2
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 18
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr2)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)

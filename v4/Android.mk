@@ -165,10 +165,9 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of the upcoming API.
-# TODO: Apply a real name and SDK version when available
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api21
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api20
 include $(BUILD_STATIC_JAVA_LIBRARY)
