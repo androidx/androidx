@@ -372,6 +372,18 @@ public class VerticalGridSupportFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        mTitleView.enableAnimation(false);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mTitleView.enableAnimation(true);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         mGridViewHolder = null;
