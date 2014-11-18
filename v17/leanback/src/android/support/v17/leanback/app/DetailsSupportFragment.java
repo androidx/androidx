@@ -34,9 +34,18 @@ import android.view.ViewGroup;
 /**
  * Wrapper fragment for leanback details screens.
  */
-public class DetailsSupportFragment extends Fragment {
+public class DetailsSupportFragment extends BaseSupportFragment {
     private static final String TAG = "DetailsSupportFragment";
     private static boolean DEBUG = false;
+
+    private class SetSelectionRunnable implements Runnable {
+        int mPosition;
+        boolean mSmooth = true;
+        @Override
+        public void run() {
+            mRowsSupportFragment.setSelectedPosition(mPosition, mSmooth);
+        }
+    }
 
     private RowsSupportFragment mRowsSupportFragment;
 
@@ -47,6 +56,10 @@ public class DetailsSupportFragment extends Fragment {
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = -1;
+
+    private Object mSceneAfterEntranceTransition;
+
+    private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
     /**
      * Sets the list of rows for the fragment.
@@ -140,6 +153,13 @@ public class DetailsSupportFragment extends Fragment {
         mRowsSupportFragment.setOnItemViewSelectedListener(mExternalOnItemViewSelectedListener);
         mRowsSupportFragment.setOnItemClickedListener(mOnItemClickedListener);
         mRowsSupportFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        mSceneAfterEntranceTransition = sTransitionHelper.createScene((ViewGroup) view,
+                new Runnable() {
+            @Override
+            public void run() {
+                mRowsSupportFragment.setEntranceTransitionState(true);
+            }
+        });
         return view;
     }
 
@@ -168,10 +188,51 @@ public class DetailsSupportFragment extends Fragment {
         setVerticalGridViewLayout(mRowsSupportFragment.getVerticalGridView());
     }
 
+    /**
+     * Sets the selected row position with smooth animation.
+     */
+    public void setSelectedPosition(int position) {
+        setSelectedPosition(position, true);
+    }
+
+    /**
+     * Sets the selected row position.
+     */
+    public void setSelectedPosition(int position, boolean smooth) {
+        mSetSelectionRunnable.mPosition = position;
+        mSetSelectionRunnable.mSmooth = smooth;
+        if (getView() != null && getView().getHandler() != null) {
+            getView().getHandler().post(mSetSelectionRunnable);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         setupChildFragmentLayout();
         mRowsSupportFragment.getView().requestFocus();
+        if (isEntranceTransitionEnabled()) {
+            // make sure recycler view animation is disabled
+            mRowsSupportFragment.onTransitionStart();
+            mRowsSupportFragment.setEntranceTransitionState(false);
+        }
     }
+
+    @Override
+    protected Object createEntranceTransition() {
+        return sTransitionHelper.loadTransition(getActivity(),
+                R.transition.lb_details_enter_transition);
+    }
+
+    @Override
+    protected void runEntranceTransition(Object entranceTransition) {
+        sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
+                entranceTransition);
+    }
+
+    @Override
+    protected void onEntranceTransitionEnd() {
+        mRowsSupportFragment.onTransitionEnd();
+    }
+
 }

@@ -115,12 +115,23 @@ abstract class BaseRowFragment extends Fragment {
     }
 
     /**
-     * Set the selected item position.
+     * Sets the selected row position with smooth animation.
      */
     public void setSelectedPosition(int position) {
+        setSelectedPosition(position, true);
+    }
+
+    /**
+     * Sets the selected row position.
+     */
+    public void setSelectedPosition(int position, boolean smooth) {
         mSelectedPosition = position;
         if(mVerticalGridView != null && mVerticalGridView.getAdapter() != null) {
-            mVerticalGridView.setSelectedPositionSmooth(position);
+            if (smooth) {
+                mVerticalGridView.setSelectedPositionSmooth(position);
+            } else {
+                mVerticalGridView.setSelectedPosition(position);
+            }
         }
     }
 
