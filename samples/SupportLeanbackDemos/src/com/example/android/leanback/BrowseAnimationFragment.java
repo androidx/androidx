@@ -76,7 +76,7 @@ public class BrowseAnimationFragment extends
         mRowsAdapter = new ArrayObjectAdapter(lrp);
         for (int i = 0; i < NUM_ROWS; ++i) {
             mRowsAdapter.add(
-                    createRandomRow(new HeaderItem(i, "Row " + i, null)));
+                    createRandomRow(new HeaderItem(i, "Row " + i)));
         }
         setAdapter(mRowsAdapter);
     }
@@ -198,7 +198,7 @@ public class BrowseAnimationFragment extends
                     if (index >= 0) {
                         int headerId = sRand.nextInt();
                         mRowsAdapter.add(index, createRandomRow(new HeaderItem(
-                                headerId, "Row " + headerId, null)));
+                                headerId, "Row " + headerId)));
                     }
                 }
             });
@@ -211,7 +211,7 @@ public class BrowseAnimationFragment extends
                         int headerId = sRand.nextInt();
                         mRowsAdapter.add(
                                 index + 1, createRandomRow(new HeaderItem(
-                                        headerId, "Row " + headerId, null)));
+                                        headerId, "Row " + headerId)));
                     }
                 }
             });

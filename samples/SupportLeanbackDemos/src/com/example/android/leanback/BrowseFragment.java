@@ -99,7 +99,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_6));
             listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_7));
             listRowAdapter.add(new PhotoItem("Leanback", "click to open MainActivity", R.drawable.gallery_photo_8));
-            HeaderItem header = new HeaderItem(i, "Row " + i, null);
+            HeaderItem header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
 

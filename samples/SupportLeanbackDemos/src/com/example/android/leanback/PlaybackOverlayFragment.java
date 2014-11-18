@@ -236,7 +236,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new StringPresenter());
             listRowAdapter.add("Some related content");
             listRowAdapter.add("Other related content");
-            HeaderItem header = new HeaderItem(i, "Row " + i, null);
+            HeaderItem header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
     }
