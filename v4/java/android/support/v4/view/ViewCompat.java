@@ -337,6 +337,8 @@ public class ViewCompat {
         void setFitsSystemWindows(View view, boolean fitSystemWindows);
         void jumpDrawablesToCurrentState(View v);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
+        WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets);
+        WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets);
         void setSaveFromParentEnabled(View view, boolean enabled);
         void setActivated(View view, boolean activated);
         boolean isPaddingRelative(View view);
@@ -743,6 +745,16 @@ public class ViewCompat {
         public void setOnApplyWindowInsetsListener(View view,
                 OnApplyWindowInsetsListener listener) {
             // noop
+        }
+
+        @Override
+        public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+            return insets;
+        }
+
+        @Override
+        public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
+            return insets;
         }
 
         @Override
@@ -1245,6 +1257,16 @@ public class ViewCompat {
         @Override
         public PorterDuff.Mode getBackgroundTintMode(View view) {
             return ViewCompatApi21.getBackgroundTintMode(view);
+        }
+
+        @Override
+        public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+            return ViewCompatApi21.onApplyWindowInsets(v, insets);
+        }
+
+        @Override
+        public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
+            return ViewCompatApi21.dispatchApplyWindowInsets(v, insets);
         }
     }
 
@@ -2372,6 +2394,39 @@ public class ViewCompat {
     public static void setOnApplyWindowInsetsListener(View v,
             OnApplyWindowInsetsListener listener) {
         IMPL.setOnApplyWindowInsetsListener(v, listener);
+    }
+
+    /**
+     * Called when the view should apply {@link WindowInsetsCompat} according to its internal policy.
+     *
+     * <p>Clients may supply an {@link OnApplyWindowInsetsListener} to a view. If one is set
+     * it will be called during dispatch instead of this method. The listener may optionally
+     * call this method from its own implementation if it wishes to apply the view's default
+     * insets policy in addition to its own.</p>
+     *
+     * @param view The View against which to invoke the method.
+     * @param insets Insets to apply
+     * @return The supplied insets with any applied insets consumed
+     */
+    public static WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
+        return IMPL.onApplyWindowInsets(view, insets);
+    }
+
+    /**
+     * Request to apply the given window insets to this view or another view in its subtree.
+     *
+     * <p>This method should be called by clients wishing to apply insets corresponding to areas
+     * obscured by window decorations or overlays. This can include the status and navigation bars,
+     * action bars, input methods and more. New inset categories may be added in the future.
+     * The method returns the insets provided minus any that were applied by this view or its
+     * children.</p>
+     *
+     * @param insets Insets to apply
+     * @return The provided insets minus the insets that were consumed
+     */
+    public static WindowInsetsCompat dispatchApplyWindowInsets(View view,
+            WindowInsetsCompat insets) {
+        return IMPL.dispatchApplyWindowInsets(view, insets);
     }
 
     /**
