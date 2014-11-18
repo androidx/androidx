@@ -959,6 +959,18 @@ public class BrowseSupportFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onPause() {
+        mTitleView.enableAnimation(false);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mTitleView.enableAnimation(true);
+    }
+
     /**
      * Enable/disable headers transition on back key support. This is enabled by
      * default. The BrowseSupportFragment will add a back stack entry when headers are
