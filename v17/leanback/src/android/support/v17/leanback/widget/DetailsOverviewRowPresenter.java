@@ -530,4 +530,22 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             ((ColorDrawable) vh.mOverviewFrame.getForeground().mutate()).setColor(dimmedColor);
         }
     }
+
+    @Override
+    protected void onRowViewAttachedToWindow(RowPresenter.ViewHolder vh) {
+        super.onRowViewAttachedToWindow(vh);
+        if (mDetailsPresenter != null) {
+            mDetailsPresenter.onViewAttachedToWindow(
+                    ((ViewHolder) vh).mDetailsDescriptionViewHolder);
+        }
+    }
+
+    @Override
+    protected void onRowViewDetachedFromWindow(RowPresenter.ViewHolder vh) {
+        super.onRowViewDetachedFromWindow(vh);
+        if (mDetailsPresenter != null) {
+            mDetailsPresenter.onViewDetachedFromWindow(
+                    ((ViewHolder) vh).mDetailsDescriptionViewHolder);
+        }
+    }
 }

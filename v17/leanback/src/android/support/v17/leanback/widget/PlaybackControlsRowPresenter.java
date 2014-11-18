@@ -417,4 +417,22 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             ((ViewHolder) vh).dispatchItemSelection();
         }
     }
+
+    @Override
+    protected void onRowViewAttachedToWindow(RowPresenter.ViewHolder vh) {
+        super.onRowViewAttachedToWindow(vh);
+        if (mDescriptionPresenter != null) {
+            mDescriptionPresenter.onViewAttachedToWindow(
+                    ((ViewHolder) vh).mDescriptionViewHolder);
+        }
+    }
+
+    @Override
+    protected void onRowViewDetachedFromWindow(RowPresenter.ViewHolder vh) {
+        super.onRowViewDetachedFromWindow(vh);
+        if (mDescriptionPresenter != null) {
+            mDescriptionPresenter.onViewDetachedFromWindow(
+                    ((ViewHolder) vh).mDescriptionViewHolder);
+        }
+    }
 }
