@@ -26,6 +26,10 @@ import android.os.Environment;
 import android.support.v4.content.FileProvider.SimplePathStrategy;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
+import android.test.suitebuilder.annotation.Suppress;
+
+import libcore.io.IoUtils;
+import libcore.io.Streams;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,12 +37,10 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import libcore.io.IoUtils;
-import libcore.io.Streams;
-
 /**
  * Tests for {@link FileProvider}
  */
+@Suppress
 public class FileProviderTest extends AndroidTestCase {
     private static final String TEST_AUTHORITY = "moocow";
 
