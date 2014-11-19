@@ -1677,6 +1677,22 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 structureChanged.get());
     }
 
+    public void testDetachWithoutLayoutManager() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    setRecyclerView(recyclerView);
+                    removeRecyclerView();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+            }
+        });
+        checkForMainThreadException();
+    }
+
     private static class TestViewHolder2 extends RecyclerView.ViewHolder {
 
         Object mData;
