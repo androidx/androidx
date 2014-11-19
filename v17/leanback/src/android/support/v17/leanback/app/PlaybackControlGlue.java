@@ -290,7 +290,7 @@ public abstract class PlaybackControlGlue {
             throw new IllegalStateException("Fragment OnItemViewClickedListener already present");
         }
         mFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
-        if (mFragment.getInputEventListener() != null) {
+        if (mFragment.getInputEventHandler() != null) {
             throw new IllegalStateException("Fragment InputEventListener already present");
         }
         mFragment.setInputEventHandler(mInputEventHandler);
