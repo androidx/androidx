@@ -18,9 +18,9 @@
 
     <ImageView
         android:id="@+id/browse_badge"
-        android:layout_width="@dimen/lb_browse_title_text_width"
+        android:layout_width="@dimen/lb_browse_title_icon_width"
         android:layout_height="@dimen/lb_browse_title_height"
-        android:layout_gravity="center_vertical|right"
+        android:layout_gravity="center_vertical|end"
         android:src="@null"
         android:visibility="gone"
         style="?attr/browseTitleIconStyle"/>
@@ -29,7 +29,7 @@
         android:id="@+id/browse_title"
         android:layout_width="@dimen/lb_browse_title_text_width"
         android:layout_height="@dimen/lb_browse_title_height"
-        android:layout_gravity="center_vertical|right"
+        android:layout_gravity="center_vertical|end"
         style="?attr/browseTitleTextStyle"/>
 
     <android.support.v17.leanback.widget.SearchOrbView
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:transitionGroup="true"
-        android:layout_gravity="center_vertical|left"
+        android:layout_gravity="center_vertical|start"
         android:visibility="invisible" />
 
 </merge>

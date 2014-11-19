@@ -24,8 +24,8 @@
     android:orientation="vertical"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:paddingLeft="@dimen/lb_playback_controls_margin_left"
-    android:paddingRight="@dimen/lb_playback_controls_margin_right" >
+    android:paddingStart="@dimen/lb_playback_controls_margin_start"
+    android:paddingEnd="@dimen/lb_playback_controls_margin_end" >
 
     <LinearLayout
         android:id="@+id/controls_card"

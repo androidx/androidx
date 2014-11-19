@@ -110,7 +110,7 @@ public class HeadersFragment extends BaseRowFragment {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom,
             int oldLeft, int oldTop, int oldRight, int oldBottom) {
-            v.setPivotX(0);
+            v.setPivotX(v.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL ? v.getWidth() : 0);
             v.setPivotY(v.getMeasuredHeight() / 2);
         }
     };

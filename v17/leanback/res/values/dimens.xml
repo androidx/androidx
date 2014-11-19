@@ -17,9 +17,9 @@
 <resources>
     <dimen name="lb_list_row_height">224dp</dimen>
 
-    <dimen name="lb_browse_padding_left">56dp</dimen>
+    <dimen name="lb_browse_padding_start">56dp</dimen>
     <dimen name="lb_browse_padding_top">27dp</dimen>
-    <dimen name="lb_browse_padding_right">56dp</dimen>
+    <dimen name="lb_browse_padding_end">56dp</dimen>
     <dimen name="lb_browse_padding_bottom">48dp</dimen>
     <dimen name="lb_browse_rows_margin_start">238dp</dimen>
     <dimen name="lb_browse_rows_margin_top">167dp</dimen>
@@ -29,7 +29,7 @@
     <dimen name="lb_browse_title_height">60dp</dimen>
     <dimen name="lb_browse_title_icon_height">52dp</dimen>
     <dimen name="lb_browse_title_icon_width">52dp</dimen>
-    <dimen name="lb_browse_title_icon_margin_right">52dp</dimen>
+    <dimen name="lb_browse_title_icon_margin_end">52dp</dimen>
     <dimen name="lb_browse_title_text_size">44sp</dimen>
     <dimen name="lb_browse_title_text_width">584dp</dimen>
 
@@ -44,7 +44,7 @@
     <dimen name="lb_browse_header_text_size">20sp</dimen>
     <dimen name="lb_browse_header_height">24dp</dimen>
     <dimen name="lb_browse_header_fading_length">12dp</dimen>
-    <dimen name="lb_browse_header_padding_right">8dp</dimen>
+    <dimen name="lb_browse_header_padding_end">8dp</dimen>
 
     <item name="lb_browse_header_select_duration" format="integer" type="dimen">150</item>
     <item name="lb_browse_header_unselect_alpha" type="fraction">50%</item>
@@ -65,20 +65,20 @@
 
     <dimen name="lb_details_overview_height_large">274dp</dimen>
     <dimen name="lb_details_overview_height_small">159dp</dimen>
-    <dimen name="lb_details_overview_margin_left">132dp</dimen>
-    <dimen name="lb_details_overview_margin_right">132dp</dimen>
+    <dimen name="lb_details_overview_margin_start">132dp</dimen>
+    <dimen name="lb_details_overview_margin_end">132dp</dimen>
     <dimen name="lb_details_overview_margin_bottom">40dp</dimen>
 
     <dimen name="lb_details_overview_description_margin_top">24dp</dimen>
-    <dimen name="lb_details_overview_description_margin_left">24dp</dimen>
-    <dimen name="lb_details_overview_description_margin_right">24dp</dimen>
+    <dimen name="lb_details_overview_description_margin_start">24dp</dimen>
+    <dimen name="lb_details_overview_description_margin_end">24dp</dimen>
     <dimen name="lb_details_overview_description_margin_bottom">12dp</dimen>
     <dimen name="lb_details_overview_image_margin_horizontal">24dp</dimen>
     <dimen name="lb_details_overview_image_margin_vertical">24dp</dimen>
     <dimen name="lb_details_overview_action_items_margin">16dp</dimen>
     <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
-    <dimen name="lb_details_overview_actions_padding_left">294dp</dimen>
-    <dimen name="lb_details_overview_actions_padding_right">132dp</dimen>
+    <dimen name="lb_details_overview_actions_padding_start">294dp</dimen>
+    <dimen name="lb_details_overview_actions_padding_end">132dp</dimen>
     <dimen name="lb_details_overview_actions_height">56dp</dimen>
     <dimen name="lb_details_overview_actions_fade_size">16dp</dimen>
     <dimen name="lb_details_rows_align_top">167dp</dimen>
@@ -100,8 +100,8 @@
     <dimen name="lb_action_1_line_height">36dp</dimen>
     <dimen name="lb_action_2_lines_height">56dp</dimen>
     <dimen name="lb_action_padding_horizontal">24dp</dimen>
-    <dimen name="lb_action_with_icon_padding_left">14dp</dimen>
-    <dimen name="lb_action_with_icon_padding_right">20dp</dimen>
+    <dimen name="lb_action_with_icon_padding_start">14dp</dimen>
+    <dimen name="lb_action_with_icon_padding_end">20dp</dimen>
     <dimen name="lb_action_icon_margin">12dp</dimen>
     <dimen name="lb_action_text_size">16sp</dimen>
     <dimen name="lb_action_button_corner_radius">2dp</dimen>
@@ -111,8 +111,8 @@
     <dimen name="lb_playback_major_fade_translate_y">200dp</dimen>
     <dimen name="lb_playback_minor_fade_translate_y">16dp</dimen>
     <dimen name="lb_playback_controls_card_height">176dp</dimen>
-    <dimen name="lb_playback_controls_margin_left">132dp</dimen>
-    <dimen name="lb_playback_controls_margin_right">132dp</dimen>
+    <dimen name="lb_playback_controls_margin_start">132dp</dimen>
+    <dimen name="lb_playback_controls_margin_end">132dp</dimen>
     <dimen name="lb_playback_controls_margin_bottom">20dp</dimen>
     <dimen name="lb_playback_description_margin_top">24dp</dimen>
     <dimen name="lb_playback_description_margin_start">24dp</dimen>
@@ -145,7 +145,7 @@
 
     <!-- Search bar -->
     <dimen name="lb_search_bar_height">60dp</dimen>
-    <dimen name="lb_search_bar_padding_left">56dp</dimen>
+    <dimen name="lb_search_bar_padding_start">56dp</dimen>
     <dimen name="lb_search_bar_padding_top">27dp</dimen>
 
     <dimen name="lb_search_bar_text_size">22sp</dimen>
@@ -153,19 +153,19 @@
     <dimen name="lb_search_bar_items_layout_margin_top">27dp</dimen>
     <dimen name="lb_search_bar_items_width">600dp</dimen>
     <dimen name="lb_search_bar_items_height">56dp</dimen>
-    <dimen name="lb_search_bar_items_margin_left">70dp</dimen>
+    <dimen name="lb_search_bar_items_margin_start">70dp</dimen>
     <dimen name="lb_search_bar_inner_margin_top">2dp</dimen>
     <dimen name="lb_search_bar_inner_margin_bottom">2dp</dimen>
     <dimen name="lb_search_bar_icon_height">32dp</dimen>
     <dimen name="lb_search_bar_icon_width">32dp</dimen>
-    <dimen name="lb_search_bar_icon_margin_left">16dp</dimen>
-    <dimen name="lb_search_bar_edit_text_margin_left">24dp</dimen>
-    <dimen name="lb_search_bar_hint_margin_left">52dp</dimen>
+    <dimen name="lb_search_bar_icon_margin_start">16dp</dimen>
+    <dimen name="lb_search_bar_edit_text_margin_start">24dp</dimen>
+    <dimen name="lb_search_bar_hint_margin_start">52dp</dimen>
 
 
     <!-- Search Fragment -->
     <dimen name="lb_search_browse_rows_align_top">120dp</dimen>
-    <dimen name="lb_search_browse_row_padding_left">56dp</dimen>
+    <dimen name="lb_search_browse_row_padding_start">56dp</dimen>
 
     <dimen name="lb_search_orb_size">52dp</dimen>
     <item name="lb_search_orb_focused_zoom" type="fraction">120%</item>
@@ -174,12 +174,12 @@
 
     <dimen name="lb_search_orb_margin_top">4dp</dimen>
     <dimen name="lb_search_orb_margin_bottom">4dp</dimen>
-    <dimen name="lb_search_orb_margin_left">4dp</dimen>
-    <dimen name="lb_search_orb_margin_right">4dp</dimen>
+    <dimen name="lb_search_orb_margin_start">4dp</dimen>
+    <dimen name="lb_search_orb_margin_end">4dp</dimen>
 
     <dimen name="lb_search_bar_speech_orb_size">52dp</dimen>
     <item name="lb_search_bar_speech_orb_max_level_zoom" type="fraction">144%</item>
-    <dimen name="lb_search_bar_speech_orb_margin_left">56dp</dimen>
+    <dimen name="lb_search_bar_speech_orb_margin_start">56dp</dimen>
 
     <!-- BasicCardView -->
     <dimen name="lb_basic_card_main_width">140dp</dimen>

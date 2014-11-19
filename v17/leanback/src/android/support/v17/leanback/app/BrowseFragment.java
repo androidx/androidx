@@ -31,6 +31,7 @@ import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.app.Activity;
 import android.app.Fragment;
@@ -188,7 +189,7 @@ public class BrowseFragment extends BaseFragment {
     private String mWithHeadersBackStackName;
     private boolean mShowingHeaders = true;
     private boolean mCanShowHeaders = true;
-    private int mContainerListMarginLeft;
+    private int mContainerListMarginStart;
     private int mContainerListAlignTop;
     private boolean mRowScaleEnabled = true;
     private SearchOrbView.Colors mSearchAffordanceColors;
@@ -530,12 +531,15 @@ public class BrowseFragment extends BaseFragment {
             // if headers is running transition,  focus stays
             if (isInHeadersTransition()) return focused;
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
-            if (direction == View.FOCUS_LEFT) {
+            boolean isRtl = ViewCompat.getLayoutDirection(focused) == View.LAYOUT_DIRECTION_RTL;
+            int towardStart = isRtl ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
+            int towardEnd = isRtl ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
+            if (direction == towardStart) {
                 if (isVerticalScrolling() || mShowingHeaders) {
                     return focused;
                 }
                 return mHeadersFragment.getVerticalGridView();
-            } else if (direction == View.FOCUS_RIGHT) {
+            } else if (direction == towardEnd) {
                 if (isVerticalScrolling() || !mShowingHeaders) {
                     return focused;
                 }
@@ -609,7 +613,7 @@ public class BrowseFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TypedArray ta = getActivity().obtainStyledAttributes(R.styleable.LeanbackTheme);
-        mContainerListMarginLeft = (int) ta.getDimension(
+        mContainerListMarginStart = (int) ta.getDimension(
                 R.styleable.LeanbackTheme_browseRowsMarginStart, 0);
         mContainerListAlignTop = (int) ta.getDimension(
                 R.styleable.LeanbackTheme_browseRowsMarginTop, 0);
@@ -824,7 +828,7 @@ public class BrowseFragment extends BaseFragment {
         View containerList;
         containerList = mRowsFragment.getView();
         lp = (MarginLayoutParams) containerList.getLayoutParams();
-        lp.leftMargin = alignLeft ? 0 : mContainerListMarginLeft;
+        lp.setMarginStart(alignLeft ? 0 : mContainerListMarginStart);
         containerList.setLayoutParams(lp);
     }
 
@@ -833,7 +837,7 @@ public class BrowseFragment extends BaseFragment {
         View containerList;
         containerList = mHeadersFragment.getView();
         lp = (MarginLayoutParams) containerList.getLayoutParams();
-        lp.leftMargin = onScreen ? 0 : -mContainerListMarginLeft;
+        lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
         containerList.setLayoutParams(lp);
     }
 
@@ -1123,7 +1127,7 @@ public class BrowseFragment extends BaseFragment {
     void setSearchOrbViewOnScreen(boolean onScreen) {
         View searchOrbView = mTitleView.getSearchAffordanceView();
         MarginLayoutParams lp = (MarginLayoutParams) searchOrbView.getLayoutParams();
-        lp.leftMargin = onScreen ? 0 : -mContainerListMarginLeft;
+        lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
         searchOrbView.setLayoutParams(lp);
     }
 
