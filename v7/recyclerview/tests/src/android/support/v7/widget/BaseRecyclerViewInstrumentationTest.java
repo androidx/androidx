@@ -145,12 +145,16 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-                if (adapter instanceof AttachDetachCountingAdapter) {
-                    ((AttachDetachCountingAdapter) adapter).getCounter()
-                            .validateRemaining(mRecyclerView);
+                try {
+                    final RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+                    if (adapter instanceof AttachDetachCountingAdapter) {
+                        ((AttachDetachCountingAdapter) adapter).getCounter()
+                                .validateRemaining(mRecyclerView);
+                    }
+                    getActivity().mContainer.removeAllViews();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
                 }
-                getActivity().mContainer.removeAllViews();
             }
         });
         mRecyclerView = null;
