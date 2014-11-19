@@ -342,16 +342,20 @@
         <item name="android:textColor">?attr/editTextColor</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
     </style>
-
-    <style name="Base.Widget.AppCompat.DrawerArrowToggle" parent="">
+    <!-- contains values used in all dpis -->
+    <style name="Base.Widget.AppCompat.DrawerArrowToggle.Common" parent="">
         <item name="color">?android:attr/textColorSecondary</item>
+        <item name="middleBarArrowSize">16dp</item>
+        <item name="spinBars">true</item>
         <item name="thickness">2dp</item>
+        <item name="topBottomBarArrowSize">11.31dp</item>
+    </style>
+
+    <!-- contains values used in all dpis except hdpi and xxhdpi -->
+    <style name="Base.Widget.AppCompat.DrawerArrowToggle" parent="Base.Widget.AppCompat.DrawerArrowToggle.Common">
         <item name="barSize">18dp</item>
         <item name="gapBetweenBars">3dp</item>
-        <item name="topBottomBarArrowSize">11.31dp</item>
-        <item name="middleBarArrowSize">16dp</item>
         <item name="drawableSize">24dp</item>
-        <item name="spinBars">true</item>
     </style>
 
     <style name="Base.Widget.AppCompat.CompoundButton.Switch" parent="android:Widget.CompoundButton">
