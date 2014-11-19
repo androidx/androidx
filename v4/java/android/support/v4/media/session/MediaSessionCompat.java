@@ -450,7 +450,7 @@ public class MediaSessionCompat {
          * @param token The framework token object.
          * @return A compat Token for use with {@link MediaControllerCompat}.
          */
-        public Token fromToken(Object token) {
+        public static Token fromToken(Object token) {
             if (token == null || android.os.Build.VERSION.SDK_INT < 21) {
                 return null;
             }
