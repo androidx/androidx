@@ -824,7 +824,9 @@ public class RecyclerView extends ViewGroup {
         if (mScrollListener != null) {
             mScrollListener.onScrollStateChanged(this, state);
         }
-        mLayout.onScrollStateChanged(state);
+        if (mLayout != null) {
+            mLayout.onScrollStateChanged(state);
+        }
     }
 
     /**
@@ -915,6 +917,11 @@ public class RecyclerView extends ViewGroup {
      */
     public void scrollToPosition(int position) {
         stopScroll();
+        if (mLayout == null) {
+            Log.e(TAG, "Cannot scroll to position a LayoutManager set. " +
+                    "Call setLayoutManager with a non-null argument.");
+            return;
+        }
         mLayout.scrollToPosition(position);
         awakenScrollBars();
     }
@@ -935,6 +942,11 @@ public class RecyclerView extends ViewGroup {
      * @see LayoutManager#smoothScrollToPosition(RecyclerView, State, int)
      */
     public void smoothScrollToPosition(int position) {
+        if (mLayout == null) {
+            Log.e(TAG, "Cannot smooth scroll without a LayoutManager set. " +
+                    "Call setLayoutManager with a non-null argument.");
+            return;
+        }
         mLayout.smoothScrollToPosition(this, mState, position);
     }
 
@@ -947,8 +959,9 @@ public class RecyclerView extends ViewGroup {
     @Override
     public void scrollBy(int x, int y) {
         if (mLayout == null) {
-            throw new IllegalStateException("Cannot scroll without a LayoutManager set. " +
+            Log.e(TAG, "Cannot scroll without a LayoutManager set. " +
                     "Call setLayoutManager with a non-null argument.");
+            return;
         }
         final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
         final boolean canScrollVertical = mLayout.canScrollVertically();
@@ -1231,7 +1244,9 @@ public class RecyclerView extends ViewGroup {
      */
     private void stopScrollersInternal() {
         mViewFlinger.stop();
-        mLayout.stopSmoothScroller();
+        if (mLayout != null) {
+            mLayout.stopSmoothScroller();
+        }
     }
 
     /**
@@ -1378,7 +1393,7 @@ public class RecyclerView extends ViewGroup {
         }
         final FocusFinder ff = FocusFinder.getInstance();
         result = ff.findNextFocus(this, focused, direction);
-        if (result == null && mAdapter != null) {
+        if (result == null && mAdapter != null && mLayout != null) {
             eatRequestLayout();
             result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
             resumeRequestLayout(false);
@@ -1765,9 +1780,50 @@ public class RecyclerView extends ViewGroup {
         } else {
             mState.mItemCount = 0;
         }
+        if (mLayout == null) {
+            defaultOnMeasure(widthSpec, heightSpec);
+        } else {
+            mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
+        }
 
-        mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
         mState.mInPreLayout = false; // clear
+    }
+
+    /**
+     * Used when onMeasure is called before layout manager is set
+     */
+    private void defaultOnMeasure(int widthSpec, int heightSpec) {
+        final int widthMode = MeasureSpec.getMode(widthSpec);
+        final int heightMode = MeasureSpec.getMode(heightSpec);
+        final int widthSize = MeasureSpec.getSize(widthSpec);
+        final int heightSize = MeasureSpec.getSize(heightSpec);
+
+        int width = 0;
+        int height = 0;
+
+        switch (widthMode) {
+            case MeasureSpec.EXACTLY:
+            case MeasureSpec.AT_MOST:
+                width = widthSize;
+                break;
+            case MeasureSpec.UNSPECIFIED:
+            default:
+                width = ViewCompat.getMinimumWidth(this);
+                break;
+        }
+
+        switch (heightMode) {
+            case MeasureSpec.EXACTLY:
+            case MeasureSpec.AT_MOST:
+                height = heightSize;
+                break;
+            case MeasureSpec.UNSPECIFIED:
+            default:
+                height = ViewCompat.getMinimumHeight(this);
+                break;
+        }
+
+        setMeasuredDimension(width, height);
     }
 
     @Override
@@ -1890,6 +1946,10 @@ public class RecyclerView extends ViewGroup {
     void dispatchLayout() {
         if (mAdapter == null) {
             Log.e(TAG, "No adapter attached; skipping layout");
+            return;
+        }
+        if (mLayout == null) {
+            Log.e(TAG, "No layout manager attached; skipping layout");
             return;
         }
         mDisappearingViewsInLayoutPass.clear();
@@ -2814,17 +2874,14 @@ public class RecyclerView extends ViewGroup {
                             View view = mChildHelper.getChildAt(i);
                             ViewHolder holder = getChildViewHolder(view);
                             if (holder != null && holder.mShadowingHolder != null) {
-                                View shadowingView = holder.mShadowingHolder != null ?
-                                        holder.mShadowingHolder.itemView : null;
-                                if (shadowingView != null) {
-                                    int left = view.getLeft();
-                                    int top = view.getTop();
-                                    if (left != shadowingView.getLeft() ||
-                                            top != shadowingView.getTop()) {
-                                        shadowingView.layout(left, top,
-                                                left + shadowingView.getWidth(),
-                                                top + shadowingView.getHeight());
-                                    }
+                                View shadowingView = holder.mShadowingHolder.itemView;
+                                int left = view.getLeft();
+                                int top = view.getTop();
+                                if (left != shadowingView.getLeft() ||
+                                        top != shadowingView.getTop()) {
+                                    shadowingView.layout(left, top,
+                                            left + shadowingView.getWidth(),
+                                            top + shadowingView.getHeight());
                                 }
                             }
                         }
@@ -6140,37 +6197,7 @@ public class RecyclerView extends ViewGroup {
          * @param heightSpec Height {@link android.view.View.MeasureSpec}
          */
         public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
-            final int widthMode = MeasureSpec.getMode(widthSpec);
-            final int heightMode = MeasureSpec.getMode(heightSpec);
-            final int widthSize = MeasureSpec.getSize(widthSpec);
-            final int heightSize = MeasureSpec.getSize(heightSpec);
-
-            int width = 0;
-            int height = 0;
-
-            switch (widthMode) {
-                case MeasureSpec.EXACTLY:
-                case MeasureSpec.AT_MOST:
-                    width = widthSize;
-                    break;
-                case MeasureSpec.UNSPECIFIED:
-                default:
-                    width = getMinimumWidth();
-                    break;
-            }
-
-            switch (heightMode) {
-                case MeasureSpec.EXACTLY:
-                case MeasureSpec.AT_MOST:
-                    height = heightSize;
-                    break;
-                case MeasureSpec.UNSPECIFIED:
-                default:
-                    height = getMinimumHeight();
-                    break;
-            }
-
-            setMeasuredDimension(width, height);
+            mRecyclerView.defaultOnMeasure(widthSpec, heightSpec);
         }
 
         /**
@@ -6517,7 +6544,7 @@ public class RecyclerView extends ViewGroup {
 
         /**
          * Called by AccessibilityDelegate when an accessibility action is requested on one of the
-         * chidren of LayoutManager.
+         * children of LayoutManager.
          * <p>
          * Default implementation does not do anything.
          *
@@ -7344,7 +7371,6 @@ public class RecyclerView extends ViewGroup {
          * @param state         Transient state of RecyclerView
          * @param action        Action instance that you should update to define final scroll action
          *                      towards the targetView
-         * @return An {@link Action} to finalize the smooth scrolling
          */
         abstract protected void onTargetFound(View targetView, State state, Action action);
 

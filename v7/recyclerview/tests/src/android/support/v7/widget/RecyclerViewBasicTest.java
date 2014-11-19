@@ -19,6 +19,7 @@ package android.support.v7.widget;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.test.AndroidTestCase;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -36,14 +37,7 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
     }
 
     public void testMeasureWithoutLayoutManager() {
-        Throwable measureThrowable = null;
-        try {
-            measure();
-        } catch (Throwable throwable) {
-            measureThrowable = throwable;
-        }
-        assertTrue("Calling measure without a layout manager should throw exception"
-                , measureThrowable instanceof NullPointerException);
+        measure();
     }
 
     private void measure() {
@@ -54,20 +48,57 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         mRecyclerView.layout(0, 0, 320, 320);
     }
 
-    private void safeLayout() {
-        try {
-            layout();
-        } catch (Throwable t) {
+    private void focusSearch() {
+        mRecyclerView.focusSearch(1);
+    }
 
-        }
+    public void testLayoutWithoutAdapter() throws InterruptedException {
+        MockLayoutManager layoutManager = new MockLayoutManager();
+        mRecyclerView.setLayoutManager(layoutManager);
+        layout();
+        assertEquals("layout manager should not be called if there is no adapter attached",
+                0, layoutManager.mLayoutCount);
     }
 
     public void testLayoutWithoutLayoutManager() throws InterruptedException {
-        MockLayoutManager layoutManager = new MockLayoutManager();
-        mRecyclerView.setLayoutManager(layoutManager);
-        safeLayout();
-        assertEquals("layout manager should not be called if there is no adapter attached",
-                0, layoutManager.mLayoutCount);
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+    }
+
+    public void testFocusWithoutLayoutManager() throws InterruptedException {
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+        focusSearch();
+    }
+
+    public void testScrollWithoutLayoutManager() throws InterruptedException {
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+        mRecyclerView.scrollBy(10, 10);
+    }
+
+    public void testSmoothScrollWithoutLayoutManager() throws InterruptedException {
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+        mRecyclerView.smoothScrollBy(10, 10);
+    }
+
+    public void testScrollToPositionWithoutLayoutManager() throws InterruptedException {
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+        mRecyclerView.scrollToPosition(5);
+    }
+
+    public void testSmoothScrollToPositionWithoutLayoutManager() throws InterruptedException {
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+        mRecyclerView.smoothScrollToPosition(5);
     }
 
     public void testLayout() throws InterruptedException {
