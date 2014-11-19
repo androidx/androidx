@@ -264,7 +264,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     /**
      * Returns the input event handler.
      */
-    public final InputEventHandler getInputEventListener() {
+    public final InputEventHandler getInputEventHandler() {
         return mInputEventHandler;
     }
 
