@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -56,6 +57,10 @@ abstract class DrawerArrowDrawable extends Drawable {
     private boolean mVerticalMirror = false;
     // The interpolated version of the original progress
     private float mProgress;
+    // the amount that overlaps w/ bar size when rotation is max
+    private float mMaxCutForBarSize;
+    // The distance of arrow's center from top when horizontal
+    private float mCenterOffset;
 
     /**
      * @param context used to get the configuration for the drawable from
@@ -68,20 +73,29 @@ abstract class DrawerArrowDrawable extends Drawable {
         mPaint.setAntiAlias(true);
         mPaint.setColor(typedArray.getColor(R.styleable.DrawerArrowToggle_color, 0));
         mSize = typedArray.getDimensionPixelSize(R.styleable.DrawerArrowToggle_drawableSize, 0);
-        mBarSize = typedArray.getDimension(R.styleable.DrawerArrowToggle_barSize, 0);
-        mTopBottomArrowSize = typedArray
-                .getDimension(R.styleable.DrawerArrowToggle_topBottomBarArrowSize, 0);
+        // round this because having this floating may cause bad measurements
+        mBarSize = Math.round(typedArray.getDimension(R.styleable.DrawerArrowToggle_barSize, 0));
+        // round this because having this floating may cause bad measurements
+        mTopBottomArrowSize = Math.round(typedArray.getDimension(
+                R.styleable.DrawerArrowToggle_topBottomBarArrowSize, 0));
         mBarThickness = typedArray.getDimension(R.styleable.DrawerArrowToggle_thickness, 0);
-        mBarGap = typedArray.getDimension(R.styleable.DrawerArrowToggle_gapBetweenBars, 0);
+        // round this because having this floating may cause bad measurements
+        mBarGap = Math.round(typedArray.getDimension(
+                R.styleable.DrawerArrowToggle_gapBetweenBars, 0));
         mSpin = typedArray.getBoolean(R.styleable.DrawerArrowToggle_spinBars, true);
         mMiddleArrowSize = typedArray
                 .getDimension(R.styleable.DrawerArrowToggle_middleBarArrowSize, 0);
+        final int remainingSpace = (int) (mSize - mBarThickness * 3 - mBarGap * 2);
+        mCenterOffset = (remainingSpace / 4) * 2; //making sure it is a multiple of 2.
+        mCenterOffset += mBarThickness * 1.5 + mBarGap;
         typedArray.recycle();
 
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.SQUARE);
+        mPaint.setStrokeJoin(Paint.Join.MITER);
+        mPaint.setStrokeCap(Paint.Cap.BUTT);
         mPaint.setStrokeWidth(mBarThickness);
+
+        mMaxCutForBarSize = (float) (mBarThickness / 2 * Math.cos(ARROW_HEAD_ANGLE));
     }
 
     abstract boolean isLayoutRtl();
@@ -101,43 +115,44 @@ abstract class DrawerArrowDrawable extends Drawable {
         final float arrowSize = lerp(mBarSize, mTopBottomArrowSize, mProgress);
         final float middleBarSize = lerp(mBarSize, mMiddleArrowSize, mProgress);
         // Interpolated size of middle bar
-        final float middleBarCut = lerp(0, mBarThickness / 2, mProgress);
+        final float middleBarCut = Math.round(lerp(0, mMaxCutForBarSize, mProgress));
         // The rotation of the top and bottom bars (that make the arrow head)
         final float rotation = lerp(0, ARROW_HEAD_ANGLE, mProgress);
 
         // The whole canvas rotates as the transition happens
         final float canvasRotate = lerp(isRtl ? 0 : -180, isRtl ? 180 : 0, mProgress);
-        final float topBottomBarOffset = lerp(mBarGap + mBarThickness, 0, mProgress);
+        final float arrowWidth = Math.round(arrowSize * Math.cos(rotation));
+        final float arrowHeight = Math.round(arrowSize * Math.sin(rotation));
+
+
         mPath.rewind();
+        final float topBottomBarOffset = lerp(mBarGap + mBarThickness, -mMaxCutForBarSize,
+                mProgress);
 
         final float arrowEdge = -middleBarSize / 2;
         // draw middle bar
         mPath.moveTo(arrowEdge + middleBarCut, 0);
-        mPath.rLineTo(middleBarSize - middleBarCut, 0);
+        mPath.rLineTo(middleBarSize - middleBarCut * 2, 0);
 
-        final float arrowWidth = Math.round(arrowSize * Math.cos(rotation));
-        final float arrowHeight = Math.round(arrowSize * Math.sin(rotation));
-
-        // top bar
+        // bottom bar
         mPath.moveTo(arrowEdge, topBottomBarOffset);
         mPath.rLineTo(arrowWidth, arrowHeight);
 
-        // bottom bar
+        // top bar
         mPath.moveTo(arrowEdge, -topBottomBarOffset);
         mPath.rLineTo(arrowWidth, -arrowHeight);
-        mPath.moveTo(0, 0);
+
         mPath.close();
 
         canvas.save();
         // Rotate the whole canvas if spinning, if not, rotate it 180 to get
         // the arrow pointing the other way for RTL.
+        canvas.translate(bounds.centerX(), mCenterOffset);
         if (mSpin) {
-            canvas.rotate(canvasRotate * ((mVerticalMirror ^ isRtl) ? -1 : 1),
-                    bounds.centerX(), bounds.centerY());
+            canvas.rotate(canvasRotate * ((mVerticalMirror ^ isRtl) ? -1 : 1));
         } else if (isRtl) {
-            canvas.rotate(180, bounds.centerX(), bounds.centerY());
+            canvas.rotate(180);
         }
-        canvas.translate(bounds.centerX(), bounds.centerY());
         canvas.drawPath(mPath, mPaint);
 
         canvas.restore();
