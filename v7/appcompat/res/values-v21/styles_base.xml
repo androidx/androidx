@@ -188,4 +188,9 @@
     <style name="Base.Widget.AppCompat.ProgressBar"
            parent="android:Widget.Material.ProgressBar">
     </style>
+
+    <style name="Base.Widget.AppCompat.TextView.SpinnerItem" parent="android:Widget.Material.TextView.SpinnerItem" />
+
+    <style name="Base.TextAppearance.AppCompat.Widget.TextView.SpinnerItem" parent="android:TextAppearance.Material.Widget.TextView.SpinnerItem" />
+
 </resources>
