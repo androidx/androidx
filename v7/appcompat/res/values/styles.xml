@@ -207,6 +207,8 @@
 
     <style name="Widget.AppCompat.Button.Small" parent="Base.Widget.AppCompat.Button.Small" />
 
+    <style name="Widget.AppCompat.TextView.SpinnerItem" parent="Base.Widget.AppCompat.TextView.SpinnerItem" />
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
@@ -271,6 +273,8 @@
     <style name="TextAppearance.AppCompat.Button" parent="Base.TextAppearance.AppCompat.Button" />
 
     <style name="TextAppearance.AppCompat.Widget.Switch" parent="Base.TextAppearance.AppCompat.Widget.Switch" />
+
+    <style name="TextAppearance.AppCompat.Widget.TextView.SpinnerItem" parent="Base.TextAppearance.AppCompat.Widget.TextView.SpinnerItem" />
 
     <!--
          The following themes are deprecated.
