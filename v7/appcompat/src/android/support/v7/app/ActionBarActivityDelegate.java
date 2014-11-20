@@ -29,6 +29,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.SupportMenuInflater;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -272,8 +273,8 @@ abstract class ActionBarActivityDelegate {
             ActionBarDrawerToggle.Delegate {
         @Override
         public Drawable getThemeUpIndicator() {
-            final TypedArray a = ActionBarActivityDelegate.this.getActionBarThemedContext()
-                    .obtainStyledAttributes(new int[]{ getHomeAsUpIndicatorAttrId() });
+            final TintTypedArray a = TintTypedArray.obtainStyledAttributes(
+                    getActionBarThemedContext(), null, new int[]{ getHomeAsUpIndicatorAttrId() });
             final Drawable result = a.getDrawable(0);
             a.recycle();
             return result;
