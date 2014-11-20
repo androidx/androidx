@@ -95,6 +95,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         mTitle = toolbar.getTitle();
         mSubtitle = toolbar.getSubtitle();
         mTitleSet = mTitle != null;
+        mNavIcon = mToolbar.getNavigationIcon();
 
         if (style) {
             final TintTypedArray a = TintTypedArray.obtainStyledAttributes(toolbar.getContext(),
