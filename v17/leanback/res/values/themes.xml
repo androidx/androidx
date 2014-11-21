@@ -31,8 +31,8 @@
         <item name="baseCardViewStyle">@style/Widget.Leanback.BaseCardViewStyle</item>
         <item name="imageCardViewStyle">@style/Widget.Leanback.ImageCardViewStyle</item>
 
-        <item name="browsePaddingLeft">@dimen/lb_browse_padding_left</item>
-        <item name="browsePaddingRight">@dimen/lb_browse_padding_right</item>
+        <item name="browsePaddingStart">@dimen/lb_browse_padding_start</item>
+        <item name="browsePaddingEnd">@dimen/lb_browse_padding_end</item>
         <item name="browsePaddingTop">@dimen/lb_browse_padding_top</item>
         <item name="browsePaddingBottom">@dimen/lb_browse_padding_bottom</item>
         <item name="browseRowsMarginStart">@dimen/lb_browse_rows_margin_start</item>

@@ -21,6 +21,8 @@ import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_OFFS
 
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 
+import android.view.View;
+
 /**
  * Maintains Window Alignment information of two axis.
  */
@@ -64,6 +66,8 @@ class WindowAlignment {
         private int mPaddingLow;
 
         private int mPaddingHigh;
+
+        private boolean mReversedFlow = false;
 
         private String mName; // for debugging
 
@@ -120,6 +124,10 @@ class WindowAlignment {
 
         final public int getMinScroll() {
             return mMinScroll;
+        }
+
+        final public void setLayoutDirection(int layoutDirection) {
+            mReversedFlow = layoutDirection == View.LAYOUT_DIRECTION_RTL;
         }
 
         final public void invalidateScrollMin() {
@@ -212,32 +220,40 @@ class WindowAlignment {
             int afterMiddlePosition = clientSize - middlePosition;
             boolean isMinUnknown = isMinUnknown();
             boolean isMaxUnknown = isMaxUnknown();
+            boolean isAtMin = (!mReversedFlow) ? isFirst : isLast;
+            boolean isAtMax = (!mReversedFlow) ? isLast : isFirst;
             if (!isMinUnknown && !isMaxUnknown &&
                     (mWindowAlignment & WINDOW_ALIGN_BOTH_EDGE) == WINDOW_ALIGN_BOTH_EDGE) {
                 if (mMaxEdge - mMinEdge <= clientSize) {
                     // total children size is less than view port and we want to align
-                    // both edge:  align first child to left edge of view port
-                    return mMinEdge - mPaddingLow;
+                    // both edge:  align first child to start edge of view port
+                    int result = (!mReversedFlow) ?
+                        mMinEdge - mPaddingLow :
+                        mMaxEdge - mPaddingLow - clientSize;
+                    return result;
                 }
             }
             if (!isMinUnknown) {
                 if ((mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0 &&
-                        (isFirst || scrollCenter - mMinEdge <= middlePosition)) {
-                    // scroll center is within half of view port size: align the left edge
-                    // of first child to the left edge of view port
-                    return mMinEdge - mPaddingLow;
+                        (isAtMin || scrollCenter - mMinEdge <= middlePosition)) {
+                    // scroll center is within half of view port size: align the start edge
+                    // of first child to the start edge of view port
+                    int result = mMinEdge - mPaddingLow;
+                    return result;
                 }
             }
             if (!isMaxUnknown) {
                 if ((mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0 &&
-                        (isLast || mMaxEdge - scrollCenter <= afterMiddlePosition)) {
-                    // scroll center is very close to the right edge of view port : align the
-                    // right edge of last children (plus expanded size) to view port's right
-                    return mMaxEdge -mPaddingLow - (clientSize);
+                        (isAtMax || mMaxEdge - scrollCenter <= afterMiddlePosition)) {
+                    // scroll center is very close to the end edge of view port : align the
+                    // end edge of last children (plus expanded size) to view port's end
+                    int result = mMaxEdge - mPaddingLow - clientSize;
+                    return result;
                 }
             }
             // else put scroll center in middle of view port
-            return scrollCenter - middlePosition - mPaddingLow;
+            int result = scrollCenter - middlePosition - mPaddingLow;
+            return result;
         }
 
         @Override
@@ -281,6 +297,10 @@ class WindowAlignment {
         return mOrientation;
     }
 
+    final public void setLayoutDirection(int layoutDirection) {
+        horizontal.setLayoutDirection(layoutDirection);
+    }
+
     final public void reset() {
         mainAxis().reset();
     }
@@ -289,7 +309,7 @@ class WindowAlignment {
     public String toString() {
         return new StringBuffer().append("horizontal=")
                 .append(horizontal.toString())
-                .append("vertical=")
+                .append("; vertical=")
                 .append(vertical.toString())
                 .toString();
     }

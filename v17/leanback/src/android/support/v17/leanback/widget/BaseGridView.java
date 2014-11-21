@@ -476,7 +476,7 @@ abstract class BaseGridView extends RecyclerView {
 
     /**
      * Describes how the child views are positioned. Defaults to
-     * GRAVITY_TOP|GRAVITY_LEFT.
+     * GRAVITY_TOP|GRAVITY_START.
      *
      * @param gravity See {@link android.view.Gravity}
      */
@@ -677,4 +677,14 @@ abstract class BaseGridView extends RecyclerView {
     public void setHasOverlappingRendering(boolean hasOverlapping) {
         mHasOverlappingRendering = hasOverlapping;
     }
+
+    /**
+     * Notify layout manager that layout directionality has been updated
+     */
+    @Override
+    public void onRtlPropertiesChanged(int layoutDirection) {
+        mLayoutManager.onRtlPropertiesChanged(layoutDirection);
+    }
+
+
 }

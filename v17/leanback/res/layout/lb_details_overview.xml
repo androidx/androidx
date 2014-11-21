@@ -19,8 +19,8 @@
     xmlns:lb="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/lb_details_overview_margin_left"
-    android:paddingRight="@dimen/lb_details_overview_margin_right"
+    android:paddingStart="@dimen/lb_details_overview_margin_start"
+    android:paddingEnd="@dimen/lb_details_overview_margin_end"
     android:paddingBottom="@dimen/lb_details_overview_margin_bottom"
     android:clipToPadding="false"
     >
@@ -63,8 +63,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="top"
-            android:layout_marginLeft="@dimen/lb_details_overview_description_margin_left"
-            android:layout_marginRight="@dimen/lb_details_overview_description_margin_right"
+            android:layout_marginStart="@dimen/lb_details_overview_description_margin_start"
+            android:layout_marginEnd="@dimen/lb_details_overview_description_margin_end"
             android:paddingTop="@dimen/lb_details_overview_description_margin_top"
             android:clipToPadding="false"
             android:clipChildren="false"
@@ -79,8 +79,8 @@
             android:clipToPadding="false"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:paddingLeft="@dimen/lb_details_overview_description_margin_left"
-            android:paddingRight="@dimen/lb_details_overview_description_margin_right"
+            android:paddingStart="@dimen/lb_details_overview_description_margin_start"
+            android:paddingEnd="@dimen/lb_details_overview_description_margin_end"
             lb:horizontalMargin="@dimen/lb_details_overview_action_items_margin"
             lb:rowHeight="@dimen/lb_details_overview_actions_height" />
 
