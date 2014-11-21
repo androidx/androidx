@@ -3061,7 +3061,7 @@ public class NotificationCompat {
              * Gets the list of messages conveyed by this notification.
              */
             @Override
-            String[] getMessages() {
+            public String[] getMessages() {
                 return mMessages;
             }
 
@@ -3070,7 +3070,7 @@ public class NotificationCompat {
              * null if no such remote input exists.
              */
             @Override
-            RemoteInput getRemoteInput() {
+            public RemoteInput getRemoteInput() {
                 return mRemoteInput;
             }
 
@@ -3079,7 +3079,7 @@ public class NotificationCompat {
              * notification.
              */
             @Override
-            PendingIntent getReplyPendingIntent() {
+            public PendingIntent getReplyPendingIntent() {
                 return mReplyPendingIntent;
             }
 
@@ -3088,7 +3088,7 @@ public class NotificationCompat {
              * in this object's message list.
              */
             @Override
-            PendingIntent getReadPendingIntent() {
+            public PendingIntent getReadPendingIntent() {
                 return mReadPendingIntent;
             }
 
@@ -3096,7 +3096,7 @@ public class NotificationCompat {
              * Gets the participants in the conversation.
              */
             @Override
-            String[] getParticipants() {
+            public String[] getParticipants() {
                 return mParticipants;
             }
 
@@ -3104,7 +3104,7 @@ public class NotificationCompat {
              * Gets the firs participant in the conversation.
              */
             @Override
-            String getParticipant() {
+            public String getParticipant() {
                 return mParticipants.length > 0 ? mParticipants[0] : null;
             }
 
@@ -3112,7 +3112,7 @@ public class NotificationCompat {
              * Gets the timestamp of the conversation.
              */
             @Override
-            long getLatestTimestamp() {
+            public long getLatestTimestamp() {
                 return mLatestTimestamp;
             }
 
