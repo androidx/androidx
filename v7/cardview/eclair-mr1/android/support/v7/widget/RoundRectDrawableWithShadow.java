@@ -190,7 +190,7 @@ class RoundRectDrawableWithShadow extends Drawable {
 
     @Override
     public int getOpacity() {
-        return PixelFormat.OPAQUE;
+        return PixelFormat.TRANSLUCENT;
     }
 
     void setCornerRadius(float radius) {
