@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -38,10 +39,12 @@ class ActionPresenterSelector extends PresenterSelector {
     static class ActionViewHolder extends Presenter.ViewHolder {
         Action mAction;
         Button mButton;
+        int mLayoutDirection;
 
-        public ActionViewHolder(View view) {
+        public ActionViewHolder(View view, int layoutDirection) {
             super(view);
             mButton = (Button) view.findViewById(R.id.lb_action_button);
+            mLayoutDirection = layoutDirection;
         }
     }
 
@@ -50,7 +53,7 @@ class ActionPresenterSelector extends PresenterSelector {
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.lb_action_1_line, parent, false);
-            return new ActionViewHolder(v);
+            return new ActionViewHolder(v, parent.getLayoutDirection());
         }
 
         @Override
@@ -72,16 +75,17 @@ class ActionPresenterSelector extends PresenterSelector {
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.lb_action_2_lines, parent, false);
-            return new ActionViewHolder(v);
+            return new ActionViewHolder(v, parent.getLayoutDirection());
         }
 
         @Override
         public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
+            Drawable icon = action.getIcon();
             vh.mAction = action;
 
-            if (action.getIcon() != null) {
+            if (icon != null) {
                 final int startPadding = vh.view.getResources()
                         .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_start);
                 final int endPadding = vh.view.getResources()
@@ -92,7 +96,11 @@ class ActionPresenterSelector extends PresenterSelector {
                         .getDimensionPixelSize(R.dimen.lb_action_padding_horizontal);
                 vh.view.setPaddingRelative(padding, 0, padding, 0);
             }
-            vh.mButton.setCompoundDrawablesWithIntrinsicBounds(action.getIcon(), null, null, null);
+            if (vh.mLayoutDirection == View.LAYOUT_DIRECTION_RTL) {
+                vh.mButton.setCompoundDrawablesWithIntrinsicBounds(null, null, icon, null);
+            } else {
+                vh.mButton.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+            }
 
             CharSequence line1 = action.getLabel1();
             CharSequence line2 = action.getLabel2();
