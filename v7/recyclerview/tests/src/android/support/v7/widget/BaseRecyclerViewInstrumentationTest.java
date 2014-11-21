@@ -17,7 +17,6 @@
 package android.support.v7.widget;
 
 import android.graphics.Rect;
-import android.os.Debug;
 import android.os.Looper;
 import android.support.v4.view.ViewCompat;
 import android.test.ActivityInstrumentationTestCase2;
@@ -28,7 +27,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -291,7 +289,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     class TestViewHolder extends RecyclerView.ViewHolder {
 
-        Item mBindedItem;
+        Item mBoundItem;
 
         public TestViewHolder(View itemView) {
             super(itemView);
@@ -300,7 +298,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
         @Override
         public String toString() {
-            return super.toString() + " item:" + mBindedItem;
+            return super.toString() + " item:" + mBoundItem;
         }
     }
 
@@ -345,7 +343,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             while (i-- > 0) {
                 View view = getChildAt(i);
                 RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
-                Item item = ((TestViewHolder) lp.mViewHolder).mBindedItem;
+                Item item = ((TestViewHolder) lp.mViewHolder).mBoundItem;
                 if (mDebug) {
                     Log.d(TAG, "testing item " + i);
                 }
@@ -496,7 +494,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         public void onBindViewHolder(TestViewHolder holder, int position) {
             final Item item = mItems.get(position);
             ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mAdapterIndex + ")");
-            holder.mBindedItem = item;
+            holder.mBoundItem = item;
         }
 
         public void deleteAndNotify(final int start, final int count) throws Throwable {
@@ -593,6 +591,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             return mItems.size();
         }
 
+        /**
+         * Uses notifyDataSetChanged
+         */
         public void moveItems(boolean notifyChange, int[]... fromToTuples) throws Throwable {
             for (int i = 0; i < fromToTuples.length; i += 1) {
                 int[] tuple = fromToTuples[i];
@@ -603,6 +604,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
         }
 
+        /**
+         * Uses notifyDataSetChanged
+         */
         public void moveItem(final int from, final int to, final boolean notifyChange)
                 throws Throwable {
             runTestOnUiThread(new Runnable() {
@@ -618,6 +622,24 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 }
             });
         }
+
+        /**
+         * Uses notifyItemMoved
+         */
+        public void moveAndNotify(final int from, final int to) throws Throwable {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Item item = mItems.remove(from);
+                    mItems.add(to, item);
+                    offsetOriginalIndices(from, to - 1);
+                    item.mAdapterIndex = to;
+                    notifyItemMoved(from, to);
+                }
+            });
+        }
+
+
 
         @Override
         public ViewAttachDetachCounter getCounter() {

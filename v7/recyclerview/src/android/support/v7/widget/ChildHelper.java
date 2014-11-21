@@ -181,7 +181,7 @@ class ChildHelper {
         for (int i = 0; i < count; i++) {
             final View view = mHiddenViews.get(i);
             RecyclerView.ViewHolder holder = mCallback.getChildViewHolder(view);
-            if (holder.getPosition() == position && !holder.isInvalid() &&
+            if (holder.getLayoutPosition() == position && !holder.isInvalid() &&
                     (type == RecyclerView.INVALID_TYPE || holder.getItemViewType() == type)) {
                 return view;
             }
