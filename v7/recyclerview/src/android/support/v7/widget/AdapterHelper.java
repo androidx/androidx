@@ -559,6 +559,42 @@ class AdapterHelper implements OpReorderer.Callback {
         recycleUpdateOpsAndClearList(mPendingUpdates);
     }
 
+    public int applyPendingUpdatesToPosition(int position) {
+        final int size = mPendingUpdates.size();
+        for (int i = 0; i < size; i ++) {
+            UpdateOp op = mPendingUpdates.get(i);
+            switch (op.cmd) {
+                case UpdateOp.ADD:
+                    if (op.positionStart <= position) {
+                        position += op.itemCount;
+                    }
+                    break;
+                case UpdateOp.REMOVE:
+                    if (op.positionStart <= position) {
+                        final int end = op.positionStart + op.itemCount;
+                        if (end > position) {
+                            return RecyclerView.NO_POSITION;
+                        }
+                        position -= op.itemCount;
+                    }
+                    break;
+                case UpdateOp.MOVE:
+                    if (op.positionStart == position) {
+                        position = op.itemCount;//position end
+                    } else {
+                        if (op.positionStart < position) {
+                            position -= 1;
+                        }
+                        if (op.itemCount <= position) {
+                            position += 1;
+                        }
+                    }
+                    break;
+            }
+        }
+        return position;
+    }
+
     /**
      * Queued operation to happen when child views are updated.
      */

@@ -109,7 +109,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         setupByConfig(new Config(VERTICAL, false, false).itemCount(500), true);
         int center = (mLayoutManager.findLastVisibleItemPosition()
                 - mLayoutManager.findFirstVisibleItemPosition()) / 2;
-        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForPosition(center);
+        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForLayoutPosition(center);
         final int top = mLayoutManager.mOrientationHelper.getDecoratedStart(vh.itemView);
         runTestOnUiThread(new Runnable() {
             @Override
@@ -125,7 +125,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         center += childCountToAdd; // offset item
         mLayoutManager.waitForLayout(2);
         mLayoutManager.waitForAnimationsToEnd(20);
-        final RecyclerView.ViewHolder postVH = mRecyclerView.findViewHolderForPosition(center);
+        final RecyclerView.ViewHolder postVH = mRecyclerView.findViewHolderForLayoutPosition(center);
         assertNotNull("focused child should stay in layout", postVH);
         assertSame("same view holder should be kept for unchanged child", vh, postVH);
         assertEquals("focused child's screen position should stay unchanged", top,
@@ -167,7 +167,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         while (testCount-- > 0) {
             // get middle child
             final View child = mLayoutManager.getChildAt(mLayoutManager.getChildCount() / 2);
-            final int position = mRecyclerView.getChildPosition(child);
+            final int position = mRecyclerView.getChildLayoutPosition(child);
             final int startOffset = config.mReverseLayout ?
                     orientationHelper.getEndAfterPadding() - orientationHelper
                             .getDecoratedEnd(child)
@@ -232,7 +232,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         int minPosition = Integer.MAX_VALUE, maxPosition = Integer.MIN_VALUE;
         for (int i = 0; i < mLayoutManager.getChildCount(); i++) {
             View child = mLayoutManager.getChildAt(i);
-            int position = mRecyclerView.getChildPosition(child);
+            int position = mRecyclerView.getChildLayoutPosition(child);
             if (position < minPosition) {
                 minPosition = position;
             }
@@ -329,7 +329,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                     }
                 } else {
                     RecyclerView.ViewHolder vh =
-                            mRecyclerView.findViewHolderForPosition(scrollPosition);
+                            mRecyclerView.findViewHolderForLayoutPosition(scrollPosition);
                     assertNotNull("scroll to position should work", vh);
                     if (scrollOffset != LinearLayoutManager.INVALID_OFFSET) {
                         assertEquals("scroll offset should be applied properly",
@@ -1059,7 +1059,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child
                                 .getLayoutParams();
                         TestViewHolder vh = (TestViewHolder) lp.mViewHolder;
-                        items.put(vh.mBindedItem, getViewBounds(child));
+                        items.put(vh.mBoundItem, getViewBounds(child));
                     }
                 }
             });
