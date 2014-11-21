@@ -45,7 +45,7 @@
             android:id="@+id/more_actions_dock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right" />
+            android:layout_gravity="end" />
 
         <TextView
             android:id="@+id/current_time"

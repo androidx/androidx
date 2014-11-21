@@ -19,8 +19,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="?attr/browsePaddingTop"
-    android:paddingRight="?attr/browsePaddingRight"
-    android:paddingLeft="?attr/browsePaddingLeft"
+    android:paddingEnd="?attr/browsePaddingEnd"
+    android:paddingStart="?attr/browsePaddingStart"
     android:paddingBottom="?attr/browsePaddingTop"
     style="?attr/browseTitleViewStyle" />
 

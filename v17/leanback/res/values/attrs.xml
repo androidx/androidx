@@ -150,10 +150,10 @@
 
     <declare-styleable name="LeanbackTheme">
 
-        <!-- left padding of BrowseFragment, RowsFragment, DetailsFragment -->
-        <attr name="browsePaddingLeft" format="dimension" />
-        <!-- right padding of BrowseFragment, RowsFragment, DetailsFragment -->
-        <attr name="browsePaddingRight" format="dimension" />
+        <!-- start padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr name="browsePaddingStart" format="dimension" />
+        <!-- end padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr name="browsePaddingEnd" format="dimension" />
         <!-- top padding of BrowseFragment -->
         <attr name="browsePaddingTop" format="dimension" />
         <!-- bottom padding of BrowseFragment -->

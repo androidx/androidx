@@ -82,15 +82,15 @@ class ActionPresenterSelector extends PresenterSelector {
             vh.mAction = action;
 
             if (action.getIcon() != null) {
-                final int leftPadding = vh.view.getResources()
-                        .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_left);
-                final int rightPadding = vh.view.getResources()
-                        .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_right);
-                vh.view.setPadding(leftPadding, 0, rightPadding, 0);
+                final int startPadding = vh.view.getResources()
+                        .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_start);
+                final int endPadding = vh.view.getResources()
+                        .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_end);
+                vh.view.setPaddingRelative(startPadding, 0, endPadding, 0);
             } else {
                 final int padding = vh.view.getResources()
                         .getDimensionPixelSize(R.dimen.lb_action_padding_horizontal);
-                vh.view.setPadding(padding, 0, padding, 0);
+                vh.view.setPaddingRelative(padding, 0, padding, 0);
             }
             vh.mButton.setCompoundDrawablesWithIntrinsicBounds(action.getIcon(), null, null, null);
 

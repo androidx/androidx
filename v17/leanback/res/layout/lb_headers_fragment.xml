@@ -20,7 +20,7 @@
     android:transitionGroup="true"
     android:layout_width="@dimen/lb_browse_headers_width"
     android:layout_height="match_parent"
-    android:paddingRight="@dimen/lb_browse_header_padding_right"
+    android:paddingEnd="@dimen/lb_browse_header_padding_end"
     android:elevation="@dimen/lb_browse_headers_z"
     >
     <android.support.v17.leanback.widget.VerticalGridView
@@ -30,7 +30,7 @@
         style="?attr/headersVerticalGridStyle"/>
     <View
         android:id="@+id/fade_out_edge"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_width="@dimen/lb_browse_header_fading_length"
         android:layout_height="match_parent"
         android:background="@drawable/lb_headers_right_fading" >
