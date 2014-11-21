@@ -33,8 +33,10 @@ class ScrollbarHelper {
                 endChild == null) {
             return 0;
         }
-        final int minPosition = Math.min(lm.getPosition(startChild), lm.getPosition(endChild));
-        final int maxPosition = Math.max(lm.getPosition(startChild), lm.getPosition(endChild));
+        final int minPosition = Math.min(lm.getPosition(startChild),
+                lm.getPosition(endChild));
+        final int maxPosition = Math.max(lm.getPosition(startChild),
+                lm.getPosition(endChild));
         final int itemsBefore = reverseLayout
                 ? Math.max(0, state.getItemCount() - maxPosition - 1)
                 : Math.max(0, minPosition);
@@ -43,7 +45,8 @@ class ScrollbarHelper {
         }
         final int laidOutArea = Math.abs(orientation.getDecoratedEnd(endChild) -
                 orientation.getDecoratedStart(startChild));
-        final int itemRange = Math.abs(lm.getPosition(startChild) - lm.getPosition(endChild)) + 1;
+        final int itemRange = Math.abs(lm.getPosition(startChild) -
+                lm.getPosition(endChild)) + 1;
         final float avgSizePerRow = (float) laidOutArea / itemRange;
 
         return Math.round(itemsBefore * avgSizePerRow + (orientation.getStartAfterPadding()
@@ -86,7 +89,8 @@ class ScrollbarHelper {
         // smooth scrollbar enabled. try to estimate better.
         final int laidOutArea = orientation.getDecoratedEnd(endChild) -
                 orientation.getDecoratedStart(startChild);
-        final int laidOutRange = Math.abs(lm.getPosition(startChild) - lm.getPosition(endChild))
+        final int laidOutRange = Math.abs(lm.getPosition(startChild) -
+                lm.getPosition(endChild))
                 + 1;
         // estimate a size for full list.
         return (int) ((float) laidOutArea / laidOutRange * state.getItemCount());

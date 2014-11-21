@@ -83,6 +83,46 @@ import java.util.List;
  *     <li><em>Dirty (view):</em> A child view that must be rebound by the adapter before
  *     being displayed.</li>
  * </ul>
+ *
+ * <h4>Positions in RecyclerView:</h4>
+ * <p>
+ * RecyclerView introduces an additional level of abstraction between the {@link Adapter} and
+ * {@link LayoutManager} to be able to detect data set changes in batches during a layout
+ * calculation. This saves LayoutManager from tracking adapter changes to calculate animations.
+ * It also helps with performance because all view bindings happen at the same time and unnecessary
+ * bindings are avoided.
+ * <p>
+ * For this reason, there are two types of <code>position</code> related methods in RecyclerView:
+ * <ul>
+ *     <li>layout position: Position of an item in the latest layout calculation. This is the
+ *     position from the LayoutManager's perspective.</li>
+ *     <li>adapter position: Position of an item in the adapter. This is the position from
+ *     the Adapter's perspective.</li>
+ * </ul>
+ * <p>
+ * These two positions are the same except the time between dispatching <code>adapter.notify*
+ * </code> events and calculating the updated layout.
+ * <p>
+ * Methods that return or receive <code>*LayoutPosition*</code> use position as of the latest
+ * layout calculation (e.g. {@link ViewHolder#getLayoutPosition()},
+ * {@link #findViewHolderForLayoutPosition(int)}). These positions include all changes until the
+ * last layout calculation. You can rely on these positions to be consistent with what user is
+ * currently seeing on the screen. For example, if you have a list of items on the screen and user
+ * asks for the 5<sup>th</sup> element, you should use these methods as they'll match what user
+ * is seeing.
+ * <p>
+ * The other set of position related methods are in the form of
+ * <code>*AdapterPosition*</code>. (e.g. {@link ViewHolder#getAdapterPosition()},
+ * {@link #findViewHolderForAdapterPosition(int)}) You should use these methods when you need to
+ * work with up-to-date adapter positions even if they may not have been reflected to layout yet.
+ * For example, if you want to access the item in the adapter on a ViewHolder click, you should use
+ * {@link ViewHolder#getAdapterPosition()}. Beware that these methods may not be able to calculate
+ * adapter positions if {@link Adapter#notifyDataSetChanged()} has been called and new layout has
+ * not yet been calculated. For this reasons, you should carefully handle {@link #NO_POSITION} or
+ * <code>null</code> results from these methods.
+ * <p>
+ * When writing a {@link LayoutManager} you almost always want to use layout positions whereas when
+ * writing an {@link Adapter}, you probably want to use adapter positions.
  */
 public class RecyclerView extends ViewGroup {
     private static final String TAG = "RecyclerView";
@@ -2645,14 +2685,38 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
+     * @deprecated use {@link #getChildAdapterPosition(View)} or
+     * {@link #getChildLayoutPosition(View)}.
+     */
+    @Deprecated
+    public int getChildPosition(View child) {
+        return getChildAdapterPosition(child);
+    }
+
+    /**
      * Return the adapter position that the given child view corresponds to.
      *
      * @param child Child View to query
      * @return Adapter position corresponding to the given view or {@link #NO_POSITION}
      */
-    public int getChildPosition(View child) {
+    public int getChildAdapterPosition(View child) {
         final ViewHolder holder = getChildViewHolderInt(child);
-        return holder != null ? holder.getPosition() : NO_POSITION;
+        return holder != null ? holder.getAdapterPosition() : NO_POSITION;
+    }
+
+    /**
+     * Return the adapter position of the given child view as of the latest completed layout pass.
+     * <p>
+     * This position may not be equal to Item's adapter position if there are pending changes
+     * in the adapter which have not been reflected to the layout yet.
+     *
+     * @param child Child View to query
+     * @return Adapter position of the given View as of last layout pass or {@link #NO_POSITION} if
+     * the View is representing a removed item.
+     */
+    public int getChildLayoutPosition(View child) {
+        final ViewHolder holder = getChildViewHolderInt(child);
+        return holder != null ? holder.getLayoutPosition() : NO_POSITION;
     }
 
     /**
@@ -2670,7 +2734,40 @@ public class RecyclerView extends ViewGroup {
     }
 
     /**
-     * Return the ViewHolder for the item in the given position of the data set.
+     * @deprecated use {@link #findViewHolderForLayoutPosition(int)} or
+     * {@link #findViewHolderForAdapterPosition(int)}
+     */
+    @Deprecated
+    public ViewHolder findViewHolderForPosition(int position) {
+        return findViewHolderForPosition(position, false);
+    }
+
+    /**
+     * Return the ViewHolder for the item in the given position of the data set as of the latest
+     * layout pass.
+     * <p>
+     * This method checks only the children of RecyclerView. If the item at the given
+     * <code>position</code> is not laid out, it <em>will not</em> create a new one.
+     * <p>
+     * Note that when Adapter contents change, ViewHolder positions are not updated until the
+     * next layout calculation. If there are pending adapter updates, the return value of this
+     * method may not match your adapter contents. You can use
+     * #{@link ViewHolder#getAdapterPosition()} to get the current adapter position of a ViewHolder.
+     *
+     * @param position The position of the item in the data set of the adapter
+     * @return The ViewHolder at <code>position</code> or null if there is no such item
+     */
+    public ViewHolder findViewHolderForLayoutPosition(int position) {
+        return findViewHolderForPosition(position, false);
+    }
+
+    /**
+     * Return the ViewHolder for the item in the given position of the data set. Unlike
+     * {@link #findViewHolderForLayoutPosition(int)} this method takes into account any pending
+     * adapter changes that may not be reflected to the layout yet. On the other hand, if
+     * {@link Adapter#notifyDataSetChanged()} has been called but the new layout has not been
+     * calculated yet, this method will return <code>null</code> since the new positions of views
+     * are unknown until the layout is calculated.
      * <p>
      * This method checks only the children of RecyclerView. If the item at the given
      * <code>position</code> is not laid out, it <em>will not</em> create a new one.
@@ -2678,8 +2775,18 @@ public class RecyclerView extends ViewGroup {
      * @param position The position of the item in the data set of the adapter
      * @return The ViewHolder at <code>position</code> or null if there is no such item
      */
-    public ViewHolder findViewHolderForPosition(int position) {
-        return findViewHolderForPosition(position, false);
+    public ViewHolder findViewHolderForAdapterPosition(int position) {
+        if (mDataSetHasChangedAfterLayout) {
+            return null;
+        }
+        final int childCount = mChildHelper.getUnfilteredChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
+            if (holder != null && !holder.isRemoved() && getAdapterPositionFor(holder) == position) {
+                return holder;
+            }
+        }
+        return null;
     }
 
     ViewHolder findViewHolderForPosition(int position, boolean checkNewPosition) {
@@ -2691,7 +2798,7 @@ public class RecyclerView extends ViewGroup {
                     if (holder.mPosition == position) {
                         return holder;
                     }
-                } else if (holder.getPosition() == position) {
+                } else if (holder.getLayoutPosition() == position) {
                     return holder;
                 }
             }
@@ -3772,7 +3879,7 @@ public class RecyclerView extends ViewGroup {
             // find by position
             for (int i = 0; i < changedScrapSize; i++) {
                 final ViewHolder holder = mChangedScrap.get(i);
-                if (!holder.wasReturnedFromScrap() && holder.getPosition() == position) {
+                if (!holder.wasReturnedFromScrap() && holder.getLayoutPosition() == position) {
                     holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
                     return holder;
                 }
@@ -3809,7 +3916,7 @@ public class RecyclerView extends ViewGroup {
             // Try first for an exact, non-invalid match from scrap.
             for (int i = 0; i < scrapCount; i++) {
                 final ViewHolder holder = mAttachedScrap.get(i);
-                if (!holder.wasReturnedFromScrap() && holder.getPosition() == position
+                if (!holder.wasReturnedFromScrap() && holder.getLayoutPosition() == position
                         && !holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved())) {
                     if (type != INVALID_TYPE && holder.getItemViewType() != type) {
                         Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
@@ -3836,7 +3943,7 @@ public class RecyclerView extends ViewGroup {
                 final ViewHolder holder = mCachedViews.get(i);
                 // invalid view holders may be in cache if adapter has stable ids as they can be
                 // retrieved via getScrapViewForId
-                if (!holder.isInvalid() && holder.getPosition() == position) {
+                if (!holder.isInvalid() && holder.getLayoutPosition() == position) {
                     if (!dryRun) {
                         mCachedViews.remove(i);
                     }
@@ -3952,7 +4059,7 @@ public class RecyclerView extends ViewGroup {
             final int cachedCount = mCachedViews.size();
             for (int i = 0; i < cachedCount; i++) {
                 final ViewHolder holder = mCachedViews.get(i);
-                if (holder != null && holder.getPosition() >= insertedAt) {
+                if (holder != null && holder.getLayoutPosition() >= insertedAt) {
                     if (DEBUG) {
                         Log.d(TAG, "offsetPositionRecordsForInsert cached " + i + " holder " +
                                 holder + " now at position " + (holder.mPosition + count));
@@ -3974,14 +4081,14 @@ public class RecyclerView extends ViewGroup {
             for (int i = cachedCount - 1; i >= 0; i--) {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder != null) {
-                    if (holder.getPosition() >= removedEnd) {
+                    if (holder.getLayoutPosition() >= removedEnd) {
                         if (DEBUG) {
                             Log.d(TAG, "offsetPositionRecordsForRemove cached " + i +
                                     " holder " + holder + " now at position " +
                                     (holder.mPosition - count));
                         }
                         holder.offsetPosition(-count, applyToPreLayout);
-                    } else if (holder.getPosition() >= removedFrom) {
+                    } else if (holder.getLayoutPosition() >= removedFrom) {
                         // Item for this view was removed. Dump it from the cache.
                         recycleCachedViewAt(i);
                     }
@@ -4019,7 +4126,7 @@ public class RecyclerView extends ViewGroup {
                     continue;
                 }
 
-                final int pos = holder.getPosition();
+                final int pos = holder.getLayoutPosition();
                 if (pos >= positionStart && pos < positionEnd) {
                     holder.addFlags(ViewHolder.FLAG_UPDATE);
                     // cached views should not be flagged as changed because this will cause them
@@ -4151,8 +4258,8 @@ public class RecyclerView extends ViewGroup {
          * is invalidated or the new position cannot be determined. For this reason, you should only
          * use the <code>position</code> parameter while acquiring the related data item inside this
          * method and should not keep a copy of it. If you need the position of an item later on
-         * (e.g. in a click listener), use {@link ViewHolder#getPosition()} which will have the
-         * updated position.
+         * (e.g. in a click listener), use {@link ViewHolder#getAdapterPosition()} which will have
+         * the updated adapter position.
          *
          * @param holder The ViewHolder which should be updated to represent the contents of the
          *               item at the given position in the data set.
@@ -5089,19 +5196,19 @@ public class RecyclerView extends ViewGroup {
             // Only remove non-animating views
             final int childCount = getChildCount();
             for (int i = childCount - 1; i >= 0; i--) {
-                final View child = getChildAt(i);
                 mChildHelper.removeViewAt(i);
             }
         }
 
         /**
-         * Returns the adapter position of the item represented by the given View.
+         * Returns the adapter position of the item represented by the given View. This does not
+         * contain any adapter changes that might have happened after the last layout.
          *
          * @param view The view to query
          * @return The adapter position of the item which is rendered by this View.
          */
         public int getPosition(View view) {
-            return ((RecyclerView.LayoutParams) view.getLayoutParams()).getViewPosition();
+            return ((RecyclerView.LayoutParams) view.getLayoutParams()).getViewLayoutPosition();
         }
 
         /**
@@ -5135,7 +5242,7 @@ public class RecyclerView extends ViewGroup {
                 if (vh == null) {
                     continue;
                 }
-                if (vh.getPosition() == position && !vh.shouldIgnore() &&
+                if (vh.getLayoutPosition() == position && !vh.shouldIgnore() &&
                         (mRecyclerView.mState.isPreLayout() || !vh.isRemoved())) {
                     return child;
                 }
@@ -6666,7 +6773,7 @@ public class RecyclerView extends ViewGroup {
          * @param state   The current state of RecyclerView.
          */
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent, State state) {
-            getItemOffsets(outRect, ((LayoutParams) view.getLayoutParams()).getViewPosition(),
+            getItemOffsets(outRect, ((LayoutParams) view.getLayoutParams()).getViewLayoutPosition(),
                     parent);
         }
     }
@@ -6887,8 +6994,74 @@ public class RecyclerView extends ViewGroup {
             return (mFlags & FLAG_IGNORE) != 0;
         }
 
+        /**
+         * @deprecated This method is deprecated because its meaning is ambiguous due to the async
+         * handling of adapter updates. Please use {@link #getLayoutPosition()} or
+         * {@link #getAdapterPosition()} depending on your use case.
+         *
+         * @see #getLayoutPosition()
+         * @see #getAdapterPosition()
+         */
+        @Deprecated
         public final int getPosition() {
             return mPreLayoutPosition == NO_POSITION ? mPosition : mPreLayoutPosition;
+        }
+
+        /**
+         * Returns the position of the ViewHolder in terms of the latest layout pass.
+         * <p>
+         * This position is mostly used by RecyclerView components to be consistent while
+         * RecyclerView lazily processes adapter updates.
+         * <p>
+         * For performance and animation reasons, RecyclerView batches all adapter updates until the
+         * next layout pass. This may cause mismatches between the Adapter position of the item and
+         * the position it had in the latest layout calculations.
+         * <p>
+         * LayoutManagers should always call this method while doing calculations based on item
+         * positions. All methods in {@link RecyclerView.LayoutManager}, {@link RecyclerView.State},
+         * {@link RecyclerView.Recycler} that receive a position expect it to be the layout position
+         * of the item.
+         * <p>
+         * If LayoutManager needs to call an external method that requires the adapter position of
+         * the item, it can use {@link #getAdapterPosition()} or
+         * {@link RecyclerView.Recycler#convertPreLayoutPositionToPostLayout(int)}.
+         *
+         * @return Returns the adapter position of the ViewHolder in the latest layout pass.
+         * @see #getAdapterPosition()
+         */
+        public final int getLayoutPosition() {
+            return mPreLayoutPosition == NO_POSITION ? mPosition : mPreLayoutPosition;
+        }
+
+        /**
+         * Returns the Adapter position of the item represented by this ViewHolder.
+         * <p>
+         * Note that this might be different than the {@link #getLayoutPosition()} if there are
+         * pending adapter updates but a new layout pass has not happened yet.
+         * <p>
+         * RecyclerView does not handle any adapter updates until the next layout traversal. This
+         * may create temporary inconsistencies between what user sees on the screen and what
+         * adapter contents have. This inconsistency is not important since it will be less than
+         * 16ms but it might be a problem if you want to use ViewHolder position to access the
+         * adapter. Sometimes, you may need to get the exact adapter position to do
+         * some actions in response to user events. In that case, you should use this method which
+         * will calculate the Adapter position of the ViewHolder.
+         * <p>
+         * Note that if you've called {@link RecyclerView.Adapter#notifyDataSetChanged()}, until the
+         * next layout pass, the return value of this method will be {@link #NO_POSITION}.
+         *
+         * @return The adapter position of the item if it still exists in the adapter.
+         * {@link RecyclerView#NO_POSITION} if item has been removed from the adapter,
+         * {@link RecyclerView.Adapter#notifyDataSetChanged()} has been called after the last
+         * layout pass or the ViewHolder has been removed from the RecyclerView.
+         */
+        public final int getAdapterPosition() {
+            final ViewParent parent = itemView.getParent();
+            if (!(parent instanceof RecyclerView)) {
+                return -1;
+            }
+            final RecyclerView rv = (RecyclerView) parent;
+            return rv.getAdapterPositionFor(this);
         }
 
         /**
@@ -7063,6 +7236,16 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    private int getAdapterPositionFor(ViewHolder viewHolder) {
+        if (viewHolder.isRemoved()) {
+            return RecyclerView.NO_POSITION;
+        }
+        if (mDataSetHasChangedAfterLayout) {
+            return -1;
+        }
+        return mAdapterHelper.applyPendingUpdatesToPosition(viewHolder.mPosition);
+    }
+
     /**
      * {@link android.view.ViewGroup.MarginLayoutParams LayoutParams} subclass for children of
      * {@link RecyclerView}. Custom {@link LayoutManager layout managers} are encouraged
@@ -7141,12 +7324,32 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * Returns the position that the view this LayoutParams is attached to corresponds to.
-         *
-         * @return the adapter position this view was bound from
+         * @deprecated use {@link #getViewLayoutPosition()} or {@link #getViewAdapterPosition()}
          */
         public int getViewPosition() {
             return mViewHolder.getPosition();
+        }
+
+        /**
+         * Returns the adapter position that the view this LayoutParams is attached to corresponds
+         * to as of latest layout calculation.
+         *
+         * @return the adapter position this view as of latest layout pass
+         */
+        public int getViewLayoutPosition() {
+            return mViewHolder.getLayoutPosition();
+        }
+
+        /**
+         * Returns the up-to-date adapter position that the view this LayoutParams is attached to
+         * corresponds to.
+         *
+         * @return the up-to-date adapter position this view. It may return
+         * {@link RecyclerView#NO_POSITION} if item represented by this View has been removed or
+         * its up-to-date position cannot be calculated.
+         */
+        public int getViewAdapterPosition() {
+            return mViewHolder.getAdapterPosition();
         }
     }
 
@@ -7314,10 +7517,10 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
-         * @see RecyclerView#getChildPosition(android.view.View)
+         * @see RecyclerView#getChildLayoutPosition(android.view.View)
          */
         public int getChildPosition(View view) {
-            return mRecyclerView.getChildPosition(view);
+            return mRecyclerView.getChildLayoutPosition(view);
         }
 
         /**
