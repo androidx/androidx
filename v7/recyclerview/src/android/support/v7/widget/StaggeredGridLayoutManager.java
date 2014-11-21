@@ -74,17 +74,18 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * and move items to correct positions with animations.
      * <p>
      * For example, if LayoutManager ends up with the following layout due to adapter changes:
-     * <code>
+     * <pre>
      * AAA
      * _BC
      * DDD
-     * </code>
+     * </pre>
+     * <p>
      * It will animate to the following state:
-     * <code>
+     * <pre>
      * AAA
      * BC_
      * DDD
-     * </code>
+     * </pre>
      */
     public static final int GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS = 2;
 
@@ -1362,7 +1363,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         while (layoutState.hasMore(state) && !mRemainingSpans.isEmpty()) {
             View view = layoutState.next(recycler);
             LayoutParams lp = ((LayoutParams) view.getLayoutParams());
-            final int position = lp.getViewPosition();
+            final int position = lp.getViewLayoutPosition();
             final int spanIndex = mLazySpanLookup.getSpan(position);
             Span currentSpan;
             boolean assignSpan = spanIndex == LayoutParams.INVALID_SPAN_ID;
@@ -1513,7 +1514,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private void layoutDecoratedWithMargins(View child, int left, int top, int right, int bottom) {
         LayoutParams lp = (LayoutParams) child.getLayoutParams();
         if (DEBUG) {
-            Log.d(TAG, "layout decorated pos: " + lp.getViewPosition() + ", span:"
+            Log.d(TAG, "layout decorated pos: " + lp.getViewLayoutPosition() + ", span:"
                     + lp.getSpanIndex() + ", fullspan:" + lp.mFullSpan
                     + ". l:" + left + ",t:" + top
                     + ", r:" + right + ", b:" + bottom);
@@ -1986,7 +1987,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mCachedStart = mPrimaryOrientation.getDecoratedStart(startView);
             if (lp.mFullSpan) {
                 LazySpanLookup.FullSpanItem fsi = mLazySpanLookup
-                        .getFullSpanItem(lp.getViewPosition());
+                        .getFullSpanItem(lp.getViewLayoutPosition());
                 if (fsi != null && fsi.mGapDir == LAYOUT_START) {
                     mCachedStart -= fsi.getGapForSpan(mIndex);
                 }
@@ -2020,7 +2021,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mCachedEnd = mPrimaryOrientation.getDecoratedEnd(endView);
             if (lp.mFullSpan) {
                 LazySpanLookup.FullSpanItem fsi = mLazySpanLookup
-                        .getFullSpanItem(lp.getViewPosition());
+                        .getFullSpanItem(lp.getViewLayoutPosition());
                 if (fsi != null && fsi.mGapDir == LAYOUT_END) {
                     mCachedEnd += fsi.getGapForSpan(mIndex);
                 }

@@ -265,7 +265,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 while (globalPositions[mAdapter.getItemCount() - 1] == Integer.MIN_VALUE) {
                     for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
                         View child = mRecyclerView.getChildAt(i);
-                        final int pos = mRecyclerView.getChildPosition(child);
+                        final int pos = mRecyclerView.getChildLayoutPosition(child);
                         if (globalPositions[pos] != Integer.MIN_VALUE) {
                             continue;
                         }
@@ -306,7 +306,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 while (!shouldTest.isEmpty() && scrollAmount != 0) {
                     for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
                         View child = mRecyclerView.getChildAt(i);
-                        int pos = mRecyclerView.getChildPosition(child);
+                        int pos = mRecyclerView.getChildLayoutPosition(child);
                         if (!shouldTest.get(pos)) {
                             continue;
                         }
@@ -361,7 +361,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                                 scrollOffset, mLayoutManager.mPendingScrollPositionOffset);
                     }
                 } else {
-                    RecyclerView.ViewHolder vh = rv.findViewHolderForPosition(scrollPosition);
+                    RecyclerView.ViewHolder vh = rv.findViewHolderForLayoutPosition(scrollPosition);
                     assertNotNull("scroll to position should work", vh);
                     if (scrollOffset != LinearLayoutManager.INVALID_OFFSET) {
                         assertEquals("scroll offset should be applied properly",
@@ -582,7 +582,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         smoothScrollToPosition(config.mItemCount / 2);
         // assert to be deleted child is not visible
         assertNull(logPrefix + " test sanity, to be deleted child should be invisible",
-                mRecyclerView.findViewHolderForPosition(deletePosition));
+                mRecyclerView.findViewHolderForLayoutPosition(deletePosition));
         // delete the child and notify
         mAdapter.deleteAndNotify(deletePosition, deleteCount);
         getInstrumentation().waitForIdleSync();
@@ -1003,7 +1003,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         while (testCount-- > 0) {
             // get middle child
             final View child = mLayoutManager.getChildAt(mLayoutManager.getChildCount() / 2);
-            final int position = mRecyclerView.getChildPosition(child);
+            final int position = mRecyclerView.getChildLayoutPosition(child);
             final int startOffset = config.mReverseLayout ?
                     orientationHelper.getEndAfterPadding() - orientationHelper
                             .getDecoratedEnd(child)
@@ -1071,7 +1071,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         int minPosition = Integer.MAX_VALUE, maxPosition = Integer.MIN_VALUE;
         for (int i = 0; i < mLayoutManager.getChildCount(); i++) {
             View child = mLayoutManager.getChildAt(i);
-            int position = mRecyclerView.getChildPosition(child);
+            int position = mRecyclerView.getChildLayoutPosition(child);
             if (position < minPosition) {
                 minPosition = position;
             }
@@ -1109,12 +1109,12 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             Rect bounds = mLayoutManager.getViewBounds(view);
             if (layoutBounds.contains(bounds)) {
                 Map<Item, Rect> initialBounds = mLayoutManager.collectChildCoordinates();
-                final int position = mRecyclerView.getChildPosition(view);
+                final int position = mRecyclerView.getChildLayoutPosition(view);
                 LayoutParams layoutParams
                         = (LayoutParams) (view.getLayoutParams());
                 TestViewHolder vh = (TestViewHolder) layoutParams.mViewHolder;
                 assertEquals("recycler view mPosition should match adapter mPosition", position,
-                        vh.mBindedItem.mAdapterIndex);
+                        vh.mBoundItem.mAdapterIndex);
                 if (DEBUG) {
                     Log.d(TAG, "testing scroll to visible mPosition at " + position
                             + " " + bounds + " inside " + layoutBounds);
@@ -1133,12 +1133,12 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                         config + "scroll to mPosition on fully visible child should be no-op",
                         initialBounds, mLayoutManager.collectChildCoordinates());
             } else {
-                final int position = mRecyclerView.getChildPosition(view);
+                final int position = mRecyclerView.getChildLayoutPosition(view);
                 if (DEBUG) {
                     Log.d(TAG,
                             "child(" + position + ") not fully visible " + bounds + " not inside "
                                     + layoutBounds
-                                    + mRecyclerView.getChildPosition(view)
+                                    + mRecyclerView.getChildLayoutPosition(view)
                     );
                 }
                 mLayoutManager.expectLayouts(1);
@@ -1333,9 +1333,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         final AccessibilityRecordCompat record = AccessibilityEventCompat
                 .asRecord(event);
         final int start = mRecyclerView
-                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToStart(false, true));
+                .getChildLayoutPosition(mLayoutManager.findFirstVisibleItemClosestToStart(false, true));
         final int end = mRecyclerView
-                .getChildPosition(mLayoutManager.findFirstVisibleItemClosestToEnd(false, true));
+                .getChildLayoutPosition(mLayoutManager.findFirstVisibleItemClosestToEnd(false, true));
         assertEquals("first item position should match",
                 Math.min(start, end), record.getFromIndex());
         assertEquals("last item position should match",
@@ -1612,7 +1612,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                         LayoutParams lp = (LayoutParams) child
                                 .getLayoutParams();
                         TestViewHolder vh = (TestViewHolder) lp.mViewHolder;
-                        items.put(vh.mBindedItem, getViewBounds(child));
+                        items.put(vh.mBoundItem, getViewBounds(child));
                     }
                 }
             });
