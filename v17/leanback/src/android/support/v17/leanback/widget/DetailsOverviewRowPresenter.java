@@ -467,7 +467,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             getDefaultBackgroundColor(vh.mOverviewView.getContext());
 
         if (useMargin) {
-            layoutParams.leftMargin = horizontalMargin;
+            layoutParams.setMarginStart(horizontalMargin);
             layoutParams.topMargin = layoutParams.bottomMargin = verticalMargin;
             RoundedRectHelper.getInstance().setRoundedRectBackground(vh.mOverviewFrame, bgColor);
             vh.mRightPanel.setBackground(null);
