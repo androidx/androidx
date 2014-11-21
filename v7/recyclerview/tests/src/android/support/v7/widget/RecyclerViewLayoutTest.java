@@ -18,6 +18,7 @@
 package android.support.v7.widget;
 
 import android.graphics.PointF;
+import android.os.Debug;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
@@ -48,6 +49,71 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
+    }
+
+    public void testTransientStateRecycleViaAdapter() throws Throwable {
+        transientStateRecycleTest(true, false);
+    }
+
+    public void testTransientStateRecycleViaTransientStateCleanup() throws Throwable {
+        transientStateRecycleTest(false, true);
+    }
+
+    public void testTransientStateDontRecycle() throws Throwable {
+        transientStateRecycleTest(false, false);
+    }
+
+    public void transientStateRecycleTest(final boolean succeed, final boolean unsetTransientState)
+            throws Throwable {
+        final List<View> failedToRecycle = new ArrayList<View>();
+        final List<View> recycled = new ArrayList<View>();
+        TestAdapter testAdapter = new TestAdapter(10) {
+            @Override
+            public boolean onFailedToRecycleView(
+                    TestViewHolder holder) {
+                failedToRecycle.add(holder.itemView);
+                if (unsetTransientState) {
+                    setHasTransientState(holder.itemView, false);
+                }
+                return succeed;
+            }
+
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                recycled.add(holder.itemView);
+                super.onViewRecycled(holder);
+            }
+        };
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                if (getChildCount() == 0) {
+                    detachAndScrapAttachedViews(recycler);
+                    layoutRange(recycler, 0, 5);
+                } else {
+                    removeAndRecycleAllViews(recycler);
+                }
+                if (layoutLatch != null) {
+                    layoutLatch.countDown();
+                }
+            }
+        };
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setLayoutManager(tlm);
+        recyclerView.setItemAnimator(null);
+        setRecyclerView(recyclerView);
+        getInstrumentation().waitForIdleSync();
+        // make sure we have enough views after this position so that we'll receive the on recycled
+        // callback
+        View view = recyclerView.getChildAt(3);//this has to be greater than def cache size.
+        setHasTransientState(view, true);
+        tlm.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        tlm.waitForLayout(2);
+
+        assertTrue(failedToRecycle.contains(view));
+        assertEquals(succeed || unsetTransientState, recycled.contains(view));
     }
 
     public void testScrollStateForSmoothScroll() throws Throwable {
