@@ -234,13 +234,13 @@ public abstract class MediaRouteProviderService extends Service {
     }
 
     private boolean onUnselectRoute(Messenger messenger, int requestId,
-            int controllerId) {
+            int controllerId, int reason) {
         ClientRecord client = getClient(messenger);
         if (client != null) {
             MediaRouteProvider.RouteController controller =
                     client.getRouteController(controllerId);
             if (controller != null) {
-                controller.onUnselect();
+                controller.onUnselect(reason);
                 if (DEBUG) {
                     Log.d(TAG, client + ": Route unselected"
                             + ", controllerId=" + controllerId);
@@ -633,7 +633,11 @@ public abstract class MediaRouteProviderService extends Service {
                         return service.onSelectRoute(messenger, requestId, arg);
 
                     case CLIENT_MSG_UNSELECT_ROUTE:
-                        return service.onUnselectRoute(messenger, requestId, arg);
+                        int reason = data == null ?
+                                MediaRouter.UNSELECT_REASON_UNKNOWN
+                                : data.getInt(CLIENT_DATA_UNSELECT_REASON,
+                                        MediaRouter.UNSELECT_REASON_UNKNOWN);
+                        return service.onUnselectRoute(messenger, requestId, arg, reason);
 
                     case CLIENT_MSG_SET_ROUTE_VOLUME: {
                         int volume = data.getInt(CLIENT_DATA_VOLUME, -1);
