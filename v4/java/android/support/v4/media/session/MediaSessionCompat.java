@@ -27,10 +27,14 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
 import android.text.TextUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Allows interaction with media controllers, volume keys, media buttons, and
@@ -59,6 +63,7 @@ import android.text.TextUtils;
  */
 public class MediaSessionCompat {
     private final MediaSessionImpl mImpl;
+    private final MediaControllerCompat mController;
 
     /**
      * Set this flag on the session to indicate that it can handle media button
@@ -91,10 +96,12 @@ public class MediaSessionCompat {
         } else {
             mImpl = new MediaSessionImplBase();
         }
+        mController = new MediaControllerCompat(context, this);
     }
 
-    private MediaSessionCompat(MediaSessionImpl impl) {
+    private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
+        mController = new MediaControllerCompat(context, this);
     }
 
     /**
@@ -118,6 +125,33 @@ public class MediaSessionCompat {
      */
     public void setCallback(Callback callback, Handler handler) {
         mImpl.setCallback(callback, handler != null ? handler : new Handler());
+    }
+
+    /**
+     * Set an intent for launching UI for this Session. This can be used as a
+     * quick link to an ongoing media screen. The intent should be for an
+     * activity that may be started using
+     * {@link Activity#startActivity(Intent)}.
+     *
+     * @param pi The intent to launch to show UI for this Session.
+     */
+    public void setSessionActivity(PendingIntent pi) {
+        mImpl.setSessionActivity(pi);
+    }
+
+    /**
+     * Set a pending intent for your media button receiver to allow restarting
+     * playback after the session has been stopped. If your app is started in
+     * this way an {@link Intent#ACTION_MEDIA_BUTTON} intent will be sent via
+     * the pending intent.
+     * <p>
+     * On platforms earlier than {@link android.os.Build.VERSION_CODES#LOLLIPOP}
+     * this must be set before calling {@link #setActive setActive(true)}.
+     *
+     * @param mbr The {@link PendingIntent} to send the media button event to.
+     */
+    public void setMediaButtonReceiver(PendingIntent mbr) {
+        mImpl.setMediaButtonReceiver(mbr);
     }
 
     /**
@@ -165,10 +199,16 @@ public class MediaSessionCompat {
      * set to false your session's controller may not be discoverable. You must
      * set the session to active before it can start receiving media button
      * events or transport commands.
+     * <p>
+     * On platforms earlier than
+     * {@link android.os.Build.VERSION_CODES#LOLLIPOP},
+     * {@link #setMediaButtonReceiver(PendingIntent)} must be called before
+     * setting this to true.
      *
      * @param active Whether this session is active or not.
      */
     public void setActive(boolean active) {
+
         mImpl.setActive(active);
     }
 
@@ -218,6 +258,16 @@ public class MediaSessionCompat {
     }
 
     /**
+     * Get a controller for this session. This is a convenience method to avoid
+     * having to cache your own controller in process.
+     *
+     * @return A controller for this session.
+     */
+    public MediaControllerCompat getController() {
+        return mController;
+    }
+
+    /**
      * Update the current playback state.
      *
      * @param state The current state of playback
@@ -237,15 +287,58 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set an intent for launching UI for this Session. This can be used as a
-     * quick link to an ongoing media screen. The intent should be for an
-     * activity that may be started using
-     * {@link Activity#startActivity(Intent)}.
+     * Update the list of items in the play queue. It is an ordered list and
+     * should contain the current item, and previous or upcoming items if they
+     * exist. Specify null if there is no current play queue.
+     * <p>
+     * The queue should be of reasonable size. If the play queue is unbounded
+     * within your app, it is better to send a reasonable amount in a sliding
+     * window instead.
      *
-     * @param pi The intent to launch to show UI for this Session.
+     * @param queue A list of items in the play queue.
      */
-    public void setSessionActivity(PendingIntent pi) {
-        mImpl.setSessionActivity(pi);
+    public void setQueue(List<QueueItem> queue) {
+        mImpl.setQueue(queue);
+    }
+
+    /**
+     * Set the title of the play queue. The UI should display this title along
+     * with the play queue itself. e.g. "Play Queue", "Now Playing", or an album
+     * name.
+     *
+     * @param title The title of the play queue.
+     */
+    public void setQueueTitle(CharSequence title) {
+        mImpl.setQueueTitle(title);
+    }
+
+    /**
+     * Set the style of rating used by this session. Apps trying to set the
+     * rating should use this style. Must be one of the following:
+     * <ul>
+     * <li>{@link RatingCompat#RATING_NONE}</li>
+     * <li>{@link RatingCompat#RATING_3_STARS}</li>
+     * <li>{@link RatingCompat#RATING_4_STARS}</li>
+     * <li>{@link RatingCompat#RATING_5_STARS}</li>
+     * <li>{@link RatingCompat#RATING_HEART}</li>
+     * <li>{@link RatingCompat#RATING_PERCENTAGE}</li>
+     * <li>{@link RatingCompat#RATING_THUMB_UP_DOWN}</li>
+     * </ul>
+     */
+    public void setRatingType(int type) {
+        mImpl.setRatingType(type);
+    }
+
+    /**
+     * Set some extras that can be associated with the
+     * {@link MediaSessionCompat}. No assumptions should be made as to how a
+     * {@link MediaControllerCompat} will handle these extras. Keys should be
+     * fully qualified (e.g. com.example.MY_EXTRA) to avoid conflicts.
+     *
+     * @param extras The extras associated with the session.
+     */
+    public void setExtras(Bundle extras) {
+        mImpl.setExtras(extras);
     }
 
     /**
@@ -269,8 +362,8 @@ public class MediaSessionCompat {
      *            wrap.
      * @return A compat wrapper for the provided session.
      */
-    public static MediaSessionCompat obtain(Object mediaSession) {
-        return new MediaSessionCompat(new MediaSessionImplApi21(mediaSession));
+    public static MediaSessionCompat obtain(Context context, Object mediaSession) {
+        return new MediaSessionCompat(context, new MediaSessionImplApi21(mediaSession));
     }
 
     /**
@@ -494,6 +587,130 @@ public class MediaSessionCompat {
         };
     }
 
+    /**
+     * A single item that is part of the play queue. It contains a description
+     * of the item and its id in the queue.
+     */
+    public static final class QueueItem implements Parcelable {
+        /**
+         * This id is reserved. No items can be explicitly asigned this id.
+         */
+        public static final int UNKNOWN_ID = -1;
+
+        private final MediaDescriptionCompat mDescription;
+        private final long mId;
+
+        private Object mItem;
+
+        /**
+         * Create a new {@link MediaSessionCompat.QueueItem}.
+         *
+         * @param description The {@link MediaDescriptionCompat} for this item.
+         * @param id An identifier for this item. It must be unique within the
+         *            play queue and cannot be {@link #UNKNOWN_ID}.
+         */
+        public QueueItem(MediaDescriptionCompat description, long id) {
+            this(null, description, id);
+        }
+
+        private QueueItem(Object queueItem, MediaDescriptionCompat description, long id) {
+            if (description == null) {
+                throw new IllegalArgumentException("Description cannot be null.");
+            }
+            if (id == UNKNOWN_ID) {
+                throw new IllegalArgumentException("Id cannot be QueueItem.UNKNOWN_ID");
+            }
+            mDescription = description;
+            mId = id;
+            mItem = queueItem;
+        }
+
+        private QueueItem(Parcel in) {
+            mDescription = MediaDescriptionCompat.CREATOR.createFromParcel(in);
+            mId = in.readLong();
+        }
+
+        /**
+         * Get the description for this item.
+         */
+        public MediaDescriptionCompat getDescription() {
+            return mDescription;
+        }
+
+        /**
+         * Get the queue id for this item.
+         */
+        public long getQueueId() {
+            return mId;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            mDescription.writeToParcel(dest, flags);
+            dest.writeLong(mId);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        /**
+         * Get the underlying
+         * {@link android.media.session.MediaSession.QueueItem}.
+         * <p>
+         * On builds before {@link android.os.Build.VERSION_CODES#LOLLIPOP} null
+         * is returned.
+         *
+         * @return The underlying
+         *         {@link android.media.session.MediaSession.QueueItem} or null.
+         */
+        public Object getQueueItem() {
+            if (mItem != null || android.os.Build.VERSION.SDK_INT < 21) {
+                return mItem;
+            }
+            mItem = MediaSessionCompatApi21.QueueItem.createItem(mDescription.getMediaDescription(),
+                    mId);
+            return mItem;
+        }
+
+        /**
+         * Obtain a compat wrapper for an existing QueueItem.
+         *
+         * @param queueItem The {@link android.media.session.MediaSession#QueueItem} to
+         *            wrap.
+         * @return A compat wrapper for the provided item.
+         */
+        public static QueueItem obtain(Object queueItem) {
+            Object descriptionObj = MediaSessionCompatApi21.QueueItem.getDescription(queueItem);
+            MediaDescriptionCompat description = MediaDescriptionCompat.fromMediaDescription(
+                    descriptionObj);
+            long id = MediaSessionCompatApi21.QueueItem.getQueueId(queueItem);
+            return new QueueItem(queueItem, description, id);
+        }
+
+        public static final Creator<MediaSessionCompat.QueueItem>
+                CREATOR = new Creator<MediaSessionCompat.QueueItem>() {
+
+                        @Override
+                    public MediaSessionCompat.QueueItem createFromParcel(Parcel p) {
+                        return new MediaSessionCompat.QueueItem(p);
+                    }
+
+                        @Override
+                    public MediaSessionCompat.QueueItem[] newArray(int size) {
+                        return new MediaSessionCompat.QueueItem[size];
+                    }
+                };
+
+        @Override
+        public String toString() {
+            return "MediaSession.QueueItem {" +
+                    "Description=" + mDescription +
+                    ", Id=" + mId + " }";
+        }
+    }
+
     interface MediaSessionImpl {
         void setCallback(Callback callback, Handler handler);
         void setFlags(int flags);
@@ -508,6 +725,14 @@ public class MediaSessionCompat {
         void setMetadata(MediaMetadataCompat metadata);
 
         void setSessionActivity(PendingIntent pi);
+
+        void setMediaButtonReceiver(PendingIntent mbr);
+        void setQueue(List<QueueItem> queue);
+        void setQueueTitle(CharSequence title);
+
+        void setRatingType(int type);
+        void setExtras(Bundle extras);
+
         Object getMediaSession();
     }
 
@@ -564,14 +789,36 @@ public class MediaSessionCompat {
         }
 
         @Override
+        public void setMediaButtonReceiver(PendingIntent mbr) {
+        }
+
+        @Override
+        public void setQueue(List<QueueItem> queue) {
+        }
+
+        @Override
+        public void setQueueTitle(CharSequence title) {
+        }
+
+        @Override
         public Object getMediaSession() {
             return null;
+        }
+
+        @Override
+        public void setRatingType(int type) {
+        }
+
+        @Override
+        public void setExtras(Bundle extras) {
         }
     }
 
     static class MediaSessionImplApi21 implements MediaSessionImpl {
         private final Object mSessionObj;
         private final Token mToken;
+
+        private PendingIntent mMediaButtonIntent;
 
         public MediaSessionImplApi21(Context context, String tag) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
@@ -642,6 +889,43 @@ public class MediaSessionCompat {
         @Override
         public void setSessionActivity(PendingIntent pi) {
             MediaSessionCompatApi21.setSessionActivity(mSessionObj, pi);
+        }
+
+        @Override
+        public void setMediaButtonReceiver(PendingIntent mbr) {
+            mMediaButtonIntent = mbr;
+            MediaSessionCompatApi21.setMediaButtonReceiver(mSessionObj, mbr);
+        }
+
+        @Override
+        public void setQueue(List<QueueItem> queue) {
+            List<Object> queueObjs = null;
+            if (queue != null) {
+                queueObjs = new ArrayList<Object>();
+                for (QueueItem item : queue) {
+                    queueObjs.add(item.getQueueItem());
+                }
+            }
+            MediaSessionCompatApi21.setQueue(mSessionObj, queueObjs);
+        }
+
+        @Override
+        public void setQueueTitle(CharSequence title) {
+            MediaSessionCompatApi21.setQueueTitle(mSessionObj, title);
+        }
+
+        @Override
+        public void setRatingType(int type) {
+            if (android.os.Build.VERSION.SDK_INT < 22) {
+                // TODO figure out 21 implementation
+            } else {
+                MediaSessionCompatApi22.setRatingType(mSessionObj, type);
+            }
+        }
+
+        @Override
+        public void setExtras(Bundle extras) {
+            MediaSessionCompatApi21.setExtras(mSessionObj, extras);
         }
 
         @Override

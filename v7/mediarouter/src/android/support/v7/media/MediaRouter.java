@@ -2242,7 +2242,7 @@ public final class MediaRouter {
                 if (mediaSession instanceof MediaSessionCompat) {
                     mMsCompat = (MediaSessionCompat) mediaSession;
                 } else {
-                    mMsCompat = MediaSessionCompat.obtain(mediaSession);
+                    mMsCompat = MediaSessionCompat.obtain(mApplicationContext, mediaSession);
                 }
             }
 
