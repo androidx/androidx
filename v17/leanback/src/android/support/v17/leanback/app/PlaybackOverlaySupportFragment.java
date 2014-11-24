@@ -221,16 +221,15 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         if (DEBUG) Log.v(TAG, "setFadingEnabled " + enabled);
         if (enabled != mFadingEnabled) {
             mFadingEnabled = enabled;
-            if (isResumed()) {
-                if (mFadingEnabled) {
-                    if (mFadingStatus == IDLE && !mHandler.hasMessages(START_FADE_OUT)) {
-                        startFadeTimer();
-                    }
-                } else {
-                    // Ensure fully opaque
-                    mHandler.removeMessages(START_FADE_OUT);
-                    fade(true);
+            if (mFadingEnabled) {
+                if (isResumed() && mFadingStatus == IDLE
+                        && !mHandler.hasMessages(START_FADE_OUT)) {
+                    startFadeTimer();
                 }
+            } else {
+                // Ensure fully opaque
+                mHandler.removeMessages(START_FADE_OUT);
+                fade(true);
             }
         }
     }
@@ -313,7 +312,6 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         if (!consumeEvent && mInputEventHandler != null) {
             consumeEvent = mInputEventHandler.handleInputEvent(event);
         }
-        tickle();
         return consumeEvent;
     }
 

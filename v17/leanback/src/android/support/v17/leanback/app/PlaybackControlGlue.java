@@ -163,7 +163,7 @@ public abstract class PlaybackControlGlue {
     private PlaybackControlsRow.RewindAction mRewindAction;
     private OnItemViewClickedListener mExternalOnItemViewClickedListener;
     private int mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-    private boolean mFadeWhenPlaying = false;
+    private boolean mFadeWhenPlaying = true;
 
     private final Handler mHandler = new Handler() {
         @Override
