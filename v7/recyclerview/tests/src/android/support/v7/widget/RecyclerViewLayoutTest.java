@@ -21,7 +21,9 @@ import android.graphics.PointF;
 import android.os.Debug;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
+import android.test.TouchUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -49,6 +51,191 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
+    }
+
+
+    public void testScrollInBothDirectionEqual() throws Throwable {
+        scrollInBothDirection(3, 3, 1000, 1000);
+    }
+
+    public void testScrollInBothDirectionMoreVertical() throws Throwable {
+        scrollInBothDirection(2, 3, 1000, 1000);
+    }
+
+    public void testScrollInBothDirectionMoreHorizontal() throws Throwable {
+        scrollInBothDirection(3, 2, 1000, 1000);
+    }
+
+    public void testScrollHorizontalOnly() throws Throwable {
+        scrollInBothDirection(3, 0, 1000, 0);
+    }
+
+    public void testScrollVerticalOnly() throws Throwable {
+        scrollInBothDirection(0, 3, 0, 1000);
+    }
+
+    public void testScrollInBothDirectionEqualReverse() throws Throwable {
+        scrollInBothDirection(3, 3, -1000, -1000);
+    }
+
+    public void testScrollInBothDirectionMoreVerticalReverse() throws Throwable {
+        scrollInBothDirection(2, 3, -1000, -1000);
+    }
+
+    public void testScrollInBothDirectionMoreHorizontalReverse() throws Throwable {
+        scrollInBothDirection(3, 2, -1000, -1000);
+    }
+
+    public void testScrollHorizontalOnlyReverse() throws Throwable {
+        scrollInBothDirection(3, 0, -1000, 0);
+    }
+
+    public void testScrollVerticalOnlyReverse() throws Throwable {
+        scrollInBothDirection(0, 3, 0, -1000);
+    }
+
+    public void scrollInBothDirection(int horizontalScrollCount, int verticalScrollCount,
+            int horizontalVelocity, int verticalVelocity)
+            throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        final AtomicInteger horizontalCounter = new AtomicInteger(horizontalScrollCount);
+        final AtomicInteger verticalCounter = new AtomicInteger(verticalScrollCount);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public boolean canScrollHorizontally() {
+                return true;
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 10);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                if (verticalCounter.get() > 0) {
+                    verticalCounter.decrementAndGet();
+                    return dy;
+                }
+                return 0;
+            }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                if (horizontalCounter.get() > 0) {
+                    horizontalCounter.decrementAndGet();
+                    return dx;
+                }
+                return 0;
+            }
+        };
+        TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(2);
+        assertTrue("test sanity, fling must run", fling(horizontalVelocity, verticalVelocity));
+        assertEquals("rv's horizontal scroll cb must run " + horizontalScrollCount + " times'", 0,
+                horizontalCounter.get());
+        assertEquals("rv's vertical scroll cb must run " + verticalScrollCount + " times'", 0,
+                verticalCounter.get());
+    }
+
+    public void testDraglHorizontal() throws Throwable {
+        scrollInOtherOrientationTest(true, true);
+    }
+
+    public void testDragVertical() throws Throwable {
+        scrollInOtherOrientationTest(false, true);
+    }
+
+    public void testFlingHorizontal() throws Throwable {
+        scrollInOtherOrientationTest(true, false);
+    }
+
+    public void testFlingVertical() throws Throwable {
+        scrollInOtherOrientationTest(false, false);
+    }
+
+
+    public void scrollInOtherOrientationTest(final boolean horizontal, final boolean drag)
+            throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        final AtomicBoolean scrolledHorizontal = new AtomicBoolean(false);
+        final AtomicBoolean scrolledVertical = new AtomicBoolean(false);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public boolean canScrollHorizontally() {
+                return horizontal;
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return !horizontal;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 10);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                scrolledVertical.set(true);
+                return dy;
+            }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                scrolledHorizontal.set(true);
+                return dx;
+            }
+        };
+        TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(2);
+        if (drag) {
+            TouchUtils.dragViewTo(this, mRecyclerView, Gravity.LEFT | Gravity.TOP, 200, 200);
+        } else {// fling
+            assertTrue("test sanity, fling must run", fling(600, 600));
+        }
+        assertEquals("horizontal scroll", horizontal, scrolledHorizontal.get());
+        assertEquals("vertical scroll",!horizontal, scrolledVertical.get());
+    }
+
+    private boolean fling(final int velocityX, final int velocityY) throws Throwable {
+        final AtomicBoolean didStart = new AtomicBoolean(false);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                boolean result = mRecyclerView.fling(velocityX, velocityY);
+                didStart.set(result);
+            }
+        });
+        if (!didStart.get()) {
+            return false;
+        }
+        // cannot set scroll listener in case it is subject to some test so instead doing a busy
+        // loop until state goes idle
+        while (mRecyclerView.getScrollState() != SCROLL_STATE_IDLE) {
+            getInstrumentation().waitForIdleSync();
+        }
+        return true;
     }
 
     public void testTransientStateRecycleViaAdapter() throws Throwable {
