@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.content.IntentSender;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -173,6 +174,10 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
 
     private void publishRoutes() {
         Resources r = getContext().getResources();
+        Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
+        settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class);
+        IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
+                Intent.FLAG_ACTIVITY_NEW_TASK).getIntentSender();
 
         MediaRouteDescriptor routeDescriptor1 = new MediaRouteDescriptor.Builder(
                 FIXED_VOLUME_ROUTE_ID,
@@ -183,6 +188,8 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED)
                 .setVolume(VOLUME_MAX)
+                .setCanDisconnect(true)
+                .setSettingsActivity(is)
                 .build();
 
         MediaRouteDescriptor routeDescriptor2 = new MediaRouteDescriptor.Builder(
@@ -195,6 +202,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
                 .setVolume(mVolume)
+                .setSettingsActivity(is)
                 .build();
 
         MediaRouteDescriptor routeDescriptor3 = new MediaRouteDescriptor.Builder(
@@ -207,6 +215,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
                 .setVolume(mVolume)
+                .setCanDisconnect(true)
                 .build();
 
         MediaRouteDescriptor routeDescriptor4 = new MediaRouteDescriptor.Builder(

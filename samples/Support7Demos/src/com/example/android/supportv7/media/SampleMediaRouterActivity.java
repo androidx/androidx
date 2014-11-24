@@ -20,6 +20,7 @@ import com.example.android.supportv7.R;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.app.PendingIntent;
@@ -37,6 +38,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.app.MediaRouteButton;
 import android.support.v7.app.MediaRouteControllerDialog;
 import android.support.v7.app.MediaRouteControllerDialogFragment;
 import android.support.v7.app.MediaRouteDiscoveryFragment;
@@ -66,6 +68,7 @@ import android.widget.TabHost.TabSpec;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+
 import java.io.File;
 
 /**
@@ -93,7 +96,6 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
     private SeekBar mSeekBar;
     private boolean mNeedResume;
     private boolean mSeeking;
-    private SampleMediaRouteControllerDialog mControllerDialog;
 
     private final Handler mHandler = new Handler();
     private final Runnable mUpdateSeekRunnable = new Runnable() {
@@ -152,7 +154,6 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
             }
             mPlayer.updatePresentation();
             mPlayer.release();
-            mControllerDialog = null;
         }
 
         @Override
@@ -372,6 +373,8 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         // Set up playback manager and player
         mPlayer = Player.create(SampleMediaRouterActivity.this,
                 mMediaRouter.getSelectedRoute());
+        mMediaRouter.setMediaSessionCompat(mPlayer.getMediaSession());
+
         mSessionManager.setPlayer(mPlayer);
         mSessionManager.setCallback(new SessionManager.Callback() {
             @Override
@@ -520,15 +523,7 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-                return new MediaRouteControllerDialogFragment() {
-                    @Override
-                    public MediaRouteControllerDialog onCreateControllerDialog(
-                            Context context, Bundle savedInstanceState) {
-                        mControllerDialog = new SampleMediaRouteControllerDialog(
-                                context, mSessionManager, mPlayer);
-                        return mControllerDialog;
-                    }
-                };
+                return new ControllerDialogFragment(mPlayer);
             }
         });
 
@@ -564,8 +559,8 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
         updatePlaylist();
         updateRouteDescription();
         updateButtons();
-        if (mControllerDialog != null) {
-            mControllerDialog.updateUi();
+        if (mPlayer != null) {
+            mPlayer.updateMetadata();
         }
     }
 
@@ -744,5 +739,42 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
      * same activity using a light theme with dark action bar instead of the dark theme.
      */
     public static class LightWithDarkActionBar extends SampleMediaRouterActivity {
+    }
+
+    public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
+        private MediaRouteControllerDialog mControllerDialog;
+        private Player mPlayer;
+
+        public ControllerDialogFragment() {
+            super();
+        }
+
+        public ControllerDialogFragment(Player player) {
+            mPlayer = player;
+        }
+
+        @Override
+        public MediaRouteControllerDialog onCreateControllerDialog(
+                Context context, Bundle savedInstanceState) {
+            mControllerDialog = super.onCreateControllerDialog(context,
+                    savedInstanceState);
+            if (mPlayer != null) {
+                mControllerDialog.setMediaSession(mPlayer.getMediaSession().getSessionToken());
+            }
+            mControllerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    mControllerDialog = null;
+                }
+            });
+            return mControllerDialog;
+        }
+
+        public void setPlayer(Player player) {
+            mPlayer = player;
+            if (mControllerDialog != null) {
+                mControllerDialog.setMediaSession(mPlayer.getMediaSession().getSessionToken());
+            }
+        }
     }
 }

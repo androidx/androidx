@@ -25,6 +25,7 @@
     <string name="sample_media_router_text">This activity demonstrates how to
             use MediaRouter from the support library.  Select a route from the action bar.</string>
     <string name="media_route_menu_title">Play on...</string>
+    <string name="sample_media_route_settings_activity">Sample route settings</string>
 
     <string name="library_tab_text">Library</string>
     <string name="playlist_tab_text">Playlist</string>
