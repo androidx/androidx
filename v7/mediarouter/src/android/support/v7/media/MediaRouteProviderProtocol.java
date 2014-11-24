@@ -121,6 +121,7 @@ abstract class MediaRouteProviderProtocol {
 
     public static final String CLIENT_DATA_ROUTE_ID = "routeId";
     public static final String CLIENT_DATA_VOLUME = "volume";
+    public static final String CLIENT_DATA_UNSELECT_REASON = "unselectReason";
 
     /*
      * Messages sent from the service to the client.

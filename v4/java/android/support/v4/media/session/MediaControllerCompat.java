@@ -42,6 +42,7 @@ import android.view.KeyEvent;
  */
 public final class MediaControllerCompat {
     private final MediaControllerImpl mImpl;
+    private final MediaSessionCompat.Token mToken;
 
     /**
      * Creates a media controller from a session.
@@ -52,6 +53,7 @@ public final class MediaControllerCompat {
         if (session == null) {
             throw new IllegalArgumentException("session must not be null");
         }
+        mToken = session.getSessionToken();
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, session);
@@ -72,6 +74,7 @@ public final class MediaControllerCompat {
         if (sessionToken == null) {
             throw new IllegalArgumentException("sessionToken must not be null");
         }
+        mToken = sessionToken;
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, sessionToken);
@@ -146,6 +149,15 @@ public final class MediaControllerCompat {
      */
     public PlaybackInfo getPlaybackInfo() {
         return mImpl.getPlaybackInfo();
+    }
+
+    /**
+     * Get the token for the session this controller is connected to.
+     *
+     * @return The session's token.
+     */
+    public MediaSessionCompat.Token getSessionToken() {
+        return mToken;
     }
 
     /**
