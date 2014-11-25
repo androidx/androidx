@@ -154,7 +154,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
-# A helper sub-library that makes direct use of the upcoming API.
+# A helper sub-library that makes direct use of V20 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api20
 LOCAL_SDK_VERSION := 20
@@ -164,12 +164,22 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
 
-# A helper sub-library that makes direct use of the upcoming API.
+# A helper sub-library that makes direct use of Lollipop APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api21
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api20
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
+# A helper sub-library that makes direct use of V22 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-api22
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, api22)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api21
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -182,5 +192,5 @@ LOCAL_SDK_VERSION := 4
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
 
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api21
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api22
 include $(BUILD_STATIC_JAVA_LIBRARY)
