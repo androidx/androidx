@@ -147,6 +147,7 @@ public class Toolbar extends ViewGroup {
     private int mSubtitleTextColor;
 
     private boolean mEatingTouch;
+    private boolean mEatingHover;
 
     // Clear me after use.
     private final ArrayList<View> mTempViews = new ArrayList<View>();
@@ -1093,6 +1094,30 @@ public class Toolbar extends ViewGroup {
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             mEatingTouch = false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onHoverEvent(MotionEvent ev) {
+        // Same deal as onTouchEvent() above. Eat all hover events, but still
+        // respect the touch event dispatch contract.
+
+        final int action = MotionEventCompat.getActionMasked(ev);
+        if (action == MotionEvent.ACTION_HOVER_ENTER) {
+            mEatingHover = false;
+        }
+
+        if (!mEatingHover) {
+            final boolean handled = super.onHoverEvent(ev);
+            if (action == MotionEvent.ACTION_HOVER_ENTER && !handled) {
+                mEatingHover = true;
+            }
+        }
+
+        if (action == MotionEvent.ACTION_HOVER_EXIT || action == MotionEvent.ACTION_CANCEL) {
+            mEatingHover = false;
         }
 
         return true;
