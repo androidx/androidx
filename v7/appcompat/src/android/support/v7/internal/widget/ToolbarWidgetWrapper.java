@@ -95,7 +95,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         mTitle = toolbar.getTitle();
         mSubtitle = toolbar.getSubtitle();
         mTitleSet = mTitle != null;
-        mNavIcon = mToolbar.getNavigationIcon();
+        mNavIcon = toolbar.getNavigationIcon();
 
         if (style) {
             final TintTypedArray a = TintTypedArray.obtainStyledAttributes(toolbar.getContext(),
@@ -117,7 +117,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             }
 
             final Drawable icon = a.getDrawable(R.styleable.ActionBar_icon);
-            if (icon != null) {
+            if (mNavIcon == null && icon != null) {
                 setIcon(icon);
             }
 
