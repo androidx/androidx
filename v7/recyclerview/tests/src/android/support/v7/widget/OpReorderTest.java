@@ -154,7 +154,7 @@ public class OpReorderTest extends TestCase {
     }
 
     public void testRandom() throws Exception {
-        for (int i = 0; i < 250; i++) {
+        for (int i = 0; i < 150; i++) {
             try {
                 cleanState();
                 setup(50);
@@ -170,12 +170,11 @@ public class OpReorderTest extends TestCase {
     }
 
     public void testRandomMoveRemove() throws Exception {
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             try {
                 cleanState();
                 setup(5);
                 orderedRandom(MOVE, REMOVE);
-                Log.d(TAG, "running random move remove test " + i);
                 process();
             } catch (Throwable t) {
                 throw new Exception(t.getMessage() + "\n" + opsToString(mUpdateOps));
@@ -184,12 +183,11 @@ public class OpReorderTest extends TestCase {
     }
 
     public void testRandomMoveAdd() throws Exception {
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             try {
                 cleanState();
                 setup(5);
                 orderedRandom(MOVE, ADD);
-                Log.d(TAG, "running random move add test " + i);
                 process();
             } catch (Throwable t) {
                 throw new Exception(t.getMessage() + "\n" + opsToString(mUpdateOps));
@@ -198,12 +196,11 @@ public class OpReorderTest extends TestCase {
     }
 
     public void testRandomMoveUpdate() throws Exception {
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             try {
                 cleanState();
                 setup(5);
                 orderedRandom(MOVE, UPDATE);
-                Log.d(TAG, "running random move update test " + i);
                 process();
             } catch (Throwable t) {
                 throw new Exception(t.getMessage() + "\n" + opsToString(mUpdateOps));

@@ -1240,6 +1240,17 @@ public class RecyclerView extends ViewGroup {
      * @param dy Pixels to scroll vertically
      */
     public void smoothScrollBy(int dx, int dy) {
+        if (mLayout == null) {
+            Log.e(TAG, "Cannot smooth scroll without a LayoutManager set. " +
+                    "Call setLayoutManager with a non-null argument.");
+            return;
+        }
+        if (!mLayout.canScrollHorizontally()) {
+            dx = 0;
+        }
+        if (!mLayout.canScrollVertically()) {
+            dy = 0;
+        }
         if (dx != 0 || dy != 0) {
             mViewFlinger.smoothScrollBy(dx, dy);
         }
@@ -1252,13 +1263,24 @@ public class RecyclerView extends ViewGroup {
      *
      * @param velocityX Initial horizontal velocity in pixels per second
      * @param velocityY Initial vertical velocity in pixels per second
-     * @return true if the fling was started, false if the velocity was too low to fling
+     * @return true if the fling was started, false if the velocity was too low to fling or
+     * LayoutManager does not support scrolling in the axis fling is issued.
+     *
+     * @see LayoutManager#canScrollVertically()
+     * @see LayoutManager#canScrollHorizontally()
      */
     public boolean fling(int velocityX, int velocityY) {
-        if (Math.abs(velocityX) < mMinFlingVelocity) {
+        if (mLayout == null) {
+            Log.e(TAG, "Cannot fling without a LayoutManager set. " +
+                    "Call setLayoutManager with a non-null argument.");
+            return false;
+        }
+        final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
+        final boolean canScrollVertical = mLayout.canScrollVertically();
+        if (!canScrollHorizontal || Math.abs(velocityX) < mMinFlingVelocity) {
             velocityX = 0;
         }
-        if (Math.abs(velocityY) < mMinFlingVelocity) {
+        if (!canScrollVertical || Math.abs(velocityY) < mMinFlingVelocity) {
             velocityY = 0;
         }
         velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));
@@ -3009,7 +3031,6 @@ public class RecyclerView extends ViewGroup {
                     mRunningLayoutOrScroll = false;
                     resumeRequestLayout(false);
                 }
-                final boolean fullyConsumedScroll = dx == hresult && dy == vresult;
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
                 }
@@ -3051,7 +3072,13 @@ public class RecyclerView extends ViewGroup {
                     invalidate();
                 }
 
-                if (scroller.isFinished() || !fullyConsumedScroll) {
+                final boolean fullyConsumedVertical = dy != 0 && mLayout.canScrollVertically()
+                        && vresult == dy;
+                final boolean fullyConsumedHorizontal = dx != 0 && mLayout.canScrollHorizontally()
+                        && hresult == dx;
+                final boolean fullyConsumedAny = fullyConsumedHorizontal || fullyConsumedVertical;
+
+                if (scroller.isFinished() || !fullyConsumedAny) {
                     setScrollState(SCROLL_STATE_IDLE); // setting state to idle will stop this.
                 } else {
                     postOnAnimation();
