@@ -18,18 +18,29 @@ package android.support.v7.app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.IntentSender;
+import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -43,11 +54,6 @@ import android.widget.SeekBar;
 public class MediaRouteControllerDialog extends Dialog {
     private static final String TAG = "MediaRouteControllerDialog";
 
-    // Time to wait before updating the volume when the user lets go of the seek bar
-    // to allow the route provider time to propagate the change and publish a new
-    // route descriptor.
-    private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
-
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
     private final MediaRouter.RouteInfo mRoute;
@@ -56,24 +62,36 @@ public class MediaRouteControllerDialog extends Dialog {
     private Drawable mMediaRouteConnectingDrawable;
     private Drawable mMediaRouteOnDrawable;
     private Drawable mCurrentIconDrawable;
-
-    private boolean mVolumeControlEnabled = true;
-    private LinearLayout mVolumeLayout;
-    private SeekBar mVolumeSlider;
-    private boolean mVolumeSliderTouched;
+    private Drawable mSettingsDrawable;
 
     private View mControlView;
 
     private Button mDisconnectButton;
+    private Button mStopCastingButton;
+    private ImageButton mPlayPauseButton;
+    private ImageButton mSettingsButton;
+
+    private ImageView mArtView;
+    private TextView mTitleView;
+    private TextView mSubtitleView;
+    private TextView mRouteNameView;
+    private View mTitlesWrapper;
+
+    private MediaControllerCompat mMediaController;
+    private MediaControllerCallback mControllerCallback;
+    private PlaybackStateCompat mState;
+    private MediaDescriptionCompat mDescription;
+
 
     public MediaRouteControllerDialog(Context context) {
         this(context, 0);
     }
 
     public MediaRouteControllerDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context, true), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context), theme);
         context = getContext();
 
+        mControllerCallback = new MediaControllerCallback();
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
@@ -108,85 +126,70 @@ public class MediaRouteControllerDialog extends Dialog {
     }
 
     /**
-     * Sets whether to enable the volume slider and volume control using the volume keys
-     * when the route supports it.
-     * <p>
-     * The default value is true.
-     * </p>
+     * Set the session to use for metadata and transport controls. The dialog
+     * will listen to changes on this session and update the UI automatically in
+     * response to changes.
+     *
+     * @param sessionToken The token for the session to use.
      */
-    public void setVolumeControlEnabled(boolean enable) {
-        if (mVolumeControlEnabled != enable) {
-            mVolumeControlEnabled = enable;
-            if (mCreated) {
-                updateVolume();
-            }
+    public void setMediaSession(MediaSessionCompat.Token sessionToken) {
+        if (mMediaController != null) {
+            mMediaController.unregisterCallback(mControllerCallback);
+            mMediaController = null;
         }
+        if (sessionToken == null) {
+            return;
+        }
+        try {
+            mMediaController = new MediaControllerCompat(getContext(), sessionToken);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error creating media controller in setMediaSession.", e);
+        }
+        if (mMediaController != null) {
+            mMediaController.registerCallback(mControllerCallback);
+        }
+        MediaMetadataCompat metadata = mMediaController == null ? null
+                : mMediaController.getMetadata();
+        mDescription = metadata == null ? null : metadata.getDescription();
+        mState = mMediaController == null ? null : mMediaController.getPlaybackState();
+        update();
     }
 
     /**
-     * Returns whether to enable the volume slider and volume control using the volume keys
-     * when the route supports it.
+     * Gets the description being used by the default UI.
+     *
+     * @return The current description.
      */
-    public boolean isVolumeControlEnabled() {
-        return mVolumeControlEnabled;
+    public MediaSessionCompat.Token getMediaSession() {
+        return mMediaController == null ? null : mMediaController.getSessionToken();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
+        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-        setContentView(R.layout.mr_media_route_controller_dialog);
+        setContentView(R.layout.mr_media_route_controller_material_dialog_b);
 
-        mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
-        mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);
-        mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            private final Runnable mStopTrackingTouch = new Runnable() {
-                @Override
-                public void run() {
-                    if (mVolumeSliderTouched) {
-                        mVolumeSliderTouched = false;
-                        updateVolume();
-                    }
-                }
-            };
+        ClickListener listener = new ClickListener();
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                if (mVolumeSliderTouched) {
-                    mVolumeSlider.removeCallbacks(mStopTrackingTouch);
-                } else {
-                    mVolumeSliderTouched = true;
-                }
-            }
+        mDisconnectButton = (Button) findViewById(R.id.disconnect);
+        mDisconnectButton.setOnClickListener(listener);
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // Defer resetting mVolumeSliderTouched to allow the media route provider
-                // a little time to settle into its new state and publish the final
-                // volume update.
-                mVolumeSlider.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MILLIS);
-            }
+        mStopCastingButton = (Button) findViewById(R.id.stop);
+        mStopCastingButton.setOnClickListener(listener);
 
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    mRoute.requestSetVolume(progress);
-                }
-            }
-        });
+        mSettingsButton = (ImageButton) findViewById(R.id.settings);
+        mSettingsButton.setOnClickListener(listener);
 
-        mDisconnectButton = (Button)findViewById(R.id.media_route_disconnect_button);
-        mDisconnectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mRoute.isSelected()) {
-                    mRouter.getDefaultRoute().select();
-                }
-                dismiss();
-            }
-        });
+        mArtView = (ImageView) findViewById(R.id.art);
+        mTitleView = (TextView) findViewById(R.id.title);
+        mSubtitleView = (TextView) findViewById(R.id.subtitle);
+        mTitlesWrapper = findViewById(R.id.text_wrapper);
+        mPlayPauseButton = (ImageButton) findViewById(R.id.play_pause);
+        mPlayPauseButton.setOnClickListener(listener);
+        mRouteNameView = (TextView) findViewById(R.id.route_name);
 
         mCreated = true;
         if (update()) {
@@ -194,14 +197,11 @@ public class MediaRouteControllerDialog extends Dialog {
             FrameLayout controlFrame =
                     (FrameLayout)findViewById(R.id.media_route_control_frame);
             if (mControlView != null) {
+                controlFrame.findViewById(R.id.default_control_frame).setVisibility(View.GONE);
                 controlFrame.addView(mControlView);
-                controlFrame.setVisibility(View.VISIBLE);
-            } else {
-                controlFrame.setVisibility(View.GONE);
             }
         }
     }
-
 
     @Override
     public void onAttachedToWindow() {
@@ -243,20 +243,85 @@ public class MediaRouteControllerDialog extends Dialog {
             dismiss();
             return false;
         }
+        if (!mCreated) {
+            return false;
+        }
 
-        setTitle(mRoute.getName());
-        updateVolume();
+        mRouteNameView.setText(mRoute.getName());
 
-        Drawable icon = getIconDrawable();
-        if (icon != mCurrentIconDrawable) {
-            mCurrentIconDrawable = icon;
+        if (mRoute.canDisconnect()) {
+            mDisconnectButton.setVisibility(View.VISIBLE);
+        } else {
+            mDisconnectButton.setVisibility(View.GONE);
+        }
 
-            // Prior to KLP MR1 there was a bug in ImageView that caused feature drawables
-            // to not start animating unless they experienced a transition from
-            // invisible to visible.  So we force the drawable to be invisible here.
-            // The window will make the drawable visible when attached.
-            icon.setVisible(false, true);
-            getWindow().setFeatureDrawable(Window.FEATURE_LEFT_ICON, icon);
+        if (mRoute.getSettingsIntent() != null) {
+            mSettingsButton.setVisibility(View.VISIBLE);
+        } else {
+            mSettingsButton.setVisibility(View.GONE);
+        }
+
+        if (mControlView == null) {
+            if (mDescription != null) {
+                if (mDescription.getIconBitmap() != null) {
+                    mArtView.setImageBitmap(mDescription.getIconBitmap());
+                    mArtView.setVisibility(View.VISIBLE);
+                } else if (mDescription.getIconUri() != null) {
+                    // TODO replace with background load of icon
+                    mArtView.setImageURI(mDescription.getIconUri());
+                    mArtView.setVisibility(View.VISIBLE);
+                } else {
+                    mArtView.setImageDrawable(null);
+                    mArtView.setVisibility(View.GONE);
+                }
+
+                boolean haveText = false;
+                CharSequence text = mDescription.getTitle();
+                if (!TextUtils.isEmpty(text)) {
+                    mTitleView.setText(text);
+                    haveText = true;
+                } else {
+                    mTitleView.setText(null);
+                    mTitleView.setVisibility(View.GONE);
+                }
+                text = mDescription.getSubtitle();
+                if (!TextUtils.isEmpty(text)) {
+                    mSubtitleView.setText(mDescription.getSubtitle());
+                    haveText = true;
+                } else {
+                    mSubtitleView.setText(null);
+                    mSubtitleView.setVisibility(View.GONE);
+                }
+                if (!haveText) {
+                    mTitlesWrapper.setVisibility(View.GONE);
+                }
+            } else {
+                mArtView.setVisibility(View.GONE);
+                mTitlesWrapper.setVisibility(View.GONE);
+            }
+            if (mState != null) {
+                boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_BUFFERING
+                        || mState.getState() == PlaybackStateCompat.STATE_PLAYING;
+                boolean supportsPlay = (mState.getActions() & (PlaybackStateCompat.ACTION_PLAY
+                        | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
+                boolean supportsPause = (mState.getActions() & (PlaybackStateCompat.ACTION_PAUSE
+                                | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
+                if (isPlaying && supportsPause) {
+                    mPlayPauseButton.setVisibility(View.VISIBLE);
+                    mPlayPauseButton.setImageResource(R.drawable.ic_media_pause);
+                    mPlayPauseButton.setContentDescription(getContext().getResources()
+                            .getText(R.string.mr_media_route_controller_pause));
+                } else if (!isPlaying && supportsPlay) {
+                    mPlayPauseButton.setVisibility(View.VISIBLE);
+                    mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
+                    mPlayPauseButton.setContentDescription(getContext().getResources()
+                            .getText(R.string.mr_media_route_controller_play));
+                } else {
+                    mPlayPauseButton.setVisibility(View.GONE);
+                }
+            } else {
+                mPlayPauseButton.setVisibility(View.GONE);
+            }
         }
         return true;
     }
@@ -277,23 +342,6 @@ public class MediaRouteControllerDialog extends Dialog {
         }
     }
 
-    private void updateVolume() {
-        if (!mVolumeSliderTouched) {
-            if (isVolumeControlAvailable()) {
-                mVolumeLayout.setVisibility(View.VISIBLE);
-                mVolumeSlider.setMax(mRoute.getVolumeMax());
-                mVolumeSlider.setProgress(mRoute.getVolume());
-            } else {
-                mVolumeLayout.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    private boolean isVolumeControlAvailable() {
-        return mVolumeControlEnabled && mRoute.getVolumeHandling() ==
-                MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
-    }
-
     private final class MediaRouterCallback extends MediaRouter.Callback {
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
@@ -308,7 +356,61 @@ public class MediaRouteControllerDialog extends Dialog {
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
             if (route == mRoute) {
-                updateVolume();
+            }
+        }
+    }
+
+    private final class MediaControllerCallback extends MediaControllerCompat.Callback {
+        @Override
+        public void onSessionDestroyed() {
+            if (mMediaController != null) {
+                mMediaController.unregisterCallback(mControllerCallback);
+                mMediaController = null;
+            }
+        }
+
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            mState = state;
+            update();
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            mDescription = metadata == null ? null : metadata.getDescription();
+            update();
+        }
+    }
+
+    private final class ClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            int id = v.getId();
+            if (id == R.id.stop || id == R.id.disconnect) {
+                if (mRoute.isSelected()) {
+                    mRouter.unselect(id == R.id.stop ?
+                            MediaRouter.UNSELECT_REASON_STOPPED :
+                            MediaRouter.UNSELECT_REASON_DISCONNECTED);
+                }
+                dismiss();
+            } else if (id == R.id.play_pause) {
+                if (mMediaController != null && mState != null) {
+                    if (mState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                        mMediaController.getTransportControls().pause();
+                    } else {
+                        mMediaController.getTransportControls().play();
+                    }
+                }
+            } else if (id == R.id.settings) {
+                IntentSender is = mRoute.getSettingsIntent();
+                if (is != null) {
+                    try {
+                        is.sendIntent(null, 0, null, null, null);
+                        dismiss();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error opening route settings.", e);
+                    }
+                }
             }
         }
     }
