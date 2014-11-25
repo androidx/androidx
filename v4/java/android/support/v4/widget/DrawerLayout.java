@@ -1843,6 +1843,12 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             }
 
             info.setClassName(DrawerLayout.class.getName());
+
+            // This view reports itself as focusable so that it can intercept
+            // the back button, but we should prevent this view from reporting
+            // itself as focusable to accessibility services.
+            info.setFocusable(false);
+            info.setFocused(false);
         }
 
         @Override
