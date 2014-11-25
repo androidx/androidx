@@ -1987,7 +1987,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     public void setSelection(RecyclerView parent, int position, boolean smooth) {
-        if (mFocusPosition != position) {
+        if (mFocusPosition != position && position != NO_POSITION) {
             scrollToSelection(parent, position, smooth);
         }
     }
@@ -2380,7 +2380,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void setScrollEnabled(boolean scrollEnabled) {
         if (mScrollEnabled != scrollEnabled) {
             mScrollEnabled = scrollEnabled;
-            if (mScrollEnabled && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED) {
+            if (mScrollEnabled && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED
+                    && mFocusPosition != NO_POSITION) {
                 scrollToSelection(mBaseGridView, mFocusPosition, true);
             }
         }
