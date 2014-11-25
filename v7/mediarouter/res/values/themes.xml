@@ -22,6 +22,7 @@
         <item name="mediaRouteOffDrawable">@drawable/mr_ic_media_route_off_holo_dark</item>
         <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_holo_dark</item>
         <item name="mediaRouteOnDrawable">@drawable/mr_ic_media_route_on_holo_dark</item>
+        <item name="mediaRouteSettingsDrawable">@drawable/mr_ic_settings_dark</item>
     </style>
 
     <style name="Theme.MediaRouter.Light" parent="">
@@ -30,6 +31,7 @@
         <item name="mediaRouteOffDrawable">@drawable/mr_ic_media_route_off_holo_light</item>
         <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_holo_light</item>
         <item name="mediaRouteOnDrawable">@drawable/mr_ic_media_route_on_holo_light</item>
+        <item name="mediaRouteSettingsDrawable">@drawable/mr_ic_settings_light</item>
     </style>
 
 </resources>
