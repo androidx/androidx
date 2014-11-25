@@ -19,6 +19,7 @@ package android.support.v4.media.session;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -55,7 +56,8 @@ import java.util.List;
  * When an app is finished performing playback it must call {@link #release()}
  * to clean up the session and notify any controllers.
  * <p>
- * MediaSession objects are thread safe.
+ * MediaSessionCompat objects are not thread safe and all calls should be made
+ * from the same thread.
  * <p>
  * This is a helper for accessing features in
  * {@link android.media.session.MediaSession} introduced after API level 4 in a
@@ -64,6 +66,8 @@ import java.util.List;
 public class MediaSessionCompat {
     private final MediaSessionImpl mImpl;
     private final MediaControllerCompat mController;
+    private final ArrayList<OnActiveChangeListener>
+            mActiveListeners = new ArrayList<OnActiveChangeListener>();
 
     /**
      * Set this flag on the session to indicate that it can handle media button
@@ -82,8 +86,16 @@ public class MediaSessionCompat {
      *
      * @param context The context.
      * @param tag A short name for debugging purposes.
+     * @param mediaButtonEventReceiver The component name for your receiver.
+     *            This must be non-null to support platform versions earlier
+     *            than {@link android.os.Build.VERSION_CODES#LOLLIPOP}.
+     * @param mbrIntent The PendingIntent for your receiver component that
+     *            handles media button events. This is optional and will be used
+     *            on {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR2} and
+     *            later instead of the component name.
      */
-    public MediaSessionCompat(Context context, String tag) {
+    public MediaSessionCompat(Context context, String tag, ComponentName mediaButtonEventReceiver,
+            PendingIntent mbrIntent) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -93,8 +105,9 @@ public class MediaSessionCompat {
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionImplApi21(context, tag);
+            mImpl.setMediaButtonReceiver(mbrIntent);
         } else {
-            mImpl = new MediaSessionImplBase();
+            mImpl = new MediaSessionImplBase(context, mediaButtonEventReceiver, mbrIntent);
         }
         mController = new MediaControllerCompat(context, this);
     }
@@ -145,8 +158,10 @@ public class MediaSessionCompat {
      * this way an {@link Intent#ACTION_MEDIA_BUTTON} intent will be sent via
      * the pending intent.
      * <p>
-     * On platforms earlier than {@link android.os.Build.VERSION_CODES#LOLLIPOP}
-     * this must be set before calling {@link #setActive setActive(true)}.
+     * This method will only work on
+     * {@link android.os.Build.VERSION_CODES#LOLLIPOP} and later. Earlier
+     * platform versions must include the media button receiver in the
+     * constructor.
      *
      * @param mbr The {@link PendingIntent} to send the media button event to.
      */
@@ -208,8 +223,10 @@ public class MediaSessionCompat {
      * @param active Whether this session is active or not.
      */
     public void setActive(boolean active) {
-
         mImpl.setActive(active);
+        for (OnActiveChangeListener listener : mActiveListeners) {
+            listener.onActiveChanged();
+        }
     }
 
     /**
@@ -353,6 +370,47 @@ public class MediaSessionCompat {
      */
     public Object getMediaSession() {
         return mImpl.getMediaSession();
+    }
+
+    /**
+     * Gets the underlying framework {@link android.media.RemoteControlClient}
+     * object.
+     * <p>
+     * This method is only supported on APIs 14-20. On API 21+
+     * {@link #getMediaSession()} should be used instead.
+     *
+     * @return The underlying {@link android.media.RemoteControlClient} object,
+     *         or null if none.
+     */
+    public Object getRemoteControlClient() {
+        return mImpl.getRemoteControlClient();
+    }
+
+    /**
+     * Adds a listener to be notified when the active status of this session
+     * changes. This is primarily used by the support library and should not be
+     * needed by apps.
+     *
+     * @param listener The listener to add.
+     */
+    public void addOnActiveChangeListener(OnActiveChangeListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Listener may not be null");
+        }
+        mActiveListeners.add(listener);
+    }
+
+    /**
+     * Stops the listener from being notified when the active status of this
+     * session changes.
+     *
+     * @param listener The listener to remove.
+     */
+    public void removeOnActiveChangeListener(OnActiveChangeListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Listener may not be null");
+        }
+        mActiveListeners.remove(listener);
     }
 
     /**
@@ -711,6 +769,10 @@ public class MediaSessionCompat {
         }
     }
 
+    public interface OnActiveChangeListener {
+        void onActiveChanged();
+    }
+
     interface MediaSessionImpl {
         void setCallback(Callback callback, Handler handler);
         void setFlags(int flags);
@@ -734,16 +796,147 @@ public class MediaSessionCompat {
         void setExtras(Bundle extras);
 
         Object getMediaSession();
+
+        Object getRemoteControlClient();
     }
 
     // TODO: compatibility implementation
     static class MediaSessionImplBase implements MediaSessionImpl {
+        private final Context mContext;
+        private final ComponentName mComponentName;
+        private final PendingIntent mMediaButtonEventReceiver;
+        private final Object mRccObj;
+        private Object mToken;
+
+        private boolean mIsActive = false;
+        private boolean mIsRccRegistered = false;
+        private boolean mIsMbrRegistered = false;
+        private Callback mCallback;
+
+        private int mFlags;
+
+        private MediaMetadataCompat mMetadata;
+        private PlaybackStateCompat mState;
+
+        public MediaSessionImplBase(Context context, ComponentName mbrComponent,
+                PendingIntent mbr) {
+            if (mbrComponent == null) {
+                throw new IllegalArgumentException(
+                        "MediaButtonReceiver component may not be null.");
+            }
+            if (mbr == null) {
+                // construct a PendingIntent for the media button
+                Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                // the associated intent will be handled by the component being
+                // registered
+                mediaButtonIntent.setComponent(mbrComponent);
+                mbr = PendingIntent.getBroadcast(context,
+                        0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
+            }
+            mContext = context;
+            mComponentName = mbrComponent;
+            mMediaButtonEventReceiver = mbr;
+            if (android.os.Build.VERSION.SDK_INT >= 14) {
+                mRccObj = MediaSessionCompatApi14.createRemoteControlClient(mbr);
+            } else {
+                mRccObj = null;
+            }
+        }
+
         @Override
-        public void setCallback(Callback callback, Handler handler) {
+        public void setCallback(final Callback callback, Handler handler) {
+            if (callback == mCallback) {
+                return;
+            }
+            if (callback == null || android.os.Build.VERSION.SDK_INT < 18) {
+                // There's nothing to register on API < 18 since media buttons
+                // all go through the media button receiver
+                if (android.os.Build.VERSION.SDK_INT >= 18) {
+                    MediaSessionCompatApi18.setOnPlaybackPositionUpdateListener(mRccObj, null);
+                }
+                if (android.os.Build.VERSION.SDK_INT >= 19) {
+                    MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj, null);
+                }
+            } else {
+                if (handler == null) {
+                    handler = new Handler();
+                }
+                MediaSessionCompatApi14.Callback cb14 = new MediaSessionCompatApi14.Callback() {
+                    @Override
+                    public void onStop() {
+                        callback.onStop();
+                    }
+
+                    @Override
+                    public void onSkipToPrevious() {
+                        callback.onSkipToPrevious();
+                    }
+
+                    @Override
+                    public void onSkipToNext() {
+                        callback.onSkipToNext();
+                    }
+
+                    @Override
+                    public void onSetRating(Object ratingObj) {
+                        callback.onSetRating(RatingCompat.fromRating(ratingObj));
+                    }
+
+                    @Override
+                    public void onSeekTo(long pos) {
+                        callback.onSeekTo(pos);
+                    }
+
+                    @Override
+                    public void onRewind() {
+                        callback.onRewind();
+                    }
+
+                    @Override
+                    public void onPlay() {
+                        callback.onPlay();
+                    }
+
+                    @Override
+                    public void onPause() {
+                        callback.onPause();
+                    }
+
+                    @Override
+                    public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                        return callback.onMediaButtonEvent(mediaButtonIntent);
+                    }
+
+                    @Override
+                    public void onFastForward() {
+                        callback.onFastForward();
+                    }
+
+                    @Override
+                    public void onCommand(String command, Bundle extras, ResultReceiver cb) {
+                        callback.onCommand(command, extras, cb);
+                    }
+                };
+                if (android.os.Build.VERSION.SDK_INT >= 18) {
+                    Object onPositionUpdateObj = MediaSessionCompatApi18
+                            .createPlaybackPositionUpdateListener(cb14);
+                    MediaSessionCompatApi18.setOnPlaybackPositionUpdateListener(mRccObj,
+                            onPositionUpdateObj);
+                }
+                if (android.os.Build.VERSION.SDK_INT >= 19) {
+                    Object onMetadataUpdateObj = MediaSessionCompatApi19
+                            .createMetadataUpdateListener(cb14);
+                    MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj,
+                            onMetadataUpdateObj);
+                }
+            }
+            mCallback = callback;
         }
 
         @Override
         public void setFlags(int flags) {
+            mFlags = flags;
+            update();
         }
 
         @Override
@@ -756,11 +949,19 @@ public class MediaSessionCompat {
 
         @Override
         public void setActive(boolean active) {
+            if (active == mIsActive) {
+                return;
+            }
+            mIsActive = active;
+            if (update()) {
+                setMetadata(mMetadata);
+                setPlaybackState(mState);
+            }
         }
 
         @Override
         public boolean isActive() {
-            return false;
+            return mIsActive;
         }
 
         @Override
@@ -769,6 +970,8 @@ public class MediaSessionCompat {
 
         @Override
         public void release() {
+            mIsActive = false;
+            update();
         }
 
         @Override
@@ -778,10 +981,42 @@ public class MediaSessionCompat {
 
         @Override
         public void setPlaybackState(PlaybackStateCompat state) {
+            mState = state;
+            if (!mIsActive) {
+                // Don't set the state until after the RCC is registered
+                return;
+            }
+
+            if (state == null) {
+                if (android.os.Build.VERSION.SDK_INT >= 14) {
+                    MediaSessionCompatApi14.setState(mRccObj, PlaybackStateCompat.STATE_NONE);
+                }
+            } else {
+                if (android.os.Build.VERSION.SDK_INT >= 18) {
+                    MediaSessionCompatApi18.setState(mRccObj, state.getState(), state.getPosition(),
+                            state.getPlaybackSpeed(), state.getLastPositionUpdateTime());
+                } else if (android.os.Build.VERSION.SDK_INT >= 14) {
+                    MediaSessionCompatApi14.setState(mRccObj, state.getState());
+                }
+            }
         }
 
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
+            mMetadata = metadata;
+            if (!mIsActive) {
+                // Don't set metadata until after the rcc has been registered
+                return;
+            }
+            if (android.os.Build.VERSION.SDK_INT >= 19) {
+                boolean canRate = mState != null
+                        && (mState.getActions() & PlaybackStateCompat.ACTION_SET_RATING) != 0;
+                MediaSessionCompatApi19.setMetadata(mRccObj,
+                        metadata == null ? null : metadata.getBundle(), canRate);
+            } else if (android.os.Build.VERSION.SDK_INT >= 14) {
+                MediaSessionCompatApi14.setMetadata(mRccObj,
+                        metadata == null ? null : metadata.getBundle());
+            }
         }
 
         @Override
@@ -790,6 +1025,7 @@ public class MediaSessionCompat {
 
         @Override
         public void setMediaButtonReceiver(PendingIntent mbr) {
+            // Do nothing, changing this is not supported before API 21.
         }
 
         @Override
@@ -806,11 +1042,76 @@ public class MediaSessionCompat {
         }
 
         @Override
+        public Object getRemoteControlClient() {
+            return mRccObj;
+        }
+
+        @Override
         public void setRatingType(int type) {
         }
 
         @Override
         public void setExtras(Bundle extras) {
+        }
+
+        // Registers/unregisters the RCC and MediaButtonEventReceiver as needed.
+        private boolean update() {
+            boolean registeredRcc = false;
+            if (mIsActive) {
+                // On API 8+ register a MBR if it's supported, unregister it
+                // if support was removed.
+                if (android.os.Build.VERSION.SDK_INT >= 8) {
+                    if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
+                        if (android.os.Build.VERSION.SDK_INT >= 18) {
+                            MediaSessionCompatApi18.registerMediaButtonEventReceiver(mContext,
+                                    mMediaButtonEventReceiver);
+                        } else {
+                            MediaSessionCompatApi8.registerMediaButtonEventReceiver(mContext,
+                                    mComponentName);
+                        }
+                        mIsMbrRegistered = true;
+                    } else if (mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) == 0) {
+                        if (android.os.Build.VERSION.SDK_INT >= 18) {
+                            MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
+                                    mMediaButtonEventReceiver);
+                        } else {
+                            MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
+                                    mComponentName);
+                        }
+                        mIsMbrRegistered = false;
+                    }
+                }
+                // On API 14+ register a RCC if it's supported, unregister it if
+                // not.
+                if (android.os.Build.VERSION.SDK_INT >= 14) {
+                    if (!mIsRccRegistered && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) != 0) {
+                        MediaSessionCompatApi14.registerRemoteControlClient(mContext, mRccObj);
+                        mIsRccRegistered = true;
+                        registeredRcc = true;
+                    } else if (mIsRccRegistered
+                            && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) == 0) {
+                        MediaSessionCompatApi14.unregisterRemoteControlClient(mContext, mRccObj);
+                        mIsRccRegistered = false;
+                    }
+                }
+            } else {
+                // When inactive remove any registered components.
+                if (mIsMbrRegistered) {
+                    if (android.os.Build.VERSION.SDK_INT >= 18) {
+                        MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
+                                mMediaButtonEventReceiver);
+                    } else {
+                        MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
+                                mComponentName);
+                    }
+                    mIsMbrRegistered = false;
+                }
+                if (mIsRccRegistered) {
+                    MediaSessionCompatApi14.unregisterRemoteControlClient(mContext, mRccObj);
+                    mIsRccRegistered = false;
+                }
+            }
+            return registeredRcc;
         }
     }
 
@@ -931,6 +1232,11 @@ public class MediaSessionCompat {
         @Override
         public Object getMediaSession() {
             return mSessionObj;
+        }
+
+        @Override
+        public Object getRemoteControlClient() {
+            return null;
         }
     }
 }
