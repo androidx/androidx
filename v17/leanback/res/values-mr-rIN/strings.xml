@@ -22,18 +22,14 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"शोधण्यासाठी बोला"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> शोधा"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> शोधण्यासाठी बोला"</string>
-    <!-- no translation found for lb_control_display_fast_forward_multiplier (4541442045214207774) -->
-    <skip />
-    <!-- no translation found for lb_control_display_rewind_multiplier (3097220783222910245) -->
-    <skip />
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="731953341987346903">"प्ले करा"</string>
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"विराम द्या"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"फास्ट फॉरवर्ड करा"</string>
-    <!-- no translation found for lb_playback_controls_fast_forward_multiplier (1058753672110224526) -->
-    <skip />
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"फास्ट फॉरवर्ड %1$dX"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"रिवाईँड करा"</string>
-    <!-- no translation found for lb_playback_controls_rewind_multiplier (1640629531440849942) -->
-    <skip />
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"रीवाईंड %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"पुढील वगळा"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"मागील वगळा"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"अधिक क्रिया"</string>
