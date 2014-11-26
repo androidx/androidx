@@ -319,6 +319,12 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     @Override
+    public void onDestroyView() {
+        mViewsCreated = false;
+        super.onDestroyView();
+    }
+
+    @Override
     void setItemAlignment() {
         super.setItemAlignment();
         if (getVerticalGridView() != null) {
