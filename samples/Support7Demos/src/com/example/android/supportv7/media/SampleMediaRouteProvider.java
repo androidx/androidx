@@ -248,7 +248,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
 
         public SampleRouteController(String routeId) {
             mRouteId = routeId;
-            mPlayer = Player.create(getContext(), null);
+            mPlayer = Player.create(getContext(), null, null);
             mSessionManager.setPlayer(mPlayer);
             mSessionManager.setCallback(new SessionManager.Callback() {
                 @Override

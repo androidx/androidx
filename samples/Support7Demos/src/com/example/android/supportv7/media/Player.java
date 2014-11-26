@@ -16,7 +16,10 @@
 
 package com.example.android.supportv7.media;
 
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -43,7 +46,6 @@ public abstract class Player {
 
     protected Callback mCallback;
     protected MediaSessionCompat mMediaSession;
-    protected MediaSessionCallback mSessionCallback;
 
     public abstract boolean isRemotePlayback();
     public abstract boolean isQueuingSupported();
@@ -76,7 +78,7 @@ public abstract class Player {
         mCallback = callback;
     }
 
-    public static Player create(Context context, RouteInfo route) {
+    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {
         Player player;
         if (route != null && route.supportsControlCategory(
                 MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
@@ -86,7 +88,7 @@ public abstract class Player {
         } else {
             player = new LocalPlayer.OverlayPlayer(context);
         }
-        player.initMediaSession(context);
+        player.initMediaSession(session);
         player.connect(route);
         return player;
     }
@@ -96,6 +98,9 @@ public abstract class Player {
     }
 
     protected void updateMetadata() {
+        if (mMediaSession == null) {
+            return;
+        }
         MediaMetadataCompat.Builder bob = new MediaMetadataCompat.Builder();
         bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, getDescription());
         bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Subtitle of the thing");
@@ -106,6 +111,9 @@ public abstract class Player {
     }
 
     protected void publishState(int state) {
+        if (mMediaSession == null) {
+            return;
+        }
         PlaybackStateCompat.Builder bob = new PlaybackStateCompat.Builder();
         bob.setActions(PLAYBACK_ACTIONS);
         switch (state) {
@@ -130,26 +138,11 @@ public abstract class Player {
         }
     }
 
-    private void initMediaSession(Context context) {
-        mSessionCallback = new MediaSessionCallback();
-        mMediaSession = new MediaSessionCompat(context, "Support7Demos");
-        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-                | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mMediaSession.setCallback(mSessionCallback);
+    private void initMediaSession(MediaSessionCompat session) {
+        mMediaSession = session;
         updateMetadata();
     }
 
-    private final class MediaSessionCallback extends MediaSessionCompat.Callback {
-        @Override
-        public void onPlay() {
-            resume();
-        }
-
-        @Override
-        public void onPause() {
-            pause();
-        }
-    }
 
     public interface Callback {
         void onError();
