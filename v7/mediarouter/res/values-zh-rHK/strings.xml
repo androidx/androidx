@@ -22,4 +22,12 @@
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"連線至裝置"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"正在搜尋裝置…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"中斷連線"</string>
+    <!-- no translation found for mr_media_route_controller_stop (5398645111664294430) -->
+    <skip />
+    <!-- no translation found for mr_media_route_controller_settings_description (379358765881274425) -->
+    <skip />
+    <!-- no translation found for mr_media_route_controller_play (5214423499524760404) -->
+    <skip />
+    <!-- no translation found for mr_media_route_controller_pause (8315773974194466049) -->
+    <skip />
 </resources>

@@ -22,4 +22,8 @@
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"စက်တစ်ခုကို ချိတ်ဆက်ပါ"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"စက်ပစ္စည်းများကို ရှာဖွေနေပါသည်"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ချိတ်ဆက်ခြင်းရပ်တန့်ရန်"</string>
+    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"ပုံစံသွင်းမှု ရပ်ရန်"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"လမ်းကြောင်း အပြင်အဆင်များ"</string>
+    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ဖွင့်ရန်"</string>
+    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"ခဏရပ်ရန်"</string>
 </resources>

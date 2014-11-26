@@ -22,4 +22,8 @@
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"Түзмөккө туташуу"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Түзмөктөр изделүүдө..."</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Ажыратуу"</string>
+    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Тышк экранга чыгарну токтотуу"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Багыт жөндөөлөрү"</string>
+    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Ойнотуу"</string>
+    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Тындыруу"</string>
 </resources>
