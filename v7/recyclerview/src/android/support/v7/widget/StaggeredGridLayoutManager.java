@@ -240,7 +240,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         int invalidGapDir = mShouldReverseLayout ? LAYOUT_START : LAYOUT_END;
         final LazySpanLookup.FullSpanItem invalidFsi = mLazySpanLookup
-                .getFirstFullSpanItemInRange(minPos, maxPos + 1, invalidGapDir);
+                .getFirstFullSpanItemInRange(minPos, maxPos + 1, invalidGapDir, true);
         if (invalidFsi == null) {
             mLaidOutInvalidFullSpan = false;
             mLazySpanLookup.forceInvalidateAfter(maxPos + 1);
@@ -248,7 +248,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         final LazySpanLookup.FullSpanItem validFsi = mLazySpanLookup
                 .getFirstFullSpanItemInRange(minPos, invalidFsi.mPosition,
-                        invalidGapDir * -1);
+                        invalidGapDir * -1, true);
         if (validFsi == null) {
             mLazySpanLookup.forceInvalidateAfter(invalidFsi.mPosition);
         } else {
@@ -1305,7 +1305,23 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      */
     private void handleUpdate(int positionStart, int itemCountOrToPosition, int cmd) {
         int minPosition = mShouldReverseLayout ? getLastChildPosition() : getFirstChildPosition();
-        mLazySpanLookup.invalidateAfter(positionStart);
+        final int affectedRangeEnd;// exclusive
+        final int affectedRangeStart;// inclusive
+
+        if (cmd == AdapterHelper.UpdateOp.MOVE) {
+            if (positionStart < itemCountOrToPosition) {
+                affectedRangeEnd = itemCountOrToPosition + 1;
+                affectedRangeStart = positionStart;
+            } else {
+                affectedRangeEnd = positionStart + 1;
+                affectedRangeStart = itemCountOrToPosition;
+            }
+        } else {
+            affectedRangeStart = positionStart;
+            affectedRangeEnd = positionStart + itemCountOrToPosition;
+        }
+
+        mLazySpanLookup.invalidateAfter(affectedRangeStart);
         switch (cmd) {
             case AdapterHelper.UpdateOp.ADD:
                 mLazySpanLookup.offsetForAddition(positionStart, itemCountOrToPosition);
@@ -1320,12 +1336,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 break;
         }
 
-        if (positionStart + itemCountOrToPosition <= minPosition) {
+        if (affectedRangeEnd <= minPosition) {
             return;
-
         }
+
         int maxPosition = mShouldReverseLayout ? getFirstChildPosition() : getLastChildPosition();
-        if (positionStart <= maxPosition) {
+        if (affectedRangeStart <= maxPosition) {
             requestLayout();
         }
     }
@@ -1366,7 +1382,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             final int position = lp.getViewLayoutPosition();
             final int spanIndex = mLazySpanLookup.getSpan(position);
             Span currentSpan;
-            boolean assignSpan = spanIndex == LayoutParams.INVALID_SPAN_ID;
+            final boolean assignSpan = spanIndex == LayoutParams.INVALID_SPAN_ID;
             if (assignSpan) {
                 currentSpan = lp.mFullSpan ? mSpans[0] : getNextSpan(layoutState);
                 mLazySpanLookup.setSpan(position, currentSpan);
@@ -1415,8 +1431,26 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             // check if this item may create gaps in the future
-            if (lp.mFullSpan && layoutState.mItemDirection == ITEM_DIRECTION_HEAD && assignSpan) {
-                mLaidOutInvalidFullSpan = true;
+            if (lp.mFullSpan && layoutState.mItemDirection == ITEM_DIRECTION_HEAD) {
+                if (assignSpan) {
+                    mLaidOutInvalidFullSpan = true;
+                } else {
+                    final boolean hasInvalidGap;
+                    if (layoutState.mLayoutDirection == LAYOUT_END) {
+                        hasInvalidGap = !areAllEndsEqual();
+                    } else { // layoutState.mLayoutDirection == LAYOUT_START
+                        hasInvalidGap = !areAllStartsEqual();
+                    }
+                    if (hasInvalidGap) {
+                        final LazySpanLookup.FullSpanItem fullSpanItem = mLazySpanLookup
+                                .getFullSpanItem(position);
+                        if (fullSpanItem != null) {
+                            fullSpanItem.mHasUnwantedGapAfter = true;
+                        }
+                        mLaidOutInvalidFullSpan = true;
+                    }
+                }
+
             }
             attachViewToSpans(view, lp, layoutState);
             final int otherStart = lp.mFullSpan ? mSecondaryOrientation.getStartAfterPadding()
@@ -1567,6 +1601,26 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         return minStart;
+    }
+
+    boolean areAllEndsEqual() {
+        int end = mSpans[0].getEndLine(Span.INVALID_LINE);
+        for (int i = 1; i < mSpanCount; i++) {
+            if (mSpans[i].getEndLine(Span.INVALID_LINE) != end) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    boolean areAllStartsEqual() {
+        int start = mSpans[0].getStartLine(Span.INVALID_LINE);
+        for (int i = 1; i < mSpanCount; i++) {
+            if (mSpans[i].getStartLine(Span.INVALID_LINE) != start) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private int getMaxEnd(int def) {
@@ -2441,17 +2495,23 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
          * @param minPos inclusive
          * @param maxPos exclusive
          * @param gapDir if not 0, returns FSIs on in that direction
+         * @param hasUnwantedGapAfter If true, when full span item has unwanted gaps, it will be
+         *                        returned even if its gap direction does not match.
          */
-        public FullSpanItem getFirstFullSpanItemInRange(int minPos, int maxPos, int gapDir) {
+        public FullSpanItem getFirstFullSpanItemInRange(int minPos, int maxPos, int gapDir,
+                boolean hasUnwantedGapAfter) {
             if (mFullSpanItems == null) {
                 return null;
             }
-            for (int i = 0; i < mFullSpanItems.size(); i++) {
+            final int limit = mFullSpanItems.size();
+            for (int i = 0; i < limit; i++) {
                 FullSpanItem fsi = mFullSpanItems.get(i);
                 if (fsi.mPosition >= maxPos) {
                     return null;
                 }
-                if (fsi.mPosition >= minPos && (gapDir == 0 || fsi.mGapDir == gapDir)) {
+                if (fsi.mPosition >= minPos
+                        && (gapDir == 0 || fsi.mGapDir == gapDir ||
+                        (hasUnwantedGapAfter && fsi.mHasUnwantedGapAfter))) {
                     return fsi;
                 }
             }
@@ -2466,10 +2526,15 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             int mPosition;
             int mGapDir;
             int[] mGapPerSpan;
+            // A full span may be laid out in primary direction but may have gaps due to
+            // invalidation of views after it. This is recorded during a reverse scroll and if
+            // view is still on the screen after scroll stops, we have to recalculate layout
+            boolean mHasUnwantedGapAfter;
 
             public FullSpanItem(Parcel in) {
                 mPosition = in.readInt();
                 mGapDir = in.readInt();
+                mHasUnwantedGapAfter = in.readInt() == 1;
                 int spanCount = in.readInt();
                 if (spanCount > 0) {
                     mGapPerSpan = new int[spanCount];
@@ -2497,6 +2562,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             public void writeToParcel(Parcel dest, int flags) {
                 dest.writeInt(mPosition);
                 dest.writeInt(mGapDir);
+                dest.writeInt(mHasUnwantedGapAfter ? 1 : 0);
                 if (mGapPerSpan != null && mGapPerSpan.length > 0) {
                     dest.writeInt(mGapPerSpan.length);
                     dest.writeIntArray(mGapPerSpan);
@@ -2510,6 +2576,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 return "FullSpanItem{" +
                         "mPosition=" + mPosition +
                         ", mGapDir=" + mGapDir +
+                        ", mHasUnwantedGapAfter=" + mHasUnwantedGapAfter +
                         ", mGapPerSpan=" + Arrays.toString(mGapPerSpan) +
                         '}';
             }
