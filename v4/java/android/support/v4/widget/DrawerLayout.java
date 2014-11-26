@@ -670,6 +670,11 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
             updateChildrenImportantForAccessibility(drawerView, true);
 
+            // Only send WINDOW_STATE_CHANGE if the host has window focus.
+            if (hasWindowFocus()) {
+                sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            }
+
             drawerView.requestFocus();
         }
     }
