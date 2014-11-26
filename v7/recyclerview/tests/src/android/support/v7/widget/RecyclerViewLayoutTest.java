@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 
 public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final String TAG = "RecyclerViewLayoutTest";
 
@@ -53,6 +54,62 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         super(DEBUG);
     }
 
+    public void testScrollToPositionCallback() throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        TestLayoutManager tlm = new TestLayoutManager() {
+            int scrollPos = RecyclerView.NO_POSITION;
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutLatch.countDown();
+                if (scrollPos == RecyclerView.NO_POSITION) {
+                    layoutRange(recycler, 0, 10);
+                } else {
+                    layoutRange(recycler, scrollPos, scrollPos + 10);
+                }
+            }
+            @Override
+            public void scrollToPosition(int position) {
+                scrollPos = position;
+                requestLayout();
+            }
+        };
+        recyclerView.setLayoutManager(tlm);
+        TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        final AtomicInteger rvCounter = new AtomicInteger(0);
+        final AtomicInteger viewGroupCounter = new AtomicInteger(0);
+        recyclerView.getViewTreeObserver().addOnScrollChangedListener(
+                new ViewTreeObserver.OnScrollChangedListener() {
+                    @Override
+                    public void onScrollChanged() {
+                        viewGroupCounter.incrementAndGet();
+                    }
+                });
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                rvCounter.incrementAndGet();
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(2);
+        assertEquals("on scroll should be called for initialization", 1, rvCounter.get());
+        assertEquals("on scroll should be called for initialization", 1,
+                viewGroupCounter.get());
+        tlm.expectLayouts(1);
+        scrollToPosition(3);
+        tlm.waitForLayout(2);
+        assertEquals("on scroll should be called", 2, rvCounter.get());
+        assertEquals("on scroll should be called", 2, viewGroupCounter.get());
+        tlm.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        tlm.waitForLayout(2);
+        assertEquals("on scroll should NOT be called", 2, rvCounter.get());
+        assertEquals("on scroll should NOT be called", 2, viewGroupCounter.get());
+
+    }
 
     public void testScrollInBothDirectionEqual() throws Throwable {
         scrollInBothDirection(3, 3, 1000, 1000);
