@@ -22,4 +22,8 @@
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"端末に接続"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"端末を検索しています…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"接続を解除"</string>
+    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"キャストを停止"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"ルーティング設定"</string>
+    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"再生"</string>
+    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"一時停止"</string>
 </resources>
