@@ -677,7 +677,7 @@ public class MediaSessionCompat {
         /**
          * Obtain a compat wrapper for an existing QueueItem.
          *
-         * @param queueItem The {@link android.media.session.MediaSession#QueueItem} to
+         * @param queueItem The {@link android.media.session.MediaSession.QueueItem} to
          *            wrap.
          * @return A compat wrapper for the provided item.
          */
