@@ -22,4 +22,8 @@
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"ເຊື່ອມຕໍ່ຫາອຸປະກອນ"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"ກຳລັງຊອກຫາອຸປະກອນ..."</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ຕັດການເຊື່ອມຕໍ່"</string>
+    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"ຢຸດການສົ່ງສັນຍານ"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"ການ​ຕັ້ງ​ຄ່າ​ເສັ້ນ​ທາງ"</string>
+    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ຫຼິ້ນ"</string>
+    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"ຢຸດຊົ່ວຄາວ"</string>
 </resources>

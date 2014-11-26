@@ -22,4 +22,12 @@
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"Σύνδεση με τη συσκευή"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Αναζήτηση συσκευών…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Αποσύνδεση"</string>
+    <!-- no translation found for mr_media_route_controller_stop (5398645111664294430) -->
+    <skip />
+    <!-- no translation found for mr_media_route_controller_settings_description (379358765881274425) -->
+    <skip />
+    <!-- no translation found for mr_media_route_controller_play (5214423499524760404) -->
+    <skip />
+    <!-- no translation found for mr_media_route_controller_pause (8315773974194466049) -->
+    <skip />
 </resources>

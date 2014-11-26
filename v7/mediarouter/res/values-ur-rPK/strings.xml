@@ -22,4 +22,8 @@
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"آلہ سے مربوط ہوں"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"آلات تلاش کر رہا ہے…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"غیر مربوط کریں"</string>
+    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"کاسٹ کرنا بند کریں"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"روٹ کی ترتیبات"</string>
+    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"چلائیں"</string>
+    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"موقوف کریں"</string>
 </resources>
