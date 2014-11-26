@@ -72,26 +72,26 @@ public final class MediaRouter {
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
-     * Passed to {@link #onUnselect(int)} when the reason the route was
-     * unselected is unknown.
+     * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
+     * when the reason the route was unselected is unknown.
      */
     public static final int UNSELECT_REASON_UNKNOWN = 0;
     /**
-     * Passed to {@link #onUnselect(int)} when the user pressed the
-     * disconnect button to disconnect and keep playing.
+     * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
+     * when the user pressed the disconnect button to disconnect and keep playing.
      * <p>
      *
      * @see {@link MediaRouteDescriptor#canDisconnectAndKeepPlaying()}.
      */
     public static final int UNSELECT_REASON_DISCONNECTED = 1;
     /**
-     * Passed to {@link #onUnselect(int)} when the user pressed the stop casting
-     * button.
+     * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
+     * when the user pressed the stop casting button.
      */
     public static final int UNSELECT_REASON_STOPPED = 2;
     /**
-     * Passed to {@link #onUnselect(int)} when the user selected a different
-     * route.
+     * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
+     * when the user selected a different route.
      */
     public static final int UNSELECT_REASON_ROUTE_CHANGED = 3;
 
