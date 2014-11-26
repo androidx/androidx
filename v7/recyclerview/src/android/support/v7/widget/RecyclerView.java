@@ -293,6 +293,11 @@ public class RecyclerView extends ViewGroup {
             new ItemAnimatorRestoreListener();
     private boolean mPostedAnimatorRunner = false;
     private RecyclerViewAccessibilityDelegate mAccessibilityDelegate;
+
+    // simple array to keep min and max child position during a layout calculation
+    // preserved not to create a new one in each layout pass
+    private final int[] mMinMaxLayoutPositions = new int[2];
+
     private Runnable mItemAnimatorRunner = new Runnable() {
         @Override
         public void run() {
@@ -1074,10 +1079,7 @@ public class RecyclerView extends ViewGroup {
             pullGlows(overscrollX, overscrollY);
         }
         if (hresult != 0 || vresult != 0) {
-            onScrollChanged(0, 0, 0, 0); // dummy values, View's implementation does not use these.
-            if (mScrollListener != null) {
-                mScrollListener.onScrolled(this, hresult, vresult);
-            }
+            notifyOnScrolled(hresult, vresult);
         }
         if (!awakenScrollBars()) {
             invalidate();
@@ -2026,6 +2028,7 @@ public class RecyclerView extends ViewGroup {
         ArrayMap<View, Rect> appearingViewInitialBounds = null;
         mState.mInPreLayout = mState.mRunPredictiveAnimations;
         mState.mItemCount = mAdapter.getItemCount();
+        findMinMaxChildLayoutPositions(mMinMaxLayoutPositions);
 
         if (mState.mRunSimpleAnimations) {
             // Step 0: Find out where all non-removed items are, pre-layout
@@ -2221,6 +2224,54 @@ public class RecyclerView extends ViewGroup {
             mRecycler.mChangedScrap.clear();
         }
         mState.mOldChangedHolders = null;
+
+        if (didChildRangeChange(mMinMaxLayoutPositions[0], mMinMaxLayoutPositions[1])) {
+            notifyOnScrolled(0, 0);
+        }
+    }
+
+    private void findMinMaxChildLayoutPositions(int[] into) {
+        final int count = mChildHelper.getChildCount();
+        if (count == 0) {
+            into[0] = 0;
+            into[1] = 0;
+            return;
+        }
+        int minPositionPreLayout = Integer.MAX_VALUE;
+        int maxPositionPreLayout = Integer.MIN_VALUE;
+        for (int i = 0; i < count; ++i) {
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
+            if (holder.shouldIgnore()) {
+                continue;
+            }
+            final int pos = holder.getLayoutPosition();
+            if (pos < minPositionPreLayout) {
+                minPositionPreLayout = pos;
+            }
+            if (pos > maxPositionPreLayout) {
+                maxPositionPreLayout = pos;
+            }
+        }
+        into[0] = minPositionPreLayout;
+        into[1] = maxPositionPreLayout;
+    }
+
+    private boolean didChildRangeChange(int minPositionPreLayout, int maxPositionPreLayout) {
+        int count = mChildHelper.getChildCount();
+        if (count == 0) {
+            return minPositionPreLayout != 0 || maxPositionPreLayout != 0;
+        }
+        for (int i = 0; i < count; ++i) {
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
+            if (holder.shouldIgnore()) {
+                continue;
+            }
+            final int pos = holder.getLayoutPosition();
+            if (pos < minPositionPreLayout || pos > maxPositionPreLayout) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -3061,11 +3112,7 @@ public class RecyclerView extends ViewGroup {
                     }
                 }
                 if (hresult != 0 || vresult != 0) {
-                    // dummy values, View's implementation does not use these.
-                    onScrollChanged(0, 0, 0, 0);
-                    if (mScrollListener != null) {
-                        mScrollListener.onScrolled(RecyclerView.this, hresult, vresult);
-                    }
+                    notifyOnScrolled(hresult, vresult);
                 }
 
                 if (!awakenScrollBars()) {
@@ -3175,6 +3222,14 @@ public class RecyclerView extends ViewGroup {
             mScroller.abortAnimation();
         }
 
+    }
+
+    private void notifyOnScrolled(int hresult, int vresult) {
+        // dummy values, View's implementation does not use these.
+        onScrollChanged(0, 0, 0, 0);
+        if (mScrollListener != null) {
+            mScrollListener.onScrolled(this, hresult, vresult);
+        }
     }
 
     private class RecyclerViewDataObserver extends AdapterDataObserver {
@@ -6861,6 +6916,9 @@ public class RecyclerView extends ViewGroup {
         /**
          * Callback method to be invoked when the RecyclerView has been scrolled. This will be
          * called after the scroll has completed.
+         * <p>
+         * This callback will also be called if visible item range changes after a layout
+         * calculation. In that case, dx and dy will be 0.
          *
          * @param recyclerView The RecyclerView which scrolled.
          * @param dx The amount of horizontal scroll.
