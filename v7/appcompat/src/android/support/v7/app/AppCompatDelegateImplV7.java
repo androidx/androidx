@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -29,6 +30,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.LayoutInflaterCompat;
+import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
@@ -36,7 +39,6 @@ import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.TintViewInflater;
 import android.support.v7.internal.app.ToolbarActionBar;
-import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.app.WindowDecorActionBar;
 import android.support.v7.internal.view.ContextThemeWrapper;
 import android.support.v7.internal.view.StandaloneActionMode;
@@ -81,9 +83,8 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.Window.FEATURE_OPTIONS_PANEL;
 
-class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
-        implements MenuBuilder.Callback {
-    private static final String TAG = "ActionBarActivityDelegateBase";
+class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
+        implements MenuBuilder.Callback, LayoutInflaterFactory {
 
     private DecorContentParent mDecorContentParent;
     private ActionMenuPresenterCallback mActionMenuPresenterCallback;
@@ -134,12 +135,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     private TintViewInflater mTintViewInflater;
 
-    ActionBarActivityDelegateBase(ActionBarActivity activity) {
-        super(activity);
+    AppCompatDelegateImplV7(Activity activity, AppCompatActivityCallback callback) {
+        super(activity, callback);
     }
 
     @Override
-    void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mWindowDecor = (ViewGroup) mActivity.getWindow().getDecorView();
@@ -156,7 +157,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    void onPostCreate(Bundle savedInstanceState) {
+    public void onPostCreate(Bundle savedInstanceState) {
         // Make sure that the sub decor is installed
         ensureSubDecor();
     }
@@ -170,7 +171,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    void setSupportActionBar(Toolbar toolbar) {
+    public void setSupportActionBar(Toolbar toolbar) {
         final ActionBar ab = getSupportActionBar();
         if (ab instanceof WindowDecorActionBar) {
             throw new IllegalStateException("This Activity already has an action bar supplied " +
@@ -178,12 +179,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                     "windowActionBar to false in your theme to use a Toolbar instead.");
         }
 
-        // Need to make sure we give the action bar the default window callback. Otherwise multiple
-        // setSupportActionBar() calls lead to memory leaks
         ToolbarActionBar tbab = new ToolbarActionBar(toolbar, mActivity.getTitle(),
-                mActivity.getWindow(), mDefaultWindowCallback);
+                mActivity.getWindow());
         setSupportActionBar(tbab);
-        setWindowCallback(tbab.getWrappedWindowCallback());
+        mActivity.getWindow().setCallback(tbab.getWrappedWindowCallback());
         tbab.invalidateOptionsMenu();
     }
 
@@ -223,7 +222,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
         contentParent.removeAllViews();
         contentParent.addView(v);
-        mActivity.onSupportContentChanged();
+        mActivity.onContentChanged();
     }
 
     @Override
@@ -232,7 +231,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
         contentParent.removeAllViews();
         mActivity.getLayoutInflater().inflate(resId, contentParent);
-        mActivity.onSupportContentChanged();
+        mActivity.onContentChanged();
     }
 
     @Override
@@ -241,7 +240,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
         contentParent.removeAllViews();
         contentParent.addView(v, lp);
-        mActivity.onSupportContentChanged();
+        mActivity.onContentChanged();
     }
 
     @Override
@@ -249,15 +248,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         ensureSubDecor();
         ViewGroup contentParent = (ViewGroup) mActivity.findViewById(android.R.id.content);
         contentParent.addView(v, lp);
-        mActivity.onSupportContentChanged();
+        mActivity.onContentChanged();
     }
 
-    @Override
-    public void onContentChanged() {
-        // Ignore all calls to this method as we call onSupportContentChanged manually above
-    }
-
-    final void ensureSubDecor() {
+    private void ensureSubDecor() {
         if (!mSubDecorInstalled) {
             if (mHasActionBar) {
                 /**
@@ -354,8 +348,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 abcContent.addView(child);
             }
 
-            // Now set the Activity's content view with the decor
-            mActivity.superSetContentView(mSubDecor);
+            // Now set the Window's content view with the decor
+            mActivity.getWindow().setContentView(mSubDecor);
 
             // Change our content FrameLayout to use the android.R.id.content id.
             // Useful for fragments.
@@ -450,7 +444,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    public boolean supportRequestWindowFeature(int featureId) {
+    public boolean requestWindowFeature(int featureId) {
         switch (featureId) {
             case FEATURE_ACTION_BAR:
                 throwFeatureRequestIfSubDecorInstalled();
@@ -489,33 +483,15 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    public boolean onCreatePanelMenu(int featureId, Menu menu) {
-        if (featureId != Window.FEATURE_OPTIONS_PANEL) {
-            return getWindowCallback().onCreatePanelMenu(featureId, menu);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onPreparePanel(int featureId, View view, Menu menu) {
-        if (featureId != Window.FEATURE_OPTIONS_PANEL) {
-            return getWindowCallback().onPreparePanel(featureId, view, menu);
-        }
-        return false;
-    }
-
-    @Override
-    public void onPanelClosed(final int featureId, Menu menu) {
+    boolean onPanelClosed(final int featureId, Menu menu) {
         if (featureId == FEATURE_ACTION_BAR) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.dispatchMenuVisibilityChanged(false);
             }
-        } else if (!isDestroyed()) {
-            // Only pass it through to the Activity's super impl if it's not ACTION_BAR. This is
-            // because ICS+ will try and create a framework action bar due to this call
-            mActivity.superOnPanelClosed(featureId, menu);
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -526,14 +502,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 ab.dispatchMenuVisibilityChanged(true);
             }
             return true;
-        } else {
-            return mActivity.superOnMenuOpened(featureId, menu);
         }
+        return false;
     }
 
     @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-        final WindowCallback cb = getWindowCallback();
+        final Window.Callback cb = getWindowCallback();
         if (cb != null && !isDestroyed()) {
             final PanelFeatureState panel = findMenuPanel(menu.getRootMenu());
             if (panel != null) {
@@ -563,8 +538,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             mActionMode = ab.startActionMode(wrappedCallback);
-            if (mActionMode != null) {
-                mActivity.onSupportActionModeStarted(mActionMode);
+            if (mActionMode != null && mAppCompatCallback != null) {
+                mAppCompatCallback.onSupportActionModeStarted(mActionMode);
             }
         }
 
@@ -577,7 +552,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    public void supportInvalidateOptionsMenu() {
+    public void invalidateOptionsMenu() {
         final ActionBar ab = getSupportActionBar();
         if (ab != null && ab.invalidateOptionsMenu()) return;
 
@@ -647,14 +622,13 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 mActionMode = null;
             }
         }
-        if (mActionMode != null && mActivity != null) {
-            mActivity.onSupportActionModeStarted(mActionMode);
+        if (mActionMode != null && mAppCompatCallback != null) {
+            mAppCompatCallback.onSupportActionModeStarted(mActionMode);
         }
         return mActionMode;
     }
 
-    @Override
-    public boolean onBackPressed() {
+    boolean onBackPressed() {
         // Back cancels action modes first.
         if (mActionMode != null) {
             mActionMode.finish();
@@ -667,32 +641,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             return true;
         }
 
+        // Let the call through...
         return false;
-    }
-
-    @Override
-    void setSupportProgressBarVisibility(boolean visible) {
-        // noop
-    }
-
-    @Override
-    void setSupportProgressBarIndeterminateVisibility(boolean visible) {
-        // noop
-    }
-
-    @Override
-    void setSupportProgressBarIndeterminate(boolean indeterminate) {
-        // noop
-    }
-
-    @Override
-    void setSupportProgress(int progress) {
-        // noop
-    }
-
-    @Override
-    int getHomeAsUpIndicatorAttrId() {
-        return R.attr.homeAsUpIndicator;
     }
 
     @Override
@@ -741,7 +691,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         return isDown ? onKeyDown(keyCode, event) : onKeyUp(keyCode, event);
     }
 
-    protected boolean onKeyUp(int keyCode, KeyEvent event) {
+    boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
                 onKeyUpPanel(Window.FEATURE_OPTIONS_PANEL, event);
@@ -752,15 +702,19 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                     closePanel(st, true);
                     return true;
                 }
+                if (onBackPressed()) {
+                    return true;
+                }
                 break;
         }
         return false;
     }
 
-    protected boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_MENU) {
-            onKeyDownPanel(Window.FEATURE_OPTIONS_PANEL, event);
-            return true;
+    boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_MENU:
+                onKeyDownPanel(Window.FEATURE_OPTIONS_PANEL, event);
+                return true;
         }
 
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
@@ -772,7 +726,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    View createView(View parent, final String name, @NonNull Context context,
+    public View createView(View parent, final String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
         if (Build.VERSION.SDK_INT < 21) {
             if (mTintViewInflater == null) {
@@ -789,6 +743,33 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         // If we're running on API v21 or newer, return null and
         // let the layout inflater handle it
         return null;
+    }
+
+    @Override
+    public void installViewFactory() {
+        LayoutInflater layoutInflater = mActivity.getLayoutInflater();
+        if (layoutInflater.getFactory() == null) {
+            LayoutInflaterCompat.setFactory(layoutInflater, this);
+        } else {
+            Log.i(TAG, "The Activity's LayoutInflater already has a Factory installed"
+                    + " so we can not install AppCompat's");
+        }
+    }
+
+    /**
+     * From {@link android.support.v4.view.LayoutInflaterFactory}
+     */
+    @Override
+    public View onCreateView(View parent, String name,
+            Context context, AttributeSet attrs) {
+        // First let the Activity's LayoutInflater.Factory try and handle it
+        View result = mActivity.onCreateView(name, context, attrs);
+        if (result != null) {
+            return result;
+        }
+
+        // If the Factory didn't handle it, let our createView() method try
+        return createView(parent, name, context, attrs);
     }
 
     private void openPanel(final PanelFeatureState st, KeyEvent event) {
@@ -812,7 +793,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             }
         }
 
-        WindowCallback cb = getWindowCallback();
+        Window.Callback cb = getWindowCallback();
         if ((cb != null) && (!cb.onMenuOpened(st.featureId, st.menu))) {
             // Callback doesn't want the menu to open, reset any state
             closePanel(st, true);
@@ -903,7 +884,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 (!ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mActivity)) ||
                         mDecorContentParent.isOverflowMenuShowPending())) {
 
-            final WindowCallback cb = getWindowCallback();
+            final Window.Callback cb = getWindowCallback();
 
             if (!mDecorContentParent.isOverflowMenuShowing() || !toggleMenuMode) {
                 if (cb != null && !isDestroyed()) {
@@ -1021,7 +1002,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             closePanel(mPreparedPanel, false);
         }
 
-        final WindowCallback cb = getWindowCallback();
+        final Window.Callback cb = getWindowCallback();
 
         if (cb != null) {
             st.createdPanelView = cb.onCreatePanelView(st.featureId);
@@ -1055,7 +1036,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                 // Creating the panel menu will involve a lot of manipulation;
                 // don't dispatch change events to presenters until we're done.
                 st.menu.stopDispatchingItemsChanged();
-                if (!getWindowCallback().onCreatePanelMenu(st.featureId, st.menu)) {
+                if (!cb.onCreatePanelMenu(st.featureId, st.menu)) {
                     // Ditch the menu created above
                     st.setMenu(null);
 
@@ -1115,7 +1096,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
         mClosingActionMenu = true;
         mDecorContentParent.dismissPopups();
-        WindowCallback cb = getWindowCallback();
+        Window.Callback cb = getWindowCallback();
         if (cb != null && !isDestroyed()) {
             cb.onPanelClosed(FEATURE_ACTION_BAR, menu);
         }
@@ -1247,7 +1228,10 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         if ((panel != null) && (!panel.isOpen))
             return;
 
-        getWindowCallback().onPanelClosed(featureId, menu);
+        Window.Callback cb = getWindowCallback();
+        if (cb != null) {
+            cb.onPanelClosed(featureId, menu);
+        }
     }
 
     private PanelFeatureState findMenuPanel(Menu menu) {
@@ -1279,7 +1263,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         return st;
     }
 
-    final boolean performPanelShortcut(PanelFeatureState st, int keyCode, KeyEvent event,
+    private boolean performPanelShortcut(PanelFeatureState st, int keyCode, KeyEvent event,
             int flags) {
         if (event.isSystem()) {
             return false;
@@ -1419,7 +1403,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     private void throwFeatureRequestIfSubDecorInstalled() {
         if (mSubDecorInstalled) {
             throw new AndroidRuntimeException(
-                    "supportRequestWindowFeature() must be called before adding content");
+                    "Window feature must be requested before adding content");
         }
     }
 
@@ -1459,12 +1443,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             if (mActionModeView != null) {
                 mActionModeView.removeAllViews();
             }
-            if (mActivity != null) {
-                try {
-                    mActivity.onSupportActionModeFinished(mActionMode);
-                } catch (AbstractMethodError ame) {
-                    // Older apps might not implement this callback method.
-                }
+            if (mAppCompatCallback != null) {
+                mAppCompatCallback.onSupportActionModeFinished(mActionMode);
             }
             mActionMode = null;
         }
@@ -1492,7 +1472,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
         @Override
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             if (subMenu == null && mHasActionBar) {
-                WindowCallback cb = getWindowCallback();
+                Window.Callback cb = getWindowCallback();
                 if (cb != null && !isDestroyed()) {
                     cb.onMenuOpened(FEATURE_ACTION_BAR, subMenu);
                 }
@@ -1504,7 +1484,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     private final class ActionMenuPresenterCallback implements MenuPresenter.Callback {
         @Override
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
-            WindowCallback cb = getWindowCallback();
+            Window.Callback cb = getWindowCallback();
             if (cb != null) {
                 cb.onMenuOpened(FEATURE_ACTION_BAR, subMenu);
             }
@@ -1744,7 +1724,7 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            return ActionBarActivityDelegateBase.this.dispatchKeyEvent(event);
+            return AppCompatDelegateImplV7.this.dispatchKeyEvent(event);
         }
 
         @Override

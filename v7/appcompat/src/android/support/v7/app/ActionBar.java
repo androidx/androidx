@@ -1355,12 +1355,4 @@ public abstract class ActionBar {
             super(source);
         }
     }
-
-    /**
-     * Interface implemented by entities such as Activities that host action bars.
-     */
-    interface Callback {
-
-        FragmentManager getSupportFragmentManager();
-    }
 }

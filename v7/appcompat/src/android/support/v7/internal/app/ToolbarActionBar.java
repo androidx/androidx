@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package android.support.v7.internal.app;
 
 import android.content.Context;
@@ -25,15 +24,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.internal.view.WindowCallbackWrapper;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.widget.DecorToolbar;
 import android.support.v7.internal.widget.ToolbarWidgetWrapper;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.WindowCallbackWrapper;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
@@ -52,7 +50,7 @@ import java.util.ArrayList;
 public class ToolbarActionBar extends ActionBar {
     private DecorToolbar mDecorToolbar;
     private boolean mToolbarMenuPrepared;
-    private WindowCallback mWindowCallback;
+    private Window.Callback mWindowCallback;
     private boolean mMenuCallbackSet;
 
     private boolean mLastMenuVisibility;
@@ -77,10 +75,9 @@ public class ToolbarActionBar extends ActionBar {
                 }
             };
 
-    public ToolbarActionBar(Toolbar toolbar, CharSequence title, Window window,
-            WindowCallback windowCallback) {
+    public ToolbarActionBar(Toolbar toolbar, CharSequence title, Window window) {
         mDecorToolbar = new ToolbarWidgetWrapper(toolbar, false);
-        mWindowCallback = new ToolbarCallbackWrapper(windowCallback);
+        mWindowCallback = new ToolbarCallbackWrapper(window.getCallback());
         mDecorToolbar.setWindowCallback(mWindowCallback);
         toolbar.setOnMenuItemClickListener(mMenuClicker);
         mDecorToolbar.setWindowTitle(title);
@@ -88,7 +85,7 @@ public class ToolbarActionBar extends ActionBar {
         mWindow = window;
     }
 
-    public WindowCallback getWrappedWindowCallback() {
+    public Window.Callback getWrappedWindowCallback() {
         return mWindowCallback;
     }
 
@@ -197,11 +194,6 @@ public class ToolbarActionBar extends ActionBar {
     @Override
     public void onConfigurationChanged(Configuration config) {
         super.onConfigurationChanged(config);
-    }
-
-    @Override
-    public ActionMode startActionMode(ActionMode.Callback callback) {
-        return mWindowCallback.startActionMode(callback);
     }
 
     @Override
@@ -540,7 +532,7 @@ public class ToolbarActionBar extends ActionBar {
     }
 
     private class ToolbarCallbackWrapper extends WindowCallbackWrapper {
-        public ToolbarCallbackWrapper(WindowCallback wrapped) {
+        public ToolbarCallbackWrapper(Window.Callback wrapped) {
             super(wrapped);
         }
 
@@ -559,9 +551,7 @@ public class ToolbarActionBar extends ActionBar {
             switch (featureId) {
                 case Window.FEATURE_OPTIONS_PANEL:
                     final Menu menu = mDecorToolbar.getMenu();
-                    if (mWindowCallback != null &&
-                            mWindowCallback.onPreparePanel(featureId, null, menu) &&
-                            mWindowCallback.onMenuOpened(featureId, menu)) {
+                    if (onPreparePanel(featureId, null, menu) && onMenuOpened(featureId, menu)) {
                         return getListMenuView(menu);
                     }
                     break;
