@@ -212,8 +212,6 @@ public class BrowseFragment extends BaseFragment {
     private Object mTitleUpTransition;
     private Object mTitleDownTransition;
     private Object mHeadersTransition;
-    private int mHeadersTransitionStartDelay;
-    private int mHeadersTransitionDuration;
     private BackStackListener mBackStackChangedListener;
     private BrowseTransitionListener mBrowseTransitionListener;
 
@@ -619,11 +617,6 @@ public class BrowseFragment extends BaseFragment {
                 R.styleable.LeanbackTheme_browseRowsMarginTop, 0);
         ta.recycle();
 
-        mHeadersTransitionStartDelay = getResources()
-                .getInteger(R.integer.lb_browse_headers_transition_delay);
-        mHeadersTransitionDuration = getResources()
-                .getInteger(R.integer.lb_browse_headers_transition_duration);
-
         readArguments(getArguments());
 
         if (mCanShowHeaders) {
@@ -731,13 +724,9 @@ public class BrowseFragment extends BaseFragment {
                 setEntranceTransitionEndState();
             }
         });
-        mTitleUpTransition = TitleTransitionHelper.createTransitionTitleUp(sTransitionHelper);
-        mTitleDownTransition = TitleTransitionHelper.createTransitionTitleDown(sTransitionHelper);
-
-        sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.browse_headers, true);
-        sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.browse_headers, true);
-        sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.container_list, true);
-        sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.container_list, true);
+        Context context = getActivity();
+        mTitleUpTransition = sTransitionHelper.loadTransition(context, R.transition.lb_title_out);
+        mTitleDownTransition = sTransitionHelper.loadTransition(context, R.transition.lb_title_in);
 
         if (savedInstanceState != null) {
             mShowingTitle = savedInstanceState.getBoolean(TITLE_SHOW);
@@ -748,40 +737,9 @@ public class BrowseFragment extends BaseFragment {
     }
 
     private void createHeadersTransition() {
-        mHeadersTransition = sTransitionHelper.createTransitionSet(false);
-        sTransitionHelper.excludeChildren(mHeadersTransition, R.id.browse_title_group, true);
-        Object changeBounds = sTransitionHelper.createChangeBounds(false);
-        Object fadeIn = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_IN);
-        Object fadeOut = sTransitionHelper.createFadeTransition(TransitionHelper.FADE_OUT);
-        Object scale = sTransitionHelper.createScale();
-        if (TransitionHelper.systemSupportsTransitions()) {
-            Context context = getView().getContext();
-            sTransitionHelper.setInterpolator(changeBounds,
-                    sTransitionHelper.createDefaultInterpolator(context));
-            sTransitionHelper.setInterpolator(fadeIn,
-                    sTransitionHelper.createDefaultInterpolator(context));
-            sTransitionHelper.setInterpolator(fadeOut,
-                    sTransitionHelper.createDefaultInterpolator(context));
-            sTransitionHelper.setInterpolator(scale,
-                    sTransitionHelper.createDefaultInterpolator(context));
-        }
-
-        sTransitionHelper.setDuration(fadeOut, mHeadersTransitionDuration);
-        sTransitionHelper.addTransition(mHeadersTransition, fadeOut);
-
-        if (mShowingHeaders) {
-            sTransitionHelper.setStartDelay(changeBounds, mHeadersTransitionStartDelay);
-            sTransitionHelper.setStartDelay(scale, mHeadersTransitionStartDelay);
-        }
-        sTransitionHelper.setDuration(changeBounds, mHeadersTransitionDuration);
-        sTransitionHelper.addTransition(mHeadersTransition, changeBounds);
-        sTransitionHelper.addTarget(scale, mRowsFragment.getScaleView());
-        sTransitionHelper.setDuration(scale, mHeadersTransitionDuration);
-        sTransitionHelper.addTransition(mHeadersTransition, scale);
-
-        sTransitionHelper.setDuration(fadeIn, mHeadersTransitionDuration);
-        sTransitionHelper.setStartDelay(fadeIn, mHeadersTransitionStartDelay);
-        sTransitionHelper.addTransition(mHeadersTransition, fadeIn);
+        mHeadersTransition = sTransitionHelper.loadTransition(getActivity(),
+                mShowingHeaders ?
+                R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
 
         sTransitionHelper.setTransitionListener(mHeadersTransition, new TransitionListener() {
             @Override

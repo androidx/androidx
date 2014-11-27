@@ -31,6 +31,7 @@ import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.app.Fragment;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -352,10 +353,9 @@ public class VerticalGridSupportFragment extends Fragment {
                 mTitleView.setVisibility(View.INVISIBLE);
             }
         });
-        mTitleUpTransition = TitleTransitionHelper.createTransitionTitleUp(sTransitionHelper);
-        mTitleDownTransition = TitleTransitionHelper.createTransitionTitleDown(sTransitionHelper);
-        sTransitionHelper.excludeChildren(mTitleUpTransition, R.id.browse_grid_dock, true);
-        sTransitionHelper.excludeChildren(mTitleDownTransition, R.id.browse_grid_dock, true);
+        Context context = getActivity();
+        mTitleUpTransition = sTransitionHelper.loadTransition(context, R.transition.lb_title_out);
+        mTitleDownTransition = sTransitionHelper.loadTransition(context, R.transition.lb_title_in);
 
         return root;
     }
