@@ -21,12 +21,17 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Property;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.transition.Visibility;
 import android.transition.Transition;
@@ -34,48 +39,22 @@ import android.transition.TransitionValues;
 import android.support.v17.leanback.R;
 
 /**
- * Slide distance toward/from a edge.  The direction and distance are determined by
- * {@link SlideCallback}.
+ * Slide distance toward/from a edge.
+ * This is a limited Slide implementation for KitKat without propagation support.
+ * @hide
  */
-class Slide extends Visibility {
-    private static final String TAG = "Slide";
-
-    /**
-     * Move Views in or out of the left edge of the scene.
-     * @see #setSlideEdge(int)
-     */
-    public static final int LEFT = 0;
-
-    /**
-     * Move Views in or out of the top edge of the scene.
-     * @see #setSlideEdge(int)
-     */
-    public static final int TOP = 1;
-
-    /**
-     * Move Views in or out of the right edge of the scene.
-     * @see #setSlideEdge(int)
-     */
-    public static final int RIGHT = 2;
-
-    /**
-     * Move Views in or out of the bottom edge of the scene. This is the
-     * default slide direction.
-     * @see #setSlideEdge(int)
-     */
-    public static final int BOTTOM = 3;
+class SlideKitkat extends Visibility {
+    private static final String TAG = "SlideKitkat";
 
     private static final TimeInterpolator sDecelerate = new DecelerateInterpolator();
     private static final TimeInterpolator sAccelerate = new AccelerateInterpolator();
 
-    private int[] mTempLoc = new int[2];
-    SlideCallback mCallback;
-    private int[] mTempEdge = new int[1];
-    private float[] mTempDistance = new float[1];
+    private int mSlideEdge;
+    private CalculateSlide mSlideCalculator;
 
     private interface CalculateSlide {
         /** Returns the translation value for view when it out of the scene */
-        float getGone(float slide, View view);
+        float getGone(View view);
 
         /** Returns the translation value for view when it is in the scene */
         float getHere(View view);
@@ -110,52 +89,120 @@ class Slide extends Visibility {
 
     private static final CalculateSlide sCalculateLeft = new CalculateSlideHorizontal() {
         @Override
-        public float getGone(float distance, View view) {
-            return view.getTranslationX() - distance;
+        public float getGone(View view) {
+            return view.getTranslationX() - view.getWidth();
         }
     };
 
     private static final CalculateSlide sCalculateTop = new CalculateSlideVertical() {
         @Override
-        public float getGone(float distance, View view) {
-            return view.getTranslationY() - distance;
+        public float getGone(View view) {
+            return view.getTranslationY() - view.getHeight();
         }
     };
 
     private static final CalculateSlide sCalculateRight = new CalculateSlideHorizontal() {
         @Override
-        public float getGone(float distance, View view) {
-            return view.getTranslationX() + distance;
+        public float getGone(View view) {
+            return view.getTranslationX() + view.getWidth();
         }
     };
 
     private static final CalculateSlide sCalculateBottom = new CalculateSlideVertical() {
         @Override
-        public float getGone(float distance, View view) {
-            return view.getTranslationY() + distance;
+        public float getGone(View view) {
+            return view.getTranslationY() + view.getHeight();
         }
     };
 
-    public Slide() {
+    private static final CalculateSlide sCalculateStart = new CalculateSlideHorizontal() {
+        @Override
+        public float getGone(View view) {
+            if (view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+                return view.getTranslationX() + view.getWidth();
+            } else {
+                return view.getTranslationX() - view.getWidth();
+            }
+        }
+    };
+
+    private static final CalculateSlide sCalculateEnd = new CalculateSlideHorizontal() {
+        @Override
+        public float getGone(View view) {
+            if (view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+                return view.getTranslationX() - view.getWidth();
+            } else {
+                return view.getTranslationX() + view.getWidth();
+            }
+        }
+    };
+
+    public SlideKitkat() {
+        setSlideEdge(Gravity.BOTTOM);
     }
 
-    public void setCallback(SlideCallback callback) {
-        mCallback = callback;
+    public SlideKitkat(Context context, AttributeSet attrs) {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSlide);
+        int edge = a.getInt(R.styleable.lbSlide_lb_slideEdge, Gravity.BOTTOM);
+        setSlideEdge(edge);
+        long duration = a.getInt(R.styleable.lbSlide_android_duration, -1);
+        if (duration >= 0) {
+            setDuration(duration);
+        }
+        long startDelay = a.getInt(R.styleable.lbSlide_android_startDelay, -1);
+        if (startDelay > 0) {
+            setStartDelay(startDelay);
+        }
+        final int resID = a.getResourceId(R.styleable.lbSlide_android_interpolator, 0);
+        if (resID > 0) {
+            setInterpolator(AnimationUtils.loadInterpolator(context, resID));
+        }
+        a.recycle();
     }
 
-    private CalculateSlide getSlideEdge(int slideEdge) {
+    /**
+     * Change the edge that Views appear and disappear from.
+     *
+     * @param slideEdge The edge of the scene to use for Views appearing and disappearing. One of
+     *                  {@link android.view.Gravity#LEFT}, {@link android.view.Gravity#TOP},
+     *                  {@link android.view.Gravity#RIGHT}, {@link android.view.Gravity#BOTTOM},
+     *                  {@link android.view.Gravity#START}, {@link android.view.Gravity#END}.
+     */
+    public void setSlideEdge(int slideEdge) {
         switch (slideEdge) {
-            case LEFT:
-                return sCalculateLeft;
-            case TOP:
-                return sCalculateTop;
-            case RIGHT:
-                return sCalculateRight;
-            case BOTTOM:
-                return sCalculateBottom;
+            case Gravity.LEFT:
+                mSlideCalculator = sCalculateLeft;
+                break;
+            case Gravity.TOP:
+                mSlideCalculator = sCalculateTop;
+                break;
+            case Gravity.RIGHT:
+                mSlideCalculator = sCalculateRight;
+                break;
+            case Gravity.BOTTOM:
+                mSlideCalculator = sCalculateBottom;
+                break;
+            case Gravity.START:
+                mSlideCalculator = sCalculateStart;
+                break;
+            case Gravity.END:
+                mSlideCalculator = sCalculateEnd;
+                break;
             default:
                 throw new IllegalArgumentException("Invalid slide direction");
         }
+        mSlideEdge = slideEdge;
+    }
+
+    /**
+     * Returns the edge that Views appear and disappear from.
+     * @return the edge of the scene to use for Views appearing and disappearing. One of
+     *         {@link android.view.Gravity#LEFT}, {@link android.view.Gravity#TOP},
+     *         {@link android.view.Gravity#RIGHT}, {@link android.view.Gravity#BOTTOM},
+     *         {@link android.view.Gravity#START}, {@link android.view.Gravity#END}.
+     */
+    public int getSlideEdge() {
+        return mSlideEdge;
     }
 
     private Animator createAnimation(final View view, Property<View, Float> property,
@@ -184,13 +231,9 @@ class Slide extends Visibility {
         if (view == null) {
             return null;
         }
-        if (mCallback == null || !mCallback.getSlide(view, true, mTempEdge, mTempDistance)) {
-            return null;
-        }
-        final CalculateSlide slideCalculator = getSlideEdge(mTempEdge[0]);
-        float end = slideCalculator.getHere(view);
-        float start = slideCalculator.getGone(mTempDistance[0], view);
-        return createAnimation(view, slideCalculator.getProperty(), start, end, end, sDecelerate,
+        float end = mSlideCalculator.getHere(view);
+        float start = mSlideCalculator.getGone(view);
+        return createAnimation(view, mSlideCalculator.getProperty(), start, end, end, sDecelerate,
                 View.VISIBLE);
     }
 
@@ -202,14 +245,10 @@ class Slide extends Visibility {
         if (view == null) {
             return null;
         }
-        if (mCallback == null || !mCallback.getSlide(view, false, mTempEdge, mTempDistance)) {
-            return null;
-        }
-        final CalculateSlide slideCalculator = getSlideEdge(mTempEdge[0]);
-        float start = slideCalculator.getHere(view);
-        float end = slideCalculator.getGone(mTempDistance[0], view);
+        float start = mSlideCalculator.getHere(view);
+        float end = mSlideCalculator.getGone(view);
 
-        return createAnimation(view, slideCalculator.getProperty(), start, end, start,
+        return createAnimation(view, mSlideCalculator.getProperty(), start, end, start,
                 sAccelerate, View.INVISIBLE);
     }
 

@@ -15,6 +15,7 @@ package android.support.v17.leanback.transition;
 
 import android.content.Context;
 import android.os.Build;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -28,10 +29,10 @@ public final class TransitionHelper {
     public static final int FADE_IN = 0x1;
     public static final int FADE_OUT = 0x2;
 
-    public static final int SLIDE_LEFT = 0;
-    public static final int SLIDE_TOP = 1;
-    public static final int SLIDE_RIGHT = 2;
-    public static final int SLIDE_BOTTOM = 3;
+    public static final int SLIDE_LEFT = Gravity.LEFT;
+    public static final int SLIDE_TOP = Gravity.TOP;
+    public static final int SLIDE_RIGHT = Gravity.RIGHT;
+    public static final int SLIDE_BOTTOM = Gravity.BOTTOM;
 
     private final static TransitionHelper sHelper = new TransitionHelper();
     TransitionHelperVersionImpl mImpl;
@@ -74,7 +75,7 @@ public final class TransitionHelper {
 
         public Object createAutoTransition();
 
-        public Object createSlide(SlideCallback callback);
+        public Object createSlide(int slideEdge);
 
         public Object createScale();
 
@@ -194,7 +195,7 @@ public final class TransitionHelper {
         }
 
         @Override
-        public Object createSlide(SlideCallback callback) {
+        public Object createSlide(int slideEdge) {
             return new TransitionStub();
         }
 
@@ -366,8 +367,8 @@ public final class TransitionHelper {
         }
 
         @Override
-        public Object createSlide(SlideCallback callback) {
-            return TransitionHelperKitkat.createSlide(callback);
+        public Object createSlide(int slideEdge) {
+            return TransitionHelperKitkat.createSlide(slideEdge);
         }
 
         @Override
@@ -608,8 +609,8 @@ public final class TransitionHelper {
         return mImpl.createTransitionSet(sequential);
     }
 
-    public Object createSlide(SlideCallback callback) {
-        return mImpl.createSlide(callback);
+    public Object createSlide(int slideEdge) {
+        return mImpl.createSlide(slideEdge);
     }
 
     public Object createScale() {

@@ -59,9 +59,9 @@ final class TransitionHelperKitkat {
         return new AutoTransition();
     }
 
-    static Object createSlide(SlideCallback callback) {
-        Slide slide = new Slide();
-        slide.setCallback(callback);
+    static Object createSlide(int slideEdge) {
+        SlideKitkat slide = new SlideKitkat();
+        slide.setSlideEdge(slideEdge);
         return slide;
     }
 
