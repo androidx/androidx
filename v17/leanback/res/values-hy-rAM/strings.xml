@@ -27,7 +27,7 @@ limitations under the License.
     <string name="lb_playback_controls_play" msgid="731953341987346903">"Նվագարկել"</string>
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Դադարեցնել"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Արագ առաջ անցնել"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"Արագ փոխանցում %1$dX"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"Առագ առաջանցում %1$dX"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Հետ փաթաթել"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"Հետանցում %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Անցնել հաջորդին"</string>
