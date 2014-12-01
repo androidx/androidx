@@ -19,6 +19,7 @@ package android.support.v7.widget;
 
 
 import android.graphics.Rect;
+import android.os.Debug;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -99,6 +100,28 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 }
             }
         });
+    }
+
+    public void testAreAllStartsTheSame() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_NONE).itemCount(300));
+        waitFirstLayout();
+        smoothScrollToPosition(100);
+        mLayoutManager.expectLayouts(1);
+        mAdapter.deleteAndNotify(0, 2);
+        mLayoutManager.waitForLayout(2);
+        smoothScrollToPosition(0);
+        assertFalse("all starts should not be the same", mLayoutManager.areAllStartsEqual());
+    }
+
+    public void testAreAllEndsTheSame() throws Throwable {
+        setupByConfig(new Config(VERTICAL, true, 3, GAP_HANDLING_NONE).itemCount(300));
+        waitFirstLayout();
+        smoothScrollToPosition(100);
+        mLayoutManager.expectLayouts(1);
+        mAdapter.deleteAndNotify(0, 2);
+        mLayoutManager.waitForLayout(2);
+        smoothScrollToPosition(0);
+        assertFalse("all ends should not be the same", mLayoutManager.areAllEndsEqual());
     }
 
     public void testFindLastInUnevenDistribution() throws Throwable {
@@ -484,6 +507,83 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mLayoutManager.waitForLayout(2);
         runTestOnUiThread(viewInBoundsTest);
         checkForMainThreadException();
+    }
+
+    public void testMoveGapHandling() throws Throwable {
+        Config config = new Config().spanCount(2).itemCount(40);
+        setupByConfig(config);
+        waitFirstLayout();
+        mLayoutManager.expectLayouts(2);
+        mAdapter.moveAndNotify(4, 1);
+        mLayoutManager.waitForLayout(2);
+        assertNull("moving item to upper should not cause gaps", mLayoutManager.hasGapsToFix());
+    }
+
+    public void testUpdateAfterFullSpan() throws Throwable {
+        updateAfterFullSpanGapHandlingTest(0);
+    }
+
+    public void testUpdateAfterFullSpan2() throws Throwable {
+        updateAfterFullSpanGapHandlingTest(20);
+    }
+
+    public void testTemporaryGapHandling() throws Throwable {
+        int fullSpanIndex = 200;
+        setupByConfig(new Config().spanCount(2).itemCount(500));
+        mAdapter.mFullSpanItems.add(fullSpanIndex);
+        waitFirstLayout();
+        smoothScrollToPosition(fullSpanIndex + 30);
+        mLayoutManager.expectLayouts(1);
+        mAdapter.deleteAndNotify(fullSpanIndex + 1, 3);
+        mLayoutManager.waitForLayout(1);
+        smoothScrollToPosition(0);
+        mLayoutManager.expectLayouts(1);
+        smoothScrollToPosition(fullSpanIndex + 5);
+        mLayoutManager.assertNoLayout("if an interim gap is fixed, it should not cause a "
+                + "relayout", 2);
+        View fullSpan = mLayoutManager.findViewByPosition(fullSpanIndex);
+
+        View view1 = mLayoutManager.findViewByPosition(fullSpanIndex + 1);
+        View view2 = mLayoutManager.findViewByPosition(fullSpanIndex + 2);
+
+        LayoutParams lp1 = (LayoutParams) view1.getLayoutParams();
+        LayoutParams lp2 = (LayoutParams) view2.getLayoutParams();
+        assertEquals("view 1 span index", 0, lp1.getSpanIndex());
+        assertEquals("view 2 span index", 1, lp2.getSpanIndex());
+        assertEquals("no gap between span and view 1",
+                mLayoutManager.mPrimaryOrientation.getDecoratedEnd(fullSpan),
+                mLayoutManager.mPrimaryOrientation.getDecoratedStart(view1));
+        assertEquals("no gap between span and view 2",
+                mLayoutManager.mPrimaryOrientation.getDecoratedEnd(fullSpan),
+                mLayoutManager.mPrimaryOrientation.getDecoratedStart(view2));
+    }
+
+    public void updateAfterFullSpanGapHandlingTest(int fullSpanIndex) throws Throwable {
+        setupByConfig(new Config().spanCount(2).itemCount(100));
+        mAdapter.mFullSpanItems.add(fullSpanIndex);
+        waitFirstLayout();
+        smoothScrollToPosition(fullSpanIndex + 30);
+        mLayoutManager.expectLayouts(1);
+        mAdapter.deleteAndNotify(fullSpanIndex + 1, 3);
+        mLayoutManager.waitForLayout(1);
+        smoothScrollToPosition(fullSpanIndex);
+        // give it some time to fix the gap
+        Thread.sleep(500);
+        View fullSpan = mLayoutManager.findViewByPosition(fullSpanIndex);
+
+        View view1 = mLayoutManager.findViewByPosition(fullSpanIndex + 1);
+        View view2 = mLayoutManager.findViewByPosition(fullSpanIndex + 2);
+
+        LayoutParams lp1 = (LayoutParams) view1.getLayoutParams();
+        LayoutParams lp2 = (LayoutParams) view2.getLayoutParams();
+        assertEquals("view 1 span index", 0, lp1.getSpanIndex());
+        assertEquals("view 2 span index", 1, lp2.getSpanIndex());
+        assertEquals("no gap between span and view 1",
+                mLayoutManager.mPrimaryOrientation.getDecoratedEnd(fullSpan),
+                mLayoutManager.mPrimaryOrientation.getDecoratedStart(view1));
+        assertEquals("no gap between span and view 2",
+                mLayoutManager.mPrimaryOrientation.getDecoratedEnd(fullSpan),
+                mLayoutManager.mPrimaryOrientation.getDecoratedStart(view2));
     }
 
     public void testInnerGapHandling() throws Throwable {
@@ -1333,9 +1433,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         final AccessibilityRecordCompat record = AccessibilityEventCompat
                 .asRecord(event);
         final int start = mRecyclerView
-                .getChildLayoutPosition(mLayoutManager.findFirstVisibleItemClosestToStart(false, true));
+                .getChildLayoutPosition(
+                        mLayoutManager.findFirstVisibleItemClosestToStart(false, true));
         final int end = mRecyclerView
-                .getChildLayoutPosition(mLayoutManager.findFirstVisibleItemClosestToEnd(false, true));
+                .getChildLayoutPosition(
+                        mLayoutManager.findFirstVisibleItemClosestToEnd(false, true));
         assertEquals("first item position should match",
                 Math.min(start, end), record.getFromIndex());
         assertEquals("last item position should match",
