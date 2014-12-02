@@ -364,8 +364,41 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         assertTrue(failedToRecycle.contains(view));
         assertEquals(succeed || unsetTransientState, recycled.contains(view));
-	}
-	
+    }
+
+    public void testAdapterPositionInvalidation() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestAdapter adapter = new TestAdapter(10);
+        final TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, state.getItemCount());
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < tlm.getChildCount(); i ++) {
+                    assertNotSame("adapter positions should not be undefined",
+                            recyclerView.getChildAdapterPosition(tlm.getChildAt(i)),
+                            RecyclerView.NO_POSITION);
+                }
+                adapter.notifyDataSetChanged();
+                for (int i = 0; i < tlm.getChildCount(); i ++) {
+                    assertSame("adapter positions should be undefined",
+                            recyclerView.getChildAdapterPosition(tlm.getChildAt(i)),
+                            RecyclerView.NO_POSITION);
+                }
+            }
+        });
+    }
+
     public void testAdapterPositionsBasic() throws Throwable {
         adapterPositionsTest(null);
     }
@@ -1167,7 +1200,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         recyclerView.setItemViewCacheSize(5);
         recyclerView.setLayoutManager(testLayoutManager);
         testLayoutManager.expectLayouts(1);
-        setRecyclerView(recyclerView);
+        setRecyclerView(recyclerView, true, false);
         testLayoutManager.waitForLayout(2);
         checkForMainThreadException();
 
@@ -1179,6 +1212,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         checkForMainThreadException();
 
         // invalidate w/o an item decorator
+
         invalidateDecorOffsets(recyclerView);
         testLayoutManager.expectLayouts(1);
         invalidateDecorOffsets(recyclerView);
