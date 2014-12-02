@@ -7313,6 +7313,14 @@ public class RecyclerView extends ViewGroup {
         }
 
         /**
+         * Returns whether we have animations referring to this view holder or not.
+         * This is similar to isRecyclable flag but does not check transient state.
+         */
+        private boolean shouldBeKeptAsChild() {
+            return (mFlags & FLAG_NOT_RECYCLABLE) != 0;
+        }
+
+        /**
          * @return True if ViewHolder is not refenrenced by RecyclerView animations but has
          * transient state which will prevent it from being recycled.
          */
@@ -8166,7 +8174,7 @@ public class RecyclerView extends ViewGroup {
         @Override
         public void onAddFinished(ViewHolder item) {
             item.setIsRecyclable(true);
-            if (item.isRecyclable()) {
+            if (!item.shouldBeKeptAsChild()) {
                 removeAnimatingView(item.itemView);
             }
         }
@@ -8174,7 +8182,7 @@ public class RecyclerView extends ViewGroup {
         @Override
         public void onMoveFinished(ViewHolder item) {
             item.setIsRecyclable(true);
-            if (item.isRecyclable()) {
+            if (!item.shouldBeKeptAsChild()) {
                 removeAnimatingView(item.itemView);
             }
         }
@@ -8216,7 +8224,7 @@ public class RecyclerView extends ViewGroup {
             // always null this because an OldViewHolder can never become NewViewHolder w/o being
             // recycled.
             item.mShadowingHolder = null;
-            if (item.isRecyclable()) {
+            if (!item.shouldBeKeptAsChild()) {
                 removeAnimatingView(item.itemView);
             }
         }
