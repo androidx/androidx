@@ -592,7 +592,7 @@ public class RecyclerView extends ViewGroup {
      */
     public void swapAdapter(Adapter adapter, boolean removeAndRecycleExistingViews) {
         setAdapterInternal(adapter, true, removeAndRecycleExistingViews);
-        mDataSetHasChangedAfterLayout = true;
+        setDataSetChangedAfterLayout();
         requestLayout();
     }
     /**
@@ -2703,6 +2703,21 @@ public class RecyclerView extends ViewGroup {
         }
     }
 
+    private void setDataSetChangedAfterLayout() {
+        if (mDataSetHasChangedAfterLayout) {
+            return;
+        }
+        mDataSetHasChangedAfterLayout = true;
+        final int childCount = mChildHelper.getUnfilteredChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
+            if (holder != null && !holder.shouldIgnore()) {
+                holder.addFlags(ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
+            }
+        }
+        mRecycler.setAdapterPositionsAsUnknown();
+    }
+
     /**
      * Mark all known views as invalid. Used in response to a, "the whole world might have changed"
      * data change event.
@@ -3241,10 +3256,10 @@ public class RecyclerView extends ViewGroup {
                 // This is more important to implement now since this callback will disable all
                 // animations because we cannot rely on positions.
                 mState.mStructureChanged = true;
-                mDataSetHasChangedAfterLayout = true;
+                setDataSetChangedAfterLayout();
             } else {
                 mState.mStructureChanged = true;
-                mDataSetHasChangedAfterLayout = true;
+                setDataSetChangedAfterLayout();
             }
             if (!mAdapterHelper.hasPendingUpdates()) {
                 requestLayout();
@@ -4217,6 +4232,16 @@ public class RecyclerView extends ViewGroup {
             }
         }
 
+        void setAdapterPositionsAsUnknown() {
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder != null) {
+                    holder.addFlags(ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
+                }
+            }
+        }
+
         void markKnownViewsInvalid() {
             if (mAdapter != null && mAdapter.hasStableIds()) {
                 final int cachedCount = mCachedViews.size();
@@ -4230,7 +4255,6 @@ public class RecyclerView extends ViewGroup {
                 // we cannot re-use cached views in this case. Recycle them all
                 recycleAndClearCachedViews();
             }
-
         }
 
         void clearOldPositions() {
@@ -4375,7 +4399,8 @@ public class RecyclerView extends ViewGroup {
             }
             onBindViewHolder(holder, position);
             holder.setFlags(ViewHolder.FLAG_BOUND,
-                    ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+                    ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
+                    | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
         }
 
         /**
@@ -6845,9 +6870,15 @@ public class RecyclerView extends ViewGroup {
          * the number of pixels that the item view should be inset by, similar to padding or margin.
          * The default implementation sets the bounds of outRect to 0 and returns.
          *
-         * <p>If this ItemDecoration does not affect the positioning of item views it should set
+         * <p>
+         * If this ItemDecoration does not affect the positioning of item views, it should set
          * all four fields of <code>outRect</code> (left, top, right, bottom) to zero
-         * before returning.</p>
+         * before returning.
+         *
+         * <p>
+         * If you need to access Adapter for additional data, you can call
+         * {@link RecyclerView#getChildAdapterPosition(View)} to get the adapter position of the
+         * View.
          *
          * @param outRect Rect to receive the output.
          * @param view    The child view to decorate
@@ -7026,6 +7057,15 @@ public class RecyclerView extends ViewGroup {
          * action when we need to remove it or add it back.
          */
         static final int FLAG_TMP_DETACHED = 1 << 8;
+
+        /**
+         * Set when we can no longer determine the adapter position of this ViewHolder until it is
+         * rebound to a new position. It is different than FLAG_INVALID because FLAG_INVALID is
+         * set even when the type does not match. Also, FLAG_ADAPTER_POSITION_UNKNOWN is set as soon
+         * as adapter notification arrives vs FLAG_INVALID is set lazily before layout is
+         * re-calculated.
+         */
+        static final int FLAG_ADAPTER_POSITION_UNKNOWN = 1 << 9;
 
         private int mFlags;
 
@@ -7229,8 +7269,16 @@ public class RecyclerView extends ViewGroup {
             return (mFlags & FLAG_REMOVED) != 0;
         }
 
+        boolean hasAnyOfTheFlags(int flags) {
+            return (mFlags & flags) != 0;
+        }
+
         boolean isTmpDetached() {
             return (mFlags & FLAG_TMP_DETACHED) != 0;
+        }
+
+        boolean isAdapterPositionUnknown() {
+            return (mFlags & FLAG_ADAPTER_POSITION_UNKNOWN) != 0;
         }
 
         void setFlags(int flags, int mask) {
@@ -7266,6 +7314,8 @@ public class RecyclerView extends ViewGroup {
             if (isChanged()) sb.append(" changed");
             if (isTmpDetached()) sb.append(" tmpDetached");
             if (!isRecyclable()) sb.append(" not recyclable(" + mIsRecyclableCount + ")");
+            if (!isAdapterPositionUnknown()) sb.append("undefined adapter position");
+
             if (itemView.getParent() == null) sb.append(" no parent");
             sb.append("}");
             return sb.toString();
@@ -7330,11 +7380,9 @@ public class RecyclerView extends ViewGroup {
     }
 
     private int getAdapterPositionFor(ViewHolder viewHolder) {
-        if (viewHolder.isRemoved()) {
+        if (viewHolder.hasAnyOfTheFlags(
+                ViewHolder.FLAG_REMOVED | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)) {
             return RecyclerView.NO_POSITION;
-        }
-        if (mDataSetHasChangedAfterLayout) {
-            return -1;
         }
         return mAdapterHelper.applyPendingUpdatesToPosition(viewHolder.mPosition);
     }
