@@ -166,6 +166,8 @@ abstract class ActionBarActivityDelegate {
         a.recycle();
     }
 
+    abstract void onPostCreate(Bundle savedInstanceState);
+
     abstract void onConfigurationChanged(Configuration newConfig);
 
     abstract void onStop();
