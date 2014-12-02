@@ -27,9 +27,8 @@
     <dimen name="lb_vertical_grid_padding_bottom">87dp</dimen>
 
     <dimen name="lb_browse_title_height">60dp</dimen>
+    <dimen name="lb_browse_title_icon_max_width">584dp</dimen>
     <dimen name="lb_browse_title_icon_height">52dp</dimen>
-    <dimen name="lb_browse_title_icon_width">52dp</dimen>
-    <dimen name="lb_browse_title_icon_margin_end">52dp</dimen>
     <dimen name="lb_browse_title_text_size">44sp</dimen>
     <dimen name="lb_browse_title_text_width">584dp</dimen>
 
