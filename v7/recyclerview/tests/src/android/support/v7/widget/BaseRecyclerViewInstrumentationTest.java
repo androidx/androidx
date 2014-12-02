@@ -191,6 +191,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     }
     public void setRecyclerView(final RecyclerView recyclerView, boolean assignDummyPool)
             throws Throwable {
+        setRecyclerView(recyclerView, true, true);
+    }
+    public void setRecyclerView(final RecyclerView recyclerView, boolean assignDummyPool,
+            boolean addPositionCheckItemAnimator)
+            throws Throwable {
         mRecyclerView = recyclerView;
         if (assignDummyPool) {
             RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
@@ -213,6 +218,20 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 }
             };
             mRecyclerView.setRecycledViewPool(pool);
+        }
+        if (addPositionCheckItemAnimator) {
+            mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                        RecyclerView.State state) {
+                    RecyclerView.ViewHolder vh = parent.getChildViewHolder(view);
+                    if (!vh.isRemoved()) {
+                        assertNotSame("If getItemOffsets is called, child should have a valid"
+                                            + " adapter position unless it is removed",
+                                    vh.getAdapterPosition(), RecyclerView.NO_POSITION);
+                    }
+                }
+            });
         }
         mAdapterHelper = recyclerView.mAdapterHelper;
         runTestOnUiThread(new Runnable() {
