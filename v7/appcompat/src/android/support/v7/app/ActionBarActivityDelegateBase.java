@@ -162,6 +162,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
+    void onPostCreate(Bundle savedInstanceState) {
+        // Make sure that the sub decor is installed
+        ensureSubDecor();
+    }
+
+    @Override
     public ActionBar createSupportActionBar() {
         ensureSubDecor();
         ActionBar ab = new WindowDecorActionBar(mActivity, mOverlayActionBar);
@@ -341,14 +347,24 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             // Make the decor optionally fit system windows, like the window's decor
             ViewUtils.makeOptionalFitsSystemWindows(mSubDecor);
 
+            final ViewGroup decorContent = (ViewGroup) mActivity.findViewById(android.R.id.content);
+            final ViewGroup abcContent = (ViewGroup) mSubDecor.findViewById(
+                    R.id.action_bar_activity_content);
+
+            // There might be Views already added to the Window's content view so we need to
+            // migrate them to our content view
+            while (decorContent.getChildCount() > 0) {
+                final View child = decorContent.getChildAt(0);
+                decorContent.removeViewAt(0);
+                abcContent.addView(child);
+            }
+
             // Now set the Activity's content view with the decor
             mActivity.superSetContentView(mSubDecor);
 
             // Change our content FrameLayout to use the android.R.id.content id.
             // Useful for fragments.
-            final View decorContent = mActivity.findViewById(android.R.id.content);
             decorContent.setId(View.NO_ID);
-            View abcContent = mActivity.findViewById(R.id.action_bar_activity_content);
             abcContent.setId(android.R.id.content);
 
             // The decorContent may have a foreground drawable set (windowContentOverlay).
