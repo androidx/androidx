@@ -93,19 +93,25 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             }
         });
         tlm.expectLayouts(1);
+
         setRecyclerView(recyclerView);
         tlm.waitForLayout(2);
-        assertEquals("on scroll should be called for initialization", 1, rvCounter.get());
-        assertEquals("on scroll should be called for initialization", 1,
+        // wait for draw :/
+        Thread.sleep(1000);
+
+        assertEquals("RV on scroll should be called for initialization", 1, rvCounter.get());
+        assertEquals("VTO on scroll should be called for initialization", 1,
                 viewGroupCounter.get());
         tlm.expectLayouts(1);
         scrollToPosition(3);
         tlm.waitForLayout(2);
-        assertEquals("on scroll should be called", 2, rvCounter.get());
-        assertEquals("on scroll should be called", 2, viewGroupCounter.get());
+        assertEquals("RV on scroll should be called", 2, rvCounter.get());
+        assertEquals("VTO on scroll should be called", 2, viewGroupCounter.get());
         tlm.expectLayouts(1);
         requestLayoutOnUIThread(recyclerView);
         tlm.waitForLayout(2);
+        // wait for draw :/
+        Thread.sleep(1000);
         assertEquals("on scroll should NOT be called", 2, rvCounter.get());
         assertEquals("on scroll should NOT be called", 2, viewGroupCounter.get());
 
