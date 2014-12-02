@@ -110,7 +110,6 @@
     </style>
 
     <style name="Widget.Leanback.Title.Icon">
-        <item name="android:scaleType">fitEnd</item>
     </style>
 
     <!-- HeadersFragment -->
