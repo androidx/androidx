@@ -191,7 +191,7 @@ public class SearchBar extends RelativeLayout {
                 if (hasFocus) {
                     showNativeKeyboard();
                 }
-                updateUi();
+                updateUi(hasFocus);
             }
         });
         final Runnable mOnTextChangedRunnable = new Runnable() {
@@ -298,11 +298,11 @@ public class SearchBar extends RelativeLayout {
                 } else {
                     stopRecognition();
                 }
-                updateUi();
+                updateUi(hasFocus);
             }
         });
 
-        updateUi();
+        updateUi(hasFocus());
         updateHint();
     }
 
@@ -673,14 +673,16 @@ public class SearchBar extends RelativeLayout {
         mSpeechRecognizer.startListening(recognizerIntent);
     }
 
-    private void updateUi() {
-        if (DEBUG) Log.v(TAG, String.format("Update UI %s %s",
-                isVoiceMode() ? "Voice" : "Text",
-                hasFocus() ? "Focused" : "Unfocused"));
-        if (isVoiceMode()) {
+    private void updateUi(boolean hasFocus) {
+        if (hasFocus) {
             mBarBackground.setAlpha(mBackgroundSpeechAlpha);
-            mSearchTextEditor.setTextColor(mTextColorSpeechMode);
-            mSearchTextEditor.setHintTextColor(mTextHintColorSpeechMode);
+            if (isVoiceMode()) {
+                mSearchTextEditor.setTextColor(mTextHintColorSpeechMode);
+                mSearchTextEditor.setHintTextColor(mTextHintColorSpeechMode);
+            } else {
+                mSearchTextEditor.setTextColor(mTextColorSpeechMode);
+                mSearchTextEditor.setHintTextColor(mTextHintColorSpeechMode);
+            }
         } else {
             mBarBackground.setAlpha(mBackgroundAlpha);
             mSearchTextEditor.setTextColor(mTextColor);
