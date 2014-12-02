@@ -147,7 +147,7 @@
     <dimen name="lb_search_bar_padding_start">56dp</dimen>
     <dimen name="lb_search_bar_padding_top">27dp</dimen>
 
-    <dimen name="lb_search_bar_text_size">22sp</dimen>
+    <dimen name="lb_search_bar_text_size">18sp</dimen>
     <dimen name="lb_search_bar_unfocused_text_size">18sp</dimen>
     <dimen name="lb_search_bar_items_layout_margin_top">27dp</dimen>
     <dimen name="lb_search_bar_items_width">600dp</dimen>
