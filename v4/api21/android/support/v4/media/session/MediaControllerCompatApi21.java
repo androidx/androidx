@@ -16,6 +16,7 @@
 
 package android.support.v4.media.session;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -28,6 +29,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.view.KeyEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class MediaControllerCompatApi21 {
     public static Object fromToken(Context context, Object sessionToken) {
@@ -60,21 +64,58 @@ class MediaControllerCompatApi21 {
         return ((MediaController)controllerObj).getMetadata();
     }
 
+    public static List<Object> getQueue(Object controllerObj) {
+        List<MediaSession.QueueItem> queue = ((MediaController) controllerObj).getQueue();
+        if (queue == null) {
+            return null;
+        }
+        List<Object> queueObjs = new ArrayList<Object>(queue);
+        return queueObjs;
+    }
+
+    public static CharSequence getQueueTitle(Object controllerObj) {
+        return ((MediaController) controllerObj).getQueueTitle();
+    }
+
+    public static Bundle getExtras(Object controllerObj) {
+        return ((MediaController) controllerObj).getExtras();
+    }
+
     public static int getRatingType(Object controllerObj) {
-        return ((MediaController)controllerObj).getRatingType();
+        return ((MediaController) controllerObj).getRatingType();
+    }
+
+    public static long getFlags(Object controllerObj) {
+        return ((MediaController) controllerObj).getFlags();
     }
 
     public static Object getPlaybackInfo(Object controllerObj) {
-        return ((MediaController)controllerObj).getPlaybackInfo();
+        return ((MediaController) controllerObj).getPlaybackInfo();
+    }
+
+    public static PendingIntent getSessionActivity(Object controllerObj) {
+        return ((MediaController) controllerObj).getSessionActivity();
     }
 
     public static boolean dispatchMediaButtonEvent(Object controllerObj, KeyEvent event) {
-        return ((MediaController)controllerObj).dispatchMediaButtonEvent(event);
+        return ((MediaController) controllerObj).dispatchMediaButtonEvent(event);
+    }
+
+    public static void setVolumeTo(Object controllerObj, int value, int flags) {
+        ((MediaController) controllerObj).setVolumeTo(value, flags);
+    }
+
+    public static void adjustVolume(Object controllerObj, int direction, int flags) {
+        ((MediaController) controllerObj).adjustVolume(direction, flags);
     }
 
     public static void sendCommand(Object controllerObj,
             String command, Bundle params, ResultReceiver cb) {
-        ((MediaController)controllerObj).sendCommand(command, params, cb);
+        ((MediaController) controllerObj).sendCommand(command, params, cb);
+    }
+
+    public static String getPackageName(Object controllerObj) {
+        return ((MediaController) controllerObj).getPackageName();
     }
 
     public static class TransportControls {
@@ -112,6 +153,22 @@ class MediaControllerCompatApi21 {
 
         public static void setRating(Object controlsObj, Object ratingObj) {
             ((MediaController.TransportControls)controlsObj).setRating((Rating)ratingObj);
+        }
+
+        public static void playFromMediaId(Object controlsObj, String mediaId, Bundle extras) {
+            ((MediaController.TransportControls) controlsObj).playFromMediaId(mediaId, extras);
+        }
+
+        public static void playFromSearch(Object controlsObj, String query, Bundle extras) {
+            ((MediaController.TransportControls) controlsObj).playFromSearch(query, extras);
+        }
+
+        public static void skipToQueueItem(Object controlsObj, long id) {
+            ((MediaController.TransportControls) controlsObj).skipToQueueItem(id);
+        }
+
+        public static void sendCustomAction(Object controlsObj, String action, Bundle args) {
+            ((MediaController.TransportControls) controlsObj).sendCustomAction(action, args);
         }
     }
 
