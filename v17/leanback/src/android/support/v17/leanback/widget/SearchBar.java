@@ -236,8 +236,9 @@ public class SearchBar extends RelativeLayout {
             public boolean onEditorAction(TextView textView, int action, KeyEvent keyEvent) {
                 if (DEBUG) Log.v(TAG, "onEditorAction: " + action + " event: " + keyEvent);
                 boolean handled = true;
-                if (EditorInfo.IME_ACTION_SEARCH == action && null != mSearchBarListener) {
-                    if (DEBUG) Log.v(TAG, "Action Pressed");
+                if ((EditorInfo.IME_ACTION_SEARCH == action ||
+                        EditorInfo.IME_NULL == action) && null != mSearchBarListener) {
+                    if (DEBUG) Log.v(TAG, "Action or enter pressed");
                     hideNativeKeyboard();
                     mHandler.postDelayed(new Runnable() {
                         @Override
@@ -499,6 +500,11 @@ public class SearchBar extends RelativeLayout {
                 mListening, mRecognizing));
 
         if (!mRecognizing) return;
+
+        // Edit text content was cleared when starting recogition; ensure the content is restored
+        // in error cases
+        mSearchTextEditor.setText(mSearchQuery);
+
         mRecognizing = false;
 
         if (mSpeechRecognitionCallback != null || null == mSpeechRecognizer) return;
@@ -527,7 +533,6 @@ public class SearchBar extends RelativeLayout {
             requestFocus();
         }
         if (mSpeechRecognitionCallback != null) {
-            mSearchTextEditor.setText("");
             mSpeechRecognitionCallback.recognizeSpeech();
             return;
         }
