@@ -72,6 +72,9 @@ public class SearchSupportFragment extends Fragment {
 
     private static final long SPEECH_RECOGNITION_DELAY_MS = 300;
 
+    private static final int RESULTS_CHANGED = 0x1;
+    private static final int QUERY_COMPLETE = 0x2;
+
     /**
      * Search API to be provided by the application.
      */
@@ -126,26 +129,35 @@ public class SearchSupportFragment extends Fragment {
     private final Runnable mResultsChangedCallback = new Runnable() {
         @Override
         public void run() {
-            if (DEBUG) Log.v(TAG, "adapter size " + mResultAdapter.size());
+            if (DEBUG) Log.v(TAG, "results changed, new size " + mResultAdapter.size());
             if (mRowsSupportFragment != null
                     && mRowsSupportFragment.getAdapter() != mResultAdapter) {
                 if (!(mRowsSupportFragment.getAdapter() == null && mResultAdapter.size() == 0)) {
                     mRowsSupportFragment.setAdapter(mResultAdapter);
+                    mRowsSupportFragment.setSelectedPosition(0);
                 }
             }
             mStatus |= RESULTS_CHANGED;
             if ((mStatus & QUERY_COMPLETE) != 0) {
-                focusOnResults();
+                updateFocus();
             }
             updateSearchBarNextFocusId();
         }
     };
 
+    /**
+     * Runs when a new provider is set AND when the fragment view is created.
+     */
     private final Runnable mSetSearchResultProvider = new Runnable() {
         @Override
         public void run() {
+            if (mRowsSupportFragment == null) {
+                // We'll retry once we have a rows fragment
+                return;
+            }
             // Retrieve the result adapter
             ObjectAdapter adapter = mProvider.getResultsAdapter();
+            if (DEBUG) Log.v(TAG, "Got results adapter " + adapter);
             if (adapter != mResultAdapter) {
                 boolean firstTime = mResultAdapter == null;
                 releaseAdapter();
@@ -153,16 +165,34 @@ public class SearchSupportFragment extends Fragment {
                 if (mResultAdapter != null) {
                     mResultAdapter.registerObserver(mAdapterObserver);
                 }
-                if (null != mRowsSupportFragment) {
-                    // delay the first time to avoid setting a empty result adapter
-                    // until we got first onChange() from the provider
-                    if (!(firstTime && (mResultAdapter == null || mResultAdapter.size() == 0))) {
-                        mRowsSupportFragment.setAdapter(mResultAdapter);
-                    }
-                    executePendingQuery();
+                if (DEBUG) Log.v(TAG, "mResultAdapter " + mResultAdapter + " size " +
+                        (mResultAdapter == null ? 0 : mResultAdapter.size()));
+                // delay the first time to avoid setting a empty result adapter
+                // until we got first onChange() from the provider
+                if (!(firstTime && (mResultAdapter == null || mResultAdapter.size() == 0))) {
+                    mRowsSupportFragment.setAdapter(mResultAdapter);
                 }
-                updateSearchBarNextFocusId();
+                executePendingQuery();
             }
+            updateSearchBarNextFocusId();
+
+            if (DEBUG) Log.v(TAG, "mAutoStartRecognition " + mAutoStartRecognition +
+                    " mResultAdapter " + mResultAdapter +
+                    " adapter " + mRowsSupportFragment.getAdapter());
+            if (mAutoStartRecognition) {
+                mHandler.removeCallbacks(mStartRecognitionRunnable);
+                mHandler.postDelayed(mStartRecognitionRunnable, SPEECH_RECOGNITION_DELAY_MS);
+            } else {
+                updateFocus();
+            }
+        }
+    };
+
+    private final Runnable mStartRecognitionRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mAutoStartRecognition = false;
+            mSearchBar.startRecognition();
         }
     };
 
@@ -180,13 +210,12 @@ public class SearchSupportFragment extends Fragment {
 
     private String mTitle;
     private Drawable mBadgeDrawable;
+    private ExternalQuery mExternalQuery;
 
     private SpeechRecognizer mSpeechRecognizer;
 
-    private final int RESULTS_CHANGED = 0x1;
-    private final int QUERY_COMPLETE = 0x2;
-
     private int mStatus;
+    private boolean mAutoStartRecognition = true;
 
     /**
      * @param args Bundle to use for the arguments, if null a new Bundle will be created.
@@ -222,6 +251,9 @@ public class SearchSupportFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if (mAutoStartRecognition) {
+            mAutoStartRecognition = savedInstanceState == null;
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -247,10 +279,7 @@ public class SearchSupportFragment extends Fragment {
             @Override
             public void onSearchQuerySubmit(String query) {
                 if (DEBUG) Log.v(TAG, String.format("onSearchQuerySubmit %s", query));
-                queryComplete();
-                if (null != mProvider) {
-                    mProvider.onQueryTextSubmit(query);
-                }
+                submitQuery(query);
             }
 
             @Override
@@ -260,6 +289,7 @@ public class SearchSupportFragment extends Fragment {
             }
         });
         mSearchBar.setSpeechRecognitionCallback(mSpeechRecognitionCallback);
+        applyExternalQuery();
 
         readArguments(getArguments());
         if (null != mBadgeDrawable) {
@@ -313,16 +343,14 @@ public class SearchSupportFragment extends Fragment {
         if (null != mProvider) {
             onSetSearchResultProvider();
         }
-        if (savedInstanceState == null) {
-            // auto start recognition if this is the first time create fragment
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mSearchBar.startRecognition();
-                }
-            }, SPEECH_RECOGNITION_DELAY_MS);
-        }
         return root;
+    }
+
+    private void resultsAvailable() {
+        if ((mStatus & QUERY_COMPLETE) != 0) {
+            focusOnResults();
+        }
+        updateSearchBarNextFocusId();
     }
 
     @Override
@@ -510,10 +538,15 @@ public class SearchSupportFragment extends Fragment {
      * @param submit Whether to submit the query.
      */
     public void setSearchQuery(String query, boolean submit) {
-        // setSearchQuery will call onQueryTextChange
-        mSearchBar.setSearchQuery(query);
-        if (submit) {
-            mProvider.onQueryTextSubmit(query);
+        if (DEBUG) Log.v(TAG, "setSearchQuery " + query + " submit " + submit);
+        if (query == null) {
+            return;
+        }
+        mExternalQuery = new ExternalQuery(query, submit);
+        applyExternalQuery();
+        if (mAutoStartRecognition) {
+            mAutoStartRecognition = false;
+            mHandler.removeCallbacks(mStartRecognitionRunnable);
         }
     }
 
@@ -559,12 +592,21 @@ public class SearchSupportFragment extends Fragment {
     }
 
     private void retrieveResults(String searchQuery) {
-        if (DEBUG) Log.v(TAG, String.format("retrieveResults %s", searchQuery));
-        mProvider.onQueryTextChange(searchQuery);
-        mStatus &= ~QUERY_COMPLETE;
+        if (DEBUG) Log.v(TAG, "retrieveResults " + searchQuery);
+        if (mProvider.onQueryTextChange(searchQuery)) {
+            mStatus &= ~QUERY_COMPLETE;
+        }
+    }
+
+    private void submitQuery(String query) {
+        queryComplete();
+        if (null != mProvider) {
+            mProvider.onQueryTextSubmit(query);
+        }
     }
 
     private void queryComplete() {
+        if (DEBUG) Log.v(TAG, "queryComplete");
         mStatus |= QUERY_COMPLETE;
         focusOnResults();
     }
@@ -579,13 +621,21 @@ public class SearchSupportFragment extends Fragment {
         mSearchBar.setNextFocusDownId(viewId);
     }
 
+    private void updateFocus() {
+        if (mResultAdapter != null && mResultAdapter.size() > 0 &&
+                mRowsSupportFragment != null && mRowsSupportFragment.getAdapter() == mResultAdapter) {
+            focusOnResults();
+        } else {
+            mSearchBar.requestFocus();
+        }
+    }
+
     private void focusOnResults() {
         if (mRowsSupportFragment == null ||
                 mRowsSupportFragment.getVerticalGridView() == null ||
                 mResultAdapter.size() == 0) {
             return;
         }
-        mRowsSupportFragment.setSelectedPosition(0);
         if (mRowsSupportFragment.getVerticalGridView().requestFocus()) {
             mStatus &= ~RESULTS_CHANGED;
         }
@@ -611,6 +661,17 @@ public class SearchSupportFragment extends Fragment {
         }
     }
 
+    private void applyExternalQuery() {
+        if (mExternalQuery == null || mSearchBar == null) {
+            return;
+        }
+        mSearchBar.setSearchQuery(mExternalQuery.mQuery);
+        if (mExternalQuery.mSubmit) {
+            submitQuery(mExternalQuery.mQuery);
+        }
+        mExternalQuery = null;
+    }
+
     private void readArguments(Bundle args) {
         if (null == args) {
             return;
@@ -626,5 +687,15 @@ public class SearchSupportFragment extends Fragment {
 
     private void setSearchQuery(String query) {
         mSearchBar.setSearchQuery(query);
+    }
+
+    static class ExternalQuery {
+        String mQuery;
+        boolean mSubmit;
+
+        ExternalQuery(String query, boolean submit) {
+            mQuery = query;
+            mSubmit = submit;
+        }
     }
 }
