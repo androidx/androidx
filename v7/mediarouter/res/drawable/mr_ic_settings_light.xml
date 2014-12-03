@@ -15,5 +15,5 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/mr_ic_media_route_on_holo_light" />
+    <item android:drawable="@drawable/ic_setting_light" />
 </selector>
