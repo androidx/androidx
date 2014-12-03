@@ -168,13 +168,6 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     };
 
-    private final VerticalGridView.OnMotionInterceptListener mOnMotionInterceptListener =
-            new VerticalGridView.OnMotionInterceptListener() {
-        public boolean onInterceptMotionEvent(MotionEvent event) {
-            return onInterceptInputEvent(event);
-        }
-    };
-
     private final VerticalGridView.OnKeyInterceptListener mOnKeyInterceptListener =
             new VerticalGridView.OnKeyInterceptListener() {
         public boolean onInterceptKeyEvent(KeyEvent event) {
@@ -321,7 +314,6 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             fade(true);
         }
         getVerticalGridView().setOnTouchInterceptListener(mOnTouchInterceptListener);
-        getVerticalGridView().setOnMotionInterceptListener(mOnMotionInterceptListener);
         getVerticalGridView().setOnKeyInterceptListener(mOnKeyInterceptListener);
     }
 
