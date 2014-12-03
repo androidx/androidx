@@ -31,4 +31,6 @@
     <attr name="mediaRouteConnectingDrawable" format="reference" />
     <attr name="mediaRouteOnDrawable" format="reference" />
     <attr name="mediaRouteSettingsDrawable" format="reference" />
+    <attr name="mediaRoutePlayDrawable" format="reference" />
+    <attr name="mediaRoutePauseDrawable" format="reference" />
 </resources>

@@ -19,10 +19,12 @@
     <style name="Theme.MediaRouter" parent="">
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.MediaRouteButton</item>
 
-        <item name="mediaRouteOffDrawable">@drawable/mr_ic_media_route_off_holo_dark</item>
-        <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_holo_dark</item>
-        <item name="mediaRouteOnDrawable">@drawable/mr_ic_media_route_on_holo_dark</item>
+        <item name="mediaRouteOffDrawable">@drawable/ic_media_route_off_mono_dark</item>
+        <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_mono_dark</item>
+        <item name="mediaRouteOnDrawable">@drawable/ic_cast_dark</item>
         <item name="mediaRouteSettingsDrawable">@drawable/mr_ic_settings_dark</item>
+        <item name="mediaRoutePlayDrawable">@drawable/mr_ic_play_dark</item>
+        <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_dark</item>
     </style>
 
     <style name="Theme.MediaRouter.Light" parent="">
@@ -30,8 +32,10 @@
 
         <item name="mediaRouteOffDrawable">@drawable/mr_ic_media_route_off_holo_light</item>
         <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_holo_light</item>
-        <item name="mediaRouteOnDrawable">@drawable/mr_ic_media_route_on_holo_light</item>
+        <item name="mediaRouteOnDrawable">@drawable/ic_cast_light</item>
         <item name="mediaRouteSettingsDrawable">@drawable/mr_ic_settings_light</item>
+        <item name="mediaRoutePlayDrawable">@drawable/mr_ic_play_light</item>
+        <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_light</item>
     </style>
 
 </resources>
