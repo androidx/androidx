@@ -445,6 +445,16 @@ public final class MediaMetadataCompat implements Parcelable {
     }
 
     /**
+     * Gets the bundle backing the metadata object. This is available to support
+     * backwards compatibility. Apps should not modify the bundle directly.
+     *
+     * @return The Bundle backing this metadata.
+     */
+    public Bundle getBundle() {
+        return mBundle;
+    }
+
+    /**
      * Creates an instance from a framework {@link android.media.MediaMetadata}
      * object.
      * <p>
