@@ -732,7 +732,7 @@ public final class MediaRouter {
         if (DEBUG) {
             Log.d(TAG, "addMediaSessionCompat: " + mediaSession);
         }
-        sGlobal.setMediaSession(mediaSession);
+        sGlobal.setMediaSessionCompat(mediaSession);
     }
 
     public MediaSessionCompat.Token getMediaSessionToken() {
@@ -1623,6 +1623,20 @@ public final class MediaRouter {
         private MediaRouteProvider.RouteController mSelectedRouteController;
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private MediaSessionRecord mMediaSession;
+        private MediaSessionCompat mRccMediaSession;
+        private MediaSessionCompat.OnActiveChangeListener mSessionActiveListener =
+                new MediaSessionCompat.OnActiveChangeListener() {
+            @Override
+            public void onActiveChanged() {
+                if(mRccMediaSession != null) {
+                    if (mRccMediaSession.isActive()) {
+                        addRemoteControlClient(mRccMediaSession.getRemoteControlClient());
+                    } else {
+                        removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
+                    }
+                }
+            }
+        };
 
         GlobalMediaRouter(Context applicationContext) {
             mApplicationContext = applicationContext;
@@ -2180,6 +2194,28 @@ public final class MediaRouter {
             }
         }
 
+        public void setMediaSessionCompat(final MediaSessionCompat session) {
+            if (session == null) {
+                if (mRccMediaSession != null) {
+                    removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
+                    mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);
+                }
+            }
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                setMediaSession(session.getMediaSession());
+            } else if (android.os.Build.VERSION.SDK_INT >= 14) {
+                if (mRccMediaSession != null) {
+                    removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
+                    mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);
+                }
+                mRccMediaSession = session;
+                session.addOnActiveChangeListener(mSessionActiveListener);
+                if (session.isActive()) {
+                    addRemoteControlClient(session.getRemoteControlClient());
+                }
+            }
+        }
+
         public MediaSessionCompat.Token getMediaSessionToken() {
             if (mMediaSession != null) {
                 return mMediaSession.getToken();
@@ -2239,11 +2275,7 @@ public final class MediaRouter {
             private VolumeProviderCompat mVpCompat;
 
             public MediaSessionRecord(Object mediaSession) {
-                if (mediaSession instanceof MediaSessionCompat) {
-                    mMsCompat = (MediaSessionCompat) mediaSession;
-                } else {
-                    mMsCompat = MediaSessionCompat.obtain(mApplicationContext, mediaSession);
-                }
+                mMsCompat = MediaSessionCompat.obtain(mApplicationContext, mediaSession);
             }
 
             public void configureVolume(int controlType, int max, int current) {
