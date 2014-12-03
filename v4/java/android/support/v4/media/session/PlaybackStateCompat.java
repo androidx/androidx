@@ -16,6 +16,7 @@
 package android.support.v4.media.session;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -403,6 +404,176 @@ public final class PlaybackStateCompat implements Parcelable {
             return new PlaybackStateCompat[size];
         }
     };
+
+    /**
+     * {@link PlaybackStateCompat.CustomAction CustomActions} can be used to
+     * extend the capabilities of the standard transport controls by exposing
+     * app specific actions to {@link MediaControllerCompat Controllers}.
+     */
+    public static final class CustomAction implements Parcelable {
+        private final String mAction;
+        private final CharSequence mName;
+        private final int mIcon;
+        private final Bundle mExtras;
+
+        /**
+         * Use {@link PlaybackStateCompat.CustomAction.Builder#build()}.
+         */
+        private CustomAction(String action, CharSequence name, int icon, Bundle extras) {
+            mAction = action;
+            mName = name;
+            mIcon = icon;
+            mExtras = extras;
+        }
+
+        private CustomAction(Parcel in) {
+            mAction = in.readString();
+            mName = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
+            mIcon = in.readInt();
+            mExtras = in.readBundle();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mAction);
+            TextUtils.writeToParcel(mName, dest, flags);
+            dest.writeInt(mIcon);
+            dest.writeBundle(mExtras);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Parcelable.Creator<PlaybackStateCompat.CustomAction> CREATOR
+                = new Parcelable.Creator<PlaybackStateCompat.CustomAction>() {
+
+                    @Override
+                    public PlaybackStateCompat.CustomAction createFromParcel(Parcel p) {
+                        return new PlaybackStateCompat.CustomAction(p);
+                    }
+
+                    @Override
+                    public PlaybackStateCompat.CustomAction[] newArray(int size) {
+                        return new PlaybackStateCompat.CustomAction[size];
+                    }
+                };
+
+        /**
+         * Returns the action of the {@link CustomAction}.
+         *
+         * @return The action of the {@link CustomAction}.
+         */
+        public String getAction() {
+            return mAction;
+        }
+
+        /**
+         * Returns the display name of this action. e.g. "Favorite"
+         *
+         * @return The display name of this {@link CustomAction}.
+         */
+        public CharSequence getName() {
+            return mName;
+        }
+
+        /**
+         * Returns the resource id of the icon in the {@link MediaSessionCompat
+         * Session's} package.
+         *
+         * @return The resource id of the icon in the {@link MediaSessionCompat
+         *         Session's} package.
+         */
+        public int getIcon() {
+            return mIcon;
+        }
+
+        /**
+         * Returns extras which provide additional application-specific
+         * information about the action, or null if none. These arguments are
+         * meant to be consumed by a {@link MediaControllerCompat} if it knows
+         * how to handle them.
+         *
+         * @return Optional arguments for the {@link CustomAction}.
+         */
+        public Bundle getExtras() {
+            return mExtras;
+        }
+
+        @Override
+        public String toString() {
+            return "Action:" +
+                    "mName='" + mName +
+                    ", mIcon=" + mIcon +
+                    ", mExtras=" + mExtras;
+        }
+
+        /**
+         * Builder for {@link CustomAction} objects.
+         */
+        public static final class Builder {
+            private final String mAction;
+            private final CharSequence mName;
+            private final int mIcon;
+            private Bundle mExtras;
+
+            /**
+             * Creates a {@link CustomAction} builder with the id, name, and
+             * icon set.
+             *
+             * @param action The action of the {@link CustomAction}.
+             * @param name The display name of the {@link CustomAction}. This
+             *            name will be displayed along side the action if the UI
+             *            supports it.
+             * @param icon The icon resource id of the {@link CustomAction}.
+             *            This resource id must be in the same package as the
+             *            {@link MediaSessionCompat}. It will be displayed with
+             *            the custom action if the UI supports it.
+             */
+            public Builder(String action, CharSequence name, int icon) {
+                if (TextUtils.isEmpty(action)) {
+                    throw new IllegalArgumentException(
+                            "You must specify an action to build a CustomAction.");
+                }
+                if (TextUtils.isEmpty(name)) {
+                    throw new IllegalArgumentException(
+                            "You must specify a name to build a CustomAction.");
+                }
+                if (icon == 0) {
+                    throw new IllegalArgumentException(
+                            "You must specify an icon resource id to build a CustomAction.");
+                }
+                mAction = action;
+                mName = name;
+                mIcon = icon;
+            }
+
+            /**
+             * Set optional extras for the {@link CustomAction}. These extras
+             * are meant to be consumed by a {@link MediaControllerCompat} if it
+             * knows how to handle them. Keys should be fully qualified (e.g.
+             * "com.example.MY_ARG") to avoid collisions.
+             *
+             * @param extras Optional extras for the {@link CustomAction}.
+             * @return this.
+             */
+            public Builder setExtras(Bundle extras) {
+                mExtras = extras;
+                return this;
+            }
+
+            /**
+             * Build and return the {@link CustomAction} instance with the
+             * specified values.
+             *
+             * @return A new {@link CustomAction} instance.
+             */
+            public CustomAction build() {
+                return new CustomAction(mAction, mName, mIcon, mExtras);
+            }
+        }
+    }
 
     /**
      * Builder for {@link PlaybackStateCompat} objects.
