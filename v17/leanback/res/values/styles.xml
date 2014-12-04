@@ -79,7 +79,7 @@
 
     <style name="TextAppearance.Leanback.ErrorMessage">
         <item name="android:textSize">@dimen/lb_error_message_text_size</item>
-        <item name="android:textColor">@color/lb_error_message_color_on_opaque</item>
+        <item name="android:textColor">@color/lb_error_message</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
