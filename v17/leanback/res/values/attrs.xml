@@ -169,6 +169,22 @@
         <attr name="android:interpolator" />
     </declare-styleable>
 
+    <declare-styleable name="lbResizingTextView">
+        <!-- Conditions used to trigger text resizing -->
+        <attr name="resizeTrigger">
+            <!-- Resize text whenever it lays out into the maximum number of lines -->
+            <flag name="maxLines" value="0x01" />
+        </attr>
+        <!-- Text size for resized text -->
+        <attr name="resizedTextSize" format="dimension" />
+        <!-- Whether to maintain the same line spacing when text is resized, default is true -->
+        <attr name="maintainLineSpacing" format="boolean" />
+        <!-- Adjustment to top padding for resized text -->
+        <attr name="resizedPaddingAdjustmentTop" format="dimension" />
+        <!-- Adjustment to bottom padding for resized text -->
+        <attr name="resizedPaddingAdjustmentBottom" format="dimension" />
+    </declare-styleable>
+
     <declare-styleable name="LeanbackTheme">
 
         <!-- start padding of BrowseFragment, RowsFragment, DetailsFragment -->
