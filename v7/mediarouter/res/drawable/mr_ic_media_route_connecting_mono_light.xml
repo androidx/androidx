@@ -17,8 +17,8 @@
 <animation-list
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:oneshot="false">
-    <item android:drawable="@drawable/mr_ic_media_route_on_0_holo_light" android:duration="500" />
-    <item android:drawable="@drawable/mr_ic_media_route_on_1_holo_light" android:duration="500" />
-    <item android:drawable="@drawable/mr_ic_media_route_on_2_holo_light" android:duration="500" />
-    <item android:drawable="@drawable/mr_ic_media_route_on_1_holo_light" android:duration="500" />
+    <item android:drawable="@drawable/ic_cast_on_0_light" android:duration="500" />
+    <item android:drawable="@drawable/ic_cast_on_1_light" android:duration="500" />
+    <item android:drawable="@drawable/ic_cast_on_2_light" android:duration="500" />
+    <item android:drawable="@drawable/ic_cast_on_1_light" android:duration="500" />
 </animation-list>
