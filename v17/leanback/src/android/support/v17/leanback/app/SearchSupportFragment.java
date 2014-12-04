@@ -66,6 +66,7 @@ public class SearchSupportFragment extends Fragment {
     private static final String TAG = SearchSupportFragment.class.getSimpleName();
     private static final boolean DEBUG = false;
 
+    private static final String EXTRA_LEANBACK_BADGE_PRESENT = "LEANBACK_BADGE_PRESENT";
     private static final String ARG_PREFIX = SearchSupportFragment.class.getCanonicalName();
     private static final String ARG_QUERY =  ARG_PREFIX + ".query";
     private static final String ARG_TITLE = ARG_PREFIX  + ".title";
@@ -374,6 +375,8 @@ public class SearchSupportFragment extends Fragment {
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
+        // Ensure search bar state consistency when using external recognizer
+        mSearchBar.stopRecognition();
     }
 
     @Override
@@ -588,6 +591,7 @@ public class SearchSupportFragment extends Fragment {
         if (mSearchBar != null && mSearchBar.getHint() != null) {
             recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, mSearchBar.getHint());
         }
+        recognizerIntent.putExtra(EXTRA_LEANBACK_BADGE_PRESENT, mBadgeDrawable != null);
         return recognizerIntent;
     }
 
