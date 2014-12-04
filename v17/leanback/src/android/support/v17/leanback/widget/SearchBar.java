@@ -107,6 +107,7 @@ public class SearchBar extends RelativeLayout {
     private SpeechOrbView mSpeechOrbView;
     private ImageView mBadgeView;
     private String mSearchQuery;
+    private String mHint;
     private String mTitle;
     private Drawable mBadgeDrawable;
     private final Handler mHandler = new Handler();
@@ -372,7 +373,7 @@ public class SearchBar extends RelativeLayout {
      * Returns the current search bar hint text.
      */
     public CharSequence getHint() {
-        return (mSearchTextEditor == null) ? null : mSearchTextEditor.getHint();
+        return mHint;
     }
 
     /**
@@ -469,8 +470,6 @@ public class SearchBar extends RelativeLayout {
      * This will update the hint for the search bar properly depending on state and provided title
      */
     private void updateHint() {
-        if (null == mSearchTextEditor) return;
-
         String title = getResources().getString(R.string.lb_search_bar_hint);
         if (!TextUtils.isEmpty(mTitle)) {
             if (isVoiceMode()) {
@@ -481,7 +480,10 @@ public class SearchBar extends RelativeLayout {
         } else if (isVoiceMode()) {
             title = getResources().getString(R.string.lb_search_bar_hint_speech);
         }
-        mSearchTextEditor.setHint(title);
+        mHint = title;
+        if (mSearchTextEditor != null) {
+            mSearchTextEditor.setHint(mHint);
+        }
     }
 
     private void toggleRecognition() {
@@ -504,6 +506,7 @@ public class SearchBar extends RelativeLayout {
         // Edit text content was cleared when starting recogition; ensure the content is restored
         // in error cases
         mSearchTextEditor.setText(mSearchQuery);
+        mSearchTextEditor.setHint(mHint);
 
         mRecognizing = false;
 
@@ -533,6 +536,8 @@ public class SearchBar extends RelativeLayout {
             requestFocus();
         }
         if (mSpeechRecognitionCallback != null) {
+            mSearchTextEditor.setText("");
+            mSearchTextEditor.setHint("");
             mSpeechRecognitionCallback.recognizeSpeech();
             return;
         }
