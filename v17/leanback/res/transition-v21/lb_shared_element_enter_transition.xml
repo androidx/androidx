@@ -24,8 +24,6 @@
   <changeBounds
       android:interpolator="@android:interpolator/linear_out_slow_in">
   </changeBounds>
-  <changeTransform
-      android:interpolator="@android:interpolator/linear_out_slow_in" />
   <changeImageTransform
       android:interpolator="@android:interpolator/linear_out_slow_in"/>
 </transitionSet>
