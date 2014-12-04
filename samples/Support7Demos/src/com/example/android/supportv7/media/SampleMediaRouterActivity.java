@@ -753,9 +753,6 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
                 Context context, Bundle savedInstanceState) {
             mControllerDialog = super.onCreateControllerDialog(context,
                     savedInstanceState);
-            if (mPlayer != null) {
-                mControllerDialog.setMediaSession(mPlayer.getMediaSession().getSessionToken());
-            }
             mControllerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
@@ -767,9 +764,6 @@ public class SampleMediaRouterActivity extends ActionBarActivity {
 
         public void setPlayer(Player player) {
             mPlayer = player;
-            if (mControllerDialog != null) {
-                mControllerDialog.setMediaSession(mPlayer.getMediaSession().getSessionToken());
-            }
         }
     }
 }
