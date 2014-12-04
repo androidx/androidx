@@ -308,12 +308,14 @@ public class MediaRouteControllerDialog extends Dialog {
                                 | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
                 if (isPlaying && supportsPause) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
-                    mPlayPauseButton.setImageResource(R.drawable.ic_media_pause);
+                    mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
+                            getContext(), R.attr.mediaRoutePauseDrawable));
                     mPlayPauseButton.setContentDescription(getContext().getResources()
                             .getText(R.string.mr_media_route_controller_pause));
                 } else if (!isPlaying && supportsPlay) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
-                    mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
+                    mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
+                            getContext(), R.attr.mediaRoutePlayDrawable));
                     mPlayPauseButton.setContentDescription(getContext().getResources()
                             .getText(R.string.mr_media_route_controller_play));
                 } else {
