@@ -358,6 +358,23 @@ public abstract class PlaybackControlGlue {
     }
 
     /**
+     * Sets the controls to fade after a timeout when media is playing.
+     */
+    public void setFadingEnabled(boolean enable) {
+        mFadeWhenPlaying = enable;
+        if (!mFadeWhenPlaying) {
+            mFragment.setFadingEnabled(false);
+        }
+    }
+
+    /**
+     * Returns true if controls are set to fade when media is playing.
+     */
+    public boolean isFadingEnabled() {
+        return mFadeWhenPlaying;
+    }
+
+    /**
      * Set the {@link OnItemViewClickedListener} to be called if the click event
      * is not handled internally.
      * @param listener

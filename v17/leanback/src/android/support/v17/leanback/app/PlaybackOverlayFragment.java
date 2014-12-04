@@ -293,22 +293,34 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     }
 
     private boolean onInterceptInputEvent(InputEvent event) {
-        if (DEBUG) Log.v(TAG, "onInterceptInputEvent status " + mFadingStatus + " event " + event);
-        boolean consumeEvent = (mFadingStatus == IDLE && mBgAlpha == 0);
+        if (DEBUG) Log.v(TAG, "onInterceptInputEvent status " + mFadingStatus +
+                " mBgAlpha " + mBgAlpha + " event " + event);
+        final boolean controlsHidden = (mFadingStatus == IDLE && mBgAlpha == 0);
+        boolean consumeEvent = controlsHidden;
+        int keyCode = KeyEvent.KEYCODE_UNKNOWN;
+
         if (event instanceof KeyEvent) {
             if (consumeEvent) {
                 consumeEvent = isConsumableKey((KeyEvent) event);
             }
-            int keyCode = ((KeyEvent) event).getKeyCode();
-            // Back key typically means we're leaving the fragment
-            if (keyCode != KeyEvent.KEYCODE_BACK) {
-                tickle();
-            }
-        } else {
-            tickle();
+            keyCode = ((KeyEvent) event).getKeyCode();
         }
         if (!consumeEvent && mInputEventHandler != null) {
             consumeEvent = mInputEventHandler.handleInputEvent(event);
+        }
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            // If fading enabled and controls are not hidden, back will be consumed to fade
+            // them out (even if the key was consumed by the handler).
+            if (mFadingEnabled && !controlsHidden) {
+                consumeEvent = true;
+                mHandler.removeMessages(START_FADE_OUT);
+                fade(false);
+            } else if (consumeEvent) {
+                tickle();
+            }
+        } else {
+            // Any other key will show the controls
+            tickle();
         }
         return consumeEvent;
     }
