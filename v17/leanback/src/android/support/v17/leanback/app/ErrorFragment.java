@@ -249,9 +249,6 @@ public class ErrorFragment extends Fragment {
     private void updateMessage() {
         if (mTextView != null) {
             mTextView.setText(mMessage);
-            mTextView.setTextColor(mTextView.getResources().getColor(mIsBackgroundTranslucent ?
-                    R.color.lb_error_message_color_on_translucent :
-                    R.color.lb_error_message_color_on_opaque));
             mTextView.setVisibility(TextUtils.isEmpty(mMessage) ? View.GONE : View.VISIBLE);
         }
     }
