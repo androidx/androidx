@@ -522,13 +522,26 @@ public class BrowseFragment extends BaseFragment {
             new BrowseFrameLayout.OnFocusSearchListener() {
         @Override
         public View onFocusSearch(View focused, int direction) {
-            // If headers fragment is disabled, just return null.
-            if (!mCanShowHeaders) return null;
+            // if headers is running transition,  focus stays
+            if (mCanShowHeaders && isInHeadersTransition()) {
+                return focused;
+            }
+            if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
 
             final View searchOrbView = mTitleView.getSearchAffordanceView();
-            // if headers is running transition,  focus stays
-            if (isInHeadersTransition()) return focused;
-            if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
+            if (focused == searchOrbView && direction == View.FOCUS_DOWN) {
+                return mCanShowHeaders && mShowingHeaders ?
+                        mHeadersFragment.getVerticalGridView() :
+                        mRowsFragment.getVerticalGridView();
+            } else if (focused != searchOrbView && searchOrbView.getVisibility() == View.VISIBLE
+                    && direction == View.FOCUS_UP) {
+                return searchOrbView;
+            }
+
+            // If headers fragment is disabled, just return null.
+            if (!mCanShowHeaders) {
+                return null;
+            }
             boolean isRtl = ViewCompat.getLayoutDirection(focused) == View.LAYOUT_DIRECTION_RTL;
             int towardStart = isRtl ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
             int towardEnd = isRtl ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
@@ -542,14 +555,6 @@ public class BrowseFragment extends BaseFragment {
                     return focused;
                 }
                 return mRowsFragment.getVerticalGridView();
-            } else if (focused == searchOrbView && direction == View.FOCUS_DOWN) {
-                return mShowingHeaders ? mHeadersFragment.getVerticalGridView() :
-                    mRowsFragment.getVerticalGridView();
-
-            } else if (focused != searchOrbView && searchOrbView.getVisibility() == View.VISIBLE
-                    && direction == View.FOCUS_UP) {
-                return searchOrbView;
-
             } else {
                 return null;
             }
