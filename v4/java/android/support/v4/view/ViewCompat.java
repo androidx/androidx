@@ -272,6 +272,7 @@ public class ViewCompat {
         public void postOnAnimationDelayed(View view, Runnable action, long delayMillis);
         public int getImportantForAccessibility(View view);
         public void setImportantForAccessibility(View view, int mode);
+        public boolean isImportantForAccessibility(View view);
         public boolean performAccessibilityAction(View view, int action, Bundle arguments);
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
         public float getAlpha(View view);
@@ -402,6 +403,9 @@ public class ViewCompat {
         }
         public void setImportantForAccessibility(View view, int mode) {
 
+        }
+        public boolean isImportantForAccessibility(View view) {
+            return true;
         }
         public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
             return false;
@@ -1179,6 +1183,11 @@ public class ViewCompat {
         @Override
         public void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener) {
             ViewCompatApi21.setOnApplyWindowInsetsListener(view, listener);
+        }
+
+        @Override
+        public boolean isImportantForAccessibility(View view) {
+            return ViewCompatApi21.isImportantForAccessibility(view);
         }
     }
 

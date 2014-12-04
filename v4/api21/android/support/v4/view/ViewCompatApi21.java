@@ -63,4 +63,8 @@ class ViewCompatApi21 {
             }
         });
     }
+
+    public static boolean isImportantForAccessibility(View view) {
+        return view.isImportantForAccessibility();
+    }
 }
