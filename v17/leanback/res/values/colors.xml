@@ -32,8 +32,7 @@
 
     <color name="lb_error_background_color_opaque">#262626</color>
     <color name="lb_error_background_color_translucent">#E6000000</color>
-    <color name="lb_error_message_color_on_opaque">#80EEEEEE</color>
-    <color name="lb_error_message_color_on_translucent">#80555555</color>
+    <color name="lb_error_message">#80EEEEEE</color>
 
     <color name="lb_action_text_color">#EEEEEE</color>
 
