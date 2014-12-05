@@ -1624,6 +1624,7 @@ public final class MediaRouter {
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private MediaSessionRecord mMediaSession;
         private MediaSessionCompat mRccMediaSession;
+        private MediaSessionCompat mCompatSession;
         private MediaSessionCompat.OnActiveChangeListener mSessionActiveListener =
                 new MediaSessionCompat.OnActiveChangeListener() {
             @Override
@@ -2195,6 +2196,7 @@ public final class MediaRouter {
         }
 
         public void setMediaSessionCompat(final MediaSessionCompat session) {
+            mCompatSession = session;
             if (session == null) {
                 if (mRccMediaSession != null) {
                     removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
@@ -2219,6 +2221,8 @@ public final class MediaRouter {
         public MediaSessionCompat.Token getMediaSessionToken() {
             if (mMediaSession != null) {
                 return mMediaSession.getToken();
+            } else if (mCompatSession != null) {
+                return mCompatSession.getSessionToken();
             }
             return null;
         }
