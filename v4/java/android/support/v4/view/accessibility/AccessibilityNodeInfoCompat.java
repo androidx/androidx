@@ -273,6 +273,12 @@ public class AccessibilityNodeInfoCompat {
         public int getCollectionItemRowSpan(Object info);
         public boolean isCollectionItemHeading(Object info);
         public boolean isCollectionItemSelected(Object info);
+        public AccessibilityNodeInfoCompat getTraversalBefore(Object info);
+        public void setTraversalBefore(Object info, View view);
+        public void setTraversalBefore(Object info, View root, int virtualDescendantId);
+        public AccessibilityNodeInfoCompat getTraversalAfter(Object info);
+        public void setTraversalAfter(Object info, View view);
+        public void setTraversalAfter(Object info, View root, int virtualDescendantId);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -699,6 +705,32 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public boolean isCollectionItemSelected(Object info) {
             return false;
+        }
+
+        @Override
+        public AccessibilityNodeInfoCompat getTraversalBefore(Object info) {
+            return null;
+        }
+
+        @Override
+        public void setTraversalBefore(Object info, View view) {
+        }
+
+        @Override
+        public void setTraversalBefore(Object info, View root, int virtualDescendantId) {
+        }
+
+        @Override
+        public AccessibilityNodeInfoCompat getTraversalAfter(Object info) {
+            return null;
+        }
+
+        @Override
+        public void setTraversalAfter(Object info, View view) {
+        }
+
+        @Override
+        public void setTraversalAfter(Object info, View root, int virtualDescendantId) {
         }
     }
 
@@ -1156,8 +1188,52 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    static class AccessibilityNodeInfoApi22Impl extends AccessibilityNodeInfoApi21Impl {
+        @Override
+        public AccessibilityNodeInfoCompat getTraversalBefore(Object info) {
+            Object nodeInfo = AccessibilityNodeInfoCompatApi22.getTraversalBefore(info);
+            if (nodeInfo == null) {
+                return null;
+            }
+
+            return new AccessibilityNodeInfoCompat(nodeInfo);
+        }
+
+        @Override
+        public void setTraversalBefore(Object info, View view) {
+            AccessibilityNodeInfoCompatApi22.setTraversalBefore(info, view);
+        }
+
+        @Override
+        public void setTraversalBefore(Object info, View root, int virtualDescendantId) {
+            AccessibilityNodeInfoCompatApi22.setTraversalBefore(info, root, virtualDescendantId);
+        }
+
+        @Override
+        public AccessibilityNodeInfoCompat getTraversalAfter(Object info) {
+            Object nodeInfo = AccessibilityNodeInfoCompatApi22.getTraversalAfter(info);
+            if (nodeInfo == null) {
+                return null;
+            }
+
+            return new AccessibilityNodeInfoCompat(nodeInfo);
+        }
+
+        @Override
+        public void setTraversalAfter(Object info, View view) {
+            AccessibilityNodeInfoCompatApi22.setTraversalAfter(info, view);
+        }
+
+        @Override
+        public void setTraversalAfter(Object info, View root, int virtualDescendantId) {
+            AccessibilityNodeInfoCompatApi22.setTraversalAfter(info, root, virtualDescendantId);
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 22) {
+            IMPL = new AccessibilityNodeInfoApi22Impl();
+        } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new AccessibilityNodeInfoApi21Impl();
         } else if (Build.VERSION.SDK_INT >= 19) { // KitKat
             IMPL = new AccessibilityNodeInfoKitKatImpl();
