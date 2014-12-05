@@ -117,7 +117,7 @@ public abstract class Presenter {
      * Utility method for removing all running animations on a view.
      */
     protected static void cancelAnimationsRecursive(View view) {
-        if (view.hasTransientState()) {
+        if (view != null && view.hasTransientState()) {
             view.animate().cancel();
             if (view instanceof ViewGroup) {
                 final int count = ((ViewGroup) view).getChildCount();
