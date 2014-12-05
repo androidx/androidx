@@ -612,12 +612,12 @@ public final class PlaybackStateCompat implements Parcelable {
         /**
          * Set the current state of playback.
          * <p>
-         * The position must be in ms and indicates the current playback position
-         * within the track. If the position is unknown use
+         * The position must be in ms and indicates the current playback
+         * position within the track. If the position is unknown use
          * {@link #PLAYBACK_POSITION_UNKNOWN}.
          * <p>
-         * The rate is a multiple of normal playback and should be 0 when paused and
-         * negative when rewinding. Normal playback rate is 1.0.
+         * The rate is a multiple of normal playback and should be 0 when paused
+         * and negative when rewinding. Normal playback rate is 1.0.
          * <p>
          * The state must be one of the following:
          * <ul>
@@ -633,28 +633,66 @@ public final class PlaybackStateCompat implements Parcelable {
          *
          * @param state The current state of playback.
          * @param position The position in the current track in ms.
-         * @param playbackRate The current rate of playback as a multiple of normal
-         *            playback.
+         * @param playbackSpeed The current rate of playback as a multiple of
+         *            normal playback.
          */
-        public void setState(int state, long position, float playbackRate) {
-            this.mState = state;
-            this.mPosition = position;
-            this.mRate = playbackRate;
-            mUpdateTime = SystemClock.elapsedRealtime();
+        public Builder setState(int state, long position, float playbackSpeed) {
+            return setState(state, position, playbackSpeed, SystemClock.elapsedRealtime());
+        }
+
+        /**
+         * Set the current state of playback.
+         * <p>
+         * The position must be in ms and indicates the current playback
+         * position within the track. If the position is unknown use
+         * {@link #PLAYBACK_POSITION_UNKNOWN}.
+         * <p>
+         * The rate is a multiple of normal playback and should be 0 when paused
+         * and negative when rewinding. Normal playback rate is 1.0.
+         * <p>
+         * The state must be one of the following:
+         * <ul>
+         * <li> {@link PlaybackStateCompat#STATE_NONE}</li>
+         * <li> {@link PlaybackStateCompat#STATE_STOPPED}</li>
+         * <li> {@link PlaybackStateCompat#STATE_PLAYING}</li>
+         * <li> {@link PlaybackStateCompat#STATE_PAUSED}</li>
+         * <li> {@link PlaybackStateCompat#STATE_FAST_FORWARDING}</li>
+         * <li> {@link PlaybackStateCompat#STATE_REWINDING}</li>
+         * <li> {@link PlaybackStateCompat#STATE_BUFFERING}</li>
+         * <li> {@link PlaybackStateCompat#STATE_ERROR}</li>
+         * </ul>
+         *
+         * @param state The current state of playback.
+         * @param position The position in the current item in ms.
+         * @param playbackSpeed The current speed of playback as a multiple of
+         *            normal playback.
+         * @param updateTime The time in the {@link SystemClock#elapsedRealtime}
+         *            timebase that the position was updated at.
+         * @return this
+         */
+        public Builder setState(int state, long position, float playbackSpeed, long updateTime) {
+            mState = state;
+            mPosition = position;
+            mUpdateTime = updateTime;
+            mRate = playbackSpeed;
+            return this;
         }
 
         /**
          * Set the current buffered position in ms. This is the farthest
          * playback point that can be reached from the current position using
          * only buffered content.
+         *
+         * @return this
          */
-        public void setBufferedPosition(long bufferPosition) {
+        public Builder setBufferedPosition(long bufferPosition) {
             mBufferedPosition = bufferPosition;
+            return this;
         }
 
         /**
-         * Set the current capabilities available on this session. This should use a
-         * bitmask of the available capabilities.
+         * Set the current capabilities available on this session. This should
+         * use a bitmask of the available capabilities.
          * <ul>
          * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS}</li>
          * <li> {@link PlaybackStateCompat#ACTION_REWIND}</li>
@@ -666,17 +704,23 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#ACTION_SEEK_TO}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SET_RATING}</li>
          * </ul>
+         *
+         * @return this
          */
-        public void setActions(long capabilities) {
+        public Builder setActions(long capabilities) {
             mActions = capabilities;
+            return this;
         }
 
         /**
-         * Set a user readable error message. This should be set when the state is
-         * {@link PlaybackStateCompat#STATE_ERROR}.
+         * Set a user readable error message. This should be set when the state
+         * is {@link PlaybackStateCompat#STATE_ERROR}.
+         *
+         * @return this
          */
-        public void setErrorMessage(CharSequence errorMessage) {
+        public Builder setErrorMessage(CharSequence errorMessage) {
             mErrorMessage = errorMessage;
+            return this;
         }
 
         /**
