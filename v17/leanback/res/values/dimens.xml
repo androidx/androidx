@@ -83,6 +83,9 @@
     <dimen name="lb_details_rows_align_top">167dp</dimen>
 
     <dimen name="lb_details_description_title_text_size">34sp</dimen>
+    <dimen name="lb_details_description_title_resized_text_size">28sp</dimen>
+    <dimen name="lb_details_description_title_padding_adjust_top">-1dp</dimen>
+    <dimen name="lb_details_description_title_padding_adjust_bottom">2dp</dimen>
     <dimen name="lb_details_description_subtitle_text_size">16sp</dimen>
     <dimen name="lb_details_description_body_text_size">14sp</dimen>
     <dimen name="lb_details_description_title_line_spacing">40dp</dimen>
