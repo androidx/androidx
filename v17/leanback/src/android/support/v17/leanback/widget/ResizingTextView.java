@@ -74,7 +74,9 @@ class ResizingTextView extends TextView {
     }
 
     public ResizingTextView(Context ctx, AttributeSet attrs) {
-        this(ctx, attrs, 0);
+        // TODO We should define our own style that inherits from TextViewStyle, to set defaults
+        // for new styleables,  We then pass the appropriate R.attr up the constructor chain here.
+        this(ctx, attrs, android.R.attr.textViewStyle);
     }
 
     public ResizingTextView(Context ctx) {
