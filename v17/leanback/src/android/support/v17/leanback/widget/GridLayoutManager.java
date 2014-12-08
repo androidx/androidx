@@ -691,10 +691,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         final int newItemCount = mState.getItemCount();
 
-        if (focusPosition == NO_POSITION && newItemCount > 0) {
+        // Force the re-init path in the following conditional
+        if (newItemCount == 0) {
+            focusPosition = NO_POSITION;
+        } else if (focusPosition == NO_POSITION && newItemCount > 0) {
             // if focus position is never set before,  initialize it to 0
             focusPosition = 0;
         }
+
         // If adapter has changed then caches are invalid; otherwise,
         // we try to maintain each row's position if number of rows keeps the same
         // and existing mGrid contains the focusPosition.
@@ -2082,7 +2086,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
-        if (DEBUG) Log.v(getTag(), "onItemsAdded positionStart "
+        if (DEBUG) Log.v(getTag(), "onItemsRemoved positionStart "
                 + positionStart + " itemCount " + itemCount);
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
                 && getChildAt(mFocusPosition) != null) {
@@ -2102,7 +2106,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onItemsMoved(RecyclerView recyclerView, int fromPosition, int toPosition,
             int itemCount) {
-        if (DEBUG) Log.v(getTag(), "onItemsAdded fromPosition "
+        if (DEBUG) Log.v(getTag(), "onItemsMoved fromPosition "
                 + fromPosition + " toPosition " + toPosition);
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE
                 && getChildAt(mFocusPosition) != null) {
@@ -2123,6 +2127,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
+        if (DEBUG) Log.v(getTag(), "onItemsUpdated positionStart "
+                + positionStart + " itemCount " + itemCount);
         for (int i = positionStart, end = positionStart + itemCount; i < end; i++) {
             mChildrenStates.remove(i);
         }
