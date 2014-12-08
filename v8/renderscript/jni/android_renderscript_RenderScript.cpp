@@ -24,7 +24,6 @@
 #include <android/bitmap.h>
 #include <android/log.h>
 #include "jni.h"
-#include <rs.h>
 #include <rsEnv.h>
 
 #include "rsDispatch.h"

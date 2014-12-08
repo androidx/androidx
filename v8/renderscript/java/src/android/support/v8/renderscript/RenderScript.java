@@ -998,11 +998,17 @@ public class RenderScript {
         } else {
             android.util.Log.v(LOG_TAG, "RS compat mode");
         }
-        if (!rs.nLoadSO(useNative)) {
+        if (!useNative || !rs.nLoadSO(useNative)) {
             if (useNative) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
             }
-            if (!useNative || !rs.nLoadSO(false)) {
+            try {
+                System.loadLibrary("RSSupport");
+            } catch (UnsatisfiedLinkError e) {
+                Log.e(LOG_TAG, "Error loading RS Compat library: " + e);
+                throw new RSRuntimeException("Error loading RS Compat library: " + e);
+            }
+            if (!rs.nLoadSO(false)) {
                 throw new RSRuntimeException("Error loading libRSSupport library");
             }
         }
