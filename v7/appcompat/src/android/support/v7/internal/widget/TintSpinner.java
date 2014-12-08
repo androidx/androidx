@@ -28,8 +28,9 @@ import java.lang.reflect.Field;
 
 /**
  * An tint aware {@link android.widget.Spinner}.
- *
- * @hide
+ * <p>
+ * This will automatically be used when you use {@link android.widget.Spinner} in your
+ * layouts. You should only need to manually use this class when writing custom views.
  */
 public class TintSpinner extends Spinner {
 
@@ -49,20 +50,25 @@ public class TintSpinner extends Spinner {
     public TintSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
-                defStyleAttr, 0);
-        setBackgroundDrawable(a.getDrawable(0));
+        if (TintManager.SHOULD_BE_USED) {
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                    TINT_ATTRS, defStyleAttr, 0);
 
-        if (a.hasValue(1)) {
-            final Drawable background = a.getDrawable(1);
-            if (Build.VERSION.SDK_INT >= 16) {
-                setPopupBackgroundDrawable(background);
-            } else if (Build.VERSION.SDK_INT >= 11) {
-                setPopupBackgroundDrawableV11(this, background);
+            if (a.hasValue(0)) {
+                setBackgroundDrawable(a.getDrawable(0));
             }
-        }
 
-        a.recycle();
+            if (a.hasValue(1)) {
+                final Drawable background = a.getDrawable(1);
+                if (Build.VERSION.SDK_INT >= 16) {
+                    setPopupBackgroundDrawable(background);
+                } else if (Build.VERSION.SDK_INT >= 11) {
+                    setPopupBackgroundDrawableV11(this, background);
+                }
+            }
+
+            a.recycle();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

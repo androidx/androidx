@@ -337,6 +337,7 @@ public class ViewCompat {
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
         void setSaveFromParentEnabled(View view, boolean enabled);
         void setActivated(View view, boolean activated);
+        boolean isPaddingRelative(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -747,6 +748,11 @@ public class ViewCompat {
         public void setActivated(View view, boolean activated) {
             // noop
         }
+
+        @Override
+        public boolean isPaddingRelative(View view) {
+            return false;
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1124,6 +1130,11 @@ public class ViewCompat {
         @Override
         public int getWindowSystemUiVisibility(View view) {
             return ViewCompatJellybeanMr1.getWindowSystemUiVisibility(view);
+        }
+
+        @Override
+        public boolean isPaddingRelative(View view) {
+            return ViewCompatJellybeanMr1.isPaddingRelative(view);
         }
     }
 
@@ -2339,6 +2350,16 @@ public class ViewCompat {
      */
     public static void setActivated(View view, boolean activated) {
         IMPL.setActivated(view, activated);
+    }
+
+    /**
+     * Return if the padding as been set through relative values
+     * {@code View.setPaddingRelative(int, int, int, int)} or thru
+     *
+     * @return true if the padding is relative or false if it is not.
+     */
+    public static boolean isPaddingRelative(View view) {
+        return IMPL.isPaddingRelative(view);
     }
 
     // TODO: getters for various view properties (rotation, etc)

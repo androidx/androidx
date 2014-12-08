@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
@@ -33,6 +34,8 @@ import android.util.TypedValue;
  * @hide
  */
 public class TintManager {
+
+    static final boolean SHOULD_BE_USED = Build.VERSION.SDK_INT < 21;
 
     private static final String TAG = TintManager.class.getSimpleName();
     private static final boolean DEBUG = false;

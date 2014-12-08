@@ -164,7 +164,9 @@ class SpinnerCompat extends AbsSpinnerCompat implements DialogInterface.OnClickL
                 R.styleable.Spinner, defStyle, 0);
 
         // Need to reset this for tinting purposes
-        setBackgroundDrawable(a.getDrawable(R.styleable.Spinner_android_background));
+        if (a.hasValue(R.styleable.Spinner_android_background)) {
+            setBackgroundDrawable(a.getDrawable(R.styleable.Spinner_android_background));
+        }
 
         if (mode == MODE_THEME) {
             mode = a.getInt(R.styleable.Spinner_spinnerMode, MODE_DIALOG);
