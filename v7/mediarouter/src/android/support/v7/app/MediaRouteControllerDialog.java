@@ -59,6 +59,7 @@ public class MediaRouteControllerDialog extends Dialog {
     private final MediaRouter.RouteInfo mRoute;
 
     private boolean mCreated;
+    private boolean mAttachedToWindow;
     private Drawable mMediaRouteConnectingDrawable;
     private Drawable mMediaRouteOnDrawable;
     private Drawable mCurrentIconDrawable;
@@ -95,6 +96,7 @@ public class MediaRouteControllerDialog extends Dialog {
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
+        setMediaSession(mRouter.getMediaSessionToken());
     }
 
     /**
@@ -132,12 +134,15 @@ public class MediaRouteControllerDialog extends Dialog {
      *
      * @param sessionToken The token for the session to use.
      */
-    public void setMediaSession(MediaSessionCompat.Token sessionToken) {
+    private void setMediaSession(MediaSessionCompat.Token sessionToken) {
         if (mMediaController != null) {
             mMediaController.unregisterCallback(mControllerCallback);
             mMediaController = null;
         }
         if (sessionToken == null) {
+            return;
+        }
+        if (!mAttachedToWindow) {
             return;
         }
         try {
@@ -206,16 +211,18 @@ public class MediaRouteControllerDialog extends Dialog {
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
+        mAttachedToWindow = true;
 
         mRouter.addCallback(MediaRouteSelector.EMPTY, mCallback,
                 MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS);
-        update();
+        setMediaSession(mRouter.getMediaSessionToken());
     }
 
     @Override
     public void onDetachedFromWindow() {
         mRouter.removeCallback(mCallback);
-
+        setMediaSession(null);
+        mAttachedToWindow = false;
         super.onDetachedFromWindow();
     }
 
@@ -294,6 +301,8 @@ public class MediaRouteControllerDialog extends Dialog {
                 }
                 if (!haveText) {
                     mTitlesWrapper.setVisibility(View.GONE);
+                } else {
+                    mTitlesWrapper.setVisibility(View.VISIBLE);
                 }
             } else {
                 mArtView.setVisibility(View.GONE);
