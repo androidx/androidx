@@ -16,10 +16,10 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_checked="true" android:state_enabled="true"
-            android:drawable="@drawable/mr_ic_media_route_on_holo_light" />
+            android:drawable="@drawable/ic_cast_on_light" />
     <item android:state_checkable="true" android:state_enabled="true"
-            android:drawable="@drawable/mr_ic_media_route_connecting_holo_light" />
+            android:drawable="@drawable/mr_ic_media_route_connecting_mono_light" />
     <item android:state_enabled="true"
-            android:drawable="@drawable/mr_ic_media_route_off_holo_light" />
-    <item android:drawable="@drawable/mr_ic_media_route_disabled_holo_light" />
+            android:drawable="@drawable/ic_cast_off_light" />
+    <item android:drawable="@drawable/ic_cast_disabled_light" />
 </selector>
