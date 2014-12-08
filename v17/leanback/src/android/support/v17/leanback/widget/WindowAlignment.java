@@ -67,8 +67,6 @@ class WindowAlignment {
 
         private int mPaddingHigh;
 
-        private boolean mReversedFlow = false;
-
         private String mName; // for debugging
 
         public Axis(String name) {
@@ -124,10 +122,6 @@ class WindowAlignment {
 
         final public int getMinScroll() {
             return mMinScroll;
-        }
-
-        final public void setLayoutDirection(int layoutDirection) {
-            mReversedFlow = layoutDirection == View.LAYOUT_DIRECTION_RTL;
         }
 
         final public void invalidateScrollMin() {
@@ -202,11 +196,11 @@ class WindowAlignment {
             return mSize - mPaddingLow - mPaddingHigh;
         }
 
-        final public int getSystemScrollPos(boolean isFirst, boolean isLast) {
-            return getSystemScrollPos((int) mScrollCenter, isFirst, isLast);
+        final public int getSystemScrollPos(boolean isAtMin, boolean isAtMax) {
+            return getSystemScrollPos((int) mScrollCenter, isAtMin, isAtMax);
         }
 
-        final public int getSystemScrollPos(int scrollCenter, boolean isFirst, boolean isLast) {
+        final public int getSystemScrollPos(int scrollCenter, boolean isAtMin, boolean isAtMax) {
             int middlePosition;
             if (mWindowAlignmentOffset >= 0) {
                 middlePosition = mWindowAlignmentOffset - mPaddingLow;
@@ -220,17 +214,12 @@ class WindowAlignment {
             int afterMiddlePosition = clientSize - middlePosition;
             boolean isMinUnknown = isMinUnknown();
             boolean isMaxUnknown = isMaxUnknown();
-            boolean isAtMin = (!mReversedFlow) ? isFirst : isLast;
-            boolean isAtMax = (!mReversedFlow) ? isLast : isFirst;
             if (!isMinUnknown && !isMaxUnknown &&
                     (mWindowAlignment & WINDOW_ALIGN_BOTH_EDGE) == WINDOW_ALIGN_BOTH_EDGE) {
                 if (mMaxEdge - mMinEdge <= clientSize) {
                     // total children size is less than view port and we want to align
                     // both edge:  align first child to start edge of view port
-                    int result = (!mReversedFlow) ?
-                        mMinEdge - mPaddingLow :
-                        mMaxEdge - mPaddingLow - clientSize;
-                    return result;
+                    return mMinEdge - mPaddingLow;
                 }
             }
             if (!isMinUnknown) {
@@ -238,8 +227,7 @@ class WindowAlignment {
                         (isAtMin || scrollCenter - mMinEdge <= middlePosition)) {
                     // scroll center is within half of view port size: align the start edge
                     // of first child to the start edge of view port
-                    int result = mMinEdge - mPaddingLow;
-                    return result;
+                    return mMinEdge - mPaddingLow;
                 }
             }
             if (!isMaxUnknown) {
@@ -247,13 +235,11 @@ class WindowAlignment {
                         (isAtMax || mMaxEdge - scrollCenter <= afterMiddlePosition)) {
                     // scroll center is very close to the end edge of view port : align the
                     // end edge of last children (plus expanded size) to view port's end
-                    int result = mMaxEdge - mPaddingLow - clientSize;
-                    return result;
+                    return mMaxEdge - mPaddingLow - clientSize;
                 }
             }
             // else put scroll center in middle of view port
-            int result = scrollCenter - middlePosition - mPaddingLow;
-            return result;
+            return scrollCenter - middlePosition - mPaddingLow;
         }
 
         @Override
@@ -295,10 +281,6 @@ class WindowAlignment {
 
     final public int getOrientation() {
         return mOrientation;
-    }
-
-    final public void setLayoutDirection(int layoutDirection) {
-        horizontal.setLayoutDirection(layoutDirection);
     }
 
     final public void reset() {

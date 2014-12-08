@@ -410,7 +410,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mReverseFlowSecondary = layoutDirection == View.LAYOUT_DIRECTION_RTL;
             mReverseFlowPrimary = false;
         }
-        mWindowAlignment.setLayoutDirection(layoutDirection);
     }
 
     public int getFocusScrollStrategy() {
@@ -2170,29 +2169,33 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getPrimarySystemScrollPosition(View view) {
-        int viewCenterPrimary = mScrollOffsetPrimary + getViewCenter(view);
-        int pos = getPositionByView(view);
-        StaggeredGrid.Location location = mGrid.getLocation(pos);
-        final int row = location.row;
-        boolean isFirst = mFirstVisiblePos == 0;
+        final int viewCenterPrimary = mScrollOffsetPrimary + getViewCenter(view);
+        final int viewMin = getViewMin(view);
+        final int viewMax = getViewMax(view);
         // TODO: change to use State object in onRequestChildFocus()
-        boolean isLast = mLastVisiblePos == (mState == null ?
-                getItemCount() : mState.getItemCount()) - 1;
-        if (isFirst || isLast) {
-            for (int i = getChildCount() - 1; i >= 0; i--) {
-                int position = getPositionByIndex(i);
-                StaggeredGrid.Location loc = mGrid.getLocation(position);
-                // TODO RTL logic here?
-                if (loc != null && loc.row == row) {
-                    if (position < pos) {
-                        isFirst = false;
-                    } else if (position > pos) {
-                        isLast = false;
-                    }
-                }
+        boolean isMin, isMax;
+        if (!mReverseFlowPrimary) {
+            isMin = mFirstVisiblePos == 0;
+            isMax = mLastVisiblePos == (mState == null ?
+                    getItemCount() : mState.getItemCount()) - 1;
+        } else {
+            isMax = mFirstVisiblePos == 0;
+            isMin = mLastVisiblePos == (mState == null ?
+                    getItemCount() : mState.getItemCount()) - 1;
+        }
+        for (int i = getChildCount() - 1; (isMin || isMax) && i >= 0; i--) {
+            View v = getChildAt(i);
+            if (v == view || v == null) {
+                continue;
+            }
+            if (isMin && getViewMin(v) < viewMin) {
+                isMin = false;
+            }
+            if (isMax && getViewMax(v) > viewMax) {
+                isMax = false;
             }
         }
-        return mWindowAlignment.mainAxis().getSystemScrollPos(viewCenterPrimary, isFirst, isLast);
+        return mWindowAlignment.mainAxis().getSystemScrollPos(viewCenterPrimary, isMin, isMax);
     }
 
     private int getSecondarySystemScrollPosition(View view) {
@@ -2200,10 +2203,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int pos = getPositionByView(view);
         StaggeredGrid.Location location = mGrid.getLocation(pos);
         final int row = location.row;
-        boolean isFirst = row == 0;
-        boolean isLast = row == mGrid.getNumRows() - 1;
-        return mWindowAlignment.secondAxis().getSystemScrollPos(viewCenterSecondary,
-                isFirst, isLast);
+        final boolean isMin, isMax;
+        if (!mReverseFlowSecondary) {
+            isMin = row == 0;
+            isMax = row == mGrid.getNumRows() - 1;
+        } else {
+            isMax = row == 0;
+            isMin = row == mGrid.getNumRows() - 1;
+        }
+        return mWindowAlignment.secondAxis().getSystemScrollPos(viewCenterSecondary, isMin, isMax);
     }
 
     /**
