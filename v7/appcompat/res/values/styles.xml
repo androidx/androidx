@@ -194,6 +194,7 @@
     </style>
 
     <style name="Widget.AppCompat.SearchView" parent="Base.Widget.AppCompat.SearchView" />
+    <style name="Widget.AppCompat.SearchView.ActionBar" parent="Base.Widget.AppCompat.SearchView.ActionBar" />
 
     <style name="Widget.AppCompat.EditText"
            parent="Base.Widget.AppCompat.EditText">
