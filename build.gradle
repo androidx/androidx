@@ -89,7 +89,7 @@ task(createXml) << {
     <sdk:name-display>Local Maven repository for Support Libraries</sdk:name-display>\n\
     <sdk:path>m2repository</sdk:path>\n\
     <sdk:archives>\n\
-      <sdk:archive os=\"any\" arch=\"any\">\n\
+      <sdk:archive>\n\
        <sdk:size>${size}</sdk:size>\n\
        <sdk:checksum type=\"sha1\">${sha1}</sdk:checksum>\n\
        <sdk:url>${repoArchiveName}</sdk:url>\n\
