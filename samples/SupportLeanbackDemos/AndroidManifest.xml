@@ -30,6 +30,10 @@
             android:theme="@style/Theme.Example.Leanback.Details"
             android:exported="true" />
 
+        <activity android:name="RowsActivity"
+            android:theme="@style/Theme.Example.Leanback.Rows"
+            android:exported="true" />
+
         <activity android:name="PlaybackOverlayActivity"
             android:exported="true" />
 

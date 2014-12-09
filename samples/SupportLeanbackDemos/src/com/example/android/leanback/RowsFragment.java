@@ -13,10 +13,11 @@
  */
 package com.example.android.leanback;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
@@ -28,32 +29,26 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
-    private static final String TAG = "leanback.BrowseFragment";
+public class RowsFragment extends android.support.v17.leanback.app.RowsFragment {
 
-    private static final boolean TEST_ENTRANCE_TRANSITION = true;
+    public static interface OnRowsFirstLineSelectedListener {
+        void onSelectedFirstRow(boolean firstRow);
+    }
+
+    private static final String TAG = "leanback.RowsFragment";
+
     private static final int NUM_ROWS = 10;
     private ArrayObjectAdapter mRowsAdapter;
+    private OnRowsFirstLineSelectedListener mCallback;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
-        setTitle("Leanback Sample App");
-        setHeadersState(HEADERS_ENABLED);
-
-        setOnSearchClickedListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
-                startActivity(intent);
-            }
-        });
 
         setupRows();
         setOnItemViewClickedListener(new ItemViewClickedListener());
@@ -62,19 +57,25 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
+                if (mCallback == null) {
+                    return;
+                }
+                if (mRowsAdapter != null && mRowsAdapter.size() > 0 && row != null &&
+                        row != mRowsAdapter.get(0)) {
+                    mCallback.onSelectedFirstRow(false);
+                } else {
+                    mCallback.onSelectedFirstRow(true);
+                }
             }
         });
-        if (TEST_ENTRANCE_TRANSITION) {
-            // don't run entrance transition if Activity is restored.
-            if (savedInstanceState == null) {
-                prepareEntranceTransition();
-            }
-            // simulate delay loading data
-            new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    startEntranceTransition();
-                }
-            }, 2000);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // This makes sure that the container activity has implemented
+        if (activity instanceof OnRowsFirstLineSelectedListener) {
+            mCallback = (OnRowsFirstLineSelectedListener) activity;
         }
     }
 
@@ -92,13 +93,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
-            listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_2));
-            listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_3));
+            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_2));
+            listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_3));
             listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_5));
-            listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_6));
-            listRowAdapter.add(new PhotoItem("Android TV", "open RowsActivity", R.drawable.gallery_photo_7));
-            listRowAdapter.add(new PhotoItem("Leanback", "open MainActivity", R.drawable.gallery_photo_8));
+            listRowAdapter.add(new PhotoItem("This is a test", R.drawable.gallery_photo_6));
+            listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_7));
+            listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
@@ -110,25 +111,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
+            Intent intent = new Intent(getActivity(), DetailsActivity.class);
+            intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
 
-            Intent intent;
-            Bundle bundle;
-            if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
-                intent = new Intent(getActivity(), MainActivity.class);
-                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
-                        .toBundle();
-            } else if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_7) {
-                intent = new Intent(getActivity(), RowsActivity.class);
-                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
-                        .toBundle();
-            } else {
-                intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
-                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        getActivity(),
-                        ((ImageCardView)itemViewHolder.view).getMainImageView(),
-                        DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
-            }
+            Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    getActivity(),
+                    ((ImageCardView)itemViewHolder.view).getMainImageView(),
+                    DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
             getActivity().startActivity(intent, bundle);
         }
     }
