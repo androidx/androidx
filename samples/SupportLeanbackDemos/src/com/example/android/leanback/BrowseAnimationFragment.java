@@ -23,6 +23,7 @@ import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.Row;
 import android.util.Log;
 import android.view.View;
+import android.os.Handler;
 
 import java.util.Random;
 
@@ -82,7 +83,7 @@ public class BrowseAnimationFragment extends
     }
 
     Item createRandomItem() {
-        switch (sRand.nextInt(14)) {
+        switch (sRand.nextInt(15)) {
         default:
         case 0:
             return new Item("Remove Item before", new OnItemClickedListener() {
@@ -254,6 +255,21 @@ public class BrowseAnimationFragment extends
                             index--;
                         adapter.replace(index, createRandomItem());
                     }
+                }
+            });
+        case 14:
+            return new Item("Remove all then re-add", new OnItemClickedListener() {
+                    @Override
+                public void onItemClicked(Object item, Row row) {
+                    final ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
+                            .getAdapter());
+                   adapter.clear();
+                   new Handler().postDelayed(new Runnable() {
+                       @Override
+                       public void run() {
+                           adapter.add(0, createRandomItem());
+                       }
+                   }, 1000);
                 }
             });
         }
