@@ -3138,7 +3138,8 @@ public class RecyclerView extends ViewGroup {
                         && vresult == dy;
                 final boolean fullyConsumedHorizontal = dx != 0 && mLayout.canScrollHorizontally()
                         && hresult == dx;
-                final boolean fullyConsumedAny = fullyConsumedHorizontal || fullyConsumedVertical;
+                final boolean fullyConsumedAny = (dx == 0 && dy == 0) || fullyConsumedHorizontal
+                        || fullyConsumedVertical;
 
                 if (scroller.isFinished() || !fullyConsumedAny) {
                     setScrollState(SCROLL_STATE_IDLE); // setting state to idle will stop this.
