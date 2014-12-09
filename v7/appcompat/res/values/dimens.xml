@@ -71,4 +71,8 @@
     <!-- Default rounded corner for controls -->
     <dimen name="abc_control_corner_material">2dp</dimen>
 
+    <dimen name="abc_edit_text_inset_horizontal_material">4dp</dimen>
+    <dimen name="abc_edit_text_inset_top_material">4dp</dimen>
+    <dimen name="abc_edit_text_inset_bottom_material">8dp</dimen>
+
 </resources>
