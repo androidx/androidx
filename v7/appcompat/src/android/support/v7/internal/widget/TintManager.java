@@ -238,6 +238,9 @@ public class TintManager {
                 colorStateList = createSwitchThumbColorStateList();
             } else if (resId == R.drawable.abc_btn_default_mtrl_shape) {
                 colorStateList = createButtonColorStateList();
+            } else if (resId == R.drawable.abc_spinner_mtrl_am_alpha
+                    || resId == R.drawable.abc_spinner_textfield_background_material) {
+                colorStateList = createSpinnerColorStateList();
             } else {
                 // If we don't have an explicit color state list for this Drawable, use the default
                 colorStateList = getDefaultColorStateList();
@@ -392,6 +395,27 @@ public class TintManager {
         // Default enabled state
         states[i] = new int[0];
         colors[i] = getThemeAttrColor(R.attr.colorButtonNormal);
+        i++;
+
+        return new ColorStateList(states, colors);
+    }
+
+    private ColorStateList createSpinnerColorStateList() {
+        final int[][] states = new int[3][];
+        final int[] colors = new int[3];
+        int i = 0;
+
+        // Disabled state
+        states[i] = new int[]{-android.R.attr.state_enabled};
+        colors[i] = getDisabledThemeAttrColor(R.attr.colorControlNormal);
+        i++;
+
+        states[i] = new int[]{-android.R.attr.state_pressed, -android.R.attr.state_focused};
+        colors[i] = getThemeAttrColor(R.attr.colorControlNormal);
+        i++;
+
+        states[i] = new int[0];
+        colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
         i++;
 
         return new ColorStateList(states, colors);
