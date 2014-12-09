@@ -17,14 +17,14 @@
 package android.support.v7.internal.widget;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
 /**
  * An tint aware {@link android.widget.EditText}.
- *
- * @hide
+ * <p>
+ * This will automatically be used when you use {@link android.widget.EditText} in your
+ * layouts. You should only need to manually use this class when writing custom views.
  */
 public class TintEditText extends EditText {
 
@@ -43,9 +43,13 @@ public class TintEditText extends EditText {
     public TintEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
-                defStyleAttr, 0);
-        setBackgroundDrawable(a.getDrawable(0));
-        a.recycle();
+        if (TintManager.SHOULD_BE_USED) {
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                    TINT_ATTRS, defStyleAttr, 0);
+            if (a.hasValue(0)) {
+                setBackgroundDrawable(a.getDrawable(0));
+            }
+            a.recycle();
+        }
     }
 }

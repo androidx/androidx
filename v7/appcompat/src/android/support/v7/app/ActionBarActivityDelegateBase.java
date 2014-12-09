@@ -34,6 +34,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.app.TintViewInflater;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.app.WindowDecorActionBar;
@@ -45,16 +46,7 @@ import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.FitWindowsViewGroup;
-import android.support.v7.internal.widget.TintAutoCompleteTextView;
-import android.support.v7.internal.widget.TintButton;
-import android.support.v7.internal.widget.TintCheckBox;
-import android.support.v7.internal.widget.TintCheckedTextView;
-import android.support.v7.internal.widget.TintEditText;
 import android.support.v7.internal.widget.TintManager;
-import android.support.v7.internal.widget.TintMultiAutoCompleteTextView;
-import android.support.v7.internal.widget.TintRadioButton;
-import android.support.v7.internal.widget.TintRatingBar;
-import android.support.v7.internal.widget.TintSpinner;
 import android.support.v7.internal.widget.ViewStubCompat;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.ActionMode;
@@ -139,6 +131,8 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
 
     private Rect mTempRect1;
     private Rect mTempRect2;
+
+    private TintViewInflater mTintViewInflater;
 
     ActionBarActivityDelegateBase(ActionBarActivity activity) {
         super(activity);
@@ -777,31 +771,17 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
     }
 
     @Override
-    View createView(final String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+    View createView(View parent, final String name, @NonNull Context context,
+            @NonNull AttributeSet attrs) {
         if (Build.VERSION.SDK_INT < 21) {
-            // If we're running pre-L, we need to 'inject' our tint aware Views in place of the
-            // standard framework versions
-            switch (name) {
-                case "EditText":
-                    return new TintEditText(context, attrs);
-                case "Spinner":
-                    return new TintSpinner(context, attrs);
-                case "CheckBox":
-                    return new TintCheckBox(context, attrs);
-                case "RadioButton":
-                    return new TintRadioButton(context, attrs);
-                case "CheckedTextView":
-                    return new TintCheckedTextView(context, attrs);
-                case "AutoCompleteTextView":
-                    return new TintAutoCompleteTextView(context, attrs);
-                case "MultiAutoCompleteTextView":
-                    return new TintMultiAutoCompleteTextView(context, attrs);
-                case "RatingBar":
-                    return new TintRatingBar(context, attrs);
-                case "Button":
-                    return new TintButton(context, attrs);
+            if (mTintViewInflater == null) {
+                mTintViewInflater = new TintViewInflater(mActivity);
             }
+            return mTintViewInflater.createView(parent, name, context, attrs);
         }
+
+        // If we're running on API v21 or newer, return null and
+        // let the layout inflater handle it
         return null;
     }
 

@@ -17,15 +17,14 @@
 package android.support.v7.internal.widget;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 
 /**
  * An tint aware {@link android.widget.AutoCompleteTextView}.
- *
- * @hide
+ * <p>
+ * This will automatically be used when you use {@link AutoCompleteTextView} in your layouts. You
+ * should only need to manually use this class writing custom views.
  */
 public class TintAutoCompleteTextView extends AutoCompleteTextView {
 
@@ -47,9 +46,11 @@ public class TintAutoCompleteTextView extends AutoCompleteTextView {
     public TintAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs, TINT_ATTRS,
                 defStyleAttr, 0);
-        setBackgroundDrawable(a.getDrawable(0));
+        if (a.hasValue(0)) {
+            setBackgroundDrawable(a.getDrawable(0));
+        }
         if (a.hasValue(1)) {
             setDropDownBackgroundDrawable(a.getDrawable(1));
         }

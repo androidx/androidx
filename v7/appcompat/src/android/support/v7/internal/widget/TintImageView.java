@@ -46,7 +46,7 @@ public class TintImageView extends ImageView {
     public TintImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs, TINT_ATTRS,
                 defStyleAttr, 0);
         if (a.length() > 0) {
             if (a.hasValue(0)) {

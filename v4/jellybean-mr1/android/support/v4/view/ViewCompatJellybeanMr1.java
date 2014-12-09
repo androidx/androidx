@@ -59,4 +59,8 @@ class ViewCompatJellybeanMr1 {
     public static int getWindowSystemUiVisibility(View view) {
         return view.getWindowSystemUiVisibility();
     }
+
+    public static boolean isPaddingRelative(View view) {
+        return view.isPaddingRelative();
+    }
 }
