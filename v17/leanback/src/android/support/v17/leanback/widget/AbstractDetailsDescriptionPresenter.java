@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 /**
@@ -45,8 +46,9 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         private final FontMetricsInt mTitleFontMetricsInt;
         private final FontMetricsInt mSubtitleFontMetricsInt;
         private final FontMetricsInt mBodyFontMetricsInt;
+        private ViewTreeObserver.OnPreDrawListener mPreDrawListener;
 
-        public ViewHolder(View view) {
+        public ViewHolder(final View view) {
             super(view);
             mTitle = (TextView) view.findViewById(R.id.lb_details_description_title);
             mSubtitle = (TextView) view.findViewById(R.id.lb_details_description_subtitle);
@@ -79,11 +81,39 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
 
             mTitle.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
-                public void onLayoutChange(View v, int left, int top, int right,
-                        int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    mBody.setMaxLines(mTitle.getLineCount() > 1 ? mBodyMinLines : mBodyMaxLines);
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    addPreDrawListener();
                 }
             });
+        }
+
+        void addPreDrawListener() {
+            if (mPreDrawListener != null) {
+                return;
+            }
+            mPreDrawListener = new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    final int titleLines = mTitle.getLineCount();
+                    final int maxLines = titleLines > 1 ? mBodyMinLines : mBodyMaxLines;
+                    if (mBody.getMaxLines() != maxLines) {
+                        mBody.setMaxLines(maxLines);
+                        return false;
+                    } else {
+                        removePreDrawListener();
+                        return true;
+                    }
+                }
+            };
+            view.getViewTreeObserver().addOnPreDrawListener(mPreDrawListener);
+        }
+
+        void removePreDrawListener() {
+            if (mPreDrawListener != null) {
+                view.getViewTreeObserver().removeOnPreDrawListener(mPreDrawListener);
+                mPreDrawListener = null;
+            }
         }
 
         public TextView getTitle() {
@@ -173,6 +203,22 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {}
+
+    @Override
+    public void onViewAttachedToWindow(Presenter.ViewHolder holder) {
+        // In case predraw listener was removed in detach, make sure
+        // we have the proper layout.
+        ViewHolder vh = (ViewHolder) holder;
+        vh.addPreDrawListener();
+        super.onViewAttachedToWindow(holder);
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(Presenter.ViewHolder holder) {
+        ViewHolder vh = (ViewHolder) holder;
+        vh.removePreDrawListener();
+        super.onViewDetachedFromWindow(holder);
+    }
 
     private void setTopMargin(TextView textView, int topMargin) {
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) textView.getLayoutParams();
