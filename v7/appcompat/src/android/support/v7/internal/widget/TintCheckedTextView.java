@@ -19,12 +19,12 @@ package android.support.v7.internal.widget;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
-import android.widget.RadioButton;
 
 /**
  * An tint aware {@link android.widget.CheckedTextView}.
- *
- * @hide
+ * <p>
+ * This will automatically be used when you use {@link android.widget.CheckedTextView} in your
+ * layouts. You should only need to manually use this class when writing custom views.
  */
 public class TintCheckedTextView extends CheckedTextView {
 
@@ -32,7 +32,7 @@ public class TintCheckedTextView extends CheckedTextView {
             android.R.attr.checkMark
     };
 
-    private final TintManager mTintManager;
+    private TintManager mTintManager;
 
     public TintCheckedTextView(Context context) {
         this(context, null);
@@ -45,17 +45,23 @@ public class TintCheckedTextView extends CheckedTextView {
     public TintCheckedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
-                defStyleAttr, 0);
-        setCheckMarkDrawable(a.getDrawable(0));
-        a.recycle();
+        if (TintManager.SHOULD_BE_USED) {
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                    TINT_ATTRS, defStyleAttr, 0);
+            setCheckMarkDrawable(a.getDrawable(0));
+            a.recycle();
 
-        mTintManager = a.getTintManager();
+            mTintManager = a.getTintManager();
+        }
     }
 
     @Override
     public void setCheckMarkDrawable(int resid) {
-        setCheckMarkDrawable(mTintManager.getDrawable(resid));
+        if (mTintManager != null) {
+            setCheckMarkDrawable(mTintManager.getDrawable(resid));
+        } else {
+            super.setCheckMarkDrawable(resid);
+        }
     }
 
 }

@@ -16,10 +16,15 @@
 
 package android.support.v7.internal.widget;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.appcompat.R;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 
 import java.lang.reflect.InvocationTargetException;
@@ -100,6 +105,48 @@ public class ViewUtils {
             } catch (IllegalAccessException e) {
                 Log.d(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
             }
+        }
+    }
+
+    /**
+     * Allows us to emulate the {@code android:theme} attribute for devices before L.
+     */
+    public static Context themifyContext(Context context, AttributeSet attrs) {
+        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.View, 0, 0);
+        // First try reading android:theme
+        int themeId = a.getResourceId(R.styleable.View_android_theme, 0);
+        if (themeId == 0) {
+            // ...if that didn't work, try reading app:theme (for legacy reasons)
+            themeId = a.getResourceId(R.styleable.View_theme, 0);
+        }
+        a.recycle();
+
+        if (themeId != 0 && (!(context instanceof ContextThemeWrapperCompat)
+                || ((ContextThemeWrapperCompat) context).getThemesResId() != themeId)) {
+            // If the context isn't a ContextThemeWrapperCompat, or it is but does not have
+            // the same theme as we need, wrap it in a new wrapper
+            context = new ContextThemeWrapperCompat(context, themeId);
+        }
+        return context;
+    }
+
+    static class ContextThemeWrapperCompat extends ContextThemeWrapper {
+
+        private int mThemesResId;
+
+        public ContextThemeWrapperCompat(Context base, int themeres) {
+            super(base, themeres);
+            mThemesResId = themeres;
+        }
+
+        @Override
+        public void setTheme(int resid) {
+            super.setTheme(resid);
+            mThemesResId = resid;
+        }
+
+        public int getThemesResId() {
+            return mThemesResId;
         }
     }
 }

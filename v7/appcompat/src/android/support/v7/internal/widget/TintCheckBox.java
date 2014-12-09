@@ -22,8 +22,9 @@ import android.widget.CheckBox;
 
 /**
  * An tint aware {@link android.widget.CheckBox}.
- *
- * @hide
+ * <p>
+ * This will automatically be used when you use {@link android.widget.CheckBox} in your layouts.
+ * You should only need to manually use this class when writing custom views.
  */
 public class TintCheckBox extends CheckBox {
 
@@ -31,7 +32,7 @@ public class TintCheckBox extends CheckBox {
             android.R.attr.button
     };
 
-    private final TintManager mTintManager;
+    private TintManager mTintManager;
 
     public TintCheckBox(Context context) {
         this(context, null);
@@ -44,16 +45,22 @@ public class TintCheckBox extends CheckBox {
     public TintCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs, TINT_ATTRS,
-                defStyleAttr, 0);
-        setButtonDrawable(a.getDrawable(0));
-        a.recycle();
+        if (TintManager.SHOULD_BE_USED) {
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                    TINT_ATTRS, defStyleAttr, 0);
+            setButtonDrawable(a.getDrawable(0));
+            a.recycle();
 
-        mTintManager = a.getTintManager();
+            mTintManager = a.getTintManager();
+        }
     }
 
     @Override
     public void setButtonDrawable(int resid) {
-        setButtonDrawable(mTintManager.getDrawable(resid));
+        if (mTintManager != null) {
+            setButtonDrawable(mTintManager.getDrawable(resid));
+        } else {
+            super.setButtonDrawable(resid);
+        }
     }
 }
