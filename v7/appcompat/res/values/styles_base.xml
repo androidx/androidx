@@ -331,10 +331,18 @@
         <item name="submitBackground">@drawable/abc_textfield_search_material</item>
         <item name="closeIcon">@drawable/abc_ic_clear_mtrl_alpha</item>
         <item name="searchIcon">@drawable/abc_ic_search_api_mtrl_alpha</item>
+        <item name="searchHintIcon">@drawable/abc_ic_search_api_mtrl_alpha</item>
         <item name="goIcon">@drawable/abc_ic_go_search_api_mtrl_alpha</item>
         <item name="voiceIcon">@drawable/abc_ic_voice_search_api_mtrl_alpha</item>
         <item name="commitIcon">@drawable/abc_ic_commit_search_api_mtrl_alpha</item>
         <item name="suggestionRowLayout">@layout/abc_search_dropdown_item_icons_2line</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.SearchView.ActionBar">
+        <item name="queryBackground">@null</item>
+        <item name="submitBackground">@null</item>
+        <item name="searchHintIcon">@null</item>
+        <item name="queryHint">@string/abc_search_hint</item>
     </style>
 
     <style name="Base.Widget.AppCompat.EditText" parent="android:Widget.EditText">

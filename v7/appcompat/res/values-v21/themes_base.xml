@@ -229,6 +229,8 @@
 
         <item name="android:colorControlNormal">?attr/colorControlNormal</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
     </style>
 
     <style name="Base.ThemeOverlay.AppCompat.Dark.ActionBar" parent="android:ThemeOverlay.Material.Dark.ActionBar">
@@ -237,6 +239,8 @@
 
         <item name="android:colorControlNormal">?attr/colorControlNormal</item>
         <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
+
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>
