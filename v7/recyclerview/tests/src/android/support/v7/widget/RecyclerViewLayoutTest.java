@@ -927,6 +927,61 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         checkForMainThreadException();
     }
 
+    public void testConsecutiveSmoothScroll() throws Throwable {
+        final AtomicInteger visibleChildCount = new AtomicInteger(10);
+        final AtomicInteger totalScrolled = new AtomicInteger(0);
+        final TestLayoutManager lm = new TestLayoutManager() {
+            int start = 0;
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                layoutRange(recycler, start, visibleChildCount.get());
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                totalScrolled.set(totalScrolled.get() + dy);
+                return dy;
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+        };
+        final RecyclerView rv = new RecyclerView(getActivity());
+        TestAdapter testAdapter = new TestAdapter(500);
+        rv.setLayoutManager(lm);
+        rv.setAdapter(testAdapter);
+        lm.expectLayouts(1);
+        setRecyclerView(rv);
+        lm.waitForLayout(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.smoothScrollBy(0, 2000);
+            }
+        });
+        Thread.sleep(250);
+        final AtomicInteger scrollAmt = new AtomicInteger();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int soFar = totalScrolled.get();
+                scrollAmt.set(soFar);
+                rv.smoothScrollBy(0, 5000 - soFar);
+            }
+        });
+        while(rv.getScrollState() != SCROLL_STATE_IDLE) {
+            Thread.sleep(100);
+        }
+        final int soFar = totalScrolled.get();
+        assertEquals("second scroll should be competed properly", 5000, soFar);
+    }
+
     public void accessRecyclerOnOnMeasureTest(final boolean enablePredictiveAnimations)
             throws Throwable {
         TestAdapter testAdapter = new TestAdapter(10);
