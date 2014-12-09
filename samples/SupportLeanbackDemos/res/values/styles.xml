@@ -14,15 +14,10 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <style name="Theme.Example.Leanback" parent="Theme.Leanback">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="Widget.Example.Leanback.Title.Text" parent="Widget.Leanback.Title.Text" >
     </style>
-    <style name="Theme.Example.Leanback.Browse" parent="Theme.Leanback.Browse">
-    </style>
-    <style name="Theme.Example.Leanback.Details" parent="Theme.Leanback.Details">
-    </style>
-    <style name="Theme.Example.Leanback.Rows" parent="Theme.Leanback">
-        <item name="browseTitleTextStyle">@style/Widget.Example.Leanback.Title.Text</item>
-        <item name="rowsVerticalGridStyle">@style/Widget.Example.Leanback.Rows.VerticalGridView</item>
+    <style name="Widget.Example.Leanback.Rows.VerticalGridView" parent="Widget.Leanback.Rows.VerticalGridView">
+        <item name="android:paddingTop">96dp</item>
     </style>
 </resources>
