@@ -97,6 +97,7 @@ abstract class StaggeredGrid {
     protected Row[] mRows;
     protected CircularArray<Location> mLocations = new CircularArray<Location>(64);
     private ArrayList<Integer>[] mTmpItemPositionsInRows;
+    protected boolean mReversedFlow;
 
     /**
      * A constant representing a default starting index, indicating that the
@@ -110,6 +111,10 @@ abstract class StaggeredGrid {
     protected int mStartRow = START_DEFAULT;
 
     protected int mFirstIndex = -1;
+
+    public void setReversedFlow(boolean reversedFlow) {
+        mReversedFlow = reversedFlow;
+    }
 
     /**
      * Sets the {@link Provider} for this staggered grid.
@@ -246,7 +251,7 @@ abstract class StaggeredGrid {
     /**
      * Append items until the high edge reaches upTo.
      */
-    public abstract void appendItems(int upTo);
+    public abstract void appendItems(int toLimit);
 
     protected final int getMaxLowRowIndex() {
         int maxLowRowIndex = 0;
@@ -296,7 +301,7 @@ abstract class StaggeredGrid {
     /**
      * Prepend items until the low edge reaches downTo.
      */
-    public abstract void prependItems(int downTo);
+    public abstract void prependItems(int toLimit);
 
     /**
      * Strip items, keep a contiguous subset of items; the subset should include
