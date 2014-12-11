@@ -29,6 +29,7 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ScrollingView;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
@@ -124,7 +125,7 @@ import java.util.List;
  * When writing a {@link LayoutManager} you almost always want to use layout positions whereas when
  * writing an {@link Adapter}, you probably want to use adapter positions.
  */
-public class RecyclerView extends ViewGroup {
+public class RecyclerView extends ViewGroup implements ScrollingView {
     private static final String TAG = "RecyclerView";
 
     private static final boolean DEBUG = false;
@@ -1106,7 +1107,7 @@ public class RecyclerView extends ViewGroup {
      * (RecyclerView.Adapter)
      */
     @Override
-    protected int computeHorizontalScrollOffset() {
+    public int computeHorizontalScrollOffset() {
         return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollOffset(mState)
                 : 0;
     }
@@ -1129,7 +1130,7 @@ public class RecyclerView extends ViewGroup {
      * @see RecyclerView.LayoutManager#computeHorizontalScrollExtent(RecyclerView.State)
      */
     @Override
-    protected int computeHorizontalScrollExtent() {
+    public int computeHorizontalScrollExtent() {
         return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollExtent(mState) : 0;
     }
 
@@ -1149,7 +1150,7 @@ public class RecyclerView extends ViewGroup {
      * @see RecyclerView.LayoutManager#computeHorizontalScrollRange(RecyclerView.State)
      */
     @Override
-    protected int computeHorizontalScrollRange() {
+    public int computeHorizontalScrollRange() {
         return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollRange(mState) : 0;
     }
 
@@ -1171,7 +1172,7 @@ public class RecyclerView extends ViewGroup {
      * (RecyclerView.Adapter)
      */
     @Override
-    protected int computeVerticalScrollOffset() {
+    public int computeVerticalScrollOffset() {
         return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollOffset(mState) : 0;
     }
 
@@ -1192,7 +1193,7 @@ public class RecyclerView extends ViewGroup {
      * @see RecyclerView.LayoutManager#computeVerticalScrollExtent(RecyclerView.State)
      */
     @Override
-    protected int computeVerticalScrollExtent() {
+    public int computeVerticalScrollExtent() {
         return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollExtent(mState) : 0;
     }
 
@@ -1212,7 +1213,7 @@ public class RecyclerView extends ViewGroup {
      * @see RecyclerView.LayoutManager#computeVerticalScrollRange(RecyclerView.State)
      */
     @Override
-    protected int computeVerticalScrollRange() {
+    public int computeVerticalScrollRange() {
         return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollRange(mState) : 0;
     }
 

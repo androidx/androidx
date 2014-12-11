@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ScrollingView;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -617,7 +618,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                         && (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0)
                                 .getTop() < absListView.getPaddingTop());
             } else {
-                return mTarget.getScrollY() > 0;
+                return ViewCompat.canScrollVertically(mTarget, -1) || mTarget.getScrollY() > 0;
             }
         } else {
             return ViewCompat.canScrollVertically(mTarget, -1);
