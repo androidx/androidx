@@ -410,6 +410,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mReverseFlowSecondary = layoutDirection == View.LAYOUT_DIRECTION_RTL;
             mReverseFlowPrimary = false;
         }
+        mWindowAlignment.horizontal.setReversedFlow(layoutDirection == View.LAYOUT_DIRECTION_RTL);
     }
 
     public int getFocusScrollStrategy() {
@@ -785,6 +786,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mRows[i] = new StaggeredGrid.Row();
             }
             mGrid = new StaggeredGridDefault();
+            mGrid.setReversedFlow(mOrientation == HORIZONTAL && mReverseFlowPrimary);
             if (newItemCount == 0) {
                 focusPosition = NO_POSITION;
             } else if (focusPosition >= newItemCount) {
@@ -1144,10 +1146,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             int length = mOrientation == HORIZONTAL ? v.getMeasuredWidth() : v.getMeasuredHeight();
             int start, end;
             final boolean rowIsEmpty = mRows[rowIndex].high == mRows[rowIndex].low;
-            boolean addLow = (!mReverseFlowPrimary) ? append : !append;
+            boolean addHigh = (!mReverseFlowPrimary) ? append : !append;
             int lowVisiblePos = (!mReverseFlowPrimary) ? mFirstVisiblePos : mLastVisiblePos;
             int highVisiblePos = (!mReverseFlowPrimary) ? mLastVisiblePos : mFirstVisiblePos;
-            if (addLow) {
+            if (addHigh) {
                 if (!rowIsEmpty) {
                     // if there are existing item in the row,  add margin between
                     start = mRows[rowIndex].high + mMarginPrimary;
@@ -1176,18 +1178,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 } else {
                     if (lowVisiblePos >= 0) {
                         int firstRow = mGrid.getLocation(lowVisiblePos).row;
-                        // if the first visible item is not first row,  align to beginning,
+                        // if the first visible item is not first row,  align to end,
                         // otherwise start a new column before.
-                        if (firstRow > 0) {
-                            start = mRows[firstRow].low;
-                            end = start + length;
+                        if (firstRow < mNumRows - 1) {
+                            end = mRows[firstRow].high;
                         } else {
                             end = mRows[firstRow].low - mMarginPrimary;
-                            start = end - length;
                         }
+                        start = end - length;
                     } else {
-                        start = 0;
-                        end = length;
+                        end = 0;
+                        start = -length;
                     }
                     mRows[rowIndex].high = end;
                 }
@@ -1355,7 +1356,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             } else if ((mLastVisiblePos == NO_POSITION && mState.getItemCount() > 0) ||
                     (mLastVisiblePos != NO_POSITION &&
                             mLastVisiblePos < mState.getItemCount() - 1)) {
-                mGrid.appendItems(mScrollOffsetPrimary + mSizePrimary);
+                if (mReverseFlowPrimary) {
+                    mGrid.appendItems(mScrollOffsetPrimary);
+                } else {
+                    mGrid.appendItems(mScrollOffsetPrimary + mSizePrimary);
+                }
                 return false;
             } else {
                 return true;
@@ -1384,7 +1389,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                         return false;
                     }
                 } else {
-                    mGrid.prependItems(mScrollOffsetPrimary);
+                    if (mReverseFlowPrimary) {
+                        mGrid.prependItems(mScrollOffsetPrimary + mSizePrimary);
+                    } else {
+                        mGrid.prependItems(mScrollOffsetPrimary);
+                    }
                     return false;
                 }
             } else {

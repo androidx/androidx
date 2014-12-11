@@ -22,7 +22,7 @@ package android.support.v17.leanback.widget;
 final class StaggeredGridDefault extends StaggeredGrid {
 
     @Override
-    public void appendItems(int upTo) {
+    public void appendItems(int toLimit) {
         int count = mProvider.getCount();
         int itemIndex;
         int rowIndex;
@@ -36,9 +36,13 @@ final class StaggeredGridDefault extends StaggeredGrid {
 
     top_loop:
         while (true) {
-            // find highest row (.high is biggest)
-            int maxHighRowIndex = mLocations.size() > 0 ? getMaxHighRowIndex() : -1;
-            int maxHigh = maxHighRowIndex != -1 ? mRows[maxHighRowIndex].high : Integer.MIN_VALUE;
+            // find endmost row edge (.high is biggest, or .low is smallest in reversed flow)
+            int edgeRowIndex = mReversedFlow ?
+                    (mLocations.size() > 0 ? getMinLowRowIndex() : -1) :
+                    (mLocations.size() > 0 ? getMaxHighRowIndex() : -1);
+            int edge = mReversedFlow ?
+                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].low : Integer.MAX_VALUE) :
+                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].high : Integer.MIN_VALUE);
             // fill from current row till last row so that each row will grow longer than
             // the previous highest row.
             for (; rowIndex < mNumRows; rowIndex++) {
@@ -49,11 +53,15 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 appendItemToRow(itemIndex++, rowIndex);
                 // fill more item to the row to make sure this row is longer than
                 // the previous highest row.
-                if (maxHighRowIndex == -1) {
-                    maxHighRowIndex = getMaxHighRowIndex();
-                    maxHigh = mRows[maxHighRowIndex].high;
-                } else  if (rowIndex != maxHighRowIndex) {
-                    while (mRows[rowIndex].high < maxHigh) {
+                if (edgeRowIndex == -1) {
+                    edgeRowIndex = mReversedFlow ? getMinLowRowIndex() : getMaxHighRowIndex();
+                    edge = mReversedFlow ?
+                            mRows[edgeRowIndex].low :
+                            mRows[edgeRowIndex].high;
+                } else  if (rowIndex != edgeRowIndex) {
+                    while (mReversedFlow ?
+                            mRows[rowIndex].low > edge :
+                            mRows[rowIndex].high < edge) {
                         if (itemIndex == count) {
                             break top_loop;
                         }
@@ -61,7 +69,9 @@ final class StaggeredGridDefault extends StaggeredGrid {
                     }
                 }
             }
-            if (mRows[getMinHighRowIndex()].high >= upTo) {
+            if (mReversedFlow ?
+                    mRows[getMaxLowRowIndex()].low <= toLimit :
+                    mRows[getMinHighRowIndex()].high >= toLimit) {
                 break;
             }
             // start fill from row 0 again
@@ -70,7 +80,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
     }
 
     @Override
-    public void prependItems(int downTo) {
+    public void prependItems(int toLimit) {
         if (mProvider.getCount() <= 0) return;
         int itemIndex;
         int rowIndex;
@@ -89,18 +99,27 @@ final class StaggeredGridDefault extends StaggeredGrid {
 
     top_loop:
         while (true) {
-            int minLowRowIndex = mLocations.size() > 0 ? getMinLowRowIndex() : -1;
-            int minLow = minLowRowIndex != -1 ? mRows[minLowRowIndex].low : Integer.MAX_VALUE;
+            // find startmost row edge (.low is smallest, or .high is biggest in reversed flow)
+            int edgeRowIndex = mReversedFlow ?
+                    (mLocations.size() > 0 ? getMaxHighRowIndex() : -1) :
+                    (mLocations.size() > 0 ? getMinLowRowIndex() : -1);
+            int edge = mReversedFlow ?
+                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].high : Integer.MIN_VALUE) :
+                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].low : Integer.MAX_VALUE);
             for (; rowIndex >=0 ; rowIndex--) {
                 if (itemIndex < 0) {
                     break top_loop;
                 }
                 prependItemToRow(itemIndex--, rowIndex);
-                if (minLowRowIndex == -1) {
-                    minLowRowIndex = getMinLowRowIndex();
-                    minLow = mRows[minLowRowIndex].low;
-                } else if (rowIndex != minLowRowIndex) {
-                    while (mRows[rowIndex].low > minLow) {
+                if (edgeRowIndex == -1) {
+                    edgeRowIndex = mReversedFlow ? getMaxHighRowIndex() : getMinLowRowIndex();
+                    edge = mReversedFlow ?
+                            mRows[edgeRowIndex].high :
+                            mRows[edgeRowIndex].low;
+                } else if (rowIndex != edgeRowIndex) {
+                    while (mReversedFlow ?
+                            mRows[rowIndex].high < edge :
+                            mRows[rowIndex].low > edge) {
                         if (itemIndex < 0) {
                             break top_loop;
                         }
@@ -108,7 +127,9 @@ final class StaggeredGridDefault extends StaggeredGrid {
                     }
                 }
             }
-            if (mRows[getMaxLowRowIndex()].low <= downTo) {
+            if (mReversedFlow ?
+                    mRows[getMinHighRowIndex()].high >= toLimit :
+                    mRows[getMaxLowRowIndex()].low <= toLimit) {
                 break;
             }
             rowIndex = mNumRows - 1;
