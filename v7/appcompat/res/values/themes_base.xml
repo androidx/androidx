@@ -274,7 +274,7 @@
         <item name="colorControlActivated">?attr/colorAccent</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
         <item name="colorButtonNormal">@color/button_material_dark</item>
-        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_dark</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_material_dark</item>
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
@@ -391,7 +391,7 @@
         <item name="colorControlActivated">?attr/colorAccent</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
         <item name="colorButtonNormal">@color/button_material_light</item>
-        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_light</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_material_light</item>
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
@@ -535,7 +535,7 @@
         <item name="colorControlActivated">?attr/colorAccent</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
         <item name="colorButtonNormal">@color/button_material_dark</item>
-        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_dark</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_material_dark</item>
 
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
 
@@ -603,7 +603,7 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
-        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_light</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_material_light</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">true</item>
@@ -639,7 +639,7 @@
 
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
-        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_dark</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_material_dark</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>

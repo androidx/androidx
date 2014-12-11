@@ -16,7 +16,6 @@
 
 package android.support.v7.widget;
 
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -25,6 +24,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Region;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -33,6 +33,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.text.AllCapsTransformationMethod;
+import android.support.v7.internal.widget.DrawableUtils;
 import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ViewUtils;
@@ -187,7 +188,13 @@ public class SwitchCompat extends CompoundButton {
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
                 attrs, R.styleable.SwitchCompat, defStyleAttr, 0);
         mThumbDrawable = a.getDrawable(R.styleable.SwitchCompat_android_thumb);
+        if (mThumbDrawable != null) {
+            mThumbDrawable.setCallback(this);
+        }
         mTrackDrawable = a.getDrawable(R.styleable.SwitchCompat_track);
+        if (mTrackDrawable != null) {
+            mTrackDrawable.setCallback(this);
+        }
         mTextOn = a.getText(R.styleable.SwitchCompat_android_textOn);
         mTextOff = a.getText(R.styleable.SwitchCompat_android_textOff);
         mShowText = a.getBoolean(R.styleable.SwitchCompat_showText, true);
@@ -247,6 +254,14 @@ public class SwitchCompat extends CompoundButton {
             }
         }
 
+        int typefaceIndex, styleIndex;
+        typefaceIndex = appearance.getInt(
+                R.styleable.SwitchCompatTextAppearance_android_typeface, -1);
+        styleIndex = appearance.getInt(
+                R.styleable.SwitchCompatTextAppearance_android_textStyle, -1);
+
+        setSwitchTypefaceByIndex(typefaceIndex, styleIndex);
+
         boolean allCaps = appearance.getBoolean(
                 R.styleable.SwitchCompatTextAppearance_textAllCaps, false);
         if (allCaps) {
@@ -256,6 +271,25 @@ public class SwitchCompat extends CompoundButton {
         }
 
         appearance.recycle();
+    }
+
+    private void setSwitchTypefaceByIndex(int typefaceIndex, int styleIndex) {
+        Typeface tf = null;
+        switch (typefaceIndex) {
+            case SANS:
+                tf = Typeface.SANS_SERIF;
+                break;
+
+            case SERIF:
+                tf = Typeface.SERIF;
+                break;
+
+            case MONOSPACE:
+                tf = Typeface.MONOSPACE;
+                break;
+        }
+
+        setSwitchTypeface(tf, styleIndex);
     }
 
     /**
@@ -535,6 +569,11 @@ public class SwitchCompat extends CompoundButton {
         // thumb's padding (when present).
         int paddingLeft = padding.left;
         int paddingRight = padding.right;
+        if (mThumbDrawable != null) {
+            final Rect inset = DrawableUtils.getOpticalBounds(mThumbDrawable);
+            paddingLeft = Math.max(paddingLeft, inset.left);
+            paddingRight = Math.max(paddingRight, inset.right);
+        }
 
         final int switchWidth = Math.max(mSwitchMinWidth,
                 2 * mThumbWidth + paddingLeft + paddingRight);
@@ -781,8 +820,9 @@ public class SwitchCompat extends CompoundButton {
                 trackPadding.setEmpty();
             }
 
-            opticalInsetLeft = 0;
-            opticalInsetRight = 0;
+            final Rect insets = DrawableUtils.getOpticalBounds(mThumbDrawable);
+            opticalInsetLeft = Math.max(0, insets.left - trackPadding.left);
+            opticalInsetRight = Math.max(0, insets.right - trackPadding.right);
         }
 
         final int switchRight;
@@ -832,6 +872,13 @@ public class SwitchCompat extends CompoundButton {
 
         int thumbInitialLeft = switchLeft + getThumbOffset();
 
+        final Rect thumbInsets;
+        if (mThumbDrawable != null) {
+            thumbInsets = DrawableUtils.getOpticalBounds(mThumbDrawable);
+        } else {
+            thumbInsets = DrawableUtils.INSETS_NONE;
+        }
+
         // Layout the track.
         if (mTrackDrawable != null) {
             mTrackDrawable.getPadding(padding);
@@ -844,6 +891,20 @@ public class SwitchCompat extends CompoundButton {
             int trackTop = switchTop;
             int trackRight = switchRight;
             int trackBottom = switchBottom;
+            if (thumbInsets != null && !thumbInsets.isEmpty()) {
+                if (thumbInsets.left > padding.left) {
+                    trackLeft += thumbInsets.left - padding.left;
+                }
+                if (thumbInsets.top > padding.top) {
+                    trackTop += thumbInsets.top - padding.top;
+                }
+                if (thumbInsets.right > padding.right) {
+                    trackRight -= thumbInsets.right - padding.right;
+                }
+                if (thumbInsets.bottom > padding.bottom) {
+                    trackBottom -= thumbInsets.bottom - padding.bottom;
+                }
+            }
             mTrackDrawable.setBounds(trackLeft, trackTop, trackRight, trackBottom);
         }
 
@@ -885,7 +946,19 @@ public class SwitchCompat extends CompoundButton {
 
         final Drawable thumbDrawable = mThumbDrawable;
         if (trackDrawable != null) {
-            trackDrawable.draw(canvas);
+            if (mSplitTrack && thumbDrawable != null) {
+                final Rect insets = DrawableUtils.getOpticalBounds(thumbDrawable);
+                thumbDrawable.copyBounds(padding);
+                padding.left += insets.left;
+                padding.right -= insets.right;
+
+                final int saveCount = canvas.save();
+                canvas.clipRect(padding, Region.Op.DIFFERENCE);
+                trackDrawable.draw(canvas);
+                canvas.restoreToCount(saveCount);
+            } else {
+                trackDrawable.draw(canvas);
+            }
         }
 
         final int saveCount = canvas.save();
@@ -963,7 +1036,16 @@ public class SwitchCompat extends CompoundButton {
         if (mTrackDrawable != null) {
             final Rect padding = mTempRect;
             mTrackDrawable.getPadding(padding);
-            return mSwitchWidth - mThumbWidth - padding.left - padding.right;
+
+            final Rect insets;
+            if (mThumbDrawable != null) {
+                insets = DrawableUtils.getOpticalBounds(mThumbDrawable);
+            } else {
+                insets = DrawableUtils.INSETS_NONE;
+            }
+
+            return mSwitchWidth - mThumbWidth - padding.left - padding.right
+                    - insets.left - insets.right;
         } else {
             return 0;
         }
