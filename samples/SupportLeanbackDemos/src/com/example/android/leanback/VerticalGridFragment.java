@@ -35,7 +35,15 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
     private static final int NUM_ITEMS = 50;
     private static final int HEIGHT = 200;
 
-    private ArrayObjectAdapter mAdapter;
+    private static class Adapter extends ArrayObjectAdapter {
+        public Adapter(StringPresenter presenter) {
+            super(presenter);
+        }
+        public void callNotifyChanged() {
+            super.notifyChanged();
+        }
+    }
+    private Adapter mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,7 +61,7 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
         gridPresenter.setNumberOfColumns(NUM_COLUMNS);
         setGridPresenter(gridPresenter);
 
-        mAdapter = new ArrayObjectAdapter(new StringPresenter());
+        mAdapter = new Adapter(new StringPresenter());
         for (int i = 0; i < NUM_ITEMS; i++) {
             mAdapter.add(Integer.toString(i));
         }
@@ -72,6 +80,7 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemClicked: " + item + " row " + row);
+                mAdapter.callNotifyChanged();
             }
         });
         setOnSearchClickedListener(new View.OnClickListener() {

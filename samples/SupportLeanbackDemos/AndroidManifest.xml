@@ -46,5 +46,7 @@
         <activity android:name="BrowseErrorActivity"
                   android:exported="true" />
 
+        <activity android:name="HorizontalGridTestActivity"
+            android:exported="true" />
     </application>
 </manifest>
