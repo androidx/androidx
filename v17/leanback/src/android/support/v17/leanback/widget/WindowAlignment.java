@@ -67,6 +67,8 @@ class WindowAlignment {
 
         private int mPaddingHigh;
 
+        private boolean mReversedFlow;
+
         private String mName; // for debugging
 
         public Axis(String name) {
@@ -202,13 +204,24 @@ class WindowAlignment {
 
         final public int getSystemScrollPos(int scrollCenter, boolean isAtMin, boolean isAtMax) {
             int middlePosition;
-            if (mWindowAlignmentOffset >= 0) {
-                middlePosition = mWindowAlignmentOffset - mPaddingLow;
+            if (!mReversedFlow) {
+                if (mWindowAlignmentOffset >= 0) {
+                    middlePosition = mWindowAlignmentOffset - mPaddingLow;
+                } else {
+                    middlePosition = mSize + mWindowAlignmentOffset - mPaddingLow;
+                }
+                if (mWindowAlignmentOffsetPercent != WINDOW_ALIGN_OFFSET_PERCENT_DISABLED) {
+                    middlePosition += (int) (mSize * mWindowAlignmentOffsetPercent / 100);
+                }
             } else {
-                middlePosition = mSize + mWindowAlignmentOffset - mPaddingLow;
-            }
-            if (mWindowAlignmentOffsetPercent != WINDOW_ALIGN_OFFSET_PERCENT_DISABLED) {
-                middlePosition += (int) (mSize * mWindowAlignmentOffsetPercent / 100);
+                if (mWindowAlignmentOffset >= 0) {
+                    middlePosition = mSize - mWindowAlignmentOffset - mPaddingLow;
+                } else {
+                    middlePosition = - mWindowAlignmentOffset - mPaddingLow;
+                }
+                if (mWindowAlignmentOffsetPercent != WINDOW_ALIGN_OFFSET_PERCENT_DISABLED) {
+                    middlePosition -= (int) (mSize * mWindowAlignmentOffsetPercent / 100);
+                }
             }
             int clientSize = getClientSize();
             int afterMiddlePosition = clientSize - middlePosition;
@@ -219,20 +232,23 @@ class WindowAlignment {
                 if (mMaxEdge - mMinEdge <= clientSize) {
                     // total children size is less than view port and we want to align
                     // both edge:  align first child to start edge of view port
-                    return mMinEdge - mPaddingLow;
+                    return mReversedFlow ? mMaxEdge - mPaddingLow - clientSize
+                            : mMinEdge - mPaddingLow;
                 }
             }
             if (!isMinUnknown) {
-                if ((mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0 &&
-                        (isAtMin || scrollCenter - mMinEdge <= middlePosition)) {
+                if ((!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0
+                     : (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0)
+                        && (isAtMin || scrollCenter - mMinEdge <= middlePosition)) {
                     // scroll center is within half of view port size: align the start edge
                     // of first child to the start edge of view port
                     return mMinEdge - mPaddingLow;
                 }
             }
             if (!isMaxUnknown) {
-                if ((mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0 &&
-                        (isAtMax || mMaxEdge - scrollCenter <= afterMiddlePosition)) {
+                if ((!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0
+                        : (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0)
+                        && (isAtMax || mMaxEdge - scrollCenter <= afterMiddlePosition)) {
                     // scroll center is very close to the end edge of view port : align the
                     // end edge of last children (plus expanded size) to view port's end
                     return mMaxEdge - mPaddingLow - clientSize;
@@ -240,6 +256,10 @@ class WindowAlignment {
             }
             // else put scroll center in middle of view port
             return scrollCenter - middlePosition - mPaddingLow;
+        }
+
+        final public void setReversedFlow(boolean reversedFlow) {
+            mReversedFlow = reversedFlow;
         }
 
         @Override
