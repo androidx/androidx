@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,7 +91,8 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     }
 
     void setupByConfig(Config config, boolean waitForFirstLayout) throws Throwable {
-        mRecyclerView = new RecyclerView(getActivity());
+        mRecyclerView = new WrappedRecyclerView(getActivity());
+
         mRecyclerView.setHasFixedSize(true);
         mTestAdapter = config.mTestAdapter == null ? new TestAdapter(config.mItemCount)
                 : config.mTestAdapter;
@@ -130,6 +132,135 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         assertSame("same view holder should be kept for unchanged child", vh, postVH);
         assertEquals("focused child's screen position should stay unchanged", top,
                 mLayoutManager.mOrientationHelper.getDecoratedStart(postVH.itemView));
+    }
+
+    public void testKeepFullFocusOnResize() throws Throwable {
+        keepFocusOnResizeTest(new Config(VERTICAL, false, false).itemCount(500), true);
+    }
+
+    public void testKeepPartialFocusOnResize() throws Throwable {
+        keepFocusOnResizeTest(new Config(VERTICAL, false, false).itemCount(500), false);
+    }
+
+    public void testKeepReverseFullFocusOnResize() throws Throwable {
+        keepFocusOnResizeTest(new Config(VERTICAL, true, false).itemCount(500), true);
+    }
+
+    public void testKeepReversePartialFocusOnResize() throws Throwable {
+        keepFocusOnResizeTest(new Config(VERTICAL, true, false).itemCount(500), false);
+    }
+
+    public void testKeepStackFromEndFullFocusOnResize() throws Throwable {
+        keepFocusOnResizeTest(new Config(VERTICAL, false, true).itemCount(500), true);
+    }
+
+    public void testKeepStackFromEndPartialFocusOnResize() throws Throwable {
+        keepFocusOnResizeTest(new Config(VERTICAL, false, true).itemCount(500), false);
+    }
+
+    public void keepFocusOnResizeTest(final Config config, boolean fullyVisible) throws Throwable {
+        setupByConfig(config, true);
+        final int targetPosition;
+        if (config.mStackFromEnd) {
+            targetPosition = mLayoutManager.findFirstVisibleItemPosition();
+        } else {
+            targetPosition = mLayoutManager.findLastVisibleItemPosition();
+        }
+        final OrientationHelper helper = mLayoutManager.mOrientationHelper;
+        final RecyclerView.ViewHolder vh = mRecyclerView
+                .findViewHolderForLayoutPosition(targetPosition);
+
+        // scroll enough to offset the child
+        int startMargin = helper.getDecoratedStart(vh.itemView) -
+                helper.getStartAfterPadding();
+        int endMargin = helper.getEndAfterPadding() -
+                helper.getDecoratedEnd(vh.itemView);
+        Log.d(TAG, "initial start margin " + startMargin + " , end margin:" + endMargin);
+        requestFocus(vh.itemView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue("view should gain the focus", vh.itemView.hasFocus());
+            }
+        });
+        do {
+            Thread.sleep(100);
+        } while (mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE);
+        // scroll enough to offset the child
+        startMargin = helper.getDecoratedStart(vh.itemView) -
+                helper.getStartAfterPadding();
+        endMargin = helper.getEndAfterPadding() -
+                helper.getDecoratedEnd(vh.itemView);
+
+        Log.d(TAG, "start margin " + startMargin + " , end margin:" + endMargin);
+        assertTrue("View should become fully visible", startMargin >= 0 && endMargin >= 0);
+
+        int expectedOffset = 0;
+        boolean offsetAtStart = false;
+        if (!fullyVisible) {
+            // move it a bit such that it is no more fully visible
+            final int childSize = helper
+                    .getDecoratedMeasurement(vh.itemView);
+            expectedOffset = childSize / 3;
+            if (startMargin < endMargin) {
+                scrollBy(expectedOffset);
+                offsetAtStart = true;
+            } else {
+                scrollBy(-expectedOffset);
+                offsetAtStart = false;
+            }
+            startMargin = helper.getDecoratedStart(vh.itemView) -
+                    helper.getStartAfterPadding();
+            endMargin = helper.getEndAfterPadding() -
+                    helper.getDecoratedEnd(vh.itemView);
+            assertTrue("test sanity, view should not be fully visible", startMargin < 0
+                    || endMargin < 0);
+        }
+
+        mLayoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final ViewGroup.LayoutParams layoutParams = mRecyclerView.getLayoutParams();
+                if (config.mOrientation == HORIZONTAL) {
+                    layoutParams.width = mRecyclerView.getWidth() / 2;
+                } else {
+                    layoutParams.height = mRecyclerView.getHeight() / 2;
+                }
+                mRecyclerView.setLayoutParams(layoutParams);
+            }
+        });
+        Thread.sleep(100);
+        // add a bunch of items right before that view, make sure it keeps its position
+        mLayoutManager.waitForLayout(2);
+        mLayoutManager.waitForAnimationsToEnd(20);
+        assertTrue("view should preserve the focus", vh.itemView.hasFocus());
+        final RecyclerView.ViewHolder postVH = mRecyclerView
+                .findViewHolderForLayoutPosition(targetPosition);
+        assertNotNull("focused child should stay in layout", postVH);
+        assertSame("same view holder should be kept for unchanged child", vh, postVH);
+        View focused = postVH.itemView;
+
+        startMargin = helper.getDecoratedStart(focused) - helper.getStartAfterPadding();
+        endMargin = helper.getEndAfterPadding() - helper.getDecoratedEnd(focused);
+
+        assertTrue("focused child should be somewhat visible",
+                helper.getDecoratedStart(focused) < helper.getEndAfterPadding()
+                        && helper.getDecoratedEnd(focused) > helper.getStartAfterPadding());
+        if (fullyVisible) {
+            assertTrue("focused child end should stay fully visible",
+                    endMargin >= 0);
+            assertTrue("focused child start should stay fully visible",
+                    startMargin >= 0);
+        } else {
+            if (offsetAtStart) {
+                assertTrue("start should preserve its offset", startMargin < 0);
+                assertTrue("end should be visible", endMargin >= 0);
+            } else {
+                assertTrue("end should preserve its offset", endMargin < 0);
+                assertTrue("start should be visible", startMargin >= 0);
+            }
+        }
     }
 
     public void testResize() throws Throwable {
@@ -1161,6 +1292,28 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                     ", mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach +
                     ", mItemCount=" + mItemCount +
                     '}';
+        }
+    }
+
+    private static class WrappedRecyclerView extends RecyclerView {
+
+        public WrappedRecyclerView(Context context) {
+            super(context);
+            init(context);
+        }
+
+        public WrappedRecyclerView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            init(context);
+        }
+
+        public WrappedRecyclerView(Context context, AttributeSet attrs, int defStyle) {
+            super(context, attrs, defStyle);
+            init(context);
+        }
+
+        private void init(Context context) {
+            initializeScrollbars(null);
         }
     }
 }
