@@ -75,4 +75,7 @@
     <dimen name="abc_edit_text_inset_top_material">10dp</dimen>
     <dimen name="abc_edit_text_inset_bottom_material">7dp</dimen>
 
+    <!-- Since optical insets are not available pre-v18, we add a small amount of padding -->
+    <dimen name="abc_switch_padding">3dp</dimen>
+
 </resources>
