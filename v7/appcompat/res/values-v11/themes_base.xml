@@ -332,7 +332,7 @@
         <item name="colorControlActivated">?attr/colorAccent</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
         <item name="colorButtonNormal">@color/button_material_light</item>
-        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_light</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_material_light</item>
 
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
 
