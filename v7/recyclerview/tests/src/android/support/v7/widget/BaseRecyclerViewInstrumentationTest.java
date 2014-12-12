@@ -186,6 +186,17 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 
+    public boolean requestFocus(final View view) {
+        final boolean[] result = new boolean[1];
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                result[0] = view.requestFocus();
+            }
+        });
+        return result[0];
+    }
+
     public void setRecyclerView(final RecyclerView recyclerView) throws Throwable {
         setRecyclerView(recyclerView, true);
     }

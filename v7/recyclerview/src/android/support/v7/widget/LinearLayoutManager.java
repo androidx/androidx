@@ -668,18 +668,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (getChildCount() == 0) {
             return false;
         }
-        View focused = getFocusedChild();
-        if (focused != null && anchorInfo.assignFromViewIfValid(focused, state)) {
-            if (DEBUG) {
-                Log.d(TAG, "decided anchor child from focused view");
-            }
+        final View focused = getFocusedChild();
+        if (focused != null && anchorInfo.isViewValidAsAnchor(focused, state)) {
+            anchorInfo.assignFromViewAndKeepVisibleRect(focused);
             return true;
         }
-
         if (mLastStackFromEnd != mStackFromEnd) {
             return false;
         }
-
         View referenceChild = anchorInfo.mLayoutFromEnd ? findReferenceChildClosestToEnd(state)
                 : findReferenceChildClosestToStart(state);
         if (referenceChild != null) {
@@ -2001,13 +1997,64 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
          * child.
          */
         public boolean assignFromViewIfValid(View child, RecyclerView.State state) {
-            RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-            if (!lp.isItemRemoved() && lp.getViewLayoutPosition() >= 0
-                    && lp.getViewLayoutPosition() < state.getItemCount()) {
+            if (isViewValidAsAnchor(child, state)) {
                 assignFromView(child);
                 return true;
             }
             return false;
+        }
+
+        private boolean isViewValidAsAnchor(View child, RecyclerView.State state) {
+            RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
+            return !lp.isItemRemoved() && lp.getViewLayoutPosition() >= 0
+                    && lp.getViewLayoutPosition() < state.getItemCount();
+        }
+
+        public void assignFromViewAndKeepVisibleRect(View child) {
+            final int spaceChange = mOrientationHelper.getTotalSpaceChange();
+            if (spaceChange >= 0) {
+                assignFromView(child);
+                return;
+            }
+            mPosition = getPosition(child);
+            if (mLayoutFromEnd) {
+                final int prevLayoutEnd = mOrientationHelper.getEndAfterPadding() - spaceChange;
+                final int childEnd = mOrientationHelper.getDecoratedEnd(child);
+                final int previousEndMargin = prevLayoutEnd - childEnd;
+                mCoordinate = mOrientationHelper.getEndAfterPadding() - previousEndMargin;
+                // ensure we did not push child's top out of bounds because of this
+                if (previousEndMargin > 0) {// we have room to shift bottom if necessary
+                    final int childSize = mOrientationHelper.getDecoratedMeasurement(child);
+                    final int estimatedChildStart = mCoordinate - childSize;
+                    final int layoutStart = mOrientationHelper.getStartAfterPadding();
+                    final int previousStartMargin = mOrientationHelper.getDecoratedStart(child) -
+                            layoutStart;
+                    final int startReference = layoutStart + Math.min(previousStartMargin, 0);
+                    final int startMargin = estimatedChildStart - startReference;
+                    if (startMargin < 0) {
+                        // offset to make top visible but not too much
+                        mCoordinate += Math.min(previousEndMargin, -startMargin);
+                    }
+                }
+            } else {
+                final int childStart = mOrientationHelper.getDecoratedStart(child);
+                final int startMargin = childStart - mOrientationHelper.getStartAfterPadding();
+                mCoordinate = childStart;
+                if (startMargin > 0) { // we have room to fix end as well
+                    final int estimatedEnd = childStart +
+                            mOrientationHelper.getDecoratedMeasurement(child);
+                    final int previousLayoutEnd = mOrientationHelper.getEndAfterPadding() -
+                            spaceChange;
+                    final int previousEndMargin = previousLayoutEnd -
+                            mOrientationHelper.getDecoratedEnd(child);
+                    final int endReference = mOrientationHelper.getEndAfterPadding() -
+                            Math.min(0, previousEndMargin);
+                    final int endMargin = endReference - estimatedEnd;
+                    if (endMargin < 0) {
+                        mCoordinate -= Math.min(startMargin, -endMargin);
+                    }
+                }
+            }
         }
 
         public void assignFromView(View child) {
