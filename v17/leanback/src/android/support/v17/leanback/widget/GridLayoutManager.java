@@ -1154,19 +1154,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     // if there are existing item in the row,  add margin between
                     start = mRows[rowIndex].high + mMarginPrimary;
                 } else {
-                    if (highVisiblePos >= 0) {
-                        int lastRow = mGrid.getLocation(highVisiblePos).row;
-                        // if the last visible item is not last row,  align to beginning,
-                        // otherwise start a new column after.
-                        if (lastRow < mNumRows - 1) {
-                            start = mRows[lastRow].low;
-                        } else {
-                            start = mRows[lastRow].high + mMarginPrimary;
+                    if (lowVisiblePos >= 0) {
+                        int rowOfLowPos = mGrid.getLocation(lowVisiblePos).row;
+                        // If row is after row of lowest position,
+                        // start a new column after the first row.
+                        if (rowIndex < rowOfLowPos) {
+                            mRows[rowIndex].low = mRows[rowOfLowPos].high + mMarginPrimary;
                         }
-                    } else {
-                        start = 0;
                     }
-                    mRows[rowIndex].low = start;
+                    start = mRows[rowIndex].low;
                 }
                 end = start + length;
                 mRows[rowIndex].high = end;
@@ -1174,24 +1170,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 if (!rowIsEmpty) {
                     // if there are existing item in the row,  add margin between
                     end = mRows[rowIndex].low - mMarginPrimary;
-                    start = end - length;
                 } else {
-                    if (lowVisiblePos >= 0) {
-                        int firstRow = mGrid.getLocation(lowVisiblePos).row;
-                        // if the first visible item is not first row,  align to end,
-                        // otherwise start a new column before.
-                        if (firstRow < mNumRows - 1) {
-                            end = mRows[firstRow].high;
-                        } else {
-                            end = mRows[firstRow].low - mMarginPrimary;
+                    if (highVisiblePos >= 0) {
+                        int rowOfHighPos = mGrid.getLocation(highVisiblePos).row;
+                        if (mOrientation == HORIZONTAL ?
+                                rowIndex < rowOfHighPos : rowIndex > rowOfHighPos) {
+                            mRows[rowIndex].high = mRows[rowOfHighPos].low - mMarginPrimary;
                         }
-                        start = end - length;
-                    } else {
-                        end = 0;
-                        start = -length;
                     }
-                    mRows[rowIndex].high = end;
+                    end = mRows[rowIndex].high;
                 }
+                start = end - length;
                 mRows[rowIndex].low = start;
             }
             if (mFirstVisiblePos < 0) {
