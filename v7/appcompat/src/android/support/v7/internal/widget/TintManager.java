@@ -335,19 +335,42 @@ public class TintManager {
         final int[] colors = new int[3];
         int i = 0;
 
-        // Disabled state
-        states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getDisabledThemeAttrColor(R.attr.colorSwitchThumbNormal);
-        i++;
+        final ColorStateList thumbColor = getThemeAttrColorStateList(R.attr.colorSwitchThumbNormal);
 
-        states[i] = new int[]{android.R.attr.state_checked};
-        colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
-        i++;
+        if (thumbColor != null && thumbColor.isStateful()) {
+            // If colorSwitchThumbNormal is a valid ColorStateList, extract the default and
+            // disabled colors from it
 
-        // Default enabled state
-        states[i] = new int[0];
-        colors[i] = getThemeAttrColor(R.attr.colorSwitchThumbNormal);
-        i++;
+            // Disabled state
+            states[i] = new int[]{-android.R.attr.state_enabled};
+            colors[i] = thumbColor.getColorForState(states[i], 0);
+            i++;
+
+            states[i] = new int[]{android.R.attr.state_checked};
+            colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
+            i++;
+
+            // Default enabled state
+            states[i] = new int[0];
+            colors[i] = thumbColor.getDefaultColor();
+            i++;
+        } else {
+            // Else we'll use an approximation using the default disabled alpha
+
+            // Disabled state
+            states[i] = new int[]{-android.R.attr.state_enabled};
+            colors[i] = getDisabledThemeAttrColor(R.attr.colorSwitchThumbNormal);
+            i++;
+
+            states[i] = new int[]{android.R.attr.state_checked};
+            colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
+            i++;
+
+            // Default enabled state
+            states[i] = new int[0];
+            colors[i] = getThemeAttrColor(R.attr.colorSwitchThumbNormal);
+            i++;
+        }
 
         return new ColorStateList(states, colors);
     }
@@ -431,6 +454,15 @@ public class TintManager {
             }
         }
         return 0;
+    }
+
+    private ColorStateList getThemeAttrColorStateList(int attr) {
+        if (mContext.getTheme().resolveAttribute(attr, mTypedValue, true)) {
+            if (mTypedValue.type == TypedValue.TYPE_STRING) {
+                return mResources.getColorStateList(mTypedValue.resourceId);
+            }
+        }
+        return null;
     }
 
     private int getThemeAttrColor(int attr, float alpha) {

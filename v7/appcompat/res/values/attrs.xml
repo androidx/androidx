@@ -822,6 +822,8 @@
     <declare-styleable name="SwitchCompatTextAppearance">
         <attr name="android:textSize" />
         <attr name="android:textColor" />
+        <attr name="android:textStyle" />
+        <attr name="android:typeface" />
         <attr name="textAllCaps" />
     </declare-styleable>
 
