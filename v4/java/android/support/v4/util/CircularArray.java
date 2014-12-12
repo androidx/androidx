@@ -14,11 +14,11 @@
 package android.support.v4.util;
 
 /**
- * A circular array implementation that provides O(1) random read and O(1)
- * prepend and O(1) append.
+ * CircularArray is a generic circular array data structure that provides O(1) random read, O(1)
+ * prepend and O(1) append. The CircularArray automatically grows its capacity when number of added
+ * items is over its capacity.
  */
-public class CircularArray<E>
-{
+public final class CircularArray<E> {
     private E[] mElements;
     private int mHead;
     private int mTail;
@@ -29,12 +29,12 @@ public class CircularArray<E>
         int r = n - mHead;
         int newCapacity = n << 1;
         if (newCapacity < 0) {
-            throw new RuntimeException("Too big");
+            throw new RuntimeException("Max array capacity exceeded");
         }
         Object[] a = new Object[newCapacity];
         System.arraycopy(mElements, mHead, a, 0, r);
         System.arraycopy(mElements, 0, a, r, mHead);
-        mElements = (E[])a;
+        mElements = (E[]) a;
         mHead = 0;
         mTail = n;
         mCapacityBitmask = newCapacity - 1;
@@ -50,7 +50,7 @@ public class CircularArray<E>
     /**
      * Create a CircularArray with capacity for at least minCapacity elements.
      *
-     * @param minCapacity The minimum capacity required for the circular array.
+     * @param minCapacity The minimum capacity required for the CircularArray.
      */
     public CircularArray(int minCapacity) {
         if (minCapacity <= 0) {
@@ -66,7 +66,11 @@ public class CircularArray<E>
         mElements = (E[]) new Object[arrayCapacity];
     }
 
-    public final void addFirst(E e) {
+    /**
+     * Add an element in front of the CircularArray.
+     * @param e  Element to add.
+     */
+    public void addFirst(E e) {
         mHead = (mHead - 1) & mCapacityBitmask;
         mElements[mHead] = e;
         if (mHead == mTail) {
@@ -74,7 +78,11 @@ public class CircularArray<E>
         }
     }
 
-    public final void addLast(E e) {
+    /**
+     * Add an element at end of the CircularArray.
+     * @param e  Element to add.
+     */
+    public void addLast(E e) {
         mElements[mTail] = e;
         mTail = (mTail + 1) & mCapacityBitmask;
         if (mTail == mHead) {
@@ -82,16 +90,30 @@ public class CircularArray<E>
         }
     }
 
-    public final E popFirst() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
+    /**
+     * Remove first element from front of the CircularArray and return it.
+     * @return  The element removed.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
+     */
+    public E popFirst() {
+        if (mHead == mTail) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
         E result = mElements[mHead];
         mElements[mHead] = null;
         mHead = (mHead + 1) & mCapacityBitmask;
         return result;
     }
 
-    public final E popLast() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
+    /**
+     * Remove last element from end of the CircularArray and return it.
+     * @return  The element removed.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
+     */
+    public E popLast() {
+        if (mHead == mTail) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
         int t = (mTail - 1) & mCapacityBitmask;
         E result = mElements[t];
         mElements[t] = null;
@@ -99,27 +121,131 @@ public class CircularArray<E>
         return result;
     }
 
-    public final E getFirst() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
+    /**
+     * Remove all elements from the CircularArray.
+     */
+    public void clear() {
+        removeFromStart(size());
+    }
+
+    /**
+     * Remove multiple elements from front of the CircularArray, ignore when numOfElements
+     * is less than or equals to 0.
+     * @param numOfElements  Number of elements to remove.
+     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
+     *         {@link #size()}
+     */
+    public void removeFromStart(int numOfElements) {
+        if (numOfElements <= 0) {
+            return;
+        }
+        if (numOfElements > size()) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        int end = mElements.length;
+        if (numOfElements < end - mHead) {
+            end = mHead + numOfElements;
+        }
+        for (int i = mHead; i < end; i++) {
+            mElements[i] = null;
+        }
+        int removed = (end - mHead);
+        numOfElements -= removed;
+        mHead = (mHead + removed) & mCapacityBitmask;
+        if (numOfElements > 0) {
+            // mHead wrapped to 0
+            for (int i = 0; i < numOfElements; i++) {
+                mElements[i] = null;
+            }
+            mHead = numOfElements;
+        }
+    }
+
+    /**
+     * Remove multiple elements from end of the CircularArray, ignore when numOfElements
+     * is less than or equals to 0.
+     * @param numOfElements  Number of elements to remove.
+     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
+     *         {@link #size()}
+     */
+    public void removeFromEnd(int numOfElements) {
+        if (numOfElements <= 0) {
+            return;
+        }
+        if (numOfElements > size()) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        int start = 0;
+        if (numOfElements < mTail) {
+            start = mTail - numOfElements;
+        }
+        for (int i = start; i < mTail; i++) {
+            mElements[i] = null;
+        }
+        int removed = (mTail - start);
+        numOfElements -= removed;
+        mTail = mTail - removed;
+        if (numOfElements > 0) {
+            // mTail wrapped to mElements.length
+            mTail = mElements.length;
+            int newTail = mTail - numOfElements;
+            for (int i = newTail; i < mTail; i++) {
+                mElements[i] = null;
+            }
+            mTail = newTail;
+        }
+    }
+
+    /**
+     * Get first element of the CircularArray.
+     * @return The first element.
+     * @throws{@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
+     */
+    public E getFirst() {
+        if (mHead == mTail) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
         return mElements[mHead];
     }
 
-    public final E getLast() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
+    /**
+     * Get last element of the CircularArray.
+     * @return The last element.
+     * @throws{@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
+     */
+    public E getLast() {
+        if (mHead == mTail) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
         return mElements[(mTail - 1) & mCapacityBitmask];
     }
 
-    public final E get(int i) {
-        if (i < 0 || i >= size()) throw new ArrayIndexOutOfBoundsException();
-        int p = (mHead + i) & mCapacityBitmask;
-        return mElements[p];
+    /**
+     * Get nth (0 <= n <= size()-1) element of the CircularArray.
+     * @param n  The zero based element index in the CircularArray.
+     * @return The nth element.
+     * @throws{@link ArrayIndexOutOfBoundsException} if n < 0 or n >= size().
+     */
+    public E get(int n) {
+        if (n < 0 || n >= size()) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        return mElements[(mHead + n) & mCapacityBitmask];
     }
 
-    public final int size() {
+    /**
+     * Get number of elements in the CircularArray.
+     * @return Number of elements in the CircularArray.
+     */
+    public int size() {
         return (mTail - mHead) & mCapacityBitmask;
     }
 
-    public final boolean isEmpty() {
+    /**
+     * Return true if size() is 0.
+     * @return true if size() is 0.
+     */
+    public boolean isEmpty() {
         return mHead == mTail;
     }
 
