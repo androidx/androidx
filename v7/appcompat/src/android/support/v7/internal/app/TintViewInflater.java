@@ -61,12 +61,12 @@ public class TintViewInflater {
     }
 
     public final View createView(View parent, final String name, @NonNull Context context,
-            @NonNull AttributeSet attrs) {
+            @NonNull AttributeSet attrs, boolean inheritContext) {
         final Context originalContext = context;
 
         // We can emulate Lollipop's android:theme attribute propagating down the view hierarchy
         // by using the parent's context
-        if (parent != null) {
+        if (inheritContext && parent != null) {
             context = parent.getContext();
         }
         // We then apply the android:theme on the context, if specified

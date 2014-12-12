@@ -38,6 +38,7 @@ import android.support.v7.internal.app.TintViewInflater;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.app.WindowDecorActionBar;
+import android.support.v7.internal.view.ContextThemeWrapper;
 import android.support.v7.internal.view.StandaloneActionMode;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
@@ -56,7 +57,6 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -777,7 +777,12 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
             if (mTintViewInflater == null) {
                 mTintViewInflater = new TintViewInflater(mActivity);
             }
-            return mTintViewInflater.createView(parent, name, context, attrs);
+            // We only want the View to inherit it's context from the parent if it is from the
+            // app's content, and not part of our sub-decor
+            final boolean inheritContext = mSubDecorInstalled && parent != null
+                    && parent.getId() != android.R.id.content;
+
+            return mTintViewInflater.createView(parent, name, context, attrs, inheritContext);
         }
 
         // If we're running on API v21 or newer, return null and
