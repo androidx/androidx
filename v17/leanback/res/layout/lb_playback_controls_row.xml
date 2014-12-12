@@ -16,7 +16,7 @@
 -->
 
 <!-- Note: clipChildren/clipToPadding false are needed to apply shadows to child
-     views with no padding of their own. -->
+     views with no padding of their own. Also to allow for negative marge on description. -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -56,7 +56,9 @@
                 android:layout_height="0dp"
                 android:layout_marginEnd="@dimen/lb_playback_description_margin_end"
                 android:layout_marginStart="@dimen/lb_playback_description_margin_start"
-                android:layout_marginTop="@dimen/lb_playback_description_margin_top"
+                android:paddingTop="@dimen/lb_playback_description_margin_top"
+                android:clipToPadding="false"
+                android:clipChildren="false"
                 android:layout_weight="1"
                 android:gravity="top" />
 
