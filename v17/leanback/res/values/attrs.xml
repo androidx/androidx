@@ -177,7 +177,7 @@
         </attr>
         <!-- Text size for resized text -->
         <attr name="resizedTextSize" format="dimension" />
-        <!-- Whether to maintain the same line spacing when text is resized, default is true -->
+        <!-- Whether to maintain the same line spacing when text is resized, default is false -->
         <attr name="maintainLineSpacing" format="boolean" />
         <!-- Adjustment to top padding for resized text -->
         <attr name="resizedPaddingAdjustmentTop" format="dimension" />

@@ -36,6 +36,8 @@ class ResizingTextView extends TextView {
 
     private int mTriggerConditions; // Union of trigger conditions
     private int mResizedTextSize;
+    // Note: Maintaining line spacing turned out not to be useful, and will be removed in
+    // the next round of design for this class (b/18736630). For now it simply defaults to false.
     private boolean mMaintainLineSpacing;
     private int mResizedPaddingAdjustmentTop;
     private int mResizedPaddingAdjustmentBottom;
@@ -59,7 +61,7 @@ class ResizingTextView extends TextView {
             mResizedTextSize = a.getDimensionPixelSize(
                     R.styleable.lbResizingTextView_resizedTextSize, -1);
             mMaintainLineSpacing = a.getBoolean(
-                    R.styleable.lbResizingTextView_maintainLineSpacing, true);
+                    R.styleable.lbResizingTextView_maintainLineSpacing, false);
             mResizedPaddingAdjustmentTop = a.getDimensionPixelOffset(
                     R.styleable.lbResizingTextView_resizedPaddingAdjustmentTop, 0);
             mResizedPaddingAdjustmentBottom = a.getDimensionPixelOffset(
