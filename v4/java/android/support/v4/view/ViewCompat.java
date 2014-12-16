@@ -16,8 +16,10 @@
 
 package android.support.v4.view;
 
+import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -338,6 +340,10 @@ public class ViewCompat {
         void setSaveFromParentEnabled(View view, boolean enabled);
         void setActivated(View view, boolean activated);
         boolean isPaddingRelative(View view);
+        ColorStateList getBackgroundTintList(View view);
+        void setBackgroundTintList(View view, ColorStateList tintList);
+        PorterDuff.Mode getBackgroundTintMode(View view);
+        void setBackgroundTintMode(View view, PorterDuff.Mode mode);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -752,6 +758,26 @@ public class ViewCompat {
         @Override
         public boolean isPaddingRelative(View view) {
             return false;
+        }
+
+        @Override
+        public ColorStateList getBackgroundTintList(View view) {
+            return ViewCompatBase.getBackgroundTintList(view);
+        }
+
+        @Override
+        public void setBackgroundTintList(View view, ColorStateList tintList) {
+            ViewCompatBase.setBackgroundTintList(view, tintList);
+        }
+
+        @Override
+        public void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
+            ViewCompatBase.setBackgroundTintMode(view, mode);
+        }
+
+        @Override
+        public PorterDuff.Mode getBackgroundTintMode(View view) {
+            return ViewCompatBase.getBackgroundTintMode(view);
         }
     }
 
@@ -1199,6 +1225,26 @@ public class ViewCompat {
         @Override
         public boolean isImportantForAccessibility(View view) {
             return ViewCompatApi21.isImportantForAccessibility(view);
+        }
+
+        @Override
+        public ColorStateList getBackgroundTintList(View view) {
+            return ViewCompatApi21.getBackgroundTintList(view);
+        }
+
+        @Override
+        public void setBackgroundTintList(View view, ColorStateList tintList) {
+            ViewCompatApi21.setBackgroundTintList(view, tintList);
+        }
+
+        @Override
+        public void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
+            ViewCompatApi21.setBackgroundTintMode(view, mode);
+        }
+
+        @Override
+        public PorterDuff.Mode getBackgroundTintMode(View view) {
+            return ViewCompatApi21.getBackgroundTintMode(view);
         }
     }
 
@@ -2360,6 +2406,51 @@ public class ViewCompat {
      */
     public static boolean isPaddingRelative(View view) {
         return IMPL.isPaddingRelative(view);
+    }
+
+    /**
+     * Return the tint applied to the background drawable, if specified.
+     * <p>
+     * Only returns meaningful info when running on API v21 or newer, or if {@code view}
+     * implements the {@code TintableBackgroundView} interface.
+     */
+    public static ColorStateList getBackgroundTintList(View view) {
+        return IMPL.getBackgroundTintList(view);
+    }
+
+    /**
+     * Applies a tint to the background drawable.
+     * <p>
+     * This will always take effect when running on API v21 or newer. When running on platforms
+     * previous to API v21, it will only take effect if {@code view} implement the
+     * {@code TintableBackgroundView} interface.
+     */
+    public static void setBackgroundTintList(View view, ColorStateList tintList) {
+        IMPL.setBackgroundTintList(view, tintList);
+    }
+
+    /**
+     * Return the blending mode used to apply the tint to the background
+     * drawable, if specified.
+     * <p>
+     * Only returns meaningful info when running on API v21 or newer, or if {@code view}
+     * implements the {@code TintableBackgroundView} interface.
+     */
+    public static PorterDuff.Mode getBackgroundTintMode(View view) {
+        return IMPL.getBackgroundTintMode(view);
+    }
+
+    /**
+     * Specifies the blending mode used to apply the tint specified by
+     * {@link #setBackgroundTintList(android.view.View, android.content.res.ColorStateList)} to
+     * the background drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
+     * <p>
+     * This will always take effect when running on API v21 or newer. When running on platforms
+     * previous to API v21, it will only take effect if {@code view} implement the
+     * {@code TintableBackgroundView} interface.
+     */
+    public static void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
+        IMPL.setBackgroundTintMode(view, mode);
     }
 
     // TODO: getters for various view properties (rotation, etc)
