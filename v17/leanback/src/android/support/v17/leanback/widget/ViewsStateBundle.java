@@ -152,7 +152,9 @@ class ViewsStateBundle {
     public final void loadView(View view, int id) {
         if (mChildStates != null) {
             String key = getSaveStatesKey(id);
-            SparseArray<Parcelable> container = mChildStates.get(key);
+            // Once loaded the state, do not keep the state of child. The child state will
+            // be saved again either when child is offscreen or when the parent is saved.
+            SparseArray<Parcelable> container = mChildStates.remove(key);
             if (container != null) {
                 view.restoreHierarchyState(container);
             }

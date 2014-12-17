@@ -14,13 +14,14 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v4.util.CircularArray;
+import android.support.v4.util.CircularIntArray;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A dynamic data structure that maintains staggered grid position information
+ * A dynamic data structure that caches staggered grid position information
  * for each individual child. The algorithm ensures that each row will be kept
  * as balanced as possible when prepending and appending a child.
  *
@@ -32,146 +33,60 @@ import java.util.List;
  * scrolls back to 0 and we don't keep history location information, edges of
  * the very beginning of rows will not be aligned. It is recommended to keep a
  * list of tens of thousands of {@link StaggeredGrid.Location}s which will be
- * big enough to remember a typical user's scroll history. There are situations
- * where StaggeredGrid falls back to the simple case where we do not need save a
- * huge list of locations inside StaggeredGrid:
- * <ul>
- *   <li>Only one row (e.g., a single row listview)</li>
- *   <li> Each item has the same length (not staggered at all)</li>
- * </ul>
+ * big enough to remember a typical user's scroll history.
  *
  * <p>
  * This class is abstract and can be replaced with different implementations.
  */
-abstract class StaggeredGrid {
+abstract class StaggeredGrid extends Grid {
 
     /**
-     * TODO: document this
+     * Cached representation of Staggered item.
      */
-    public static interface Provider {
+    public static class Location extends Grid.Location {
         /**
-         * Return how many items are in the adapter.
+         * Offset to previous item location.
+         * min_edge(index) - min_edge(index - 1) for non reversed case
+         * max_edge(index) - max_edge(index - 1) for reversed case
          */
-        public abstract int getCount();
+        public int offset;
 
         /**
-         * Create the object at a given row.
+         * size of the item.
          */
-        public abstract void createItem(int index, int row, boolean append);
-    }
+        public int size;
 
-    /**
-     * Location of an item in the grid. For now it only saves row index but
-     * more information may be added in the future.
-     */
-    public final static class Location {
-        /**
-         * The index of the row for this Location.
-         */
-        public final int row;
-
-        /**
-         * Create a Location with the given row index.
-         */
-        public Location(int row) {
-            this.row = row;
+        public Location(int row, int offset, int size) {
+            super(row);
+            this.offset = offset;
+            this.size = size;
         }
     }
 
-    /**
-     * TODO: document this
-     */
-    public final static class Row {
-        /**
-         * first view start location
-         */
-        public int low;
-        /**
-         * last view end location
-         */
-        public int high;
-    }
-
-    protected Provider mProvider;
-    protected int mNumRows = 1; // mRows.length
-    protected Row[] mRows;
     protected CircularArray<Location> mLocations = new CircularArray<Location>(64);
-    private ArrayList<Integer>[] mTmpItemPositionsInRows;
-    protected boolean mReversedFlow;
 
-    /**
-     * A constant representing a default starting index, indicating that the
-     * developer did not provide a start index.
-     */
-    public static final int START_DEFAULT = -1;
-
-    // the first index that grid will layout
-    protected int mStartIndex = START_DEFAULT;
-    // the row to layout the first index
-    protected int mStartRow = START_DEFAULT;
-
+    // mFirstIndex <= mFirstVisibleIndex <= mLastVisibleIndex
+    //    <= mFirstIndex + mLocations.size() - 1
     protected int mFirstIndex = -1;
 
-    public void setReversedFlow(boolean reversedFlow) {
-        mReversedFlow = reversedFlow;
-    }
+    private Object[] mTmpItem = new Object[1];
+
+    protected Object mPendingItem;
+    protected int mPendingItemSize;
+
+    protected int mStartOffset;
 
     /**
-     * Sets the {@link Provider} for this staggered grid.
-     *
-     * @param provider The provider for this staggered grid.
-     */
-    public void setProvider(Provider provider) {
-        mProvider = provider;
-    }
-
-    /**
-     * Sets the array of {@link Row}s to fill into. For views that represent a
-     * horizontal list, this will be the rows of the view. For views that
-     * represent a vertical list, this will be the columns.
-     *
-     * @param row The array of {@link Row}s to be filled.
-     */
-    public final void setRows(Row[] row) {
-        if (row == null || row.length == 0) {
-            throw new IllegalArgumentException();
-        }
-        mNumRows = row.length;
-        mRows = row;
-        mTmpItemPositionsInRows = new ArrayList[mNumRows];
-        for (int i = 0; i < mNumRows; i++) {
-            mTmpItemPositionsInRows[i] = new ArrayList(32);
-        }
-    }
-
-    /**
-     * Returns the number of rows in the staggered grid.
-     */
-    public final int getNumRows() {
-        return mNumRows;
-    }
-
-    /**
-     * Set the first item index and the row index to load when there are no
-     * items.
-     *
-     * @param startIndex the index of the first item
-     * @param startRow the index of the row
-     */
-    public final void setStart(int startIndex, int startRow) {
-        mStartIndex = startIndex;
-        mStartRow = startRow;
-    }
-
-    /**
-     * Returns the first index in the staggered grid.
+     * Returns index of first item (cached or visible) in the staggered grid.
+     * Returns negative value if no item.
      */
     public final int getFirstIndex() {
         return mFirstIndex;
     }
 
     /**
-     * Returns the last index in the staggered grid.
+     * Returns index of last item (cached or visible) in the staggered grid.
+     * Returns negative value if no item.
      */
     public final int getLastIndex() {
         return mFirstIndex + mLocations.size() - 1;
@@ -184,9 +99,7 @@ abstract class StaggeredGrid {
         return mLocations.size();
     }
 
-    /**
-     * Returns the {@link Location} at the given index.
-     */
+    @Override
     public final Location getLocation(int index) {
         if (mLocations.size() == 0) {
             return null;
@@ -194,21 +107,7 @@ abstract class StaggeredGrid {
         return mLocations.get(index - mFirstIndex);
     }
 
-    /**
-     * Removes the first element.
-     */
-    public final void removeFirst() {
-        mFirstIndex++;
-        mLocations.popFirst();
-    }
-
-    /**
-     * Removes the last element.
-     */
-    public final void removeLast() {
-        mLocations.popLast();
-    }
-
+    @Override
     public final void debugPrint(PrintWriter pw) {
         for (int i = 0, size = mLocations.size(); i < size; i++) {
             Location loc = mLocations.get(i);
@@ -218,97 +117,289 @@ abstract class StaggeredGrid {
         }
     }
 
-    protected final int getMaxHighRowIndex() {
-        int maxHighRowIndex = 0;
-        for (int i = 1; i < mNumRows; i++) {
-            if (mRows[i].high > mRows[maxHighRowIndex].high) {
-                maxHighRowIndex = i;
-            }
+    @Override
+    protected final boolean prependVisibleItems(int toLimit, boolean oneColumnMode) {
+        if (mProvider.getCount() == 0) {
+            return false;
         }
-        return maxHighRowIndex;
+        if (!oneColumnMode && mFirstVisibleIndex >= 0 && checkPrependOverLimit(toLimit)) {
+            return false;
+        }
+        try {
+            if (prependVisbleItemsWithCache(toLimit, oneColumnMode)) {
+                return true;
+            }
+            return prependVisibleItemsWithoutCache(toLimit, oneColumnMode);
+        } finally {
+            mTmpItem[0] = null;
+            mPendingItem = null;
+        }
     }
 
-    protected final int getMinHighRowIndex() {
-        int minHighRowIndex = 0;
-        for (int i = 1; i < mNumRows; i++) {
-            if (mRows[i].high < mRows[minHighRowIndex].high) {
-                minHighRowIndex = i;
-            }
-        }
-        return minHighRowIndex;
-    }
-
-    protected final Location appendItemToRow(int itemIndex, int rowIndex) {
-        Location loc = new Location(rowIndex);
+    /**
+     * Prepends items using cached locations,  returning true if toLimit is reached.
+     * This method should only be called by prependVisibleItems().
+     */
+    protected final boolean prependVisbleItemsWithCache(int toLimit, boolean oneColumnMode) {
         if (mLocations.size() == 0) {
-            mFirstIndex = itemIndex;
+            return false;
+        }
+        final int count = mProvider.getCount();
+        final int firstIndex = getFirstIndex();
+        int itemIndex;
+        int edge;
+        if (mFirstVisibleIndex >= 0) {
+            // prepend visible items from first visible index
+            edge = mProvider.getEdge(mFirstVisibleIndex) - getLocation(mFirstVisibleIndex).offset;
+            itemIndex = mFirstVisibleIndex - 1;
+        } else {
+            // prepend first visible item
+            edge = Integer.MAX_VALUE;
+            itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
+        }
+        for (; itemIndex >= mFirstIndex; itemIndex--) {
+            Location loc = getLocation(itemIndex);
+            int rowIndex = loc.row;
+            int size = mProvider.createItem(itemIndex, false, mTmpItem);
+            if (size != loc.size) {
+                mLocations.removeFromStart(itemIndex + 1 - mFirstIndex);
+                mFirstIndex = mFirstVisibleIndex;
+                // pending item will be added in prependVisibleItemsWithoutCache
+                mPendingItem = mTmpItem[0];
+                mPendingItemSize = size;
+                return false;
+            }
+            mFirstVisibleIndex = itemIndex;
+            if (mLastVisibleIndex < 0) {
+                mLastVisibleIndex = itemIndex;
+            }
+            mProvider.addItem(mTmpItem[0], itemIndex, size, rowIndex, edge);
+            if (edge == Integer.MAX_VALUE) {
+                edge = mProvider.getEdge(itemIndex);
+            }
+            edge = edge - loc.offset;
+            // Check limit after filled a full column
+            if (rowIndex == 0) {
+                if (oneColumnMode || checkPrependOverLimit(toLimit)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This implements the algorithm of layout staggered grid, the method should only be called by
+     * prependVisibleItems().
+     */
+    protected abstract boolean prependVisibleItemsWithoutCache(int toLimit, boolean oneColumnMode);
+
+    /**
+     * Prepends one visible item with new Location info.  Only called from
+     * prependVisibleItemsWithoutCache().
+     */
+    protected final int prependVisibleItemToRow(int itemIndex, int rowIndex, int edge) {
+        int offset;
+        if (mFirstVisibleIndex >= 0) {
+            if (mFirstVisibleIndex != getFirstIndex() || mFirstVisibleIndex != itemIndex + 1) {
+                // should never hit this when we prepend a new item with a new Location object.
+                throw new IllegalStateException();
+            }
+        }
+        Location oldFirstLoc = mFirstIndex >= 0 ? getLocation(mFirstIndex) : null;
+        int oldFirstEdge = mProvider.getEdge(mFirstIndex);
+        Location loc = new Location(rowIndex, 0, 0);
+        Object item;
+        if (mPendingItem != null) {
+            loc.size = mPendingItemSize;
+            item = mPendingItem;
+            mPendingItem = null;
+        } else {
+            loc.size = mProvider.createItem(itemIndex, false, mTmpItem);
+            item = mTmpItem[0];
+        }
+        mFirstIndex = mFirstVisibleIndex = itemIndex;
+        if (mLastVisibleIndex < 0) {
+            mLastVisibleIndex = itemIndex;
+        }
+        mLocations.addFirst(loc);
+        int thisEdge = !mReversedFlow ? edge - loc.size : edge + loc.size;
+        if (oldFirstLoc != null) {
+            oldFirstLoc.offset = oldFirstEdge - thisEdge;
+        }
+        mProvider.addItem(item, itemIndex, loc.size, rowIndex, thisEdge);
+        return loc.size;
+    }
+
+    @Override
+    protected final boolean appendVisibleItems(int toLimit, boolean oneColumnMode) {
+        if (mProvider.getCount() == 0) {
+            return false;
+        }
+        if (!oneColumnMode && mFirstVisibleIndex >= 0 && checkAppendOverLimit(toLimit)) {
+            return false;
+        }
+        try {
+            if (appendVisbleItemsWithCache(toLimit, oneColumnMode)) {
+                return true;
+            }
+            return appendVisibleItemsWithoutCache(toLimit, oneColumnMode);
+        } finally {
+            mTmpItem[0] = null;
+            mPendingItem = null;
+        }
+    }
+
+    /**
+     * Appends items using cached locations,  returning true if at least one item is appended
+     * and (oneColumnMode is true or reach limit and aboveIndex).
+     * This method should only be called by appendVisibleItems()
+     */
+    protected final boolean appendVisbleItemsWithCache(int toLimit, boolean oneColumnMode) {
+        if (mLocations.size() == 0) {
+            return false;
+        }
+        final int count = mProvider.getCount();
+        int itemIndex;
+        int edge;
+        if (mLastVisibleIndex >= 0) {
+            // append visible items from last visible index
+            itemIndex = mLastVisibleIndex + 1;
+            edge = mProvider.getEdge(mLastVisibleIndex);
+        } else {
+            // append first visible item
+            edge = Integer.MAX_VALUE;
+            itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
+            for (int i = itemIndex - 1; i >= mFirstIndex; i--) {
+                if (getLocation(i).row == mNumRows - 1) {
+                    itemIndex = i + 1;
+                    break;
+                }
+            }
+        }
+        int lastIndex = getLastIndex();
+        for (; itemIndex < count && itemIndex <= lastIndex; itemIndex++) {
+            Location loc = getLocation(itemIndex);
+            if (edge != Integer.MAX_VALUE) {
+                edge = edge + loc.offset;
+            }
+            int rowIndex = loc.row;
+            int size = mProvider.createItem(itemIndex, true, mTmpItem);
+            if (size != loc.size) {
+                loc.size = size;
+                mLocations.removeFromEnd(lastIndex - itemIndex);
+                lastIndex = itemIndex;
+            }
+            mLastVisibleIndex = itemIndex;
+            if (mFirstVisibleIndex < 0) {
+                mFirstVisibleIndex = itemIndex;
+            }
+            mProvider.addItem(mTmpItem[0], itemIndex, size, rowIndex, edge);
+            if (edge == Integer.MAX_VALUE) {
+                edge = mProvider.getEdge(itemIndex);
+            }
+            // Check limit after filled a full column
+            if (rowIndex == mNumRows - 1) {
+                if (oneColumnMode || checkAppendOverLimit(toLimit)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * algorithm of layout staggered grid, this method should only be called by
+     * appendVisibleItems().
+     */
+    protected abstract boolean appendVisibleItemsWithoutCache(int toLimit, boolean oneColumnMode);
+
+    /**
+     * Appends one visible item with new Location info.  Only called from
+     * appendVisibleItemsWithoutCache().
+     */
+    protected final int appendVisibleItemToRow(int itemIndex, int rowIndex, int location) {
+        int offset;
+        if (mLastVisibleIndex >= 0) {
+            if (mLastVisibleIndex != getLastIndex() || mLastVisibleIndex != itemIndex - 1) {
+                // should never hit this when we append a new item with a new Location object.
+                throw new IllegalStateException();
+            }
+        }
+        if (location == Integer.MAX_VALUE || location == Integer.MIN_VALUE) {
+            if (mStartIndex == itemIndex) {
+                offset = mStartOffset;
+                mStartOffset = 0;
+            } else {
+                offset = 0;
+            }
+        } else {
+            offset = location - mProvider.getEdge(mLastVisibleIndex);
+        }
+        Location loc = new Location(rowIndex, offset, 0);
+        Object item;
+        if (mPendingItem != null) {
+            loc.size = mPendingItemSize;
+            item = mPendingItem;
+            mPendingItem = null;
+        } else {
+            loc.size = mProvider.createItem(itemIndex, true, mTmpItem);
+            item = mTmpItem[0];
+        }
+        if (mLocations.size() == 0) {
+            mFirstIndex = mFirstVisibleIndex = mLastVisibleIndex = itemIndex;
+        } else {
+            if (mLastVisibleIndex < 0) {
+                mFirstVisibleIndex = mLastVisibleIndex = itemIndex;
+            } else {
+                mLastVisibleIndex++;
+            }
         }
         mLocations.addLast(loc);
-        mProvider.createItem(itemIndex, rowIndex, true);
-        return loc;
+        mProvider.addItem(item, itemIndex, loc.size, rowIndex, location);
+        return loc.size;
     }
 
-    /**
-     * Append items until the high edge reaches upTo.
-     */
-    public abstract void appendItems(int toLimit);
-
-    protected final int getMaxLowRowIndex() {
-        int maxLowRowIndex = 0;
-        for (int i = 1; i < mNumRows; i++) {
-            if (mRows[i].low > mRows[maxLowRowIndex].low) {
-                maxLowRowIndex = i;
-            }
-        }
-        return maxLowRowIndex;
-    }
-
-    protected final int getMinLowRowIndex() {
-        int minLowRowIndex = 0;
-        for (int i = 1; i < mNumRows; i++) {
-            if (mRows[i].low < mRows[minLowRowIndex].low) {
-                minLowRowIndex = i;
-            }
-        }
-        return minLowRowIndex;
-    }
-
-    protected final Location prependItemToRow(int itemIndex, int rowIndex) {
-        Location loc = new Location(rowIndex);
-        mFirstIndex = itemIndex;
-        mLocations.addFirst(loc);
-        mProvider.createItem(itemIndex, rowIndex, false);
-        return loc;
-    }
-
-    /**
-     * Return array of Lists for all rows, each List contains item positions
-     * on that row between startPos(included) and endPositions(included).
-     * Returned value is read only, do not change it.
-     */
-    public final List<Integer>[] getItemPositionsInRows(int startPos, int endPos) {
+    @Override
+    public final CircularIntArray[] getItemPositionsInRows(int startPos, int endPos) {
         for (int i = 0; i < mNumRows; i++) {
             mTmpItemPositionsInRows[i].clear();
         }
         if (startPos >= 0) {
             for (int i = startPos; i <= endPos; i++) {
-                mTmpItemPositionsInRows[getLocation(i).row].add(i);
+                CircularIntArray row = mTmpItemPositionsInRows[getLocation(i).row];
+                if (row.size() > 0 && row.getLast() == i - 1) {
+                    // update continuous range
+                    row.popLast();
+                    row.addLast(i);
+                } else {
+                    // add single position
+                    row.addLast(i);
+                    row.addLast(i);
+                }
             }
         }
         return mTmpItemPositionsInRows;
     }
 
-    /**
-     * Prepend items until the low edge reaches downTo.
-     */
-    public abstract void prependItems(int toLimit);
+    @Override
+    public void invalidateItemsAfter(int index) {
+        super.invalidateItemsAfter(index);
+        mLocations.removeFromEnd(getLastIndex() - index + 1);
+        if (mLocations.size() == 0) {
+            mFirstIndex = -1;
+        }
+    }
 
-    /**
-     * Strip items, keep a contiguous subset of items; the subset should include
-     * at least one item on every row that currently has at least one item.
-     *
-     * <p>
-     * TODO: document this better
-     */
-    public abstract void stripDownTo(int itemIndex);
+    @Override
+    public void setStart(int startIndex) {
+        super.setStart(startIndex);
+        if (startIndex >= 0 && startIndex >= getFirstIndex() && startIndex <= getLastIndex()) {
+            // Remembers the offset at index, so next time append uses this value for relative
+            // offset to item in front of the index.
+            mStartOffset = getLocation(startIndex).offset;
+        } else {
+            mStartOffset = 0;
+        }
+    }
 }

@@ -529,6 +529,9 @@ abstract class BaseGridView extends RecyclerView {
      * Disable or enable focus search.
      */
     public final void setFocusSearchDisabled(boolean disabled) {
+        // LayoutManager may detachView and attachView in fastRelayout, it causes RowsFragment
+        // re-gain focus after a BACK key pressed, so block children focus during transition.
+        setDescendantFocusability(disabled ? FOCUS_BLOCK_DESCENDANTS: FOCUS_AFTER_DESCENDANTS);
         mLayoutManager.setFocusSearchDisabled(disabled);
     }
 
@@ -699,5 +702,10 @@ abstract class BaseGridView extends RecyclerView {
         mLayoutManager.onRtlPropertiesChanged(layoutDirection);
     }
 
+    @Override
+    public void onChildDetachedFromWindow(View child) {
+        super.onChildDetachedFromWindow(child);
+        mLayoutManager.onChildDetachedFromWindow(getChildViewHolder(child));
+    }
 
 }
