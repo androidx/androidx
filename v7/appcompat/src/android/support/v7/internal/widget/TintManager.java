@@ -30,11 +30,12 @@ import android.support.v7.appcompat.R;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
+import android.view.View;
 
 /**
  * @hide
  */
-public class TintManager {
+public final class TintManager {
 
     static final boolean SHOULD_BE_USED = Build.VERSION.SDK_INT < 21;
 
@@ -146,7 +147,17 @@ public class TintManager {
             drawable = drawable.mutate();
 
             if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
-                drawable = wrapWithColorStateList(resId, drawable);
+
+                ColorStateList colorStateList = getColorStateListForKnownDrawableId(resId);
+
+                PorterDuff.Mode tintMode = DEFAULT_MODE;
+                if (resId == R.drawable.abc_switch_thumb_material) {
+                    tintMode = PorterDuff.Mode.MULTIPLY;
+                }
+
+                if (colorStateList != null) {
+                    drawable = new TintDrawableWrapper(drawable, colorStateList, tintMode);
+                }
             } else if (arrayContains(CONTAINERS_WITH_TINT_CHILDREN, resId)) {
                 drawable = mResources.getDrawable(resId);
             } else {
@@ -184,17 +195,7 @@ public class TintManager {
             }
             final int color = getThemeAttrColor(colorAttr);
 
-            // First, lets see if the cache already contains the color filter
-            PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, tintMode);
-
-            if (filter == null) {
-                // Cache miss, so create a color filter and add it to the cache
-                filter = new PorterDuffColorFilter(color, tintMode);
-                COLOR_FILTER_CACHE.put(color, tintMode, filter);
-            }
-
-            // Finally set the color filter
-            drawable.setColorFilter(filter);
+            tintDrawableUsingColorFilter(drawable, color, tintMode);
 
             if (alpha != -1) {
                 drawable.setAlpha(alpha);
@@ -224,7 +225,13 @@ public class TintManager {
                 arrayContains(CONTAINERS_WITH_TINT_CHILDREN, drawableId);
     }
 
-    private Drawable wrapWithColorStateList(final int resId, final Drawable drawable) {
+    ColorStateList getColorStateList(int resId) {
+        return arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)
+                ? getColorStateListForKnownDrawableId(resId)
+                : null;
+    }
+
+    private ColorStateList getColorStateListForKnownDrawableId(int resId) {
         // Try the cache first
         ColorStateList colorStateList = mColorStateLists.get(resId);
 
@@ -245,18 +252,11 @@ public class TintManager {
                 // If we don't have an explicit color state list for this Drawable, use the default
                 colorStateList = getDefaultColorStateList();
             }
+
             // ..and add it to the cache
             mColorStateLists.append(resId, colorStateList);
         }
-
-        PorterDuff.Mode tintMode = DEFAULT_MODE;
-        if (resId == R.drawable.abc_switch_thumb_material) {
-            tintMode = PorterDuff.Mode.MULTIPLY;
-        }
-
-        return colorStateList != null
-                ? new TintDrawableWrapper(drawable, colorStateList, tintMode)
-                : null;
+        return colorStateList;
     }
 
     private ColorStateList getDefaultColorStateList() {
@@ -501,5 +501,32 @@ public class TintManager {
             hashCode = 31 * hashCode + mode.hashCode();
             return hashCode;
         }
+    }
+
+    public static void tintViewBackground(View view, TintInfo tint) {
+        final Drawable background = view.getBackground();
+        if (tint.mTintList != null) {
+            tintDrawableUsingColorFilter(
+                    background,
+                    tint.mTintList.getColorForState(view.getDrawableState(),
+                            tint.mTintList.getDefaultColor()),
+                    tint.mTintMode != null ? tint.mTintMode : DEFAULT_MODE);
+        } else {
+            background.clearColorFilter();
+        }
+    }
+
+    private static void tintDrawableUsingColorFilter(Drawable drawable, int color,
+            PorterDuff.Mode mode) {
+        // First, lets see if the cache already contains the color filter
+        PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, mode);
+
+        if (filter == null) {
+            // Cache miss, so create a color filter and add it to the cache
+            filter = new PorterDuffColorFilter(color, mode);
+            COLOR_FILTER_CACHE.put(color, mode, filter);
+        }
+
+        drawable.setColorFilter(filter);
     }
 }
