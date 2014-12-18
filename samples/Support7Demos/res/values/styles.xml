@@ -29,4 +29,8 @@
         <item name="colorAccent">#ffff00</item>
     </style>
 
+    <style name="SortedListItem" parent="@android:style/TextAppearance.Medium">
+        <item name="android:minHeight">35dp</item>
+    </style>
+
 </resources>

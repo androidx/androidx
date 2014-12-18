@@ -167,5 +167,7 @@
     <string name="palette">Palette</string>
     <string name="palette_all_colors">Full color palette</string>
     <string name="search_hint">Search...</string>
+    <string name="sorted_list_activity">Sorted List</string>
+    <string name="add_new_item">Add New Item</string>
 
 </resources>
