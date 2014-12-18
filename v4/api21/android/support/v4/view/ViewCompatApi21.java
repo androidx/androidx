@@ -16,6 +16,8 @@
 
 package android.support.v4.view;
 
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.view.View;
 import android.view.WindowInsets;
 
@@ -66,5 +68,21 @@ class ViewCompatApi21 {
 
     public static boolean isImportantForAccessibility(View view) {
         return view.isImportantForAccessibility();
+    }
+
+    static ColorStateList getBackgroundTintList(View view) {
+        return view.getBackgroundTintList();
+    }
+
+    static void setBackgroundTintList(View view, ColorStateList tintList) {
+        view.setBackgroundTintList(tintList);
+    }
+
+    static PorterDuff.Mode getBackgroundTintMode(View view) {
+        return view.getBackgroundTintMode();
+    }
+
+    static void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
+        view.setBackgroundTintMode(mode);
     }
 }
