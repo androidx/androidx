@@ -3170,6 +3170,7 @@ public class RecyclerView extends ViewGroup {
             if (mEatRunOnAnimationRequest) {
                 mReSchedulePostAnimationCallback = true;
             } else {
+                removeCallbacks(this);
                 ViewCompat.postOnAnimation(RecyclerView.this, this);
             }
         }
