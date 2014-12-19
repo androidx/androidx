@@ -861,7 +861,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private void onRowSelected(int position) {
         if (position != mSelectedPosition) {
             mSetSelectionRunnable.mPosition = position;
-            mBrowseFrame.getHandler().post(mSetSelectionRunnable);
+            mBrowseFrame.getHandler().removeCallbacks(mSetSelectionRunnable);
+            mSetSelectionRunnable.run();
 
             if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
                 if (!mShowingTitle) {
