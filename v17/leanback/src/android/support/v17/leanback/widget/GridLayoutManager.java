@@ -1285,9 +1285,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private boolean needsAppendVisibleItem() {
-        if (mLastVisiblePos < mFocusPosition) {
-            return true;
-        }
         if (mReverseFlowPrimary) {
             for (int i = 0; i < mNumRows; i++) {
                 if (mRows[i].low == mRows[i].high) {
@@ -1314,9 +1311,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private boolean needsPrependVisibleItem() {
-        if (mFirstVisiblePos > mFocusPosition) {
-            return true;
-        }
         if (mReverseFlowPrimary) {
             int right = mScrollOffsetPrimary + mSizePrimary;
             for (int i = 0; i < mNumRows; i++) {
