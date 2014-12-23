@@ -37,6 +37,7 @@ public class ImageCardView extends BaseCardView {
     private TextView mContentView;
     private ImageView mBadgeImage;
     private ImageView mBadgeFadeMask;
+    private boolean mAttachedToWindow;
 
     public ImageCardView(Context context) {
         this(context, null);
@@ -111,7 +112,7 @@ public class ImageCardView extends BaseCardView {
         } else {
             mImageView.setVisibility(View.VISIBLE);
             if (fade) {
-                fadeIn(mImageView);
+                fadeIn();
             } else {
                 mImageView.animate().cancel();
                 mImageView.setAlpha(1f);
@@ -216,10 +217,12 @@ public class ImageCardView extends BaseCardView {
         return mBadgeImage.getDrawable();
     }
 
-    private void fadeIn(View v) {
-        v.setAlpha(0f);
-        v.animate().alpha(1f).setDuration(v.getContext().getResources().getInteger(
-                android.R.integer.config_shortAnimTime)).start();
+    private void fadeIn() {
+        mImageView.setAlpha(0f);
+        if (mAttachedToWindow) {
+            mImageView.animate().alpha(1f).setDuration(mImageView.getResources().getInteger(
+                    android.R.integer.config_shortAnimTime));
+        }
     }
 
     @Override
@@ -241,7 +244,17 @@ public class ImageCardView extends BaseCardView {
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mAttachedToWindow = true;
+        if (mImageView.getAlpha() == 0) {
+            fadeIn();
+        }
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
+        mAttachedToWindow = false;
         mImageView.animate().cancel();
         mImageView.setAlpha(1f);
         super.onDetachedFromWindow();
