@@ -36,6 +36,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private static final boolean TEST_ENTRANCE_TRANSITION = true;
     private static final int NUM_ROWS = 10;
+    // Row heights default to wrap content
+    private static final boolean USE_FIXED_ROW_HEIGHT = false;
+
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
 
@@ -88,8 +91,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private void setupRows() {
         ListRowPresenter lrp = new ListRowPresenter();
-        lrp.setRowHeight(CardPresenter.getRowHeight(getActivity()));
-        lrp.setExpandedRowHeight(CardPresenter.getExpandedRowHeight(getActivity()));
+
+        if (USE_FIXED_ROW_HEIGHT) {
+            lrp.setRowHeight(CardPresenter.getRowHeight(getActivity()));
+            lrp.setExpandedRowHeight(CardPresenter.getExpandedRowHeight(getActivity()));
+        }
 
         mRowsAdapter = new ArrayObjectAdapter(lrp);
 
