@@ -42,6 +42,9 @@ public class RowsFragment extends android.support.v17.leanback.app.RowsFragment 
     private static final String TAG = "leanback.RowsFragment";
 
     private static final int NUM_ROWS = 10;
+    // Row heights default to wrap content
+    private static final boolean USE_FIXED_ROW_HEIGHT = false;
+
     private ArrayObjectAdapter mRowsAdapter;
     private OnRowsFirstLineSelectedListener mCallback;
 
@@ -81,8 +84,11 @@ public class RowsFragment extends android.support.v17.leanback.app.RowsFragment 
 
     private void setupRows() {
         ListRowPresenter lrp = new ListRowPresenter();
-        lrp.setRowHeight(CardPresenter.getRowHeight(getActivity()));
-        lrp.setExpandedRowHeight(CardPresenter.getExpandedRowHeight(getActivity()));
+
+        if (USE_FIXED_ROW_HEIGHT) {
+            lrp.setRowHeight(CardPresenter.getRowHeight(getActivity()));
+            lrp.setExpandedRowHeight(CardPresenter.getExpandedRowHeight(getActivity()));
+        }
 
         mRowsAdapter = new ArrayObjectAdapter(lrp);
 
