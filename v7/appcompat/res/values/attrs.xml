@@ -163,6 +163,17 @@
 
 
         <!-- =================== -->
+        <!-- Dialog styles -->
+        <!-- =================== -->
+        <eat-comment />
+
+        <!-- Theme to use for dialogs spawned from this theme. -->
+        <attr name="dialogTheme" format="reference" />
+        <!-- Preferred padding for dialog content. -->
+        <attr name="dialogPreferredPadding" format="dimension" />
+
+
+        <!-- =================== -->
         <!-- Other widget styles -->
         <!-- =================== -->
         <eat-comment />

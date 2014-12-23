@@ -47,7 +47,7 @@ import android.view.ViewGroup;
  * Bar</a> API guide.</p>
  * </div>
  */
-public class AppCompatActivity extends FragmentActivity implements AppCompatActivityCallback,
+public class AppCompatActivity extends FragmentActivity implements AppCompatCallback,
         TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider {
 
     private AppCompatDelegate mDelegate;
@@ -161,7 +161,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatActi
     @Override
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
-        getDelegate().onTitleChanged(title);
+        getDelegate().setTitle(title);
     }
 
     /**

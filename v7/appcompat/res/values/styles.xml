@@ -208,6 +208,14 @@
 
     <style name="Widget.AppCompat.Button.Small" parent="Base.Widget.AppCompat.Button.Small" />
 
+    <style name="Widget.AppCompat.Button.Borderless" parent="Base.Widget.AppCompat.Button.Borderless" />
+
+    <style name="Widget.AppCompat.Button.Borderless.Colored" parent="Base.Widget.AppCompat.Button.Borderless.Colored" />
+
+    <style name="Widget.AppCompat.ButtonBar" parent="Base.Widget.AppCompat.ButtonBar" />
+
+    <style name="Widget.AppCompat.ButtonBar.AlertDialog" parent="Base.Widget.AppCompat.ButtonBar.AlertDialog" />
+
     <style name="Widget.AppCompat.TextView.SpinnerItem" parent="Base.Widget.AppCompat.TextView.SpinnerItem" />
 
     <!-- Toolbar -->
@@ -226,8 +234,14 @@
     </style>
 
 
+    <!-- Animation styles -->
     <eat-comment />
+    <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog" />
+    <style name="Animation.AppCompat.DropDownUp" parent="Base.Animation.AppCompat.DropDownUp" />
+
+
     <!-- Text styles -->
+    <eat-comment />
 
     <style name="TextAppearance.AppCompat" parent="Base.TextAppearance.AppCompat" />
 
