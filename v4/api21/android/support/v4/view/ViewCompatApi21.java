@@ -85,4 +85,34 @@ class ViewCompatApi21 {
     static void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
         view.setBackgroundTintMode(mode);
     }
+
+    public static WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+        if (insets instanceof WindowInsetsCompatApi21) {
+            // First unwrap the compat version so that we have the framework instance
+            WindowInsets unwrapped = ((WindowInsetsCompatApi21) insets).unwrap();
+            // Now call onApplyWindowInsets
+            WindowInsets result = v.onApplyWindowInsets(unwrapped);
+
+            if (result != unwrapped) {
+                // ...and return a newly wrapped compat insets instance if different
+                insets = new WindowInsetsCompatApi21(result);
+            }
+        }
+        return insets;
+    }
+
+    public static WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
+        if (insets instanceof WindowInsetsCompatApi21) {
+            // First unwrap the compat version so that we have the framework instance
+            WindowInsets unwrapped = ((WindowInsetsCompatApi21) insets).unwrap();
+            // Now call dispatchApplyWindowInsets
+            WindowInsets result = v.dispatchApplyWindowInsets(unwrapped);
+
+            if (result != unwrapped) {
+                // ...and return a newly wrapped compat insets instance if different
+                insets = new WindowInsetsCompatApi21(result);
+            }
+        }
+        return insets;
+    }
 }
