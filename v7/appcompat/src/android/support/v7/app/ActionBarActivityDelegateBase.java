@@ -316,14 +316,15 @@ class ActionBarActivityDelegateBase extends ActionBarActivityDelegate
                                     final int newTop = updateStatusGuard(top);
 
                                     if (top != newTop) {
-                                        return insets.replaceSystemWindowInsets(
+                                        insets = insets.replaceSystemWindowInsets(
                                                 insets.getSystemWindowInsetLeft(),
                                                 newTop,
                                                 insets.getSystemWindowInsetRight(),
                                                 insets.getSystemWindowInsetBottom());
-                                    } else {
-                                        return insets;
                                     }
+
+                                    // Now apply the insets on our view
+                                    return ViewCompat.onApplyWindowInsets(v, insets);
                                 }
                             });
                 } else {

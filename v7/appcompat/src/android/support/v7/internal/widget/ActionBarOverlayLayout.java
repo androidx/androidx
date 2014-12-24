@@ -319,12 +319,10 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         final boolean stable = (vis & SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;
         final Rect systemInsets = insets;
 
-        // The top and bottom action bars are always within the content area.
-        boolean changed = applyInsets(mActionBarTop, systemInsets, true, true, false, true);
-        if (mActionBarBottom != null) {
-            changed |= applyInsets(mActionBarBottom, systemInsets, true, false, true, true);
-        }
+        // Since we're not the top level view in the window decor, we do not need to
+        // inset the Action Bars
 
+        boolean changed = false;
         mBaseInnerInsets.set(systemInsets);
         ViewUtils.computeFitSystemWindows(this, mBaseInnerInsets, mBaseContentInsets);
         if (!mLastBaseContentInsets.equals(mBaseContentInsets)) {
