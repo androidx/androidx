@@ -356,10 +356,12 @@ public class ViewCompat {
 
 
         public boolean canScrollHorizontally(View v, int direction) {
-            return false;
+            return (v instanceof ScrollingView) &&
+                canScrollingViewScrollHorizontally((ScrollingView) v, direction);
         }
         public boolean canScrollVertically(View v, int direction) {
-            return false;
+            return (v instanceof ScrollingView) &&
+                    canScrollingViewScrollVertically((ScrollingView) v, direction);
         }
         public int getOverScrollMode(View v) {
             return OVER_SCROLL_NEVER;
@@ -790,6 +792,30 @@ public class ViewCompat {
         @Override
         public PorterDuff.Mode getBackgroundTintMode(View view) {
             return ViewCompatBase.getBackgroundTintMode(view);
+        }
+
+        private boolean canScrollingViewScrollHorizontally(ScrollingView view, int direction) {
+            final int offset = view.computeHorizontalScrollOffset();
+            final int range = view.computeHorizontalScrollRange() -
+                    view.computeHorizontalScrollExtent();
+            if (range == 0) return false;
+            if (direction < 0) {
+                return offset > 0;
+            } else {
+                return offset < range - 1;
+            }
+        }
+
+        private boolean canScrollingViewScrollVertically(ScrollingView view, int direction) {
+            final int offset = view.computeVerticalScrollOffset();
+            final int range = view.computeVerticalScrollRange() -
+                    view.computeVerticalScrollExtent();
+            if (range == 0) return false;
+            if (direction < 0) {
+                return offset > 0;
+            } else {
+                return offset < range - 1;
+            }
         }
     }
 
@@ -2507,6 +2533,5 @@ public class ViewCompat {
     public static void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
         IMPL.setBackgroundTintMode(view, mode);
     }
-
     // TODO: getters for various view properties (rotation, etc)
 }
