@@ -658,9 +658,10 @@ public final class Palette {
                     .append(" [RGB: #").append(Integer.toHexString(getRgb())).append(']')
                     .append(" [HSL: ").append(Arrays.toString(getHsl())).append(']')
                     .append(" [Population: ").append(mPopulation).append(']')
-                    .append(" [Title Text: #").append(Integer.toHexString(mTitleTextColor)).append(']')
-                    .append(" [Body Text: #").append(Integer.toHexString(mBodyTextColor)).append(']')
-                    .toString();
+                    .append(" [Title Text: #").append(Integer.toHexString(getTitleTextColor()))
+                    .append(']')
+                    .append(" [Body Text: #").append(Integer.toHexString(getBodyTextColor()))
+                    .append(']').toString();
         }
 
         @Override
