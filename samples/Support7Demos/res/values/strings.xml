@@ -56,6 +56,7 @@
     <string name="action_bar_settings_action_provider">AppCompat/Action Bar/Settings Action Provider</string>
     <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
     <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
+    <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
 
     <string name="action_bar_search">Search</string>
     <string name="action_bar_add">Add</string>
@@ -125,6 +126,10 @@
     <string name="toolbar_usage">AppCompat/Toolbar/Toolbar as Action Bar</string>
     <string name="toolbar_display_options">AppCompat/Toolbar/Toolbar Display Options</string>
     <string name="toolbar_fragment_pager">AppCompat/Toolbar/Toolbar Fragment ViewPager</string>
+
+    <string name="dialog_usage">AppCompat/Dialog/Dialog Usage</string>
+    <string name="dialog_title">My great dialog</string>
+    <string name="dialog_content">My great dialog is great</string>
 
     <string name="sample_media_route_provider_remote">Remote Playback (Simulated)</string>
     <string name="sample_media_route_activity_local">Local Playback</string>

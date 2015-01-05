@@ -20,7 +20,7 @@ import com.example.android.supportv7.R;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -35,7 +35,7 @@ import android.widget.Toast;
  * menu data itself. If you'd like to see how these things work under the hood, see
  * ActionBarMechanics.
  */
-public class ActionBarUsage extends ActionBarActivity {
+public class ActionBarUsage extends AppCompatActivity {
     TextView mSearchText;
     int mSortMode = -1;
 

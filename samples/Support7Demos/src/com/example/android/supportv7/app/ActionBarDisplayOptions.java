@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
@@ -29,10 +29,12 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+;
+
 /**
  * This demo shows how various action bar display option flags can be combined and their effects.
  */
-public class ActionBarDisplayOptions extends ActionBarActivity
+public class ActionBarDisplayOptions extends AppCompatActivity
         implements View.OnClickListener, ActionBar.TabListener {
     private View mCustomView;
     private ActionBar.LayoutParams mCustomViewLayoutParams;

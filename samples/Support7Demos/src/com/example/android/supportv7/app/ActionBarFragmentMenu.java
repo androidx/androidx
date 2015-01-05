@@ -16,17 +16,17 @@
 
 package com.example.android.supportv7.app;
 
-import android.support.v4.view.MenuItemCompat;
-import android.view.Menu;
-import android.view.MenuItem;
 import com.example.android.supportv7.R;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -35,7 +35,7 @@ import android.widget.Toast;
 /**
  * Demonstrates how fragments can participate in the options menu.
  */
-public class ActionBarFragmentMenu extends ActionBarActivity {
+public class ActionBarFragmentMenu extends AppCompatActivity {
     MenuFragment mFragment1;
     Menu2Fragment mFragment2;
     CheckBox mCheckBox1;

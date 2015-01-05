@@ -16,12 +16,12 @@
 
 package com.example.android.supportv7.media;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * This activity is a dummy settings activity for the
  * {@link SampleMediaRouteProvider}.
  */
-public class SampleMediaRouteSettingsActivity extends ActionBarActivity {
+public class SampleMediaRouteSettingsActivity extends AppCompatActivity {
 
 }

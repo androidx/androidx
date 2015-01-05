@@ -18,7 +18,7 @@ package com.example.android.supportv7.app;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.WindowCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -28,7 +28,7 @@ import android.widget.Toast;
  * standard options menu. This demo is for informative purposes only; see ActionBarUsage for
  * an example of using the Action Bar in a more idiomatic manner.
  */
-public class ActionBarMechanics extends ActionBarActivity {
+public class ActionBarMechanics extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

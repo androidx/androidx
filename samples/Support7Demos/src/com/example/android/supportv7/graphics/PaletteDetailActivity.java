@@ -17,10 +17,11 @@
 package com.example.android.supportv7.graphics;
 
 import com.example.android.supportv7.R;
+
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +45,7 @@ import java.util.List;
  * Also allows the customization of the number of colors used in the palette generation for
  * demonstration purposes.
  */
-public class PaletteDetailActivity extends ActionBarActivity {
+public class PaletteDetailActivity extends AppCompatActivity {
 
     private ImageView mImageView;
     private GridView mGridView;

@@ -16,18 +16,19 @@
 
 package com.example.android.supportv7.app;
 
+import com.example.android.supportv7.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.view.ActionProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
-import com.example.android.supportv7.R;
 
 /**
  * This activity demonstrates how to implement an {@link android.view.ActionProvider}
@@ -35,7 +36,7 @@ import com.example.android.supportv7.R;
  * ActionProvider for launching the system settings and adds a menu item with that
  * provider.
  */
-public class ActionBarSettingsActionProviderActivity extends ActionBarActivity {
+public class ActionBarSettingsActionProviderActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);

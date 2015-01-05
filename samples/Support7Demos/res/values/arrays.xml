@@ -28,4 +28,10 @@
         <item>http://archive.org/download/Sintel/sintel-2048-stereo_512kb.mp4</item>
         <item>http://archive.org/download/Tears-of-Steel/tears_of_steel_720p.mp4</item>
     </string-array>
+
+    <string-array name="dialog_types">
+        <item>Simple</item>
+        <item>Simple with Action Bar</item>
+    </string-array>
+
 </resources>

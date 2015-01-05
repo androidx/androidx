@@ -30,7 +30,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.ResourceCursorAdapter;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,7 +46,7 @@ import android.widget.ListView;
  * Allows the customization of the number of colors used in the palette generation, to demonstrate
  * the difference in results for different types of images.
  */
-public class PaletteActivity extends ActionBarActivity {
+public class PaletteActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

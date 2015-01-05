@@ -18,39 +18,34 @@ package com.example.android.supportv7.media;
 
 import com.example.android.supportv7.R;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.app.PendingIntent;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
-import android.media.MediaMetadataRetriever;
-import android.media.RemoteControlClient;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.MediaRouteActionProvider;
-import android.support.v7.app.MediaRouteButton;
 import android.support.v7.app.MediaRouteControllerDialog;
 import android.support.v7.app.MediaRouteControllerDialogFragment;
-import android.support.v7.app.MediaRouteDiscoveryFragment;
 import android.support.v7.app.MediaRouteDialogFactory;
+import android.support.v7.app.MediaRouteDiscoveryFragment;
 import android.support.v7.media.MediaControlIntent;
+import android.support.v7.media.MediaItemStatus;
+import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouter.Callback;
-import android.support.v7.media.MediaRouter.RouteInfo;
 import android.support.v7.media.MediaRouter.ProviderInfo;
-import android.support.v7.media.MediaRouteSelector;
-import android.support.v7.media.MediaItemStatus;
+import android.support.v7.media.MediaRouter.RouteInfo;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -63,12 +58,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TabHost;
-import android.widget.TabHost.TabSpec;
-import android.widget.TabHost.OnTabChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TabHost.TabSpec;
+import android.widget.TextView;
 
 import java.io.File;
 
@@ -81,7 +76,7 @@ import java.io.File;
  * targets.
  * </p>
  */
-public class SampleMediaRouterActivity extends ActionBarActivity {
+public class SampleMediaRouterActivity extends AppCompatActivity {
     private static final String TAG = "SampleMediaRouterActivity";
     private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
 

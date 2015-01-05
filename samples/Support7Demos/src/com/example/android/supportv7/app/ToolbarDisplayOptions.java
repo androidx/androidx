@@ -19,23 +19,19 @@ package com.example.android.supportv7.app;
 import com.example.android.supportv7.R;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 /**
  * This demo shows how various action bar display option flags can be combined and their effects
  * when used on a Toolbar-provided Action Bar
  */
-public class ToolbarDisplayOptions extends ActionBarActivity
+public class ToolbarDisplayOptions extends AppCompatActivity
         implements View.OnClickListener {
 
     private View mCustomView;
