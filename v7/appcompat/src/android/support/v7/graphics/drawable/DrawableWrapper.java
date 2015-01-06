@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.graphics.drawable;
 
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
@@ -23,17 +23,16 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableContainer;
-import android.os.Build;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
 
 /**
- * Base wrapper that delegates all calls to another {@link Drawable}. The wrapped {@link Drawable}
- * <em>must</em> be fully released from any {@link View} before wrapping, otherwise internal {@link
- * Drawable.Callback} may be dropped.
+ * Drawable which delegates all calls to it's wrapped {@link Drawable}.
+ * <p>
+ * The wrapped {@link Drawable} <em>must</em> be fully released from any {@link View}
+ * before wrapping, otherwise internal {@link Drawable.Callback} may be dropped.
  */
-class DrawableWrapper extends Drawable implements Drawable.Callback {
+public class DrawableWrapper extends Drawable implements Drawable.Callback {
 
     private Drawable mDrawable;
 
@@ -47,9 +46,8 @@ class DrawableWrapper extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public void setBounds(int left, int top, int right, int bottom) {
-        super.setBounds(left, top, right, bottom);
-        mDrawable.setBounds(left, top, right, bottom);
+    protected void onBoundsChange(Rect bounds) {
+        mDrawable.setBounds(bounds);
     }
 
     @Override
