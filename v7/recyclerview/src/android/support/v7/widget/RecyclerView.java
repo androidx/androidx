@@ -294,6 +294,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     private boolean mAdapterUpdateDuringMeasure;
     private final boolean mPostUpdatesOnAnimation;
     private final AccessibilityManager mAccessibilityManager;
+    private List<OnChildAttachStateChangeListener> mOnChildAttachStateListeners;
 
     /**
      * Set to true when an adapter data set changed notification is received.
@@ -365,6 +366,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             new ItemAnimatorRestoreListener();
     private boolean mPostedAnimatorRunner = false;
     private RecyclerViewAccessibilityDelegate mAccessibilityDelegate;
+    private ChildDrawingOrderCallback mChildDrawingOrderCallback;
 
     // simple array to keep min and max child position during a layout calculation
     // preserved not to create a new one in each layout pass
@@ -855,6 +857,46 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
+     * Register a listener that will be notified whenever a child view is attached to or detached
+     * from RecyclerView.
+     *
+     * <p>This listener will be called when a LayoutManager or the RecyclerView decides
+     * that a child view is no longer needed. If an application associates expensive
+     * or heavyweight data with item views, this may be a good place to release
+     * or free those resources.</p>
+     *
+     * @param listener Listener to register
+     */
+    public void addOnChildAttachStateChangeListener(OnChildAttachStateChangeListener listener) {
+        if (mOnChildAttachStateListeners == null) {
+            mOnChildAttachStateListeners = new ArrayList<OnChildAttachStateChangeListener>();
+        }
+        mOnChildAttachStateListeners.add(listener);
+    }
+
+    /**
+     * Removes the provided listener from child attached state listeners list.
+     *
+     * @param listener Listener to unregister
+     */
+    public void removeOnChildAttachStateChangeListener(OnChildAttachStateChangeListener listener) {
+        if (mOnChildAttachStateListeners == null) {
+            return;
+        }
+        mOnChildAttachStateListeners.remove(listener);
+    }
+
+    /**
+     * Removes all listeners that were added via
+     * {@link #addOnChildAttachStateChangeListener(OnChildAttachStateChangeListener)}.
+     */
+    public void clearOnChildAttachStateChangeListeners() {
+        if (mOnChildAttachStateListeners != null) {
+            mOnChildAttachStateListeners.clear();
+        }
+    }
+
+    /**
      * Set the {@link LayoutManager} that this RecyclerView will use.
      *
      * <p>In contrast to other adapter-backed views such as {@link android.widget.ListView}
@@ -1128,6 +1170,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
         markItemDecorInsetsDirty();
         requestLayout();
+    }
+
+    /**
+     * Sets the {@link ChildDrawingOrderCallback} to be used for drawing children.
+     * <p>
+     * See {@link ViewGroup#getChildDrawingOrder(int, int)} for details. Calling this method will
+     * always call {@link ViewGroup#setChildrenDrawingOrderEnabled(boolean)}. The parameter will be
+     * true if childDrawingOrderCallback is not null, false otherwise.
+     * <p>
+     * Note that child drawing order may be overridden by View's elevation.
+     *
+     * @param childDrawingOrderCallback The ChildDrawingOrderCallback to be used by the drawing
+     *                                  system.
+     */
+    public void setChildDrawingOrderCallback(ChildDrawingOrderCallback childDrawingOrderCallback) {
+        if (childDrawingOrderCallback == mChildDrawingOrderCallback) {
+            return;
+        }
+        mChildDrawingOrderCallback = childDrawingOrderCallback;
+        setChildrenDrawingOrderEnabled(mChildDrawingOrderCallback != null);
     }
 
     /**
@@ -1556,6 +1618,25 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
+     * Returns the minimum velocity to start a fling.
+     *
+     * @return The minimum velocity to start a fling
+     */
+    public int getMinFlingVelocity() {
+        return mMinFlingVelocity;
+    }
+
+
+    /**
+     * Returns the maximum fling velocity used by this RecyclerView.
+     *
+     * @return The maximum fling velocity used by this RecyclerView.
+     */
+    public int getMaxFlingVelocity() {
+        return mMaxFlingVelocity;
+    }
+
+    /**
      * Apply a pull to relevant overscroll glow effects
      */
     private void pullGlows(int x, int overscrollX, int y, int overscrollY) {
@@ -1781,6 +1862,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
+     * Returns true if RecyclerView is attached to window.
+     */
+    // @override
+    public boolean isAttachedToWindow() {
+        return mIsAttached;
+    }
+
+    /**
      * Checks if RecyclerView is in the middle of a layout or scroll and throws an
      * {@link IllegalStateException} if it <b>is not</b>.
      *
@@ -1968,6 +2057,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             }
         }
         return mScrollState == SCROLL_STATE_DRAGGING;
+    }
+
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        final int listenerCount = mOnItemTouchListeners.size();
+        for (int i = 0; i < listenerCount; i++) {
+            final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
+            listener.onRequestDisallowInterceptTouchEvent(disallowIntercept);
+        }
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
     }
 
     @Override
@@ -2912,6 +3011,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         return mLayout.generateLayoutParams(p);
     }
 
+    /**
+     * Returns true if RecyclerView is currently running some animations.
+     * <p>
+     * If you want to be notified when animations are finished, use
+     * {@link ItemAnimator#isRunning(ItemAnimator.ItemAnimatorFinishedListener)}.
+     *
+     * @return True if there are some item animations currently running or waiting to be started.
+     */
+    public boolean isAnimating() {
+        return mItemAnimator != null && mItemAnimator.isRunning();
+    }
+
     void saveOldPositions() {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -3319,6 +3430,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     /**
@@ -5248,17 +5364,32 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     private void dispatchChildDetached(View child) {
-        if (mAdapter != null) {
-            mAdapter.onViewDetachedFromWindow(getChildViewHolderInt(child));
-        }
+        final ViewHolder viewHolder = getChildViewHolderInt(child);
         onChildDetachedFromWindow(child);
+        if (mAdapter != null && viewHolder != null) {
+            mAdapter.onViewDetachedFromWindow(viewHolder);
+        }
+        if (mOnChildAttachStateListeners != null) {
+            final int cnt = mOnChildAttachStateListeners.size();
+            for (int i = cnt - 1; i >= 0; i--) {
+                mOnChildAttachStateListeners.get(i).onChildViewDetachedFromWindow(child);
+            }
+        }
     }
 
     private void dispatchChildAttached(View child) {
-        if (mAdapter != null) {
-            mAdapter.onViewAttachedToWindow(getChildViewHolderInt(child));
-        }
+        final ViewHolder viewHolder = getChildViewHolderInt(child);
         onChildAttachedToWindow(child);
+        if (mAdapter != null && viewHolder != null) {
+            mAdapter.onViewAttachedToWindow(viewHolder);
+        }
+        if (mOnChildAttachStateListeners != null) {
+            final int cnt = mOnChildAttachStateListeners.size();
+            for (int i = cnt - 1; i >= 0; i--) {
+                mOnChildAttachStateListeners.get(i).onChildViewAttachedToWindow(child);
+            }
+        }
+
     }
 
     /**
@@ -7500,7 +7631,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * a touch interaction already in progress even if the RecyclerView is already handling that
      * gesture stream itself for the purposes of scrolling.</p>
      */
-    public interface OnItemTouchListener {
+    public static abstract class OnItemTouchListener {
         /**
          * Silently observe and/or take over touch events sent to the RecyclerView
          * before they are handled by either the RecyclerView itself or its child views.
@@ -7515,7 +7646,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          *         to continue with the current behavior and continue observing future events in
          *         the gesture.
          */
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e);
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            return false;
+        }
 
         /**
          * Process a touch event as part of a gesture that was claimed by returning true from
@@ -7524,7 +7657,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          */
-        public void onTouchEvent(RecyclerView rv, MotionEvent e);
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
+
+        /**
+         * Called when a child of RecyclerView does not want RecyclerView and its ancestors to
+         * intercept touch events with
+         * {@link ViewGroup#onInterceptTouchEvent(MotionEvent)}.
+         *
+         * @param disallowIntercept True if the child does not want the parent to
+         *            intercept touch events.
+         * @see ViewParent#requestDisallowInterceptTouchEvent(boolean)
+         */
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        }
     }
 
     /**
@@ -7582,6 +7728,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * @param holder The ViewHolder containing the view that was recycled
          */
         public void onViewRecycled(ViewHolder holder);
+    }
+
+    /**
+     * A Listener interface that can be attached to a RecylcerView to get notified
+     * whenever a ViewHolder is attached to or detached from RecyclerView.
+     */
+    public interface OnChildAttachStateChangeListener {
+
+        /**
+         * Called when a view is attached to the RecyclerView.
+         *
+         * @param view The View which is attached to the RecyclerView
+         */
+        public void onChildViewAttachedToWindow(View view);
+
+        /**
+         * Called when a view is detached from RecyclerView.
+         *
+         * @param view The View which is being detached from the RecyclerView
+         */
+        public void onChildViewDetachedFromWindow(View view);
     }
 
     /**
@@ -9457,5 +9624,36 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             this.right = right;
             this.bottom = bottom;
         }
+    }
+
+    @Override
+    protected int getChildDrawingOrder(int childCount, int i) {
+        if (mChildDrawingOrderCallback == null) {
+            return super.getChildDrawingOrder(childCount, i);
+        } else {
+            return mChildDrawingOrderCallback.onGetChildDrawingOrder(childCount, i);
+        }
+    }
+
+    /**
+     * A callback interface that can be used to alter the drawing order of RecyclerView children.
+     * <p>
+     * It works using the {@link ViewGroup#getChildDrawingOrder(int, int)} method, so any case
+     * that applies to that method also applies to this callback. For example, changing the drawing
+     * order of two views will not have any effect if their elevation values are different since
+     * elevation overrides the result of this callback.
+     */
+    public static interface ChildDrawingOrderCallback {
+        /**
+         * Returns the index of the child to draw for this iteration. Override this
+         * if you want to change the drawing order of children. By default, it
+         * returns i.
+         *
+         * @param i The current iteration.
+         * @return The index of the child to draw this iteration.
+         *
+         * @see RecyclerView#setChildDrawingOrderCallback(RecyclerView.ChildDrawingOrderCallback)
+         */
+        public int onGetChildDrawingOrder(int childCount, int i);
     }
 }

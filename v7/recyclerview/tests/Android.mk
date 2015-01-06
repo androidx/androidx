@@ -28,7 +28,8 @@ LOCAL_RESOURCE_DIR := \
 
 LOCAL_STATIC_JAVA_LIBRARIES  := \
         android-support-v7-recyclerview \
-        android-support-v4
+        android-support-v4 \
+        android-support-annotations
 
 LOCAL_PACKAGE_NAME := RecyclerViewTests
 LOCAL_AAPT_FLAGS := \
@@ -36,4 +37,3 @@ LOCAL_AAPT_FLAGS := \
         --extra-packages android.support.v7.recyclerview
 
 include $(BUILD_PACKAGE)
-

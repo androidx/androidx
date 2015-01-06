@@ -34,6 +34,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-recyclerview
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_JAVA_LIBRARIES := \

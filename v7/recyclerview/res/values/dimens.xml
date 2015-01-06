@@ -14,18 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.v7.recyclerview.test">
-    <uses-sdk android:minSdkVersion="7"/>
 
-    <application>
-        <uses-library android:name="android.test.runner" />
-        <activity android:name="android.support.v7.widget.test.RecyclerViewTestActivity"/>
-        <activity android:name="android.support.v7.widget.TestActivity"/>
-    </application>
-
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="android.support.v7.recyclerview.test"
-                     />
-
-</manifest>
+<resources>
+    <!-- The max amount of scroll ItemTouchHelper will trigger if dragged view is out of
+    RecyclerView's bounds.-->
+    <dimen name="item_touch_helper_max_drag_scroll_per_frame">20dp</dimen>
+</resources>
