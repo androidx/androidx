@@ -65,6 +65,7 @@ public class RenderScript {
 
     // Non-threadsafe functions.
     native boolean nLoadSO(boolean useNative);
+    native boolean nLoadIOSO();
     native int  nDeviceCreate();
     native void nDeviceDestroy(int dev);
     native void nDeviceSetConfig(int dev, int param, int value);
@@ -76,6 +77,7 @@ public class RenderScript {
 
     static private int sNative = -1;
     static private int sSdkVersion = -1;
+    static private boolean useIOlib = false;
 
     /**
      * Determines whether or not we should be thunking into the native
@@ -336,6 +338,13 @@ public class RenderScript {
         validate();
         rsnAllocationSyncAll(mContext, alloc, src);
     }
+
+    native void rsnAllocationSetSurface(int con, int alloc, Surface sur);
+    synchronized void nAllocationSetSurface(int alloc, Surface sur) {
+        validate();
+        rsnAllocationSetSurface(mContext, alloc, sur);
+    }
+
     native void rsnAllocationIoSend(int con, int alloc);
     synchronized void nAllocationIoSend(int alloc) {
         validate();
@@ -839,7 +848,12 @@ public class RenderScript {
         }
     }
 
-
+    /**
+     * check if IO support lib is available.
+     */
+    boolean usingIO() {
+        return useIOlib;
+    }
     /**
      * Change the priority of the worker threads for this context.
      *
@@ -998,7 +1012,11 @@ public class RenderScript {
         } else {
             android.util.Log.v(LOG_TAG, "RS compat mode");
         }
-        if (!useNative || !rs.nLoadSO(useNative)) {
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            useIOlib = true;
+        }
+        if (!rs.nLoadSO(useNative)) {
             if (useNative) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
             }
@@ -1013,6 +1031,13 @@ public class RenderScript {
             }
         }
 
+        if (useIOlib) {
+            System.loadLibrary("RSSupportIO");
+            if (!rs.nLoadIOSO()) {
+                android.util.Log.v(LOG_TAG, "Unable to load libRSSupportIO.so, USAGE_IO not supported");
+                useIOlib = false;
+            }
+        }
         rs.mDev = rs.nDeviceCreate();
         rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID);
         if (rs.mContext == 0) {
