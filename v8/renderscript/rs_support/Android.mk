@@ -85,6 +85,7 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 LOCAL_SRC_FILES:= \
 	rsAdapter.cpp \
 	rsAllocation.cpp \
+	rsClosure.cpp \
 	rsCompatibilityLib.cpp \
 	rsComponent.cpp \
 	rsContext.cpp \
@@ -102,6 +103,7 @@ LOCAL_SRC_FILES:= \
 	rsScriptC.cpp \
 	rsScriptC_Lib.cpp \
 	rsScriptGroup.cpp \
+	rsScriptGroup2.cpp \
 	rsScriptIntrinsic.cpp \
 	rsSignal.cpp \
 	rsStream.cpp \
@@ -120,6 +122,7 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeMath.cpp \
 	cpu_ref/rsCpuRuntimeStubs.cpp \
 	cpu_ref/rsCpuScriptGroup.cpp \
+	cpu_ref/rsCpuScriptGroup2.cpp \
 	cpu_ref/rsCpuIntrinsic.cpp \
 	cpu_ref/rsCpuIntrinsic3DLUT.cpp \
 	cpu_ref/rsCpuIntrinsicBlend.cpp \
