@@ -430,6 +430,9 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         final AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator arg0) {
+                if (getVerticalGridView() == null) {
+                    return;
+                }
                 final float fraction = (Float) arg0.getAnimatedValue();
                 for (View view : listener.mViews) {
                     if (getVerticalGridView().getChildPosition(view) > 0) {
