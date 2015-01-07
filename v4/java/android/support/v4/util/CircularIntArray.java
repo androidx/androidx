@@ -94,7 +94,7 @@ public final class CircularIntArray
     /**
      * Remove first integer from front of the CircularIntArray and return it.
      * @return  The integer removed.
-     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
+     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
      */
     public int popFirst() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -106,7 +106,7 @@ public final class CircularIntArray
     /**
      * Remove last integer from end of the CircularIntArray and return it.
      * @return  The integer removed.
-     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
+     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
      */
     public int popLast() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -127,7 +127,7 @@ public final class CircularIntArray
      * Remove multiple integers from front of the CircularIntArray, ignore when numOfElements
      * is less than or equals to 0.
      * @param numOfElements  Number of integers to remove.
-     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
+     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
      *         {@link #size()}
      */
     public void removeFromStart(int numOfElements) {
@@ -144,7 +144,7 @@ public final class CircularIntArray
      * Remove multiple elements from end of the CircularIntArray, ignore when numOfElements
      * is less than or equals to 0.
      * @param numOfElements  Number of integers to remove.
-     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
+     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
      *         {@link #size()}
      */
     public void removeFromEnd(int numOfElements) {
@@ -160,7 +160,7 @@ public final class CircularIntArray
     /**
      * Get first integer of the CircularIntArray.
      * @return The first integer.
-     * @throws{@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
+     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
      */
     public int getFirst() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -170,7 +170,7 @@ public final class CircularIntArray
     /**
      * Get last integer of the CircularIntArray.
      * @return The last integer.
-     * @throws{@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
+     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
      */
     public int getLast() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -181,7 +181,7 @@ public final class CircularIntArray
      * Get nth (0 <= n <= size()-1) integer of the CircularIntArray.
      * @param n  The zero based element index in the CircularIntArray.
      * @return The nth integer.
-     * @throws{@link ArrayIndexOutOfBoundsException} if n < 0 or n >= size().
+     * @throws ArrayIndexOutOfBoundsException if n < 0 or n >= size().
      */
     public int get(int n) {
         if (n < 0 || n >= size()) throw new ArrayIndexOutOfBoundsException();
