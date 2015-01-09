@@ -1012,6 +1012,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     public void setStatusBarBackground(Drawable bg) {
         mStatusBarBackground = bg;
+        invalidate();
     }
 
     /**
@@ -1031,6 +1032,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     public void setStatusBarBackground(int resId) {
         mStatusBarBackground = resId != 0 ? ContextCompat.getDrawable(getContext(), resId) : null;
+        invalidate();
     }
 
     /**
@@ -1042,6 +1044,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     public void setStatusBarBackgroundColor(int color) {
         mStatusBarBackground = new ColorDrawable(color);
+        invalidate();
     }
 
     @Override
