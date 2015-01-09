@@ -21,58 +21,304 @@ package android.support.v17.leanback.widget;
  */
 final class StaggeredGridDefault extends StaggeredGrid {
 
+    /**
+     * Returns the max edge value of item (visible or cached) in a row.  This
+     * will be the place to append or prepend item not in cache.
+     */
+    int getRowMax(int rowIndex) {
+        if (mFirstVisibleIndex < 0) {
+            return Integer.MIN_VALUE;
+        }
+        if (mReversedFlow) {
+            int edge = mProvider.getEdge(mFirstVisibleIndex);
+            if (getLocation(mFirstVisibleIndex).row == rowIndex) {
+                return edge;
+            }
+            for (int i = mFirstVisibleIndex + 1; i <= getLastIndex(); i++) {
+                Location loc = getLocation(i);
+                edge += loc.offset;
+                if (loc.row == rowIndex) {
+                    return edge;
+                }
+            }
+        } else {
+            int edge = mProvider.getEdge(mLastVisibleIndex);
+            Location loc = getLocation(mLastVisibleIndex);
+            if (loc.row == rowIndex) {
+                return edge + loc.size;
+            }
+            for (int i = mLastVisibleIndex - 1; i >= getFirstIndex(); i--) {
+                edge -= loc.offset;
+                loc = getLocation(i);
+                if (loc.row == rowIndex) {
+                    return edge + loc.size;
+                }
+            }
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    /**
+     * Returns the min edge value of item (visible or cached) in a row.  This
+     * will be the place to prepend or append item not in cache.
+     */
+    int getRowMin(int rowIndex) {
+        if (mFirstVisibleIndex < 0) {
+            return Integer.MAX_VALUE;
+        }
+        if (mReversedFlow) {
+            int edge = mProvider.getEdge(mLastVisibleIndex);
+            Location loc = getLocation(mLastVisibleIndex);
+            if (loc.row == rowIndex) {
+                return edge - loc.size;
+            }
+            for (int i = mLastVisibleIndex - 1; i >= getFirstIndex(); i--) {
+                edge -= loc.offset;
+                loc = getLocation(i);
+                if (loc.row == rowIndex) {
+                    return edge - loc.size;
+                }
+            }
+        } else {
+            int edge = mProvider.getEdge(mFirstVisibleIndex);
+            if (getLocation(mFirstVisibleIndex).row == rowIndex) {
+                return edge;
+            }
+            for (int i = mFirstVisibleIndex + 1; i <= getLastIndex() ; i++) {
+                Location loc = getLocation(i);
+                edge += loc.offset;
+                if (loc.row == rowIndex) {
+                    return edge;
+                }
+            }
+        }
+        return Integer.MAX_VALUE;
+    }
+
+    /**
+     * Note this method has assumption that item is filled either in the same row
+     * next row of last item.  Search until row index wrapped.
+     */
     @Override
-    public void appendItems(int toLimit) {
-        int count = mProvider.getCount();
+    public int findRowMax(boolean findLarge, int indexLimit, int[] indices) {
+        int value;
+        int edge = mProvider.getEdge(indexLimit);
+        Location loc = getLocation(indexLimit);
+        int row = loc.row;
+        int index = indexLimit;
+        boolean breakWrapped = false;
+        if (mReversedFlow) {
+            value = edge;
+            if (mNumRows > 1) {
+                for (int i = indexLimit + 1; i <= mLastVisibleIndex; i++) {
+                    loc = getLocation(i);
+                    if (loc.row == mNumRows - 1) {
+                        breakWrapped = true;
+                    } else if (breakWrapped && loc.row != mNumRows - 1) {
+                        break;
+                    }
+                    edge += loc.offset;
+                    if (findLarge ? edge > value : edge < value) {
+                        value = edge;
+                        row = loc.row;
+                        index = i;
+                    }
+                }
+            }
+        } else {
+            value = edge + mProvider.getSize(indexLimit);
+            if (mNumRows > 1) {
+                for (int i = indexLimit - 1; i >= mFirstVisibleIndex; i--) {
+                    edge -= loc.offset;
+                    loc = getLocation(i);
+                    if (loc.row == 0) {
+                        breakWrapped = true;
+                    } else if (breakWrapped && loc.row != 0) {
+                        break;
+                    }
+                    int newValue = edge + mProvider.getSize(i);
+                    if (findLarge ? newValue > value : newValue < value) {
+                        value = newValue;
+                        row = loc.row;
+                        index = i;
+                    }
+                }
+            }
+        }
+        if (indices != null) {
+            indices[0] = row;
+            indices[1] = index;
+        }
+        return value;
+    }
+
+    /**
+     * Note this method has assumption that item is filled either in the same row
+     * next row of last item.  Search until row index wrapped.
+     */
+    @Override
+    public int findRowMin(boolean findLarge, int indexLimit, int[] indices) {
+        int value;
+        int edge = mProvider.getEdge(indexLimit);
+        Location loc = getLocation(indexLimit);
+        int row = loc.row;
+        int index = indexLimit;
+        boolean breakWrapped = false;
+        if (mReversedFlow) {
+            value = edge - mProvider.getSize(indexLimit);
+            if (mNumRows > 1) {
+                for (int i = indexLimit - 1; i >= mFirstVisibleIndex; i--) {
+                    edge -= loc.offset;
+                    loc = getLocation(i);
+                    if (loc.row == 0) {
+                        breakWrapped = true;
+                    } else if (breakWrapped && loc.row != 0) {
+                        break;
+                    }
+                    value = findLarge ? Math.max(value, edge - mProvider.getSize(i))
+                            : Math.min(value, edge - mProvider.getSize(i));
+                }
+            }
+        } else {
+            value = edge;
+            if (mNumRows > 1) {
+                for (int i = indexLimit + 1; i <= mLastVisibleIndex; i++) {
+                    loc = getLocation(i);
+                    if (loc.row == mNumRows - 1) {
+                        breakWrapped = true;
+                    } else if (breakWrapped && loc.row != mNumRows - 1) {
+                        break;
+                    }
+                    edge += loc.offset;
+                    value = findLarge ? Math.max(value, edge) : Math.min(value, edge);
+                    index = i;
+                }
+            }
+        }
+        if (indices != null) {
+            indices[0] = row;
+            indices[1] = index;
+        }
+        return value;
+    }
+
+    private int findRowEdgeLimitSearchIndex(boolean append) {
+        boolean wrapped = false;
+        if (append) {
+            for (int index = mLastVisibleIndex; index >= mFirstVisibleIndex; index--) {
+                int row = getLocation(index).row;
+                if (row == 0) {
+                    wrapped = true;
+                } else if (wrapped && row == mNumRows - 1) {
+                    return index;
+                }
+            }
+        } else {
+            for (int index = mFirstVisibleIndex; index <= mLastVisibleIndex; index++) {
+                int row = getLocation(index).row;
+                if (row == mNumRows - 1) {
+                    wrapped = true;
+                } else if (wrapped && row == 0) {
+                    return index;
+                }
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    protected boolean appendVisibleItemsWithoutCache(int toLimit, boolean oneColumnMode) {
+        final int count = mProvider.getCount();
         int itemIndex;
         int rowIndex;
-        if (mLocations.size() > 0) {
-            itemIndex = getLastIndex() + 1;
-            rowIndex = (mLocations.getLast().row + 1) % mNumRows;
+        int edgeLimit;
+        boolean edgeLimitIsValid;
+        if (mLastVisibleIndex >= 0) {
+            if (mLastVisibleIndex < getLastIndex()) {
+                // should fill using cache instead
+                return false;
+            }
+            itemIndex = mLastVisibleIndex + 1;
+            rowIndex = getLocation(mLastVisibleIndex).row;
+            // find start item index of "previous column"
+            int edgeLimitSearchIndex = findRowEdgeLimitSearchIndex(true);
+            if (edgeLimitSearchIndex < 0) {
+                // if "previous colummn" is not found, using edgeLimit of
+                // first row currently in grid
+                edgeLimit = Integer.MIN_VALUE;
+                for (int i = 0; i < mNumRows; i++) {
+                    edgeLimit = mReversedFlow ? getRowMin(i) : getRowMax(i);
+                    if (edgeLimit != Integer.MIN_VALUE) {
+                        break;
+                    }
+                }
+            } else {
+                edgeLimit = mReversedFlow ? findRowMin(false, edgeLimitSearchIndex, null) :
+                        findRowMax(true, edgeLimitSearchIndex, null);
+            }
+            if (mReversedFlow ? getRowMin(rowIndex) <= edgeLimit
+                    : getRowMax(rowIndex) >= edgeLimit) {
+                // if current row exceeds previous column, fill from next row
+                rowIndex = rowIndex + 1;
+                if (rowIndex == mNumRows) {
+                    // start a new column and using edge limit of current column
+                    rowIndex = 0;
+                    edgeLimit = mReversedFlow ? findRowMin(false, null) : findRowMax(true, null);
+                }
+            }
+            edgeLimitIsValid = true;
         } else {
             itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
-            rowIndex = mStartRow != START_DEFAULT ? mStartRow : itemIndex % mNumRows;
+            rowIndex = itemIndex % mNumRows;
+            edgeLimit = 0;
+            edgeLimitIsValid = false;
         }
 
-    top_loop:
+        boolean filledOne = false;
         while (true) {
-            // find endmost row edge (.high is biggest, or .low is smallest in reversed flow)
-            int edgeRowIndex = mReversedFlow ?
-                    (mLocations.size() > 0 ? getMinLowRowIndex() : -1) :
-                    (mLocations.size() > 0 ? getMaxHighRowIndex() : -1);
-            int edge = mReversedFlow ?
-                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].low : Integer.MAX_VALUE) :
-                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].high : Integer.MIN_VALUE);
+            // find end-most row edge (.high is biggest, or .low is smallest in reversed flow)
             // fill from current row till last row so that each row will grow longer than
             // the previous highest row.
             for (; rowIndex < mNumRows; rowIndex++) {
                 // fill one item to a row
                 if (itemIndex == count) {
-                    break top_loop;
+                    return filledOne;
                 }
-                appendItemToRow(itemIndex++, rowIndex);
+                int location = mReversedFlow ? getRowMin(rowIndex) : getRowMax(rowIndex);
+                if (location == Integer.MAX_VALUE || location == Integer.MIN_VALUE) {
+                    // nothing on the row
+                    if (rowIndex == 0) {
+                        location = mReversedFlow ? getRowMin(mNumRows - 1) : getRowMax(mNumRows - 1);
+                        if (location != Integer.MAX_VALUE && location != Integer.MIN_VALUE) {
+                            location = location + (mReversedFlow ? -mMargin : mMargin);
+                        }
+                    } else {
+                        location = mReversedFlow ? getRowMax(rowIndex - 1) : getRowMin(rowIndex - 1);
+                    }
+                } else {
+                    location = location + (mReversedFlow ? -mMargin : mMargin);
+                }
+                int size = appendVisibleItemToRow(itemIndex++, rowIndex, location);
+                filledOne = true;
                 // fill more item to the row to make sure this row is longer than
                 // the previous highest row.
-                if (edgeRowIndex == -1) {
-                    edgeRowIndex = mReversedFlow ? getMinLowRowIndex() : getMaxHighRowIndex();
-                    edge = mReversedFlow ?
-                            mRows[edgeRowIndex].low :
-                            mRows[edgeRowIndex].high;
-                } else  if (rowIndex != edgeRowIndex) {
-                    while (mReversedFlow ?
-                            mRows[rowIndex].low > edge :
-                            mRows[rowIndex].high < edge) {
+                if (edgeLimitIsValid) {
+                    while (mReversedFlow ? location - size -mMargin > edgeLimit :
+                            location + size + mMargin < edgeLimit) {
                         if (itemIndex == count) {
-                            break top_loop;
+                            return filledOne;
                         }
-                        appendItemToRow(itemIndex++, rowIndex);
+                        location = location + (mReversedFlow ? - size - mMargin : size + mMargin);
+                        size = appendVisibleItemToRow(itemIndex++, rowIndex, location);
                     }
+                } else {
+                    edgeLimitIsValid = true;
+                    edgeLimit = mReversedFlow ? getRowMin(rowIndex) : getRowMax(rowIndex);
                 }
             }
-            if (mReversedFlow ?
-                    mRows[getMaxLowRowIndex()].low <= toLimit :
-                    mRows[getMinHighRowIndex()].high >= toLimit) {
-                break;
+            edgeLimit = mReversedFlow ? findRowMin(false, null) : findRowMax(true, null);
+            if (oneColumnMode || (mReversedFlow ? edgeLimit <= toLimit : edgeLimit >= toLimit)) {
+                return filledOne;
             }
             // start fill from row 0 again
             rowIndex = 0;
@@ -80,94 +326,104 @@ final class StaggeredGridDefault extends StaggeredGrid {
     }
 
     @Override
-    public void prependItems(int toLimit) {
-        if (mProvider.getCount() <= 0) return;
+    protected boolean prependVisibleItemsWithoutCache(int toLimit, boolean oneColumnMode) {
         int itemIndex;
         int rowIndex;
-        if (mLocations.size() > 0) {
-            itemIndex = getFirstIndex() - 1;
-            rowIndex = mLocations.getFirst().row;
-            if (rowIndex == 0) {
-                rowIndex = mNumRows - 1;
-            } else {
-                rowIndex--;
+        int edgeLimit;
+        boolean edgeLimitIsValid;
+        if (mFirstVisibleIndex >= 0) {
+            if (mFirstVisibleIndex > getFirstIndex()) {
+                // should fill using cache instead
+                return false;
             }
-        } else {
-            itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
-            rowIndex = mStartRow != START_DEFAULT ? mStartRow : itemIndex % mNumRows;
-        }
-
-    top_loop:
-        while (true) {
-            // find startmost row edge (.low is smallest, or .high is biggest in reversed flow)
-            int edgeRowIndex = mReversedFlow ?
-                    (mLocations.size() > 0 ? getMaxHighRowIndex() : -1) :
-                    (mLocations.size() > 0 ? getMinLowRowIndex() : -1);
-            int edge = mReversedFlow ?
-                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].high : Integer.MIN_VALUE) :
-                    (edgeRowIndex != -1 ? mRows[edgeRowIndex].low : Integer.MAX_VALUE);
-            for (; rowIndex >=0 ; rowIndex--) {
-                if (itemIndex < 0) {
-                    break top_loop;
-                }
-                prependItemToRow(itemIndex--, rowIndex);
-                if (edgeRowIndex == -1) {
-                    edgeRowIndex = mReversedFlow ? getMaxHighRowIndex() : getMinLowRowIndex();
-                    edge = mReversedFlow ?
-                            mRows[edgeRowIndex].high :
-                            mRows[edgeRowIndex].low;
-                } else if (rowIndex != edgeRowIndex) {
-                    while (mReversedFlow ?
-                            mRows[rowIndex].high < edge :
-                            mRows[rowIndex].low > edge) {
-                        if (itemIndex < 0) {
-                            break top_loop;
-                        }
-                        prependItemToRow(itemIndex--, rowIndex);
+            itemIndex = mFirstVisibleIndex - 1;
+            rowIndex = getLocation(mFirstVisibleIndex).row;
+            // find start item index of "previous column"
+            int edgeLimitSearchIndex = findRowEdgeLimitSearchIndex(false);
+            if (edgeLimitSearchIndex < 0) {
+                // if "previous colummn" is not found, using edgeLimit of
+                // last row currently in grid and fill from upper row
+                rowIndex = rowIndex - 1;
+                edgeLimit = Integer.MAX_VALUE;
+                for (int i = mNumRows - 1; i >= 0; i--) {
+                    edgeLimit = mReversedFlow ? getRowMax(i) : getRowMin(i);
+                    if (edgeLimit != Integer.MAX_VALUE) {
+                        break;
                     }
                 }
+            } else {
+                edgeLimit = mReversedFlow ? findRowMax(true, edgeLimitSearchIndex, null) :
+                        findRowMin(false, edgeLimitSearchIndex, null);
             }
-            if (mReversedFlow ?
-                    mRows[getMinHighRowIndex()].high >= toLimit :
-                    mRows[getMaxLowRowIndex()].low <= toLimit) {
-                break;
+            if (mReversedFlow ? getRowMax(rowIndex) >= edgeLimit
+                    : getRowMin(rowIndex) <= edgeLimit) {
+                // if current row exceeds previous column, fill from next row
+                rowIndex = rowIndex - 1;
+                if (rowIndex < 0) {
+                    // start a new column and using edge limit of current column
+                    rowIndex = mNumRows - 1;
+                    edgeLimit = mReversedFlow ? findRowMax(true, null) :
+                            findRowMin(false, null);
+                }
             }
+            edgeLimitIsValid = true;
+        } else {
+            itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
+            rowIndex = itemIndex % mNumRows;
+            edgeLimit = 0;
+            edgeLimitIsValid = false;
+        }
+        boolean filledOne = false;
+        while (true) {
+            // find start-most row edge (.low is smallest, or .high is largest in reversed flow)
+            // fill from current row till first row so that each row will grow longer than
+            // the previous lowest row.
+            for (; rowIndex >= 0; rowIndex--) {
+                // fill one item to a row
+                if (itemIndex < 0) {
+                    return filledOne;
+                }
+                int location = mReversedFlow ? getRowMax(rowIndex) : getRowMin(rowIndex);
+                if (location == Integer.MAX_VALUE || location == Integer.MIN_VALUE) {
+                    // nothing on the row
+                    if (rowIndex == mNumRows - 1) {
+                        location = mReversedFlow ? getRowMax(0) : getRowMin(0);
+                        if (location != Integer.MAX_VALUE && location != Integer.MIN_VALUE) {
+                            location = location + (mReversedFlow ? mMargin : -mMargin);
+                        }
+                    } else {
+                        location = mReversedFlow ? getRowMin(rowIndex + 1) : getRowMax(rowIndex + 1);
+                    }
+                } else {
+                    location = location + (mReversedFlow ? mMargin : -mMargin);
+                }
+                int size = prependVisibleItemToRow(itemIndex--, rowIndex, location);
+                filledOne = true;
+
+                // fill more item to the row to make sure this row is longer than
+                // the previous highest row.
+                if (edgeLimitIsValid) {
+                    while (mReversedFlow ? location + size + mMargin < edgeLimit :
+                            location - size - mMargin > edgeLimit) {
+                        if (itemIndex < 0) {
+                            return filledOne;
+                        }
+                        location = location + (mReversedFlow ? size + mMargin : -size - mMargin);
+                        size = prependVisibleItemToRow(itemIndex--, rowIndex, location);
+                    }
+                } else {
+                    edgeLimitIsValid = true;
+                    edgeLimit = mReversedFlow ? getRowMax(rowIndex) : getRowMin(rowIndex);
+                }
+            }
+            edgeLimit = mReversedFlow ? findRowMax(true, null) : findRowMin(false, null);
+            if (oneColumnMode || (mReversedFlow ? edgeLimit >= toLimit : edgeLimit <= toLimit)) {
+                return filledOne;
+            }
+            // start fill from last row again
             rowIndex = mNumRows - 1;
         }
     }
 
-    @Override
-    public final void stripDownTo(int itemIndex) {
-        // because we layout the items in the order that next item is either same row
-        // or next row,  so we can easily find the row range by searching items forward and
-        // backward until we see the row is 0 or mNumRow - 1
-        Location loc = getLocation(itemIndex);
-        if (loc == null) {
-            return;
-        }
-        int firstIndex = getFirstIndex();
-        int lastIndex = getLastIndex();
-        int row = loc.row;
 
-        int endIndex = itemIndex;
-        int endRow = row;
-        while (endRow < mNumRows - 1 && endIndex < lastIndex) {
-            endIndex++;
-            endRow = getLocation(endIndex).row;
-        }
-
-        int startIndex = itemIndex;
-        int startRow = row;
-        while (startRow > 0 && startIndex > firstIndex) {
-            startIndex--;
-            startRow = getLocation(startIndex).row;
-        }
-        // trim information
-        for (int i = firstIndex; i < startIndex; i++) {
-            removeFirst();
-        }
-        for (int i = endIndex; i < lastIndex; i++) {
-            removeLast();
-        }
-    }
 }
