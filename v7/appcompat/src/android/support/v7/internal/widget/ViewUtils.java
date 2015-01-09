@@ -111,13 +111,21 @@ public class ViewUtils {
     /**
      * Allows us to emulate the {@code android:theme} attribute for devices before L.
      */
-    public static Context themifyContext(Context context, AttributeSet attrs) {
+    public static Context themifyContext(Context context, AttributeSet attrs,
+            boolean useAndroidTheme, boolean useAppTheme) {
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.View, 0, 0);
-        // First try reading android:theme
-        int themeId = a.getResourceId(R.styleable.View_android_theme, 0);
-        if (themeId == 0) {
-            // ...if that didn't work, try reading app:theme (for legacy reasons)
+        int themeId = 0;
+        if (useAndroidTheme) {
+            // First try reading android:theme if enabled
+            themeId = a.getResourceId(R.styleable.View_android_theme, 0);
+        }
+        if (useAppTheme && themeId == 0) {
+            // ...if that didn't work, try reading app:theme (for legacy reasons) if enabled
             themeId = a.getResourceId(R.styleable.View_theme, 0);
+
+            if (themeId != 0) {
+                Log.i(TAG, "app:theme is now deprecated. Please move to using android:theme instead.");
+            }
         }
         a.recycle();
 
