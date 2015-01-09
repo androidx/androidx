@@ -962,6 +962,20 @@ public class MediaSessionCompat {
         private int mLocalStream;
         private VolumeProviderCompat mVolumeProvider;
 
+        private VolumeProviderCompat.Callback mVolumeCallback
+                = new VolumeProviderCompat.Callback() {
+            @Override
+            public void onVolumeChanged(VolumeProviderCompat volumeProvider) {
+                if (mVolumeProvider != volumeProvider) {
+                    return;
+                }
+                ParcelableVolumeInfo info = new ParcelableVolumeInfo(mVolumeType, mLocalStream,
+                        volumeProvider.getVolumeControl(), volumeProvider.getMaxVolume(),
+                        volumeProvider.getCurrentVolume());
+                sendVolumeInfoChanged(info);
+            }
+        };
+
         public MediaSessionImplBase(Context context, String tag, ComponentName mbrComponent,
                 PendingIntent mbr) {
             if (mbrComponent == null) {
@@ -1097,6 +1111,9 @@ public class MediaSessionCompat {
 
         @Override
         public void setPlaybackToLocal(int stream) {
+            if (mVolumeProvider != null) {
+                mVolumeProvider.setCallback(null);
+            }
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
             ParcelableVolumeInfo info = new ParcelableVolumeInfo(mVolumeType, mLocalStream,
                     VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
@@ -1110,12 +1127,17 @@ public class MediaSessionCompat {
             if (volumeProvider == null) {
                 throw new IllegalArgumentException("volumeProvider may not be null");
             }
+            if (mVolumeProvider != null) {
+                mVolumeProvider.setCallback(null);
+            }
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE;
             mVolumeProvider = volumeProvider;
             ParcelableVolumeInfo info = new ParcelableVolumeInfo(mVolumeType, mLocalStream,
                     mVolumeProvider.getVolumeControl(), mVolumeProvider.getMaxVolume(),
                     mVolumeProvider.getCurrentVolume());
             sendVolumeInfoChanged(info);
+
+            volumeProvider.setCallback(mVolumeCallback);
         }
 
         @Override
