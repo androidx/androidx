@@ -121,6 +121,10 @@ public class MenuPopupHelper implements AdapterView.OnItemClickListener, View.On
         mDropDownGravity = gravity;
     }
 
+    public int getGravity() {
+        return mDropDownGravity;
+    }
+
     public void show() {
         if (!tryShow()) {
             throw new IllegalStateException("MenuPopupHelper cannot be used without an anchor");
