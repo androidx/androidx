@@ -40,6 +40,8 @@ import java.util.List;
  */
 abstract class StaggeredGrid extends Grid {
 
+    private static final int OFFSET_UNDEFINED = Integer.MAX_VALUE;
+
     /**
      * Cached representation of Staggered item.
      */
@@ -73,8 +75,6 @@ abstract class StaggeredGrid extends Grid {
 
     protected Object mPendingItem;
     protected int mPendingItemSize;
-
-    protected int mStartOffset;
 
     /**
      * Returns index of first item (cached or visible) in the staggered grid.
@@ -148,13 +148,17 @@ abstract class StaggeredGrid extends Grid {
         final int firstIndex = getFirstIndex();
         int itemIndex;
         int edge;
+        int offset;
         if (mFirstVisibleIndex >= 0) {
             // prepend visible items from first visible index
-            edge = mProvider.getEdge(mFirstVisibleIndex) - getLocation(mFirstVisibleIndex).offset;
+            edge = mProvider.getEdge(mFirstVisibleIndex);
+            // Note offset of first visible item can be OFFSET_UNDEFINED.
+            offset = getLocation(mFirstVisibleIndex).offset;
             itemIndex = mFirstVisibleIndex - 1;
         } else {
             // prepend first visible item
             edge = Integer.MAX_VALUE;
+            offset = 0;
             itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
         }
         for (; itemIndex >= mFirstIndex; itemIndex--) {
@@ -169,15 +173,16 @@ abstract class StaggeredGrid extends Grid {
                 mPendingItemSize = size;
                 return false;
             }
+            if (offset == OFFSET_UNDEFINED) {
+                offset = updateFirstVisibleOffset(size);
+            }
             mFirstVisibleIndex = itemIndex;
             if (mLastVisibleIndex < 0) {
                 mLastVisibleIndex = itemIndex;
             }
-            mProvider.addItem(mTmpItem[0], itemIndex, size, rowIndex, edge);
-            if (edge == Integer.MAX_VALUE) {
-                edge = mProvider.getEdge(itemIndex);
-            }
-            edge = edge - loc.offset;
+            mProvider.addItem(mTmpItem[0], itemIndex, size, rowIndex, edge - offset);
+            edge = mProvider.getEdge(itemIndex);
+            offset = loc.offset;
             // Check limit after filled a full column
             if (rowIndex == 0) {
                 if (oneColumnMode || checkPrependOverLimit(toLimit)) {
@@ -187,6 +192,16 @@ abstract class StaggeredGrid extends Grid {
         }
         return false;
     }
+
+    /**
+     * When we append first visible item without cache after cached items, the offset
+     * of the first visible item cannot be determined until we prepend previous item with cache.
+     * This method is called from prependVisbleItemsWithCache() to update the offset
+     * of first visible item.
+     * @param prependedItemSize   Size of the prepended item.
+     * @return                    Updated size of current first visible item.
+     */
+    protected abstract int updateFirstVisibleOffset(int prependedItemSize);
 
     /**
      * This implements the algorithm of layout staggered grid, the method should only be called by
@@ -326,13 +341,10 @@ abstract class StaggeredGrid extends Grid {
                 throw new IllegalStateException();
             }
         }
-        if (location == Integer.MAX_VALUE || location == Integer.MIN_VALUE) {
-            if (mStartIndex == itemIndex) {
-                offset = mStartOffset;
-                mStartOffset = 0;
-            } else {
-                offset = 0;
-            }
+        if (mLastVisibleIndex < 0) {
+            // if we append first visible item after existing cached items,  we need update
+            // the offset later when prependVisbleItemsWithCache()
+            offset = OFFSET_UNDEFINED;
         } else {
             offset = location - mProvider.getEdge(mLastVisibleIndex);
         }
@@ -391,15 +403,4 @@ abstract class StaggeredGrid extends Grid {
         }
     }
 
-    @Override
-    public void setStart(int startIndex) {
-        super.setStart(startIndex);
-        if (startIndex >= 0 && startIndex >= getFirstIndex() && startIndex <= getLastIndex()) {
-            // Remembers the offset at index, so next time append uses this value for relative
-            // offset to item in front of the index.
-            mStartOffset = getLocation(startIndex).offset;
-        } else {
-            mStartOffset = 0;
-        }
-    }
 }
