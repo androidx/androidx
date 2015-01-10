@@ -69,8 +69,8 @@ public class TintViewInflater {
         if (inheritContext && parent != null) {
             context = parent.getContext();
         }
-        // We then apply the android:theme on the context, if specified
-        context = ViewUtils.themifyContext(context, attrs);
+        // We then apply the theme on the context, if specified
+        context = ViewUtils.themifyContext(context, attrs, true, true);
 
         // We need to 'inject' our tint aware Views in place of the standard framework versions
         switch (name) {
