@@ -2528,7 +2528,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     void onChildDetachedFromWindow(RecyclerView.ViewHolder holder) {
-        final int position = holder.getAdapterPosition();
+     // FIXME: use getAdapterPosition() once RV can return position after view is detached.
+        final int position = holder.getLayoutPosition();
         if (position != NO_POSITION) {
             mChildrenStates.saveOffscreenView(holder.itemView, position);
         }
