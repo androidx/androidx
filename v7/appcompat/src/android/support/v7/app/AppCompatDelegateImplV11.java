@@ -17,14 +17,16 @@
 package android.support.v7.app;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.support.v7.internal.view.SupportActionModeWrapper;
 import android.support.v7.internal.widget.NativeActionModeAwareLayout;
 import android.util.AttributeSet;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 class AppCompatDelegateImplV11 extends AppCompatDelegateImplV7
@@ -32,15 +34,15 @@ class AppCompatDelegateImplV11 extends AppCompatDelegateImplV7
 
     private NativeActionModeAwareLayout mNativeActionModeAwareLayout;
 
-    AppCompatDelegateImplV11(Activity activity, AppCompatActivityCallback callback) {
-        super(activity, callback);
+    AppCompatDelegateImplV11(Context context, Window window, AppCompatCallback callback) {
+        super(context, window, callback);
     }
 
     @Override
-    void onSubDecorInstalled() {
+    void onSubDecorInstalled(ViewGroup subDecor) {
         // NativeActionModeAwareLayout is used to notify us when a native Action Mode is started
-        mNativeActionModeAwareLayout = (NativeActionModeAwareLayout) mActivity
-                .findViewById(android.R.id.content);
+        mNativeActionModeAwareLayout = (NativeActionModeAwareLayout)
+                subDecor.findViewById(android.R.id.content);
 
         // Can be null when using FEATURE_ACTION_BAR_OVERLAY
         if (mNativeActionModeAwareLayout != null) {
@@ -59,7 +61,7 @@ class AppCompatDelegateImplV11 extends AppCompatDelegateImplV7
 
         if (supportActionMode != null) {
             // If we received a support action mode, wrap and return it
-            return new SupportActionModeWrapper(mActivity, supportActionMode);
+            return new SupportActionModeWrapper(mContext, supportActionMode);
         }
         return null;
     }
@@ -67,9 +69,12 @@ class AppCompatDelegateImplV11 extends AppCompatDelegateImplV7
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         // First, let the Activity's LayoutInflater.Factory2 method try...
-        View result = mActivity.onCreateView(parent, name, context, attrs);
-        if (result != null) {
-            return result;
+        if (mOriginalWindowCallback instanceof LayoutInflater.Factory2) {
+            View result = ((LayoutInflater.Factory2) mOriginalWindowCallback)
+                    .onCreateView(parent, name, context, attrs);
+            if (result != null) {
+                return result;
+            }
         }
 
         // Let the v7 delegate handle it

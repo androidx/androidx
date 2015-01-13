@@ -78,4 +78,7 @@
     <!-- Since optical insets are not available pre-v18, we add a small amount of padding -->
     <dimen name="abc_switch_padding">3dp</dimen>
 
+    <dimen name="abc_dialog_padding_material">24dp</dimen>
+    <dimen name="abc_dialog_padding_top_material">18dp</dimen>
+
 </resources>

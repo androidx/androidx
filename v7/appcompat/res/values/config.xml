@@ -36,4 +36,6 @@
     <integer name="abc_config_activityShortDur">150</integer>
     <integer name="abc_config_activityDefaultDur">220</integer>
 
+    <bool name="abc_config_closeDialogWhenTouchOutside">true</bool>
+
 </resources>

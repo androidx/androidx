@@ -63,4 +63,6 @@
     <dimen name="abc_text_size_medium_material">18sp</dimen>
     <dimen name="abc_text_size_small_material">14sp</dimen>
 
+    <dimen name="abc_floating_window_z">16dp</dimen>
+
 </resources>

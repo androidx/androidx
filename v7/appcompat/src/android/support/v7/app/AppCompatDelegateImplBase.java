@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -36,8 +37,10 @@ import android.view.Window;
 
 abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
-    final Activity mActivity;
-    final AppCompatActivityCallback mAppCompatCallback;
+    final Context mContext;
+    final Window mWindow;
+    final Window.Callback mOriginalWindowCallback;
+    final AppCompatCallback mAppCompatCallback;
 
     private ActionBar mActionBar;
     private MenuInflater mMenuInflater;
@@ -51,12 +54,22 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     // true if this activity is floating (e.g. Dialog)
     boolean mIsFloating;
 
+    private CharSequence mTitle;
+
     private boolean mIsDestroyed;
 
-    AppCompatDelegateImplBase(Activity activity, AppCompatActivityCallback callback) {
-        mActivity = activity;
+    AppCompatDelegateImplBase(Context context, Window window, AppCompatCallback callback) {
+        mContext = context;
+        mWindow = window;
         mAppCompatCallback = callback;
-        installWindowCallback();
+
+        mOriginalWindowCallback = mWindow.getCallback();
+        if (mOriginalWindowCallback instanceof AppCompatWindowCallback) {
+            throw new IllegalStateException(
+                    "AppCompat has already installed itself into the Window");
+        }
+        // Now install the new callback
+        mWindow.setCallback(new AppCompatWindowCallback(mOriginalWindowCallback));
     }
 
     abstract ActionBar createSupportActionBar();
@@ -91,7 +104,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        TypedArray a = mActivity.obtainStyledAttributes(R.styleable.Theme);
+        TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
 
         if (!a.hasValue(R.styleable.Theme_windowActionBar)) {
             a.recycle();
@@ -136,7 +149,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         }
 
         if (context == null) {
-            context = mActivity;
+            context = mContext;
         }
         return context;
     }
@@ -192,21 +205,24 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     }
 
     final Window.Callback getWindowCallback() {
-        Window window = mActivity.getWindow();
-        return window != null ? window.getCallback() : null;
+        return mWindow.getCallback();
     }
 
-    private void installWindowCallback() {
-        final Window window = mActivity.getWindow();
-        final Window.Callback callback = window.getCallback();
+    @Override
+    public final void setTitle(CharSequence title) {
+        mTitle = title;
+        onTitleChanged(title);
+    }
 
-        if (callback instanceof AppCompatWindowCallback) {
-            throw new IllegalStateException(
-                    "AppCompat has already installed itself into the Window");
+    abstract void onTitleChanged(CharSequence title);
+
+    final CharSequence getTitle() {
+        // If the original window callback is an Activity, we'll use it's title
+        if (mOriginalWindowCallback instanceof Activity) {
+            return ((Activity) mOriginalWindowCallback).getTitle();
         }
-
-        // Now install the new callback
-        window.setCallback(new AppCompatWindowCallback(callback));
+        // Else, we'll return the title we have recorded ourselves
+        return mTitle;
     }
 
     private class AppCompatWindowCallback extends WindowCallbackWrapper {
@@ -240,13 +256,14 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
                 return false;
             }
 
-            if (featureId == Window.FEATURE_OPTIONS_PANEL
-                    && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                // If this is an options menu but we're running on a pre-v4.1 device, we need to
-                // call onPrepareOptionsMenu() directly, bypassing Activity.onPreparePanel().
-                // This is because Activity.onPreparePanel() on <v4.1 calls menu.hasVisibleItems(),
-                // which interferes with any initial invisible items.
-                return mActivity.onPrepareOptionsMenu(menu);
+            if (featureId == Window.FEATURE_OPTIONS_PANEL && bypassPrepareOptionsPanelIfNeeded()) {
+                // If this is an options menu and we need to bypass onPreparePanel, do so
+                if (mOriginalWindowCallback instanceof Activity) {
+                    return ((Activity) mOriginalWindowCallback).onPrepareOptionsMenu(menu);
+                } else if (mOriginalWindowCallback instanceof Dialog) {
+                    return ((Dialog) mOriginalWindowCallback).onPrepareOptionsMenu(menu);
+                }
+                return false;
             }
 
             // Else, defer to the default handling
@@ -271,7 +288,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
         @Override
         public void onContentChanged() {
-            // We purposely do not propagate this call, as this is called when we install
+            // We purposely do not propagate this call as this is called when we install
             // our sub-decor rather than the user's content
         }
 
@@ -281,6 +298,25 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
                 return;
             }
             super.onPanelClosed(featureId, menu);
+        }
+
+        /**
+         * For the options menu, we may need to call onPrepareOptionsMenu() directly,
+         * bypassing onPreparePanel(). This is because onPreparePanel() in certain situations
+         * calls menu.hasVisibleItems(), which interferes with any initial invisible items.
+         *
+         * @return true if onPrepareOptionsMenu should be called directly.
+         */
+        private boolean bypassPrepareOptionsPanelIfNeeded() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
+                    && mOriginalWindowCallback instanceof Activity) {
+                // For Activities, we only need to bypass onPreparePanel if we're running pre-JB
+                return true;
+            } else if (mOriginalWindowCallback instanceof Dialog) {
+                // For Dialogs, we always need to bypass onPreparePanel
+                return true;
+            }
+            return false;
         }
     }
 }

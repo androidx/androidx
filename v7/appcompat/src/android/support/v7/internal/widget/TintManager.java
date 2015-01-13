@@ -103,7 +103,8 @@ public final class TintManager {
             R.drawable.abc_ratingbar_full_material,
             R.drawable.abc_switch_track_mtrl_alpha,
             R.drawable.abc_switch_thumb_material,
-            R.drawable.abc_btn_default_mtrl_shape
+            R.drawable.abc_btn_default_mtrl_shape,
+            R.drawable.abc_btn_borderless_material
     };
 
     /**
@@ -243,7 +244,8 @@ public final class TintManager {
                 colorStateList = createSwitchTrackColorStateList();
             } else if (resId == R.drawable.abc_switch_thumb_material) {
                 colorStateList = createSwitchThumbColorStateList();
-            } else if (resId == R.drawable.abc_btn_default_mtrl_shape) {
+            } else if (resId == R.drawable.abc_btn_default_mtrl_shape
+                    || resId == R.drawable.abc_btn_borderless_material) {
                 colorStateList = createButtonColorStateList();
             } else if (resId == R.drawable.abc_spinner_mtrl_am_alpha
                     || resId == R.drawable.abc_spinner_textfield_background_material) {
