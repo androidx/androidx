@@ -59,9 +59,9 @@ import android.view.ViewGroup;
  *     <li>{@link #onDestroy()}</li>
  * </ul>
  * <p>
- * An {@link android.app.Activity} can only be linked with one {@link AppCompatDelegate} instance,
- * so the instance returned from {@link #create(android.app.Activity)} should be kept until the
- * Activity is destroyed.
+ * An {@link Activity} can only be linked with one {@link AppCompatDelegate} instance,
+ * so the instance returned from {@link #create(Activity, AppCompatCallback)} should be kept
+ * until the Activity is destroyed.
  */
 public abstract class AppCompatDelegate {
 
