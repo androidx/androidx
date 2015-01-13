@@ -21,6 +21,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
@@ -48,7 +49,7 @@ final class SwipeProgressBar {
     private static final int FINISH_ANIMATION_DURATION_MS = 1000;
 
     // Interpolator for varying the speed of the animation.
-    private static final Interpolator INTERPOLATOR = BakedBezierInterpolator.getInstance();
+    private static final Interpolator INTERPOLATOR = new FastOutSlowInInterpolator();
 
     private final Paint mPaint = new Paint();
     private final RectF mClipRect = new RectF();
