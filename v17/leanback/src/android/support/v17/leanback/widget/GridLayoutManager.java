@@ -777,6 +777,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
             // Same adapter, we can reuse any attached views
             detachAndScrapAttachedViews(mRecycler);
+            updateScrollController();
 
         } else {
             // otherwise recreate data structure
@@ -796,9 +797,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // Adapter may have changed so remove all attached views permanently
             removeAndRecycleAllViews(mRecycler);
 
-            mScrollOffsetPrimary = 0;
-            mScrollOffsetSecondary = 0;
-            mWindowAlignment.reset();
+            initScrollController();
         }
 
         mGrid.setProvider(mGridProvider);
@@ -806,7 +805,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mGrid.setRows(mRows);
         mFirstVisiblePos = mLastVisiblePos = NO_POSITION;
 
-        initScrollController();
         updateScrollSecondAxis();
 
         return focusPosition;
@@ -1478,7 +1476,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // Fast layout when there is no structure change, adapter change, etc.
     protected void fastRelayout(boolean scrollToFocus) {
-        initScrollController();
+        updateScrollController();
 
         List<Integer>[] rows = mGrid.getItemPositionsInRows(mFirstVisiblePos, mLastVisiblePos);
 
@@ -1947,6 +1945,23 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void initScrollController() {
+        mWindowAlignment.reset();
+        mWindowAlignment.horizontal.setSize(getWidth());
+        mWindowAlignment.vertical.setSize(getHeight());
+        mWindowAlignment.horizontal.setPadding(getPaddingLeft(), getPaddingRight());
+        mWindowAlignment.vertical.setPadding(getPaddingTop(), getPaddingBottom());
+        mSizePrimary = mWindowAlignment.mainAxis().getSize();
+        mScrollOffsetPrimary = -mWindowAlignment.mainAxis().getPaddingLow();
+        mScrollOffsetSecondary = -mWindowAlignment.secondAxis().getPaddingLow();
+
+        if (DEBUG) {
+            Log.v(getTag(), "initScrollController mSizePrimary " + mSizePrimary
+                    + " mWindowAlignment " + mWindowAlignment
+                    + " mScrollOffsetPrimary " + mScrollOffsetPrimary);
+        }
+    }
+
+    private void updateScrollController() {
         // mScrollOffsetPrimary and mScrollOffsetSecondary includes the padding.
         // e.g. when topPadding is 16 for horizontal grid view,  the initial
         // mScrollOffsetSecondary is -16.  fastLayout() put views based on offsets(not padding),
@@ -1970,8 +1985,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mSizePrimary = mWindowAlignment.mainAxis().getSize();
 
         if (DEBUG) {
-            Log.v(getTag(), "initScrollController mSizePrimary " + mSizePrimary
-                    + " mWindowAlignment " + mWindowAlignment);
+            Log.v(getTag(), "updateScrollController mSizePrimary " + mSizePrimary
+                    + " mWindowAlignment " + mWindowAlignment
+                    + " mScrollOffsetPrimary " + mScrollOffsetPrimary);
         }
     }
 
