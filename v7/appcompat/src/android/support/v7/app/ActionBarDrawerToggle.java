@@ -78,15 +78,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         Delegate getDrawerToggleDelegate();
     }
 
-    /**
-     * @deprecated Temporary class for the transition from old drawer toggle to new drawer toggle.
-     */
-    interface TmpDelegateProvider {
-
-        @Nullable
-        Delegate getV7DrawerToggleDelegate();
-    }
-
     public interface Delegate {
 
         /**
@@ -215,8 +206,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
             });
         } else if (activity instanceof DelegateProvider) { // Allow the Activity to provide an impl
             mActivityImpl = ((DelegateProvider) activity).getDrawerToggleDelegate();
-        } else if (activity instanceof TmpDelegateProvider) {// tmp interface for transition
-            mActivityImpl = ((TmpDelegateProvider) activity).getV7DrawerToggleDelegate();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mActivityImpl = new JellybeanMr2Delegate(activity);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

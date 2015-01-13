@@ -17,22 +17,23 @@
 package android.support.v7.app;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.support.v7.internal.view.SupportActionModeWrapper;
 import android.support.v7.internal.widget.NativeActionModeAwareLayout;
+import android.util.AttributeSet;
 import android.view.ActionMode;
-import android.view.KeyEvent;
 import android.view.View;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-class ActionBarActivityDelegateHC extends ActionBarActivityDelegateBase
+class AppCompatDelegateImplV11 extends AppCompatDelegateImplV7
         implements NativeActionModeAwareLayout.OnActionModeForChildListener {
 
     private NativeActionModeAwareLayout mNativeActionModeAwareLayout;
 
-    ActionBarActivityDelegateHC(ActionBarActivity activity) {
-        super(activity);
+    AppCompatDelegateImplV11(Activity activity, AppCompatActivityCallback callback) {
+        super(activity, callback);
     }
 
     @Override
@@ -61,5 +62,17 @@ class ActionBarActivityDelegateHC extends ActionBarActivityDelegateBase
             return new SupportActionModeWrapper(mActivity, supportActionMode);
         }
         return null;
+    }
+
+    @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        // First, let the Activity's LayoutInflater.Factory2 method try...
+        View result = mActivity.onCreateView(parent, name, context, attrs);
+        if (result != null) {
+            return result;
+        }
+
+        // Let the v7 delegate handle it
+        return super.onCreateView(parent, name, context, attrs);
     }
 }

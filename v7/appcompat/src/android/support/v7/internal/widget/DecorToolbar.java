@@ -20,13 +20,13 @@ package android.support.v7.internal.widget;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.SpinnerAdapter;
 
 /**
@@ -42,7 +42,7 @@ public interface DecorToolbar {
     boolean isSplit();
     boolean hasExpandedActionView();
     void collapseActionView();
-    void setWindowCallback(WindowCallback cb);
+    void setWindowCallback(Window.Callback cb);
     void setWindowTitle(CharSequence title);
     CharSequence getTitle();
     void setTitle(CharSequence title);
