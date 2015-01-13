@@ -19,13 +19,12 @@ package android.support.v7.app;
 import android.support.v7.view.ActionMode;
 
 /**
- * Implemented this in your {@link android.app.Activity} in order for AppCompat to be able
- * to callback in certain situations.
+ * Implemented this in order for AppCompat to be able to callback in certain situations.
  * <p>
- * This should be implemented by the same {@link android.app.Activity} which you provide to
- * {@link AppCompatDelegate#create(android.app.Activity)}.
+ * This should be provided to
+ * {@link AppCompatDelegate#create(android.app.Activity, AppCompatCallback)}.
  */
-public interface AppCompatActivityCallback {
+public interface AppCompatCallback {
 
     /**
      * Called when a support action mode has been started.

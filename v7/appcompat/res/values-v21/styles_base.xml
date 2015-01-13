@@ -179,6 +179,14 @@
 
     <style name="Base.Widget.AppCompat.Button.Small" parent="android:Widget.Material.Button.Small" />
 
+    <style name="Base.Widget.AppCompat.Button.Borderless" parent="android:Widget.Material.Button.Borderless" />
+
+    <style name="Base.Widget.AppCompat.Button.Borderless.Colored" parent="android:Widget.Material.Button.Borderless.Colored" />
+
+    <style name="Base.Widget.AppCompat.ButtonBar" parent="android:Widget.Material.ButtonBar" />
+
+    <style name="Base.Widget.AppCompat.ButtonBar.AlertDialog" parent="android:Widget.Material.ButtonBar.AlertDialog" />
+
     <!-- Progress Bar -->
 
     <style name="Base.Widget.AppCompat.ProgressBar.Horizontal"

@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -53,7 +54,7 @@ import android.view.ViewGroup;
  *     <li>{@link #onCreate(android.os.Bundle)}</li>
  *     <li>{@link #onPostCreate(android.os.Bundle)}</li>
  *     <li>{@link #onConfigurationChanged(android.content.res.Configuration)}</li>
- *     <li>{@link #onTitleChanged(CharSequence)}</li>
+ *     <li>{@link #setTitle(CharSequence)}</li>
  *     <li>{@link #onStop()}</li>
  *     <li>{@link #onDestroy()}</li>
  * </ul>
@@ -71,11 +72,24 @@ public abstract class AppCompatDelegate {
      *
      * @param callback An optional callback for AppCompat specific events
      */
-    public static AppCompatDelegate create(Activity activity, AppCompatActivityCallback callback) {
+    public static AppCompatDelegate create(Activity activity, AppCompatCallback callback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new AppCompatDelegateImplV11(activity, callback);
+            return new AppCompatDelegateImplV11(activity, activity.getWindow(), callback);
         } else {
-            return new AppCompatDelegateImplV7(activity, callback);
+            return new AppCompatDelegateImplV7(activity, activity.getWindow(), callback);
+        }
+    }
+
+    /**
+     * Create a {@link android.support.v7.app.AppCompatDelegate} to use with {@code dialog}.
+     *
+     * @param callback An optional callback for AppCompat specific events
+     */
+    public static AppCompatDelegate create(Dialog dialog, AppCompatCallback callback) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            return new AppCompatDelegateImplV11(dialog.getContext(), dialog.getWindow(), callback);
+        } else {
+            return new AppCompatDelegateImplV7(dialog.getContext(), dialog.getWindow(), callback);
         }
     }
 
@@ -164,7 +178,7 @@ public abstract class AppCompatDelegate {
     /**
      * Should be called from {@link Activity#onTitleChanged(CharSequence, int)}}
      */
-    public abstract void onTitleChanged(CharSequence title);
+    public abstract void setTitle(CharSequence title);
 
     /**
      * Should be called from {@link Activity#invalidateOptionsMenu()}} or
