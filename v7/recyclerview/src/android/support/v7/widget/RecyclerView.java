@@ -3171,6 +3171,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             if (mEatRunOnAnimationRequest) {
                 mReSchedulePostAnimationCallback = true;
             } else {
+                removeCallbacks(this);
                 ViewCompat.postOnAnimation(RecyclerView.this, this);
             }
         }
