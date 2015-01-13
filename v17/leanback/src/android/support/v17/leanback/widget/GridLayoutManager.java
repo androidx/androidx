@@ -564,16 +564,34 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (mChildSelectedListener == null) {
             return;
         }
-        if (mFocusPosition != NO_POSITION) {
-            View view = findViewByPosition(mFocusPosition);
-            if (view != null) {
-                RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(view);
-                mChildSelectedListener.onChildSelected(mBaseGridView, view, mFocusPosition,
-                        vh == null? NO_ID: vh.getItemId());
-                return;
+
+        View view = mFocusPosition == NO_POSITION ? null : findViewByPosition(mFocusPosition);
+        if (view != null) {
+            RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(view);
+            mChildSelectedListener.onChildSelected(mBaseGridView, view, mFocusPosition,
+                    vh == null? NO_ID: vh.getItemId());
+        } else {
+            mChildSelectedListener.onChildSelected(mBaseGridView, null, NO_POSITION, NO_ID);
+        }
+
+        // Children may request layout when a child selection event occurs (such as a change of
+        // padding on the current and previously selected rows).
+        // If in layout, a child requesting layout may have been laid out before the selection
+        // callback.
+        // If it was not, the child will be laid out after the selection callback.
+        // If so, the layout request will be honoured though the view system will emit a double-
+        // layout warning.
+        // If not in layout, we may be scrolling in which case the child layout request will be
+        // eaten by recyclerview.  Post a requestLayout.
+        if (!mInLayout && !mBaseGridView.isLayoutRequested()) {
+            int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                if (getChildAt(i).isLayoutRequested()) {
+                    forceRequestLayout();
+                    break;
+                }
             }
         }
-        mChildSelectedListener.onChildSelected(mBaseGridView, null, NO_POSITION, NO_ID);
     }
 
     @Override
@@ -1691,6 +1709,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (fastRelayout && mFocusPosition != savedFocusPos) {
             dispatchChildSelected();
         }
+
         mInLayout = false;
         leaveContext();
         if (DEBUG) Log.v(getTag(), "layoutChildren end");
