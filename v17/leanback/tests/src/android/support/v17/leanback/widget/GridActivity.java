@@ -61,6 +61,8 @@ public class GridActivity extends Activity {
     BaseGridView mGridView;
     int[] mItemLengths;
 
+    private int mBoundCount;
+
     private View createView() {
 
         View view = getLayoutInflater().inflate(mOrientation == BaseGridView.HORIZONTAL ?
@@ -93,7 +95,11 @@ public class GridActivity extends Activity {
         mStaggered = intent.getBooleanExtra(EXTRA_ROWS, DEFAULT_STAGGERED);
         mItemLengths = new int[mNumItems];
         for (int i = 0; i < mItemLengths.length; i++) {
-            mItemLengths[i] = mStaggered ? (int)(Math.random() * 180) + 180 : 240;
+            if (mOrientation == BaseGridView.HORIZONTAL) {
+                mItemLengths[i] = mStaggered ? (int)(Math.random() * 180) + 180 : 240;
+            } else {
+                mItemLengths[i] = mStaggered ? (int)(Math.random() * 120) + 120 : 160;
+            }
         }
 
         super.onCreate(savedInstanceState);
@@ -132,6 +138,14 @@ public class GridActivity extends Activity {
         }
     };
 
+    void resetBoundCount() {
+        mBoundCount = 0;
+    }
+
+    int getBoundCount() {
+       return mBoundCount;
+    }
+
     class MyAdapter extends RecyclerView.Adapter {
 
         @Override
@@ -148,11 +162,17 @@ public class GridActivity extends Activity {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder baseHolder, int position) {
             if (DEBUG) Log.v(TAG, "bindViewHolder " + position + " " + baseHolder);
+            mBoundCount++;
             ViewHolder holder = (ViewHolder) baseHolder;
             ((TextView) holder.itemView).setText("Item "+position);
             holder.itemView.setBackgroundColor(Color.LTGRAY);
-            holder.itemView.setLayoutParams(new ViewGroup.MarginLayoutParams(mItemLengths[position],
-                    80));
+            if (mOrientation == BaseGridView.HORIZONTAL) {
+                holder.itemView.setLayoutParams(new ViewGroup.MarginLayoutParams(
+                        mItemLengths[position], 80));
+            } else {
+                holder.itemView.setLayoutParams(new ViewGroup.MarginLayoutParams(
+                        240, mItemLengths[position]));
+            }
         }
 
         @Override
