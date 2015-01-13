@@ -16,6 +16,7 @@
 
 package android.support.v7.internal.app;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -31,7 +32,6 @@ import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.view.ViewPropertyAnimatorUpdateListener;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ActionBarPolicy;
 import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
@@ -83,7 +83,7 @@ public class WindowDecorActionBar extends ActionBar implements
 
     private Context mContext;
     private Context mThemedContext;
-    private FragmentActivity mActivity;
+    private Activity mActivity;
     private Dialog mDialog;
 
     private ActionBarOverlayLayout mOverlayLayout;
@@ -169,7 +169,7 @@ public class WindowDecorActionBar extends ActionBar implements
                 }
             };
 
-    public WindowDecorActionBar(ActionBarActivity activity, boolean overlayMode) {
+    public WindowDecorActionBar(Activity activity, boolean overlayMode) {
         mActivity = activity;
         Window window = activity.getWindow();
         View decor = window.getDecorView();
@@ -616,8 +616,14 @@ public class WindowDecorActionBar extends ActionBar implements
             return;
         }
 
-        final FragmentTransaction trans = mDecorToolbar.getViewGroup().isInEditMode() ? null :
-                mActivity.getSupportFragmentManager().beginTransaction().disallowAddToBackStack();
+        final FragmentTransaction trans;
+        if (mActivity instanceof FragmentActivity && !mDecorToolbar.getViewGroup().isInEditMode()) {
+            // If we're not in edit mode and our Activity is a FragmentActivity, start a tx
+            trans = ((FragmentActivity) mActivity).getSupportFragmentManager()
+                    .beginTransaction().disallowAddToBackStack();
+        } else {
+            trans = null;
+        }
 
         if (mSelectedTab == tab) {
             if (mSelectedTab != null) {

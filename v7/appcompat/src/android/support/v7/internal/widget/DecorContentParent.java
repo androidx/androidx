@@ -19,10 +19,10 @@ package android.support.v7.internal.widget;
 
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.util.SparseArray;
 import android.view.Menu;
+import android.view.Window;
 
 /**
  * Implemented by the top-level decor layout for a window. DecorContentParent offers
@@ -31,7 +31,7 @@ import android.view.Menu;
  * @hide
  */
 public interface DecorContentParent {
-    void setWindowCallback(WindowCallback cb);
+    void setWindowCallback(Window.Callback cb);
     void setWindowTitle(CharSequence title);
     CharSequence getTitle();
     void initFeature(int windowFeature);

@@ -31,7 +31,6 @@ import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.widget.ScrollerCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.VersionUtils;
-import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -666,7 +665,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     }
 
     @Override
-    public void setWindowCallback(WindowCallback cb) {
+    public void setWindowCallback(Window.Callback cb) {
         pullChildren();
         mDecorToolbar.setWindowCallback(cb);
     }

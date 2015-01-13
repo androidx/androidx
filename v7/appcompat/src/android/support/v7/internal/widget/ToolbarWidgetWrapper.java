@@ -24,7 +24,6 @@ import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.app.WindowCallback;
 import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
@@ -74,7 +73,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     private CharSequence mSubtitle;
     private CharSequence mHomeDescription;
 
-    private WindowCallback mWindowCallback;
+    private Window.Callback mWindowCallback;
     private boolean mMenuPrepared;
     private ActionMenuPresenter mActionMenuPresenter;
 
@@ -257,7 +256,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     }
 
     @Override
-    public void setWindowCallback(WindowCallback cb) {
+    public void setWindowCallback(Window.Callback cb) {
         mWindowCallback = cb;
     }
 

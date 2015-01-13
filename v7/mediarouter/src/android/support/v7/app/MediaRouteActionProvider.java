@@ -47,7 +47,7 @@ import java.lang.ref.WeakReference;
  * <h3>Prerequisites</h3>
  * <p>
  * To use the media route action provider, the activity must be a subclass of
- * {@link ActionBarActivity} from the <code>android.support.v7.appcompat</code>
+ * {@link AppCompatActivity} from the <code>android.support.v7.appcompat</code>
  * support library.  Refer to support library documentation for details.
  * </p>
  *

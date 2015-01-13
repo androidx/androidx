@@ -69,7 +69,7 @@ import java.util.List;
  * {@link android.app.Activity Activity's} opaque window decor controlled by the framework,
  * a Toolbar may be placed at any arbitrary level of nesting within a view hierarchy.
  * An application may choose to designate a Toolbar as the action bar for an Activity
- * using the {@link android.support.v7.app.ActionBarActivity#setSupportActionBar(Toolbar)
+ * using the {@link android.support.v7.app.AppCompatActivity#setSupportActionBar(Toolbar)
  * setSupportActionBar()} method.</p>
  *
  * <p>Toolbar supports a more focused feature set than ActionBar. From start to end, a toolbar
@@ -1810,7 +1810,7 @@ public class Toolbar extends ViewGroup {
      *
      * <p>Toolbar.LayoutParams extends ActionBar.LayoutParams for compatibility with existing
      * ActionBar API. See
-     * {@link android.support.v7.app.ActionBarActivity#setSupportActionBar(Toolbar)
+     * {@link android.support.v7.app.AppCompatActivity#setSupportActionBar(Toolbar)
      * ActionBarActivity.setActionBar}
      * for more info on how to use a Toolbar as your Activity's ActionBar.</p>
      */
