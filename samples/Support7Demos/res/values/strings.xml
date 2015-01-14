@@ -166,11 +166,16 @@
     <string name="card_view_sample_text">Sample text on right</string>
     <string name="card_view_resize_card_view">Resize CardView</string>
     <string name="card_view_resize_content">Resize Content</string>
+    <string name="cardview_background_selector_label">Selector</string>
 
     <string name="palette">Palette</string>
     <string name="palette_all_colors">Full color palette</string>
     <string name="search_hint">Search...</string>
     <string name="sorted_list_activity">Sorted List</string>
     <string name="add_new_item">Add New Item</string>
+
+    <string name="design_fab">Design/Floating Action Button</string>
+    <string name="fab_size_normal">Normal size</string>
+    <string name="fab_size_mini">Mini size</string>
 
 </resources>

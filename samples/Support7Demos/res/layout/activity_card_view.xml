@@ -132,46 +132,58 @@
                 android:text="@string/card_view_bg_color"
                 android:layout_below="@id/alpha_label"
                 android:layout_alignRight="@id/alpha_label"/>
-        <RadioGroup
-                android:id="@+id/select_bg_color_radio"
-                android:layout_toRightOf="@id/color_label"
-                android:layout_alignTop="@id/color_label"
-                android:layout_width="fill_parent"
+
+        <ScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_below="@id/alpha_seek_bar">
-            <RadioButton
-                    android:id="@+id/def"
-                    android:layout_width="40dp"
+                android:layout_below="@id/alpha_seek_bar"
+                android:layout_toRightOf="@id/color_label"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@id/color_label">
+
+            <RadioGroup
+                    android:id="@+id/select_bg_color_radio"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/cardview_light_background"
-                    android:checked="true"/>
-            <RadioButton
-                    android:id="@+id/yellow"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/card_yellow"/>
-            <RadioButton
-                    android:id="@+id/aquatic"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/card_aquatic"/>
-            <RadioButton
-                    android:id="@+id/classic"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/card_classic"/>
-            <RadioButton
-                    android:id="@+id/sunbrite"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/card_sunbrite"/>
-            <RadioButton
-                    android:id="@+id/tropical"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/card_tropical"/>
-        </RadioGroup>
+                    android:orientation="horizontal">
+                <RadioButton
+                        android:id="@+id/def"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/cardview_light_background"
+                        android:checked="true"/>
+                <RadioButton
+                        android:id="@+id/yellow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_yellow"/>
+                <RadioButton
+                        android:id="@+id/aquatic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_aquatic"/>
+                <RadioButton
+                        android:id="@+id/classic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_classic"/>
+                <RadioButton
+                        android:id="@+id/sunbrite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_sunbrite"/>
+                <RadioButton
+                        android:id="@+id/tropical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_tropical"/>
+                <RadioButton
+                        android:id="@+id/selector"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/cardview_background_selector_label"/>
+            </RadioGroup>
+        </ScrollView>
         <RadioGroup
                 android:id="@+id/select_target_radio"
                 android:layout_width="fill_parent"
@@ -199,7 +211,9 @@
                 android:id="@+id/card_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                card_view:cardElevation="10dp">
+                card_view:cardElevation="10dp"
+                android:clickable="true"
+                android:layout_margin="8dp">
             <TextView
                     android:id="@+id/info_text"
                     android:text="@string/card_view"

@@ -33,4 +33,10 @@
         <item name="android:minHeight">35dp</item>
     </style>
 
+    <style name="Theme.FAB" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#ff00bcd4</item>
+        <item name="colorPrimaryDark">#00838f</item>
+        <item name="colorAccent">#ff0000</item>
+    </style>
+
 </resources>

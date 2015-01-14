@@ -16,8 +16,6 @@
 package com.example.android.supportv7.view;
 
 import android.app.Activity;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewCompat;
@@ -29,8 +27,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.android.supportv7.R;
-
-import java.lang.reflect.Field;
 
 public class CardViewActivity extends Activity {
 
@@ -182,6 +178,8 @@ public class CardViewActivity extends Activity {
                 return R.color.card_sunbrite;
             case R.id.tropical:
                 return R.color.card_tropical;
+            case R.id.selector:
+                return R.color.card_selector;
             default:
                 return R.color.cardview_light_background;
         }
