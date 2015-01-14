@@ -310,7 +310,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Saves grid information of each view.
      */
-    private Grid mGrid;
+    Grid mGrid;
 
     /**
      * Focus Scroll strategy.

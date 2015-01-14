@@ -40,8 +40,10 @@ import android.widget.TextView;
 public class GridActivity extends Activity {
     private static final String TAG = "GridActivity";
 
+    public static final String EXTRA_GRIDVIEW_LAYOUT_SIZE = "gridViewSize";
     public static final String EXTRA_ORIENTATION = "orientation";
-    public static final String EXTRA_NUM_ITEMS = "items";
+    public static final String EXTRA_NUM_ITEMS = "numItems";
+    public static final String EXTRA_ITEMS = "items";
     public static final String EXTRA_ROWS = "rows";
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
@@ -58,6 +60,7 @@ public class GridActivity extends Activity {
     int mNumItems;
     boolean mStaggered;
 
+    int[] mGridViewLayoutSize;
     BaseGridView mGridView;
     int[] mItemLengths;
 
@@ -68,6 +71,12 @@ public class GridActivity extends Activity {
         View view = getLayoutInflater().inflate(mOrientation == BaseGridView.HORIZONTAL ?
                 R.layout.horizontal_grid: R.layout.vertical_grid, null, false);
         mGridView = (BaseGridView) view.findViewById(R.id.gridview);
+        if (mGridViewLayoutSize != null) {
+            ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) mGridView.getLayoutParams();
+            lp.width = mGridViewLayoutSize[0];
+            lp.height = mGridViewLayoutSize[1];
+            mGridView.setLayoutParams(lp);
+        }
 
         if (mOrientation == BaseGridView.HORIZONTAL) {
             ((HorizontalGridView) mGridView).setNumRows(mRows);
@@ -89,17 +98,23 @@ public class GridActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();
 
+        mGridViewLayoutSize = intent.getIntArrayExtra(EXTRA_GRIDVIEW_LAYOUT_SIZE);
         mOrientation = intent.getIntExtra(EXTRA_ORIENTATION, DEFAULT_ORIENTATION);
-        mNumItems = intent.getIntExtra(EXTRA_NUM_ITEMS, DEFAULT_NUM_ITEMS);
         mRows = intent.getIntExtra(EXTRA_ROWS, DEFAULT_ROWS);
-        mStaggered = intent.getBooleanExtra(EXTRA_ROWS, DEFAULT_STAGGERED);
-        mItemLengths = new int[mNumItems];
-        for (int i = 0; i < mItemLengths.length; i++) {
-            if (mOrientation == BaseGridView.HORIZONTAL) {
-                mItemLengths[i] = mStaggered ? (int)(Math.random() * 180) + 180 : 240;
-            } else {
-                mItemLengths[i] = mStaggered ? (int)(Math.random() * 120) + 120 : 160;
+        mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
+        mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
+        if (mItemLengths == null) {
+            mNumItems = intent.getIntExtra(EXTRA_NUM_ITEMS, DEFAULT_NUM_ITEMS);
+            mItemLengths = new int[mNumItems];
+            for (int i = 0; i < mItemLengths.length; i++) {
+                if (mOrientation == BaseGridView.HORIZONTAL) {
+                    mItemLengths[i] = mStaggered ? (int)(Math.random() * 180) + 180 : 240;
+                } else {
+                    mItemLengths[i] = mStaggered ? (int)(Math.random() * 120) + 120 : 160;
+                }
             }
+        } else {
+            mNumItems = mItemLengths.length;
         }
 
         super.onCreate(savedInstanceState);
@@ -146,6 +161,26 @@ public class GridActivity extends Activity {
        return mBoundCount;
     }
 
+    void swap(int index1, int index2) {
+        if (index1 == index2) {
+            return;
+        } else if (index1 > index2) {
+            int index = index1;
+            index1 = index2;
+            index2 = index;
+        }
+        int value = mItemLengths[index1];
+        mItemLengths[index1] = mItemLengths[index2];
+        mItemLengths[index2] = value;
+        mGridView.getAdapter().notifyItemMoved(index1, index2);
+        mGridView.getAdapter().notifyItemMoved(index2 - 1, index1);
+    }
+
+    void changeArraySize(int length) {
+        mNumItems = length;
+        mGridView.getAdapter().notifyDataSetChanged();
+    }
+
     class MyAdapter extends RecyclerView.Adapter {
 
         @Override
@@ -177,7 +212,7 @@ public class GridActivity extends Activity {
 
         @Override
         public int getItemCount() {
-            return mItemLengths.length;
+            return mNumItems;
         }
     }
 
