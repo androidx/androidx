@@ -859,8 +859,13 @@ public class BrowseFragment extends BaseFragment {
     private void onRowSelected(int position) {
         if (position != mSelectedPosition) {
             mSetSelectionRunnable.mPosition = position;
+            // Posting the set selection, rather than calling it immediately, prevents an issue
+            // with adapter changes.  Example: a row is added before the current selected row;
+            // first the fast lane view updates its selection, then the rows fragment has that
+            // new selection propagated immediately; THEN the rows view processes the same adapter
+            // change and moves the selection again.
             mBrowseFrame.getHandler().removeCallbacks(mSetSelectionRunnable);
-            mSetSelectionRunnable.run();
+            mBrowseFrame.getHandler().post(mSetSelectionRunnable);
 
             if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
                 if (!mShowingTitle) {
