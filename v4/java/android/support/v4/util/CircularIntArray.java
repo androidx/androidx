@@ -160,7 +160,7 @@ public final class CircularIntArray
     /**
      * Get first integer of the CircularIntArray.
      * @return The first integer.
-     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
      */
     public int getFirst() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -170,7 +170,7 @@ public final class CircularIntArray
     /**
      * Get last integer of the CircularIntArray.
      * @return The last integer.
-     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
      */
     public int getLast() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -181,7 +181,7 @@ public final class CircularIntArray
      * Get nth (0 <= n <= size()-1) integer of the CircularIntArray.
      * @param n  The zero based element index in the CircularIntArray.
      * @return The nth integer.
-     * @throws ArrayIndexOutOfBoundsException if n < 0 or n >= size().
+     * @throws {@link ArrayIndexOutOfBoundsException} if n < 0 or n >= size().
      */
     public int get(int n) {
         if (n < 0 || n >= size()) throw new ArrayIndexOutOfBoundsException();

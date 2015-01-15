@@ -199,7 +199,7 @@ public final class CircularArray<E> {
     /**
      * Get first element of the CircularArray.
      * @return The first element.
-     * @throws ArrayIndexOutOfBoundsException if CircularArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
      */
     public E getFirst() {
         if (mHead == mTail) {
@@ -211,7 +211,7 @@ public final class CircularArray<E> {
     /**
      * Get last element of the CircularArray.
      * @return The last element.
-     * @throws ArrayIndexOutOfBoundsException if CircularArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
      */
     public E getLast() {
         if (mHead == mTail) {
@@ -224,7 +224,7 @@ public final class CircularArray<E> {
      * Get nth (0 <= n <= size()-1) element of the CircularArray.
      * @param n  The zero based element index in the CircularArray.
      * @return The nth element.
-     * @throws ArrayIndexOutOfBoundsException if n < 0 or n >= size().
+     * @throws {@link ArrayIndexOutOfBoundsException} if n < 0 or n >= size().
      */
     public E get(int n) {
         if (n < 0 || n >= size()) {
