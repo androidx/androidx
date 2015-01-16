@@ -154,6 +154,47 @@ public class BrowseFragment extends BaseFragment {
         }
     }
 
+    private class SetSelectionRunnable implements Runnable {
+        static final int TYPE_INVALID = -1;
+        static final int TYPE_INTERNAL_SYNC = 0;
+        static final int TYPE_USER_REQUEST = 1;
+
+        private int mPosition;
+        private int mType;
+        private boolean mSmooth;
+
+        SetSelectionRunnable() {
+            reset();
+        }
+
+        void post(int position, int type, boolean smooth) {
+            // Posting the set selection, rather than calling it immediately, prevents an issue
+            // with adapter changes.  Example: a row is added before the current selected row;
+            // first the fast lane view updates its selection, then the rows fragment has that
+            // new selection propagated immediately; THEN the rows view processes the same adapter
+            // change and moves the selection again.
+            if (type >= mType) {
+                mPosition = position;
+                mType = type;
+                mSmooth = smooth;
+                mBrowseFrame.removeCallbacks(this);
+                mBrowseFrame.post(this);
+            }
+        }
+
+        @Override
+        public void run() {
+            setSelection(mPosition, mSmooth);
+            reset();
+        }
+
+        private void reset() {
+            mPosition = -1;
+            mType = TYPE_INVALID;
+            mSmooth = false;
+        }
+    }
+
     private static final String TAG = "BrowseFragment";
 
     private static final String LB_HEADERS_BACKSTACK = "lbHeadersBackStack_";
@@ -202,6 +243,7 @@ public class BrowseFragment extends BaseFragment {
     private int mSelectedPosition = -1;
 
     private PresenterSelector mHeaderPresenterSelector;
+    private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
     // transition related:
     private Object mSceneWithTitle;
@@ -858,14 +900,8 @@ public class BrowseFragment extends BaseFragment {
 
     private void onRowSelected(int position) {
         if (position != mSelectedPosition) {
-            mSetSelectionRunnable.mPosition = position;
-            // Posting the set selection, rather than calling it immediately, prevents an issue
-            // with adapter changes.  Example: a row is added before the current selected row;
-            // first the fast lane view updates its selection, then the rows fragment has that
-            // new selection propagated immediately; THEN the rows view processes the same adapter
-            // change and moves the selection again.
-            mBrowseFrame.getHandler().removeCallbacks(mSetSelectionRunnable);
-            mBrowseFrame.getHandler().post(mSetSelectionRunnable);
+            mSetSelectionRunnable.post(
+                    position, SetSelectionRunnable.TYPE_INTERNAL_SYNC, true);
 
             if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
                 if (!mShowingTitle) {
@@ -878,17 +914,6 @@ public class BrowseFragment extends BaseFragment {
             }
         }
     }
-
-    private class SetSelectionRunnable implements Runnable {
-        int mPosition;
-        boolean mSmooth = true;
-        @Override
-        public void run() {
-            setSelection(mPosition, mSmooth);
-        }
-    }
-
-    private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
     private void setSelection(int position, boolean smooth) {
         if (position != NO_POSITION) {
@@ -909,9 +934,8 @@ public class BrowseFragment extends BaseFragment {
      * Sets the selected row position.
      */
     public void setSelectedPosition(int position, boolean smooth) {
-        mSetSelectionRunnable.mPosition = position;
-        mSetSelectionRunnable.mSmooth = smooth;
-        mBrowseFrame.getHandler().post(mSetSelectionRunnable);
+        mSetSelectionRunnable.post(
+                position, SetSelectionRunnable.TYPE_USER_REQUEST, smooth);
     }
 
     @Override
