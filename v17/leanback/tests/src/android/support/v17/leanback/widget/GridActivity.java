@@ -40,23 +40,20 @@ import android.widget.TextView;
 public class GridActivity extends Activity {
     private static final String TAG = "GridActivity";
 
-    public static final String EXTRA_GRIDVIEW_LAYOUT_SIZE = "gridViewSize";
-    public static final String EXTRA_ORIENTATION = "orientation";
+    public static final String EXTRA_LAYOUT_RESOURCE_ID = "layoutResourceId";
     public static final String EXTRA_NUM_ITEMS = "numItems";
     public static final String EXTRA_ITEMS = "items";
-    public static final String EXTRA_ROWS = "rows";
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
-    static final int DEFAULT_ORIENTATION = BaseGridView.HORIZONTAL;
+    static final int DEFAULT_LAYOUT_RESOURCE_ID = R.layout.horizontal_grid;
     static final int DEFAULT_NUM_ITEMS = 100;
-    static final int DEFAULT_ROWS = 3;
     static final boolean DEFAULT_STAGGERED = true;
 
     private static final boolean DEBUG = false;
 
+    int mLayoutId;
     int mOrientation;
-    int mRows;
     int mNumItems;
     boolean mStaggered;
 
@@ -68,21 +65,10 @@ public class GridActivity extends Activity {
 
     private View createView() {
 
-        View view = getLayoutInflater().inflate(mOrientation == BaseGridView.HORIZONTAL ?
-                R.layout.horizontal_grid: R.layout.vertical_grid, null, false);
+        View view = getLayoutInflater().inflate(mLayoutId, null, false);
         mGridView = (BaseGridView) view.findViewById(R.id.gridview);
-        if (mGridViewLayoutSize != null) {
-            ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) mGridView.getLayoutParams();
-            lp.width = mGridViewLayoutSize[0];
-            lp.height = mGridViewLayoutSize[1];
-            mGridView.setLayoutParams(lp);
-        }
-
-        if (mOrientation == BaseGridView.HORIZONTAL) {
-            ((HorizontalGridView) mGridView).setNumRows(mRows);
-        } else {
-            ((VerticalGridView) mGridView).setNumColumns(mRows);
-        }
+        mOrientation = mGridView instanceof HorizontalGridView ? BaseGridView.HORIZONTAL :
+                BaseGridView.VERTICAL;
         mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_BOTH_EDGE);
         mGridView.setWindowAlignmentOffsetPercent(35);
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
@@ -98,9 +84,7 @@ public class GridActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();
 
-        mGridViewLayoutSize = intent.getIntArrayExtra(EXTRA_GRIDVIEW_LAYOUT_SIZE);
-        mOrientation = intent.getIntExtra(EXTRA_ORIENTATION, DEFAULT_ORIENTATION);
-        mRows = intent.getIntExtra(EXTRA_ROWS, DEFAULT_ROWS);
+        mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, DEFAULT_LAYOUT_RESOURCE_ID);
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         if (mItemLengths == null) {
