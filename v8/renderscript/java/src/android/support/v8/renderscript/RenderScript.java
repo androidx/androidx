@@ -1032,8 +1032,12 @@ public class RenderScript {
         }
 
         if (useIOlib) {
-            System.loadLibrary("RSSupportIO");
-            if (!rs.nLoadIOSO()) {
+            try {
+                System.loadLibrary("RSSupportIO");
+            } catch (UnsatisfiedLinkError e) {
+                useIOlib = false;
+            }
+            if (!useIOlib || !rs.nLoadIOSO()) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRSSupportIO.so, USAGE_IO not supported");
                 useIOlib = false;
             }
