@@ -112,6 +112,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
      */
     protected View[][] sortByRows() {
         final HashMap<Integer, ArrayList<View>> rows = new HashMap<Integer, ArrayList<View>>();
+        ArrayList<Integer> rowLocations = new ArrayList();
         for (int i = 0; i < mGridView.getChildCount(); i++) {
             View v = mGridView.getChildAt(i);
             int rowLocation;
@@ -125,17 +126,22 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             if (views == null) {
                 views = new ArrayList<View>();
                 rows.put(rowLocation, views);
+                rowLocations.add(rowLocation);
             }
             views.add(v);
         }
-        assertEquals("Dump Views by rows "+rows, rows.size(), mNumRows);
+        Object[] sortedLocations = rowLocations.toArray();
+        Arrays.sort(sortedLocations);
+        if (mNumRows != rows.size()) {
+            assertEquals("Dump Views by rows "+rows, mNumRows, rows.size());
+        }
         View[][] sorted = new View[rows.size()][];
-        int i = 0;
-        for (Iterator<ArrayList<View>> iter = rows.values().iterator(); iter.hasNext(); ) {
-            ArrayList<View> arr = iter.next();
+        for (int i = 0; i < rowLocations.size(); i++) {
+            Integer rowLocation = rowLocations.get(i);
+            ArrayList<View> arr = rows.get(rowLocation);
             View[] views = arr.toArray(new View[arr.size()]);
             Arrays.sort(views, mRowSortComparator);
-            sorted[i++] = views;
+            sorted[i] = views;
         }
         return sorted;
     }
@@ -192,6 +198,34 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                     assertEquals(alignedLocation, sorted[i][0].getTop());
                 }
             }
+        }
+    }
+
+    protected int[] getEndEdges() {
+        View[][] sorted = sortByRows();
+        int[] edges = new int[sorted.length];
+        if (mOrientation == BaseGridView.HORIZONTAL) {
+            if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+                for (int i = 0; i < sorted.length; i++) {
+                    edges[i] = sorted[i][0].getLeft();
+                }
+            } else {
+                for (int i = 0; i < sorted.length; i++) {
+                    edges[i] = sorted[i][sorted[i].length - 1].getRight();
+                }
+            }
+        } else {
+            for (int i = 0; i < sorted.length; i++) {
+                edges[i] = sorted[i][sorted[i].length - 1].getBottom();
+            }
+        }
+        return edges;
+    }
+
+    protected void verifyEdgesSame(int[] edges, int[] edges2) {
+        assertEquals(edges.length, edges2.length);
+        for (int i = 0; i < edges.length; i++) {
+            assertEquals(edges[i], edges2[i]);
         }
     }
 
@@ -320,6 +354,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdle(mVerifyLayout);
 
         verifyBoundCount(100);
+        int[] endEdges = getEndEdges();
 
         if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
             sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
@@ -355,9 +390,13 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         }
         waitForScrollIdle(mVerifyLayout);
         verifyBoundCount(100);
+
+        // we should get same aligned end edges
+        int[] endEdges2 = getEndEdges();
+        verifyEdgesSame(endEdges, endEdges2);
     }
 
-    public void testItemMoved() throws Throwable {
+    public void testItemMovedHorizontal() throws Throwable {
 
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
@@ -382,6 +421,33 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         } else {
             sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
         }
+        waitForScrollIdle(mVerifyLayout);
+
+        verifyBeginAligned();
+    }
+
+    public void testItemMovedVertical() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        mGridView = mActivity.mGridView;
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        mGridView.setSelectedPositionSmooth(150);
+        waitForScrollIdle(mVerifyLayout);
+        mActivity.swap(150, 152);
+        waitForTransientStateGone(null);
+
+        runTestOnUiThread(mVerifyLayout);
+
+        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_DOWN);
+        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_UP);
         waitForScrollIdle(mVerifyLayout);
 
         verifyBeginAligned();
