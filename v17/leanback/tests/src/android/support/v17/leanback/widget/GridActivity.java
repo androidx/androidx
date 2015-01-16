@@ -165,6 +165,24 @@ public class GridActivity extends Activity {
         mGridView.getAdapter().notifyDataSetChanged();
     }
 
+    int[] removeItems(int index, int length) {
+        int[] removed = new int[length];
+        System.arraycopy(mItemLengths, index, removed, 0, length);
+        System.arraycopy(mItemLengths, index + length, mItemLengths, index,
+                mNumItems - index - length);
+        mNumItems -= length;
+        mGridView.getAdapter().notifyItemRangeRemoved(index, length);
+        return removed;
+    }
+
+    void addItems(int index, int[] items) {
+        int length = items.length;
+        System.arraycopy(mItemLengths, index, mItemLengths, index + length, mNumItems - index);
+        System.arraycopy(items, 0, mItemLengths, index, length);
+        mNumItems += length;
+        mGridView.getAdapter().notifyItemRangeInserted(index, length);
+    }
+
     class MyAdapter extends RecyclerView.Adapter {
 
         @Override
