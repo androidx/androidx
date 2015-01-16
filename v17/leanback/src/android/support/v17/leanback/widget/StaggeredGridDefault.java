@@ -135,40 +135,35 @@ final class StaggeredGridDefault extends StaggeredGrid {
         Location loc = getLocation(indexLimit);
         int row = loc.row;
         int index = indexLimit;
-        boolean breakWrapped = false;
+        int visitedRows = 1;
+        int visitRow = row;
         if (mReversedFlow) {
             value = edge;
-            if (mNumRows > 1) {
-                for (int i = indexLimit + 1; i <= mLastVisibleIndex; i++) {
-                    loc = getLocation(i);
-                    if (loc.row == mNumRows - 1) {
-                        breakWrapped = true;
-                    } else if (breakWrapped && loc.row != mNumRows - 1) {
-                        break;
-                    }
-                    edge += loc.offset;
+            for (int i = indexLimit + 1; visitedRows < mNumRows && i <= mLastVisibleIndex; i++) {
+                loc = getLocation(i);
+                edge += loc.offset;
+                if (loc.row != visitRow) {
+                    visitRow = loc.row;
+                    visitedRows++;
                     if (findLarge ? edge > value : edge < value) {
+                        row = visitRow;
                         value = edge;
-                        row = loc.row;
                         index = i;
                     }
                 }
             }
         } else {
             value = edge + mProvider.getSize(indexLimit);
-            if (mNumRows > 1) {
-                for (int i = indexLimit - 1; i >= mFirstVisibleIndex; i--) {
-                    edge -= loc.offset;
-                    loc = getLocation(i);
-                    if (loc.row == 0) {
-                        breakWrapped = true;
-                    } else if (breakWrapped && loc.row != 0) {
-                        break;
-                    }
+            for (int i = indexLimit - 1; visitedRows < mNumRows && i >= mFirstVisibleIndex; i--) {
+                edge -= loc.offset;
+                loc = getLocation(i);
+                if (loc.row != visitRow) {
+                    visitRow = loc.row;
+                    visitedRows++;
                     int newValue = edge + mProvider.getSize(i);
                     if (findLarge ? newValue > value : newValue < value) {
+                        row = visitRow;
                         value = newValue;
-                        row = loc.row;
                         index = i;
                     }
                 }
@@ -192,35 +187,37 @@ final class StaggeredGridDefault extends StaggeredGrid {
         Location loc = getLocation(indexLimit);
         int row = loc.row;
         int index = indexLimit;
-        boolean breakWrapped = false;
+        int visitedRows = 1;
+        int visitRow = row;
         if (mReversedFlow) {
             value = edge - mProvider.getSize(indexLimit);
-            if (mNumRows > 1) {
-                for (int i = indexLimit - 1; i >= mFirstVisibleIndex; i--) {
-                    edge -= loc.offset;
-                    loc = getLocation(i);
-                    if (loc.row == 0) {
-                        breakWrapped = true;
-                    } else if (breakWrapped && loc.row != 0) {
-                        break;
+            for (int i = indexLimit - 1; visitedRows < mNumRows && i >= mFirstVisibleIndex; i--) {
+                edge -= loc.offset;
+                loc = getLocation(i);
+                if (loc.row != visitRow) {
+                    visitRow = loc.row;
+                    visitedRows++;
+                    int newValue = edge - mProvider.getSize(i);
+                    if (findLarge ? newValue > value : newValue < value) {
+                        value = newValue;
+                        row = visitRow;
+                        index = i;
                     }
-                    value = findLarge ? Math.max(value, edge - mProvider.getSize(i))
-                            : Math.min(value, edge - mProvider.getSize(i));
                 }
             }
         } else {
             value = edge;
-            if (mNumRows > 1) {
-                for (int i = indexLimit + 1; i <= mLastVisibleIndex; i++) {
-                    loc = getLocation(i);
-                    if (loc.row == mNumRows - 1) {
-                        breakWrapped = true;
-                    } else if (breakWrapped && loc.row != mNumRows - 1) {
-                        break;
+            for (int i = indexLimit + 1; visitedRows < mNumRows && i <= mLastVisibleIndex; i++) {
+                loc = getLocation(i);
+                edge += loc.offset;
+                if (loc.row != visitRow) {
+                    visitRow = loc.row;
+                    visitedRows++;
+                    if (findLarge ? edge > value : edge < value) {
+                        value = edge;
+                        row = visitRow;
+                        index = i;
                     }
-                    edge += loc.offset;
-                    value = findLarge ? Math.max(value, edge) : Math.min(value, edge);
-                    index = i;
                 }
             }
         }
@@ -310,7 +307,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
             // the previous highest row.
             for (; rowIndex < mNumRows; rowIndex++) {
                 // fill one item to a row
-                if (itemIndex == count) {
+                if (itemIndex == count || (!oneColumnMode && checkAppendOverLimit(toLimit))) {
                     return filledOne;
                 }
                 int location = mReversedFlow ? getRowMin(rowIndex) : getRowMax(rowIndex);
@@ -334,7 +331,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 if (edgeLimitIsValid) {
                     while (mReversedFlow ? location - size -mMargin > edgeLimit :
                             location + size + mMargin < edgeLimit) {
-                        if (itemIndex == count) {
+                        if (itemIndex == count || (!oneColumnMode && checkAppendOverLimit(toLimit))) {
                             return filledOne;
                         }
                         location = location + (mReversedFlow ? - size - mMargin : size + mMargin);
@@ -345,10 +342,10 @@ final class StaggeredGridDefault extends StaggeredGrid {
                     edgeLimit = mReversedFlow ? getRowMin(rowIndex) : getRowMax(rowIndex);
                 }
             }
-            edgeLimit = mReversedFlow ? findRowMin(false, null) : findRowMax(true, null);
-            if (oneColumnMode || (mReversedFlow ? edgeLimit <= toLimit : edgeLimit >= toLimit)) {
+            if (oneColumnMode) {
                 return filledOne;
             }
+            edgeLimit = mReversedFlow ? findRowMin(false, null) : findRowMax(true, null);
             // start fill from row 0 again
             rowIndex = 0;
         }
@@ -409,7 +406,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
             // the previous lowest row.
             for (; rowIndex >= 0; rowIndex--) {
                 // fill one item to a row
-                if (itemIndex < 0) {
+                if (itemIndex < 0 || (!oneColumnMode && checkPrependOverLimit(toLimit))) {
                     return filledOne;
                 }
                 int location = mReversedFlow ? getRowMax(rowIndex) : getRowMin(rowIndex);
@@ -434,7 +431,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 if (edgeLimitIsValid) {
                     while (mReversedFlow ? location + size + mMargin < edgeLimit :
                             location - size - mMargin > edgeLimit) {
-                        if (itemIndex < 0) {
+                        if (itemIndex < 0 || (!oneColumnMode && checkPrependOverLimit(toLimit))) {
                             return filledOne;
                         }
                         location = location + (mReversedFlow ? size + mMargin : -size - mMargin);
@@ -445,10 +442,10 @@ final class StaggeredGridDefault extends StaggeredGrid {
                     edgeLimit = mReversedFlow ? getRowMax(rowIndex) : getRowMin(rowIndex);
                 }
             }
-            edgeLimit = mReversedFlow ? findRowMax(true, null) : findRowMin(false, null);
-            if (oneColumnMode || (mReversedFlow ? edgeLimit >= toLimit : edgeLimit <= toLimit)) {
+            if (oneColumnMode) {
                 return filledOne;
             }
+            edgeLimit = mReversedFlow ? findRowMax(true, null) : findRowMin(false, null);
             // start fill from last row again
             rowIndex = mNumRows - 1;
         }
