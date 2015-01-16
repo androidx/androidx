@@ -122,7 +122,7 @@ abstract class StaggeredGrid extends Grid {
         if (mProvider.getCount() == 0) {
             return false;
         }
-        if (!oneColumnMode && mFirstVisibleIndex >= 0 && checkPrependOverLimit(toLimit)) {
+        if (!oneColumnMode && checkPrependOverLimit(toLimit)) {
             return false;
         }
         try {
@@ -181,11 +181,14 @@ abstract class StaggeredGrid extends Grid {
                 mLastVisibleIndex = itemIndex;
             }
             mProvider.addItem(mTmpItem[0], itemIndex, size, rowIndex, edge - offset);
+            if (!oneColumnMode && checkPrependOverLimit(toLimit)) {
+                return true;
+            }
             edge = mProvider.getEdge(itemIndex);
             offset = loc.offset;
             // Check limit after filled a full column
             if (rowIndex == 0) {
-                if (oneColumnMode || checkPrependOverLimit(toLimit)) {
+                if (oneColumnMode) {
                     return true;
                 }
             }
@@ -251,7 +254,7 @@ abstract class StaggeredGrid extends Grid {
         if (mProvider.getCount() == 0) {
             return false;
         }
-        if (!oneColumnMode && mFirstVisibleIndex >= 0 && checkAppendOverLimit(toLimit)) {
+        if (!oneColumnMode && checkAppendOverLimit(toLimit)) {
             return false;
         }
         try {
@@ -310,12 +313,15 @@ abstract class StaggeredGrid extends Grid {
                 mFirstVisibleIndex = itemIndex;
             }
             mProvider.addItem(mTmpItem[0], itemIndex, size, rowIndex, edge);
+            if (!oneColumnMode && checkAppendOverLimit(toLimit)) {
+                return true;
+            }
             if (edge == Integer.MAX_VALUE) {
                 edge = mProvider.getEdge(itemIndex);
             }
             // Check limit after filled a full column
             if (rowIndex == mNumRows - 1) {
-                if (oneColumnMode || checkAppendOverLimit(toLimit)) {
+                if (oneColumnMode) {
                     return true;
                 }
             }

@@ -286,16 +286,22 @@ abstract class Grid {
      * Returns true if appending item has reached "toLimit"
      */
     protected final boolean checkAppendOverLimit(int toLimit) {
-        return mReversedFlow ?
-                findRowMin(true, null) <= toLimit : findRowMax(false, null) >= toLimit;
+        if (mLastVisibleIndex < 0) {
+            return false;
+        }
+        return mReversedFlow ? findRowMin(true, null) <= toLimit + mMargin :
+                    findRowMax(false, null) >= toLimit - mMargin;
     }
 
     /**
      * Returns true if prepending item has reached "toLimit"
      */
     protected final boolean checkPrependOverLimit(int toLimit) {
-        return mReversedFlow ?
-                findRowMax(false, null) >= toLimit : findRowMin(true, null) <= toLimit;
+        if (mLastVisibleIndex < 0) {
+            return false;
+        }
+        return mReversedFlow ? findRowMax(false, null) >= toLimit + mMargin :
+                    findRowMin(true, null) <= toLimit - mMargin;
     }
 
     /**
