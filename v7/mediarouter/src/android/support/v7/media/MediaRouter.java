@@ -2252,13 +2252,22 @@ public final class MediaRouter {
                     record.updatePlaybackInfo();
                 }
                 if (mMediaSession != null) {
-                    int controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
-                    if (mPlaybackInfo.volumeHandling
-                            == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
-                        controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+                    if (mSelectedRoute == getDefaultRoute()) {
+                        // Local route
+                        mMediaSession.clearVolumeHandling();
+                    } else {
+                        int controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
+                        if (mPlaybackInfo.volumeHandling
+                                == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+                            controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+                        }
+                        mMediaSession.configureVolume(controlType, mPlaybackInfo.volumeMax,
+                                mPlaybackInfo.volume);
                     }
-                    mMediaSession.configureVolume(controlType, mPlaybackInfo.volumeMax,
-                            mPlaybackInfo.volume);
+                }
+            } else {
+                if (mMediaSession != null) {
+                    mMediaSession.clearVolumeHandling();
                 }
             }
         }
