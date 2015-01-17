@@ -453,4 +453,61 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyBeginAligned();
     }
 
+    public void testItemAddRemoveHorizontal() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        mGridView = mActivity.mGridView;
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
+        } else {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
+        }
+        waitForScrollIdle(mVerifyLayout);
+        int[] endEdges = getEndEdges();
+
+        mGridView.setSelectedPositionSmooth(150);
+        waitForScrollIdle(mVerifyLayout);
+        int[] removedItems = mActivity.removeItems(151, 4);
+        waitForTransientStateGone(null);
+
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
+        } else {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
+        }
+        waitForScrollIdle(mVerifyLayout);
+        mGridView.setSelectedPositionSmooth(150);
+        waitForScrollIdle(mVerifyLayout);
+
+        mActivity.addItems(151, removedItems);
+        waitForTransientStateGone(null);
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
+        } else {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
+        }
+        waitForScrollIdle(mVerifyLayout);
+
+        // we should get same aligned end edges
+        int[] endEdges2 = getEndEdges();
+        verifyEdgesSame(endEdges, endEdges2);
+
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
+        } else {
+            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
+        }
+        waitForScrollIdle(mVerifyLayout);
+        verifyBeginAligned();
+    }
+
 }
