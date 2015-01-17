@@ -46,7 +46,6 @@ public class GridActivity extends Activity {
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
-    static final int DEFAULT_LAYOUT_RESOURCE_ID = R.layout.horizontal_grid;
     static final int DEFAULT_NUM_ITEMS = 100;
     static final boolean DEFAULT_STAGGERED = true;
 
@@ -84,7 +83,7 @@ public class GridActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();
 
-        mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, DEFAULT_LAYOUT_RESOURCE_ID);
+        mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         if (mItemLengths == null) {
