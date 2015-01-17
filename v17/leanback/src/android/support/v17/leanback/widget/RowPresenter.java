@@ -35,15 +35,37 @@ import android.view.ViewGroup;
  * RowPresenter receives calls from its parent (typically a Fragment) when:
  * <ul>
  * <li>
- * A Row is selected via {@link #setRowViewSelected(Presenter.ViewHolder, boolean)}.  The event
+ * A row is selected via {@link #setRowViewSelected(Presenter.ViewHolder, boolean)}.  The event
  * is triggered immediately when there is a row selection change before the selection
- * animation is started.
+ * animation is started.  Selected status may control activated status of the row (see
+ * "Activated status" below).
  * Subclasses of RowPresenter may override {@link #onRowViewSelected(ViewHolder, boolean)}.
  * </li>
  * <li>
- * A Row is expanded to full width via {@link #setRowViewExpanded(Presenter.ViewHolder, boolean)}.
+ * A row is expanded to full height via {@link #setRowViewExpanded(Presenter.ViewHolder, boolean)}
+ * when BrowseFragment hides fast lane on the left.
  * The event is triggered immediately before the expand animation is started.
+ * Row title is shown when row is expanded.  Expanded status may control activated status
+ * of the row (see "Activated status" below).
  * Subclasses of RowPresenter may override {@link #onRowViewExpanded(ViewHolder, boolean)}.
+ * </li>
+ * </ul>
+ *
+ * <h3>Activated status</h3>
+ * The activated status of a row is applied to the row view and it's children via
+ * {@link View#setActivated(boolean)}.
+ * The activated status is typically used to control {@link BaseCardView} info region visibility.
+ * The row's activated status can be controlled by selected status and/or expanded status.
+ * Call {@link #setSyncActivatePolicy(int)} and choose one of the four policies:
+ * <ul>
+ * <li>{@link #SYNC_ACTIVATED_TO_EXPANDED} Activated status is synced with row expanded status</li>
+ * <li>{@link #SYNC_ACTIVATED_TO_SELECTED} Activated status is synced with row selected status</li>
+ * <li>{@link #SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED} Activated status is set to true
+ *     when both expanded and selected status are true</li>
+ * <li>{@link #SYNC_ACTIVATED_CUSTOM} Activated status is not controlled by selected status
+ *     or expanded status, application can control activated status by its own.
+ *     Application should call {@link RowPresenter.ViewHolder#setActivated(boolean)} to change
+ *     activated status of row view.
  * </li>
  * </ul>
  *
@@ -72,6 +94,27 @@ import android.view.ViewGroup;
  */
 public abstract class RowPresenter extends Presenter {
 
+    /**
+     * Don't synchronize row view activated status with selected status or expanded status,
+     * application will do its own through {@link RowPresenter.ViewHolder#setActivated(boolean)}.
+     */
+    public static final int SYNC_ACTIVATED_CUSTOM = 0;
+
+    /**
+     * Synchronizes row view's activated status to expand status of the row view holder.
+     */
+    public static final int SYNC_ACTIVATED_TO_EXPANDED = 1;
+
+    /**
+     * Synchronizes row view's activated status to selected status of the row view holder.
+     */
+    public static final int SYNC_ACTIVATED_TO_SELECTED = 2;
+
+    /**
+     * Sets the row view's activated status to true when both expand and selected are true.
+     */
+    public static final int SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED = 3;
+
     static class ContainerViewHolder extends Presenter.ViewHolder {
         /**
          * wrapped row view holder
@@ -93,9 +136,14 @@ public abstract class RowPresenter extends Presenter {
      * A view holder for a {@link Row}.
      */
     public static class ViewHolder extends Presenter.ViewHolder {
+        private static final int ACTIVATED_NOT_ASSIGNED = 0;
+        private static final int ACTIVATED = 1;
+        private static final int NOT_ACTIVATED = 2;
+
         ContainerViewHolder mContainerViewHolder;
         RowHeaderPresenter.ViewHolder mHeaderViewHolder;
         Row mRow;
+        int mActivated = ACTIVATED_NOT_ASSIGNED;
         boolean mSelected;
         boolean mExpanded;
         boolean mInitialzed;
@@ -150,6 +198,34 @@ public abstract class RowPresenter extends Presenter {
         public final RowHeaderPresenter.ViewHolder getHeaderViewHolder() {
             return mHeaderViewHolder;
         }
+
+        /**
+         * Sets the row view's activated status.  The status will be applied to children through
+         * {@link #syncActivatedStatus(View)}.  Application should only call this function
+         * when {@link RowPresenter#getSyncActivatePolicy()} is
+         * {@link RowPresenter#SYNC_ACTIVATED_CUSTOM}; otherwise the value will
+         * be overwritten when expanded or selected status changes.
+         */
+        public final void setActivated(boolean activated) {
+            mActivated = activated ? ACTIVATED : NOT_ACTIVATED;
+        }
+
+        /**
+         * Synchronizes the activated status of view to the last value passed through
+         * {@link RowPresenter.ViewHolder#setActivated(boolean)}. No operation if
+         * {@link RowPresenter.ViewHolder#setActivated(boolean)} is never called.  Normally
+         * application does not need to call this method,  {@link ListRowPresenter} automatically
+         * calls this method when a child is attached to list row.   However if
+         * application writes its own custom RowPresenter, it should call this method
+         * when attaches a child to the row view.
+         */
+        public final void syncActivatedStatus(View view) {
+            if (mActivated == ACTIVATED) {
+                view.setActivated(true);
+            } else if (mActivated == NOT_ACTIVATED) {
+                view.setActivated(false);
+            }
+        }
     }
 
     private RowHeaderPresenter mHeaderPresenter = new RowHeaderPresenter();
@@ -159,6 +235,7 @@ public abstract class RowPresenter extends Presenter {
     private OnItemViewClickedListener mOnItemViewClickedListener;
 
     boolean mSelectEffectEnabled = true;
+    int mSyncActivatePolicy = SYNC_ACTIVATED_TO_EXPANDED;
 
     @Override
     public final Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
@@ -267,7 +344,48 @@ public abstract class RowPresenter extends Presenter {
      */
     protected void onRowViewExpanded(ViewHolder vh, boolean expanded) {
         updateHeaderViewVisibility(vh);
-        vh.view.setActivated(expanded);
+        updateActivateStatus(vh, vh.view);
+    }
+
+    /**
+     * Update view's activate status according to {@link #getSyncActivatePolicy()} and the
+     * selected status and expanded status of the RowPresenter ViewHolder.
+     */
+    private void updateActivateStatus(ViewHolder vh, View view) {
+        switch (mSyncActivatePolicy) {
+            case SYNC_ACTIVATED_TO_EXPANDED:
+                vh.setActivated(vh.isExpanded());
+                break;
+            case SYNC_ACTIVATED_TO_SELECTED:
+                vh.setActivated(vh.isSelected());
+                break;
+            case SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED:
+                vh.setActivated(vh.isExpanded() && vh.isSelected());
+                break;
+        }
+        vh.syncActivatedStatus(view);
+    }
+
+    /**
+     * Sets policy of updating row view activated status.  Can be one of:
+     * <li> Default value {@link #SYNC_ACTIVATED_TO_EXPANDED}
+     * <li> {@link #SYNC_ACTIVATED_TO_SELECTED}
+     * <li> {@link #SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED}
+     * <li> {@link #SYNC_ACTIVATED_CUSTOM}
+     */
+    public final void setSyncActivatePolicy(int syncActivatePolicy) {
+        mSyncActivatePolicy = syncActivatePolicy;
+    }
+
+    /**
+     * Returns policy of updating row view activated status.  Can be one of:
+     * <li> Default value {@link #SYNC_ACTIVATED_TO_EXPANDED}
+     * <li> {@link #SYNC_ACTIVATED_TO_SELECTED}
+     * <li> {@link #SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED}
+     * <li> {@link #SYNC_ACTIVATED_CUSTOM}
+     */
+    public final int getSyncActivatePolicy() {
+        return mSyncActivatePolicy;
     }
 
     /**
@@ -285,6 +403,7 @@ public abstract class RowPresenter extends Presenter {
             }
         }
         updateHeaderViewVisibility(vh);
+        updateActivateStatus(vh, vh.view);
     }
 
     private void updateHeaderViewVisibility(ViewHolder vh) {
