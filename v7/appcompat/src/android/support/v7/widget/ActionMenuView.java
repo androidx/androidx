@@ -126,11 +126,13 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
             super.onConfigurationChanged(newConfig);
         }
 
-        mPresenter.updateMenuView(false);
+        if (mPresenter != null) {
+            mPresenter.updateMenuView(false);
 
-        if (mPresenter != null && mPresenter.isOverflowMenuShowing()) {
-            mPresenter.hideOverflowMenu();
-            mPresenter.showOverflowMenu();
+            if (mPresenter.isOverflowMenuShowing()) {
+                mPresenter.hideOverflowMenu();
+                mPresenter.showOverflowMenu();
+            }
         }
     }
 
