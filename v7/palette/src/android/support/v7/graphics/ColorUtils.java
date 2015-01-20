@@ -18,6 +18,9 @@ package android.support.v7.graphics;
 
 import android.graphics.Color;
 
+/**
+ * A set of color-related utility methods.
+ */
 final class ColorUtils {
 
     private static final int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
@@ -28,7 +31,7 @@ final class ColorUtils {
     /**
      * Composite two potentially translucent colors over each other and returns the result.
      */
-    private static int compositeColors(int fg, int bg) {
+    static int compositeColors(int fg, int bg) {
         final float alpha1 = Color.alpha(fg) / 255f;
         final float alpha2 = Color.alpha(bg) / 255f;
 
@@ -45,7 +48,7 @@ final class ColorUtils {
      *
      * Formula defined here: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
      */
-    private static double calculateLuminance(int color) {
+    static double calculateLuminance(int color) {
         double red = Color.red(color) / 255d;
         red = red < 0.03928 ? red / 12.92 : Math.pow((red + 0.055) / 1.055, 2.4);
 
@@ -91,7 +94,7 @@ final class ColorUtils {
         }
 
         // First lets check that a fully opaque foreground has sufficient contrast
-        int testForeground = modifyAlpha(foreground, 255);
+        int testForeground = setAlphaComponent(foreground, 255);
         double testRatio = calculateContrast(testForeground, background);
         if (testRatio < minContrastRatio) {
             // Fully opaque foreground does not have sufficient contrast, return error
@@ -107,7 +110,7 @@ final class ColorUtils {
                 (maxAlpha - minAlpha) > MIN_ALPHA_SEARCH_PRECISION) {
             final int testAlpha = (minAlpha + maxAlpha) / 2;
 
-            testForeground = modifyAlpha(foreground, testAlpha);
+            testForeground = setAlphaComponent(foreground, testAlpha);
             testRatio = calculateContrast(testForeground, background);
 
             if (testRatio < minContrastRatio) {
@@ -128,13 +131,26 @@ final class ColorUtils {
                 .findMinimumAlpha(textColor, backgroundColor, minContrastRatio);
 
         if (minAlpha >= 0) {
-            return ColorUtils.modifyAlpha(textColor, minAlpha);
+            return ColorUtils.setAlphaComponent(textColor, minAlpha);
         }
 
         // Didn't find an opacity which provided enough contrast
         return -1;
     }
 
+    /**
+     * Convert RGB components to HSL.
+     * <ul>
+     *   <li>hsl[0] is Hue [0 .. 360)</li>
+     *   <li>hsl[1] is Saturation [0...1]</li>
+     *   <li>hsl[2] is Lightness [0...1]</li>
+     * </ul>
+     *
+     * @param r   red component value [0..255]
+     * @param g   green component value [0..255]
+     * @param b   blue component value [0..255]
+     * @param hsl 3 element array which holds the resulting HSL components.
+     */
     static void RGBtoHSL(int r, int g, int b, float[] hsl) {
         final float rf = r / 255f;
         final float gf = g / 255f;
@@ -167,6 +183,18 @@ final class ColorUtils {
         hsl[2] = l;
     }
 
+    /**
+     * Convert HSL components to an RGB color:
+     * <ul>
+     *   <li>hsl[0] is Hue [0 .. 360)</li>
+     *   <li>hsl[1] is Saturation [0...1]</li>
+     *   <li>hsl[2] is Lightness [0...1]</li>
+     * </ul>
+     * If hsv values are out of range, they are pinned.
+     *
+     * @param hsl 3 element array which holds the input HSL components.
+     * @return the resulting RGB color
+     */
     static int HSLtoRGB (float[] hsl) {
         final float h = hsl[0];
         final float s = hsl[1];
@@ -224,7 +252,7 @@ final class ColorUtils {
     /**
      * Set the alpha component of {@code color} to be {@code alpha}.
      */
-    static int modifyAlpha(int color, int alpha) {
+    static int setAlphaComponent(int color, int alpha) {
         return (color & 0x00ffffff) | (alpha << 24);
     }
 

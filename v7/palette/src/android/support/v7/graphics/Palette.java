@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.os.AsyncTaskCompat;
+import android.util.TimingLogger;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,18 +41,21 @@ import java.util.List;
  * These can be retrieved from the appropriate getter method.
  *
  * <p>
- * Instances can be created with the synchronous factory methods {@link #generate(Bitmap)} and
- * {@link #generate(Bitmap, int)}.
+ * Instances are created with a {@link Builder} which supports several options to tweak the
+ * generated Palette. See that class' documentation for more information.
  * <p>
- * These should be called on a background thread, ideally the one in
- * which you load your images on. Sometimes that is not possible, so asynchronous factory methods
- * have also been provided: {@link #generateAsync(Bitmap, PaletteAsyncListener)} and
- * {@link #generateAsync(Bitmap, int, PaletteAsyncListener)}. These can be used as so:
+ * Generation should always be completed on a background thread, ideally the one in
+ * which you load your image on. {@link Builder} supports both synchronous and asynchronous
+ * generation:
  *
  * <pre>
- * Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
- *     public void onGenerated(Palette palette) {
- *         // Do something with colors...
+ * // Synchronous
+ * Palette p = Palette.from(bitmap).generate();
+ *
+ * // Asynchronous
+ * Palette.from(bitmap).generate(new PaletteAsyncListener() {
+ *     public void onGenerated(Palette p) {
+ *         // Use generated instance
  *     }
  * });
  * </pre>
@@ -70,120 +74,20 @@ public final class Palette {
         void onGenerated(Palette palette);
     }
 
-    private static final int CALCULATE_BITMAP_MIN_DIMENSION = 100;
+    private static final int DEFAULT_RESIZE_BITMAP_MAX_DIMENSION = 192;
     private static final int DEFAULT_CALCULATE_NUMBER_COLORS = 16;
-
-    private static final float TARGET_DARK_LUMA = 0.26f;
-    private static final float MAX_DARK_LUMA = 0.45f;
-
-    private static final float MIN_LIGHT_LUMA = 0.55f;
-    private static final float TARGET_LIGHT_LUMA = 0.74f;
-
-    private static final float MIN_NORMAL_LUMA = 0.3f;
-    private static final float TARGET_NORMAL_LUMA = 0.5f;
-    private static final float MAX_NORMAL_LUMA = 0.7f;
-
-    private static final float TARGET_MUTED_SATURATION = 0.3f;
-    private static final float MAX_MUTED_SATURATION = 0.4f;
-
-    private static final float TARGET_VIBRANT_SATURATION = 1f;
-    private static final float MIN_VIBRANT_SATURATION = 0.35f;
-
-    private static final float WEIGHT_SATURATION = 3f;
-    private static final float WEIGHT_LUMA = 6f;
-    private static final float WEIGHT_POPULATION = 1f;
 
     private static final float MIN_CONTRAST_TITLE_TEXT = 3.0f;
     private static final float MIN_CONTRAST_BODY_TEXT = 4.5f;
 
-    private final List<Swatch> mSwatches;
-    private final int mHighestPopulation;
-
-    private Swatch mVibrantSwatch;
-    private Swatch mMutedSwatch;
-
-    private Swatch mDarkVibrantSwatch;
-    private Swatch mDarkMutedSwatch;
-
-    private Swatch mLightVibrantSwatch;
-    private Swatch mLightMutedColor;
+    private static final String LOG_TAG = "Palette";
+    private static final boolean LOG_TIMINGS = false;
 
     /**
-     * Generate a {@link Palette} from a {@link Bitmap} using the default number of colors.
+     * Start generating a {@link Palette} with the returned {@link Builder} instance.
      */
-    public static Palette generate(Bitmap bitmap) {
-        return generate(bitmap, DEFAULT_CALCULATE_NUMBER_COLORS);
-    }
-
-    /**
-     * Generate a {@link Palette} from a {@link Bitmap} using the specified {@code numColors}.
-     * Good values for {@code numColors} depend on the source image type.
-     * For landscapes, a good values are in the range 12-16. For images which are largely made up
-     * of people's faces then this value should be increased to 24-32.
-     *
-     * @param numColors The maximum number of colors in the generated palette. Increasing this
-     *                  number will increase the time needed to compute the values.
-     */
-    public static Palette generate(Bitmap bitmap, int numColors) {
-        checkBitmapParam(bitmap);
-        checkNumberColorsParam(numColors);
-
-        // First we'll scale down the bitmap so it's shortest dimension is 100px
-        final Bitmap scaledBitmap = scaleBitmapDown(bitmap);
-
-        // Now generate a quantizer from the Bitmap
-        ColorCutQuantizer quantizer = ColorCutQuantizer.fromBitmap(scaledBitmap, numColors);
-
-        // If created a new bitmap, recycle it
-        if (scaledBitmap != bitmap) {
-            scaledBitmap.recycle();
-        }
-
-        // Now return a ColorExtractor instance
-        return new Palette(quantizer.getQuantizedColors());
-    }
-
-    /**
-     * Generate a {@link Palette} asynchronously. {@link PaletteAsyncListener#onGenerated(Palette)}
-     * will be called with the created instance. The resulting {@link Palette} is the same as
-     * what would be created by calling {@link #generate(Bitmap)}.
-     *
-     * @param listener Listener to be invoked when the {@link Palette} has been generated.
-     *
-     * @return the {@link android.os.AsyncTask} used to asynchronously generate the instance.
-     */
-    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
-            Bitmap bitmap, PaletteAsyncListener listener) {
-        return generateAsync(bitmap, DEFAULT_CALCULATE_NUMBER_COLORS, listener);
-    }
-
-    /**
-     * Generate a {@link Palette} asynchronously. {@link PaletteAsyncListener#onGenerated(Palette)}
-     * will be called with the created instance. The resulting {@link Palette} is the same as what
-     * would be created by calling {@link #generate(Bitmap, int)}.
-     *
-     * @param listener Listener to be invoked when the {@link Palette} has been generated.
-     *
-     * @return the {@link android.os.AsyncTask} used to asynchronously generate the instance.
-     */
-    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
-            final Bitmap bitmap, final int numColors, final PaletteAsyncListener listener) {
-        checkBitmapParam(bitmap);
-        checkNumberColorsParam(numColors);
-        checkAsyncListenerParam(listener);
-
-        return AsyncTaskCompat.executeParallel(
-                new AsyncTask<Bitmap, Void, Palette>() {
-                    @Override
-                    protected Palette doInBackground(Bitmap... params) {
-                        return generate(params[0], numColors);
-                    }
-
-                    @Override
-                    protected void onPostExecute(Palette colorExtractor) {
-                        listener.onGenerated(colorExtractor);
-                    }
-                }, bitmap);
+    public static Builder from(Bitmap bitmap) {
+        return new Builder(bitmap);
     }
 
     /**
@@ -192,36 +96,49 @@ public final class Palette {
      * list of swatches. Will return null if the {@code swatches} is null.
      */
     public static Palette from(List<Swatch> swatches) {
-        if (swatches == null) {
-            return null;
-        }
-        return new Palette(swatches);
+        return new Builder(swatches).generate();
     }
 
-    private Palette(List<Swatch> swatches) {
+    /**
+     * @deprecated Use {@link Builder} to generate the Palette.
+     */
+    @Deprecated
+    public static Palette generate(Bitmap bitmap) {
+        return from(bitmap).generate();
+    }
+
+    /**
+     * @deprecated Use {@link Builder} to generate the Palette.
+     */
+    @Deprecated
+    public static Palette generate(Bitmap bitmap, int numColors) {
+        return from(bitmap).maximumColorCount(numColors).generate();
+    }
+
+    /**
+     * @deprecated Use {@link Builder} to generate the Palette.
+     */
+    @Deprecated
+    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
+            Bitmap bitmap, PaletteAsyncListener listener) {
+        return from(bitmap).generate(listener);
+    }
+
+    /**
+     * @deprecated Use {@link Builder} to generate the Palette.
+     */
+    @Deprecated
+    public static AsyncTask<Bitmap, Void, Palette> generateAsync(
+            final Bitmap bitmap, final int numColors, final PaletteAsyncListener listener) {
+        return from(bitmap).maximumColorCount(numColors).generate(listener);
+    }
+
+    private final List<Swatch> mSwatches;
+    private final Generator mGenerator;
+
+    private Palette(List<Swatch> swatches, Generator generator) {
         mSwatches = swatches;
-        mHighestPopulation = findMaxPopulation();
-
-        mVibrantSwatch = findColor(TARGET_NORMAL_LUMA, MIN_NORMAL_LUMA, MAX_NORMAL_LUMA,
-                TARGET_VIBRANT_SATURATION, MIN_VIBRANT_SATURATION, 1f);
-
-        mLightVibrantSwatch = findColor(TARGET_LIGHT_LUMA, MIN_LIGHT_LUMA, 1f,
-                TARGET_VIBRANT_SATURATION, MIN_VIBRANT_SATURATION, 1f);
-
-        mDarkVibrantSwatch = findColor(TARGET_DARK_LUMA, 0f, MAX_DARK_LUMA,
-                TARGET_VIBRANT_SATURATION, MIN_VIBRANT_SATURATION, 1f);
-
-        mMutedSwatch = findColor(TARGET_NORMAL_LUMA, MIN_NORMAL_LUMA, MAX_NORMAL_LUMA,
-                TARGET_MUTED_SATURATION, 0f, MAX_MUTED_SATURATION);
-
-        mLightMutedColor = findColor(TARGET_LIGHT_LUMA, MIN_LIGHT_LUMA, 1f,
-                TARGET_MUTED_SATURATION, 0f, MAX_MUTED_SATURATION);
-
-        mDarkMutedSwatch = findColor(TARGET_DARK_LUMA, 0f, MAX_DARK_LUMA,
-                TARGET_MUTED_SATURATION, 0f, MAX_MUTED_SATURATION);
-
-        // Now try and generate any missing colors
-        generateEmptySwatches();
+        mGenerator = generator;
     }
 
     /**
@@ -235,42 +152,42 @@ public final class Palette {
      * Returns the most vibrant swatch in the palette. Might be null.
      */
     public Swatch getVibrantSwatch() {
-        return mVibrantSwatch;
+        return mGenerator.getVibrantSwatch();
     }
 
     /**
      * Returns a light and vibrant swatch from the palette. Might be null.
      */
     public Swatch getLightVibrantSwatch() {
-        return mLightVibrantSwatch;
+        return mGenerator.getLightVibrantSwatch();
     }
 
     /**
      * Returns a dark and vibrant swatch from the palette. Might be null.
      */
     public Swatch getDarkVibrantSwatch() {
-        return mDarkVibrantSwatch;
+        return mGenerator.getDarkVibrantSwatch();
     }
 
     /**
      * Returns a muted swatch from the palette. Might be null.
      */
     public Swatch getMutedSwatch() {
-        return mMutedSwatch;
+        return mGenerator.getMutedSwatch();
     }
 
     /**
      * Returns a muted and light swatch from the palette. Might be null.
      */
     public Swatch getLightMutedSwatch() {
-        return mLightMutedColor;
+        return mGenerator.getLightMutedSwatch();
     }
 
     /**
      * Returns a muted and dark swatch from the palette. Might be null.
      */
     public Swatch getDarkMutedSwatch() {
-        return mDarkMutedSwatch;
+        return mGenerator.getDarkMutedSwatch();
     }
 
     /**
@@ -279,7 +196,8 @@ public final class Palette {
      * @param defaultColor value to return if the swatch isn't available
      */
     public int getVibrantColor(int defaultColor) {
-        return mVibrantSwatch != null ? mVibrantSwatch.getRgb() : defaultColor;
+        Swatch swatch = getVibrantSwatch();
+        return swatch != null ? swatch.getRgb() : defaultColor;
     }
 
     /**
@@ -288,7 +206,8 @@ public final class Palette {
      * @param defaultColor value to return if the swatch isn't available
      */
     public int getLightVibrantColor(int defaultColor) {
-        return mLightVibrantSwatch != null ? mLightVibrantSwatch.getRgb() : defaultColor;
+        Swatch swatch = getLightVibrantSwatch();
+        return swatch != null ? swatch.getRgb() : defaultColor;
     }
 
     /**
@@ -297,7 +216,8 @@ public final class Palette {
      * @param defaultColor value to return if the swatch isn't available
      */
     public int getDarkVibrantColor(int defaultColor) {
-        return mDarkVibrantSwatch != null ? mDarkVibrantSwatch.getRgb() : defaultColor;
+        Swatch swatch = getDarkVibrantSwatch();
+        return swatch != null ? swatch.getRgb() : defaultColor;
     }
 
     /**
@@ -306,7 +226,8 @@ public final class Palette {
      * @param defaultColor value to return if the swatch isn't available
      */
     public int getMutedColor(int defaultColor) {
-        return mMutedSwatch != null ? mMutedSwatch.getRgb() : defaultColor;
+        Swatch swatch = getMutedSwatch();
+        return swatch != null ? swatch.getRgb() : defaultColor;
     }
 
     /**
@@ -315,7 +236,8 @@ public final class Palette {
      * @param defaultColor value to return if the swatch isn't available
      */
     public int getLightMutedColor(int defaultColor) {
-        return mLightMutedColor != null ? mLightMutedColor.getRgb() : defaultColor;
+        Swatch swatch = getLightMutedSwatch();
+        return swatch != null ? swatch.getRgb() : defaultColor;
     }
 
     /**
@@ -324,217 +246,27 @@ public final class Palette {
      * @param defaultColor value to return if the swatch isn't available
      */
     public int getDarkMutedColor(int defaultColor) {
-        return mDarkMutedSwatch != null ? mDarkMutedSwatch.getRgb() : defaultColor;
+        Swatch swatch = getDarkMutedSwatch();
+        return swatch != null ? swatch.getRgb() : defaultColor;
     }
 
     /**
-     * @return true if we have already selected {@code swatch}
+     * Scale the bitmap down so that it's largest dimension is {@code targetMaxDimension}.
+     * If {@code bitmap} is smaller than this, then it is returned.
      */
-    private boolean isAlreadySelected(Swatch swatch) {
-        return mVibrantSwatch == swatch || mDarkVibrantSwatch == swatch ||
-                mLightVibrantSwatch == swatch || mMutedSwatch == swatch ||
-                mDarkMutedSwatch == swatch || mLightMutedColor == swatch;
-    }
+    private static Bitmap scaleBitmapDown(Bitmap bitmap, final int targetMaxDimension) {
+        final int maxDimension = Math.max(bitmap.getWidth(), bitmap.getHeight());
 
-    private Swatch findColor(float targetLuma, float minLuma, float maxLuma,
-                             float targetSaturation, float minSaturation, float maxSaturation) {
-        Swatch max = null;
-        float maxValue = 0f;
-
-        for (Swatch swatch : mSwatches) {
-            final float sat = swatch.getHsl()[1];
-            final float luma = swatch.getHsl()[2];
-
-            if (sat >= minSaturation && sat <= maxSaturation &&
-                    luma >= minLuma && luma <= maxLuma &&
-                    !isAlreadySelected(swatch)) {
-                float thisValue = createComparisonValue(sat, targetSaturation, luma, targetLuma,
-                        swatch.getPopulation(), mHighestPopulation);
-                if (max == null || thisValue > maxValue) {
-                    max = swatch;
-                    maxValue = thisValue;
-                }
-            }
-        }
-
-        return max;
-    }
-
-    /**
-     * Try and generate any missing swatches from the swatches we did find.
-     */
-    private void generateEmptySwatches() {
-        if (mVibrantSwatch == null) {
-            // If we do not have a vibrant color...
-            if (mDarkVibrantSwatch != null) {
-                // ...but we do have a dark vibrant, generate the value by modifying the luma
-                final float[] newHsl = copyHslValues(mDarkVibrantSwatch);
-                newHsl[2] = TARGET_NORMAL_LUMA;
-                mVibrantSwatch = new Swatch(ColorUtils.HSLtoRGB(newHsl), 0);
-            }
-        }
-
-        if (mDarkVibrantSwatch == null) {
-            // If we do not have a dark vibrant color...
-            if (mVibrantSwatch != null) {
-                // ...but we do have a vibrant, generate the value by modifying the luma
-                final float[] newHsl = copyHslValues(mVibrantSwatch);
-                newHsl[2] = TARGET_DARK_LUMA;
-                mDarkVibrantSwatch = new Swatch(ColorUtils.HSLtoRGB(newHsl), 0);
-            }
-        }
-    }
-
-    /**
-     * Find the {@link Swatch} with the highest population value and return the population.
-     */
-    private int findMaxPopulation() {
-        int population = 0;
-        for (Swatch swatch : mSwatches) {
-            population = Math.max(population, swatch.getPopulation());
-        }
-        return population;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        Palette palette = (Palette) o;
-
-        if (mSwatches != null ? !mSwatches.equals(palette.mSwatches) : palette.mSwatches != null) {
-            return false;
-        }
-        if (mDarkMutedSwatch != null ? !mDarkMutedSwatch.equals(palette.mDarkMutedSwatch)
-                : palette.mDarkMutedSwatch != null) {
-            return false;
-        }
-        if (mDarkVibrantSwatch != null ? !mDarkVibrantSwatch.equals(palette.mDarkVibrantSwatch)
-                : palette.mDarkVibrantSwatch != null) {
-            return false;
-        }
-        if (mLightMutedColor != null ? !mLightMutedColor.equals(palette.mLightMutedColor)
-                : palette.mLightMutedColor != null) {
-            return false;
-        }
-        if (mLightVibrantSwatch != null ? !mLightVibrantSwatch.equals(palette.mLightVibrantSwatch)
-                : palette.mLightVibrantSwatch != null) {
-            return false;
-        }
-        if (mMutedSwatch != null ? !mMutedSwatch.equals(palette.mMutedSwatch)
-                : palette.mMutedSwatch != null) {
-            return false;
-        }
-        if (mVibrantSwatch != null ? !mVibrantSwatch.equals(palette.mVibrantSwatch)
-                : palette.mVibrantSwatch != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mSwatches != null ? mSwatches.hashCode() : 0;
-        result = 31 * result + (mVibrantSwatch != null ? mVibrantSwatch.hashCode() : 0);
-        result = 31 * result + (mMutedSwatch != null ? mMutedSwatch.hashCode() : 0);
-        result = 31 * result + (mDarkVibrantSwatch != null ? mDarkVibrantSwatch.hashCode() : 0);
-        result = 31 * result + (mDarkMutedSwatch != null ? mDarkMutedSwatch.hashCode() : 0);
-        result = 31 * result + (mLightVibrantSwatch != null ? mLightVibrantSwatch.hashCode() : 0);
-        result = 31 * result + (mLightMutedColor != null ? mLightMutedColor.hashCode() : 0);
-        return result;
-    }
-
-    /**
-     * Scale the bitmap down so that it's smallest dimension is
-     * {@value #CALCULATE_BITMAP_MIN_DIMENSION}px. If {@code bitmap} is smaller than this, than it
-     * is returned.
-     */
-    private static Bitmap scaleBitmapDown(Bitmap bitmap) {
-        final int minDimension = Math.min(bitmap.getWidth(), bitmap.getHeight());
-
-        if (minDimension <= CALCULATE_BITMAP_MIN_DIMENSION) {
+        if (maxDimension <= targetMaxDimension) {
             // If the bitmap is small enough already, just return it
             return bitmap;
         }
 
-        final float scaleRatio = CALCULATE_BITMAP_MIN_DIMENSION / (float) minDimension;
+        final float scaleRatio = targetMaxDimension / (float) maxDimension;
         return Bitmap.createScaledBitmap(bitmap,
                 Math.round(bitmap.getWidth() * scaleRatio),
                 Math.round(bitmap.getHeight() * scaleRatio),
                 false);
-    }
-
-    private static float createComparisonValue(float saturation, float targetSaturation,
-            float luma, float targetLuma,
-            int population, int highestPopulation) {
-        return weightedMean(
-                invertDiff(saturation, targetSaturation), WEIGHT_SATURATION,
-                invertDiff(luma, targetLuma), WEIGHT_LUMA,
-                population / (float) highestPopulation, WEIGHT_POPULATION
-        );
-    }
-
-    /**
-     * Copy a {@link Swatch}'s HSL values into a new float[].
-     */
-    private static float[] copyHslValues(Swatch color) {
-        final float[] newHsl = new float[3];
-        System.arraycopy(color.getHsl(), 0, newHsl, 0, 3);
-        return newHsl;
-    }
-
-    /**
-     * Returns a value in the range 0-1. 1 is returned when {@code value} equals the
-     * {@code targetValue} and then decreases as the absolute difference between {@code value} and
-     * {@code targetValue} increases.
-     *
-     * @param value the item's value
-     * @param targetValue the value which we desire
-     */
-    private static float invertDiff(float value, float targetValue) {
-        return 1f - Math.abs(value - targetValue);
-    }
-
-    private static float weightedMean(float... values) {
-        float sum = 0f;
-        float sumWeight = 0f;
-
-        for (int i = 0; i < values.length; i += 2) {
-            float value = values[i];
-            float weight = values[i + 1];
-
-            sum += (value * weight);
-            sumWeight += weight;
-        }
-
-        return sum / sumWeight;
-    }
-
-    private static void checkBitmapParam(Bitmap bitmap) {
-        if (bitmap == null) {
-            throw new IllegalArgumentException("bitmap can not be null");
-        }
-        if (bitmap.isRecycled()) {
-            throw new IllegalArgumentException("bitmap can not be recycled");
-        }
-    }
-
-    private static void checkNumberColorsParam(int numColors) {
-        if (numColors < 1) {
-            throw new IllegalArgumentException("numColors must be 1 of greater");
-        }
-    }
-
-    private static void checkAsyncListenerParam(PaletteAsyncListener listener) {
-        if (listener == null) {
-            throw new IllegalArgumentException("listener can not be null");
-        }
     }
 
     /**
@@ -680,6 +412,234 @@ public final class Palette {
         @Override
         public int hashCode() {
             return 31 * mRgb + mPopulation;
+        }
+    }
+
+    /**
+     * Builder class for generating {@link Palette} instances.
+     */
+    public static final class Builder {
+        private List<Swatch> mSwatches;
+        private Bitmap mBitmap;
+        private int mMaxColors = DEFAULT_CALCULATE_NUMBER_COLORS;
+        private int mResizeMaxDimension = DEFAULT_RESIZE_BITMAP_MAX_DIMENSION;
+
+        private Generator mGenerator;
+
+        /**
+         * Construct a new {@link Builder} using a source {@link Bitmap}
+         */
+        public Builder(Bitmap bitmap) {
+            if (bitmap == null || bitmap.isRecycled()) {
+                throw new IllegalArgumentException("Bitmap is not valid");
+            }
+            mBitmap = bitmap;
+        }
+
+        /**
+         * Construct a new {@link Builder} using a list of {@link Swatch} instances.
+         * Typically only used for testing.
+         */
+        public Builder(List<Swatch> swatches) {
+            if (swatches == null || swatches.isEmpty()) {
+                throw new IllegalArgumentException("List of Swatches is not valid");
+            }
+            mSwatches = swatches;
+        }
+
+        /**
+         * Set the {@link Generator} to use when generating the {@link Palette}. If this is called
+         * with {@code null} then the default generator will be used.
+         */
+        public Builder generator(Generator generator) {
+            mGenerator = generator;
+            return this;
+        }
+
+        /**
+         * Set the maximum number of colors to use in the quantization step when using a
+         * {@link android.graphics.Bitmap} as the source.
+         * <p>
+         * Good values for depend on the source image type. For landscapes, good values are in
+         * the range 10-16. For images which are largely made up of people's faces then this
+         * value should be increased to ~24.
+         */
+        public Builder maximumColorCount(int colors) {
+            mMaxColors = colors;
+            return this;
+        }
+
+        /**
+         * Set the resize value when using a {@link android.graphics.Bitmap} as the source.
+         * If the bitmap's largest dimension is greater than the value specified, then the bitmap
+         * will be resized so that it's largest dimension matches {@code maxDimension}. If the
+         * bitmap is smaller or equal, the original is used as-is.
+         * <p>
+         * This value has a large effect on the processing time. The larger the resized image is,
+         * the greater time it will take to generate the palette. The smaller the image is, the
+         * more detail is lost in the resulting image and thus less precision for color selection.
+         */
+        public Builder resizeBitmapSize(int maxDimension) {
+            mResizeMaxDimension = maxDimension;
+            return this;
+        }
+
+        /**
+         * Generate and return the {@link Palette} synchronously.
+         */
+        public Palette generate() {
+            final TimingLogger logger = LOG_TIMINGS
+                    ? new TimingLogger(LOG_TAG, "Generation")
+                    : null;
+
+            List<Swatch> swatches;
+
+            if (mBitmap != null) {
+                // We have a Bitmap so we need to quantization to reduce the number of colors
+
+                if (mResizeMaxDimension <= 0) {
+                    throw new IllegalArgumentException(
+                            "Minimum dimension size for resizing should should be >= 1");
+                }
+
+                // First we'll scale down the bitmap so it's largest dimension is as specified
+                final Bitmap scaledBitmap = scaleBitmapDown(mBitmap, mResizeMaxDimension);
+
+                if (logger != null) {
+                    logger.addSplit("Processed Bitmap");
+                }
+
+                // Now generate a quantizer from the Bitmap
+                ColorCutQuantizer quantizer = ColorCutQuantizer
+                        .fromBitmap(scaledBitmap, mMaxColors);
+
+                // If created a new bitmap, recycle it
+                if (scaledBitmap != mBitmap) {
+                    scaledBitmap.recycle();
+                }
+                swatches = quantizer.getQuantizedColors();
+
+                if (logger != null) {
+                    logger.addSplit("Color quantization completed");
+                }
+            } else {
+                // Else we're using the provided swatches
+                swatches = mSwatches;
+            }
+
+            // If we haven't been provided with a generator, use the default
+            if (mGenerator == null) {
+                mGenerator = new DefaultGenerator();
+            }
+
+            // Now call let the Generator do it's thing
+            mGenerator.generate(swatches);
+
+            if (logger != null) {
+                logger.addSplit("Generator.generate() completed");
+            }
+
+            // Now create a Palette instance
+            Palette p = new Palette(swatches, mGenerator);
+
+            if (logger != null) {
+                logger.addSplit("Created Palette");
+                logger.dumpToLog();
+            }
+
+            return p;
+        }
+
+        /**
+         * Generate the {@link Palette} asynchronously. The provided listener's
+         * {@link PaletteAsyncListener#onGenerated} method will be called with the palette when
+         * generated.
+         */
+        public AsyncTask<Bitmap, Void, Palette> generate(final PaletteAsyncListener listener) {
+            if (listener == null) {
+                throw new IllegalArgumentException("listener can not be null");
+            }
+
+            return AsyncTaskCompat.executeParallel(
+                    new AsyncTask<Bitmap, Void, Palette>() {
+                        @Override
+                        protected Palette doInBackground(Bitmap... params) {
+                            return generate();
+                        }
+
+                        @Override
+                        protected void onPostExecute(Palette colorExtractor) {
+                            listener.onGenerated(colorExtractor);
+                        }
+                    }, mBitmap);
+        }
+    }
+
+    /**
+     * Extension point for {@link Palette} which allows custom processing of the list of
+     * {@link Palette.Swatch} instances which represent an image.
+     * <p>
+     * You should do as much processing as possible during the
+     * {@link #generate(java.util.List)} method call. The other methods in this class
+     * may be called multiple times to retrieve an appropriate {@link Palette.Swatch}.
+     * <p>
+     * Usage of a custom {@link Generator} is done with {@link Builder#generator(Generator)} as so:
+     * <pre>
+     * Generator customGenerator = ...;
+     * Palette.from(bitmap).generator(customGenerator).generate();
+     * </pre>
+     */
+    public static abstract class Generator {
+
+        /**
+         * This method will be called with the {@link Palette.Swatch} that represent an image.
+         * You should process this list so that you have appropriate values when the other methods in
+         * class are called.
+         * <p>
+         * This method will probably be called on a background thread.
+         */
+        public abstract void generate(List<Palette.Swatch> swatches);
+
+        /**
+         * Return the most vibrant {@link Palette.Swatch}
+         */
+        public Palette.Swatch getVibrantSwatch() {
+            return null;
+        }
+
+        /**
+         * Return a light and vibrant {@link Palette.Swatch}
+         */
+        public Palette.Swatch getLightVibrantSwatch() {
+            return null;
+        }
+
+        /**
+         * Return a dark and vibrant {@link Palette.Swatch}
+         */
+        public Palette.Swatch getDarkVibrantSwatch() {
+            return null;
+        }
+
+        /**
+         * Return a muted {@link Palette.Swatch}
+         */
+        public Palette.Swatch getMutedSwatch() {
+            return null;
+        }
+
+        /**
+         * Return a muted and light {@link Palette.Swatch}
+         */
+        public Palette.Swatch getLightMutedSwatch() {
+            return null;
+        }
+
+        /**
+         * Return a muted and dark {@link Palette.Swatch}
+         */
+        public Palette.Swatch getDarkMutedSwatch() {
+            return null;
         }
     }
 
