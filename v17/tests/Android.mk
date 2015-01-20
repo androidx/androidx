@@ -24,7 +24,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_RESOURCE_DIR = \
         $(LOCAL_PATH)/res \
-        $(LOCAL_PATH)/../res
+        $(LOCAL_PATH)/../leanback/res
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay \
         --extra-packages android.support.v17.leanback
