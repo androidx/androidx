@@ -306,6 +306,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 mRecyclerView.smoothScrollToPosition(position);
             }
         });
+        getInstrumentation().waitForIdleSync();
+        Thread.sleep(200); //give scroller some time so start
         while (mRecyclerView.getLayoutManager().isSmoothScrolling() ||
                 mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
             if (mDebug) {

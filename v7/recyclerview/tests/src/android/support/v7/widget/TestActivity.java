@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 public class TestActivity extends Activity {
@@ -29,5 +30,6 @@ public class TestActivity extends Activity {
         super.onCreate(savedInstanceState);
         mContainer = new FrameLayout(this);
         setContentView(mContainer);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 }
