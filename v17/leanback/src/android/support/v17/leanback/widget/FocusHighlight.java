@@ -38,4 +38,8 @@ public interface FocusHighlight {
      */
     public static final int ZOOM_FACTOR_LARGE = 3;
 
+    /**
+     * An extra small zoom factor.
+     */
+    public static final int ZOOM_FACTOR_XSMALL = 4;
 }
