@@ -18,21 +18,61 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * An overview row for a details fragment. This row consists of an image, a
  * description view, and optionally a series of {@link Action}s that can be taken for
  * the item.
+ *
+ * <h3>Actions</h3>
+ * Application uses {@link #setActionsAdapter(ObjectAdapter)} to set actions on the overview
+ * row.  {@link SparseArrayObjectAdapter} is recommended for easy updating actions while
+ * keeping the order.  Application can add or remove actions on UI thread after the row is
+ * bound to view.
+ *
+ * <h3>Updating main item</h3>
+ * After the row is bound to view, application still can call ({@link #setItem(Object)})
+ * on UI thread.
+ *
+ * <h3>Updating image</h3>
+ * After the row is bound to view, application still can change image by calling ({@link
+ * #setImageBitmap(Context, Bitmap)}) or {@link #setImageDrawable(Drawable)}) on UI thread.
  */
 public class DetailsOverviewRow extends Row {
 
+    /**
+     * Listener for changes of DetailsOverViewRow.
+     */
+    static class Listener {
+
+        /**
+         * Called when DetailsOverviewRow has changed image drawable.
+         */
+        public void onImageDrawableChanged(DetailsOverviewRow row) {
+        }
+
+        /**
+         * Called when DetailsOverviewRow has changed main item.
+         */
+        public void onItemChanged(DetailsOverviewRow row) {
+        }
+
+        /**
+         * Called when DetailsOverviewRow has changed actions adapter.
+         */
+        public void onActionsAdapterChanged(DetailsOverviewRow row) {
+        }
+    }
+
     private Object mItem;
     private Drawable mImageDrawable;
-    private ArrayList<Action> mActions = new ArrayList<Action>();
     private boolean mImageScaleUpAllowed = true;
+    private ArrayList<WeakReference<Listener>> mListeners;
+    private PresenterSelector mDefaultActionPresenter = new ActionPresenterSelector();
+    private ObjectAdapter mActionsAdapter = new ArrayObjectAdapter(mDefaultActionPresenter);
 
     /**
      * Constructor for a DetailsOverviewRow.
@@ -46,6 +86,99 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
+     * Adds listener for the details page.
+     */
+    final void addListener(Listener listener) {
+        if (mListeners == null) {
+            mListeners = new ArrayList<WeakReference<Listener>>();
+        } else {
+            for (int i = 0; i < mListeners.size();) {
+                Listener l = mListeners.get(i).get();
+                if (l == null) {
+                    mListeners.remove(i);
+                } else {
+                    if (l == listener) {
+                        return;
+                    }
+                    i++;
+                }
+            }
+        }
+        mListeners.add(new WeakReference<Listener>(listener));
+    }
+
+    /**
+     * Removes listener of the details page.
+     */
+    final void removeListener(Listener listener) {
+        if (mListeners != null) {
+            for (int i = 0; i < mListeners.size();) {
+                Listener l = mListeners.get(i).get();
+                if (l == null) {
+                    mListeners.remove(i);
+                } else {
+                    if (l == listener) {
+                        mListeners.remove(i);
+                        return;
+                    }
+                    i++;
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies listeners for main item change on UI thread.
+     */
+    final void notifyItemChanged() {
+        if (mListeners != null) {
+            for (int i = 0; i < mListeners.size();) {
+                Listener l = mListeners.get(i).get();
+                if (l == null) {
+                    mListeners.remove(i);
+                } else {
+                    l.onItemChanged(this);
+                    i++;
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies listeners for image related change on UI thread.
+     */
+    final void notifyImageDrawableChanged() {
+        if (mListeners != null) {
+            for (int i = 0; i < mListeners.size();) {
+                Listener l = mListeners.get(i).get();
+                if (l == null) {
+                    mListeners.remove(i);
+                } else {
+                    l.onImageDrawableChanged(this);
+                    i++;
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies listeners for actions adapter changed on UI thread.
+     */
+    final void notifyActionsAdapterChanged() {
+        if (mListeners != null) {
+            for (int i = 0; i < mListeners.size();) {
+                Listener l = mListeners.get(i).get();
+                if (l == null) {
+                    mListeners.remove(i);
+                } else {
+                    l.onActionsAdapterChanged(this);
+                    i++;
+                }
+            }
+        }
+    }
+
+    /**
      * Gets the main item for the details page.
      */
     public final Object getItem() {
@@ -53,22 +186,39 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Sets a drawable as the image of this details overview.
+     * Sets the main item for the details page.  Must be called on UI thread after
+     * row is bound to view.
+     */
+    public final void setItem(Object item) {
+        if (item != mItem) {
+            mItem = item;
+            notifyItemChanged();
+        }
+    }
+
+    /**
+     * Sets a drawable as the image of this details overview.  Must be called on UI thread
+     * after row is bound to view.
      *
      * @param drawable The drawable to set.
      */
     public final void setImageDrawable(Drawable drawable) {
-        mImageDrawable = drawable;
+        if (mImageDrawable != drawable) {
+            mImageDrawable = drawable;
+            notifyImageDrawableChanged();
+        }
     }
 
     /**
-     * Sets a Bitmap as the image of this details overview.
+     * Sets a Bitmap as the image of this details overview.  Must be called on UI thread
+     * after row is bound to view.
      *
      * @param context The context to retrieve display metrics from.
      * @param bm The bitmap to set.
      */
     public final void setImageBitmap(Context context, Bitmap bm) {
         mImageDrawable = new BitmapDrawable(context.getResources(), bm);
+        notifyImageDrawableChanged();
     }
 
     /**
@@ -83,10 +233,14 @@ public class DetailsOverviewRow extends Row {
 
     /**
      * Allows or disallows scaling up of images.
-     * Images will always be scaled down if necessary.
+     * Images will always be scaled down if necessary.  Must be called on UI thread
+     * after row is bound to view.
      */
     public void setImageScaleUpAllowed(boolean allowed) {
-        mImageScaleUpAllowed = allowed;
+        if (allowed != mImageScaleUpAllowed) {
+            mImageScaleUpAllowed = allowed;
+            notifyImageDrawableChanged();
+        }
     }
 
     /**
@@ -97,41 +251,80 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Add an Action to the overview.
-     *
-     * @param action The Action to add.
+     * Get array object adapter.  Throws ClassCastException if the current ObjectAdapter is not
+     * ArrayObjectAdapter.
      */
-    public final void addAction(Action action) {
-        mActions.add(action);
+    private ArrayObjectAdapter getArrayObjectAdapter() {
+        return (ArrayObjectAdapter) mActionsAdapter;
     }
 
     /**
-     * Add an Action to the overview at the specified position.
+     * Add an Action to the overview. It will throw ClassCastException if current actions adapter
+     * is not {@link ArrayObjectAdapter}. Must be called on UI thread.
+     *
+     * @param action The Action to add.
+     * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
+     */
+    public final void addAction(Action action) {
+        getArrayObjectAdapter().add(action);
+    }
+
+    /**
+     * Add an Action to the overview at the specified position. It will throw ClassCastException if
+     * current actions adapter is not {@link ArrayObjectAdapter}. Must be called on UI thread.
      *
      * @param pos The position to insert the Action.
      * @param action The Action to add.
+     * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
      */
     public final void addAction(int pos, Action action) {
-        mActions.add(pos, action);
+        getArrayObjectAdapter().add(pos, action);
     }
 
     /**
-     * Remove the given Action from the overview.
+     * Remove the given Action from the overview. It will throw ClassCastException if current
+     * actions adapter is not {@link ArrayObjectAdapter}. Must be called on UI thread.
      *
      * @param action The Action to remove.
      * @return true if the overview contained the specified Action.
+     * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
      */
     public final boolean removeAction(Action action) {
-        return mActions.remove(action);
+        return getArrayObjectAdapter().remove(action);
     }
 
     /**
-     * Gets a read-only view of the list of Actions of this details overview.
+     * Gets a read-only view of the list of Actions of this details overview. It will throw
+     * ClassCastException if current actions adapter is not {@link ArrayObjectAdapter}. Must be
+     * called on UI thread.
      *
      * @return An unmodifiable view of the list of Actions.
+     * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
      */
     public final List<Action> getActions() {
-        return Collections.unmodifiableList(mActions);
+        return getArrayObjectAdapter().unmodifiableList();
+    }
+
+    /**
+     * Gets {@link ObjectAdapter} for actions.
+     */
+    public final ObjectAdapter getActionsAdapter() {
+        return mActionsAdapter;
+    }
+
+    /**
+     * Sets {@link ObjectAdapter} for actions.
+     * @param adapter  Adapter for actions, a default {@link PresenterSelector} will be attached
+     *                 to the adapter if it doesn't have one.
+     */
+    public final void setActionsAdapter(ObjectAdapter adapter) {
+        if (adapter != mActionsAdapter) {
+            mActionsAdapter = adapter;
+            if (mActionsAdapter.getPresenterSelector() == null) {
+                mActionsAdapter.setPresenterSelector(mDefaultActionPresenter);
+            }
+            notifyActionsAdapterChanged();
+        }
     }
 
     private void verify() {

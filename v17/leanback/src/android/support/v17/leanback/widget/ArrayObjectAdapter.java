@@ -15,6 +15,8 @@ package android.support.v17.leanback.widget;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An ObjectAdapter implemented with an {@link ArrayList}.
@@ -172,5 +174,12 @@ public class ArrayObjectAdapter extends ObjectAdapter {
         }
         mItems.clear();
         notifyItemRangeRemoved(0, itemCount);
+    }
+
+    /**
+     * Gets a read-only view of the list of object of this ArrayObjectAdapter.
+     */
+    public <E> List<E> unmodifiableList() {
+        return Collections.unmodifiableList((List<E>) mItems);
     }
 }
