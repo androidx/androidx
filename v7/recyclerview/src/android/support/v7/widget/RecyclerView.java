@@ -28,6 +28,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ScrollingView;
 import android.support.v4.view.VelocityTrackerCompat;
@@ -45,6 +46,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.TypedValue;
 import android.view.FocusFinder;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -280,6 +282,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     private int mTouchSlop;
     private final int mMinFlingVelocity;
     private final int mMaxFlingVelocity;
+    // This value is used when handling generic motion events.
+    private float mScrollFactor = Float.MIN_VALUE;
 
     private final ViewFlinger mViewFlinger = new ViewFlinger();
 
@@ -1817,6 +1821,54 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             mInitialTouchX = mLastTouchX = (int) (MotionEventCompat.getX(e, newIndex) + 0.5f);
             mInitialTouchY = mLastTouchY = (int) (MotionEventCompat.getY(e, newIndex) + 0.5f);
         }
+    }
+
+    // @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+        if (mLayout == null) {
+            return false;
+        }
+        if ((MotionEventCompat.getSource(event) & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
+            if (event.getAction() == MotionEventCompat.ACTION_SCROLL) {
+                final float vScroll, hScroll;
+                if (mLayout.canScrollVertically()) {
+                    vScroll = MotionEventCompat
+                            .getAxisValue(event, MotionEventCompat.AXIS_VSCROLL);
+                } else {
+                    vScroll = 0f;
+                }
+                if (mLayout.canScrollHorizontally()) {
+                    hScroll = MotionEventCompat
+                            .getAxisValue(event, MotionEventCompat.AXIS_HSCROLL);
+                } else {
+                    hScroll = 0f;
+                }
+
+                if (vScroll != 0 || hScroll != 0) {
+                    final float scrollFactor = getScrollFactor();
+                    scrollBy((int) (hScroll * scrollFactor), (int) (vScroll * scrollFactor));
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Ported from View.getVerticalScrollFactor.
+     */
+    private float getScrollFactor() {
+        if (mScrollFactor == Float.MIN_VALUE) {
+            TypedValue outValue = new TypedValue();
+            if (getContext().getTheme().resolveAttribute(
+                    android.R.attr.listPreferredItemHeight, outValue, true)) {
+                mScrollFactor = outValue.getDimension(
+                        getContext().getResources().getDisplayMetrics());
+            } else {
+                return 0; //listPreferredItemHeight is not defined, no generic scrolling
+            }
+
+        }
+        return mScrollFactor;
     }
 
     @Override
