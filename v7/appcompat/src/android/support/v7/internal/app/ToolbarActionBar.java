@@ -602,9 +602,6 @@ public class ToolbarActionBar extends ActionBar {
             if (mWindowCallback != null) {
                 mWindowCallback.onPanelClosed(Window.FEATURE_OPTIONS_PANEL, menu);
             }
-
-            // Close the options panel
-            mWindow.closePanel(Window.FEATURE_OPTIONS_PANEL);
         }
 
         @Override
