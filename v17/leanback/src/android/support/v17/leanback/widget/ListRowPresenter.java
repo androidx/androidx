@@ -112,10 +112,14 @@ public class ListRowPresenter extends RowPresenter {
      * @param zoomFactor Controls the zoom factor used when an item view is focused. One of
      *         {@link FocusHighlight#ZOOM_FACTOR_NONE},
      *         {@link FocusHighlight#ZOOM_FACTOR_SMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_XSMALL},
      *         {@link FocusHighlight#ZOOM_FACTOR_MEDIUM},
      *         {@link FocusHighlight#ZOOM_FACTOR_LARGE}
      */
     public ListRowPresenter(int zoomFactor) {
+        if (!FocusHighlightHelper.isValidZoomIndex(zoomFactor)) {
+            throw new IllegalArgumentException("Unhandled zoom factor");
+        }
         mZoomFactor = zoomFactor;
     }
 

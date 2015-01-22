@@ -22,6 +22,7 @@ import android.animation.TimeAnimator;
 import android.content.res.Resources;
 import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
 import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_SMALL;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_XSMALL;
 import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_MEDIUM;
 import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LARGE;
 
@@ -29,6 +30,26 @@ import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LAR
  * Setup the behavior how to highlight when a item gains focus.
  */
 public class FocusHighlightHelper {
+
+    static boolean isValidZoomIndex(int zoomIndex) {
+        return zoomIndex == ZOOM_FACTOR_NONE || getResId(zoomIndex) > 0;
+    }
+
+    private static int getResId(int zoomIndex) {
+        switch (zoomIndex) {
+            case ZOOM_FACTOR_SMALL:
+                return R.fraction.lb_focus_zoom_factor_small;
+            case ZOOM_FACTOR_XSMALL:
+                return R.fraction.lb_focus_zoom_factor_xsmall;
+            case ZOOM_FACTOR_MEDIUM:
+                return R.fraction.lb_focus_zoom_factor_medium;
+            case ZOOM_FACTOR_LARGE:
+                return R.fraction.lb_focus_zoom_factor_large;
+            default:
+                return 0;
+        }
+    }
+
 
     static class FocusAnimator implements TimeAnimator.TimeListener {
         private final View mView;
@@ -112,32 +133,20 @@ public class FocusHighlightHelper {
     static class BrowseItemFocusHighlight implements FocusHighlightHandler {
         private static final int DURATION_MS = 150;
 
-        private static float[] sScaleFactor = new float[4];
-
         private int mScaleIndex;
         private final boolean mUseDimmer;
 
         BrowseItemFocusHighlight(int zoomIndex, boolean useDimmer) {
-            mScaleIndex = (zoomIndex >= 0 && zoomIndex < sScaleFactor.length) ?
-                    zoomIndex : ZOOM_FACTOR_MEDIUM;
+            if (!isValidZoomIndex(zoomIndex)) {
+                throw new IllegalArgumentException("Unhandled zoom index");
+            }
+            mScaleIndex = zoomIndex;
             mUseDimmer = useDimmer;
         }
 
-        private static void lazyInit(Resources resources) {
-            if (sScaleFactor[ZOOM_FACTOR_NONE] == 0f) {
-                sScaleFactor[ZOOM_FACTOR_NONE] = 1f;
-                sScaleFactor[ZOOM_FACTOR_SMALL] =
-                        resources.getFraction(R.fraction.lb_focus_zoom_factor_small, 1, 1);
-                sScaleFactor[ZOOM_FACTOR_MEDIUM] =
-                        resources.getFraction(R.fraction.lb_focus_zoom_factor_medium, 1, 1);
-                sScaleFactor[ZOOM_FACTOR_LARGE] =
-                        resources.getFraction(R.fraction.lb_focus_zoom_factor_large, 1, 1);
-            }
-        }
-
-        private float getScale(View view) {
-            lazyInit(view.getResources());
-            return sScaleFactor[mScaleIndex];
+        private float getScale(Resources res) {
+            return mScaleIndex == ZOOM_FACTOR_NONE ? 1f :
+                    res.getFraction(getResId(mScaleIndex), 1, 1);
         }
 
         @Override
@@ -154,7 +163,8 @@ public class FocusHighlightHelper {
         private FocusAnimator getOrCreateAnimator(View view) {
             FocusAnimator animator = (FocusAnimator) view.getTag(R.id.lb_focus_animator);
             if (animator == null) {
-                animator = new FocusAnimator(view, getScale(view), mUseDimmer, DURATION_MS);
+                animator = new FocusAnimator(
+                        view, getScale(view.getResources()), mUseDimmer, DURATION_MS);
                 view.setTag(R.id.lb_focus_animator, animator);
             }
             return animator;
@@ -164,8 +174,11 @@ public class FocusHighlightHelper {
 
     /**
      * Setup the focus highlight behavior of a focused item in browse list row.
-     * @param zoomIndex One of {@link FocusHighlight#ZOOM_FACTOR_SMALL} {@link FocusHighlight#ZOOM_FACTOR_MEDIUM}
-     * {@link FocusHighlight#ZOOM_FACTOR_LARGE} {@link FocusHighlight#ZOOM_FACTOR_NONE}.
+     * @param zoomIndex One of {@link FocusHighlight#ZOOM_FACTOR_SMALL}
+     * {@link FocusHighlight#ZOOM_FACTOR_XSMALL}
+     * {@link FocusHighlight#ZOOM_FACTOR_MEDIUM}
+     * {@link FocusHighlight#ZOOM_FACTOR_LARGE}
+     * {@link FocusHighlight#ZOOM_FACTOR_NONE}.
      * @param useDimmer Allow dimming browse item when unselected.
      * @param adapter  adapter of the list row.
      */
