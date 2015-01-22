@@ -33,6 +33,7 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -45,9 +46,9 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
     private PhotoItem mPhotoItem;
     final CardPresenter cardPresenter = new CardPresenter();
 
-    private static final int ACTION_BUY = 1;
+    private static final int ACTION_PLAY = 1;
     private static final int ACTION_RENT = 2;
-    private static final int ACTION_PLAY = 3;
+    private static final int ACTION_BUY = 3;
 
     private static final boolean TEST_SHARED_ELEMENT_TRANSITION = true;
     private static final boolean TEST_ENTRANCE_TRANSITION = true;
@@ -55,10 +56,19 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
     private static final long TIME_TO_LOAD_OVERVIEW_ROW_MS = 1000;
     private static final long TIME_TO_LOAD_RELATED_ROWS_MS = 2000;
 
+    private Action mActionPlay;
+    private Action mActionRent;
+    private Action mActionBuy;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        mActionPlay = new Action(ACTION_PLAY, "Play");
+        mActionRent = new Action(ACTION_RENT, "Rent", "$3.99",
+                getResources().getDrawable(R.drawable.ic_action_a));
+        mActionBuy = new Action(ACTION_BUY, "Buy $9.99");
 
         ClassPresenterSelector ps = new ClassPresenterSelector();
         DetailsOverviewRowPresenter dorPresenter =
@@ -67,17 +77,23 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
             @Override
             public void onActionClicked(Action action) {
                 Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+                DetailsOverviewRow dor = (DetailsOverviewRow) mRowsAdapter.get(0);
                 if (action.getId() == ACTION_BUY) {
-                    DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle() + "(Owned)");
-                    dor.setImageDrawable(getResources().getDrawable(mPhotoItem.getImageResourceId()));
-                    dor.addAction(new Action(ACTION_PLAY, "Play"));
-                    mRowsAdapter.replace(0, dor);
+                    // on the UI thread, we can modify actions adapter directly
+                    SparseArrayObjectAdapter actions = (SparseArrayObjectAdapter)
+                            dor.getActionsAdapter();
+                    actions.set(ACTION_PLAY, mActionPlay);
+                    actions.clear(ACTION_RENT);
+                    actions.clear(ACTION_BUY);
+                    dor.setItem(mPhotoItem.getTitle() + "(Owned)");
+                    dor.setImageDrawable(getResources().getDrawable(R.drawable.details_img_16x9));
                 } else if (action.getId() == ACTION_RENT) {
-                    DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle() + "(Rented)");
-                    dor.setImageDrawable(getResources().getDrawable(mPhotoItem.getImageResourceId()));
-                    dor.addAction(new Action(ACTION_PLAY, "Play"));
-                    dor.addAction(new Action(ACTION_BUY, "Buy $9.99"));
-                    mRowsAdapter.replace(0, dor);
+                    // on the UI thread, we can modify actions adapter directly
+                    SparseArrayObjectAdapter actions = (SparseArrayObjectAdapter)
+                            dor.getActionsAdapter();
+                    actions.set(ACTION_PLAY, mActionPlay);
+                    actions.clear(ACTION_RENT);
+                    dor.setItem(mPhotoItem.getTitle() + "(Rented)");
                 } else if (action.getId() == ACTION_PLAY) {
                     Intent intent = new Intent(getActivity(), PlaybackOverlayActivity.class);
                     getActivity().startActivity(intent);
@@ -148,8 +164,10 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                 Resources res = getActivity().getResources();
                 DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
                 dor.setImageDrawable(res.getDrawable(mPhotoItem.getImageResourceId()));
-                dor.addAction(new Action(ACTION_BUY, "Buy $9.99"));
-                dor.addAction(new Action(ACTION_RENT, "Rent", "$3.99", res.getDrawable(R.drawable.ic_action_a)));
+                SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter();
+                adapter.set(ACTION_RENT, mActionRent);
+                adapter.set(ACTION_BUY, mActionBuy);
+                dor.setActionsAdapter(adapter);
                 mRowsAdapter.add(0, dor);
                 setSelectedPosition(0, false);
             }
