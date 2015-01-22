@@ -737,14 +737,14 @@ public class PlaybackControlsRow extends Row {
     /**
      * Sets a listener to be called when the playback state changes.
      */
-    public void setOnPlaybackStateChangedListener(OnPlaybackStateChangedListener listener) {
+    void setOnPlaybackStateChangedListener(OnPlaybackStateChangedListener listener) {
         mListener = listener;
     }
 
     /**
      * Returns the playback state listener.
      */
-    public OnPlaybackStateChangedListener getOnPlaybackStateChangedListener() {
+    OnPlaybackStateChangedListener getOnPlaybackStateChangedListener() {
         return mListener;
     }
 
