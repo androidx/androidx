@@ -17,9 +17,9 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.graphics.PointF;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -28,9 +28,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
-
 import java.util.List;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation which provides
@@ -461,10 +461,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         int extraForStart;
         int extraForEnd;
         final int extra = getExtraLayoutSpace(state);
-        // default extra space to the tail of the list.
-        boolean before = state.hasTargetScrollPosition() &&
-                state.getTargetScrollPosition() < mAnchorInfo.mPosition;
-        if (before == mAnchorInfo.mLayoutFromEnd) {
+        // If the previous scroll delta was less than zero, the extra space should be laid out
+        // at the start. Otherwise, it should be at the end.
+        if (mLayoutState.mLastScrollDelta >= 0) {
             extraForEnd = extra;
             extraForStart = 0;
         } else {
@@ -1107,6 +1106,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         if (DEBUG) {
             Log.d(TAG, "scroll req: " + dy + " scrolled: " + scrolled);
         }
+        mLayoutState.mLastScrollDelta = scrolled;
         return scrolled;
     }
 
@@ -1828,6 +1828,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
          * step.
          */
         boolean mIsPreLayout = false;
+
+        /**
+         * The most recent {@link #scrollBy(int, RecyclerView.Recycler, RecyclerView.State)} amount.
+         */
+        int mLastScrollDelta;
 
         /**
          * When LLM needs to layout particular views, it sets this list in which case, LayoutState
