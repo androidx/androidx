@@ -57,6 +57,9 @@
     <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
     <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
     <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
+    <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>
+    <string name="appcompat_widgets_spinners">AppCompat/Widgets/Spinners</string>
+    <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
 
     <string name="action_bar_search">Search</string>
     <string name="action_bar_add">Add</string>
