@@ -100,7 +100,7 @@ public class SparseArrayObjectAdapter extends ObjectAdapter {
     public void clear(int key) {
         int index = mItems.indexOfKey(key);
         if (index >= 0) {
-            mItems.delete(index);
+            mItems.removeAt(index);
             notifyItemRangeRemoved(index, 1);
         }
     }
