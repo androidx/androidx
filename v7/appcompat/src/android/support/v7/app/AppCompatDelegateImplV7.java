@@ -513,6 +513,13 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 ab.dispatchMenuVisibilityChanged(false);
             }
             return true;
+        } else if (featureId == FEATURE_OPTIONS_PANEL) {
+            // Make sure that the options panel is closed. This is mainly used when we're using a
+            // ToolbarActionBar
+            PanelFeatureState st = getPanelState(featureId, true);
+            if (st.isOpen) {
+                closePanel(st, false);
+            }
         }
         return false;
     }
@@ -1141,20 +1148,22 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             return;
         }
 
-        final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-        if ((wm != null) && st.isOpen) {
-            if (st.decorView != null) {
-                wm.removeView(st.decorView);
-            }
+        final boolean wasOpen = st.isOpen;
 
-            if (doCallback) {
-                callOnPanelClosed(st.featureId, st, null);
-            }
+        final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        if (wm != null && wasOpen && st.decorView != null) {
+            wm.removeView(st.decorView);
         }
 
         st.isPrepared = false;
         st.isHandled = false;
         st.isOpen = false;
+
+        if (wasOpen && doCallback) {
+            // If the panel was open and we should callback, do so. This should be done after
+            // isOpen is updated to ensure that we do not get into an infinite recursion
+            callOnPanelClosed(st.featureId, st, null);
+        }
 
         // This view is no longer shown, so null it out
         st.shownPanelView = null;
@@ -1494,9 +1503,6 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 } else {
                     // Close the panel and only do the callback if the menu is being
                     // closed completely, not if opening a sub menu
-                    if (mOriginalWindowCallback instanceof Activity) {
-                        ((Activity) mOriginalWindowCallback).closeOptionsMenu();
-                    }
                     closePanel(panel, allMenusAreClosing);
                 }
             }
