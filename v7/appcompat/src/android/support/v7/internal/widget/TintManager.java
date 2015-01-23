@@ -75,7 +75,8 @@ public final class TintManager {
     private static final int[] TINT_COLOR_CONTROL_ACTIVATED = {
             R.drawable.abc_textfield_activated_mtrl_alpha,
             R.drawable.abc_textfield_search_activated_mtrl_alpha,
-            R.drawable.abc_cab_background_top_mtrl_alpha
+            R.drawable.abc_cab_background_top_mtrl_alpha,
+            R.drawable.abc_text_cursor_mtrl_alpha
     };
 
     /**
@@ -128,7 +129,10 @@ public final class TintManager {
      */
     public static Drawable getDrawable(Context context, int resId) {
         if (isInTintList(resId)) {
-            return new TintManager(context).getDrawable(resId);
+            final TintManager tm = (context instanceof TintContextWrapper)
+                    ? ((TintContextWrapper) context).getTintManager()
+                    : new TintManager(context);
+            return tm.getDrawable(resId);
         } else {
             return ContextCompat.getDrawable(context, resId);
         }
@@ -137,8 +141,12 @@ public final class TintManager {
     public TintManager(Context context) {
         mColorStateLists = new SparseArray<>();
         mContext = context;
-        mResources = new TintResources(context.getResources(), this);
         mTypedValue = new TypedValue();
+        mResources = new TintResources(context.getResources(), this);
+    }
+
+    Resources getResources() {
+        return mResources;
     }
 
     public Drawable getDrawable(int resId) {

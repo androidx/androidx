@@ -50,7 +50,7 @@ public class TintMultiAutoCompleteTextView extends MultiAutoCompleteTextView
     }
 
     public TintMultiAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
             TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
