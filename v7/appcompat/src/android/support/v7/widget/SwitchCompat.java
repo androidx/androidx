@@ -77,6 +77,10 @@ public class SwitchCompat extends CompoundButton {
     private static final int TOUCH_MODE_DOWN = 1;
     private static final int TOUCH_MODE_DRAGGING = 2;
 
+    // We force the accessibility events to have a class name of Switch, since screen readers
+    // already know how to handle their events
+    private static final String ACCESSIBILITY_EVENT_CLASS_NAME = "android.widget.Switch";
+
     // Enum for the "typeface" XML parameter.
     private static final int SANS = 1;
     private static final int SERIF = 2;
@@ -1122,14 +1126,14 @@ public class SwitchCompat extends CompoundButton {
     @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
-        event.setClassName(SwitchCompat.class.getName());
+        event.setClassName(ACCESSIBILITY_EVENT_CLASS_NAME);
     }
 
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         if (Build.VERSION.SDK_INT >= 14) {
             super.onInitializeAccessibilityNodeInfo(info);
-            info.setClassName(SwitchCompat.class.getName());
+            info.setClassName(ACCESSIBILITY_EVENT_CLASS_NAME);
             CharSequence switchText = isChecked() ? mTextOn : mTextOff;
             if (!TextUtils.isEmpty(switchText)) {
                 CharSequence oldText = info.getText();
