@@ -17,6 +17,7 @@
 package android.support.v8.renderscript;
 
 import android.support.v8.renderscript.RenderScript;
+import java.util.BitSet;
 
 /**
  * Utility class for packing arguments and structures from Android system objects to
@@ -32,6 +33,7 @@ public class FieldPacker {
         mPos = 0;
         mLen = len;
         mData = new byte[len];
+        mAlignment = new BitSet();
     }
 
     public void align(int v) {
@@ -40,6 +42,7 @@ public class FieldPacker {
         }
 
         while ((mPos & (v - 1)) != 0) {
+            mAlignment.flip(mPos);
             mData[mPos++] = 0;
         }
     }
@@ -147,9 +150,24 @@ public class FieldPacker {
 
     public void addObj(BaseObj obj) {
         if (obj != null) {
-            addI32(obj.getID(null));
+            if (RenderScript.sPointerSize == 8) {
+                addI64(obj.getID(null));
+                addI64(0);
+                addI64(0);
+                addI64(0);
+            }
+            else {
+                addI32((int)obj.getID(null));
+            }
         } else {
-            addI32(0);
+            if (RenderScript.sPointerSize == 8) {
+                addI64(0);
+                addI64(0);
+                addI64(0);
+                addI64(0);
+            } else {
+                addI32(0);
+            }
         }
     }
 
@@ -346,7 +364,7 @@ public class FieldPacker {
     private final byte mData[];
     private int mPos;
     private int mLen;
-
+    private BitSet mAlignment;
 }
 
 

@@ -30,7 +30,7 @@ public class ScriptIntrinsicLUT extends ScriptIntrinsic {
     private final byte mCache[] = new byte[1024];
     private boolean mDirty = true;
 
-    protected ScriptIntrinsicLUT(int id, RenderScript rs) {
+    protected ScriptIntrinsicLUT(long id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -45,7 +45,7 @@ public class ScriptIntrinsicLUT extends ScriptIntrinsic {
      * @return ScriptIntrinsicLUT
      */
     public static ScriptIntrinsicLUT create(RenderScript rs, Element e) {
-        int id = rs.nScriptIntrinsicCreate(3, e.getID(rs));
+        long id = rs.nScriptIntrinsicCreate(3, e.getID(rs));
 
         ScriptIntrinsicLUT si = new ScriptIntrinsicLUT(id, rs);
         si.mTables = Allocation.createSized(rs, Element.U8(rs), 1024);

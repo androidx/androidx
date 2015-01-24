@@ -90,7 +90,7 @@ public class ScriptGroup extends BaseObj {
     }
 
 
-    ScriptGroup(int id, RenderScript rs) {
+    ScriptGroup(long id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -379,6 +379,7 @@ public class ScriptGroup extends BaseObj {
          * @return ScriptGroup The new ScriptGroup
          */
         public ScriptGroup create() {
+
             if (mNodes.size() == 0) {
                 throw new RSInvalidStateException("Empty script groups are not allowed");
             }
@@ -392,7 +393,7 @@ public class ScriptGroup extends BaseObj {
             ArrayList<IO> inputs = new ArrayList<IO>();
             ArrayList<IO> outputs = new ArrayList<IO>();
 
-            int[] kernels = new int[mKernelCount];
+            long[] kernels = new long[mKernelCount];
             int idx = 0;
             for (int ct=0; ct < mNodes.size(); ct++) {
                 Node n = mNodes.get(ct);
@@ -425,10 +426,10 @@ public class ScriptGroup extends BaseObj {
                 throw new RSRuntimeException("Count mismatch, should not happen.");
             }
 
-            int[] src = new int[mLines.size()];
-            int[] dstk = new int[mLines.size()];
-            int[] dstf = new int[mLines.size()];
-            int[] types = new int[mLines.size()];
+            long[] src = new long[mLines.size()];
+            long[] dstk = new long[mLines.size()];
+            long[] dstf = new long[mLines.size()];
+            long[] types = new long[mLines.size()];
 
             for (int ct=0; ct < mLines.size(); ct++) {
                 ConnectLine cl = mLines.get(ct);
@@ -442,7 +443,7 @@ public class ScriptGroup extends BaseObj {
                 types[ct] = cl.mAllocationType.getID(mRS);
             }
 
-            int id = mRS.nScriptGroupCreate(kernels, src, dstk, dstf, types);
+            long id = mRS.nScriptGroupCreate(kernels, src, dstk, dstf, types);
             if (id == 0) {
                 throw new RSRuntimeException("Object creation error, should not happen.");
             }

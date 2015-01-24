@@ -41,8 +41,6 @@ LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupport
 LOCAL_SDK_VERSION := 8
 
-# TODO: remove this once we have 64-bit NDK libraries.
-LOCAL_32_BIT_ONLY := true
 
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 generated_sources_dir := $(call local-generated-sources-dir)
