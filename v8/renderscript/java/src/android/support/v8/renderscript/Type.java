@@ -187,7 +187,7 @@ public class Type extends BaseObj {
     }
 
 
-    Type(int id, RenderScript rs) {
+    Type(long id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -312,7 +312,7 @@ public class Type extends BaseObj {
             }
 
             Type t;
-            int id = mRS.nTypeCreate(mElement.getID(mRS),
+            long id = mRS.nTypeCreate(mElement.getID(mRS),
                                      mDimX, mDimY, mDimZ, mDimMipmaps, mDimFaces, mYuv);
             t = new Type(id, mRS);
 
