@@ -40,18 +40,17 @@ LOCAL_STATIC_LIBRARIES := \
         libcutils \
         libRSDispatch
 
-
 LOCAL_C_INCLUDES += \
 	$(JNI_H_INCLUDE) \
 	frameworks/rs \
 	frameworks/rs/cpp
 
-LOCAL_CFLAGS += -Wno-unused-parameter -U_FORTIFY_SOURCE
+LOCAL_CFLAGS += -Wno-unused-parameter -U_FORTIFY_SOURCE -std=c++11
 
 LOCAL_MODULE:= librsjni
 LOCAL_MODULE_TAGS := optional
 LOCAL_REQUIRED_MODULES := libRSSupport
-LOCAL_32_BIT_ONLY := true
+#LOCAL_32_BIT_ONLY := true
 
 LOCAL_LDFLAGS += -ldl
 

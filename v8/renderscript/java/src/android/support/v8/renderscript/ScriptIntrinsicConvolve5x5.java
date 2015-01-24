@@ -26,7 +26,7 @@ public class ScriptIntrinsicConvolve5x5 extends ScriptIntrinsic {
     private final float[] mValues = new float[25];
     private Allocation mInput;
 
-    ScriptIntrinsicConvolve5x5(int id, RenderScript rs) {
+    ScriptIntrinsicConvolve5x5(long id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -48,7 +48,7 @@ public class ScriptIntrinsicConvolve5x5 extends ScriptIntrinsic {
      * @return ScriptIntrinsicConvolve5x5
      */
     public static ScriptIntrinsicConvolve5x5 create(RenderScript rs, Element e) {
-        int id = rs.nScriptIntrinsicCreate(4, e.getID(rs));
+        long id = rs.nScriptIntrinsicCreate(4, e.getID(rs));
         return new ScriptIntrinsicConvolve5x5(id, rs);
 
     }
