@@ -16,6 +16,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.transition.LeanbackTransitionHelper;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
@@ -774,8 +775,10 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             }
         });
         Context context = getActivity();
-        mTitleUpTransition = sTransitionHelper.loadTransition(context, R.transition.lb_title_out);
-        mTitleDownTransition = sTransitionHelper.loadTransition(context, R.transition.lb_title_in);
+        mTitleUpTransition = LeanbackTransitionHelper.loadTitleOutTransition(context,
+                sTransitionHelper);
+        mTitleDownTransition = LeanbackTransitionHelper.loadTitleInTransition(context,
+                sTransitionHelper);
 
         if (savedInstanceState != null) {
             mShowingTitle = savedInstanceState.getBoolean(TITLE_SHOW);

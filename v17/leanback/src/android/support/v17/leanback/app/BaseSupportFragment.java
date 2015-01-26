@@ -48,6 +48,8 @@ class BaseSupportFragment extends Fragment {
      * Entrance transition is the standard slide-in transition that shows rows of data in
      * browse screen and details screen.
      * <p>
+     * The method is ignored before LOLLIPOP (API21).
+     * <p>
      * This method must be called in or
      * before onCreate().  Typically entrance transition should be enabled when savedInstance is
      * null so that fragment restored from instanceState does not run an extra entrance transition.
@@ -68,7 +70,9 @@ class BaseSupportFragment extends Fragment {
      * override the default transition that browse and details provides.
      */
     public void prepareEntranceTransition() {
-        mEntranceTransitionEnabled = true;
+        if (TransitionHelper.systemSupportsEntranceTransitions()) {
+            mEntranceTransitionEnabled = true;
+        }
     }
 
     /**
