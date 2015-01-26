@@ -19,6 +19,7 @@ package android.support.v7.internal.widget;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v7.graphics.drawable.DrawableWrapper;
 import android.util.Log;
 
 import java.lang.reflect.Field;

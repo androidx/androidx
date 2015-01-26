@@ -27,6 +27,7 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
+import android.support.v7.graphics.drawable.TintDrawableWrapper;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;

@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.graphics.drawable.DrawableWrapper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
