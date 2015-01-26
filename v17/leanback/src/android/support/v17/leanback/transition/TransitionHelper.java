@@ -297,7 +297,7 @@ public final class TransitionHelper {
 
         @Override
         public Object loadTransition(Context context, int resId) {
-            return null;
+            return new TransitionStub();
         }
     }
 
