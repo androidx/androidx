@@ -29,6 +29,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.graphics.drawable.DrawableWrapper;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.RatingBar;
