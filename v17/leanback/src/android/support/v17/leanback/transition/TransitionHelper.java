@@ -51,6 +51,13 @@ public final class TransitionHelper {
     }
 
     /**
+     * Returns true if system supports entrance Transition animations.
+     */
+    public static boolean systemSupportsEntranceTransitions() {
+        return Build.VERSION.SDK_INT >= 21;
+    }
+
+    /**
      * Interface implemented by classes that support Transition animations.
      */
     static interface TransitionHelperVersionImpl {
