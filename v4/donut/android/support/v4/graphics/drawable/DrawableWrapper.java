@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,21 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
 /**
- * Implementation of drawable compatibility that can call KitKat APIs.
+ * Interface which allows a {@link android.graphics.drawable.Drawable} to receive tinting calls from
+ * {@code DrawableCompat}.
+ *
+ * @hide
  */
-class DrawableCompatKitKat {
-    public static void setAutoMirrored(Drawable drawable, boolean mirrored) {
-        drawable.setAutoMirrored(mirrored);
-    }
+public interface DrawableWrapper {
 
-    public static boolean isAutoMirrored(Drawable drawable) {
-        return drawable.isAutoMirrored();
-    }
+    void setTint(int tint);
 
-    public static Drawable wrapForTinting(Drawable drawable) {
-        if (!(drawable instanceof DrawableWrapperKitKat)) {
-            return new DrawableWrapperKitKat(drawable);
-        }
-        return drawable;
-    }
+    void setTintList(ColorStateList tint);
+
+    void setTintMode(PorterDuff.Mode tintMode);
+
+    Drawable getWrappedDrawable();
+
+    void setWrappedDrawable(Drawable drawable);
+
 }

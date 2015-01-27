@@ -19,7 +19,7 @@ package android.support.v7.internal.widget;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v7.graphics.drawable.DrawableWrapper;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 
 import java.lang.reflect.Field;
@@ -55,16 +55,12 @@ public class DrawableUtils {
     public static Rect getOpticalBounds(Drawable drawable) {
         if (sInsetsClazz != null) {
             try {
-                if (drawable instanceof DrawableWrapper) {
-                    // If the Drawable is one of our DrawableWrapper's, we need to manually unwrap
-                    // it and process the wrapped drawable. This is because we can't override
-                    // getOpticalInsets() to proxy the call
-                    drawable = ((DrawableWrapper) drawable).getWrappedDrawable();
-                }
+                // If the Drawable is wrapped, we need to manually unwrap it and process
+                // the wrapped drawable.
+                drawable = DrawableCompat.unwrap(drawable);
 
                 final Method getOpticalInsetsMethod = drawable.getClass()
                         .getMethod("getOpticalInsets");
-
                 final Object insets = getOpticalInsetsMethod.invoke(drawable);
 
                 if (insets != null) {
