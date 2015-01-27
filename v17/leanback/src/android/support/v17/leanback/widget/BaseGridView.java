@@ -187,6 +187,10 @@ abstract class BaseGridView extends RecyclerView {
         setChildrenDrawingOrderEnabled(true);
         setWillNotDraw(true);
         setOverScrollMode(View.OVER_SCROLL_NEVER);
+        // Disable change animation by default on leanback.
+        // Change animation will create a new view and cause undesired
+        // focus animation between the old view and new view.
+        getItemAnimator().setSupportsChangeAnimations(false);
     }
 
     protected void initBaseGridViewAttributes(Context context, AttributeSet attrs) {
