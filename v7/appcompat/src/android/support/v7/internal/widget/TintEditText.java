@@ -43,7 +43,7 @@ public class TintEditText extends EditText implements TintableBackgroundView {
     }
 
     public TintEditText(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.editTextStyle);
+        this(TintContextWrapper.wrap(context), attrs, android.R.attr.editTextStyle);
     }
 
     public TintEditText(Context context, AttributeSet attrs, int defStyleAttr) {
