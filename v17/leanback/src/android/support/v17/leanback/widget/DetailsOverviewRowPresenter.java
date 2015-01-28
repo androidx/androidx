@@ -539,14 +539,13 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
     @Override
     protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
-        super.onUnbindRowViewHolder(holder);
-
         ViewHolder vh = (ViewHolder) holder;
         DetailsOverviewRow dor = (DetailsOverviewRow) vh.getRow();
         dor.removeListener(vh.mListener);
         if (vh.mDetailsDescriptionViewHolder != null) {
             mDetailsPresenter.onUnbindViewHolder(vh.mDetailsDescriptionViewHolder);
         }
+        super.onUnbindRowViewHolder(holder);
     }
 
     @Override
