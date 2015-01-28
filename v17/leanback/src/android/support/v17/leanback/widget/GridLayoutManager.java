@@ -166,9 +166,153 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    /**
+     * Base class which scrolls to selected view in onStop().
+     */
+    abstract class GridLinearSmoothScroller extends LinearSmoothScroller {
+        GridLinearSmoothScroller() {
+            super(mBaseGridView.getContext());
+        }
+
+        @Override
+        protected void onStop() {
+            // onTargetFound() may not be called if we hit the "wall" first.
+            View targetView = findViewByPosition(getTargetPosition());
+            if (hasFocus() && targetView != null) {
+                targetView.requestFocus();
+            }
+            dispatchChildSelected();
+            super.onStop();
+        }
+
+        @Override
+        protected void onTargetFound(View targetView,
+                RecyclerView.State state, Action action) {
+            if (getScrollPosition(targetView, sTwoInts)) {
+                int dx, dy;
+                if (mOrientation == HORIZONTAL) {
+                    dx = sTwoInts[0];
+                    dy = sTwoInts[1];
+                } else {
+                    dx = sTwoInts[1];
+                    dy = sTwoInts[0];
+                }
+                final int distance = (int) Math.sqrt(dx * dx + dy * dy);
+                final int time = calculateTimeForDeceleration(distance);
+                action.update(dx, dy, time, mDecelerateInterpolator);
+            }
+        }
+    }
+
+    /**
+     * The SmoothScroller that remembers pending DPAD keys and consume pending keys
+     * during scroll.
+     */
+    final class PendingMoveSmoothScroller extends GridLinearSmoothScroller {
+        // -2 is a target position that LinearSmoothScroller can never find until
+        // consumePendingMoves() sets real targetPosition.
+        final static int TARGET_UNDEFINED = -2;
+
+        // Number of pending movements on primary direction, negative if PREV_ITEM.
+        private int mPendingMoves;
+
+        PendingMoveSmoothScroller(int initialPendingMoves) {
+            mPendingMoves = initialPendingMoves;
+            setTargetPosition(TARGET_UNDEFINED);
+        }
+
+        void increasePendingMoves() {
+            if (mPendingMoves < MAX_PENDING_MOVES) {
+                mPendingMoves++;
+            }
+        }
+
+        void decreasePendingMoves() {
+            if (mPendingMoves > -MAX_PENDING_MOVES) {
+                mPendingMoves--;
+            }
+        }
+
+        void consumePendingMoves() {
+            if (mPendingMoves != 0) {
+                // consume pending moves, focus to item on the same row.
+                final int focusedRow = mGrid != null && mFocusPosition != NO_POSITION ?
+                        mGrid.getLocation(mFocusPosition).row : NO_POSITION;
+                for (int i = 0, count = getChildCount(); i < count && mPendingMoves != 0; i++) {
+                    int index = mPendingMoves > 0 ? i : count - 1 - i;
+                    final View child = getChildAt(index);
+                    if (child.getVisibility() != View.VISIBLE) {
+                        continue;
+                    }
+                    int position = getPositionByIndex(index);
+                    Grid.Location loc = mGrid.getLocation(position);
+                    if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
+                        if (mFocusPosition == NO_POSITION) {
+                            mFocusPosition = position;
+                        } else if ((mPendingMoves > 0 && position > mFocusPosition)
+                                || (mPendingMoves < 0 && position < mFocusPosition)) {
+                            mFocusPosition = position;
+                            if (mPendingMoves > 0) {
+                                mPendingMoves--;
+                            } else {
+                                mPendingMoves++;
+                            }
+                            if (hasFocus()) {
+                                View v = findViewByPosition(mFocusPosition);
+                                if (v != null) {
+                                    v.requestFocus();
+                                }
+                                dispatchChildSelected();
+                            }
+                        }
+                    }
+                }
+            }
+            if (mPendingMoves == 0 || (mPendingMoves > 0 && hasCreatedLastItem())
+                    || (mPendingMoves < 0 && hasCreatedFirstItem())) {
+                setTargetPosition(mFocusPosition);
+            }
+        }
+
+        @Override
+        protected void updateActionForInterimTarget(Action action) {
+            if (mPendingMoves == 0) {
+                return;
+            }
+            super.updateActionForInterimTarget(action);
+        }
+
+        @Override
+        public PointF computeScrollVectorForPosition(int targetPosition) {
+            if (mPendingMoves == 0) {
+                return null;
+            }
+            int direction = (mReverseFlowPrimary ? mPendingMoves > 0 : mPendingMoves < 0) ?
+                    -1 : 1;
+            if (mOrientation == HORIZONTAL) {
+                return new PointF(direction, 0);
+            } else {
+                return new PointF(0, direction);
+            }
+        }
+
+        @Override
+        protected void onStop() {
+            // if we hit wall,  need clear the remaining pending moves.
+            mPendingMoves = 0;
+            mPendingMoveSmoothScroller = null;
+            super.onStop();
+            View v = findViewByPosition(getTargetPosition());
+            if (v != null) scrollToView(v, true);
+        }
+    };
+
     private static final String TAG = "GridLayoutManager";
     private static final boolean DEBUG = false;
     private static final boolean TRACE = false;
+
+    // maximum pending movement in one direction.
+    private final static int MAX_PENDING_MOVES = 10;
 
     private String getTag() {
         return TAG + ":" + mBaseGridView.getId();
@@ -213,12 +357,19 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private OnChildSelectedListener mChildSelectedListener = null;
 
+    private OnChildLaidOutListener mChildLaidOutListener = null;
+
     /**
      * The focused position, it's not the currently visually aligned position
      * but it is the final position that we intend to focus on. If there are
      * multiple setSelection() called, mFocusPosition saves last value.
      */
     private int mFocusPosition = NO_POSITION;
+
+    /**
+     * LinearSmoothScroller that consume pending DPAD movements.
+     */
+    private PendingMoveSmoothScroller mPendingMoveSmoothScroller;
 
     /**
      * The offset to be applied to mFocusPosition, due to adapter change, on the next
@@ -535,6 +686,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public void setOnChildSelectedListener(OnChildSelectedListener listener) {
         mChildSelectedListener = listener;
+    }
+
+    void setOnChildLaidOutListener(OnChildLaidOutListener listener) {
+        mChildLaidOutListener = listener;
     }
 
     private int getPositionByView(View view) {
@@ -1111,6 +1266,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 } else {
                     updateScrollMin();
                 }
+            }
+            if (!mInLayout && mPendingMoveSmoothScroller != null) {
+                mPendingMoveSmoothScroller.consumePendingMoves();
+            }
+            if (mChildLaidOutListener != null) {
+                RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(v);
+                mChildLaidOutListener.onChildLaidOut(mBaseGridView, v, index,
+                        vh == null ? NO_ID : vh.getItemId());
             }
         }
 
@@ -1726,62 +1889,62 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             "not be called before first layout pass");
                     return;
                 }
-                LinearSmoothScroller linearSmoothScroller =
-                        new LinearSmoothScroller(parent.getContext()) {
-                    @Override
-                    public PointF computeScrollVectorForPosition(int targetPosition) {
-                        if (getChildCount() == 0) {
-                            return null;
-                        }
-                        final int firstChildPos = getPosition(getChildAt(0));
-                        // TODO We should be able to deduce direction from bounds of current and target focus,
-                        // rather than making assumptions about positions and directionality
-                        final boolean isStart = mReverseFlowPrimary ? targetPosition > firstChildPos : targetPosition < firstChildPos;
-                        final int direction = isStart ? -1 : 1;
-                        if (mOrientation == HORIZONTAL) {
-                            return new PointF(direction, 0);
-                        } else {
-                            return new PointF(0, direction);
-                        }
-                    }
-
-                    @Override
-                    protected void onStop() {
-                        // onTargetFound() may not be called if we hit the "wall" first.
-                        View targetView = findViewByPosition(getTargetPosition());
-                        if (hasFocus() && targetView != null) {
-                            targetView.requestFocus();
-                        }
-                        dispatchChildSelected();
-                        super.onStop();
-                    }
-
-                    @Override
-                    protected void onTargetFound(View targetView,
-                            RecyclerView.State state, Action action) {
-                        if (getScrollPosition(targetView, sTwoInts)) {
-                            int dx, dy;
-                            if (mOrientation == HORIZONTAL) {
-                                dx = sTwoInts[0];
-                                dy = sTwoInts[1];
-                            } else {
-                                dx = sTwoInts[1];
-                                dy = sTwoInts[0];
-                            }
-                            final int distance = (int) Math.sqrt(dx * dx + dy * dy);
-                            final int time = calculateTimeForDeceleration(distance);
-                            action.update(dx, dy, time, mDecelerateInterpolator);
-                        }
-                    }
-                };
-                linearSmoothScroller.setTargetPosition(position);
-                startSmoothScroll(linearSmoothScroller);
+                startPositionSmoothScroller(position);
             } else {
                 mForceFullLayout = true;
                 parent.requestLayout();
             }
         }
         if (TRACE) TraceHelper.endSection();
+    }
+
+    void startPositionSmoothScroller(int position) {
+        LinearSmoothScroller linearSmoothScroller =
+                new GridLinearSmoothScroller() {
+            @Override
+            public PointF computeScrollVectorForPosition(int targetPosition) {
+                if (getChildCount() == 0) {
+                    return null;
+                }
+                final int firstChildPos = getPosition(getChildAt(0));
+                // TODO We should be able to deduce direction from bounds of current and target
+                // focus, rather than making assumptions about positions and directionality
+                final boolean isStart = mReverseFlowPrimary ? targetPosition > firstChildPos
+                        : targetPosition < firstChildPos;
+                final int direction = isStart ? -1 : 1;
+                if (mOrientation == HORIZONTAL) {
+                    return new PointF(direction, 0);
+                } else {
+                    return new PointF(0, direction);
+                }
+            }
+
+        };
+        linearSmoothScroller.setTargetPosition(position);
+        startSmoothScroll(linearSmoothScroller);
+    }
+
+    private void processPendingMovement(boolean forward) {
+        if (forward ? hasCreatedLastItem() : hasCreatedFirstItem()) {
+            return;
+        }
+        if (mPendingMoveSmoothScroller == null) {
+            // Stop existing scroller and create a new PendingMoveSmoothScroller.
+            mBaseGridView.stopScroll();
+            PendingMoveSmoothScroller linearSmoothScroller = new PendingMoveSmoothScroller(
+                    forward ? 1 : -1);
+            mFocusPositionOffset = 0;
+            startSmoothScroll(linearSmoothScroller);
+            if (linearSmoothScroller.isRunning()) {
+                mPendingMoveSmoothScroller = linearSmoothScroller;
+            }
+        } else {
+            if (forward) {
+                mPendingMoveSmoothScroller.increasePendingMoves();
+            } else {
+                mPendingMoveSmoothScroller.decreasePendingMoves();
+            }
+        }
     }
 
     @Override
@@ -2190,6 +2353,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 // Move on secondary direction uses default addFocusables().
                 return false;
             }
+            if (mPendingMoveSmoothScroller != null) {
+                // don't find next focusable if has pending movement.
+                return true;
+            }
             final View focused = recyclerView.findFocus();
             final int focusedPos = getPositionByIndex(findImmediateChildIndex(focused));
             // Add focusables of focused item.
@@ -2258,6 +2425,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return true;
     }
 
+    private boolean hasCreatedLastItem() {
+        int count = mState.getItemCount();
+        return count == 0 || findViewByPosition(count - 1) != null;
+    }
+
+    private boolean hasCreatedFirstItem() {
+        int count = mState.getItemCount();
+        return count == 0 || findViewByPosition(0) != null;
+    }
+
     @Override
     public View onFocusSearchFailed(View focused, int direction, Recycler recycler,
             RecyclerView.State state) {
@@ -2266,23 +2443,38 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         View view = null;
         int movement = getMovement(direction);
         final boolean isScroll = mBaseGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE;
+        // We still treat single-row (or TODO non-staggered) Grid special using position because:
+        // we know exactly if an item should be selected (based on index) *before* it is
+        // added to hierarchy. Child view can change layout when it is selected.
+        // Knowing this ahead can avoid a second layout after view is inserted into tree.
+        // We can reduce choppiness of vertical scrolling BrowseFragment where row view has
+        // different layout padding when it is selected.
+        // Multiple-rows Grid is different case:  we don't know if the item should be selected
+        // until we add it to hierarchy and measure it.  Grid algorithm choose a row to put
+        // the item based on the item size.  FocusSearch mechanism will rely which row the item
+        // is laid out then makes choice whether to select it.  This can cause a second layout
+        // if selected child has a different layout.
         if (mNumRows == 1) {
-            // for simple row, use LinearSmoothScroller to smooth animation.
-            // It will stay at a fixed cap speed in continuous scroll.
             if (movement == NEXT_ITEM) {
                 int newPos = mFocusPosition + mNumRows;
-                if (newPos < getItemCount() && mScrollEnabled) {
-                    setSelectionSmooth(mBaseGridView, newPos);
+                if (newPos < getItemCount() && mScrollEnabled && getChildCount() > 0) {
+                    int lastChildPos = getPosition(getChildAt(getChildCount() - 1));
+                    if (newPos < lastChildPos + mNumRows * MAX_PENDING_MOVES) {
+                        setSelectionSmooth(mBaseGridView, newPos);
+                    }
                     view = focused;
                 } else {
                     if (isScroll || !mFocusOutEnd) {
                         view = focused;
                     }
                 }
-            } else if (movement == PREV_ITEM){
+            } else if (movement == PREV_ITEM) {
                 int newPos = mFocusPosition - mNumRows;
-                if (newPos >= 0 && mScrollEnabled) {
-                    setSelectionSmooth(mBaseGridView, newPos);
+                if (newPos >= 0 && mScrollEnabled && getChildCount() > 0) {
+                    int firstChildPos = getPosition(getChildAt(0));
+                    if (newPos > firstChildPos - mNumRows * MAX_PENDING_MOVES) {
+                        setSelectionSmooth(mBaseGridView, newPos);
+                    }
                     view = focused;
                 } else {
                     if (isScroll || !mFocusOutFront) {
@@ -2291,25 +2483,20 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         } else if (mNumRows > 1) {
-            // for possible staggered grid,  we need guarantee focus to same row/column.
-            // TODO: we may also use LinearSmoothScroller.
             saveContext(recycler, state);
-            final FocusFinder ff = FocusFinder.getInstance();
             if (movement == NEXT_ITEM) {
-                while (view == null && appendOneColumnVisibleItems()) {
-                    view = ff.findNextFocus(mBaseGridView, focused, direction);
+                if (isScroll || !mFocusOutEnd) {
+                    view = focused;
                 }
-            } else if (movement == PREV_ITEM){
-                while (view == null && prependOneColumnVisibleItems()) {
-                    view = ff.findNextFocus(mBaseGridView, focused, direction);
+                if (mScrollEnabled) {
+                    processPendingMovement(true);
                 }
-            }
-            if (view == null) {
-                // returning the same view to prevent focus lost when scrolling past the end of the list
-                if (movement == PREV_ITEM) {
-                    view = mFocusOutFront && !isScroll ? null : focused;
-                } else if (movement == NEXT_ITEM){
-                    view = mFocusOutEnd && !isScroll ? null : focused;
+            } else if (movement == PREV_ITEM) {
+                if (isScroll || !mFocusOutFront) {
+                    view = focused;
+                }
+                if (mScrollEnabled) {
+                    processPendingMovement(false);
                 }
             }
             leaveContext();
