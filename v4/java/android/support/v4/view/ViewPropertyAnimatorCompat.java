@@ -300,7 +300,10 @@ public class ViewPropertyAnimatorCompat {
 
             @Override
             public void run() {
-                startAnimation(mVpa, mViewRef.get());
+                final View view = mViewRef.get();
+                if (view != null) {
+                    startAnimation(mVpa, view);
+                }
             }
         };
 
