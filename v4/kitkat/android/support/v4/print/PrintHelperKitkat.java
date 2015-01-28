@@ -302,7 +302,7 @@ class PrintHelperKitkat {
 
         PrintDocumentAdapter printDocumentAdapter = new PrintDocumentAdapter() {
             private PrintAttributes mAttributes;
-            AsyncTask<Uri, Boolean, Bitmap> loadBitmap;
+            AsyncTask<Uri, Boolean, Bitmap> mLoadBitmap;
             Bitmap mBitmap = null;
 
             @Override
@@ -311,9 +311,11 @@ class PrintHelperKitkat {
                                  final CancellationSignal cancellationSignal,
                                  final LayoutResultCallback layoutResultCallback,
                                  Bundle bundle) {
+
+                mAttributes = newPrintAttributes;
+
                 if (cancellationSignal.isCanceled()) {
                     layoutResultCallback.onLayoutCancelled();
-                    mAttributes = newPrintAttributes;
                     return;
                 }
                 // we finished the load
@@ -327,7 +329,7 @@ class PrintHelperKitkat {
                     return;
                 }
 
-                loadBitmap = new AsyncTask<Uri, Boolean, Bitmap>() {
+                mLoadBitmap = new AsyncTask<Uri, Boolean, Bitmap>() {
 
                     @Override
                     protected void onPreExecute() {
@@ -368,17 +370,16 @@ class PrintHelperKitkat {
                         } else {
                             layoutResultCallback.onLayoutFailed(null);
                         }
+                        mLoadBitmap = null;
                     }
 
                     @Override
                     protected void onCancelled(Bitmap result) {
                         // Task was cancelled, report that.
                         layoutResultCallback.onLayoutCancelled();
+                        mLoadBitmap = null;
                     }
-                };
-                loadBitmap.execute();
-
-                mAttributes = newPrintAttributes;
+                }.execute();
             }
 
             private void cancelLoad() {
@@ -394,7 +395,9 @@ class PrintHelperKitkat {
             public void onFinish() {
                 super.onFinish();
                 cancelLoad();
-                loadBitmap.cancel(true);
+                if (mLoadBitmap != null) {
+                    mLoadBitmap.cancel(true);
+                }
                 if (callback != null) {
                     callback.onFinish();
                 }
