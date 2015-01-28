@@ -25,12 +25,12 @@ import android.support.v7.appcompat.R;
  *
  * @hide
  */
-class TintResources extends Resources {
+class TintResources extends ResourcesWrapper {
 
     private final TintManager mTintManager;
 
     public TintResources(Resources resources, TintManager tintManager) {
-        super(resources.getAssets(), resources.getDisplayMetrics(), resources.getConfiguration());
+        super(resources);
         mTintManager = tintManager;
     }
 
