@@ -352,14 +352,5 @@
                   android:label="@string/palette"
                   android:theme="@style/Theme.AppCompat" />
 
-        <activity android:name=".widget.FloatingActionButtonUsage"
-                  android:label="@string/design_fab"
-                  android:theme="@style/Theme.FAB">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
     </application>
 </manifest>

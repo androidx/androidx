@@ -174,8 +174,4 @@
     <string name="sorted_list_activity">Sorted List</string>
     <string name="add_new_item">Add New Item</string>
 
-    <string name="design_fab">Design/Floating Action Button</string>
-    <string name="fab_size_normal">Normal size</string>
-    <string name="fab_size_mini">Mini size</string>
-
 </resources>
