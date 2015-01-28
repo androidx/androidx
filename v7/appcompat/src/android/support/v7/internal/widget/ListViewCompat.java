@@ -75,11 +75,14 @@ public class ListViewCompat extends ListView {
 
     @Override
     public void setSelector(Drawable sel) {
-        mSelector = new GateKeeperDrawable(sel);
+        mSelector = sel != null ? new GateKeeperDrawable(sel) : null;
         super.setSelector(mSelector);
 
-        Rect padding = new Rect();
-        sel.getPadding(padding);
+        final Rect padding = new Rect();
+        if (sel != null) {
+            sel.getPadding(padding);
+        }
+
         mSelectionLeftPadding = padding.left;
         mSelectionTopPadding = padding.top;
         mSelectionRightPadding = padding.right;
@@ -89,7 +92,8 @@ public class ListViewCompat extends ListView {
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
-        mSelector.setEnabled(true);
+
+        setSelectorEnabled(true);
         updateSelectorStateCompat();
     }
 
@@ -121,8 +125,10 @@ public class ListViewCompat extends ListView {
     protected void drawSelectorCompat(Canvas canvas) {
         if (!mSelectorRect.isEmpty()) {
             final Drawable selector = getSelector();
-            selector.setBounds(mSelectorRect);
-            selector.draw(canvas);
+            if (selector != null) {
+                selector.setBounds(mSelectorRect);
+                selector.draw(canvas);
+            }
         }
     }
 
@@ -323,7 +329,9 @@ public class ListViewCompat extends ListView {
     }
 
     protected void setSelectorEnabled(boolean enabled) {
-        mSelector.setEnabled(enabled);
+        if (mSelector != null) {
+            mSelector.setEnabled(enabled);
+        }
     }
 
     private static class GateKeeperDrawable extends DrawableWrapper {
