@@ -460,7 +460,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         mAdapterHelper = new AdapterHelper(new Callback() {
             @Override
             public ViewHolder findViewHolder(int position) {
-                return findViewHolderForPosition(position, true);
+                final ViewHolder vh = findViewHolderForPosition(position, true);
+                if (vh == null) {
+                    return null;
+                }
+                // ensure it is not hidden because for adapter helper, the only thing matter is that
+                // LM thinks view is a child.
+                if (mChildHelper.isHidden(vh.itemView)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "assuming view holder cannot be find because it is hidden");
+                    }
+                    return null;
+                }
+                return vh;
             }
 
             @Override
@@ -7369,7 +7381,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             if (isChanged()) sb.append(" changed");
             if (isTmpDetached()) sb.append(" tmpDetached");
             if (!isRecyclable()) sb.append(" not recyclable(" + mIsRecyclableCount + ")");
-            if (!isAdapterPositionUnknown()) sb.append("undefined adapter position");
+            if (isAdapterPositionUnknown()) sb.append("undefined adapter position");
 
             if (itemView.getParent() == null) sb.append(" no parent");
             sb.append("}");
