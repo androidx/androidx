@@ -60,6 +60,9 @@ public class DialogUsage extends AppCompatActivity {
             case 1:
                 showSimpleDialogWithActionBar();
                 break;
+            case 2:
+                showButtonBarDialog();
+                break;
         }
     }
 
@@ -76,6 +79,13 @@ public class DialogUsage extends AppCompatActivity {
         dialog.supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
         dialog.setTitle(R.string.dialog_title);
         dialog.setContentView(R.layout.dialog_content);
+        dialog.show();
+    }
+
+    private void showButtonBarDialog() {
+        Dialog dialog = new AppCompatDialog(this);
+        dialog.setTitle(R.string.dialog_title);
+        dialog.setContentView(R.layout.dialog_content_buttons);
         dialog.show();
     }
 
