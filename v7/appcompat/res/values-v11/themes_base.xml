@@ -30,8 +30,9 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
-        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+        <item name="android:buttonBarStyle">?attr/buttonBarStyle</item>
+        <item name="android:buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
+
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
 
         <!-- Window colors -->
@@ -85,8 +86,9 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
-        <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+        <item name="android:buttonBarStyle">?attr/buttonBarStyle</item>
+        <item name="android:buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
+
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
 
         <!-- Window colors -->
