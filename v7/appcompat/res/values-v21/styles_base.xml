@@ -185,8 +185,6 @@
 
     <style name="Base.Widget.AppCompat.ButtonBar" parent="android:Widget.Material.ButtonBar" />
 
-    <style name="Base.Widget.AppCompat.ButtonBar.AlertDialog" parent="android:Widget.Material.ButtonBar.AlertDialog" />
-
     <!-- Progress Bar -->
 
     <style name="Base.Widget.AppCompat.ProgressBar.Horizontal"
