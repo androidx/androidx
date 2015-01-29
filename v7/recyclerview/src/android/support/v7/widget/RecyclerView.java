@@ -2749,8 +2749,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 } else {
                     // binding to a new view will need re-layout anyways. We can as well trigger
                     // it here so that it happens during layout
-                    holder.addFlags(ViewHolder.FLAG_INVALID);
                     requestLayout();
+                    break;
                 }
             }
         }
@@ -3592,6 +3592,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                         + "position " + position + "(offset:" + offsetPosition + ")."
                         + "state:" + mState.getItemCount());
             }
+            holder.mOwnerRecyclerView = RecyclerView.this;
             mAdapter.bindViewHolder(holder, offsetPosition);
             attachAccessibilityDelegate(view);
             if (mState.isPreLayout()) {
@@ -3767,6 +3768,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                             + " come here only in pre-layout. Holder: " + holder);
                 }
                 final int offsetPosition = mAdapterHelper.findPositionOffset(position);
+                holder.mOwnerRecyclerView = RecyclerView.this;
                 mAdapter.bindViewHolder(holder, offsetPosition);
                 attachAccessibilityDelegate(holder.itemView);
                 bound = true;
@@ -3920,11 +3922,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                         + " should first call stopIgnoringView(view) before calling recycle.");
             }
             //noinspection unchecked
+            final boolean transientStatePreventsRecycling = holder
+                    .doesTransientStatePreventRecycling();
             final boolean forceRecycle = mAdapter != null
-                    && holder.doesTransientStatePreventRecycling()
+                    && transientStatePreventsRecycling
                     && mAdapter.onFailedToRecycleView(holder);
+            boolean cached = false;
+            boolean recycled = false;
             if (forceRecycle || holder.isRecyclable()) {
-                boolean cached = false;
                 if (!holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved()) &&
                         !holder.isChanged()) {
                     // Retire oldest cached view
@@ -3939,20 +3944,25 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 }
                 if (!cached) {
                     addViewHolderToRecycledViewPool(holder);
+                    recycled = true;
                 }
             } else if (DEBUG) {
                 Log.d(TAG, "trying to recycle a non-recycleable holder. Hopefully, it will "
-                        + "re-visit here. We are stil removing it from animation lists");
+                        + "re-visit here. We are still removing it from animation lists");
             }
             // even if the holder is not removed, we still call this method so that it is removed
             // from view holder lists.
             mState.onViewRecycled(holder);
+            if (!cached && !recycled && transientStatePreventsRecycling) {
+                holder.mOwnerRecyclerView = null;
+            }
         }
 
         void addViewHolderToRecycledViewPool(ViewHolder holder) {
             ViewCompat.setAccessibilityDelegate(holder.itemView, null);
-            getRecycledViewPool().putRecycledView(holder);
             dispatchViewRecycled(holder);
+            holder.mOwnerRecyclerView = null;
+            getRecycledViewPool().putRecycledView(holder);
         }
 
         /**
@@ -4242,6 +4252,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                         holder.offsetPosition(-count, applyToPreLayout);
                     } else if (holder.getLayoutPosition() >= removedFrom) {
                         // Item for this view was removed. Dump it from the cache.
+                        holder.addFlags(ViewHolder.FLAG_REMOVED);
                         recycleCachedViewAt(i);
                     }
                 }
@@ -4452,10 +4463,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             if (hasStableIds()) {
                 holder.mItemId = getItemId(position);
             }
-            onBindViewHolder(holder, position);
             holder.setFlags(ViewHolder.FLAG_BOUND,
                     ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
-                    | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
+                            | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
+            onBindViewHolder(holder, position);
         }
 
         /**
@@ -4529,6 +4540,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * attached to the parent RecyclerView. If an item view has large or expensive data
          * bound to it such as large bitmaps, this may be a good place to release those
          * resources.</p>
+         * <p>
+         * RecyclerView calls this method right before clearing ViewHolder's internal data and
+         * sending it to RecycledViewPool. This way, if ViewHolder was holding valid information
+         * before being recycled, you can call {@link ViewHolder#getAdapterPosition()} to get
+         * its adapter position.
          *
          * @param holder The ViewHolder for the view being recycled
          */
@@ -7024,6 +7040,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         /**
          * This method is called whenever the view in the ViewHolder is recycled.
          *
+         * RecyclerView calls this method right before clearing ViewHolder's internal data and
+         * sending it to RecycledViewPool. This way, if ViewHolder was holding valid information
+         * before being recycled, you can call {@link ViewHolder#getAdapterPosition()} to get
+         * its adapter position.
+         *
          * @param holder The ViewHolder containing the view that was recycled
          */
         public void onViewRecycled(ViewHolder holder);
@@ -7130,6 +7151,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         // scrap container.
         private Recycler mScrapContainer = null;
 
+        /**
+         * Is set when VH is bound from the adapter and cleaned right before it is sent to
+         * {@link RecycledViewPool}.
+         */
+        RecyclerView mOwnerRecyclerView;
+
         public ViewHolder(View itemView) {
             if (itemView == null) {
                 throw new IllegalArgumentException("itemView may not be null");
@@ -7233,15 +7260,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * @return The adapter position of the item if it still exists in the adapter.
          * {@link RecyclerView#NO_POSITION} if item has been removed from the adapter,
          * {@link RecyclerView.Adapter#notifyDataSetChanged()} has been called after the last
-         * layout pass or the ViewHolder has been removed from the RecyclerView.
+         * layout pass or the ViewHolder has already been recycled.
          */
         public final int getAdapterPosition() {
-            final ViewParent parent = itemView.getParent();
-            if (!(parent instanceof RecyclerView)) {
-                return -1;
+            if (mOwnerRecyclerView == null) {
+                return NO_POSITION;
             }
-            final RecyclerView rv = (RecyclerView) parent;
-            return rv.getAdapterPositionFor(this);
+            return mOwnerRecyclerView.getAdapterPositionFor(this);
         }
 
         /**
@@ -7333,7 +7358,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
 
         boolean isAdapterPositionUnknown() {
-            return (mFlags & FLAG_ADAPTER_POSITION_UNKNOWN) != 0;
+            return (mFlags & FLAG_ADAPTER_POSITION_UNKNOWN) != 0 || isInvalid();
         }
 
         void setFlags(int flags, int mask) {
@@ -7435,8 +7460,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     private int getAdapterPositionFor(ViewHolder viewHolder) {
-        if (viewHolder.hasAnyOfTheFlags(
-                ViewHolder.FLAG_REMOVED | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)) {
+        if (viewHolder.hasAnyOfTheFlags( ViewHolder.FLAG_INVALID |
+                ViewHolder.FLAG_REMOVED | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)
+                || !viewHolder.isBound()) {
             return RecyclerView.NO_POSITION;
         }
         return mAdapterHelper.applyPendingUpdatesToPosition(viewHolder.mPosition);
@@ -8217,7 +8243,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     mItemCount;
         }
 
-        public void onViewRecycled(ViewHolder holder) {
+        void onViewRecycled(ViewHolder holder) {
             mPreLayoutHolderMap.remove(holder);
             mPostLayoutHolderMap.remove(holder);
             if (mOldChangedHolders != null) {
