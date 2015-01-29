@@ -46,7 +46,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 
 public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final String TAG = "RecyclerViewLayoutTest";
 
@@ -58,6 +58,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         RecyclerView recyclerView = new RecyclerView(getActivity());
         TestLayoutManager tlm = new TestLayoutManager() {
             int scrollPos = RecyclerView.NO_POSITION;
+
             @Override
             public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
                 layoutLatch.countDown();
@@ -67,6 +68,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     layoutRange(recycler, scrollPos, scrollPos + 10);
                 }
             }
+
             @Override
             public void scrollToPosition(int position) {
                 scrollPos = position;
@@ -278,7 +280,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             assertTrue("test sanity, fling must run", fling(600, 600));
         }
         assertEquals("horizontal scroll", horizontal, scrolledHorizontal.get());
-        assertEquals("vertical scroll",!horizontal, scrolledVertical.get());
+        assertEquals("vertical scroll", !horizontal, scrolledVertical.get());
     }
 
     private boolean fling(final int velocityX, final int velocityY) throws Throwable {
@@ -384,13 +386,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < tlm.getChildCount(); i ++) {
+                for (int i = 0; i < tlm.getChildCount(); i++) {
                     assertNotSame("adapter positions should not be undefined",
                             recyclerView.getChildAdapterPosition(tlm.getChildAt(i)),
                             RecyclerView.NO_POSITION);
                 }
                 adapter.notifyDataSetChanged();
-                for (int i = 0; i < tlm.getChildCount(); i ++) {
+                for (int i = 0; i < tlm.getChildCount(); i++) {
                     assertSame("adapter positions should be undefined",
                             recyclerView.getChildAdapterPosition(tlm.getChildAt(i)),
                             RecyclerView.NO_POSITION);
@@ -453,7 +455,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run(TestAdapter adapter) throws Throwable {
                 adapter.mItems.clear();
-                for (int i = 0; i < 20; i ++) {
+                for (int i = 0; i < 20; i++) {
                     adapter.mItems.add(new Item(i, "added item"));
                 }
                 adapter.notifyDataSetChanged();
@@ -488,7 +490,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     final int count = recyclerView.getChildCount();
                     Map<View, Integer> layoutPositions = new HashMap<View, Integer>();
                     assertTrue("test sanity", count > 0);
-                    for (int i = 0; i < count; i ++) {
+                    for (int i = 0; i < count; i++) {
                         View view = recyclerView.getChildAt(i);
                         TestViewHolder vh = (TestViewHolder) recyclerView.getChildViewHolder(view);
                         int index = testAdapter.mItems.indexOf(vh.mBoundItem);
@@ -507,7 +509,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                             int index = testAdapter.mItems.indexOf(vh.mBoundItem);
                             if (index >= 0) {
                                 assertEquals("should be able to find VH with adapter position "
-                                        + index, vh,
+                                                + index, vh,
                                         recyclerView.findViewHolderForAdapterPosition(index));
                             }
                             assertSame("get adapter position should return correct index", index,
@@ -975,7 +977,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 rv.smoothScrollBy(0, 5000 - soFar);
             }
         });
-        while(rv.getScrollState() != SCROLL_STATE_IDLE) {
+        while (rv.getScrollState() != SCROLL_STATE_IDLE) {
             Thread.sleep(100);
         }
         final int soFar = totalScrolled.get();
@@ -1413,7 +1415,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             changes.put(mRecyclerView.findViewHolderForLayoutPosition(i).getItemId(), false);
         }
         for (int i = 0; i < changedItems.length; i++) {
-            changes.put(mRecyclerView.findViewHolderForLayoutPosition(changedItems[i]).getItemId(), true);
+            changes.put(mRecyclerView.findViewHolderForLayoutPosition(changedItems[i]).getItemId(),
+                    true);
         }
         testLayoutManager.expectLayouts(1);
         adapter.changePositionsAndNotify(changedItems);
@@ -2226,6 +2229,85 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         checkForMainThreadException();
     }
 
+    public void testUpdateHiddenView() throws Throwable {
+        final RecyclerView.ViewHolder[] mTargetVH = new RecyclerView.ViewHolder[1];
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final int[] preLayoutRange = new int[]{0, 10};
+        final int[] postLayoutRange = new int[]{0, 10};
+        final AtomicBoolean enableGetViewTest = new AtomicBoolean(false);
+        final List<Integer> disappearingPositions = new ArrayList<Integer>();
+        final TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return true;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    final int[] layoutRange = state.isPreLayout() ? preLayoutRange
+                            : postLayoutRange;
+                    detachAndScrapAttachedViews(recycler);
+                    layoutRange(recycler, layoutRange[0], layoutRange[1]);
+                    if (!state.isPreLayout()) {
+                        for (Integer position : disappearingPositions) {
+                            // test sanity.
+                            assertNull(findViewByPosition(position));
+                            final View view = recycler.getViewForPosition(position);
+                            addDisappearingView(view);
+                            measureChildWithMargins(view, 0, 0);
+                            // position item out of bounds.
+                            view.layout(0, -500, view.getMeasuredWidth(),
+                                    -500 + view.getMeasuredHeight());
+                        }
+                    }
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+                layoutLatch.countDown();
+            }
+        };
+
+        recyclerView.getItemAnimator().setMoveDuration(2000);
+        recyclerView.getItemAnimator().setRemoveDuration(2000);
+        final TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+
+        tlm.waitForLayout(1);
+        checkForMainThreadException();
+        mTargetVH[0] = recyclerView.findViewHolderForAdapterPosition(0);
+        // now, a child disappears
+        disappearingPositions.add(0);
+        // layout one shifted
+        postLayoutRange[0] = 1;
+        postLayoutRange[1] = 11;
+        tlm.expectLayouts(2);
+        adapter.addAndNotify(8, 1);
+        tlm.waitForLayout(2);
+        checkForMainThreadException();
+
+        tlm.expectLayouts(2);
+        disappearingPositions.clear();
+        // now that item should be moving, invalidate it and delete it.
+        enableGetViewTest.set(true);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    adapter.changeAndNotify(0, 1);
+                    adapter.deleteAndNotify(0, 1);
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+        tlm.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
     private static class TestViewHolder2 extends RecyclerView.ViewHolder {
 
         Object mData;
@@ -2265,6 +2347,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     private static interface AdapterRunnable {
+
         public void run(TestAdapter adapter) throws Throwable;
     }
 
