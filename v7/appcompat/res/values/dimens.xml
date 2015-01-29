@@ -81,4 +81,7 @@
     <dimen name="abc_dialog_padding_material">24dp</dimen>
     <dimen name="abc_dialog_padding_top_material">18dp</dimen>
 
+    <!-- Dialog button bar height -->
+    <dimen name="abc_alert_dialog_button_bar_height">48dp</dimen>
+
 </resources>

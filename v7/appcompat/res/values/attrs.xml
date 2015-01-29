@@ -193,11 +193,9 @@
         <!-- Default action button style. -->
         <attr name="actionButtonStyle" format="reference"/>
 
-        <!-- A style that may be applied to horizontal LinearLayouts
-         to form a button bar. -->
+        <!-- Style for button bars -->
         <attr name="buttonBarStyle" format="reference"/>
-        <!-- A style that may be applied to Buttons placed within a
-             LinearLayout with the style buttonBarStyle to form a button bar. -->
+        <!-- Style for buttons within button bars -->
         <attr name="buttonBarButtonStyle" format="reference"/>
         <!-- A style that may be applied to buttons or other selectable items
              that should react to pressed and focus states, but that do not
