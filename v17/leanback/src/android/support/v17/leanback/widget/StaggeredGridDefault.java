@@ -329,8 +329,8 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 // fill more item to the row to make sure this row is longer than
                 // the previous highest row.
                 if (edgeLimitIsValid) {
-                    while (mReversedFlow ? location - size -mMargin > edgeLimit :
-                            location + size + mMargin < edgeLimit) {
+                    while (mReversedFlow ? location - size > edgeLimit :
+                            location + size < edgeLimit) {
                         if (itemIndex == count || (!oneColumnMode && checkAppendOverLimit(toLimit))) {
                             return filledOne;
                         }
@@ -429,8 +429,8 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 // fill more item to the row to make sure this row is longer than
                 // the previous highest row.
                 if (edgeLimitIsValid) {
-                    while (mReversedFlow ? location + size + mMargin < edgeLimit :
-                            location - size - mMargin > edgeLimit) {
+                    while (mReversedFlow ? location + size < edgeLimit :
+                            location - size > edgeLimit) {
                         if (itemIndex < 0 || (!oneColumnMode && checkPrependOverLimit(toLimit))) {
                             return filledOne;
                         }
