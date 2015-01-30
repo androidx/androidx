@@ -15,7 +15,11 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.v17.leanback.app.HeadersFragment;
 import android.test.AndroidTestCase;
+import android.widget.FrameLayout;
+import android.view.View;
+
 import junit.framework.Assert;
 
 public class PresenterTest extends AndroidTestCase {
@@ -30,5 +34,32 @@ public class PresenterTest extends AndroidTestCase {
             Assert.fail("Should have thrown exception");
         } catch (IllegalArgumentException exception) {
         }
+    }
+
+    private void testHeaderPresenter(RowHeaderPresenter p) {
+        int expectedVisibility;
+        Presenter.ViewHolder vh = p.onCreateViewHolder(new FrameLayout(getContext()));
+        p.onBindViewHolder(vh, null);
+        expectedVisibility = p.isNullItemVisibilityGone() ? View.GONE : View.VISIBLE;
+        Assert.assertTrue(vh.view.getVisibility() == expectedVisibility);
+        p.onBindViewHolder(vh, new Row(null));
+        Assert.assertTrue(vh.view.getVisibility() == expectedVisibility);
+        p.onBindViewHolder(vh, new Row(new HeaderItem("")));
+        Assert.assertTrue(vh.view.getVisibility() == View.VISIBLE);
+    }
+
+    public void testHeaderPresenter() throws Throwable {
+        HeadersFragment hf = new HeadersFragment();
+        PresenterSelector ps = hf.getPresenterSelector();
+        Presenter p = ps.getPresenter(new Object());
+        Assert.assertTrue(p instanceof RowHeaderPresenter);
+        Assert.assertFalse(((RowHeaderPresenter) p).isNullItemVisibilityGone());
+        testHeaderPresenter((RowHeaderPresenter) p);
+
+        ListRowPresenter lrp = new ListRowPresenter();
+        Assert.assertTrue(lrp.getHeaderPresenter() instanceof RowHeaderPresenter);
+        RowHeaderPresenter rhp = (RowHeaderPresenter) lrp.getHeaderPresenter();
+        Assert.assertTrue(rhp.isNullItemVisibilityGone());
+        testHeaderPresenter(rhp);
     }
 }
