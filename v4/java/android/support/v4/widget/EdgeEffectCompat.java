@@ -50,6 +50,7 @@ public class EdgeEffectCompat {
         public boolean onRelease(Object edgeEffect);
         public boolean onAbsorb(Object edgeEffect, int velocity);
         public boolean draw(Object edgeEffect, Canvas canvas);
+        public boolean onPull(Object edgeEffect, float deltaDistance, float displacement);
     }
 
     /**
@@ -85,6 +86,10 @@ public class EdgeEffectCompat {
         public boolean draw(Object edgeEffect, Canvas canvas) {
             return false;
         }
+
+        public boolean onPull(Object edgeEffect, float deltaDistance, float displacement) {
+            return false;
+        }
     }
 
     static class EdgeEffectIcsImpl implements EdgeEffectImpl {
@@ -118,6 +123,16 @@ public class EdgeEffectCompat {
 
         public boolean draw(Object edgeEffect, Canvas canvas) {
             return EdgeEffectCompatIcs.draw(edgeEffect, canvas);
+        }
+
+        public boolean onPull(Object edgeEffect, float deltaDistance, float displacement) {
+            return EdgeEffectCompatIcs.onPull(edgeEffect, deltaDistance);
+        }
+    }
+
+    static class EdgeEffectLollipopImpl extends EdgeEffectIcsImpl {
+        public boolean onPull(Object edgeEffect, float deltaDistance, float displacement) {
+            return EdgeEffectCompatLollipop.onPull(edgeEffect, deltaDistance, displacement);
         }
     }
 
@@ -172,9 +187,28 @@ public class EdgeEffectCompat {
      *                      1.f (full length of the view) or negative values to express change
      *                      back toward the edge reached to initiate the effect.
      * @return true if the host view should call invalidate, false if it should not.
+     * @deprecated use {@link #onPull(float, float)}
      */
     public boolean onPull(float deltaDistance) {
         return IMPL.onPull(mEdgeEffect, deltaDistance);
+    }
+
+    /**
+     * A view should call this when content is pulled away from an edge by the user.
+     * This will update the state of the current visual effect and its associated animation.
+     * The host view should always {@link android.view.View#invalidate()} if this method
+     * returns true and draw the results accordingly.
+     *
+     * @param deltaDistance Change in distance since the last call. Values may be 0 (no change) to
+     *                      1.f (full length of the view) or negative values to express change
+     *                      back toward the edge reached to initiate the effect.
+     * @param displacement The displacement from the starting side of the effect of the point
+     *                     initiating the pull. In the case of touch this is the finger position.
+     *                     Values may be from 0-1.
+     * @return true if the host view should call invalidate, false if it should not.
+     */
+    public boolean onPull(float deltaDistance, float displacement) {
+        return IMPL.onPull(mEdgeEffect, deltaDistance, displacement);
     }
 
     /**

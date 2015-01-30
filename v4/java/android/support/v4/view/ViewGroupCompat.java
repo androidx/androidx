@@ -44,14 +44,14 @@ public class ViewGroupCompat {
     public static final int LAYOUT_MODE_OPTICAL_BOUNDS = 1;
 
     interface ViewGroupCompatImpl {
-        public boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,
+        boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,
                 AccessibilityEvent event);
-
-        public void setMotionEventSplittingEnabled(ViewGroup group, boolean split);
-        public int getLayoutMode(ViewGroup group);
-        public void setLayoutMode(ViewGroup group, int mode);
-        public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup);
-        public boolean isTransitionGroup(ViewGroup group);
+        void setMotionEventSplittingEnabled(ViewGroup group, boolean split);
+        int getLayoutMode(ViewGroup group);
+        void setLayoutMode(ViewGroup group, int mode);
+        void setTransitionGroup(ViewGroup group, boolean isTransitionGroup);
+        boolean isTransitionGroup(ViewGroup group);
+        int getNestedScrollAxes(ViewGroup group);
     }
 
     static class ViewGroupCompatStubImpl implements ViewGroupCompatImpl {
@@ -82,6 +82,14 @@ public class ViewGroupCompat {
         public boolean isTransitionGroup(ViewGroup group) {
             return false;
         }
+
+        @Override
+        public int getNestedScrollAxes(ViewGroup group) {
+            if (group instanceof NestedScrollingParent) {
+                return ((NestedScrollingParent) group).getNestedScrollAxes();
+            }
+            return ViewCompat.SCROLL_AXIS_NONE;
+        }
     }
 
     static class ViewGroupCompatHCImpl extends ViewGroupCompatStubImpl {
@@ -111,15 +119,20 @@ public class ViewGroupCompat {
         }
     }
 
-    static class ViewGroupCompatApi21Impl extends ViewGroupCompatJellybeanMR2Impl {
+    static class ViewGroupCompatLollipopImpl extends ViewGroupCompatJellybeanMR2Impl {
         @Override
         public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
-            ViewGroupCompatApi21.setTransitionGroup(group, isTransitionGroup);
+            ViewGroupCompatLollipop.setTransitionGroup(group, isTransitionGroup);
         }
 
         @Override
         public boolean isTransitionGroup(ViewGroup group) {
-            return ViewGroupCompatApi21.isTransitionGroup(group);
+            return ViewGroupCompatLollipop.isTransitionGroup(group);
+        }
+
+        @Override
+        public int getNestedScrollAxes(ViewGroup group) {
+            return ViewGroupCompatLollipop.getNestedScrollAxes(group);
         }
     }
 
@@ -127,7 +140,7 @@ public class ViewGroupCompat {
     static {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
-            IMPL = new ViewGroupCompatApi21Impl();
+            IMPL = new ViewGroupCompatLollipopImpl();
         } else if (version >= 18) {
             IMPL = new ViewGroupCompatJellybeanMR2Impl();
         } else if (version >= 14) {
@@ -234,5 +247,21 @@ public class ViewGroupCompat {
      */
     public static boolean isTransitionGroup(ViewGroup group) {
         return IMPL.isTransitionGroup(group);
+    }
+
+    /**
+     * Return the current axes of nested scrolling for this ViewGroup.
+     *
+     * <p>A ViewGroup returning something other than {@link ViewCompat#SCROLL_AXIS_NONE} is
+     * currently acting as a nested scrolling parent for one or more descendant views in
+     * the hierarchy.</p>
+     *
+     * @return Flags indicating the current axes of nested scrolling
+     * @see ViewCompat#SCROLL_AXIS_HORIZONTAL
+     * @see ViewCompat#SCROLL_AXIS_VERTICAL
+     * @see ViewCompat#SCROLL_AXIS_NONE
+     */
+    public static int getNestedScrollAxes(ViewGroup group) {
+        return IMPL.getNestedScrollAxes(group);
     }
 }
