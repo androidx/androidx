@@ -225,6 +225,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
                 @Override
                 public void putRecycledView(RecyclerView.ViewHolder scrap) {
+                    assertNull(scrap.mOwnerRecyclerView);
                     super.putRecycledView(scrap);
                 }
             };
@@ -238,7 +239,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                     RecyclerView.ViewHolder vh = parent.getChildViewHolder(view);
                     if (!vh.isRemoved()) {
                         assertNotSame("If getItemOffsets is called, child should have a valid"
-                                            + " adapter position unless it is removed",
+                                            + " adapter position unless it is removed : " + vh,
                                     vh.getAdapterPosition(), RecyclerView.NO_POSITION);
                     }
                 }
@@ -299,7 +300,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     void smoothScrollToPosition(final int position)
             throws Throwable {
-        Log.d(TAG, "SMOOTH scrolling to " + position);
+        if (mDebug) {
+            Log.d(TAG, "SMOOTH scrolling to " + position);
+        }
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -313,7 +316,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
             Thread.sleep(200);
         }
-        Log.d(TAG, "SMOOTH scrolling done");
+        if (mDebug) {
+            Log.d(TAG, "SMOOTH scrolling done");
+        }
         getInstrumentation().waitForIdleSync();
     }
 
@@ -522,9 +527,25 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
         @Override
         public void onBindViewHolder(TestViewHolder holder, int position) {
+            assertNotNull(holder.mOwnerRecyclerView);
+            assertEquals(position, holder.getAdapterPosition());
             final Item item = mItems.get(position);
             ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mAdapterIndex + ")");
             holder.mBoundItem = item;
+        }
+
+        @Override
+        public void onViewRecycled(TestViewHolder holder) {
+            super.onViewRecycled(holder);
+            final int adapterPosition = holder.getAdapterPosition();
+            final boolean shouldHavePosition = !holder.isRemoved() && holder.isBound() &&
+                    !holder.isAdapterPositionUnknown() && !holder.isInvalid();
+            String log = "Position check for " + holder.toString();
+            assertEquals(log, shouldHavePosition, adapterPosition != RecyclerView.NO_POSITION);
+            if (shouldHavePosition) {
+                assertTrue(log, mItems.size() > adapterPosition);
+                assertSame(log, holder.mBoundItem, mItems.get(adapterPosition));
+            }
         }
 
         public void deleteAndNotify(final int start, final int count) throws Throwable {

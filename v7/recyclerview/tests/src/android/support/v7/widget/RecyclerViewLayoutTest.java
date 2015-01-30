@@ -463,6 +463,87 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    public void testAvoidLeakingRecyclerViewIfViewIsNotRecycled() throws Throwable {
+        final AtomicBoolean failedToRecycle = new AtomicBoolean(false);
+        RecyclerView rv = new RecyclerView(getActivity());
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, state.getItemCount());
+                layoutLatch.countDown();
+            }
+        };
+        TestAdapter adapter = new TestAdapter(10) {
+            @Override
+            public boolean onFailedToRecycleView(
+                    TestViewHolder holder) {
+                failedToRecycle.set(true);
+                return false;
+            }
+        };
+        rv.setAdapter(adapter);
+        rv.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(1);
+        final RecyclerView.ViewHolder vh = rv.getChildViewHolder(rv.getChildAt(0));
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewCompat.setHasTransientState(vh.itemView, true);
+            }
+        });
+        tlm.expectLayouts(1);
+        adapter.deleteAndNotify(0, 10);
+        tlm.waitForLayout(2);
+        final CountDownLatch animationsLatch = new CountDownLatch(1);
+        rv.getItemAnimator().isRunning(
+                new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                    @Override
+                    public void onAnimationsFinished() {
+                        animationsLatch.countDown();
+                    }
+                });
+        assertTrue(animationsLatch.await(2, TimeUnit.SECONDS));
+        assertTrue(failedToRecycle.get());
+        assertNull(vh.mOwnerRecyclerView);
+        checkForMainThreadException();
+    }
+
+    public void testAvoidLeakingRecyclerViewViaViewHolder() throws Throwable {
+        RecyclerView rv = new RecyclerView(getActivity());
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, state.getItemCount());
+                layoutLatch.countDown();
+            }
+        };
+        TestAdapter adapter = new TestAdapter(10);
+        rv.setAdapter(adapter);
+        rv.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(1);
+        final RecyclerView.ViewHolder vh = rv.getChildViewHolder(rv.getChildAt(0));
+        tlm.expectLayouts(1);
+        adapter.deleteAndNotify(0, 10);
+        tlm.waitForLayout(2);
+        final CountDownLatch animationsLatch = new CountDownLatch(1);
+        rv.getItemAnimator().isRunning(
+                new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                    @Override
+                    public void onAnimationsFinished() {
+                        animationsLatch.countDown();
+                    }
+                });
+        assertTrue(animationsLatch.await(2, TimeUnit.SECONDS));
+        assertNull(vh.mOwnerRecyclerView);
+        checkForMainThreadException();
+    }
+
     public void adapterPositionsTest(final AdapterRunnable adapterChanges) throws Throwable {
         final TestAdapter testAdapter = new TestAdapter(10);
         TestLayoutManager tlm = new TestLayoutManager() {
