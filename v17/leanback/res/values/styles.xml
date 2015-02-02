@@ -137,6 +137,7 @@
 
     <style name="Widget.Leanback.Header" >
         <item name="android:minHeight">@dimen/lb_browse_header_height</item>
+        <item name="android:minWidth">1dp</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Header</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">none</item>

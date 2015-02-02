@@ -237,6 +237,13 @@ public abstract class RowPresenter extends Presenter {
     boolean mSelectEffectEnabled = true;
     int mSyncActivatePolicy = SYNC_ACTIVATED_TO_EXPANDED;
 
+    /**
+     * Constructs a RowPresenter.
+     */
+    public RowPresenter() {
+        mHeaderPresenter.setNullItemVisibilityGone(true);
+    }
+
     @Override
     public final Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
         ViewHolder vh = createRowViewHolder(parent);
@@ -626,7 +633,8 @@ public abstract class RowPresenter extends Presenter {
      * app should not call it directly.
      */
     public void setEntranceTransitionState(ViewHolder holder, boolean afterTransition) {
-        if (holder.mHeaderViewHolder != null) {
+        if (holder.mHeaderViewHolder != null &&
+                holder.mHeaderViewHolder.view.getVisibility() != View.GONE) {
             holder.mHeaderViewHolder.view.setVisibility(afterTransition ?
                     View.VISIBLE : View.INVISIBLE);
         }
