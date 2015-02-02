@@ -43,14 +43,14 @@ public class RowHeaderPresenter extends Presenter {
     }
 
     /**
-     * Optionally sets the view visibility to {@link View.GONE} when bound to null.
+     * Optionally sets the view visibility to {@link View#GONE} when bound to null.
      */
     public void setNullItemVisibilityGone(boolean nullItemVisibilityGone) {
         mNullItemVisibilityGone = nullItemVisibilityGone;
     }
 
     /**
-     * Returns true if the view visibility is set to {@link View.GONE} when bound to null.
+     * Returns true if the view visibility is set to {@link View#GONE} when bound to null.
      */
     public boolean isNullItemVisibilityGone() {
         return mNullItemVisibilityGone;
