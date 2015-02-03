@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
-import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +54,7 @@ public class ListRowPresenter extends RowPresenter {
     public static class ViewHolder extends RowPresenter.ViewHolder {
         final ListRowPresenter mListRowPresenter;
         final HorizontalGridView mGridView;
-        final ItemBridgeAdapter mItemBridgeAdapter = new ItemBridgeAdapter();
+        ItemBridgeAdapter mItemBridgeAdapter;
         final HorizontalHoverCardSwitcher mHoverCardViewSwitcher = new HorizontalHoverCardSwitcher();
         final int mPaddingTop;
         final int mPaddingBottom;
@@ -82,6 +81,58 @@ public class ListRowPresenter extends RowPresenter {
 
         public final ItemBridgeAdapter getBridgeAdapter() {
             return mItemBridgeAdapter;
+        }
+    }
+
+    class ListRowPresenterItemBridgeAdapter extends ItemBridgeAdapter {
+        ListRowPresenter.ViewHolder mRowViewHolder;
+
+        ListRowPresenterItemBridgeAdapter(ListRowPresenter.ViewHolder rowViewHolder) {
+            mRowViewHolder = rowViewHolder;
+        }
+
+        @Override
+        public void onBind(final ItemBridgeAdapter.ViewHolder viewHolder) {
+            // Only when having an OnItemClickListner, we will attach the OnClickListener.
+            if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
+                viewHolder.mHolder.view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
+                                mRowViewHolder.mGridView.getChildViewHolder(viewHolder.itemView);
+                        if (getOnItemClickedListener() != null) {
+                            getOnItemClickedListener().onItemClicked(ibh.mItem,
+                                    (ListRow) mRowViewHolder.mRow);
+                        }
+                        if (getOnItemViewClickedListener() != null) {
+                            getOnItemViewClickedListener().onItemClicked(viewHolder.mHolder,
+                                    ibh.mItem, mRowViewHolder, (ListRow) mRowViewHolder.mRow);
+                        }
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onUnbind(ItemBridgeAdapter.ViewHolder viewHolder) {
+            if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
+                viewHolder.mHolder.view.setOnClickListener(null);
+            }
+        }
+
+        @Override
+        public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+            if (viewHolder.itemView instanceof ShadowOverlayContainer) {
+                int dimmedColor = mRowViewHolder.mColorDimmer.getPaint().getColor();
+                ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
+            }
+            mRowViewHolder.syncActivatedStatus(viewHolder.itemView);
+        }
+
+        @Override
+        public void onAddPresenter(Presenter presenter, int type) {
+            mRowViewHolder.getGridView().getRecycledViewPool().setMaxRecycledViews(
+                    type, getRecycledPoolSize(presenter));
         }
     }
 
@@ -188,6 +239,7 @@ public class ListRowPresenter extends RowPresenter {
     protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
         super.initializeRowViewHolder(holder);
         final ViewHolder rowViewHolder = (ViewHolder) holder;
+        rowViewHolder.mItemBridgeAdapter = new ListRowPresenterItemBridgeAdapter(rowViewHolder);
         if (needsDefaultListSelectEffect() || needsDefaultShadow()
                 || areChildRoundedCornersEnabled()) {
             rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
@@ -203,53 +255,6 @@ public class ListRowPresenter extends RowPresenter {
             @Override
             public void onChildSelected(ViewGroup parent, View view, int position, long id) {
                 selectChildView(rowViewHolder, view);
-            }
-        });
-        rowViewHolder.mItemBridgeAdapter.setAdapterListener(
-                new ItemBridgeAdapter.AdapterListener() {
-            @Override
-            public void onBind(final ItemBridgeAdapter.ViewHolder viewHolder) {
-                // Only when having an OnItemClickListner, we will attach the OnClickListener.
-                if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
-                    viewHolder.mHolder.view.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
-                                    rowViewHolder.mGridView
-                                            .getChildViewHolder(viewHolder.itemView);
-                            if (getOnItemClickedListener() != null) {
-                                getOnItemClickedListener().onItemClicked(ibh.mItem,
-                                        (ListRow) rowViewHolder.mRow);
-                            }
-                            if (getOnItemViewClickedListener() != null) {
-                                getOnItemViewClickedListener().onItemClicked(viewHolder.mHolder,
-                                        ibh.mItem, rowViewHolder, (ListRow) rowViewHolder.mRow);
-                            }
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onUnbind(ItemBridgeAdapter.ViewHolder viewHolder) {
-                if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
-                    viewHolder.mHolder.view.setOnClickListener(null);
-                }
-            }
-
-            @Override
-            public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-                if (viewHolder.itemView instanceof ShadowOverlayContainer) {
-                    int dimmedColor = rowViewHolder.mColorDimmer.getPaint().getColor();
-                    ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
-                }
-                rowViewHolder.syncActivatedStatus(viewHolder.itemView);
-            }
-
-            @Override
-            public void onAddPresenter(Presenter presenter, int type) {
-                rowViewHolder.getGridView().getRecycledViewPool().setMaxRecycledViews(
-                        type, getRecycledPoolSize(presenter));
             }
         });
     }

@@ -28,8 +28,45 @@ public class VerticalGridPresenter extends Presenter {
     private static final String TAG = "GridPresenter";
     private static final boolean DEBUG = false;
 
+    class VerticalGridItemBridgeAdapter extends ItemBridgeAdapter {
+        @Override
+        public void onBind(final ItemBridgeAdapter.ViewHolder itemViewHolder) {
+            // Only when having an OnItemClickListner, we attach the OnClickListener.
+            if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
+                final View itemView = itemViewHolder.mHolder.view;
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (getOnItemClickedListener() != null) {
+                            // Row is always null
+                            getOnItemClickedListener().onItemClicked(itemViewHolder.mItem,
+                                    null);
+                        }
+                        if (getOnItemViewClickedListener() != null) {
+                            // Row is always null
+                            getOnItemViewClickedListener().onItemClicked(
+                                    itemViewHolder.mHolder, itemViewHolder.mItem, null, null);
+                        }
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onUnbind(ItemBridgeAdapter.ViewHolder viewHolder) {
+            if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
+                viewHolder.mHolder.view.setOnClickListener(null);
+            }
+        }
+
+        @Override
+        public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+            viewHolder.itemView.setActivated(true);
+        }
+    }
+
     public static class ViewHolder extends Presenter.ViewHolder {
-        final ItemBridgeAdapter mItemBridgeAdapter = new ItemBridgeAdapter();
+        ItemBridgeAdapter mItemBridgeAdapter;
         final VerticalGridView mGridView;
         boolean mInitialized;
 
@@ -138,6 +175,7 @@ public class VerticalGridPresenter extends Presenter {
     public final ViewHolder onCreateViewHolder(ViewGroup parent) {
         ViewHolder vh = createGridViewHolder(parent);
         vh.mInitialized = false;
+        vh.mItemBridgeAdapter = new VerticalGridItemBridgeAdapter();
         initializeGridViewHolder(vh);
         if (!vh.mInitialized) {
             throw new RuntimeException("super.initializeGridViewHolder() must be called");
@@ -198,43 +236,6 @@ public class VerticalGridPresenter extends Presenter {
             @Override
             public void onChildSelected(ViewGroup parent, View view, int position, long id) {
                 selectChildView(gridViewHolder, view);
-            }
-        });
-
-        vh.mItemBridgeAdapter.setAdapterListener(new ItemBridgeAdapter.AdapterListener() {
-            @Override
-            public void onBind(final ItemBridgeAdapter.ViewHolder itemViewHolder) {
-                // Only when having an OnItemClickListner, we attach the OnClickListener.
-                if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
-                    final View itemView = itemViewHolder.mHolder.view;
-                    itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (getOnItemClickedListener() != null) {
-                                // Row is always null
-                                getOnItemClickedListener().onItemClicked(itemViewHolder.mItem,
-                                        null);
-                            }
-                            if (getOnItemViewClickedListener() != null) {
-                                // Row is always null
-                                getOnItemViewClickedListener().onItemClicked(
-                                        itemViewHolder.mHolder, itemViewHolder.mItem, null, null);
-                            }
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onUnbind(ItemBridgeAdapter.ViewHolder viewHolder) {
-                if (getOnItemClickedListener() != null || getOnItemViewClickedListener() != null) {
-                    viewHolder.mHolder.view.setOnClickListener(null);
-                }
-            }
-
-            @Override
-            public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-                viewHolder.itemView.setActivated(true);
             }
         });
     }
