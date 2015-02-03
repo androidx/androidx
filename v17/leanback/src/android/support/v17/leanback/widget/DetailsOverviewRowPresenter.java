@@ -66,6 +66,53 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     private static final int MORE_ACTIONS_FADE_MS = 100;
     private static final long DEFAULT_TIMEOUT = 5000;
 
+    class ActionsItemBridgeAdapter extends ItemBridgeAdapter {
+        DetailsOverviewRowPresenter.ViewHolder mViewHolder;
+
+        ActionsItemBridgeAdapter(DetailsOverviewRowPresenter.ViewHolder viewHolder) {
+            mViewHolder = viewHolder;
+        }
+
+        @Override
+        public void onBind(final ItemBridgeAdapter.ViewHolder ibvh) {
+            if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
+                    || mActionClickedListener != null) {
+                ibvh.getPresenter().setOnClickListener(
+                        ibvh.getViewHolder(), new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (getOnItemViewClickedListener() != null) {
+                                    getOnItemViewClickedListener().onItemClicked(
+                                            ibvh.getViewHolder(), ibvh.getItem(),
+                                            mViewHolder, mViewHolder.getRow());
+                                }
+                                if (mActionClickedListener != null) {
+                                    mActionClickedListener.onActionClicked((Action) ibvh.getItem());
+                                }
+                            }
+                        });
+            }
+        }
+        @Override
+        public void onUnbind(final ItemBridgeAdapter.ViewHolder ibvh) {
+            if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
+                    || mActionClickedListener != null) {
+                ibvh.getPresenter().setOnClickListener(ibvh.getViewHolder(), null);
+            }
+        }
+        @Override
+        public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+            // Remove first to ensure we don't add ourselves more than once.
+            viewHolder.itemView.removeOnLayoutChangeListener(mViewHolder.mLayoutChangeListener);
+            viewHolder.itemView.addOnLayoutChangeListener(mViewHolder.mLayoutChangeListener);
+        }
+        @Override
+        public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
+            viewHolder.itemView.removeOnLayoutChangeListener(mViewHolder.mLayoutChangeListener);
+            mViewHolder.checkFirstAndLastPosition(false);
+        }
+    }
+
     /**
      * A ViewHolder for the DetailsOverviewRow.
      */
@@ -80,7 +127,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         int mNumItems;
         boolean mShowMoreRight;
         boolean mShowMoreLeft;
-        final ItemBridgeAdapter mActionBridgeAdapter = new ItemBridgeAdapter();
+        ItemBridgeAdapter mActionBridgeAdapter;
         final Handler mHandler = new Handler();
 
         final Runnable mUpdateDrawableCallback = new Runnable() {
@@ -165,48 +212,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             }
         };
 
-        final ItemBridgeAdapter.AdapterListener mAdapterListener =
-                new ItemBridgeAdapter.AdapterListener() {
-
-            @Override
-            public void onBind(final ItemBridgeAdapter.ViewHolder ibvh) {
-                if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
-                        || mActionClickedListener != null) {
-                    ibvh.getPresenter().setOnClickListener(
-                            ibvh.getViewHolder(), new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    if (getOnItemViewClickedListener() != null) {
-                                        getOnItemViewClickedListener().onItemClicked(ibvh.getViewHolder(),
-                                                ibvh.getItem(), ViewHolder.this, getRow());
-                                    }
-                                    if (mActionClickedListener != null) {
-                                        mActionClickedListener.onActionClicked((Action) ibvh.getItem());
-                                    }
-                                }
-                            });
-                }
-            }
-            @Override
-            public void onUnbind(final ItemBridgeAdapter.ViewHolder ibvh) {
-                if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
-                        || mActionClickedListener != null) {
-                    ibvh.getPresenter().setOnClickListener(ibvh.getViewHolder(), null);
-                }
-            }
-            @Override
-            public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-                // Remove first to ensure we don't add ourselves more than once.
-                viewHolder.itemView.removeOnLayoutChangeListener(mLayoutChangeListener);
-                viewHolder.itemView.addOnLayoutChangeListener(mLayoutChangeListener);
-            }
-            @Override
-            public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-                viewHolder.itemView.removeOnLayoutChangeListener(mLayoutChangeListener);
-                checkFirstAndLastPosition(false);
-            }
-        };
-
         final RecyclerView.OnScrollListener mScrollListener =
                 new RecyclerView.OnScrollListener() {
 
@@ -282,8 +287,6 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             mDetailsDescriptionViewHolder =
                     detailsPresenter.onCreateViewHolder(mDetailsDescriptionFrame);
             mDetailsDescriptionFrame.addView(mDetailsDescriptionViewHolder.view);
-
-            mActionBridgeAdapter.setAdapterListener(mAdapterListener);
         }
     }
 
@@ -423,6 +426,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     private void initDetailsOverview(ViewHolder vh) {
+        vh.mActionBridgeAdapter = new ActionsItemBridgeAdapter(vh);
         final View overview = vh.mOverviewFrame;
         ViewGroup.LayoutParams lp = overview.getLayoutParams();
         lp.height = getCardHeight(overview.getContext());
