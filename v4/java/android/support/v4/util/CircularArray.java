@@ -93,7 +93,7 @@ public final class CircularArray<E> {
     /**
      * Remove first element from front of the CircularArray and return it.
      * @return  The element removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
      */
     public E popFirst() {
         if (mHead == mTail) {
@@ -108,7 +108,7 @@ public final class CircularArray<E> {
     /**
      * Remove last element from end of the CircularArray and return it.
      * @return  The element removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
      */
     public E popLast() {
         if (mHead == mTail) {
@@ -132,7 +132,7 @@ public final class CircularArray<E> {
      * Remove multiple elements from front of the CircularArray, ignore when numOfElements
      * is less than or equals to 0.
      * @param numOfElements  Number of elements to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
+     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
      *         {@link #size()}
      */
     public void removeFromStart(int numOfElements) {
@@ -165,7 +165,7 @@ public final class CircularArray<E> {
      * Remove multiple elements from end of the CircularArray, ignore when numOfElements
      * is less than or equals to 0.
      * @param numOfElements  Number of elements to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
+     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
      *         {@link #size()}
      */
     public void removeFromEnd(int numOfElements) {

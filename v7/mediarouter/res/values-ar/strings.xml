@@ -18,12 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"النظام"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"الأجهزة"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"إرسال"</string>
+    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"المنفذ الإعلامي"</string>
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"الاتصال بجهاز"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"جارٍ البحث عن الأجهزة…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"قطع الاتصال"</string>
-    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"إيقاف الإرسال"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"إعدادات المسار"</string>
-    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"تشغيل"</string>
-    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"إيقاف مؤقت"</string>
 </resources>

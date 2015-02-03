@@ -45,20 +45,17 @@ import java.util.List;
  * and managing accessibility focus. This class does not currently support
  * hierarchies of logical items.
  * <p>
- * Clients should override abstract methods on this class and attach it to the
- * host view using {@link ViewCompat#setAccessibilityDelegate}:
+ * This should be applied to the parent view using
+ * {@link ViewCompat#setAccessibilityDelegate}:
  *
  * <pre>
- * mAccessHelper = new MyExploreByTouchHelper(someView);
+ * mAccessHelper = ExploreByTouchHelper.create(someView, mAccessHelperCallback);
  * ViewCompat.setAccessibilityDelegate(someView, mAccessHelper);
  * </pre>
  */
 public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     /** Virtual node identifier value for invalid nodes. */
     public static final int INVALID_ID = Integer.MIN_VALUE;
-
-    /** Virtual node identifier value for the host view's node. */
-    public static final int HOST_ID = View.NO_ID;
 
     /** Default class name used for virtual views. */
     private static final String DEFAULT_CLASS_NAME = View.class.getName();
@@ -194,7 +191,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * parent view.
      */
     public void invalidateRoot() {
-        invalidateVirtualView(HOST_ID);
+        invalidateVirtualView(View.NO_ID);
     }
 
     /**
@@ -246,7 +243,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
     /**
      * Constructs and returns an {@link AccessibilityEvent} for the specified
-     * virtual view id, which includes the host view ({@link #HOST_ID}).
+     * virtual view id, which includes the host view ({@link View#NO_ID}).
      *
      * @param virtualViewId The virtual view id for the item for which to
      *            construct an event.
@@ -256,7 +253,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      */
     private AccessibilityEvent createEvent(int virtualViewId, int eventType) {
         switch (virtualViewId) {
-            case HOST_ID:
+            case View.NO_ID:
                 return createEventForHost(eventType);
             default:
                 return createEventForChild(virtualViewId, eventType);
@@ -312,7 +309,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     /**
      * Constructs and returns an {@link AccessibilityNodeInfoCompat} for the
      * specified virtual view id, which includes the host view
-     * ({@link #HOST_ID}).
+     * ({@link View#NO_ID}).
      *
      * @param virtualViewId The virtual view id for the item for which to
      *            construct a node.
@@ -321,7 +318,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      */
     private AccessibilityNodeInfoCompat createNode(int virtualViewId) {
         switch (virtualViewId) {
-            case HOST_ID:
+            case View.NO_ID:
                 return createNodeForHost();
             default:
                 return createNodeForChild(virtualViewId);
@@ -337,9 +334,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private AccessibilityNodeInfoCompat createNodeForHost() {
         final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain(mView);
         ViewCompat.onInitializeAccessibilityNodeInfo(mView, node);
-
-        // Allow the client to populate the host node.
-        onPopulateNodeForHost(node);
 
         // Add the virtual descendants.
         final LinkedList<Integer> virtualViewIds = new LinkedList<Integer>();
@@ -445,7 +439,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
     private boolean performAction(int virtualViewId, int action, Bundle arguments) {
         switch (virtualViewId) {
-            case HOST_ID:
+            case View.NO_ID:
                 return performActionForHost(action, arguments);
             default:
                 return performActionForChild(virtualViewId, action, arguments);
@@ -583,7 +577,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @param x The view-relative x coordinate
      * @param y The view-relative y coordinate
      * @return virtual view identifier for the logical item under
-     *         coordinates (x,y) or {@link #HOST_ID} if there is no item at
+     *         coordinates (x,y) or {@link View#NO_ID} if there is no item at
      *         the given coordinates
      */
     protected abstract int getVirtualViewAt(float x, float y);
@@ -687,17 +681,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      */
     protected abstract void onPopulateNodeForVirtualView(
             int virtualViewId, AccessibilityNodeInfoCompat node);
-
-    /**
-     * Populates an {@link AccessibilityNodeInfoCompat} with information
-     * about the host view.
-     * <p>
-     * The following required fields are automatically populated by the
-     * helper class and may not be overridden:
-     */
-    public void onPopulateNodeForHost(AccessibilityNodeInfoCompat node) {
-        // Default implementation is no-op.
-    }
 
     /**
      * Performs the specified accessibility action on the item associated

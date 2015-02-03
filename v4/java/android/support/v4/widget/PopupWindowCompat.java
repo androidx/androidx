@@ -17,6 +17,7 @@
 package android.support.v4.widget;
 
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.PopupWindow;
 
 /**
@@ -30,8 +31,6 @@ public class PopupWindowCompat {
     interface PopupWindowImpl {
         public void showAsDropDown(PopupWindow popup, View anchor, int xoff, int yoff,
                 int gravity);
-        public void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor);
-        public boolean getOverlapAnchor(PopupWindow popupWindow);
     }
 
     /**
@@ -42,16 +41,6 @@ public class PopupWindowCompat {
         public void showAsDropDown(PopupWindow popup, View anchor, int xoff, int yoff,
                 int gravity) {
             popup.showAsDropDown(anchor, xoff, yoff);
-        }
-
-        @Override
-        public void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {
-            // noop
-        }
-
-        @Override
-        public boolean getOverlapAnchor(PopupWindow popupWindow) {
-            return false;
         }
     }
 
@@ -66,41 +55,13 @@ public class PopupWindowCompat {
         }
     }
 
-    static class Api21PopupWindowImpl extends KitKatPopupWindowImpl {
-        @Override
-        public void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {
-            PopupWindowCompatApi21.setOverlapAnchor(popupWindow, overlapAnchor);
-        }
-
-        @Override
-        public boolean getOverlapAnchor(PopupWindow popupWindow) {
-            return PopupWindowCompatApi21.getOverlapAnchor(popupWindow);
-        }
-    }
-
-    static class Api23PopupWindowImpl extends Api21PopupWindowImpl {
-        @Override
-        public void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {
-            PopupWindowCompatApi23.setOverlapAnchor(popupWindow, overlapAnchor);
-        }
-
-        @Override
-        public boolean getOverlapAnchor(PopupWindow popupWindow) {
-            return PopupWindowCompatApi23.getOverlapAnchor(popupWindow);
-        }
-    }
-
     /**
      * Select the correct implementation to use for the current platform.
      */
     static final PopupWindowImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 23) {
-            IMPL = new Api23PopupWindowImpl();
-        } else if (version >= 21) {
-            IMPL = new Api21PopupWindowImpl();
-        } else if (version >= 19) {
+        if (version >= 19) {
             IMPL = new KitKatPopupWindowImpl();
         } else {
             IMPL = new BasePopupWindowImpl();
@@ -130,25 +91,5 @@ public class PopupWindowCompat {
     public static void showAsDropDown(PopupWindow popup, View anchor, int xoff, int yoff,
             int gravity) {
         IMPL.showAsDropDown(popup, anchor, xoff, yoff, gravity);
-    }
-
-    /**
-     * Sets whether the popup window should overlap its anchor view when
-     * displayed as a drop-down.
-     *
-     * @param overlapAnchor Whether the popup should overlap its anchor.
-     */
-    public static void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {
-        IMPL.setOverlapAnchor(popupWindow, overlapAnchor);
-    }
-
-    /**
-     * Returns whether the popup window should overlap its anchor view when
-     * displayed as a drop-down.
-     *
-     * @return Whether the popup should overlap its anchor.
-     */
-    public static boolean getOverlapAnchor(PopupWindow popupWindow) {
-        return IMPL.getOverlapAnchor(popupWindow);
     }
 }

@@ -29,7 +29,6 @@ public class RowHeaderPresenter extends Presenter {
 
     private final int mLayoutResourceId;
     private final Paint mFontMeasurePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private boolean mNullItemVisibilityGone;
 
     public RowHeaderPresenter() {
         this(R.layout.lb_row_header);
@@ -40,20 +39,6 @@ public class RowHeaderPresenter extends Presenter {
      */
     public RowHeaderPresenter(int layoutResourceId) {
         mLayoutResourceId = layoutResourceId;
-    }
-
-    /**
-     * Optionally sets the view visibility to {@link View#GONE} when bound to null.
-     */
-    public void setNullItemVisibilityGone(boolean nullItemVisibilityGone) {
-        mNullItemVisibilityGone = nullItemVisibilityGone;
-    }
-
-    /**
-     * Returns true if the view visibility is set to {@link View#GONE} when bound to null.
-     */
-    public boolean isNullItemVisibilityGone() {
-        return mNullItemVisibilityGone;
     }
 
     public static class ViewHolder extends Presenter.ViewHolder {
@@ -84,21 +69,18 @@ public class RowHeaderPresenter extends Presenter {
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         setSelectLevel((ViewHolder) viewHolder, 0);
-        HeaderItem headerItem = item == null ? null : ((Row) item).getHeaderItem();
-        if (headerItem == null) {
-            ((RowHeaderView) viewHolder.view).setText(null);
-            if (mNullItemVisibilityGone) {
-                viewHolder.view.setVisibility(View.GONE);
+        Row rowItem = (Row) item;
+        if (rowItem != null) {
+            HeaderItem headerItem = rowItem.getHeaderItem();
+            if (headerItem != null) {
+                String text = headerItem.getName();
+                ((RowHeaderView) viewHolder.view).setText(text);
             }
-        } else {
-            viewHolder.view.setVisibility(View.VISIBLE);
-            ((RowHeaderView) viewHolder.view).setText(headerItem.getName());
         }
     }
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        ((RowHeaderView) viewHolder.view).setText(null);
     }
 
     public final void setSelectLevel(ViewHolder holder, float selectLevel) {

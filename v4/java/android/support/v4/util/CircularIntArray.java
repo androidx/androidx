@@ -94,7 +94,7 @@ public final class CircularIntArray
     /**
      * Remove first integer from front of the CircularIntArray and return it.
      * @return  The integer removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
      */
     public int popFirst() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -106,7 +106,7 @@ public final class CircularIntArray
     /**
      * Remove last integer from end of the CircularIntArray and return it.
      * @return  The integer removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
+     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
      */
     public int popLast() {
         if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
@@ -127,7 +127,7 @@ public final class CircularIntArray
      * Remove multiple integers from front of the CircularIntArray, ignore when numOfElements
      * is less than or equals to 0.
      * @param numOfElements  Number of integers to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
+     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
      *         {@link #size()}
      */
     public void removeFromStart(int numOfElements) {
@@ -144,7 +144,7 @@ public final class CircularIntArray
      * Remove multiple elements from end of the CircularIntArray, ignore when numOfElements
      * is less than or equals to 0.
      * @param numOfElements  Number of integers to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
+     * @throws {@link ArrayIndexOutOfBoundsException} if numOfElements is larger than
      *         {@link #size()}
      */
     public void removeFromEnd(int numOfElements) {
