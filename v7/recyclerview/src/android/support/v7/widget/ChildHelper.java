@@ -76,11 +76,11 @@ class ChildHelper {
         } else {
             offset = getOffset(index);
         }
-        mCallback.addView(child, offset);
         mBucket.insert(offset, hidden);
         if (hidden) {
             mHiddenViews.add(child);
         }
+        mCallback.addView(child, offset);
         if (DEBUG) {
             Log.d(TAG, "addViewAt " + index + ",h:" + hidden + ", " + this);
         }
@@ -117,10 +117,10 @@ class ChildHelper {
         if (index < 0) {
             return;
         }
-        mCallback.removeViewAt(index);
         if (mBucket.remove(index)) {
             mHiddenViews.remove(view);
         }
+        mCallback.removeViewAt(index);
         if (DEBUG) {
             Log.d(TAG, "remove View off:" + index + "," + this);
         }
@@ -138,10 +138,10 @@ class ChildHelper {
         if (view == null) {
             return;
         }
-        mCallback.removeViewAt(offset);
         if (mBucket.remove(offset)) {
             mHiddenViews.remove(view);
         }
+        mCallback.removeViewAt(offset);
         if (DEBUG) {
             Log.d(TAG, "removeViewAt " + index + ", off:" + offset + ", " + this);
         }
@@ -161,9 +161,9 @@ class ChildHelper {
      * Removes all views from the ViewGroup including the hidden ones.
      */
     void removeAllViewsUnfiltered() {
-        mCallback.removeAllViews();
         mBucket.reset();
         mHiddenViews.clear();
+        mCallback.removeAllViews();
         if (DEBUG) {
             Log.d(TAG, "removeAllViewsUnfiltered");
         }
@@ -205,11 +205,11 @@ class ChildHelper {
         } else {
             offset = getOffset(index);
         }
-        mCallback.attachViewToParent(child, offset, layoutParams);
         mBucket.insert(offset, hidden);
         if (hidden) {
             mHiddenViews.add(child);
         }
+        mCallback.attachViewToParent(child, offset, layoutParams);
         if (DEBUG) {
             Log.d(TAG, "attach view to parent index:" + index + ",off:" + offset + "," +
                     "h:" + hidden + ", " + this);
@@ -253,8 +253,8 @@ class ChildHelper {
      */
     void detachViewFromParent(int index) {
         final int offset = getOffset(index);
-        mCallback.detachViewFromParent(offset);
         mBucket.remove(offset);
+        mCallback.detachViewFromParent(offset);
         if (DEBUG) {
             Log.d(TAG, "detach view from parent " + index + ", off:" + offset);
         }
@@ -333,11 +333,11 @@ class ChildHelper {
         }
         if (mBucket.get(index)) {
             mBucket.remove(index);
-            mCallback.removeViewAt(index);
             if (!mHiddenViews.remove(view) && DEBUG) {
                 throw new IllegalStateException(
                         "removed a hidden view but it is not in hidden views list");
             }
+            mCallback.removeViewAt(index);
             return true;
         }
         return false;
