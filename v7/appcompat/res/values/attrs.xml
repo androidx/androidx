@@ -42,6 +42,9 @@
              in place of the usual title bar. -->
         <attr name="windowActionBar" format="boolean" />
 
+        <!-- Flag indicating whether there should be no title on this window. -->
+        <attr name="windowNoTitle" format="boolean" />
+
         <!-- Flag indicating whether this window's Action Bar should overlay
              application content. Does nothing if the window would not
              have an Action Bar. -->
