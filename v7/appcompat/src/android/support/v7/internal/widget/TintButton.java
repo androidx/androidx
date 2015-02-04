@@ -58,6 +58,13 @@ public class TintButton extends Button implements TintableBackgroundView {
             }
             a.recycle();
         }
+
+        final ColorStateList textColors = getTextColors();
+        if (textColors != null && !textColors.isStateful()) {
+            // If we have a ColorStateList which isn't stateful, create one which includes
+            // a disabled state
+            setTextColor(ThemeUtils.createDisabledStateList(context, textColors.getDefaultColor()));
+        }
     }
 
     /**
@@ -126,4 +133,5 @@ public class TintButton extends Button implements TintableBackgroundView {
             TintManager.tintViewBackground(this, mBackgroundTint);
         }
     }
+
 }
