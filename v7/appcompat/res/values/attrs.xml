@@ -72,6 +72,17 @@
              or a fraction of the screen size in that dimension. -->
         <attr name="windowFixedHeightMajor" format="dimension|fraction" />
 
+        <!-- The minimum width the window is allowed to be, along the major
+             axis of the screen.  That is, when in landscape.  Can be either
+             an absolute dimension or a fraction of the screen size in that
+             dimension. -->
+        <attr name="windowMinWidthMajor" format="dimension|fraction" />
+        <!-- The minimum width the window is allowed to be, along the minor
+             axis of the screen.  That is, when in portrait.  Can be either
+             an absolute dimension or a fraction of the screen size in that
+             dimension. -->
+        <attr name="windowMinWidthMinor" format="dimension|fraction" />
+
         <attr name="android:windowIsFloating" />
         <attr name="android:windowAnimationStyle" />
 
@@ -174,7 +185,8 @@
         <attr name="dialogTheme" format="reference" />
         <!-- Preferred padding for dialog content. -->
         <attr name="dialogPreferredPadding" format="dimension" />
-
+        <!-- The list divider used in alert dialogs. -->
+        <attr name="listDividerAlertDialog" format="reference" />
 
         <!-- =================== -->
         <!-- Other widget styles -->
@@ -316,6 +328,28 @@
 
         <!-- The color applied to framework switch thumbs in their normal state. -->
         <attr name="colorSwitchThumbNormal" format="color" />
+
+        <!-- ============ -->
+        <!-- Alert Dialog styles -->
+        <!-- ============ -->
+        <eat-comment />
+        <attr name="alertDialogStyle" format="reference" />
+        <attr name="alertDialogButtonGroupStyle" format="reference" />
+        <attr name="alertDialogCenterButtons" format="boolean" />
+        <!-- Theme to use for alert dialogs spawned from this theme. -->
+        <attr name="alertDialogTheme" format="reference" />
+
+        <!-- Color of list item text in alert dialogs. -->
+        <attr name="textColorAlertDialogListItem" format="reference|color" />
+
+        <!-- Style for the "positive" buttons within button bars -->
+        <attr name="buttonBarPositiveButtonStyle" format="reference" />
+
+        <!-- Style for the "negative" buttons within button bars -->
+        <attr name="buttonBarNegativeButtonStyle" format="reference" />
+
+        <!-- Style for the "neutral" buttons within button bars -->
+        <attr name="buttonBarNeutralButtonStyle" format="reference" />
 
     </declare-styleable>
 
@@ -858,6 +892,16 @@
         <attr name="android:textStyle" />
         <attr name="android:typeface" />
         <attr name="textAllCaps" />
+    </declare-styleable>
+
+    <!-- The set of attributes that describe a AlertDialog's theme. -->
+    <declare-styleable name="AlertDialog">
+        <attr name="android:layout" />
+        <attr name="buttonPanelSideLayout" format="reference" />
+        <attr name="listLayout" format="reference" />
+        <attr name="multiChoiceItemLayout" format="reference" />
+        <attr name="singleChoiceItemLayout" format="reference" />
+        <attr name="listItemLayout" format="reference" />
     </declare-styleable>
 
 </resources>
