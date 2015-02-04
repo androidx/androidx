@@ -15,6 +15,9 @@ package android.support.v17.leanback.widget;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.view.KeyEvent;
+
+import java.util.ArrayList;
 
 import static android.support.v17.leanback.widget.ObjectAdapter.NO_ID;
 
@@ -28,6 +31,7 @@ public class Action {
     private Drawable mIcon;
     private CharSequence mLabel1;
     private CharSequence mLabel2;
+    private ArrayList mKeyCodes = new ArrayList();
 
     /**
      * Constructor for an Action.
@@ -128,6 +132,27 @@ public class Action {
      */
     public final Drawable getIcon() {
         return mIcon;
+    }
+
+    /**
+     * Add a keycode used to invoke this Action.
+     */
+    public final void addKeyCode(int keyCode) {
+        mKeyCodes.add(keyCode);
+    }
+
+    /**
+     * Removes a keycode used to invoke this Action.
+     */
+    public final void removeKeyCode(int keyCode) {
+        mKeyCodes.remove(keyCode);
+    }
+
+    /**
+     * Returns true if the Action should respond to the given keycode.
+     */
+    public final boolean respondsToKeyCode(int keyCode) {
+        return mKeyCodes.contains(keyCode);
     }
 
     @Override

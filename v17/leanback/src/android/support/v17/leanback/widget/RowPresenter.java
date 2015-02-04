@@ -149,6 +149,7 @@ public abstract class RowPresenter extends Presenter {
         boolean mInitialzed;
         float mSelectLevel = 0f; // initially unselected
         protected final ColorOverlayDimmer mColorDimmer;
+        private View.OnKeyListener mOnKeyListener;
 
         /**
          * Constructor for ViewHolder.
@@ -226,6 +227,20 @@ public abstract class RowPresenter extends Presenter {
                 view.setActivated(false);
             }
         }
+
+        /**
+         * Sets a key listener.
+         */
+        public void setOnKeyListener(View.OnKeyListener keyListener) {
+            mOnKeyListener = keyListener;
+        }
+
+        /**
+         * Returns the key listener.
+         */
+        public View.OnKeyListener getOnKeyListener() {
+            return mOnKeyListener;
+        }
     }
 
     private RowHeaderPresenter mHeaderPresenter = new RowHeaderPresenter();
@@ -236,6 +251,7 @@ public abstract class RowPresenter extends Presenter {
 
     boolean mSelectEffectEnabled = true;
     int mSyncActivatePolicy = SYNC_ACTIVATED_TO_EXPANDED;
+
 
     /**
      * Constructs a RowPresenter.
