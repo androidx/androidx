@@ -269,52 +269,56 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     private void ensureSubDecor() {
         if (!mSubDecorInstalled) {
-            if (mHasActionBar) {
-                /**
-                 * This needs some explanation. As we can not use the android:theme attribute
-                 * pre-L, we emulate it by manually creating a LayoutInflater using a
-                 * ContextThemeWrapper pointing to actionBarTheme.
-                 */
-                TypedValue outValue = new TypedValue();
-                mContext.getTheme().resolveAttribute(R.attr.actionBarTheme, outValue, true);
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
 
-                Context themedContext;
-                if (outValue.resourceId != 0) {
-                    themedContext = new ContextThemeWrapper(mContext, outValue.resourceId);
-                } else {
-                    themedContext = mContext;
-                }
+            if (!mWindowNoTitle) {
+                if (mIsFloating) {
+                    // If we're floating, inflate the dialog title decor
+                    mSubDecor = (ViewGroup) inflater.inflate(
+                            R.layout.abc_dialog_title_material, null);
+                } else if (mHasActionBar) {
+                    /**
+                     * This needs some explanation. As we can not use the android:theme attribute
+                     * pre-L, we emulate it by manually creating a LayoutInflater using a
+                     * ContextThemeWrapper pointing to actionBarTheme.
+                     */
+                    TypedValue outValue = new TypedValue();
+                    mContext.getTheme().resolveAttribute(R.attr.actionBarTheme, outValue, true);
 
-                // Now inflate the view using the themed context and set it as the content view
-                mSubDecor = (ViewGroup) LayoutInflater.from(themedContext)
-                        .inflate(R.layout.abc_screen_toolbar, null);
+                    Context themedContext;
+                    if (outValue.resourceId != 0) {
+                        themedContext = new ContextThemeWrapper(mContext, outValue.resourceId);
+                    } else {
+                        themedContext = mContext;
+                    }
 
-                mDecorContentParent = (DecorContentParent) mSubDecor
-                        .findViewById(R.id.decor_content_parent);
-                mDecorContentParent.setWindowCallback(getWindowCallback());
+                    // Now inflate the view using the themed context and set it as the content view
+                    mSubDecor = (ViewGroup) LayoutInflater.from(themedContext)
+                            .inflate(R.layout.abc_screen_toolbar, null);
 
-                /**
-                 * Propagate features to DecorContentParent
-                 */
-                if (mOverlayActionBar) {
-                    mDecorContentParent.initFeature(FEATURE_ACTION_BAR_OVERLAY);
-                }
-                if (mFeatureProgress) {
-                    mDecorContentParent.initFeature(Window.FEATURE_PROGRESS);
-                }
-                if (mFeatureIndeterminateProgress) {
-                    mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+                    mDecorContentParent = (DecorContentParent) mSubDecor
+                            .findViewById(R.id.decor_content_parent);
+                    mDecorContentParent.setWindowCallback(getWindowCallback());
+
+                    /**
+                     * Propagate features to DecorContentParent
+                     */
+                    if (mOverlayActionBar) {
+                        mDecorContentParent.initFeature(FEATURE_ACTION_BAR_OVERLAY);
+                    }
+                    if (mFeatureProgress) {
+                        mDecorContentParent.initFeature(Window.FEATURE_PROGRESS);
+                    }
+                    if (mFeatureIndeterminateProgress) {
+                        mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+                    }
                 }
             } else {
-                if (mIsFloating) {
-                    mSubDecor = (ViewGroup) LayoutInflater.from(mContext)
-                            .inflate(R.layout.abc_dialog_title_material, null);
-                } else if (mOverlayActionMode) {
-                    mSubDecor = (ViewGroup) LayoutInflater.from(mContext)
-                            .inflate(R.layout.abc_screen_simple_overlay_action_mode, null);
+                if (mOverlayActionMode) {
+                    mSubDecor = (ViewGroup) inflater.inflate(
+                            R.layout.abc_screen_simple_overlay_action_mode, null);
                 } else {
-                    mSubDecor = (ViewGroup) LayoutInflater.from(mContext)
-                            .inflate(R.layout.abc_screen_simple, null);
+                    mSubDecor = (ViewGroup) inflater.inflate(R.layout.abc_screen_simple, null);
                 }
 
                 if (Build.VERSION.SDK_INT >= 21) {
@@ -350,6 +354,11 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                                 }
                             });
                 }
+            }
+
+            if (mSubDecor == null) {
+                throw new IllegalArgumentException(
+                        "AppCompat does not support the current theme features");
             }
 
             if (mDecorContentParent == null) {
