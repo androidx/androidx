@@ -53,6 +53,8 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     boolean mOverlayActionMode;
     // true if this activity is floating (e.g. Dialog)
     boolean mIsFloating;
+    // true if this activity has no title
+    boolean mWindowNoTitle;
 
     private CharSequence mTitle;
 
@@ -122,6 +124,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
             mOverlayActionMode = true;
         }
         mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
+        mWindowNoTitle = a.getBoolean(R.styleable.Theme_windowNoTitle, false);
         a.recycle();
     }
 
