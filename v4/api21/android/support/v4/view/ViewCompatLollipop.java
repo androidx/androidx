@@ -155,4 +155,8 @@ class ViewCompatLollipop {
     public static boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
         return view.dispatchNestedPreFling(velocityX, velocityY);
     }
+
+    public static float getZ(View view) {
+        return view.getZ();
+    }
 }
