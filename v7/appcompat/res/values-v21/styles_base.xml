@@ -185,6 +185,10 @@
 
     <style name="Base.Widget.AppCompat.ButtonBar" parent="android:Widget.Material.ButtonBar" />
 
+    <style name="Base.Widget.AppCompat.CompoundButton.CheckBox" parent="android:Widget.Material.CompoundButton.CheckBox" />
+
+    <style name="Base.Widget.AppCompat.CompoundButton.RadioButton" parent="android:Widget.Material.CompoundButton.RadioButton" />
+
     <!-- Progress Bar -->
 
     <style name="Base.Widget.AppCompat.ProgressBar.Horizontal"

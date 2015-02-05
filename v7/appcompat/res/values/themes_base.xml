@@ -224,6 +224,8 @@
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
+        <item name="android:checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
+        <item name="android:radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
 
         <item name="android:ratingBarStyle">@style/Widget.AppCompat.RatingBar</item>
@@ -348,6 +350,8 @@
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
+        <item name="android:checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
+        <item name="android:radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
 
         <item name="android:ratingBarStyle">@style/Widget.AppCompat.RatingBar</item>
