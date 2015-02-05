@@ -45,4 +45,8 @@ class ViewCompatBase {
             ((TintableBackgroundView) view).setSupportBackgroundTintMode(mode);
         }
     }
+
+    static boolean isLaidOut(View view) {
+        return view.getWidth() > 0 && view.getHeight() > 0;
+    }
 }
