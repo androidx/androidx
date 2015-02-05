@@ -249,7 +249,9 @@ static jlong
 nContextCreate(JNIEnv *_env, jobject _this, jlong dev, jint ver, jint sdkVer, jint ct)
 {
     LOG_API("nContextCreate");
-    return (jlong)(uintptr_t)dispatchTab.ContextCreate((RsDevice)dev, ver, sdkVer, (RsContextType)ct, 0);
+    return (jlong)(uintptr_t)dispatchTab.ContextCreate((RsDevice)dev, ver,
+                                                       sdkVer,
+                                                       (RsContextType)ct, 0);
 }
 
 
@@ -362,11 +364,14 @@ nContextSendMessage(JNIEnv *_env, jobject _this, jlong con, jint id, jintArray d
 
 
 static jlong
-nElementCreate(JNIEnv *_env, jobject _this, jlong con, jlong type, jint kind, jboolean norm, jint size)
+nElementCreate(JNIEnv *_env, jobject _this, jlong con, jlong type, jint kind,
+               jboolean norm, jint size)
 {
     LOG_API("nElementCreate, con(%p), type(%i), kind(%i), norm(%i), size(%i)", (RsContext)con,
             type, kind, norm, size);
-    return (jlong)(uintptr_t)dispatchTab.ElementCreate((RsContext)con, (RsDataType)type, (RsDataKind)kind,
+    return (jlong)(uintptr_t)dispatchTab.ElementCreate((RsContext)con,
+                                                       (RsDataType)type,
+                                                       (RsDataKind)kind,
                                                        norm, size);
 }
 
@@ -1179,6 +1184,14 @@ nScriptKernelIDCreate(JNIEnv *_env, jobject _this, jlong con, jlong sid, jint sl
 }
 
 static jlong
+nScriptInvokeIDCreate(JNIEnv *_env, jobject _this, jlong con, jlong sid, jint slot)
+{
+    LOG_API("nScriptInvokeIDCreate, con(%p) script(%p), slot(%i), sig(%i)", con,
+            (void *)sid, slot);
+    return (jlong)dispatchTab.ScriptInvokeIDCreate((RsContext)con, (RsScript)sid, slot);
+}
+
+static jlong
 nScriptFieldIDCreate(JNIEnv *_env, jobject _this, jlong con, jlong sid, jint slot)
 {
     LOG_API("nScriptFieldIDCreate, con(%p) script(%p), slot(%i)", (RsContext)con, (void *)sid, slot);
@@ -1385,6 +1398,7 @@ static JNINativeMethod methods[] = {
 {"rsnScriptCCreate",                 "(JLjava/lang/String;Ljava/lang/String;[BI)J",  (void*)nScriptCCreate },
 {"rsnScriptIntrinsicCreate",         "(JIJ)J",                                (void*)nScriptIntrinsicCreate },
 {"rsnScriptKernelIDCreate",          "(JJII)J",                               (void*)nScriptKernelIDCreate },
+{"rsnScriptInvokeIDCreate",          "(JJI)J",                                (void*)nScriptInvokeIDCreate },
 {"rsnScriptFieldIDCreate",           "(JJI)J",                                (void*)nScriptFieldIDCreate },
 {"rsnScriptGroupCreate",             "(J[J[J[J[J[J)J",                        (void*)nScriptGroupCreate },
 //{"rsnScriptGroup2Create",            "(J[J)J",                                (void*)nScriptGroup2Create },

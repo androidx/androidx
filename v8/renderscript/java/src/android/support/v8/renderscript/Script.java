@@ -73,6 +73,45 @@ public class Script extends BaseObj {
     }
 
     /**
+     * InvokeID is an identifier for a invoke function. It is used
+     * as an identifier for ScriptGroup creation.
+     *
+     * This class should not be directly created. Instead use the method in the
+     * reflected or intrinsic code "getInvokeID_funcname()".
+     *
+     * @hide
+     */
+    public static final class InvokeID extends BaseObj {
+        Script mScript;
+        int mSlot;
+        InvokeID(long id, RenderScript rs, Script s, int slot) {
+            super(id, rs);
+            mScript = s;
+            mSlot = slot;
+        }
+    }
+
+    private final SparseArray<InvokeID> mIIDs = new SparseArray<InvokeID>();
+    /**
+     * Only to be used by generated reflected classes.
+     */
+    protected InvokeID createInvokeID(int slot) {
+        InvokeID i = mIIDs.get(slot);
+        if (i != null) {
+            return i;
+        }
+
+        long id = mRS.nScriptInvokeIDCreate(getID(mRS), slot);
+        if (id == 0) {
+            throw new RSDriverException("Failed to create KernelID");
+        }
+
+        i = new InvokeID(id, mRS, this, slot);
+        mIIDs.put(slot, i);
+        return i;
+    }
+
+    /**
      * FieldID is an identifier for a Script + exported field pair. It is used
      * as an identifier for ScriptGroup creation.
      *
@@ -482,4 +521,3 @@ public class Script extends BaseObj {
 
     }
 }
-
