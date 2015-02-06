@@ -19,13 +19,11 @@ package android.support.v7.internal.widget;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
@@ -33,6 +31,10 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.View;
+
+import static android.support.v7.internal.widget.ThemeUtils.getDisabledThemeAttrColor;
+import static android.support.v7.internal.widget.ThemeUtils.getThemeAttrColor;
+import static android.support.v7.internal.widget.ThemeUtils.getThemeAttrColorStateList;
 
 /**
  * @hide
@@ -204,7 +206,7 @@ public final class TintManager {
             if (tintMode == null) {
                 tintMode = DEFAULT_MODE;
             }
-            final int color = getThemeAttrColor(colorAttr);
+            final int color = getThemeAttrColor(mContext, colorAttr);
 
             tintDrawableUsingColorFilter(drawable, color, tintMode);
 
@@ -278,8 +280,9 @@ public final class TintManager {
              * Order is important here. The default enabled state needs to go at the bottom.
              */
 
-            final int colorControlNormal = getThemeAttrColor(R.attr.colorControlNormal);
-            final int colorControlActivated = getThemeAttrColor(R.attr.colorControlActivated);
+            final int colorControlNormal = getThemeAttrColor(mContext, R.attr.colorControlNormal);
+            final int colorControlActivated = getThemeAttrColor(mContext,
+                    R.attr.colorControlActivated);
 
             final int[][] states = new int[7][];
             final int[] colors = new int[7];
@@ -287,7 +290,7 @@ public final class TintManager {
 
             // Disabled state
             states[i] = new int[] { -android.R.attr.state_enabled };
-            colors[i] = getDisabledThemeAttrColor(R.attr.colorControlNormal);
+            colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorControlNormal);
             i++;
 
             states[i] = new int[] { android.R.attr.state_focused };
@@ -327,16 +330,16 @@ public final class TintManager {
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getThemeAttrColor(android.R.attr.colorForeground, 0.1f);
+        colors[i] = getThemeAttrColor(mContext, android.R.attr.colorForeground, 0.1f);
         i++;
 
         states[i] = new int[]{android.R.attr.state_checked};
-        colors[i] = getThemeAttrColor(R.attr.colorControlActivated, 0.3f);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated, 0.3f);
         i++;
 
         // Default enabled state
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(android.R.attr.colorForeground, 0.3f);
+        colors[i] = getThemeAttrColor(mContext, android.R.attr.colorForeground, 0.3f);
         i++;
 
         return new ColorStateList(states, colors);
@@ -347,7 +350,8 @@ public final class TintManager {
         final int[] colors = new int[3];
         int i = 0;
 
-        final ColorStateList thumbColor = getThemeAttrColorStateList(R.attr.colorSwitchThumbNormal);
+        final ColorStateList thumbColor = getThemeAttrColorStateList(mContext,
+                R.attr.colorSwitchThumbNormal);
 
         if (thumbColor != null && thumbColor.isStateful()) {
             // If colorSwitchThumbNormal is a valid ColorStateList, extract the default and
@@ -359,7 +363,7 @@ public final class TintManager {
             i++;
 
             states[i] = new int[]{android.R.attr.state_checked};
-            colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
+            colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
             i++;
 
             // Default enabled state
@@ -371,16 +375,16 @@ public final class TintManager {
 
             // Disabled state
             states[i] = new int[]{-android.R.attr.state_enabled};
-            colors[i] = getDisabledThemeAttrColor(R.attr.colorSwitchThumbNormal);
+            colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorSwitchThumbNormal);
             i++;
 
             states[i] = new int[]{android.R.attr.state_checked};
-            colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
+            colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
             i++;
 
             // Default enabled state
             states[i] = new int[0];
-            colors[i] = getThemeAttrColor(R.attr.colorSwitchThumbNormal);
+            colors[i] = getThemeAttrColor(mContext, R.attr.colorSwitchThumbNormal);
             i++;
         }
 
@@ -394,16 +398,16 @@ public final class TintManager {
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getDisabledThemeAttrColor(R.attr.colorControlNormal);
+        colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorControlNormal);
         i++;
 
         states[i] = new int[]{-android.R.attr.state_pressed, -android.R.attr.state_focused};
-        colors[i] = getThemeAttrColor(R.attr.colorControlNormal);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlNormal);
         i++;
 
         // Default enabled state
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
         i++;
 
         return new ColorStateList(states, colors);
@@ -416,20 +420,20 @@ public final class TintManager {
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getDisabledThemeAttrColor(R.attr.colorButtonNormal);
+        colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorButtonNormal);
         i++;
 
         states[i] = new int[]{android.R.attr.state_pressed};
-        colors[i] = getThemeAttrColor(R.attr.colorControlHighlight);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlHighlight);
         i++;
 
         states[i] = new int[]{android.R.attr.state_focused};
-        colors[i] = getThemeAttrColor(R.attr.colorControlHighlight);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlHighlight);
         i++;
 
         // Default enabled state
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(R.attr.colorButtonNormal);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorButtonNormal);
         i++;
 
         return new ColorStateList(states, colors);
@@ -442,55 +446,18 @@ public final class TintManager {
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getDisabledThemeAttrColor(R.attr.colorControlNormal);
+        colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorControlNormal);
         i++;
 
         states[i] = new int[]{-android.R.attr.state_pressed, -android.R.attr.state_focused};
-        colors[i] = getThemeAttrColor(R.attr.colorControlNormal);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlNormal);
         i++;
 
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(R.attr.colorControlActivated);
+        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
         i++;
 
         return new ColorStateList(states, colors);
-    }
-
-    private int getThemeAttrColor(int attr) {
-        if (mContext.getTheme().resolveAttribute(attr, mTypedValue, true)) {
-            if (mTypedValue.type >= TypedValue.TYPE_FIRST_INT
-                    && mTypedValue.type <= TypedValue.TYPE_LAST_INT) {
-                return mTypedValue.data;
-            } else if (mTypedValue.type == TypedValue.TYPE_STRING) {
-                return mResources.getColor(mTypedValue.resourceId);
-            }
-        }
-        return 0;
-    }
-
-    private ColorStateList getThemeAttrColorStateList(int attr) {
-        if (mContext.getTheme().resolveAttribute(attr, mTypedValue, true)) {
-            if (mTypedValue.type == TypedValue.TYPE_STRING) {
-                return mResources.getColorStateList(mTypedValue.resourceId);
-            }
-        }
-        return null;
-    }
-
-    private int getThemeAttrColor(int attr, float alpha) {
-        final int color = getThemeAttrColor(attr);
-        final int originalAlpha = Color.alpha(color);
-
-        // Return the color, multiplying the original alpha by the disabled value
-        return ColorUtils.setAlphaComponent(color, Math.round(originalAlpha * alpha));
-    }
-
-    private int getDisabledThemeAttrColor(int attr) {
-        // Now retrieve the disabledAlpha value from the theme
-        mContext.getTheme().resolveAttribute(android.R.attr.disabledAlpha, mTypedValue, true);
-        final float disabledAlpha = mTypedValue.getFloat();
-
-        return getThemeAttrColor(attr, disabledAlpha);
     }
 
     private static class ColorFilterLruCache extends LruCache<Integer, PorterDuffColorFilter> {
