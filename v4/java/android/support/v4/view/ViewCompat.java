@@ -375,6 +375,7 @@ public class ViewCompat {
                 int[] offsetInWindow);
         boolean dispatchNestedFling(View view, float velocityX, float velocityY, boolean consumed);
         boolean dispatchNestedPreFling(View view, float velocityX, float velocityY);
+        boolean isLaidOut(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -920,6 +921,11 @@ public class ViewCompat {
             }
             return false;
         }
+
+        @Override
+        public boolean isLaidOut(View view) {
+            return ViewCompatBase.isLaidOut(view);
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1319,6 +1325,11 @@ public class ViewCompat {
         @Override
         public void setImportantForAccessibility(View view, int mode) {
             ViewCompatJB.setImportantForAccessibility(view, mode);
+        }
+
+        @Override
+        public boolean isLaidOut(View view) {
+            return ViewCompatKitKat.isLaidOut(view);
         }
     }
 
@@ -2894,5 +2905,13 @@ public class ViewCompat {
      */
     public static boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
         return IMPL.dispatchNestedPreFling(view, velocityX, velocityY);
+    }
+
+    /**
+     * Returns true if {@code view} has been through at least one layout since it
+     * was last attached to or detached from a window.
+     */
+    public static boolean isLaidOut(View view) {
+        return IMPL.isLaidOut(view);
     }
 }
