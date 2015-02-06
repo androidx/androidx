@@ -18,6 +18,7 @@ package android.support.v17.leanback.app;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
+import android.support.v17.leanback.widget.OnChildLaidOutListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -121,7 +122,7 @@ public class VerticalGridSupportFragment extends Fragment {
             throw new IllegalArgumentException("Grid presenter may not be null");
         }
         mGridPresenter = gridPresenter;
-        mGridPresenter.setOnItemViewSelectedListener(mRowSelectedListener);
+        mGridPresenter.setOnItemViewSelectedListener(mViewSelectedListener);
         if (mOnItemViewClickedListener != null) {
             mGridPresenter.setOnItemViewClickedListener(mOnItemViewClickedListener);
         }
@@ -152,20 +153,30 @@ public class VerticalGridSupportFragment extends Fragment {
         return mAdapter;
     }
 
-    final private OnItemViewSelectedListener mRowSelectedListener =
+    final private OnItemViewSelectedListener mViewSelectedListener =
             new OnItemViewSelectedListener() {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
             int position = mGridViewHolder.getGridView().getSelectedPosition();
-            if (DEBUG) Log.v(TAG, "row selected position " + position);
-            onRowSelected(position);
+            if (DEBUG) Log.v(TAG, "grid selected position " + position);
+            gridOnItemSelected(position);
             if (mOnItemSelectedListener != null) {
                 mOnItemSelectedListener.onItemSelected(item, row);
             }
             if (mOnItemViewSelectedListener != null) {
                 mOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
                         rowViewHolder, row);
+            }
+        }
+    };
+
+    final private OnChildLaidOutListener mChildLaidOutListener =
+            new OnChildLaidOutListener() {
+        @Override
+        public void onChildLaidOut(ViewGroup parent, View view, int position, long id) {
+            if (position == 0) {
+                showOrHideTitle();
             }
         }
     };
@@ -185,19 +196,27 @@ public class VerticalGridSupportFragment extends Fragment {
         mOnItemViewSelectedListener = listener;
     }
 
-    private void onRowSelected(int position) {
+    private void gridOnItemSelected(int position) {
         if (position != mSelectedPosition) {
-            if (!mGridViewHolder.getGridView().hasPreviousViewInSameRow(position)) {
-                // if has no sibling in front of it,  show title
-                if (!mShowingTitle) {
-                    sTransitionHelper.runTransition(mSceneWithTitle, mTitleDownTransition);
-                    mShowingTitle = true;
-                }
-            } else if (mShowingTitle) {
-                sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleUpTransition);
-                mShowingTitle = false;
-            }
             mSelectedPosition = position;
+            showOrHideTitle();
+        }
+    }
+
+    private void showOrHideTitle() {
+        if (mGridViewHolder.getGridView().findViewHolderForAdapterPosition(mSelectedPosition)
+                == null) {
+            return;
+        }
+        if (!mGridViewHolder.getGridView().hasPreviousViewInSameRow(mSelectedPosition)) {
+            // if has no sibling in front of it,  show title
+            if (!mShowingTitle) {
+                sTransitionHelper.runTransition(mSceneWithTitle, mTitleDownTransition);
+                mShowingTitle = true;
+            }
+        } else if (mShowingTitle) {
+            sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleUpTransition);
+            mShowingTitle = false;
         }
     }
 
@@ -365,6 +384,7 @@ public class VerticalGridSupportFragment extends Fragment {
         ViewGroup gridDock = (ViewGroup) view.findViewById(R.id.browse_grid_dock);
         mGridViewHolder = mGridPresenter.onCreateViewHolder(gridDock);
         gridDock.addView(mGridViewHolder.view);
+        mGridViewHolder.getGridView().setOnChildLaidOutListener(mChildLaidOutListener);
 
         updateAdapter();
     }

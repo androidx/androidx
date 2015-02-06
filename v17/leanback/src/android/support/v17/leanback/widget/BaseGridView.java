@@ -433,6 +433,16 @@ abstract class BaseGridView extends RecyclerView {
 
     /**
      * Register a callback to be invoked when an item in BaseGridView has
+     * been laid out.
+     *
+     * @param listener The listener to be invoked.
+     */
+    public void setOnChildLaidOutListener(OnChildLaidOutListener listener) {
+        mLayoutManager.setOnChildLaidOutListener(listener);
+    }
+
+    /**
+     * Register a callback to be invoked when an item in BaseGridView has
      * been selected.  Note that the listener may be invoked when there is a
      * layout pending on the view, affording the listener an opportunity to
      * adjust the upcoming layout based on the selection state.
@@ -584,7 +594,9 @@ abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns true if the view at the given position has a same row sibling
-     * in front of it.
+     * in front of it.  This will return true if first item view is not created.
+     * So application should check in both {@link OnChildSelectedListener} and {@link
+     * OnChildLaidOutListener}.
      *
      * @param position Position in adapter.
      */
