@@ -202,6 +202,10 @@
 
     <style name="Widget.AppCompat.CompoundButton.Switch" parent="Base.Widget.AppCompat.CompoundButton.Switch" />
 
+    <style name="Widget.AppCompat.CompoundButton.CheckBox" parent="Base.Widget.AppCompat.CompoundButton.CheckBox" />
+
+    <style name="Widget.AppCompat.CompoundButton.RadioButton" parent="Base.Widget.AppCompat.CompoundButton.RadioButton" />
+
     <style name="Widget.AppCompat.RatingBar" parent="Base.Widget.AppCompat.RatingBar" />
 
     <style name="Widget.AppCompat.Button" parent="Base.Widget.AppCompat.Button" />
