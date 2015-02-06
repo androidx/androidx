@@ -1486,6 +1486,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     public void requestChildFocus(View child, View focused) {
         if (!mLayout.onRequestChildFocus(this, mState, child, focused) && focused != null) {
             mTempRect.set(0, 0, focused.getWidth(), focused.getHeight());
+
+            // get item decor offsets w/o refreshing. If they are invalid, there will be another
+            // layout pass to fix them, then it is LayoutManager's responsibility to keep focused
+            // View in viewport.
+            final LayoutParams lp = (LayoutParams) focused.getLayoutParams();
+            if (lp != null && !lp.mInsetsDirty) {
+                final Rect insets = lp.mDecorInsets;
+                mTempRect.left -= insets.left;
+                mTempRect.right +=  insets.right;
+                mTempRect.top -= insets.top;
+                mTempRect.bottom += insets.bottom;
+            }
+
             offsetDescendantRectToMyCoords(focused, mTempRect);
             offsetRectIntoDescendantCoords(child, mTempRect);
             requestChildRectangleOnScreen(child, mTempRect, !mFirstLayoutComplete);
