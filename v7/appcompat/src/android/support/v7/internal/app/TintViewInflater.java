@@ -61,7 +61,7 @@ public class TintViewInflater {
     }
 
     public final View createView(View parent, final String name, @NonNull Context context,
-            @NonNull AttributeSet attrs, boolean inheritContext) {
+            @NonNull AttributeSet attrs, boolean inheritContext, boolean themeContext) {
         final Context originalContext = context;
 
         // We can emulate Lollipop's android:theme attribute propagating down the view hierarchy
@@ -69,8 +69,10 @@ public class TintViewInflater {
         if (inheritContext && parent != null) {
             context = parent.getContext();
         }
-        // We then apply the theme on the context, if specified
-        context = ViewUtils.themifyContext(context, attrs, true, true);
+        if (themeContext) {
+            // We then apply the theme on the context, if specified
+            context = ViewUtils.themifyContext(context, attrs, true, true);
+        }
 
         // We need to 'inject' our tint aware Views in place of the standard framework versions
         switch (name) {

@@ -767,21 +767,19 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     @Override
     public View createView(View parent, final String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
-        if (Build.VERSION.SDK_INT < 21) {
-            if (mTintViewInflater == null) {
-                mTintViewInflater = new TintViewInflater(mContext);
-            }
-            // We only want the View to inherit it's context from the parent if it is from the
-            // app's content, and not part of our sub-decor
-            final boolean inheritContext = mSubDecorInstalled && parent != null
-                    && parent.getId() != android.R.id.content;
+        final boolean isPre21 = Build.VERSION.SDK_INT < 21;
 
-            return mTintViewInflater.createView(parent, name, context, attrs, inheritContext);
+        if (mTintViewInflater == null) {
+            mTintViewInflater = new TintViewInflater(mContext);
         }
 
-        // If we're running on API v21 or newer, return null and
-        // let the layout inflater handle it
-        return null;
+        // We only want the View to inherit it's context from the parent if it is from the
+        // apps content, and not part of our sub-decor
+        final boolean inheritContext = isPre21 && mSubDecorInstalled && parent != null
+                && parent.getId() != android.R.id.content;
+
+        return mTintViewInflater.createView(parent, name, context, attrs,
+                inheritContext, isPre21);
     }
 
     @Override
