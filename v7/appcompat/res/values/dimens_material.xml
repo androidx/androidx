@@ -65,4 +65,7 @@
 
     <dimen name="abc_floating_window_z">16dp</dimen>
 
+    <item name="abc_disabled_alpha_material_light" format="float" type="dimen">0.26</item>
+    <item name="abc_disabled_alpha_material_dark" format="float" type="dimen">0.30</item>
+
 </resources>
