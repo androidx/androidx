@@ -18,6 +18,7 @@
 package android.support.v7.widget;
 
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.os.Debug;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
@@ -2387,6 +2388,64 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
         tlm.waitForLayout(2);
         checkForMainThreadException();
+    }
+
+    public void testFocusRectOnScreenWithDecorOffsets() throws Throwable {
+        focusRectOnScreenTest(true);
+    }
+
+    public void testFocusRectOnScreenWithout() throws Throwable {
+        focusRectOnScreenTest(false);
+    }
+
+
+    public void focusRectOnScreenTest(boolean addItemDecors) throws Throwable {
+        RecyclerView rv = new RecyclerView(getActivity());
+        final AtomicInteger scrollDist = new AtomicInteger(0);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                final View view = recycler.getViewForPosition(0);
+                addView(view);
+                measureChildWithMargins(view, 0, 0);
+                view.layout(0, -20, view.getWidth(),
+                        -20 + view.getHeight());// ignore decors on purpose
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                scrollDist.addAndGet(dy);
+                return dy;
+            }
+        };
+        TestAdapter adapter = new TestAdapter(10);
+        if (addItemDecors) {
+            rv.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                        RecyclerView.State state) {
+                    outRect.set(0, 10, 0, 10);
+                }
+            });
+        }
+        rv.setAdapter(adapter);
+        rv.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(2);
+
+        View view = rv.getChildAt(0);
+        requestFocus(view);
+        Thread.sleep(1000);
+        assertEquals(addItemDecors ? -30 : -20, scrollDist.get());
     }
 
     private static class TestViewHolder2 extends RecyclerView.ViewHolder {
