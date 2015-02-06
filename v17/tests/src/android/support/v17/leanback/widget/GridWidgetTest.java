@@ -108,6 +108,52 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
     }
 
     /**
+     * Scrolls using given key.
+     */
+    protected void scroll(int key, Runnable verify) throws Throwable {
+        do {
+            if (verify != null) {
+                runTestOnUiThread(verify);
+            }
+            sendRepeatedKeys(10, key);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                break;
+            }
+        } while (mGridView.getLayoutManager().isSmoothScrolling() ||
+                mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE);
+    }
+
+    protected void scrollToBegin(Runnable verify) throws Throwable {
+        int key;
+        if (mOrientation == BaseGridView.HORIZONTAL) {
+            if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+                key = KeyEvent.KEYCODE_DPAD_RIGHT;
+            } else {
+                key = KeyEvent.KEYCODE_DPAD_LEFT;
+            }
+        } else {
+            key = KeyEvent.KEYCODE_DPAD_UP;
+        }
+        scroll(key, verify);
+    }
+
+    protected void scrollToEnd(Runnable verify) throws Throwable {
+        int key;
+        if (mOrientation == BaseGridView.HORIZONTAL) {
+            if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+                key = KeyEvent.KEYCODE_DPAD_LEFT;
+            } else {
+                key = KeyEvent.KEYCODE_DPAD_RIGHT;
+            }
+        } else {
+            key = KeyEvent.KEYCODE_DPAD_DOWN;
+        }
+        scroll(key, verify);
+    }
+
+    /**
      * Group and sort children by their position on each row (HORIZONTAL) or column(VERTICAL).
      */
     protected View[][] sortByRows() {
@@ -253,21 +299,10 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        }
-        waitForScrollIdle(mVerifyLayout);
-
+        scrollToEnd(mVerifyLayout);
         verifyBoundCount(100);
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
     }
@@ -284,12 +319,10 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         mOrientation = BaseGridView.VERTICAL;
         mNumRows = 3;
 
-        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_DOWN);
-        waitForScrollIdle(mVerifyLayout);
+        scrollToEnd(mVerifyLayout);
         verifyBoundCount(200);
 
-        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_UP);
-        waitForScrollIdle(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
     }
@@ -316,13 +349,11 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         mOrientation = BaseGridView.VERTICAL;
         mNumRows = 3;
 
-        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_DOWN);
-        waitForScrollIdle(mVerifyLayout);
+        scrollToEnd(mVerifyLayout);
 
         verifyBoundCount(200);
 
-        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_UP);
-        waitForScrollIdle(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
     }
@@ -346,22 +377,12 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         mLayoutManager = (GridLayoutManager) mGridView.getLayoutManager();
 
         // test append without staggered result cache
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToEnd(mVerifyLayout);
 
         verifyBoundCount(100);
         int[] endEdges = getEndEdges();
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
 
@@ -383,12 +404,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         });
         Thread.sleep(500);
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToEnd(mVerifyLayout);
         verifyBoundCount(100);
 
         // we should get same aligned end edges
@@ -416,12 +432,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
         runTestOnUiThread(mVerifyLayout);
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
     }
@@ -447,8 +458,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         runTestOnUiThread(mVerifyLayout);
 
         sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_DOWN);
-        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_UP);
-        waitForScrollIdle(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
     }
@@ -466,12 +476,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToEnd(mVerifyLayout);
         int[] endEdges = getEndEdges();
 
         mGridView.setSelectedPositionSmooth(150);
@@ -479,34 +484,19 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         int[] removedItems = mActivity.removeItems(151, 4);
         waitForTransientStateGone(null);
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToEnd(mVerifyLayout);
         mGridView.setSelectedPositionSmooth(150);
         waitForScrollIdle(mVerifyLayout);
 
         mActivity.addItems(151, removedItems);
         waitForTransientStateGone(null);
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToEnd(mVerifyLayout);
 
         // we should get same aligned end edges
         int[] endEdges2 = getEndEdges();
         verifyEdgesSame(endEdges, endEdges2);
 
-        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_RIGHT);
-        } else {
-            sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_LEFT);
-        }
-        waitForScrollIdle(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
         verifyBeginAligned();
     }
 
