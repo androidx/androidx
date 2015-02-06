@@ -234,14 +234,12 @@ public class SwitchCompat extends CompoundButton {
      * from the specified TextAppearance resource.
      */
     public void setSwitchTextAppearance(Context context, int resid) {
-        TypedArray appearance = context.obtainStyledAttributes(resid,
-                R.styleable.SwitchCompatTextAppearance);
+        TypedArray appearance = context.obtainStyledAttributes(resid, R.styleable.TextAppearance);
 
         ColorStateList colors;
         int ts;
 
-        colors = appearance.getColorStateList(
-                R.styleable.SwitchCompatTextAppearance_android_textColor);
+        colors = appearance.getColorStateList(R.styleable.TextAppearance_android_textColor);
         if (colors != null) {
             mTextColors = colors;
         } else {
@@ -249,8 +247,7 @@ public class SwitchCompat extends CompoundButton {
             mTextColors = getTextColors();
         }
 
-        ts = appearance.getDimensionPixelSize(
-                R.styleable.SwitchCompatTextAppearance_android_textSize, 0);
+        ts = appearance.getDimensionPixelSize(R.styleable.TextAppearance_android_textSize, 0);
         if (ts != 0) {
             if (ts != mTextPaint.getTextSize()) {
                 mTextPaint.setTextSize(ts);
@@ -259,15 +256,12 @@ public class SwitchCompat extends CompoundButton {
         }
 
         int typefaceIndex, styleIndex;
-        typefaceIndex = appearance.getInt(
-                R.styleable.SwitchCompatTextAppearance_android_typeface, -1);
-        styleIndex = appearance.getInt(
-                R.styleable.SwitchCompatTextAppearance_android_textStyle, -1);
+        typefaceIndex = appearance.getInt(R.styleable.TextAppearance_android_typeface, -1);
+        styleIndex = appearance.getInt(R.styleable.TextAppearance_android_textStyle, -1);
 
         setSwitchTypefaceByIndex(typefaceIndex, styleIndex);
 
-        boolean allCaps = appearance.getBoolean(
-                R.styleable.SwitchCompatTextAppearance_textAllCaps, false);
+        boolean allCaps = appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
         if (allCaps) {
             mSwitchTransformationMethod = new AllCapsTransformationMethod(getContext());
         } else {

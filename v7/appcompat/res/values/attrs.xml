@@ -699,6 +699,7 @@
     <declare-styleable name="CompatTextView">
         <!-- Present the text in ALL CAPS. This may use a small-caps form when available. -->
         <attr name="textAllCaps" format="reference|boolean" />
+        <attr name="android:textAppearance" />
     </declare-styleable>
 
     <declare-styleable name="LinearLayoutCompat">
@@ -851,7 +852,7 @@
         <attr name="showText" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="SwitchCompatTextAppearance">
+    <declare-styleable name="TextAppearance">
         <attr name="android:textSize" />
         <attr name="android:textColor" />
         <attr name="android:textStyle" />

@@ -46,16 +46,44 @@ public class CompatTextView extends TextView {
 
         boolean allCaps = false;
 
-        TypedArray style = context
-                .obtainStyledAttributes(attrs, R.styleable.CompatTextView, defStyle, 0);
-        allCaps = style.getBoolean(R.styleable.CompatTextView_textAllCaps, false);
-        style.recycle();
+        // First read the TextAppearance style id
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CompatTextView,
+                defStyle, 0);
+        final int ap = a.getResourceId(R.styleable.CompatTextView_android_textAppearance, -1);
+        a.recycle();
 
-        // Framework impl also checks TextAppearance for textAllCaps. This isn't needed for our
-        // purposes so has been omitted.
-
-        if (allCaps) {
-            setTransformationMethod(new AllCapsTransformationMethod(context));
+        // Now check TextAppearance's textAllCaps value
+        if (ap != -1) {
+            TypedArray appearance = context.obtainStyledAttributes(ap,
+                    R.styleable.TextAppearance);
+            if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+                setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
+            }
+            appearance.recycle();
         }
+
+        // Now read the style's value
+        a = context.obtainStyledAttributes(attrs, R.styleable.CompatTextView, defStyle, 0);
+        if (a.hasValue(R.styleable.CompatTextView_textAllCaps)) {
+            allCaps = a.getBoolean(R.styleable.CompatTextView_textAllCaps, false);
+        }
+        a.recycle();
+
+        setAllCaps(allCaps);
+    }
+
+    public void setAllCaps(boolean allCaps) {
+        setTransformationMethod(allCaps ? new AllCapsTransformationMethod(getContext()) : null);
+    }
+
+    @Override
+    public void setTextAppearance(Context context, int resid) {
+        super.setTextAppearance(context, resid);
+
+        TypedArray appearance = context.obtainStyledAttributes(resid, R.styleable.TextAppearance);
+        if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+            setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
+        }
+        appearance.recycle();
     }
 }
