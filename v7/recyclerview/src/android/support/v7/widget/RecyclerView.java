@@ -3766,8 +3766,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                         Log.d(TAG, "getViewForPosition(" + position + ") fetching from shared "
                                 + "pool");
                     }
-                    holder = getRecycledViewPool()
-                            .getRecycledView(mAdapter.getItemViewType(offsetPosition));
+                    holder = getRecycledViewPool().getRecycledView(type);
                     if (holder != null) {
                         holder.resetInternal();
                         if (FORCE_INVALIDATE_DISPLAY_LIST) {
@@ -3776,8 +3775,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     }
                 }
                 if (holder == null) {
-                    holder = mAdapter.createViewHolder(RecyclerView.this,
-                            mAdapter.getItemViewType(offsetPosition));
+                    holder = mAdapter.createViewHolder(RecyclerView.this, type);
                     if (DEBUG) {
                         Log.d(TAG, "getViewForPosition created new ViewHolder");
                     }
