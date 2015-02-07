@@ -16,6 +16,7 @@
 
 package android.support.v4.view.accessibility;
 
+import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 
@@ -44,6 +45,22 @@ class AccessibilityNodeInfoCompatApi21 {
             int columnSpan, boolean heading, boolean selected) {
         return AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
                 columnSpan, heading, selected);
+    }
+
+    public static CharSequence getError(Object info) {
+        return ((AccessibilityNodeInfo) info).getError();
+    }
+
+    public static void setError(Object info, CharSequence error) {
+        ((AccessibilityNodeInfo) info).setError(error);
+    }
+
+    public static void setLabelFor(Object info, View labeled) {
+        ((AccessibilityNodeInfo) info).setLabelFor(labeled);
+    }
+
+    public static void setLabelFor(Object info, View root, int virtualDescendantId) {
+        ((AccessibilityNodeInfo) info).setLabelFor(root, virtualDescendantId);
     }
 
     static class CollectionItemInfo {
