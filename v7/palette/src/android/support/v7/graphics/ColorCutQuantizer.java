@@ -18,6 +18,7 @@ package android.support.v7.graphics;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.graphics.Palette.Swatch;
 import android.util.SparseIntArray;
 
@@ -400,7 +401,7 @@ final class ColorCutQuantizer {
     }
 
     private boolean shouldIgnoreColor(int color) {
-        ColorUtils.RGBtoHSL(Color.red(color), Color.green(color), Color.blue(color), mTempHsl);
+        ColorUtils.colorToHSL(color, mTempHsl);
         return shouldIgnoreColor(mTempHsl);
     }
 

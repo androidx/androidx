@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 The Android Open Source Project
+ * Copyright 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package android.support.v7.graphics;
+package android.support.v4.graphics;
 
 import android.graphics.Color;
 
 /**
- * A set of color-related utility methods.
+ * A set of color-related utility methods, building upon those available in {@code Color}.
  */
-final class ColorUtils {
+public class ColorUtils {
 
     private static final int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
     private static final int MIN_ALPHA_SEARCH_PRECISION = 10;
@@ -31,14 +31,17 @@ final class ColorUtils {
     /**
      * Composite two potentially translucent colors over each other and returns the result.
      */
-    static int compositeColors(int fg, int bg) {
-        final float alpha1 = Color.alpha(fg) / 255f;
-        final float alpha2 = Color.alpha(bg) / 255f;
+    public static int compositeColors(int foreground, int background) {
+        final float alpha1 = Color.alpha(foreground) / 255f;
+        final float alpha2 = Color.alpha(background) / 255f;
 
         float a = (alpha1 + alpha2) * (1f - alpha1);
-        float r = (Color.red(fg) * alpha1) + (Color.red(bg) * alpha2 * (1f - alpha1));
-        float g = (Color.green(fg) * alpha1) + (Color.green(bg) * alpha2 * (1f - alpha1));
-        float b = (Color.blue(fg) * alpha1) + (Color.blue(bg) * alpha2 * (1f - alpha1));
+        float r = (Color.red(foreground) * alpha1)
+                + (Color.red(background) * alpha2 * (1f - alpha1));
+        float g = (Color.green(foreground) * alpha1)
+                + (Color.green(background) * alpha2 * (1f - alpha1));
+        float b = (Color.blue(foreground) * alpha1)
+                + (Color.blue(background) * alpha2 * (1f - alpha1));
 
         return Color.argb((int) a, (int) r, (int) g, (int) b);
     }
@@ -48,7 +51,7 @@ final class ColorUtils {
      *
      * Formula defined here: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
      */
-    static double calculateLuminance(int color) {
+    public static double calculateLuminance(int color) {
         double red = Color.red(color) / 255d;
         red = red < 0.03928 ? red / 12.92 : Math.pow((red + 0.055) / 1.055, 2.4);
 
@@ -62,11 +65,13 @@ final class ColorUtils {
     }
 
     /**
-     * Returns the contrast ratio between two colors.
-     *
-     * Formula defined here: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef
+     * Returns the contrast ratio between {@code foreground} and {@code background}.
+     * {@code background} must be opaque.
+     * <p>
+     * Formula defined
+     * <a href="http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef">here</a>.
      */
-    private static double calculateContrast(int foreground, int background) {
+    public static double calculateContrast(int foreground, int background) {
         if (Color.alpha(background) != 255) {
             throw new IllegalArgumentException("background can not be translucent");
         }
@@ -83,12 +88,17 @@ final class ColorUtils {
     }
 
     /**
-     * Finds the minimum alpha value which can be applied to {@code foreground} so that is has a
-     * contrast value of at least {@code minContrastRatio} when compared to background.
+     * Calculates the minimum alpha value which can be applied to {@code foreground} so that would
+     * have a contrast value of at least {@code minContrastRatio} when compared to
+     * {@code background}.
      *
-     * @return the alpha value in the range 0-255.
+     * @param foreground       the foreground color.
+     * @param background       the background color. Should be opaque.
+     * @param minContrastRatio the minimum contrast ratio.
+     * @return the alpha value in the range 0-255, or -1 if no value could be calculated.
      */
-    private static int findMinimumAlpha(int foreground, int background, double minContrastRatio) {
+    public static int calculateMinimumAlpha(int foreground, int background,
+            float minContrastRatio) {
         if (Color.alpha(background) != 255) {
             throw new IllegalArgumentException("background can not be translucent");
         }
@@ -126,24 +136,12 @@ final class ColorUtils {
         return maxAlpha;
     }
 
-    static int getTextColorForBackground(int backgroundColor, int textColor, float minContrastRatio) {
-        final int minAlpha = ColorUtils
-                .findMinimumAlpha(textColor, backgroundColor, minContrastRatio);
-
-        if (minAlpha >= 0) {
-            return ColorUtils.setAlphaComponent(textColor, minAlpha);
-        }
-
-        // Didn't find an opacity which provided enough contrast
-        return -1;
-    }
-
     /**
-     * Convert RGB components to HSL.
+     * Convert RGB components to HSL (hue-saturation-lightness).
      * <ul>
-     *   <li>hsl[0] is Hue [0 .. 360)</li>
-     *   <li>hsl[1] is Saturation [0...1]</li>
-     *   <li>hsl[2] is Lightness [0...1]</li>
+     * <li>hsl[0] is Hue [0 .. 360)</li>
+     * <li>hsl[1] is Saturation [0...1]</li>
+     * <li>hsl[2] is Lightness [0...1]</li>
      * </ul>
      *
      * @param r   red component value [0..255]
@@ -151,7 +149,7 @@ final class ColorUtils {
      * @param b   blue component value [0..255]
      * @param hsl 3 element array which holds the resulting HSL components.
      */
-    static void RGBtoHSL(int r, int g, int b, float[] hsl) {
+    public static void RGBToHSL(int r, int g, int b, float[] hsl) {
         final float rf = r / 255f;
         final float gf = g / 255f;
         final float bf = b / 255f;
@@ -175,7 +173,7 @@ final class ColorUtils {
                 h = ((rf - gf) / deltaMaxMin) + 4f;
             }
 
-            s =  deltaMaxMin / (1f - Math.abs(2f * l - 1f));
+            s = deltaMaxMin / (1f - Math.abs(2f * l - 1f));
         }
 
         hsl[0] = (h * 60f) % 360f;
@@ -184,18 +182,33 @@ final class ColorUtils {
     }
 
     /**
-     * Convert HSL components to an RGB color:
+     * Convert the ARGB color to its HSL (hue-saturation-lightness) components.
      * <ul>
-     *   <li>hsl[0] is Hue [0 .. 360)</li>
-     *   <li>hsl[1] is Saturation [0...1]</li>
-     *   <li>hsl[2] is Lightness [0...1]</li>
+     * <li>hsl[0] is Hue [0 .. 360)</li>
+     * <li>hsl[1] is Saturation [0...1]</li>
+     * <li>hsl[2] is Lightness [0...1]</li>
+     * </ul>
+     *
+     * @param color the ARGB color to convert. The alpha component is ignored.
+     * @param hsl 3 element array which holds the resulting HSL components.
+     */
+    public static void colorToHSL(int color, float[] hsl) {
+        RGBToHSL(Color.red(color), Color.green(color), Color.blue(color), hsl);
+    }
+
+    /**
+     * Convert HSL (hue-saturation-lightness) components to a RGB color.
+     * <ul>
+     * <li>hsl[0] is Hue [0 .. 360)</li>
+     * <li>hsl[1] is Saturation [0...1]</li>
+     * <li>hsl[2] is Lightness [0...1]</li>
      * </ul>
      * If hsv values are out of range, they are pinned.
      *
      * @param hsl 3 element array which holds the input HSL components.
      * @return the resulting RGB color
      */
-    static int HSLtoRGB (float[] hsl) {
+    public static int HSLToColor(float[] hsl) {
         final float h = hsl[0];
         final float s = hsl[1];
         final float l = hsl[2];
@@ -252,7 +265,10 @@ final class ColorUtils {
     /**
      * Set the alpha component of {@code color} to be {@code alpha}.
      */
-    static int setAlphaComponent(int color, int alpha) {
+    public static int setAlphaComponent(int color, int alpha) {
+        if (alpha < 0 || alpha > 255) {
+            throw new IllegalArgumentException("alpha must be between 0 and 255.");
+        }
         return (color & 0x00ffffff) | (alpha << 24);
     }
 
