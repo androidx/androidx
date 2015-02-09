@@ -89,8 +89,6 @@ public class ActionMenuItemView extends CompatTextView
         setOnClickListener(this);
         setOnLongClickListener(this);
 
-        setTransformationMethod(new AllCapsTransformationMethod(context));
-
         mSavedPaddingLeft = -1;
     }
 
