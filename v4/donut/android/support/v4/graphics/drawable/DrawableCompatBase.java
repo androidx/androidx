@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,29 +21,33 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
 /**
- * Implementation of drawable compatibility that can call L APIs.
+ * Base implementation of drawable compatibility.
  */
-class DrawableCompatL {
-
-    public static void setHotspot(Drawable drawable, float x, float y) {
-        drawable.setHotspot(x, y);
-    }
-
-    public static void setHotspotBounds(Drawable drawable, int left, int top,
-            int right, int bottom) {
-        drawable.setHotspotBounds( left, top, right, bottom);
-    }
+class DrawableCompatBase {
 
     public static void setTint(Drawable drawable, int tint) {
-        drawable.setTint(tint);
+        if (drawable instanceof DrawableWrapper) {
+            ((DrawableWrapper) drawable).setTint(tint);
+        }
     }
 
     public static void setTintList(Drawable drawable, ColorStateList tint) {
-        drawable.setTintList(tint);
+        if (drawable instanceof DrawableWrapper) {
+            ((DrawableWrapper) drawable).setTintList(tint);
+        }
     }
 
     public static void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
-        drawable.setTintMode(tintMode);
+        if (drawable instanceof DrawableWrapper) {
+            ((DrawableWrapper) drawable).setTintMode(tintMode);
+        }
+    }
+
+    public static Drawable wrapForTinting(Drawable drawable) {
+        if (!(drawable instanceof DrawableWrapperDonut)) {
+            return new DrawableWrapperDonut(drawable);
+        }
+        return drawable;
     }
 
 }

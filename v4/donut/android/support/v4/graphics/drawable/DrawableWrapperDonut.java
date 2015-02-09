@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.graphics.drawable;
+package android.support.v4.graphics.drawable;
 
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
@@ -23,22 +23,25 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.view.View;
 
 /**
- * Drawable which delegates all calls to it's wrapped {@link Drawable}.
+ * Drawable which delegates all calls to it's wrapped {@link android.graphics.drawable.Drawable}.
  * <p>
- * The wrapped {@link Drawable} <em>must</em> be fully released from any {@link View}
- * before wrapping, otherwise internal {@link Drawable.Callback} may be dropped.
- *
- * @hide
+ * Also allows backward compatible tinting via a color or {@link ColorStateList}.
+ * This functionality is accessed via static methods in {@code DrawableCompat}.
  */
-public class DrawableWrapper extends Drawable implements Drawable.Callback {
+class DrawableWrapperDonut extends Drawable implements Drawable.Callback, DrawableWrapper {
 
-    private Drawable mDrawable;
+    static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
 
-    public DrawableWrapper(Drawable drawable) {
+    private ColorStateList mTintList;
+    private PorterDuff.Mode mTintMode = DEFAULT_MODE;
+
+    private int mCurrentColor = Integer.MIN_VALUE;
+
+    Drawable mDrawable;
+
+    DrawableWrapperDonut(Drawable drawable) {
         setWrappedDrawable(drawable);
     }
 
@@ -84,21 +87,19 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
 
     @Override
     public boolean isStateful() {
-        return mDrawable.isStateful();
+        return (mTintList != null && mTintList.isStateful()) || mDrawable.isStateful();
     }
 
     @Override
     public boolean setState(final int[] stateSet) {
-        return mDrawable.setState(stateSet);
+        boolean handled = mDrawable.setState(stateSet);
+        handled = updateTint(stateSet) || handled;
+        return handled;
     }
 
     @Override
     public int[] getState() {
         return mDrawable.getState();
-    }
-
-    public void jumpToCurrentState() {
-        DrawableCompat.jumpToCurrentState(mDrawable);
     }
 
     @Override
@@ -146,6 +147,18 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
         return mDrawable.getPadding(padding);
     }
 
+    @Override
+    public Drawable mutate() {
+        Drawable wrapped = mDrawable;
+        Drawable mutated = wrapped.mutate();
+        if (mutated != wrapped) {
+            // If mutate() returned a new instance, update our reference
+            setWrappedDrawable(mutated);
+        }
+        // We return ourselves, since only the wrapped drawable needs to mutate
+        return this;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -173,44 +186,44 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public void setAutoMirrored(boolean mirrored) {
-        DrawableCompat.setAutoMirrored(mDrawable, mirrored);
-    }
-
-    @Override
-    public boolean isAutoMirrored() {
-        return DrawableCompat.isAutoMirrored(mDrawable);
-    }
-
-    @Override
     public void setTint(int tint) {
-        DrawableCompat.setTint(mDrawable, tint);
+        setTintList(ColorStateList.valueOf(tint));
     }
 
     @Override
     public void setTintList(ColorStateList tint) {
-        DrawableCompat.setTintList(mDrawable, tint);
+        mTintList = tint;
+        updateTint(getState());
     }
 
     @Override
     public void setTintMode(PorterDuff.Mode tintMode) {
-        DrawableCompat.setTintMode(mDrawable, tintMode);
+        mTintMode = tintMode;
+        updateTint(getState());
     }
 
-    @Override
-    public void setHotspot(float x, float y) {
-        DrawableCompat.setHotspot(mDrawable, x, y);
+    private boolean updateTint(int[] state) {
+        if (mTintList != null && mTintMode != null) {
+            final int color = mTintList.getColorForState(state, mTintList.getDefaultColor());
+            if (color != mCurrentColor) {
+                setColorFilter(color, mTintMode);
+                mCurrentColor = color;
+                return true;
+            }
+        }
+        return false;
     }
 
-    @Override
-    public void setHotspotBounds(int left, int top, int right, int bottom) {
-        DrawableCompat.setHotspotBounds(mDrawable, left, top, right, bottom);
-    }
-
+    /**
+     * Returns the wrapped {@link Drawable}
+     */
     public Drawable getWrappedDrawable() {
         return mDrawable;
     }
 
+    /**
+     * Sets the current wrapped {@link Drawable}
+     */
     public void setWrappedDrawable(Drawable drawable) {
         if (mDrawable != null) {
             mDrawable.setCallback(null);
@@ -221,5 +234,7 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
         if (drawable != null) {
             drawable.setCallback(this);
         }
+        // Invalidate ourselves
+        invalidateSelf();
     }
 }

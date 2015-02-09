@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,16 @@
 
 package android.support.v4.graphics.drawable;
 
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
 /**
- * Implementation of drawable compatibility that can call KitKat APIs.
+ * Implementation of drawable compatibility that can call Lollipop-MR1 APIs.
  */
-class DrawableCompatKitKat {
-    public static void setAutoMirrored(Drawable drawable, boolean mirrored) {
-        drawable.setAutoMirrored(mirrored);
-    }
-
-    public static boolean isAutoMirrored(Drawable drawable) {
-        return drawable.isAutoMirrored();
-    }
+class DrawableCompatApi22 {
 
     public static Drawable wrapForTinting(Drawable drawable) {
-        if (!(drawable instanceof DrawableWrapperKitKat)) {
-            return new DrawableWrapperKitKat(drawable);
-        }
+        // We don't need to wrap anything in Lollipop-MR1
         return drawable;
     }
+
 }
