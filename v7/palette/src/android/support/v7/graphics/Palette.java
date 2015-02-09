@@ -19,6 +19,7 @@ package android.support.v7.graphics;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v4.os.AsyncTaskCompat;
 import android.util.TimingLogger;
 
@@ -315,9 +316,8 @@ public final class Palette {
          */
         public float[] getHsl() {
             if (mHsl == null) {
-                // Lazily generate HSL values from RGB
                 mHsl = new float[3];
-                ColorUtils.RGBtoHSL(mRed, mGreen, mBlue, mHsl);
+                ColorUtils.RGBToHSL(mRed, mGreen, mBlue, mHsl);
             }
             return mHsl;
         }
@@ -350,36 +350,40 @@ public final class Palette {
         private void ensureTextColorsGenerated() {
             if (!mGeneratedTextColors) {
                 // First check white, as most colors will be dark
-                final int lightBody = ColorUtils.getTextColorForBackground(
-                        mRgb, Color.WHITE,  MIN_CONTRAST_BODY_TEXT);
-                final int lightTitle = ColorUtils.getTextColorForBackground(
-                        mRgb, Color.WHITE, MIN_CONTRAST_TITLE_TEXT);
+                final int lightBodyAlpha = ColorUtils.calculateMinimumAlpha(
+                        Color.WHITE, mRgb, MIN_CONTRAST_BODY_TEXT);
+                final int lightTitleAlpha = ColorUtils.calculateMinimumAlpha(
+                        Color.WHITE, mRgb, MIN_CONTRAST_TITLE_TEXT);
 
-                if (lightBody != -1 && lightTitle != -1) {
+                if (lightBodyAlpha != -1 && lightTitleAlpha != -1) {
                     // If we found valid light values, use them and return
-                    mBodyTextColor = lightBody;
-                    mTitleTextColor = lightTitle;
+                    mBodyTextColor = ColorUtils.setAlphaComponent(Color.WHITE, lightBodyAlpha);
+                    mTitleTextColor = ColorUtils.setAlphaComponent(Color.WHITE, lightTitleAlpha);
                     mGeneratedTextColors = true;
                     return;
                 }
 
-                final int darkBody = ColorUtils.getTextColorForBackground(
-                        mRgb, Color.BLACK, MIN_CONTRAST_BODY_TEXT);
-                final int darkTitle = ColorUtils.getTextColorForBackground(
-                        mRgb, Color.BLACK, MIN_CONTRAST_TITLE_TEXT);
+                final int darkBodyAlpha = ColorUtils.calculateMinimumAlpha(
+                        Color.BLACK, mRgb, MIN_CONTRAST_BODY_TEXT);
+                final int darkTitleAlpha = ColorUtils.calculateMinimumAlpha(
+                        Color.BLACK, mRgb, MIN_CONTRAST_TITLE_TEXT);
 
-                if (darkBody != -1 && darkBody != -1) {
+                if (darkBodyAlpha != -1 && darkBodyAlpha != -1) {
                     // If we found valid dark values, use them and return
-                    mBodyTextColor = darkBody;
-                    mTitleTextColor = darkTitle;
+                    mBodyTextColor = ColorUtils.setAlphaComponent(Color.BLACK, darkBodyAlpha);
+                    mTitleTextColor = ColorUtils.setAlphaComponent(Color.BLACK, darkTitleAlpha);
                     mGeneratedTextColors = true;
                     return;
                 }
 
                 // If we reach here then we can not find title and body values which use the same
                 // lightness, we need to use mismatched values
-                mBodyTextColor = lightBody != -1 ? lightBody : darkBody;
-                mTitleTextColor = lightTitle != -1 ? lightTitle : darkTitle;
+                mBodyTextColor = lightBodyAlpha != -1
+                        ? ColorUtils.setAlphaComponent(Color.WHITE, lightBodyAlpha)
+                        : ColorUtils.setAlphaComponent(Color.BLACK, darkBodyAlpha);
+                mTitleTextColor = lightTitleAlpha != -1
+                        ? ColorUtils.setAlphaComponent(Color.WHITE, lightTitleAlpha)
+                        : ColorUtils.setAlphaComponent(Color.BLACK, darkTitleAlpha);
                 mGeneratedTextColors = true;
             }
         }
