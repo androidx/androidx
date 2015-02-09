@@ -19,6 +19,7 @@ package android.support.v7.internal.widget;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.support.v4.graphics.ColorUtils;
 import android.util.TypedValue;
 
 class ThemeUtils {
@@ -33,8 +34,8 @@ class ThemeUtils {
 
         if (context.getTheme().resolveAttribute(android.R.attr.disabledAlpha, tv, true)) {
             // Alter the original text color's alpha to disabledAlpha
-            final int disabledColor = (textColor & 0x00ffffff) |
-                    (Math.round(Color.alpha(textColor) * tv.getFloat()) << 24);
+            final int disabledColor = ColorUtils.setAlphaComponent(textColor,
+                    Math.round(Color.alpha(textColor) * tv.getFloat()));
 
             // Now create a new ColorStateList with the default color, and the new disabled
             // color
