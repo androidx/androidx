@@ -457,7 +457,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
         runTestOnUiThread(mVerifyLayout);
 
-        sendRepeatedKeys(100, KeyEvent.KEYCODE_DPAD_DOWN);
+        scrollToEnd(mVerifyLayout);
         scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
