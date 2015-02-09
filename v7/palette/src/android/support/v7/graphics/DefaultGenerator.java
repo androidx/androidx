@@ -16,6 +16,7 @@
 
 package android.support.v7.graphics;
 
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.graphics.Palette.Swatch;
 
 import java.util.List;
@@ -125,7 +126,7 @@ class DefaultGenerator extends Palette.Generator {
                 // ...but we do have a dark vibrant, generate the value by modifying the luma
                 final float[] newHsl = copyHslValues(mDarkVibrantSwatch);
                 newHsl[2] = TARGET_NORMAL_LUMA;
-                mVibrantSwatch = new Swatch(ColorUtils.HSLtoRGB(newHsl), 0);
+                mVibrantSwatch = new Swatch(ColorUtils.HSLToColor(newHsl), 0);
             }
         }
 
@@ -135,7 +136,7 @@ class DefaultGenerator extends Palette.Generator {
                 // ...but we do have a vibrant, generate the value by modifying the luma
                 final float[] newHsl = copyHslValues(mVibrantSwatch);
                 newHsl[2] = TARGET_DARK_LUMA;
-                mDarkVibrantSwatch = new Swatch(ColorUtils.HSLtoRGB(newHsl), 0);
+                mDarkVibrantSwatch = new Swatch(ColorUtils.HSLToColor(newHsl), 0);
             }
         }
     }

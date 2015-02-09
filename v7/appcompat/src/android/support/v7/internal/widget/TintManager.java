@@ -25,6 +25,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
@@ -481,7 +482,7 @@ public final class TintManager {
         final int originalAlpha = Color.alpha(color);
 
         // Return the color, multiplying the original alpha by the disabled value
-        return (color & 0x00ffffff) | (Math.round(originalAlpha * alpha) << 24);
+        return ColorUtils.setAlphaComponent(color, Math.round(originalAlpha * alpha));
     }
 
     private int getDisabledThemeAttrColor(int attr) {
