@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2015 The Android Open Source Project
+<!--
+     Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,11 +15,18 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.v7.vectordrawable">
-    <uses-sdk android:minSdkVersion="7"/>
+    package="android.support.v7.vectordrawable" >
 
-    <application>
-        <activity android:name="android.support.v7.vectordrawable.TestActivity"/>
+    <uses-sdk android:minSdkVersion="7" />
+
+    <application android:icon="@drawable/app_sample_code" android:label="VectorSupportTest" >
+        <activity android:name="android.support.v7.vectordrawable.TestActivity" />
+
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
     </application>
 
 </manifest>
